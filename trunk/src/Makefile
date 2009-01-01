@@ -1,10 +1,10 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.1 2008-12-31 12:19:27 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.2 2009-01-01 19:22:11 amb Exp $
 #
 # Makefile
 #
 # Written by Andrew M. Bishop
 #
-# This file Copyright 2008 Andrew M. Bishop
+# This file Copyright 2008,2009 Andrew M. Bishop
 # It may be distributed under the GNU Public License, version 2, or
 # any higher version.  See section COPYING of the GNU Public license
 # for conditions under which this file may be redistributed.
@@ -17,7 +17,8 @@ LD=gcc
 # Program options
 
 CFLAGS=-pg -g -O0 -Wall -Wmissing-prototypes
-LDFLAGS=-L/usr/lib/debug -static -lm -lc -pg
+#LDFLAGS=-lm
+LDFLAGS=-static -lm -lc -pg
 
 # Compilation targets
 
