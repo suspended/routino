@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.1 2008-12-31 12:20:17 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.2 2009-01-01 20:01:14 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
  Written by Andrew M. Bishop
 
- This file Copyright 2008 Andrew M. Bishop
+ This file Copyright 2008,2009 Andrew M. Bishop
  It may be distributed under the GNU Public License, version 2, or
  any higher version.  See section COPYING of the GNU Public license
  for conditions under which this file may be redistributed.
@@ -35,7 +35,18 @@ int SaveNodeList(const char *filename);
 Node *FindNode(node_t id);
 
 void AppendNode(node_t id,latlong_t latitude,latlong_t longitude);
-void SortNodeList(void);
+
+
+/* In ways.c */
+
+int NewWayList(void);
+
+int LoadWayList(const char *filename);
+int SaveWayList(const char *filename);
+
+Way *FindWay(way_t id);
+
+void AppendWay(way_t id,const char *name);
 
 
 /* In segments.c */
@@ -49,7 +60,6 @@ Segment *FindFirstSegment(node_t node);
 Segment *FindNextSegment(Segment *segment);
 
 void AppendSegment(node_t node1,node_t node2,way_t way,distance_t distance,duration_t duration);
-void SortSegmentList(void);
 
 distance_t SegmentLength(Node *node1,Node *node2);
 

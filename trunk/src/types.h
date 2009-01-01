@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.1 2008-12-31 12:21:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.2 2009-01-01 20:01:14 amb Exp $
 
  Type definitions
  ******************/ /******************
  Written by Andrew M. Bishop
 
- This file Copyright 2008 Andrew M. Bishop
+ This file Copyright 2008,2009 Andrew M. Bishop
  It may be distributed under the GNU Public License, version 2, or
  any higher version.  See section COPYING of the GNU Public license
  for conditions under which this file may be redistributed.
@@ -34,7 +34,7 @@ typedef uint32_t distance_t;
 typedef uint32_t duration_t;
 
 
-/*+ A structure containing a single nodes. +*/
+/*+ A structure containing a single node. +*/
 typedef struct _Node
 {
  node_t    id;                  /*+ The node identifier. +*/
@@ -53,6 +53,26 @@ typedef struct _Nodes
                                     the end of this structure). +*/
 }
  Nodes;
+
+
+/*+ A structure containing a single way. +*/
+typedef struct _Way
+{
+ way_t     id;                  /*+ The way identifier. +*/
+ off_t     name;                /*+ An offset into the array of names. +*/
+}
+ Way;
+
+/*+ A structure containing a set of ways. +*/
+typedef struct _Ways
+{
+ uint32_t alloced;              /*+ The amount of space allocated for ways in the array +*/
+ uint32_t number;               /*+ The number of occupied ways in the array +*/
+ Way ways[1024];                /*+ An array of ways whose size is not
+                                    necessarily limited to 1024 (i.e. may overflow
+                                    the end of this structure). +*/
+}
+ Ways;
 
 
 /*+ A structure containing a single segment +*/

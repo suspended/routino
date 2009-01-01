@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.1 2008-12-31 12:21:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.2 2009-01-01 20:01:14 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
  Written by Andrew M. Bishop
 
- This file Copyright 2008 Andrew M. Bishop
+ This file Copyright 2008,2009 Andrew M. Bishop
  It may be distributed under the GNU Public License, version 2, or
  any higher version.  See section COPYING of the GNU Public license
  for conditions under which this file may be redistributed.
@@ -28,27 +28,8 @@ static int sorted=0;
 
 /* Functions */
 
+static void sort_segment_list(void);
 static int sort_by_id(Segment *a,Segment *b);
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Create a new segment list.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int NewSegmentList(void)
-{
- OSMSegments=(Segments*)malloc(sizeof(Segments));
-
- if(!OSMSegments)
-    return(1);
-
- OSMSegments->alloced=sizeof(OSMSegments->segments)/sizeof(OSMSegments->segments[0]);
- OSMSegments->number=0;
-
- sorted=0;
-
- return(0);
-}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -80,7 +61,7 @@ int SaveSegmentList(const char *filename)
  size_t alloced;
 
  if(!sorted)
-    SortSegmentList();
+    sort_segment_list();
 
  alloced=OSMSegments->alloced;
  OSMSegments->alloced=OSMSegments->number;
@@ -109,7 +90,7 @@ Segment *FindFirstSegment(node_t node)
  int found;
 
  if(!sorted)
-    SortSegmentList();
+    sort_segment_list();
 
  /* Binary search - search key exact match only is required.
   *
@@ -199,12 +180,26 @@ Segment *FindNextSegment(Segment *segment)
 
 void AppendSegment(node_t node1,node_t node2,way_t way,distance_t distance,duration_t duration)
 {
+ /* Check that the whole thing is allocated. */
+
+ if(!OSMSegments)
+   {
+    OSMSegments=(Segments*)malloc(sizeof(Segments));
+
+    OSMSegments->alloced=sizeof(OSMSegments->segments)/sizeof(OSMSegments->segments[0]);
+    OSMSegments->number=0;
+   }
+
+ /* Check that the arrays have enough space. */
+
  if(OSMSegments->number==OSMSegments->alloced)
    {
     OSMSegments=(Segments*)realloc((void*)OSMSegments,sizeof(Segments)-sizeof(OSMSegments->segments)+(OSMSegments->alloced+INCREMENT)*sizeof(Segment));
 
     OSMSegments->alloced+=INCREMENT;
    }
+
+ /* Insert the segment */
 
  OSMSegments->segments[OSMSegments->number].node1=node1;
  OSMSegments->segments[OSMSegments->number].node2=node2;
@@ -222,7 +217,7 @@ void AppendSegment(node_t node1,node_t node2,way_t way,distance_t distance,durat
   Sort the segment list.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortSegmentList(void)
+static void sort_segment_list(void)
 {
  qsort(OSMSegments->segments,OSMSegments->number,sizeof(Segment),(int (*)(const void*,const void*))sort_by_id);
 

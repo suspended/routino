@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.1 2008-12-31 12:20:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.2 2009-01-01 20:01:14 amb Exp $
 
  Node data type functions.
  ******************/ /******************
  Written by Andrew M. Bishop
 
- This file Copyright 2008 Andrew M. Bishop
+ This file Copyright 2008,2009 Andrew M. Bishop
  It may be distributed under the GNU Public License, version 2, or
  any higher version.  See section COPYING of the GNU Public license
  for conditions under which this file may be redistributed.
@@ -27,27 +27,8 @@ static int sorted=0;
 
 /* Functions */
 
+static void sort_node_list(void);
 static int sort_by_id(Node *a,Node *b);
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Create a new node list.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int NewNodeList(void)
-{
- OSMNodes=(Nodes*)malloc(sizeof(Nodes));
-
- if(!OSMNodes)
-    return(1);
-
- OSMNodes->alloced=sizeof(OSMNodes->nodes)/sizeof(OSMNodes->nodes[0]);
- OSMNodes->number=0;
-
- sorted=0;
-
- return(0);
-}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -79,7 +60,7 @@ int SaveNodeList(const char *filename)
  size_t alloced;
 
  if(!sorted)
-    SortNodeList();
+    sort_node_list();
 
  alloced=OSMNodes->alloced;
  OSMNodes->alloced=OSMNodes->number;
@@ -107,7 +88,7 @@ Node *FindNode(node_t id)
  int mid;
 
  if(!sorted)
-    SortNodeList();
+    sort_node_list();
 
  /* Binary search - search key exact match only is required.
   *
@@ -164,12 +145,26 @@ Node *FindNode(node_t id)
 
 void AppendNode(node_t id,latlong_t latitude,latlong_t longitude)
 {
+ /* Check that the whole thing is allocated. */
+
+ if(!OSMNodes)
+   {
+    OSMNodes=(Nodes*)malloc(sizeof(Nodes));
+
+    OSMNodes->alloced=sizeof(OSMNodes->nodes)/sizeof(OSMNodes->nodes[0]);
+    OSMNodes->number=0;
+   }
+
+ /* Check that the arrays have enough space. */
+
  if(OSMNodes->number==OSMNodes->alloced)
    {
     OSMNodes=(Nodes*)realloc((void*)OSMNodes,sizeof(Nodes)-sizeof(OSMNodes->nodes)+(OSMNodes->alloced+INCREMENT)*sizeof(Node));
 
     OSMNodes->alloced+=INCREMENT;
    }
+
+ /* Insert the node */
 
  OSMNodes->nodes[OSMNodes->number].id=id;
  OSMNodes->nodes[OSMNodes->number].latitude=latitude;
@@ -185,7 +180,7 @@ void AppendNode(node_t id,latlong_t latitude,latlong_t longitude)
   Sort the node list.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortNodeList(void)
+static void sort_node_list(void)
 {
  qsort(OSMNodes->nodes,OSMNodes->number,sizeof(Node),(int (*)(const void*,const void*))sort_by_id);
 
