@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.1 2008-12-31 12:20:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.2 2009-01-01 19:22:12 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
  Written by Andrew M. Bishop
 
- This file Copyright 2008 Andrew M. Bishop
+ This file Copyright 2008,2009 Andrew M. Bishop
  It may be distributed under the GNU Public License, version 2, or
  any higher version.  See section COPYING of the GNU Public license
  for conditions under which this file may be redistributed.
@@ -152,10 +152,10 @@ void FindRoute(node_t start,node_t finish)
 
        crow=SegmentLength(Node2,Finish);
 
-       if(shortest_distance2>shortest_distancefinish && quickest_duration2>quickest_durationfinish)
+       if((crow+shortest_distance2)>(10000+1.4*totalcrow))
           goto endloop;
 
-       if((crow+shortest_distance2)>(10000+1.4*totalcrow))
+       if(shortest_distance2>shortest_distancefinish && quickest_duration2>quickest_durationfinish)
           goto endloop;
 
        if(!result2)                         /* New end node */
@@ -251,6 +251,7 @@ void PrintRoute(node_t start,node_t finish)
 {
  FILE *file;
  Result *result;
+// int i,j;
 
  /* Print the result for the shortest route */
 
@@ -312,7 +313,35 @@ void PrintRoute(node_t start,node_t finish)
    }
  while(result);
 
- fclose(file);
+ /* Print all the distance results. */
+
+// file=fopen("distance.txt","w");
+//
+// for(i=0;i<NBINS;i++)
+//    for(j=0;j<OSMResults->number[i];j++)
+//      {
+//       result=OSMResults->results[i][j];
+//
+//       fprintf(file,"%9.5f %9.5f 0 %5.3f\n",result->Node->latitude,result->Node->longitude,
+//               (double)result->shortest_distance/1000.0);
+//      }
+//
+// fclose(file);
+
+ /* Print all the duration results. */
+
+// file=fopen("duration.txt","w");
+//
+// for(i=0;i<NBINS;i++)
+//    for(j=0;j<OSMResults->number[i];j++)
+//      {
+//       result=OSMResults->results[i][j];
+//
+//       fprintf(file,"%9.5f %9.5f 0 %5.3f\n",result->Node->latitude,result->Node->longitude,
+//               (double)result->quickest_duration/60000.0);
+//      }
+//
+// fclose(file);
 }
 
 
