@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.1 2008-12-31 12:20:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.2 2009-01-02 11:33:47 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
  Written by Andrew M. Bishop
 
- This file Copyright 2008 Andrew M. Bishop
+ This file Copyright 2008,2009 Andrew M. Bishop
  It may be distributed under the GNU Public License, version 2, or
  any higher version.  See section COPYING of the GNU Public license
  for conditions under which this file may be redistributed.
@@ -133,7 +133,7 @@ int ParseXML(FILE *file)
              node_t to  =way_nodes[i];
 
              distance_t distance=SegmentLength(FindNode(from),FindNode(to));
-             duration_t duration=(3600000.0/1000.0)*((double)distance/speed);
+             duration_t duration=hours_to_duration(distance_to_km(distance)/speed);
 
              AppendSegment(from,to,way_id,distance,duration);
 
