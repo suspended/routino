@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.2 2009-01-01 19:22:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.3 2009-01-02 11:33:47 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -87,8 +87,8 @@ void FindRoute(node_t start,node_t finish)
  duration_t shortest_duration1,shortest_duration2=0;
  distance_t quickest_distance1,quickest_distance2=0;
  duration_t quickest_duration1,quickest_duration2=0;
- distance_t deltadistance;
- duration_t deltaduration;
+ distance_short_t deltadistance;
+ duration_short_t deltaduration;
  distance_t totalcrow,crow;
  distance_t shortest_distancefinish=~0,quickest_distancefinish=~0;
  duration_t shortest_durationfinish=~0,quickest_durationfinish=~0;
@@ -152,7 +152,7 @@ void FindRoute(node_t start,node_t finish)
 
        crow=SegmentLength(Node2,Finish);
 
-       if((crow+shortest_distance2)>(10000+1.4*totalcrow))
+       if((crow+shortest_distance2)>(km_to_distance(10)+1.4*totalcrow))
           goto endloop;
 
        if(shortest_distance2>shortest_distancefinish && quickest_duration2>quickest_durationfinish)
@@ -227,14 +227,14 @@ void FindRoute(node_t start,node_t finish)
     if(!(nresults%1000))
       {
        printf("\rRouting: End Nodes=%d Queue=%d Journey=%.1fkm,%.0fmin  ",nresults,OSMQueue->number,
-              (double)shortest_distance2/1000.0,(double)quickest_duration2/60000.0);
+              distance_to_km(shortest_distance2),duration_to_minutes(quickest_duration2));
        fflush(stdout);
       }
    }
 
  printf("\rRouted: End Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin\n",nresults,
-        (double)shortest_distancefinish/1000.0,(double)shortest_durationfinish/60000.0,
-        (double)quickest_distancefinish/1000.0,(double)quickest_durationfinish/60000.0);
+        distance_to_km(shortest_distancefinish),duration_to_minutes(shortest_durationfinish),
+        distance_to_km(quickest_distancefinish),duration_to_minutes(quickest_durationfinish));
  fflush(stdout);
 }
 
@@ -269,7 +269,8 @@ void PrintRoute(node_t start,node_t finish)
           segment=FindNextSegment(segment);
 
        fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3.0f\n",result->Node->latitude,result->Node->longitude,result->node,
-               (double)segment->distance/1000.0,(double)segment->duration/60000.0,(3600000.0/1000.0)*((double)segment->distance/(double)segment->duration));
+               distance_to_km(segment->distance),duration_to_minutes(segment->duration),
+               distance_to_km(segment->distance)/duration_to_minutes(segment->duration));
 
        result=find_result(result->shortest_Prev->id);
       }
@@ -300,7 +301,8 @@ void PrintRoute(node_t start,node_t finish)
           segment=FindNextSegment(segment);
 
        fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3.0f\n",result->Node->latitude,result->Node->longitude,result->node,
-               (double)segment->distance/1000.0,(double)segment->duration/60000.0,(3600000.0/1000.0)*((double)segment->distance/(double)segment->duration));
+               distance_to_km(segment->distance),duration_to_minutes(segment->duration),
+               distance_to_km(segment->distance)/duration_to_minutes(segment->duration));
 
        result=find_result(result->quickest_Prev->id);
       }
@@ -323,7 +325,7 @@ void PrintRoute(node_t start,node_t finish)
 //       result=OSMResults->results[i][j];
 //
 //       fprintf(file,"%9.5f %9.5f 0 %5.3f\n",result->Node->latitude,result->Node->longitude,
-//               (double)result->shortest_distance/1000.0);
+//               distance_to_km(result->shortest_distance));
 //      }
 //
 // fclose(file);
@@ -338,7 +340,7 @@ void PrintRoute(node_t start,node_t finish)
 //       result=OSMResults->results[i][j];
 //
 //       fprintf(file,"%9.5f %9.5f 0 %5.3f\n",result->Node->latitude,result->Node->longitude,
-//               (double)result->quickest_duration/60000.0);
+//               duration_to_minutes(result->quickest_duration));
 //      }
 //
 // fclose(file);

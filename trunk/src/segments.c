@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.2 2009-01-01 20:01:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.3 2009-01-02 11:33:47 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -171,11 +171,11 @@ Segment *FindNextSegment(Segment *segment)
 
   node_t node2 The second node in the segment.
 
-  way_t way THe way that the pair of segments are connected by.
+  way_t way The way that the pair of segments are connected by.
 
-  distance_t distance The distane between the two nodes.
+  distance_t distance The distance between the two nodes.
 
-  duration_t duration The distane between the two nodes.
+  duration_t duration The duration between the two nodes.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void AppendSegment(node_t node1,node_t node2,way_t way,distance_t distance,duration_t duration)
@@ -277,7 +277,7 @@ distance_t SegmentLength(Node *node1,Node *node2)
    {c = 2 * asin (sa);}
  else
    {c = 2 * asin (1.0);}
- d = 6378137 * c;
+ d = 6378.137 * c;
 
- return d;
+ return km_to_distance(d);
 }
