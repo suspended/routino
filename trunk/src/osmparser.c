@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.2 2009-01-02 11:33:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.3 2009-01-03 12:25:23 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -40,7 +40,7 @@ int ParseXML(FILE *file)
  long nnodes=0,nways=0,nrelations=0;
  int isnode=0,isway=0,isrelation=0;
  way_t way_id=0;
- int way_oneway=0;
+ int way_oneway=0,way_roundabout=0;
  float way_maxspeed=0;
  char *way_highway=NULL,*way_name=NULL,*way_ref=NULL,*way_access=NULL;
  node_t *way_nodes=NULL;
@@ -85,6 +85,7 @@ int ParseXML(FILE *file)
        m=strstr(l,"id="); m+=3; if(*m=='"' || *m=='\'') m++; way_id=atol(m);
 
        way_oneway=0;
+       way_roundabout=0;
        way_maxspeed=0;
        way_name=NULL; way_ref=NULL;
        way_nnodes=0;
@@ -116,16 +117,24 @@ int ParseXML(FILE *file)
 
        if(speed)
          {
-//       if($ref && $name)
-//         {$refname="$name ($ref)";}
-//       if($ref && !$name)
-//         {$refname=$ref;}
-//       if(!$ref && $name)
-//         {$refname=$name;}
-//       if(!$ref && !$name)
-//         {$refname="unamed $highway road";}
-//
-//       print WAYS "$id\t$refname\n";
+          char *refname;
+
+          if(way_ref && way_name)
+            {
+             refname=(char*)malloc(strlen(way_ref)+strlen(way_name)+4);
+             sprintf(refname,"%s (%s)",way_name,way_ref);
+            }
+          else if(way_ref && !way_name)
+             refname=way_ref;
+          else if(!way_ref && way_name)
+             refname=way_name;
+          else if(way_roundabout)
+            {
+             refname=(char*)malloc(strlen(way_highway)+12);
+             sprintf(refname,"%s roundabout",way_highway);
+            }
+          else /* if(!way_ref && !way_name && !way_roundabout) */
+             refname=way_highway;
 
           for(i=1;i<way_nnodes;i++)
             {
@@ -139,10 +148,12 @@ int ParseXML(FILE *file)
 
              if(!way_oneway)
                 AppendSegment(to,from,way_id,distance,duration);
-
-//          $junctions{$from}++;
-//          $junctions{$to}++;
             }
+
+          AppendWay(way_id,refname);
+
+          if(refname!=way_ref && refname!=way_name && refname!=way_highway)
+             free(refname);
          }
 
        if(way_highway) {free(way_highway); way_highway=NULL;}
@@ -188,7 +199,7 @@ int ParseXML(FILE *file)
           while(*m!=delimiter) m++; *m=0;
 
           if(!strcmp(k,"oneway") && (!strcmp(v,"true") || !strcmp(v,"yes"))) way_oneway=1;
-          if(!strcmp(k,"junction") && !strcmp(v,"roundabout")) way_oneway=1;
+          if(!strcmp(k,"junction") && !strcmp(v,"roundabout")) {way_oneway=1; way_roundabout=1;}
           if(!strcmp(k,"highway") && !strncmp(v,"motorway",8)) way_oneway=1;
 
           if(!strcmp(k,"highway"))

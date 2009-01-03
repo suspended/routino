@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.3 2009-01-02 11:33:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.4 2009-01-03 12:25:24 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -67,8 +67,8 @@ typedef struct _Node
 /*+ A structure containing a set of nodes. +*/
 typedef struct _Nodes
 {
- uint32_t alloced;              /*+ The amount of space allocated for nodes in the array +*/
- uint32_t number;               /*+ The number of occupied nodes in the array +*/
+ uint32_t alloced;              /*+ The amount of space allocated for nodes in the array. +*/
+ uint32_t number;               /*+ The number of occupied nodes in the array. +*/
  Node     nodes[1024];          /*+ An array of nodes whose size is not
                                     necessarily limited to 1024 (i.e. may overflow
                                     the end of this structure). +*/
@@ -88,8 +88,9 @@ typedef struct _Way
 /*+ A structure containing a set of ways. +*/
 typedef struct _Ways
 {
- uint32_t alloced;              /*+ The amount of space allocated for ways in the array +*/
- uint32_t number;               /*+ The number of occupied ways in the array +*/
+ uint32_t alloced;              /*+ The amount of space allocated for ways in the array. +*/
+ uint32_t number;               /*+ The number of occupied ways in the array. +*/
+ uint32_t number_str;           /*+ The number of strings appended to the array of ways. +*/
  Way      ways[1024];           /*+ An array of ways whose size is not
                                     necessarily limited to 1024 (i.e. may overflow
                                     the end of this structure). +*/
@@ -111,8 +112,8 @@ typedef struct _Segment
 /*+ A structure containing a set of segments. +*/
 typedef struct _Segments
 {
- uint32_t alloced;              /*+ The amount of space allocated for segments in the array +*/
- uint32_t number;               /*+ The number of occupied segments in the array +*/
+ uint32_t alloced;              /*+ The amount of space allocated for segments in the array. +*/
+ uint32_t number;               /*+ The number of occupied segments in the array. +*/
  Segment  segments[1024];       /*+ An array of segments whose size is not
                                     necessarily limited to 1024 (i.e. may overflow
                                     the end of this structure). +*/

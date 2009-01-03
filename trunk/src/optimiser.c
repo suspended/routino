@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.3 2009-01-02 11:33:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.4 2009-01-03 12:25:23 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -263,14 +263,19 @@ void PrintRoute(node_t start,node_t finish)
    {
     if(result->shortest_Prev)
       {
-       Segment *segment=FindFirstSegment(result->shortest_Prev->id);
+       Segment *segment;
+       Way *way;
 
+       segment=FindFirstSegment(result->shortest_Prev->id);
        while(segment->node2!=result->Node->id)
           segment=FindNextSegment(segment);
 
-       fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3.0f\n",result->Node->latitude,result->Node->longitude,result->node,
+       way=FindWay(segment->way);
+
+       fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3.0f %s\n",result->Node->latitude,result->Node->longitude,result->node,
                distance_to_km(segment->distance),duration_to_minutes(segment->duration),
-               distance_to_km(segment->distance)/duration_to_minutes(segment->duration));
+               distance_to_km(segment->distance)/duration_to_hours(segment->duration),
+               WayName(way));
 
        result=find_result(result->shortest_Prev->id);
       }
@@ -295,14 +300,19 @@ void PrintRoute(node_t start,node_t finish)
    {
     if(result->quickest_Prev)
       {
-       Segment *segment=FindFirstSegment(result->quickest_Prev->id);
+       Segment *segment;
+       Way *way;
 
+       segment=FindFirstSegment(result->quickest_Prev->id);
        while(segment->node2!=result->Node->id)
           segment=FindNextSegment(segment);
 
-       fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3.0f\n",result->Node->latitude,result->Node->longitude,result->node,
+       way=FindWay(segment->way);
+
+       fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3.0f %s\n",result->Node->latitude,result->Node->longitude,result->node,
                distance_to_km(segment->distance),duration_to_minutes(segment->duration),
-               distance_to_km(segment->distance)/duration_to_minutes(segment->duration));
+               distance_to_km(segment->distance)/duration_to_hours(segment->duration),
+               WayName(way));
 
        result=find_result(result->quickest_Prev->id);
       }
