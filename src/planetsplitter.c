@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.2 2009-01-01 20:01:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.3 2009-01-03 12:25:23 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -30,6 +30,10 @@ int main(int argc,char** argv)
  printf("Saving Nodes"); fflush(stdout);
  SaveNodeList("data/nodes.mem");
  printf("\rSaved Nodes \n"); fflush(stdout);
+
+ printf("Saving Ways"); fflush(stdout);
+ SaveWayList("data/ways.mem");
+ printf("\rSaved Ways \n"); fflush(stdout);
 
  printf("Saving Segments"); fflush(stdout);
  SaveSegmentList("data/segments.mem");

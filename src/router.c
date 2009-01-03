@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.2 2009-01-01 19:22:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.3 2009-01-03 12:25:24 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -37,6 +37,7 @@ int main(int argc,char** argv)
  /* Load in the data */
 
  LoadNodeList("data/nodes.mem");
+ LoadWayList("data/ways.mem");
  LoadSegmentList("data/segments.mem");
 
  /* Calculate the route */

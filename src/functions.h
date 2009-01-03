@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.2 2009-01-01 20:01:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.3 2009-01-03 12:25:23 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -45,6 +45,7 @@ int LoadWayList(const char *filename);
 int SaveWayList(const char *filename);
 
 Way *FindWay(way_t id);
+const char *WayName(Way *way);
 
 void AppendWay(way_t id,const char *name);
 
