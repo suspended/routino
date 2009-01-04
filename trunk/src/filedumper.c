@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.3 2009-01-04 17:51:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.4 2009-01-04 19:00:37 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -26,39 +26,18 @@ extern Segments *OSMSegments;
 
 int main(int argc,char** argv)
 {
- Node    *node;
- Way     *way;
- Segment *segment;
-
- /* Check the nodes */
+ /* Examine the nodes */
 
  LoadNodeList("data/nodes.mem");
 
  printf("Nodes\n");
  printf("-----\n");
 
- printf("sizeof(Node)=%d\n",sizeof(Node));
- printf("number=%d\n",OSMNodes->number);
+ printf("sizeof(Node)=%9d Bytes\n",sizeof(Node));
+ printf("number      =%9d\n",OSMNodes->number);
+ printf("total size  =%9d Bytes\n",OSMNodes->number*sizeof(Node));
 
- node=FindNode(OSMNodes->nodes[0].id-1);
- printf("%s find node %d = %d\n",node?"Did":"Didn't",OSMNodes->nodes[0].id-1,node?node->id:0);
-
- node=FindNode(OSMNodes->nodes[0].id);
- printf("%s find node %d = %d\n",node?"Did":"Didn't",OSMNodes->nodes[0].id,node?node->id:0);
-
- node=FindNode(OSMNodes->nodes[OSMNodes->number-1].id);
- printf("%s find node %d = %d\n",node?"Did":"Didn't",OSMNodes->nodes[OSMNodes->number-1].id,node?node->id:0);
-
- node=FindNode(OSMNodes->nodes[OSMNodes->number-1].id+1);
- printf("%s find node %d = %d\n",node?"Did":"Didn't",OSMNodes->nodes[OSMNodes->number-1].id+1,node?node->id:0);
-
- node=FindNode(296954441);
- printf("%s find node %d = %d\n",node?"Did":"Didn't",296954441,node?node->id:0);
-
- node=FindNode(296954440);
- printf("%s find node %d = %d\n",node?"Did":"Didn't",296954440,node?node->id:0);
-
- /* Check the ways */
+ /* Examine the ways */
 
  LoadWayList("data/ways.mem");
 
@@ -66,29 +45,12 @@ int main(int argc,char** argv)
  printf("Ways\n");
  printf("----\n");
 
- printf("sizeof(Way)=%d\n",sizeof(Way));
- printf("number=%d\n",OSMWays->number);
- printf("strings=%d\n",OSMWays->number_str);
+ printf("sizeof(Way)=%9d Bytes\n",sizeof(Way));
+ printf("number     =%9d\n",OSMWays->number);
+ printf("strings    =%9d\n",OSMWays->number_str);
+ printf("total size =%9d Bytes\n",(OSMWays->number+OSMWays->number_str)*sizeof(Way));
 
- way=FindWay(OSMWays->ways[0].id-1);
- printf("%s find way %d = %d\n",way?"Did":"Didn't",OSMWays->ways[0].id-1,way?way->id:0);
-
- way=FindWay(OSMWays->ways[0].id);
- printf("%s find way %d = %d\n",way?"Did":"Didn't",OSMWays->ways[0].id,way?way->id:0);
-
- way=FindWay(OSMWays->ways[OSMWays->number-1].id);
- printf("%s find way %d = %d\n",way?"Did":"Didn't",OSMWays->ways[OSMWays->number-1].id,way?way->id:0);
-
- way=FindWay(OSMWays->ways[OSMWays->number-1].id+1);
- printf("%s find way %d = %d\n",way?"Did":"Didn't",OSMWays->ways[OSMWays->number-1].id+1,way?way->id:0);
-
- way=FindWay(296954441);
- printf("%s find way %d = %d\n",way?"Did":"Didn't",296954441,way?way->id:0);
-
- way=FindWay(296954440);
- printf("%s find way %d = %d\n",way?"Did":"Didn't",296954440,way?way->id:0);
-
- /* Check the segments */
+ /* Examine the segments */
 
  LoadSegmentList("data/segments.mem");
 
@@ -96,26 +58,9 @@ int main(int argc,char** argv)
  printf("Segments\n");
  printf("--------\n");
 
- printf("sizeof(Segment)=%d\n",sizeof(Segment));
- printf("number=%d\n",OSMSegments->number);
-
- segment=FindFirstSegment(OSMSegments->segments[0].node1-1);
- printf("%s find segment %d = %d\n",segment?"Did":"Didn't",OSMSegments->segments[0].node1-1,segment?segment->node1:0);
-
- segment=FindFirstSegment(OSMSegments->segments[0].node1);
- printf("%s find segment %d = %d\n",segment?"Did":"Didn't",OSMSegments->segments[0].node1,segment?segment->node1:0);
-
- segment=FindFirstSegment(OSMSegments->segments[OSMSegments->number-1].node1);
- printf("%s find segment %d = %d\n",segment?"Did":"Didn't",OSMSegments->segments[OSMSegments->number-1].node1,segment?segment->node1:0);
-
- segment=FindFirstSegment(OSMSegments->segments[OSMSegments->number-1].node1+1);
- printf("%s find segment %d = %d\n",segment?"Did":"Didn't",OSMSegments->segments[OSMSegments->number-1].node1+1,segment?segment->node1:0);
-
- segment=FindFirstSegment(296954441);
- printf("%s find segment %d = %d\n",segment?"Did":"Didn't",296954441,segment?segment->node1:0);
-
- segment=FindFirstSegment(296954440);
- printf("%s find segment %d = %d\n",segment?"Did":"Didn't",296954440,segment?segment->node1:0);
+ printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
+ printf("number         =%9d\n",OSMSegments->number);
+ printf("total size     =%9d Bytes\n",OSMSegments->number*sizeof(Segment));
 
  return(0);
 }
