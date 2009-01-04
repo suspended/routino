@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.4 2009-01-03 12:25:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.5 2009-01-04 17:51:23 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -101,7 +101,7 @@ void FindRoute(node_t start,node_t finish)
  Start=FindNode(start);
  Finish=FindNode(finish);
 
- totalcrow=SegmentLength(Start,Finish);
+ totalcrow=Distance(Start,Finish);
 
  /* Insert the first node into the queue */
 
@@ -150,7 +150,7 @@ void FindRoute(node_t start,node_t finish)
        else
           Node2=FindNode(node2);
 
-       crow=SegmentLength(Node2,Finish);
+       crow=Distance(Node2,Finish);
 
        if((crow+shortest_distance2)>(km_to_distance(10)+1.4*totalcrow))
           goto endloop;

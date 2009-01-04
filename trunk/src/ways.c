@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.1 2009-01-03 12:25:36 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.2 2009-01-04 17:51:24 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -27,12 +27,17 @@ Ways *OSMWays=NULL;
 /*+ Is the data sorted and therefore searchable? +*/
 static int sorted=0;
 
+/*+ Is the data loaded from a file and therefore read-only? +*/
+static int loaded=0;
+
+/*+ How many entries are allocated? +*/
+static size_t alloced=0;
+
 /*+ The list of names for the ways before they are merged into the main data structure. +*/
 static char **names=NULL;
 
 /* Functions */
 
-static void sort_way_list(void);
 static int sort_by_id(Way *a,Way *b);
 static int sort_by_name(Way *a,Way *b);
 
@@ -43,14 +48,16 @@ static int sort_by_name(Way *a,Way *b);
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int LoadWayList(const char *filename)
+void LoadWayList(const char *filename)
 {
+ assert(!OSMWays);
+
  OSMWays=(Ways*)MapFile(filename);
 
- if(OSMWays)
-    sorted=1;
+ assert(OSMWays);
 
- return(!OSMWays);
+ sorted=1;
+ loaded=1;
 }
 
 
@@ -60,22 +67,17 @@ int LoadWayList(const char *filename)
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int SaveWayList(const char *filename)
+void SaveWayList(const char *filename)
 {
  int retval;
- size_t alloced;
 
- if(!sorted)
-    sort_way_list();
+ assert(!loaded);               /* Must not be loaded */
 
- alloced=OSMWays->alloced;
- OSMWays->alloced=OSMWays->number+OSMWays->number_str;
+ assert(sorted);                /* Must be sorted */
 
  retval=WriteFile(filename,OSMWays,sizeof(Ways)-sizeof(OSMWays->ways)+(OSMWays->number+OSMWays->number_str)*sizeof(Way));
 
- OSMWays->alloced=alloced;
-
- return(retval);
+ assert(!retval);               /* Must be zero */
 }
 
 
@@ -93,8 +95,7 @@ Way *FindWay(way_t id)
  int end=OSMWays->number-1;
  int mid;
 
- if(!sorted)
-    sort_way_list();
+ assert(sorted);                /* Must be sorted */
 
  /* Binary search - search key exact match only is required.
   *
@@ -149,7 +150,7 @@ Way *FindWay(way_t id)
 
 const char *WayName(Way *way)
 {
- assert(sorted);
+ assert(sorted);                /* Must be sorted */
 
  return((char*)&OSMWays->ways[(off_t)way->name]);
 }
@@ -161,34 +162,37 @@ const char *WayName(Way *way)
   way_t id The way identification.
 
   const char *name The name or reference of the way.
+
+  speed_t speed The speed on the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendWay(way_t id,const char *name)
+void AppendWay(way_t id,const char *name,speed_t speed)
 {
- assert(!sorted);
+ assert(!loaded);               /* Must not be loaded */
+
+ assert(!sorted);               /* Must not be sorted */
 
  /* Check that the whole thing is allocated. */
 
  if(!OSMWays)
    {
-    OSMWays=(Ways*)malloc(sizeof(Ways));
+    alloced=INCREMENT;
+    OSMWays=(Ways*)malloc(sizeof(Ways)-sizeof(OSMWays->ways)+alloced*sizeof(Way));
 
-    OSMWays->alloced=sizeof(OSMWays->ways)/sizeof(OSMWays->ways[0]);
     OSMWays->number=0;
     OSMWays->number_str=0;
 
-    names=(char**)malloc(OSMWays->alloced*sizeof(char*));
+    names=(char**)malloc(alloced*sizeof(char*));
    }
 
  /* Check that the arrays have enough space. */
 
- if(OSMWays->number==OSMWays->alloced)
+ if(OSMWays->number==alloced)
    {
-    OSMWays=(Ways*)realloc((void*)OSMWays,sizeof(Ways)-sizeof(OSMWays->ways)+(OSMWays->alloced+INCREMENT)*sizeof(Way));
+    alloced+=INCREMENT;
+    OSMWays=(Ways*)realloc((void*)OSMWays,sizeof(Ways)-sizeof(OSMWays->ways)+alloced*sizeof(Way));
 
-    OSMWays->alloced+=INCREMENT;
-
-    names=(char**)realloc((void*)names,OSMWays->alloced*sizeof(char*));
+    names=(char**)realloc((void*)names,alloced*sizeof(char*));
    }
 
  /* Insert the way */
@@ -196,7 +200,8 @@ void AppendWay(way_t id,const char *name)
  names[OSMWays->number]=strcpy((char*)malloc(strlen(name)+1),name);
 
  OSMWays->ways[OSMWays->number].id=id;
- OSMWays->ways[OSMWays->number].name=names[OSMWays->number];
+ OSMWays->ways[OSMWays->number].name=OSMWays->number;
+ OSMWays->ways[OSMWays->number].speed=speed;
 
  OSMWays->number++;
 
@@ -208,10 +213,12 @@ void AppendWay(way_t id,const char *name)
   Sort the way list.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void sort_way_list(void)
+void SortWayList(void)
 {
  char *name=NULL;
  int i;
+
+ assert(!loaded);               /* Must not be loaded */
 
  /* Sort the ways by name */
 
@@ -219,27 +226,27 @@ static void sort_way_list(void)
 
  for(i=0;i<OSMWays->number;i++)
    {
-    if(name && !strcmp(name,OSMWays->ways[i].name)) /* Same name */
+    if(name && !strcmp(name,names[OSMWays->ways[i].name])) /* Same name */
       {
-       free(OSMWays->ways[i].name);
+       free(names[OSMWays->ways[i].name]);
        OSMWays->ways[i].name=OSMWays->ways[i-1].name;
       }
     else                                            /* Different name */
       {
-       name=OSMWays->ways[i].name;
+       name=names[OSMWays->ways[i].name];
 
-       if((OSMWays->number+OSMWays->number_str+strlen(name)/sizeof(Way)+1)>=OSMWays->alloced)
+       if((OSMWays->number+OSMWays->number_str+strlen(name)/sizeof(Way)+1)>=alloced)
          {
-          OSMWays=(Ways*)realloc((void*)OSMWays,sizeof(Ways)-sizeof(OSMWays->ways)+(OSMWays->alloced+INCREMENT)*sizeof(Way));
+          alloced+=INCREMENT;
 
-          OSMWays->alloced+=INCREMENT;
+          OSMWays=(Ways*)realloc((void*)OSMWays,sizeof(Ways)-sizeof(OSMWays->ways)+alloced*sizeof(Way));
          }
 
        strcpy((char*)&OSMWays->ways[OSMWays->number+OSMWays->number_str],name);
        free(name);
 
-       OSMWays->ways[i].name=(char*)OSMWays->number+OSMWays->number_str;
-       name=(char*)&OSMWays->ways[(off_t)OSMWays->ways[i].name];
+       OSMWays->ways[i].name=OSMWays->number+OSMWays->number_str;
+       name=(char*)&OSMWays->ways[OSMWays->ways[i].name];
 
        OSMWays->number_str+=strlen(name)/sizeof(Way)+1;
       }
@@ -284,8 +291,8 @@ static int sort_by_id(Way *a,Way *b)
 
 static int sort_by_name(Way *a,Way *b)
 {
- char *a_name=a->name;
- char *b_name=b->name;
+ char *a_name=names[a->name];
+ char *b_name=names[b->name];
 
  return(strcmp(a_name,b_name));
 }

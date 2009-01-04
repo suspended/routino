@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.3 2009-01-03 12:25:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.4 2009-01-04 17:51:23 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -42,7 +42,7 @@ int ParseXML(FILE *file)
  way_t way_id=0;
  int way_oneway=0,way_roundabout=0;
  float way_maxspeed=0;
- char *way_highway=NULL,*way_name=NULL,*way_ref=NULL,*way_access=NULL;
+ char *way_highway=NULL,*way_name=NULL,*way_ref=NULL,*way_access=NULL,*way_car=NULL;
  node_t *way_nodes=NULL;
  int way_nnodes=0,way_nalloc=0;
 
@@ -99,6 +99,7 @@ int ParseXML(FILE *file)
 
        if(!way_highway) speed=0;
        else if(way_access && !strcmp(way_access,"private")) speed=0;
+       else if(way_car && !strcmp(way_car,"no")) speed=0;
        else if(way_maxspeed) speed=way_maxspeed;
        else if(!strncmp(way_highway,"motorway",8)) speed=80*1.6;
        else if(!strncmp(way_highway,"trunk",5) && way_oneway) speed=75*1.6;
@@ -110,10 +111,8 @@ int ParseXML(FILE *file)
        else if(!strcmp(way_highway,"unclassified") || !strcmp(way_highway,"road") || !strcmp(way_highway,"minor")) speed=40*1.6;
        else if(!strcmp(way_highway,"residential")) speed=30*1.6;
        else if(!strcmp(way_highway,"service")) speed=20*1.6;
-//      else if(!strcmp(way_highway =~ m%(track|byway|unsurfaced|unpaved)%) { $speed = 10*1.6; }
+       else if(!strcmp(way_highway,"track") || !strcmp(way_highway,"byway") || !strcmp(way_highway,"unsurfaced") || !strcmp(way_highway,"unpaved")) speed=10*1.6;
 //      else if(!strcmp(way_highway =~ m%(steps|path|walkway|footway|pedestrian|bridleway|cycleway|living_street)%) { $speed = 5*1.6; }
-//      else if(!strcmp(way_highway =~ m%(raceway)%) { next; }
-//      else { print STDERR "\nhighway=$highway\n"; next; }
 
        if(speed)
          {
@@ -130,8 +129,8 @@ int ParseXML(FILE *file)
              refname=way_name;
           else if(way_roundabout)
             {
-             refname=(char*)malloc(strlen(way_highway)+12);
-             sprintf(refname,"%s roundabout",way_highway);
+             refname=(char*)malloc(strlen(way_highway)+14);
+             sprintf(refname,"%s (roundabout)",way_highway);
             }
           else /* if(!way_ref && !way_name && !way_roundabout) */
              refname=way_highway;
@@ -141,16 +140,13 @@ int ParseXML(FILE *file)
              node_t from=way_nodes[i-1];
              node_t to  =way_nodes[i];
 
-             distance_t distance=SegmentLength(FindNode(from),FindNode(to));
-             duration_t duration=hours_to_duration(distance_to_km(distance)/speed);
-
-             AppendSegment(from,to,way_id,distance,duration);
+             AppendSegment(from,to,way_id);
 
              if(!way_oneway)
-                AppendSegment(to,from,way_id,distance,duration);
+                AppendSegment(to,from,way_id);
             }
 
-          AppendWay(way_id,refname);
+          AppendWay(way_id,refname,speed);
 
           if(refname!=way_ref && refname!=way_name && refname!=way_highway)
              free(refname);
@@ -160,6 +156,7 @@ int ParseXML(FILE *file)
        if(way_name)    {free(way_name);    way_name=NULL;}
        if(way_ref)     {free(way_ref);     way_ref=NULL;}
        if(way_access)  {free(way_access);  way_access=NULL;}
+       if(way_car)     {free(way_car);     way_car=NULL;}
       }
     else if(!strncmp(l,"<relation",9)) /* The start of a relation */
       {
@@ -213,6 +210,9 @@ int ParseXML(FILE *file)
 
           if(!strcmp(k,"access"))
              way_access=strcpy((char*)malloc(strlen(v)+1),v);
+
+          if(!strcmp(k,"car"))
+             way_car=strcpy((char*)malloc(strlen(v)+1),v);
 
           if(!strcmp(k,"maxspeed"))
             {

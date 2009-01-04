@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.3 2009-01-03 12:25:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.4 2009-01-04 17:51:23 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -24,6 +24,26 @@ int main(int argc,char** argv)
  /* Parse the file */
 
  ParseXML(stdin);
+
+ /* Sort the variables */
+
+ printf("Sorting Nodes"); fflush(stdout);
+ SortNodeList();
+ printf("\rSorted Nodes \n"); fflush(stdout);
+
+ printf("Sorting Ways"); fflush(stdout);
+ SortWayList();
+ printf("\rSorted Ways \n"); fflush(stdout);
+
+ printf("Sorting Segments"); fflush(stdout);
+ SortSegmentList();
+ printf("\rSorted Segments \n"); fflush(stdout);
+
+ /* Fix the segment lengths */
+
+ printf("Measuring Segments"); fflush(stdout);
+ FixupSegmentLengths();
+ printf("\rMeasured Segments \n"); fflush(stdout);
 
  /* Write out the variables */
 

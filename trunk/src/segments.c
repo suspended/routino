@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.3 2009-01-02 11:33:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.4 2009-01-04 17:51:24 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -12,6 +12,7 @@
  ***************************************/
 
 
+#include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 
@@ -26,9 +27,14 @@ Segments *OSMSegments=NULL;
 /*+ Is the data sorted and therefore searchable? +*/
 static int sorted=0;
 
+/*+ Is the data loaded from a file and therefore read-only? +*/
+static int loaded=0;
+
+/*+ How many entries are allocated? +*/
+static size_t alloced=0;
+
 /* Functions */
 
-static void sort_segment_list(void);
 static int sort_by_id(Segment *a,Segment *b);
 
 
@@ -38,14 +44,16 @@ static int sort_by_id(Segment *a,Segment *b);
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int LoadSegmentList(const char *filename)
+void LoadSegmentList(const char *filename)
 {
+ assert(!OSMSegments);          /* Must be NULL */
+
  OSMSegments=(Segments*)MapFile(filename);
 
- if(OSMSegments)
-    sorted=1;
+ assert(OSMSegments);           /* Must be non-NULL */
 
- return(!OSMSegments);
+ sorted=1;
+ loaded=1;
 }
 
 
@@ -55,22 +63,17 @@ int LoadSegmentList(const char *filename)
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int SaveSegmentList(const char *filename)
+void SaveSegmentList(const char *filename)
 {
  int retval;
- size_t alloced;
 
- if(!sorted)
-    sort_segment_list();
+ assert(!loaded);               /* Must not be loaded */
 
- alloced=OSMSegments->alloced;
- OSMSegments->alloced=OSMSegments->number;
+ assert(sorted);                /* Must be sorted */
 
  retval=WriteFile(filename,OSMSegments,sizeof(Segments)-sizeof(OSMSegments->segments)+OSMSegments->number*sizeof(Segment));
 
- OSMSegments->alloced=alloced;
-
- return(retval);
+ assert(!retval);               /* Must be zero */
 }
 
 
@@ -89,8 +92,7 @@ Segment *FindFirstSegment(node_t node)
  int mid;
  int found;
 
- if(!sorted)
-    sort_segment_list();
+ assert(sorted);                /* Must be sorted */
 
  /* Binary search - search key exact match only is required.
   *
@@ -172,31 +174,28 @@ Segment *FindNextSegment(Segment *segment)
   node_t node2 The second node in the segment.
 
   way_t way The way that the pair of segments are connected by.
-
-  distance_t distance The distance between the two nodes.
-
-  duration_t duration The duration between the two nodes.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendSegment(node_t node1,node_t node2,way_t way,distance_t distance,duration_t duration)
+void AppendSegment(node_t node1,node_t node2,way_t way)
 {
+ assert(!loaded);               /* Must not be loaded */
+
  /* Check that the whole thing is allocated. */
 
  if(!OSMSegments)
    {
-    OSMSegments=(Segments*)malloc(sizeof(Segments));
+    alloced=INCREMENT;
+    OSMSegments=(Segments*)malloc(sizeof(Segments)-sizeof(OSMSegments->segments)+alloced*sizeof(Segment));
 
-    OSMSegments->alloced=sizeof(OSMSegments->segments)/sizeof(OSMSegments->segments[0]);
     OSMSegments->number=0;
    }
 
  /* Check that the arrays have enough space. */
 
- if(OSMSegments->number==OSMSegments->alloced)
+ if(OSMSegments->number==alloced)
    {
-    OSMSegments=(Segments*)realloc((void*)OSMSegments,sizeof(Segments)-sizeof(OSMSegments->segments)+(OSMSegments->alloced+INCREMENT)*sizeof(Segment));
-
-    OSMSegments->alloced+=INCREMENT;
+    alloced+=INCREMENT;
+    OSMSegments=(Segments*)realloc((void*)OSMSegments,sizeof(Segments)-sizeof(OSMSegments->segments)+alloced*sizeof(Segment));
    }
 
  /* Insert the segment */
@@ -204,8 +203,8 @@ void AppendSegment(node_t node1,node_t node2,way_t way,distance_t distance,durat
  OSMSegments->segments[OSMSegments->number].node1=node1;
  OSMSegments->segments[OSMSegments->number].node2=node2;
  OSMSegments->segments[OSMSegments->number].way=way;
- OSMSegments->segments[OSMSegments->number].distance=distance;
- OSMSegments->segments[OSMSegments->number].duration=duration;
+ OSMSegments->segments[OSMSegments->number].distance=0;
+ OSMSegments->segments[OSMSegments->number].duration=0;
 
  OSMSegments->number++;
 
@@ -217,8 +216,10 @@ void AppendSegment(node_t node1,node_t node2,way_t way,distance_t distance,durat
   Sort the segment list.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void sort_segment_list(void)
+void SortSegmentList(void)
 {
+ assert(!loaded);               /* Must not be loaded */
+
  qsort(OSMSegments->segments,OSMSegments->number,sizeof(Segment),(int (*)(const void*,const void*))sort_by_id);
 
  sorted=1;
@@ -248,16 +249,44 @@ static int sort_by_id(Segment *a,Segment *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Calculate the length of a segment.
+  Assign the lengths and durations to all of the segments.
+  ++++++++++++++++++++++++++++++++++++++*/
 
-  distance_t SegmentLength Returns the length of the segment.
+void FixupSegmentLengths(void)
+{
+ int i;
+
+ assert(!loaded);               /* Must not be loaded */
+
+ assert(sorted);                /* Must be sorted */
+
+ for(i=0;i<OSMSegments->number;i++)
+   {
+    Node *node1=FindNode(OSMSegments->segments[i].node1);
+    Node *node2=FindNode(OSMSegments->segments[i].node2);
+    Way  *way=FindWay(OSMSegments->segments[i].way);
+
+    speed_t    speed=way->speed;
+    distance_t distance=Distance(node1,node2);
+    duration_t duration=hours_to_duration(distance_to_km(distance)/speed);
+
+    OSMSegments->segments[i].distance=distance;
+    OSMSegments->segments[i].duration=duration;
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Calculate the distance between two nodes.
+
+  distance_t Distance Returns the distance between the nodes.
 
   Node *node1 The starting node.
 
   Node *node2 The end node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-distance_t SegmentLength(Node *node1,Node *node2)
+distance_t Distance(Node *node1,Node *node2)
 {
  double radiant = M_PI / 180;
 
