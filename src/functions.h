@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.3 2009-01-03 12:25:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.4 2009-01-04 17:51:23 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -27,42 +27,44 @@ int ParseXML(FILE *file);
 
 /* In nodes.c */
 
-int NewNodeList(void);
-
-int LoadNodeList(const char *filename);
-int SaveNodeList(const char *filename);
+void LoadNodeList(const char *filename);
+void SaveNodeList(const char *filename);
 
 Node *FindNode(node_t id);
 
 void AppendNode(node_t id,latlong_t latitude,latlong_t longitude);
 
+void SortNodeList(void);
+
 
 /* In ways.c */
 
-int NewWayList(void);
-
-int LoadWayList(const char *filename);
-int SaveWayList(const char *filename);
+void LoadWayList(const char *filename);
+void SaveWayList(const char *filename);
 
 Way *FindWay(way_t id);
 const char *WayName(Way *way);
 
-void AppendWay(way_t id,const char *name);
+void AppendWay(way_t id,const char *name,speed_t speed);
+
+void SortWayList(void);
 
 
 /* In segments.c */
 
-int NewSegmentList(void);
-
-int LoadSegmentList(const char *filename);
-int SaveSegmentList(const char *filename);
+void LoadSegmentList(const char *filename);
+void SaveSegmentList(const char *filename);
 
 Segment *FindFirstSegment(node_t node);
 Segment *FindNextSegment(Segment *segment);
 
-void AppendSegment(node_t node1,node_t node2,way_t way,distance_t distance,duration_t duration);
+void AppendSegment(node_t node1,node_t node2,way_t way);
 
-distance_t SegmentLength(Node *node1,Node *node2);
+void SortSegmentList(void);
+
+void FixupSegmentLengths(void);
+
+distance_t Distance(Node *node1,Node *node2);
 
 
 /* In files.c */

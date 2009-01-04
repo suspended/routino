@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.2 2009-01-03 12:25:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.3 2009-01-04 17:51:23 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -26,7 +26,6 @@ extern Segments *OSMSegments;
 
 int main(int argc,char** argv)
 {
- int i;
  Node    *node;
  Way     *way;
  Segment *segment;
@@ -39,11 +38,7 @@ int main(int argc,char** argv)
  printf("-----\n");
 
  printf("sizeof(Node)=%d\n",sizeof(Node));
- printf("alloced=%d\n",OSMNodes->alloced);
  printf("number=%d\n",OSMNodes->number);
-
- // for(i=0;i<OSMNodes->number;i++)
- //    printf("%8d %7.3f %7.3f\n",OSMNodes->nodes[i].id,OSMNodes->nodes[i].latitude,OSMNodes->nodes[i].longitude);
 
  node=FindNode(OSMNodes->nodes[0].id-1);
  printf("%s find node %d = %d\n",node?"Did":"Didn't",OSMNodes->nodes[0].id-1,node?node->id:0);
@@ -72,12 +67,8 @@ int main(int argc,char** argv)
  printf("----\n");
 
  printf("sizeof(Way)=%d\n",sizeof(Way));
- printf("alloced=%d\n",OSMWays->alloced);
  printf("number=%d\n",OSMWays->number);
  printf("strings=%d\n",OSMWays->number_str);
-
- // for(i=0;i<OSMWays->number;i++)
- //    printf("%8d %7.3f %7.3f\n",OSMWays->ways[i].id,OSMWays->ways[i].latitude,OSMWays->ways[i].longitude);
 
  way=FindWay(OSMWays->ways[0].id-1);
  printf("%s find way %d = %d\n",way?"Did":"Didn't",OSMWays->ways[0].id-1,way?way->id:0);
@@ -106,11 +97,7 @@ int main(int argc,char** argv)
  printf("--------\n");
 
  printf("sizeof(Segment)=%d\n",sizeof(Segment));
- printf("alloced=%d\n",OSMSegments->alloced);
  printf("number=%d\n",OSMSegments->number);
-
- // for(i=0;i<OSMSegments->number;i++)
- //    printf("%8d %7.3f %7.3f\n",OSMSegments->segments[i].id,OSMSegments->segments[i].latitude,OSMSegments->segments[i].longitude);
 
  segment=FindFirstSegment(OSMSegments->segments[0].node1-1);
  printf("%s find segment %d = %d\n",segment?"Did":"Didn't",OSMSegments->segments[0].node1-1,segment?segment->node1:0);

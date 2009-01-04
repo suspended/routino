@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.2 2009-01-01 20:01:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.3 2009-01-04 17:51:23 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -12,6 +12,7 @@
  ***************************************/
 
 
+#include <assert.h>
 #include <stdlib.h>
 
 #include "functions.h"
@@ -25,9 +26,14 @@ Nodes *OSMNodes=NULL;
 /*+ Is the data sorted and therefore searchable? +*/
 static int sorted=0;
 
+/*+ Is the data loaded from a file and therefore read-only? +*/
+static int loaded=0;
+
+/*+ How many entries are allocated? +*/
+static size_t alloced=0;
+
 /* Functions */
 
-static void sort_node_list(void);
 static int sort_by_id(Node *a,Node *b);
 
 
@@ -37,14 +43,16 @@ static int sort_by_id(Node *a,Node *b);
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int LoadNodeList(const char *filename)
+void LoadNodeList(const char *filename)
 {
+ assert(!OSMNodes);             /* Must be NULL */
+
  OSMNodes=(Nodes*)MapFile(filename);
 
- if(OSMNodes)
-    sorted=1;
+ assert(OSMNodes);              /* Must be non-NULL */
 
- return(!OSMNodes);
+ sorted=1;
+ loaded=1;
 }
 
 
@@ -54,22 +62,17 @@ int LoadNodeList(const char *filename)
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int SaveNodeList(const char *filename)
+void SaveNodeList(const char *filename)
 {
  int retval;
- size_t alloced;
 
- if(!sorted)
-    sort_node_list();
+ assert(!loaded);               /* Must not be loaded */
 
- alloced=OSMNodes->alloced;
- OSMNodes->alloced=OSMNodes->number;
+ assert(sorted);                /* Must be sorted */
 
  retval=WriteFile(filename,OSMNodes,sizeof(Nodes)-sizeof(OSMNodes->nodes)+OSMNodes->number*sizeof(Node));
 
- OSMNodes->alloced=alloced;
-
- return(retval);
+ assert(!retval);               /* Must be zero */
 }
 
 
@@ -87,8 +90,7 @@ Node *FindNode(node_t id)
  int end=OSMNodes->number-1;
  int mid;
 
- if(!sorted)
-    sort_node_list();
+ assert(sorted);                /* Must be sorted */
 
  /* Binary search - search key exact match only is required.
   *
@@ -145,23 +147,24 @@ Node *FindNode(node_t id)
 
 void AppendNode(node_t id,latlong_t latitude,latlong_t longitude)
 {
+ assert(!loaded);               /* Must not be loaded */
+
  /* Check that the whole thing is allocated. */
 
  if(!OSMNodes)
    {
-    OSMNodes=(Nodes*)malloc(sizeof(Nodes));
+    alloced=INCREMENT;
+    OSMNodes=(Nodes*)malloc(sizeof(Nodes)-sizeof(OSMNodes->nodes)+alloced*sizeof(Node));
 
-    OSMNodes->alloced=sizeof(OSMNodes->nodes)/sizeof(OSMNodes->nodes[0]);
     OSMNodes->number=0;
    }
 
  /* Check that the arrays have enough space. */
 
- if(OSMNodes->number==OSMNodes->alloced)
+ if(OSMNodes->number==alloced)
    {
-    OSMNodes=(Nodes*)realloc((void*)OSMNodes,sizeof(Nodes)-sizeof(OSMNodes->nodes)+(OSMNodes->alloced+INCREMENT)*sizeof(Node));
-
-    OSMNodes->alloced+=INCREMENT;
+    alloced+=INCREMENT;
+    OSMNodes=(Nodes*)realloc((void*)OSMNodes,sizeof(Nodes)-sizeof(OSMNodes->nodes)+alloced*sizeof(Node));
    }
 
  /* Insert the node */
@@ -180,8 +183,10 @@ void AppendNode(node_t id,latlong_t latitude,latlong_t longitude)
   Sort the node list.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void sort_node_list(void)
+void SortNodeList(void)
 {
+ assert(!loaded);               /* Must not be loaded */
+
  qsort(OSMNodes->nodes,OSMNodes->number,sizeof(Node),(int (*)(const void*,const void*))sort_by_id);
 
  sorted=1;

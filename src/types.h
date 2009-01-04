@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.4 2009-01-03 12:25:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.5 2009-01-04 17:51:24 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -54,6 +54,9 @@ typedef uint16_t duration_short_t;
 /*+ Conversion from hours to duration_t. +*/
 #define hours_to_duration(xx) ((duration_t)((double)(xx)*360000.0))
 
+/*+ The speed limit of the way. +*/
+typedef uint8_t speed_t;
+
 
 /*+ A structure containing a single node. +*/
 typedef struct _Node
@@ -67,11 +70,9 @@ typedef struct _Node
 /*+ A structure containing a set of nodes. +*/
 typedef struct _Nodes
 {
- uint32_t alloced;              /*+ The amount of space allocated for nodes in the array. +*/
  uint32_t number;               /*+ The number of occupied nodes in the array. +*/
- Node     nodes[1024];          /*+ An array of nodes whose size is not
-                                    necessarily limited to 1024 (i.e. may overflow
-                                    the end of this structure). +*/
+ Node     nodes[1];             /*+ An array of nodes whose size is not limited to 1
+                                    (i.e. may overflow the end of this structure). +*/
 }
  Nodes;
 
@@ -80,7 +81,8 @@ typedef struct _Nodes
 typedef struct _Way
 {
  way_t     id;                  /*+ The way identifier. +*/
- char     *name;                /*+ An offset into the array of names. +*/
+ off_t     name;                /*+ An offset into the array of names. +*/
+ speed_t   speed;               /*+ The speed limit on the way. +*/
  // waytype_t type;                /*+ The type of the way. +*/
 }
  Way;
@@ -88,12 +90,10 @@ typedef struct _Way
 /*+ A structure containing a set of ways. +*/
 typedef struct _Ways
 {
- uint32_t alloced;              /*+ The amount of space allocated for ways in the array. +*/
  uint32_t number;               /*+ The number of occupied ways in the array. +*/
  uint32_t number_str;           /*+ The number of strings appended to the array of ways. +*/
- Way      ways[1024];           /*+ An array of ways whose size is not
-                                    necessarily limited to 1024 (i.e. may overflow
-                                    the end of this structure). +*/
+ Way      ways[1];              /*+ An array of ways whose size is not limited to 1
+                                    (i.e. may overflow the end of this structure). +*/
 }
  Ways;
 
@@ -112,11 +112,9 @@ typedef struct _Segment
 /*+ A structure containing a set of segments. +*/
 typedef struct _Segments
 {
- uint32_t alloced;              /*+ The amount of space allocated for segments in the array. +*/
  uint32_t number;               /*+ The number of occupied segments in the array. +*/
- Segment  segments[1024];       /*+ An array of segments whose size is not
-                                    necessarily limited to 1024 (i.e. may overflow
-                                    the end of this structure). +*/
+ Segment  segments[1];          /*+ An array of segments whose size is not limited to 1
+                                    (i.e. may overflow the end of this structure). +*/
 }
  Segments;
 
