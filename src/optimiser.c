@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.6 2009-01-04 19:32:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.7 2009-01-05 18:43:31 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -12,14 +12,15 @@
  ***************************************/
 
 
+#include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 
 #include "functions.h"
 #include "types.h"
 
-#define INCREMENT 10*1024
-#define NBINS     64
+#define INCREMENT 1024
+#define NBINS     256
 
 /*+ One part of the result for a node. +*/
 typedef struct _HalfResult
@@ -71,7 +72,7 @@ Results *OSMResults=NULL;
 /* Functions */
 
 static void insert_in_queue(Result *result);
-static Result *find_insert_result(node_t node);
+static Result *insert_result(node_t node);
 static Result *find_result(node_t node);
 
 
@@ -112,7 +113,7 @@ void FindRoute(node_t start,node_t finish)
 
  /* Insert the first node into the queue */
 
- result1=find_insert_result(start);
+ result1=insert_result(start);
 
  result1->node=start;
  result1->Node=Start;
@@ -163,7 +164,7 @@ void FindRoute(node_t start,node_t finish)
 
        if(!result2)                         /* New end node */
          {
-          result2=find_insert_result(node2);
+          result2=insert_result(node2);
           result2->node=node2;
           result2->Node=Node2;
           result2->shortest.Prev=Node1;
@@ -377,17 +378,18 @@ static void insert_in_queue(Result *result)
 
  if(!OSMQueue)
    {
-    OSMQueue=(Queue*)calloc(1,sizeof(Queue));
-    OSMQueue->alloced=sizeof(OSMQueue->queue)/sizeof(OSMQueue->queue[0]);
+    OSMQueue=(Queue*)malloc(sizeof(Queue)-sizeof(OSMQueue->queue)+INCREMENT*sizeof(Result*));
+
+    OSMQueue->alloced=INCREMENT;
+    OSMQueue->number=0;
    }
 
  /* Check that the arrays have enough space. */
 
  if(OSMQueue->number==OSMQueue->alloced)
    {
-    OSMQueue=(Queue*)realloc((void*)OSMQueue,sizeof(Queue)-sizeof(OSMQueue->queue)+(OSMQueue->alloced+INCREMENT)*sizeof(Result*));
-
     OSMQueue->alloced+=INCREMENT;
+    OSMQueue=(Queue*)realloc((void*)OSMQueue,sizeof(Queue)-sizeof(OSMQueue->queue)+OSMQueue->alloced*sizeof(Result*));
    }
 
  /* Binary search - search key may not match, new insertion point required
@@ -449,17 +451,17 @@ static void insert_in_queue(Result *result)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find an existing result or insert a new one into the results in the right order.
+  Insert a new result into the results data structure in the right order.
 
   node_t node The node that is to be inserted into the results.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static Result *find_insert_result(node_t node)
+static Result *insert_result(node_t node)
 {
  int start;
  int end;
  int mid;
- int insert=-1,found=-1;
+ int insert=-1;
  int bin=node%NBINS;
 
  /* Check that the whole thing is allocated. */
@@ -517,43 +519,26 @@ static Result *find_insert_result(node_t node)
           start=mid;
        else if(OSMResults->results[bin][mid]->node>node) /* Mid point is too high */
           end=mid;
-       else                                              /* Mid point is correct */
-         {
-          found=mid;
-          break;
-         }
+       else
+          assert(0);
       }
     while((end-start)>1);
 
-    if(found==-1)
-      {
-       if(OSMResults->results[bin][start]->node==node)   /* Start is correct */
-          found=start;
-       else if(OSMResults->results[bin][end]->node==node)/* End is correct */
-          found=end;
-       else
-          insert=end;
-      }
+    insert=end;
    }
 
  /* Shuffle the array up */
 
- if(insert!=-1 && insert!=OSMResults->number[bin])
+ if(insert!=OSMResults->number[bin])
     memmove(&OSMResults->results[bin][insert+1],&OSMResults->results[bin][insert],(OSMResults->number[bin]-insert)*sizeof(Result*));
 
- if(insert!=-1)
-    found=insert;
+ /* Insert the new entry */
 
- /* Insert the insert entry */
+ OSMResults->number[bin]++;
 
- if(insert!=-1)
-   {
-    OSMResults->number[bin]++;
+ OSMResults->results[bin][insert]=(Result*)malloc(sizeof(Result));
 
-    OSMResults->results[bin][found]=(Result*)malloc(sizeof(Result));
-   }
-
- return(OSMResults->results[bin][found]);
+ return(OSMResults->results[bin][insert]);
 }
 
 
