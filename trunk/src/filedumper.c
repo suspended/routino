@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.4 2009-01-04 19:00:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.5 2009-01-05 18:53:28 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -26,6 +26,10 @@ extern Segments *OSMSegments;
 
 int main(int argc,char** argv)
 {
+ int i;
+ distance_t longest=0;
+ duration_t slowest=0;
+
  /* Examine the nodes */
 
  LoadNodeList("data/nodes.mem");
@@ -61,6 +65,17 @@ int main(int argc,char** argv)
  printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
  printf("number         =%9d\n",OSMSegments->number);
  printf("total size     =%9d Bytes\n",OSMSegments->number*sizeof(Segment));
+
+ for(i=0;i<OSMSegments->number;i++)
+   {
+    if(OSMSegments->segments[i].distance>longest)
+       longest=OSMSegments->segments[i].distance;
+    if(OSMSegments->segments[i].duration>slowest)
+       slowest=OSMSegments->segments[i].duration;
+   }
+
+ printf("Longest distance = %.1f km\n",distance_to_km(longest));
+ printf("Longest duration = %.1f min\n",duration_to_minutes(slowest));
 
  return(0);
 }
