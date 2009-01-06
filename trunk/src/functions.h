@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.4 2009-01-04 17:51:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.5 2009-01-06 18:32:16 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -65,6 +65,21 @@ void SortSegmentList(void);
 void FixupSegmentLengths(void);
 
 distance_t Distance(Node *node1,Node *node2);
+
+
+/* In supersegments.c */
+
+void LoadSuperSegmentList(const char *filename);
+void SaveSuperSegmentList(const char *filename);
+
+SuperSegment *FindFirstSuperSegment(node_t node);
+SuperSegment *FindNextSuperSegment(SuperSegment *segment);
+
+void ChooseSuperSegments(void);
+
+void SortSuperSegmentList(void);
+
+void FixupSuperSegmentLengths(void);
 
 
 /* In files.c */

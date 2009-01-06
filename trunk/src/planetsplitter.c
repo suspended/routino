@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.4 2009-01-04 17:51:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.5 2009-01-06 18:32:16 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -44,6 +44,24 @@ int main(int argc,char** argv)
  printf("Measuring Segments"); fflush(stdout);
  FixupSegmentLengths();
  printf("\rMeasured Segments \n"); fflush(stdout);
+
+ /* Select the SuperSegments */
+
+ printf("Selecting Super-Segments"); fflush(stdout);
+ ChooseSuperSegments();
+ printf("\rSelected Super-Segments \n"); fflush(stdout);
+
+ /* Sort the super-segments */
+
+ printf("Sorting SuperSegments"); fflush(stdout);
+ SortSuperSegmentList();
+ printf("\rSorted SuperSegments \n"); fflush(stdout);
+
+ /* Fix the super-segment lengths */
+
+ printf("Measuring Super-Segments"); fflush(stdout);
+ FixupSuperSegmentLengths();
+ printf("\rMeasured Super-Segments \n"); fflush(stdout);
 
  /* Write out the variables */
 
