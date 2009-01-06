@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.5 2009-01-04 17:51:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.6 2009-01-06 18:32:16 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -82,7 +82,8 @@ typedef struct _Way
 {
  way_t     id;                  /*+ The way identifier. +*/
  off_t     name;                /*+ An offset into the array of names. +*/
- speed_t   speed;               /*+ The speed limit on the way. +*/
+ speed_t   limit;               /*+ The defined speed limit on the way. +*/
+ speed_t   speed;               /*+ The assumed speed limit on the way. +*/
  // waytype_t type;                /*+ The type of the way. +*/
 }
  Way;
@@ -117,6 +118,26 @@ typedef struct _Segments
                                     (i.e. may overflow the end of this structure). +*/
 }
  Segments;
+
+
+/*+ A structure containing a single super-segment +*/
+typedef struct _SuperSegment
+{
+ node_t           node1;        /*+ The starting node. +*/
+ node_t           node2;        /*+ The finishing node. +*/
+ distance_short_t distance;     /*+ The distance between the nodes. +*/
+ duration_short_t duration;     /*+ The time duration to travel between the nodes. +*/
+}
+ SuperSegment;
+
+/*+ A structure containing a set of segments. +*/
+typedef struct _SuperSegments
+{
+ uint32_t      number;          /*+ The number of occupied segments in the array. +*/
+ SuperSegment  segments[1];     /*+ An array of segments whose size is not limited to 1
+                                    (i.e. may overflow the end of this structure). +*/
+}
+ SuperSegments;
 
 
 #endif /* TYPES_H */

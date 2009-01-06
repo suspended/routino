@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.5 2009-01-05 18:53:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.6 2009-01-06 18:32:16 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -19,9 +19,10 @@
 #include "types.h"
 
 
-extern Nodes    *OSMNodes;
-extern Ways     *OSMWays;
-extern Segments *OSMSegments;
+extern Nodes         *OSMNodes;
+extern Ways          *OSMWays;
+extern Segments      *OSMSegments;
+extern SuperSegments *OSMSuperSegments;
 
 
 int main(int argc,char** argv)
@@ -72,6 +73,29 @@ int main(int argc,char** argv)
        longest=OSMSegments->segments[i].distance;
     if(OSMSegments->segments[i].duration>slowest)
        slowest=OSMSegments->segments[i].duration;
+   }
+
+ printf("Longest distance = %.1f km\n",distance_to_km(longest));
+ printf("Longest duration = %.1f min\n",duration_to_minutes(slowest));
+
+ /* Examine the super-segments */
+
+ LoadSuperSegmentList("data/supersegments.mem");
+
+ printf("\n");
+ printf("SuperSegments\n");
+ printf("-------------\n");
+
+ printf("sizeof(SuperSegment)=%9d Bytes\n",sizeof(SuperSegment));
+ printf("number              =%9d\n",OSMSuperSegments->number);
+ printf("total size          =%9d Bytes\n",OSMSuperSegments->number*sizeof(SuperSegment));
+
+ for(i=0;i<OSMSuperSegments->number;i++)
+   {
+    if(OSMSuperSegments->segments[i].distance>longest)
+       longest=OSMSuperSegments->segments[i].distance;
+    if(OSMSuperSegments->segments[i].duration>slowest)
+       slowest=OSMSuperSegments->segments[i].duration;
    }
 
  printf("Longest distance = %.1f km\n",distance_to_km(longest));

@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.3 2009-01-03 12:25:23 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.4 2009-01-06 18:32:16 amb Exp $
 #
 # Makefile
 #
@@ -16,9 +16,9 @@ LD=gcc
 
 # Program options
 
-CFLAGS=-pg -g -O0 -Wall -Wmissing-prototypes
+CFLAGS=-pg --coverage -g -O0 -Wall -Wmissing-prototypes
 #LDFLAGS=-lm
-LDFLAGS=-static -lm -lc -pg
+LDFLAGS=-pg --coverage -static -lm -lc
 
 # Compilation targets
 
@@ -33,21 +33,21 @@ all : $(EXE)
 
 ########
 
-PLANETSPLITTER_OBJ=planetsplitter.o files.o nodes.o ways.o segments.o osmparser.o
+PLANETSPLITTER_OBJ=planetsplitter.o files.o nodes.o ways.o segments.o supersegments.o osmparser.o
 
 planetsplitter : $(PLANETSPLITTER_OBJ)
 	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
 
 ########
 
-FILEDUMPER_OBJ=filedumper.o files.o nodes.o ways.o segments.o osmparser.o
+FILEDUMPER_OBJ=filedumper.o files.o nodes.o ways.o segments.o supersegments.o osmparser.o
 
 filedumper : $(FILEDUMPER_OBJ)
 	$(LD) $(FILEDUMPER_OBJ) -o $@ $(LDFLAGS)
 
 ########
 
-ROUTER_OBJ=router.o files.o nodes.o ways.o segments.o osmparser.o optimiser.o
+ROUTER_OBJ=router.o files.o nodes.o ways.o segments.o osmparser.o supersegments.o optimiser.o
 
 router : $(ROUTER_OBJ)
 	$(LD) $(ROUTER_OBJ) -o $@ $(LDFLAGS)
@@ -62,6 +62,7 @@ router : $(ROUTER_OBJ)
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f *.gcno *.gcda *.gcov
 
 ########
 
