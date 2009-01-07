@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.3 2009-01-04 17:51:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.4 2009-01-07 19:21:06 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -16,21 +16,8 @@
 #include <stdlib.h>
 
 #include "functions.h"
-#include "types.h"
+#include "nodes.h"
 
-#define INCREMENT 256*1024
-
-/*+ The list of nodes +*/
-Nodes *OSMNodes=NULL;
-
-/*+ Is the data sorted and therefore searchable? +*/
-static int sorted=0;
-
-/*+ Is the data loaded from a file and therefore read-only? +*/
-static int loaded=0;
-
-/*+ How many entries are allocated? +*/
-static size_t alloced=0;
 
 /* Functions */
 
@@ -38,41 +25,75 @@ static int sort_by_id(Node *a,Node *b);
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Allocate a new node list.
+
+  NodesMem *NewNodeList Returns the node list.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+NodesMem *NewNodeList(void)
+{
+ NodesMem *nodes;
+ int i;
+
+ nodes=(NodesMem*)calloc(sizeof(NodesMem),1);
+
+ nodes->alloced=INCREMENT_NODES;
+
+ for(i=0;i<NBINS_NODES;i++)
+    nodes->bins[i]=(Node*)malloc(nodes->alloced*sizeof(Node));
+
+ return(nodes);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Load in a node list from a file.
+
+  NodesFile* LoadNodeList Returns the node list.
 
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void LoadNodeList(const char *filename)
+NodesFile *LoadNodeList(const char *filename)
 {
- assert(!OSMNodes);             /* Must be NULL */
-
- OSMNodes=(Nodes*)MapFile(filename);
-
- assert(OSMNodes);              /* Must be non-NULL */
-
- sorted=1;
- loaded=1;
+ return((NodesFile*)MapFile(filename));
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Save the node list to a file.
 
+  NodesFile* SaveNodeList Returns the node list that has just been saved.
+
+  NodesMem* nodesm The set of nodes to save.
+
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SaveNodeList(const char *filename)
+NodesFile *SaveNodeList(NodesMem* nodesm,const char *filename)
 {
- int retval;
+ NodesFile nodesf;
+ int i;
 
- assert(!loaded);               /* Must not be loaded */
+ assert(nodesm->sorted);        /* Must be sorted */
 
- assert(sorted);                /* Must be sorted */
+ nodesf.offset[0]=0;
+ for(i=1;i<=NBINS_NODES;i++)
+    nodesf.offset[i]=nodesf.offset[i-1]+nodesm->number[i-1];
 
- retval=WriteFile(filename,OSMNodes,sizeof(Nodes)-sizeof(OSMNodes->nodes)+OSMNodes->number*sizeof(Node));
+ if(WriteFile(filename,(void*)&nodesf,sizeof(nodesf.offset),0))
+    assert(0);
 
- assert(!retval);               /* Must be zero */
+ for(i=0;i<NBINS_NODES;i++)
+    if(WriteFile(filename,(void*)nodesm->bins[i],nodesm->number[i]*sizeof(Node),1))
+       assert(0);
+
+ for(i=0;i<NBINS_NODES;i++)
+    free(nodesm->bins[i]);
+
+ free(nodesm);
+
+ return(LoadNodeList(filename));
 }
 
 
@@ -81,16 +102,17 @@ void SaveNodeList(const char *filename)
 
   Node *FindNode Returns a pointer to the node with the specified id.
 
+  NodesFile* nodes The set of nodes to process.
+
   node_t id The node id to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Node *FindNode(node_t id)
+Node *FindNode(NodesFile* nodes,node_t id)
 {
- int start=0;
- int end=OSMNodes->number-1;
+ int bin=id%NBINS_NODES;
+ int start=nodes->offset[bin];
+ int end=nodes->offset[bin+1]-1;
  int mid;
-
- assert(sorted);                /* Must be sorted */
 
  /* Binary search - search key exact match only is required.
   *
@@ -103,32 +125,32 @@ Node *FindNode(node_t id)
   *  # <- end    |  start or end is the wanted one.
   */
 
- if(OSMNodes->number==0)               /* There are no nodes */
+ if(end<start)                      /* There are no nodes */
     return(NULL);
- else if(id<OSMNodes->nodes[start].id) /* Check key is not before start */
+ else if(id<nodes->nodes[start].id) /* Check key is not before start */
     return(NULL);
- else if(id>OSMNodes->nodes[end].id)   /* Check key is not after end */
+ else if(id>nodes->nodes[end].id)   /* Check key is not after end */
     return(NULL);
  else
    {
     do
       {
-       mid=(start+end)/2;                  /* Choose mid point */
+       mid=(start+end)/2;               /* Choose mid point */
 
-       if(OSMNodes->nodes[mid].id<id)      /* Mid point is too low */
+       if(nodes->nodes[mid].id<id)      /* Mid point is too low */
           start=mid+1;
-       else if(OSMNodes->nodes[mid].id>id) /* Mid point is too high */
+       else if(nodes->nodes[mid].id>id) /* Mid point is too high */
           end=mid-1;
-       else                                /* Mid point is correct */
-          return(&OSMNodes->nodes[mid]);
+       else                             /* Mid point is correct */
+          return(&nodes->nodes[mid]);
       }
     while((end-start)>1);
 
-    if(OSMNodes->nodes[start].id==id)      /* Start is correct */
-       return(&OSMNodes->nodes[start]);
+    if(nodes->nodes[start].id==id)      /* Start is correct */
+       return(&nodes->nodes[start]);
 
-    if(OSMNodes->nodes[end].id==id)        /* End is correct */
-       return(&OSMNodes->nodes[end]);
+    if(nodes->nodes[end].id==id)        /* End is correct */
+       return(&nodes->nodes[end]);
    }
 
  return(NULL);
@@ -138,6 +160,8 @@ Node *FindNode(node_t id)
 /*++++++++++++++++++++++++++++++++++++++
   Append a node to a newly created node list (unsorted).
 
+  NodesMem* nodes The set of nodes to process.
+
   node_t id The node identification.
 
   latlong_t latitude The latitude of the node.
@@ -145,51 +169,47 @@ Node *FindNode(node_t id)
   latlong_t longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendNode(node_t id,latlong_t latitude,latlong_t longitude)
+void AppendNode(NodesMem* nodes,node_t id,latlong_t latitude,latlong_t longitude)
 {
- assert(!loaded);               /* Must not be loaded */
-
- /* Check that the whole thing is allocated. */
-
- if(!OSMNodes)
-   {
-    alloced=INCREMENT;
-    OSMNodes=(Nodes*)malloc(sizeof(Nodes)-sizeof(OSMNodes->nodes)+alloced*sizeof(Node));
-
-    OSMNodes->number=0;
-   }
+ int i;
+ int bin=id%NBINS_NODES;
 
  /* Check that the arrays have enough space. */
 
- if(OSMNodes->number==alloced)
+ if(nodes->number[bin]==nodes->alloced)
    {
-    alloced+=INCREMENT;
-    OSMNodes=(Nodes*)realloc((void*)OSMNodes,sizeof(Nodes)-sizeof(OSMNodes->nodes)+alloced*sizeof(Node));
+    nodes->alloced+=INCREMENT_NODES;
+
+    for(i=0;i<NBINS_NODES;i++)
+       nodes->bins[i]=(Node*)realloc((void*)nodes->bins[i],nodes->alloced*sizeof(Node));
    }
 
  /* Insert the node */
 
- OSMNodes->nodes[OSMNodes->number].id=id;
- OSMNodes->nodes[OSMNodes->number].latitude=latitude;
- OSMNodes->nodes[OSMNodes->number].longitude=longitude;
+ nodes->bins[bin][nodes->number[bin]].id=id;
+ nodes->bins[bin][nodes->number[bin]].latitude=latitude;
+ nodes->bins[bin][nodes->number[bin]].longitude=longitude;
 
- OSMNodes->number++;
+ nodes->number[bin]++;
 
- sorted=0;
+ nodes->sorted=0;
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Sort the node list.
+
+  NodesMem* nodes The set of nodes to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortNodeList(void)
+void SortNodeList(NodesMem* nodes)
 {
- assert(!loaded);               /* Must not be loaded */
+ int i;
 
- qsort(OSMNodes->nodes,OSMNodes->number,sizeof(Node),(int (*)(const void*,const void*))sort_by_id);
+ for(i=0;i<NBINS_NODES;i++)
+    qsort(nodes->bins[i],nodes->number[i],sizeof(Node),(int (*)(const void*,const void*))sort_by_id);
 
- sorted=1;
+ nodes->sorted=1;
 }
 
 
