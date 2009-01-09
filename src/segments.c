@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.4 2009-01-04 17:51:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.5 2009-01-09 19:19:20 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -17,21 +17,9 @@
 #include <stdlib.h>
 
 #include "functions.h"
+#include "segments.h"
 #include "types.h"
 
-#define INCREMENT 64*1024
-
-/*+ The list of segments +*/
-Segments *OSMSegments=NULL;
-
-/*+ Is the data sorted and therefore searchable? +*/
-static int sorted=0;
-
-/*+ Is the data loaded from a file and therefore read-only? +*/
-static int loaded=0;
-
-/*+ How many entries are allocated? +*/
-static size_t alloced=0;
 
 /* Functions */
 
@@ -39,41 +27,77 @@ static int sort_by_id(Segment *a,Segment *b);
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Allocate a new segment list.
+
+  SegmentsMem *NewSegmentList Returns the segment list.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+SegmentsMem *NewSegmentList(void)
+{
+ SegmentsMem *segments;
+
+ segments=(SegmentsMem*)malloc(sizeof(SegmentsMem));
+
+ segments->alloced=INCREMENT_SEGMENTS;
+ segments->number=0;
+ segments->sorted=0;
+
+ segments->segments=(Segments*)malloc(sizeof(Segments)+segments->alloced*sizeof(Segment));
+
+ return(segments);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Load in a segment list from a file.
+
+  Segments* SaveSegmentList Returns the segment list that has just been loaded.
 
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void LoadSegmentList(const char *filename)
+Segments *LoadSegmentList(const char *filename)
 {
- assert(!OSMSegments);          /* Must be NULL */
-
- OSMSegments=(Segments*)MapFile(filename);
-
- assert(OSMSegments);           /* Must be non-NULL */
-
- sorted=1;
- loaded=1;
+ return((Segments*)MapFile(filename));
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Save the segment list to a file.
 
+  Segments* SaveSegmentList Returns the segment list that has just been saved.
+
+  SegmentsMem* segments The set of segments to save.
+
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SaveSegmentList(const char *filename)
+Segments *SaveSegmentList(SegmentsMem* segments,const char *filename)
 {
- int retval;
+#ifdef NBINS_SEGMENTS
+ int i,bin=0;
+#endif
 
- assert(!loaded);               /* Must not be loaded */
+ assert(segments->sorted);      /* Must be sorted */
 
- assert(sorted);                /* Must be sorted */
+#ifdef NBINS_SEGMENTS
+ for(i=0;i<segments->number;i++)
+    for(;bin<=(segments->segments->segments[i].node1%NBINS_SEGMENTS);bin++)
+       segments->segments->offset[bin]=i;
 
- retval=WriteFile(filename,OSMSegments,sizeof(Segments)-sizeof(OSMSegments->segments)+OSMSegments->number*sizeof(Segment));
+ for(;bin<=NBINS_SEGMENTS;bin++)
+    segments->segments->offset[bin]=segments->number;
+#else
+ segments->segments->number=segments->number;
+#endif
 
- assert(!retval);               /* Must be zero */
+ if(WriteFile(filename,(void*)segments->segments,sizeof(Segments)-sizeof(segments->segments->segments)+segments->number*sizeof(Segment)))
+    assert(0);
+
+ free(segments->segments);
+ free(segments);
+
+ return(LoadSegmentList(filename));
 }
 
 
@@ -82,17 +106,23 @@ void SaveSegmentList(const char *filename)
 
   Segment *FindFirstSegment Returns a pointer to the first segment with the specified id.
 
+  Segments* segments The set of segments to process.
+
   node_t node The node to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segment *FindFirstSegment(node_t node)
+Segment *FindFirstSegment(Segments* segments,node_t node)
 {
+#ifdef NBINS_SEGMENTS
+ int bin=node%NBINS_SEGMENTS;
+ int start=segments->offset[bin];
+ int end=segments->offset[bin+1]-1;
+#else
  int start=0;
- int end=OSMSegments->number-1;
+ int end=segments->number-1;
+#endif
  int mid;
  int found;
-
- assert(sorted);                /* Must be sorted */
 
  /* Binary search - search key exact match only is required.
   *
@@ -105,31 +135,31 @@ Segment *FindFirstSegment(node_t node)
   *  # <- end    |  start or end is the wanted one.
   */
 
- if(OSMSegments->number==0)                       /* There are no segments */
+ if(end<start)                                 /* There are no nodes */
     return(NULL);
- else if(node<OSMSegments->segments[start].node1) /* Check key is not before start */
+ else if(node<segments->segments[start].node1) /* Check key is not before start */
     return(NULL);
- else if(node>OSMSegments->segments[end].node1)   /* Check key is not after end */
+ else if(node>segments->segments[end].node1)   /* Check key is not after end */
     return(NULL);
  else
    {
     do
       {
-       mid=(start+end)/2;                             /* Choose mid point */
+       mid=(start+end)/2;                          /* Choose mid point */
 
-       if(OSMSegments->segments[mid].node1<node)      /* Mid point is too low */
+       if(segments->segments[mid].node1<node)      /* Mid point is too low */
           start=mid;
-       else if(OSMSegments->segments[mid].node1>node) /* Mid point is too high */
+       else if(segments->segments[mid].node1>node) /* Mid point is too high */
           end=mid;
-       else                                           /* Mid point is correct */
+       else                                        /* Mid point is correct */
          {found=mid; goto found;}
       }
     while((end-start)>1);
 
-    if(OSMSegments->segments[start].node1==node)      /* Start is correct */
+    if(segments->segments[start].node1==node)      /* Start is correct */
          {found=start; goto found;}
 
-    if(OSMSegments->segments[end].node1==node)        /* End is correct */
+    if(segments->segments[end].node1==node)        /* End is correct */
          {found=end; goto found;}
    }
 
@@ -137,27 +167,34 @@ Segment *FindFirstSegment(node_t node)
 
  found:
 
- while(found>0 && OSMSegments->segments[found-1].node1==node)
+ while(found>0 && segments->segments[found-1].node1==node)
     found--;
 
- return(&OSMSegments->segments[found]);
+ return(&segments->segments[found]);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Find the next segment with a particular starting node.
 
-  Segment *FindSegment Returns a pointer to the first segment with the specified id.
+  Segment *FindNextSegment Returns a pointer to the next segment with the same id.
+
+  Segments* segments The set of segments to process.
 
   Segment *segment The current segment.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segment *FindNextSegment(Segment *segment)
+Segment *FindNextSegment(Segments* segments,Segment *segment)
 {
  Segment *next=segment+1;
 
- if((next-OSMSegments->segments)==OSMSegments->number)
+#ifdef NBINS_SEGMENTS
+ if((next-segments->segments)==segments->offset[NBINS_SEGMENTS])
     return(NULL);
+#else
+ if((next-segments->segments)==segments->number)
+    return(NULL);
+#endif
 
  if(next->node1==segment->node1)
     return(next);
@@ -169,6 +206,8 @@ Segment *FindNextSegment(Segment *segment)
 /*++++++++++++++++++++++++++++++++++++++
   Append a segment to a newly created segment list (unsorted).
 
+  SegmentsMem* segments The set of segments to process.
+
   node_t node1 The first node in the segment.
 
   node_t node2 The second node in the segment.
@@ -176,53 +215,42 @@ Segment *FindNextSegment(Segment *segment)
   way_t way The way that the pair of segments are connected by.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendSegment(node_t node1,node_t node2,way_t way)
+void AppendSegment(SegmentsMem* segments,node_t node1,node_t node2,way_t way)
 {
- assert(!loaded);               /* Must not be loaded */
+ /* Check that the array has enough space. */
 
- /* Check that the whole thing is allocated. */
-
- if(!OSMSegments)
+ if(segments->number==segments->alloced)
    {
-    alloced=INCREMENT;
-    OSMSegments=(Segments*)malloc(sizeof(Segments)-sizeof(OSMSegments->segments)+alloced*sizeof(Segment));
+    segments->alloced+=INCREMENT_SEGMENTS;
 
-    OSMSegments->number=0;
-   }
-
- /* Check that the arrays have enough space. */
-
- if(OSMSegments->number==alloced)
-   {
-    alloced+=INCREMENT;
-    OSMSegments=(Segments*)realloc((void*)OSMSegments,sizeof(Segments)-sizeof(OSMSegments->segments)+alloced*sizeof(Segment));
+    segments->segments=(Segments*)realloc((void*)segments->segments,sizeof(Segments)+segments->alloced*sizeof(Segment));
    }
 
  /* Insert the segment */
 
- OSMSegments->segments[OSMSegments->number].node1=node1;
- OSMSegments->segments[OSMSegments->number].node2=node2;
- OSMSegments->segments[OSMSegments->number].way=way;
- OSMSegments->segments[OSMSegments->number].distance=0;
- OSMSegments->segments[OSMSegments->number].duration=0;
+ segments->segments->segments[segments->number].node1=node1;
+ segments->segments->segments[segments->number].node2=node2;
+ segments->segments->segments[segments->number].way=way;
+ segments->segments->segments[segments->number].distance=0;
+ segments->segments->segments[segments->number].duration=0;
 
- OSMSegments->number++;
+ segments->number++;
 
- sorted=0;
+ segments->sorted=0;
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Sort the segment list.
+
+  SegmentsMem* segments The set of segments to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortSegmentList(void)
+void SortSegmentList(SegmentsMem* segments)
 {
- assert(!loaded);               /* Must not be loaded */
+ qsort(segments->segments->segments,segments->number,sizeof(Segment),(int (*)(const void*,const void*))sort_by_id);
 
- qsort(OSMSegments->segments,OSMSegments->number,sizeof(Segment),(int (*)(const void*,const void*))sort_by_id);
-
- sorted=1;
+ segments->sorted=1;
 }
 
 
@@ -241,6 +269,14 @@ static int sort_by_id(Segment *a,Segment *b)
  node_t a_id1=a->node1,a_id2=a->node2;
  node_t b_id1=b->node1,b_id2=b->node2;
 
+#ifdef NBINS_SEGMENTS
+ int a_bin=a->node1%NBINS_SEGMENTS;
+ int b_bin=b->node1%NBINS_SEGMENTS;
+
+ if(a_bin!=b_bin)
+    return(a_bin-b_bin);
+#endif
+
  if(a_id1==b_id1)
     return(a_id2-b_id2);
  else
@@ -250,28 +286,32 @@ static int sort_by_id(Segment *a,Segment *b)
 
 /*++++++++++++++++++++++++++++++++++++++
   Assign the lengths and durations to all of the segments.
+
+  SegmentsMem* segments The set of segments to process.
+
+  Nodes *nodes The list of nodes to use.
+
+  Ways *ways The list of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FixupSegmentLengths(void)
+void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
 {
  int i;
 
- assert(!loaded);               /* Must not be loaded */
+ assert(segments->sorted);      /* Must be sorted */
 
- assert(sorted);                /* Must be sorted */
-
- for(i=0;i<OSMSegments->number;i++)
+ for(i=0;i<segments->number;i++)
    {
-    Node *node1=FindNode(OSMSegments->segments[i].node1);
-    Node *node2=FindNode(OSMSegments->segments[i].node2);
-    Way  *way=FindWay(OSMSegments->segments[i].way);
+    Node *node1=FindNode(nodes,segments->segments->segments[i].node1);
+    Node *node2=FindNode(nodes,segments->segments->segments[i].node2);
+    Way  *way=FindWay(ways,segments->segments->segments[i].way);
 
     speed_t    speed=way->speed;
     distance_t distance=Distance(node1,node2);
     duration_t duration=hours_to_duration(distance_to_km(distance)/speed);
 
-    OSMSegments->segments[i].distance=distance;
-    OSMSegments->segments[i].duration=duration;
+    segments->segments->segments[i].distance=distance;
+    segments->segments->segments[i].duration=duration;
    }
 }
 
