@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.1 2009-01-07 19:21:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.2 2009-01-09 16:33:06 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -21,11 +21,22 @@
 /* Constants */
 
 
+#if 0 /* set to 0 to use a flat array, 1 for indexed. */
+
 /*+ The array size increment for nodes. +*/
 #define INCREMENT_NODES 1024
 
 /*+ The number of bins for nodes. +*/
 #define NBINS_NODES 2048
+
+#else
+
+/*+ The array size increment for nodes. +*/
+#define INCREMENT_NODES 1024
+
+#undef NBINS_NODES
+
+#endif
 
 
 /* Simple Types */
@@ -50,24 +61,29 @@ typedef struct _Node
 }
  Node;
 
+/*+ A structure containing a set of nodes (mmap format). +*/
+typedef struct _Nodes
+{
+#ifdef NBINS_NODES
+ off_t  offset[NBINS_NODES+1];  /*+ An offset to the first entry in each bin. +*/
+#else
+ uint32_t number;               /*+ How many entries are used? +*/
+#endif
+ Node   nodes[1];               /*+ An array of nodes whose size is not limited to 1
+                                    (i.e. may overflow the end of this structure). +*/
+}
+ Nodes;
+
 /*+ A structure containing a set of nodes (memory format). +*/
 typedef struct _NodesMem
 {
  uint32_t alloced;              /*+ How many entries are allocated? +*/
+ uint32_t number;               /*+ How many entries are used? +*/
  uint32_t sorted;               /*+ Is the data sorted and therefore searchable? +*/
- uint32_t number[NBINS_NODES];  /*+ The number of occupied nodes in each bin of the array. +*/
- Node    *bins[NBINS_NODES];    /*+ An array of nodes. +*/
+
+ Nodes   *nodes;                /*+ The real data +*/
 }
  NodesMem;
-
-/*+ A structure containing a set of nodes (file format). +*/
-typedef struct _NodesFile
-{
- off_t  offset[NBINS_NODES+1];  /*+ An offset to the first entry in each bin. +*/
- Node   nodes[1];               /*+ An array of nodes whose size is not limited to 1
-                                    (i.e. may overflow the end of this structure). +*/
-}
- NodesFile;
 
 
 /* Functions */
@@ -75,10 +91,10 @@ typedef struct _NodesFile
 
 NodesMem *NewNodeList(void);
 
-NodesFile *LoadNodeList(const char *filename);
-NodesFile *SaveNodeList(NodesMem *nodes,const char *filename);
+Nodes *LoadNodeList(const char *filename);
+Nodes *SaveNodeList(NodesMem *nodes,const char *filename);
 
-Node *FindNode(NodesFile *nodes,node_t id);
+Node *FindNode(Nodes *nodes,node_t id);
 
 void AppendNode(NodesMem *nodes,node_t id,latlong_t latitude,latlong_t longitude);
 

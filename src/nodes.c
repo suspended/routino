@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.4 2009-01-07 19:21:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.5 2009-01-09 16:33:06 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -33,14 +33,14 @@ static int sort_by_id(Node *a,Node *b);
 NodesMem *NewNodeList(void)
 {
  NodesMem *nodes;
- int i;
 
- nodes=(NodesMem*)calloc(sizeof(NodesMem),1);
+ nodes=(NodesMem*)malloc(sizeof(NodesMem));
 
  nodes->alloced=INCREMENT_NODES;
+ nodes->number=0;
+ nodes->sorted=0;
 
- for(i=0;i<NBINS_NODES;i++)
-    nodes->bins[i]=(Node*)malloc(nodes->alloced*sizeof(Node));
+ nodes->nodes=(Nodes*)malloc(sizeof(Nodes)+nodes->alloced*sizeof(Node));
 
  return(nodes);
 }
@@ -49,49 +49,51 @@ NodesMem *NewNodeList(void)
 /*++++++++++++++++++++++++++++++++++++++
   Load in a node list from a file.
 
-  NodesFile* LoadNodeList Returns the node list.
+  Nodes* LoadNodeList Returns the node list.
 
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodesFile *LoadNodeList(const char *filename)
+Nodes *LoadNodeList(const char *filename)
 {
- return((NodesFile*)MapFile(filename));
+ return((Nodes*)MapFile(filename));
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Save the node list to a file.
 
-  NodesFile* SaveNodeList Returns the node list that has just been saved.
+  Nodes* SaveNodeList Returns the node list that has just been saved.
 
-  NodesMem* nodesm The set of nodes to save.
+  NodesMem* nodes The set of nodes to save.
 
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodesFile *SaveNodeList(NodesMem* nodesm,const char *filename)
+Nodes *SaveNodeList(NodesMem* nodes,const char *filename)
 {
- NodesFile nodesf;
- int i;
+#ifdef NBINS_NODES
+ int i,bin=0;
+#endif
 
- assert(nodesm->sorted);        /* Must be sorted */
+ assert(nodes->sorted);        /* Must be sorted */
 
- nodesf.offset[0]=0;
- for(i=1;i<=NBINS_NODES;i++)
-    nodesf.offset[i]=nodesf.offset[i-1]+nodesm->number[i-1];
+#ifdef NBINS_NODES
+ for(i=0;i<nodes->number;i++)
+    for(;bin<=(nodes->nodes->nodes[i].id%NBINS_NODES);bin++)
+       nodes->nodes->offset[bin]=i;
 
- if(WriteFile(filename,(void*)&nodesf,sizeof(nodesf.offset),0))
+ for(;bin<=NBINS_NODES;bin++)
+    nodes->nodes->offset[bin]=nodes->number;
+#else
+ nodes->nodes->number=nodes->number;
+#endif
+
+ if(WriteFile(filename,(void*)nodes->nodes,sizeof(Nodes)-sizeof(nodes->nodes->nodes)+nodes->number*sizeof(Node)))
     assert(0);
 
- for(i=0;i<NBINS_NODES;i++)
-    if(WriteFile(filename,(void*)nodesm->bins[i],nodesm->number[i]*sizeof(Node),1))
-       assert(0);
-
- for(i=0;i<NBINS_NODES;i++)
-    free(nodesm->bins[i]);
-
- free(nodesm);
+ free(nodes->nodes);
+ free(nodes);
 
  return(LoadNodeList(filename));
 }
@@ -102,16 +104,21 @@ NodesFile *SaveNodeList(NodesMem* nodesm,const char *filename)
 
   Node *FindNode Returns a pointer to the node with the specified id.
 
-  NodesFile* nodes The set of nodes to process.
+  Nodes* nodes The set of nodes to process.
 
   node_t id The node id to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Node *FindNode(NodesFile* nodes,node_t id)
+Node *FindNode(Nodes* nodes,node_t id)
 {
+#ifdef NBINS_NODES
  int bin=id%NBINS_NODES;
  int start=nodes->offset[bin];
  int end=nodes->offset[bin+1]-1;
+#else
+ int start=0;
+ int end=nodes->number-1;
+#endif
  int mid;
 
  /* Binary search - search key exact match only is required.
@@ -171,26 +178,22 @@ Node *FindNode(NodesFile* nodes,node_t id)
 
 void AppendNode(NodesMem* nodes,node_t id,latlong_t latitude,latlong_t longitude)
 {
- int i;
- int bin=id%NBINS_NODES;
+ /* Check that the array has enough space. */
 
- /* Check that the arrays have enough space. */
-
- if(nodes->number[bin]==nodes->alloced)
+ if(nodes->number==nodes->alloced)
    {
     nodes->alloced+=INCREMENT_NODES;
 
-    for(i=0;i<NBINS_NODES;i++)
-       nodes->bins[i]=(Node*)realloc((void*)nodes->bins[i],nodes->alloced*sizeof(Node));
+    nodes->nodes=(Nodes*)realloc((void*)nodes->nodes,sizeof(Nodes)+nodes->alloced*sizeof(Node));
    }
 
  /* Insert the node */
 
- nodes->bins[bin][nodes->number[bin]].id=id;
- nodes->bins[bin][nodes->number[bin]].latitude=latitude;
- nodes->bins[bin][nodes->number[bin]].longitude=longitude;
+ nodes->nodes->nodes[nodes->number].id=id;
+ nodes->nodes->nodes[nodes->number].latitude=latitude;
+ nodes->nodes->nodes[nodes->number].longitude=longitude;
 
- nodes->number[bin]++;
+ nodes->number++;
 
  nodes->sorted=0;
 }
@@ -204,10 +207,7 @@ void AppendNode(NodesMem* nodes,node_t id,latlong_t latitude,latlong_t longitude
 
 void SortNodeList(NodesMem* nodes)
 {
- int i;
-
- for(i=0;i<NBINS_NODES;i++)
-    qsort(nodes->bins[i],nodes->number[i],sizeof(Node),(int (*)(const void*,const void*))sort_by_id);
+ qsort(nodes->nodes->nodes,nodes->number,sizeof(Node),(int (*)(const void*,const void*))sort_by_id);
 
  nodes->sorted=1;
 }
@@ -227,6 +227,14 @@ static int sort_by_id(Node *a,Node *b)
 {
  node_t a_id=a->id;
  node_t b_id=b->id;
+
+#ifdef NBINS_NODES
+ int a_bin=a->id%NBINS_NODES;
+ int b_bin=b->id%NBINS_NODES;
+
+ if(a_bin!=b_bin)
+    return(a_bin-b_bin);
+#endif
 
  return(a_id-b_id);
 }
