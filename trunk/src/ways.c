@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.3 2009-01-09 18:39:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.4 2009-01-10 11:53:48 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -85,6 +85,8 @@ Ways *SaveWayList(WaysMem* ways,const char *filename)
 
  assert(ways->sorted);          /* Must be sorted */
 
+ ways->ways->number=ways->number;
+
 #ifdef NBINS_WAYS
  for(i=0;i<ways->number;i++)
     for(;bin<=(ways->ways->ways[i].id%NBINS_WAYS);bin++)
@@ -92,8 +94,6 @@ Ways *SaveWayList(WaysMem* ways,const char *filename)
 
  for(;bin<=NBINS_WAYS;bin++)
     ways->ways->offset[bin]=ways->number;
-#else
- ways->ways->number=ways->number;
 #endif
 
  if(WriteFile(filename,(void*)ways->ways,sizeof(Ways)-sizeof(ways->ways->ways)+(ways->number+ways->number_str)*sizeof(Way)))
@@ -184,7 +184,7 @@ Way *FindWay(Ways* ways,way_t id)
 
 const char *WayName(Ways* ways,Way *way)
 {
- return((char*)&ways->ways[(off_t)way->name]);
+ return((char*)&ways->ways[way->name]);
 }
 
 

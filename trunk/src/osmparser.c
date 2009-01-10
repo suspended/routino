@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.4 2009-01-04 17:51:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.5 2009-01-10 11:53:48 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -17,8 +17,11 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "types.h"
+#include "nodes.h"
+#include "ways.h"
+#include "segments.h"
 #include "functions.h"
+
 
 #define BUFFSIZE 64
 
@@ -31,9 +34,15 @@ static char *fgets_realloc(char *buffer,FILE *file);
   int ParseXML Returns 0 if OK or something else in case of an error.
 
   FILE *file The file to read from.
+
+  NodesMem *OSMNodes The array of nodes to fill in.
+
+  SegmentsMem *OSMSegments The array of segments to fill in.
+
+  WaysMem *OSMWays The arrray of ways to fill in.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXML(FILE *file)
+int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays)
 {
  char *line=NULL;
  long nlines=0;
@@ -70,7 +79,7 @@ int ParseXML(FILE *file)
        m=strstr(l,"lat="); m+=5; if(*m=='"' || *m=='\'') m++; latitude=atof(m);
        m=strstr(l,"lon="); m+=4; if(*m=='"' || *m=='\'') m++; longitude=atof(m);
 
-       AppendNode(id,latitude,longitude);
+       AppendNode(OSMNodes,id,latitude,longitude);
       }
     else if(!strncmp(l,"</node",6)) /* The end of a node */
       {
@@ -140,13 +149,13 @@ int ParseXML(FILE *file)
              node_t from=way_nodes[i-1];
              node_t to  =way_nodes[i];
 
-             AppendSegment(from,to,way_id);
+             AppendSegment(OSMSegments,from,to,way_id);
 
              if(!way_oneway)
-                AppendSegment(to,from,way_id);
+                AppendSegment(OSMSegments,to,from,way_id);
             }
 
-          AppendWay(way_id,refname,speed);
+          AppendWay(OSMWays,way_id,refname,speed);
 
           if(refname!=way_ref && refname!=way_name && refname!=way_highway)
              free(refname);

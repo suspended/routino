@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.6 2009-01-10 11:14:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.7 2009-01-10 11:53:48 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -17,26 +17,14 @@
 
 #include <stdio.h>
 
-#include "types.h"
+#include "nodes.h"
+#include "ways.h"
+#include "segments.h"
+
 
 /* In osmparser.c */
 
 int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays);
-
-
-/* In supersegments.c */
-
-void LoadSuperSegmentList(const char *filename);
-void SaveSuperSegmentList(const char *filename);
-
-SuperSegment *FindFirstSuperSegment(node_t node);
-SuperSegment *FindNextSuperSegment(SuperSegment *segment);
-
-void ChooseSuperSegments(void);
-
-void SortSuperSegmentList(void);
-
-void FixupSuperSegmentLengths(void);
 
 
 /* In files.c */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.5 2009-01-09 19:19:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.6 2009-01-10 11:53:48 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -16,9 +16,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "functions.h"
 #include "segments.h"
-#include "types.h"
+#include "functions.h"
 
 
 /* Functions */
@@ -80,6 +79,8 @@ Segments *SaveSegmentList(SegmentsMem* segments,const char *filename)
 
  assert(segments->sorted);      /* Must be sorted */
 
+ segments->segments->number=segments->number;
+
 #ifdef NBINS_SEGMENTS
  for(i=0;i<segments->number;i++)
     for(;bin<=(segments->segments->segments[i].node1%NBINS_SEGMENTS);bin++)
@@ -87,8 +88,6 @@ Segments *SaveSegmentList(SegmentsMem* segments,const char *filename)
 
  for(;bin<=NBINS_SEGMENTS;bin++)
     segments->segments->offset[bin]=segments->number;
-#else
- segments->segments->number=segments->number;
 #endif
 
  if(WriteFile(filename,(void*)segments->segments,sizeof(Segments)-sizeof(segments->segments->segments)+segments->number*sizeof(Segment)))
@@ -188,13 +187,8 @@ Segment *FindNextSegment(Segments* segments,Segment *segment)
 {
  Segment *next=segment+1;
 
-#ifdef NBINS_SEGMENTS
- if((next-segments->segments)==segments->offset[NBINS_SEGMENTS])
-    return(NULL);
-#else
  if((next-segments->segments)==segments->number)
     return(NULL);
-#endif
 
  if(next->node1==segment->node1)
     return(next);
@@ -309,6 +303,18 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
     speed_t    speed=way->speed;
     distance_t distance=Distance(node1,node2);
     duration_t duration=hours_to_duration(distance_to_km(distance)/speed);
+
+    if(distance>(distance_short_t)~0)
+      {
+       fprintf(stderr,"\nSegment too long (%d->%d) = %.1f km\n",node1->id,node2->id,distance_to_km(distance));
+       distance=(distance_short_t)~0;
+      }
+
+    if(duration>(duration_short_t)~0)
+      {
+       fprintf(stderr,"\nSegment too long (%d->%d) = %.1f mins\n",node1->id,node2->id,duration_to_minutes(duration));
+       duration=(duration_short_t)~0;
+      }
 
     segments->segments->segments[i].distance=distance;
     segments->segments->segments[i].duration=duration;

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.1 2009-01-09 19:19:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.2 2009-01-10 11:53:48 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -16,6 +16,9 @@
 #define SEGMENTS_H    /*+ To stop multiple inclusions. +*/
 
 #include <stdint.h>
+
+#include "nodes.h"
+#include "ways.h"
 
 
 /* Constants */
@@ -88,10 +91,9 @@ typedef struct _Segment
 /*+ A structure containing a set of segments (mmap format). +*/
 typedef struct _Segments
 {
-#ifdef NBINS_SEGMENTS
- off_t    offset[NBINS_SEGMENTS+1]; /*+ An offset to the first entry in each bin. +*/
-#else
  uint32_t number;               /*+ How many entries are used? +*/
+#ifdef NBINS_SEGMENTS
+ uint32_t offset[NBINS_SEGMENTS+1]; /*+ An offset to the first entry in each bin. +*/
 #endif
  Segment  segments[1];          /*+ An array of segments whose size is not limited to 1
                                     (i.e. may overflow the end of this structure). +*/
@@ -110,7 +112,7 @@ typedef struct _SegmentsMem
  SegmentsMem;
 
 
-/* Functions */
+/* Functions in segments.c */
 
 
 SegmentsMem *NewSegmentList(void);
@@ -128,6 +130,12 @@ void SortSegmentList(SegmentsMem *segments);
 void FixupSegmentLengths(SegmentsMem *segments,Nodes *nodes,Ways *ways);
 
 distance_t Distance(Node *node1,Node *node2);
+
+
+/* Functions in supersegments.c */
+
+
+void ChooseSuperSegments(SegmentsMem *supersegments,Nodes *nodes,Segments *segments,Ways *ways);
 
 
 #endif /* SEGMENTS_H */
