@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.3 2009-01-10 13:39:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.4 2009-01-10 15:59:59 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -45,6 +45,36 @@ typedef uint32_t way_t;
 /*+ The speed limit of the way. +*/
 typedef uint8_t speed_t;
 
+/*+ A way type identifier. +*/
+typedef uint16_t waytype_t;
+
+typedef enum _WayType
+ {
+  Way_Motorway   =1,
+  Way_Trunk      =2,
+  Way_Primary    =3,
+  Way_Tertiary   =4,
+  Way_Secondary  =5,
+  Way_Unclassfied=6,
+  Way_Residential=7,
+
+  Way_HighestRoutable=7,
+
+  Way_Service    =8,
+  Way_Track      =9,
+  Way_Bridleway  =10,
+  Way_Cycleway   =11,
+  Way_Footway    =12,
+  Way_Unknown    =15,
+ }
+ WayType;
+
+#define Way_TYPE(xx) ((xx)&0x0f)
+
+#define Way_ONEWAY       16
+#define Way_ROUNDABOUT   32
+#define Way_NOTROUTABLE 128
+
 
 /* Data structures */
 
@@ -53,9 +83,10 @@ typedef uint8_t speed_t;
 typedef struct _Way
 {
  way_t     id;                  /*+ The way identifier. +*/
+ uint32_t  name;                /*+ An offset of the name of the way in the ways array. +*/
  speed_t   limit;               /*+ The defined speed limit on the way. +*/
  speed_t   speed;               /*+ The assumed speed limit on the way. +*/
- uint32_t  name;                /*+ An offset of the name of the way in the ways array. +*/
+ waytype_t type;                /*+ The type of the way. +*/
 }
  Way;
 
@@ -95,11 +126,12 @@ Ways *SaveWayList(WaysMem *ways,const char *filename);
 
 Way *FindWay(Ways *ways,way_t id);
 
-void AppendWay(WaysMem *ways,way_t id,const char *name,speed_t speed);
+Way *AppendWay(WaysMem *ways,way_t id,const char *name);
 
 void SortWayList(WaysMem *ways);
 
 const char *WayName(Ways *ways,Way *way);
+WayType TypeOfWay(const char *type);
 
 
 #endif /* WAYS_H */

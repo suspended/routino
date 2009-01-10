@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.4 2009-01-10 11:53:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.5 2009-01-10 15:59:59 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -173,23 +173,9 @@ Way *FindWay(Ways* ways,way_t id)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Return the name of the way.
-
-  const char *WayName Returns the name.
-
-  Ways* ways The set of ways to process.
-
-  Way *way The way whose name is to be found.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-const char *WayName(Ways* ways,Way *way)
-{
- return((char*)&ways->ways[way->name]);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Append a way to a newly created way list (unsorted).
+
+  Way *AppendWay Returns the newly appended way.
 
   WaysMem* ways The set of ways to process.
 
@@ -200,7 +186,7 @@ const char *WayName(Ways* ways,Way *way)
   speed_t speed The speed on the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendWay(WaysMem* ways,way_t id,const char *name,speed_t speed)
+Way *AppendWay(WaysMem* ways,way_t id,const char *name)
 {
  /* Check that the array has enough space. */
 
@@ -220,11 +206,12 @@ void AppendWay(WaysMem* ways,way_t id,const char *name,speed_t speed)
 
  ways->ways->ways[ways->number].id=id;
  ways->ways->ways[ways->number].name=ways->number;
- ways->ways->ways[ways->number].speed=speed;
 
  ways->number++;
 
  ways->sorted=0;
+
+ return(&ways->ways->ways[ways->number-1]);
 }
 
 
@@ -325,4 +312,91 @@ static int sort_by_name(Way *a,Way *b)
  char *b_name=sort_names[b->name];
 
  return(strcmp(a_name,b_name));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Return the name of the way.
+
+  const char *WayName Returns the name.
+
+  Ways* ways The set of ways to process.
+
+  Way *way The way whose name is to be found.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *WayName(Ways* ways,Way *way)
+{
+ return((char*)&ways->ways[way->name]);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Decide on the type of a way given the "highway" parameter.
+
+  WayType TypeOfWay Returns the type of the way.
+
+  const char *type The string containing the type of the way.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+WayType TypeOfWay(const char *type)
+{
+ switch(*type)
+   {
+   case 'b':
+    if(!strcmp(type,"byway")) return(Way_Track);
+    if(!strcmp(type,"bridleway")) return(Way_Bridleway);
+    return(Way_Unknown);
+
+   case 'c':
+    if(!strcmp(type,"cycleway")) return(Way_Cycleway);
+    return(Way_Unknown);
+
+   case 'f':
+    if(!strcmp(type,"footway")) return(Way_Footway);
+    return(Way_Unknown);
+
+   case 'm':
+    if(!strncmp(type,"motorway",8)) return(Way_Motorway);
+    if(!strcmp(type,"minor")) return(Way_Unclassfied);
+    return(Way_Unknown);
+
+   case 'p':
+    if(!strncmp(type,"primary",7)) return(Way_Primary);
+    if(!strcmp(type,"path")) return(Way_Footway);
+    if(!strcmp(type,"pedestrian")) return(Way_Footway);
+    return(Way_Unknown);
+
+   case 'r':
+    if(!strcmp(type,"road")) return(Way_Unclassfied);
+    if(!strcmp(type,"residential")) return(Way_Residential);
+    return(Way_Unknown);
+
+   case 's':
+    if(!strncmp(type,"secondary",9)) return(Way_Secondary);
+    if(!strcmp(type,"service")) return(Way_Service);
+    if(!strcmp(type,"steps")) return(Way_Footway);
+    return(Way_Unknown);
+
+   case 't':
+    if(!strncmp(type,"trunk",5)) return(Way_Trunk);
+    if(!strcmp(type,"tertiary")) return(Way_Tertiary);
+    if(!strcmp(type,"track")) return(Way_Track);
+    return(Way_Unknown);
+
+   case 'u':
+    if(!strcmp(type,"unclassified")) return(Way_Unclassfied);
+    if(!strcmp(type,"unsurfaced")) return(Way_Track);
+    if(!strcmp(type,"unpaved")) return(Way_Track);
+    return(Way_Unknown);
+
+   case 'w':
+    if(!strcmp(type,"walkway")) return(Way_Footway);
+    return(Way_Unknown);
+
+   default:
+    ;
+   }
+
+ return(Way_Unknown);
 }

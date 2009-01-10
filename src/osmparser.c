@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.5 2009-01-10 11:53:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.6 2009-01-10 15:59:58 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -101,36 +101,23 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
       }
     else if(!strncmp(l,"</way",5)) /* The end of a way */
       {
-       double speed=0;
-       int i;
-
        isnode=0; isway=0; isrelation=0;
 
-       if(!way_highway) speed=0;
-       else if(way_access && !strcmp(way_access,"private")) speed=0;
-       else if(way_car && !strcmp(way_car,"no")) speed=0;
-       else if(way_maxspeed) speed=way_maxspeed;
-       else if(!strncmp(way_highway,"motorway",8)) speed=80*1.6;
-       else if(!strncmp(way_highway,"trunk",5) && way_oneway) speed=75*1.6;
-       else if(!strncmp(way_highway,"primary",7) && way_oneway) speed=70*1.6;
-       else if(!strncmp(way_highway,"trunk",5)) speed=65*1.6;
-       else if(!strncmp(way_highway,"primary",7)) speed=60*1.6;
-       else if(!strncmp(way_highway,"secondary",9)) speed=55*1.6;
-       else if(!strcmp(way_highway,"tertiary")) speed=50*1.6;
-       else if(!strcmp(way_highway,"unclassified") || !strcmp(way_highway,"road") || !strcmp(way_highway,"minor")) speed=40*1.6;
-       else if(!strcmp(way_highway,"residential")) speed=30*1.6;
-       else if(!strcmp(way_highway,"service")) speed=20*1.6;
-       else if(!strcmp(way_highway,"track") || !strcmp(way_highway,"byway") || !strcmp(way_highway,"unsurfaced") || !strcmp(way_highway,"unpaved")) speed=10*1.6;
-//      else if(!strcmp(way_highway =~ m%(steps|path|walkway|footway|pedestrian|bridleway|cycleway|living_street)%) { $speed = 5*1.6; }
-
-       if(speed)
+       if(way_highway)
          {
+          Way *way;
           char *refname;
+          int i;
 
           if(way_ref && way_name)
             {
              refname=(char*)malloc(strlen(way_ref)+strlen(way_name)+4);
              sprintf(refname,"%s (%s)",way_name,way_ref);
+            }
+          else if(way_ref && !way_name && way_roundabout)
+            {
+             refname=(char*)malloc(strlen(way_ref)+14);
+             sprintf(refname,"%s (roundabout)",way_ref);
             }
           else if(way_ref && !way_name)
              refname=way_ref;
@@ -155,7 +142,49 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
                 AppendSegment(OSMSegments,to,from,way_id);
             }
 
-          AppendWay(OSMWays,way_id,refname,speed);
+          way=AppendWay(OSMWays,way_id,refname);
+
+          way->limit=way_maxspeed;
+          way->type=TypeOfWay(way_highway);
+
+          switch(way->type)
+            {
+            case Way_Motorway:
+             way->speed=1.6*80; break;
+            case Way_Trunk:
+             way->speed=1.6*((way_oneway&&!way_roundabout)?75:65); break;
+            case Way_Primary:
+             way->speed=1.6*((way_oneway&&!way_roundabout)?70:60); break;
+            case Way_Secondary:
+             way->speed=1.6*55; break;
+            case Way_Tertiary:
+             way->speed=1.6*50; break;
+            case Way_Unclassfied:
+             way->speed=1.6*40; break;
+            case Way_Residential:
+             way->speed=1.6*30; break;
+            case Way_Service:
+             way->speed=1.6*20; break;
+            case Way_Track:
+             way->speed=1.6*10; break;
+            case Way_Bridleway:
+            case Way_Cycleway:
+            case Way_Footway:
+            case Way_Unknown:
+             way->speed=0;
+            }
+
+          if(way_oneway)
+             way->type|=Way_ONEWAY;
+
+          if(way_roundabout)
+             way->type|=Way_ROUNDABOUT;
+
+          if(way_access && (!strcmp(way_access,"private") || !strcmp(way_access,"no")))
+             way->type|=Way_NOTROUTABLE;
+
+          if(way_car && !strcmp(way_car,"no"))
+             way->type|=Way_NOTROUTABLE;
 
           if(refname!=way_ref && refname!=way_name && refname!=way_highway)
              free(refname);
