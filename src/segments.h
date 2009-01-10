@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.2 2009-01-10 11:53:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.3 2009-01-10 13:39:30 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -26,20 +26,17 @@
 
 #if 1 /* set to 0 to use a flat array, 1 for indexed. */
 
-/*+ The array size increment for segments. +*/
-#define INCREMENT_SEGMENTS 512
-
 /*+ The number of bins for segments. +*/
 #define NBINS_SEGMENTS 2048
 
 #else
 
-/*+ The array size increment for segments. +*/
-#define INCREMENT_SEGMENTS 512*2048
-
 #undef NBINS_SEGMENTS
 
 #endif
+
+/*+ The array size increment for segments. +*/
+#define INCREMENT_SEGMENTS 1024*1024
 
 
 /* Simple Types */
