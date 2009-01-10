@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.7 2009-01-05 18:43:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.8 2009-01-10 11:53:48 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -16,8 +16,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "nodes.h"
+#include "ways.h"
+#include "segments.h"
 #include "functions.h"
-#include "types.h"
+
 
 #define INCREMENT 1024
 #define NBINS     256
@@ -79,12 +82,18 @@ static Result *find_result(node_t node);
 /*++++++++++++++++++++++++++++++++++++++
   Find the optimum route between two nodes.
 
+  Results *FindRoute Returns a set of results.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
   node_t start The start node.
 
   node_t finish The finish node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FindRoute(node_t start,node_t finish)
+void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
 {
  Node *Start,*Finish;
  node_t node2;
@@ -106,8 +115,8 @@ void FindRoute(node_t start,node_t finish)
 
  /* Work out the distance as the crow flies */
 
- Start=FindNode(start);
- Finish=FindNode(finish);
+ Start=FindNode(nodes,start);
+ Finish=FindNode(nodes,finish);
 
  totalcrow=Distance(Start,Finish);
 
@@ -137,7 +146,7 @@ void FindRoute(node_t start,node_t finish)
     quickest1.distance=result1->quickest.distance;
     quickest1.duration=result1->quickest.duration;
 
-    segment=FindFirstSegment(Node1->id);
+    segment=FindFirstSegment(segments,Node1->id);
 
     while(segment)
       {
@@ -152,7 +161,7 @@ void FindRoute(node_t start,node_t finish)
        if(result2)
           Node2=result2->Node;
        else
-          Node2=FindNode(node2);
+          Node2=FindNode(nodes,node2);
 
        crow=Distance(Node2,Finish);
 
@@ -225,7 +234,7 @@ void FindRoute(node_t start,node_t finish)
 
       endloop:
 
-       segment=FindNextSegment(segment);
+       segment=FindNextSegment(segments,segment);
       }
 
     if(!(nresults%1000))
@@ -246,12 +255,16 @@ void FindRoute(node_t start,node_t finish)
 /*++++++++++++++++++++++++++++++++++++++
   Print the optimum route between two nodes.
 
+  Segments *segments The set of segments to use.
+
+  Ways *ways The list of ways.
+
   node_t start The start node.
 
   node_t finish The finish node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoute(node_t start,node_t finish)
+void PrintRoute(Segments *segments,Ways *ways,node_t start,node_t finish)
 {
  FILE *file;
  Result *result;
@@ -270,16 +283,16 @@ void PrintRoute(node_t start,node_t finish)
        Segment *segment;
        Way *way;
 
-       segment=FindFirstSegment(result->shortest.Prev->id);
+       segment=FindFirstSegment(segments,result->shortest.Prev->id);
        while(segment->node2!=result->Node->id)
-          segment=FindNextSegment(segment);
+          segment=FindNextSegment(segments,segment);
 
-       way=FindWay(segment->way);
+       way=FindWay(ways,segment->way);
 
        fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3.0f %s\n",result->Node->latitude,result->Node->longitude,result->node,
                distance_to_km(segment->distance),duration_to_minutes(segment->duration),
                distance_to_km(segment->distance)/duration_to_hours(segment->duration),
-               WayName(way));
+               WayName(ways,way));
 
        result=find_result(result->shortest.Prev->id);
       }
@@ -307,16 +320,16 @@ void PrintRoute(node_t start,node_t finish)
        Segment *segment;
        Way *way;
 
-       segment=FindFirstSegment(result->quickest.Prev->id);
+       segment=FindFirstSegment(segments,result->quickest.Prev->id);
        while(segment->node2!=result->Node->id)
-          segment=FindNextSegment(segment);
+          segment=FindNextSegment(segments,segment);
 
-       way=FindWay(segment->way);
+       way=FindWay(ways,segment->way);
 
        fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3.0f %s\n",result->Node->latitude,result->Node->longitude,result->node,
                distance_to_km(segment->distance),duration_to_minutes(segment->duration),
                distance_to_km(segment->distance)/duration_to_hours(segment->duration),
-               WayName(way));
+               WayName(ways,way));
 
        result=find_result(result->quickest.Prev->id);
       }

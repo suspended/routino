@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.6 2009-01-06 18:32:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.7 2009-01-10 11:53:48 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -16,48 +16,54 @@
 #include <stdlib.h>
 
 #include "functions.h"
-#include "types.h"
-
-
-extern Nodes         *OSMNodes;
-extern Ways          *OSMWays;
-extern Segments      *OSMSegments;
-extern SuperSegments *OSMSuperSegments;
 
 
 int main(int argc,char** argv)
 {
- int i;
- distance_t longest=0;
- duration_t slowest=0;
+ Nodes    *OSMNodes;
+ Ways     *OSMWays;
+ Segments *OSMSegments;
+ Segments *SuperSegments;
+// int i;
+// distance_t longest=0;
+// duration_t slowest=0;
 
  /* Examine the nodes */
 
- LoadNodeList("data/nodes.mem");
+ OSMNodes=LoadNodeList("data/nodes.mem");
 
  printf("Nodes\n");
  printf("-----\n");
 
  printf("sizeof(Node)=%9d Bytes\n",sizeof(Node));
  printf("number      =%9d\n",OSMNodes->number);
- printf("total size  =%9d Bytes\n",OSMNodes->number*sizeof(Node));
+ printf("total size  =%9d Bytes\n",sizeof(OSMNodes)-sizeof(OSMNodes->nodes)+OSMNodes->number*sizeof(Node));
+
+#ifdef NBINS_NODES
+// for(i=0;i<=NBINS_NODES;i++)
+//    printf("offset[%4d] is %ld\n",i,OSMNodes->offset[i]);
+#endif
 
  /* Examine the ways */
 
- LoadWayList("data/ways.mem");
+ OSMWays=LoadWayList("data/ways.mem");
 
  printf("\n");
  printf("Ways\n");
  printf("----\n");
 
- printf("sizeof(Way)=%9d Bytes\n",sizeof(Way));
- printf("number     =%9d\n",OSMWays->number);
- printf("strings    =%9d\n",OSMWays->number_str);
- printf("total size =%9d Bytes\n",(OSMWays->number+OSMWays->number_str)*sizeof(Way));
+ printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
+ printf("number      =%9d\n",OSMWays->number);
+ printf("total size  =%9d Bytes\n",sizeof(OSMWays)-sizeof(OSMWays->ways)+OSMWays->number*sizeof(Way));
+
+#ifdef NBINS_WAYS
+// for(i=0;i<=NBINS_WAYS;i++)
+//    printf("offset[%4d] is %ld\n",i,OSMWays->offset[i]);
+#endif
 
  /* Examine the segments */
 
- LoadSegmentList("data/segments.mem");
+ OSMSegments=LoadSegmentList("data/segments.mem");
 
  printf("\n");
  printf("Segments\n");
@@ -65,41 +71,46 @@ int main(int argc,char** argv)
 
  printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
  printf("number         =%9d\n",OSMSegments->number);
- printf("total size     =%9d Bytes\n",OSMSegments->number*sizeof(Segment));
+ printf("total size     =%9d Bytes\n",sizeof(OSMSegments)-sizeof(OSMSegments->segments)+OSMSegments->number*sizeof(Segment));
 
- for(i=0;i<OSMSegments->number;i++)
-   {
-    if(OSMSegments->segments[i].distance>longest)
-       longest=OSMSegments->segments[i].distance;
-    if(OSMSegments->segments[i].duration>slowest)
-       slowest=OSMSegments->segments[i].duration;
-   }
+#ifdef NBINS_NODES
+// for(i=0;i<=NBINS_NODES;i++)
+//    printf("offset[%4d] is %ld\n",i,OSMNodes->offset[i]);
+#endif
 
- printf("Longest distance = %.1f km\n",distance_to_km(longest));
- printf("Longest duration = %.1f min\n",duration_to_minutes(slowest));
+// for(i=0;i<OSMSegments->number;i++)
+//   {
+//    if(OSMSegments->segments[i].distance>longest)
+//       longest=OSMSegments->segments[i].distance;
+//    if(OSMSegments->segments[i].duration>slowest)
+//       slowest=OSMSegments->segments[i].duration;
+//   }
+//
+// printf("Longest distance = %.1f km\n",distance_to_km(longest));
+// printf("Longest duration = %.1f min\n",duration_to_minutes(slowest));
 
  /* Examine the super-segments */
 
- LoadSuperSegmentList("data/supersegments.mem");
+ SuperSegments=LoadSegmentList("data/super-segments.mem");
 
  printf("\n");
  printf("SuperSegments\n");
  printf("-------------\n");
 
- printf("sizeof(SuperSegment)=%9d Bytes\n",sizeof(SuperSegment));
- printf("number              =%9d\n",OSMSuperSegments->number);
- printf("total size          =%9d Bytes\n",OSMSuperSegments->number*sizeof(SuperSegment));
+ printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
+ printf("number         =%9d\n",SuperSegments->number);
+ printf("total size     =%9d Bytes\n",sizeof(SuperSegments)-sizeof(SuperSegments->segments)+SuperSegments->number*sizeof(Segment));
 
- for(i=0;i<OSMSuperSegments->number;i++)
-   {
-    if(OSMSuperSegments->segments[i].distance>longest)
-       longest=OSMSuperSegments->segments[i].distance;
-    if(OSMSuperSegments->segments[i].duration>slowest)
-       slowest=OSMSuperSegments->segments[i].duration;
-   }
-
- printf("Longest distance = %.1f km\n",distance_to_km(longest));
- printf("Longest duration = %.1f min\n",duration_to_minutes(slowest));
+// for(i=0;i<SuperSegments->number;i++)
+//   {
+//    if(SuperSegments->segments[i].distance>longest)
+//       longest=SuperSegments->segments[i].distance;
+//    if(SuperSegments->segments[i].duration>slowest)
+//       slowest=SuperSegments->segments[i].duration;
+//   }
+//
+// printf("Longest distance = %.1f km\n",distance_to_km(longest));
+// printf("Longest duration = %.1f min\n",duration_to_minutes(slowest));
 
  return(0);
 }

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.5 2009-01-09 16:33:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.6 2009-01-10 11:53:48 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -78,6 +78,8 @@ Nodes *SaveNodeList(NodesMem* nodes,const char *filename)
 
  assert(nodes->sorted);        /* Must be sorted */
 
+ nodes->nodes->number=nodes->number;
+
 #ifdef NBINS_NODES
  for(i=0;i<nodes->number;i++)
     for(;bin<=(nodes->nodes->nodes[i].id%NBINS_NODES);bin++)
@@ -85,8 +87,6 @@ Nodes *SaveNodeList(NodesMem* nodes,const char *filename)
 
  for(;bin<=NBINS_NODES;bin++)
     nodes->nodes->offset[bin]=nodes->number;
-#else
- nodes->nodes->number=nodes->number;
 #endif
 
  if(WriteFile(filename,(void*)nodes->nodes,sizeof(Nodes)-sizeof(nodes->nodes->nodes)+nodes->number*sizeof(Node)))

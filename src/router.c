@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.3 2009-01-03 12:25:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.4 2009-01-10 11:53:48 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -15,12 +15,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "nodes.h"
+#include "ways.h"
+#include "segments.h"
 #include "functions.h"
-#include "types.h"
 
 
 int main(int argc,char** argv)
 {
+ Nodes    *OSMNodes;
+ Ways     *OSMWays;
+ Segments *OSMSegments;
  node_t start,finish;
 
  /* Parse the command line aarguments */
@@ -36,17 +41,17 @@ int main(int argc,char** argv)
 
  /* Load in the data */
 
- LoadNodeList("data/nodes.mem");
- LoadWayList("data/ways.mem");
- LoadSegmentList("data/segments.mem");
+ OSMNodes=LoadNodeList("data/nodes.mem");
+ OSMWays=LoadWayList("data/ways.mem");
+ OSMSegments=LoadSegmentList("data/segments.mem");
 
  /* Calculate the route */
 
- FindRoute(start,finish);
+ FindRoute(OSMNodes,OSMSegments,start,finish);
 
  /* Print the route */
 
- PrintRoute(start,finish);
+ PrintRoute(OSMSegments,OSMWays,start,finish);
 
  return(0);
 }

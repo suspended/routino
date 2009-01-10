@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.3 2009-01-09 18:39:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.4 2009-01-10 11:53:48 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -64,12 +64,11 @@ typedef struct _Node
 /*+ A structure containing a set of nodes (mmap format). +*/
 typedef struct _Nodes
 {
-#ifdef NBINS_NODES
- off_t  offset[NBINS_NODES+1];  /*+ An offset to the first entry in each bin. +*/
-#else
  uint32_t number;               /*+ How many entries are used? +*/
+#ifdef NBINS_NODES
+ uint32_t offset[NBINS_NODES+1];/*+ An offset to the first entry in each bin. +*/
 #endif
- Node   nodes[1];               /*+ An array of nodes whose size is not limited to 1
+ Node     nodes[1];             /*+ An array of nodes whose size is not limited to 1
                                     (i.e. may overflow the end of this structure). +*/
 }
  Nodes;
