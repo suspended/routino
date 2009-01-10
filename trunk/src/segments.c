@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.6 2009-01-10 11:53:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.7 2009-01-10 15:59:58 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -296,24 +296,39 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
 
  for(i=0;i<segments->number;i++)
    {
+    speed_t    speed;
+    distance_t distance;
+    duration_t duration;
     Node *node1=FindNode(nodes,segments->segments->segments[i].node1);
     Node *node2=FindNode(nodes,segments->segments->segments[i].node2);
     Way  *way=FindWay(ways,segments->segments->segments[i].way);
 
-    speed_t    speed=way->speed;
-    distance_t distance=Distance(node1,node2);
-    duration_t duration=hours_to_duration(distance_to_km(distance)/speed);
+    if(way->limit)
+       speed=way->limit;
+    else
+       speed=way->speed;
 
-    if(distance>(distance_short_t)~0)
+    if(way->type&Way_NOTROUTABLE || Way_TYPE(way->type)>Way_HighestRoutable)
       {
-       fprintf(stderr,"\nSegment too long (%d->%d) = %.1f km\n",node1->id,node2->id,distance_to_km(distance));
        distance=(distance_short_t)~0;
-      }
-
-    if(duration>(duration_short_t)~0)
-      {
-       fprintf(stderr,"\nSegment too long (%d->%d) = %.1f mins\n",node1->id,node2->id,duration_to_minutes(duration));
        duration=(duration_short_t)~0;
+      }
+    else
+      {
+       distance=Distance(node1,node2);
+       duration=hours_to_duration(distance_to_km(distance)/speed);
+
+       if(distance>(distance_short_t)~0)
+         {
+          fprintf(stderr,"\nSegment too long (%d->%d) = %.1f km\n",node1->id,node2->id,distance_to_km(distance));
+          distance=(distance_short_t)~0;
+         }
+
+       if(duration>(duration_short_t)~0)
+         {
+          fprintf(stderr,"\nSegment too long (%d->%d) = %.1f mins\n",node1->id,node2->id,duration_to_minutes(duration));
+          duration=(duration_short_t)~0;
+         }
       }
 
     segments->segments->segments[i].distance=distance;
