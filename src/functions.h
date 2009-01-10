@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.5 2009-01-06 18:32:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.6 2009-01-10 11:14:41 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -19,52 +19,9 @@
 
 #include "types.h"
 
-
 /* In osmparser.c */
 
-int ParseXML(FILE *file);
-
-
-/* In nodes.c */
-
-void LoadNodeList(const char *filename);
-void SaveNodeList(const char *filename);
-
-Node *FindNode(node_t id);
-
-void AppendNode(node_t id,latlong_t latitude,latlong_t longitude);
-
-void SortNodeList(void);
-
-
-/* In ways.c */
-
-void LoadWayList(const char *filename);
-void SaveWayList(const char *filename);
-
-Way *FindWay(way_t id);
-const char *WayName(Way *way);
-
-void AppendWay(way_t id,const char *name,speed_t speed);
-
-void SortWayList(void);
-
-
-/* In segments.c */
-
-void LoadSegmentList(const char *filename);
-void SaveSegmentList(const char *filename);
-
-Segment *FindFirstSegment(node_t node);
-Segment *FindNextSegment(Segment *segment);
-
-void AppendSegment(node_t node1,node_t node2,way_t way);
-
-void SortSegmentList(void);
-
-void FixupSegmentLengths(void);
-
-distance_t Distance(Node *node1,Node *node2);
+int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays);
 
 
 /* In supersegments.c */
@@ -93,7 +50,8 @@ int WriteFile(const char *filename,void *address,size_t length);
 
 /* In optimiser.c */
 
-void FindRoute(node_t start,node_t finish);
-void PrintRoute(node_t start,node_t finish);
+void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish);
+void PrintRoute(Segments *segments,Ways *ways,node_t start,node_t finish);
+
 
 #endif /* FUNCTIONS_H */

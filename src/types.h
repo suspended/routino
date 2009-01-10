@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.6 2009-01-06 18:32:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.7 2009-01-10 11:14:25 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -17,116 +17,19 @@
 
 #include <stdint.h>
 
+#include "nodes.h"
+#include "ways.h"
+#include "segments.h"
 
-/*+ A node identifier. +*/
-typedef uint32_t node_t;
-
-/*+ A way identifier. +*/
-typedef uint32_t way_t;
-
-/*+ A node latitude or longitude. +*/
-typedef float latlong_t;
-
-/*+ A long distance, measured in metres. +*/
-typedef uint32_t distance_t;
-
-/*+ A short distance, measured in metres (up to ~65.5km). +*/
-typedef uint16_t distance_short_t;
-
-/*+ Conversion from distance_t to kilometres. +*/
-#define distance_to_km(xx) ((double)(xx)/1000.0)
-
-/*+ Conversion from metres to distance_t. +*/
-#define km_to_distance(xx) ((distance_t)((double)(xx)*1000.0))
-
-/*+ A duration, measured in centiseconds. +*/
-typedef uint32_t duration_t;
-
-/*+ A shortt duration, measured in centiseconds (up to ~11 minutes). +*/
-typedef uint16_t duration_short_t;
-
-/*+ Conversion from duration_t to minutes. +*/
-#define duration_to_minutes(xx) ((double)(xx)/6000.0)
-
-/*+ Conversion from duration_t to hours. +*/
-#define duration_to_hours(xx) ((double)(xx)/360000.0)
-
-/*+ Conversion from hours to duration_t. +*/
-#define hours_to_duration(xx) ((duration_t)((double)(xx)*360000.0))
-
-/*+ The speed limit of the way. +*/
-typedef uint8_t speed_t;
-
-
-/*+ A structure containing a single node. +*/
-typedef struct _Node
-{
- node_t    id;                  /*+ The node identifier. +*/
- latlong_t latitude;            /*+ The node latitude. +*/
- latlong_t longitude;           /*+ The node longitude. +*/
-}
- Node;
-
-/*+ A structure containing a set of nodes. +*/
-typedef struct _Nodes
-{
- uint32_t number;               /*+ The number of occupied nodes in the array. +*/
- Node     nodes[1];             /*+ An array of nodes whose size is not limited to 1
-                                    (i.e. may overflow the end of this structure). +*/
-}
- Nodes;
-
-
-/*+ A structure containing a single way. +*/
-typedef struct _Way
-{
- way_t     id;                  /*+ The way identifier. +*/
- off_t     name;                /*+ An offset into the array of names. +*/
- speed_t   limit;               /*+ The defined speed limit on the way. +*/
- speed_t   speed;               /*+ The assumed speed limit on the way. +*/
- // waytype_t type;                /*+ The type of the way. +*/
-}
- Way;
-
-/*+ A structure containing a set of ways. +*/
-typedef struct _Ways
-{
- uint32_t number;               /*+ The number of occupied ways in the array. +*/
- uint32_t number_str;           /*+ The number of strings appended to the array of ways. +*/
- Way      ways[1];              /*+ An array of ways whose size is not limited to 1
-                                    (i.e. may overflow the end of this structure). +*/
-}
- Ways;
-
-
-/*+ A structure containing a single segment +*/
-typedef struct _Segment
-{
- node_t           node1;        /*+ The starting node. +*/
- node_t           node2;        /*+ The finishing node. +*/
- way_t            way;          /*+ The way associated with the segment. +*/
- distance_short_t distance;     /*+ The distance between the nodes. +*/
- duration_short_t duration;     /*+ The time duration to travel between the nodes. +*/
-}
- Segment;
-
-/*+ A structure containing a set of segments. +*/
-typedef struct _Segments
-{
- uint32_t number;               /*+ The number of occupied segments in the array. +*/
- Segment  segments[1];          /*+ An array of segments whose size is not limited to 1
-                                    (i.e. may overflow the end of this structure). +*/
-}
- Segments;
 
 
 /*+ A structure containing a single super-segment +*/
 typedef struct _SuperSegment
 {
- node_t           node1;        /*+ The starting node. +*/
- node_t           node2;        /*+ The finishing node. +*/
- distance_short_t distance;     /*+ The distance between the nodes. +*/
- duration_short_t duration;     /*+ The time duration to travel between the nodes. +*/
+ node_t     node1;        /*+ The starting node. +*/
+ node_t     node2;        /*+ The finishing node. +*/
+ distance_t distance;     /*+ The distance between the nodes. +*/
+ duration_t duration;     /*+ The time duration to travel between the nodes. +*/
 }
  SuperSegment;
 
