@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.8 2009-01-10 11:53:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.9 2009-01-10 13:39:51 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -19,39 +19,12 @@
 #include "nodes.h"
 #include "ways.h"
 #include "segments.h"
+#include "results.h"
 #include "functions.h"
 
 
 #define INCREMENT 1024
 #define NBINS     256
-
-/*+ One part of the result for a node. +*/
-typedef struct _HalfResult
-{
- Node       *Prev;              /*+ The previous Node following the shortest path. +*/
- distance_t  distance;          /*+ The distance travelled to the node following the shortest path. +*/
- duration_t  duration;          /*+ The time taken to the node following the shortest path. +*/
-}
- HalfResult;
-
-/*+ One complete result for a node. +*/
-typedef struct _Result
-{
- node_t     node;               /*+ The end node. +*/
- Node      *Node;               /*+ The end Node. +*/
- HalfResult shortest;           /*+ The result for the shortest path. +*/
- HalfResult quickest;           /*+ The result for the quickest path. +*/
-}
- Result;
-
-/*+ A list of results. +*/
-typedef struct _Results
-{
- uint32_t alloced;              /*+ The amount of space allocated for results in the array +*/
- uint32_t number[NBINS];        /*+ The number of occupied results in the array +*/
- Result **results[NBINS];       /*+ An array of pointers to arrays of results +*/
-}
- Results;
 
 
 /*+ A queue results. +*/
@@ -75,8 +48,6 @@ Results *OSMResults=NULL;
 /* Functions */
 
 static void insert_in_queue(Result *result);
-static Result *insert_result(node_t node);
-static Result *find_result(node_t node);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -122,7 +93,9 @@ void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
 
  /* Insert the first node into the queue */
 
- result1=insert_result(start);
+ OSMResults=NewResultsList();
+
+ result1=InsertResult(OSMResults,start);
 
  result1->node=start;
  result1->Node=Start;
@@ -157,7 +130,7 @@ void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
        quickest2.distance=quickest1.distance+segment->distance;
        quickest2.duration=quickest1.duration+segment->duration;
 
-       result2=find_result(node2);
+       result2=FindResult(OSMResults,node2);
        if(result2)
           Node2=result2->Node;
        else
@@ -173,7 +146,7 @@ void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
 
        if(!result2)                         /* New end node */
          {
-          result2=insert_result(node2);
+          result2=InsertResult(OSMResults,node2);
           result2->node=node2;
           result2->Node=Node2;
           result2->shortest.Prev=Node1;
@@ -274,7 +247,7 @@ void PrintRoute(Segments *segments,Ways *ways,node_t start,node_t finish)
 
  file=fopen("shortest.txt","w");
 
- result=find_result(finish);
+ result=FindResult(OSMResults,finish);
 
  do
    {
@@ -294,7 +267,7 @@ void PrintRoute(Segments *segments,Ways *ways,node_t start,node_t finish)
                distance_to_km(segment->distance)/duration_to_hours(segment->duration),
                WayName(ways,way));
 
-       result=find_result(result->shortest.Prev->id);
+       result=FindResult(OSMResults,result->shortest.Prev->id);
       }
     else
       {
@@ -311,7 +284,7 @@ void PrintRoute(Segments *segments,Ways *ways,node_t start,node_t finish)
 
  file=fopen("quickest.txt","w");
 
- result=find_result(finish);
+ result=FindResult(OSMResults,finish);
 
  do
    {
@@ -331,7 +304,7 @@ void PrintRoute(Segments *segments,Ways *ways,node_t start,node_t finish)
                distance_to_km(segment->distance)/duration_to_hours(segment->duration),
                WayName(ways,way));
 
-       result=find_result(result->quickest.Prev->id);
+       result=FindResult(OSMResults,result->quickest.Prev->id);
       }
     else
       {
@@ -463,152 +436,3 @@ static void insert_in_queue(Result *result)
 }
 
 
-/*++++++++++++++++++++++++++++++++++++++
-  Insert a new result into the results data structure in the right order.
-
-  node_t node The node that is to be inserted into the results.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static Result *insert_result(node_t node)
-{
- int start;
- int end;
- int mid;
- int insert=-1;
- int bin=node%NBINS;
-
- /* Check that the whole thing is allocated. */
-
- if(!OSMResults)
-   {
-    int i;
-
-    OSMResults=(Results*)calloc(1,sizeof(Results));
-    OSMResults->alloced=INCREMENT;
-
-    for(i=0;i<NBINS;i++)
-       OSMResults->results[i]=(Result**)malloc(OSMResults->alloced*sizeof(Result*));
-   }
-
- /* Check that the arrays have enough space. */
-
- if(OSMResults->number[bin]==OSMResults->alloced)
-   {
-    int i;
-
-    OSMResults->alloced+=INCREMENT;
-
-    for(i=0;i<NBINS;i++)
-       OSMResults->results[i]=(Result**)realloc((void*)OSMResults->results[i],OSMResults->alloced*sizeof(Result*));
-   }
-
- /* Binary search - search key may not match, if not then insertion point required
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since there may not be an exact match we must set end=mid
-  *  # <- mid    |  or start=mid because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually end=start+1 and the insertion point is before
-  *  # <- end    |  end (since it cannot be before the initial start or end).
-  */
-
- start=0;
- end=OSMResults->number[bin]-1;
-
- if(OSMResults->number[bin]==0)                      /* There are no results */
-    insert=start;
- else if(node<OSMResults->results[bin][start]->node) /* Check key is not before start */
-    insert=start;
- else if(node>OSMResults->results[bin][end]->node)   /* Check key is not after end */
-    insert=end+1;
- else
-   {
-    do
-      {
-       mid=(start+end)/2;                                /* Choose mid point */
-
-       if(OSMResults->results[bin][mid]->node<node)      /* Mid point is too low */
-          start=mid;
-       else if(OSMResults->results[bin][mid]->node>node) /* Mid point is too high */
-          end=mid;
-       else
-          assert(0);
-      }
-    while((end-start)>1);
-
-    insert=end;
-   }
-
- /* Shuffle the array up */
-
- if(insert!=OSMResults->number[bin])
-    memmove(&OSMResults->results[bin][insert+1],&OSMResults->results[bin][insert],(OSMResults->number[bin]-insert)*sizeof(Result*));
-
- /* Insert the new entry */
-
- OSMResults->number[bin]++;
-
- OSMResults->results[bin][insert]=(Result*)malloc(sizeof(Result));
-
- return(OSMResults->results[bin][insert]);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find a result, ordered by node.
-
-  node_t node The node that is to be found.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static Result *find_result(node_t node)
-{
- int start;
- int end;
- int mid;
- int bin=node%NBINS;
-
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- start=0;
- end=OSMResults->number[bin]-1;
-
- if(OSMResults->number[bin]==0)                      /* There are no results */
-    return(NULL);
- else if(node<OSMResults->results[bin][start]->node) /* Check key is not before start */
-    return(NULL);
- else if(node>OSMResults->results[bin][end]->node)   /* Check key is not after end */
-    return(NULL);
- else
-   {
-    do
-      {
-       mid=(start+end)/2;                                /* Choose mid point */
-
-       if(OSMResults->results[bin][mid]->node<node)      /* Mid point is too low */
-          start=mid+1;
-       else if(OSMResults->results[bin][mid]->node>node) /* Mid point is too high */
-          end=mid-1;
-       else                                              /* Mid point is correct */
-          return(OSMResults->results[bin][mid]);
-      }
-    while((end-start)>1);
-
-    if(OSMResults->results[bin][start]->node==node)      /* Start is correct */
-       return(OSMResults->results[bin][start]);
-
-    if(OSMResults->results[bin][end]->node==node)        /* End is correct */
-       return(OSMResults->results[bin][end]);
-   }
-
- return(NULL);
-}
