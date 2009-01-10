@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.2 2009-01-10 11:53:49 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.3 2009-01-10 13:39:30 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -23,20 +23,17 @@
 
 #if 1 /* set to 0 to use a flat array, 1 for indexed. */
 
-/*+ The array size increment for ways. +*/
-#define INCREMENT_WAYS 256
-
 /*+ The number of bins for ways. +*/
 #define NBINS_WAYS 1024
 
 #else
 
-/*+ The array size increment for ways. +*/
-#define INCREMENT_WAYS 256*1024
-
 #undef NBINS_WAYS
 
 #endif
+
+/*+ The array size increment for ways. +*/
+#define INCREMENT_WAYS 256*1024
 
 
 /* Simple Types */
