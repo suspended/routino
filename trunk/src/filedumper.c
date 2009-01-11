@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.8 2009-01-11 09:28:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.9 2009-01-11 09:42:26 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -23,7 +23,7 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Ways     *OSMWays;
  Segments *OSMSegments;
- Nodes    *Junctions;
+ Nodes    *SuperNodes;
  Segments *SuperSegments;
 // int i;
 // distance_t longest=0;
@@ -92,14 +92,14 @@ int main(int argc,char** argv)
 
  /* Examine the nodes */
 
- Junctions=LoadNodeList("data/junctions.mem");
+ SuperNodes=LoadNodeList("data/super-nodes.mem");
 
- printf("Junctions\n");
- printf("---------\n");
+ printf("SuperNodes\n");
+ printf("----------\n");
 
  printf("sizeof(Node)=%9d Bytes\n",sizeof(Node));
- printf("number      =%9d\n",Junctions->number);
- printf("total size  =%9d Bytes\n",sizeof(Junctions)-sizeof(Junctions->nodes)+Junctions->number*sizeof(Node));
+ printf("number      =%9d\n",SuperNodes->number);
+ printf("total size  =%9d Bytes\n",sizeof(SuperNodes)-sizeof(SuperNodes->nodes)+SuperNodes->number*sizeof(Node));
 
 #ifdef NBINS_NODES
 // for(i=0;i<=NBINS_NODES;i++)

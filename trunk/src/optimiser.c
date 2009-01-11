@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.10 2009-01-11 09:28:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.11 2009-01-11 09:42:26 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -514,7 +514,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
 
   Ways *ways The list of ways.
 
-  Nodes *junctions The list of junctions.
+  Nodes *supernodes The list of supernodes.
 
   Segments *supersegments The list of supersegments.
 
@@ -523,7 +523,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
   node_t finish The finish node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *junctions,Segments *supersegments,node_t start,node_t finish)
+void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,Segments *supersegments,node_t start,node_t finish)
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;

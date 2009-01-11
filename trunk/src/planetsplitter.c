@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.7 2009-01-11 09:28:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.8 2009-01-11 09:42:26 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -31,12 +31,12 @@ int main(int argc,char** argv)
  WaysMem *OSMWaysMem;
  SegmentsMem *OSMSegmentsMem;
 #endif
- NodesMem *JunctionsMem;
+ NodesMem *SuperNodesMem;
  SegmentsMem *SuperSegmentsMem;
  Nodes *OSMNodes;
  Ways *OSMWays;
  Segments *OSMSegments;
- Nodes *Junctions;
+ Nodes *SuperNodes;
  Segments *SuperSegments;
 
 #if !SKIP_PARSING
@@ -97,25 +97,25 @@ int main(int argc,char** argv)
 
 #endif
 
- /* Select the junctions */
+ /* Select the super-nodes */
 
- JunctionsMem=ChooseJunctions(OSMNodes,OSMSegments,OSMWays);
+ SuperNodesMem=ChooseSuperNodes(OSMNodes,OSMSegments,OSMWays);
 
- /* Sort the junctions */
+ /* Sort the super-nodes */
 
- printf("Sorting Junctions"); fflush(stdout);
- SortNodeList(JunctionsMem);
- printf("\rSorted Junctions \n"); fflush(stdout);
+ printf("Sorting Super-Nodes"); fflush(stdout);
+ SortNodeList(SuperNodesMem);
+ printf("\rSorted Super-Nodes \n"); fflush(stdout);
 
  /* Write out the variables */
 
- printf("Saving Junctions"); fflush(stdout);
- Junctions=SaveNodeList(JunctionsMem,"data/junctions.mem");
- printf("\rSaved Junctions \n"); fflush(stdout);
+ printf("Saving Super-Nodes"); fflush(stdout);
+ SuperNodes=SaveNodeList(SuperNodesMem,"data/super-nodes.mem");
+ printf("\rSaved Super-Nodes \n"); fflush(stdout);
 
  /* Select the super-segments */
 
- SuperSegmentsMem=CreateSuperSegments(OSMNodes,OSMSegments,OSMWays,Junctions);
+ SuperSegmentsMem=CreateSuperSegments(OSMNodes,OSMSegments,OSMWays,SuperNodes);
 
  /* Sort the super-segments */
 

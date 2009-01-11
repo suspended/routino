@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.3 2009-01-11 09:28:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.4 2009-01-11 09:42:26 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -25,7 +25,7 @@
 /*++++++++++++++++++++++++++++++++++++++
   Select the super-segments from the list of segments.
 
-  NodesMem *ChooseJunctions Returns the list of junctions.
+  NodesMem *ChooseSuperNodes Returns the list of super-nodes.
 
   Nodes *nodes The nodes.
 
@@ -34,16 +34,16 @@
   Ways *ways The ways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodesMem *ChooseJunctions(Nodes *nodes,Segments *segments,Ways *ways)
+NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
 {
  int i;
  int count_oneway=0,count_twoway=0;
  node_t node=0;
- NodesMem *junctions;
+ NodesMem *supernodes;
 
- /* Find junctions */
+ /* Find super-nodes */
 
- junctions=NewNodeList();
+ supernodes=NewNodeList();
 
  for(i=0;i<segments->number;i++)
    {
@@ -55,7 +55,7 @@ NodesMem *ChooseJunctions(Nodes *nodes,Segments *segments,Ways *ways)
          {
           Node *oldnode=FindNode(nodes,node);
 
-          AppendNode(junctions,node,oldnode->latitude,oldnode->longitude);
+          AppendNode(supernodes,node,oldnode->latitude,oldnode->longitude);
          }
 
        count_oneway=0;
@@ -73,15 +73,15 @@ NodesMem *ChooseJunctions(Nodes *nodes,Segments *segments,Ways *ways)
 
     if(!(i%10000))
       {
-       printf("\rFinding Junctions: Segments=%d Junctions=%d",i,junctions->number);
+       printf("\rFinding Super-Nodes: Segments=%d Super-Nodes=%d",i,supernodes->number);
        fflush(stdout);
       }
    }
 
- printf("\rFound Junctions: Segments=%d Junctions=%d  \n",segments->number,junctions->number);
+ printf("\rFound Super-Nodes: Segments=%d Super-Nodes=%d  \n",segments->number,supernodes->number);
  fflush(stdout);
 
- return(junctions);
+ return(supernodes);
 }
 
 
@@ -96,10 +96,10 @@ NodesMem *ChooseJunctions(Nodes *nodes,Segments *segments,Ways *ways)
 
   Ways *ways The list of ways.
 
-  Nodes *junctions The list of junctions.
+  Nodes *supernodes The list of super-nodes.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *junctions)
+SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes)
 {
  SegmentsMem *supersegments;
  int i,j,k;
@@ -108,19 +108,19 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
 
  supersegments=NewSegmentList();
 
- for(i=0;i<junctions->number;i++)
+ for(i=0;i<supernodes->number;i++)
    {
     Results *results;
 
-    results=FindRoutes(nodes,segments,junctions->nodes[i].id,junctions);
+    results=FindRoutes(nodes,segments,supernodes->nodes[i].id,supernodes);
 
     for(j=0;j<NBINS_RESULTS;j++)
        for(k=0;k<results->number[j];k++)
-          if(FindNode(junctions,results->results[j][k]->node))
+          if(FindNode(supernodes,results->results[j][k]->node))
             {
              distance_t distance;
              duration_t duration;
-             Segment *segment=AppendSegment(supersegments,junctions->nodes[i].id,results->results[j][k]->node,0);
+             Segment *segment=AppendSegment(supersegments,supernodes->nodes[i].id,results->results[j][k]->node,0);
 
              distance=results->results[j][k]->shortest.distance;
              duration=results->results[j][k]->quickest.duration;
@@ -145,12 +145,12 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
 
     if(!(i%1000))
       {
-       printf("\rFinding Super-Segments: Junctions=%d Super-Segments=%d",i,supersegments->number);
+       printf("\rFinding Super-Segments: Super-Nodes=%d Super-Segments=%d",i,supersegments->number);
        fflush(stdout);
       }
    }
 
- printf("\rFound Super-Segments: Junctions=%d Super-Segments=%d  \n",junctions->number,supersegments->number);
+ printf("\rFound Super-Segments: Super-Nodes=%d Super-Segments=%d  \n",supernodes->number,supersegments->number);
  fflush(stdout);
 
  return(supersegments);

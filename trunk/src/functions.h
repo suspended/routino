@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.8 2009-01-11 09:28:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.9 2009-01-11 09:42:26 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -45,7 +45,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node
 
 Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish);
 
-void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *junctions,Segments *supersegments,node_t start,node_t finish);
+void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,Segments *supersegments,node_t start,node_t finish);
 
 
 #endif /* FUNCTIONS_H */
