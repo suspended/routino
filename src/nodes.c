@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.6 2009-01-10 11:53:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.7 2009-01-11 09:33:59 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -167,6 +167,8 @@ Node *FindNode(Nodes* nodes,node_t id)
 /*++++++++++++++++++++++++++++++++++++++
   Append a node to a newly created node list (unsorted).
 
+  Node *AppendNode Return a pointer to the new node.
+
   NodesMem* nodes The set of nodes to process.
 
   node_t id The node identification.
@@ -176,7 +178,7 @@ Node *FindNode(Nodes* nodes,node_t id)
   latlong_t longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendNode(NodesMem* nodes,node_t id,latlong_t latitude,latlong_t longitude)
+Node *AppendNode(NodesMem* nodes,node_t id,latlong_t latitude,latlong_t longitude)
 {
  /* Check that the array has enough space. */
 
@@ -196,6 +198,8 @@ void AppendNode(NodesMem* nodes,node_t id,latlong_t latitude,latlong_t longitude
  nodes->number++;
 
  nodes->sorted=0;
+
+ return(&nodes->nodes->nodes[nodes->number-1]);
 }
 
 

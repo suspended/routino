@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.5 2009-01-10 15:59:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.6 2009-01-11 09:33:59 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -312,22 +312,6 @@ static int sort_by_name(Way *a,Way *b)
  char *b_name=sort_names[b->name];
 
  return(strcmp(a_name,b_name));
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Return the name of the way.
-
-  const char *WayName Returns the name.
-
-  Ways* ways The set of ways to process.
-
-  Way *way The way whose name is to be found.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-const char *WayName(Ways* ways,Way *way)
-{
- return((char*)&ways->ways[way->name]);
 }
 
 

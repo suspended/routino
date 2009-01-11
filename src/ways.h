@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.4 2009-01-10 15:59:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.5 2009-01-11 09:33:59 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -130,8 +130,11 @@ Way *AppendWay(WaysMem *ways,way_t id,const char *name);
 
 void SortWayList(WaysMem *ways);
 
-const char *WayName(Ways *ways,Way *way);
 WayType TypeOfWay(const char *type);
+
+#define LookupWay(xxx,yyy) (&xxx->ways[yyy])
+
+#define WayName(xxx,yyy) ((char*)&xxx->ways[yyy->name])
 
 
 #endif /* WAYS_H */
