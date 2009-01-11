@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.5 2009-01-11 09:28:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.6 2009-01-11 09:42:26 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -24,7 +24,7 @@
 
 int main(int argc,char** argv)
 {
- Nodes    *OSMNodes,*Junctions;
+ Nodes    *OSMNodes,*SuperNodes;
  Ways     *OSMWays;
  Segments *OSMSegments,*SuperSegments;
  Results  *results;
@@ -44,7 +44,7 @@ int main(int argc,char** argv)
  /* Load in the data */
 
  OSMNodes=LoadNodeList("data/nodes.mem");
- Junctions=LoadNodeList("data/junctions.mem");
+ SuperNodes=LoadNodeList("data/super-nodes.mem");
 
  OSMWays=LoadWayList("data/ways.mem");
 
@@ -65,11 +65,11 @@ int main(int argc,char** argv)
    {
     /* Calculate the route */
 
-    results=FindRoute(Junctions,SuperSegments,start,finish);
+    results=FindRoute(SuperNodes,SuperSegments,start,finish);
 
     /* Print the route */
 
-    PrintRoutes(results,OSMNodes,OSMSegments,OSMWays,Junctions,SuperSegments,start,finish);
+    PrintRoutes(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,SuperSegments,start,finish);
    }
 
  return(0);

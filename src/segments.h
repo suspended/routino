@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.5 2009-01-11 09:33:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.6 2009-01-11 09:42:26 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -134,9 +134,9 @@ distance_t Distance(Node *node1,Node *node2);
 /* Functions in supersegments.c */
 
 
-NodesMem *ChooseJunctions(Nodes *nodes,Segments *segments,Ways *ways);
+NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways);
 
-SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *junctions);
+SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes);
 
 
 #endif /* SEGMENTS_H */
