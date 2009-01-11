@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.6 2009-01-11 09:42:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.7 2009-01-11 20:09:37 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -27,7 +27,6 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes,*SuperNodes;
  Ways     *OSMWays;
  Segments *OSMSegments,*SuperSegments;
- Results  *results;
  node_t start,finish;
 
  /* Parse the command line aarguments */
@@ -53,6 +52,8 @@ int main(int argc,char** argv)
 
  if(argc>3 && !strcmp(argv[3],"-all"))
    {
+    Results *results;
+
     /* Calculate the route */
 
     results=FindRoute(OSMNodes,OSMSegments,start,finish);
@@ -63,13 +64,78 @@ int main(int argc,char** argv)
    }
  else
    {
-    /* Calculate the route */
+    Results *begin,*middle,*end;
 
-    results=FindRoute(SuperNodes,SuperSegments,start,finish);
+    /* Calculate the beginning of the route */
 
-    /* Print the route */
+    if(FindNode(SuperNodes,start))
+      {
+       Result *result;
 
-    PrintRoutes(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,SuperSegments,start,finish);
+       begin=NewResultsList();
+
+       result=InsertResult(begin,start);
+
+       result->node=start;
+       result->Node=FindNode(OSMNodes,start);
+       result->shortest.Prev=NULL;
+       result->shortest.Next=NULL;
+       result->shortest.distance=0;
+       result->shortest.duration=0;
+       result->quickest.Prev=NULL;
+       result->quickest.Next=NULL;
+       result->quickest.distance=0;
+       result->quickest.duration=0;
+      }
+    else
+       begin=FindRoutes(OSMNodes,OSMSegments,start,SuperNodes);
+
+    if(FindResult(begin,finish))
+      {
+       Results *results;
+
+       /* Calculate the route */
+
+       results=FindRoute(OSMNodes,OSMSegments,start,finish);
+
+       /* Print the route */
+
+       PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish);
+      }
+    else
+      {
+       /* Calculate the end of the route */
+
+       if(FindNode(SuperNodes,finish))
+         {
+          Result *result;
+
+          end=NewResultsList();
+
+          result=InsertResult(end,finish);
+
+          result->node=finish;
+          result->Node=FindNode(OSMNodes,finish);
+          result->shortest.Prev=NULL;
+          result->shortest.Next=NULL;
+          result->shortest.distance=0;
+          result->shortest.duration=0;
+          result->quickest.Prev=NULL;
+          result->quickest.Next=NULL;
+          result->quickest.distance=0;
+          result->quickest.duration=0;
+         }
+       else
+          end=FindReverseRoutes(OSMNodes,OSMSegments,SuperNodes,finish);
+
+       /* Calculate the middle of the route */
+
+       middle=FindRoute3(SuperNodes,SuperSegments,start,finish,begin,end);
+
+       /* Print the route */
+
+       PrintRoutes(middle,OSMNodes,OSMSegments,OSMWays,SuperNodes,SuperSegments,start,finish);
+      }
    }
 
  return(0);

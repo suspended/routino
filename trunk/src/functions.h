@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.9 2009-01-11 09:42:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.10 2009-01-11 20:09:37 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -40,10 +40,12 @@ int WriteFile(const char *filename,void *address,size_t length);
 /* In optimiser.c */
 
 Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish);
+Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,Results *begin,Results *end);
 
 void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish);
 
 Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish);
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t finish);
 
 void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,Segments *supersegments,node_t start,node_t finish);
 
