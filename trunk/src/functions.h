@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.7 2009-01-10 11:53:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.8 2009-01-11 09:28:31 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -20,6 +20,7 @@
 #include "nodes.h"
 #include "ways.h"
 #include "segments.h"
+#include "results.h"
 
 
 /* In osmparser.c */
@@ -38,8 +39,13 @@ int WriteFile(const char *filename,void *address,size_t length);
 
 /* In optimiser.c */
 
-void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish);
-void PrintRoute(Segments *segments,Ways *ways,node_t start,node_t finish);
+Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish);
+
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish);
+
+Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish);
+
+void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *junctions,Segments *supersegments,node_t start,node_t finish);
 
 
 #endif /* FUNCTIONS_H */

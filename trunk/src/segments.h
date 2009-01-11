@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.3 2009-01-10 13:39:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.4 2009-01-11 09:28:31 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -45,7 +45,7 @@
 /*+ A short distance, measured in metres (up to ~65.5km). +*/
 typedef uint16_t distance_short_t;
 
-/*+ A short duration, measured in centiseconds (up to ~11 minutes). +*/
+/*+ A short duration, measured in 1/10th seconds (up to ~110 minutes). +*/
 typedef uint16_t duration_short_t;
 
 
@@ -58,17 +58,17 @@ typedef uint32_t distance_t;
 /*+ Conversion from metres to distance_t. +*/
 #define km_to_distance(xx) ((distance_t)((double)(xx)*1000.0))
 
-/*+ A duration, measured in centiseconds. +*/
+/*+ A duration, measured in 1/10th seconds. +*/
 typedef uint32_t duration_t;
 
 /*+ Conversion from duration_t to minutes. +*/
-#define duration_to_minutes(xx) ((double)(xx)/6000.0)
+#define duration_to_minutes(xx) ((double)(xx)/600.0)
 
 /*+ Conversion from duration_t to hours. +*/
-#define duration_to_hours(xx) ((double)(xx)/360000.0)
+#define duration_to_hours(xx) ((double)(xx)/36000.0)
 
 /*+ Conversion from hours to duration_t. +*/
-#define hours_to_duration(xx) ((duration_t)((double)(xx)*360000.0))
+#define hours_to_duration(xx) ((duration_t)((double)(xx)*36000.0))
 
 
 /* Data structures */
@@ -120,7 +120,7 @@ Segments *SaveSegmentList(SegmentsMem *segments,const char *filename);
 Segment *FindFirstSegment(Segments *segments,node_t node);
 Segment *FindNextSegment(Segments *segments,Segment *segment);
 
-void AppendSegment(SegmentsMem *segments,node_t node1,node_t node2,way_t way);
+Segment *AppendSegment(SegmentsMem *segments,node_t node1,node_t node2,way_t way);
 
 void SortSegmentList(SegmentsMem *segments);
 
@@ -132,7 +132,9 @@ distance_t Distance(Node *node1,Node *node2);
 /* Functions in supersegments.c */
 
 
-void ChooseSuperSegments(SegmentsMem *supersegments,Nodes *nodes,Segments *segments,Ways *ways);
+NodesMem *ChooseJunctions(Nodes *nodes,Segments *segments,Ways *ways);
+
+SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *junctions);
 
 
 #endif /* SEGMENTS_H */

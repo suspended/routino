@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.1 2009-01-10 13:40:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.2 2009-01-11 09:28:31 amb Exp $
 
  A header file for the results.
  ******************/ /******************
@@ -48,6 +48,7 @@
 typedef struct _HalfResult
 {
  Node       *Prev;              /*+ The previous Node following the shortest path. +*/
+ Node       *Next;              /*+ The next Node following the shortest path. +*/
  distance_t  distance;          /*+ The distance travelled to the node following the shortest path. +*/
  duration_t  duration;          /*+ The time taken to the node following the shortest path. +*/
 }

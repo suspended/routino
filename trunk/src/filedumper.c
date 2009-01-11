@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.7 2009-01-10 11:53:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.8 2009-01-11 09:28:31 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -23,6 +23,7 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Ways     *OSMWays;
  Segments *OSMSegments;
+ Nodes    *Junctions;
  Segments *SuperSegments;
 // int i;
 // distance_t longest=0;
@@ -88,6 +89,22 @@ int main(int argc,char** argv)
 //
 // printf("Longest distance = %.1f km\n",distance_to_km(longest));
 // printf("Longest duration = %.1f min\n",duration_to_minutes(slowest));
+
+ /* Examine the nodes */
+
+ Junctions=LoadNodeList("data/junctions.mem");
+
+ printf("Junctions\n");
+ printf("---------\n");
+
+ printf("sizeof(Node)=%9d Bytes\n",sizeof(Node));
+ printf("number      =%9d\n",Junctions->number);
+ printf("total size  =%9d Bytes\n",sizeof(Junctions)-sizeof(Junctions->nodes)+Junctions->number*sizeof(Node));
+
+#ifdef NBINS_NODES
+// for(i=0;i<=NBINS_NODES;i++)
+//    printf("offset[%4d] is %ld\n",i,OSMNodes->offset[i]);
+#endif
 
  /* Examine the super-segments */
 
