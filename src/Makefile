@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.6 2009-01-10 13:39:51 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.7 2009-01-11 09:28:31 amb Exp $
 #
 # Makefile
 #
@@ -16,11 +16,12 @@ LD=gcc
 
 # Program options
 
+#CFLAGS=-O3 -Wall -Wmissing-prototypes
 CFLAGS=-pg -g -O0 -Wall -Wmissing-prototypes
 #CFLAGS=-pg --coverage -g -O0 -Wall -Wmissing-prototypes
 #LDFLAGS=-lm
-#LDFLAGS=-pg --coverage -static -lm -lc
 LDFLAGS=-pg -static -lm -lc
+#LDFLAGS=-pg --coverage -static -lm -lc
 
 # Compilation targets
 

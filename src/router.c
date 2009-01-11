@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.4 2009-01-10 11:53:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.5 2009-01-11 09:28:31 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -13,6 +13,7 @@
 
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include "nodes.h"
@@ -23,14 +24,15 @@
 
 int main(int argc,char** argv)
 {
- Nodes    *OSMNodes;
+ Nodes    *OSMNodes,*Junctions;
  Ways     *OSMWays;
- Segments *OSMSegments;
+ Segments *OSMSegments,*SuperSegments;
+ Results  *results;
  node_t start,finish;
 
  /* Parse the command line aarguments */
 
- if(argc!=3)
+ if(argc!=3 && argc!=4)
    {
     fprintf(stderr,"Usage: %s <start-node> <finish-node>\n",argv[0]);
     return(1);
@@ -42,16 +44,33 @@ int main(int argc,char** argv)
  /* Load in the data */
 
  OSMNodes=LoadNodeList("data/nodes.mem");
+ Junctions=LoadNodeList("data/junctions.mem");
+
  OSMWays=LoadWayList("data/ways.mem");
+
  OSMSegments=LoadSegmentList("data/segments.mem");
+ SuperSegments=LoadSegmentList("data/super-segments.mem");
 
- /* Calculate the route */
+ if(argc>3 && !strcmp(argv[3],"-all"))
+   {
+    /* Calculate the route */
 
- FindRoute(OSMNodes,OSMSegments,start,finish);
+    results=FindRoute(OSMNodes,OSMSegments,start,finish);
 
- /* Print the route */
+    /* Print the route */
 
- PrintRoute(OSMSegments,OSMWays,start,finish);
+    PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish);
+   }
+ else
+   {
+    /* Calculate the route */
+
+    results=FindRoute(Junctions,SuperSegments,start,finish);
+
+    /* Print the route */
+
+    PrintRoutes(results,OSMNodes,OSMSegments,OSMWays,Junctions,SuperSegments,start,finish);
+   }
 
  return(0);
 }

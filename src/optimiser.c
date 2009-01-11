@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.9 2009-01-10 13:39:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.10 2009-01-11 09:28:31 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -42,8 +42,9 @@ typedef struct _Queue
 /*+ The queue of nodes. +*/
 Queue *OSMQueue=NULL;
 
-/*+ The list of results. +*/
-Results *OSMResults=NULL;
+/*+ Print the progress? +*/
+int print_progress=1;
+
 
 /* Functions */
 
@@ -64,8 +65,9 @@ static void insert_in_queue(Result *result);
   node_t finish The finish node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
+Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
 {
+ Results *results;
  Node *Start,*Finish;
  node_t node2;
  Node *Node1,*Node2;
@@ -93,9 +95,9 @@ void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
 
  /* Insert the first node into the queue */
 
- OSMResults=NewResultsList();
+ results=NewResultsList();
 
- result1=InsertResult(OSMResults,start);
+ result1=InsertResult(results,start);
 
  result1->node=start;
  result1->Node=Start;
@@ -125,12 +127,16 @@ void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
       {
        node2=segment->node2;
 
+       if(segment->distance==(distance_short_t)~0 ||
+          segment->duration==(distance_short_t)~0)
+          goto endloop;
+
        shortest2.distance=shortest1.distance+segment->distance;
        shortest2.duration=shortest1.duration+segment->duration;
        quickest2.distance=quickest1.distance+segment->distance;
        quickest2.duration=quickest1.duration+segment->duration;
 
-       result2=FindResult(OSMResults,node2);
+       result2=FindResult(results,node2);
        if(result2)
           Node2=result2->Node;
        else
@@ -146,7 +152,7 @@ void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
 
        if(!result2)                         /* New end node */
          {
-          result2=InsertResult(OSMResults,node2);
+          result2=InsertResult(results,node2);
           result2->node=node2;
           result2->Node=Node2;
           result2->shortest.Prev=Node1;
@@ -210,7 +216,7 @@ void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
        segment=FindNextSegment(segments,segment);
       }
 
-    if(!(nresults%1000))
+    if(print_progress && !(nresults%1000))
       {
        printf("\rRouting: End Nodes=%d Queue=%d Journey=%.1fkm,%.0fmin  ",nresults,OSMQueue->number,
               distance_to_km(shortest2.distance),duration_to_minutes(quickest2.duration));
@@ -218,15 +224,64 @@ void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
       }
    }
 
- printf("\rRouted: End Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin\n",nresults,
-        distance_to_km(shortestfinish.distance),duration_to_minutes(shortestfinish.duration),
-        distance_to_km(quickestfinish.distance),duration_to_minutes(quickestfinish.duration));
- fflush(stdout);
+ if(print_progress)
+   {
+    printf("\rRouted: End Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin\n",nresults,
+           distance_to_km(shortestfinish.distance),duration_to_minutes(shortestfinish.duration),
+           distance_to_km(quickestfinish.distance),duration_to_minutes(quickestfinish.duration));
+    fflush(stdout);
+   }
+
+ /* Reverse the results */
+
+ result2=FindResult(results,finish);
+
+ do
+   {
+    if(result2->shortest.Prev)
+      {
+       node_t node1=result2->shortest.Prev->id;
+
+       result1=FindResult(results,node1);
+
+       result1->shortest.Next=result2->Node;
+
+       result2=result1;
+      }
+    else
+       result2=NULL;
+   }
+ while(result2);
+
+ result2=FindResult(results,finish);
+
+ do
+   {
+    if(result2->quickest.Prev)
+      {
+       node_t node1=result2->quickest.Prev->id;
+
+       result1=FindResult(results,node1);
+
+       result1->quickest.Next=result2->Node;
+
+       result2=result1;
+      }
+    else
+       result2=NULL;
+   }
+ while(result2);
+
+ return(results);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Print the optimum route between two nodes.
+
+  Results *Results The set of results to print.
+
+  Nodes *nodes The list of nodes.
 
   Segments *segments The set of segments to use.
 
@@ -237,37 +292,35 @@ void FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
   node_t finish The finish node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoute(Segments *segments,Ways *ways,node_t start,node_t finish)
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish)
 {
  FILE *file;
  Result *result;
-// int i,j;
 
  /* Print the result for the shortest route */
 
  file=fopen("shortest.txt","w");
 
- result=FindResult(OSMResults,finish);
+ result=FindResult(results,start);
 
  do
    {
-    if(result->shortest.Prev)
+    if(result->shortest.Next)
       {
        Segment *segment;
        Way *way;
 
-       segment=FindFirstSegment(segments,result->shortest.Prev->id);
-       while(segment->node2!=result->Node->id)
+       segment=FindFirstSegment(segments,result->Node->id);
+       while(segment->node2!=result->shortest.Next->id)
           segment=FindNextSegment(segments,segment);
 
        way=FindWay(ways,segment->way);
 
-       fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3.0f %s\n",result->Node->latitude,result->Node->longitude,result->node,
+       fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3d %s\n",result->Node->latitude,result->Node->longitude,result->node,
                distance_to_km(segment->distance),duration_to_minutes(segment->duration),
-               distance_to_km(segment->distance)/duration_to_hours(segment->duration),
-               WayName(ways,way));
+               (way->limit?way->limit:way->speed),WayName(ways,way));
 
-       result=FindResult(OSMResults,result->shortest.Prev->id);
+       result=FindResult(results,result->shortest.Next->id);
       }
     else
       {
@@ -284,27 +337,26 @@ void PrintRoute(Segments *segments,Ways *ways,node_t start,node_t finish)
 
  file=fopen("quickest.txt","w");
 
- result=FindResult(OSMResults,finish);
+ result=FindResult(results,start);
 
  do
    {
-    if(result->quickest.Prev)
+    if(result->quickest.Next)
       {
        Segment *segment;
        Way *way;
 
-       segment=FindFirstSegment(segments,result->quickest.Prev->id);
-       while(segment->node2!=result->Node->id)
+       segment=FindFirstSegment(segments,result->Node->id);
+       while(segment->node2!=result->quickest.Next->id)
           segment=FindNextSegment(segments,segment);
 
        way=FindWay(ways,segment->way);
 
-       fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3.0f %s\n",result->Node->latitude,result->Node->longitude,result->node,
+       fprintf(file,"%9.5f %9.5f %9d %5.3f %5.2f %3d %s\n",result->Node->latitude,result->Node->longitude,result->node,
                distance_to_km(segment->distance),duration_to_minutes(segment->duration),
-               distance_to_km(segment->distance)/duration_to_hours(segment->duration),
-               WayName(ways,way));
+               (way->limit?way->limit:way->speed),WayName(ways,way));
 
-       result=FindResult(OSMResults,result->quickest.Prev->id);
+       result=FindResult(results,result->quickest.Next->id);
       }
     else
       {
@@ -315,35 +367,278 @@ void PrintRoute(Segments *segments,Ways *ways,node_t start,node_t finish)
    }
  while(result);
 
- /* Print all the distance results. */
+ fclose(file);
+}
 
-// file=fopen("distance.txt","w");
-//
-// for(i=0;i<NBINS;i++)
-//    for(j=0;j<OSMResults->number[i];j++)
-//      {
-//       result=OSMResults->results[i][j];
-//
-//       fprintf(file,"%9.5f %9.5f 0 %5.3f\n",result->Node->latitude,result->Node->longitude,
-//               distance_to_km(result->shortest.distance));
-//      }
-//
-// fclose(file);
 
- /* Print all the duration results. */
+/*++++++++++++++++++++++++++++++++++++++
+  Find all routes from a specified node to any node in the specified list.
 
-// file=fopen("duration.txt","w");
-//
-// for(i=0;i<NBINS;i++)
-//    for(j=0;j<OSMResults->number[i];j++)
-//      {
-//       result=OSMResults->results[i][j];
-//
-//       fprintf(file,"%9.5f %9.5f 0 %5.3f\n",result->Node->latitude,result->Node->longitude,
-//               duration_to_minutes(result->quickest.duration));
-//      }
-//
-// fclose(file);
+  Results *FindRoute2 Returns a set of results.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
+  node_t start The start node.
+
+  Nodes *finish The finishing nodes.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
+{
+ Results *results;
+ Node *Start;
+ node_t node2;
+ Node *Node1,*Node2;
+ HalfResult shortest1,quickest1;
+ HalfResult shortest2,quickest2;
+ Result *result1,*result2;
+ Segment *segment;
+ int nresults=0;
+
+ Start=FindNode(nodes,start);
+
+ /* Insert the first node into the queue */
+
+ results=NewResultsList();
+
+ result1=InsertResult(results,start);
+
+ result1->node=start;
+ result1->Node=Start;
+ result1->shortest.Prev=NULL;
+ result1->shortest.Next=NULL;
+ result1->shortest.distance=0;
+ result1->shortest.duration=0;
+ result1->quickest.Prev=NULL;
+ result1->quickest.Next=NULL;
+ result1->quickest.distance=0;
+ result1->quickest.duration=0;
+
+ insert_in_queue(result1);
+
+ /* Loop across all nodes in the queue */
+
+ while(OSMQueue->number>0)
+   {
+    result1=OSMQueue->queue[--OSMQueue->number];
+    Node1=result1->Node;
+    shortest1.distance=result1->shortest.distance;
+    shortest1.duration=result1->shortest.duration;
+    quickest1.distance=result1->quickest.distance;
+    quickest1.duration=result1->quickest.duration;
+
+    segment=FindFirstSegment(segments,Node1->id);
+
+    while(segment)
+      {
+       node2=segment->node2;
+       Node2=FindNode(nodes,node2);
+
+       if(segment->distance==(distance_short_t)~0 ||
+          segment->duration==(distance_short_t)~0)
+          goto endloop;
+
+       shortest2.distance=shortest1.distance+segment->distance;
+       shortest2.duration=shortest1.duration+segment->duration;
+       quickest2.distance=quickest1.distance+segment->distance;
+       quickest2.duration=quickest1.duration+segment->duration;
+
+       result2=FindResult(results,node2);
+
+       if(!result2)                         /* New end node */
+         {
+          result2=InsertResult(results,node2);
+          result2->node=node2;
+          result2->Node=Node2;
+          result2->shortest.Prev=Node1;
+          result2->shortest.Next=NULL;
+          result2->shortest.distance=shortest2.distance;
+          result2->shortest.duration=shortest2.duration;
+          result2->quickest.Prev=Node1;
+          result2->quickest.Next=NULL;
+          result2->quickest.distance=quickest2.distance;
+          result2->quickest.duration=quickest2.duration;
+
+          nresults++;
+
+          if(!FindNode(finish,node2))
+             insert_in_queue(result2);
+         }
+       else
+         {
+          if(shortest2.distance<result2->shortest.distance ||
+             (shortest2.distance==result2->shortest.distance &&
+              shortest2.duration<result2->shortest.duration)) /* New end node is shorter */
+            {
+             result2->shortest.Prev=Node1;
+             result2->shortest.distance=shortest2.distance;
+             result2->shortest.duration=shortest2.duration;
+
+             if(!FindNode(finish,node2))
+                insert_in_queue(result2);
+            }
+
+          if(quickest2.duration<result2->quickest.duration ||
+             (quickest2.duration==result2->quickest.duration &&
+              quickest2.distance<result2->quickest.distance)) /* New end node is quicker */
+            {
+             result2->quickest.Prev=Node1;
+             result2->quickest.distance=quickest2.distance;
+             result2->quickest.duration=quickest2.duration;
+
+             if(!FindNode(finish,node2))
+                insert_in_queue(result2);
+            }
+         }
+
+      endloop:
+
+       segment=FindNextSegment(segments,segment);
+      }
+   }
+
+ return(results);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print the optimum route between two nodes.
+
+  Results *Results The set of results to print.
+
+  Nodes *nodes The list of nodes.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The list of ways.
+
+  Nodes *junctions The list of junctions.
+
+  Segments *supersegments The list of supersegments.
+
+  node_t start The start node.
+
+  node_t finish The finish node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *junctions,Segments *supersegments,node_t start,node_t finish)
+{
+ Result *result1,*result2,*result3,*result4;
+ Results *combined;
+
+ combined=NewResultsList();
+
+ print_progress=0;
+
+ /* Sort out the shortest */
+
+ result1=FindResult(results,start);
+
+ do
+   {
+    result3=InsertResult(combined,result1->node);
+
+    result3->node=result1->node;
+    result3->Node=result1->Node;
+    result3->shortest=result1->shortest;
+
+    if(result1->shortest.Next)
+      {
+       Results *results2=FindRoute(nodes,segments,result1->node,result1->shortest.Next->id);
+
+       result2=FindResult(results2,result1->node);
+
+       do
+         {
+          if(result2->shortest.Prev && result2->shortest.Prev->id==result3->node)
+             result3->shortest.Next=result2->Node;
+
+          if(result2->shortest.Prev && result2->shortest.Next)
+            {
+             result4=InsertResult(combined,result2->node);
+
+             result4->node=result2->node;
+             result4->Node=result2->Node;
+             result4->shortest=result2->shortest;
+            }
+
+          if(result2->shortest.Next)
+             result2=FindResult(results2,result2->shortest.Next->id);
+          else
+             result2=NULL;
+         }
+       while(result2);
+
+       FreeResultsList(results2);
+
+       result1=FindResult(results,result1->shortest.Next->id);
+      }
+    else
+       result1=NULL;
+   }
+ while(result1);
+
+ /* Sort out the quickest */
+
+ result1=FindResult(results,start);
+
+ do
+   {
+    result3=FindResult(combined,result1->node);
+
+    if(!result3)
+       result3=InsertResult(combined,result1->node);
+
+    result3->node=result1->node;
+    result3->Node=result1->Node;
+    result3->quickest=result1->quickest;
+
+    if(result1->quickest.Next)
+      {
+       Results *results2=FindRoute(nodes,segments,result1->node,result1->quickest.Next->id);
+
+       result2=FindResult(results2,result1->node);
+
+       do
+         {
+          if(result2->quickest.Prev && result2->quickest.Prev->id==result3->node)
+             result3->quickest.Next=result2->Node;
+
+          if(result2->quickest.Prev && result2->quickest.Next)
+            {
+             result4=FindResult(combined,result2->node);
+
+             if(!result4)
+                result4=InsertResult(combined,result2->node);
+
+             result4->node=result2->node;
+             result4->Node=result2->Node;
+             result4->quickest=result2->quickest;
+            }
+
+          if(result2->quickest.Next)
+             result2=FindResult(results2,result2->quickest.Next->id);
+          else
+             result2=NULL;
+         }
+       while(result2);
+
+       FreeResultsList(results2);
+
+       result1=FindResult(results,result1->quickest.Next->id);
+      }
+    else
+       result1=NULL;
+   }
+ while(result1);
+
+ /* Now print out the result normally */
+
+ print_progress=1;
+
+ PrintRoute(combined,nodes,segments,ways,start,finish);
 }
 
 
@@ -434,5 +729,3 @@ static void insert_in_queue(Result *result)
 
  OSMQueue->number++;
 }
-
-

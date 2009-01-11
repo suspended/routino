@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.7 2009-01-10 15:59:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.8 2009-01-11 09:28:31 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -200,6 +200,8 @@ Segment *FindNextSegment(Segments* segments,Segment *segment)
 /*++++++++++++++++++++++++++++++++++++++
   Append a segment to a newly created segment list (unsorted).
 
+  Segment *AppendSegment Returns the appended segment.
+
   SegmentsMem* segments The set of segments to process.
 
   node_t node1 The first node in the segment.
@@ -209,7 +211,7 @@ Segment *FindNextSegment(Segments* segments,Segment *segment)
   way_t way The way that the pair of segments are connected by.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendSegment(SegmentsMem* segments,node_t node1,node_t node2,way_t way)
+Segment *AppendSegment(SegmentsMem* segments,node_t node1,node_t node2,way_t way)
 {
  /* Check that the array has enough space. */
 
@@ -231,6 +233,8 @@ void AppendSegment(SegmentsMem* segments,node_t node1,node_t node2,way_t way)
  segments->number++;
 
  segments->sorted=0;
+
+ return(&segments->segments->segments[segments->number-1]);
 }
 
 
