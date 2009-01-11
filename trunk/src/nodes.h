@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.5 2009-01-10 13:39:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.6 2009-01-11 09:33:59 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -92,9 +92,11 @@ Nodes *SaveNodeList(NodesMem *nodes,const char *filename);
 
 Node *FindNode(Nodes *nodes,node_t id);
 
-void AppendNode(NodesMem *nodes,node_t id,latlong_t latitude,latlong_t longitude);
+Node *AppendNode(NodesMem *nodes,node_t id,latlong_t latitude,latlong_t longitude);
 
 void SortNodeList(NodesMem *nodes);
+
+#define LookupNode(xxx,yyy) (&xxx->nodes[yyy])
 
 
 #endif /* NODES_H */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.4 2009-01-11 09:28:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.5 2009-01-11 09:33:59 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -127,6 +127,8 @@ void SortSegmentList(SegmentsMem *segments);
 void FixupSegmentLengths(SegmentsMem *segments,Nodes *nodes,Ways *ways);
 
 distance_t Distance(Node *node1,Node *node2);
+
+#define LookupSegment(xxx,yyy) (&xxx->segments[yyy])
 
 
 /* Functions in supersegments.c */
