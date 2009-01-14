@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.8 2009-01-11 09:28:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.9 2009-01-14 19:30:27 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -16,6 +16,7 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include "nodes.h"
 #include "segments.h"
 #include "functions.h"
 
@@ -73,22 +74,7 @@ Segments *LoadSegmentList(const char *filename)
 
 Segments *SaveSegmentList(SegmentsMem* segments,const char *filename)
 {
-#ifdef NBINS_SEGMENTS
- int i,bin=0;
-#endif
-
  assert(segments->sorted);      /* Must be sorted */
-
- segments->segments->number=segments->number;
-
-#ifdef NBINS_SEGMENTS
- for(i=0;i<segments->number;i++)
-    for(;bin<=(segments->segments->segments[i].node1%NBINS_SEGMENTS);bin++)
-       segments->segments->offset[bin]=i;
-
- for(;bin<=NBINS_SEGMENTS;bin++)
-    segments->segments->offset[bin]=segments->number;
-#endif
 
  if(WriteFile(filename,(void*)segments->segments,sizeof(Segments)-sizeof(segments->segments->segments)+segments->number*sizeof(Segment)))
     assert(0);
@@ -246,9 +232,29 @@ Segment *AppendSegment(SegmentsMem* segments,node_t node1,node_t node2,way_t way
 
 void SortSegmentList(SegmentsMem* segments)
 {
+#ifdef NBINS_SEGMENTS
+ int i,bin=0;
+#endif
+
  qsort(segments->segments->segments,segments->number,sizeof(Segment),(int (*)(const void*,const void*))sort_by_id);
 
+ while(segments->segments->segments[segments->number-1].node1==~0)
+    segments->number--;
+
  segments->sorted=1;
+
+ /* Make it searchable */
+
+ segments->segments->number=segments->number;
+
+#ifdef NBINS_SEGMENTS
+ for(i=0;i<segments->number;i++)
+    for(;bin<=(segments->segments->segments[i].node1%NBINS_SEGMENTS);bin++)
+       segments->segments->offset[bin]=i;
+
+ for(;bin<=NBINS_SEGMENTS;bin++)
+    segments->segments->offset[bin]=segments->number;
+#endif
 }
 
 
@@ -275,10 +281,61 @@ static int sort_by_id(Segment *a,Segment *b)
     return(a_bin-b_bin);
 #endif
 
- if(a_id1==b_id1)
-    return(a_id2-b_id2);
- else
-    return(a_id1-b_id1);
+ if(a_id1<b_id1)
+    return(-1);
+ else if(a_id1>b_id1)
+    return(1);
+ else /* if(a_id1==b_id1) */
+   {
+    if(a_id2<b_id2)
+       return(-1);
+    else if(a_id2>b_id2)
+       return(1);
+    else
+       return(0);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Remove bad segments (zero length or duplicated).
+
+  SegmentsMem *segments The segments to modify.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void RemoveBadSegments(SegmentsMem *segments)
+{
+ int i;
+ int duplicate=0,loop=0;
+ node_t node1=~0,node2=~0;
+
+ for(i=0;i<segments->number;i++)
+   {
+    Segment *segment=&segments->segments->segments[i];
+
+    if(segment->node1==node1 && segment->node2==node2)
+      {
+       duplicate++;
+       segment->node1=~0;
+      }
+    else if(segment->node1==segment->node2)
+      {
+       loop++;
+       segment->node1=~0;
+      }
+
+    node1=segment->node1;
+    node2=segment->node2;
+
+    if(!((i+1)%10000))
+      {
+       printf("\rChecking: Segments=%d Duplicate=%d Loop=%d",i+1,duplicate,loop);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rChecked: Segments=%d Duplicate=%d Loop=%d  \n",segments->number,duplicate,loop);
+ fflush(stdout);
 }
 
 
@@ -301,8 +358,8 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
  for(i=0;i<segments->number;i++)
    {
     speed_t    speed;
-    distance_t distance;
-    duration_t duration;
+    distance_t distance=INVALID_SHORT_DISTANCE;
+    duration_t duration=INVALID_SHORT_DURATION;
     Node *node1=FindNode(nodes,segments->segments->segments[i].node1);
     Node *node2=FindNode(nodes,segments->segments->segments[i].node2);
     Way  *way=FindWay(ways,segments->segments->segments[i].way);
@@ -312,26 +369,25 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
     else
        speed=way->speed;
 
-    if(way->type&Way_NOTROUTABLE || Way_TYPE(way->type)>Way_HighestRoutable)
-      {
-       distance=(distance_short_t)~0;
-       duration=(duration_short_t)~0;
-      }
+    if(way->type&Way_NOTROUTABLE ||
+       Way_TYPE(way->type)>Way_HighestRoutable ||
+       segments->segments->segments[i].distance==INVALID_SHORT_DISTANCE)
+       ;
     else
       {
        distance=Distance(node1,node2);
        duration=hours_to_duration(distance_to_km(distance)/speed);
 
-       if(distance>(distance_short_t)~0)
+       if(distance>=INVALID_SHORT_DISTANCE)
          {
           fprintf(stderr,"\nSegment too long (%d->%d) = %.1f km\n",node1->id,node2->id,distance_to_km(distance));
-          distance=(distance_short_t)~0;
+          distance=INVALID_SHORT_DISTANCE;
          }
 
-       if(duration>(duration_short_t)~0)
+       if(duration>=INVALID_SHORT_DURATION)
          {
           fprintf(stderr,"\nSegment too long (%d->%d) = %.1f mins\n",node1->id,node2->id,duration_to_minutes(duration));
-          duration=(duration_short_t)~0;
+          duration=INVALID_SHORT_DURATION;
          }
       }
 

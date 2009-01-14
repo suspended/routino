@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.6 2009-01-11 09:42:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.7 2009-01-14 19:30:27 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -48,18 +48,32 @@ typedef uint16_t distance_short_t;
 /*+ A short duration, measured in 1/10th seconds (up to ~110 minutes). +*/
 typedef uint16_t duration_short_t;
 
+/*+ An invalid short distance +*/
+#define INVALID_SHORT_DISTANCE (distance_short_t)(~0)
+
+/*+ An invalid duration +*/
+#define INVALID_SHORT_DURATION (duration_short_t)(~0)
+
 
 /*+ A long distance, measured in metres. +*/
 typedef uint32_t distance_t;
+
+/*+ A duration, measured in 1/10th seconds. +*/
+typedef uint32_t duration_t;
+
+
+/*+ An invalid distance +*/
+#define INVALID_DISTANCE (distance_t)(~0)
+
+/*+ An invalid duration +*/
+#define INVALID_DURATION (duration_t)(~0)
+
 
 /*+ Conversion from distance_t to kilometres. +*/
 #define distance_to_km(xx) ((double)(xx)/1000.0)
 
 /*+ Conversion from metres to distance_t. +*/
 #define km_to_distance(xx) ((distance_t)((double)(xx)*1000.0))
-
-/*+ A duration, measured in 1/10th seconds. +*/
-typedef uint32_t duration_t;
 
 /*+ Conversion from duration_t to minutes. +*/
 #define duration_to_minutes(xx) ((double)(xx)/600.0)
@@ -123,6 +137,8 @@ Segment *FindNextSegment(Segments *segments,Segment *segment);
 Segment *AppendSegment(SegmentsMem *segments,node_t node1,node_t node2,way_t way);
 
 void SortSegmentList(SegmentsMem *segments);
+
+void RemoveBadSegments(SegmentsMem *segments);
 
 void FixupSegmentLengths(SegmentsMem *segments,Nodes *nodes,Ways *ways);
 
