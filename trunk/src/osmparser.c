@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.6 2009-01-10 15:59:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.7 2009-01-14 19:26:28 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -135,11 +135,17 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
             {
              node_t from=way_nodes[i-1];
              node_t to  =way_nodes[i];
+             Segment *segment;
 
-             AppendSegment(OSMSegments,from,to,way_id);
+             segment=AppendSegment(OSMSegments,from,to,way_id);
 
-             if(!way_oneway)
-                AppendSegment(OSMSegments,to,from,way_id);
+             segment=AppendSegment(OSMSegments,to,from,way_id);
+
+             if(way_oneway)
+               {
+                segment->distance=INVALID_SHORT_DISTANCE;
+                segment->duration=INVALID_SHORT_DURATION;
+               }
             }
 
           way=AppendWay(OSMWays,way_id,refname);
@@ -271,7 +277,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
       }
    }
 
- printf("\rRead   : Lines=%ld Nodes=%ld Ways=%ld Relations=%ld\n",nlines,nnodes,nways,nrelations);
+ printf("\rRead: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld   \n",nlines,nnodes,nways,nrelations);
  fflush(stdout);
 
  if(way_nalloc)
