@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.6 2009-01-11 09:33:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.7 2009-01-14 19:28:38 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -79,22 +79,7 @@ Ways *LoadWayList(const char *filename)
 
 Ways *SaveWayList(WaysMem* ways,const char *filename)
 {
-#ifdef NBINS_WAYS
- int i,bin=0;
-#endif
-
  assert(ways->sorted);          /* Must be sorted */
-
- ways->ways->number=ways->number;
-
-#ifdef NBINS_WAYS
- for(i=0;i<ways->number;i++)
-    for(;bin<=(ways->ways->ways[i].id%NBINS_WAYS);bin++)
-       ways->ways->offset[bin]=i;
-
- for(;bin<=NBINS_WAYS;bin++)
-    ways->ways->offset[bin]=ways->number;
-#endif
 
  if(WriteFile(filename,(void*)ways->ways,sizeof(Ways)-sizeof(ways->ways->ways)+(ways->number+ways->number_str)*sizeof(Way)))
     assert(0);
@@ -224,11 +209,15 @@ Way *AppendWay(WaysMem* ways,way_t id,const char *name)
 void SortWayList(WaysMem* ways)
 {
  char *name=NULL;
+#ifdef NBINS_WAYS
+ int bin=0;
+#endif
  int i;
 
  /* Sort the ways by name */
 
  sort_names=ways->names;
+
  qsort(ways->ways->ways,ways->number,sizeof(Way),(int (*)(const void*,const void*))sort_by_name);
 
  /* Setup the offsets for the names in the way array */
@@ -265,7 +254,23 @@ void SortWayList(WaysMem* ways)
 
  qsort(ways->ways->ways,ways->number,sizeof(Way),(int (*)(const void*,const void*))sort_by_id);
 
+ while(ways->ways->ways[ways->number-1].id==~0)
+    ways->number--;
+
  ways->sorted=1;
+
+ /* Make it searchable */
+
+ ways->ways->number=ways->number;
+
+#ifdef NBINS_WAYS
+ for(i=0;i<ways->number;i++)
+    for(;bin<=(ways->ways->ways[i].id%NBINS_WAYS);bin++)
+       ways->ways->offset[bin]=i;
+
+ for(;bin<=NBINS_WAYS;bin++)
+    ways->ways->offset[bin]=ways->number;
+#endif
 }
 
 
@@ -292,7 +297,12 @@ static int sort_by_id(Way *a,Way *b)
     return(a_bin-b_bin);
 #endif
 
- return(a_id-b_id);
+ if(a_id<b_id)
+    return(-1);
+ else if(a_id>b_id)
+    return(1);
+ else /* if(a_id==b_id) */
+    return(0);
 }
 
 
