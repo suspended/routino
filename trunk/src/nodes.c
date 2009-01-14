@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.7 2009-01-11 09:33:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.8 2009-01-14 19:30:50 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -72,22 +72,7 @@ Nodes *LoadNodeList(const char *filename)
 
 Nodes *SaveNodeList(NodesMem* nodes,const char *filename)
 {
-#ifdef NBINS_NODES
- int i,bin=0;
-#endif
-
  assert(nodes->sorted);        /* Must be sorted */
-
- nodes->nodes->number=nodes->number;
-
-#ifdef NBINS_NODES
- for(i=0;i<nodes->number;i++)
-    for(;bin<=(nodes->nodes->nodes[i].id%NBINS_NODES);bin++)
-       nodes->nodes->offset[bin]=i;
-
- for(;bin<=NBINS_NODES;bin++)
-    nodes->nodes->offset[bin]=nodes->number;
-#endif
 
  if(WriteFile(filename,(void*)nodes->nodes,sizeof(Nodes)-sizeof(nodes->nodes->nodes)+nodes->number*sizeof(Node)))
     assert(0);
@@ -211,9 +196,29 @@ Node *AppendNode(NodesMem* nodes,node_t id,latlong_t latitude,latlong_t longitud
 
 void SortNodeList(NodesMem* nodes)
 {
+#ifdef NBINS_NODES
+ int i,bin=0;
+#endif
+
  qsort(nodes->nodes->nodes,nodes->number,sizeof(Node),(int (*)(const void*,const void*))sort_by_id);
 
+ while(nodes->nodes->nodes[nodes->number-1].id==~0)
+    nodes->number--;
+
  nodes->sorted=1;
+
+ /* Make it searchable */
+
+ nodes->nodes->number=nodes->number;
+
+#ifdef NBINS_NODES
+ for(i=0;i<nodes->number;i++)
+    for(;bin<=(nodes->nodes->nodes[i].id%NBINS_NODES);bin++)
+       nodes->nodes->offset[bin]=i;
+
+ for(;bin<=NBINS_NODES;bin++)
+    nodes->nodes->offset[bin]=nodes->number;
+#endif
 }
 
 
@@ -240,5 +245,49 @@ static int sort_by_id(Node *a,Node *b)
     return(a_bin-b_bin);
 #endif
 
- return(a_id-b_id);
+ if(a_id<b_id)
+    return(-1);
+ else if(a_id>b_id)
+    return(1);
+ else /* if(a_id==b_id) */
+    return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Remove any nodes that are not part of a way.
+
+  NodesMem *nodesmem The node list to create.
+
+  Nodes *nodes The complete node list.
+
+  Segments *segments The list of segments.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void RemoveNonWayNodes(NodesMem *nodesmem,Nodes *nodes,Segments *segments)
+{
+ int i;
+ int inway=0,notinway=0;
+
+ for(i=0;i<nodes->number;i++)
+   {
+    Node *node=LookupNode(nodes,i);
+
+    if(FindFirstSegment(segments,node->id))
+      {
+       inway++;
+       AppendNode(nodesmem,node->id,node->latitude,node->longitude);
+      }
+    else
+       notinway++;
+
+    if(!((i+1)%10000))
+      {
+       printf("\rChecking: Nodes=%d in-Way=%d not-in-Way=%d",i+1,inway,notinway);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rChecked: Nodes=%d in-Way=%d not-in-Way=%d  \n",i,inway,notinway);
+ fflush(stdout);
 }
