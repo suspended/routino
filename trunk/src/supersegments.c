@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.4 2009-01-11 09:42:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.5 2009-01-14 19:29:22 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -71,9 +71,9 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
 
     node=segments->segments[i].node1;
 
-    if(!(i%10000))
+    if(!((i+1)%10000))
       {
-       printf("\rFinding Super-Nodes: Segments=%d Super-Nodes=%d",i,supernodes->number);
+       printf("\rFinding Super-Nodes: Segments=%d Super-Nodes=%d",i+1,supernodes->number);
        fflush(stdout);
       }
    }
@@ -125,16 +125,16 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
              distance=results->results[j][k]->shortest.distance;
              duration=results->results[j][k]->quickest.duration;
 
-             if(distance>(distance_short_t)~0)
+             if(distance>=INVALID_SHORT_DISTANCE)
                {
                 fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f km\n",segment->node1,segment->node2,distance_to_km(distance));
-                distance=(distance_short_t)~0;
+                distance=INVALID_SHORT_DISTANCE;
                }
 
-             if(duration>(duration_short_t)~0)
+             if(duration>INVALID_SHORT_DURATION)
                {
                 fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f mins\n",segment->node1,segment->node2,duration_to_minutes(duration));
-                duration=(duration_short_t)~0;
+                duration=INVALID_SHORT_DURATION;
                }
 
              segment->distance=distance;
@@ -143,9 +143,9 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
 
     FreeResultsList(results);
 
-    if(!(i%1000))
+    if(!((i+1)%1000))
       {
-       printf("\rFinding Super-Segments: Super-Nodes=%d Super-Segments=%d",i,supersegments->number);
+       printf("\rFinding Super-Segments: Super-Nodes=%d Super-Segments=%d",i+1,supersegments->number);
        fflush(stdout);
       }
    }
