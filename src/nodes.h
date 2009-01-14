@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.6 2009-01-11 09:33:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.7 2009-01-14 19:30:50 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -84,6 +84,8 @@ typedef struct _NodesMem
 
 /* Functions */
 
+#include "segments.h"
+
 
 NodesMem *NewNodeList(void);
 
@@ -95,6 +97,8 @@ Node *FindNode(Nodes *nodes,node_t id);
 Node *AppendNode(NodesMem *nodes,node_t id,latlong_t latitude,latlong_t longitude);
 
 void SortNodeList(NodesMem *nodes);
+
+void RemoveNonWayNodes(NodesMem *nodesmem,Nodes *nodes,Segments *segments);
 
 #define LookupNode(xxx,yyy) (&xxx->nodes[yyy])
 
