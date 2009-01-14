@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.8 2009-01-11 09:42:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.9 2009-01-14 19:31:03 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -53,9 +53,9 @@ int main(int argc,char** argv)
 
  /* Sort the variables */
 
- printf("Sorting Nodes"); fflush(stdout);
+ printf("Sorting All Nodes"); fflush(stdout);
  SortNodeList(OSMNodesMem);
- printf("\rSorted Nodes \n"); fflush(stdout);
+ printf("\rSorted All Nodes \n"); fflush(stdout);
 
  printf("Sorting Ways"); fflush(stdout);
  SortWayList(OSMWaysMem);
@@ -67,13 +67,37 @@ int main(int argc,char** argv)
 
  /* Write out the variables */
 
- printf("Saving Nodes"); fflush(stdout);
- OSMNodes=SaveNodeList(OSMNodesMem,"data/nodes.mem");
- printf("\rSaved Nodes \n"); fflush(stdout);
+ printf("Saving All Nodes"); fflush(stdout);
+ OSMNodes=SaveNodeList(OSMNodesMem,"data/all-nodes.mem");
+ printf("\rSaved All Nodes: %d\n",OSMNodes->number); fflush(stdout);
 
  printf("Saving Ways"); fflush(stdout);
  OSMWays=SaveWayList(OSMWaysMem,"data/ways.mem");
- printf("\rSaved Ways \n"); fflush(stdout);
+ printf("\rSaved Ways: %d\n",OSMWays->number); fflush(stdout);
+
+ /* Remove bad segments */
+
+ RemoveBadSegments(OSMSegmentsMem);
+
+ printf("Sorting Segments"); fflush(stdout);
+ SortSegmentList(OSMSegmentsMem);
+ printf("\rSorted Segments \n"); fflush(stdout);
+
+ /* Remove non-way nodes */
+
+ OSMNodesMem=NewNodeList();
+
+ RemoveNonWayNodes(OSMNodesMem,OSMNodes,OSMSegmentsMem->segments);
+
+ UnMapFile(OSMNodes);
+
+ printf("Sorting Way Nodes"); fflush(stdout);
+ SortNodeList(OSMNodesMem);
+ printf("\rSorted Way Nodes \n"); fflush(stdout);
+
+ printf("Saving Way Nodes"); fflush(stdout);
+ OSMNodes=SaveNodeList(OSMNodesMem,"data/nodes.mem");
+ printf("\rSaved Way Nodes: %d\n",OSMNodes->number); fflush(stdout);
 
  /* Fix the segment lengths */
 
@@ -85,7 +109,7 @@ int main(int argc,char** argv)
 
  printf("Saving Segments"); fflush(stdout);
  OSMSegments=SaveSegmentList(OSMSegmentsMem,"data/segments.mem");
- printf("\rSaved Segments \n"); fflush(stdout);
+ printf("\rSaved Segments: %d\n",OSMSegments->number); fflush(stdout);
 
 #else
 
@@ -111,7 +135,7 @@ int main(int argc,char** argv)
 
  printf("Saving Super-Nodes"); fflush(stdout);
  SuperNodes=SaveNodeList(SuperNodesMem,"data/super-nodes.mem");
- printf("\rSaved Super-Nodes \n"); fflush(stdout);
+ printf("\rSaved Super-Nodes: %d\n",SuperNodes->number); fflush(stdout);
 
  /* Select the super-segments */
 
@@ -127,7 +151,7 @@ int main(int argc,char** argv)
 
  printf("Saving Super-Segments"); fflush(stdout);
  SuperSegments=SaveSegmentList(SuperSegmentsMem,"data/super-segments.mem");
- printf("\rSaved Super-Segments \n"); fflush(stdout);
+ printf("\rSaved Super-Segments: %d\n",SuperSegments->number); fflush(stdout);
 
  return(0);
 }
