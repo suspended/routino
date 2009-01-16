@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.13 2009-01-14 19:28:01 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.14 2009-01-16 19:22:37 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -70,11 +70,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
  Results *results;
  Node *Start,*Finish;
  node_t node2;
- Node *Node1,*Node2;
+ Node *Node1;
  HalfResult shortest1,quickest1;
  HalfResult shortest2,quickest2;
  HalfResult shortestfinish,quickestfinish;
- distance_t totalcrow,crow;
  Result *result1,*result2;
  Segment *segment;
  int nresults=0;
@@ -86,12 +85,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
  quickestfinish.distance=INVALID_DISTANCE;
  quickestfinish.duration=INVALID_DURATION;
 
- /* Work out the distance as the crow flies */
+ /* Calculate the start and finish nodes */
 
  Start=FindNode(nodes,start);
  Finish=FindNode(nodes,finish);
-
- totalcrow=Distance(Start,Finish);
 
  /* Insert the first node into the queue */
 
@@ -138,25 +135,16 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
        quickest2.distance=quickest1.distance+segment->distance;
        quickest2.duration=quickest1.duration+segment->duration;
 
-       result2=FindResult(results,node2);
-       if(result2)
-          Node2=result2->Node;
-       else
-          Node2=FindNode(nodes,node2);
-
-       crow=Distance(Node2,Finish);
-
-       if((crow+shortest2.distance)>(km_to_distance(10)+1.4*totalcrow))
-          goto endloop;
-
        if(shortest2.distance>shortestfinish.distance && quickest2.duration>quickestfinish.duration)
           goto endloop;
+
+       result2=FindResult(results,node2);
 
        if(!result2)                         /* New end node */
          {
           result2=InsertResult(results,node2);
           result2->node=node2;
-          result2->Node=Node2;
+          result2->Node=FindNode(nodes,node2);;
           result2->shortest.Prev=Node1;
           result2->shortest.Next=NULL;
           result2->shortest.distance=shortest2.distance;
@@ -303,11 +291,10 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
  Results *results;
  Node *Start,*Finish;
  node_t node2;
- Node *Node1,*Node2;
+ Node *Node1;
  HalfResult shortest1,quickest1;
  HalfResult shortest2,quickest2;
  HalfResult shortestfinish,quickestfinish;
- distance_t totalcrow,crow;
  Result *result1,*result2,*result3;
  Segment *segment;
  int nresults=0;
@@ -320,7 +307,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
  quickestfinish.distance=INVALID_DISTANCE;
  quickestfinish.duration=INVALID_DURATION;
 
- /* Work out the distance as the crow flies */
+ /* Calculate the start and finish nodes */
 
  results=NewResultsList();
 
@@ -337,8 +324,6 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
  *result1=*result2;
 
  Finish=result1->Node;
-
- totalcrow=Distance(Start,Finish);
 
  /* Insert the finish points of the beginning part of the path into the queue */
 
@@ -388,25 +373,16 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
        quickest2.distance=quickest1.distance+segment->distance;
        quickest2.duration=quickest1.duration+segment->duration;
 
-       result2=FindResult(results,node2);
-       if(result2)
-          Node2=result2->Node;
-       else
-          Node2=FindNode(nodes,node2);
-
-       crow=Distance(Node2,Finish);
-
-       if((crow+shortest2.distance)>(km_to_distance(10)+1.4*totalcrow))
-          goto endloop;
-
        if(shortest2.distance>shortestfinish.distance && quickest2.duration>quickestfinish.duration)
           goto endloop;
+
+       result2=FindResult(results,node2);
 
        if(!result2)                         /* New end node */
          {
           result2=InsertResult(results,node2);
           result2->node=node2;
-          result2->Node=Node2;
+          result2->Node=FindNode(nodes,node2);
           result2->shortest.Prev=Node1;
           result2->shortest.Next=NULL;
           result2->shortest.distance=shortest2.distance;
@@ -718,6 +694,8 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
  Segment *segment;
  int nresults=0;
 
+ /* Find the start node */
+
  Start=FindNode(nodes,start);
 
  /* Insert the first node into the queue */
@@ -849,6 +827,8 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t f
  Result *result1,*result2;
  Segment *segment;
  int nresults=0;
+
+ /* Find the finish node */
 
  Finish=FindNode(nodes,finish);
 
