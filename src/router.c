@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.7 2009-01-11 20:09:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.8 2009-01-16 20:04:47 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -77,13 +77,12 @@ int main(int argc,char** argv)
        result=InsertResult(begin,start);
 
        result->node=start;
-       result->Node=FindNode(OSMNodes,start);
-       result->shortest.Prev=NULL;
-       result->shortest.Next=NULL;
+       result->shortest.prev=0;
+       result->shortest.next=0;
        result->shortest.distance=0;
        result->shortest.duration=0;
-       result->quickest.Prev=NULL;
-       result->quickest.Next=NULL;
+       result->quickest.prev=0;
+       result->quickest.next=0;
        result->quickest.distance=0;
        result->quickest.duration=0;
       }
@@ -115,13 +114,12 @@ int main(int argc,char** argv)
           result=InsertResult(end,finish);
 
           result->node=finish;
-          result->Node=FindNode(OSMNodes,finish);
-          result->shortest.Prev=NULL;
-          result->shortest.Next=NULL;
+          result->shortest.prev=0;
+          result->shortest.next=0;
           result->shortest.distance=0;
           result->shortest.duration=0;
-          result->quickest.Prev=NULL;
-          result->quickest.Next=NULL;
+          result->quickest.prev=0;
+          result->quickest.next=0;
           result->quickest.distance=0;
           result->quickest.duration=0;
          }
