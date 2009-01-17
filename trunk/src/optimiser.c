@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.15 2009-01-16 20:04:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.16 2009-01-17 17:49:58 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -24,23 +24,20 @@
 
 
 #define INCREMENT 1024
-#define NBINS     256
 
 
 /*+ A queue results. +*/
 typedef struct _Queue
 {
- uint32_t alloced;              /*+ The amount of space allocated for results in the array +*/
- uint32_t number;               /*+ The number of occupied results in the array +*/
- Result *queue[1024];           /*+ An array of results whose size is not
-                                    necessarily limited to 1024 (i.e. may
-                                    overflow the end of this structure). +*/
+ uint32_t alloced;              /*+ The amount of space allocated for results in the array. +*/
+ uint32_t number;               /*+ The number of occupied results in the array. +*/
+ uint32_t *queue;               /*+ An array of offsets into the results array. +*/
 }
  Queue;
 
 
 /*+ The queue of nodes. +*/
-Queue *OSMQueue=NULL;
+Queue OSMQueue={0,0,NULL};
 
 /*+ Print the progress? +*/
 int print_progress=1;
@@ -48,7 +45,7 @@ int print_progress=1;
 
 /* Functions */
 
-static void insert_in_queue(Result *result);
+static void insert_in_queue(Results *results,Result *result);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -99,13 +96,13 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
  result1->quickest.distance=0;
  result1->quickest.duration=0;
 
- insert_in_queue(result1);
+ insert_in_queue(results,result1);
 
  /* Loop across all nodes in the queue */
 
- while(OSMQueue->number>0)
+ while(OSMQueue.number>0)
    {
-    result1=OSMQueue->queue[--OSMQueue->number];
+    result1=LookupResult(results,OSMQueue.queue[--OSMQueue.number]);
     node1=result1->node;
     shortest1.distance=result1->shortest.distance;
     shortest1.duration=result1->shortest.duration;
@@ -155,7 +152,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
              quickestfinish.duration=quickest2.duration;
             }
           else
-             insert_in_queue(result2);
+             insert_in_queue(results,result2);
          }
        else
          {
@@ -173,7 +170,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
                 shortestfinish.duration=shortest2.duration;
                }
              else
-                insert_in_queue(result2);
+                insert_in_queue(results,result2);
             }
 
           if(quickest2.duration<result2->quickest.duration ||
@@ -190,7 +187,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
                 quickestfinish.duration=quickest2.duration;
                }
              else
-                insert_in_queue(result2);
+                insert_in_queue(results,result2);
             }
          }
 
@@ -201,7 +198,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
 
     if(print_progress && !(nresults%1000))
       {
-       printf("\rRouting: End Nodes=%d Queue=%d Journey=%.1fkm,%.0fmin  ",nresults,OSMQueue->number,
+       printf("\rRouting: End Nodes=%d Queue=%d Journey=%.1fkm,%.0fmin  ",nresults,OSMQueue.number,
               distance_to_km(shortest2.distance),duration_to_minutes(quickest2.duration));
        fflush(stdout);
       }
@@ -287,7 +284,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
  Result *result1,*result2,*result3;
  Segment *segment;
  int nresults=0;
- int j,k;
+ int j;
 
  /* Set up the finish conditions */
 
@@ -312,31 +309,30 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
 
  /* Insert the finish points of the beginning part of the path into the queue */
 
- for(j=0;j<NBINS_RESULTS;j++)
-    for(k=0;k<begin->number[j];k++)
-       if(FindNode(nodes,begin->results[j][k]->node))
+ for(j=0;j<begin->number;j++)
+    if(FindNode(nodes,begin->results[j].node))
+      {
+       if(!(result1=FindResult(results,begin->results[j].node)))
          {
-          if(!(result1=FindResult(results,begin->results[j][k]->node)))
-            {
-             result1=InsertResult(results,begin->results[j][k]->node);
+          result1=InsertResult(results,begin->results[j].node);
 
-             *result1=*begin->results[j][k];
-            }
-
-          if(result1->node!=start)
-            {
-             result1->shortest.prev=start;
-             result1->quickest.prev=start;
-
-             insert_in_queue(result1);
-            }
+          *result1=begin->results[j];
          }
+
+       if(result1->node!=start)
+         {
+          result1->shortest.prev=start;
+          result1->quickest.prev=start;
+
+          insert_in_queue(results,result1);
+         }
+      }
 
  /* Loop across all nodes in the queue */
 
- while(OSMQueue->number>0)
+ while(OSMQueue.number>0)
    {
-    result1=OSMQueue->queue[--OSMQueue->number];
+    result1=LookupResult(results,OSMQueue.queue[--OSMQueue.number]);
     node1=result1->node;
     shortest1.distance=result1->shortest.distance;
     shortest1.duration=result1->shortest.duration;
@@ -396,7 +392,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
                }
             }
           else
-             insert_in_queue(result2);
+             insert_in_queue(results,result2);
          }
        else
          {
@@ -426,7 +422,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
                   }
                }
              else
-                insert_in_queue(result2);
+                insert_in_queue(results,result2);
             }
 
           if(quickest2.duration<result2->quickest.duration ||
@@ -455,7 +451,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
                   }
                }
              else
-                insert_in_queue(result2);
+                insert_in_queue(results,result2);
             }
          }
 
@@ -466,7 +462,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
 
     if(print_progress && !(nresults%1000))
       {
-       printf("\rRouting: End Nodes=%d Queue=%d Journey=%.1fkm,%.0fmin  ",nresults,OSMQueue->number,
+       printf("\rRouting: End Nodes=%d Queue=%d Journey=%.1fkm,%.0fmin  ",nresults,OSMQueue.number,
               distance_to_km(shortest2.distance),duration_to_minutes(quickest2.duration));
        fflush(stdout);
       }
@@ -488,28 +484,27 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
  result2->quickest.distance=INVALID_DISTANCE;
  result2->quickest.duration=INVALID_DURATION;
 
- for(j=0;j<NBINS_RESULTS;j++)
-    for(k=0;k<end->number[j];k++)
-       if(FindNode(nodes,end->results[j][k]->node))
-          if((result1=FindResult(results,end->results[j][k]->node)))
+ for(j=0;j<end->number;j++)
+    if(FindNode(nodes,end->results[j].node))
+       if((result1=FindResult(results,end->results[j].node)))
+         {
+          if((result1->shortest.distance+end->results[j].shortest.distance)<result2->shortest.distance ||
+             ((result1->shortest.distance+end->results[j].shortest.distance)==result2->shortest.distance &&
+              (result1->shortest.duration+end->results[j].shortest.duration)<result2->shortest.duration))
             {
-             if((result1->shortest.distance+end->results[j][k]->shortest.distance)<result2->shortest.distance ||
-                ((result1->shortest.distance+end->results[j][k]->shortest.distance)==result2->shortest.distance &&
-                 (result1->shortest.duration+end->results[j][k]->shortest.duration)<result2->shortest.duration))
-               {
-                result2->shortest.distance=result1->shortest.distance+end->results[j][k]->shortest.distance;
-                result2->shortest.duration=result1->shortest.duration+end->results[j][k]->shortest.duration;
-                result2->shortest.prev=result1->node;
-               }
-             if((result1->quickest.duration+end->results[j][k]->quickest.duration)<result2->quickest.duration ||
-                ((result1->quickest.duration+end->results[j][k]->quickest.duration)==result2->quickest.duration &&
-                 (result1->quickest.distance+end->results[j][k]->quickest.distance)<result2->quickest.distance))
-               {
-                result2->quickest.distance=result1->quickest.distance+end->results[j][k]->quickest.distance;
-                result2->quickest.duration=result1->quickest.duration+end->results[j][k]->quickest.duration;
-                result2->quickest.prev=result1->node;
-               }
+             result2->shortest.distance=result1->shortest.distance+end->results[j].shortest.distance;
+             result2->shortest.duration=result1->shortest.duration+end->results[j].shortest.duration;
+             result2->shortest.prev=result1->node;
             }
+          if((result1->quickest.duration+end->results[j].quickest.duration)<result2->quickest.duration ||
+             ((result1->quickest.duration+end->results[j].quickest.duration)==result2->quickest.duration &&
+              (result1->quickest.distance+end->results[j].quickest.distance)<result2->quickest.distance))
+            {
+             result2->quickest.distance=result1->quickest.distance+end->results[j].quickest.distance;
+             result2->quickest.duration=result1->quickest.duration+end->results[j].quickest.duration;
+             result2->quickest.prev=result1->node;
+            }
+         }
 
  /* Reverse the results */
 
@@ -696,13 +691,13 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
  result1->quickest.distance=0;
  result1->quickest.duration=0;
 
- insert_in_queue(result1);
+ insert_in_queue(results,result1);
 
  /* Loop across all nodes in the queue */
 
- while(OSMQueue->number>0)
+ while(OSMQueue.number>0)
    {
-    result1=OSMQueue->queue[--OSMQueue->number];
+    result1=LookupResult(results,OSMQueue.queue[--OSMQueue.number]);
     node1=result1->node;
     shortest1.distance=result1->shortest.distance;
     shortest1.duration=result1->shortest.duration;
@@ -742,7 +737,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
           nresults++;
 
           if(!FindNode(finish,node2))
-             insert_in_queue(result2);
+             insert_in_queue(results,result2);
          }
        else
          {
@@ -755,7 +750,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
              result2->shortest.duration=shortest2.duration;
 
              if(!FindNode(finish,node2))
-                insert_in_queue(result2);
+                insert_in_queue(results,result2);
             }
 
           if(quickest2.duration<result2->quickest.duration ||
@@ -767,7 +762,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
              result2->quickest.duration=quickest2.duration;
 
              if(!FindNode(finish,node2))
-                insert_in_queue(result2);
+                insert_in_queue(results,result2);
             }
          }
 
@@ -821,13 +816,13 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t f
  result1->quickest.distance=0;
  result1->quickest.duration=0;
 
- insert_in_queue(result1);
+ insert_in_queue(results,result1);
 
  /* Loop across all nodes in the queue */
 
- while(OSMQueue->number>0)
+ while(OSMQueue.number>0)
    {
-    result1=OSMQueue->queue[--OSMQueue->number];
+    result1=LookupResult(results,OSMQueue.queue[--OSMQueue.number]);
     node1=result1->node;
     shortest1.distance=result1->shortest.distance;
     shortest1.duration=result1->shortest.duration;
@@ -881,7 +876,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t f
           nresults++;
 
           if(!FindNode(start,node2))
-             insert_in_queue(result2);
+             insert_in_queue(results,result2);
          }
        else
          {
@@ -894,7 +889,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t f
              result2->shortest.duration=shortest2.duration;
 
              if(!FindNode(start,node2))
-                insert_in_queue(result2);
+                insert_in_queue(results,result2);
             }
 
           if(quickest2.duration<result2->quickest.duration ||
@@ -906,7 +901,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t f
              result2->quickest.duration=quickest2.duration;
 
              if(!FindNode(start,node2))
-                insert_in_queue(result2);
+                insert_in_queue(results,result2);
             }
          }
 
@@ -1088,32 +1083,33 @@ void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nod
 /*++++++++++++++++++++++++++++++++++++++
   Insert an item into the queue in the right order.
 
+  Results *results The set of results.
+
   Result *result The result to insert into the queue.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void insert_in_queue(Result *result)
+static void insert_in_queue(Results *results,Result *result)
 {
- int start;
- int end;
+ int start=0;
+ int end=OSMQueue.number-1;
  int mid;
  int insert=-1;
 
  /* Check that the whole thing is allocated. */
 
- if(!OSMQueue)
+ if(!OSMQueue.queue)
    {
-    OSMQueue=(Queue*)malloc(sizeof(Queue)-sizeof(OSMQueue->queue)+INCREMENT*sizeof(Result*));
-
-    OSMQueue->alloced=INCREMENT;
-    OSMQueue->number=0;
+    OSMQueue.alloced=INCREMENT;
+    OSMQueue.number=0;
+    OSMQueue.queue=(uint32_t*)malloc(OSMQueue.alloced*sizeof(uint32_t));
    }
 
  /* Check that the arrays have enough space. */
 
- if(OSMQueue->number==OSMQueue->alloced)
+ if(OSMQueue.number==OSMQueue.alloced)
    {
-    OSMQueue->alloced+=INCREMENT;
-    OSMQueue=(Queue*)realloc((void*)OSMQueue,sizeof(Queue)-sizeof(OSMQueue->queue)+OSMQueue->alloced*sizeof(Result*));
+    OSMQueue.alloced+=INCREMENT;
+    OSMQueue.queue=(uint32_t*)realloc((void*)OSMQueue.queue,OSMQueue.alloced*sizeof(uint32_t));
    }
 
  /* Binary search - search key may not match, new insertion point required
@@ -1127,28 +1123,25 @@ static void insert_in_queue(Result *result)
   *  # <- end    |  end (since it cannot be before the initial start or end).
   */
 
- start=0;
- end=OSMQueue->number-1;
-
- if(OSMQueue->number==0)                                                      /* There is nothing in the queue */
+ if(OSMQueue.number==0)                                                                        /* There is nothing in the queue */
+    insert=0;
+ else if(result->shortest.distance>results->results[OSMQueue.queue[start]].shortest.distance) /* Check key is not before start */
     insert=start;
- else if(result->shortest.distance>OSMQueue->queue[start]->shortest.distance) /* Check key is not before start */
-    insert=start;
- else if(result->shortest.distance<OSMQueue->queue[end]->shortest.distance)   /* Check key is not after end */
+ else if(result->shortest.distance<results->results[OSMQueue.queue[end]].shortest.distance)   /* Check key is not after end */
     insert=end+1;
  else
    {
     do
       {
-       mid=(start+end)/2;                                                         /* Choose mid point */
+       mid=(start+end)/2;                                                                          /* Choose mid point */
 
-       if(OSMQueue->queue[mid]->shortest.distance>result->shortest.distance)      /* Mid point is too low */
+       if(results->results[OSMQueue.queue[mid]].shortest.distance>result->shortest.distance)      /* Mid point is too low */
           start=mid;
-       else if(OSMQueue->queue[mid]->shortest.distance<result->shortest.distance) /* Mid point is too high */
+       else if(results->results[OSMQueue.queue[mid]].shortest.distance<result->shortest.distance) /* Mid point is too high */
           end=mid;
-       else                                                                       /* Mid point is correct */
+       else                                                                                        /* Mid point is correct */
          {
-          if(OSMQueue->queue[mid]==result)
+          if(&results->results[OSMQueue.queue[mid]]==result)
              return;
 
           insert=mid;
@@ -1163,12 +1156,12 @@ static void insert_in_queue(Result *result)
 
  /* Shuffle the array up */
 
- if(insert!=OSMQueue->number)
-    memmove(&OSMQueue->queue[insert+1],&OSMQueue->queue[insert],(OSMQueue->number-insert)*sizeof(Result*));
+ if(insert!=OSMQueue.number)
+    memmove(&OSMQueue.queue[insert+1],&OSMQueue.queue[insert],(OSMQueue.number-insert)*sizeof(uint32_t));
 
  /* Insert the new entry */
 
- OSMQueue->queue[insert]=result;
+ OSMQueue.queue[insert]=result-results->results;
 
- OSMQueue->number++;
+ OSMQueue.number++;
 }

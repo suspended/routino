@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.5 2009-01-14 19:29:22 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.6 2009-01-17 17:49:58 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -102,7 +102,7 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
 SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes)
 {
  SegmentsMem *supersegments;
- int i,j,k;
+ int i,j;
 
  /* Create super-segments */
 
@@ -114,32 +114,31 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
 
     results=FindRoutes(nodes,segments,supernodes->nodes[i].id,supernodes);
 
-    for(j=0;j<NBINS_RESULTS;j++)
-       for(k=0;k<results->number[j];k++)
-          if(FindNode(supernodes,results->results[j][k]->node))
+    for(j=0;j<results->number;j++)
+       if(FindNode(supernodes,results->results[j].node))
+         {
+          distance_t distance;
+          duration_t duration;
+          Segment *segment=AppendSegment(supersegments,supernodes->nodes[i].id,results->results[j].node,0);
+
+          distance=results->results[j].shortest.distance;
+          duration=results->results[j].quickest.duration;
+
+          if(distance>=INVALID_SHORT_DISTANCE)
             {
-             distance_t distance;
-             duration_t duration;
-             Segment *segment=AppendSegment(supersegments,supernodes->nodes[i].id,results->results[j][k]->node,0);
-
-             distance=results->results[j][k]->shortest.distance;
-             duration=results->results[j][k]->quickest.duration;
-
-             if(distance>=INVALID_SHORT_DISTANCE)
-               {
-                fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f km\n",segment->node1,segment->node2,distance_to_km(distance));
-                distance=INVALID_SHORT_DISTANCE;
-               }
-
-             if(duration>INVALID_SHORT_DURATION)
-               {
-                fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f mins\n",segment->node1,segment->node2,duration_to_minutes(duration));
-                duration=INVALID_SHORT_DURATION;
-               }
-
-             segment->distance=distance;
-             segment->duration=duration;
+             fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f km\n",segment->node1,segment->node2,distance_to_km(distance));
+             distance=INVALID_SHORT_DISTANCE;
             }
+
+          if(duration>INVALID_SHORT_DURATION)
+            {
+             fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f mins\n",segment->node1,segment->node2,duration_to_minutes(duration));
+             duration=INVALID_SHORT_DURATION;
+            }
+
+          segment->distance=distance;
+          segment->duration=duration;
+         }
 
     FreeResultsList(results);
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.3 2009-01-16 20:04:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.4 2009-01-17 17:49:58 amb Exp $
 
  A header file for the results.
  ******************/ /******************
@@ -66,14 +66,16 @@ typedef struct _Result
 /*+ A list of results. +*/
 typedef struct _Results
 {
- uint32_t alloced;              /*+ The amount of space allocated for results in the array +*/
+ uint32_t alloced;              /*+ The amount of space allocated for results in the array. +*/
+ uint32_t number;               /*+ The total number of occupied results. +*/
 #ifdef NBINS_RESULTS
- uint32_t number[NBINS_RESULTS]; /*+ The number of occupied results in the array +*/
- Result **results[NBINS_RESULTS];/*+ An array of pointers to arrays of results +*/
+ uint32_t numbin[NBINS_RESULTS]; /*+ The number of occupied results in the array. +*/
+ uint32_t *offsets[NBINS_RESULTS];/*+ An array of pointers to arrays of results. +*/
 #else
- uint32_t number;               /*+ The number of occupied results in the array +*/
- Result **results;              /*+ An array of pointers to arrays of results +*/
+ uint32_t number;               /*+ The number of occupied results in the array. +*/
+ uint32_t *offsets;             /*+ An array of pointers to results. +*/
 #endif
+ Result *results;               /*+ An array containing the actual results. +*/
 }
  Results;
 
@@ -86,6 +88,8 @@ void FreeResultsList(Results *results);
 Result *InsertResult(Results *results,node_t node);
 
 Result *FindResult(Results *results,node_t node);
+
+#define LookupResult(xxx,yyy) (&xxx->results[yyy])
 
 
 #endif /* RESULTS_H */
