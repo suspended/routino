@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.8 2009-01-16 20:04:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.9 2009-01-17 11:25:38 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -27,18 +27,30 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes,*SuperNodes;
  Ways     *OSMWays;
  Segments *OSMSegments,*SuperSegments;
- node_t start,finish;
+ node_t   start,finish;
+ int      all=0,noprint=0;
 
- /* Parse the command line aarguments */
+ /* Parse the command line arguments */
 
- if(argc!=3 && argc!=4)
+ if(argc<3)
    {
-    fprintf(stderr,"Usage: %s <start-node> <finish-node>\n",argv[0]);
+   usage:
+    fprintf(stderr,"Usage: %s <start-node> <finish-node> [-all] [-no-print]\n",argv[0]);
     return(1);
    }
 
  start=atoll(argv[1]);
  finish=atoll(argv[2]);
+
+ while(--argc>=3)
+   {
+    if(!strcmp(argv[argc],"-all"))
+       all=1;
+    else if(!strcmp(argv[argc],"-no-print"))
+       noprint=1;
+    else
+       goto usage;
+   }
 
  /* Load in the data */
 
@@ -60,7 +72,8 @@ int main(int argc,char** argv)
 
     /* Print the route */
 
-    PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish);
+    if(!noprint)
+       PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish);
    }
  else
    {
@@ -99,7 +112,8 @@ int main(int argc,char** argv)
 
        /* Print the route */
 
-       PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish);
+       if(!noprint)
+          PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish);
       }
     else
       {
@@ -132,7 +146,8 @@ int main(int argc,char** argv)
 
        /* Print the route */
 
-       PrintRoutes(middle,OSMNodes,OSMSegments,OSMWays,SuperNodes,SuperSegments,start,finish);
+       if(!noprint)
+          PrintRoutes(middle,OSMNodes,OSMSegments,OSMWays,SuperNodes,SuperSegments,start,finish);
       }
    }
 
