@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.7 2009-01-11 09:28:31 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.8 2009-01-17 19:03:17 amb Exp $
 #
 # Makefile
 #
@@ -60,10 +60,14 @@ router : $(ROUTER_OBJ)
 %.o : %.c
 	$(CC) -c $(CFLAGS) $< -o $@ -MMD -MP -MF $(addsuffix .d,$(basename $<))
 
+%.s : %.c
+	$(CC) -S $(CFLAGS) $< -o $@ -MMD -MP -MF $(addsuffix .d,$(basename $<))
+
 ########
 
 clean:
 	rm -f *.o
+	rm -f *.s
 	rm -f *~
 	rm -f *.gcno *.gcda *.gcov
 
