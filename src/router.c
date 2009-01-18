@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.9 2009-01-17 11:25:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.10 2009-01-18 09:06:57 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -72,12 +72,14 @@ int main(int argc,char** argv)
 
     /* Print the route */
 
-    if(!noprint)
+    if(!FindResult(results,finish))
+       fprintf(stderr,"No route found.\n");
+    else if(!noprint)
        PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish);
    }
  else
    {
-    Results *begin,*middle,*end;
+    Results *begin,*end;
 
     /* Calculate the beginning of the route */
 
@@ -104,19 +106,15 @@ int main(int argc,char** argv)
 
     if(FindResult(begin,finish))
       {
-       Results *results;
-
-       /* Calculate the route */
-
-       results=FindRoute(OSMNodes,OSMSegments,start,finish);
-
        /* Print the route */
 
        if(!noprint)
-          PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish);
+          PrintRoute(begin,OSMNodes,OSMSegments,OSMWays,start,finish);
       }
     else
       {
+       Results *results;
+
        /* Calculate the end of the route */
 
        if(FindNode(SuperNodes,finish))
@@ -142,12 +140,14 @@ int main(int argc,char** argv)
 
        /* Calculate the middle of the route */
 
-       middle=FindRoute3(SuperNodes,SuperSegments,start,finish,begin,end);
+       results=FindRoute3(SuperNodes,SuperSegments,start,finish,begin,end);
 
        /* Print the route */
 
-       if(!noprint)
-          PrintRoutes(middle,OSMNodes,OSMSegments,OSMWays,SuperNodes,SuperSegments,start,finish);
+       if(!FindResult(results,finish))
+          fprintf(stderr,"No route found.\n");
+       else if(!noprint)
+          PrintRoutes(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,SuperSegments,start,finish);
       }
    }
 
