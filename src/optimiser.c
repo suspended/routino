@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.17 2009-01-18 09:06:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.18 2009-01-18 16:04:09 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -57,12 +57,16 @@ static void insert_in_queue(Results *results,Result *result);
 
   Segments *segments The set of segments to use.
 
+  Ways *ways The set of ways to use.
+
   node_t start The start node.
 
   node_t finish The finish node.
+
+  wayallow_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,wayallow_t transport)
 {
  Results *results;
  node_t node1,node2;
@@ -71,6 +75,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
  HalfResult shortestfinish,quickestfinish;
  Result *result1,*result2;
  Segment *segment;
+ Way *way;
  int nresults=0;
 
  /* Set up the finish conditions */
@@ -114,6 +119,11 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
     while(segment)
       {
        node2=segment->node2;
+
+       way=FindWay(ways,segment->way);
+
+       if((way->allow&transport)!=transport)
+          goto endloop;
 
        if(segment->distance==INVALID_SHORT_DISTANCE ||
           segment->duration==INVALID_SHORT_DURATION)
@@ -265,6 +275,8 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
 
   Segments *segments The set of segments to use.
 
+  Ways *ways The set of ways to use.
+
   node_t start The start node.
 
   node_t finish The finish node.
@@ -272,9 +284,11 @@ Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish)
   Results *begin The initial portion of the route.
 
   Results *end The final portion of the route.
+
+  wayallow_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,Results *begin,Results *end)
+Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Results *begin,Results *end,wayallow_t transport)
 {
  Results *results;
  node_t node1,node2;
@@ -283,6 +297,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
  HalfResult shortestfinish,quickestfinish;
  Result *result1,*result2,*result3;
  Segment *segment;
+ Way *way;
  int nresults=0;
  int j;
 
@@ -336,6 +351,11 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
     while(segment)
       {
        node2=segment->node2;
+
+       way=FindWay(ways,segment->way);
+
+       if((way->allow&transport)!=transport)
+          goto endloop;
 
        if(segment->distance==INVALID_SHORT_DISTANCE ||
           segment->duration==INVALID_SHORT_DURATION)
@@ -470,12 +490,17 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
 
  /* Finish off the end part of the route. */
 
- if(!(result2=FindResult(results,finish)))
+ if(!FindResult(results,finish))
    {
-    result1=InsertResult(results,finish);
-    result2=FindResult(end,finish);
+    result2=InsertResult(results,finish);
+    result1=FindResult(end,finish);
 
-    *result1=*result2;
+    *result2=*result1;
+
+    result2->shortest.distance=INVALID_DISTANCE;
+    result2->shortest.duration=INVALID_DURATION;
+    result2->quickest.distance=INVALID_DISTANCE;
+    result2->quickest.duration=INVALID_DURATION;
 
     for(j=0;j<end->number;j++)
        if(FindNode(nodes,end->results[j].node))
@@ -648,18 +673,22 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node
 /*++++++++++++++++++++++++++++++++++++++
   Find all routes from a specified node to any node in the specified list.
 
-  Results *FindRoute2 Returns a set of results.
+  Results *FindRoutes Returns a set of results.
 
   Nodes *nodes The set of nodes to use.
 
   Segments *segments The set of segments to use.
 
+  Ways *ways The set of ways to use.
+
   node_t start The start node.
 
   Nodes *finish The finishing nodes.
+
+  wayallow_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,wayallow_t transport)
 {
  Results *results;
  node_t node1,node2;
@@ -667,6 +696,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
  HalfResult shortest2,quickest2;
  Result *result1,*result2;
  Segment *segment;
+ Way *way;
  int nresults=0;
 
  /* Insert the first node into the queue */
@@ -703,6 +733,11 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
     while(segment)
       {
        node2=segment->node2;
+
+       way=FindWay(ways,segment->way);
+
+       if((way->allow&transport)!=transport)
+          goto endloop;
 
        if(segment->distance==INVALID_SHORT_DISTANCE ||
           segment->duration==INVALID_SHORT_DURATION)
@@ -779,12 +814,16 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
 
   Segments *segments The set of segments to use.
 
+  Ways *ways The set of ways to use.
+
   Nodes *start The starting nodes.
 
   node_t finish The finishing node.
+
+  wayallow_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t finish)
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,wayallow_t transport)
 {
  Results *results;
  node_t node1,node2;
@@ -792,6 +831,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t f
  HalfResult shortest2,quickest2;
  Result *result1,*result2;
  Segment *segment;
+ Way *way;
  int nresults=0;
 
  /* Insert the first node into the queue */
@@ -842,6 +882,11 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t f
           goto endloop;
 
        node2=reversesegment->node1;
+
+       way=FindWay(ways,reversesegment->way);
+
+       if((way->allow&transport)!=transport)
+          goto endloop;
 
        if(reversesegment->distance==INVALID_SHORT_DISTANCE ||
           reversesegment->duration==INVALID_SHORT_DURATION)
@@ -927,9 +972,11 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t f
   node_t start The start node.
 
   node_t finish The finish node.
+
+  wayallow_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,Segments *supersegments,node_t start,node_t finish)
+void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,Segments *supersegments,node_t start,node_t finish,wayallow_t transport)
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
@@ -960,7 +1007,7 @@ void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nod
 
     if(result1->shortest.next)
       {
-       Results *results2=FindRoute(nodes,segments,result1->node,result1->shortest.next);
+       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->shortest.next,transport);
 
        result2=FindResult(results2,result1->node);
 
@@ -1024,7 +1071,7 @@ void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nod
 
     if(result1->quickest.next)
       {
-       Results *results2=FindRoute(nodes,segments,result1->node,result1->quickest.next);
+       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->quickest.next,transport);
 
        result2=FindResult(results2,result1->node);
 
@@ -1071,6 +1118,143 @@ void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nod
  print_progress=1;
 
  PrintRoute(combined,nodes,segments,ways,start,finish);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find all routes from a specified node to any node in the specified list that follows a certain type of way.
+
+  Results *FindRoutesWay Returns a set of results.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  node_t start The start node.
+
+  Nodes *finish The finishing nodes.
+
+  Way *match The way that the route must match.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match)
+{
+ Results *results;
+ node_t node1,node2;
+ HalfResult shortest1,quickest1;
+ HalfResult shortest2,quickest2;
+ Result *result1,*result2;
+ Segment *segment;
+ Way *way;
+ int nresults=0;
+
+ /* Insert the first node into the queue */
+
+ results=NewResultsList();
+
+ result1=InsertResult(results,start);
+
+ result1->node=start;
+ result1->shortest.prev=0;
+ result1->shortest.next=0;
+ result1->shortest.distance=0;
+ result1->shortest.duration=0;
+ result1->quickest.prev=0;
+ result1->quickest.next=0;
+ result1->quickest.distance=0;
+ result1->quickest.duration=0;
+
+ insert_in_queue(results,result1);
+
+ /* Loop across all nodes in the queue */
+
+ while(OSMQueue.number>0)
+   {
+    result1=LookupResult(results,OSMQueue.queue[--OSMQueue.number]);
+    node1=result1->node;
+    shortest1.distance=result1->shortest.distance;
+    shortest1.duration=result1->shortest.duration;
+    quickest1.distance=result1->quickest.distance;
+    quickest1.duration=result1->quickest.duration;
+
+    segment=FindFirstSegment(segments,node1);
+
+    while(segment)
+      {
+       node2=segment->node2;
+
+       way=FindWay(ways,segment->way);
+
+       if(way->allow!=match->allow ||
+          way->type !=match->type  ||
+          way->limit!=match->limit)
+          goto endloop;
+
+       if(segment->distance==INVALID_SHORT_DISTANCE ||
+          segment->duration==INVALID_SHORT_DURATION)
+          goto endloop;
+
+       shortest2.distance=shortest1.distance+segment->distance;
+       shortest2.duration=shortest1.duration+segment->duration;
+       quickest2.distance=quickest1.distance+segment->distance;
+       quickest2.duration=quickest1.duration+segment->duration;
+
+       result2=FindResult(results,node2);
+
+       if(!result2)                         /* New end node */
+         {
+          result2=InsertResult(results,node2);
+          result2->node=node2;
+          result2->shortest.prev=node1;
+          result2->shortest.next=0;
+          result2->shortest.distance=shortest2.distance;
+          result2->shortest.duration=shortest2.duration;
+          result2->quickest.prev=node1;
+          result2->quickest.next=0;
+          result2->quickest.distance=quickest2.distance;
+          result2->quickest.duration=quickest2.duration;
+
+          nresults++;
+
+          if(!FindNode(finish,node2))
+             insert_in_queue(results,result2);
+         }
+       else
+         {
+          if(shortest2.distance<result2->shortest.distance ||
+             (shortest2.distance==result2->shortest.distance &&
+              shortest2.duration<result2->shortest.duration)) /* New end node is shorter */
+            {
+             result2->shortest.prev=node1;
+             result2->shortest.distance=shortest2.distance;
+             result2->shortest.duration=shortest2.duration;
+
+             if(!FindNode(finish,node2))
+                insert_in_queue(results,result2);
+            }
+
+          if(quickest2.duration<result2->quickest.duration ||
+             (quickest2.duration==result2->quickest.duration &&
+              quickest2.distance<result2->quickest.distance)) /* New end node is quicker */
+            {
+             result2->quickest.prev=node1;
+             result2->quickest.distance=quickest2.distance;
+             result2->quickest.duration=quickest2.duration;
+
+             if(!FindNode(finish,node2))
+                insert_in_queue(results,result2);
+            }
+         }
+
+      endloop:
+
+       segment=FindNextSegment(segments,segment);
+      }
+   }
+
+ return(results);
 }
 
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.10 2009-01-11 20:09:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.11 2009-01-18 16:03:45 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -39,15 +39,26 @@ int WriteFile(const char *filename,void *address,size_t length);
 
 /* In optimiser.c */
 
-Results *FindRoute(Nodes *nodes,Segments *segments,node_t start,node_t finish);
-Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,Results *begin,Results *end);
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,wayallow_t transport);
+Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Results *begin,Results *end,wayallow_t transport);
 
 void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish);
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish);
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Nodes *start,node_t finish);
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,wayallow_t transport);
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,wayallow_t transport);
 
-void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,Segments *supersegments,node_t start,node_t finish);
+void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,Segments *supersegments,node_t start,node_t finish,wayallow_t transport);
+
+Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match);
+
+
+/* Functions in supersegments.c */
+
+NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways);
+
+SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes);
+
+WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments);
 
 
 #endif /* FUNCTIONS_H */

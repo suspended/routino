@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.10 2009-01-18 09:09:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.11 2009-01-18 16:03:45 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -369,8 +369,7 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
     else
        speed=way->speed;
 
-    if(Way_TYPE(way->type)<Way_Service &&
-       segments->segments->segments[i].distance!=INVALID_SHORT_DISTANCE)
+    if(segments->segments->segments[i].distance!=INVALID_SHORT_DISTANCE)
       {
        distance=Distance(node1,node2);
        duration=hours_to_duration(distance_to_km(distance)/speed);
@@ -390,7 +389,16 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
 
     segments->segments->segments[i].distance=distance;
     segments->segments->segments[i].duration=duration;
+
+    if(!((i+1)%10000))
+      {
+       printf("\rMeasuring Segments: Segments=%d",i+1);
+       fflush(stdout);
+      }
    }
+
+ printf("\rMeasured Segments: Segments=%d \n",segments->number);
+ fflush(stdout);
 }
 
 

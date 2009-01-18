@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.10 2009-01-18 09:07:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.11 2009-01-18 16:03:45 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -25,6 +25,7 @@ int main(int argc,char** argv)
  Segments *OSMSegments;
  Nodes    *SuperNodes;
  Segments *SuperSegments;
+ Ways     *SuperWays;
 // int i;
 // distance_t longest=0;
 // duration_t slowest=0;
@@ -90,7 +91,7 @@ int main(int argc,char** argv)
 // printf("Longest distance = %.1f km\n",distance_to_km(longest));
 // printf("Longest duration = %.1f min\n",duration_to_minutes(slowest));
 
- /* Examine the nodes */
+ /* Examine the super-nodes */
 
  SuperNodes=LoadNodeList("data/super-nodes.mem");
 
@@ -105,6 +106,23 @@ int main(int argc,char** argv)
 #ifdef NBINS_NODES
 // for(i=0;i<=NBINS_NODES;i++)
 //    printf("offset[%4d] is %ld\n",i,OSMNodes->offset[i]);
+#endif
+
+ /* Examine the super-ways */
+
+ SuperWays=LoadWayList("data/super-ways.mem");
+
+ printf("\n");
+ printf("Super-Ways\n");
+ printf("----------\n");
+
+ printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
+ printf("number      =%9d\n",SuperWays->number);
+ printf("total size  =%9d Bytes\n",sizeof(SuperWays)-sizeof(SuperWays->ways)+SuperWays->number*sizeof(Way));
+
+#ifdef NBINS_WAYS
+// for(i=0;i<=NBINS_WAYS;i++)
+//    printf("offset[%4d] is %ld\n",i,SuperWays->offset[i]);
 #endif
 
  /* Examine the super-segments */

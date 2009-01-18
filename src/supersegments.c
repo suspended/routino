@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.7 2009-01-18 09:08:57 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.8 2009-01-18 16:03:45 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -44,9 +44,11 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
  wayallow_t allow=0;
  NodesMem *supernodes;
 
- /* Find super-nodes */
+ /* Create super-nodes */
 
  supernodes=NewNodeList();
+
+ /* Find super-nodes */
 
  node=segments->segments[0].node1;
 
@@ -128,53 +130,153 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
  SegmentsMem *supersegments;
  int i,j;
 
- /* Create super-segments */
+ /* Create super-segments ans super-ways */
 
  supersegments=NewSegmentList();
 
+ /* Create super-segments for each super-node. */
+
  for(i=0;i<supernodes->number;i++)
    {
-    Results *results;
+    Segment *segment,*first;
 
-    results=FindRoutes(nodes,segments,supernodes->nodes[i].id,supernodes);
+    segment=first=FindFirstSegment(segments,supernodes->nodes[i].id);
 
-    for(j=0;j<results->number;j++)
-       if(FindNode(supernodes,results->results[j].node))
+    while(segment)
+      {
+       Way *way=FindWay(ways,segment->way);
+
+//       /* Check that this type of way hasn't already been routed */
+//
+//       if(segment!=first)
+//         {
+//          Segment *othersegment=first;
+//
+//          while(othersegment)
+//            {
+//             Way *otherway=FindWay(ways,othersegment->way);
+//
+//             if(otherway->type ==way->type  &&
+//                otherway->allow==way->allow &&
+//                otherway->limit==way->limit)
+//               {
+//                way=NULL;
+//                break;
+//               }
+//
+//             othersegment=FindNextSegment(segments,othersegment);
+//            }
+//         }
+
+       /* Route the way and store the super-segments. */
+
+       if(way)
          {
-          distance_t distance;
-          duration_t duration;
-          Segment *segment=AppendSegment(supersegments,supernodes->nodes[i].id,results->results[j].node,0);
+          Results *results=FindRoutesWay(nodes,segments,ways,supernodes->nodes[i].id,supernodes,way);
 
-          distance=results->results[j].shortest.distance;
-          duration=results->results[j].quickest.duration;
+          for(j=0;j<results->number;j++)
+             if(results->results[j].node!=supernodes->nodes[i].id && FindNode(supernodes,results->results[j].node))
+               {
+                Segment *supersegment=AppendSegment(supersegments,supernodes->nodes[i].id,results->results[j].node,segment->way);
+                distance_t distance;
+                duration_t duration;
 
-          if(distance>=INVALID_SHORT_DISTANCE)
-            {
-             fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f km\n",segment->node1,segment->node2,distance_to_km(distance));
-             distance=INVALID_SHORT_DISTANCE;
-            }
+                distance=results->results[j].shortest.distance;
+                duration=results->results[j].quickest.duration;
 
-          if(duration>INVALID_SHORT_DURATION)
-            {
-             fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f mins\n",segment->node1,segment->node2,duration_to_minutes(duration));
-             duration=INVALID_SHORT_DURATION;
-            }
+                if(distance>=INVALID_SHORT_DISTANCE)
+                  {
+                   fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f km\n",supersegment->node1,supersegment->node2,distance_to_km(distance));
+                   distance=INVALID_SHORT_DISTANCE;
+                  }
 
-          segment->distance=distance;
-          segment->duration=duration;
+                if(duration>INVALID_SHORT_DURATION)
+                  {
+                   fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f mins\n",supersegment->node1,supersegment->node2,duration_to_minutes(duration));
+                   duration=INVALID_SHORT_DURATION;
+                  }
+
+                supersegment->distance=distance;
+                supersegment->duration=duration;
+               }
+
+          FreeResultsList(results);
          }
 
-    FreeResultsList(results);
+       segment=FindNextSegment(segments,segment);
+      }
 
     if(!((i+1)%1000))
       {
-       printf("\rFinding Super-Segments: Super-Nodes=%d Super-Segments=%d",i+1,supersegments->number);
+       printf("\rCreating Super-Segments: Super-Nodes=%d Super-Segments=%d",i+1,supersegments->number);
        fflush(stdout);
       }
    }
 
- printf("\rFound Super-Segments: Super-Nodes=%d Super-Segments=%d  \n",supernodes->number,supersegments->number);
+ printf("\rCreated Super-Segments: Super-Nodes=%d Super-Segments=%d \n",supernodes->number,supersegments->number);
  fflush(stdout);
 
  return(supersegments);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Create the Super-Ways from the Super-Segments.
+
+  WaysMem *CreateSuperWays Returns the set of super-ways.
+
+  Ways *ways The list of ways.
+
+  SegmentsMem *supersegments The list of super-segments.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments)
+{
+ WaysMem *superways;
+ int i,j;
+
+ /* Create super-ways */
+
+ superways=NewWayList();
+
+ /* Create a new super-way to replace each existing way. */
+
+ for(i=0;i<supersegments->segments->number;i++)
+   {
+    Way *way=FindWay(ways,supersegments->segments->segments[i].way);
+
+    supersegments->segments->segments[i].way=0;
+
+    for(j=0;j<superways->number;j++)
+       if(superways->ways->ways[j].type ==way->type  &&
+          superways->ways->ways[j].allow==way->allow &&
+          superways->ways->ways[j].limit==way->limit)
+         {
+          supersegments->segments->segments[i].way=superways->ways->ways[j].id;
+          break;
+         }
+
+    if(!supersegments->segments->segments[i].way)
+      {
+       Way *newway=AppendWay(superways,superways->number+1,"Super-Way");
+
+       newway->limit=way->limit;
+       newway->type =way->type;
+       newway->allow=way->allow;
+       newway->speed=way->speed;
+
+       supersegments->segments->segments[i].way=newway->id;
+      }
+
+    if(!((i+1)%10000))
+      {
+       printf("\rCreating Super-Ways: Super-Segments=%d Super-Ways=%d",i+1,superways->number);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rCreated Super-Ways: Super-Segments=%d Super-Ways=%d \n",supersegments->number,superways->number);
+ fflush(stdout);
+
+ return(superways);
 }
