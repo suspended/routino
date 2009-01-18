@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.18 2009-01-18 16:04:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.19 2009-01-18 16:40:57 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -580,25 +580,35 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node
 
   Ways *ways The list of ways.
 
+  Nodes *supernodes The list of super-nodes.
+
   node_t start The start node.
 
   node_t finish The finish node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish)
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish)
 {
- FILE *file;
+ FILE *textfile,*gpxfile;
  Result *result;
 
  /* Print the result for the shortest route */
 
- file=fopen("shortest.txt","w");
+ textfile=fopen("shortest.txt","w");
+ gpxfile=fopen("shortest.gpx","w");
+
+ fprintf(gpxfile,"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+ fprintf(gpxfile,"<gpx version=\"1.0\" creator=\"Router\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/0\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd\">\n");
+ fprintf(gpxfile,"<trk>\n");
+ fprintf(gpxfile,"<trkseg>\n");
 
  result=FindResult(results,start);
 
  do
    {
     Node *node=FindNode(nodes,result->node);
+
+    fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",node->latitude,node->longitude);
 
     if(result->shortest.prev)
       {
@@ -611,13 +621,15 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node
 
        way=FindWay(ways,segment->way);
 
-       fprintf(file,"%9.5f %9.5f %5.3f %5.2f %6.1f %5.1f %3d %s\n",node->latitude,node->longitude,
+       fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
+               node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
                distance_to_km(segment->distance),duration_to_minutes(segment->duration),
                distance_to_km(result->shortest.distance),duration_to_minutes(result->shortest.duration),
                (way->limit?way->limit:way->speed),WayName(ways,way));
       }
     else
-       fprintf(file,"%9.5f %9.5f %5.3f %5.2f %6.1f %5.1f\n",node->latitude,node->longitude,
+       fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
+               node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
                0.0,0.0,0.0,0.0);
 
     if(result->shortest.next)
@@ -627,17 +639,30 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node
    }
  while(result);
 
- fclose(file);
+ fprintf(gpxfile,"</trkseg>\n");
+ fprintf(gpxfile,"</trk>\n");
+ fprintf(gpxfile,"</gpx>\n");
+
+ fclose(textfile);
+ fclose(gpxfile);
 
  /* Print the result for the quickest route */
 
- file=fopen("quickest.txt","w");
+ textfile=fopen("quickest.txt","w");
+ gpxfile=fopen("quickest.gpx","w");
+
+ fprintf(gpxfile,"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+ fprintf(gpxfile,"<gpx version=\"1.0\" creator=\"Router\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/0\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd\">\n");
+ fprintf(gpxfile,"<trk>\n");
+ fprintf(gpxfile,"<trkseg>\n");
 
  result=FindResult(results,start);
 
  do
    {
     Node *node=FindNode(nodes,result->node);
+
+    fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",node->latitude,node->longitude);
 
     if(result->quickest.prev)
       {
@@ -650,13 +675,15 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node
 
        way=FindWay(ways,segment->way);
 
-       fprintf(file,"%9.5f %9.5f %5.3f %5.2f %6.1f %5.1f %3d %s\n",node->latitude,node->longitude,
+       fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
+               node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
                distance_to_km(segment->distance),duration_to_minutes(segment->duration),
                distance_to_km(result->quickest.distance),duration_to_minutes(result->quickest.duration),
                (way->limit?way->limit:way->speed),WayName(ways,way));
       }
     else
-       fprintf(file,"%9.5f %9.5f %5.3f %5.2f %6.1f %5.1f\n",node->latitude,node->longitude,
+       fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
+               node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
                0.0,0.0,0.0,0.0);
 
     if(result->quickest.next)
@@ -666,7 +693,12 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node
    }
  while(result);
 
- fclose(file);
+ fprintf(gpxfile,"</trkseg>\n");
+ fprintf(gpxfile,"</trk>\n");
+ fprintf(gpxfile,"</gpx>\n");
+
+ fclose(textfile);
+ fclose(gpxfile);
 }
 
 
@@ -957,6 +989,8 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 /*++++++++++++++++++++++++++++++++++++++
   Print the optimum route between two nodes.
 
+  Results *CombineResults Returns the results from joining the super-nodes.
+
   Results *results The set of results.
 
   Nodes *nodes The list of nodes.
@@ -965,10 +999,6 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
   Ways *ways The list of ways.
 
-  Nodes *supernodes The list of supernodes.
-
-  Segments *supersegments The list of supersegments.
-
   node_t start The start node.
 
   node_t finish The finish node.
@@ -976,7 +1006,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
   wayallow_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,Segments *supersegments,node_t start,node_t finish,wayallow_t transport)
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,wayallow_t transport)
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
@@ -1117,7 +1147,7 @@ void PrintRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nod
 
  print_progress=1;
 
- PrintRoute(combined,nodes,segments,ways,start,finish);
+ return(combined);
 }
 
 
