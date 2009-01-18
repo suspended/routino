@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.9 2009-01-14 19:31:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.10 2009-01-18 16:03:45 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -33,11 +33,13 @@ int main(int argc,char** argv)
 #endif
  NodesMem *SuperNodesMem;
  SegmentsMem *SuperSegmentsMem;
+ WaysMem *SuperWaysMem;
  Nodes *OSMNodes;
  Ways *OSMWays;
  Segments *OSMSegments;
  Nodes *SuperNodes;
  Segments *SuperSegments;
+ Ways *SuperWays;
 
 #if !SKIP_PARSING
 
@@ -101,9 +103,7 @@ int main(int argc,char** argv)
 
  /* Fix the segment lengths */
 
- printf("Measuring Segments"); fflush(stdout);
  FixupSegmentLengths(OSMSegmentsMem,OSMNodes,OSMWays);
- printf("\rMeasured Segments \n"); fflush(stdout);
 
  /* Write out the variables */
 
@@ -141,17 +141,31 @@ int main(int argc,char** argv)
 
  SuperSegmentsMem=CreateSuperSegments(OSMNodes,OSMSegments,OSMWays,SuperNodes);
 
- /* Sort the super-segments */
+ /* Sort the variables */
 
  printf("Sorting Super-Segments"); fflush(stdout);
  SortSegmentList(SuperSegmentsMem);
  printf("\rSorted Super-Segments \n"); fflush(stdout);
+
+ /* Select the super-ways */
+
+ SuperWaysMem=CreateSuperWays(OSMWays,SuperSegmentsMem);
+
+ /* Sort the variables */
+
+ printf("Sorting Super-Ways"); fflush(stdout);
+ SortWayList(SuperWaysMem);
+ printf("\rSorted Super-Ways \n"); fflush(stdout);
 
  /* Write out the variables */
 
  printf("Saving Super-Segments"); fflush(stdout);
  SuperSegments=SaveSegmentList(SuperSegmentsMem,"data/super-segments.mem");
  printf("\rSaved Super-Segments: %d\n",SuperSegments->number); fflush(stdout);
+
+ printf("Saving Super-Ways"); fflush(stdout);
+ SuperWays=SaveWayList(SuperWaysMem,"data/super-ways.mem");
+ printf("\rSaved Super-Ways: %d\n",SuperWays->number); fflush(stdout);
 
  return(0);
 }

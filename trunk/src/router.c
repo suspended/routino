@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.10 2009-01-18 09:06:57 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.11 2009-01-18 16:03:45 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -25,17 +25,20 @@
 int main(int argc,char** argv)
 {
  Nodes    *OSMNodes,*SuperNodes;
- Ways     *OSMWays;
+ Ways     *OSMWays,*SuperWays;
  Segments *OSMSegments,*SuperSegments;
- node_t   start,finish;
- int      all=0,noprint=0;
+ node_t    start,finish;
+ int       all=0,noprint=0;
+ AllowType transport=Allow_Motorcar;
 
  /* Parse the command line arguments */
 
  if(argc<3)
    {
    usage:
-    fprintf(stderr,"Usage: %s <start-node> <finish-node> [-all] [-no-print]\n",argv[0]);
+    fprintf(stderr,"Usage: router <start-node> <finish-node>\n"
+                   "              [-all] [-no-print]\n"
+                   "              [-transport=(foot|bicycle|...)]\n");
     return(1);
    }
 
@@ -48,6 +51,8 @@ int main(int argc,char** argv)
        all=1;
     else if(!strcmp(argv[argc],"-no-print"))
        noprint=1;
+    else if(!strncmp(argv[argc],"-transport=",11))
+       transport=AllowedType(&argv[argc][11]);
     else
        goto usage;
    }
@@ -58,17 +63,18 @@ int main(int argc,char** argv)
  SuperNodes=LoadNodeList("data/super-nodes.mem");
 
  OSMWays=LoadWayList("data/ways.mem");
+ SuperWays=LoadWayList("data/super-ways.mem");
 
  OSMSegments=LoadSegmentList("data/segments.mem");
  SuperSegments=LoadSegmentList("data/super-segments.mem");
 
- if(argc>3 && !strcmp(argv[3],"-all"))
+ if(all)
    {
     Results *results;
 
     /* Calculate the route */
 
-    results=FindRoute(OSMNodes,OSMSegments,start,finish);
+    results=FindRoute(OSMNodes,OSMSegments,OSMWays,start,finish,transport);
 
     /* Print the route */
 
@@ -102,7 +108,7 @@ int main(int argc,char** argv)
        result->quickest.duration=0;
       }
     else
-       begin=FindRoutes(OSMNodes,OSMSegments,start,SuperNodes);
+       begin=FindRoutes(OSMNodes,OSMSegments,OSMWays,start,SuperNodes,transport);
 
     if(FindResult(begin,finish))
       {
@@ -136,18 +142,18 @@ int main(int argc,char** argv)
           result->quickest.duration=0;
          }
        else
-          end=FindReverseRoutes(OSMNodes,OSMSegments,SuperNodes,finish);
+          end=FindReverseRoutes(OSMNodes,OSMSegments,OSMWays,SuperNodes,finish,transport);
 
        /* Calculate the middle of the route */
 
-       results=FindRoute3(SuperNodes,SuperSegments,start,finish,begin,end);
+       results=FindRoute3(SuperNodes,SuperSegments,SuperWays,start,finish,begin,end,transport);
 
        /* Print the route */
 
        if(!FindResult(results,finish))
           fprintf(stderr,"No route found.\n");
        else if(!noprint)
-          PrintRoutes(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,SuperSegments,start,finish);
+          PrintRoutes(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,SuperSegments,start,finish,transport);
       }
    }
 

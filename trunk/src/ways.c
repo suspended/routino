@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.7 2009-01-14 19:28:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.8 2009-01-18 16:03:45 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -393,4 +393,58 @@ WayType TypeOfWay(const char *type)
    }
 
  return(Way_Unknown);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Decide on the allowed type of transport given the name of it.
+
+  AllowType AllowedType Returns the type of the transport.
+
+  const char *transport The string containing the method of transport.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+AllowType AllowedType(const char *transport)
+{
+ switch(*transport)
+   {
+   case 'b':
+    if(!strcmp(transport,"bicycle"))
+       return(Allow_Bicycle);
+    break;
+
+   case 'f':
+    if(!strcmp(transport,"foot"))
+       return(Allow_Foot);
+    break;
+
+   case 'g':
+    if(!strcmp(transport,"goods"))
+       return(Allow_Goods);
+    break;
+
+   case 'h':
+    if(!strcmp(transport,"horse"))
+       return(Allow_Horse);
+    if(!strcmp(transport,"hgv"))
+       return(Allow_HGV);
+    break;
+
+   case 'm':
+    if(!strcmp(transport,"motorbike"))
+       return(Allow_Motorbike);
+    if(!strcmp(transport,"motorcar"))
+       return(Allow_Motorcar);
+    break;
+
+   case 'p':
+    if(!strcmp(transport,"psv"))
+       return(Allow_PSV);
+    break;
+
+   default:
+    ;
+   }
+
+ return(0);
 }

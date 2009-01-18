@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.6 2009-01-18 09:08:05 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.7 2009-01-18 16:03:45 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -86,7 +86,8 @@ typedef enum _AllowType
   Allow_Motorcar  = 16,
   Allow_PSV       = 32,
   Allow_Goods     = 64,
-  Allow_HGV       =128
+  Allow_HGV       =128,
+  Allow_ALL       =255
  }
  AllowType;
 
@@ -147,6 +148,8 @@ Way *AppendWay(WaysMem *ways,way_t id,const char *name);
 void SortWayList(WaysMem *ways);
 
 WayType TypeOfWay(const char *type);
+
+AllowType AllowedType(const char *transport);
 
 #define LookupWay(xxx,yyy) (&xxx->ways[yyy])
 
