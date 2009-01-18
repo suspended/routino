@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.9 2009-01-14 19:30:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.10 2009-01-18 09:09:28 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -369,11 +369,8 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
     else
        speed=way->speed;
 
-    if(way->type&Way_NOTROUTABLE ||
-       Way_TYPE(way->type)>Way_HighestRoutable ||
-       segments->segments->segments[i].distance==INVALID_SHORT_DISTANCE)
-       ;
-    else
+    if(Way_TYPE(way->type)<Way_Service &&
+       segments->segments->segments[i].distance!=INVALID_SHORT_DISTANCE)
       {
        distance=Distance(node1,node2);
        duration=hours_to_duration(distance_to_km(distance)/speed);
