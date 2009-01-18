@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.5 2009-01-11 09:33:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.6 2009-01-18 09:08:05 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -46,8 +46,9 @@ typedef uint32_t way_t;
 typedef uint8_t speed_t;
 
 /*+ A way type identifier. +*/
-typedef uint16_t waytype_t;
+typedef uint8_t waytype_t;
 
+/*+ The different types of a way. +*/
 typedef enum _WayType
  {
   Way_Motorway   =1,
@@ -57,23 +58,37 @@ typedef enum _WayType
   Way_Secondary  =5,
   Way_Unclassfied=6,
   Way_Residential=7,
-
-  Way_HighestRoutable=7,
-
   Way_Service    =8,
   Way_Track      =9,
   Way_Bridleway  =10,
   Way_Cycleway   =11,
   Way_Footway    =12,
   Way_Unknown    =15,
+
+  Way_OneWay     =16,
+  Way_Roundabout =32
  }
  WayType;
 
 #define Way_TYPE(xx) ((xx)&0x0f)
 
-#define Way_ONEWAY       16
-#define Way_ROUNDABOUT   32
-#define Way_NOTROUTABLE 128
+
+/*+ A way type identifier. +*/
+typedef uint8_t wayallow_t;
+
+/*+ The different allowed traffic on a way. +*/
+typedef enum _AllowType
+ {
+  Allow_Foot      =  1,
+  Allow_Bicycle   =  2,
+  Allow_Horse     =  4,
+  Allow_Motorbike =  8,
+  Allow_Motorcar  = 16,
+  Allow_PSV       = 32,
+  Allow_Goods     = 64,
+  Allow_HGV       =128
+ }
+ AllowType;
 
 
 /* Data structures */
@@ -82,11 +97,12 @@ typedef enum _WayType
 /*+ A structure containing a single way. +*/
 typedef struct _Way
 {
- way_t     id;                  /*+ The way identifier. +*/
- uint32_t  name;                /*+ An offset of the name of the way in the ways array. +*/
- speed_t   limit;               /*+ The defined speed limit on the way. +*/
- speed_t   speed;               /*+ The assumed speed limit on the way. +*/
- waytype_t type;                /*+ The type of the way. +*/
+ way_t      id;                 /*+ The way identifier. +*/
+ uint32_t   name;               /*+ An offset of the name of the way in the ways array. +*/
+ speed_t    limit;              /*+ The defined speed limit on the way. +*/
+ speed_t    speed;              /*+ The assumed speed limit on the way. +*/
+ waytype_t  type;               /*+ The type of the way. +*/
+ wayallow_t allow;              /*+ The type of traffic allowed on the way. +*/
 }
  Way;
 
