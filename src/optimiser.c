@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.19 2009-01-18 16:40:57 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.20 2009-01-18 17:42:33 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -1217,8 +1217,8 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
 
        way=FindWay(ways,segment->way);
 
-       if(way->allow!=match->allow ||
-          way->type !=match->type  ||
+       if(Way_TYPE(way->type)!=Way_TYPE(match->type) ||
+          way->allow!=match->allow ||
           way->limit!=match->limit)
           goto endloop;
 
