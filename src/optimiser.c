@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.16 2009-01-17 17:49:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.17 2009-01-18 09:06:29 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -293,17 +293,12 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
  quickestfinish.distance=INVALID_DISTANCE;
  quickestfinish.duration=INVALID_DURATION;
 
- /* Calculate the start and finish nodes */
+ /* Insert the start nodes */
 
  results=NewResultsList();
 
  result1=InsertResult(results,start);
  result2=FindResult(begin,start);
-
- *result1=*result2;
-
- result1=InsertResult(results,finish);
- result2=FindResult(end,finish);
 
  *result1=*result2;
 
@@ -317,15 +312,12 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
           result1=InsertResult(results,begin->results[j].node);
 
           *result1=begin->results[j];
-         }
 
-       if(result1->node!=start)
-         {
           result1->shortest.prev=start;
           result1->quickest.prev=start;
-
-          insert_in_queue(results,result1);
          }
+
+       insert_in_queue(results,result1);
       }
 
  /* Loop across all nodes in the queue */
@@ -478,33 +470,35 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,node_t start,node_t finish,R
 
  /* Finish off the end part of the route. */
 
- result2=FindResult(results,finish);
- result2->shortest.distance=INVALID_DISTANCE;
- result2->shortest.duration=INVALID_DURATION;
- result2->quickest.distance=INVALID_DISTANCE;
- result2->quickest.duration=INVALID_DURATION;
+ if(!(result2=FindResult(results,finish)))
+   {
+    result1=InsertResult(results,finish);
+    result2=FindResult(end,finish);
 
- for(j=0;j<end->number;j++)
-    if(FindNode(nodes,end->results[j].node))
-       if((result1=FindResult(results,end->results[j].node)))
-         {
-          if((result1->shortest.distance+end->results[j].shortest.distance)<result2->shortest.distance ||
-             ((result1->shortest.distance+end->results[j].shortest.distance)==result2->shortest.distance &&
-              (result1->shortest.duration+end->results[j].shortest.duration)<result2->shortest.duration))
+    *result1=*result2;
+
+    for(j=0;j<end->number;j++)
+       if(FindNode(nodes,end->results[j].node))
+          if((result1=FindResult(results,end->results[j].node)))
             {
-             result2->shortest.distance=result1->shortest.distance+end->results[j].shortest.distance;
-             result2->shortest.duration=result1->shortest.duration+end->results[j].shortest.duration;
-             result2->shortest.prev=result1->node;
+             if((result1->shortest.distance+end->results[j].shortest.distance)<result2->shortest.distance ||
+                ((result1->shortest.distance+end->results[j].shortest.distance)==result2->shortest.distance &&
+                 (result1->shortest.duration+end->results[j].shortest.duration)<result2->shortest.duration))
+               {
+                result2->shortest.distance=result1->shortest.distance+end->results[j].shortest.distance;
+                result2->shortest.duration=result1->shortest.duration+end->results[j].shortest.duration;
+                result2->shortest.prev=result1->node;
+               }
+             if((result1->quickest.duration+end->results[j].quickest.duration)<result2->quickest.duration ||
+                ((result1->quickest.duration+end->results[j].quickest.duration)==result2->quickest.duration &&
+                 (result1->quickest.distance+end->results[j].quickest.distance)<result2->quickest.distance))
+               {
+                result2->quickest.distance=result1->quickest.distance+end->results[j].quickest.distance;
+                result2->quickest.duration=result1->quickest.duration+end->results[j].quickest.duration;
+                result2->quickest.prev=result1->node;
+               }
             }
-          if((result1->quickest.duration+end->results[j].quickest.duration)<result2->quickest.duration ||
-             ((result1->quickest.duration+end->results[j].quickest.duration)==result2->quickest.duration &&
-              (result1->quickest.distance+end->results[j].quickest.distance)<result2->quickest.distance))
-            {
-             result2->quickest.distance=result1->quickest.distance+end->results[j].quickest.distance;
-             result2->quickest.duration=result1->quickest.duration+end->results[j].quickest.duration;
-             result2->quickest.prev=result1->node;
-            }
-         }
+   }
 
  /* Reverse the results */
 
@@ -777,9 +771,9 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,node_t start,Nodes *finish)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find all routes from a specified node to any node in the specified list.
+  Find all routes from any node in the specified list to a specific node.
 
-  Results *FindRoute2 Returns a set of results.
+  Results *FindReverseRoute Returns a set of results.
 
   Nodes *nodes The set of nodes to use.
 
