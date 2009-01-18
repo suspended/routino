@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.8 2009-01-18 16:03:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.9 2009-01-18 17:42:33 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -146,27 +146,27 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
       {
        Way *way=FindWay(ways,segment->way);
 
-//       /* Check that this type of way hasn't already been routed */
-//
-//       if(segment!=first)
-//         {
-//          Segment *othersegment=first;
-//
-//          while(othersegment)
-//            {
-//             Way *otherway=FindWay(ways,othersegment->way);
-//
-//             if(otherway->type ==way->type  &&
-//                otherway->allow==way->allow &&
-//                otherway->limit==way->limit)
-//               {
-//                way=NULL;
-//                break;
-//               }
-//
-//             othersegment=FindNextSegment(segments,othersegment);
-//            }
-//         }
+       /* Check that this type of way hasn't already been routed */
+
+       if(segment!=first)
+         {
+          Segment *othersegment=first;
+
+          while(othersegment && othersegment!=segment)
+            {
+             Way *otherway=FindWay(ways,othersegment->way);
+
+             if(Way_TYPE(otherway->type)==Way_TYPE(way->type) &&
+                otherway->allow==way->allow &&
+                otherway->limit==way->limit)
+               {
+                way=NULL;
+                break;
+               }
+
+             othersegment=FindNextSegment(segments,othersegment);
+            }
+         }
 
        /* Route the way and store the super-segments. */
 
@@ -248,7 +248,7 @@ WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments)
     supersegments->segments->segments[i].way=0;
 
     for(j=0;j<superways->number;j++)
-       if(superways->ways->ways[j].type ==way->type  &&
+       if(Way_TYPE(superways->ways->ways[j].type)==Way_TYPE(way->type) &&
           superways->ways->ways[j].allow==way->allow &&
           superways->ways->ways[j].limit==way->limit)
          {
@@ -261,7 +261,7 @@ WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments)
        Way *newway=AppendWay(superways,superways->number+1,"Super-Way");
 
        newway->limit=way->limit;
-       newway->type =way->type;
+       newway->type =Way_TYPE(way->type);
        newway->allow=way->allow;
        newway->speed=way->speed;
 
