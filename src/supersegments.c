@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.6 2009-01-17 17:49:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.7 2009-01-18 09:08:57 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -37,39 +37,63 @@
 NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
 {
  int i;
- int count_oneway=0,count_twoway=0;
- node_t node=0;
+ int        exitcount=0,difference=0;
+ node_t     node=0;
+ speed_t    limit=0;
+ waytype_t  type=0;
+ wayallow_t allow=0;
  NodesMem *supernodes;
 
  /* Find super-nodes */
 
  supernodes=NewNodeList();
 
+ node=segments->segments[0].node1;
+
  for(i=0;i<segments->number;i++)
    {
-    Way *way;
+    Segment *segment=&segments->segments[i];
+    Way *way=FindWay(ways,segment->way);
 
-    if(i>0 && segments->segments[i].node1!=node)
+    if(segment->node1!=node)
       {
-       if((count_oneway*2+count_twoway)>2)
+       /* Store the node if there is a difference in the ways that could affect routing.
+          Store the node if it is not a dead-end and if it isn't just the middle of a way. */
+
+       if(difference || exitcount>2)
          {
           Node *oldnode=FindNode(nodes,node);
 
           AppendNode(supernodes,node,oldnode->latitude,oldnode->longitude);
          }
 
-       count_oneway=0;
-       count_twoway=0;
+       exitcount=0;
+       difference=0;
+
+       node=segment->node1;
+       type=Way_TYPE(way->type);
+       limit=way->limit;
+       allow=way->allow;
+      }
+    else                        /* Same starting node */
+      {
+       if(Way_TYPE(way->type)!=type)
+          difference=1;
+
+       if(way->limit!=limit)
+          difference=1;
+
+       if(way->allow!=allow)
+          difference=1;
       }
 
-    way=FindWay(ways,segments->segments[i].way);
-
-    if(way->type&Way_ONEWAY)
-       count_oneway++;
-    else
-       count_twoway++;
-
-    node=segments->segments[i].node1;
+    if(segment->distance!=INVALID_SHORT_DISTANCE)
+      {
+       if(way->type&Way_OneWay)
+          exitcount+=2;
+       else
+          exitcount+=1;
+      }
 
     if(!((i+1)%10000))
       {
