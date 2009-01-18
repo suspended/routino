@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.9 2009-01-11 09:42:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.10 2009-01-18 09:07:37 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -94,6 +94,7 @@ int main(int argc,char** argv)
 
  SuperNodes=LoadNodeList("data/super-nodes.mem");
 
+ printf("\n");
  printf("SuperNodes\n");
  printf("----------\n");
 
