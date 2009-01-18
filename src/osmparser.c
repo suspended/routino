@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.7 2009-01-14 19:26:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.8 2009-01-18 09:08:15 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -50,8 +50,9 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
  int isnode=0,isway=0,isrelation=0;
  way_t way_id=0;
  int way_oneway=0,way_roundabout=0;
- float way_maxspeed=0;
- char *way_highway=NULL,*way_name=NULL,*way_ref=NULL,*way_access=NULL,*way_car=NULL;
+ speed_t way_maxspeed=0;
+ char *way_highway=NULL,*way_name=NULL,*way_ref=NULL;
+ wayallow_t way_allow_no=0,way_allow_yes=0;
  node_t *way_nodes=NULL;
  int way_nnodes=0,way_nalloc=0;
 
@@ -93,10 +94,10 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
 
        m=strstr(l,"id="); m+=3; if(*m=='"' || *m=='\'') m++; way_id=atol(m);
 
-       way_oneway=0;
-       way_roundabout=0;
+       way_oneway=0; way_roundabout=0;
        way_maxspeed=0;
-       way_name=NULL; way_ref=NULL;
+       way_highway=NULL; way_name=NULL; way_ref=NULL;
+       way_allow_no=0; way_allow_yes=0;
        way_nnodes=0;
       }
     else if(!strncmp(l,"</way",5)) /* The end of a way */
@@ -156,51 +157,77 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
           switch(way->type)
             {
             case Way_Motorway:
-             way->speed=1.6*80; break;
+             way->speed=1.6*80;
+             way->allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
             case Way_Trunk:
-             way->speed=1.6*((way_oneway&&!way_roundabout)?75:65); break;
+             way->speed=1.6*((way_oneway&&!way_roundabout)?75:65);
+             way->allow=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
             case Way_Primary:
-             way->speed=1.6*((way_oneway&&!way_roundabout)?70:60); break;
+             way->speed=1.6*((way_oneway&&!way_roundabout)?70:60);
+             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
             case Way_Secondary:
-             way->speed=1.6*55; break;
+             way->speed=1.6*55;
+             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
             case Way_Tertiary:
-             way->speed=1.6*50; break;
+             way->speed=1.6*50;
+             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
             case Way_Unclassfied:
-             way->speed=1.6*40; break;
+             way->speed=1.6*40;
+             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
             case Way_Residential:
-             way->speed=1.6*30; break;
+             way->speed=1.6*30;
+             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
             case Way_Service:
-             way->speed=1.6*20; break;
+             way->speed=1.6*20;
+             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
             case Way_Track:
-             way->speed=1.6*10; break;
+             way->speed=1.6*10;
+             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar;
+             break;
             case Way_Bridleway:
+             way->speed=1.6*5;
+             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse;
+             break;
             case Way_Cycleway:
+             way->speed=1.6*5;
+             way->allow=Allow_Foot|Allow_Bicycle;
+             break;
             case Way_Footway:
+             way->speed=1.6*4;
+             way->allow=Allow_Foot;
+             break;
             case Way_Unknown:
              way->speed=0;
+             way->allow=0;
             }
 
+          if(way_allow_no)      /* Remove the ones explicitly denied (e.g. private) */
+             way->allow&=~way_allow_no;
+
+          if(way_allow_yes)     /* Add the ones explicitly allowed (e.g. footpath along private) */
+             way->allow|=way_allow_yes;
+
           if(way_oneway)
-             way->type|=Way_ONEWAY;
+             way->type|=Way_OneWay;
 
           if(way_roundabout)
-             way->type|=Way_ROUNDABOUT;
-
-          if(way_access && (!strcmp(way_access,"private") || !strcmp(way_access,"no")))
-             way->type|=Way_NOTROUTABLE;
-
-          if(way_car && !strcmp(way_car,"no"))
-             way->type|=Way_NOTROUTABLE;
+             way->type|=Way_Roundabout;
 
           if(refname!=way_ref && refname!=way_name && refname!=way_highway)
              free(refname);
          }
 
-       if(way_highway) {free(way_highway); way_highway=NULL;}
-       if(way_name)    {free(way_name);    way_name=NULL;}
-       if(way_ref)     {free(way_ref);     way_ref=NULL;}
-       if(way_access)  {free(way_access);  way_access=NULL;}
-       if(way_car)     {free(way_car);     way_car=NULL;}
+       if(way_highway) free(way_highway);
+       if(way_name)    free(way_name);
+       if(way_ref)     free(way_ref);
       }
     else if(!strncmp(l,"<relation",9)) /* The start of a relation */
       {
@@ -239,30 +266,124 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
           m=strstr(l,"v="); m+=2; delimiter=*m; m++; v=m;
           while(*m!=delimiter) m++; *m=0;
 
-          if(!strcmp(k,"oneway") && (!strcmp(v,"true") || !strcmp(v,"yes"))) way_oneway=1;
-          if(!strcmp(k,"junction") && !strcmp(v,"roundabout")) {way_oneway=1; way_roundabout=1;}
-          if(!strcmp(k,"highway") && !strncmp(v,"motorway",8)) way_oneway=1;
-
-          if(!strcmp(k,"highway"))
-             way_highway=strcpy((char*)malloc(strlen(v)+1),v);
-
-          if(!strcmp(k,"name"))
-             way_name=strcpy((char*)malloc(strlen(v)+1),v);
-
-          if(!strcmp(k,"ref"))
-             way_ref=strcpy((char*)malloc(strlen(v)+1),v);
-
-          if(!strcmp(k,"access"))
-             way_access=strcpy((char*)malloc(strlen(v)+1),v);
-
-          if(!strcmp(k,"car"))
-             way_car=strcpy((char*)malloc(strlen(v)+1),v);
-
-          if(!strcmp(k,"maxspeed"))
+          switch(*k)
             {
-             way_maxspeed=atof(v);
-             if(strstr(v,"mph"))
-                way_maxspeed*=1.6;
+            case 'a':
+             if(!strcmp(k,"access"))
+                if(!strcmp(v,"private"))
+                   way_allow_no=~0;
+             break;
+
+            case 'b':
+             if(!strcmp(k,"bicycle"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                   way_allow_yes|=Allow_Bicycle;
+                else
+                   way_allow_no|=Allow_Bicycle;
+               }
+             break;
+
+            case 'f':
+             if(!strcmp(k,"foot"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                   way_allow_yes|=Allow_Foot;
+                else
+                   way_allow_no|=Allow_Foot;
+               }
+             break;
+
+            case 'g':
+             if(!strcmp(k,"goods"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                   way_allow_yes|=Allow_Goods;
+                else
+                   way_allow_no|=Allow_Goods;
+               }
+             break;
+
+            case 'h':
+             if(!strcmp(k,"highway"))
+               {
+                if(!strncmp(v,"motorway",8)) way_oneway=1;
+
+                way_highway=strcpy((char*)malloc(strlen(v)+1),v);
+               }
+             if(!strcmp(k,"horse"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                   way_allow_yes|=Allow_Horse;
+                else
+                   way_allow_no|=Allow_Horse;
+               }
+             if(!strcmp(k,"hgv"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                   way_allow_yes|=Allow_HGV;
+                else
+                   way_allow_no|=Allow_HGV;
+               }
+             break;
+
+            case 'j':
+             if(!strcmp(k,"junction"))
+                if(!strcmp(v,"roundabout"))
+                  {way_oneway=1; way_roundabout=1;}
+             break;
+
+            case 'm':
+             if(!strcmp(k,"maxspeed"))
+               {
+                way_maxspeed=atof(v);
+                if(strstr(v,"mph"))
+                   way_maxspeed*=1.6;
+               }
+             if(!strcmp(k,"motorbike"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                   way_allow_yes|=Allow_Motorbike;
+                else
+                   way_allow_no|=Allow_Motorbike;
+               }
+             if(!strcmp(k,"motorcar"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                   way_allow_yes|=Allow_Motorcar;
+                else
+                   way_allow_no|=Allow_Motorcar;
+               }
+             break;
+
+            case 'n':
+             if(!strcmp(k,"name"))
+                way_name=strcpy((char*)malloc(strlen(v)+1),v);
+             break;
+
+            case 'o':
+             if(!strcmp(k,"oneway"))
+                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                   way_oneway=1;
+             break;
+
+            case 'p':
+             if(!strcmp(k,"psv"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                   way_allow_yes|=Allow_PSV;
+                else
+                   way_allow_no|=Allow_PSV;
+               }
+             break;
+
+            case 'r':
+             if(!strcmp(k,"ref"))
+                way_ref=strcpy((char*)malloc(strlen(v)+1),v);
+             break;
+
+            default:
+             ;
             }
          }
       }
