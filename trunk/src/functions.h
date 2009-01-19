@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.12 2009-01-18 16:40:57 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.13 2009-01-19 19:51:42 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -40,7 +40,7 @@ int WriteFile(const char *filename,void *address,size_t length);
 /* In optimiser.c */
 
 Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,wayallow_t transport);
-Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Results *begin,Results *end,wayallow_t transport);
+Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,wayallow_t transport);
 
 void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish);
 
@@ -49,14 +49,14 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
 Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,wayallow_t transport);
 
-Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match);
+Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match,int iteration);
 
 
 /* Functions in supersegments.c */
 
 NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways);
 
-SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes);
+SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,int iteration);
 
 WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments);
 
