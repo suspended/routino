@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.7 2009-01-18 16:03:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.8 2009-01-19 19:51:27 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -70,7 +70,7 @@ typedef enum _WayType
  }
  WayType;
 
-#define Way_TYPE(xx) ((xx)&0x0f)
+#define Way_TYPE(xx) ((xx)&0x1f)
 
 
 /*+ A way type identifier. +*/
