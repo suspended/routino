@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.20 2009-01-18 17:42:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.21 2009-01-19 19:51:42 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -271,11 +271,11 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
   Results *FindRoute3 Returns a set of results.
 
-  Nodes *nodes The set of nodes to use.
+  Nodes *supernodes The set of supernodes to use.
 
-  Segments *segments The set of segments to use.
+  Segments *supersegments The set of supersegments to use.
 
-  Ways *ways The set of ways to use.
+  Ways *superways The set of superways to use.
 
   node_t start The start node.
 
@@ -288,7 +288,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
   wayallow_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Results *begin,Results *end,wayallow_t transport)
+Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,wayallow_t transport)
 {
  Results *results;
  node_t node1,node2;
@@ -308,7 +308,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node
  quickestfinish.distance=INVALID_DISTANCE;
  quickestfinish.duration=INVALID_DURATION;
 
- /* Insert the start nodes */
+ /* Insert the start node */
 
  results=NewResultsList();
 
@@ -320,7 +320,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node
  /* Insert the finish points of the beginning part of the path into the queue */
 
  for(j=0;j<begin->number;j++)
-    if(FindNode(nodes,begin->results[j].node))
+    if(FindNode(supernodes,begin->results[j].node))
       {
        if(!(result1=FindResult(results,begin->results[j].node)))
          {
@@ -335,7 +335,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node
        insert_in_queue(results,result1);
       }
 
- /* Loop across all nodes in the queue */
+ /* Loop across all supernodes in the queue */
 
  while(OSMQueue.number>0)
    {
@@ -346,13 +346,13 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node
     quickest1.distance=result1->quickest.distance;
     quickest1.duration=result1->quickest.duration;
 
-    segment=FindFirstSegment(segments,node1);
+    segment=FindFirstSegment(supersegments,node1);
 
     while(segment)
       {
        node2=segment->node2;
 
-       way=FindWay(ways,segment->way);
+       way=FindWay(superways,segment->way);
 
        if((way->allow&transport)!=transport)
           goto endloop;
@@ -361,10 +361,10 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node
           segment->duration==INVALID_SHORT_DURATION)
           goto endloop;
 
-       shortest2.distance=shortest1.distance+segment->distance;
-       shortest2.duration=shortest1.duration+segment->duration;
-       quickest2.distance=quickest1.distance+segment->distance;
-       quickest2.duration=quickest1.duration+segment->duration;
+       shortest2.distance=shortest1.distance+10*segment->distance;
+       shortest2.duration=shortest1.duration+10*segment->duration;
+       quickest2.distance=quickest1.distance+10*segment->distance;
+       quickest2.duration=quickest1.duration+10*segment->duration;
 
        if(shortest2.distance>shortestfinish.distance && quickest2.duration>quickestfinish.duration)
           goto endloop;
@@ -469,12 +469,12 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node
 
       endloop:
 
-       segment=FindNextSegment(segments,segment);
+       segment=FindNextSegment(supersegments,segment);
       }
 
     if(print_progress && !(nresults%1000))
       {
-       printf("\rRouting: End Nodes=%d Queue=%d Journey=%.1fkm,%.0fmin  ",nresults,OSMQueue.number,
+       printf("\rRouting: End Super-Nodes=%d Queue=%d Journey=%.1fkm,%.0fmin  ",nresults,OSMQueue.number,
               distance_to_km(shortest2.distance),duration_to_minutes(quickest2.duration));
        fflush(stdout);
       }
@@ -482,7 +482,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node
 
  if(print_progress)
    {
-    printf("\rRouted: End Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin\n",nresults,
+    printf("\rRouted: End Super-Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin\n",nresults,
            distance_to_km(shortestfinish.distance),duration_to_minutes(shortestfinish.duration),
            distance_to_km(quickestfinish.distance),duration_to_minutes(quickestfinish.duration));
     fflush(stdout);
@@ -503,7 +503,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node
     result2->quickest.duration=INVALID_DURATION;
 
     for(j=0;j<end->number;j++)
-       if(FindNode(nodes,end->results[j].node))
+       if(FindNode(supernodes,end->results[j].node))
           if((result1=FindResult(results,end->results[j].node)))
             {
              if((result1->shortest.distance+end->results[j].shortest.distance)<result2->shortest.distance ||
@@ -989,9 +989,9 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 /*++++++++++++++++++++++++++++++++++++++
   Print the optimum route between two nodes.
 
-  Results *CombineResults Returns the results from joining the super-nodes.
+  Results *CombineRoutes Returns the results from joining the super-nodes.
 
-  Results *results The set of results.
+  Results *results The set of results from the super-nodes.
 
   Nodes *nodes The list of nodes.
 
@@ -1018,23 +1018,18 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
  /* Sort out the shortest */
 
  result1=FindResult(results,start);
- result4=NULL;
+
+ result3=InsertResult(combined,start);
+
+ result3->node=result1->node;
+
+ result3->shortest.distance=0;
+ result3->shortest.duration=0;
+ result3->shortest.next=0;
+ result3->shortest.prev=0;
 
  do
    {
-    result3=InsertResult(combined,result1->node);
-
-    result3->node=result1->node;
-
-    result3->shortest=result1->shortest;
-    result3->shortest.next=0;
-    if(result4)
-       result3->shortest.prev=result4->node;
-    else
-       result3->shortest.prev=0;
-
-    result4=result3;
-
     if(result1->shortest.next)
       {
        Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->shortest.next,transport);
@@ -1047,16 +1042,13 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 
        do
          {
-          if(result2->shortest.prev && result2->shortest.next)
-            {
-             result4=InsertResult(combined,result2->node);
+          result4=InsertResult(combined,result2->node);
 
-             result4->node=result2->node;
+          result4->node=result2->node;
 
-             result4->shortest=result2->shortest;
-             result4->shortest.distance+=result3->shortest.distance;
-             result4->shortest.duration+=result3->shortest.duration;
-            }
+          result4->shortest=result2->shortest;
+          result4->shortest.distance+=result3->shortest.distance;
+          result4->shortest.duration+=result3->shortest.duration;
 
           if(result2->shortest.next)
              result2=FindResult(results2,result2->shortest.next);
@@ -1068,6 +1060,8 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
        FreeResultsList(results2);
 
        result1=FindResult(results,result1->shortest.next);
+
+       result3=result4;
       }
     else
        result1=NULL;
@@ -1077,28 +1071,16 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
  /* Sort out the quickest */
 
  result1=FindResult(results,start);
- result4=NULL;
+
+ result3=FindResult(combined,start);
+
+ result3->quickest.distance=0;
+ result3->quickest.duration=0;
+ result3->quickest.next=0;
+ result3->quickest.prev=0;
 
  do
    {
-    result3=FindResult(combined,result1->node);
-
-    if(!result3)
-      {
-       result3=InsertResult(combined,result1->node);
-
-       result3->node=result1->node;
-      }
-
-    result3->quickest=result1->quickest;
-    result3->quickest.next=0;
-    if(result4)
-       result3->quickest.prev=result4->node;
-    else
-       result3->quickest.prev=0;
-
-    result4=result3;
-
     if(result1->quickest.next)
       {
        Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->quickest.next,transport);
@@ -1111,21 +1093,18 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 
        do
          {
-          if(result2->quickest.prev && result2->quickest.next)
+          result4=FindResult(combined,result2->node);
+
+          if(!result4)
             {
-             result4=FindResult(combined,result2->node);
+             result4=InsertResult(combined,result2->node);
 
-             if(!result4)
-               {
-                result4=InsertResult(combined,result2->node);
-
-                result4->node=result2->node;
-               }
-
-             result4->quickest=result2->quickest;
-             result4->quickest.distance+=result3->quickest.distance;
-             result4->quickest.duration+=result3->quickest.duration;
+             result4->node=result2->node;
             }
+
+          result4->quickest=result2->quickest;
+          result4->quickest.distance+=result3->quickest.distance;
+          result4->quickest.duration+=result3->quickest.duration;
 
           if(result2->quickest.next)
              result2=FindResult(results2,result2->quickest.next);
@@ -1137,6 +1116,8 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
        FreeResultsList(results2);
 
        result1=FindResult(results,result1->quickest.next);
+
+       result3=result4;
       }
     else
        result1=NULL;
@@ -1167,9 +1148,11 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
   Nodes *finish The finishing nodes.
 
   Way *match The way that the route must match.
+
+  int iteration The iteration number in Super-Segment generation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match)
+Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match,int iteration)
 {
  Results *results;
  node_t node1,node2;
@@ -1226,10 +1209,20 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
           segment->duration==INVALID_SHORT_DURATION)
           goto endloop;
 
-       shortest2.distance=shortest1.distance+segment->distance;
-       shortest2.duration=shortest1.duration+segment->duration;
-       quickest2.distance=quickest1.distance+segment->distance;
-       quickest2.duration=quickest1.duration+segment->duration;
+       if(iteration>1)
+         {
+          shortest2.distance=shortest1.distance+10*segment->distance;
+          shortest2.duration=shortest1.duration+10*segment->duration;
+          quickest2.distance=quickest1.distance+10*segment->distance;
+          quickest2.duration=quickest1.duration+10*segment->duration;
+         }
+       else
+         {
+          shortest2.distance=shortest1.distance+segment->distance;
+          shortest2.duration=shortest1.duration+segment->duration;
+          quickest2.distance=quickest1.distance+segment->distance;
+          quickest2.duration=quickest1.duration+segment->duration;
+         }
 
        result2=FindResult(results,node2);
 

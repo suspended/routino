@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.10 2009-01-18 16:03:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.11 2009-01-19 19:51:42 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -21,7 +21,8 @@
 #include "functions.h"
 
 
-#define SKIP_PARSING 0
+#define SKIP_PARSING   0
+#define MAX_ITERATIONS 5
 
 
 int main(int argc,char** argv)
@@ -31,15 +32,16 @@ int main(int argc,char** argv)
  WaysMem *OSMWaysMem;
  SegmentsMem *OSMSegmentsMem;
 #endif
- NodesMem *SuperNodesMem;
- SegmentsMem *SuperSegmentsMem;
- WaysMem *SuperWaysMem;
+ NodesMem *SuperNodesMem,*SuperNodesMem2;
+ SegmentsMem *SuperSegmentsMem,*SuperSegmentsMem2;
+ WaysMem *SuperWaysMem,*SuperWaysMem2;
  Nodes *OSMNodes;
  Ways *OSMWays;
  Segments *OSMSegments;
- Nodes *SuperNodes;
- Segments *SuperSegments;
- Ways *SuperWays;
+ Nodes *SuperNodes,*SuperNodes2;
+ Segments *SuperSegments,*SuperSegments2;
+ Ways *SuperWays,*SuperWays2;
+ int iteration=0,quit=0;
 
 #if !SKIP_PARSING
 
@@ -139,7 +141,7 @@ int main(int argc,char** argv)
 
  /* Select the super-segments */
 
- SuperSegmentsMem=CreateSuperSegments(OSMNodes,OSMSegments,OSMWays,SuperNodes);
+ SuperSegmentsMem=CreateSuperSegments(OSMNodes,OSMSegments,OSMWays,SuperNodes,iteration);
 
  /* Sort the variables */
 
@@ -166,6 +168,95 @@ int main(int argc,char** argv)
  printf("Saving Super-Ways"); fflush(stdout);
  SuperWays=SaveWayList(SuperWaysMem,"data/super-ways.mem");
  printf("\rSaved Super-Ways: %d\n",SuperWays->number); fflush(stdout);
+
+ /* Repeated iteration on Super-Nodes, Super-Segments and Super-Ways */
+
+ UnMapFile(SuperNodes);
+ UnMapFile(SuperSegments);
+ UnMapFile(SuperWays);
+
+ do
+   {
+    iteration++;
+
+    if(iteration>=MAX_ITERATIONS)
+       break;
+
+    SuperNodes=LoadNodeList("data/super-nodes.mem");
+    SuperWays=LoadWayList("data/super-ways.mem");
+    SuperSegments=LoadSegmentList("data/super-segments.mem");
+
+    /* Select the super-nodes */
+
+    SuperNodesMem2=ChooseSuperNodes(SuperNodes,SuperSegments,SuperWays);
+
+    /* Sort the super-nodes */
+
+    printf("Sorting Super-Nodes [iteration %d]",iteration); fflush(stdout);
+    SortNodeList(SuperNodesMem2);
+    printf("\rSorted Super-Nodes [iteration %d] \n",iteration); fflush(stdout);
+
+    /* Write out the variables */
+
+    printf("Saving Super-Nodes [iteration %d]",iteration); fflush(stdout);
+    SuperNodes2=SaveNodeList(SuperNodesMem2,"data/super-nodes2.mem");
+    printf("\rSaved Super-Nodes [iteration %d]: %d\n",iteration,SuperNodes2->number); fflush(stdout);
+
+    /* Select the super-segments */
+
+    SuperSegmentsMem2=CreateSuperSegments(SuperNodes,SuperSegments,SuperWays,SuperNodes2,iteration);
+
+    /* Sort the variables */
+
+    printf("Sorting Super-Segments [iteration %d]",iteration); fflush(stdout);
+    SortSegmentList(SuperSegmentsMem2);
+    printf("\rSorted Super-Segments [iteration %d] \n",iteration); fflush(stdout);
+
+    /* Select the super-ways */
+
+    SuperWaysMem2=CreateSuperWays(SuperWays,SuperSegmentsMem2);
+
+    /* Sort the variables */
+
+    printf("Sorting Super-Ways [iteration %d]",iteration); fflush(stdout);
+    SortWayList(SuperWaysMem2);
+    printf("\rSorted Super-Ways [iteration %d] \n",iteration); fflush(stdout);
+
+    /* Write out the variables */
+
+    printf("Saving Super-Segments [iteration %d]",iteration); fflush(stdout);
+    SuperSegments2=SaveSegmentList(SuperSegmentsMem2,"data/super-segments2.mem");
+    printf("\rSaved Super-Segments [iteration %d]: %d\n",iteration,SuperSegments2->number); fflush(stdout);
+
+    printf("Saving Super-Ways [iteration %d]",iteration); fflush(stdout);
+    SuperWays2=SaveWayList(SuperWaysMem2,"data/super-ways2.mem");
+    printf("\rSaved Super-Ways [iteration %d]: %d\n",iteration,SuperWays2->number); fflush(stdout);
+
+    /* Decide when to quit */
+
+    quit=0;
+    if(SuperNodes2->number>(0.95*SuperNodes->number))       quit=1;
+    if(SuperSegments2->number>(0.95*SuperSegments->number)) quit=1;
+
+    /* Rename the files and unmap the data */
+
+    UnMapFile(SuperNodes);
+    UnMapFile(SuperSegments);
+    UnMapFile(SuperWays);
+
+    UnMapFile(SuperNodes2);
+    UnMapFile(SuperSegments2);
+    UnMapFile(SuperWays2);
+
+    rename("data/super-nodes2.mem","data/super-nodes.mem");
+    rename("data/super-segments2.mem","data/super-segments.mem");
+    rename("data/super-ways2.mem","data/super-ways.mem");
+   }
+ while(!quit);
+
+ UnMapFile(OSMNodes);
+ UnMapFile(OSMSegments);
+ UnMapFile(OSMWays);
 
  return(0);
 }

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.9 2009-01-18 17:42:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.10 2009-01-19 19:51:42 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -123,14 +123,16 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
   Ways *ways The list of ways.
 
   Nodes *supernodes The list of super-nodes.
+
+  int iteration The iteration number of super-segment generation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes)
+SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,int iteration)
 {
  SegmentsMem *supersegments;
  int i,j;
 
- /* Create super-segments ans super-ways */
+ /* Create super-segments */
 
  supersegments=NewSegmentList();
 
@@ -172,7 +174,7 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
 
        if(way)
          {
-          Results *results=FindRoutesWay(nodes,segments,ways,supernodes->nodes[i].id,supernodes,way);
+          Results *results=FindRoutesWay(nodes,segments,ways,supernodes->nodes[i].id,supernodes,way,iteration);
 
           for(j=0;j<results->number;j++)
              if(results->results[j].node!=supernodes->nodes[i].id && FindNode(supernodes,results->results[j].node))
@@ -181,18 +183,26 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
                 distance_t distance;
                 duration_t duration;
 
-                distance=results->results[j].shortest.distance;
-                duration=results->results[j].quickest.duration;
+                if(iteration)
+                  {
+                   distance=1+results->results[j].shortest.distance/10;
+                   duration=1+results->results[j].quickest.duration/10;
+                  }
+                else
+                  {
+                   distance=results->results[j].shortest.distance;
+                   duration=results->results[j].quickest.duration;
+                  }
 
                 if(distance>=INVALID_SHORT_DISTANCE)
                   {
-                   fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f km\n",supersegment->node1,supersegment->node2,distance_to_km(distance));
+                   fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f km\n",supersegment->node1,supersegment->node2,distance_to_km(distance*(iteration?10:1)));
                    distance=INVALID_SHORT_DISTANCE;
                   }
 
                 if(duration>INVALID_SHORT_DURATION)
                   {
-                   fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f mins\n",supersegment->node1,supersegment->node2,duration_to_minutes(duration));
+                   fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f mins\n",supersegment->node1,supersegment->node2,duration_to_minutes(duration*(iteration?10:1)));
                    duration=INVALID_SHORT_DURATION;
                   }
 
