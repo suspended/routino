@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.11 2009-01-19 19:51:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.12 2009-01-20 18:52:15 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "nodes.h"
 #include "ways.h"
@@ -21,17 +22,11 @@
 #include "functions.h"
 
 
-#define SKIP_PARSING   0
-#define MAX_ITERATIONS 5
-
-
 int main(int argc,char** argv)
 {
-#if !SKIP_PARSING
  NodesMem *OSMNodesMem;
  WaysMem *OSMWaysMem;
  SegmentsMem *OSMSegmentsMem;
-#endif
  NodesMem *SuperNodesMem,*SuperNodesMem2;
  SegmentsMem *SuperSegmentsMem,*SuperSegmentsMem2;
  WaysMem *SuperWaysMem,*SuperWaysMem2;
@@ -42,86 +37,101 @@ int main(int argc,char** argv)
  Segments *SuperSegments,*SuperSegments2;
  Ways *SuperWays,*SuperWays2;
  int iteration=0,quit=0;
+ int skip_parsing=0,max_iterations=5;
 
-#if !SKIP_PARSING
+ /* Parse the command line arguments */
 
- /* Create new variables */
+ while(--argc>=1)
+   {
+    if(!strcmp(argv[argc],"-skip-parsing"))
+       skip_parsing=1;
+    else if(!strncmp(argv[argc],"-max-iterations=",16))
+       max_iterations=atoi(&argv[argc][16]);
+    else
+      {
+       fprintf(stderr,"Usage: planetsplitter [-skip-parsing] [-max-iterations=<number>]\n");
+       return(1);
+      }
+   }
 
- OSMNodesMem=NewNodeList();
- OSMWaysMem=NewWayList();
- OSMSegmentsMem=NewSegmentList();
+ if(!skip_parsing)
+   {
+    /* Create new variables */
 
- /* Parse the file */
+    OSMNodesMem=NewNodeList();
+    OSMWaysMem=NewWayList();
+    OSMSegmentsMem=NewSegmentList();
 
- ParseXML(stdin,OSMNodesMem,OSMSegmentsMem,OSMWaysMem);
+    /* Parse the file */
 
- /* Sort the variables */
+    ParseXML(stdin,OSMNodesMem,OSMSegmentsMem,OSMWaysMem);
 
- printf("Sorting All Nodes"); fflush(stdout);
- SortNodeList(OSMNodesMem);
- printf("\rSorted All Nodes \n"); fflush(stdout);
+    /* Sort the variables */
 
- printf("Sorting Ways"); fflush(stdout);
- SortWayList(OSMWaysMem);
- printf("\rSorted Ways \n"); fflush(stdout);
+    printf("Sorting All Nodes"); fflush(stdout);
+    SortNodeList(OSMNodesMem);
+    printf("\rSorted All Nodes \n"); fflush(stdout);
 
- printf("Sorting Segments"); fflush(stdout);
- SortSegmentList(OSMSegmentsMem);
- printf("\rSorted Segments \n"); fflush(stdout);
+    printf("Sorting Ways"); fflush(stdout);
+    SortWayList(OSMWaysMem);
+    printf("\rSorted Ways \n"); fflush(stdout);
 
- /* Write out the variables */
+    printf("Sorting Segments"); fflush(stdout);
+    SortSegmentList(OSMSegmentsMem);
+    printf("\rSorted Segments \n"); fflush(stdout);
 
- printf("Saving All Nodes"); fflush(stdout);
- OSMNodes=SaveNodeList(OSMNodesMem,"data/all-nodes.mem");
- printf("\rSaved All Nodes: %d\n",OSMNodes->number); fflush(stdout);
+    /* Write out the variables */
 
- printf("Saving Ways"); fflush(stdout);
- OSMWays=SaveWayList(OSMWaysMem,"data/ways.mem");
- printf("\rSaved Ways: %d\n",OSMWays->number); fflush(stdout);
+    printf("Saving All Nodes"); fflush(stdout);
+    OSMNodes=SaveNodeList(OSMNodesMem,"data/all-nodes.mem");
+    printf("\rSaved All Nodes: %d\n",OSMNodes->number); fflush(stdout);
 
- /* Remove bad segments */
+    printf("Saving Ways"); fflush(stdout);
+    OSMWays=SaveWayList(OSMWaysMem,"data/ways.mem");
+    printf("\rSaved Ways: %d\n",OSMWays->number); fflush(stdout);
 
- RemoveBadSegments(OSMSegmentsMem);
+    /* Remove bad segments */
 
- printf("Sorting Segments"); fflush(stdout);
- SortSegmentList(OSMSegmentsMem);
- printf("\rSorted Segments \n"); fflush(stdout);
+    RemoveBadSegments(OSMSegmentsMem);
 
- /* Remove non-way nodes */
+    printf("Sorting Segments"); fflush(stdout);
+    SortSegmentList(OSMSegmentsMem);
+    printf("\rSorted Segments \n"); fflush(stdout);
 
- OSMNodesMem=NewNodeList();
+    /* Remove non-way nodes */
 
- RemoveNonWayNodes(OSMNodesMem,OSMNodes,OSMSegmentsMem->segments);
+    OSMNodesMem=NewNodeList();
 
- UnMapFile(OSMNodes);
+    RemoveNonWayNodes(OSMNodesMem,OSMNodes,OSMSegmentsMem->segments);
 
- printf("Sorting Way Nodes"); fflush(stdout);
- SortNodeList(OSMNodesMem);
- printf("\rSorted Way Nodes \n"); fflush(stdout);
+    UnMapFile(OSMNodes);
 
- printf("Saving Way Nodes"); fflush(stdout);
- OSMNodes=SaveNodeList(OSMNodesMem,"data/nodes.mem");
- printf("\rSaved Way Nodes: %d\n",OSMNodes->number); fflush(stdout);
+    printf("Sorting Way Nodes"); fflush(stdout);
+    SortNodeList(OSMNodesMem);
+    printf("\rSorted Way Nodes \n"); fflush(stdout);
 
- /* Fix the segment lengths */
+    printf("Saving Way Nodes"); fflush(stdout);
+    OSMNodes=SaveNodeList(OSMNodesMem,"data/nodes.mem");
+    printf("\rSaved Way Nodes: %d\n",OSMNodes->number); fflush(stdout);
 
- FixupSegmentLengths(OSMSegmentsMem,OSMNodes,OSMWays);
+    /* Fix the segment lengths */
 
- /* Write out the variables */
+    FixupSegmentLengths(OSMSegmentsMem,OSMNodes,OSMWays);
 
- printf("Saving Segments"); fflush(stdout);
- OSMSegments=SaveSegmentList(OSMSegmentsMem,"data/segments.mem");
- printf("\rSaved Segments: %d\n",OSMSegments->number); fflush(stdout);
+    /* Write out the variables */
 
-#else
+    printf("Saving Segments"); fflush(stdout);
+    OSMSegments=SaveSegmentList(OSMSegmentsMem,"data/segments.mem");
+    printf("\rSaved Segments: %d\n",OSMSegments->number); fflush(stdout);
+   }
+else
+  {
+   /* Load in the data */
 
- /* Load in the data */
-
- OSMNodes=LoadNodeList("data/nodes.mem");
- OSMWays=LoadWayList("data/ways.mem");
- OSMSegments=LoadSegmentList("data/segments.mem");
-
-#endif
+   OSMNodes=LoadNodeList("data/nodes.mem");
+   OSMWays=LoadWayList("data/ways.mem");
+   OSMSegments=LoadSegmentList("data/segments.mem");
+  }
 
  /* Select the super-nodes */
 
@@ -129,15 +139,15 @@ int main(int argc,char** argv)
 
  /* Sort the super-nodes */
 
- printf("Sorting Super-Nodes"); fflush(stdout);
+ printf("Sorting Super-Nodes [iteration 0]"); fflush(stdout);
  SortNodeList(SuperNodesMem);
- printf("\rSorted Super-Nodes \n"); fflush(stdout);
+ printf("\rSorted Super-Nodes [iteration 0] \n"); fflush(stdout);
 
  /* Write out the variables */
 
- printf("Saving Super-Nodes"); fflush(stdout);
+ printf("Saving Super-Nodes [iteration 0]"); fflush(stdout);
  SuperNodes=SaveNodeList(SuperNodesMem,"data/super-nodes.mem");
- printf("\rSaved Super-Nodes: %d\n",SuperNodes->number); fflush(stdout);
+ printf("\rSaved Super-Nodes [iteration 0]: %d\n",SuperNodes->number); fflush(stdout);
 
  /* Select the super-segments */
 
@@ -145,9 +155,9 @@ int main(int argc,char** argv)
 
  /* Sort the variables */
 
- printf("Sorting Super-Segments"); fflush(stdout);
+ printf("Sorting Super-Segments [iteration 0]"); fflush(stdout);
  SortSegmentList(SuperSegmentsMem);
- printf("\rSorted Super-Segments \n"); fflush(stdout);
+ printf("\rSorted Super-Segments [iteration 0] \n"); fflush(stdout);
 
  /* Select the super-ways */
 
@@ -155,19 +165,19 @@ int main(int argc,char** argv)
 
  /* Sort the variables */
 
- printf("Sorting Super-Ways"); fflush(stdout);
+ printf("Sorting Super-Ways [iteration 0]"); fflush(stdout);
  SortWayList(SuperWaysMem);
- printf("\rSorted Super-Ways \n"); fflush(stdout);
+ printf("\rSorted Super-Ways [iteration 0] \n"); fflush(stdout);
 
  /* Write out the variables */
 
- printf("Saving Super-Segments"); fflush(stdout);
+ printf("Saving Super-Segments [iteration 0]"); fflush(stdout);
  SuperSegments=SaveSegmentList(SuperSegmentsMem,"data/super-segments.mem");
- printf("\rSaved Super-Segments: %d\n",SuperSegments->number); fflush(stdout);
+ printf("\rSaved Super-Segments [iteration 0]: %d\n",SuperSegments->number); fflush(stdout);
 
- printf("Saving Super-Ways"); fflush(stdout);
+ printf("Saving Super-Ways [iteration 0]"); fflush(stdout);
  SuperWays=SaveWayList(SuperWaysMem,"data/super-ways.mem");
- printf("\rSaved Super-Ways: %d\n",SuperWays->number); fflush(stdout);
+ printf("\rSaved Super-Ways [iteration 0]: %d\n",SuperWays->number); fflush(stdout);
 
  /* Repeated iteration on Super-Nodes, Super-Segments and Super-Ways */
 
@@ -179,7 +189,7 @@ int main(int argc,char** argv)
    {
     iteration++;
 
-    if(iteration>=MAX_ITERATIONS)
+    if(iteration>max_iterations)
        break;
 
     SuperNodes=LoadNodeList("data/super-nodes.mem");
