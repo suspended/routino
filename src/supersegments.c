@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.10 2009-01-19 19:51:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.11 2009-01-20 17:37:20 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -89,7 +89,7 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
           difference=1;
       }
 
-    if(segment->distance!=INVALID_SHORT_DISTANCE)
+    if(segment->distance!=INVALID_DISTANCE)
       {
        if(way->type&Way_OneWay)
           exitcount+=2;
@@ -180,34 +180,8 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
              if(results->results[j].node!=supernodes->nodes[i].id && FindNode(supernodes,results->results[j].node))
                {
                 Segment *supersegment=AppendSegment(supersegments,supernodes->nodes[i].id,results->results[j].node,segment->way);
-                distance_t distance;
-                duration_t duration;
 
-                if(iteration)
-                  {
-                   distance=1+results->results[j].shortest.distance/10;
-                   duration=1+results->results[j].quickest.duration/10;
-                  }
-                else
-                  {
-                   distance=results->results[j].shortest.distance;
-                   duration=results->results[j].quickest.duration;
-                  }
-
-                if(distance>=INVALID_SHORT_DISTANCE)
-                  {
-                   fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f km\n",supersegment->node1,supersegment->node2,distance_to_km(distance*(iteration?10:1)));
-                   distance=INVALID_SHORT_DISTANCE;
-                  }
-
-                if(duration>INVALID_SHORT_DURATION)
-                  {
-                   fprintf(stderr,"\nSuper-Segment too long (%d->%d) = %.1f mins\n",supersegment->node1,supersegment->node2,duration_to_minutes(duration*(iteration?10:1)));
-                   duration=INVALID_SHORT_DURATION;
-                  }
-
-                supersegment->distance=distance;
-                supersegment->duration=duration;
+                supersegment->distance=results->results[j].shortest.distance;
                }
 
           FreeResultsList(results);

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.11 2009-01-18 16:03:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.12 2009-01-20 17:37:20 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -214,7 +214,6 @@ Segment *AppendSegment(SegmentsMem* segments,node_t node1,node_t node2,way_t way
  segments->segments->segments[segments->number].node2=node2;
  segments->segments->segments[segments->number].way=way;
  segments->segments->segments[segments->number].distance=0;
- segments->segments->segments[segments->number].duration=0;
 
  segments->number++;
 
@@ -357,38 +356,11 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
 
  for(i=0;i<segments->number;i++)
    {
-    speed_t    speed;
-    distance_t distance=INVALID_SHORT_DISTANCE;
-    duration_t duration=INVALID_SHORT_DURATION;
     Node *node1=FindNode(nodes,segments->segments->segments[i].node1);
     Node *node2=FindNode(nodes,segments->segments->segments[i].node2);
-    Way  *way=FindWay(ways,segments->segments->segments[i].way);
 
-    if(way->limit)
-       speed=way->limit;
-    else
-       speed=way->speed;
-
-    if(segments->segments->segments[i].distance!=INVALID_SHORT_DISTANCE)
-      {
-       distance=Distance(node1,node2);
-       duration=hours_to_duration(distance_to_km(distance)/speed);
-
-       if(distance>=INVALID_SHORT_DISTANCE)
-         {
-          fprintf(stderr,"\nSegment too long (%d->%d) = %.1f km\n",node1->id,node2->id,distance_to_km(distance));
-          distance=INVALID_SHORT_DISTANCE;
-         }
-
-       if(duration>=INVALID_SHORT_DURATION)
-         {
-          fprintf(stderr,"\nSegment too long (%d->%d) = %.1f mins\n",node1->id,node2->id,duration_to_minutes(duration));
-          duration=INVALID_SHORT_DURATION;
-         }
-      }
-
-    segments->segments->segments[i].distance=distance;
-    segments->segments->segments[i].duration=duration;
+    if(segments->segments->segments[i].distance!=INVALID_DISTANCE)
+       segments->segments->segments[i].distance=Distance(node1,node2);
 
     if(!((i+1)%10000))
       {

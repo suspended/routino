@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.8 2009-01-18 16:03:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.9 2009-01-20 17:37:20 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -42,19 +42,6 @@
 /* Simple Types */
 
 
-/*+ A short distance, measured in metres (up to ~65.5km). +*/
-typedef uint16_t distance_short_t;
-
-/*+ A short duration, measured in 1/10th seconds (up to ~110 minutes). +*/
-typedef uint16_t duration_short_t;
-
-/*+ An invalid short distance +*/
-#define INVALID_SHORT_DISTANCE (distance_short_t)(~0)
-
-/*+ An invalid duration +*/
-#define INVALID_SHORT_DURATION (duration_short_t)(~0)
-
-
 /*+ A long distance, measured in metres. +*/
 typedef uint32_t distance_t;
 
@@ -94,8 +81,7 @@ typedef struct _Segment
  node_t           node1;        /*+ The starting node. +*/
  node_t           node2;        /*+ The finishing node. +*/
  way_t            way;          /*+ The way associated with the segment. +*/
- distance_short_t distance;     /*+ The distance between the nodes. +*/
- duration_short_t duration;     /*+ The time duration to travel between the nodes. +*/
+ distance_t       distance;     /*+ The distance between the nodes. +*/
 }
  Segment;
 
