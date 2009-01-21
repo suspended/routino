@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.11 2009-01-20 17:37:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.12 2009-01-21 18:53:35 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -37,7 +37,7 @@
 NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
 {
  int i;
- int        exitcount=0,difference=0;
+ int        segcount=0,difference=0;
  node_t     node=0;
  speed_t    limit=0;
  waytype_t  type=0;
@@ -62,14 +62,14 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
        /* Store the node if there is a difference in the ways that could affect routing.
           Store the node if it is not a dead-end and if it isn't just the middle of a way. */
 
-       if(difference || exitcount>2)
+       if(difference || segcount>2)
          {
           Node *oldnode=FindNode(nodes,node);
 
           AppendNode(supernodes,node,oldnode->latitude,oldnode->longitude);
          }
 
-       exitcount=0;
+       segcount=1;
        difference=0;
 
        node=segment->node1;
@@ -87,14 +87,8 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
 
        if(way->allow!=allow)
           difference=1;
-      }
 
-    if(segment->distance!=INVALID_DISTANCE)
-      {
-       if(way->type&Way_OneWay)
-          exitcount+=2;
-       else
-          exitcount+=1;
+       segcount+=1;
       }
 
     if(!((i+1)%10000))
@@ -179,9 +173,16 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
           for(j=0;j<results->number;j++)
              if(results->results[j].node!=supernodes->nodes[i].id && FindNode(supernodes,results->results[j].node))
                {
-                Segment *supersegment=AppendSegment(supersegments,supernodes->nodes[i].id,results->results[j].node,segment->way);
+                Segment *supersegment=AppendSegment(supersegments,supernodes->nodes[i].id,results->results[j].node,way->id);
 
                 supersegment->distance=results->results[j].shortest.distance;
+
+                if(way->type&Way_OneWay)
+                  {
+                   supersegment=AppendSegment(supersegments,results->results[j].node,supernodes->nodes[i].id,way->id);
+
+                   supersegment->distance=INVALID_DISTANCE;
+                  }
                }
 
           FreeResultsList(results);
