@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.12 2009-01-18 16:40:57 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.13 2009-01-21 19:35:52 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -81,7 +81,7 @@ int main(int argc,char** argv)
     if(!FindResult(results,finish))
        fprintf(stderr,"No route found.\n");
     else if(!noprint)
-       PrintRoute(results,OSMNodes,OSMSegments,OSMWays,NULL,start,finish);
+       PrintRoute(results,OSMNodes,OSMSegments,OSMWays,NULL,start,finish,transport);
    }
  else
    {
@@ -115,7 +115,7 @@ int main(int argc,char** argv)
        /* Print the route */
 
        if(!noprint)
-          PrintRoute(begin,OSMNodes,OSMSegments,OSMWays,NULL,start,finish);
+          PrintRoute(begin,OSMNodes,OSMSegments,OSMWays,NULL,start,finish,transport);
       }
     else
       {
@@ -156,7 +156,7 @@ int main(int argc,char** argv)
          {
           Results *results=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,transport);
 
-          PrintRoute(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,start,finish);
+          PrintRoute(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,start,finish,transport);
          }
       }
    }

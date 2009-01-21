@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.8 2009-01-18 16:03:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.9 2009-01-21 19:35:52 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -444,6 +444,68 @@ AllowType AllowedType(const char *transport)
 
    default:
     ;
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Decide the default speed of a way if not otherwise specified.
+
+  speed_t WaySpeed Returns the speed.
+
+  Way *way The way.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+speed_t WaySpeed(Way *way)
+{
+ if(way->limit)
+    return(way->limit);
+
+ switch(Way_TYPE(way->type)&~Way_OneWay)
+   {
+   case Way_Motorway:
+    return(1.6*80);
+    break;
+   case Way_Trunk:
+    return(1.6*((way->type&Way_OneWay)?75:65));
+    break;
+   case Way_Primary:
+    return(1.6*((way->type&Way_OneWay)?70:60));
+    break;
+   case Way_Secondary:
+    return(1.6*55);
+    break;
+   case Way_Tertiary:
+    return(1.6*50);
+    break;
+   case Way_Unclassfied:
+    return(1.6*40);
+    break;
+   case Way_Residential:
+    return(1.6*30);
+    break;
+   case Way_Service:
+    return(1.6*20);
+    break;
+   case Way_Track:
+    return(1.6*10);
+    break;
+   case Way_Bridleway:
+    return(1.6*5);
+    break;
+   case Way_Cycleway:
+    return(1.6*5);
+    break;
+   case Way_Footway:
+    return(1.6*4);
+    break;
+
+   case Way_Unknown:
+   case Way_OneWay:
+   case Way_Roundabout:
+    assert(0);
    }
 
  return(0);

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.12 2009-01-21 18:53:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.13 2009-01-21 19:35:52 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -248,7 +248,6 @@ WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments)
        newway->limit=way->limit;
        newway->type =Way_TYPE(way->type);
        newway->allow=way->allow;
-       newway->speed=way->speed;
 
        supersegments->segments->segments[i].way=newway->id;
       }

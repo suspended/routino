@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.10 2009-01-21 18:52:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.11 2009-01-21 19:35:52 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -154,55 +154,42 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
           switch(way->type)
             {
             case Way_Motorway:
-             way->speed=1.6*80;
              way->allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Trunk:
-             way->speed=1.6*(way_oneway?75:65);
              way->allow=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Primary:
-             way->speed=1.6*(way_oneway?70:60);
              way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Secondary:
-             way->speed=1.6*55;
              way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Tertiary:
-             way->speed=1.6*50;
              way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Unclassfied:
-             way->speed=1.6*40;
              way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Residential:
-             way->speed=1.6*30;
              way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Service:
-             way->speed=1.6*20;
              way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Track:
-             way->speed=1.6*10;
              way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar;
              break;
             case Way_Bridleway:
-             way->speed=1.6*5;
              way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse;
              break;
             case Way_Cycleway:
-             way->speed=1.6*5;
              way->allow=Allow_Foot|Allow_Bicycle;
              break;
             case Way_Footway:
-             way->speed=1.6*4;
              way->allow=Allow_Foot;
              break;
             case Way_Unknown:
-             way->speed=0;
              way->allow=0;
             }
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.22 2009-01-20 17:37:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.23 2009-01-21 19:35:52 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -119,7 +119,6 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
     while(segment)
       {
        duration_t segment_duration;
-       speed_t segment_speed;
 
        node2=segment->node2;
 
@@ -131,12 +130,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
        if(segment->distance==INVALID_DISTANCE)
           goto endloop;
 
-       if(way->limit)
-          segment_speed=way->limit;
-       else
-          segment_speed=way->speed;
-
-       segment_duration=hours_to_duration(distance_to_km(segment->distance)/segment_speed);
+       segment_duration=Duration(segment,way,transport);
 
        shortest2.distance=shortest1.distance+segment->distance;
        shortest2.duration=shortest1.duration+segment_duration;
@@ -360,7 +354,6 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
     while(segment)
       {
        duration_t segment_duration;
-       speed_t segment_speed;
 
        node2=segment->node2;
 
@@ -372,12 +365,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
        if(segment->distance==INVALID_DISTANCE)
           goto endloop;
 
-       if(way->limit)
-          segment_speed=way->limit;
-       else
-          segment_speed=way->speed;
-
-       segment_duration=hours_to_duration(distance_to_km(segment->distance)/segment_speed);
+       segment_duration=Duration(segment,way,transport);
 
        shortest2.distance=shortest1.distance+segment->distance;
        shortest2.duration=shortest1.duration+segment_duration;
@@ -603,9 +591,11 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
   node_t start The start node.
 
   node_t finish The finish node.
+
+  wayallow_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish)
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish,wayallow_t transport)
 {
  FILE *textfile,*gpxfile;
  Result *result;
@@ -641,9 +631,9 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
 
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
                node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
-               distance_to_km(segment->distance),duration_to_minutes(0),
+               distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,transport)),
                distance_to_km(result->shortest.distance),duration_to_minutes(result->shortest.duration),
-               (way->limit?way->limit:way->speed),WayName(ways,way));
+               WaySpeed(way),WayName(ways,way));
       }
     else
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
@@ -695,9 +685,9 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
 
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
                node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
-               distance_to_km(segment->distance),duration_to_minutes(0),
+               distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,transport)),
                distance_to_km(result->quickest.distance),duration_to_minutes(result->quickest.duration),
-               (way->limit?way->limit:way->speed),WayName(ways,way));
+               WaySpeed(way),WayName(ways,way));
       }
     else
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
@@ -783,7 +773,6 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
     while(segment)
       {
        duration_t segment_duration;
-       speed_t segment_speed;
 
        node2=segment->node2;
 
@@ -795,12 +784,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
        if(segment->distance==INVALID_DISTANCE)
           goto endloop;
 
-       if(way->limit)
-          segment_speed=way->limit;
-       else
-          segment_speed=way->speed;
-
-       segment_duration=hours_to_duration(distance_to_km(segment->distance)/segment_speed);
+       segment_duration=Duration(segment,way,transport);
 
        shortest2.distance=shortest1.distance+segment->distance;
        shortest2.duration=shortest1.duration+segment_duration;
@@ -927,7 +911,6 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
     while(segment)
       {
        duration_t reversesegment_duration;
-       speed_t reversesegment_speed;
 
        /* Reverse the segment and check it exists */
 
@@ -953,12 +936,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
        if(reversesegment->distance==INVALID_DISTANCE)
           goto endloop;
 
-       if(way->limit)
-          reversesegment_speed=way->limit;
-       else
-          reversesegment_speed=way->speed;
-
-       reversesegment_duration=hours_to_duration(distance_to_km(reversesegment->distance)/reversesegment_speed);
+       reversesegment_duration=Duration(reversesegment,way,transport);
 
        shortest2.distance=shortest1.distance+reversesegment->distance;
        shortest2.duration=shortest1.duration+reversesegment_duration;
@@ -1233,7 +1211,6 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
     while(segment)
       {
        duration_t segment_duration;
-       speed_t segment_speed;
 
        node2=segment->node2;
 
@@ -1247,12 +1224,7 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
        if(segment->distance==INVALID_DISTANCE)
           goto endloop;
 
-       if(way->limit)
-          segment_speed=way->limit;
-       else
-          segment_speed=way->speed;
-
-       segment_duration=hours_to_duration(distance_to_km(segment->distance)/segment_speed);
+       segment_duration=0;
 
        shortest2.distance=shortest1.distance+segment->distance;
        shortest2.duration=shortest1.duration+segment_duration;

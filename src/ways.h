@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.8 2009-01-19 19:51:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.9 2009-01-21 19:35:52 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -101,7 +101,6 @@ typedef struct _Way
  way_t      id;                 /*+ The way identifier. +*/
  uint32_t   name;               /*+ An offset of the name of the way in the ways array. +*/
  speed_t    limit;              /*+ The defined speed limit on the way. +*/
- speed_t    speed;              /*+ The assumed speed limit on the way. +*/
  waytype_t  type;               /*+ The type of the way. +*/
  wayallow_t allow;              /*+ The type of traffic allowed on the way. +*/
 }
@@ -150,6 +149,8 @@ void SortWayList(WaysMem *ways);
 WayType TypeOfWay(const char *type);
 
 AllowType AllowedType(const char *transport);
+
+speed_t WaySpeed(Way *way);
 
 #define LookupWay(xxx,yyy) (&xxx->ways[yyy])
 
