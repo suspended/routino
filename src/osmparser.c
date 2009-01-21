@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.9 2009-01-20 17:37:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.10 2009-01-21 18:52:34 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -158,11 +158,11 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
              way->allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Trunk:
-             way->speed=1.6*((way_oneway&&!way_roundabout)?75:65);
+             way->speed=1.6*(way_oneway?75:65);
              way->allow=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Primary:
-             way->speed=1.6*((way_oneway&&!way_roundabout)?70:60);
+             way->speed=1.6*(way_oneway?70:60);
              way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Secondary:
