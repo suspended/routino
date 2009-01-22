@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.14 2009-01-22 18:57:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.15 2009-01-22 19:48:53 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -348,8 +348,9 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
     Node *node1=FindNode(nodes,segments->segments->segments[i].node1);
     Node *node2=FindNode(nodes,segments->segments->segments[i].node2);
 
-    if(segments->segments->segments[i].distance!=INVALID_DISTANCE)
-       segments->segments->segments[i].distance=Distance(node1,node2);
+    /* Set the distance but preserve the INVALID_DISTANCE flag */
+
+    segments->segments->segments[i].distance|=Distance(node1,node2);
 
     if(!((i+1)%10000))
       {

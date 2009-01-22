@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.26 2009-01-22 19:39:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.27 2009-01-22 19:48:53 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -58,10 +58,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
  /* Set up the finish conditions */
 
- shortestfinish.distance=INVALID_DISTANCE;
- shortestfinish.duration=INVALID_DURATION;
- quickestfinish.distance=INVALID_DISTANCE;
- quickestfinish.duration=INVALID_DURATION;
+ shortestfinish.distance=~0;
+ shortestfinish.duration=~0;
+ quickestfinish.distance=~0;
+ quickestfinish.duration=~0;
 
  /* Insert the first node into the queue */
 
@@ -95,7 +95,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
       {
        duration_t segment_duration;
 
-       if(segment->distance==INVALID_DISTANCE)
+       if(segment->distance&ONEWAY_OPPOSITE)
           goto endloop;
 
        node2=segment->node2;
@@ -282,10 +282,10 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
  /* Set up the finish conditions */
 
- shortestfinish.distance=INVALID_DISTANCE;
- shortestfinish.duration=INVALID_DURATION;
- quickestfinish.distance=INVALID_DISTANCE;
- quickestfinish.duration=INVALID_DURATION;
+ shortestfinish.distance=~0;
+ shortestfinish.duration=~0;
+ quickestfinish.distance=~0;
+ quickestfinish.duration=~0;
 
  /* Insert the start node */
 
@@ -328,7 +328,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
       {
        duration_t segment_duration;
 
-       if(segment->distance==INVALID_DISTANCE)
+       if(segment->distance&ONEWAY_OPPOSITE)
           goto endloop;
 
        node2=segment->node2;
@@ -446,10 +446,10 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
     *result2=*result1;
 
-    result2->shortest.distance=INVALID_DISTANCE;
-    result2->shortest.duration=INVALID_DURATION;
-    result2->quickest.distance=INVALID_DISTANCE;
-    result2->quickest.duration=INVALID_DURATION;
+    result2->shortest.distance=~0;
+    result2->shortest.duration=~0;
+    result2->quickest.distance=~0;
+    result2->quickest.duration=~0;
 
     for(j=0;j<end->number;j++)
        if(FindNode(supernodes,end->results[j].node))
@@ -713,7 +713,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
       {
        duration_t segment_duration;
 
-       if(segment->distance==INVALID_DISTANCE)
+       if(segment->distance&ONEWAY_OPPOSITE)
           goto endloop;
 
        node2=segment->node2;
@@ -862,7 +862,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
        if(!reversesegment)
           goto endloop;
 
-       if(reversesegment->distance==INVALID_DISTANCE)
+       if(reversesegment->distance&ONEWAY_OPPOSITE)
           goto endloop;
 
        node2=reversesegment->node1;
@@ -1145,7 +1145,7 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
       {
        duration_t segment_duration;
 
-       if(segment->distance==INVALID_DISTANCE)
+       if(segment->distance&ONEWAY_OPPOSITE)
           goto endloop;
 
        node2=segment->node2;

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.11 2009-01-22 18:57:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.12 2009-01-22 19:48:53 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -41,11 +41,8 @@ typedef uint32_t distance_t;
 typedef uint32_t duration_t;
 
 
-/*+ An invalid distance +*/
-#define INVALID_DISTANCE (distance_t)(~0)
-
-/*+ An invalid duration +*/
-#define INVALID_DURATION (duration_t)(~0)
+/*+ A flag to mark a distance as only applying for the other direction. +*/
+#define ONEWAY_OPPOSITE (distance_t)(0x80000000)
 
 
 /*+ Conversion from distance_t to kilometres. +*/
