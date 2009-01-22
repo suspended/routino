@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.24 2009-01-21 20:11:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.25 2009-01-22 19:26:04 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -23,29 +23,8 @@
 #include "functions.h"
 
 
-#define INCREMENT 1024
-
-
-/*+ A queue results. +*/
-typedef struct _Queue
-{
- uint32_t alloced;              /*+ The amount of space allocated for results in the array. +*/
- uint32_t number;               /*+ The number of occupied results in the array. +*/
- uint32_t *queue;               /*+ An array of offsets into the results array. +*/
-}
- Queue;
-
-
-/*+ The queue of nodes. +*/
-Queue OSMQueue={0,0,NULL};
-
 /*+ Print the progress? +*/
 int print_progress=1;
-
-
-/* Functions */
-
-static void insert_in_queue(Results *results,Result *result);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -104,9 +83,8 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
  /* Loop across all nodes in the queue */
 
- while(OSMQueue.number>0)
+ while((result1=pop_from_queue(results)))
    {
-    result1=LookupResult(results,OSMQueue.queue[--OSMQueue.number]);
     node1=result1->node;
     shortest1=result1->shortest;
     quickest1=result1->quickest;
@@ -209,8 +187,9 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
     if(print_progress && !(results->number%10000))
       {
-       printf("\rRouting: End Nodes=%d Queue=%d Journey=%.1fkm,%.0fmin  ",results->number,OSMQueue.number,
-              distance_to_km(shortest2.distance),duration_to_minutes(quickest2.duration));
+       printf("\rRouting: End Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin  ",results->number,
+              distance_to_km(shortest2.distance),duration_to_minutes(shortest2.duration),
+              distance_to_km(quickest2.distance),duration_to_minutes(quickest2.duration));
        fflush(stdout);
       }
    }
@@ -337,9 +316,8 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
  /* Loop across all supernodes in the queue */
 
- while(OSMQueue.number>0)
+ while((result1=pop_from_queue(results)))
    {
-    result1=LookupResult(results,OSMQueue.queue[--OSMQueue.number]);
     node1=result1->node;
     shortest1=result1->shortest;
     quickest1=result1->quickest;
@@ -444,8 +422,9 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
     if(print_progress && !(results->number%10000))
       {
-       printf("\rRouting: End Super-Nodes=%d Queue=%d Journey=%.1fkm,%.0fmin  ",results->number,OSMQueue.number,
-              distance_to_km(shortest2.distance),duration_to_minutes(quickest2.duration));
+       printf("\rRouting: End Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin  ",results->number,
+              distance_to_km(shortest2.distance),duration_to_minutes(shortest2.duration),
+              distance_to_km(quickest2.distance),duration_to_minutes(quickest2.duration));
        fflush(stdout);
       }
    }
@@ -722,9 +701,8 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 
  /* Loop across all nodes in the queue */
 
- while(OSMQueue.number>0)
+ while((result1=pop_from_queue(results)))
    {
-    result1=LookupResult(results,OSMQueue.queue[--OSMQueue.number]);
     node1=result1->node;
     shortest1=result1->shortest;
     quickest1=result1->quickest;
@@ -858,9 +836,8 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
  /* Loop across all nodes in the queue */
 
- while(OSMQueue.number>0)
+ while((result1=pop_from_queue(results)))
    {
-    result1=LookupResult(results,OSMQueue.queue[--OSMQueue.number]);
     node1=result1->node;
     shortest1=result1->shortest;
     quickest1=result1->quickest;
@@ -1156,9 +1133,8 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
 
  /* Loop across all nodes in the queue */
 
- while(OSMQueue.number>0)
+ while((result1=pop_from_queue(results)))
    {
-    result1=LookupResult(results,OSMQueue.queue[--OSMQueue.number]);
     node1=result1->node;
     shortest1=result1->shortest;
     quickest1=result1->quickest;
@@ -1243,91 +1219,4 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
    }
 
  return(results);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Insert an item into the queue in the right order.
-
-  Results *results The set of results.
-
-  Result *result The result to insert into the queue.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static void insert_in_queue(Results *results,Result *result)
-{
- int start=0;
- int end=OSMQueue.number-1;
- int mid;
- int insert=-1;
-
- /* Check that the whole thing is allocated. */
-
- if(!OSMQueue.queue)
-   {
-    OSMQueue.alloced=INCREMENT;
-    OSMQueue.number=0;
-    OSMQueue.queue=(uint32_t*)malloc(OSMQueue.alloced*sizeof(uint32_t));
-   }
-
- /* Check that the arrays have enough space. */
-
- if(OSMQueue.number==OSMQueue.alloced)
-   {
-    OSMQueue.alloced+=INCREMENT;
-    OSMQueue.queue=(uint32_t*)realloc((void*)OSMQueue.queue,OSMQueue.alloced*sizeof(uint32_t));
-   }
-
- /* Binary search - search key may not match, new insertion point required
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since there may not be an exact match we must set end=mid
-  *  # <- mid    |  or start=mid because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually end=start+1 and the insertion point is before
-  *  # <- end    |  end (since it cannot be before the initial start or end).
-  */
-
- if(OSMQueue.number==0)                                                                        /* There is nothing in the queue */
-    insert=0;
- else if(result->shortest.distance>results->results[OSMQueue.queue[start]].shortest.distance) /* Check key is not before start */
-    insert=start;
- else if(result->shortest.distance<results->results[OSMQueue.queue[end]].shortest.distance)   /* Check key is not after end */
-    insert=end+1;
- else
-   {
-    do
-      {
-       mid=(start+end)/2;                                                                          /* Choose mid point */
-
-       if(results->results[OSMQueue.queue[mid]].shortest.distance>result->shortest.distance)      /* Mid point is too low */
-          start=mid;
-       else if(results->results[OSMQueue.queue[mid]].shortest.distance<result->shortest.distance) /* Mid point is too high */
-          end=mid;
-       else                                                                                        /* Mid point is correct */
-         {
-          if(&results->results[OSMQueue.queue[mid]]==result)
-             return;
-
-          insert=mid;
-          break;
-         }
-      }
-    while((end-start)>1);
-
-    if(insert==-1)
-       insert=end;
-   }
-
- /* Shuffle the array up */
-
- if(insert!=OSMQueue.number)
-    memmove(&OSMQueue.queue[insert+1],&OSMQueue.queue[insert],(OSMQueue.number-insert)*sizeof(uint32_t));
-
- /* Insert the new entry */
-
- OSMQueue.queue[insert]=result-results->results;
-
- OSMQueue.number++;
 }

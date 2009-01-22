@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.4 2009-01-17 17:49:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.5 2009-01-22 19:26:17 amb Exp $
 
  A header file for the results.
  ******************/ /******************
@@ -90,6 +90,12 @@ Result *InsertResult(Results *results,node_t node);
 Result *FindResult(Results *results,node_t node);
 
 #define LookupResult(xxx,yyy) (&xxx->results[yyy])
+
+
+/* Queue Functions */
+
+void insert_in_queue(Results *results,Result *result);
+Result *pop_from_queue(Results *results);
 
 
 #endif /* RESULTS_H */
