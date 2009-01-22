@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.14 2009-01-22 19:39:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.15 2009-01-22 19:48:53 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -181,7 +181,7 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
                   {
                    supersegment=AppendSegment(supersegments,results->results[j].node,supernodes->nodes[i].id,way->id);
 
-                   supersegment->distance=INVALID_DISTANCE;
+                   supersegment->distance=ONEWAY_OPPOSITE|results->results[j].shortest.distance;
                   }
                }
 
