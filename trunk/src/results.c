@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.2 2009-01-17 17:49:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.3 2009-01-22 19:26:17 amb Exp $
 
  Result data type functions.
  ******************/ /******************
@@ -17,6 +17,21 @@
 #include <stdlib.h>
 
 #include "results.h"
+
+
+#define QUEUE_INCREMENT 1024
+
+/*+ A queue of results. +*/
+typedef struct _Queue
+{
+ uint32_t alloced;              /*+ The amount of space allocated for results in the array. +*/
+ uint32_t number;               /*+ The number of occupied results in the array. +*/
+ uint32_t *queue;               /*+ An array of offsets into the results array. +*/
+}
+ Queue;
+
+/*+ The queue of nodes. +*/
+static Queue queue={0,0,NULL};
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -257,4 +272,108 @@ Result *FindResult(Results *results,node_t node)
    }
 
  return(NULL);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Insert an item into the queue in the right order.
+
+  Results *results The set of results.
+
+  Result *result The result to insert into the queue.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void insert_in_queue(Results *results,Result *result)
+{
+ int start=0;
+ int end=queue.number-1;
+ int mid;
+ int insert=-1;
+
+ /* Check that the whole thing is allocated. */
+
+ if(!queue.queue)
+   {
+    queue.alloced=QUEUE_INCREMENT;
+    queue.number=0;
+    queue.queue=(uint32_t*)malloc(queue.alloced*sizeof(uint32_t));
+   }
+
+ /* Check that the arrays have enough space. */
+
+ if(queue.number==queue.alloced)
+   {
+    queue.alloced+=QUEUE_INCREMENT;
+    queue.queue=(uint32_t*)realloc((void*)queue.queue,queue.alloced*sizeof(uint32_t));
+   }
+
+ /* Binary search - search key may not match, new insertion point required
+  *
+  *  # <- start  |  Check mid and move start or end if it doesn't match
+  *  #           |
+  *  #           |  Since there may not be an exact match we must set end=mid
+  *  # <- mid    |  or start=mid because we know that mid doesn't match.
+  *  #           |
+  *  #           |  Eventually end=start+1 and the insertion point is before
+  *  # <- end    |  end (since it cannot be before the initial start or end).
+  */
+
+ if(queue.number==0)                                                                       /* There is nothing in the queue */
+    insert=0;
+ else if(result->shortest.distance>results->results[queue.queue[start]].shortest.distance) /* Check key is not before start */
+    insert=start;
+ else if(result->shortest.distance<results->results[queue.queue[end]].shortest.distance)   /* Check key is not after end */
+    insert=end+1;
+ else
+   {
+    do
+      {
+       mid=(start+end)/2;                                                                      /* Choose mid point */
+
+       if(results->results[queue.queue[mid]].shortest.distance>result->shortest.distance)      /* Mid point is too low */
+          start=mid;
+       else if(results->results[queue.queue[mid]].shortest.distance<result->shortest.distance) /* Mid point is too high */
+          end=mid;
+       else                                                                                    /* Mid point is correct */
+         {
+          if(&results->results[queue.queue[mid]]==result)
+             return;
+
+          insert=mid;
+          break;
+         }
+      }
+    while((end-start)>1);
+
+    if(insert==-1)
+       insert=end;
+   }
+
+ /* Shuffle the array up */
+
+ if(insert!=queue.number)
+    memmove(&queue.queue[insert+1],&queue.queue[insert],(queue.number-insert)*sizeof(uint32_t));
+
+ /* Insert the new entry */
+
+ queue.queue[insert]=result-results->results;
+
+ queue.number++;
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Pop an item from the end of the queue.
+
+  Result *pop_from_queue Returns the top item.
+
+  Results *results The set of results that the queue is processing.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Result *pop_from_queue(Results *results)
+{
+ if(queue.number)
+    return LookupResult(results,queue.queue[--queue.number]);
+ else
+    return NULL;
 }
