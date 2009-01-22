@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.10 2009-01-22 18:57:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.11 2009-01-22 19:39:30 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -452,7 +452,7 @@ speed_t WaySpeed(Way *way)
  if(way->limit)
     return(way->limit);
 
- switch(Way_TYPE(way->type)&~Way_OneWay)
+ switch(way->type&~(Way_OneWay|Way_Roundabout))
    {
    case Way_Motorway:
     return(1.6*80);

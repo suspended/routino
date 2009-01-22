@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.11 2009-01-21 19:35:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.12 2009-01-22 19:39:30 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -149,6 +149,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
           way=AppendWay(OSMWays,way_id,refname);
 
           way->limit=way_maxspeed;
+
           way->type=TypeOfWay(way_highway);
 
           switch(way->type)
