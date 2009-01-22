@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.5 2009-01-22 19:26:17 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.6 2009-01-22 19:54:55 amb Exp $
 
  A header file for the results.
  ******************/ /******************
@@ -27,10 +27,10 @@
 #if 1 /* set to 0 to use a flat array, 1 for indexed. */
 
 /*+ The array size increment for results. +*/
-#define INCREMENT_RESULTS 256
+#define INCREMENT_RESULTS 16
 
 /*+ The number of bins for results. +*/
-#define NBINS_RESULTS 1024
+#define NBINS_RESULTS 65536
 
 #else
 
