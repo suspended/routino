@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.7 2009-01-14 19:30:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.8 2009-01-22 18:57:16 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -21,18 +21,10 @@
 /* Constants */
 
 
-#if 1 /* set to 0 to use a flat array, 1 for indexed. */
+/*+ The number of bins for nodes - expect ~8,000,000 nodes and use 4*sqrt(N) bins. +*/
+#define NBINS_NODES 8192
 
-/*+ The number of bins for nodes. +*/
-#define NBINS_NODES 2048
-
-#else
-
-#undef NBINS_NODES
-
-#endif
-
-/*+ The array size increment for nodes. +*/
+/*+ The array size increment for nodes - expect ~8,000,000 nodes. +*/
 #define INCREMENT_NODES 1024*1024
 
 
@@ -61,10 +53,8 @@ typedef struct _Node
 /*+ A structure containing a set of nodes (mmap format). +*/
 typedef struct _Nodes
 {
- uint32_t number;               /*+ How many entries are used? +*/
-#ifdef NBINS_NODES
- uint32_t offset[NBINS_NODES+1];/*+ An offset to the first entry in each bin. +*/
-#endif
+ uint32_t offset[NBINS_NODES];  /*+ An offset to the first entry in each bin. +*/
+ uint32_t number;               /*+ How many entries are used in total? +*/
  Node     nodes[1];             /*+ An array of nodes whose size is not limited to 1
                                     (i.e. may overflow the end of this structure). +*/
 }
@@ -77,7 +67,7 @@ typedef struct _NodesMem
  uint32_t number;               /*+ How many entries are used? +*/
  uint32_t sorted;               /*+ Is the data sorted and therefore searchable? +*/
 
- Nodes   *nodes;                /*+ The real data +*/
+ Nodes   *nodes;                /*+ The real data that will be memory mapped later. +*/
 }
  NodesMem;
 

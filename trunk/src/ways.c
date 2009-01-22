@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.9 2009-01-21 19:35:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.10 2009-01-22 18:57:16 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -104,14 +104,9 @@ Ways *SaveWayList(WaysMem* ways,const char *filename)
 
 Way *FindWay(Ways* ways,way_t id)
 {
-#ifdef NBINS_WAYS
  int bin=id%NBINS_WAYS;
  int start=ways->offset[bin];
- int end=ways->offset[bin+1]-1;
-#else
- int start=0;
- int end=ways->number-1;
-#endif
+ int end=ways->offset[bin+1]-1; /* &offset[NBINS+1] == &number */
  int mid;
 
  /* Binary search - search key exact match only is required.
@@ -209,9 +204,7 @@ Way *AppendWay(WaysMem* ways,way_t id,const char *name)
 void SortWayList(WaysMem* ways)
 {
  char *name=NULL;
-#ifdef NBINS_WAYS
  int bin=0;
-#endif
  int i;
 
  /* Sort the ways by name */
@@ -263,14 +256,12 @@ void SortWayList(WaysMem* ways)
 
  ways->ways->number=ways->number;
 
-#ifdef NBINS_WAYS
  for(i=0;i<ways->number;i++)
     for(;bin<=(ways->ways->ways[i].id%NBINS_WAYS);bin++)
        ways->ways->offset[bin]=i;
 
- for(;bin<=NBINS_WAYS;bin++)
+ for(;bin<NBINS_WAYS;bin++)
     ways->ways->offset[bin]=ways->number;
-#endif
 }
 
 
@@ -289,13 +280,11 @@ static int sort_by_id(Way *a,Way *b)
  way_t a_id=a->id;
  way_t b_id=b->id;
 
-#ifdef NBINS_WAYS
  int a_bin=a->id%NBINS_WAYS;
  int b_bin=b->id%NBINS_WAYS;
 
  if(a_bin!=b_bin)
     return(a_bin-b_bin);
-#endif
 
  if(a_id<b_id)
     return(-1);
