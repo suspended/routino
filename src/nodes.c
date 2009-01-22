@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.9 2009-01-22 18:57:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.10 2009-01-22 19:15:30 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -246,17 +246,20 @@ static int sort_by_id(Node *a,Node *b)
 /*++++++++++++++++++++++++++++++++++++++
   Remove any nodes that are not part of a way.
 
-  NodesMem *nodesmem The node list to create.
+  NodesMem *OnlyHighwayNodes Returns the list of highway nodes.
 
   Nodes *nodes The complete node list.
 
   Segments *segments The list of segments.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveNonWayNodes(NodesMem *nodesmem,Nodes *nodes,Segments *segments)
+NodesMem *OnlyHighwayNodes(Nodes *nodes,Segments *segments)
 {
+ NodesMem *nodesmem;
  int i;
- int inway=0,notinway=0;
+ int highway=0,nothighway=0;
+
+ nodesmem=NewNodeList();
 
  for(i=0;i<nodes->number;i++)
    {
@@ -264,19 +267,21 @@ void RemoveNonWayNodes(NodesMem *nodesmem,Nodes *nodes,Segments *segments)
 
     if(FindFirstSegment(segments,node->id))
       {
-       inway++;
+       highway++;
        AppendNode(nodesmem,node->id,node->latitude,node->longitude);
       }
     else
-       notinway++;
+       nothighway++;
 
     if(!((i+1)%10000))
       {
-       printf("\rChecking: Nodes=%d in-Way=%d not-in-Way=%d",i+1,inway,notinway);
+       printf("\rChecking: Nodes=%d Highway=%d not-Highway=%d",i+1,highway,nothighway);
        fflush(stdout);
       }
    }
 
- printf("\rChecked: Nodes=%d in-Way=%d not-in-Way=%d  \n",i,inway,notinway);
+ printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",i,highway,nothighway);
  fflush(stdout);
+
+ return(nodesmem);
 }

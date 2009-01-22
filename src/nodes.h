@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.8 2009-01-22 18:57:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.9 2009-01-22 19:15:30 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -88,7 +88,7 @@ Node *AppendNode(NodesMem *nodes,node_t id,latlong_t latitude,latlong_t longitud
 
 void SortNodeList(NodesMem *nodes);
 
-void RemoveNonWayNodes(NodesMem *nodesmem,Nodes *nodes,Segments *segments);
+NodesMem *OnlyHighwayNodes(Nodes *nodes,Segments *segments);
 
 #define LookupNode(xxx,yyy) (&xxx->nodes[yyy])
 

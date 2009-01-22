@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.13 2009-01-21 19:35:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.14 2009-01-22 19:15:30 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -25,8 +25,8 @@
 int main(int argc,char** argv)
 {
  Nodes    *OSMNodes,*SuperNodes;
- Ways     *OSMWays,*SuperWays;
  Segments *OSMSegments,*SuperSegments;
+ Ways     *OSMWays,*SuperWays;
  node_t    start,finish;
  int       all=0,noprint=0;
  AllowType transport=Allow_Motorcar;
@@ -62,11 +62,11 @@ int main(int argc,char** argv)
  OSMNodes=LoadNodeList("data/nodes.mem");
  SuperNodes=LoadNodeList("data/super-nodes.mem");
 
- OSMWays=LoadWayList("data/ways.mem");
- SuperWays=LoadWayList("data/super-ways.mem");
-
  OSMSegments=LoadSegmentList("data/segments.mem");
  SuperSegments=LoadSegmentList("data/super-segments.mem");
+
+ OSMWays=LoadWayList("data/ways.mem");
+ SuperWays=LoadWayList("data/super-ways.mem");
 
  if(all)
    {
