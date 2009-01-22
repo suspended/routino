@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.12 2009-01-22 18:57:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.13 2009-01-22 19:15:30 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -21,8 +21,8 @@
 int main(int argc,char** argv)
 {
  Nodes    *OSMNodes;
- Ways     *OSMWays;
  Segments *OSMSegments;
+ Ways     *OSMWays;
  Nodes    *SuperNodes;
  Segments *SuperSegments;
  Ways     *SuperWays;
@@ -38,18 +38,6 @@ int main(int argc,char** argv)
  printf("number      =%9d\n",OSMNodes->number);
  printf("total size  =%9d Bytes\n",sizeof(OSMNodes)-sizeof(OSMNodes->nodes)+OSMNodes->number*sizeof(Node));
 
- /* Examine the ways */
-
- OSMWays=LoadWayList("data/ways.mem");
-
- printf("\n");
- printf("Ways\n");
- printf("----\n");
-
- printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
- printf("number      =%9d\n",OSMWays->number);
- printf("total size  =%9d Bytes\n",sizeof(OSMWays)-sizeof(OSMWays->ways)+OSMWays->number*sizeof(Way));
-
  /* Examine the segments */
 
  OSMSegments=LoadSegmentList("data/segments.mem");
@@ -61,6 +49,18 @@ int main(int argc,char** argv)
  printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
  printf("number         =%9d\n",OSMSegments->number);
  printf("total size     =%9d Bytes\n",sizeof(OSMSegments)-sizeof(OSMSegments->segments)+OSMSegments->number*sizeof(Segment));
+
+ /* Examine the ways */
+
+ OSMWays=LoadWayList("data/ways.mem");
+
+ printf("\n");
+ printf("Ways\n");
+ printf("----\n");
+
+ printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
+ printf("number      =%9d\n",OSMWays->number);
+ printf("total size  =%9d Bytes\n",sizeof(OSMWays)-sizeof(OSMWays->ways)+OSMWays->number*sizeof(Way));
 
  /* Examine the super-nodes */
 
@@ -74,18 +74,6 @@ int main(int argc,char** argv)
  printf("number      =%9d\n",SuperNodes->number);
  printf("total size  =%9d Bytes\n",sizeof(SuperNodes)-sizeof(SuperNodes->nodes)+SuperNodes->number*sizeof(Node));
 
- /* Examine the super-ways */
-
- SuperWays=LoadWayList("data/super-ways.mem");
-
- printf("\n");
- printf("Super-Ways\n");
- printf("----------\n");
-
- printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
- printf("number      =%9d\n",SuperWays->number);
- printf("total size  =%9d Bytes\n",sizeof(SuperWays)-sizeof(SuperWays->ways)+SuperWays->number*sizeof(Way));
-
  /* Examine the super-segments */
 
  SuperSegments=LoadSegmentList("data/super-segments.mem");
@@ -97,6 +85,18 @@ int main(int argc,char** argv)
  printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
  printf("number         =%9d\n",SuperSegments->number);
  printf("total size     =%9d Bytes\n",sizeof(SuperSegments)-sizeof(SuperSegments->segments)+SuperSegments->number*sizeof(Segment));
+
+ /* Examine the super-ways */
+
+ SuperWays=LoadWayList("data/super-ways.mem");
+
+ printf("\n");
+ printf("Super-Ways\n");
+ printf("----------\n");
+
+ printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
+ printf("number      =%9d\n",SuperWays->number);
+ printf("total size  =%9d Bytes\n",sizeof(SuperWays)-sizeof(SuperWays->ways)+SuperWays->number*sizeof(Way));
 
  return(0);
 }
