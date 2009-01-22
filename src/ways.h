@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.9 2009-01-21 19:35:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.10 2009-01-22 18:57:16 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -21,18 +21,10 @@
 /* Constants */
 
 
-#if 1 /* set to 0 to use a flat array, 1 for indexed. */
+/*+ The number of bins for ways - expect ~1,000,000 ways and use 4*sqrt(N) bins. +*/
+#define NBINS_WAYS 4096
 
-/*+ The number of bins for ways. +*/
-#define NBINS_WAYS 1024
-
-#else
-
-#undef NBINS_WAYS
-
-#endif
-
-/*+ The array size increment for ways. +*/
+/*+ The array size increment for ways - expect ~1,000,000 ways. +*/
 #define INCREMENT_WAYS 256*1024
 
 
@@ -109,10 +101,8 @@ typedef struct _Way
 /*+ A structure containing a set of ways (mmap format). +*/
 typedef struct _Ways
 {
- uint32_t number;               /*+ How many entries are used? +*/
-#ifdef NBINS_WAYS
- uint32_t offset[NBINS_WAYS+1]; /*+ An offset to the first entry in each bin. +*/
-#endif
+ uint32_t offset[NBINS_WAYS];   /*+ An offset to the first entry in each bin. +*/
+ uint32_t number;               /*+ How many entries are used in total? +*/
  Way      ways[1];              /*+ An array of ways whose size is not limited to 1
                                     (i.e. may overflow the end of this structure). +*/
 }
@@ -126,7 +116,7 @@ typedef struct _WaysMem
  uint32_t number_str;           /*+ How many name entries are used? +*/
  uint32_t sorted;               /*+ Is the data sorted and therefore searchable? +*/
 
- Ways    *ways;                 /*+ The real data +*/
+ Ways    *ways;                 /*+ The real data that will be memory mapped later. +*/
  char   **names;                /*+ An array of names. +*/
 }
  WaysMem;

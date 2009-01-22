@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.13 2009-01-21 19:35:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.14 2009-01-22 18:57:16 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -98,14 +98,9 @@ Segments *SaveSegmentList(SegmentsMem* segments,const char *filename)
 
 Segment *FindFirstSegment(Segments* segments,node_t node)
 {
-#ifdef NBINS_SEGMENTS
  int bin=node%NBINS_SEGMENTS;
  int start=segments->offset[bin];
- int end=segments->offset[bin+1]-1;
-#else
- int start=0;
- int end=segments->number-1;
-#endif
+ int end=segments->offset[bin+1]-1; /* &offset[NBINS+1] == &number */
  int mid;
  int found;
 
@@ -231,9 +226,7 @@ Segment *AppendSegment(SegmentsMem* segments,node_t node1,node_t node2,way_t way
 
 void SortSegmentList(SegmentsMem* segments)
 {
-#ifdef NBINS_SEGMENTS
  int i,bin=0;
-#endif
 
  qsort(segments->segments->segments,segments->number,sizeof(Segment),(int (*)(const void*,const void*))sort_by_id);
 
@@ -246,14 +239,12 @@ void SortSegmentList(SegmentsMem* segments)
 
  segments->segments->number=segments->number;
 
-#ifdef NBINS_SEGMENTS
  for(i=0;i<segments->number;i++)
     for(;bin<=(segments->segments->segments[i].node1%NBINS_SEGMENTS);bin++)
        segments->segments->offset[bin]=i;
 
- for(;bin<=NBINS_SEGMENTS;bin++)
+ for(;bin<NBINS_SEGMENTS;bin++)
     segments->segments->offset[bin]=segments->number;
-#endif
 }
 
 
@@ -272,13 +263,11 @@ static int sort_by_id(Segment *a,Segment *b)
  node_t a_id1=a->node1,a_id2=a->node2;
  node_t b_id1=b->node1,b_id2=b->node2;
 
-#ifdef NBINS_SEGMENTS
  int a_bin=a->node1%NBINS_SEGMENTS;
  int b_bin=b->node1%NBINS_SEGMENTS;
 
  if(a_bin!=b_bin)
     return(a_bin-b_bin);
-#endif
 
  if(a_id1<b_id1)
     return(-1);

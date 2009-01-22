@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.8 2009-01-14 19:30:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.9 2009-01-22 18:57:16 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -96,14 +96,9 @@ Nodes *SaveNodeList(NodesMem* nodes,const char *filename)
 
 Node *FindNode(Nodes* nodes,node_t id)
 {
-#ifdef NBINS_NODES
  int bin=id%NBINS_NODES;
  int start=nodes->offset[bin];
- int end=nodes->offset[bin+1]-1;
-#else
- int start=0;
- int end=nodes->number-1;
-#endif
+ int end=nodes->offset[bin+1]-1; /* &offset[NBINS+1] == &number */
  int mid;
 
  /* Binary search - search key exact match only is required.
@@ -196,9 +191,7 @@ Node *AppendNode(NodesMem* nodes,node_t id,latlong_t latitude,latlong_t longitud
 
 void SortNodeList(NodesMem* nodes)
 {
-#ifdef NBINS_NODES
  int i,bin=0;
-#endif
 
  qsort(nodes->nodes->nodes,nodes->number,sizeof(Node),(int (*)(const void*,const void*))sort_by_id);
 
@@ -211,14 +204,12 @@ void SortNodeList(NodesMem* nodes)
 
  nodes->nodes->number=nodes->number;
 
-#ifdef NBINS_NODES
  for(i=0;i<nodes->number;i++)
     for(;bin<=(nodes->nodes->nodes[i].id%NBINS_NODES);bin++)
        nodes->nodes->offset[bin]=i;
 
- for(;bin<=NBINS_NODES;bin++)
+ for(;bin<NBINS_NODES;bin++)
     nodes->nodes->offset[bin]=nodes->number;
-#endif
 }
 
 
@@ -237,13 +228,11 @@ static int sort_by_id(Node *a,Node *b)
  node_t a_id=a->id;
  node_t b_id=b->id;
 
-#ifdef NBINS_NODES
  int a_bin=a->id%NBINS_NODES;
  int b_bin=b->id%NBINS_NODES;
 
  if(a_bin!=b_bin)
     return(a_bin-b_bin);
-#endif
 
  if(a_id<b_id)
     return(-1);
