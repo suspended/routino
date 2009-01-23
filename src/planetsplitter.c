@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.15 2009-01-23 17:13:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.16 2009-01-23 19:31:48 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -38,7 +38,7 @@ int main(int argc,char** argv)
  Ways *SuperWays,*SuperWays2;
  int iteration=0,quit=0;
  int skip_parsing=0,max_iterations=5;
- Transport transport;
+ Transport transport=0;
  int highways[Way_Unknown+1];
  int i;
 
