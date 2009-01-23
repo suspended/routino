@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.13 2009-01-22 19:48:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.14 2009-01-23 15:56:13 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -255,14 +255,14 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
             {
             case 'a':
              if(!strcmp(k,"access"))
-                if(!strcmp(v,"private"))
+                if(!strcmp(v,"private") || !strcmp(v,"no"))
                    way_allow_no=~0;
              break;
 
             case 'b':
              if(!strcmp(k,"bicycle"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"permissive"))
                    way_allow_yes|=Allow_Bicycle;
                 else
                    way_allow_no|=Allow_Bicycle;
@@ -272,7 +272,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
             case 'f':
              if(!strcmp(k,"foot"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"permissive"))
                    way_allow_yes|=Allow_Foot;
                 else
                    way_allow_no|=Allow_Foot;
@@ -282,7 +282,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
             case 'g':
              if(!strcmp(k,"goods"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"permissive"))
                    way_allow_yes|=Allow_Goods;
                 else
                    way_allow_no|=Allow_Goods;
@@ -298,14 +298,14 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
                }
              if(!strcmp(k,"horse"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"permissive"))
                    way_allow_yes|=Allow_Horse;
                 else
                    way_allow_no|=Allow_Horse;
                }
              if(!strcmp(k,"hgv"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"permissive"))
                    way_allow_yes|=Allow_HGV;
                 else
                    way_allow_no|=Allow_HGV;
@@ -327,14 +327,14 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
                }
              if(!strcmp(k,"motorbike"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"permissive"))
                    way_allow_yes|=Allow_Motorbike;
                 else
                    way_allow_no|=Allow_Motorbike;
                }
              if(!strcmp(k,"motorcar"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"permissive"))
                    way_allow_yes|=Allow_Motorcar;
                 else
                    way_allow_no|=Allow_Motorcar;
@@ -355,7 +355,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
             case 'p':
              if(!strcmp(k,"psv"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes"))
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"permissive"))
                    way_allow_yes|=Allow_PSV;
                 else
                    way_allow_no|=Allow_PSV;
