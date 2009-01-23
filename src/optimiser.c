@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.30 2009-01-23 17:09:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.31 2009-01-23 17:13:48 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -1130,11 +1130,9 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
   Nodes *finish The finishing nodes.
 
   Way *match The way that the route must match.
-
-  int iteration The iteration number in Super-Segment generation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match,int iteration)
+Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match)
 {
  Results *results;
  node_t node1,node2;
