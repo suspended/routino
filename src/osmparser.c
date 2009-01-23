@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.15 2009-01-23 16:05:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.16 2009-01-23 16:09:08 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -111,7 +111,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
           char *refname;
           int i;
 
-          type=TypeOfWay(way_highway);
+          type=HighwayType(way_highway);
 
           if(type!=Way_Unknown)
             {

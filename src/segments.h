@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.12 2009-01-22 19:48:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.13 2009-01-23 16:09:08 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -117,7 +117,7 @@ void FixupSegmentLengths(SegmentsMem *segments,Nodes *nodes,Ways *ways);
 
 distance_t Distance(Node *node1,Node *node2);
 
-duration_t Duration(Segment *segment,Way *way,AllowType transport);
+duration_t Duration(Segment *segment,Way *way,Transport transport);
 
 #define LookupSegment(xxx,yyy) (&xxx->segments[yyy])
 

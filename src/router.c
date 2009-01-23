@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.15 2009-01-23 15:22:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.16 2009-01-23 16:09:08 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -29,7 +29,7 @@ int main(int argc,char** argv)
  Ways     *OSMWays,*SuperWays;
  node_t    start,finish;
  int       all=0,noprint=0;
- AllowType transport=Allow_Motorcar;
+ Transport transport=Transport_Motorcar;
 
  /* Parse the command line arguments */
 
@@ -52,7 +52,7 @@ int main(int argc,char** argv)
     else if(!strcmp(argv[argc],"-no-print"))
        noprint=1;
     else if(!strncmp(argv[argc],"-transport=",11))
-       transport=AllowedType(&argv[argc][11]);
+       transport=TransportType(&argv[argc][11]);
     else
        goto usage;
    }

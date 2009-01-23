@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.11 2009-01-22 19:39:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.12 2009-01-23 16:09:08 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -317,64 +317,64 @@ static int sort_by_name(Way *a,Way *b)
 /*++++++++++++++++++++++++++++++++++++++
   Decide on the type of a way given the "highway" parameter.
 
-  WayType TypeOfWay Returns the type of the way.
+  Highway HighwayType Returns the highway type of the way.
 
-  const char *type The string containing the type of the way.
+  const char *highway The string containing the type of the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-WayType TypeOfWay(const char *type)
+Highway HighwayType(const char *highway)
 {
- switch(*type)
+ switch(*highway)
    {
    case 'b':
-    if(!strcmp(type,"byway")) return(Way_Track);
-    if(!strcmp(type,"bridleway")) return(Way_Bridleway);
+    if(!strcmp(highway,"byway")) return(Way_Track);
+    if(!strcmp(highway,"bridleway")) return(Way_Bridleway);
     return(Way_Unknown);
 
    case 'c':
-    if(!strcmp(type,"cycleway")) return(Way_Cycleway);
+    if(!strcmp(highway,"cycleway")) return(Way_Cycleway);
     return(Way_Unknown);
 
    case 'f':
-    if(!strcmp(type,"footway")) return(Way_Footway);
+    if(!strcmp(highway,"footway")) return(Way_Footway);
     return(Way_Unknown);
 
    case 'm':
-    if(!strncmp(type,"motorway",8)) return(Way_Motorway);
-    if(!strcmp(type,"minor")) return(Way_Unclassfied);
+    if(!strncmp(highway,"motorway",8)) return(Way_Motorway);
+    if(!strcmp(highway,"minor")) return(Way_Unclassfied);
     return(Way_Unknown);
 
    case 'p':
-    if(!strncmp(type,"primary",7)) return(Way_Primary);
-    if(!strcmp(type,"path")) return(Way_Footway);
-    if(!strcmp(type,"pedestrian")) return(Way_Footway);
+    if(!strncmp(highway,"primary",7)) return(Way_Primary);
+    if(!strcmp(highway,"path")) return(Way_Footway);
+    if(!strcmp(highway,"pedestrian")) return(Way_Footway);
     return(Way_Unknown);
 
    case 'r':
-    if(!strcmp(type,"road")) return(Way_Unclassfied);
-    if(!strcmp(type,"residential")) return(Way_Residential);
+    if(!strcmp(highway,"road")) return(Way_Unclassfied);
+    if(!strcmp(highway,"residential")) return(Way_Residential);
     return(Way_Unknown);
 
    case 's':
-    if(!strncmp(type,"secondary",9)) return(Way_Secondary);
-    if(!strcmp(type,"service")) return(Way_Service);
-    if(!strcmp(type,"steps")) return(Way_Footway);
+    if(!strncmp(highway,"secondary",9)) return(Way_Secondary);
+    if(!strcmp(highway,"service")) return(Way_Service);
+    if(!strcmp(highway,"steps")) return(Way_Footway);
     return(Way_Unknown);
 
    case 't':
-    if(!strncmp(type,"trunk",5)) return(Way_Trunk);
-    if(!strcmp(type,"tertiary")) return(Way_Tertiary);
-    if(!strcmp(type,"track")) return(Way_Track);
+    if(!strncmp(highway,"trunk",5)) return(Way_Trunk);
+    if(!strcmp(highway,"tertiary")) return(Way_Tertiary);
+    if(!strcmp(highway,"track")) return(Way_Track);
     return(Way_Unknown);
 
    case 'u':
-    if(!strcmp(type,"unclassified")) return(Way_Unclassfied);
-    if(!strcmp(type,"unsurfaced")) return(Way_Track);
-    if(!strcmp(type,"unpaved")) return(Way_Track);
+    if(!strcmp(highway,"unclassified")) return(Way_Unclassfied);
+    if(!strcmp(highway,"unsurfaced")) return(Way_Track);
+    if(!strcmp(highway,"unpaved")) return(Way_Track);
     return(Way_Unknown);
 
    case 'w':
-    if(!strcmp(type,"walkway")) return(Way_Footway);
+    if(!strcmp(highway,"walkway")) return(Way_Footway);
     return(Way_Unknown);
 
    default:
@@ -388,54 +388,54 @@ WayType TypeOfWay(const char *type)
 /*++++++++++++++++++++++++++++++++++++++
   Decide on the allowed type of transport given the name of it.
 
-  AllowType AllowedType Returns the type of the transport.
+  Transport TransportType Returns the type of the transport.
 
   const char *transport The string containing the method of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-AllowType AllowedType(const char *transport)
+Transport TransportType(const char *transport)
 {
  switch(*transport)
    {
    case 'b':
     if(!strcmp(transport,"bicycle"))
-       return(Allow_Bicycle);
+       return(Transport_Bicycle);
     break;
 
    case 'f':
     if(!strcmp(transport,"foot"))
-       return(Allow_Foot);
+       return(Transport_Foot);
     break;
 
    case 'g':
     if(!strcmp(transport,"goods"))
-       return(Allow_Goods);
+       return(Transport_Goods);
     break;
 
    case 'h':
     if(!strcmp(transport,"horse"))
-       return(Allow_Horse);
+       return(Transport_Horse);
     if(!strcmp(transport,"hgv"))
-       return(Allow_HGV);
+       return(Transport_HGV);
     break;
 
    case 'm':
     if(!strcmp(transport,"motorbike"))
-       return(Allow_Motorbike);
+       return(Transport_Motorbike);
     if(!strcmp(transport,"motorcar"))
-       return(Allow_Motorcar);
+       return(Transport_Motorcar);
     break;
 
    case 'p':
     if(!strcmp(transport,"psv"))
-       return(Allow_PSV);
+       return(Transport_PSV);
     break;
 
    default:
-    ;
+    return(Transport_None);
    }
 
- return(0);
+ return(Transport_None);
 }
 
 
@@ -492,6 +492,7 @@ speed_t WaySpeed(Way *way)
     break;
 
    case Way_Unknown:
+    return(1.6*4);
    case Way_OneWay:
    case Way_Roundabout:
     assert(0);
