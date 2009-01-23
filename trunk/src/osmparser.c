@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.14 2009-01-23 15:56:13 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.15 2009-01-23 16:05:38 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -107,107 +107,109 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
        if(way_highway)
          {
           Way *way;
+          waytype_t type;
           char *refname;
           int i;
 
-          if(way_ref && way_name)
-            {
-             refname=(char*)malloc(strlen(way_ref)+strlen(way_name)+4);
-             sprintf(refname,"%s (%s)",way_name,way_ref);
-            }
-          else if(way_ref && !way_name && way_roundabout)
-            {
-             refname=(char*)malloc(strlen(way_ref)+14);
-             sprintf(refname,"%s (roundabout)",way_ref);
-            }
-          else if(way_ref && !way_name)
-             refname=way_ref;
-          else if(!way_ref && way_name)
-             refname=way_name;
-          else if(way_roundabout)
-            {
-             refname=(char*)malloc(strlen(way_highway)+14);
-             sprintf(refname,"%s (roundabout)",way_highway);
-            }
-          else /* if(!way_ref && !way_name && !way_roundabout) */
-             refname=way_highway;
+          type=TypeOfWay(way_highway);
 
-          for(i=1;i<way_nnodes;i++)
+          if(type!=Way_Unknown)
             {
-             node_t from=way_nodes[i-1];
-             node_t to  =way_nodes[i];
-             Segment *segment;
+             if(way_ref && way_name)
+               {
+                refname=(char*)malloc(strlen(way_ref)+strlen(way_name)+4);
+                sprintf(refname,"%s (%s)",way_name,way_ref);
+               }
+             else if(way_ref && !way_name && way_roundabout)
+               {
+                refname=(char*)malloc(strlen(way_ref)+14);
+                sprintf(refname,"%s (roundabout)",way_ref);
+               }
+             else if(way_ref && !way_name)
+                refname=way_ref;
+             else if(!way_ref && way_name)
+                refname=way_name;
+             else if(way_roundabout)
+               {
+                refname=(char*)malloc(strlen(way_highway)+14);
+                sprintf(refname,"%s (roundabout)",way_highway);
+               }
+             else /* if(!way_ref && !way_name && !way_roundabout) */
+                refname=way_highway;
 
-             segment=AppendSegment(OSMSegments,from,to,way_id);
+             for(i=1;i<way_nnodes;i++)
+               {
+                node_t from=way_nodes[i-1];
+                node_t to  =way_nodes[i];
+                Segment *segment;
 
-             segment=AppendSegment(OSMSegments,to,from,way_id);
+                segment=AppendSegment(OSMSegments,from,to,way_id);
+
+                segment=AppendSegment(OSMSegments,to,from,way_id);
+
+                if(way_oneway)
+                   segment->distance=ONEWAY_OPPOSITE;
+               }
+
+             way=AppendWay(OSMWays,way_id,refname);
+
+             way->limit=way_maxspeed;
+
+             switch(way->type)
+               {
+               case Way_Motorway:
+                way->allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                break;
+               case Way_Trunk:
+                way->allow=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                break;
+               case Way_Primary:
+                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                break;
+               case Way_Secondary:
+                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                break;
+               case Way_Tertiary:
+                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                break;
+               case Way_Unclassfied:
+                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                break;
+               case Way_Residential:
+                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                break;
+               case Way_Service:
+                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                break;
+               case Way_Track:
+                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar;
+                break;
+               case Way_Bridleway:
+                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse;
+                break;
+               case Way_Cycleway:
+                way->allow=Allow_Foot|Allow_Bicycle;
+                break;
+               case Way_Footway:
+                way->allow=Allow_Foot;
+                break;
+               }
+
+             if(way_allow_no)      /* Remove the ones explicitly denied (e.g. private) */
+                way->allow&=~way_allow_no;
+
+             if(way_allow_yes)     /* Add the ones explicitly allowed (e.g. footpath along private) */
+                way->allow|=way_allow_yes;
 
              if(way_oneway)
-                segment->distance=ONEWAY_OPPOSITE;
+                way->type|=Way_OneWay;
+
+             if(way_roundabout)
+                way->type|=Way_Roundabout;
+
+             if(refname!=way_ref && refname!=way_name && refname!=way_highway)
+                free(refname);
             }
-
-          way=AppendWay(OSMWays,way_id,refname);
-
-          way->limit=way_maxspeed;
-
-          way->type=TypeOfWay(way_highway);
-
-          switch(way->type)
-            {
-            case Way_Motorway:
-             way->allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Trunk:
-             way->allow=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Primary:
-             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Secondary:
-             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Tertiary:
-             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Unclassfied:
-             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Residential:
-             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Service:
-             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Track:
-             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar;
-             break;
-            case Way_Bridleway:
-             way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse;
-             break;
-            case Way_Cycleway:
-             way->allow=Allow_Foot|Allow_Bicycle;
-             break;
-            case Way_Footway:
-             way->allow=Allow_Foot;
-             break;
-            case Way_Unknown:
-             way->allow=0;
-            }
-
-          if(way_allow_no)      /* Remove the ones explicitly denied (e.g. private) */
-             way->allow&=~way_allow_no;
-
-          if(way_allow_yes)     /* Add the ones explicitly allowed (e.g. footpath along private) */
-             way->allow|=way_allow_yes;
-
-          if(way_oneway)
-             way->type|=Way_OneWay;
-
-          if(way_roundabout)
-             way->type|=Way_Roundabout;
-
-          if(refname!=way_ref && refname!=way_name && refname!=way_highway)
-             free(refname);
          }
 
        if(way_highway) free(way_highway);
