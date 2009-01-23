@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.16 2009-01-23 16:09:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.17 2009-01-23 17:09:41 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -40,9 +40,13 @@ static char *fgets_realloc(char *buffer,FILE *file);
   SegmentsMem *OSMSegments The array of segments to fill in.
 
   WaysMem *OSMWays The arrray of ways to fill in.
+
+  Transport transport The method of transport that must be allowed on the way.
+
+  int highways[] An array of flags indicating the highway type.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays)
+int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays,Transport transport,int highways[])
 {
  char *line=NULL;
  long nlines=0;
@@ -55,6 +59,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
  wayallow_t way_allow_no=0,way_allow_yes=0;
  node_t *way_nodes=NULL;
  int way_nnodes=0,way_nalloc=0;
+ wayallow_t mustallow=1<<(transport-1);
 
  /* Parse the file */
 
@@ -108,12 +113,59 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
          {
           Way *way;
           waytype_t type;
+          wayallow_t allow;
           char *refname;
           int i;
 
           type=HighwayType(way_highway);
 
-          if(type!=Way_Unknown)
+          switch(type)
+            {
+            case Way_Motorway:
+             allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
+            case Way_Trunk:
+             allow=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
+            case Way_Primary:
+             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
+            case Way_Secondary:
+             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
+            case Way_Tertiary:
+             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
+            case Way_Unclassfied:
+             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
+            case Way_Residential:
+             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
+            case Way_Service:
+             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             break;
+            case Way_Track:
+             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar;
+             break;
+            case Way_Bridleway:
+             allow=Allow_Foot|Allow_Bicycle|Allow_Horse;
+             break;
+            case Way_Cycleway:
+             allow=Allow_Foot|Allow_Bicycle;
+             break;
+            case Way_Footway:
+             allow=Allow_Foot;
+             break;
+            }
+
+          if(way_allow_no)      /* Remove the ones explicitly denied (e.g. private) */
+             allow&=~way_allow_no;
+
+          if(way_allow_yes)     /* Add the ones explicitly allowed (e.g. footpath along private) */
+             allow|=way_allow_yes;
+
+          if(allow&mustallow && highways[type])
             {
              if(way_ref && way_name)
                {
@@ -155,51 +207,9 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
 
              way->limit=way_maxspeed;
 
-             switch(way->type)
-               {
-               case Way_Motorway:
-                way->allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                break;
-               case Way_Trunk:
-                way->allow=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                break;
-               case Way_Primary:
-                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                break;
-               case Way_Secondary:
-                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                break;
-               case Way_Tertiary:
-                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                break;
-               case Way_Unclassfied:
-                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                break;
-               case Way_Residential:
-                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                break;
-               case Way_Service:
-                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                break;
-               case Way_Track:
-                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar;
-                break;
-               case Way_Bridleway:
-                way->allow=Allow_Foot|Allow_Bicycle|Allow_Horse;
-                break;
-               case Way_Cycleway:
-                way->allow=Allow_Foot|Allow_Bicycle;
-                break;
-               case Way_Footway:
-                way->allow=Allow_Foot;
-                break;
-               }
+             way->type=type;
 
-             if(way_allow_no)      /* Remove the ones explicitly denied (e.g. private) */
-                way->allow&=~way_allow_no;
-
-             if(way_allow_yes)     /* Add the ones explicitly allowed (e.g. footpath along private) */
-                way->allow|=way_allow_yes;
+             way->allow=allow;
 
              if(way_oneway)
                 way->type|=Way_OneWay;

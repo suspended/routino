@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.16 2009-01-23 16:09:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.17 2009-01-23 17:09:41 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -30,29 +30,55 @@ int main(int argc,char** argv)
  node_t    start,finish;
  int       all=0,noprint=0;
  Transport transport=Transport_Motorcar;
+ int       highways[Way_Unknown+1];
+ int i;
 
  /* Parse the command line arguments */
 
  if(argc<3)
    {
    usage:
+
     fprintf(stderr,"Usage: router <start-node> <finish-node>\n"
-                   "              [-all] [-no-print]\n"
-                   "              [-transport=(foot|bicycle|...)]\n");
+                   "              [-help]\n"
+                   "              [-all]\n"
+                   "              [-no-print]\n"
+                   "              [-transport=<transport>]\n"
+                   "              [-not-highway=<highway> ...]\n"
+                   "\n"
+                   "<transport> can be:\n"
+                   "%s"
+                   "\n"
+                   "<highway> can be:\n"
+                   "%s",
+                   TransportList(),HighwayList());
+
     return(1);
    }
 
  start=atoll(argv[1]);
  finish=atoll(argv[2]);
 
+ for(i=0;i<Way_Unknown;i++)
+    highways[i]=1;
+
+ highways[Way_Unknown]=0;
+
  while(--argc>=3)
    {
-    if(!strcmp(argv[argc],"-all"))
+    if(!strcmp(argv[argc],"-help"))
+       goto usage;
+    else if(!strcmp(argv[argc],"-all"))
        all=1;
     else if(!strcmp(argv[argc],"-no-print"))
        noprint=1;
     else if(!strncmp(argv[argc],"-transport=",11))
        transport=TransportType(&argv[argc][11]);
+    else if(!strncmp(argv[argc],"-not-highway=",13))
+      {
+       Highway highway=HighwayType(&argv[argc][13]);
+       highways[highway]=0;
+      }
     else
        goto usage;
    }
@@ -74,7 +100,7 @@ int main(int argc,char** argv)
 
     /* Calculate the route */
 
-    results=FindRoute(OSMNodes,OSMSegments,OSMWays,start,finish,transport,all);
+    results=FindRoute(OSMNodes,OSMSegments,OSMWays,start,finish,transport,highways,all);
 
     /* Print the route */
 
@@ -108,7 +134,7 @@ int main(int argc,char** argv)
        result->quickest.duration=0;
       }
     else
-       begin=FindRoutes(OSMNodes,OSMSegments,OSMWays,start,SuperNodes,transport);
+       begin=FindRoutes(OSMNodes,OSMSegments,OSMWays,start,SuperNodes,transport,highways);
 
     if(FindResult(begin,finish))
       {
@@ -142,11 +168,11 @@ int main(int argc,char** argv)
           result->quickest.duration=0;
          }
        else
-          end=FindReverseRoutes(OSMNodes,OSMSegments,OSMWays,SuperNodes,finish,transport);
+          end=FindReverseRoutes(OSMNodes,OSMSegments,OSMWays,SuperNodes,finish,transport,highways);
 
        /* Calculate the middle of the route */
 
-       superresults=FindRoute3(SuperNodes,SuperSegments,SuperWays,start,finish,begin,end,transport);
+       superresults=FindRoute3(SuperNodes,SuperSegments,SuperWays,start,finish,begin,end,transport,highways);
 
        /* Print the route */
 
@@ -154,7 +180,7 @@ int main(int argc,char** argv)
           fprintf(stderr,"No route found.\n");
        else if(!noprint)
          {
-          Results *results=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,transport);
+          Results *results=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,transport,highways);
 
           PrintRoute(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,start,finish,transport);
          }

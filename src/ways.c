@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.12 2009-01-23 16:09:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.13 2009-01-23 17:09:41 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -440,6 +440,48 @@ Transport TransportType(const char *transport)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Returns a list of all the highway types.
+
+  const char *HighwayList Return a list of all the highway types.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *HighwayList(void)
+{
+ return "    motorway     = Motorway    \n"
+        "    trunk        = Trunk       \n"
+        "    primary      = Primary     \n"
+        "    tertiary     = Tertiary    \n"
+        "    secondary    = Secondary   \n"
+        "    unclassified = Unclassified\n"
+        "    residential  = Residential \n"
+        "    service      = Service     \n"
+        "    track        = Track       \n"
+        "    bridleway    = Bridleway   \n"
+        "    cycleway     = Cycleway    \n"
+        "    footway      = Footway     \n";
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Returns a list of all the transport types.
+
+  const char *TransportList Return a list of all the transport types.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *TransportList(void)
+{
+ return "    foot      = Foot     \n"
+        "    bicycle   = Bicycle  \n"
+        "    horse     = Horse    \n"
+        "    motorbike = Motorbike\n"
+        "    motorcar  = Motorcar \n"
+        "    psv       = PSV      \n"
+        "    goods     = Goods    \n"
+        "    hgv       = HGV      \n";
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Decide the default speed of a way if not otherwise specified.
 
   speed_t WaySpeed Returns the speed.
@@ -452,7 +494,7 @@ speed_t WaySpeed(Way *way)
  if(way->limit)
     return(way->limit);
 
- switch(way->type&~(Way_OneWay|Way_Roundabout))
+ switch(HIGHWAY(way->type))
    {
    case Way_Motorway:
     return(1.6*80);
@@ -492,7 +534,6 @@ speed_t WaySpeed(Way *way)
     break;
 
    case Way_Unknown:
-    return(1.6*4);
    case Way_OneWay:
    case Way_Roundabout:
     assert(0);

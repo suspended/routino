@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.29 2009-01-23 16:09:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.30 2009-01-23 17:09:41 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -44,10 +44,12 @@ int print_progress=1;
 
   transport_t transport The mode of transport.
 
+  int highways[] An array of flags indicating the highway type.
+
   int all A flag to indicate that a big results structure is required.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport,int all)
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport,int highways[],int all)
 {
  Results *results;
  node_t node1,node2;
@@ -111,7 +113,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
        way=FindWay(ways,segment->way);
 
-       if((way->allow&mustallow)!=mustallow)
+       if(!(way->allow&mustallow))
+          goto endloop;
+
+       if(!highways[HIGHWAY(way->type)])
           goto endloop;
 
        segment_duration=Duration(segment,way,transport);
@@ -272,9 +277,11 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
   Results *end The final portion of the route.
 
   transport_t transport The mode of transport.
+
+  int highways[] An array of flags indicating the highway type.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,transport_t transport)
+Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,transport_t transport,int highways[])
 {
  Results *results;
  node_t node1,node2;
@@ -345,7 +352,10 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
        way=FindWay(superways,segment->way);
 
-       if((way->allow&mustallow)!=mustallow)
+       if(!(way->allow&mustallow))
+          goto endloop;
+
+       if(!highways[HIGHWAY(way->type)])
           goto endloop;
 
        segment_duration=Duration(segment,way,transport);
@@ -676,9 +686,11 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
   Nodes *finish The finishing nodes.
 
   transport_t transport The mode of transport.
+
+  int highways[] An array of flags indicating the highway type.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,transport_t transport)
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,transport_t transport,int highways[])
 {
  Results *results;
  node_t node1,node2;
@@ -731,7 +743,10 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 
        way=FindWay(ways,segment->way);
 
-       if((way->allow&mustallow)!=mustallow)
+       if(!(way->allow&mustallow))
+          goto endloop;
+
+       if(!highways[HIGHWAY(way->type)])
           goto endloop;
 
        segment_duration=Duration(segment,way,transport);
@@ -812,9 +827,11 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
   node_t finish The finishing node.
 
   transport_t transport The mode of transport.
+
+  int highways[] An array of flags indicating the highway type.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,transport_t transport)
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,transport_t transport,int highways[])
 {
  Results *results;
  node_t node1,node2;
@@ -881,7 +898,10 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
        way=FindWay(ways,reversesegment->way);
 
-       if((way->allow&mustallow)!=mustallow)
+       if(!(way->allow&mustallow))
+          goto endloop;
+
+       if(!highways[HIGHWAY(way->type)])
           goto endloop;
 
        reversesegment_duration=Duration(reversesegment,way,transport);
@@ -964,9 +984,11 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
   node_t finish The finish node.
 
   transport_t transport The mode of transport.
+
+  int highways[] An array of flags indicating the highway type.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport)
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport,int highways[])
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
@@ -992,7 +1014,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
    {
     if(result1->shortest.next)
       {
-       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->shortest.next,transport,0);
+       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->shortest.next,transport,highways,0);
 
        result2=FindResult(results2,result1->node);
 
@@ -1043,7 +1065,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
    {
     if(result1->quickest.next)
       {
-       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->quickest.next,transport,0);
+       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->quickest.next,transport,highways,0);
 
        result2=FindResult(results2,result1->node);
 
