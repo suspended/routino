@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.3 2009-01-22 19:26:17 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.4 2009-01-23 15:22:31 amb Exp $
 
  Result data type functions.
  ******************/ /******************
@@ -19,7 +19,9 @@
 #include "results.h"
 
 
-#define QUEUE_INCREMENT 1024
+#define RESULTS_INCREMENT   16
+#define QUEUE_INCREMENT   1024
+
 
 /*+ A queue of results. +*/
 typedef struct _Queue
@@ -38,34 +40,42 @@ static Queue queue={0,0,NULL};
   Allocate a new results list.
 
   Results *NewResultsList Returns the results list.
+
+  int nbins The number of bins in the results array.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *NewResultsList(void)
+Results *NewResultsList(int nbins)
 {
  Results *results;
-#if NBINS_RESULTS
  int i;
-#endif
 
  results=(Results*)malloc(sizeof(Results));
 
- results->alloced=INCREMENT_RESULTS;
+ results->nbins=1;
+ results->mask=~0;
+
+ while(nbins>>=1)
+   {
+    results->mask<<=1;
+    results->nbins<<=1;
+   }
+
+ results->mask=~results->mask;
+
+ results->alloced=RESULTS_INCREMENT;
  results->number=0;
 
-#if NBINS_RESULTS
- for(i=0;i<NBINS_RESULTS;i++)
+ results->numbin=(uint32_t*)malloc(results->nbins*sizeof(uint32_t));
+ results->offsets=(uint32_t**)malloc(results->nbins*sizeof(uint32_t*));
+
+ for(i=0;i<results->nbins;i++)
    {
     results->numbin[i]=0;
 
     results->offsets[i]=(uint32_t*)malloc(results->alloced*sizeof(uint32_t));
    }
 
- results->results=(Result*)malloc(results->alloced*NBINS_RESULTS*sizeof(Result));
-#else
- results->offsets=(uint32_t*)malloc(results->alloced*sizeof(uint32_t));
-
- results->data=(Result*)malloc(results->alloced*sizeof(Result));
-#endif
+ results->results=(Result*)malloc(results->alloced*results->nbins*sizeof(Result));
 
  return(results);
 }
@@ -79,18 +89,15 @@ Results *NewResultsList(void)
 
 void FreeResultsList(Results *results)
 {
-#if NBINS_RESULTS
  int i;
-#endif
-
-#if NBINS_RESULTS
- for(i=0;i<NBINS_RESULTS;i++)
-    free(results->offsets[i]);
-#else
- free(results->offsets);
-#endif
 
  free(results->results);
+
+ for(i=0;i<results->nbins;i++)
+    free(results->offsets[i]);
+
+ free(results->offsets);
+ free(results->numbin);
 
  free(results);
 }
@@ -108,46 +115,24 @@ void FreeResultsList(Results *results)
 
 Result *InsertResult(Results *results,node_t node)
 {
-#ifdef NBINS_RESULTS
- int bin=node%NBINS_RESULTS;
+ int bin=node&results->mask;
  int start=0;
  int end=results->numbin[bin]-1;
- uint32_t *offsetsp=results->offsets[bin];
  int i;
-#else
- int start=0;
- int end=results->number-1;
- uint32_t *offsetsp=results->offsets;
-#endif
  int mid;
  int insert=-1;
 
  /* Check that the arrays have enough space. */
 
-#ifdef NBINS_RESULTS
  if(results->numbin[bin]==results->alloced)
    {
-    results->alloced+=INCREMENT_RESULTS;
+    results->alloced+=RESULTS_INCREMENT;
 
-    for(i=0;i<NBINS_RESULTS;i++)
+    for(i=0;i<results->nbins;i++)
        results->offsets[i]=(uint32_t*)realloc((void*)results->offsets[i],results->alloced*sizeof(uint32_t));
 
-    offsetsp=results->offsets[bin];
-
-    results->results=(Result*)realloc((void*)results->results,results->alloced*NBINS_RESULTS*sizeof(Result));
+    results->results=(Result*)realloc((void*)results->results,results->alloced*results->nbins*sizeof(Result));
    }
-#else
- if(results->number==results->alloced)
-   {
-    results->alloced+=INCREMENT_RESULTS;
-
-    results->offsets=(uint32_t*)realloc((void*)results->offsets[i],results->alloced*sizeof(uint32_t));
-
-    offsetsp=results->offsets;
-
-    results->results=(Result*)realloc((void*)results->results,results->alloced*sizeof(Result));
-   }
-#endif
 
  /* Binary search - search key may not match, if not then insertion point required
   *
@@ -160,21 +145,21 @@ Result *InsertResult(Results *results,node_t node)
   *  # <- end    |  end (since it cannot be before the initial start or end).
   */
 
- if(end<start)                                         /* There are no results */
+ if(end<start)                                                     /* There are no results */
     insert=start;
- else if(node<results->results[offsetsp[start]].node) /* Check key is not before start */
+ else if(node<results->results[results->offsets[bin][start]].node) /* Check key is not before start */
     insert=start;
- else if(node>results->results[offsetsp[end]].node)   /* Check key is not after end */
+ else if(node>results->results[results->offsets[bin][end]].node)   /* Check key is not after end */
     insert=end+1;
  else
    {
     do
       {
-       mid=(start+end)/2;                                  /* Choose mid point */
+       mid=(start+end)/2;                                              /* Choose mid point */
 
-       if(results->results[offsetsp[mid]].node<node)      /* Mid point is too low */
+       if(results->results[results->offsets[bin][mid]].node<node)      /* Mid point is too low */
           start=mid;
-       else if(results->results[offsetsp[mid]].node>node) /* Mid point is too high */
+       else if(results->results[results->offsets[bin][mid]].node>node) /* Mid point is too high */
           end=mid;
        else
           assert(0);
@@ -186,25 +171,18 @@ Result *InsertResult(Results *results,node_t node)
 
  /* Shuffle the array up */
 
-#ifdef NBINS_RESULTS
  if(insert!=results->numbin[bin])
-    memmove(&offsetsp[insert+1],&offsetsp[insert],(results->numbin[bin]-insert)*sizeof(uint32_t));
-#else
- if(insert!=results->number)
-    memmove(&offsetsp[insert+1],&offsetsp[insert],(results->number-insert)*sizeof(uint32_t));
-#endif
+    memmove(&results->offsets[bin][insert+1],&results->offsets[bin][insert],(results->numbin[bin]-insert)*sizeof(uint32_t));
 
  /* Insert the new entry */
 
- offsetsp[insert]=results->number;
+ results->offsets[bin][insert]=results->number;
 
  results->number++;
 
-#ifdef NBINS_RESULTS
  results->numbin[bin]++;
-#endif
 
- return(&results->results[offsetsp[insert]]);
+ return(&results->results[results->offsets[bin][insert]]);
 }
 
 
@@ -220,16 +198,9 @@ Result *InsertResult(Results *results,node_t node)
 
 Result *FindResult(Results *results,node_t node)
 {
-#ifdef NBINS_RESULTS
- int bin=node%NBINS_RESULTS;
+ int bin=node&results->mask;
  int start=0;
  int end=results->numbin[bin]-1;
- uint32_t *offsetsp=results->offsets[bin];
-#else
- int start=0;
- int end=results->number-1;
- uint32_t *offsetsp=results->offsets;
-#endif
  int mid;
 
  /* Binary search - search key exact match only is required.
@@ -243,32 +214,32 @@ Result *FindResult(Results *results,node_t node)
   *  # <- end    |  start or end is the wanted one.
   */
 
- if(end<start)                                         /* There are no results */
+ if(end<start)                                                     /* There are no results */
     return(NULL);
- else if(node<results->results[offsetsp[start]].node) /* Check key is not before start */
+ else if(node<results->results[results->offsets[bin][start]].node) /* Check key is not before start */
     return(NULL);
- else if(node>results->results[offsetsp[end]].node)   /* Check key is not after end */
+ else if(node>results->results[results->offsets[bin][end]].node)   /* Check key is not after end */
     return(NULL);
  else
    {
     do
       {
-       mid=(start+end)/2;                                  /* Choose mid point */
+       mid=(start+end)/2;                                              /* Choose mid point */
 
-       if(results->results[offsetsp[mid]].node<node)      /* Mid point is too low */
+       if(results->results[results->offsets[bin][mid]].node<node)      /* Mid point is too low */
           start=mid+1;
-       else if(results->results[offsetsp[mid]].node>node) /* Mid point is too high */
+       else if(results->results[results->offsets[bin][mid]].node>node) /* Mid point is too high */
           end=mid-1;
-       else                                                /* Mid point is correct */
-          return(&results->results[offsetsp[mid]]);
+       else                                                            /* Mid point is correct */
+          return(&results->results[results->offsets[bin][mid]]);
       }
     while((end-start)>1);
 
-    if(results->results[offsetsp[start]].node==node)      /* Start is correct */
-       return(&results->results[offsetsp[start]]);
+    if(results->results[results->offsets[bin][start]].node==node)      /* Start is correct */
+       return(&results->results[results->offsets[bin][start]]);
 
-    if(results->results[offsetsp[end]].node==node)        /* End is correct */
-       return(&results->results[offsetsp[end]]);
+    if(results->results[results->offsets[bin][end]].node==node)        /* End is correct */
+       return(&results->results[results->offsets[bin][end]]);
    }
 
  return(NULL);

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.27 2009-01-22 19:48:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.28 2009-01-23 15:22:31 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -43,9 +43,11 @@ int print_progress=1;
   node_t finish The finish node.
 
   wayallow_t transport The mode of transport.
+
+  int all A flag to indicate that a big results structure is required.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,wayallow_t transport)
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,wayallow_t transport,int all)
 {
  Results *results;
  node_t node1,node2;
@@ -65,7 +67,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
  /* Insert the first node into the queue */
 
- results=NewResultsList();
+ if(all)
+    results=NewResultsList(65536);
+ else
+    results=NewResultsList(8);
 
  result1=InsertResult(results,start);
 
@@ -289,7 +294,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
  /* Insert the start node */
 
- results=NewResultsList();
+ results=NewResultsList(65536);
 
  result1=InsertResult(results,start);
  result2=FindResult(begin,start);
@@ -683,7 +688,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 
  /* Insert the first node into the queue */
 
- results=NewResultsList();
+ results=NewResultsList(8);
 
  result1=InsertResult(results,start);
 
@@ -818,7 +823,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
  /* Insert the first node into the queue */
 
- results=NewResultsList();
+ results=NewResultsList(8);
 
  result1=InsertResult(results,finish);
 
@@ -962,7 +967,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
  Result *result1,*result2,*result3,*result4;
  Results *combined;
 
- combined=NewResultsList();
+ combined=NewResultsList(64);
 
  print_progress=0;
 
@@ -983,7 +988,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
    {
     if(result1->shortest.next)
       {
-       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->shortest.next,transport);
+       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->shortest.next,transport,0);
 
        result2=FindResult(results2,result1->node);
 
@@ -1034,7 +1039,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
    {
     if(result1->quickest.next)
       {
-       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->quickest.next,transport);
+       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->quickest.next,transport,0);
 
        result2=FindResult(results2,result1->node);
 
@@ -1115,7 +1120,7 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
 
  /* Insert the first node into the queue */
 
- results=NewResultsList();
+ results=NewResultsList(8);
 
  result1=InsertResult(results,start);
 
