@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.15 2009-01-22 19:48:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.16 2009-01-23 16:09:08 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -409,19 +409,19 @@ distance_t Distance(Node *node1,Node *node2)
 
   Way *way The way that the segment belongs to.
 
-  AllowType transport The type of transport being used.
+  Transport transport The type of transport being used.
   ++++++++++++++++++++++++++++++++++++++*/
 
-duration_t Duration(Segment *segment,Way *way,AllowType transport)
+duration_t Duration(Segment *segment,Way *way,Transport transport)
 {
  speed_t    speed=WaySpeed(way);
  distance_t distance=segment->distance;
 
- if(transport==Allow_Foot)
+ if(transport==Transport_Foot)
     speed=5;
- else if(transport==Allow_Horse)
+ else if(transport==Transport_Horse)
     speed=8;
- else if(transport==Allow_Bicycle)
+ else if(transport==Transport_Bicycle)
     speed=20;
 
  return hours_to_duration(distance_to_km(distance)/speed);

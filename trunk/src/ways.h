@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.11 2009-01-22 19:39:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.12 2009-01-23 16:09:09 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -37,21 +37,21 @@ typedef uint32_t way_t;
 /*+ The speed limit of the way. +*/
 typedef uint8_t speed_t;
 
-/*+ A way type identifier. +*/
+/*+ The type of a way. +*/
 typedef uint8_t waytype_t;
 
 /*+ The different types of a way. +*/
-typedef enum _WayType
+typedef enum _Highway
  {
-  Way_Motorway   =1,
-  Way_Trunk      =2,
-  Way_Primary    =3,
-  Way_Tertiary   =4,
-  Way_Secondary  =5,
-  Way_Unclassfied=6,
-  Way_Residential=7,
-  Way_Service    =8,
-  Way_Track      =9,
+  Way_Motorway   = 1,
+  Way_Trunk      = 2,
+  Way_Primary    = 3,
+  Way_Tertiary   = 4,
+  Way_Secondary  = 5,
+  Way_Unclassfied= 6,
+  Way_Residential= 7,
+  Way_Service    = 8,
+  Way_Track      = 9,
   Way_Bridleway  =10,
   Way_Cycleway   =11,
   Way_Footway    =12,
@@ -61,26 +61,47 @@ typedef enum _WayType
   Way_OneWay     =16,
   Way_Roundabout =32
  }
- WayType;
+ Highway;
 
 
-/*+ A way type identifier. +*/
+/*+ The type of a method of transport. +*/
+typedef uint8_t transport_t;
+
+/*+ The different methods of transport. +*/
+typedef enum _Transport
+ {
+  Transport_None      = 0,
+
+  Transport_Foot      = 1,
+  Transport_Bicycle   = 2,
+  Transport_Horse     = 3,
+  Transport_Motorbike = 4,
+  Transport_Motorcar  = 5,
+  Transport_PSV       = 6,
+  Transport_Goods     = 7,
+  Transport_HGV       = 8
+ }
+ Transport;
+
+
+/*+ The allowed traffic on a way. +*/
 typedef uint8_t wayallow_t;
 
 /*+ The different allowed traffic on a way. +*/
-typedef enum _AllowType
+typedef enum _Allowed
  {
-  Allow_Foot      =  1,
-  Allow_Bicycle   =  2,
-  Allow_Horse     =  4,
-  Allow_Motorbike =  8,
-  Allow_Motorcar  = 16,
-  Allow_PSV       = 32,
-  Allow_Goods     = 64,
-  Allow_HGV       =128,
+  Allow_Foot      =1<<(Transport_Foot     -1),
+  Allow_Bicycle   =1<<(Transport_Bicycle  -1),
+  Allow_Horse     =1<<(Transport_Horse    -1),
+  Allow_Motorbike =1<<(Transport_Motorbike-1),
+  Allow_Motorcar  =1<<(Transport_Motorcar -1),
+  Allow_PSV       =1<<(Transport_PSV      -1),
+  Allow_Goods     =1<<(Transport_Goods    -1),
+  Allow_HGV       =1<<(Transport_HGV      -1),
+
   Allow_ALL       =255
  }
- AllowType;
+ Allowed;
 
 
 /* Data structures */
@@ -135,9 +156,8 @@ Way *AppendWay(WaysMem *ways,way_t id,const char *name);
 
 void SortWayList(WaysMem *ways);
 
-WayType TypeOfWay(const char *type);
-
-AllowType AllowedType(const char *transport);
+Highway HighwayType(const char *highway);
+Transport TransportType(const char *transport);
 
 speed_t WaySpeed(Way *way);
 

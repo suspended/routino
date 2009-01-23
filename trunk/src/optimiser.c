@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.28 2009-01-23 15:22:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.29 2009-01-23 16:09:08 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -42,12 +42,12 @@ int print_progress=1;
 
   node_t finish The finish node.
 
-  wayallow_t transport The mode of transport.
+  transport_t transport The mode of transport.
 
   int all A flag to indicate that a big results structure is required.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,wayallow_t transport,int all)
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport,int all)
 {
  Results *results;
  node_t node1,node2;
@@ -57,6 +57,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
  Result *result1,*result2;
  Segment *segment;
  Way *way;
+ wayallow_t mustallow=1<<(transport-1);
 
  /* Set up the finish conditions */
 
@@ -110,7 +111,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
        way=FindWay(ways,segment->way);
 
-       if((way->allow&transport)!=transport)
+       if((way->allow&mustallow)!=mustallow)
           goto endloop;
 
        segment_duration=Duration(segment,way,transport);
@@ -270,10 +271,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
   Results *end The final portion of the route.
 
-  wayallow_t transport The mode of transport.
+  transport_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,wayallow_t transport)
+Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,transport_t transport)
 {
  Results *results;
  node_t node1,node2;
@@ -283,6 +284,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
  Result *result1,*result2,*result3;
  Segment *segment;
  Way *way;
+ wayallow_t mustallow=1<<(transport-1);
  int j;
 
  /* Set up the finish conditions */
@@ -343,7 +345,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
        way=FindWay(superways,segment->way);
 
-       if((way->allow&transport)!=transport)
+       if((way->allow&mustallow)!=mustallow)
           goto endloop;
 
        segment_duration=Duration(segment,way,transport);
@@ -540,10 +542,10 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
   node_t finish The finish node.
 
-  wayallow_t transport The mode of transport.
+  transport_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish,wayallow_t transport)
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish,transport_t transport)
 {
  FILE *textfile,*gpxfile;
  Result *result;
@@ -673,10 +675,10 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
 
   Nodes *finish The finishing nodes.
 
-  wayallow_t transport The mode of transport.
+  transport_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,wayallow_t transport)
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,transport_t transport)
 {
  Results *results;
  node_t node1,node2;
@@ -685,6 +687,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
  Result *result1,*result2;
  Segment *segment;
  Way *way;
+ wayallow_t mustallow=1<<(transport-1);
 
  /* Insert the first node into the queue */
 
@@ -728,7 +731,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 
        way=FindWay(ways,segment->way);
 
-       if((way->allow&transport)!=transport)
+       if((way->allow&mustallow)!=mustallow)
           goto endloop;
 
        segment_duration=Duration(segment,way,transport);
@@ -808,10 +811,10 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 
   node_t finish The finishing node.
 
-  wayallow_t transport The mode of transport.
+  transport_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,wayallow_t transport)
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,transport_t transport)
 {
  Results *results;
  node_t node1,node2;
@@ -820,6 +823,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
  Result *result1,*result2;
  Segment *segment;
  Way *way;
+ wayallow_t mustallow=1<<(transport-1);
 
  /* Insert the first node into the queue */
 
@@ -877,7 +881,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
        way=FindWay(ways,reversesegment->way);
 
-       if((way->allow&transport)!=transport)
+       if((way->allow&mustallow)!=mustallow)
           goto endloop;
 
        reversesegment_duration=Duration(reversesegment,way,transport);
@@ -959,10 +963,10 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
   node_t finish The finish node.
 
-  wayallow_t transport The mode of transport.
+  transport_t transport The mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,wayallow_t transport)
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport)
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
