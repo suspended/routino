@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.31 2009-01-23 17:13:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.32 2009-01-23 17:21:05 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -211,6 +211,16 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
            distance_to_km(shortestfinish.distance),duration_to_minutes(shortestfinish.duration),
            distance_to_km(quickestfinish.distance),duration_to_minutes(quickestfinish.duration));
     fflush(stdout);
+   }
+
+ /* Check it worked */
+
+ result2=FindResult(results,finish);
+
+ if(!result2->shortest.prev)
+   {
+    FreeResultsList(results);
+    return(NULL);
    }
 
  /* Reverse the results */
@@ -489,6 +499,16 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
                 result2->quickest.prev=result1->node;
                }
             }
+   }
+
+ /* Check it worked */
+
+ result2=FindResult(results,finish);
+
+ if(!result2->shortest.prev)
+   {
+    FreeResultsList(results);
+    return(NULL);
    }
 
  /* Reverse the results */
