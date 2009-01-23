@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.13 2009-01-22 19:15:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.14 2009-01-23 17:09:41 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -38,18 +38,50 @@ int main(int argc,char** argv)
  Ways *SuperWays,*SuperWays2;
  int iteration=0,quit=0;
  int skip_parsing=0,max_iterations=5;
+ Transport transport;
+ int highways[Way_Unknown+1];
+ int i;
 
  /* Parse the command line arguments */
 
+ for(i=0;i<Way_Unknown;i++)
+    highways[i]=1;
+
+ highways[Way_Unknown]=0;
+
  while(--argc>=1)
    {
-    if(!strcmp(argv[argc],"-skip-parsing"))
+    if(!strcmp(argv[argc],"-help"))
+       goto usage;
+    else if(!strcmp(argv[argc],"-skip-parsing"))
        skip_parsing=1;
     else if(!strncmp(argv[argc],"-max-iterations=",16))
        max_iterations=atoi(&argv[argc][16]);
+    else if(!strncmp(argv[argc],"-transport=",11))
+       transport=TransportType(&argv[argc][11]);
+    else if(!strncmp(argv[argc],"-not-highway=",13))
+      {
+       Highway highway=HighwayType(&argv[argc][13]);
+       highways[highway]=0;
+      }
     else
       {
-       fprintf(stderr,"Usage: planetsplitter [-skip-parsing] [-max-iterations=<number>]\n");
+      usage:
+
+       fprintf(stderr,"Usage: planetsplitter\n"
+                      "                      [-help]\n"
+                      "                      [-skip-parsing]\n"
+                      "                      [-max-iterations=<number>]\n"
+                      "                      [-transport=<transport>]\n"
+                      "                      [-not-highway=<highway> ...]\n"
+                      "\n"
+                      "<transport> can be:\n"
+                      "%s"
+                      "\n"
+                      "<highway> can be:\n"
+                      "%s",
+                      TransportList(),HighwayList());
+
        return(1);
       }
    }
@@ -64,7 +96,7 @@ int main(int argc,char** argv)
 
     /* Parse the file */
 
-    ParseXML(stdin,OSMNodesMem,OSMSegmentsMem,OSMWaysMem);
+    ParseXML(stdin,OSMNodesMem,OSMSegmentsMem,OSMWaysMem,transport,highways);
 
     /* Sort the variables */
 

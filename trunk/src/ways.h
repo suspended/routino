@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.12 2009-01-23 16:09:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.13 2009-01-23 17:09:41 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -62,6 +62,8 @@ typedef enum _Highway
   Way_Roundabout =32
  }
  Highway;
+
+#define HIGHWAY(xx) ((xx)&0x0f)
 
 
 /*+ The type of a method of transport. +*/
@@ -158,6 +160,9 @@ void SortWayList(WaysMem *ways);
 
 Highway HighwayType(const char *highway);
 Transport TransportType(const char *transport);
+
+const char *HighwayList(void);
+const char *TransportList(void);
 
 speed_t WaySpeed(Way *way);
 
