@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.6 2009-01-22 19:54:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.7 2009-01-23 15:22:31 amb Exp $
 
  A header file for the results.
  ******************/ /******************
@@ -19,27 +19,6 @@
 
 #include "nodes.h"
 #include "segments.h"
-
-
-/* Constants */
-
-
-#if 1 /* set to 0 to use a flat array, 1 for indexed. */
-
-/*+ The array size increment for results. +*/
-#define INCREMENT_RESULTS 16
-
-/*+ The number of bins for results. +*/
-#define NBINS_RESULTS 65536
-
-#else
-
-/*+ The array size increment for results. +*/
-#define INCREMENT_RESULTS 256*1024
-
-#undef NBINS_RESULTS
-
-#endif
 
 
 /* Data structures */
@@ -66,15 +45,15 @@ typedef struct _Result
 /*+ A list of results. +*/
 typedef struct _Results
 {
+ uint32_t nbins;                /*+ The number of bins. +*/
+ uint32_t mask;                 /*+ A bit mask to select the bottom 'nbins' bits. +*/
+
  uint32_t alloced;              /*+ The amount of space allocated for results in the array. +*/
  uint32_t number;               /*+ The total number of occupied results. +*/
-#ifdef NBINS_RESULTS
- uint32_t numbin[NBINS_RESULTS]; /*+ The number of occupied results in the array. +*/
- uint32_t *offsets[NBINS_RESULTS];/*+ An array of pointers to arrays of results. +*/
-#else
- uint32_t number;               /*+ The number of occupied results in the array. +*/
- uint32_t *offsets;             /*+ An array of pointers to results. +*/
-#endif
+
+ uint32_t *numbin;              /*+ The number of occupied results in the array. +*/
+ uint32_t **offsets;            /*+ An array of pointers to arrays of results. +*/
+
  Result *results;               /*+ An array containing the actual results. +*/
 }
  Results;
@@ -82,7 +61,7 @@ typedef struct _Results
 
 /* Functions */
 
-Results *NewResultsList(void);
+Results *NewResultsList(int nbins);
 void FreeResultsList(Results *results);
 
 Result *InsertResult(Results *results,node_t node);
