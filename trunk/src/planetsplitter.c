@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.14 2009-01-23 17:09:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.15 2009-01-23 17:13:48 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -187,7 +187,7 @@ else
 
  /* Select the super-segments */
 
- SuperSegmentsMem=CreateSuperSegments(OSMNodes,OSMSegments,OSMWays,SuperNodes,iteration);
+ SuperSegmentsMem=CreateSuperSegments(OSMNodes,OSMSegments,OSMWays,SuperNodes);
 
  /* Sort the super-segments */
 
@@ -254,7 +254,7 @@ else
 
     /* Select the super-segments */
 
-    SuperSegmentsMem2=CreateSuperSegments(SuperNodes,SuperSegments,SuperWays,SuperNodes2,iteration);
+    SuperSegmentsMem2=CreateSuperSegments(SuperNodes,SuperSegments,SuperWays,SuperNodes2);
 
     /* Sort the super-segments */
 

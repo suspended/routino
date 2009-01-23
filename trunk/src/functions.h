@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.17 2009-01-23 17:09:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.18 2009-01-23 17:13:48 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -49,14 +49,14 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
 Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport,int highways[]);
 
-Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match,int iteration);
+Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match);
 
 
 /* Functions in supersegments.c */
 
 NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways);
 
-SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,int iteration);
+SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes);
 
 WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments);
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.15 2009-01-22 19:48:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.16 2009-01-23 17:13:48 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -117,11 +117,9 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
   Ways *ways The list of ways.
 
   Nodes *supernodes The list of super-nodes.
-
-  int iteration The iteration number of super-segment generation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,int iteration)
+SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes)
 {
  SegmentsMem *supersegments;
  int i,j;
@@ -168,7 +166,7 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
 
        if(way)
          {
-          Results *results=FindRoutesWay(nodes,segments,ways,supernodes->nodes[i].id,supernodes,way,iteration);
+          Results *results=FindRoutesWay(nodes,segments,ways,supernodes->nodes[i].id,supernodes,way);
 
           for(j=0;j<results->number;j++)
              if(results->results[j].node!=supernodes->nodes[i].id && FindNode(supernodes,results->results[j].node))
