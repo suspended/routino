@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.33 2009-01-24 16:21:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.34 2009-01-24 19:09:04 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -311,9 +311,9 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
  results=NewResultsList(65536);
 
  result1=InsertResult(results,start);
- result2=FindResult(begin,start);
+ result3=FindResult(begin,start);
 
- *result1=*result2;
+ *result1=*result3;
 
  /* Insert the finish points of the beginning part of the path into the queue */
 
@@ -323,17 +323,17 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
    {
     if(FindNode(supernodes,result3->node))
       {
-       if(!(result1=FindResult(results,result3->node)))
+       if(!(result2=FindResult(results,result3->node)))
          {
-          result1=InsertResult(results,result3->node);
+          result2=InsertResult(results,result3->node);
 
-          *result1=*result3;
+          *result2=*result3;
 
-          result1->shortest.prev=start;
-          result1->quickest.prev=start;
+          result2->shortest.prev=start;
+          result2->quickest.prev=start;
          }
 
-       insert_in_queue(result1);
+       insert_in_queue(result2);
       }
 
     result3=NextResult(begin,result3);
@@ -468,9 +468,9 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
  if(!FindResult(results,finish))
    {
     result2=InsertResult(results,finish);
-    result1=FindResult(end,finish);
+    result3=FindResult(end,finish);
 
-    *result2=*result1;
+    *result2=*result3;
 
     result2->shortest.distance=~0;
     result2->shortest.duration=~0;
