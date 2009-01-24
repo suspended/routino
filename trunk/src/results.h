@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.7 2009-01-23 15:22:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.8 2009-01-24 16:21:44 amb Exp $
 
  A header file for the results.
  ******************/ /******************
@@ -48,13 +48,19 @@ typedef struct _Results
  uint32_t nbins;                /*+ The number of bins. +*/
  uint32_t mask;                 /*+ A bit mask to select the bottom 'nbins' bits. +*/
 
- uint32_t alloced;              /*+ The amount of space allocated for results in the array. +*/
+ uint32_t alloced;              /*+ The amount of space allocated for results
+                                    (the length of the number and pointers arrays and
+                                     1/nbins times the amount in the real results). +*/
  uint32_t number;               /*+ The total number of occupied results. +*/
 
- uint32_t *numbin;              /*+ The number of occupied results in the array. +*/
- uint32_t **offsets;            /*+ An array of pointers to arrays of results. +*/
+ uint32_t *count;               /*+ An array of nbins counters of results in each array. +*/
+ Result ***point;               /*+ An array of nbins arrays of pointers to actual results. +*/
 
- Result *results;               /*+ An array containing the actual results. +*/
+ Result  **data;                /*+ An array of arrays containing the actual results
+                                    (don't need to realloc the array of data when adding more,
+                                    only realloc the array that points to the array of data).
+                                    Most importantly pointers into the real data don't change
+                                    as more space is allocted (since realloc is not being used). +*/
 }
  Results;
 
@@ -68,13 +74,13 @@ Result *InsertResult(Results *results,node_t node);
 
 Result *FindResult(Results *results,node_t node);
 
-#define LookupResult(xxx,yyy) (&xxx->results[yyy])
-
+Result *FirstResult(Results *results);
+Result *NextResult(Results *results,Result *result);
 
 /* Queue Functions */
 
-void insert_in_queue(Results *results,Result *result);
-Result *pop_from_queue(Results *results);
+void insert_in_queue(Result *result);
+Result *pop_from_queue(void);
 
 
 #endif /* RESULTS_H */
