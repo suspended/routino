@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.16 2009-01-23 17:13:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.17 2009-01-24 16:21:44 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -122,7 +122,7 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
 SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes)
 {
  SegmentsMem *supersegments;
- int i,j;
+ int i;
 
  /* Create super-segments */
 
@@ -167,21 +167,26 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
        if(way)
          {
           Results *results=FindRoutesWay(nodes,segments,ways,supernodes->nodes[i].id,supernodes,way);
+          Result *result=FirstResult(results);
 
-          for(j=0;j<results->number;j++)
-             if(results->results[j].node!=supernodes->nodes[i].id && FindNode(supernodes,results->results[j].node))
+          while(result)
+            {
+             if(result->node!=supernodes->nodes[i].id && FindNode(supernodes,result->node))
                {
-                Segment *supersegment=AppendSegment(supersegments,supernodes->nodes[i].id,results->results[j].node,way->id);
+                Segment *supersegment=AppendSegment(supersegments,supernodes->nodes[i].id,result->node,way->id);
 
-                supersegment->distance=results->results[j].shortest.distance;
+                supersegment->distance=result->shortest.distance;
 
                 if(way->type&Way_OneWay)
                   {
-                   supersegment=AppendSegment(supersegments,results->results[j].node,supernodes->nodes[i].id,way->id);
+                   supersegment=AppendSegment(supersegments,result->node,supernodes->nodes[i].id,way->id);
 
-                   supersegment->distance=ONEWAY_OPPOSITE|results->results[j].shortest.distance;
+                   supersegment->distance=ONEWAY_OPPOSITE|result->shortest.distance;
                   }
                }
+
+             result=NextResult(results,result);
+            }
 
           FreeResultsList(results);
          }

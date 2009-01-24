@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.4 2009-01-23 15:22:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.5 2009-01-24 16:21:44 amb Exp $
 
  Result data type functions.
  ******************/ /******************
@@ -26,9 +26,9 @@
 /*+ A queue of results. +*/
 typedef struct _Queue
 {
- uint32_t alloced;              /*+ The amount of space allocated for results in the array. +*/
- uint32_t number;               /*+ The number of occupied results in the array. +*/
- uint32_t *queue;               /*+ An array of offsets into the results array. +*/
+ uint32_t  alloced;             /*+ The amount of space allocated for results in the array. +*/
+ uint32_t  number;              /*+ The number of occupied results in the array. +*/
+ Result  **xqueue;              /*+ An array of pointers to parts of the results structure. +*/
 }
  Queue;
 
@@ -65,17 +65,18 @@ Results *NewResultsList(int nbins)
  results->alloced=RESULTS_INCREMENT;
  results->number=0;
 
- results->numbin=(uint32_t*)malloc(results->nbins*sizeof(uint32_t));
- results->offsets=(uint32_t**)malloc(results->nbins*sizeof(uint32_t*));
+ results->count=(uint32_t*)malloc(results->nbins*sizeof(uint32_t));
+ results->point=(Result***)malloc(results->nbins*sizeof(Result**));
 
  for(i=0;i<results->nbins;i++)
    {
-    results->numbin[i]=0;
+    results->count[i]=0;
 
-    results->offsets[i]=(uint32_t*)malloc(results->alloced*sizeof(uint32_t));
+    results->point[i]=(Result**)malloc(results->alloced*sizeof(Result*));
    }
 
- results->results=(Result*)malloc(results->alloced*results->nbins*sizeof(Result));
+ results->data=(Result**)malloc(1*sizeof(Result*));
+ results->data[0]=(Result*)malloc(results->nbins*RESULTS_INCREMENT*sizeof(Result));
 
  return(results);
 }
@@ -89,15 +90,20 @@ Results *NewResultsList(int nbins)
 
 void FreeResultsList(Results *results)
 {
+ int c=(results->number-1)/(results->nbins*RESULTS_INCREMENT);
  int i;
 
- free(results->results);
+ for(i=c;i>=0;i--)
+    free(results->data[i]);
+
+ free(results->data);
 
  for(i=0;i<results->nbins;i++)
-    free(results->offsets[i]);
+    free(results->point[i]);
 
- free(results->offsets);
- free(results->numbin);
+ free(results->point);
+
+ free(results->count);
 
  free(results);
 }
@@ -117,21 +123,27 @@ Result *InsertResult(Results *results,node_t node)
 {
  int bin=node&results->mask;
  int start=0;
- int end=results->numbin[bin]-1;
+ int end=results->count[bin]-1;
  int i;
  int mid;
  int insert=-1;
 
  /* Check that the arrays have enough space. */
 
- if(results->numbin[bin]==results->alloced)
+ if(results->count[bin]==results->alloced)
    {
     results->alloced+=RESULTS_INCREMENT;
 
     for(i=0;i<results->nbins;i++)
-       results->offsets[i]=(uint32_t*)realloc((void*)results->offsets[i],results->alloced*sizeof(uint32_t));
+       results->point[i]=(Result**)realloc((void*)results->point[i],results->alloced*sizeof(Result*));
+   }
 
-    results->results=(Result*)realloc((void*)results->results,results->alloced*results->nbins*sizeof(Result));
+ if(results->number && (results->number%RESULTS_INCREMENT)==0 && (results->number%(RESULTS_INCREMENT*results->nbins))==0)
+   {
+    int c=results->number/(results->nbins*RESULTS_INCREMENT);
+
+    results->data=(Result**)realloc((void*)results->data,(c+1)*sizeof(Result*));
+    results->data[c]=(Result*)malloc(results->nbins*RESULTS_INCREMENT*sizeof(Result));
    }
 
  /* Binary search - search key may not match, if not then insertion point required
@@ -145,21 +157,21 @@ Result *InsertResult(Results *results,node_t node)
   *  # <- end    |  end (since it cannot be before the initial start or end).
   */
 
- if(end<start)                                                     /* There are no results */
+ if(end<start)                                  /* There are no results */
     insert=start;
- else if(node<results->results[results->offsets[bin][start]].node) /* Check key is not before start */
+ else if(node<results->point[bin][start]->node) /* Check key is not before start */
     insert=start;
- else if(node>results->results[results->offsets[bin][end]].node)   /* Check key is not after end */
+ else if(node>results->point[bin][end]->node)   /* Check key is not after end */
     insert=end+1;
  else
    {
     do
       {
-       mid=(start+end)/2;                                              /* Choose mid point */
+       mid=(start+end)/2;                           /* Choose mid point */
 
-       if(results->results[results->offsets[bin][mid]].node<node)      /* Mid point is too low */
+       if(results->point[bin][mid]->node<node)      /* Mid point is too low */
           start=mid;
-       else if(results->results[results->offsets[bin][mid]].node>node) /* Mid point is too high */
+       else if(results->point[bin][mid]->node>node) /* Mid point is too high */
           end=mid;
        else
           assert(0);
@@ -171,18 +183,18 @@ Result *InsertResult(Results *results,node_t node)
 
  /* Shuffle the array up */
 
- if(insert!=results->numbin[bin])
-    memmove(&results->offsets[bin][insert+1],&results->offsets[bin][insert],(results->numbin[bin]-insert)*sizeof(uint32_t));
+ if(insert!=results->count[bin])
+    memmove(&results->point[bin][insert+1],&results->point[bin][insert],(results->count[bin]-insert)*sizeof(Result*));
 
  /* Insert the new entry */
 
- results->offsets[bin][insert]=results->number;
+ results->point[bin][insert]=&results->data[results->number/(results->nbins*RESULTS_INCREMENT)][results->number%(results->nbins*RESULTS_INCREMENT)];
 
  results->number++;
 
- results->numbin[bin]++;
+ results->count[bin]++;
 
- return(&results->results[results->offsets[bin][insert]]);
+ return(results->point[bin][insert]);
 }
 
 
@@ -200,7 +212,7 @@ Result *FindResult(Results *results,node_t node)
 {
  int bin=node&results->mask;
  int start=0;
- int end=results->numbin[bin]-1;
+ int end=results->count[bin]-1;
  int mid;
 
  /* Binary search - search key exact match only is required.
@@ -214,32 +226,32 @@ Result *FindResult(Results *results,node_t node)
   *  # <- end    |  start or end is the wanted one.
   */
 
- if(end<start)                                                     /* There are no results */
+ if(end<start)                                  /* There are no results */
     return(NULL);
- else if(node<results->results[results->offsets[bin][start]].node) /* Check key is not before start */
+ else if(node<results->point[bin][start]->node) /* Check key is not before start */
     return(NULL);
- else if(node>results->results[results->offsets[bin][end]].node)   /* Check key is not after end */
+ else if(node>results->point[bin][end]->node)   /* Check key is not after end */
     return(NULL);
  else
    {
     do
       {
-       mid=(start+end)/2;                                              /* Choose mid point */
+       mid=(start+end)/2;                           /* Choose mid point */
 
-       if(results->results[results->offsets[bin][mid]].node<node)      /* Mid point is too low */
+       if(results->point[bin][mid]->node<node)      /* Mid point is too low */
           start=mid+1;
-       else if(results->results[results->offsets[bin][mid]].node>node) /* Mid point is too high */
+       else if(results->point[bin][mid]->node>node) /* Mid point is too high */
           end=mid-1;
-       else                                                            /* Mid point is correct */
-          return(&results->results[results->offsets[bin][mid]]);
+       else                                         /* Mid point is correct */
+          return(results->point[bin][mid]);
       }
     while((end-start)>1);
 
-    if(results->results[results->offsets[bin][start]].node==node)      /* Start is correct */
-       return(&results->results[results->offsets[bin][start]]);
+    if(results->point[bin][start]->node==node)      /* Start is correct */
+       return(results->point[bin][start]);
 
-    if(results->results[results->offsets[bin][end]].node==node)        /* End is correct */
-       return(&results->results[results->offsets[bin][end]]);
+    if(results->point[bin][end]->node==node)        /* End is correct */
+       return(results->point[bin][end]);
    }
 
  return(NULL);
@@ -247,27 +259,72 @@ Result *FindResult(Results *results,node_t node)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Insert an item into the queue in the right order.
+  Find a result from a set of results.
+
+  Result *FirstResult Returns the first results from a set of results.
 
   Results *results The set of results.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Result *FirstResult(Results *results)
+{
+ return(&results->data[0][0]);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find a result from a set of results.
+
+  Result *NextResult Returns the next result from a set of results.
+
+  Results *results The set of results.
+
+  Result *result The previous result.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Result *NextResult(Results *results,Result *result)
+{
+ int c=(results->number-1)/(results->nbins*RESULTS_INCREMENT);
+ int i,j;
+
+ for(i=0;i<=c;i++)
+   {
+    j=(result-results->data[i]);
+
+    if(j>=0 && j<(results->nbins*RESULTS_INCREMENT))
+       break;
+   }
+
+ if(++j>=(results->nbins*RESULTS_INCREMENT))
+   {i++;j=0;}
+
+ if((i*(results->nbins*RESULTS_INCREMENT)+j)>=results->number)
+    return(NULL);
+
+ return(&results->data[i][j]);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Insert an item into the queue in the right order.
 
   Result *result The result to insert into the queue.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void insert_in_queue(Results *results,Result *result)
+void insert_in_queue(Result *result)
 {
  int start=0;
  int end=queue.number-1;
  int mid;
  int insert=-1;
 
- /* Check that the whole thing is allocated. */
+ /* Check that the array is allocated. */
 
- if(!queue.queue)
+ if(!queue.xqueue)
    {
     queue.alloced=QUEUE_INCREMENT;
     queue.number=0;
-    queue.queue=(uint32_t*)malloc(queue.alloced*sizeof(uint32_t));
+    queue.xqueue=(Result**)malloc(queue.alloced*sizeof(Result*));
    }
 
  /* Check that the arrays have enough space. */
@@ -275,7 +332,7 @@ void insert_in_queue(Results *results,Result *result)
  if(queue.number==queue.alloced)
    {
     queue.alloced+=QUEUE_INCREMENT;
-    queue.queue=(uint32_t*)realloc((void*)queue.queue,queue.alloced*sizeof(uint32_t));
+    queue.xqueue=(Result**)realloc((void*)queue.xqueue,queue.alloced*sizeof(Result*));
    }
 
  /* Binary search - search key may not match, new insertion point required
@@ -289,25 +346,25 @@ void insert_in_queue(Results *results,Result *result)
   *  # <- end    |  end (since it cannot be before the initial start or end).
   */
 
- if(queue.number==0)                                                                       /* There is nothing in the queue */
+ if(queue.number==0)                                                      /* There is nothing in the queue */
     insert=0;
- else if(result->shortest.distance>results->results[queue.queue[start]].shortest.distance) /* Check key is not before start */
+ else if(result->shortest.distance>queue.xqueue[start]->shortest.distance) /* Check key is not before start */
     insert=start;
- else if(result->shortest.distance<results->results[queue.queue[end]].shortest.distance)   /* Check key is not after end */
+ else if(result->shortest.distance<queue.xqueue[end]->shortest.distance)   /* Check key is not after end */
     insert=end+1;
  else
    {
     do
       {
-       mid=(start+end)/2;                                                                      /* Choose mid point */
+       mid=(start+end)/2;                                                     /* Choose mid point */
 
-       if(results->results[queue.queue[mid]].shortest.distance>result->shortest.distance)      /* Mid point is too low */
+       if(queue.xqueue[mid]->shortest.distance>result->shortest.distance)      /* Mid point is too low */
           start=mid;
-       else if(results->results[queue.queue[mid]].shortest.distance<result->shortest.distance) /* Mid point is too high */
+       else if(queue.xqueue[mid]->shortest.distance<result->shortest.distance) /* Mid point is too high */
           end=mid;
-       else                                                                                    /* Mid point is correct */
+       else                                                                   /* Mid point is correct */
          {
-          if(&results->results[queue.queue[mid]]==result)
+          if(queue.xqueue[mid]==result)
              return;
 
           insert=mid;
@@ -323,11 +380,11 @@ void insert_in_queue(Results *results,Result *result)
  /* Shuffle the array up */
 
  if(insert!=queue.number)
-    memmove(&queue.queue[insert+1],&queue.queue[insert],(queue.number-insert)*sizeof(uint32_t));
+    memmove(&queue.xqueue[insert+1],&queue.xqueue[insert],(queue.number-insert)*sizeof(Result*));
 
  /* Insert the new entry */
 
- queue.queue[insert]=result-results->results;
+ queue.xqueue[insert]=result;
 
  queue.number++;
 }
@@ -341,10 +398,10 @@ void insert_in_queue(Results *results,Result *result)
   Results *results The set of results that the queue is processing.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Result *pop_from_queue(Results *results)
+Result *pop_from_queue()
 {
  if(queue.number)
-    return LookupResult(results,queue.queue[--queue.number]);
+    return(queue.xqueue[--queue.number]);
  else
-    return NULL;
+    return(NULL);
 }

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.32 2009-01-23 17:21:05 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.33 2009-01-24 16:21:44 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -53,7 +53,6 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 {
  Results *results;
  node_t node1,node2;
- HalfResult shortest1,quickest1;
  HalfResult shortest2,quickest2;
  HalfResult shortestfinish,quickestfinish;
  Result *result1,*result2;
@@ -87,15 +86,13 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
  result1->quickest.distance=0;
  result1->quickest.duration=0;
 
- insert_in_queue(results,result1);
+ insert_in_queue(result1);
 
  /* Loop across all nodes in the queue */
 
- while((result1=pop_from_queue(results)))
+ while((result1=pop_from_queue()))
    {
     node1=result1->node;
-    shortest1=result1->shortest;
-    quickest1=result1->quickest;
 
     segment=FindFirstSegment(segments,node1);
 
@@ -108,7 +105,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
        node2=segment->node2;
 
-       if(shortest1.prev==node2 && quickest1.prev==node2)
+       if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
        way=FindWay(ways,segment->way);
@@ -121,10 +118,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
        segment_duration=Duration(segment,way,transport);
 
-       shortest2.distance=shortest1.distance+segment->distance;
-       shortest2.duration=shortest1.duration+segment_duration;
-       quickest2.distance=quickest1.distance+segment->distance;
-       quickest2.duration=quickest1.duration+segment_duration;
+       shortest2.distance=result1->shortest.distance+segment->distance;
+       shortest2.duration=result1->shortest.duration+segment_duration;
+       quickest2.distance=result1->quickest.distance+segment->distance;
+       quickest2.duration=result1->quickest.duration+segment_duration;
 
        if(shortest2.distance>shortestfinish.distance && quickest2.duration>quickestfinish.duration)
           goto endloop;
@@ -152,7 +149,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
              quickestfinish.duration=quickest2.duration;
             }
           else
-             insert_in_queue(results,result2);
+             insert_in_queue(result2);
          }
        else
          {
@@ -170,7 +167,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
                 shortestfinish.duration=shortest2.duration;
                }
              else
-                insert_in_queue(results,result2);
+                insert_in_queue(result2);
             }
 
           if(quickest2.duration<result2->quickest.duration ||
@@ -187,7 +184,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
                 quickestfinish.duration=quickest2.duration;
                }
              else
-                insert_in_queue(results,result2);
+                insert_in_queue(result2);
             }
          }
 
@@ -295,14 +292,12 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 {
  Results *results;
  node_t node1,node2;
- HalfResult shortest1,quickest1;
  HalfResult shortest2,quickest2;
  HalfResult shortestfinish,quickestfinish;
  Result *result1,*result2,*result3;
  Segment *segment;
  Way *way;
  wayallow_t mustallow=1<<(transport-1);
- int j;
 
  /* Set up the finish conditions */
 
@@ -322,29 +317,33 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
  /* Insert the finish points of the beginning part of the path into the queue */
 
- for(j=0;j<begin->number;j++)
-    if(FindNode(supernodes,begin->results[j].node))
-      {
-       if(!(result1=FindResult(results,begin->results[j].node)))
-         {
-          result1=InsertResult(results,begin->results[j].node);
+ result3=FirstResult(begin);
 
-          *result1=begin->results[j];
+ while(result3)
+   {
+    if(FindNode(supernodes,result3->node))
+      {
+       if(!(result1=FindResult(results,result3->node)))
+         {
+          result1=InsertResult(results,result3->node);
+
+          *result1=*result3;
 
           result1->shortest.prev=start;
           result1->quickest.prev=start;
          }
 
-       insert_in_queue(results,result1);
+       insert_in_queue(result1);
       }
+
+    result3=NextResult(begin,result3);
+   }
 
  /* Loop across all supernodes in the queue */
 
- while((result1=pop_from_queue(results)))
+ while((result1=pop_from_queue()))
    {
     node1=result1->node;
-    shortest1=result1->shortest;
-    quickest1=result1->quickest;
 
     segment=FindFirstSegment(supersegments,node1);
 
@@ -357,7 +356,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
        node2=segment->node2;
 
-       if(shortest1.prev==node2 && quickest1.prev==node2)
+       if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
        way=FindWay(superways,segment->way);
@@ -370,10 +369,10 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
        segment_duration=Duration(segment,way,transport);
 
-       shortest2.distance=shortest1.distance+segment->distance;
-       shortest2.duration=shortest1.duration+segment_duration;
-       quickest2.distance=quickest1.distance+segment->distance;
-       quickest2.duration=quickest1.duration+segment_duration;
+       shortest2.distance=result1->shortest.distance+segment->distance;
+       shortest2.duration=result1->shortest.duration+segment_duration;
+       quickest2.distance=result1->quickest.distance+segment->distance;
+       quickest2.duration=result1->quickest.duration+segment_duration;
 
        if(shortest2.distance>shortestfinish.distance && quickest2.duration>quickestfinish.duration)
           goto endloop;
@@ -395,7 +394,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
           result2->quickest.duration=quickest2.duration;
 
           if(!(result3=FindResult(end,node2)))
-             insert_in_queue(results,result2);
+             insert_in_queue(result2);
          }
        else
          {
@@ -408,7 +407,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
              result2->shortest.duration=shortest2.duration;
 
              if(!(result3=FindResult(end,node2)))
-                insert_in_queue(results,result2);
+                insert_in_queue(result2);
             }
 
           if(quickest2.duration<result2->quickest.duration ||
@@ -420,7 +419,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
              result2->quickest.duration=quickest2.duration;
 
              if(!(result3=FindResult(end,node2)))
-                insert_in_queue(results,result2);
+                insert_in_queue(result2);
             }
          }
 
@@ -478,27 +477,33 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
     result2->quickest.distance=~0;
     result2->quickest.duration=~0;
 
-    for(j=0;j<end->number;j++)
-       if(FindNode(supernodes,end->results[j].node))
-          if((result1=FindResult(results,end->results[j].node)))
+    result3=FirstResult(end);
+
+    while(result3)
+      {
+       if(FindNode(supernodes,result3->node))
+          if((result1=FindResult(results,result3->node)))
             {
-             if((result1->shortest.distance+end->results[j].shortest.distance)<result2->shortest.distance ||
-                ((result1->shortest.distance+end->results[j].shortest.distance)==result2->shortest.distance &&
-                 (result1->shortest.duration+end->results[j].shortest.duration)<result2->shortest.duration))
+             if((result1->shortest.distance+result3->shortest.distance)<result2->shortest.distance ||
+                ((result1->shortest.distance+result3->shortest.distance)==result2->shortest.distance &&
+                 (result1->shortest.duration+result3->shortest.duration)<result2->shortest.duration))
                {
-                result2->shortest.distance=result1->shortest.distance+end->results[j].shortest.distance;
-                result2->shortest.duration=result1->shortest.duration+end->results[j].shortest.duration;
+                result2->shortest.distance=result1->shortest.distance+result3->shortest.distance;
+                result2->shortest.duration=result1->shortest.duration+result3->shortest.duration;
                 result2->shortest.prev=result1->node;
                }
-             if((result1->quickest.duration+end->results[j].quickest.duration)<result2->quickest.duration ||
-                ((result1->quickest.duration+end->results[j].quickest.duration)==result2->quickest.duration &&
-                 (result1->quickest.distance+end->results[j].quickest.distance)<result2->quickest.distance))
+             if((result1->quickest.duration+result3->quickest.duration)<result2->quickest.duration ||
+                ((result1->quickest.duration+result3->quickest.duration)==result2->quickest.duration &&
+                 (result1->quickest.distance+result3->quickest.distance)<result2->quickest.distance))
                {
-                result2->quickest.distance=result1->quickest.distance+end->results[j].quickest.distance;
-                result2->quickest.duration=result1->quickest.duration+end->results[j].quickest.duration;
+                result2->quickest.distance=result1->quickest.distance+result3->quickest.distance;
+                result2->quickest.duration=result1->quickest.duration+result3->quickest.duration;
                 result2->quickest.prev=result1->node;
                }
             }
+
+       result3=NextResult(end,result3);
+      }
    }
 
  /* Check it worked */
@@ -714,7 +719,6 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 {
  Results *results;
  node_t node1,node2;
- HalfResult shortest1,quickest1;
  HalfResult shortest2,quickest2;
  Result *result1,*result2;
  Segment *segment;
@@ -737,15 +741,13 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
  result1->quickest.distance=0;
  result1->quickest.duration=0;
 
- insert_in_queue(results,result1);
+ insert_in_queue(result1);
 
  /* Loop across all nodes in the queue */
 
- while((result1=pop_from_queue(results)))
+ while((result1=pop_from_queue()))
    {
     node1=result1->node;
-    shortest1=result1->shortest;
-    quickest1=result1->quickest;
 
     segment=FindFirstSegment(segments,node1);
 
@@ -758,7 +760,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 
        node2=segment->node2;
 
-       if(shortest1.prev==node2 && quickest1.prev==node2)
+       if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
        way=FindWay(ways,segment->way);
@@ -771,10 +773,10 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 
        segment_duration=Duration(segment,way,transport);
 
-       shortest2.distance=shortest1.distance+segment->distance;
-       shortest2.duration=shortest1.duration+segment_duration;
-       quickest2.distance=quickest1.distance+segment->distance;
-       quickest2.duration=quickest1.duration+segment_duration;
+       shortest2.distance=result1->shortest.distance+segment->distance;
+       shortest2.duration=result1->shortest.duration+segment_duration;
+       quickest2.distance=result1->quickest.distance+segment->distance;
+       quickest2.duration=result1->quickest.duration+segment_duration;
 
        result2=FindResult(results,node2);
 
@@ -792,7 +794,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
           result2->quickest.duration=quickest2.duration;
 
           if(!FindNode(finish,node2))
-             insert_in_queue(results,result2);
+             insert_in_queue(result2);
          }
        else
          {
@@ -805,7 +807,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
              result2->shortest.duration=shortest2.duration;
 
              if(!FindNode(finish,node2))
-                insert_in_queue(results,result2);
+                insert_in_queue(result2);
             }
 
           if(quickest2.duration<result2->quickest.duration ||
@@ -817,7 +819,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
              result2->quickest.duration=quickest2.duration;
 
              if(!FindNode(finish,node2))
-                insert_in_queue(results,result2);
+                insert_in_queue(result2);
             }
          }
 
@@ -855,7 +857,6 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 {
  Results *results;
  node_t node1,node2;
- HalfResult shortest1,quickest1;
  HalfResult shortest2,quickest2;
  Result *result1,*result2;
  Segment *segment;
@@ -878,15 +879,13 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
  result1->quickest.distance=0;
  result1->quickest.duration=0;
 
- insert_in_queue(results,result1);
+ insert_in_queue(result1);
 
  /* Loop across all nodes in the queue */
 
- while((result1=pop_from_queue(results)))
+ while((result1=pop_from_queue()))
    {
     node1=result1->node;
-    shortest1=result1->shortest;
-    quickest1=result1->quickest;
 
     segment=FindFirstSegment(segments,node1);
 
@@ -913,7 +912,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
        node2=reversesegment->node1;
 
-       if(shortest1.prev==node2 && quickest1.prev==node2)
+       if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
        way=FindWay(ways,reversesegment->way);
@@ -926,10 +925,10 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
        reversesegment_duration=Duration(reversesegment,way,transport);
 
-       shortest2.distance=shortest1.distance+reversesegment->distance;
-       shortest2.duration=shortest1.duration+reversesegment_duration;
-       quickest2.distance=quickest1.distance+reversesegment->distance;
-       quickest2.duration=quickest1.duration+reversesegment_duration;
+       shortest2.distance=result1->shortest.distance+reversesegment->distance;
+       shortest2.duration=result1->shortest.duration+reversesegment_duration;
+       quickest2.distance=result1->quickest.distance+reversesegment->distance;
+       quickest2.duration=result1->quickest.duration+reversesegment_duration;
 
        result2=FindResult(results,node2);
 
@@ -947,7 +946,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
           result2->quickest.duration=quickest2.duration;
 
           if(!FindNode(start,node2))
-             insert_in_queue(results,result2);
+             insert_in_queue(result2);
          }
        else
          {
@@ -960,7 +959,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
              result2->shortest.duration=shortest2.duration;
 
              if(!FindNode(start,node2))
-                insert_in_queue(results,result2);
+                insert_in_queue(result2);
             }
 
           if(quickest2.duration<result2->quickest.duration ||
@@ -972,7 +971,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
              result2->quickest.duration=quickest2.duration;
 
              if(!FindNode(start,node2))
-                insert_in_queue(results,result2);
+                insert_in_queue(result2);
             }
          }
 
@@ -1156,7 +1155,6 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
 {
  Results *results;
  node_t node1,node2;
- HalfResult shortest1,quickest1;
  HalfResult shortest2,quickest2;
  Result *result1,*result2;
  Segment *segment;
@@ -1178,15 +1176,13 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
  result1->quickest.distance=0;
  result1->quickest.duration=0;
 
- insert_in_queue(results,result1);
+ insert_in_queue(result1);
 
  /* Loop across all nodes in the queue */
 
- while((result1=pop_from_queue(results)))
+ while((result1=pop_from_queue()))
    {
     node1=result1->node;
-    shortest1=result1->shortest;
-    quickest1=result1->quickest;
 
     segment=FindFirstSegment(segments,node1);
 
@@ -1199,7 +1195,7 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
 
        node2=segment->node2;
 
-       if(shortest1.prev==node2 && quickest1.prev==node2)
+       if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
        way=FindWay(ways,segment->way);
@@ -1211,10 +1207,10 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
 
        segment_duration=0;
 
-       shortest2.distance=shortest1.distance+segment->distance;
-       shortest2.duration=shortest1.duration+segment_duration;
-       quickest2.distance=quickest1.distance+segment->distance;
-       quickest2.duration=quickest1.duration+segment_duration;
+       shortest2.distance=result1->shortest.distance+segment->distance;
+       shortest2.duration=result1->shortest.duration+segment_duration;
+       quickest2.distance=result1->quickest.distance+segment->distance;
+       quickest2.duration=result1->quickest.duration+segment_duration;
 
        result2=FindResult(results,node2);
 
@@ -1232,7 +1228,7 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
           result2->quickest.duration=quickest2.duration;
 
           if(!FindNode(finish,node2))
-             insert_in_queue(results,result2);
+             insert_in_queue(result2);
          }
        else
          {
@@ -1245,7 +1241,7 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
              result2->shortest.duration=shortest2.duration;
 
              if(!FindNode(finish,node2))
-                insert_in_queue(results,result2);
+                insert_in_queue(result2);
             }
 
           if(quickest2.duration<result2->quickest.duration ||
@@ -1257,7 +1253,7 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
              result2->quickest.duration=quickest2.duration;
 
              if(!FindNode(finish,node2))
-                insert_in_queue(results,result2);
+                insert_in_queue(result2);
             }
          }
 
