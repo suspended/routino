@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.16 2009-01-23 19:31:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.17 2009-01-24 17:29:46 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -96,7 +96,11 @@ int main(int argc,char** argv)
 
     /* Parse the file */
 
+    printf("\nParsing OSM Data\n================\n\n"); fflush(stdout);
+
     ParseXML(stdin,OSMNodesMem,OSMSegmentsMem,OSMWaysMem,transport,highways);
+
+    printf("\nProcessing OSM Data\n===================\n\n"); fflush(stdout);
 
     /* Sort the variables */
 
@@ -169,21 +173,23 @@ else
    OSMWays=LoadWayList("data/ways.mem");
   }
 
+ printf("\nProcessing Super-Data\n=====================\n\n"); fflush(stdout);
+
  /* Select the super-nodes */
 
  SuperNodesMem=ChooseSuperNodes(OSMNodes,OSMSegments,OSMWays);
 
  /* Sort the super-nodes */
 
- printf("Sorting Super-Nodes [iteration 0]"); fflush(stdout);
+ printf("Sorting Super-Nodes"); fflush(stdout);
  SortNodeList(SuperNodesMem);
- printf("\rSorted Super-Nodes [iteration 0] \n"); fflush(stdout);
+ printf("\rSorted Super-Nodes \n"); fflush(stdout);
 
  /* Write out the super-nodes */
 
- printf("Saving Super-Nodes [iteration 0]"); fflush(stdout);
+ printf("Saving Super-Nodes"); fflush(stdout);
  SuperNodes=SaveNodeList(SuperNodesMem,"data/super-nodes.mem");
- printf("\rSaved Super-Nodes [iteration 0]: %d\n",SuperNodes->number); fflush(stdout);
+ printf("\rSaved Super-Nodes: %d\n",SuperNodes->number); fflush(stdout);
 
  /* Select the super-segments */
 
@@ -191,9 +197,9 @@ else
 
  /* Sort the super-segments */
 
- printf("Sorting Super-Segments [iteration 0]"); fflush(stdout);
+ printf("Sorting Super-Segments"); fflush(stdout);
  SortSegmentList(SuperSegmentsMem);
- printf("\rSorted Super-Segments [iteration 0] \n"); fflush(stdout);
+ printf("\rSorted Super-Segments \n"); fflush(stdout);
 
  /* Select the super-ways */
 
@@ -201,21 +207,21 @@ else
 
  /* Write out the super-segments */
 
- printf("Saving Super-Segments [iteration 0]"); fflush(stdout);
+ printf("Saving Super-Segments"); fflush(stdout);
  SuperSegments=SaveSegmentList(SuperSegmentsMem,"data/super-segments.mem");
- printf("\rSaved Super-Segments [iteration 0]: %d\n",SuperSegments->number); fflush(stdout);
+ printf("\rSaved Super-Segments: %d\n",SuperSegments->number); fflush(stdout);
 
  /* Sort the super-ways */
 
- printf("Sorting Super-Ways [iteration 0]"); fflush(stdout);
+ printf("Sorting Super-Ways"); fflush(stdout);
  SortWayList(SuperWaysMem);
- printf("\rSorted Super-Ways [iteration 0] \n"); fflush(stdout);
+ printf("\rSorted Super-Ways \n"); fflush(stdout);
 
  /* Write out the super-ways */
 
- printf("Saving Super-Ways [iteration 0]"); fflush(stdout);
+ printf("Saving Super-Ways"); fflush(stdout);
  SuperWays=SaveWayList(SuperWaysMem,"data/super-ways.mem");
- printf("\rSaved Super-Ways [iteration 0]: %d\n",SuperWays->number); fflush(stdout);
+ printf("\rSaved Super-Ways: %d\n",SuperWays->number); fflush(stdout);
 
  /* Repeated iteration on Super-Nodes, Super-Segments and Super-Ways */
 
@@ -236,21 +242,23 @@ else
     SuperWays=LoadWayList("data/super-ways.mem");
     SuperSegments=LoadSegmentList("data/super-segments.mem");
 
+    printf("\nProcessing Super-Data (iteration %d)\n===================================%s\n\n",iteration,iteration>10?"=":""); fflush(stdout);
+
     /* Select the super-nodes */
 
     SuperNodesMem2=ChooseSuperNodes(SuperNodes,SuperSegments,SuperWays);
 
     /* Sort the super-nodes */
 
-    printf("Sorting Super-Nodes [iteration %d]",iteration); fflush(stdout);
+    printf("Sorting Super-Nodes"); fflush(stdout);
     SortNodeList(SuperNodesMem2);
-    printf("\rSorted Super-Nodes [iteration %d] \n",iteration); fflush(stdout);
+    printf("\rSorted Super-Nodes \n"); fflush(stdout);
 
     /* Write out the super-nodes */
 
-    printf("Saving Super-Nodes [iteration %d]",iteration); fflush(stdout);
+    printf("Saving Super-Nodes"); fflush(stdout);
     SuperNodes2=SaveNodeList(SuperNodesMem2,"data/super-nodes2.mem");
-    printf("\rSaved Super-Nodes [iteration %d]: %d\n",iteration,SuperNodes2->number); fflush(stdout);
+    printf("\rSaved Super-Nodes: %d\n",SuperNodes2->number); fflush(stdout);
 
     /* Select the super-segments */
 
@@ -258,9 +266,9 @@ else
 
     /* Sort the super-segments */
 
-    printf("Sorting Super-Segments [iteration %d]",iteration); fflush(stdout);
+    printf("Sorting Super-Segments"); fflush(stdout);
     SortSegmentList(SuperSegmentsMem2);
-    printf("\rSorted Super-Segments [iteration %d] \n",iteration); fflush(stdout);
+    printf("\rSorted Super-Segments \n"); fflush(stdout);
 
     /* Select the super-ways */
 
@@ -268,27 +276,27 @@ else
 
     /* Write out the super-segments */
 
-    printf("Saving Super-Segments [iteration %d]",iteration); fflush(stdout);
+    printf("Saving Super-Segments"); fflush(stdout);
     SuperSegments2=SaveSegmentList(SuperSegmentsMem2,"data/super-segments2.mem");
-    printf("\rSaved Super-Segments [iteration %d]: %d\n",iteration,SuperSegments2->number); fflush(stdout);
+    printf("\rSaved Super-Segments: %d\n",SuperSegments2->number); fflush(stdout);
 
     /* Sort the super-ways */
 
-    printf("Sorting Super-Ways [iteration %d]",iteration); fflush(stdout);
+    printf("Sorting Super-Ways"); fflush(stdout);
     SortWayList(SuperWaysMem2);
-    printf("\rSorted Super-Ways [iteration %d] \n",iteration); fflush(stdout);
+    printf("\rSorted Super-Ways \n"); fflush(stdout);
 
     /* Write out the super-ways */
 
-    printf("Saving Super-Ways [iteration %d]",iteration); fflush(stdout);
+    printf("Saving Super-Ways"); fflush(stdout);
     SuperWays2=SaveWayList(SuperWaysMem2,"data/super-ways2.mem");
-    printf("\rSaved Super-Ways [iteration %d]: %d\n",iteration,SuperWays2->number); fflush(stdout);
+    printf("\rSaved Super-Ways: %d\n",SuperWays2->number); fflush(stdout);
 
     /* Decide when to quit */
 
     quit=0;
-    if(SuperNodes2->number>(0.95*SuperNodes->number))       quit=1;
-    if(SuperSegments2->number>(0.95*SuperSegments->number)) quit=1;
+    if(SuperNodes2->number>(0.999*SuperNodes->number))       quit=1;
+    if(SuperSegments2->number>(0.999*SuperSegments->number)) quit=1;
 
     /* Unmap the data and Rename the files */
 
