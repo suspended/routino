@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.17 2009-01-25 10:58:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.18 2009-01-25 12:09:15 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -361,6 +361,27 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
 
  printf("\rMeasured Segments: Segments=%d \n",segments->number);
  fflush(stdout);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Change the segment to contain the index of the way, not the id.
+
+  SegmentsMem* segments The set of segments to process.
+
+  Ways *ways The list of ways to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void LinkSegmentToWay(SegmentsMem* segments,Ways *ways)
+{
+ int i;
+
+ for(i=0;i<segments->number;i++)
+   {
+    Way *way=FindWay(ways,segments->segments->segments[i].way);
+
+    segments->segments->segments[i].way=IndexWay(ways,way);
+   }
 }
 
 

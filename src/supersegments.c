@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.17 2009-01-24 16:21:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.18 2009-01-25 12:09:15 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -55,7 +55,7 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
  for(i=0;i<segments->number;i++)
    {
     Segment *segment=&segments->segments[i];
-    Way *way=FindWay(ways,segment->way);
+    Way *way=LookupWay(ways,segment->way);
 
     if(segment->node1!=node)
       {
@@ -138,7 +138,7 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
 
     while(segment)
       {
-       Way *way=FindWay(ways,segment->way);
+       Way *way=LookupWay(ways,segment->way);
 
        /* Check that this type of way hasn't already been routed */
 
@@ -148,7 +148,7 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
 
           while(othersegment && othersegment!=segment)
             {
-             Way *otherway=FindWay(ways,othersegment->way);
+             Way *otherway=LookupWay(ways,othersegment->way);
 
              if(otherway->type ==way->type  &&
                 otherway->allow==way->allow &&
@@ -173,13 +173,13 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
             {
              if(result->node!=supernodes->nodes[i].id && FindNode(supernodes,result->node))
                {
-                Segment *supersegment=AppendSegment(supersegments,supernodes->nodes[i].id,result->node,way->id);
+                Segment *supersegment=AppendSegment(supersegments,supernodes->nodes[i].id,result->node,IndexWay(ways,way));
 
                 supersegment->distance=result->shortest.distance;
 
                 if(way->type&Way_OneWay)
                   {
-                   supersegment=AppendSegment(supersegments,result->node,supernodes->nodes[i].id,way->id);
+                   supersegment=AppendSegment(supersegments,result->node,supernodes->nodes[i].id,IndexWay(ways,way));
 
                    supersegment->distance=ONEWAY_OPPOSITE|result->shortest.distance;
                   }
@@ -231,7 +231,7 @@ WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments)
 
  for(i=0;i<supersegments->segments->number;i++)
    {
-    Way *way=FindWay(ways,supersegments->segments->segments[i].way);
+    Way *way=LookupWay(ways,supersegments->segments->segments[i].way);
 
     supersegments->segments->segments[i].way=0;
 
@@ -240,11 +240,11 @@ WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments)
           superways->ways->ways[j].allow==way->allow &&
           superways->ways->ways[j].limit==way->limit)
          {
-          supersegments->segments->segments[i].way=superways->ways->ways[j].id;
+          supersegments->segments->segments[i].way=j;
           break;
          }
 
-    if(!supersegments->segments->segments[i].way)
+    if(j==superways->number)
       {
        Way *newway=AppendWay(superways,superways->number+1,"Super-Way");
 
@@ -252,7 +252,7 @@ WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments)
        newway->type =way->type;
        newway->allow=way->allow;
 
-       supersegments->segments->segments[i].way=newway->id;
+       supersegments->segments->segments[i].way=IndexWay(superways->ways,newway);
       }
 
     if(!((i+1)%10000))
