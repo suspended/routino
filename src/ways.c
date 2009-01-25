@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.14 2009-01-25 10:58:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.15 2009-01-25 12:11:58 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -341,7 +341,7 @@ Highway HighwayType(const char *highway)
 
    case 'm':
     if(!strncmp(highway,"motorway",8)) return(Way_Motorway);
-    if(!strcmp(highway,"minor")) return(Way_Unclassfied);
+    if(!strcmp(highway,"minor")) return(Way_Unclassified);
     return(Way_Unknown);
 
    case 'p':
@@ -351,7 +351,7 @@ Highway HighwayType(const char *highway)
     return(Way_Unknown);
 
    case 'r':
-    if(!strcmp(highway,"road")) return(Way_Unclassfied);
+    if(!strcmp(highway,"road")) return(Way_Unclassified);
     if(!strcmp(highway,"residential")) return(Way_Residential);
     return(Way_Unknown);
 
@@ -368,7 +368,7 @@ Highway HighwayType(const char *highway)
     return(Way_Unknown);
 
    case 'u':
-    if(!strcmp(highway,"unclassified")) return(Way_Unclassfied);
+    if(!strcmp(highway,"unclassified")) return(Way_Unclassified);
     if(!strcmp(highway,"unsurfaced")) return(Way_Track);
     if(!strcmp(highway,"unpaved")) return(Way_Track);
     return(Way_Unknown);
@@ -461,8 +461,8 @@ const char *HighwayName(Highway highway)
     return("secondary");
    case Way_Tertiary:
     return("tertiary");
-   case Way_Unclassfied:
-    return("unclassfied");
+   case Way_Unclassified:
+    return("unclassified");
    case Way_Residential:
     return("residential");
    case Way_Service:
