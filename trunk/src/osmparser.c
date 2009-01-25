@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.19 2009-01-25 10:58:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.20 2009-01-25 12:11:58 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -133,7 +133,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
             case Way_Tertiary:
              allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
-            case Way_Unclassfied:
+            case Way_Unclassified:
              allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Residential:

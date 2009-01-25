@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.15 2009-01-25 12:09:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.16 2009-01-25 12:11:58 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -43,23 +43,23 @@ typedef uint8_t waytype_t;
 /*+ The different types of a way. +*/
 typedef enum _Highway
  {
-  Way_Motorway   = 1,
-  Way_Trunk      = 2,
-  Way_Primary    = 3,
-  Way_Secondary  = 4,
-  Way_Tertiary   = 5,
-  Way_Unclassfied= 6,
-  Way_Residential= 7,
-  Way_Service    = 8,
-  Way_Track      = 9,
-  Way_Bridleway  =10,
-  Way_Cycleway   =11,
-  Way_Footway    =12,
+  Way_Motorway    = 1,
+  Way_Trunk       = 2,
+  Way_Primary     = 3,
+  Way_Secondary   = 4,
+  Way_Tertiary    = 5,
+  Way_Unclassified= 6,
+  Way_Residential = 7,
+  Way_Service     = 8,
+  Way_Track       = 9,
+  Way_Bridleway   =10,
+  Way_Cycleway    =11,
+  Way_Footway     =12,
 
-  Way_Unknown    =13,
+  Way_Unknown     =13,
 
-  Way_OneWay     =16,
-  Way_Roundabout =32
+  Way_OneWay      =16,
+  Way_Roundabout  =32
  }
  Highway;
 
