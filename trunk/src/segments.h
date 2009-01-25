@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.15 2009-01-25 12:09:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.16 2009-01-25 12:21:10 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -63,6 +63,9 @@ typedef uint32_t duration_t;
 
 /*+ Conversion from hours to duration_t. +*/
 #define hours_to_duration(xx) ((duration_t)((double)(xx)*36000.0))
+
+/*+ Conversion from distance_t and speed_t to duration_t. +*/
+#define distance_speed_to_duration(xx,yy) ((duration_t)(((double)(xx)/(double)(yy))*(36000.0/1000.0)))
 
 
 /* Data structures */
