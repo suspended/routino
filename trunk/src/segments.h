@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.13 2009-01-23 16:09:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.14 2009-01-25 10:58:51 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -19,6 +19,7 @@
 
 #include "nodes.h"
 #include "ways.h"
+#include "profiles.h"
 
 
 /* Constants */
@@ -43,6 +44,9 @@ typedef uint32_t duration_t;
 
 /*+ A flag to mark a distance as only applying for the other direction. +*/
 #define ONEWAY_OPPOSITE (distance_t)(0x80000000)
+
+/*+ The real distance ignoring the ONEWAY_OPPOSITE flag. +*/
+#define DISTANCE(xx)  (distance_t)((xx)&(~ONEWAY_OPPOSITE))
 
 
 /*+ Conversion from distance_t to kilometres. +*/
@@ -117,7 +121,7 @@ void FixupSegmentLengths(SegmentsMem *segments,Nodes *nodes,Ways *ways);
 
 distance_t Distance(Node *node1,Node *node2);
 
-duration_t Duration(Segment *segment,Way *way,Transport transport);
+duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
 #define LookupSegment(xxx,yyy) (&xxx->segments[yyy])
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.18 2009-01-23 17:21:05 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.19 2009-01-25 10:58:51 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -17,9 +17,10 @@
 #include <stdlib.h>
 
 #include "nodes.h"
-#include "ways.h"
 #include "segments.h"
+#include "ways.h"
 #include "functions.h"
+#include "profiles.h"
 
 
 int main(int argc,char** argv)
@@ -28,9 +29,9 @@ int main(int argc,char** argv)
  Segments *OSMSegments,*SuperSegments;
  Ways     *OSMWays,*SuperWays;
  node_t    start,finish;
- int       all=0,noprint=0;
- Transport transport=Transport_Motorcar;
- int       highways[Way_Unknown+1];
+ int       help_profile=0,all=0,only_super=0,no_print=0;
+ Transport transport=Transport_None;
+ Profile   profile;
  int i;
 
  /* Parse the command line arguments */
@@ -40,47 +41,104 @@ int main(int argc,char** argv)
    usage:
 
     fprintf(stderr,"Usage: router <start-node> <finish-node>\n"
-                   "              [-help]\n"
-                   "              [-all]\n"
+                   "              [-help] [-help-profile]\n"
+                   "              [-all] [-only-super]\n"
                    "              [-no-print]\n"
                    "              [-transport=<transport>]\n"
                    "              [-not-highway=<highway> ...]\n"
+                   "              [-speed-<highway>=<speed> ...]\n"
+                   "              [-ignore-oneway]\n"
                    "\n"
-                   "<transport> can be:\n"
+                   "<transport> defaults to motorcar but can be set to:\n"
                    "%s"
                    "\n"
-                   "<highway> can be:\n"
-                   "%s",
+                   "<highway> can be selected from:\n"
+                   "%s"
+                   "<speed> is a speed in km/hour\n"
+                   "\n",
                    TransportList(),HighwayList());
 
     return(1);
    }
 
+ /* Get the start and finish */
+
  start=atoll(argv[1]);
  finish=atoll(argv[2]);
 
- for(i=0;i<Way_Unknown;i++)
-    highways[i]=1;
+ /* Get the transport type if specified and fill in the profile */
 
- highways[Way_Unknown]=0;
+ for(i=3;i<argc;i++)
+    if(!strncmp(argv[i],"-transport=",11))
+      {
+       transport=TransportType(&argv[i][11]);
+
+       if(transport==Transport_None)
+          goto usage;
+      }
+
+ if(transport==Transport_None)
+    transport=Transport_Motorcar;
+
+ profile=*GetProfile(transport);
+
+ /* Parse the other command line arguments */
 
  while(--argc>=3)
    {
     if(!strcmp(argv[argc],"-help"))
        goto usage;
+    else if(!strcmp(argv[argc],"-help-profile"))
+       help_profile=1;
     else if(!strcmp(argv[argc],"-all"))
        all=1;
+    else if(!strcmp(argv[argc],"-only-super"))
+       only_super=1;
     else if(!strcmp(argv[argc],"-no-print"))
-       noprint=1;
+       no_print=1;
     else if(!strncmp(argv[argc],"-transport=",11))
-       transport=TransportType(&argv[argc][11]);
+       ; /* Done this already*/
     else if(!strncmp(argv[argc],"-not-highway=",13))
       {
        Highway highway=HighwayType(&argv[argc][13]);
-       highways[highway]=0;
+
+       if(highway==Way_Unknown)
+          goto usage;
+
+       profile.highways[highway]=0;
       }
+    else if(!strncmp(argv[argc],"-speed-",7))
+      {
+       Highway highway;
+       char *equal=strchr(argv[argc],'=');
+       char *string;
+
+       if(!equal)
+          goto usage;
+
+       string=strcpy((char*)malloc(strlen(argv[argc])),argv[argc]+7);
+       string[equal-argv[argc]]=0;
+
+       highway=HighwayType(string);
+
+       free(string);
+
+       if(highway==Way_Unknown)
+          goto usage;
+
+       profile.speed[highway]=atoi(equal+1);
+      }
+    else if(!strcmp(argv[argc],"-ignore-oneway"))
+       profile.oneway=0;
     else
        goto usage;
+   }
+
+ if(help_profile)
+   {
+    PrintProfile(&profile);
+
+    return(0);
    }
 
  /* Load in the data */
@@ -100,7 +158,7 @@ int main(int argc,char** argv)
 
     /* Calculate the route */
 
-    results=FindRoute(OSMNodes,OSMSegments,OSMWays,start,finish,transport,highways,all);
+    results=FindRoute(OSMNodes,OSMSegments,OSMWays,start,finish,&profile,all);
 
     /* Print the route */
 
@@ -109,8 +167,8 @@ int main(int argc,char** argv)
        fprintf(stderr,"No route found.\n");
        return(1);
       }
-    else if(!noprint)
-       PrintRoute(results,OSMNodes,OSMSegments,OSMWays,NULL,start,finish,transport);
+    else if(!no_print)
+       PrintRoute(results,OSMNodes,OSMSegments,OSMWays,NULL,start,finish,&profile);
    }
  else
    {
@@ -137,14 +195,14 @@ int main(int argc,char** argv)
        result->quickest.duration=0;
       }
     else
-       begin=FindRoutes(OSMNodes,OSMSegments,OSMWays,start,SuperNodes,transport,highways);
+       begin=FindRoutes(OSMNodes,OSMSegments,OSMWays,start,SuperNodes,&profile);
 
     if(FindResult(begin,finish))
       {
        /* Print the route */
 
-       if(!noprint)
-          PrintRoute(begin,OSMNodes,OSMSegments,OSMWays,NULL,start,finish,transport);
+       if(!no_print)
+          PrintRoute(begin,OSMNodes,OSMSegments,OSMWays,NULL,start,finish,&profile);
       }
     else
       {
@@ -171,11 +229,11 @@ int main(int argc,char** argv)
           result->quickest.duration=0;
          }
        else
-          end=FindReverseRoutes(OSMNodes,OSMSegments,OSMWays,SuperNodes,finish,transport,highways);
+          end=FindReverseRoutes(OSMNodes,OSMSegments,OSMWays,SuperNodes,finish,&profile);
 
        /* Calculate the middle of the route */
 
-       superresults=FindRoute3(SuperNodes,SuperSegments,SuperWays,start,finish,begin,end,transport,highways);
+       superresults=FindRoute3(SuperNodes,SuperSegments,SuperWays,start,finish,begin,end,&profile);
 
        /* Print the route */
 
@@ -184,11 +242,18 @@ int main(int argc,char** argv)
           fprintf(stderr,"No route found.\n");
           return(1);
          }
-       else if(!noprint)
+       else if(!no_print)
          {
-          Results *results=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,transport,highways);
+          if(only_super)
+            {
+             PrintRoute(superresults,SuperNodes,SuperSegments,SuperWays,NULL,start,finish,&profile);
+            }
+          else
+            {
+             Results *results=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
 
-          PrintRoute(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,start,finish,transport);
+             PrintRoute(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,start,finish,&profile);
+            }
          }
       }
    }

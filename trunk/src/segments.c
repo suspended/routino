@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.16 2009-01-23 16:09:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.17 2009-01-25 10:58:51 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -348,7 +348,7 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
     Node *node1=FindNode(nodes,segments->segments->segments[i].node1);
     Node *node2=FindNode(nodes,segments->segments->segments[i].node2);
 
-    /* Set the distance but preserve the INVALID_DISTANCE flag */
+    /* Set the distance but preserve the ONEWAY_OPPOSITE flag */
 
     segments->segments->segments[i].distance|=Distance(node1,node2);
 
@@ -409,20 +409,13 @@ distance_t Distance(Node *node1,Node *node2)
 
   Way *way The way that the segment belongs to.
 
-  Transport transport The type of transport being used.
+  Profile *profile The profile of the transport being used.
   ++++++++++++++++++++++++++++++++++++++*/
 
-duration_t Duration(Segment *segment,Way *way,Transport transport)
+duration_t Duration(Segment *segment,Way *way,Profile *profile)
 {
- speed_t    speed=WaySpeed(way);
+ speed_t    speed=profile->speed[HIGHWAY(way->type)];
  distance_t distance=segment->distance;
-
- if(transport==Transport_Foot)
-    speed=5;
- else if(transport==Transport_Horse)
-    speed=8;
- else if(transport==Transport_Bicycle)
-    speed=20;
 
  return hours_to_duration(distance_to_km(distance)/speed);
 }

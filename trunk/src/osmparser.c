@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.18 2009-01-23 19:31:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.19 2009-01-25 10:58:51 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -41,12 +41,10 @@ static char *fgets_realloc(char *buffer,FILE *file);
 
   WaysMem *OSMWays The arrray of ways to fill in.
 
-  Transport transport The method of transport that must be allowed on the way.
-
-  int highways[] An array of flags indicating the highway type.
+  Profile profile A profile of the allowed transport types and included/excluded highway types.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays,Transport transport,int highways[])
+int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays,Profile *profile)
 {
  char *line=NULL;
  long nlines=0;
@@ -59,12 +57,6 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
  wayallow_t way_allow_no=0,way_allow_yes=0;
  node_t *way_nodes=NULL;
  int way_nnodes=0,way_nalloc=0;
- wayallow_t mustallow;
-
- if(transport)
-    mustallow=1<<(transport-1);
- else
-    mustallow=Allow_ALL;
 
  /* Parse the file */
 
@@ -170,7 +162,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
           if(way_allow_yes)     /* Add the ones explicitly allowed (e.g. footpath along private) */
              allow|=way_allow_yes;
 
-          if(allow&mustallow && highways[type])
+          if(allow&profile->allow && profile->highways[HIGHWAY(type)])
             {
              if(way_ref && way_name)
                {

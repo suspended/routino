@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.18 2009-01-23 17:13:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.19 2009-01-25 10:58:51 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -18,14 +18,15 @@
 #include <stdio.h>
 
 #include "nodes.h"
-#include "ways.h"
 #include "segments.h"
+#include "ways.h"
+#include "profiles.h"
 #include "results.h"
 
 
 /* In osmparser.c */
 
-int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays,Transport transport,int highways[]);
+int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays,Profile *profile);
 
 
 /* In files.c */
@@ -39,15 +40,15 @@ int WriteFile(const char *filename,void *address,size_t length);
 
 /* In optimiser.c */
 
-Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport,int highways[],int all);
-Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,transport_t transport,int highways[]);
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Profile *profile,int all);
+Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,Profile *profile);
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish,transport_t transport);
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish,Profile *profile);
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,transport_t transport,int highways[]);
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,transport_t transport,int highways[]);
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Profile *profile);
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,Profile *profile);
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport,int highways[]);
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Profile *profile);
 
 Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match);
 

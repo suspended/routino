@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.17 2009-01-24 17:29:46 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.18 2009-01-25 10:58:51 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -17,8 +17,9 @@
 #include <string.h>
 
 #include "nodes.h"
-#include "ways.h"
 #include "segments.h"
+#include "ways.h"
+#include "profiles.h"
 #include "functions.h"
 
 
@@ -37,54 +38,76 @@ int main(int argc,char** argv)
  Segments *SuperSegments,*SuperSegments2;
  Ways *SuperWays,*SuperWays2;
  int iteration=0,quit=0;
- int skip_parsing=0,max_iterations=5;
- Transport transport=0;
- int highways[Way_Unknown+1];
+ int help_profile=0,skip_parsing=0,max_iterations=5;
+ Profile profile;
  int i;
 
+ /* Fill in the default profile. */
+
+ profile.transport=Transport_None; /* Not used by planetsplitter */
+
+ profile.allow=Allow_ALL;
+
+ for(i=1;i<Way_Unknown;i++)
+    profile.highways[i]=1;
+
+ for(i=1;i<Way_Unknown;i++)
+    profile.speed[i]=0; /* Not used by planetsplitter */
+
+ profile.oneway=1; /* Not used by planetsplitter */
+
  /* Parse the command line arguments */
-
- for(i=0;i<Way_Unknown;i++)
-    highways[i]=1;
-
- highways[Way_Unknown]=0;
 
  while(--argc>=1)
    {
     if(!strcmp(argv[argc],"-help"))
        goto usage;
+    if(!strcmp(argv[argc],"-help-profile"))
+       help_profile=1;
     else if(!strcmp(argv[argc],"-skip-parsing"))
        skip_parsing=1;
     else if(!strncmp(argv[argc],"-max-iterations=",16))
        max_iterations=atoi(&argv[argc][16]);
     else if(!strncmp(argv[argc],"-transport=",11))
-       transport=TransportType(&argv[argc][11]);
+      {
+       profile.transport=TransportType(&argv[argc][11]);
+       profile.allow=1<<(profile.transport-1);
+      }
     else if(!strncmp(argv[argc],"-not-highway=",13))
       {
        Highway highway=HighwayType(&argv[argc][13]);
-       highways[highway]=0;
+       profile.highways[highway]=0;
       }
     else
       {
       usage:
 
        fprintf(stderr,"Usage: planetsplitter\n"
-                      "                      [-help]\n"
+                      "                      [-help] [-help-profile]\n"
                       "                      [-skip-parsing]\n"
                       "                      [-max-iterations=<number>]\n"
                       "                      [-transport=<transport>]\n"
                       "                      [-not-highway=<highway> ...]\n"
                       "\n"
-                      "<transport> can be:\n"
+                      "<transport> defaults to all but can be set to:\n"
                       "%s"
                       "\n"
-                      "<highway> can be:\n"
+                      "<highway> can be selected from:\n"
                       "%s",
                       TransportList(),HighwayList());
 
        return(1);
       }
    }
+
+ if(help_profile)
+   {
+    PrintProfile(&profile);
+
+    return(0);
+   }
+
+ /* Parse the file (or not) */
 
  if(!skip_parsing)
    {
@@ -98,7 +121,7 @@ int main(int argc,char** argv)
 
     printf("\nParsing OSM Data\n================\n\n"); fflush(stdout);
 
-    ParseXML(stdin,OSMNodesMem,OSMSegmentsMem,OSMWaysMem,transport,highways);
+    ParseXML(stdin,OSMNodesMem,OSMSegmentsMem,OSMWaysMem,&profile);
 
     printf("\nProcessing OSM Data\n===================\n\n"); fflush(stdout);
 
