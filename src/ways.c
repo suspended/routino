@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.13 2009-01-23 17:09:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.14 2009-01-25 10:58:52 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -440,6 +440,89 @@ Transport TransportType(const char *transport)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  A string containing the name of a type of highway.
+
+  const char *HighwayName Returns the name.
+
+  Highway highway The highway type.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *HighwayName(Highway highway)
+{
+ switch(highway)
+   {
+   case Way_Motorway:
+    return("motorway");
+   case Way_Trunk:
+    return("trunk");
+   case Way_Primary:
+    return("primary");
+   case Way_Secondary:
+    return("secondary");
+   case Way_Tertiary:
+    return("tertiary");
+   case Way_Unclassfied:
+    return("unclassfied");
+   case Way_Residential:
+    return("residential");
+   case Way_Service:
+    return("service");
+   case Way_Track:
+    return("track");
+   case Way_Bridleway:
+    return("bridleway");
+   case Way_Cycleway:
+    return("cycleway");
+   case Way_Footway:
+    return("footway");
+
+   case Way_Unknown:
+   case Way_OneWay:
+   case Way_Roundabout:
+    return(NULL);
+   }
+
+ return(NULL);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  A string containing the name of a type of transport.
+
+  const char *TransportName Returns the name.
+
+  Transport transport The transport type.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *TransportName(Transport transport)
+{
+ switch(transport)
+   {
+   case Transport_None:
+    return("NONE");
+
+   case Transport_Foot:
+    return("foot");
+   case Transport_Bicycle:
+    return("bicycle");
+   case Transport_Horse:
+    return("horse");
+   case Transport_Motorbike:
+    return("motorbike");
+   case Transport_Motorcar:
+    return("motorcar");
+   case Transport_Goods:
+    return("goods");
+   case Transport_HGV:
+    return("hgv");
+   case Transport_PSV:
+    return("psv");
+  }
+ return(NULL);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Returns a list of all the highway types.
 
   const char *HighwayList Return a list of all the highway types.
@@ -450,8 +533,8 @@ const char *HighwayList(void)
  return "    motorway     = Motorway    \n"
         "    trunk        = Trunk       \n"
         "    primary      = Primary     \n"
-        "    tertiary     = Tertiary    \n"
         "    secondary    = Secondary   \n"
+        "    tertiary     = Tertiary    \n"
         "    unclassified = Unclassified\n"
         "    residential  = Residential \n"
         "    service      = Service     \n"
@@ -475,69 +558,7 @@ const char *TransportList(void)
         "    horse     = Horse    \n"
         "    motorbike = Motorbike\n"
         "    motorcar  = Motorcar \n"
-        "    psv       = PSV      \n"
         "    goods     = Goods    \n"
-        "    hgv       = HGV      \n";
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Decide the default speed of a way if not otherwise specified.
-
-  speed_t WaySpeed Returns the speed.
-
-  Way *way The way.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-speed_t WaySpeed(Way *way)
-{
- if(way->limit)
-    return(way->limit);
-
- switch(HIGHWAY(way->type))
-   {
-   case Way_Motorway:
-    return(1.6*80);
-    break;
-   case Way_Trunk:
-    return(1.6*((way->type&Way_OneWay)?75:65));
-    break;
-   case Way_Primary:
-    return(1.6*((way->type&Way_OneWay)?70:60));
-    break;
-   case Way_Secondary:
-    return(1.6*55);
-    break;
-   case Way_Tertiary:
-    return(1.6*50);
-    break;
-   case Way_Unclassfied:
-    return(1.6*40);
-    break;
-   case Way_Residential:
-    return(1.6*30);
-    break;
-   case Way_Service:
-    return(1.6*20);
-    break;
-   case Way_Track:
-    return(1.6*10);
-    break;
-   case Way_Bridleway:
-    return(1.6*5);
-    break;
-   case Way_Cycleway:
-    return(1.6*5);
-    break;
-   case Way_Footway:
-    return(1.6*4);
-    break;
-
-   case Way_Unknown:
-   case Way_OneWay:
-   case Way_Roundabout:
-    assert(0);
-   }
-
- return(0);
+        "    hgv       = HGV      \n"
+        "    psv       = PSV      \n";
 }

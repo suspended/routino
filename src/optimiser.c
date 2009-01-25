@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.34 2009-01-24 19:09:04 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.35 2009-01-25 10:58:51 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -42,14 +42,12 @@ int print_progress=1;
 
   node_t finish The finish node.
 
-  transport_t transport The mode of transport.
-
-  int highways[] An array of flags indicating the highway type.
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
 
   int all A flag to indicate that a big results structure is required.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport,int highways[],int all)
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Profile *profile,int all)
 {
  Results *results;
  node_t node1,node2;
@@ -58,7 +56,6 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
  Result *result1,*result2;
  Segment *segment;
  Way *way;
- wayallow_t mustallow=1<<(transport-1);
 
  /* Set up the finish conditions */
 
@@ -100,7 +97,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
       {
        duration_t segment_duration;
 
-       if(segment->distance&ONEWAY_OPPOSITE)
+       if(segment->distance&ONEWAY_OPPOSITE && profile->oneway)
           goto endloop;
 
        node2=segment->node2;
@@ -110,17 +107,17 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
        way=FindWay(ways,segment->way);
 
-       if(!(way->allow&mustallow))
+       if(!(way->allow&profile->allow))
           goto endloop;
 
-       if(!highways[HIGHWAY(way->type)])
+       if(!profile->highways[HIGHWAY(way->type)])
           goto endloop;
 
-       segment_duration=Duration(segment,way,transport);
+       segment_duration=Duration(segment,way,profile);
 
-       shortest2.distance=result1->shortest.distance+segment->distance;
+       shortest2.distance=result1->shortest.distance+DISTANCE(segment->distance);
        shortest2.duration=result1->shortest.duration+segment_duration;
-       quickest2.distance=result1->quickest.distance+segment->distance;
+       quickest2.distance=result1->quickest.distance+DISTANCE(segment->distance);
        quickest2.duration=result1->quickest.duration+segment_duration;
 
        if(shortest2.distance>shortestfinish.distance && quickest2.duration>quickestfinish.duration)
@@ -283,12 +280,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
   Results *end The final portion of the route.
 
-  transport_t transport The mode of transport.
-
-  int highways[] An array of flags indicating the highway type.
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,transport_t transport,int highways[])
+Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,Profile *profile)
 {
  Results *results;
  node_t node1,node2;
@@ -297,7 +292,6 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
  Result *result1,*result2,*result3;
  Segment *segment;
  Way *way;
- wayallow_t mustallow=1<<(transport-1);
 
  /* Set up the finish conditions */
 
@@ -351,7 +345,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
       {
        duration_t segment_duration;
 
-       if(segment->distance&ONEWAY_OPPOSITE)
+       if(segment->distance&ONEWAY_OPPOSITE && profile->oneway)
           goto endloop;
 
        node2=segment->node2;
@@ -361,17 +355,17 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
        way=FindWay(superways,segment->way);
 
-       if(!(way->allow&mustallow))
+       if(!(way->allow&profile->allow))
           goto endloop;
 
-       if(!highways[HIGHWAY(way->type)])
+       if(!profile->highways[HIGHWAY(way->type)])
           goto endloop;
 
-       segment_duration=Duration(segment,way,transport);
+       segment_duration=Duration(segment,way,profile);
 
-       shortest2.distance=result1->shortest.distance+segment->distance;
+       shortest2.distance=result1->shortest.distance+DISTANCE(segment->distance);
        shortest2.duration=result1->shortest.duration+segment_duration;
-       quickest2.distance=result1->quickest.distance+segment->distance;
+       quickest2.distance=result1->quickest.distance+DISTANCE(segment->distance);
        quickest2.duration=result1->quickest.duration+segment_duration;
 
        if(shortest2.distance>shortestfinish.distance && quickest2.duration>quickestfinish.duration)
@@ -577,10 +571,10 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
   node_t finish The finish node.
 
-  transport_t transport The mode of transport.
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish,transport_t transport)
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish,Profile *profile)
 {
  FILE *textfile,*gpxfile;
  Result *result;
@@ -616,9 +610,9 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
 
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
                node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
-               distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,transport)),
+               distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->shortest.distance),duration_to_minutes(result->shortest.duration),
-               WaySpeed(way),WayName(ways,way));
+               profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
     else
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
@@ -670,9 +664,9 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
 
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
                node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
-               distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,transport)),
+               distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->quickest.distance),duration_to_minutes(result->quickest.duration),
-               WaySpeed(way),WayName(ways,way));
+               profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
     else
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
@@ -710,12 +704,10 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
 
   Nodes *finish The finishing nodes.
 
-  transport_t transport The mode of transport.
-
-  int highways[] An array of flags indicating the highway type.
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,transport_t transport,int highways[])
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Profile *profile)
 {
  Results *results;
  node_t node1,node2;
@@ -723,7 +715,6 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
  Result *result1,*result2;
  Segment *segment;
  Way *way;
- wayallow_t mustallow=1<<(transport-1);
 
  /* Insert the first node into the queue */
 
@@ -755,7 +746,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
       {
        duration_t segment_duration;
 
-       if(segment->distance&ONEWAY_OPPOSITE)
+       if(segment->distance&ONEWAY_OPPOSITE && profile->oneway)
           goto endloop;
 
        node2=segment->node2;
@@ -765,17 +756,17 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 
        way=FindWay(ways,segment->way);
 
-       if(!(way->allow&mustallow))
+       if(!(way->allow&profile->allow))
           goto endloop;
 
-       if(!highways[HIGHWAY(way->type)])
+       if(!profile->highways[HIGHWAY(way->type)])
           goto endloop;
 
-       segment_duration=Duration(segment,way,transport);
+       segment_duration=Duration(segment,way,profile);
 
-       shortest2.distance=result1->shortest.distance+segment->distance;
+       shortest2.distance=result1->shortest.distance+DISTANCE(segment->distance);
        shortest2.duration=result1->shortest.duration+segment_duration;
-       quickest2.distance=result1->quickest.distance+segment->distance;
+       quickest2.distance=result1->quickest.distance+DISTANCE(segment->distance);
        quickest2.duration=result1->quickest.duration+segment_duration;
 
        result2=FindResult(results,node2);
@@ -848,12 +839,10 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 
   node_t finish The finishing node.
 
-  transport_t transport The mode of transport.
-
-  int highways[] An array of flags indicating the highway type.
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,transport_t transport,int highways[])
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,Profile *profile)
 {
  Results *results;
  node_t node1,node2;
@@ -861,7 +850,6 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
  Result *result1,*result2;
  Segment *segment;
  Way *way;
- wayallow_t mustallow=1<<(transport-1);
 
  /* Insert the first node into the queue */
 
@@ -907,7 +895,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
        if(!reversesegment)
           goto endloop;
 
-       if(reversesegment->distance&ONEWAY_OPPOSITE)
+       if(reversesegment->distance&ONEWAY_OPPOSITE && profile->oneway)
           goto endloop;
 
        node2=reversesegment->node1;
@@ -917,17 +905,17 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
        way=FindWay(ways,reversesegment->way);
 
-       if(!(way->allow&mustallow))
+       if(!(way->allow&profile->allow))
           goto endloop;
 
-       if(!highways[HIGHWAY(way->type)])
+       if(!profile->highways[HIGHWAY(way->type)])
           goto endloop;
 
-       reversesegment_duration=Duration(reversesegment,way,transport);
+       reversesegment_duration=Duration(reversesegment,way,profile);
 
-       shortest2.distance=result1->shortest.distance+reversesegment->distance;
+       shortest2.distance=result1->shortest.distance+DISTANCE(reversesegment->distance);
        shortest2.duration=result1->shortest.duration+reversesegment_duration;
-       quickest2.distance=result1->quickest.distance+reversesegment->distance;
+       quickest2.distance=result1->quickest.distance+DISTANCE(reversesegment->distance);
        quickest2.duration=result1->quickest.duration+reversesegment_duration;
 
        result2=FindResult(results,node2);
@@ -1002,12 +990,10 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
   node_t finish The finish node.
 
-  transport_t transport The mode of transport.
-
-  int highways[] An array of flags indicating the highway type.
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,transport_t transport,int highways[])
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Profile *profile)
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
@@ -1033,7 +1019,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
    {
     if(result1->shortest.next)
       {
-       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->shortest.next,transport,highways,0);
+       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->shortest.next,profile,0);
 
        result2=FindResult(results2,result1->node);
 
@@ -1084,7 +1070,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
    {
     if(result1->quickest.next)
       {
-       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->quickest.next,transport,highways,0);
+       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->quickest.next,profile,0);
 
        result2=FindResult(results2,result1->node);
 
@@ -1155,7 +1141,7 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
 {
  Results *results;
  node_t node1,node2;
- HalfResult shortest2,quickest2;
+ HalfResult shortest2;
  Result *result1,*result2;
  Segment *segment;
  Way *way;
@@ -1170,11 +1156,6 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
  result1->shortest.prev=0;
  result1->shortest.next=0;
  result1->shortest.distance=0;
- result1->shortest.duration=0;
- result1->quickest.prev=0;
- result1->quickest.next=0;
- result1->quickest.distance=0;
- result1->quickest.duration=0;
 
  insert_in_queue(result1);
 
@@ -1188,14 +1169,12 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
 
     while(segment)
       {
-       duration_t segment_duration;
-
        if(segment->distance&ONEWAY_OPPOSITE)
           goto endloop;
 
        node2=segment->node2;
 
-       if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
+       if(result1->shortest.prev==node2)
           goto endloop;
 
        way=FindWay(ways,segment->way);
@@ -1205,12 +1184,7 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
           way->limit!=match->limit)
           goto endloop;
 
-       segment_duration=0;
-
-       shortest2.distance=result1->shortest.distance+segment->distance;
-       shortest2.duration=result1->shortest.duration+segment_duration;
-       quickest2.distance=result1->quickest.distance+segment->distance;
-       quickest2.duration=result1->quickest.duration+segment_duration;
+       shortest2.distance=result1->shortest.distance+DISTANCE(segment->distance);
 
        result2=FindResult(results,node2);
 
@@ -1221,36 +1195,16 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
           result2->shortest.prev=node1;
           result2->shortest.next=0;
           result2->shortest.distance=shortest2.distance;
-          result2->shortest.duration=shortest2.duration;
-          result2->quickest.prev=node1;
-          result2->quickest.next=0;
-          result2->quickest.distance=quickest2.distance;
-          result2->quickest.duration=quickest2.duration;
 
           if(!FindNode(finish,node2))
              insert_in_queue(result2);
          }
        else
          {
-          if(shortest2.distance<result2->shortest.distance ||
-             (shortest2.distance==result2->shortest.distance &&
-              shortest2.duration<result2->shortest.duration)) /* New end node is shorter */
+          if(shortest2.distance<result2->shortest.distance)
             {
              result2->shortest.prev=node1;
              result2->shortest.distance=shortest2.distance;
-             result2->shortest.duration=shortest2.duration;
-
-             if(!FindNode(finish,node2))
-                insert_in_queue(result2);
-            }
-
-          if(quickest2.duration<result2->quickest.duration ||
-             (quickest2.duration==result2->quickest.duration &&
-              quickest2.distance<result2->quickest.distance)) /* New end node is quicker */
-            {
-             result2->quickest.prev=node1;
-             result2->quickest.distance=quickest2.distance;
-             result2->quickest.duration=quickest2.duration;
 
              if(!FindNode(finish,node2))
                 insert_in_queue(result2);

@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.8 2009-01-17 19:03:17 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.9 2009-01-25 10:58:51 amb Exp $
 #
 # Makefile
 #
@@ -36,7 +36,7 @@ all : $(EXE)
 
 ########
 
-PLANETSPLITTER_OBJ=planetsplitter.o files.o nodes.o ways.o segments.o supersegments.o results.o osmparser.o optimiser.o
+PLANETSPLITTER_OBJ=planetsplitter.o files.o nodes.o ways.o segments.o supersegments.o profiles.o results.o osmparser.o optimiser.o
 
 planetsplitter : $(PLANETSPLITTER_OBJ)
 	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
@@ -50,7 +50,7 @@ filedumper : $(FILEDUMPER_OBJ)
 
 ########
 
-ROUTER_OBJ=router.o files.o nodes.o ways.o segments.o optimiser.o results.o
+ROUTER_OBJ=router.o files.o nodes.o ways.o segments.o profiles.o optimiser.o results.o
 
 router : $(ROUTER_OBJ)
 	$(LD) $(ROUTER_OBJ) -o $@ $(LDFLAGS)
