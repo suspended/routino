@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.18 2009-01-25 10:58:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.19 2009-01-25 12:09:15 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -145,6 +145,12 @@ int main(int argc,char** argv)
     OSMNodes=SaveNodeList(OSMNodesMem,"data/all-nodes.mem");
     printf("\rSaved All Nodes: %d\n",OSMNodes->number); fflush(stdout);
 
+    /* Write out the ways */
+
+    printf("Saving Ways"); fflush(stdout);
+    OSMWays=SaveWayList(OSMWaysMem,"data/ways.mem");
+    printf("\rSaved Ways: %d\n",OSMWays->number); fflush(stdout);
+
     /* Remove bad segments */
 
     RemoveBadSegments(OSMSegmentsMem);
@@ -157,17 +163,15 @@ int main(int argc,char** argv)
 
     FixupSegmentLengths(OSMSegmentsMem,OSMNodes,OSMWays);
 
+    /* Link the ways to the segments */
+
+    LinkSegmentToWay(OSMSegmentsMem,OSMWays);
+
     /* Write out the segments */
 
     printf("Saving Segments"); fflush(stdout);
     OSMSegments=SaveSegmentList(OSMSegmentsMem,"data/segments.mem");
     printf("\rSaved Segments: %d\n",OSMSegments->number); fflush(stdout);
-
-    /* Write out the ways */
-
-    printf("Saving Ways"); fflush(stdout);
-    OSMWays=SaveWayList(OSMWaysMem,"data/ways.mem");
-    printf("\rSaved Ways: %d\n",OSMWays->number); fflush(stdout);
 
     /* Remove non-way nodes */
 

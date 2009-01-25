@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.14 2009-01-25 10:58:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.15 2009-01-25 12:09:15 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -167,9 +167,11 @@ const char *TransportName(Transport transport);
 const char *HighwayList(void);
 const char *TransportList(void);
 
-#define LookupWay(xxx,yyy) (&xxx->ways[yyy])
+#define LookupWay(xxx,yyy) (&(xxx)->ways[yyy])
 
-#define WayName(xxx,yyy) ((char*)&xxx->ways[yyy->name])
+#define IndexWay(xxx,yyy) ((yyy)-&(xxx)->ways[0])
+
+#define WayName(xxx,yyy) ((char*)&(xxx)->ways[(yyy)->name])
 
 
 #endif /* WAYS_H */
