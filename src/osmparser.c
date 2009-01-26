@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.20 2009-01-25 12:11:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.21 2009-01-26 18:47:23 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -50,7 +50,6 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
  long nlines=0;
  long nnodes=0,nways=0,nrelations=0;
  int isnode=0,isway=0,isrelation=0;
- way_t way_id=0;
  int way_oneway=0,way_roundabout=0;
  speed_t way_maxspeed=0;
  char *way_highway=NULL,*way_name=NULL,*way_ref=NULL;
@@ -94,8 +93,6 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
 
        isnode=0; isway=1; isrelation=0;
 
-       m=strstr(l,"id="); m+=3; if(*m=='"' || *m=='\'') m++; way_id=atol(m);
-
        way_oneway=0; way_roundabout=0;
        way_maxspeed=0;
        way_highway=NULL; way_name=NULL; way_ref=NULL;
@@ -108,11 +105,8 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
 
        if(way_highway)
          {
-          Way *way;
           waytype_t type;
           wayallow_t allow;
-          char *refname;
-          int i;
 
           type=HighwayType(way_highway);
 
@@ -164,6 +158,10 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
 
           if(allow&profile->allow && profile->highways[HIGHWAY(type)])
             {
+             Way *way;
+             char *refname;
+             int i;
+
              if(way_ref && way_name)
                {
                 refname=(char*)malloc(strlen(way_ref)+strlen(way_name)+4);
@@ -186,21 +184,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
              else /* if(!way_ref && !way_name && !way_roundabout) */
                 refname=way_highway;
 
-             for(i=1;i<way_nnodes;i++)
-               {
-                node_t from=way_nodes[i-1];
-                node_t to  =way_nodes[i];
-                Segment *segment;
-
-                segment=AppendSegment(OSMSegments,from,to,way_id);
-
-                segment=AppendSegment(OSMSegments,to,from,way_id);
-
-                if(way_oneway)
-                   segment->distance=ONEWAY_OPPOSITE;
-               }
-
-             way=AppendWay(OSMWays,way_id,refname);
+             way=AppendWay(OSMWays,refname);
 
              way->limit=way_maxspeed;
 
@@ -216,6 +200,20 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
 
              if(refname!=way_ref && refname!=way_name && refname!=way_highway)
                 free(refname);
+
+             for(i=1;i<way_nnodes;i++)
+               {
+                node_t from=way_nodes[i-1];
+                node_t to  =way_nodes[i];
+                Segment *segment;
+
+                segment=AppendSegment(OSMSegments,from,to,OSMWays->number-1);
+
+                segment=AppendSegment(OSMSegments,to,from,OSMWays->number-1);
+
+                if(way_oneway)
+                   segment->distance=ONEWAY_OPPOSITE;
+               }
             }
          }
 

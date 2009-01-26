@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.1 2008-12-31 12:20:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.2 2009-01-26 18:47:22 amb Exp $
 
  Functions to map a file into memory.
  ******************/ /******************
  Written by Andrew M. Bishop
 
- This file Copyright 2008 Andrew M. Bishop
+ This file Copyright 2008,2009 Andrew M. Bishop
  It may be distributed under the GNU Public License, version 2, or
  any higher version.  See section COPYING of the GNU Public license
  for conditions under which this file may be redistributed.
@@ -13,6 +13,7 @@
 
 
 #include <unistd.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -151,4 +152,27 @@ int WriteFile(const char *filename,void *address,size_t length)
  close(fd);
 
  return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open a new file on disk.
+
+  int OpenFile Returns the file descriptor if OK or something negative else in case of an error.
+
+  const char *filename The name of the file to create.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int OpenFile(const char *filename)
+{
+ int fd;
+
+ /* Open the file */
+
+ fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRWXU|S_IRGRP|S_IROTH);
+
+ if(fd<0)
+    assert(0);
+
+ return(fd);
 }

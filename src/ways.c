@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.15 2009-01-25 12:11:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.16 2009-01-26 18:47:23 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -14,19 +14,17 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
 #include "functions.h"
 #include "ways.h"
 
 
-/*+ A temporary variable used when sorting +*/
-static char **sort_names;
-
 /* Functions */
 
-static int sort_by_id(Way *a,Way *b);
-static int sort_by_name(Way *a,Way *b);
+static int sort_by_index(WayEx *a,WayEx *b);
+static int sort_by_name(WayEx *a,WayEx *b);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -37,19 +35,18 @@ static int sort_by_name(Way *a,Way *b);
 
 WaysMem *NewWayList(void)
 {
- WaysMem *ways;
+ WaysMem *waysmem;
 
- ways=(WaysMem*)malloc(sizeof(WaysMem));
+ waysmem=(WaysMem*)malloc(sizeof(WaysMem));
 
- ways->alloced=INCREMENT_WAYS;
- ways->number=0;
- ways->number_str=0;
- ways->sorted=0;
+ waysmem->sorted=0;
+ waysmem->alloced=INCREMENT_WAYS;
+ waysmem->number=0;
+ waysmem->length=0;
 
- ways->ways=(Ways*)malloc(sizeof(Ways)+ways->alloced*sizeof(Way));
- ways->names=(char**)malloc(ways->alloced*sizeof(char*));
+ waysmem->xdata=(WayEx*)malloc(waysmem->alloced*sizeof(WayEx));
 
- return(ways);
+ return(waysmem);
 }
 
 
@@ -63,7 +60,24 @@ WaysMem *NewWayList(void)
 
 Ways *LoadWayList(const char *filename)
 {
- return((Ways*)MapFile(filename));
+ void *data;
+ Ways *ways;
+
+ ways=(Ways*)malloc(sizeof(Ways));
+
+ data=MapFile(filename);
+
+ /* Copy the Ways structure from the loaded data */
+
+ *ways=*((Ways*)data);
+
+ /* Adjust the pointers in the Ways structure. */
+
+ ways->data =data;
+ ways->ways =(Way *)(data+(off_t)ways->ways);
+ ways->names=(char*)(data+(off_t)ways->names);
+
+ return(ways);
 }
 
 
@@ -72,83 +86,66 @@ Ways *LoadWayList(const char *filename)
 
   Ways* SaveWayList Returns the way list that has just been saved.
 
-  WaysMem* ways The set of ways to save.
+  WaysMem* waysmem The set of ways to save.
 
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Ways *SaveWayList(WaysMem* ways,const char *filename)
+Ways *SaveWayList(WaysMem* waysmem,const char *filename)
 {
- assert(ways->sorted);          /* Must be sorted */
+ int i;
+ int fd;
+ Ways *ways=calloc(1,sizeof(Ways));
 
- if(WriteFile(filename,(void*)ways->ways,sizeof(Ways)-sizeof(ways->ways->ways)+(ways->number+ways->number_str)*sizeof(Way)))
-    assert(0);
+ assert(waysmem->sorted);       /* Must be sorted */
 
- free(ways->names);
- free(ways->ways);
+ /* Fill in a Ways structure with the offset of the real data in the file after
+    the Way structure itself. */
+
+ ways->number=waysmem->number;
+ ways->data=NULL;
+ ways->ways=(void*)sizeof(Ways);
+ ways->names=(void*)sizeof(Ways)+ways->number*sizeof(Way);
+
+ /* Write out the Ways structure and then the real data. */
+
+ fd=OpenFile(filename);
+
+ write(fd,ways,sizeof(Ways));
+
+ for(i=0;i<waysmem->number;i++)
+    write(fd,&waysmem->xdata[i].way,sizeof(Way));
+
+ write(fd,waysmem->names,waysmem->length);
+
+ close(fd);
+
+ /* Free the fake Ways and the input WaysMem */
+
  free(ways);
+
+ for(i=0;i<waysmem->number;i++)
+    free(waysmem->xdata[i].name);
+
+ free(waysmem->xdata);
+ free(waysmem->names);
+ free(waysmem);
 
  return(LoadWayList(filename));
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find a particular way.
+  Delete a way list that was loaded from a file.
 
-  Way *FindWay Returns a pointer to the way with the specified id.
-
-  Ways* ways The set of ways to process.
-
-  way_t id The way id to look for.
+  Ways* ways The way list.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Way *FindWay(Ways* ways,way_t id)
+void DropWayList(Ways *ways)
 {
- int bin=id%NBINS_WAYS;
- int start=ways->offset[bin];
- int end=ways->offset[bin+1]-1; /* &offset[NBINS+1] == &number */
- int mid;
+ UnMapFile(ways->data);
 
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- if(end<start)                    /* There are no ways */
-    return(NULL);
- else if(id<ways->ways[start].id) /* Check key is not before start */
-    return(NULL);
- else if(id>ways->ways[end].id)   /* Check key is not after end */
-    return(NULL);
- else
-   {
-    do
-      {
-       mid=(start+end)/2;             /* Choose mid point */
-
-       if(ways->ways[mid].id<id)      /* Mid point is too low */
-          start=mid+1;
-       else if(ways->ways[mid].id>id) /* Mid point is too high */
-          end=mid-1;
-       else                           /* Mid point is correct */
-          return(&ways->ways[mid]);
-      }
-    while((end-start)>1);
-
-    if(ways->ways[start].id==id)      /* Start is correct */
-       return(&ways->ways[start]);
-
-    if(ways->ways[end].id==id)        /* End is correct */
-       return(&ways->ways[end]);
-   }
-
- return(NULL);
+ free(ways);
 }
 
 
@@ -157,141 +154,108 @@ Way *FindWay(Ways* ways,way_t id)
 
   Way *AppendWay Returns the newly appended way.
 
-  WaysMem* ways The set of ways to process.
-
-  way_t id The way identification.
+  WaysMem* waysmem The set of ways to process.
 
   const char *name The name or reference of the way.
-
-  speed_t speed The speed on the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Way *AppendWay(WaysMem* ways,way_t id,const char *name)
+Way *AppendWay(WaysMem* waysmem,const char *name)
 {
+ assert(!waysmem->sorted);      /* Must not be sorted */
+
+ waysmem->sorted=0;
+
  /* Check that the array has enough space. */
 
- if(ways->number==ways->alloced)
+ if(waysmem->number==waysmem->alloced)
    {
-    ways->alloced+=INCREMENT_WAYS;
+    waysmem->alloced+=INCREMENT_WAYS;
 
-    ways->ways=(Ways*)realloc((void*)ways->ways,sizeof(Ways)+ways->alloced*sizeof(Way));
-    ways->names=(char**)realloc((void*)ways->names,ways->alloced*sizeof(char*));
+    waysmem->xdata=(WayEx*)realloc((void*)waysmem->xdata,waysmem->alloced*sizeof(WayEx));
    }
-
- assert(!ways->sorted);         /* Must be sorted */
 
  /* Insert the way */
 
- ways->names[ways->number]=strcpy((char*)malloc(strlen(name)+1),name);
+ waysmem->xdata[waysmem->number].name=strcpy((char*)malloc(strlen(name)+1),name);
 
- ways->ways->ways[ways->number].id=id;
- ways->ways->ways[ways->number].name=ways->number;
+ waysmem->xdata[waysmem->number].index=waysmem->number;
 
- ways->number++;
+ waysmem->number++;
 
- ways->sorted=0;
-
- return(&ways->ways->ways[ways->number-1]);
+ return(&waysmem->xdata[waysmem->number-1].way);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the way list.
+  Sort the list of ways and fix the names.
 
-  WaysMem* ways The set of ways to process.
+  WaysMem* waysmem The set of ways to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortWayList(WaysMem* ways)
+void SortWayList(WaysMem* waysmem)
 {
- char *name=NULL;
- int bin=0;
  int i;
+
+ assert(!waysmem->sorted);      /* Must not be sorted */
+
+ waysmem->sorted=1;
 
  /* Sort the ways by name */
 
- sort_names=ways->names;
+ qsort(waysmem->xdata,waysmem->number,sizeof(WayEx),(int (*)(const void*,const void*))sort_by_name);
 
- qsort(ways->ways->ways,ways->number,sizeof(Way),(int (*)(const void*,const void*))sort_by_name);
+ /* Allocate the new data */
+
+ waysmem->names=(char*)malloc(waysmem->alloced*sizeof(char));
 
  /* Setup the offsets for the names in the way array */
 
- for(i=0;i<ways->number;i++)
+ for(i=0;i<waysmem->number;i++)
    {
-    if(name && !strcmp(name,ways->names[ways->ways->ways[i].name])) /* Same name */
+    if(i && !strcmp(waysmem->xdata[i].name,waysmem->xdata[i-1].name)) /* Same name */
+       waysmem->xdata[i].way.name=waysmem->xdata[i-1].way.name;
+    else                                                              /* Different name */
       {
-       free(ways->names[ways->ways->ways[i].name]);
-       ways->ways->ways[i].name=ways->ways->ways[i-1].name;
-      }
-    else                                            /* Different name */
-      {
-       name=ways->names[ways->ways->ways[i].name];
-
-       if((ways->number+ways->number_str+strlen(name)/sizeof(Way)+1)>=ways->alloced)
+       if((waysmem->length+strlen(waysmem->xdata[i].name)+1)>=waysmem->alloced)
          {
-          ways->alloced+=INCREMENT_WAYS;
+          waysmem->alloced+=INCREMENT_WAYS;
 
-          ways->ways=(Ways*)realloc((void*)ways->ways,sizeof(Ways)+ways->alloced*sizeof(Way));
+          waysmem->names=(char*)realloc((void*)waysmem->names,waysmem->alloced*sizeof(char));
          }
 
-       strcpy((char*)&ways->ways->ways[ways->number+ways->number_str],name);
-       free(name);
+       strcpy(&waysmem->names[waysmem->length],waysmem->xdata[i].name);
 
-       ways->ways->ways[i].name=ways->number+ways->number_str;
-       name=(char*)&ways->ways->ways[ways->ways->ways[i].name];
+       waysmem->xdata[i].way.name=waysmem->length;
 
-       ways->number_str+=strlen(name)/sizeof(Way)+1;
+       waysmem->length+=strlen(waysmem->xdata[i].name)+1;
       }
    }
 
  /* Sort the ways by id */
 
- qsort(ways->ways->ways,ways->number,sizeof(Way),(int (*)(const void*,const void*))sort_by_id);
-
- while(ways->ways->ways[ways->number-1].id==~0)
-    ways->number--;
-
- ways->sorted=1;
-
- /* Make it searchable */
-
- ways->ways->number=ways->number;
-
- for(i=0;i<ways->number;i++)
-    for(;bin<=(ways->ways->ways[i].id%NBINS_WAYS);bin++)
-       ways->ways->offset[bin]=i;
-
- for(;bin<NBINS_WAYS;bin++)
-    ways->ways->offset[bin]=ways->number;
+ qsort(waysmem->xdata,waysmem->number,sizeof(WayEx),(int (*)(const void*,const void*))sort_by_index);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the ways into id order.
+  Sort the ways into index order.
 
-  int sort_by_id Returns the comparison of the id fields.
+  int sort_by_index Returns the comparison of the index fields.
 
-  Way *a The first Way.
+  WayEx *a The first WayEx.
 
-  Way *b The second Way.
+  WayEx *b The second WayEx.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_id(Way *a,Way *b)
+static int sort_by_index(WayEx *a,WayEx *b)
 {
- way_t a_id=a->id;
- way_t b_id=b->id;
+ wayindex_t a_index=a->index;
+ wayindex_t b_index=b->index;
 
- int a_bin=a->id%NBINS_WAYS;
- int b_bin=b->id%NBINS_WAYS;
-
- if(a_bin!=b_bin)
-    return(a_bin-b_bin);
-
- if(a_id<b_id)
+ if(a_index<b_index)
     return(-1);
- else if(a_id>b_id)
+ else
     return(1);
- else /* if(a_id==b_id) */
-    return(0);
 }
 
 
@@ -305,10 +269,10 @@ static int sort_by_id(Way *a,Way *b)
   Way *b The second Way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_name(Way *a,Way *b)
+static int sort_by_name(WayEx *a,WayEx *b)
 {
- char *a_name=sort_names[a->name];
- char *b_name=sort_names[b->name];
+ char *a_name=a->name;
+ char *b_name=b->name;
 
  return(strcmp(a_name,b_name));
 }
@@ -530,18 +494,18 @@ const char *TransportName(Transport transport)
 
 const char *HighwayList(void)
 {
- return "    motorway     = Motorway    \n"
-        "    trunk        = Trunk       \n"
-        "    primary      = Primary     \n"
-        "    secondary    = Secondary   \n"
-        "    tertiary     = Tertiary    \n"
+ return "    motorway     = Motorway\n"
+        "    trunk        = Trunk\n"
+        "    primary      = Primary\n"
+        "    secondary    = Secondary\n"
+        "    tertiary     = Tertiary\n"
         "    unclassified = Unclassified\n"
-        "    residential  = Residential \n"
-        "    service      = Service     \n"
-        "    track        = Track       \n"
-        "    bridleway    = Bridleway   \n"
-        "    cycleway     = Cycleway    \n"
-        "    footway      = Footway     \n";
+        "    residential  = Residential\n"
+        "    service      = Service\n"
+        "    track        = Track\n"
+        "    bridleway    = Bridleway\n"
+        "    cycleway     = Cycleway\n"
+        "    footway      = Footway\n";
 }
 
 
@@ -553,12 +517,12 @@ const char *HighwayList(void)
 
 const char *TransportList(void)
 {
- return "    foot      = Foot     \n"
-        "    bicycle   = Bicycle  \n"
-        "    horse     = Horse    \n"
+ return "    foot      = Foot\n"
+        "    bicycle   = Bicycle\n"
+        "    horse     = Horse\n"
         "    motorbike = Motorbike\n"
-        "    motorcar  = Motorcar \n"
-        "    goods     = Goods    \n"
-        "    hgv       = HGV      \n"
-        "    psv       = PSV      \n";
+        "    motorcar  = Motorcar\n"
+        "    goods     = Goods     (Small lorry, van)\n"
+        "    hgv       = HGV       (Heavy Goods Vehicle - large lorry)\n"
+        "    psv       = PSV       (Public Service Vehicle - bus, coach)\n";
 }

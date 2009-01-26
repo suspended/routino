@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.36 2009-01-25 12:09:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.37 2009-01-26 18:47:22 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -105,7 +105,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
-       way=LookupWay(ways,segment->way);
+       way=LookupWay(ways,segment->wayindex);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -353,7 +353,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
-       way=LookupWay(superways,segment->way);
+       way=LookupWay(superways,segment->wayindex);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -606,7 +606,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
        while(segment->node2!=result->node)
           segment=FindNextSegment(segments,segment);
 
-       way=LookupWay(ways,segment->way);
+       way=LookupWay(ways,segment->wayindex);
 
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
                node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
@@ -660,7 +660,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
        while(segment->node2!=result->node)
           segment=FindNextSegment(segments,segment);
 
-       way=LookupWay(ways,segment->way);
+       way=LookupWay(ways,segment->wayindex);
 
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
                node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
@@ -754,7 +754,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
-       way=LookupWay(ways,segment->way);
+       way=LookupWay(ways,segment->wayindex);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -903,7 +903,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
-       way=LookupWay(ways,reversesegment->way);
+       way=LookupWay(ways,reversesegment->wayindex);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -1177,7 +1177,7 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
        if(result1->shortest.prev==node2)
           goto endloop;
 
-       way=LookupWay(ways,segment->way);
+       way=LookupWay(ways,segment->wayindex);
 
        if(way->type !=match->type  ||
           way->allow!=match->allow ||

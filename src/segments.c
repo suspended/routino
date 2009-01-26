@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.19 2009-01-25 12:21:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.20 2009-01-26 18:47:23 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -189,10 +189,10 @@ Segment *FindNextSegment(Segments* segments,Segment *segment)
 
   node_t node2 The second node in the segment.
 
-  way_t way The way that the pair of segments are connected by.
+  wayindex_t wayindex The index of the way that the pair of segments are connected by.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segment *AppendSegment(SegmentsMem* segments,node_t node1,node_t node2,way_t way)
+Segment *AppendSegment(SegmentsMem* segments,node_t node1,node_t node2,wayindex_t wayindex)
 {
  /* Check that the array has enough space. */
 
@@ -207,7 +207,7 @@ Segment *AppendSegment(SegmentsMem* segments,node_t node1,node_t node2,way_t way
 
  segments->segments->segments[segments->number].node1=node1;
  segments->segments->segments[segments->number].node2=node2;
- segments->segments->segments[segments->number].way=way;
+ segments->segments->segments[segments->number].wayindex=wayindex;
  segments->segments->segments[segments->number].distance=0;
 
  segments->number++;
@@ -361,27 +361,6 @@ void FixupSegmentLengths(SegmentsMem* segments,Nodes *nodes,Ways *ways)
 
  printf("\rMeasured Segments: Segments=%d \n",segments->number);
  fflush(stdout);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Change the segment to contain the index of the way, not the id.
-
-  SegmentsMem* segments The set of segments to process.
-
-  Ways *ways The list of ways to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void LinkSegmentToWay(SegmentsMem* segments,Ways *ways)
-{
- int i;
-
- for(i=0;i<segments->number;i++)
-   {
-    Way *way=FindWay(ways,segments->segments->segments[i].way);
-
-    segments->segments->segments[i].way=IndexWay(ways,way);
-   }
 }
 
 
