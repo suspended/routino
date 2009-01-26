@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.13 2009-01-22 19:15:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.14 2009-01-26 18:47:22 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -36,7 +36,6 @@ int main(int argc,char** argv)
 
  printf("sizeof(Node)=%9d Bytes\n",sizeof(Node));
  printf("number      =%9d\n",OSMNodes->number);
- printf("total size  =%9d Bytes\n",sizeof(OSMNodes)-sizeof(OSMNodes->nodes)+OSMNodes->number*sizeof(Node));
 
  /* Examine the segments */
 
@@ -48,7 +47,6 @@ int main(int argc,char** argv)
 
  printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
  printf("number         =%9d\n",OSMSegments->number);
- printf("total size     =%9d Bytes\n",sizeof(OSMSegments)-sizeof(OSMSegments->segments)+OSMSegments->number*sizeof(Segment));
 
  /* Examine the ways */
 
@@ -60,7 +58,6 @@ int main(int argc,char** argv)
 
  printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
  printf("number      =%9d\n",OSMWays->number);
- printf("total size  =%9d Bytes\n",sizeof(OSMWays)-sizeof(OSMWays->ways)+OSMWays->number*sizeof(Way));
 
  /* Examine the super-nodes */
 
@@ -72,7 +69,6 @@ int main(int argc,char** argv)
 
  printf("sizeof(Node)=%9d Bytes\n",sizeof(Node));
  printf("number      =%9d\n",SuperNodes->number);
- printf("total size  =%9d Bytes\n",sizeof(SuperNodes)-sizeof(SuperNodes->nodes)+SuperNodes->number*sizeof(Node));
 
  /* Examine the super-segments */
 
@@ -84,7 +80,6 @@ int main(int argc,char** argv)
 
  printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
  printf("number         =%9d\n",SuperSegments->number);
- printf("total size     =%9d Bytes\n",sizeof(SuperSegments)-sizeof(SuperSegments->segments)+SuperSegments->number*sizeof(Segment));
 
  /* Examine the super-ways */
 
@@ -96,7 +91,6 @@ int main(int argc,char** argv)
 
  printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
  printf("number      =%9d\n",SuperWays->number);
- printf("total size  =%9d Bytes\n",sizeof(SuperWays)-sizeof(SuperWays->ways)+SuperWays->number*sizeof(Way));
 
  return(0);
 }

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.16 2009-01-25 12:11:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.17 2009-01-26 18:47:23 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -21,9 +21,6 @@
 /* Constants */
 
 
-/*+ The number of bins for ways - expect ~1,000,000 ways and use 4*sqrt(N) bins. +*/
-#define NBINS_WAYS 4096
-
 /*+ The array size increment for ways - expect ~1,000,000 ways. +*/
 #define INCREMENT_WAYS 256*1024
 
@@ -31,8 +28,8 @@
 /* Simple Types */
 
 
-/*+ A way identifier. +*/
-typedef uint32_t way_t;
+/*+ An index into the array of Ways. +*/
+typedef uint32_t wayindex_t;
 
 /*+ The speed limit of the way. +*/
 typedef uint8_t speed_t;
@@ -112,34 +109,45 @@ typedef enum _Allowed
 /*+ A structure containing a single way. +*/
 typedef struct _Way
 {
- way_t      id;                 /*+ The way identifier. +*/
- uint32_t   name;               /*+ An offset of the name of the way in the ways array. +*/
+ uint32_t   name;               /*+ The offset of the name of the way in the names array. +*/
  speed_t    limit;              /*+ The defined speed limit on the way. +*/
  waytype_t  type;               /*+ The type of the way. +*/
  wayallow_t allow;              /*+ The type of traffic allowed on the way. +*/
 }
  Way;
 
+/*+ An extended structure containing a single way. +*/
+typedef struct _WayEx
+{
+ wayindex_t index;              /*+ The index of the way. +*/
+ char      *name;               /*+ The name of the way. +*/
+
+ Way        way;                /*+ The real Way data. +*/
+}
+ WayEx;
+
 /*+ A structure containing a set of ways (mmap format). +*/
 typedef struct _Ways
 {
- uint32_t offset[NBINS_WAYS];   /*+ An offset to the first entry in each bin. +*/
- uint32_t number;               /*+ How many entries are used in total? +*/
- Way      ways[1];              /*+ An array of ways whose size is not limited to 1
-                                    (i.e. may overflow the end of this structure). +*/
+ uint32_t number;               /*+ How many entries are used? +*/
+
+ Way     *ways;                 /*+ An array of ways. */
+ char    *names;                /*+ An array of characters containing the names. +*/
+
+ void    *data;                 /*+ The memory mapped data. +*/
 }
  Ways;
 
 /*+ A structure containing a set of ways (memory format). +*/
 typedef struct _WaysMem
 {
+ uint32_t sorted;               /*+ Is the data sorted? +*/
  uint32_t alloced;              /*+ How many entries are allocated? +*/
  uint32_t number;               /*+ How many entries are used? +*/
- uint32_t number_str;           /*+ How many name entries are used? +*/
- uint32_t sorted;               /*+ Is the data sorted and therefore searchable? +*/
+ uint32_t length;               /*+ How long is the string of name entries? +*/
 
- Ways    *ways;                 /*+ The real data that will be memory mapped later. +*/
- char   **names;                /*+ An array of names. +*/
+ WayEx   *xdata;                /*+ The extended data for the Ways. +*/
+ char    *names;                /*+ The array containing all the names. +*/
 }
  WaysMem;
 
@@ -150,13 +158,13 @@ typedef struct _WaysMem
 WaysMem *NewWayList(void);
 
 Ways *LoadWayList(const char *filename);
-Ways *SaveWayList(WaysMem *ways,const char *filename);
+Ways *SaveWayList(WaysMem *waysmem,const char *filename);
 
-Way *FindWay(Ways *ways,way_t id);
+void DropWayList(Ways *ways);
 
-Way *AppendWay(WaysMem *ways,way_t id,const char *name);
+Way *AppendWay(WaysMem *waysmem,const char *name);
 
-void SortWayList(WaysMem *ways);
+void SortWayList(WaysMem *waysmem);
 
 Highway HighwayType(const char *highway);
 Transport TransportType(const char *transport);
@@ -171,7 +179,7 @@ const char *TransportList(void);
 
 #define IndexWay(xxx,yyy) ((yyy)-&(xxx)->ways[0])
 
-#define WayName(xxx,yyy) ((char*)&(xxx)->ways[(yyy)->name])
+#define WayName(xxx,yyy) (&(xxx)->names[(yyy)->name])
 
 
 #endif /* WAYS_H */

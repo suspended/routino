@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.18 2009-01-25 12:09:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.19 2009-01-26 18:47:23 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -55,7 +55,7 @@ NodesMem *ChooseSuperNodes(Nodes *nodes,Segments *segments,Ways *ways)
  for(i=0;i<segments->number;i++)
    {
     Segment *segment=&segments->segments[i];
-    Way *way=LookupWay(ways,segment->way);
+    Way *way=LookupWay(ways,segment->wayindex);
 
     if(segment->node1!=node)
       {
@@ -138,7 +138,7 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
 
     while(segment)
       {
-       Way *way=LookupWay(ways,segment->way);
+       Way *way=LookupWay(ways,segment->wayindex);
 
        /* Check that this type of way hasn't already been routed */
 
@@ -148,7 +148,7 @@ SegmentsMem *CreateSuperSegments(Nodes *nodes,Segments *segments,Ways *ways,Node
 
           while(othersegment && othersegment!=segment)
             {
-             Way *otherway=LookupWay(ways,othersegment->way);
+             Way *otherway=LookupWay(ways,othersegment->wayindex);
 
              if(otherway->type ==way->type  &&
                 otherway->allow==way->allow &&
@@ -231,28 +231,26 @@ WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments)
 
  for(i=0;i<supersegments->segments->number;i++)
    {
-    Way *way=LookupWay(ways,supersegments->segments->segments[i].way);
-
-    supersegments->segments->segments[i].way=0;
+    Way *way=LookupWay(ways,supersegments->segments->segments[i].wayindex);
 
     for(j=0;j<superways->number;j++)
-       if(superways->ways->ways[j].type ==way->type  &&
-          superways->ways->ways[j].allow==way->allow &&
-          superways->ways->ways[j].limit==way->limit)
+       if(superways->xdata[j].way.type ==way->type  &&
+          superways->xdata[j].way.allow==way->allow &&
+          superways->xdata[j].way.limit==way->limit)
          {
-          supersegments->segments->segments[i].way=j;
+          supersegments->segments->segments[i].wayindex=j;
           break;
          }
 
     if(j==superways->number)
       {
-       Way *newway=AppendWay(superways,superways->number+1,"Super-Way");
+       Way *newway=AppendWay(superways,"Super-Way");
 
        newway->limit=way->limit;
        newway->type =way->type;
        newway->allow=way->allow;
 
-       supersegments->segments->segments[i].way=IndexWay(superways->ways,newway);
+       supersegments->segments->segments[i].wayindex=superways->number-1;
       }
 
     if(!((i+1)%10000))

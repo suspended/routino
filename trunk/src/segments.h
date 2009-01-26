@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.16 2009-01-25 12:21:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.17 2009-01-26 18:47:23 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -76,7 +76,7 @@ typedef struct _Segment
 {
  node_t           node1;        /*+ The starting node. +*/
  node_t           node2;        /*+ The finishing node. +*/
- way_t            way;          /*+ The way associated with the segment. +*/
+ wayindex_t       wayindex;     /*+ The index of the way associated with the segment. +*/
  distance_t       distance;     /*+ The distance between the nodes. +*/
 }
  Segment;
@@ -114,15 +114,13 @@ Segments *SaveSegmentList(SegmentsMem *segments,const char *filename);
 Segment *FindFirstSegment(Segments *segments,node_t node);
 Segment *FindNextSegment(Segments *segments,Segment *segment);
 
-Segment *AppendSegment(SegmentsMem *segments,node_t node1,node_t node2,way_t way);
+Segment *AppendSegment(SegmentsMem *segments,node_t node1,node_t node2,wayindex_t wayindex);
 
 void SortSegmentList(SegmentsMem *segments);
 
 void RemoveBadSegments(SegmentsMem *segments);
 
 void FixupSegmentLengths(SegmentsMem *segments,Nodes *nodes,Ways *ways);
-
-void LinkSegmentToWay(SegmentsMem* segments,Ways *ways);
 
 distance_t Distance(Node *node1,Node *node2);
 

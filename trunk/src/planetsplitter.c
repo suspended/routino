@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.19 2009-01-25 12:09:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.20 2009-01-26 18:47:23 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -125,19 +125,11 @@ int main(int argc,char** argv)
 
     printf("\nProcessing OSM Data\n===================\n\n"); fflush(stdout);
 
-    /* Sort the variables */
+    /* Sort all the nodes */
 
     printf("Sorting All Nodes"); fflush(stdout);
     SortNodeList(OSMNodesMem);
     printf("\rSorted All Nodes \n"); fflush(stdout);
-
-    printf("Sorting Segments"); fflush(stdout);
-    SortSegmentList(OSMSegmentsMem);
-    printf("\rSorted Segments \n"); fflush(stdout);
-
-    printf("Sorting Ways"); fflush(stdout);
-    SortWayList(OSMWaysMem);
-    printf("\rSorted Ways \n"); fflush(stdout);
 
     /* Write out all the nodes */
 
@@ -145,11 +137,23 @@ int main(int argc,char** argv)
     OSMNodes=SaveNodeList(OSMNodesMem,"data/all-nodes.mem");
     printf("\rSaved All Nodes: %d\n",OSMNodes->number); fflush(stdout);
 
+    /* Sort the ways */
+
+    printf("Sorting Ways"); fflush(stdout);
+    SortWayList(OSMWaysMem);
+    printf("\rSorted Ways \n"); fflush(stdout);
+
     /* Write out the ways */
 
     printf("Saving Ways"); fflush(stdout);
     OSMWays=SaveWayList(OSMWaysMem,"data/ways.mem");
     printf("\rSaved Ways: %d\n",OSMWays->number); fflush(stdout);
+
+    /* Sort the segments */
+
+    printf("Sorting Segments"); fflush(stdout);
+    SortSegmentList(OSMSegmentsMem);
+    printf("\rSorted Segments \n"); fflush(stdout);
 
     /* Remove bad segments */
 
@@ -162,10 +166,6 @@ int main(int argc,char** argv)
     /* Fix the segment lengths */
 
     FixupSegmentLengths(OSMSegmentsMem,OSMNodes,OSMWays);
-
-    /* Link the ways to the segments */
-
-    LinkSegmentToWay(OSMSegmentsMem,OSMWays);
 
     /* Write out the segments */
 
@@ -254,7 +254,7 @@ else
 
  UnMapFile(SuperNodes);
  UnMapFile(SuperSegments);
- UnMapFile(SuperWays);
+ DropWayList(SuperWays);
 
  do
    {
@@ -329,11 +329,11 @@ else
 
     UnMapFile(SuperNodes);
     UnMapFile(SuperSegments);
-    UnMapFile(SuperWays);
+    DropWayList(SuperWays);
 
     UnMapFile(SuperNodes2);
     UnMapFile(SuperSegments2);
-    UnMapFile(SuperWays2);
+    DropWayList(SuperWays2);
 
     rename("data/super-nodes2.mem","data/super-nodes.mem");
     rename("data/super-segments2.mem","data/super-segments.mem");
@@ -343,7 +343,7 @@ else
 
  UnMapFile(OSMNodes);
  UnMapFile(OSMSegments);
- UnMapFile(OSMWays);
+ DropWayList(OSMWays);
 
  return(0);
 }
