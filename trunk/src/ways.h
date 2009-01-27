@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.17 2009-01-26 18:47:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.18 2009-01-27 18:22:37 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -27,9 +27,6 @@
 
 /* Simple Types */
 
-
-/*+ An index into the array of Ways. +*/
-typedef uint32_t wayindex_t;
 
 /*+ The speed limit of the way. +*/
 typedef uint8_t speed_t;
@@ -119,7 +116,7 @@ typedef struct _Way
 /*+ An extended structure containing a single way. +*/
 typedef struct _WayEx
 {
- wayindex_t index;              /*+ The index of the way. +*/
+ uint32_t   index;              /*+ The index of the way. +*/
  char      *name;               /*+ The name of the way. +*/
 
  Way        way;                /*+ The real Way data. +*/

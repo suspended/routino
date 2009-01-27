@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.20 2009-01-26 18:47:22 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.21 2009-01-27 18:22:37 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -42,17 +42,17 @@ int OpenFile(const char *filename);
 
 /* In optimiser.c */
 
-Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Profile *profile,int all);
-Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,Profile *profile);
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile,int all);
+Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,uint32_t start,uint32_t finish,Results *begin,Results *end,Profile *profile);
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish,Profile *profile);
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,uint32_t start,uint32_t finish,Profile *profile);
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Profile *profile);
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,Profile *profile);
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Nodes *finish,Profile *profile);
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,uint32_t finish,Profile *profile);
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Profile *profile);
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile);
 
-Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match);
+Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Nodes *finish,Way *match);
 
 
 /* Functions in supersegments.c */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.17 2009-01-26 18:47:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.18 2009-01-27 18:22:37 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -33,7 +33,6 @@
 
 
 /* Simple Types */
-
 
 /*+ A long distance, measured in metres. +*/
 typedef uint32_t distance_t;
@@ -74,31 +73,42 @@ typedef uint32_t duration_t;
 /*+ A structure containing a single segment. +*/
 typedef struct _Segment
 {
- node_t           node1;        /*+ The starting node. +*/
- node_t           node2;        /*+ The finishing node. +*/
- wayindex_t       wayindex;     /*+ The index of the way associated with the segment. +*/
- distance_t       distance;     /*+ The distance between the nodes. +*/
+ uint32_t     node1;            /*+ The index of the starting node. +*/
+ uint32_t     node2;            /*+ The index of the finishing node. +*/
+ uint32_t     wayindex;         /*+ The index of the way associated with the segment. +*/
+ distance_t   distance;         /*+ The distance between the nodes. +*/
 }
  Segment;
+
+/*+ An extended structure used for processing. +*/
+typedef struct _SegmentEx
+{
+ node_t       node1;            /*+ The starting node. +*/
+ node_t       node2;            /*+ The finishing node. +*/
+
+ Segment      segment;          /*+ The real segment data. +*/
+}
+ SegmentEx;
 
 /*+ A structure containing a set of segments (mmap format). +*/
 typedef struct _Segments
 {
- uint32_t offset[NBINS_SEGMENTS]; /*+ An offset to the first entry in each bin. +*/
  uint32_t number;               /*+ How many entries are used in total? +*/
- Segment  segments[1];          /*+ An array of segments whose size is not limited to 1
-                                    (i.e. may overflow the end of this structure). +*/
+
+ Segment *segments;             /*+ An array of segments. +*/
+
+ void    *data;                 /*+ The memory mapped data. +*/
 }
  Segments;
 
 /*+ A structure containing a set of segments (memory format). +*/
 typedef struct _SegmentsMem
 {
+ uint32_t  sorted;              /*+ Is the data sorted and therefore searchable? +*/
  uint32_t  alloced;             /*+ How many entries are allocated? +*/
  uint32_t  number;              /*+ How many entries are used? +*/
- uint32_t  sorted;              /*+ Is the data sorted and therefore searchable? +*/
 
- Segments *segments;            /*+ The real data that will be memory mapped later. +*/
+ SegmentEx *xdata;              /*+ The extended segment data. +*/
 }
  SegmentsMem;
 
@@ -109,24 +119,27 @@ typedef struct _SegmentsMem
 SegmentsMem *NewSegmentList(void);
 
 Segments *LoadSegmentList(const char *filename);
-Segments *SaveSegmentList(SegmentsMem *segments,const char *filename);
+Segments *SaveSegmentList(SegmentsMem *segmentsmem,const char *filename);
 
-Segment *FindFirstSegment(Segments *segments,node_t node);
-Segment *FindNextSegment(Segments *segments,Segment *segment);
+void DropSegmentList(Segments *segments);
 
-Segment *AppendSegment(SegmentsMem *segments,node_t node1,node_t node2,wayindex_t wayindex);
+uint32_t FindFirstSegment(SegmentsMem* segmentsem,node_t node);
 
-void SortSegmentList(SegmentsMem *segments);
+Segment *NextSegment(Segments *segments,Segment *segment);
 
-void RemoveBadSegments(SegmentsMem *segments);
+Segment *AppendSegment(SegmentsMem *segmentsmem,node_t node1,node_t node2,uint32_t wayindex);
 
-void FixupSegmentLengths(SegmentsMem *segments,Nodes *nodes,Ways *ways);
+void SortSegmentList(SegmentsMem *segmentsmem);
+
+void RemoveBadSegments(SegmentsMem *segmentsmem);
+
+void FixupSegments(SegmentsMem *segmentsmem,NodesMem *nodesmem);
 
 distance_t Distance(Node *node1,Node *node2);
 
 duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
-#define LookupSegment(xxx,yyy) (&xxx->segments[yyy])
+#define LookupSegment(xxx,yyy) (&(xxx)->segments[yyy])
 
 
 #endif /* SEGMENTS_H */
