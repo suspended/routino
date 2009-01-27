@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.9 2009-01-22 19:15:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.10 2009-01-27 18:22:37 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -21,9 +21,6 @@
 /* Constants */
 
 
-/*+ The number of bins for nodes - expect ~8,000,000 nodes and use 4*sqrt(N) bins. +*/
-#define NBINS_NODES 8192
-
 /*+ The array size increment for nodes - expect ~8,000,000 nodes. +*/
 #define INCREMENT_NODES 1024*1024
 
@@ -44,30 +41,40 @@ typedef float latlong_t;
 /*+ A structure containing a single node. +*/
 typedef struct _Node
 {
- node_t    id;                  /*+ The node identifier. +*/
- latlong_t latitude;            /*+ The node latitude. +*/
- latlong_t longitude;           /*+ The node longitude. +*/
+ uint32_t   firstseg;           /*+ The index of the first segment. +*/
+ latlong_t  latitude;           /*+ The node latitude. +*/
+ latlong_t  longitude;          /*+ The node longitude. +*/
 }
  Node;
+
+/*+ An extended structure used for processing. +*/
+typedef struct _NodeEx
+{
+ node_t    id;                  /*+ The node identifier. +*/
+
+ Node      node;                /*+ The real node data. +*/
+}
+ NodeEx;
 
 /*+ A structure containing a set of nodes (mmap format). +*/
 typedef struct _Nodes
 {
- uint32_t offset[NBINS_NODES];  /*+ An offset to the first entry in each bin. +*/
  uint32_t number;               /*+ How many entries are used in total? +*/
- Node     nodes[1];             /*+ An array of nodes whose size is not limited to 1
-                                    (i.e. may overflow the end of this structure). +*/
+
+ Node    *nodes;                /*+ An array of nodes. +*/
+
+ void    *data;                 /*+ The memory mapped data. +*/
 }
  Nodes;
 
 /*+ A structure containing a set of nodes (memory format). +*/
 typedef struct _NodesMem
 {
+ uint32_t sorted;               /*+ Is the data sorted and therefore searchable? +*/
  uint32_t alloced;              /*+ How many entries are allocated? +*/
  uint32_t number;               /*+ How many entries are used? +*/
- uint32_t sorted;               /*+ Is the data sorted and therefore searchable? +*/
 
- Nodes   *nodes;                /*+ The real data that will be memory mapped later. +*/
+ NodeEx  *xdata;                /*+ The extended node data. +*/
 }
  NodesMem;
 
@@ -80,17 +87,22 @@ typedef struct _NodesMem
 NodesMem *NewNodeList(void);
 
 Nodes *LoadNodeList(const char *filename);
-Nodes *SaveNodeList(NodesMem *nodes,const char *filename);
+Nodes *SaveNodeList(NodesMem *nodesmem,const char *filename);
 
-Node *FindNode(Nodes *nodes,node_t id);
+void DropNodeList(Nodes *nodes);
 
-Node *AppendNode(NodesMem *nodes,node_t id,latlong_t latitude,latlong_t longitude);
+uint32_t FindNode(NodesMem* nodesmem,node_t id);
 
-void SortNodeList(NodesMem *nodes);
+Node *AppendNode(NodesMem *nodesmem,node_t id,latlong_t latitude,latlong_t longitude);
 
-NodesMem *OnlyHighwayNodes(Nodes *nodes,Segments *segments);
+void SortNodeList(NodesMem *nodesmem);
 
-#define LookupNode(xxx,yyy) (&xxx->nodes[yyy])
+void RemoveNonHighwayNodes(NodesMem *nodes,SegmentsMem *segments);
 
+void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem);
+
+#define LookupNode(xxx,yyy)   (&(xxx)->nodes[yyy])
+
+#define FirstSegment(xxx,yyy) ((xxx)->nodes[yyy].firstseg)
 
 #endif /* NODES_H */

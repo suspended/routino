@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.37 2009-01-26 18:47:22 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.38 2009-01-27 18:22:37 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -38,19 +38,19 @@ int print_progress=1;
 
   Ways *ways The set of ways to use.
 
-  node_t start The start node.
+  uint32_t start The start node.
 
-  node_t finish The finish node.
+  uint32_t finish The finish node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
 
   int all A flag to indicate that a big results structure is required.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Profile *profile,int all)
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile,int all)
 {
  Results *results;
- node_t node1,node2;
+ uint32_t node1,node2;
  HalfResult shortest2,quickest2;
  HalfResult shortestfinish,quickestfinish;
  Result *result1,*result2;
@@ -91,7 +91,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
    {
     node1=result1->node;
 
-    segment=FindFirstSegment(segments,node1);
+    segment=LookupSegment(segments,FirstSegment(nodes,node1));
 
     while(segment)
       {
@@ -187,7 +187,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
       endloop:
 
-       segment=FindNextSegment(segments,segment);
+       segment=NextSegment(segments,segment);
       }
 
     if(print_progress && !(results->number%10000))
@@ -211,7 +211,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
  result2=FindResult(results,finish);
 
- if(!result2->shortest.prev)
+ if(!result2)
    {
     FreeResultsList(results);
     return(NULL);
@@ -225,7 +225,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
    {
     if(result2->shortest.prev)
       {
-       node_t node1=result2->shortest.prev;
+       uint32_t node1=result2->shortest.prev;
 
        result1=FindResult(results,node1);
 
@@ -244,7 +244,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
    {
     if(result2->quickest.prev)
       {
-       node_t node1=result2->quickest.prev;
+       uint32_t node1=result2->quickest.prev;
 
        result1=FindResult(results,node1);
 
@@ -261,6 +261,8 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 }
 
 
+#if 0
+
 /*++++++++++++++++++++++++++++++++++++++
   Find the optimum route between two nodes.
 
@@ -272,9 +274,9 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
 
   Ways *superways The set of superways to use.
 
-  node_t start The start node.
+  uint32_t start The start node.
 
-  node_t finish The finish node.
+  uint32_t finish The finish node.
 
   Results *begin The initial portion of the route.
 
@@ -283,10 +285,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,node_t start,node_t finish,Results *begin,Results *end,Profile *profile)
+Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,uint32_t start,uint32_t finish,Results *begin,Results *end,Profile *profile)
 {
  Results *results;
- node_t node1,node2;
+ uint32_t node1,node2;
  HalfResult shortest2,quickest2;
  HalfResult shortestfinish,quickestfinish;
  Result *result1,*result2,*result3;
@@ -504,7 +506,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
  result2=FindResult(results,finish);
 
- if(!result2->shortest.prev)
+ if(!result2)
    {
     FreeResultsList(results);
     return(NULL);
@@ -518,7 +520,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
    {
     if(result2->shortest.prev)
       {
-       node_t node1=result2->shortest.prev;
+       uint32_t node1=result2->shortest.prev;
 
        result1=FindResult(results,node1);
 
@@ -537,7 +539,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
    {
     if(result2->quickest.prev)
       {
-       node_t node1=result2->quickest.prev;
+       uint32_t node1=result2->quickest.prev;
 
        result1=FindResult(results,node1);
 
@@ -552,6 +554,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
  return(results);
 }
+#endif
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -567,14 +570,14 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,no
 
   Nodes *supernodes The list of super-nodes.
 
-  node_t start The start node.
+  uint32_t start The start node.
 
-  node_t finish The finish node.
+  uint32_t finish The finish node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,node_t start,node_t finish,Profile *profile)
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,uint32_t start,uint32_t finish,Profile *profile)
 {
  FILE *textfile,*gpxfile;
  Result *result;
@@ -593,7 +596,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
 
  do
    {
-    Node *node=FindNode(nodes,result->node);
+    Node *node=LookupNode(nodes,result->node);
 
     fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",node->latitude,node->longitude);
 
@@ -602,21 +605,21 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
        Segment *segment;
        Way *way;
 
-       segment=FindFirstSegment(segments,result->shortest.prev);
+       segment=LookupSegment(segments,FirstSegment(nodes,result->shortest.prev));
        while(segment->node2!=result->node)
-          segment=FindNextSegment(segments,segment);
+          segment=NextSegment(segments,segment);
 
        way=LookupWay(ways,segment->wayindex);
 
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
-               node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
+               result->node,supernodes?'*':' ',
                distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->shortest.distance),duration_to_minutes(result->shortest.duration),
                profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
     else
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
-               node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
+               result->node,supernodes?'*':' ',
                0.0,0.0,0.0,0.0);
 
     if(result->shortest.next)
@@ -647,7 +650,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
 
  do
    {
-    Node *node=FindNode(nodes,result->node);
+    Node *node=LookupNode(nodes,result->node);
 
     fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",node->latitude,node->longitude);
 
@@ -656,21 +659,21 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
        Segment *segment;
        Way *way;
 
-       segment=FindFirstSegment(segments,result->quickest.prev);
+       segment=LookupSegment(segments,FirstSegment(nodes,result->quickest.prev));
        while(segment->node2!=result->node)
-          segment=FindNextSegment(segments,segment);
+          segment=NextSegment(segments,segment);
 
        way=LookupWay(ways,segment->wayindex);
 
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
-               node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
+               result->node,supernodes?'*':' ',
                distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->quickest.distance),duration_to_minutes(result->quickest.duration),
                profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
     else
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
-               node->id,supernodes?(FindNode(supernodes,node->id)?'*':' '):' ',
+               result->node,supernodes?'*':' ',
                0.0,0.0,0.0,0.0);
 
     if(result->quickest.next)
@@ -688,6 +691,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
  fclose(gpxfile);
 }
 
+#if 0
 
 /*++++++++++++++++++++++++++++++++++++++
   Find all routes from a specified node to any node in the specified list.
@@ -700,17 +704,17 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
 
   Ways *ways The set of ways to use.
 
-  node_t start The start node.
+  uint32_t start The start node.
 
   Nodes *finish The finishing nodes.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Profile *profile)
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Nodes *finish,Profile *profile)
 {
  Results *results;
- node_t node1,node2;
+ uint32_t node1,node2;
  HalfResult shortest2,quickest2;
  Result *result1,*result2;
  Segment *segment;
@@ -837,15 +841,15 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Node
 
   Nodes *start The starting nodes.
 
-  node_t finish The finishing node.
+  uint32_t finish The finishing node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,node_t finish,Profile *profile)
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,uint32_t finish,Profile *profile)
 {
  Results *results;
- node_t node1,node2;
+ uint32_t node1,node2;
  HalfResult shortest2,quickest2;
  Result *result1,*result2;
  Segment *segment;
@@ -883,7 +887,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
        /* Reverse the segment and check it exists */
 
-       node_t reversenode;
+       uint32_t reversenode;
        Segment *reversesegment;
 
        reversenode=segment->node2;
@@ -986,14 +990,14 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *sta
 
   Ways *ways The list of ways.
 
-  node_t start The start node.
+  uint32_t start The start node.
 
-  node_t finish The finish node.
+  uint32_t finish The finish node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,node_t start,node_t finish,Profile *profile)
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile)
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
@@ -1130,17 +1134,17 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 
   Ways *ways The set of ways to use.
 
-  node_t start The start node.
+  uint32_t start The start node.
 
   Nodes *finish The finishing nodes.
 
   Way *match The way that the route must match.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,Nodes *finish,Way *match)
+Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Nodes *finish,Way *match)
 {
  Results *results;
- node_t node1,node2;
+ uint32_t node1,node2;
  HalfResult shortest2;
  Result *result1,*result2;
  Segment *segment;
@@ -1219,3 +1223,5 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,node_t start,N
 
  return(results);
 }
+
+#endif

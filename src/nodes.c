@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.10 2009-01-22 19:15:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.11 2009-01-27 18:22:37 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -13,6 +13,7 @@
 
 
 #include <assert.h>
+#include <unistd.h>
 #include <stdlib.h>
 
 #include "functions.h"
@@ -21,7 +22,7 @@
 
 /* Functions */
 
-static int sort_by_id(Node *a,Node *b);
+static int sort_by_id(NodeEx *a,NodeEx *b);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -32,17 +33,17 @@ static int sort_by_id(Node *a,Node *b);
 
 NodesMem *NewNodeList(void)
 {
- NodesMem *nodes;
+ NodesMem *nodesmem;
 
- nodes=(NodesMem*)malloc(sizeof(NodesMem));
+ nodesmem=(NodesMem*)malloc(sizeof(NodesMem));
 
- nodes->alloced=INCREMENT_NODES;
- nodes->number=0;
- nodes->sorted=0;
+ nodesmem->alloced=INCREMENT_NODES;
+ nodesmem->number=0;
+ nodesmem->sorted=0;
 
- nodes->nodes=(Nodes*)malloc(sizeof(Nodes)+nodes->alloced*sizeof(Node));
+ nodesmem->xdata=(NodeEx*)malloc(nodesmem->alloced*sizeof(NodeEx));
 
- return(nodes);
+ return(nodesmem);
 }
 
 
@@ -56,7 +57,23 @@ NodesMem *NewNodeList(void)
 
 Nodes *LoadNodeList(const char *filename)
 {
- return((Nodes*)MapFile(filename));
+ void *data;
+ Nodes *nodes;
+
+ nodes=(Nodes*)malloc(sizeof(Nodes));
+
+ data=MapFile(filename);
+
+ /* Copy the Nodes structure from the loaded data */
+
+ *nodes=*((Nodes*)data);
+
+ /* Adjust the pointers in the Nodes structure. */
+
+ nodes->data =data;
+ nodes->nodes=(Node*)(data+(off_t)nodes->nodes);
+
+ return(nodes);
 }
 
 
@@ -65,40 +82,84 @@ Nodes *LoadNodeList(const char *filename)
 
   Nodes* SaveNodeList Returns the node list that has just been saved.
 
-  NodesMem* nodes The set of nodes to save.
+  NodesMem* nodesmem The set of nodes to save.
 
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Nodes *SaveNodeList(NodesMem* nodes,const char *filename)
+Nodes *SaveNodeList(NodesMem* nodesmem,const char *filename)
 {
- assert(nodes->sorted);        /* Must be sorted */
+ int i;
+ int fd;
+ Nodes *nodes=calloc(1,sizeof(Nodes));
 
- if(WriteFile(filename,(void*)nodes->nodes,sizeof(Nodes)-sizeof(nodes->nodes->nodes)+nodes->number*sizeof(Node)))
-    assert(0);
+ assert(nodesmem->sorted);      /* Must be sorted */
 
- free(nodes->nodes);
+ /* Fill in a Nodes structure with the offset of the real data in the file after
+    the Node structure itself. */
+
+ nodes->number=nodesmem->number;
+ nodes->data=NULL;
+ nodes->nodes=(void*)sizeof(Nodes);
+
+ /* Write out the Nodes structure and then the real data. */
+
+ fd=OpenFile(filename);
+
+ write(fd,nodes,sizeof(Nodes));
+
+ for(i=0;i<nodesmem->number;i++)
+   {
+    if(nodesmem->xdata[i].id==10319449)
+       printf("10319449 -> %d\n",i);
+
+    if(nodesmem->xdata[i].id==30810456)
+       printf("30810456 -> %d\n",i);
+
+    write(fd,&nodesmem->xdata[i].node,sizeof(Node));
+   }
+
+ close(fd);
+
+ /* Free the fake Nodes and the input NodesMem */
+
  free(nodes);
+
+ free(nodesmem->xdata);
+ free(nodesmem);
 
  return(LoadNodeList(filename));
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Delete a node list that was loaded from a file.
+
+  Nodes* nodes The node list.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void DropNodeList(Nodes *nodes)
+{
+ UnMapFile(nodes->data);
+
+ free(nodes);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Find a particular node.
 
-  Node *FindNode Returns a pointer to the node with the specified id.
+  uint32_t FindNode Returns the index of the node with the specified id.
 
-  Nodes* nodes The set of nodes to process.
+  NodesMem* nodesmem The set of nodes to process.
 
   node_t id The node id to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Node *FindNode(Nodes* nodes,node_t id)
+uint32_t FindNode(NodesMem* nodesmem,node_t id)
 {
- int bin=id%NBINS_NODES;
- int start=nodes->offset[bin];
- int end=nodes->offset[bin+1]-1; /* &offset[NBINS+1] == &number */
+ int start=0;
+ int end=nodesmem->number-1;
  int mid;
 
  /* Binary search - search key exact match only is required.
@@ -112,35 +173,35 @@ Node *FindNode(Nodes* nodes,node_t id)
   *  # <- end    |  start or end is the wanted one.
   */
 
- if(end<start)                      /* There are no nodes */
-    return(NULL);
- else if(id<nodes->nodes[start].id) /* Check key is not before start */
-    return(NULL);
- else if(id>nodes->nodes[end].id)   /* Check key is not after end */
-    return(NULL);
+ if(end<start)                         /* There are no nodes */
+    return(~0);
+ else if(id<nodesmem->xdata[start].id) /* Check key is not before start */
+    return(~0);
+ else if(id>nodesmem->xdata[end].id)   /* Check key is not after end */
+    return(~0);
  else
    {
     do
       {
-       mid=(start+end)/2;               /* Choose mid point */
+       mid=(start+end)/2;                  /* Choose mid point */
 
-       if(nodes->nodes[mid].id<id)      /* Mid point is too low */
+       if(nodesmem->xdata[mid].id<id)      /* Mid point is too low */
           start=mid+1;
-       else if(nodes->nodes[mid].id>id) /* Mid point is too high */
+       else if(nodesmem->xdata[mid].id>id) /* Mid point is too high */
           end=mid-1;
-       else                             /* Mid point is correct */
-          return(&nodes->nodes[mid]);
+       else                                /* Mid point is correct */
+          return(mid);
       }
     while((end-start)>1);
 
-    if(nodes->nodes[start].id==id)      /* Start is correct */
-       return(&nodes->nodes[start]);
+    if(nodesmem->xdata[start].id==id)      /* Start is correct */
+       return(start);
 
-    if(nodes->nodes[end].id==id)        /* End is correct */
-       return(&nodes->nodes[end]);
+    if(nodesmem->xdata[end].id==id)        /* End is correct */
+       return(end);
    }
 
- return(NULL);
+ return(~0);
 }
 
 
@@ -149,7 +210,7 @@ Node *FindNode(Nodes* nodes,node_t id)
 
   Node *AppendNode Return a pointer to the new node.
 
-  NodesMem* nodes The set of nodes to process.
+  NodesMem* nodesmem The set of nodes to process.
 
   node_t id The node identification.
 
@@ -158,58 +219,45 @@ Node *FindNode(Nodes* nodes,node_t id)
   latlong_t longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Node *AppendNode(NodesMem* nodes,node_t id,latlong_t latitude,latlong_t longitude)
+Node *AppendNode(NodesMem* nodesmem,node_t id,latlong_t latitude,latlong_t longitude)
 {
  /* Check that the array has enough space. */
 
- if(nodes->number==nodes->alloced)
+ if(nodesmem->number==nodesmem->alloced)
    {
-    nodes->alloced+=INCREMENT_NODES;
+    nodesmem->alloced+=INCREMENT_NODES;
 
-    nodes->nodes=(Nodes*)realloc((void*)nodes->nodes,sizeof(Nodes)+nodes->alloced*sizeof(Node));
+    nodesmem->xdata=(NodeEx*)realloc((void*)nodesmem->xdata,nodesmem->alloced*sizeof(NodeEx));
    }
 
  /* Insert the node */
 
- nodes->nodes->nodes[nodes->number].id=id;
- nodes->nodes->nodes[nodes->number].latitude=latitude;
- nodes->nodes->nodes[nodes->number].longitude=longitude;
+ nodesmem->xdata[nodesmem->number].id=id;
+ nodesmem->xdata[nodesmem->number].node.latitude=latitude;
+ nodesmem->xdata[nodesmem->number].node.longitude=longitude;
 
- nodes->number++;
+ nodesmem->number++;
 
- nodes->sorted=0;
+ nodesmem->sorted=0;
 
- return(&nodes->nodes->nodes[nodes->number-1]);
+ return(&nodesmem->xdata[nodesmem->number-1].node);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Sort the node list.
 
-  NodesMem* nodes The set of nodes to process.
+  NodesMem* nodesmem The set of nodes to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortNodeList(NodesMem* nodes)
+void SortNodeList(NodesMem* nodesmem)
 {
- int i,bin=0;
+ qsort(nodesmem->xdata,nodesmem->number,sizeof(NodeEx),(int (*)(const void*,const void*))sort_by_id);
 
- qsort(nodes->nodes->nodes,nodes->number,sizeof(Node),(int (*)(const void*,const void*))sort_by_id);
+ while(nodesmem->xdata[nodesmem->number-1].id==~0)
+    nodesmem->number--;
 
- while(nodes->nodes->nodes[nodes->number-1].id==~0)
-    nodes->number--;
-
- nodes->sorted=1;
-
- /* Make it searchable */
-
- nodes->nodes->number=nodes->number;
-
- for(i=0;i<nodes->number;i++)
-    for(;bin<=(nodes->nodes->nodes[i].id%NBINS_NODES);bin++)
-       nodes->nodes->offset[bin]=i;
-
- for(;bin<NBINS_NODES;bin++)
-    nodes->nodes->offset[bin]=nodes->number;
+ nodesmem->sorted=1;
 }
 
 
@@ -218,60 +266,45 @@ void SortNodeList(NodesMem* nodes)
 
   int sort_by_id Returns the comparison of the id fields.
 
-  Node *a The first Node.
+  NodeEx *a The first Node.
 
-  Node *b The second Node.
+  NodeEx *b The second Node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_id(Node *a,Node *b)
+static int sort_by_id(NodeEx *a,NodeEx *b)
 {
  node_t a_id=a->id;
  node_t b_id=b->id;
 
- int a_bin=a->id%NBINS_NODES;
- int b_bin=b->id%NBINS_NODES;
-
- if(a_bin!=b_bin)
-    return(a_bin-b_bin);
-
  if(a_id<b_id)
     return(-1);
- else if(a_id>b_id)
+ else
     return(1);
- else /* if(a_id==b_id) */
-    return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Remove any nodes that are not part of a way.
+  Remove any nodes that are not part of a highway.
 
-  NodesMem *OnlyHighwayNodes Returns the list of highway nodes.
+  NodesMem *nodesmem The complete node list.
 
-  Nodes *nodes The complete node list.
-
-  Segments *segments The list of segments.
+  SegmentsMem *segmentsmem The list of segments.
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodesMem *OnlyHighwayNodes(Nodes *nodes,Segments *segments)
+void RemoveNonHighwayNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem)
 {
- NodesMem *nodesmem;
  int i;
  int highway=0,nothighway=0;
 
- nodesmem=NewNodeList();
-
- for(i=0;i<nodes->number;i++)
+ for(i=0;i<nodesmem->number;i++)
    {
-    Node *node=LookupNode(nodes,i);
-
-    if(FindFirstSegment(segments,node->id))
+    if(FindFirstSegment(segmentsmem,nodesmem->xdata[i].id)==~0)
       {
-       highway++;
-       AppendNode(nodesmem,node->id,node->latitude,node->longitude);
+       nodesmem->xdata[i].id=~0;
+       nothighway++;
       }
     else
-       nothighway++;
+       highway++;
 
     if(!((i+1)%10000))
       {
@@ -280,8 +313,38 @@ NodesMem *OnlyHighwayNodes(Nodes *nodes,Segments *segments)
       }
    }
 
- printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",i,highway,nothighway);
+ printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",nodesmem->number,highway,nothighway);
  fflush(stdout);
+}
 
- return(nodesmem);
+
+/*++++++++++++++++++++++++++++++++++++++
+  Fix the node indexes to the segments.
+
+  NodesMem* nodesmem The set of nodes to process.
+
+  SegmentsMem *segmentsmem The list of segments to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem)
+{
+ int i;
+
+ assert(nodesmem->sorted);      /* Must be sorted */
+
+ for(i=0;i<nodesmem->number;i++)
+   {
+    uint32_t firstseg=FindFirstSegment(segmentsmem,nodesmem->xdata[i].id);
+
+    nodesmem->xdata[i].node.firstseg=firstseg;
+
+    if(!((i+1)%10000))
+      {
+       printf("\rFixing Nodes: Nodes=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rFixing Nodes: Nodes=%d \n",nodesmem->number);
+ fflush(stdout);
 }

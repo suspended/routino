@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.19 2009-01-26 18:47:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.20 2009-01-27 18:22:37 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -21,7 +21,7 @@
 #include "segments.h"
 #include "functions.h"
 
-
+#if 0
 /*++++++++++++++++++++++++++++++++++++++
   Select the super-segments from the list of segments.
 
@@ -265,3 +265,4 @@ WaysMem *CreateSuperWays(Ways *ways,SegmentsMem *supersegments)
 
  return(superways);
 }
+#endif

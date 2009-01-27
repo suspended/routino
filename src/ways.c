@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.16 2009-01-26 18:47:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.17 2009-01-27 18:22:37 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -249,8 +249,8 @@ void SortWayList(WaysMem* waysmem)
 
 static int sort_by_index(WayEx *a,WayEx *b)
 {
- wayindex_t a_index=a->index;
- wayindex_t b_index=b->index;
+ uint32_t a_index=a->index;
+ uint32_t b_index=b->index;
 
  if(a_index<b_index)
     return(-1);
