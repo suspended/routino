@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.11 2009-01-27 18:22:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.12 2009-01-28 18:46:55 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -80,14 +80,12 @@ Nodes *LoadNodeList(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Save the node list to a file.
 
-  Nodes* SaveNodeList Returns the node list that has just been saved.
-
   NodesMem* nodesmem The set of nodes to save.
 
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Nodes *SaveNodeList(NodesMem* nodesmem,const char *filename)
+void SaveNodeList(NodesMem* nodesmem,const char *filename)
 {
  int i;
  int fd;
@@ -121,26 +119,7 @@ Nodes *SaveNodeList(NodesMem* nodesmem,const char *filename)
 
  close(fd);
 
- /* Free the fake Nodes and the input NodesMem */
-
- free(nodes);
-
- free(nodesmem->xdata);
- free(nodesmem);
-
- return(LoadNodeList(filename));
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Delete a node list that was loaded from a file.
-
-  Nodes* nodes The node list.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void DropNodeList(Nodes *nodes)
-{
- UnMapFile(nodes->data);
+ /* Free the fake Nodes */
 
  free(nodes);
 }
@@ -149,14 +128,14 @@ void DropNodeList(Nodes *nodes)
 /*++++++++++++++++++++++++++++++++++++++
   Find a particular node.
 
-  uint32_t FindNode Returns the index of the node with the specified id.
+  NodeEx *FindNode Returns the extended node with the specified id.
 
   NodesMem* nodesmem The set of nodes to process.
 
   node_t id The node id to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-uint32_t FindNode(NodesMem* nodesmem,node_t id)
+NodeEx *FindNode(NodesMem* nodesmem,node_t id)
 {
  int start=0;
  int end=nodesmem->number-1;
@@ -174,11 +153,11 @@ uint32_t FindNode(NodesMem* nodesmem,node_t id)
   */
 
  if(end<start)                         /* There are no nodes */
-    return(~0);
+    return(NULL);
  else if(id<nodesmem->xdata[start].id) /* Check key is not before start */
-    return(~0);
+    return(NULL);
  else if(id>nodesmem->xdata[end].id)   /* Check key is not after end */
-    return(~0);
+    return(NULL);
  else
    {
     do
@@ -190,25 +169,25 @@ uint32_t FindNode(NodesMem* nodesmem,node_t id)
        else if(nodesmem->xdata[mid].id>id) /* Mid point is too high */
           end=mid-1;
        else                                /* Mid point is correct */
-          return(mid);
+          return(LookupNodeEx(nodesmem,mid));
       }
     while((end-start)>1);
 
     if(nodesmem->xdata[start].id==id)      /* Start is correct */
-       return(start);
+       return(LookupNodeEx(nodesmem,start));
 
     if(nodesmem->xdata[end].id==id)        /* End is correct */
-       return(end);
+       return(LookupNodeEx(nodesmem,end));
    }
 
- return(~0);
+ return(NULL);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Append a node to a newly created node list (unsorted).
 
-  Node *AppendNode Return a pointer to the new node.
+  NodeEx *AppendNode Return a pointer to the new extended node.
 
   NodesMem* nodesmem The set of nodes to process.
 
@@ -219,7 +198,7 @@ uint32_t FindNode(NodesMem* nodesmem,node_t id)
   latlong_t longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Node *AppendNode(NodesMem* nodesmem,node_t id,latlong_t latitude,latlong_t longitude)
+NodeEx *AppendNode(NodesMem* nodesmem,node_t id,latlong_t latitude,latlong_t longitude)
 {
  /* Check that the array has enough space. */
 
@@ -233,6 +212,7 @@ Node *AppendNode(NodesMem* nodesmem,node_t id,latlong_t latitude,latlong_t longi
  /* Insert the node */
 
  nodesmem->xdata[nodesmem->number].id=id;
+ nodesmem->xdata[nodesmem->number].super=0;
  nodesmem->xdata[nodesmem->number].node.latitude=latitude;
  nodesmem->xdata[nodesmem->number].node.longitude=longitude;
 
@@ -240,7 +220,7 @@ Node *AppendNode(NodesMem* nodesmem,node_t id,latlong_t latitude,latlong_t longi
 
  nodesmem->sorted=0;
 
- return(&nodesmem->xdata[nodesmem->number-1].node);
+ return(&nodesmem->xdata[nodesmem->number-1]);
 }
 
 
@@ -298,13 +278,13 @@ void RemoveNonHighwayNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem)
 
  for(i=0;i<nodesmem->number;i++)
    {
-    if(FindFirstSegment(segmentsmem,nodesmem->xdata[i].id)==~0)
+    if(FindFirstSegment(segmentsmem,nodesmem->xdata[i].id))
+       highway++;
+    else
       {
        nodesmem->xdata[i].id=~0;
        nothighway++;
       }
-    else
-       highway++;
 
     if(!((i+1)%10000))
       {
@@ -334,9 +314,9 @@ void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem)
 
  for(i=0;i<nodesmem->number;i++)
    {
-    uint32_t firstseg=FindFirstSegment(segmentsmem,nodesmem->xdata[i].id);
+    SegmentEx *firstseg=FindFirstSegment(segmentsmem,nodesmem->xdata[i].id);
 
-    nodesmem->xdata[i].node.firstseg=firstseg;
+    nodesmem->xdata[i].node.firstseg=IndexSegmentEx(segmentsmem,firstseg);
 
     if(!((i+1)%10000))
       {

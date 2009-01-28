@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.18 2009-01-27 18:22:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.19 2009-01-28 18:46:55 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -155,11 +155,9 @@ typedef struct _WaysMem
 WaysMem *NewWayList(void);
 
 Ways *LoadWayList(const char *filename);
-Ways *SaveWayList(WaysMem *waysmem,const char *filename);
+void SaveWayList(WaysMem *waysmem,const char *filename);
 
-void DropWayList(Ways *ways);
-
-Way *AppendWay(WaysMem *waysmem,const char *name);
+WayEx *AppendWay(WaysMem *waysmem,const char *name);
 
 void SortWayList(WaysMem *waysmem);
 
@@ -172,9 +170,13 @@ const char *TransportName(Transport transport);
 const char *HighwayList(void);
 const char *TransportList(void);
 
-#define LookupWay(xxx,yyy) (&(xxx)->ways[yyy])
+#define LookupWay(xxx,yyy)   (&(xxx)->ways[yyy])
 
-#define IndexWay(xxx,yyy) ((yyy)-&(xxx)->ways[0])
+#define LookupWayEx(xxx,yyy) (&(xxx)->xdata[yyy])
+
+#define IndexWay(xxx,yyy)    ((yyy)-&(xxx)->ways[0])
+
+#define IndexWayEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
 
 #define WayName(xxx,yyy) (&(xxx)->names[(yyy)->name])
 

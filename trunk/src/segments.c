@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.21 2009-01-27 18:22:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.22 2009-01-28 18:46:55 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -82,14 +82,12 @@ Segments *LoadSegmentList(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Save the segment list to a file.
 
-  Segments* SaveSegmentList Returns the segment list that has just been saved.
-
   SegmentsMem* segmentsmem The set of segments to save.
 
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segments *SaveSegmentList(SegmentsMem* segmentsmem,const char *filename)
+void SaveSegmentList(SegmentsMem* segmentsmem,const char *filename)
 {
  int i;
  int fd;
@@ -115,26 +113,7 @@ Segments *SaveSegmentList(SegmentsMem* segmentsmem,const char *filename)
 
  close(fd);
 
- /* Free the fake Segments and the input SegmentsMem */
-
- free(segments);
-
- free(segmentsmem->xdata);
- free(segmentsmem);
-
- return(LoadSegmentList(filename));
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Delete a segment list that was loaded from a file.
-
-  Segment* segments The segment list.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void DropSegmentList(Segments *segments)
-{
- UnMapFile(segments->data);
+ /* Free the fake Segments */
 
  free(segments);
 }
@@ -143,14 +122,14 @@ void DropSegmentList(Segments *segments)
 /*++++++++++++++++++++++++++++++++++++++
   Find the first segment with a particular starting node.
 
-  uint32_t FindFirstSegment Returns the index of the first segment with the specified id.
+  SegmentEx *FindFirstSegment Returns the first extended segment with the specified id.
 
   SegmentsMem* segmentsmem The set of segments to process.
 
   node_t node The node to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-uint32_t FindFirstSegment(SegmentsMem* segmentsmem,node_t node)
+SegmentEx *FindFirstSegment(SegmentsMem* segmentsmem,node_t node)
 {
  int start=0;
  int end=segmentsmem->number-1;
@@ -169,11 +148,11 @@ uint32_t FindFirstSegment(SegmentsMem* segmentsmem,node_t node)
   */
 
  if(end<start)                                 /* There are no nodes */
-    return(~0);
+    return(NULL);
  else if(node<segmentsmem->xdata[start].node1) /* Check key is not before start */
-    return(~0);
+    return(NULL);
  else if(node>segmentsmem->xdata[end].node1)   /* Check key is not after end */
-    return(~0);
+    return(NULL);
  else
    {
     do
@@ -196,17 +175,41 @@ uint32_t FindFirstSegment(SegmentsMem* segmentsmem,node_t node)
          {found=end; goto found;}
    }
 
- return(~0);
+ return(NULL);
 
  found:
 
  while(found>0 && segmentsmem->xdata[found-1].node1==node)
     found--;
 
- return(found);
+ return(&segmentsmem->xdata[found]);
 }
 
 
+/*++++++++++++++++++++++++++++++++++++++
+  Find the next segment with a particular starting node.
+
+  SegmentEx *NextSegment Returns a pointer to the next segment with the same id.
+
+  SegmentsMem* segments The set of segments to process.
+
+  SegmentEx *segmentex The current segment.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+SegmentEx *FindNextSegment(SegmentsMem* segmentsmem,SegmentEx *segmentex)
+{
+ SegmentEx *next=segmentex+1;
+
+ if(IndexSegmentEx(segmentsmem,next)==segmentsmem->number)
+    return(NULL);
+
+ if(next->node1==segmentex->node1)
+    return(next);
+
+ return(NULL);
+}
+ 
+ 
 /*++++++++++++++++++++++++++++++++++++++
   Find the next segment with a particular starting node.
 
@@ -221,20 +224,20 @@ Segment *NextSegment(Segments* segments,Segment *segment)
 {
  Segment *next=segment+1;
 
- if((next-segments->segments)==segments->number)
+ if(IndexSegment(segments,next)==segments->number)
     return(NULL);
 
  if(next->node1==segment->node1)
     return(next);
 
  return(NULL);
- }
+}
  
  
 /*++++++++++++++++++++++++++++++++++++++
   Append a segment to a newly created segment list (unsorted).
 
-  Segment *AppendSegment Returns the appended segment.
+  SegmentEx *AppendSegment Returns the appended segment.
 
   SegmentsMem* segmentsmem The set of segments to process.
 
@@ -245,7 +248,7 @@ Segment *NextSegment(Segments* segments,Segment *segment)
   uint32_t wayindex The index of the way that the pair of segments are connected by.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segment *AppendSegment(SegmentsMem* segmentsmem,node_t node1,node_t node2,uint32_t wayindex)
+SegmentEx *AppendSegment(SegmentsMem* segmentsmem,node_t node1,node_t node2,uint32_t wayindex)
 {
  /* Check that the array has enough space. */
 
@@ -260,6 +263,7 @@ Segment *AppendSegment(SegmentsMem* segmentsmem,node_t node1,node_t node2,uint32
 
  segmentsmem->xdata[segmentsmem->number].node1=node1;
  segmentsmem->xdata[segmentsmem->number].node2=node2;
+ segmentsmem->xdata[segmentsmem->number].super=0;
  segmentsmem->xdata[segmentsmem->number].segment.wayindex=wayindex;
  segmentsmem->xdata[segmentsmem->number].segment.distance=0;
 
@@ -267,7 +271,7 @@ Segment *AppendSegment(SegmentsMem* segmentsmem,node_t node1,node_t node2,uint32
 
  segmentsmem->sorted=0;
 
- return(&segmentsmem->xdata[segmentsmem->number-1].segment);
+ return(&segmentsmem->xdata[segmentsmem->number-1]);
 }
 
 
@@ -358,7 +362,42 @@ void RemoveBadSegments(SegmentsMem *segmentsmem)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Fix the segment indexes to the nodes and assign the distance to all of the segments.
+  Measure the segments.
+
+  SegmentsMem* segmentsmem The set of segments to process.
+
+  NodesMem *nodesmem The list of nodes to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void MeasureSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem)
+{
+ int i;
+
+ assert(segmentsmem->sorted);   /* Must be sorted */
+
+ for(i=0;i<segmentsmem->number;i++)
+   {
+    NodeEx *node1=FindNode(nodesmem,segmentsmem->xdata[i].node1);
+    NodeEx *node2=FindNode(nodesmem,segmentsmem->xdata[i].node2);
+
+    /* Set the distance but preserve the ONEWAY_OPPOSITE flag */
+
+    segmentsmem->xdata[i].segment.distance|=Distance(&node1->node,&node2->node);
+
+    if(!((i+1)%10000))
+      {
+       printf("\rMeasuring Segments: Segments=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rMeasured Segments: Segments=%d \n",segmentsmem->number);
+ fflush(stdout);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Fix the segment indexes to the nodes.
 
   SegmentsMem* segmentsmem The set of segments to process.
 
@@ -373,15 +412,11 @@ void FixupSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem)
 
  for(i=0;i<segmentsmem->number;i++)
    {
-    uint32_t node1=FindNode(nodesmem,segmentsmem->xdata[i].node1);
-    uint32_t node2=FindNode(nodesmem,segmentsmem->xdata[i].node2);
+    NodeEx *node1=FindNode(nodesmem,segmentsmem->xdata[i].node1);
+    NodeEx *node2=FindNode(nodesmem,segmentsmem->xdata[i].node2);
 
-    segmentsmem->xdata[i].segment.node1=node1;
-    segmentsmem->xdata[i].segment.node2=node2;
-
-    /* Set the distance but preserve the ONEWAY_OPPOSITE flag */
-
-    segmentsmem->xdata[i].segment.distance|=Distance(&nodesmem->xdata[node1].node,&nodesmem->xdata[node2].node);
+    segmentsmem->xdata[i].segment.node1=IndexNodeEx(nodesmem,node1);
+    segmentsmem->xdata[i].segment.node2=IndexNodeEx(nodesmem,node2);
 
     if(!((i+1)%10000))
       {

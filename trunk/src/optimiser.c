@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.38 2009-01-27 18:22:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.39 2009-01-28 18:46:55 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -1122,33 +1122,36 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
  return(combined);
 }
 
+#endif
+
 
 /*++++++++++++++++++++++++++++++++++++++
   Find all routes from a specified node to any node in the specified list that follows a certain type of way.
 
   Results *FindRoutesWay Returns a set of results.
 
-  Nodes *nodes The set of nodes to use.
+  NodesMem *nodesmem The set of nodes to use.
 
-  Segments *segments The set of segments to use.
+  SegmentsMem *segmentsmem The set of segments to use.
 
-  Ways *ways The set of ways to use.
+  WaysMem *waysmem The set of ways to use.
 
-  uint32_t start The start node.
+  node_t start The start node.
 
-  Nodes *finish The finishing nodes.
+  WayEx *match The way that the route must match.
 
-  Way *match The way that the route must match.
+  int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Nodes *finish,Way *match)
+Results *FindRoutesWay(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysmem,node_t start,WayEx *match,int iteration)
 {
  Results *results;
  uint32_t node1,node2;
  HalfResult shortest2;
  Result *result1,*result2;
- Segment *segment;
- Way *way;
+ NodeEx *nodeex;
+ SegmentEx *segmentex;
+ WayEx *wayex;
 
  /* Insert the first node into the queue */
 
@@ -1169,26 +1172,29 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start
    {
     node1=result1->node;
 
-    segment=FindFirstSegment(segments,node1);
+    segmentex=FindFirstSegment(segmentsmem,node1);
 
-    while(segment)
+    while(segmentex)
       {
-       if(segment->distance&ONEWAY_OPPOSITE)
+       if(segmentex->super<iteration)
           goto endloop;
 
-       node2=segment->node2;
+       if(segmentex->segment.distance&ONEWAY_OPPOSITE)
+          goto endloop;
+
+       node2=segmentex->node2;
 
        if(result1->shortest.prev==node2)
           goto endloop;
 
-       way=LookupWay(ways,segment->wayindex);
+       wayex=LookupWayEx(waysmem,segmentex->segment.wayindex);
 
-       if(way->type !=match->type  ||
-          way->allow!=match->allow ||
-          way->limit!=match->limit)
+       if(wayex->way.type !=match->way.type  ||
+          wayex->way.allow!=match->way.allow ||
+          wayex->way.limit!=match->way.limit)
           goto endloop;
 
-       shortest2.distance=result1->shortest.distance+DISTANCE(segment->distance);
+       shortest2.distance=result1->shortest.distance+DISTANCE(segmentex->segment.distance);
 
        result2=FindResult(results,node2);
 
@@ -1200,7 +1206,9 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start
           result2->shortest.next=0;
           result2->shortest.distance=shortest2.distance;
 
-          if(!FindNode(finish,node2))
+          nodeex=FindNode(nodesmem,node2);
+
+          if(nodeex->super<=iteration)
              insert_in_queue(result2);
          }
        else
@@ -1210,18 +1218,18 @@ Results *FindRoutesWay(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start
              result2->shortest.prev=node1;
              result2->shortest.distance=shortest2.distance;
 
-             if(!FindNode(finish,node2))
+             nodeex=FindNode(nodesmem,node2);
+
+             if(nodeex->super<=iteration)
                 insert_in_queue(result2);
             }
          }
 
       endloop:
 
-       segment=FindNextSegment(segments,segment);
+       segmentex=FindNextSegment(segmentsmem,segmentex);
       }
    }
 
  return(results);
 }
-
-#endif

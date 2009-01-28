@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.17 2009-01-27 18:22:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.18 2009-01-28 18:46:55 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -84,14 +84,12 @@ Ways *LoadWayList(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Save the way list to a file.
 
-  Ways* SaveWayList Returns the way list that has just been saved.
-
   WaysMem* waysmem The set of ways to save.
 
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Ways *SaveWayList(WaysMem* waysmem,const char *filename)
+void SaveWayList(WaysMem* waysmem,const char *filename)
 {
  int i;
  int fd;
@@ -120,30 +118,7 @@ Ways *SaveWayList(WaysMem* waysmem,const char *filename)
 
  close(fd);
 
- /* Free the fake Ways and the input WaysMem */
-
- free(ways);
-
- for(i=0;i<waysmem->number;i++)
-    free(waysmem->xdata[i].name);
-
- free(waysmem->xdata);
- free(waysmem->names);
- free(waysmem);
-
- return(LoadWayList(filename));
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Delete a way list that was loaded from a file.
-
-  Ways* ways The way list.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void DropWayList(Ways *ways)
-{
- UnMapFile(ways->data);
+ /* Free the fake Ways */
 
  free(ways);
 }
@@ -152,14 +127,14 @@ void DropWayList(Ways *ways)
 /*++++++++++++++++++++++++++++++++++++++
   Append a way to a newly created way list (unsorted).
 
-  Way *AppendWay Returns the newly appended way.
+  WayEx *AppendWay Returns the newly appended way.
 
   WaysMem* waysmem The set of ways to process.
 
   const char *name The name or reference of the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Way *AppendWay(WaysMem* waysmem,const char *name)
+WayEx *AppendWay(WaysMem* waysmem,const char *name)
 {
  assert(!waysmem->sorted);      /* Must not be sorted */
 
@@ -182,7 +157,7 @@ Way *AppendWay(WaysMem* waysmem,const char *name)
 
  waysmem->number++;
 
- return(&waysmem->xdata[waysmem->number-1].way);
+ return(&waysmem->xdata[waysmem->number-1]);
 }
 
 

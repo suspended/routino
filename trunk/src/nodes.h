@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.10 2009-01-27 18:22:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.11 2009-01-28 18:46:55 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -51,6 +51,7 @@ typedef struct _Node
 typedef struct _NodeEx
 {
  node_t    id;                  /*+ The node identifier. +*/
+ int       super;               /*+ A marker for super nodes. +*/
 
  Node      node;                /*+ The real node data. +*/
 }
@@ -87,13 +88,11 @@ typedef struct _NodesMem
 NodesMem *NewNodeList(void);
 
 Nodes *LoadNodeList(const char *filename);
-Nodes *SaveNodeList(NodesMem *nodesmem,const char *filename);
+void SaveNodeList(NodesMem *nodesmem,const char *filename);
 
-void DropNodeList(Nodes *nodes);
+NodeEx *FindNode(NodesMem* nodesmem,node_t id);
 
-uint32_t FindNode(NodesMem* nodesmem,node_t id);
-
-Node *AppendNode(NodesMem *nodesmem,node_t id,latlong_t latitude,latlong_t longitude);
+NodeEx *AppendNode(NodesMem *nodesmem,node_t id,latlong_t latitude,latlong_t longitude);
 
 void SortNodeList(NodesMem *nodesmem);
 
@@ -103,6 +102,13 @@ void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem);
 
 #define LookupNode(xxx,yyy)   (&(xxx)->nodes[yyy])
 
+#define LookupNodeEx(xxx,yyy) (&(xxx)->xdata[yyy])
+
+#define IndexNode(xxx,yyy)    ((yyy)-&(xxx)->nodes[0])
+
+#define IndexNodeEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
+
 #define FirstSegment(xxx,yyy) ((xxx)->nodes[yyy].firstseg)
+
 
 #endif /* NODES_H */
