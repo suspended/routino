@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.21 2009-01-26 18:47:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.22 2009-01-28 18:46:55 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -158,7 +158,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
 
           if(allow&profile->allow && profile->highways[HIGHWAY(type)])
             {
-             Way *way;
+             WayEx *wayex;
              char *refname;
              int i;
 
@@ -184,19 +184,19 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
              else /* if(!way_ref && !way_name && !way_roundabout) */
                 refname=way_highway;
 
-             way=AppendWay(OSMWays,refname);
+             wayex=AppendWay(OSMWays,refname);
 
-             way->limit=way_maxspeed;
+             wayex->way.limit=way_maxspeed;
 
-             way->type=type;
+             wayex->way.type=type;
 
-             way->allow=allow;
+             wayex->way.allow=allow;
 
              if(way_oneway)
-                way->type|=Way_OneWay;
+                wayex->way.type|=Way_OneWay;
 
              if(way_roundabout)
-                way->type|=Way_Roundabout;
+                wayex->way.type|=Way_Roundabout;
 
              if(refname!=way_ref && refname!=way_name && refname!=way_highway)
                 free(refname);
@@ -205,14 +205,14 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
                {
                 node_t from=way_nodes[i-1];
                 node_t to  =way_nodes[i];
-                Segment *segment;
+                SegmentEx *segmentex;
 
-                segment=AppendSegment(OSMSegments,from,to,OSMWays->number-1);
+                segmentex=AppendSegment(OSMSegments,from,to,OSMWays->number-1);
 
-                segment=AppendSegment(OSMSegments,to,from,OSMWays->number-1);
+                segmentex=AppendSegment(OSMSegments,to,from,OSMWays->number-1);
 
                 if(way_oneway)
-                   segment->distance=ONEWAY_OPPOSITE;
+                   segmentex->segment.distance=ONEWAY_OPPOSITE;
                }
             }
          }

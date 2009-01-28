@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.18 2009-01-27 18:22:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.19 2009-01-28 18:46:55 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -85,6 +85,7 @@ typedef struct _SegmentEx
 {
  node_t       node1;            /*+ The starting node. +*/
  node_t       node2;            /*+ The finishing node. +*/
+ int          super;            /*+ A marker for super segments. +*/
 
  Segment      segment;          /*+ The real segment data. +*/
 }
@@ -119,27 +120,33 @@ typedef struct _SegmentsMem
 SegmentsMem *NewSegmentList(void);
 
 Segments *LoadSegmentList(const char *filename);
-Segments *SaveSegmentList(SegmentsMem *segmentsmem,const char *filename);
+void SaveSegmentList(SegmentsMem *segmentsmem,const char *filename);
 
-void DropSegmentList(Segments *segments);
-
-uint32_t FindFirstSegment(SegmentsMem* segmentsem,node_t node);
+SegmentEx *FindFirstSegment(SegmentsMem* segmentsem,node_t node);
+SegmentEx *FindNextSegment(SegmentsMem* segmentsem,SegmentEx *segmentex);
 
 Segment *NextSegment(Segments *segments,Segment *segment);
 
-Segment *AppendSegment(SegmentsMem *segmentsmem,node_t node1,node_t node2,uint32_t wayindex);
+SegmentEx *AppendSegment(SegmentsMem *segmentsmem,node_t node1,node_t node2,uint32_t wayindex);
 
 void SortSegmentList(SegmentsMem *segmentsmem);
 
 void RemoveBadSegments(SegmentsMem *segmentsmem);
 
+void MeasureSegments(SegmentsMem *segmentsmem,NodesMem *nodesmem);
 void FixupSegments(SegmentsMem *segmentsmem,NodesMem *nodesmem);
 
 distance_t Distance(Node *node1,Node *node2);
 
 duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
-#define LookupSegment(xxx,yyy) (&(xxx)->segments[yyy])
+#define LookupSegment(xxx,yyy)   (&(xxx)->segments[yyy])
+
+#define LookupSegmentEx(xxx,yyy) (&(xxx)->xdata[yyy])
+
+#define IndexSegment(xxx,yyy)    ((yyy)-&(xxx)->segments[0])
+
+#define IndexSegmentEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
 
 
 #endif /* SEGMENTS_H */
