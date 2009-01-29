@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.11 2009-01-28 18:46:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.12 2009-01-29 19:31:52 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -23,6 +23,9 @@
 
 /*+ The array size increment for nodes - expect ~8,000,000 nodes. +*/
 #define INCREMENT_NODES 1024*1024
+
+/*+ A flag to mark super-nodes. +*/
+#define SUPER_NODE 0x80000000
 
 
 /* Simple Types */
@@ -98,17 +101,21 @@ void SortNodeList(NodesMem *nodesmem);
 
 void RemoveNonHighwayNodes(NodesMem *nodes,SegmentsMem *segments);
 
-void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem);
+void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem,int iteration);
 
 #define LookupNode(xxx,yyy)   (&(xxx)->nodes[yyy])
 
-#define LookupNodeEx(xxx,yyy) (&(xxx)->xdata[yyy])
+#define LookupNodeEx(xxx,yyy) (&(xxx)->xdata[(yyy)&(~SUPER_NODE)])
 
 #define IndexNode(xxx,yyy)    ((yyy)-&(xxx)->nodes[0])
 
 #define IndexNodeEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
 
-#define FirstSegment(xxx,yyy) ((xxx)->nodes[yyy].firstseg)
+#define FirstSegment(xxx,yyy) (((xxx)->nodes[yyy].firstseg)&(~SUPER_NODE))
+
+#define IsSuperNode(xxx)      (((xxx)->firstseg)&SUPER_NODE)
+
+#define NODE(xxx)             ((xxx)&(~SUPER_NODE))
 
 
 #endif /* NODES_H */

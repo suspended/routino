@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.39 2009-01-28 18:46:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.40 2009-01-29 19:31:52 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -97,10 +97,15 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uin
       {
        duration_t segment_duration;
 
+       if(all && IsSuperSegment(segment))
+          goto endloop;
+
+       //       printf("%d -> %d\n",segment->xnode1,segment->xnode2);
+
        if(segment->distance&ONEWAY_OPPOSITE && profile->oneway)
           goto endloop;
 
-       node2=segment->node2;
+       node2=NODE(segment->node2);
 
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
@@ -568,8 +573,6 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,ui
 
   Ways *ways The list of ways.
 
-  Nodes *supernodes The list of super-nodes.
-
   uint32_t start The start node.
 
   uint32_t finish The finish node.
@@ -577,7 +580,7 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,ui
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Nodes *supernodes,uint32_t start,uint32_t finish,Profile *profile)
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile)
 {
  FILE *textfile,*gpxfile;
  Result *result;
@@ -612,14 +615,14 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
        way=LookupWay(ways,segment->wayindex);
 
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
-               result->node,supernodes?'*':' ',
+               result->node,IsSuperNode(node)?'*':' ',
                distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->shortest.distance),duration_to_minutes(result->shortest.duration),
                profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
     else
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
-               result->node,supernodes?'*':' ',
+               result->node,IsSuperNode(node)?'*':' ',
                0.0,0.0,0.0,0.0);
 
     if(result->shortest.next)
@@ -666,14 +669,14 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Node
        way=LookupWay(ways,segment->wayindex);
 
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
-               result->node,supernodes?'*':' ',
+               result->node,IsSuperNode(node)?'*':' ',
                distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->quickest.distance),duration_to_minutes(result->quickest.duration),
                profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
     else
        fprintf(textfile,"%8.4f %9.4f %10d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
-               result->node,supernodes?'*':' ',
+               result->node,IsSuperNode(node)?'*':' ',
                0.0,0.0,0.0,0.0);
 
     if(result->quickest.next)
@@ -1176,9 +1179,6 @@ Results *FindRoutesWay(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *ways
 
     while(segmentex)
       {
-       if(segmentex->super<iteration)
-          goto endloop;
-
        if(segmentex->segment.distance&ONEWAY_OPPOSITE)
           goto endloop;
 
