@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.22 2009-01-28 18:46:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.23 2009-01-29 19:31:52 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -46,6 +46,19 @@ SegmentsMem *NewSegmentList(void)
  segmentsmem->xdata=(SegmentEx*)malloc(segmentsmem->alloced*sizeof(SegmentEx));
 
  return(segmentsmem);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Free a segment list.
+
+  SegmentsMem *segmentsmem The list to be freed.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FreeSegmentList(SegmentsMem *segmentsmem)
+{
+ free(segmentsmem->xdata);
+ free(segmentsmem);
 }
 
 
@@ -227,7 +240,7 @@ Segment *NextSegment(Segments* segments,Segment *segment)
  if(IndexSegment(segments,next)==segments->number)
     return(NULL);
 
- if(next->node1==segment->node1)
+ if(NODE(next->node1)==NODE(segment->node1))
     return(next);
 
  return(NULL);
@@ -263,7 +276,6 @@ SegmentEx *AppendSegment(SegmentsMem* segmentsmem,node_t node1,node_t node2,uint
 
  segmentsmem->xdata[segmentsmem->number].node1=node1;
  segmentsmem->xdata[segmentsmem->number].node2=node2;
- segmentsmem->xdata[segmentsmem->number].super=0;
  segmentsmem->xdata[segmentsmem->number].segment.wayindex=wayindex;
  segmentsmem->xdata[segmentsmem->number].segment.distance=0;
 
@@ -402,13 +414,16 @@ void MeasureSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem)
   SegmentsMem* segmentsmem The set of segments to process.
 
   NodesMem *nodesmem The list of nodes to use.
+
+  SegmentsMem* supersegmentsmem The set of super-segments to append.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FixupSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem)
+void FixupSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem,SegmentsMem* supersegmentsmem)
 {
- int i;
+ int i,j,n;
 
  assert(segmentsmem->sorted);   /* Must be sorted */
+ assert(supersegmentsmem->sorted);   /* Must be sorted */
 
  for(i=0;i<segmentsmem->number;i++)
    {
@@ -425,7 +440,86 @@ void FixupSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem)
       }
    }
 
- printf("\rFixing Segments: Segments=%d \n",segmentsmem->number);
+ printf("\rFixed Segments: Segments=%d \n",segmentsmem->number);
+ fflush(stdout);
+
+ for(i=0;i<supersegmentsmem->number;i++)
+   {
+    NodeEx *node1=FindNode(nodesmem,supersegmentsmem->xdata[i].node1);
+    NodeEx *node2=FindNode(nodesmem,supersegmentsmem->xdata[i].node2);
+
+    supersegmentsmem->xdata[i].segment.node1=IndexNodeEx(nodesmem,node1)|SUPER_SEGMENT;
+    supersegmentsmem->xdata[i].segment.node2=IndexNodeEx(nodesmem,node2)|SUPER_SEGMENT;
+
+    if(!((i+1)%10000))
+      {
+       printf("\rFixing Super-Segments: Super-Segments=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rFixed Super-Segments: Super-Segments=%d \n",supersegmentsmem->number);
+ fflush(stdout);
+
+ n=segmentsmem->number;
+
+ for(i=0,j=0;i<n;i++)
+   {
+    //    printf("segment %d %d\n",segmentsmem->xdata[i].node1,segmentsmem->xdata[i].node2);
+
+    while(j<supersegmentsmem->number)
+      {
+       //       printf("supersegment %d %d\n",supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2);
+
+       if(segmentsmem->xdata[i].node1==supersegmentsmem->xdata[j].node1 &&
+          segmentsmem->xdata[i].node2==supersegmentsmem->xdata[j].node2)
+         {
+          //printf("%d %d\n",supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2);
+          //printf("skipped segment %d -> %d\n",segmentsmem->xdata[i].node1,segmentsmem->xdata[i].node2);
+          j++;
+          break;
+         }
+       else if(segmentsmem->xdata[i].node1==supersegmentsmem->xdata[j].node1 &&
+               segmentsmem->xdata[i].node2>supersegmentsmem->xdata[j].node2)
+         {
+          SegmentEx *supersegmentex=AppendSegment(segmentsmem,supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2,supersegmentsmem->xdata[j].segment.wayindex);
+
+          //printf("%d %d\n",supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2);
+          //printf("append1 %d segment %d -> %d\n",j,supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2);
+
+          supersegmentex->segment.node1=supersegmentsmem->xdata[j].segment.node1;
+          supersegmentex->segment.node2=supersegmentsmem->xdata[j].segment.node2;
+         }
+       else if(segmentsmem->xdata[i].node1>supersegmentsmem->xdata[j].node1)
+         {
+          SegmentEx *supersegmentex=AppendSegment(segmentsmem,supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2,supersegmentsmem->xdata[j].segment.wayindex);
+
+          //printf("%d %d\n",supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2);
+          //printf("append2 %d segment %d -> %d\n",j,supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2);
+
+          supersegmentex->segment.node1=supersegmentsmem->xdata[j].segment.node1;
+          supersegmentex->segment.node2=supersegmentsmem->xdata[j].segment.node2;
+         }
+       else
+          break;
+
+       j++;
+      }
+
+    if(!((i+1)%10000))
+      {
+       printf("\rMerging Segments: Segments=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ for(i=0;i<segmentsmem->number;i++)
+   {
+    segmentsmem->xdata[i].segment.xnode1=segmentsmem->xdata[i].node1;
+    segmentsmem->xdata[i].segment.xnode2=segmentsmem->xdata[i].node2;
+   }
+
+ printf("\rMerged Segments: Segments=%d \n",segmentsmem->number);
  fflush(stdout);
 }
 
@@ -481,7 +575,7 @@ distance_t Distance(Node *node1,Node *node2)
 duration_t Duration(Segment *segment,Way *way,Profile *profile)
 {
  speed_t    speed=profile->speed[HIGHWAY(way->type)];
- distance_t distance=segment->distance;
+ distance_t distance=DISTANCE(segment->distance);
 
  return distance_speed_to_duration(distance,speed);
 }

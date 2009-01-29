@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.19 2009-01-28 18:46:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.20 2009-01-29 19:31:52 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -25,11 +25,11 @@
 /* Constants */
 
 
-/*+ The number of bins for segments - expect ~8,000,000 segments and use 4*sqrt(N) bins. +*/
-#define NBINS_SEGMENTS 8192
-
 /*+ The array size increment for segments - expect ~8,000,000 segments. +*/
 #define INCREMENT_SEGMENTS 1024*1024
+
+/*+ A flag to mark super-segments. +*/
+#define SUPER_SEGMENT 0x80000000
 
 
 /* Simple Types */
@@ -77,6 +77,9 @@ typedef struct _Segment
  uint32_t     node2;            /*+ The index of the finishing node. +*/
  uint32_t     wayindex;         /*+ The index of the way associated with the segment. +*/
  distance_t   distance;         /*+ The distance between the nodes. +*/
+
+ node_t       xnode1;            /*+ The starting node. +*/
+ node_t       xnode2;            /*+ The finishing node. +*/
 }
  Segment;
 
@@ -85,7 +88,6 @@ typedef struct _SegmentEx
 {
  node_t       node1;            /*+ The starting node. +*/
  node_t       node2;            /*+ The finishing node. +*/
- int          super;            /*+ A marker for super segments. +*/
 
  Segment      segment;          /*+ The real segment data. +*/
 }
@@ -118,6 +120,7 @@ typedef struct _SegmentsMem
 
 
 SegmentsMem *NewSegmentList(void);
+void FreeSegmentList(SegmentsMem *segmentsmem);
 
 Segments *LoadSegmentList(const char *filename);
 void SaveSegmentList(SegmentsMem *segmentsmem,const char *filename);
@@ -134,7 +137,7 @@ void SortSegmentList(SegmentsMem *segmentsmem);
 void RemoveBadSegments(SegmentsMem *segmentsmem);
 
 void MeasureSegments(SegmentsMem *segmentsmem,NodesMem *nodesmem);
-void FixupSegments(SegmentsMem *segmentsmem,NodesMem *nodesmem);
+void FixupSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem,SegmentsMem* supersegmentsmem);
 
 distance_t Distance(Node *node1,Node *node2);
 
@@ -148,5 +151,6 @@ duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
 #define IndexSegmentEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
 
+#define IsSuperSegment(xxx)      (((xxx)->node1)&SUPER_SEGMENT)
 
 #endif /* SEGMENTS_H */

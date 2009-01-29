@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.20 2009-01-27 18:22:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.21 2009-01-29 19:31:52 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -168,7 +168,7 @@ int main(int argc,char** argv)
        return(1);
       }
     else if(!no_print)
-       PrintRoute(results,OSMNodes,OSMSegments,OSMWays,NULL,start,finish,&profile);
+       PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
    }
  else
    {

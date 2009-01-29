@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.22 2009-01-28 18:46:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.23 2009-01-29 19:31:52 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -26,7 +26,7 @@
 int main(int argc,char** argv)
 {
  NodesMem *OSMNodesMem;
- SegmentsMem *OSMSegmentsMem;
+ SegmentsMem *OSMSegmentsMem,*SuperSegmentsMem;
  WaysMem *OSMWaysMem;
  int iteration=0,quit=0;
  int help_profile=0,max_iterations=5;
@@ -148,19 +148,46 @@ int main(int argc,char** argv)
    {
     printf("\nProcessing Super-Data (iteration %d)\n===================================%s\n\n",iteration,iteration>10?"=":""); fflush(stdout);
 
-    /* Select the super-nodes */
+    if(iteration==0)
+      {
+       /* Select the super-nodes */
 
-    ChooseSuperNodes(OSMNodesMem,OSMSegmentsMem,OSMWaysMem,iteration);
+       ChooseSuperNodes(OSMNodesMem,OSMSegmentsMem,OSMWaysMem,iteration);
 
-    /* Select the super-segments */
+       /* Select the super-segments */
 
-    CreateSuperSegments(OSMNodesMem,OSMSegmentsMem,OSMWaysMem,iteration);
+       SuperSegmentsMem=CreateSuperSegments(OSMNodesMem,OSMSegmentsMem,OSMWaysMem,iteration);
+      }
+    else
+      {
+       SegmentsMem *SuperSegmentsMem2;
+
+       /* Select the super-nodes */
+
+       ChooseSuperNodes(OSMNodesMem,SuperSegmentsMem,OSMWaysMem,iteration);
+
+       /* Select the super-segments */
+
+       SuperSegmentsMem2=CreateSuperSegments(OSMNodesMem,SuperSegmentsMem,OSMWaysMem,iteration);
+
+       FreeSegmentList(SuperSegmentsMem);
+
+       SuperSegmentsMem=SuperSegmentsMem2;
+      }
 
     /* Sort the super-segments */
 
     printf("Sorting Super-Segments"); fflush(stdout);
-    SortSegmentList(OSMSegmentsMem);
+    SortSegmentList(SuperSegmentsMem);
     printf("\rSorted Super-Segments \n"); fflush(stdout);
+
+//    if(iteration==5)
+//       for(i=0;i<SuperSegmentsMem->number;i++)
+//          printf("%d %d\n",SuperSegmentsMem->xdata[i].node1,SuperSegmentsMem->xdata[i].node2);
+
+//    if(iteration==5)
+//       for(i=0;i<OSMSegmentsMem->number;i++)
+//          printf("%d %d\n",OSMSegmentsMem->xdata[i].node1,OSMSegmentsMem->xdata[i].node2);
 
     iteration++;
 
@@ -170,13 +197,24 @@ int main(int argc,char** argv)
  while(!quit);
 
 
- /* Fix the segment indexes */
-
- FixupNodes(OSMNodesMem,OSMSegmentsMem);
-
  /* Fix the node indexes */
 
- FixupSegments(OSMSegmentsMem,OSMNodesMem);
+ FixupSegments(OSMSegmentsMem,OSMNodesMem,SuperSegmentsMem);
+
+ FreeSegmentList(SuperSegmentsMem);
+
+ /* Sort the segments */
+
+ printf("Sorting Segments"); fflush(stdout);
+ SortSegmentList(OSMSegmentsMem);
+ printf("\rSorted Segments \n"); fflush(stdout);
+
+// for(i=0;i<OSMSegmentsMem->number;i++)
+//    printf("%d %d %d\n",OSMSegmentsMem->xdata[i].node1,OSMSegmentsMem->xdata[i].node2,IsSuperSegment(&OSMSegmentsMem->xdata[i].segment));
+
+ /* Fix the segment indexes */
+
+ FixupNodes(OSMNodesMem,OSMSegmentsMem,iteration);
 
  /* Write out the nodes */
 

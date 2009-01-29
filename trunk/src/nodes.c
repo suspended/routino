@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.12 2009-01-28 18:46:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.13 2009-01-29 19:31:52 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -109,10 +109,16 @@ void SaveNodeList(NodesMem* nodesmem,const char *filename)
  for(i=0;i<nodesmem->number;i++)
    {
     if(nodesmem->xdata[i].id==10319449)
-       printf("10319449 -> %d\n",i);
+       printf("\n10319449 -> %d\n",i);
 
     if(nodesmem->xdata[i].id==30810456)
-       printf("30810456 -> %d\n",i);
+       printf("\n30810456 -> %d\n",i);
+
+    if(nodesmem->xdata[i].id==21734658)
+       printf("\n21734658 -> %d\n",i);
+
+    if(nodesmem->xdata[i].id==206231001)
+       printf("\n206231001 -> %d\n",i);
 
     write(fd,&nodesmem->xdata[i].node,sizeof(Node));
    }
@@ -304,9 +310,11 @@ void RemoveNonHighwayNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem)
   NodesMem* nodesmem The set of nodes to process.
 
   SegmentsMem *segmentsmem The list of segments to use.
+
+  int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem)
+void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem,int iteration)
 {
  int i;
 
@@ -318,6 +326,9 @@ void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem)
 
     nodesmem->xdata[i].node.firstseg=IndexSegmentEx(segmentsmem,firstseg);
 
+    if(nodesmem->xdata[i].super==iteration)
+       nodesmem->xdata[i].node.firstseg|=SUPER_NODE;
+
     if(!((i+1)%10000))
       {
        printf("\rFixing Nodes: Nodes=%d",i+1);
@@ -325,6 +336,6 @@ void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem)
       }
    }
 
- printf("\rFixing Nodes: Nodes=%d \n",nodesmem->number);
+ printf("\rFixed Nodes: Nodes=%d \n",nodesmem->number);
  fflush(stdout);
 }

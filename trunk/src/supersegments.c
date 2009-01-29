@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.21 2009-01-28 18:46:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.22 2009-01-29 19:31:52 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -52,43 +52,40 @@ void ChooseSuperNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysm
     SegmentEx *segmentex=LookupSegmentEx(segmentsmem,i);
     WayEx *wayex=LookupWayEx(waysmem,segmentex->segment.wayindex);
 
-    if(segmentex->super==iteration)
+    if(segmentex->node1!=node)
       {
-       if(segmentex->node1!=node)
+       /* Store the node if there is a difference in the ways that could affect routing.
+          Store the node if it is not a dead-end and if it isn't just the middle of a way. */
+
+       if(difference || segcount>2)
          {
-          /* Store the node if there is a difference in the ways that could affect routing.
-             Store the node if it is not a dead-end and if it isn't just the middle of a way. */
+          NodeEx *nodeex=FindNode(nodesmem,node);
 
-          if(difference || segcount>2)
-            {
-             NodeEx *nodeex=FindNode(nodesmem,node);
+          nodeex->super++;
 
-             nodeex->super++;
-
-             nnodes++;
-            }
-
-          segcount=1;
-          difference=0;
-
-          node=segmentex->node1;
-          type=wayex->way.type;
-          limit=wayex->way.limit;
-          allow=wayex->way.allow;
+          nnodes++;
          }
-       else                        /* Same starting node */
-         {
-          if(wayex->way.type!=type)
-             difference=1;
 
-          if(wayex->way.limit!=limit)
-             difference=1;
+       segcount=1;
+       difference=0;
 
-          if(wayex->way.allow!=allow)
-             difference=1;
+       node=segmentex->node1;
+       type=wayex->way.type;
+       limit=wayex->way.limit;
+       allow=wayex->way.allow;
+      }
+    else                        /* Same starting node */
+      {
+       if(wayex->way.type!=type)
+          difference=1;
 
-          segcount+=1;
-         }
+       if(wayex->way.limit!=limit)
+          difference=1;
+
+       if(wayex->way.allow!=allow)
+          difference=1;
+
+       segcount+=1;
       }
 
     if(!((i+1)%10000))
@@ -106,6 +103,8 @@ void ChooseSuperNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysm
 /*++++++++++++++++++++++++++++++++++++++
   Create the super-segments.
 
+  SegmentsMem *CreateSuperSegments Creates the super segments.
+
   NodesMem *nodesmem The nodes.
 
   SegmentsMem *segmentsmem The segments.
@@ -115,7 +114,7 @@ void ChooseSuperNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysm
   int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void CreateSuperSegments(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysmem,int iteration)
+SegmentsMem *CreateSuperSegments(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysmem,int iteration)
 {
  int i;
  SegmentsMem *supersegmentsmem;
@@ -193,7 +192,7 @@ void CreateSuperSegments(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *wa
          }
       }
 
-    if(!((i+1)%1000))
+    if(!((i+1)%10000))
       {
        printf("\rCreating Super-Segments: Nodes=%d Super-Segments=%d",i+1,supersegmentsmem->number);
        fflush(stdout);
@@ -205,11 +204,5 @@ void CreateSuperSegments(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *wa
 
  /* Append the new supersegments onto the segments. */
 
- for(i=0;i<supersegmentsmem->number;i++)
-   {
-    SegmentEx *segmentex=AppendSegment(segmentsmem,0,0,0);
-
-    *segmentex=supersegmentsmem->xdata[i];
-    segmentex->super=iteration+1;
-   }
+ return(supersegmentsmem);
 }
