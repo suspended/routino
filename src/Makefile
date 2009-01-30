@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.11 2009-01-28 18:46:55 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.12 2009-01-30 19:56:35 amb Exp $
 #
 # Makefile
 #
@@ -26,7 +26,7 @@ LDFLAGS=-pg -static -lm -lc
 # Compilation targets
 
 C=$(wildcard *.c)
-D=$(foreach f,$(C),$(addsuffix .d,$(basename $f)))
+D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
 
 ########
 
@@ -58,10 +58,10 @@ router : $(ROUTER_OBJ)
 ########
 
 %.o : %.c
-	$(CC) -c $(CFLAGS) $< -o $@ -MMD -MP -MF $(addsuffix .d,$(basename $<))
+	$(CC) -c $(CFLAGS) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
 
 %.s : %.c
-	$(CC) -S $(CFLAGS) $< -o $@ -MMD -MP -MF $(addsuffix .d,$(basename $<))
+	$(CC) -S $(CFLAGS) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
 
 ########
 
@@ -76,10 +76,14 @@ clean:
 distclean: clean
 	-rm -f $(EXE)
 	-rm -f $(D)
+	-rm -f .deps
 
 ########
 
-$(D) : .FORCE
+.deps : .FORCE
+	[ -d .deps ] || mkdir $@
+
+$(D) : .deps .FORCE
 	@touch $@
 
 include $(D)
