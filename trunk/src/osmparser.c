@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.22 2009-01-28 18:46:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.23 2009-01-30 19:55:50 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -147,6 +147,9 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
              break;
             case Way_Footway:
              allow=Allow_Foot;
+             break;
+            default:
+             allow=0;
              break;
             }
 

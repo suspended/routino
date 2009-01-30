@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.23 2009-01-29 19:31:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.24 2009-01-30 19:56:59 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -26,7 +26,7 @@
 int main(int argc,char** argv)
 {
  NodesMem *OSMNodesMem;
- SegmentsMem *OSMSegmentsMem,*SuperSegmentsMem;
+ SegmentsMem *OSMSegmentsMem,*SuperSegmentsMem=NULL;
  WaysMem *OSMWaysMem;
  int iteration=0,quit=0;
  int help_profile=0,max_iterations=5;
@@ -181,14 +181,6 @@ int main(int argc,char** argv)
     SortSegmentList(SuperSegmentsMem);
     printf("\rSorted Super-Segments \n"); fflush(stdout);
 
-//    if(iteration==5)
-//       for(i=0;i<SuperSegmentsMem->number;i++)
-//          printf("%d %d\n",SuperSegmentsMem->xdata[i].node1,SuperSegmentsMem->xdata[i].node2);
-
-//    if(iteration==5)
-//       for(i=0;i<OSMSegmentsMem->number;i++)
-//          printf("%d %d\n",OSMSegmentsMem->xdata[i].node1,OSMSegmentsMem->xdata[i].node2);
-
     iteration++;
 
     if(iteration>max_iterations)
@@ -208,9 +200,6 @@ int main(int argc,char** argv)
  printf("Sorting Segments"); fflush(stdout);
  SortSegmentList(OSMSegmentsMem);
  printf("\rSorted Segments \n"); fflush(stdout);
-
-// for(i=0;i<OSMSegmentsMem->number;i++)
-//    printf("%d %d %d\n",OSMSegmentsMem->xdata[i].node1,OSMSegmentsMem->xdata[i].node2,IsSuperSegment(&OSMSegmentsMem->xdata[i].segment));
 
  /* Fix the segment indexes */
 

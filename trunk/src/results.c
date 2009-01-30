@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.5 2009-01-24 16:21:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.6 2009-01-30 19:57:09 amb Exp $
 
  Result data type functions.
  ******************/ /******************
@@ -285,7 +285,7 @@ Result *FirstResult(Results *results)
 Result *NextResult(Results *results,Result *result)
 {
  int c=(results->number-1)/(results->nbins*RESULTS_INCREMENT);
- int i,j;
+ int i,j=0;
 
  for(i=0;i<=c;i++)
    {
