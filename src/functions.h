@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.23 2009-01-29 19:31:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.24 2009-01-31 14:53:28 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -47,8 +47,8 @@ Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,ui
 
 void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile);
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Nodes *finish,Profile *profile);
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,Nodes *start,uint32_t finish,Profile *profile);
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Profile *profile);
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t finish,Profile *profile);
 
 Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile);
 

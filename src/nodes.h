@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.12 2009-01-29 19:31:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.13 2009-01-31 14:53:28 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -111,7 +111,7 @@ void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem,int iteration);
 
 #define IndexNodeEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
 
-#define FirstSegment(xxx,yyy) (((xxx)->nodes[yyy].firstseg)&(~SUPER_NODE))
+#define FirstSegment(xxx,yyy) LookupSegment((xxx),SEGMENT((yyy)->firstseg))
 
 #define IsSuperNode(xxx)      (((xxx)->firstseg)&SUPER_NODE)
 

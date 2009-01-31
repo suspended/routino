@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.22 2009-01-31 14:11:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.23 2009-01-31 14:53:29 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -25,12 +25,12 @@
 
 int main(int argc,char** argv)
 {
- Nodes    *OSMNodes,*SuperNodes;
- Segments *OSMSegments,*SuperSegments;
- Ways     *OSMWays,*SuperWays;
+ Nodes    *OSMNodes;
+ Segments *OSMSegments;
+ Ways     *OSMWays;
  node_t    start,finish;
  int       help_profile=0,all=0,only_super=0,no_print=0;
- char *dirname=NULL,*prefix=NULL,*filename;
+ char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
  Profile   profile;
  int i;
@@ -149,20 +149,16 @@ int main(int argc,char** argv)
 
  /* Load in the data */
 
+ filename=(char*)malloc((dirname?strlen(dirname):0)+(prefix?strlen(prefix):0)+16);
+
  sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  OSMNodes=LoadNodeList(filename);
- sprintf(filename,"%s%s%s%ssuper-nodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- SuperNodes=LoadNodeList(filename);
 
  sprintf(filename,"%s%s%s%ssegments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  OSMSegments=LoadSegmentList(filename);
- sprintf(filename,"%s%s%s%ssuper-segments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- SuperSegments=LoadSegmentList(filename);
 
  sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  OSMWays=LoadWayList(filename);
- sprintf(filename,"%s%s%s%ssuper-ways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- SuperWays=LoadWayList(filename);
 
  if(all)
    {
@@ -186,11 +182,9 @@ int main(int argc,char** argv)
    {
     Results *begin,*end;
 
-#if 0
-
     /* Calculate the beginning of the route */
 
-    if(FindNode(SuperNodes,start))
+    if(IsSuperNode(LookupNode(OSMNodes,start)))
       {
        Result *result;
 
@@ -209,14 +203,14 @@ int main(int argc,char** argv)
        result->quickest.duration=0;
       }
     else
-       begin=FindRoutes(OSMNodes,OSMSegments,OSMWays,start,SuperNodes,&profile);
+       begin=FindRoutes(OSMNodes,OSMSegments,OSMWays,start,&profile);
 
     if(FindResult(begin,finish))
       {
        /* Print the route */
 
        if(!no_print)
-          PrintRoute(begin,OSMNodes,OSMSegments,OSMWays,NULL,start,finish,&profile);
+          PrintRoute(begin,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
       }
     else
       {
@@ -224,7 +218,7 @@ int main(int argc,char** argv)
 
        /* Calculate the end of the route */
 
-       if(FindNode(SuperNodes,finish))
+       if(IsSuperNode(LookupNode(OSMNodes,finish)))
          {
           Result *result;
 
@@ -243,11 +237,11 @@ int main(int argc,char** argv)
           result->quickest.duration=0;
          }
        else
-          end=FindReverseRoutes(OSMNodes,OSMSegments,OSMWays,SuperNodes,finish,&profile);
+          end=FindReverseRoutes(OSMNodes,OSMSegments,OSMWays,finish,&profile);
 
        /* Calculate the middle of the route */
 
-       superresults=FindRoute3(SuperNodes,SuperSegments,SuperWays,start,finish,begin,end,&profile);
+       superresults=FindRoute3(OSMNodes,OSMSegments,OSMWays,start,finish,begin,end,&profile);
 
        /* Print the route */
 
@@ -260,18 +254,16 @@ int main(int argc,char** argv)
          {
           if(only_super)
             {
-             PrintRoute(superresults,SuperNodes,SuperSegments,SuperWays,NULL,start,finish,&profile);
+             PrintRoute(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
             }
           else
             {
              Results *results=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
 
-             PrintRoute(results,OSMNodes,OSMSegments,OSMWays,SuperNodes,start,finish,&profile);
+             PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
             }
          }
       }
-
-#endif
    }
 
  return(0);

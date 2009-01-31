@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.20 2009-01-29 19:31:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.21 2009-01-31 14:53:29 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -77,9 +77,6 @@ typedef struct _Segment
  uint32_t     node2;            /*+ The index of the finishing node. +*/
  uint32_t     wayindex;         /*+ The index of the way associated with the segment. +*/
  distance_t   distance;         /*+ The distance between the nodes. +*/
-
- node_t       xnode1;            /*+ The starting node. +*/
- node_t       xnode2;            /*+ The finishing node. +*/
 }
  Segment;
 
@@ -151,6 +148,11 @@ duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
 #define IndexSegmentEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
 
-#define IsSuperSegment(xxx)      (((xxx)->node1)&SUPER_SEGMENT)
+#define IsNormalSegment(xxx)     (((xxx)->node1)&SUPER_SEGMENT)
+
+#define IsSuperSegment(xxx)      (((xxx)->node2)&SUPER_SEGMENT)
+
+#define SEGMENT(xxx)             ((xxx)&(~SUPER_SEGMENT))
+
 
 #endif /* SEGMENTS_H */
