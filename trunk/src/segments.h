@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.21 2009-01-31 14:53:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.22 2009-01-31 15:32:42 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -17,68 +17,13 @@
 
 #include <stdint.h>
 
+#include "types.h"
 #include "nodes.h"
-#include "ways.h"
 #include "profiles.h"
-
-
-/* Constants */
-
-
-/*+ The array size increment for segments - expect ~8,000,000 segments. +*/
-#define INCREMENT_SEGMENTS 1024*1024
-
-/*+ A flag to mark super-segments. +*/
-#define SUPER_SEGMENT 0x80000000
-
-
-/* Simple Types */
-
-/*+ A long distance, measured in metres. +*/
-typedef uint32_t distance_t;
-
-/*+ A duration, measured in 1/10th seconds. +*/
-typedef uint32_t duration_t;
-
-
-/*+ A flag to mark a distance as only applying for the other direction. +*/
-#define ONEWAY_OPPOSITE (distance_t)(0x80000000)
-
-/*+ The real distance ignoring the ONEWAY_OPPOSITE flag. +*/
-#define DISTANCE(xx)  (distance_t)((xx)&(~ONEWAY_OPPOSITE))
-
-
-/*+ Conversion from distance_t to kilometres. +*/
-#define distance_to_km(xx) ((double)(xx)/1000.0)
-
-/*+ Conversion from metres to distance_t. +*/
-#define km_to_distance(xx) ((distance_t)((double)(xx)*1000.0))
-
-/*+ Conversion from duration_t to minutes. +*/
-#define duration_to_minutes(xx) ((double)(xx)/600.0)
-
-/*+ Conversion from duration_t to hours. +*/
-#define duration_to_hours(xx) ((double)(xx)/36000.0)
-
-/*+ Conversion from hours to duration_t. +*/
-#define hours_to_duration(xx) ((duration_t)((double)(xx)*36000.0))
-
-/*+ Conversion from distance_t and speed_t to duration_t. +*/
-#define distance_speed_to_duration(xx,yy) ((duration_t)(((double)(xx)/(double)(yy))*(36000.0/1000.0)))
 
 
 /* Data structures */
 
-
-/*+ A structure containing a single segment. +*/
-typedef struct _Segment
-{
- uint32_t     node1;            /*+ The index of the starting node. +*/
- uint32_t     node2;            /*+ The index of the finishing node. +*/
- uint32_t     wayindex;         /*+ The index of the way associated with the segment. +*/
- distance_t   distance;         /*+ The distance between the nodes. +*/
-}
- Segment;
 
 /*+ An extended structure used for processing. +*/
 typedef struct _SegmentEx
@@ -127,7 +72,7 @@ SegmentEx *FindNextSegment(SegmentsMem* segmentsem,SegmentEx *segmentex);
 
 Segment *NextSegment(Segments *segments,Segment *segment);
 
-SegmentEx *AppendSegment(SegmentsMem *segmentsmem,node_t node1,node_t node2,uint32_t wayindex);
+SegmentEx *AppendSegment(SegmentsMem *segmentsmem,node_t node1,node_t node2,index_t way);
 
 void SortSegmentList(SegmentsMem *segmentsmem);
 
@@ -140,19 +85,9 @@ distance_t Distance(Node *node1,Node *node2);
 
 duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
-#define LookupSegment(xxx,yyy)   (&(xxx)->segments[yyy])
-
 #define LookupSegmentEx(xxx,yyy) (&(xxx)->xdata[yyy])
 
-#define IndexSegment(xxx,yyy)    ((yyy)-&(xxx)->segments[0])
-
 #define IndexSegmentEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
-
-#define IsNormalSegment(xxx)     (((xxx)->node1)&SUPER_SEGMENT)
-
-#define IsSuperSegment(xxx)      (((xxx)->node2)&SUPER_SEGMENT)
-
-#define SEGMENT(xxx)             ((xxx)&(~SUPER_SEGMENT))
 
 
 #endif /* SEGMENTS_H */

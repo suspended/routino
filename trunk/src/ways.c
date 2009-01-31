@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.18 2009-01-28 18:46:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.19 2009-01-31 15:32:42 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -19,6 +19,12 @@
 
 #include "functions.h"
 #include "ways.h"
+
+
+/* Constants */
+
+/*+ The array size increment for ways - expect ~1,000,000 ways. +*/
+#define INCREMENT_WAYS 256*1024
 
 
 /* Functions */
@@ -224,8 +230,8 @@ void SortWayList(WaysMem* waysmem)
 
 static int sort_by_index(WayEx *a,WayEx *b)
 {
- uint32_t a_index=a->index;
- uint32_t b_index=b->index;
+ index_t a_index=a->index;
+ index_t b_index=b->index;
 
  if(a_index<b_index)
     return(-1);

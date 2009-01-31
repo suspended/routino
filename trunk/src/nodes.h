@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.13 2009-01-31 14:53:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.14 2009-01-31 15:32:41 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -17,15 +17,7 @@
 
 #include <stdint.h>
 
-
-/* Constants */
-
-
-/*+ The array size increment for nodes - expect ~8,000,000 nodes. +*/
-#define INCREMENT_NODES 1024*1024
-
-/*+ A flag to mark super-nodes. +*/
-#define SUPER_NODE 0x80000000
+#include "types.h"
 
 
 /* Simple Types */
@@ -34,21 +26,9 @@
 /*+ A node identifier. +*/
 typedef uint32_t node_t;
 
-/*+ A node latitude or longitude. +*/
-typedef float latlong_t;
-
 
 /* Data structures */
 
-
-/*+ A structure containing a single node. +*/
-typedef struct _Node
-{
- uint32_t   firstseg;           /*+ The index of the first segment. +*/
- latlong_t  latitude;           /*+ The node latitude. +*/
- latlong_t  longitude;          /*+ The node longitude. +*/
-}
- Node;
 
 /*+ An extended structure used for processing. +*/
 typedef struct _NodeEx
@@ -103,19 +83,9 @@ void RemoveNonHighwayNodes(NodesMem *nodes,SegmentsMem *segments);
 
 void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem,int iteration);
 
-#define LookupNode(xxx,yyy)   (&(xxx)->nodes[yyy])
-
-#define LookupNodeEx(xxx,yyy) (&(xxx)->xdata[(yyy)&(~SUPER_NODE)])
-
-#define IndexNode(xxx,yyy)    ((yyy)-&(xxx)->nodes[0])
+#define LookupNodeEx(xxx,yyy) (&(xxx)->xdata[NODE(yyy)])
 
 #define IndexNodeEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
-
-#define FirstSegment(xxx,yyy) LookupSegment((xxx),SEGMENT((yyy)->firstseg))
-
-#define IsSuperNode(xxx)      (((xxx)->firstseg)&SUPER_NODE)
-
-#define NODE(xxx)             ((xxx)&(~SUPER_NODE))
 
 
 #endif /* NODES_H */

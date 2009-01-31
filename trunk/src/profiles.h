@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.h,v 1.1 2009-01-25 10:59:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.h,v 1.2 2009-01-31 15:32:41 amb Exp $
 
  A header file for the profiles.
  ******************/ /******************
@@ -15,7 +15,7 @@
 #ifndef PROFILES_H
 #define PROFILES_H    /*+ To stop multiple inclusions. +*/
 
-#include "ways.h"
+#include "types.h"
 
 
 /* Data structures */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.13 2009-01-29 19:31:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.14 2009-01-31 15:32:41 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -18,6 +18,12 @@
 
 #include "functions.h"
 #include "nodes.h"
+
+
+/* Constants */
+
+/*+ The array size increment for nodes - expect ~8,000,000 nodes. +*/
+#define INCREMENT_NODES 1024*1024
 
 
 /* Functions */
@@ -327,7 +333,7 @@ void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem,int iteration)
     nodesmem->xdata[i].node.firstseg=IndexSegmentEx(segmentsmem,firstseg);
 
     if(nodesmem->xdata[i].super==iteration)
-       nodesmem->xdata[i].node.firstseg|=SUPER_NODE;
+       nodesmem->xdata[i].node.firstseg|=SUPER_FLAG;
 
     if(!((i+1)%10000))
       {
