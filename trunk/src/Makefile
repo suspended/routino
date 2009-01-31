@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.12 2009-01-30 19:56:35 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.13 2009-01-31 14:12:16 amb Exp $
 #
 # Makefile
 #
@@ -81,9 +81,9 @@ distclean: clean
 ########
 
 .deps : .FORCE
-	[ -d .deps ] || mkdir $@
+	@[ -d .deps ] || mkdir $@
 
-$(D) : .deps .FORCE
+$(D) : .FORCE
 	@touch $@
 
 include $(D)
