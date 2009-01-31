@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.24 2009-01-31 14:53:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.25 2009-01-31 15:32:42 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -20,6 +20,12 @@
 #include "nodes.h"
 #include "segments.h"
 #include "functions.h"
+
+
+/* Constants */
+
+/*+ The array size increment for segments - expect ~8,000,000 segments. +*/
+#define INCREMENT_SEGMENTS 1024*1024
 
 
 /* Functions */
@@ -258,10 +264,10 @@ Segment *NextSegment(Segments* segments,Segment *segment)
 
   node_t node2 The second node in the segment.
 
-  uint32_t wayindex The index of the way that the pair of segments are connected by.
+  index_t way The index of the way that the pair of segments are connected by.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentEx *AppendSegment(SegmentsMem* segmentsmem,node_t node1,node_t node2,uint32_t wayindex)
+SegmentEx *AppendSegment(SegmentsMem* segmentsmem,node_t node1,node_t node2,index_t way)
 {
  /* Check that the array has enough space. */
 
@@ -276,7 +282,7 @@ SegmentEx *AppendSegment(SegmentsMem* segmentsmem,node_t node1,node_t node2,uint
 
  segmentsmem->xdata[segmentsmem->number].node1=node1;
  segmentsmem->xdata[segmentsmem->number].node2=node2;
- segmentsmem->xdata[segmentsmem->number].segment.wayindex=wayindex;
+ segmentsmem->xdata[segmentsmem->number].segment.way=way;
  segmentsmem->xdata[segmentsmem->number].segment.distance=0;
 
  segmentsmem->number++;
@@ -430,7 +436,7 @@ void FixupSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem,SegmentsMem* supe
     NodeEx *node1=FindNode(nodesmem,segmentsmem->xdata[i].node1);
     NodeEx *node2=FindNode(nodesmem,segmentsmem->xdata[i].node2);
 
-    segmentsmem->xdata[i].segment.node1=IndexNodeEx(nodesmem,node1)|SUPER_SEGMENT;
+    segmentsmem->xdata[i].segment.node1=IndexNodeEx(nodesmem,node1)|SUPER_FLAG;
     segmentsmem->xdata[i].segment.node2=IndexNodeEx(nodesmem,node2);
 
     if(!((i+1)%10000))
@@ -449,7 +455,7 @@ void FixupSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem,SegmentsMem* supe
     NodeEx *node2=FindNode(nodesmem,supersegmentsmem->xdata[i].node2);
 
     supersegmentsmem->xdata[i].segment.node1=IndexNodeEx(nodesmem,node1);
-    supersegmentsmem->xdata[i].segment.node2=IndexNodeEx(nodesmem,node2)|SUPER_SEGMENT;
+    supersegmentsmem->xdata[i].segment.node2=IndexNodeEx(nodesmem,node2)|SUPER_FLAG;
 
     if(!((i+1)%10000))
       {
@@ -470,14 +476,14 @@ void FixupSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem,SegmentsMem* supe
        if(segmentsmem->xdata[i].node1==supersegmentsmem->xdata[j].node1 &&
           segmentsmem->xdata[i].node2==supersegmentsmem->xdata[j].node2)
          {
-          segmentsmem->xdata[i].segment.node2|=SUPER_SEGMENT;
+          segmentsmem->xdata[i].segment.node2|=SUPER_FLAG;
           j++;
           break;
          }
        else if(segmentsmem->xdata[i].node1==supersegmentsmem->xdata[j].node1 &&
                segmentsmem->xdata[i].node2>supersegmentsmem->xdata[j].node2)
          {
-          SegmentEx *supersegmentex=AppendSegment(segmentsmem,supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2,supersegmentsmem->xdata[j].segment.wayindex);
+          SegmentEx *supersegmentex=AppendSegment(segmentsmem,supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2,supersegmentsmem->xdata[j].segment.way);
 
           supersegmentex->segment.node1=supersegmentsmem->xdata[j].segment.node1;
           supersegmentex->segment.node2=supersegmentsmem->xdata[j].segment.node2;
@@ -485,7 +491,7 @@ void FixupSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem,SegmentsMem* supe
          }
        else if(segmentsmem->xdata[i].node1>supersegmentsmem->xdata[j].node1)
          {
-          SegmentEx *supersegmentex=AppendSegment(segmentsmem,supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2,supersegmentsmem->xdata[j].segment.wayindex);
+          SegmentEx *supersegmentex=AppendSegment(segmentsmem,supersegmentsmem->xdata[j].node1,supersegmentsmem->xdata[j].node2,supersegmentsmem->xdata[j].segment.way);
 
           supersegmentex->segment.node1=supersegmentsmem->xdata[j].segment.node1;
           supersegmentex->segment.node2=supersegmentsmem->xdata[j].segment.node2;

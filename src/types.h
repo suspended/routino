@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.7 2009-01-10 11:14:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.8 2009-01-31 15:32:42 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -17,30 +17,213 @@
 
 #include <stdint.h>
 
-#include "nodes.h"
-#include "ways.h"
-#include "segments.h"
+
+/* Constants */
 
 
+/*+ A flag to mark super-nodes and super-segments. +*/
+#define SUPER_FLAG 0x80000000
 
-/*+ A structure containing a single super-segment +*/
-typedef struct _SuperSegment
+/*+ A flag to mark a distance as only applying for the other direction. +*/
+#define ONEWAY_OPPOSITE 0x80000000
+
+
+/* Simple Types */
+
+
+/*+ A node, segment or way index. +*/
+typedef uint32_t index_t;
+
+/*+ A node index excluding the super-node flag +*/
+#define NODE(xxx)    (index_t)((xxx)&(~SUPER_FLAG))
+
+/*+ A segment index excluding the super-segment flag +*/
+#define SEGMENT(xxx) (index_t)((xxx)&(~SUPER_FLAG))
+
+
+/*+ A node latitude or longitude. +*/
+typedef float latlong_t;
+
+
+/*+ A distance, measured in metres. +*/
+typedef uint32_t distance_t;
+
+/*+ A duration, measured in 1/10th seconds. +*/
+typedef uint32_t duration_t;
+
+
+/*+ The real distance ignoring the ONEWAY_OPPOSITE flag. +*/
+#define DISTANCE(xx)  (distance_t)((xx)&(~ONEWAY_OPPOSITE))
+
+/*+ Conversion from distance_t to kilometres. +*/
+#define distance_to_km(xx) ((double)(xx)/1000.0)
+
+/*+ Conversion from metres to distance_t. +*/
+#define km_to_distance(xx) ((distance_t)((double)(xx)*1000.0))
+
+/*+ Conversion from duration_t to minutes. +*/
+#define duration_to_minutes(xx) ((double)(xx)/600.0)
+
+/*+ Conversion from duration_t to hours. +*/
+#define duration_to_hours(xx) ((double)(xx)/36000.0)
+
+/*+ Conversion from hours to duration_t. +*/
+#define hours_to_duration(xx) ((duration_t)((double)(xx)*36000.0))
+
+/*+ Conversion from distance_t and speed_t to duration_t. +*/
+#define distance_speed_to_duration(xx,yy) ((duration_t)(((double)(xx)/(double)(yy))*(36000.0/1000.0)))
+
+
+/*+ The speed limit of a way. +*/
+typedef uint8_t speed_t;
+
+/*+ The type of a way. +*/
+typedef uint8_t waytype_t;
+
+/*+ The different types of a way. +*/
+typedef enum _Highway
+ {
+  Way_Motorway    = 1,
+  Way_Trunk       = 2,
+  Way_Primary     = 3,
+  Way_Secondary   = 4,
+  Way_Tertiary    = 5,
+  Way_Unclassified= 6,
+  Way_Residential = 7,
+  Way_Service     = 8,
+  Way_Track       = 9,
+  Way_Bridleway   =10,
+  Way_Cycleway    =11,
+  Way_Footway     =12,
+
+  Way_Unknown     =13,
+
+  Way_OneWay      =16,
+  Way_Roundabout  =32
+ }
+ Highway;
+
+#define HIGHWAY(xx) ((xx)&0x0f)
+
+
+/*+ The method of transport. +*/
+typedef uint8_t transport_t;
+
+/*+ The different methods of transport. +*/
+typedef enum _Transport
+ {
+  Transport_None      = 0,
+
+  Transport_Foot      = 1,
+  Transport_Bicycle   = 2,
+  Transport_Horse     = 3,
+  Transport_Motorbike = 4,
+  Transport_Motorcar  = 5,
+  Transport_Goods     = 6,
+  Transport_HGV       = 7,
+  Transport_PSV       = 8
+ }
+ Transport;
+
+
+/*+ The allowed traffic on a way. +*/
+typedef uint8_t wayallow_t;
+
+/*+ The different allowed traffic on a way. +*/
+typedef enum _Allowed
+ {
+  Allow_Foot      =1<<(Transport_Foot     -1),
+  Allow_Bicycle   =1<<(Transport_Bicycle  -1),
+  Allow_Horse     =1<<(Transport_Horse    -1),
+  Allow_Motorbike =1<<(Transport_Motorbike-1),
+  Allow_Motorcar  =1<<(Transport_Motorcar -1),
+  Allow_Goods     =1<<(Transport_Goods    -1),
+  Allow_HGV       =1<<(Transport_HGV      -1),
+  Allow_PSV       =1<<(Transport_PSV      -1),
+
+  Allow_ALL       =255
+ }
+ Allowed;
+
+
+/* Data structures */
+
+
+/*+ A structure containing a single node. +*/
+typedef struct _Node
 {
- node_t     node1;        /*+ The starting node. +*/
- node_t     node2;        /*+ The finishing node. +*/
- distance_t distance;     /*+ The distance between the nodes. +*/
- duration_t duration;     /*+ The time duration to travel between the nodes. +*/
+ index_t    firstseg;           /*+ The index of the first segment. +*/
+ latlong_t  latitude;           /*+ The node latitude. +*/
+ latlong_t  longitude;          /*+ The node longitude. +*/
 }
- SuperSegment;
+ Node;
 
-/*+ A structure containing a set of segments. +*/
-typedef struct _SuperSegments
+
+/*+ A structure containing a single segment. +*/
+typedef struct _Segment
 {
- uint32_t      number;          /*+ The number of occupied segments in the array. +*/
- SuperSegment  segments[1];     /*+ An array of segments whose size is not limited to 1
-                                    (i.e. may overflow the end of this structure). +*/
+ index_t    node1;              /*+ The index of the starting node. +*/
+ index_t    node2;              /*+ The index of the finishing node. +*/
+ index_t    way;                /*+ The index of the way associated with the segment. +*/
+ distance_t distance;           /*+ The distance between the nodes. +*/
 }
- SuperSegments;
+ Segment;
+
+
+/*+ A structure containing a single way. +*/
+typedef struct _Way
+{
+ index_t    name;               /*+ The offset of the name of the way in the names array. +*/
+ speed_t    limit;              /*+ The defined speed limit on the way. +*/
+ waytype_t  type;               /*+ The type of the way. +*/
+ wayallow_t allow;              /*+ The type of traffic allowed on the way. +*/
+}
+ Way;
+
+
+/* Node Functions */
+
+
+/*+ Return a Node pointer given a set of nodes and an index. +*/
+#define LookupNode(xxx,yyy)    (&(xxx)->nodes[yyy])
+
+/*+ Return an index for a Node pointer given a set of nodes. +*/
+#define IndexNode(xxx,yyy)     ((yyy)-&(xxx)->nodes[0])
+
+/*+ Return a Segment points given a Node pointer and a set of segments. +*/
+#define FirstSegment(xxx,yyy)  LookupSegment((xxx),SEGMENT((yyy)->firstseg))
+
+/*+ Return true if this is a super-node. +*/
+#define IsSuperNode(xxx)       (((xxx)->firstseg)&SUPER_FLAG)
+
+
+/* Segment Functions */
+
+
+/*+ Return a Segment pointer given a set of segments and an index. +*/
+#define LookupSegment(xxx,yyy) (&(xxx)->segments[yyy])
+
+/*+ Return an index for a Segment pointer given a set of segments. +*/
+#define IndexSegment(xxx,yyy)  ((yyy)-&(xxx)->segments[0])
+
+/*+ Return true if this is a normal segment. +*/
+#define IsNormalSegment(xxx)   (((xxx)->node1)&SUPER_FLAG)
+
+/*+ Return true if this is a super-segment. +*/
+#define IsSuperSegment(xxx)    (((xxx)->node2)&SUPER_FLAG)
+
+
+/* Way Functions */
+
+
+/*+ Return a Way* pointer given a set of ways and an index. +*/
+#define LookupWay(xxx,yyy)     (&(xxx)->ways[yyy])
+
+/*+ Return an index for a Way pointer given a set of ways. +*/
+#define IndexWay(xxx,yyy)      ((yyy)-&(xxx)->ways[0])
+
+/*+ Return the name of a way given the Way pointer and a set of ways. +*/
+#define WayName(xxx,yyy)       (&(xxx)->names[(yyy)->name])
 
 
 #endif /* TYPES_H */

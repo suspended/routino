@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.22 2009-01-29 19:31:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.23 2009-01-31 15:32:42 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -50,7 +50,7 @@ void ChooseSuperNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysm
  for(i=0;i<segmentsmem->number;i++)
    {
     SegmentEx *segmentex=LookupSegmentEx(segmentsmem,i);
-    WayEx *wayex=LookupWayEx(waysmem,segmentex->segment.wayindex);
+    WayEx *wayex=LookupWayEx(waysmem,segmentex->segment.way);
 
     if(segmentex->node1!=node)
       {
@@ -133,7 +133,7 @@ SegmentsMem *CreateSuperSegments(NodesMem *nodesmem,SegmentsMem *segmentsmem,Way
 
        while(segmentex)
          {
-          WayEx *wayex=LookupWayEx(waysmem,segmentex->segment.wayindex);
+          WayEx *wayex=LookupWayEx(waysmem,segmentex->segment.way);
 
           /* Check that this type of way hasn't already been routed */
 
@@ -143,7 +143,7 @@ SegmentsMem *CreateSuperSegments(NodesMem *nodesmem,SegmentsMem *segmentsmem,Way
 
              while(othersegmentex && othersegmentex!=segmentex)
                {
-                WayEx *otherwayex=LookupWayEx(waysmem,othersegmentex->segment.wayindex);
+                WayEx *otherwayex=LookupWayEx(waysmem,othersegmentex->segment.way);
 
                 if(otherwayex->way.type ==wayex->way.type  &&
                    otherwayex->way.allow==wayex->way.allow &&

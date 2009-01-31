@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.19 2009-01-28 18:46:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.20 2009-01-31 15:32:42 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -17,106 +17,16 @@
 
 #include <stdint.h>
 
-
-/* Constants */
-
-
-/*+ The array size increment for ways - expect ~1,000,000 ways. +*/
-#define INCREMENT_WAYS 256*1024
-
-
-/* Simple Types */
-
-
-/*+ The speed limit of the way. +*/
-typedef uint8_t speed_t;
-
-/*+ The type of a way. +*/
-typedef uint8_t waytype_t;
-
-/*+ The different types of a way. +*/
-typedef enum _Highway
- {
-  Way_Motorway    = 1,
-  Way_Trunk       = 2,
-  Way_Primary     = 3,
-  Way_Secondary   = 4,
-  Way_Tertiary    = 5,
-  Way_Unclassified= 6,
-  Way_Residential = 7,
-  Way_Service     = 8,
-  Way_Track       = 9,
-  Way_Bridleway   =10,
-  Way_Cycleway    =11,
-  Way_Footway     =12,
-
-  Way_Unknown     =13,
-
-  Way_OneWay      =16,
-  Way_Roundabout  =32
- }
- Highway;
-
-#define HIGHWAY(xx) ((xx)&0x0f)
-
-
-/*+ The type of a method of transport. +*/
-typedef uint8_t transport_t;
-
-/*+ The different methods of transport. +*/
-typedef enum _Transport
- {
-  Transport_None      = 0,
-
-  Transport_Foot      = 1,
-  Transport_Bicycle   = 2,
-  Transport_Horse     = 3,
-  Transport_Motorbike = 4,
-  Transport_Motorcar  = 5,
-  Transport_Goods     = 6,
-  Transport_HGV       = 7,
-  Transport_PSV       = 8
- }
- Transport;
-
-
-/*+ The allowed traffic on a way. +*/
-typedef uint8_t wayallow_t;
-
-/*+ The different allowed traffic on a way. +*/
-typedef enum _Allowed
- {
-  Allow_Foot      =1<<(Transport_Foot     -1),
-  Allow_Bicycle   =1<<(Transport_Bicycle  -1),
-  Allow_Horse     =1<<(Transport_Horse    -1),
-  Allow_Motorbike =1<<(Transport_Motorbike-1),
-  Allow_Motorcar  =1<<(Transport_Motorcar -1),
-  Allow_Goods     =1<<(Transport_Goods    -1),
-  Allow_HGV       =1<<(Transport_HGV      -1),
-  Allow_PSV       =1<<(Transport_PSV      -1),
-
-  Allow_ALL       =255
- }
- Allowed;
+#include "ways.h"
 
 
 /* Data structures */
 
 
-/*+ A structure containing a single way. +*/
-typedef struct _Way
-{
- uint32_t   name;               /*+ The offset of the name of the way in the names array. +*/
- speed_t    limit;              /*+ The defined speed limit on the way. +*/
- waytype_t  type;               /*+ The type of the way. +*/
- wayallow_t allow;              /*+ The type of traffic allowed on the way. +*/
-}
- Way;
-
 /*+ An extended structure containing a single way. +*/
 typedef struct _WayEx
 {
- uint32_t   index;              /*+ The index of the way. +*/
+ index_t   index;              /*+ The index of the way. +*/
  char      *name;               /*+ The name of the way. +*/
 
  Way        way;                /*+ The real Way data. +*/
@@ -170,15 +80,9 @@ const char *TransportName(Transport transport);
 const char *HighwayList(void);
 const char *TransportList(void);
 
-#define LookupWay(xxx,yyy)   (&(xxx)->ways[yyy])
-
 #define LookupWayEx(xxx,yyy) (&(xxx)->xdata[yyy])
 
-#define IndexWay(xxx,yyy)    ((yyy)-&(xxx)->ways[0])
-
 #define IndexWayEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
-
-#define WayName(xxx,yyy) (&(xxx)->names[(yyy)->name])
 
 
 #endif /* WAYS_H */

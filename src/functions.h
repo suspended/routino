@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.24 2009-01-31 14:53:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.25 2009-01-31 15:32:41 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -42,15 +42,15 @@ int OpenFile(const char *filename);
 
 /* In optimiser.c */
 
-Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile,int all);
-Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,uint32_t start,uint32_t finish,Results *begin,Results *end,Profile *profile);
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile,int all);
+Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,index_t start,index_t finish,Results *begin,Results *end,Profile *profile);
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile);
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile);
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Profile *profile);
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t finish,Profile *profile);
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Profile *profile);
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t finish,Profile *profile);
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile);
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile);
 
 Results *FindRoutesWay(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysmem,node_t start,WayEx *match,int iteration);
 

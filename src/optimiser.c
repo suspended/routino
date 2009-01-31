@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.41 2009-01-31 14:53:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.42 2009-01-31 15:32:41 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -16,9 +16,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "nodes.h"
-#include "ways.h"
-#include "segments.h"
+#include "types.h"
 #include "results.h"
 #include "functions.h"
 
@@ -38,19 +36,19 @@ int print_progress=1;
 
   Ways *ways The set of ways to use.
 
-  uint32_t start The start node.
+  index_t start The start node.
 
-  uint32_t finish The finish node.
+  index_t finish The finish node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
 
   int all A flag to indicate that a big results structure is required.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile,int all)
+Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile,int all)
 {
  Results *results;
- uint32_t node1,node2;
+ index_t node1,node2;
  HalfResult shortestfinish,quickestfinish;
  Result *result1,*result2;
  Segment *segment;
@@ -108,7 +106,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uin
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
-       way=LookupWay(ways,segment->wayindex);
+       way=LookupWay(ways,segment->way);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -228,7 +226,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uin
    {
     if(result2->shortest.prev)
       {
-       uint32_t node1=result2->shortest.prev;
+       index_t node1=result2->shortest.prev;
 
        result1=FindResult(results,node1);
 
@@ -247,7 +245,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uin
    {
     if(result2->quickest.prev)
       {
-       uint32_t node1=result2->quickest.prev;
+       index_t node1=result2->quickest.prev;
 
        result1=FindResult(results,node1);
 
@@ -275,9 +273,9 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uin
 
   Ways *ways The set of ways to use.
 
-  uint32_t start The start node.
+  index_t start The start node.
 
-  uint32_t finish The finish node.
+  index_t finish The finish node.
 
   Results *begin The initial portion of the route.
 
@@ -286,10 +284,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uin
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Results *begin,Results *end,Profile *profile)
+Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Results *begin,Results *end,Profile *profile)
 {
  Results *results;
- uint32_t node1,node2;
+ index_t node1,node2;
  HalfResult shortestfinish,quickestfinish;
  Result *result1,*result2,*result3;
  Segment *segment;
@@ -359,7 +357,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,ui
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
-       way=LookupWay(ways,segment->wayindex);
+       way=LookupWay(ways,segment->way);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -524,7 +522,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,ui
    {
     if(result2->shortest.prev)
       {
-       uint32_t node1=result2->shortest.prev;
+       index_t node1=result2->shortest.prev;
 
        result1=FindResult(results,node1);
 
@@ -543,7 +541,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,ui
    {
     if(result2->quickest.prev)
       {
-       uint32_t node1=result2->quickest.prev;
+       index_t node1=result2->quickest.prev;
 
        result1=FindResult(results,node1);
 
@@ -571,14 +569,14 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,ui
 
   Ways *ways The list of ways.
 
-  uint32_t start The start node.
+  index_t start The start node.
 
-  uint32_t finish The finish node.
+  index_t finish The finish node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile)
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile)
 {
  FILE *textfile,*gpxfile;
  Result *result;
@@ -610,7 +608,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint
        while(NODE(segment->node2)!=result->node)
           segment=NextSegment(segments,segment);
 
-       way=LookupWay(ways,segment->wayindex);
+       way=LookupWay(ways,segment->way);
 
        fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
                result->node,IsSuperNode(node)?'*':' ',
@@ -664,7 +662,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint
        while(NODE(segment->node2)!=result->node)
           segment=NextSegment(segments,segment);
 
-       way=LookupWay(ways,segment->wayindex);
+       way=LookupWay(ways,segment->way);
 
        fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
                result->node,IsSuperNode(node)?'*':' ',
@@ -704,15 +702,15 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint
 
   Ways *ways The set of ways to use.
 
-  uint32_t start The start node.
+  index_t start The start node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Profile *profile)
+Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Profile *profile)
 {
  Results *results;
- uint32_t node1,node2;
+ index_t node1,node2;
  HalfResult shortest2,quickest2;
  Result *result1,*result2;
  Segment *segment;
@@ -759,7 +757,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Pr
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
 
-       way=LookupWay(ways,segment->wayindex);
+       way=LookupWay(ways,segment->way);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -840,15 +838,15 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,Pr
 
   Ways *ways The set of ways to use.
 
-  uint32_t finish The finishing node.
+  index_t finish The finishing node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t finish,Profile *profile)
+Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t finish,Profile *profile)
 {
  Results *results;
- uint32_t node1,node2;
+ index_t node1,node2;
  HalfResult shortest2,quickest2;
  Result *result1,*result2;
  Segment *segment;
@@ -886,7 +884,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t f
 
        /* Reverse the segment and check it exists */
 
-       uint32_t reversenode;
+       index_t reversenode;
        Segment *reversesegment;
 
        reversenode=NODE(segment->node2);
@@ -909,7 +907,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t f
        if(result1->shortest.next==node2 && result1->quickest.next==node2)
           goto endloop;
 
-       way=LookupWay(ways,reversesegment->wayindex);
+       way=LookupWay(ways,reversesegment->way);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -992,14 +990,14 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,uint32_t f
 
   Ways *ways The list of ways.
 
-  uint32_t start The start node.
+  index_t start The start node.
 
-  uint32_t finish The finish node.
+  index_t finish The finish node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,uint32_t start,uint32_t finish,Profile *profile)
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile)
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
@@ -1146,7 +1144,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 Results *FindRoutesWay(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysmem,node_t start,WayEx *match,int iteration)
 {
  Results *results;
- uint32_t node1,node2;
+ index_t node1,node2;
  HalfResult shortest2;
  Result *result1,*result2;
  NodeEx *nodeex;
@@ -1184,7 +1182,7 @@ Results *FindRoutesWay(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *ways
        if(result1->shortest.prev==node2)
           goto endloop;
 
-       wayex=LookupWayEx(waysmem,segmentex->segment.wayindex);
+       wayex=LookupWayEx(waysmem,segmentex->segment.way);
 
        if(wayex->way.type !=match->way.type  ||
           wayex->way.allow!=match->way.allow ||
