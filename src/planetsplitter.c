@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.24 2009-01-30 19:56:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.25 2009-01-31 14:11:52 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -30,6 +30,7 @@ int main(int argc,char** argv)
  WaysMem *OSMWaysMem;
  int iteration=0,quit=0;
  int help_profile=0,max_iterations=5;
+ char *dirname=NULL,*prefix=NULL,*filename;
  Profile profile;
  int i;
 
@@ -53,8 +54,12 @@ int main(int argc,char** argv)
    {
     if(!strcmp(argv[argc],"-help"))
        goto usage;
-    if(!strcmp(argv[argc],"-help-profile"))
+    else if(!strcmp(argv[argc],"-help-profile"))
        help_profile=1;
+    else if(!strncmp(argv[argc],"-dir=",5))
+       dirname=&argv[argc][5];
+    else if(!strncmp(argv[argc],"-prefix=",8))
+       prefix=&argv[argc][8];
     else if(!strncmp(argv[argc],"-max-iterations=",16))
        max_iterations=atoi(&argv[argc][16]);
     else if(!strncmp(argv[argc],"-transport=",11))
@@ -73,6 +78,7 @@ int main(int argc,char** argv)
 
        fprintf(stderr,"Usage: planetsplitter\n"
                       "                      [-help] [-help-profile]\n"
+                      "                      [-dir=<name>] [-prefix=<name>]\n"
                       "                      [-max-iterations=<number>]\n"
                       "                      [-transport=<transport>]\n"
                       "                      [-not-highway=<highway> ...]\n"
@@ -208,19 +214,22 @@ int main(int argc,char** argv)
  /* Write out the nodes */
 
  printf("Saving Nodes"); fflush(stdout);
- SaveNodeList(OSMNodesMem,"data/nodes.mem");
+ sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ SaveNodeList(OSMNodesMem,filename);
  printf("\rSaved Nodes: %d\n",OSMNodesMem->number); fflush(stdout);
 
  /* Write out the segments */
 
  printf("Saving Segments"); fflush(stdout);
- SaveSegmentList(OSMSegmentsMem,"data/segments.mem");
+ sprintf(filename,"%s%s%s%ssegments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ SaveSegmentList(OSMSegmentsMem,filename);
  printf("\rSaved Segments: %d\n",OSMSegmentsMem->number); fflush(stdout);
 
  /* Write out the ways */
 
  printf("Saving Ways"); fflush(stdout);
- SaveWayList(OSMWaysMem,"data/ways.mem");
+ sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ SaveWayList(OSMWaysMem,filename);
  printf("\rSaved Ways: %d\n",OSMWaysMem->number); fflush(stdout);
 
  return(0);

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.21 2009-01-29 19:31:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.22 2009-01-31 14:11:52 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -30,6 +30,7 @@ int main(int argc,char** argv)
  Ways     *OSMWays,*SuperWays;
  node_t    start,finish;
  int       help_profile=0,all=0,only_super=0,no_print=0;
+ char *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
  Profile   profile;
  int i;
@@ -42,6 +43,7 @@ int main(int argc,char** argv)
 
     fprintf(stderr,"Usage: router <start-node> <finish-node>\n"
                    "              [-help] [-help-profile]\n"
+                   "              [-dir=<name>] [-prefix=<name>]\n"
                    "              [-all] [-only-super]\n"
                    "              [-no-print]\n"
                    "              [-transport=<transport>]\n"
@@ -90,6 +92,10 @@ int main(int argc,char** argv)
        goto usage;
     else if(!strcmp(argv[argc],"-help-profile"))
        help_profile=1;
+    else if(!strncmp(argv[argc],"-dir=",5))
+       dirname=&argv[argc][5];
+    else if(!strncmp(argv[argc],"-prefix=",8))
+       prefix=&argv[argc][8];
     else if(!strcmp(argv[argc],"-all"))
        all=1;
     else if(!strcmp(argv[argc],"-only-super"))
@@ -143,14 +149,20 @@ int main(int argc,char** argv)
 
  /* Load in the data */
 
- OSMNodes=LoadNodeList("data/nodes.mem");
- SuperNodes=LoadNodeList("data/super-nodes.mem");
+ sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ OSMNodes=LoadNodeList(filename);
+ sprintf(filename,"%s%s%s%ssuper-nodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ SuperNodes=LoadNodeList(filename);
 
- OSMSegments=LoadSegmentList("data/segments.mem");
- SuperSegments=LoadSegmentList("data/super-segments.mem");
+ sprintf(filename,"%s%s%s%ssegments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ OSMSegments=LoadSegmentList(filename);
+ sprintf(filename,"%s%s%s%ssuper-segments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ SuperSegments=LoadSegmentList(filename);
 
- OSMWays=LoadWayList("data/ways.mem");
- SuperWays=LoadWayList("data/super-ways.mem");
+ sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ OSMWays=LoadWayList(filename);
+ sprintf(filename,"%s%s%s%ssuper-ways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ SuperWays=LoadWayList(filename);
 
  if(all)
    {
