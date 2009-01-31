@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.25 2009-01-31 14:11:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.26 2009-01-31 14:53:29 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -212,6 +212,8 @@ int main(int argc,char** argv)
  FixupNodes(OSMNodesMem,OSMSegmentsMem,iteration);
 
  /* Write out the nodes */
+
+ filename=(char*)malloc((dirname?strlen(dirname):0)+(prefix?strlen(prefix):0)+16);
 
  printf("Saving Nodes"); fflush(stdout);
  sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
