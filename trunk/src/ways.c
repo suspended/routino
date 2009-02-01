@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.19 2009-01-31 15:32:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.20 2009-02-01 17:11:08 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -14,7 +14,6 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 
 #include "functions.h"
@@ -29,31 +28,8 @@
 
 /* Functions */
 
-static int sort_by_index(WayEx *a,WayEx *b);
-static int sort_by_name(WayEx *a,WayEx *b);
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Allocate a new way list.
-
-  WaysMem *NewWayList Returns the way list.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-WaysMem *NewWayList(void)
-{
- WaysMem *waysmem;
-
- waysmem=(WaysMem*)malloc(sizeof(WaysMem));
-
- waysmem->sorted=0;
- waysmem->alloced=INCREMENT_WAYS;
- waysmem->number=0;
- waysmem->length=0;
-
- waysmem->xdata=(WayEx*)malloc(waysmem->alloced*sizeof(WayEx));
-
- return(waysmem);
-}
+static int sort_by_index(WayX *a,WayX *b);
+static int sort_by_name(WayX *a,WayX *b);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -88,25 +64,48 @@ Ways *LoadWayList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Allocate a new way list.
+
+  WaysX *NewWayList Returns the way list.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+WaysX *NewWayList(void)
+{
+ WaysX *waysx;
+
+ waysx=(WaysX*)malloc(sizeof(WaysX));
+
+ waysx->sorted=0;
+ waysx->alloced=INCREMENT_WAYS;
+ waysx->number=0;
+ waysx->length=0;
+
+ waysx->xdata=(WayX*)malloc(waysx->alloced*sizeof(WayX));
+
+ return(waysx);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Save the way list to a file.
 
-  WaysMem* waysmem The set of ways to save.
+  WaysX* waysx The set of ways to save.
 
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SaveWayList(WaysMem* waysmem,const char *filename)
+void SaveWayList(WaysX* waysx,const char *filename)
 {
  int i;
  int fd;
  Ways *ways=calloc(1,sizeof(Ways));
 
- assert(waysmem->sorted);       /* Must be sorted */
+ assert(waysx->sorted);       /* Must be sorted */
 
  /* Fill in a Ways structure with the offset of the real data in the file after
     the Way structure itself. */
 
- ways->number=waysmem->number;
+ ways->number=waysx->number;
  ways->data=NULL;
  ways->ways=(void*)sizeof(Ways);
  ways->names=(void*)sizeof(Ways)+ways->number*sizeof(Way);
@@ -115,14 +114,14 @@ void SaveWayList(WaysMem* waysmem,const char *filename)
 
  fd=OpenFile(filename);
 
- write(fd,ways,sizeof(Ways));
+ WriteFile(fd,ways,sizeof(Ways));
 
- for(i=0;i<waysmem->number;i++)
-    write(fd,&waysmem->xdata[i].way,sizeof(Way));
+ for(i=0;i<waysx->number;i++)
+    WriteFile(fd,&waysx->xdata[i].way,sizeof(Way));
 
- write(fd,waysmem->names,waysmem->length);
+ WriteFile(fd,waysx->names,waysx->length);
 
- close(fd);
+ CloseFile(fd);
 
  /* Free the fake Ways */
 
@@ -133,88 +132,88 @@ void SaveWayList(WaysMem* waysmem,const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Append a way to a newly created way list (unsorted).
 
-  WayEx *AppendWay Returns the newly appended way.
+  WayX *AppendWay Returns the newly appended way.
 
-  WaysMem* waysmem The set of ways to process.
+  WaysX* waysx The set of ways to process.
 
   const char *name The name or reference of the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-WayEx *AppendWay(WaysMem* waysmem,const char *name)
+WayX *AppendWay(WaysX* waysx,const char *name)
 {
- assert(!waysmem->sorted);      /* Must not be sorted */
+ assert(!waysx->sorted);      /* Must not be sorted */
 
- waysmem->sorted=0;
+ waysx->sorted=0;
 
  /* Check that the array has enough space. */
 
- if(waysmem->number==waysmem->alloced)
+ if(waysx->number==waysx->alloced)
    {
-    waysmem->alloced+=INCREMENT_WAYS;
+    waysx->alloced+=INCREMENT_WAYS;
 
-    waysmem->xdata=(WayEx*)realloc((void*)waysmem->xdata,waysmem->alloced*sizeof(WayEx));
+    waysx->xdata=(WayX*)realloc((void*)waysx->xdata,waysx->alloced*sizeof(WayX));
    }
 
  /* Insert the way */
 
- waysmem->xdata[waysmem->number].name=strcpy((char*)malloc(strlen(name)+1),name);
+ waysx->xdata[waysx->number].name=strcpy((char*)malloc(strlen(name)+1),name);
 
- waysmem->xdata[waysmem->number].index=waysmem->number;
+ waysx->xdata[waysx->number].index=waysx->number;
 
- waysmem->number++;
+ waysx->number++;
 
- return(&waysmem->xdata[waysmem->number-1]);
+ return(&waysx->xdata[waysx->number-1]);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Sort the list of ways and fix the names.
 
-  WaysMem* waysmem The set of ways to process.
+  WaysX* waysx The set of ways to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortWayList(WaysMem* waysmem)
+void SortWayList(WaysX* waysx)
 {
  int i;
 
- assert(!waysmem->sorted);      /* Must not be sorted */
+ assert(!waysx->sorted);      /* Must not be sorted */
 
- waysmem->sorted=1;
+ waysx->sorted=1;
 
  /* Sort the ways by name */
 
- qsort(waysmem->xdata,waysmem->number,sizeof(WayEx),(int (*)(const void*,const void*))sort_by_name);
+ qsort(waysx->xdata,waysx->number,sizeof(WayX),(int (*)(const void*,const void*))sort_by_name);
 
  /* Allocate the new data */
 
- waysmem->names=(char*)malloc(waysmem->alloced*sizeof(char));
+ waysx->names=(char*)malloc(waysx->alloced*sizeof(char));
 
  /* Setup the offsets for the names in the way array */
 
- for(i=0;i<waysmem->number;i++)
+ for(i=0;i<waysx->number;i++)
    {
-    if(i && !strcmp(waysmem->xdata[i].name,waysmem->xdata[i-1].name)) /* Same name */
-       waysmem->xdata[i].way.name=waysmem->xdata[i-1].way.name;
+    if(i && !strcmp(waysx->xdata[i].name,waysx->xdata[i-1].name)) /* Same name */
+       waysx->xdata[i].way.name=waysx->xdata[i-1].way.name;
     else                                                              /* Different name */
       {
-       if((waysmem->length+strlen(waysmem->xdata[i].name)+1)>=waysmem->alloced)
+       if((waysx->length+strlen(waysx->xdata[i].name)+1)>=waysx->alloced)
          {
-          waysmem->alloced+=INCREMENT_WAYS;
+          waysx->alloced+=INCREMENT_WAYS;
 
-          waysmem->names=(char*)realloc((void*)waysmem->names,waysmem->alloced*sizeof(char));
+          waysx->names=(char*)realloc((void*)waysx->names,waysx->alloced*sizeof(char));
          }
 
-       strcpy(&waysmem->names[waysmem->length],waysmem->xdata[i].name);
+       strcpy(&waysx->names[waysx->length],waysx->xdata[i].name);
 
-       waysmem->xdata[i].way.name=waysmem->length;
+       waysx->xdata[i].way.name=waysx->length;
 
-       waysmem->length+=strlen(waysmem->xdata[i].name)+1;
+       waysx->length+=strlen(waysx->xdata[i].name)+1;
       }
    }
 
  /* Sort the ways by id */
 
- qsort(waysmem->xdata,waysmem->number,sizeof(WayEx),(int (*)(const void*,const void*))sort_by_index);
+ qsort(waysx->xdata,waysx->number,sizeof(WayX),(int (*)(const void*,const void*))sort_by_index);
 }
 
 
@@ -223,12 +222,12 @@ void SortWayList(WaysMem* waysmem)
 
   int sort_by_index Returns the comparison of the index fields.
 
-  WayEx *a The first WayEx.
+  WayX *a The first WayX.
 
-  WayEx *b The second WayEx.
+  WayX *b The second WayX.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_index(WayEx *a,WayEx *b)
+static int sort_by_index(WayX *a,WayX *b)
 {
  index_t a_index=a->index;
  index_t b_index=b->index;
@@ -250,7 +249,7 @@ static int sort_by_index(WayEx *a,WayEx *b)
   Way *b The second Way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_name(WayEx *a,WayEx *b)
+static int sort_by_name(WayX *a,WayX *b)
 {
  char *a_name=a->name;
  char *b_name=b->name;

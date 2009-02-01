@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.14 2009-01-31 15:32:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.15 2009-02-01 17:11:07 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -31,14 +31,14 @@ typedef uint32_t node_t;
 
 
 /*+ An extended structure used for processing. +*/
-typedef struct _NodeEx
+typedef struct _NodeX
 {
  node_t    id;                  /*+ The node identifier. +*/
  int       super;               /*+ A marker for super nodes. +*/
 
  Node      node;                /*+ The real node data. +*/
 }
- NodeEx;
+ NodeX;
 
 /*+ A structure containing a set of nodes (mmap format). +*/
 typedef struct _Nodes
@@ -52,15 +52,15 @@ typedef struct _Nodes
  Nodes;
 
 /*+ A structure containing a set of nodes (memory format). +*/
-typedef struct _NodesMem
+typedef struct _NodesX
 {
  uint32_t sorted;               /*+ Is the data sorted and therefore searchable? +*/
  uint32_t alloced;              /*+ How many entries are allocated? +*/
  uint32_t number;               /*+ How many entries are used? +*/
 
- NodeEx  *xdata;                /*+ The extended node data. +*/
+ NodeX  *xdata;                /*+ The extended node data. +*/
 }
- NodesMem;
+ NodesX;
 
 
 /* Functions */
@@ -68,24 +68,25 @@ typedef struct _NodesMem
 #include "segments.h"
 
 
-NodesMem *NewNodeList(void);
-
 Nodes *LoadNodeList(const char *filename);
-void SaveNodeList(NodesMem *nodesmem,const char *filename);
 
-NodeEx *FindNode(NodesMem* nodesmem,node_t id);
+NodesX *NewNodeList(void);
 
-NodeEx *AppendNode(NodesMem *nodesmem,node_t id,latlong_t latitude,latlong_t longitude);
+void SaveNodeList(NodesX *nodesx,const char *filename);
 
-void SortNodeList(NodesMem *nodesmem);
+NodeX *FindNode(NodesX* nodesx,node_t id);
 
-void RemoveNonHighwayNodes(NodesMem *nodes,SegmentsMem *segments);
+NodeX *AppendNode(NodesX *nodesx,node_t id,latlong_t latitude,latlong_t longitude);
 
-void FixupNodes(NodesMem *nodesmem,SegmentsMem* segmentsmem,int iteration);
+void SortNodeList(NodesX *nodesx);
 
-#define LookupNodeEx(xxx,yyy) (&(xxx)->xdata[NODE(yyy)])
+void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
-#define IndexNodeEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
+void FixupNodes(NodesX *nodesx,SegmentsX* segmentsx,int iteration);
+
+#define LookupNodeX(xxx,yyy) (&(xxx)->xdata[NODE(yyy)])
+
+#define IndexNodeX(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
 
 
 #endif /* NODES_H */

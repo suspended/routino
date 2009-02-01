@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.23 2009-01-30 19:55:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.24 2009-02-01 17:11:07 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -17,9 +17,10 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "types.h"
 #include "nodes.h"
-#include "ways.h"
 #include "segments.h"
+#include "ways.h"
 #include "functions.h"
 
 
@@ -35,16 +36,16 @@ static char *fgets_realloc(char *buffer,FILE *file);
 
   FILE *file The file to read from.
 
-  NodesMem *OSMNodes The array of nodes to fill in.
+  NodesX *OSMNodes The array of nodes to fill in.
 
-  SegmentsMem *OSMSegments The array of segments to fill in.
+  SegmentsX *OSMSegments The array of segments to fill in.
 
-  WaysMem *OSMWays The arrray of ways to fill in.
+  WaysX *OSMWays The arrray of ways to fill in.
 
   Profile profile A profile of the allowed transport types and included/excluded highway types.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays,Profile *profile)
+int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *profile)
 {
  char *line=NULL;
  long nlines=0;
@@ -161,7 +162,7 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
 
           if(allow&profile->allow && profile->highways[HIGHWAY(type)])
             {
-             WayEx *wayex;
+             WayX *wayx;
              char *refname;
              int i;
 
@@ -187,19 +188,19 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
              else /* if(!way_ref && !way_name && !way_roundabout) */
                 refname=way_highway;
 
-             wayex=AppendWay(OSMWays,refname);
+             wayx=AppendWay(OSMWays,refname);
 
-             wayex->way.limit=way_maxspeed;
+             wayx->way.limit=way_maxspeed;
 
-             wayex->way.type=type;
+             wayx->way.type=type;
 
-             wayex->way.allow=allow;
+             wayx->way.allow=allow;
 
              if(way_oneway)
-                wayex->way.type|=Way_OneWay;
+                wayx->way.type|=Way_OneWay;
 
              if(way_roundabout)
-                wayex->way.type|=Way_Roundabout;
+                wayx->way.type|=Way_Roundabout;
 
              if(refname!=way_ref && refname!=way_name && refname!=way_highway)
                 free(refname);
@@ -208,14 +209,14 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
                {
                 node_t from=way_nodes[i-1];
                 node_t to  =way_nodes[i];
-                SegmentEx *segmentex;
+                SegmentX *segmentx;
 
-                segmentex=AppendSegment(OSMSegments,from,to,OSMWays->number-1);
+                segmentx=AppendSegment(OSMSegments,from,to,OSMWays->number-1);
 
-                segmentex=AppendSegment(OSMSegments,to,from,OSMWays->number-1);
+                segmentx=AppendSegment(OSMSegments,to,from,OSMWays->number-1);
 
                 if(way_oneway)
-                   segmentex->segment.distance=ONEWAY_OPPOSITE;
+                   segmentx->segment.distance=ONEWAY_OPPOSITE;
                }
             }
          }
@@ -395,6 +396,9 @@ int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSM
 
  printf("\rRead: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld   \n",nlines,nnodes,nways,nrelations);
  fflush(stdout);
+
+ if(line)
+    free(line);
 
  if(way_nalloc)
     free(way_nodes);

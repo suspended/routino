@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.20 2009-01-31 15:32:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.21 2009-02-01 17:11:08 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -24,14 +24,14 @@
 
 
 /*+ An extended structure containing a single way. +*/
-typedef struct _WayEx
+typedef struct _WayX
 {
  index_t   index;              /*+ The index of the way. +*/
  char      *name;               /*+ The name of the way. +*/
 
  Way        way;                /*+ The real Way data. +*/
 }
- WayEx;
+ WayX;
 
 /*+ A structure containing a set of ways (mmap format). +*/
 typedef struct _Ways
@@ -46,30 +46,30 @@ typedef struct _Ways
  Ways;
 
 /*+ A structure containing a set of ways (memory format). +*/
-typedef struct _WaysMem
+typedef struct _WaysX
 {
  uint32_t sorted;               /*+ Is the data sorted? +*/
  uint32_t alloced;              /*+ How many entries are allocated? +*/
  uint32_t number;               /*+ How many entries are used? +*/
  uint32_t length;               /*+ How long is the string of name entries? +*/
 
- WayEx   *xdata;                /*+ The extended data for the Ways. +*/
+ WayX   *xdata;                /*+ The extended data for the Ways. +*/
  char    *names;                /*+ The array containing all the names. +*/
 }
- WaysMem;
+ WaysX;
 
 
 /* Functions */
 
 
-WaysMem *NewWayList(void);
+WaysX *NewWayList(void);
 
 Ways *LoadWayList(const char *filename);
-void SaveWayList(WaysMem *waysmem,const char *filename);
+void SaveWayList(WaysX *waysx,const char *filename);
 
-WayEx *AppendWay(WaysMem *waysmem,const char *name);
+WayX *AppendWay(WaysX *waysx,const char *name);
 
-void SortWayList(WaysMem *waysmem);
+void SortWayList(WaysX *waysx);
 
 Highway HighwayType(const char *highway);
 Transport TransportType(const char *transport);
@@ -80,9 +80,9 @@ const char *TransportName(Transport transport);
 const char *HighwayList(void);
 const char *TransportList(void);
 
-#define LookupWayEx(xxx,yyy) (&(xxx)->xdata[yyy])
+#define LookupWayX(xxx,yyy) (&(xxx)->xdata[yyy])
 
-#define IndexWayEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
+#define IndexWayX(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
 
 
 #endif /* WAYS_H */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.2 2009-01-25 12:11:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.3 2009-02-01 17:11:08 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
  ******************/ /******************
@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 #include "profiles.h"
+#include "types.h"
 #include "ways.h"
 
 

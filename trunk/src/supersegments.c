@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.23 2009-01-31 15:32:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.24 2009-02-01 17:11:08 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -25,16 +25,16 @@
 /*++++++++++++++++++++++++++++++++++++++
   Select the super-segments from the list of segments.
 
-  NodesMem *nodesmem The nodes.
+  NodesX *nodesx The nodes.
 
-  SegmentsMem *segmentsmem The segments.
+  SegmentsX *segmentsx The segments.
 
-  WaysMem *waysmem The ways.
+  WaysX *waysx The ways.
 
   int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ChooseSuperNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysmem,int iteration)
+void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration)
 {
  int i;
  int        segcount=0,difference=0,nnodes=0;
@@ -45,23 +45,23 @@ void ChooseSuperNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysm
 
  /* Find super-nodes */
 
- node=segmentsmem->xdata[0].node1;
+ node=segmentsx->xdata[0].node1;
 
- for(i=0;i<segmentsmem->number;i++)
+ for(i=0;i<segmentsx->number;i++)
    {
-    SegmentEx *segmentex=LookupSegmentEx(segmentsmem,i);
-    WayEx *wayex=LookupWayEx(waysmem,segmentex->segment.way);
+    SegmentX *segmentx=LookupSegmentX(segmentsx,i);
+    WayX *wayx=LookupWayX(waysx,segmentx->segment.way);
 
-    if(segmentex->node1!=node)
+    if(segmentx->node1!=node)
       {
        /* Store the node if there is a difference in the ways that could affect routing.
           Store the node if it is not a dead-end and if it isn't just the middle of a way. */
 
        if(difference || segcount>2)
          {
-          NodeEx *nodeex=FindNode(nodesmem,node);
+          NodeX *nodex=FindNode(nodesx,node);
 
-          nodeex->super++;
+          nodex->super++;
 
           nnodes++;
          }
@@ -69,20 +69,20 @@ void ChooseSuperNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysm
        segcount=1;
        difference=0;
 
-       node=segmentex->node1;
-       type=wayex->way.type;
-       limit=wayex->way.limit;
-       allow=wayex->way.allow;
+       node=segmentx->node1;
+       type=wayx->way.type;
+       limit=wayx->way.limit;
+       allow=wayx->way.allow;
       }
     else                        /* Same starting node */
       {
-       if(wayex->way.type!=type)
+       if(wayx->way.type!=type)
           difference=1;
 
-       if(wayex->way.limit!=limit)
+       if(wayx->way.limit!=limit)
           difference=1;
 
-       if(wayex->way.allow!=allow)
+       if(wayx->way.allow!=allow)
           difference=1;
 
        segcount+=1;
@@ -95,7 +95,7 @@ void ChooseSuperNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysm
       }
    }
 
- printf("\rFound Super-Nodes: Segments=%d Super-Nodes=%d  \n",segmentsmem->number,nnodes);
+ printf("\rFound Super-Nodes: Segments=%d Super-Nodes=%d  \n",segmentsx->number,nnodes);
  fflush(stdout);
 }
 
@@ -103,82 +103,82 @@ void ChooseSuperNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysm
 /*++++++++++++++++++++++++++++++++++++++
   Create the super-segments.
 
-  SegmentsMem *CreateSuperSegments Creates the super segments.
+  SegmentsX *CreateSuperSegments Creates the super segments.
 
-  NodesMem *nodesmem The nodes.
+  NodesX *nodesx The nodes.
 
-  SegmentsMem *segmentsmem The segments.
+  SegmentsX *segmentsx The segments.
 
-  WaysMem *waysmem The ways.
+  WaysX *waysx The ways.
 
   int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsMem *CreateSuperSegments(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysmem,int iteration)
+SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration)
 {
  int i;
- SegmentsMem *supersegmentsmem;
+ SegmentsX *supersegmentsx;
 
- supersegmentsmem=NewSegmentList();
+ supersegmentsx=NewSegmentList();
 
  /* Create super-segments for each super-node. */
 
- for(i=0;i<nodesmem->number;i++)
+ for(i=0;i<nodesx->number;i++)
    {
-    if(nodesmem->xdata[i].super>iteration)
+    if(nodesx->xdata[i].super>iteration)
       {
-       SegmentEx *segmentex,*first;
+       SegmentX *segmentx,*first;
 
-       segmentex=first=FindFirstSegment(segmentsmem,nodesmem->xdata[i].id);
+       segmentx=first=FindFirstSegment(segmentsx,nodesx->xdata[i].id);
 
-       while(segmentex)
+       while(segmentx)
          {
-          WayEx *wayex=LookupWayEx(waysmem,segmentex->segment.way);
+          WayX *wayx=LookupWayX(waysx,segmentx->segment.way);
 
           /* Check that this type of way hasn't already been routed */
 
-          if(segmentex!=first)
+          if(segmentx!=first)
             {
-             SegmentEx *othersegmentex=first;
+             SegmentX *othersegmentx=first;
 
-             while(othersegmentex && othersegmentex!=segmentex)
+             while(othersegmentx && othersegmentx!=segmentx)
                {
-                WayEx *otherwayex=LookupWayEx(waysmem,othersegmentex->segment.way);
+                WayX *otherwayx=LookupWayX(waysx,othersegmentx->segment.way);
 
-                if(otherwayex->way.type ==wayex->way.type  &&
-                   otherwayex->way.allow==wayex->way.allow &&
-                   otherwayex->way.limit==wayex->way.limit)
+                if(otherwayx->way.type ==wayx->way.type  &&
+                   otherwayx->way.allow==wayx->way.allow &&
+                   otherwayx->way.limit==wayx->way.limit)
                   {
-                   wayex=NULL;
+                   wayx=NULL;
                    break;
                   }
 
-                othersegmentex=FindNextSegment(segmentsmem,othersegmentex);
+                othersegmentx=FindNextSegment(segmentsx,othersegmentx);
                }
             }
 
           /* Route the way and store the super-segments. */
 
-          if(wayex)
+          if(wayx)
             {
-             Results *results=FindRoutesWay(nodesmem,segmentsmem,waysmem,nodesmem->xdata[i].id,wayex,iteration);
+             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,nodesx->xdata[i].id,wayx,iteration);
              Result *result=FirstResult(results);
 
              while(result)
                {
-                NodeEx *nodeex=FindNode(nodesmem,result->node);
+                NodeX *nodex=FindNode(nodesx,result->node);
 
-                if(result->node!=nodesmem->xdata[i].id && nodeex->super>iteration)
+                if(result->node!=nodesx->xdata[i].id && nodex->super>iteration)
                   {
-                   SegmentEx *supersegmentex=AppendSegment(supersegmentsmem,nodesmem->xdata[i].id,result->node,IndexWayEx(waysmem,wayex));
+                   SegmentX *supersegmentx=AppendSegment(supersegmentsx,nodesx->xdata[i].id,result->node,IndexWayX(waysx,wayx));
 
-                   supersegmentex->segment.distance=result->shortest.distance;
+                   supersegmentx->segment.distance=result->shortest.distance;
 
-                   if(wayex->way.type&Way_OneWay)
+                   if(wayx->way.type&Way_OneWay)
                      {
-                      supersegmentex=AppendSegment(supersegmentsmem,result->node,nodesmem->xdata[i].id,IndexWayEx(waysmem,wayex));
+                      supersegmentx=AppendSegment(supersegmentsx,result->node,nodesx->xdata[i].id,IndexWayX(waysx,wayx));
 
-                      supersegmentex->segment.distance=ONEWAY_OPPOSITE|result->shortest.distance;
+                      supersegmentx->segment.distance=ONEWAY_OPPOSITE|result->shortest.distance;
                      }
                   }
 
@@ -188,21 +188,128 @@ SegmentsMem *CreateSuperSegments(NodesMem *nodesmem,SegmentsMem *segmentsmem,Way
              FreeResultsList(results);
             }
 
-          segmentex=FindNextSegment(segmentsmem,segmentex);
+          segmentx=FindNextSegment(segmentsx,segmentx);
          }
       }
 
     if(!((i+1)%10000))
       {
-       printf("\rCreating Super-Segments: Nodes=%d Super-Segments=%d",i+1,supersegmentsmem->number);
+       printf("\rCreating Super-Segments: Nodes=%d Super-Segments=%d",i+1,supersegmentsx->number);
        fflush(stdout);
       }
    }
 
- printf("\rCreated Super-Segments: Nodes=%d Super-Segments=%d \n",nodesmem->number,supersegmentsmem->number);
+ printf("\rCreated Super-Segments: Nodes=%d Super-Segments=%d \n",nodesx->number,supersegmentsx->number);
  fflush(stdout);
 
  /* Append the new supersegments onto the segments. */
 
- return(supersegmentsmem);
+ return(supersegmentsx);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find all routes from a specified node to any node in the specified list that follows a certain type of way.
+
+  Results *FindRoutesWay Returns a set of results.
+
+  NodesX *nodesx The set of nodes to use.
+
+  SegmentsX *segmentsx The set of segments to use.
+
+  WaysX *waysx The set of ways to use.
+
+  node_t start The start node.
+
+  WayX *match The way that the route must match.
+
+  int iteration The current super-node / super-segment iteration number.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,WayX *match,int iteration)
+{
+ Results *results;
+ index_t node1,node2;
+ HalfResult shortest2;
+ Result *result1,*result2;
+ NodeX *nodex;
+ SegmentX *segmentx;
+ WayX *wayx;
+
+ /* Insert the first node into the queue */
+
+ results=NewResultsList(8);
+
+ result1=InsertResult(results,start);
+
+ result1->node=start;
+ result1->shortest.prev=0;
+ result1->shortest.next=0;
+ result1->shortest.distance=0;
+
+ insert_in_queue(result1);
+
+ /* Loop across all nodes in the queue */
+
+ while((result1=pop_from_queue()))
+   {
+    node1=result1->node;
+
+    segmentx=FindFirstSegment(segmentsx,node1);
+
+    while(segmentx)
+      {
+       if(segmentx->segment.distance&ONEWAY_OPPOSITE)
+          goto endloop;
+
+       node2=segmentx->node2;
+
+       if(result1->shortest.prev==node2)
+          goto endloop;
+
+       wayx=LookupWayX(waysx,segmentx->segment.way);
+
+       if(wayx->way.type !=match->way.type  ||
+          wayx->way.allow!=match->way.allow ||
+          wayx->way.limit!=match->way.limit)
+          goto endloop;
+
+       shortest2.distance=result1->shortest.distance+DISTANCE(segmentx->segment.distance);
+
+       result2=FindResult(results,node2);
+
+       if(!result2)                         /* New end node */
+         {
+          result2=InsertResult(results,node2);
+          result2->node=node2;
+          result2->shortest.prev=node1;
+          result2->shortest.next=0;
+          result2->shortest.distance=shortest2.distance;
+
+          nodex=FindNode(nodesx,node2);
+
+          if(nodex->super<=iteration)
+             insert_in_queue(result2);
+         }
+       else
+         {
+          if(shortest2.distance<result2->shortest.distance)
+            {
+             result2->shortest.prev=node1;
+             result2->shortest.distance=shortest2.distance;
+
+             nodex=FindNode(nodesx,node2);
+
+             if(nodex->super<=iteration)
+                insert_in_queue(result2);
+            }
+         }
+
+      endloop:
+
+       segmentx=FindNextSegment(segmentsx,segmentx);
+      }
+   }
+
+ return(results);
 }
