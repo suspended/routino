@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.24 2009-01-31 15:32:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.25 2009-02-01 17:11:08 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -157,6 +157,8 @@ int main(int argc,char** argv)
 
  sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  OSMWays=LoadWayList(filename);
+
+ /* Calculate the route. */
 
  if(all)
    {

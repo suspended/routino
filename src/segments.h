@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.22 2009-01-31 15:32:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.23 2009-02-01 17:11:08 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -26,14 +26,14 @@
 
 
 /*+ An extended structure used for processing. +*/
-typedef struct _SegmentEx
+typedef struct _SegmentX
 {
  node_t       node1;            /*+ The starting node. +*/
  node_t       node2;            /*+ The finishing node. +*/
 
  Segment      segment;          /*+ The real segment data. +*/
 }
- SegmentEx;
+ SegmentX;
 
 /*+ A structure containing a set of segments (mmap format). +*/
 typedef struct _Segments
@@ -47,47 +47,48 @@ typedef struct _Segments
  Segments;
 
 /*+ A structure containing a set of segments (memory format). +*/
-typedef struct _SegmentsMem
+typedef struct _SegmentsX
 {
  uint32_t  sorted;              /*+ Is the data sorted and therefore searchable? +*/
  uint32_t  alloced;             /*+ How many entries are allocated? +*/
  uint32_t  number;              /*+ How many entries are used? +*/
 
- SegmentEx *xdata;              /*+ The extended segment data. +*/
+ SegmentX *xdata;              /*+ The extended segment data. +*/
 }
- SegmentsMem;
+ SegmentsX;
 
 
 /* Functions in segments.c */
 
 
-SegmentsMem *NewSegmentList(void);
-void FreeSegmentList(SegmentsMem *segmentsmem);
-
 Segments *LoadSegmentList(const char *filename);
-void SaveSegmentList(SegmentsMem *segmentsmem,const char *filename);
 
-SegmentEx *FindFirstSegment(SegmentsMem* segmentsem,node_t node);
-SegmentEx *FindNextSegment(SegmentsMem* segmentsem,SegmentEx *segmentex);
+SegmentsX *NewSegmentList(void);
+void FreeSegmentList(SegmentsX *segmentsx);
+
+void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
+
+SegmentX *FindFirstSegment(SegmentsX* segmentsx,node_t node);
+SegmentX *FindNextSegment(SegmentsX* segmentsx,SegmentX *segmentx);
 
 Segment *NextSegment(Segments *segments,Segment *segment);
 
-SegmentEx *AppendSegment(SegmentsMem *segmentsmem,node_t node1,node_t node2,index_t way);
+SegmentX *AppendSegment(SegmentsX *segmentsx,node_t node1,node_t node2,index_t way);
 
-void SortSegmentList(SegmentsMem *segmentsmem);
+void SortSegmentList(SegmentsX *segmentsx);
 
-void RemoveBadSegments(SegmentsMem *segmentsmem);
+void RemoveBadSegments(SegmentsX *segmentsx);
 
-void MeasureSegments(SegmentsMem *segmentsmem,NodesMem *nodesmem);
-void FixupSegments(SegmentsMem* segmentsmem,NodesMem *nodesmem,SegmentsMem* supersegmentsmem);
+void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx);
+void FixupSegments(SegmentsX* segmentsx,NodesX *nodesx,SegmentsX* supersegmentsx);
 
 distance_t Distance(Node *node1,Node *node2);
 
 duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
-#define LookupSegmentEx(xxx,yyy) (&(xxx)->xdata[yyy])
+#define LookupSegmentX(xxx,yyy) (&(xxx)->xdata[yyy])
 
-#define IndexSegmentEx(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
+#define IndexSegmentX(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
 
 
 #endif /* SEGMENTS_H */

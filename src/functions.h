@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.25 2009-01-31 15:32:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.26 2009-02-01 17:11:07 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 
+#include "types.h"
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
@@ -26,18 +27,16 @@
 
 /* In osmparser.c */
 
-int ParseXML(FILE *file,NodesMem *OSMNodes,SegmentsMem *OSMSegments,WaysMem *OSMWays,Profile *profile);
+int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *profile);
 
 
 /* In files.c */
 
 void *MapFile(const char *filename);
 
-void UnMapFile(void *address);
-
-int WriteFile(const char *filename,void *address,size_t length);
-
 int OpenFile(const char *filename);
+int WriteFile(int fd,void *address,size_t length);
+void CloseFile(int fd);
 
 
 /* In optimiser.c */
@@ -52,14 +51,14 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fi
 
 Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile);
 
-Results *FindRoutesWay(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysmem,node_t start,WayEx *match,int iteration);
-
 
 /* Functions in supersegments.c */
 
-void ChooseSuperNodes(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysmem,int iteration);
+void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration);
 
-SegmentsMem *CreateSuperSegments(NodesMem *nodesmem,SegmentsMem *segmentsmem,WaysMem *waysmem,int iteration);
+SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration);
+
+Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,WayX *match,int iteration);
 
 
 #endif /* FUNCTIONS_H */

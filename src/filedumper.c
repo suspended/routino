@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.14 2009-01-26 18:47:22 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.15 2009-02-01 17:11:06 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -15,6 +15,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "types.h"
+#include "nodes.h"
+#include "segments.h"
+#include "ways.h"
 #include "functions.h"
 
 
@@ -23,9 +27,6 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
- Nodes    *SuperNodes;
- Segments *SuperSegments;
- Ways     *SuperWays;
 
  /* Examine the nodes */
 
@@ -58,39 +59,6 @@ int main(int argc,char** argv)
 
  printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
  printf("number      =%9d\n",OSMWays->number);
-
- /* Examine the super-nodes */
-
- SuperNodes=LoadNodeList("data/super-nodes.mem");
-
- printf("\n");
- printf("SuperNodes\n");
- printf("----------\n");
-
- printf("sizeof(Node)=%9d Bytes\n",sizeof(Node));
- printf("number      =%9d\n",SuperNodes->number);
-
- /* Examine the super-segments */
-
- SuperSegments=LoadSegmentList("data/super-segments.mem");
-
- printf("\n");
- printf("SuperSegments\n");
- printf("-------------\n");
-
- printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
- printf("number         =%9d\n",SuperSegments->number);
-
- /* Examine the super-ways */
-
- SuperWays=LoadWayList("data/super-ways.mem");
-
- printf("\n");
- printf("Super-Ways\n");
- printf("----------\n");
-
- printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
- printf("number      =%9d\n",SuperWays->number);
 
  return(0);
 }

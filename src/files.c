@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.2 2009-01-26 18:47:22 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.3 2009-02-01 17:11:07 amb Exp $
 
  Functions to map a file into memory.
  ******************/ /******************
@@ -21,20 +21,6 @@
 #include <sys/mman.h>
 
 #include "functions.h"
-
-/*+ A structure to contain the file mapping between file descriptor and address. +*/
-struct filemapping
-{
- int fd;                        /*+ The file descriptor. +*/
- void *address;                 /*+ The address the file is mapped to. +*/
- size_t length;                 /*+ The length of the mapped file. +*/
-};
-
-/*+ The current set of file mappings. +*/
-static struct filemapping *mappings=NULL;
-
-/*+ The number of file mappings +*/
-static int nmappings=0;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -76,82 +62,7 @@ void *MapFile(const char *filename)
     return(NULL);
    }
 
- /* Store the file mapping */
-
- nmappings++;
- mappings=(struct filemapping*)realloc((void*)mappings,nmappings*sizeof(struct filemapping));
-
- mappings[nmappings-1].fd=fd;
- mappings[nmappings-1].address=address;
- mappings[nmappings-1].length=buf.st_size;
-
  return(address);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Unmap a file and close it.
-
-  void *address The address of the mapped file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void UnMapFile(void *address)
-{
- int i;
-
- /* Search for the file mapping and unmap it and close it. */
-
- for(i=0;i<nmappings;i++)
-   {
-    if(address==mappings[i].address)
-      {
-       munmap(mappings[i].address,mappings[i].length);
-
-       close(mappings[i].fd);
-
-       mappings[i].fd=-1;
-       mappings[i].address=NULL;
-       mappings[i].length=0;
-
-       break;
-      }
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Write a new file to disk.
-
-  int WriteFile Returns 0 if OK or something else in case of an error.
-
-  const char *filename The name of the file to create.
-
-  void *address The address of the data to be written.
-
-  size_t length The length of data to write.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int WriteFile(const char *filename,void *address,size_t length)
-{
- int fd;
-
- /* Open the file */
-
- fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRWXU|S_IRGRP|S_IROTH);
-
- if(fd==-1)
-    return(-1);
-
- /* Write the data */
-
- if(write(fd,address,length)!=length)
-    return(-1);
-
- /* Close the file */
-
- close(fd);
-
- return(0);
 }
 
 
@@ -175,4 +86,39 @@ int OpenFile(const char *filename)
     assert(0);
 
  return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Write data to a file on disk.
+
+  int WriteFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor to write to.
+
+  void *address The address of the data to be written.
+
+  size_t length The length of data to write.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int WriteFile(int fd,void *address,size_t length)
+{
+ /* Write the data */
+
+ if(write(fd,address,length)!=length)
+    return(-1);
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Close a file on disk.
+
+  int fd The file descriptor to close.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void CloseFile(int fd)
+{
+ close(fd);
 }

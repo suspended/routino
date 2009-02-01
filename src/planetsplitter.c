@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.27 2009-01-31 15:32:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.28 2009-02-01 17:11:07 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -26,9 +26,9 @@
 
 int main(int argc,char** argv)
 {
- NodesMem *OSMNodesMem;
- SegmentsMem *OSMSegmentsMem,*SuperSegmentsMem=NULL;
- WaysMem *OSMWaysMem;
+ NodesX *OSMNodes;
+ SegmentsX *OSMSegments,*SuperSegments=NULL;
+ WaysX *OSMWays;
  int iteration=0,quit=0;
  int help_profile=0,max_iterations=5;
  char *dirname=NULL,*prefix=NULL,*filename;
@@ -104,49 +104,49 @@ int main(int argc,char** argv)
 
  /* Create new variables */
 
- OSMNodesMem=NewNodeList();
- OSMSegmentsMem=NewSegmentList();
- OSMWaysMem=NewWayList();
+ OSMNodes=NewNodeList();
+ OSMSegments=NewSegmentList();
+ OSMWays=NewWayList();
 
  /* Parse the file */
 
  printf("\nParsing OSM Data\n================\n\n"); fflush(stdout);
 
- ParseXML(stdin,OSMNodesMem,OSMSegmentsMem,OSMWaysMem,&profile);
+ ParseXML(stdin,OSMNodes,OSMSegments,OSMWays,&profile);
 
  printf("\nProcessing OSM Data\n===================\n\n"); fflush(stdout);
 
  /* Sort the ways */
 
  printf("Sorting Ways"); fflush(stdout);
- SortWayList(OSMWaysMem);
+ SortWayList(OSMWays);
  printf("\rSorted Ways \n"); fflush(stdout);
 
  /* Sort the segments */
 
  printf("Sorting Segments"); fflush(stdout);
- SortSegmentList(OSMSegmentsMem);
+ SortSegmentList(OSMSegments);
  printf("\rSorted Segments \n"); fflush(stdout);
 
  /* Remove bad segments */
 
- RemoveBadSegments(OSMSegmentsMem);
+ RemoveBadSegments(OSMSegments);
 
  printf("Sorting Segments"); fflush(stdout);
- SortSegmentList(OSMSegmentsMem);
+ SortSegmentList(OSMSegments);
  printf("\rSorted Segments \n"); fflush(stdout);
 
  /* Remove non-way nodes */
 
- RemoveNonHighwayNodes(OSMNodesMem,OSMSegmentsMem);
+ RemoveNonHighwayNodes(OSMNodes,OSMSegments);
 
  printf("Sorting Nodes"); fflush(stdout);
- SortNodeList(OSMNodesMem);
+ SortNodeList(OSMNodes);
  printf("\rSorted Nodes \n"); fflush(stdout);
 
  /* Measure the segments */
 
- MeasureSegments(OSMSegmentsMem,OSMNodesMem);
+ MeasureSegments(OSMSegments,OSMNodes);
 
 
  /* Repeated iteration on Super-Nodes, Super-Segments and Super-Ways */
@@ -159,33 +159,33 @@ int main(int argc,char** argv)
       {
        /* Select the super-nodes */
 
-       ChooseSuperNodes(OSMNodesMem,OSMSegmentsMem,OSMWaysMem,iteration);
+       ChooseSuperNodes(OSMNodes,OSMSegments,OSMWays,iteration);
 
        /* Select the super-segments */
 
-       SuperSegmentsMem=CreateSuperSegments(OSMNodesMem,OSMSegmentsMem,OSMWaysMem,iteration);
+       SuperSegments=CreateSuperSegments(OSMNodes,OSMSegments,OSMWays,iteration);
       }
     else
       {
-       SegmentsMem *SuperSegmentsMem2;
+       SegmentsX *SuperSegments2;
 
        /* Select the super-nodes */
 
-       ChooseSuperNodes(OSMNodesMem,SuperSegmentsMem,OSMWaysMem,iteration);
+       ChooseSuperNodes(OSMNodes,SuperSegments,OSMWays,iteration);
 
        /* Select the super-segments */
 
-       SuperSegmentsMem2=CreateSuperSegments(OSMNodesMem,SuperSegmentsMem,OSMWaysMem,iteration);
+       SuperSegments2=CreateSuperSegments(OSMNodes,SuperSegments,OSMWays,iteration);
 
-       FreeSegmentList(SuperSegmentsMem);
+       FreeSegmentList(SuperSegments);
 
-       SuperSegmentsMem=SuperSegmentsMem2;
+       SuperSegments=SuperSegments2;
       }
 
     /* Sort the super-segments */
 
     printf("Sorting Super-Segments"); fflush(stdout);
-    SortSegmentList(SuperSegmentsMem);
+    SortSegmentList(SuperSegments);
     printf("\rSorted Super-Segments \n"); fflush(stdout);
 
     iteration++;
@@ -198,19 +198,19 @@ int main(int argc,char** argv)
 
  /* Fix the node indexes */
 
- FixupSegments(OSMSegmentsMem,OSMNodesMem,SuperSegmentsMem);
+ FixupSegments(OSMSegments,OSMNodes,SuperSegments);
 
- FreeSegmentList(SuperSegmentsMem);
+ FreeSegmentList(SuperSegments);
 
  /* Sort the segments */
 
  printf("Sorting Segments"); fflush(stdout);
- SortSegmentList(OSMSegmentsMem);
+ SortSegmentList(OSMSegments);
  printf("\rSorted Segments \n"); fflush(stdout);
 
  /* Fix the segment indexes */
 
- FixupNodes(OSMNodesMem,OSMSegmentsMem,iteration);
+ FixupNodes(OSMNodes,OSMSegments,iteration);
 
  /* Write out the nodes */
 
@@ -218,22 +218,22 @@ int main(int argc,char** argv)
 
  printf("Saving Nodes"); fflush(stdout);
  sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- SaveNodeList(OSMNodesMem,filename);
- printf("\rSaved Nodes: %d\n",OSMNodesMem->number); fflush(stdout);
+ SaveNodeList(OSMNodes,filename);
+ printf("\rSaved Nodes: %d\n",OSMNodes->number); fflush(stdout);
 
  /* Write out the segments */
 
  printf("Saving Segments"); fflush(stdout);
  sprintf(filename,"%s%s%s%ssegments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- SaveSegmentList(OSMSegmentsMem,filename);
- printf("\rSaved Segments: %d\n",OSMSegmentsMem->number); fflush(stdout);
+ SaveSegmentList(OSMSegments,filename);
+ printf("\rSaved Segments: %d\n",OSMSegments->number); fflush(stdout);
 
  /* Write out the ways */
 
  printf("Saving Ways"); fflush(stdout);
  sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- SaveWayList(OSMWaysMem,filename);
- printf("\rSaved Ways: %d\n",OSMWaysMem->number); fflush(stdout);
+ SaveWayList(OSMWays,filename);
+ printf("\rSaved Ways: %d\n",OSMWays->number); fflush(stdout);
 
  return(0);
 }
