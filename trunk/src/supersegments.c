@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.24 2009-02-01 17:11:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.25 2009-02-02 18:53:12 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -59,7 +59,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
 
        if(difference || segcount>2)
          {
-          NodeX *nodex=FindNode(nodesx,node);
+          NodeX *nodex=FindNodeX(nodesx,node);
 
           nodex->super++;
 
@@ -129,7 +129,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
       {
        SegmentX *segmentx,*first;
 
-       segmentx=first=FindFirstSegment(segmentsx,nodesx->xdata[i].id);
+       segmentx=first=FindFirstSegmentX(segmentsx,nodesx->xdata[i].id);
 
        while(segmentx)
          {
@@ -153,7 +153,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                    break;
                   }
 
-                othersegmentx=FindNextSegment(segmentsx,othersegmentx);
+                othersegmentx=FindNextSegmentX(segmentsx,othersegmentx);
                }
             }
 
@@ -166,19 +166,21 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
              while(result)
                {
-                NodeX *nodex=FindNode(nodesx,result->node);
+                NodeX *nodex=FindNodeX(nodesx,result->node);
 
                 if(result->node!=nodesx->xdata[i].id && nodex->super>iteration)
                   {
-                   SegmentX *supersegmentx=AppendSegment(supersegmentsx,nodesx->xdata[i].id,result->node,IndexWayX(waysx,wayx));
+                   Segment *supersegment=AppendSegment(supersegmentsx,nodesx->xdata[i].id,result->node);
 
-                   supersegmentx->segment.distance=result->shortest.distance;
+                   supersegment->distance=result->shortest.distance;
+                   supersegment->way=IndexWayX(waysx,wayx);
 
                    if(wayx->way.type&Way_OneWay)
                      {
-                      supersegmentx=AppendSegment(supersegmentsx,result->node,nodesx->xdata[i].id,IndexWayX(waysx,wayx));
+                      supersegment=AppendSegment(supersegmentsx,result->node,nodesx->xdata[i].id);
 
-                      supersegmentx->segment.distance=ONEWAY_OPPOSITE|result->shortest.distance;
+                      supersegment->distance=ONEWAY_OPPOSITE|result->shortest.distance;
+                      supersegment->way=IndexWayX(waysx,wayx);
                      }
                   }
 
@@ -188,7 +190,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
              FreeResultsList(results);
             }
 
-          segmentx=FindNextSegment(segmentsx,segmentx);
+          segmentx=FindNextSegmentX(segmentsx,segmentx);
          }
       }
 
@@ -255,7 +257,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
    {
     node1=result1->node;
 
-    segmentx=FindFirstSegment(segmentsx,node1);
+    segmentx=FindFirstSegmentX(segmentsx,node1);
 
     while(segmentx)
       {
@@ -286,7 +288,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
           result2->shortest.next=0;
           result2->shortest.distance=shortest2.distance;
 
-          nodex=FindNode(nodesx,node2);
+          nodex=FindNodeX(nodesx,node2);
 
           if(nodex->super<=iteration)
              insert_in_queue(result2);
@@ -298,7 +300,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
              result2->shortest.prev=node1;
              result2->shortest.distance=shortest2.distance;
 
-             nodex=FindNode(nodesx,node2);
+             nodex=FindNodeX(nodesx,node2);
 
              if(nodex->super<=iteration)
                 insert_in_queue(result2);
@@ -307,7 +309,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
 
       endloop:
 
-       segmentx=FindNextSegment(segmentsx,segmentx);
+       segmentx=FindNextSegmentX(segmentsx,segmentx);
       }
    }
 

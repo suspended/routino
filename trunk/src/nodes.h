@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.15 2009-02-01 17:11:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.16 2009-02-02 18:53:12 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -58,7 +58,7 @@ typedef struct _NodesX
  uint32_t alloced;              /*+ How many entries are allocated? +*/
  uint32_t number;               /*+ How many entries are used? +*/
 
- NodeX  *xdata;                /*+ The extended node data. +*/
+ NodeX   *xdata;                /*+ The extended node data. +*/
 }
  NodesX;
 
@@ -74,9 +74,9 @@ NodesX *NewNodeList(void);
 
 void SaveNodeList(NodesX *nodesx,const char *filename);
 
-NodeX *FindNode(NodesX* nodesx,node_t id);
+NodeX *FindNodeX(NodesX* nodesx,node_t id);
 
-NodeX *AppendNode(NodesX *nodesx,node_t id,latlong_t latitude,latlong_t longitude);
+Node *AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude);
 
 void SortNodeList(NodesX *nodesx);
 

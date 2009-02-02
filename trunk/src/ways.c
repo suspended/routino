@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.20 2009-02-01 17:11:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.21 2009-02-02 18:53:13 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -130,16 +130,16 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Append a way to a newly created way list (unsorted).
+  Append a way to a way list.
 
-  WayX *AppendWay Returns the newly appended way.
+  Way *AppendWay Returns the newly appended way.
 
   WaysX* waysx The set of ways to process.
 
   const char *name The name or reference of the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-WayX *AppendWay(WaysX* waysx,const char *name)
+Way *AppendWay(WaysX* waysx,const char *name)
 {
  assert(!waysx->sorted);      /* Must not be sorted */
 
@@ -162,7 +162,7 @@ WayX *AppendWay(WaysX* waysx,const char *name)
 
  waysx->number++;
 
- return(&waysx->xdata[waysx->number-1]);
+ return(&waysx->xdata[waysx->number-1].way);
 }
 
 

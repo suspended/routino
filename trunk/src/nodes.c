@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.15 2009-02-01 17:11:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.16 2009-02-02 18:53:12 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -139,14 +139,14 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Find a particular node.
 
-  NodeX *FindNode Returns the extended node with the specified id.
+  NodeX *FindNodeX Returns the extended node with the specified id.
 
   NodesX* nodesx The set of nodes to process.
 
   node_t id The node id to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodeX *FindNode(NodesX* nodesx,node_t id)
+NodeX *FindNodeX(NodesX* nodesx,node_t id)
 {
  int start=0;
  int end=nodesx->number-1;
@@ -198,18 +198,18 @@ NodeX *FindNode(NodesX* nodesx,node_t id)
 /*++++++++++++++++++++++++++++++++++++++
   Append a node to a newly created node list (unsorted).
 
-  NodeX *AppendNode Return a pointer to the new extended node.
+  Node *AppendNode Return a pointer to the new node.
 
   NodesX* nodesx The set of nodes to process.
 
   node_t id The node identification.
 
-  latlong_t latitude The latitude of the node.
+  float latitude The latitude of the node.
 
-  latlong_t longitude The longitude of the node.
+  float longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodeX *AppendNode(NodesX* nodesx,node_t id,latlong_t latitude,latlong_t longitude)
+Node *AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude)
 {
  /* Check that the array has enough space. */
 
@@ -231,7 +231,7 @@ NodeX *AppendNode(NodesX* nodesx,node_t id,latlong_t latitude,latlong_t longitud
 
  nodesx->sorted=0;
 
- return(&nodesx->xdata[nodesx->number-1]);
+ return(&nodesx->xdata[nodesx->number-1].node);
 }
 
 
@@ -289,7 +289,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    if(FindFirstSegment(segmentsx,nodesx->xdata[i].id))
+    if(FindFirstSegmentX(segmentsx,nodesx->xdata[i].id))
        highway++;
     else
       {
@@ -327,7 +327,7 @@ void FixupNodes(NodesX *nodesx,SegmentsX* segmentsx,int iteration)
 
  for(i=0;i<nodesx->number;i++)
    {
-    SegmentX *firstseg=FindFirstSegment(segmentsx,nodesx->xdata[i].id);
+    SegmentX *firstseg=FindFirstSegmentX(segmentsx,nodesx->xdata[i].id);
 
     nodesx->xdata[i].node.firstseg=IndexSegmentX(segmentsx,firstseg);
 

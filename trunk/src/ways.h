@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.21 2009-02-01 17:11:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.22 2009-02-02 18:53:13 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -53,7 +53,7 @@ typedef struct _WaysX
  uint32_t number;               /*+ How many entries are used? +*/
  uint32_t length;               /*+ How long is the string of name entries? +*/
 
- WayX   *xdata;                /*+ The extended data for the Ways. +*/
+ WayX    *xdata;                /*+ The extended data for the Ways. +*/
  char    *names;                /*+ The array containing all the names. +*/
 }
  WaysX;
@@ -67,7 +67,7 @@ WaysX *NewWayList(void);
 Ways *LoadWayList(const char *filename);
 void SaveWayList(WaysX *waysx,const char *filename);
 
-WayX *AppendWay(WaysX *waysx,const char *name);
+Way *AppendWay(WaysX* waysx,const char *name);
 
 void SortWayList(WaysX *waysx);
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.26 2009-02-01 17:11:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.27 2009-02-02 18:53:12 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -140,14 +140,14 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Find the first segment with a particular starting node.
 
-  SegmentX *FindFirstSegment Returns the first extended segment with the specified id.
+  SegmentX *FindFirstSegmentX Returns the first extended segment with the specified id.
 
   SegmentsX* segmentsx The set of segments to process.
 
   node_t node The node to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *FindFirstSegment(SegmentsX* segmentsx,node_t node)
+SegmentX *FindFirstSegmentX(SegmentsX* segmentsx,node_t node)
 {
  int start=0;
  int end=segmentsx->number-1;
@@ -207,21 +207,21 @@ SegmentX *FindFirstSegment(SegmentsX* segmentsx,node_t node)
 /*++++++++++++++++++++++++++++++++++++++
   Find the next segment with a particular starting node.
 
-  SegmentX *NextSegment Returns a pointer to the next segment with the same id.
+  SegmentX *FindNextSegmentX Returns a pointer to the next segment with the same id.
 
-  SegmentsX* segments The set of segments to process.
+  SegmentsX* segmentss The set of segments to process.
 
-  SegmentX *segmentex The current segment.
+  SegmentX *segmentx The current segment.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *FindNextSegment(SegmentsX* segmentsx,SegmentX *segmentex)
+SegmentX *FindNextSegmentX(SegmentsX* segmentsx,SegmentX *segmentx)
 {
- SegmentX *next=segmentex+1;
+ SegmentX *next=segmentx+1;
 
  if(IndexSegmentX(segmentsx,next)==segmentsx->number)
     return(NULL);
 
- if(next->node1==segmentex->node1)
+ if(next->node1==segmentx->node1)
     return(next);
 
  return(NULL);
@@ -253,20 +253,18 @@ Segment *NextSegment(Segments* segments,Segment *segment)
  
  
 /*++++++++++++++++++++++++++++++++++++++
-  Append a segment to a newly created segment list (unsorted).
+  Append a segment to a segment list.
 
-  SegmentX *AppendSegment Returns the appended segment.
+  Segment *AppendSegmentX Returns the appended segment.
 
   SegmentsX* segmentsx The set of segments to process.
 
   node_t node1 The first node in the segment.
 
   node_t node2 The second node in the segment.
-
-  index_t way The index of the way that the pair of segments are connected by.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *AppendSegment(SegmentsX* segmentsx,node_t node1,node_t node2,index_t way)
+Segment *AppendSegment(SegmentsX* segmentsx,node_t node1,node_t node2)
 {
  /* Check that the array has enough space. */
 
@@ -281,14 +279,14 @@ SegmentX *AppendSegment(SegmentsX* segmentsx,node_t node1,node_t node2,index_t w
 
  segmentsx->xdata[segmentsx->number].node1=node1;
  segmentsx->xdata[segmentsx->number].node2=node2;
- segmentsx->xdata[segmentsx->number].segment.way=way;
+
  segmentsx->xdata[segmentsx->number].segment.distance=0;
 
  segmentsx->number++;
 
  segmentsx->sorted=0;
 
- return(&segmentsx->xdata[segmentsx->number-1]);
+ return(&segmentsx->xdata[segmentsx->number-1].segment);
 }
 
 
@@ -394,12 +392,12 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    NodeX *node1=FindNode(nodesx,segmentsx->xdata[i].node1);
-    NodeX *node2=FindNode(nodesx,segmentsx->xdata[i].node2);
+    NodeX *node1=FindNodeX(nodesx,segmentsx->xdata[i].node1);
+    NodeX *node2=FindNodeX(nodesx,segmentsx->xdata[i].node2);
 
     /* Set the distance but preserve the ONEWAY_OPPOSITE flag */
 
-    segmentsx->xdata[i].segment.distance|=Distance(&node1->node,&node2->node);
+    segmentsx->xdata[i].segment.distance|=Distance(node1,node2);
 
     if(!((i+1)%10000))
       {
@@ -432,8 +430,8 @@ void FixupSegments(SegmentsX* segmentsx,NodesX *nodesx,SegmentsX* supersegmentsx
 
  for(i=0;i<segmentsx->number;i++)
    {
-    NodeX *node1=FindNode(nodesx,segmentsx->xdata[i].node1);
-    NodeX *node2=FindNode(nodesx,segmentsx->xdata[i].node2);
+    NodeX *node1=FindNodeX(nodesx,segmentsx->xdata[i].node1);
+    NodeX *node2=FindNodeX(nodesx,segmentsx->xdata[i].node2);
 
     segmentsx->xdata[i].segment.node1=IndexNodeX(nodesx,node1)|SUPER_FLAG;
     segmentsx->xdata[i].segment.node2=IndexNodeX(nodesx,node2);
@@ -450,8 +448,8 @@ void FixupSegments(SegmentsX* segmentsx,NodesX *nodesx,SegmentsX* supersegmentsx
 
  for(i=0;i<supersegmentsx->number;i++)
    {
-    NodeX *node1=FindNode(nodesx,supersegmentsx->xdata[i].node1);
-    NodeX *node2=FindNode(nodesx,supersegmentsx->xdata[i].node2);
+    NodeX *node1=FindNodeX(nodesx,supersegmentsx->xdata[i].node1);
+    NodeX *node2=FindNodeX(nodesx,supersegmentsx->xdata[i].node2);
 
     supersegmentsx->xdata[i].segment.node1=IndexNodeX(nodesx,node1);
     supersegmentsx->xdata[i].segment.node2=IndexNodeX(nodesx,node2)|SUPER_FLAG;
@@ -482,19 +480,15 @@ void FixupSegments(SegmentsX* segmentsx,NodesX *nodesx,SegmentsX* supersegmentsx
        else if(segmentsx->xdata[i].node1==supersegmentsx->xdata[j].node1 &&
                segmentsx->xdata[i].node2>supersegmentsx->xdata[j].node2)
          {
-          SegmentX *supersegmentex=AppendSegment(segmentsx,supersegmentsx->xdata[j].node1,supersegmentsx->xdata[j].node2,supersegmentsx->xdata[j].segment.way);
+          Segment *supersegment=AppendSegment(segmentsx,supersegmentsx->xdata[j].node1,supersegmentsx->xdata[j].node2);
 
-          supersegmentex->segment.node1=supersegmentsx->xdata[j].segment.node1;
-          supersegmentex->segment.node2=supersegmentsx->xdata[j].segment.node2;
-          supersegmentex->segment.distance=supersegmentsx->xdata[j].segment.distance;
+          *supersegment=supersegmentsx->xdata[j].segment;
          }
        else if(segmentsx->xdata[i].node1>supersegmentsx->xdata[j].node1)
          {
-          SegmentX *supersegmentex=AppendSegment(segmentsx,supersegmentsx->xdata[j].node1,supersegmentsx->xdata[j].node2,supersegmentsx->xdata[j].segment.way);
+          Segment *supersegment=AppendSegment(segmentsx,supersegmentsx->xdata[j].node1,supersegmentsx->xdata[j].node2);
 
-          supersegmentex->segment.node1=supersegmentsx->xdata[j].segment.node1;
-          supersegmentex->segment.node2=supersegmentsx->xdata[j].segment.node2;
-          supersegmentex->segment.distance=supersegmentsx->xdata[j].segment.distance;
+          *supersegment=supersegmentsx->xdata[j].segment;
          }
        else
           break;
@@ -519,17 +513,17 @@ void FixupSegments(SegmentsX* segmentsx,NodesX *nodesx,SegmentsX* supersegmentsx
 
   distance_t Distance Returns the distance between the nodes.
 
-  Node *node1 The starting node.
+  NodeX *nodex1 The starting node.
 
-  Node *node2 The end node.
+  NodeX *nodex2 The end node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-distance_t Distance(Node *node1,Node *node2)
+distance_t Distance(NodeX *nodex1,NodeX *nodex2)
 {
  double radiant = M_PI / 180;
 
- double dlon = radiant * (node1->longitude - node2->longitude);
- double dlat = radiant * (node1->latitude  - node2->latitude);
+ double dlon = radiant * (nodex1->node.longitude - nodex2->node.longitude);
+ double dlat = radiant * (nodex1->node.latitude  - nodex2->node.latitude);
 
  double a1,a2,a,sa,c,d;
 
@@ -538,7 +532,7 @@ distance_t Distance(Node *node1,Node *node2)
 
  a1 = sin (dlat / 2);
  a2 = sin (dlon / 2);
- a = (a1 * a1) + cos (node1->latitude * radiant) * cos (node2->latitude * radiant) * a2 * a2;
+ a = (a1 * a1) + cos (nodex1->node.latitude * radiant) * cos (nodex2->node.latitude * radiant) * a2 * a2;
  sa = sqrt (a);
  if (sa <= 1.0)
    {c = 2 * asin (sa);}
