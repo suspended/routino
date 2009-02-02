@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.23 2009-02-01 17:11:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.24 2009-02-02 18:53:12 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -53,7 +53,7 @@ typedef struct _SegmentsX
  uint32_t  alloced;             /*+ How many entries are allocated? +*/
  uint32_t  number;              /*+ How many entries are used? +*/
 
- SegmentX *xdata;              /*+ The extended segment data. +*/
+ SegmentX *xdata;               /*+ The extended segment data. +*/
 }
  SegmentsX;
 
@@ -68,12 +68,12 @@ void FreeSegmentList(SegmentsX *segmentsx);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
-SegmentX *FindFirstSegment(SegmentsX* segmentsx,node_t node);
-SegmentX *FindNextSegment(SegmentsX* segmentsx,SegmentX *segmentx);
+SegmentX *FindFirstSegmentX(SegmentsX* segmentsx,node_t node);
+SegmentX *FindNextSegmentX(SegmentsX* segmentsx,SegmentX *segmentx);
 
 Segment *NextSegment(Segments *segments,Segment *segment);
 
-SegmentX *AppendSegment(SegmentsX *segmentsx,node_t node1,node_t node2,index_t way);
+Segment *AppendSegment(SegmentsX* segmentsx,node_t node1,node_t node2);
 
 void SortSegmentList(SegmentsX *segmentsx);
 
@@ -82,7 +82,7 @@ void RemoveBadSegments(SegmentsX *segmentsx);
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx);
 void FixupSegments(SegmentsX* segmentsx,NodesX *nodesx,SegmentsX* supersegmentsx);
 
-distance_t Distance(Node *node1,Node *node2);
+distance_t Distance(NodeX *nodex1,NodeX *nodex2);
 
 duration_t Duration(Segment *segment,Way *way,Profile *profile);
 

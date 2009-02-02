@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.8 2009-01-31 15:32:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.9 2009-02-02 18:53:12 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -39,10 +39,6 @@ typedef uint32_t index_t;
 
 /*+ A segment index excluding the super-segment flag +*/
 #define SEGMENT(xxx) (index_t)((xxx)&(~SUPER_FLAG))
-
-
-/*+ A node latitude or longitude. +*/
-typedef float latlong_t;
 
 
 /*+ A distance, measured in metres. +*/
@@ -153,8 +149,8 @@ typedef enum _Allowed
 typedef struct _Node
 {
  index_t    firstseg;           /*+ The index of the first segment. +*/
- latlong_t  latitude;           /*+ The node latitude. +*/
- latlong_t  longitude;          /*+ The node longitude. +*/
+ float      latitude;           /*+ The node latitude. +*/
+ float      longitude;          /*+ The node longitude. +*/
 }
  Node;
 
