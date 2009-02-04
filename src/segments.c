@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.28 2009-02-04 18:23:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.29 2009-02-04 18:26:29 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -48,6 +48,9 @@ Segments *LoadSegmentList(const char *filename)
  segments=(Segments*)malloc(sizeof(Segments));
 
  data=MapFile(filename);
+
+ if(!data)
+    return(NULL);
 
  /* Copy the Segments structure from the loaded data */
 
