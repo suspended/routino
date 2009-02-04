@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.21 2009-02-02 18:53:13 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.22 2009-02-04 18:26:29 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -48,6 +48,9 @@ Ways *LoadWayList(const char *filename)
  ways=(Ways*)malloc(sizeof(Ways));
 
  data=MapFile(filename);
+
+ if(!data)
+    return(NULL);
 
  /* Copy the Ways structure from the loaded data */
 

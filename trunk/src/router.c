@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.26 2009-02-04 18:23:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.27 2009-02-04 18:26:29 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -147,11 +147,29 @@ int main(int argc,char** argv)
  sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  OSMNodes=LoadNodeList(filename);
 
+ if(!OSMNodes)
+   {
+    fprintf(stderr,"Cannot open nodes file '%s'.\n",filename);
+    return(1);
+   }
+
  sprintf(filename,"%s%s%s%ssegments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  OSMSegments=LoadSegmentList(filename);
 
+ if(!OSMSegments)
+   {
+    fprintf(stderr,"Cannot open segments file '%s'.\n",filename);
+    return(1);
+   }
+
  sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  OSMWays=LoadWayList(filename);
+
+ if(!OSMWays)
+   {
+    fprintf(stderr,"Cannot open ways file '%s'.\n",filename);
+    return(1);
+   }
 
  /* Get the start and finish */
 

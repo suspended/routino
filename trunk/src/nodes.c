@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.17 2009-02-04 18:23:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.18 2009-02-04 18:26:29 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -56,6 +56,9 @@ Nodes *LoadNodeList(const char *filename)
  nodes=(Nodes*)malloc(sizeof(Nodes));
 
  data=MapFile(filename);
+
+ if(!data)
+    return(NULL);
 
  /* Copy the Nodes structure from the loaded data */
 
