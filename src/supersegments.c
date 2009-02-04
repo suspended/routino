@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.25 2009-02-02 18:53:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.26 2009-02-04 18:23:33 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -125,11 +125,11 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  for(i=0;i<nodesx->number;i++)
    {
-    if(nodesx->xdata[i].super>iteration)
+    if(nodesx->gdata[i].super>iteration)
       {
        SegmentX *segmentx,*first;
 
-       segmentx=first=FindFirstSegmentX(segmentsx,nodesx->xdata[i].id);
+       segmentx=first=FindFirstSegmentX(segmentsx,nodesx->gdata[i].id);
 
        while(segmentx)
          {
@@ -161,23 +161,23 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           if(wayx)
             {
-             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,nodesx->xdata[i].id,wayx,iteration);
+             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,nodesx->gdata[i].id,wayx,iteration);
              Result *result=FirstResult(results);
 
              while(result)
                {
                 NodeX *nodex=FindNodeX(nodesx,result->node);
 
-                if(result->node!=nodesx->xdata[i].id && nodex->super>iteration)
+                if(result->node!=nodesx->gdata[i].id && nodex->super>iteration)
                   {
-                   Segment *supersegment=AppendSegment(supersegmentsx,nodesx->xdata[i].id,result->node);
+                   Segment *supersegment=AppendSegment(supersegmentsx,nodesx->gdata[i].id,result->node);
 
                    supersegment->distance=result->shortest.distance;
                    supersegment->way=IndexWayX(waysx,wayx);
 
                    if(wayx->way.type&Way_OneWay)
                      {
-                      supersegment=AppendSegment(supersegmentsx,result->node,nodesx->xdata[i].id);
+                      supersegment=AppendSegment(supersegmentsx,result->node,nodesx->gdata[i].id);
 
                       supersegment->distance=ONEWAY_OPPOSITE|result->shortest.distance;
                       supersegment->way=IndexWayX(waysx,wayx);

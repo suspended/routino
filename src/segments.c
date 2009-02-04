@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.27 2009-02-02 18:53:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.28 2009-02-04 18:23:33 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -397,7 +397,7 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
     /* Set the distance but preserve the ONEWAY_OPPOSITE flag */
 
-    segmentsx->xdata[i].segment.distance|=Distance(node1,node2);
+    segmentsx->xdata[i].segment.distance|=DistanceX(node1,node2);
 
     if(!((i+1)%10000))
       {
@@ -509,21 +509,25 @@ void FixupSegments(SegmentsX* segmentsx,NodesX *nodesx,SegmentsX* supersegmentsx
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Calculate the distance between two nodes.
+  Calculate the distance between two locations.
 
-  distance_t Distance Returns the distance between the nodes.
+  float Distance Returns the distance between the locations.
 
-  NodeX *nodex1 The starting node.
+  float lat1 The latitude of the first location.
 
-  NodeX *nodex2 The end node.
+  float lon1 The longitude of the first location.
+
+  float lat2 The latitude of the second location.
+
+  float lon2 The longitude of the second location.
   ++++++++++++++++++++++++++++++++++++++*/
 
-distance_t Distance(NodeX *nodex1,NodeX *nodex2)
+float Distance(float lat1,float lon1,float lat2,float lon2)
 {
  double radiant = M_PI / 180;
 
- double dlon = radiant * (nodex1->node.longitude - nodex2->node.longitude);
- double dlat = radiant * (nodex1->node.latitude  - nodex2->node.latitude);
+ double dlon = radiant * (lon1 - lon2);
+ double dlat = radiant * (lat1 - lat2);
 
  double a1,a2,a,sa,c,d;
 
@@ -532,7 +536,43 @@ distance_t Distance(NodeX *nodex1,NodeX *nodex2)
 
  a1 = sin (dlat / 2);
  a2 = sin (dlon / 2);
- a = (a1 * a1) + cos (nodex1->node.latitude * radiant) * cos (nodex2->node.latitude * radiant) * a2 * a2;
+ a = (a1 * a1) + cos (lat1 * radiant) * cos (lat2 * radiant) * a2 * a2;
+ sa = sqrt (a);
+ if (sa <= 1.0)
+   {c = 2 * asin (sa);}
+ else
+   {c = 2 * asin (1.0);}
+ d = 6378.137 * c;
+
+ return d;
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Calculate the distance between two nodes.
+
+  distance_t DistanceX Returns the distance between the extended nodes.
+
+  NodeX *nodex1 The starting node.
+
+  NodeX *nodex2 The end node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+distance_t DistanceX(NodeX *nodex1,NodeX *nodex2)
+{
+ double radiant = M_PI / 180;
+
+ double dlon = radiant * (nodex1->longitude - nodex2->longitude);
+ double dlat = radiant * (nodex1->latitude  - nodex2->latitude);
+
+ double a1,a2,a,sa,c,d;
+
+ if(dlon==0 && dlat==0)
+   return 0;
+
+ a1 = sin (dlat / 2);
+ a2 = sin (dlon / 2);
+ a = (a1 * a1) + cos (nodex1->latitude * radiant) * cos (nodex2->latitude * radiant) * a2 * a2;
  sa = sqrt (a);
  if (sa <= 1.0)
    {c = 2 * asin (sa);}

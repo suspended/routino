@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.43 2009-02-01 17:11:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.44 2009-02-04 18:23:33 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -595,9 +595,12 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
  do
    {
+    float latitude,longitude;
     Node *node=LookupNode(nodes,result->node);
 
-    fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",node->latitude,node->longitude);
+    GetLatLong(nodes,node,&latitude,&longitude);
+
+    fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",latitude,longitude);
 
     if(result->shortest.prev)
       {
@@ -610,14 +613,14 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
        way=LookupWay(ways,segment->way);
 
-       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
+       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",latitude,longitude,
                result->node,IsSuperNode(node)?'*':' ',
                distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->shortest.distance),duration_to_minutes(result->shortest.duration),
                profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
     else
-       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
+       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f\n",latitude,longitude,
                result->node,IsSuperNode(node)?'*':' ',
                0.0,0.0,0.0,0.0);
 
@@ -649,9 +652,12 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
  do
    {
+    float latitude,longitude;
     Node *node=LookupNode(nodes,result->node);
 
-    fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",node->latitude,node->longitude);
+    GetLatLong(nodes,node,&latitude,&longitude);
+
+    fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",latitude,longitude);
 
     if(result->quickest.prev)
       {
@@ -664,14 +670,14 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
        way=LookupWay(ways,segment->way);
 
-       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",node->latitude,node->longitude,
+       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",latitude,longitude,
                result->node,IsSuperNode(node)?'*':' ',
                distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->quickest.distance),duration_to_minutes(result->quickest.duration),
                profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
     else
-       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f\n",node->latitude,node->longitude,
+       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f\n",latitude,longitude,
                result->node,IsSuperNode(node)?'*':' ',
                0.0,0.0,0.0,0.0);
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.25 2009-02-01 17:11:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.26 2009-02-04 18:23:33 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -35,11 +35,11 @@ int main(int argc,char** argv)
 
  /* Parse the command line arguments */
 
- if(argc<3)
+ if(argc<5)
    {
    usage:
 
-    fprintf(stderr,"Usage: router <start-node> <finish-node>\n"
+    fprintf(stderr,"Usage: router <start-lat> <start-lon> <finish-lat> <finish-lon>\n"
                    "              [-help] [-help-profile]\n"
                    "              [-dir=<name>] [-prefix=<name>]\n"
                    "              [-all] [-only-super]\n"
@@ -61,11 +61,6 @@ int main(int argc,char** argv)
     return(1);
    }
 
- /* Get the start and finish */
-
- start=atoll(argv[1]);
- finish=atoll(argv[2]);
-
  /* Get the transport type if specified and fill in the profile */
 
  for(i=3;i<argc;i++)
@@ -84,7 +79,7 @@ int main(int argc,char** argv)
 
  /* Parse the other command line arguments */
 
- while(--argc>=3)
+ while(--argc>=5)
    {
     if(!strcmp(argv[argc],"-help"))
        goto usage;
@@ -157,6 +152,11 @@ int main(int argc,char** argv)
 
  sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  OSMWays=LoadWayList(filename);
+
+ /* Get the start and finish */
+
+ start=IndexNode(OSMNodes,FindNode(OSMNodes,atof(argv[1]),atof(argv[2])));
+ finish=IndexNode(OSMNodes,FindNode(OSMNodes,atof(argv[3]),atof(argv[4])));
 
  /* Calculate the route. */
 
