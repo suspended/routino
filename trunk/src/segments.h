@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.24 2009-02-02 18:53:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.25 2009-02-04 18:23:33 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -82,7 +82,9 @@ void RemoveBadSegments(SegmentsX *segmentsx);
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx);
 void FixupSegments(SegmentsX* segmentsx,NodesX *nodesx,SegmentsX* supersegmentsx);
 
-distance_t Distance(NodeX *nodex1,NodeX *nodex2);
+distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
+
+float Distance(float lat1,float lon1,float lat2,float lon2);
 
 duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
