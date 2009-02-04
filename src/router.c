@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.28 2009-02-04 18:29:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.29 2009-02-04 19:11:38 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -54,6 +54,7 @@ int main(int argc,char** argv)
                    "\n"
                    "<highway> can be selected from:\n"
                    "%s"
+                   "\n"
                    "<speed> is a speed in km/hour\n"
                    "\n",
                    TransportList(),HighwayList());
