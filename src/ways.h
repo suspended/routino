@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.22 2009-02-02 18:53:13 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.23 2009-02-04 18:51:56 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -26,10 +26,9 @@
 /*+ An extended structure containing a single way. +*/
 typedef struct _WayX
 {
- index_t   index;              /*+ The index of the way. +*/
- char      *name;               /*+ The name of the way. +*/
+ char    *name;                 /*+ The name of the way. +*/
 
- Way        way;                /*+ The real Way data. +*/
+ Way      way;                  /*+ The real Way data. +*/
 }
  WayX;
 
@@ -53,7 +52,8 @@ typedef struct _WaysX
  uint32_t number;               /*+ How many entries are used? +*/
  uint32_t length;               /*+ How long is the string of name entries? +*/
 
- WayX    *xdata;                /*+ The extended data for the Ways. +*/
+ WayX    *idata;                /*+ The extended data for the Ways (sorted by index). +*/
+ WayX   **ndata;                /*+ The extended data for the Ways (sorted by name). +*/
  char    *names;                /*+ The array containing all the names. +*/
 }
  WaysX;
@@ -80,9 +80,9 @@ const char *TransportName(Transport transport);
 const char *HighwayList(void);
 const char *TransportList(void);
 
-#define LookupWayX(xxx,yyy) (&(xxx)->xdata[yyy])
+#define LookupWayX(xxx,yyy) (&(xxx)->idata[yyy])
 
-#define IndexWayX(xxx,yyy)  ((yyy)-&(xxx)->xdata[0])
+#define IndexWayX(xxx,yyy)  ((yyy)-&(xxx)->idata[0])
 
 
 #endif /* WAYS_H */

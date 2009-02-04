@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.22 2009-02-04 18:26:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.23 2009-02-04 18:51:56 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -28,8 +28,7 @@
 
 /* Functions */
 
-static int sort_by_index(WayX *a,WayX *b);
-static int sort_by_name(WayX *a,WayX *b);
+static int sort_by_name(WayX **a,WayX **b);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -83,7 +82,8 @@ WaysX *NewWayList(void)
  waysx->number=0;
  waysx->length=0;
 
- waysx->xdata=(WayX*)malloc(waysx->alloced*sizeof(WayX));
+ waysx->idata=(WayX*)malloc(waysx->alloced*sizeof(WayX));
+ waysx->ndata=NULL;
 
  return(waysx);
 }
@@ -120,7 +120,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
  WriteFile(fd,ways,sizeof(Ways));
 
  for(i=0;i<waysx->number;i++)
-    WriteFile(fd,&waysx->xdata[i].way,sizeof(Way));
+    WriteFile(fd,&waysx->idata[i].way,sizeof(Way));
 
  WriteFile(fd,waysx->names,waysx->length);
 
@@ -154,18 +154,16 @@ Way *AppendWay(WaysX* waysx,const char *name)
    {
     waysx->alloced+=INCREMENT_WAYS;
 
-    waysx->xdata=(WayX*)realloc((void*)waysx->xdata,waysx->alloced*sizeof(WayX));
+    waysx->idata=(WayX*)realloc((void*)waysx->idata,waysx->alloced*sizeof(WayX));
    }
 
  /* Insert the way */
 
- waysx->xdata[waysx->number].name=strcpy((char*)malloc(strlen(name)+1),name);
-
- waysx->xdata[waysx->number].index=waysx->number;
+ waysx->idata[waysx->number].name=strcpy((char*)malloc(strlen(name)+1),name);
 
  waysx->number++;
 
- return(&waysx->xdata[waysx->number-1].way);
+ return(&waysx->idata[waysx->number-1].way);
 }
 
 
@@ -185,7 +183,12 @@ void SortWayList(WaysX* waysx)
 
  /* Sort the ways by name */
 
- qsort(waysx->xdata,waysx->number,sizeof(WayX),(int (*)(const void*,const void*))sort_by_name);
+ waysx->ndata=malloc(waysx->number*sizeof(WayX*));
+
+ for(i=0;i<waysx->number;i++)
+    waysx->ndata[i]=&waysx->idata[i];
+
+ qsort(waysx->ndata,waysx->number,sizeof(WayX*),(int (*)(const void*,const void*))sort_by_name);
 
  /* Allocate the new data */
 
@@ -195,50 +198,24 @@ void SortWayList(WaysX* waysx)
 
  for(i=0;i<waysx->number;i++)
    {
-    if(i && !strcmp(waysx->xdata[i].name,waysx->xdata[i-1].name)) /* Same name */
-       waysx->xdata[i].way.name=waysx->xdata[i-1].way.name;
-    else                                                              /* Different name */
+    if(i && !strcmp(waysx->ndata[i]->name,waysx->ndata[i-1]->name)) /* Same name */
+       waysx->ndata[i]->way.name=waysx->ndata[i-1]->way.name;
+    else                                                          /* Different name */
       {
-       if((waysx->length+strlen(waysx->xdata[i].name)+1)>=waysx->alloced)
+       if((waysx->length+strlen(waysx->ndata[i]->name)+1)>=waysx->alloced)
          {
           waysx->alloced+=INCREMENT_WAYS;
 
           waysx->names=(char*)realloc((void*)waysx->names,waysx->alloced*sizeof(char));
          }
 
-       strcpy(&waysx->names[waysx->length],waysx->xdata[i].name);
+       strcpy(&waysx->names[waysx->length],waysx->ndata[i]->name);
 
-       waysx->xdata[i].way.name=waysx->length;
+       waysx->ndata[i]->way.name=waysx->length;
 
-       waysx->length+=strlen(waysx->xdata[i].name)+1;
+       waysx->length+=strlen(waysx->ndata[i]->name)+1;
       }
    }
-
- /* Sort the ways by id */
-
- qsort(waysx->xdata,waysx->number,sizeof(WayX),(int (*)(const void*,const void*))sort_by_index);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the ways into index order.
-
-  int sort_by_index Returns the comparison of the index fields.
-
-  WayX *a The first WayX.
-
-  WayX *b The second WayX.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int sort_by_index(WayX *a,WayX *b)
-{
- index_t a_index=a->index;
- index_t b_index=b->index;
-
- if(a_index<b_index)
-    return(-1);
- else
-    return(1);
 }
 
 
@@ -247,15 +224,15 @@ static int sort_by_index(WayX *a,WayX *b)
 
   int sort_by_name Returns the comparison of the name fields.
 
-  Way *a The first Way.
+  Way **a The first Way.
 
-  Way *b The second Way.
+  Way **b The second Way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_name(WayX *a,WayX *b)
+static int sort_by_name(WayX **a,WayX **b)
 {
- char *a_name=a->name;
- char *b_name=b->name;
+ char *a_name=(*a)->name;
+ char *b_name=(*b)->name;
 
  return(strcmp(a_name,b_name));
 }
