@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.28 2009-02-01 17:11:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.29 2009-02-04 18:29:12 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -53,24 +53,24 @@ int main(int argc,char** argv)
 
  while(--argc>=1)
    {
-    if(!strcmp(argv[argc],"-help"))
+    if(!strcmp(argv[argc],"--help"))
        goto usage;
-    else if(!strcmp(argv[argc],"-help-profile"))
+    else if(!strcmp(argv[argc],"--help-profile"))
        help_profile=1;
-    else if(!strncmp(argv[argc],"-dir=",5))
-       dirname=&argv[argc][5];
-    else if(!strncmp(argv[argc],"-prefix=",8))
-       prefix=&argv[argc][8];
-    else if(!strncmp(argv[argc],"-max-iterations=",16))
-       max_iterations=atoi(&argv[argc][16]);
-    else if(!strncmp(argv[argc],"-transport=",11))
+    else if(!strncmp(argv[argc],"--dir=",6))
+       dirname=&argv[argc][6];
+    else if(!strncmp(argv[argc],"--prefix=",9))
+       prefix=&argv[argc][9];
+    else if(!strncmp(argv[argc],"--max-iterations=",17))
+       max_iterations=atoi(&argv[argc][17]);
+    else if(!strncmp(argv[argc],"--transport=",12))
       {
-       profile.transport=TransportType(&argv[argc][11]);
+       profile.transport=TransportType(&argv[argc][12]);
        profile.allow=1<<(profile.transport-1);
       }
-    else if(!strncmp(argv[argc],"-not-highway=",13))
+    else if(!strncmp(argv[argc],"--not-highway=",14))
       {
-       Highway highway=HighwayType(&argv[argc][13]);
+       Highway highway=HighwayType(&argv[argc][14]);
        profile.highways[highway]=0;
       }
     else
@@ -78,11 +78,11 @@ int main(int argc,char** argv)
       usage:
 
        fprintf(stderr,"Usage: planetsplitter\n"
-                      "                      [-help] [-help-profile]\n"
-                      "                      [-dir=<name>] [-prefix=<name>]\n"
-                      "                      [-max-iterations=<number>]\n"
-                      "                      [-transport=<transport>]\n"
-                      "                      [-not-highway=<highway> ...]\n"
+                      "                      [--help] [--help-profile]\n"
+                      "                      [--dir=<name>] [--prefix=<name>]\n"
+                      "                      [--max-iterations=<number>]\n"
+                      "                      [--transport=<transport>]\n"
+                      "                      [--not-highway=<highway> ...]\n"
                       "\n"
                       "<transport> defaults to all but can be set to:\n"
                       "%s"

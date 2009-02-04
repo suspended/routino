@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.27 2009-02-04 18:26:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.28 2009-02-04 18:29:12 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -40,14 +40,14 @@ int main(int argc,char** argv)
    usage:
 
     fprintf(stderr,"Usage: router <start-lat> <start-lon> <finish-lat> <finish-lon>\n"
-                   "              [-help] [-help-profile]\n"
-                   "              [-dir=<name>] [-prefix=<name>]\n"
-                   "              [-all] [-only-super]\n"
-                   "              [-no-print]\n"
-                   "              [-transport=<transport>]\n"
-                   "              [-not-highway=<highway> ...]\n"
-                   "              [-speed-<highway>=<speed> ...]\n"
-                   "              [-ignore-oneway]\n"
+                   "              [--help] [--help-profile]\n"
+                   "              [--dir=<name>] [--prefix=<name>]\n"
+                   "              [--all] [--only-super]\n"
+                   "              [--no-print]\n"
+                   "              [--transport=<transport>]\n"
+                   "              [--not-highway=<highway> ...]\n"
+                   "              [--speed-<highway>=<speed> ...]\n"
+                   "              [--ignore-oneway]\n"
                    "\n"
                    "<transport> defaults to motorcar but can be set to:\n"
                    "%s"
@@ -64,9 +64,9 @@ int main(int argc,char** argv)
  /* Get the transport type if specified and fill in the profile */
 
  for(i=3;i<argc;i++)
-    if(!strncmp(argv[i],"-transport=",11))
+    if(!strncmp(argv[i],"--transport=",12))
       {
-       transport=TransportType(&argv[i][11]);
+       transport=TransportType(&argv[i][12]);
 
        if(transport==Transport_None)
           goto usage;
@@ -81,32 +81,32 @@ int main(int argc,char** argv)
 
  while(--argc>=5)
    {
-    if(!strcmp(argv[argc],"-help"))
+    if(!strcmp(argv[argc],"--help"))
        goto usage;
-    else if(!strcmp(argv[argc],"-help-profile"))
+    else if(!strcmp(argv[argc],"--help-profile"))
        help_profile=1;
-    else if(!strncmp(argv[argc],"-dir=",5))
-       dirname=&argv[argc][5];
-    else if(!strncmp(argv[argc],"-prefix=",8))
-       prefix=&argv[argc][8];
-    else if(!strcmp(argv[argc],"-all"))
+    else if(!strncmp(argv[argc],"--dir=",6))
+       dirname=&argv[argc][6];
+    else if(!strncmp(argv[argc],"--prefix=",9))
+       prefix=&argv[argc][9];
+    else if(!strcmp(argv[argc],"--all"))
        all=1;
-    else if(!strcmp(argv[argc],"-only-super"))
+    else if(!strcmp(argv[argc],"--only-super"))
        only_super=1;
-    else if(!strcmp(argv[argc],"-no-print"))
+    else if(!strcmp(argv[argc],"--no-print"))
        no_print=1;
-    else if(!strncmp(argv[argc],"-transport=",11))
+    else if(!strncmp(argv[argc],"--transport=",12))
        ; /* Done this already*/
-    else if(!strncmp(argv[argc],"-not-highway=",13))
+    else if(!strncmp(argv[argc],"--not-highway=",14))
       {
-       Highway highway=HighwayType(&argv[argc][13]);
+       Highway highway=HighwayType(&argv[argc][14]);
 
        if(highway==Way_Unknown)
           goto usage;
 
        profile.highways[highway]=0;
       }
-    else if(!strncmp(argv[argc],"-speed-",7))
+    else if(!strncmp(argv[argc],"--speed-",8))
       {
        Highway highway;
        char *equal=strchr(argv[argc],'=');
@@ -115,7 +115,7 @@ int main(int argc,char** argv)
        if(!equal)
           goto usage;
 
-       string=strcpy((char*)malloc(strlen(argv[argc])),argv[argc]+7);
+       string=strcpy((char*)malloc(strlen(argv[argc])),argv[argc]+8);
        string[equal-argv[argc]]=0;
 
        highway=HighwayType(string);
