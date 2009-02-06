@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.23 2009-02-04 18:51:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.24 2009-02-06 20:23:35 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -160,6 +160,8 @@ Way *AppendWay(WaysX* waysx,const char *name)
  /* Insert the way */
 
  waysx->idata[waysx->number].name=strcpy((char*)malloc(strlen(name)+1),name);
+
+ memset(&waysx->idata[waysx->number].way,0,sizeof(Way));
 
  waysx->number++;
 

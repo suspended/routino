@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.25 2009-02-02 18:53:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.26 2009-02-06 20:23:32 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -214,11 +214,14 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 segment=AppendSegment(OSMSegments,from,to);
                 segment->way=OSMWays->number-1;
 
+                if(way_oneway)
+                   segment->distance=ONEWAY_1TO2;
+
                 segment=AppendSegment(OSMSegments,to,from);
                 segment->way=OSMWays->number-1;
 
                 if(way_oneway)
-                   segment->distance=ONEWAY_OPPOSITE;
+                   segment->distance=ONEWAY_2TO1;
                }
             }
          }
