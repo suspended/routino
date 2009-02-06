@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.44 2009-02-04 18:23:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.45 2009-02-06 20:23:32 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -95,13 +95,22 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
        HalfResult shortest2,quickest2;
        duration_t segment_duration;
 
+       //       printf("%d %d %d %d %d\n",NODE(segment->node1),NODE(segment->node2),segment->next1,segment->next2,segment->distance);
+
+       //       printf("node1=%d\n",node1);
+
        if(!IsNormalSegment(segment))
           goto endloop;
 
-       if(segment->distance&ONEWAY_OPPOSITE && profile->oneway)
+       if(profile->oneway && ONEWAY_TO(segment,node1))
           goto endloop;
 
-       node2=NODE(segment->node2);
+       if(NODE(segment->node1)==node1)
+          node2=NODE(segment->node2);
+       else
+          node2=NODE(segment->node1);
+
+       //       printf("node2=%d\n",node2);
 
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
@@ -196,7 +205,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
           fflush(stdout);
          }
 
-       segment=NextSegment(segments,segment);
+       segment=NextSegment(segments,segment,node1);
       }
    }
 
@@ -349,7 +358,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
        if(!IsSuperSegment(segment))
           goto endloop;
 
-       if(segment->distance&ONEWAY_OPPOSITE && profile->oneway)
+       if(profile->oneway && ONEWAY_TO(segment,node1))
           goto endloop;
 
        node2=NODE(segment->node2);
@@ -449,7 +458,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
           fflush(stdout);
          }
 
-       segment=NextSegment(segments,segment);
+       segment=NextSegment(segments,segment,node1);
       }
    }
 
@@ -608,8 +617,8 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
        Way *way;
 
        segment=FirstSegment(segments,LookupNode(nodes,result->shortest.prev));
-       while(NODE(segment->node2)!=result->node)
-          segment=NextSegment(segments,segment);
+       while(NODE(segment->node2)!=result->node && NODE(segment->node1)!=result->node)
+          segment=NextSegment(segments,segment,result->shortest.prev);
 
        way=LookupWay(ways,segment->way);
 
@@ -665,8 +674,8 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
        Way *way;
 
        segment=FirstSegment(segments,LookupNode(nodes,result->quickest.prev));
-       while(NODE(segment->node2)!=result->node)
-          segment=NextSegment(segments,segment);
+       while(NODE(segment->node2)!=result->node && NODE(segment->node1)!=result->node)
+          segment=NextSegment(segments,segment,result->quickest.prev);
 
        way=LookupWay(ways,segment->way);
 
@@ -755,7 +764,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Pro
        if(!IsNormalSegment(segment))
           goto endloop;
 
-       if(segment->distance&ONEWAY_OPPOSITE && profile->oneway)
+       if(profile->oneway && ONEWAY_TO(segment,node1))
           goto endloop;
 
        node2=NODE(segment->node2);
@@ -825,7 +834,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Pro
 
       endloop:
 
-       segment=NextSegment(segments,segment);
+       segment=NextSegment(segments,segment,node1);
       }
    }
 
@@ -886,34 +895,20 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fi
 
     while(segment)
       {
-       duration_t reversesegment_duration;
+       duration_t segment_duration;
 
-       /* Reverse the segment and check it exists */
-
-       index_t reversenode;
-       Segment *reversesegment;
-
-       reversenode=NODE(segment->node2);
-       reversesegment=FirstSegment(segments,LookupNode(nodes,reversenode));
-
-       while(reversesegment && NODE(reversesegment->node2)!=node1)
-          reversesegment=NextSegment(segments,reversesegment);
-
-       if(!reversesegment)
+       if(!IsNormalSegment(segment))
           goto endloop;
 
-       if(!IsNormalSegment(reversesegment))
+       if(profile->oneway && ONEWAY_FROM(segment,node1))
           goto endloop;
 
-       if(reversesegment->distance&ONEWAY_OPPOSITE && profile->oneway)
-          goto endloop;
-
-       node2=NODE(reversesegment->node1);
+       node2=NODE(segment->node1);
 
        if(result1->shortest.next==node2 && result1->quickest.next==node2)
           goto endloop;
 
-       way=LookupWay(ways,reversesegment->way);
+       way=LookupWay(ways,segment->way);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -921,12 +916,12 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fi
        if(!profile->highways[HIGHWAY(way->type)])
           goto endloop;
 
-       reversesegment_duration=Duration(reversesegment,way,profile);
+       segment_duration=Duration(segment,way,profile);
 
-       shortest2.distance=result1->shortest.distance+DISTANCE(reversesegment->distance);
-       shortest2.duration=result1->shortest.duration+reversesegment_duration;
-       quickest2.distance=result1->quickest.distance+DISTANCE(reversesegment->distance);
-       quickest2.duration=result1->quickest.duration+reversesegment_duration;
+       shortest2.distance=result1->shortest.distance+DISTANCE(segment->distance);
+       shortest2.duration=result1->shortest.duration+segment_duration;
+       quickest2.distance=result1->quickest.distance+DISTANCE(segment->distance);
+       quickest2.duration=result1->quickest.duration+segment_duration;
 
        result2=FindResult(results,node2);
 
@@ -975,7 +970,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fi
 
       endloop:
 
-       segment=NextSegment(segments,segment);
+       segment=NextSegment(segments,segment,node1);
       }
    }
 

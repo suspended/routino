@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.10 2009-02-04 18:23:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.11 2009-02-06 20:23:33 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -24,8 +24,11 @@
 /*+ A flag to mark super-nodes and super-segments. +*/
 #define SUPER_FLAG 0x80000000
 
-/*+ A flag to mark a distance as only applying for the other direction. +*/
-#define ONEWAY_OPPOSITE 0x80000000
+/*+ A flag to mark a distance as only applying from node1 to node2. +*/
+#define ONEWAY_1TO2 0x80000000
+
+/*+ A flag to mark a distance as only applying from node2 to node1. +*/
+#define ONEWAY_2TO1 0x40000000
 
 
 /* Simple Types */
@@ -53,7 +56,7 @@ typedef uint32_t duration_t;
 
 
 /*+ The real distance ignoring the ONEWAY_OPPOSITE flag. +*/
-#define DISTANCE(xx)  (distance_t)((xx)&(~ONEWAY_OPPOSITE))
+#define DISTANCE(xx)  (distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1)))
 
 /*+ Conversion from distance_t to kilometres. +*/
 #define distance_to_km(xx) ((double)(xx)/1000.0)
@@ -153,6 +156,7 @@ typedef enum _Allowed
 typedef struct _Node
 {
  index_t    firstseg;           /*+ The index of the first segment. +*/
+
  ll_off_t   latoffset;          /*+ The node latitude offset within its bin. +*/
  ll_off_t   lonoffset;          /*+ The node longitude offset within its bin. +*/
 }
@@ -164,7 +168,12 @@ typedef struct _Segment
 {
  index_t    node1;              /*+ The index of the starting node. +*/
  index_t    node2;              /*+ The index of the finishing node. +*/
+
+ index_t    next1;              /*+ The index of the next segment sharing node1. +*/
+ index_t    next2;              /*+ The index of the next segment sharing node2. +*/
+
  index_t    way;                /*+ The index of the way associated with the segment. +*/
+
  distance_t distance;           /*+ The distance between the nodes. +*/
 }
  Segment;
@@ -174,8 +183,11 @@ typedef struct _Segment
 typedef struct _Way
 {
  index_t    name;               /*+ The offset of the name of the way in the names array. +*/
+
  speed_t    limit;              /*+ The defined speed limit on the way. +*/
+
  waytype_t  type;               /*+ The type of the way. +*/
+
  wayallow_t allow;              /*+ The type of traffic allowed on the way. +*/
 }
  Way;
@@ -212,6 +224,8 @@ typedef struct _Way
 /*+ Return true if this is a super-segment. +*/
 #define IsSuperSegment(xxx)    (((xxx)->node2)&SUPER_FLAG)
 
+#define ONEWAY_TO(xxx,yyy)     ((NODE((xxx)->node1)==(yyy))?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
+#define ONEWAY_FROM(xxx,yyy)   ((NODE((xxx)->node2)==(yyy))?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
 
 /* Way Functions */
 

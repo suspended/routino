@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.29 2009-02-04 18:29:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.30 2009-02-06 20:23:32 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -30,7 +30,7 @@ int main(int argc,char** argv)
  SegmentsX *OSMSegments,*SuperSegments=NULL;
  WaysX *OSMWays;
  int iteration=0,quit=0;
- int help_profile=0,max_iterations=5;
+ int help_profile=0,max_iterations=10;
  char *dirname=NULL,*prefix=NULL,*filename;
  Profile profile;
  int i;
@@ -177,6 +177,9 @@ int main(int argc,char** argv)
 
        SuperSegments2=CreateSuperSegments(OSMNodes,SuperSegments,OSMWays,iteration);
 
+       if(SuperSegments->number==SuperSegments2->number)
+          quit=1;
+
        FreeSegmentList(SuperSegments);
 
        SuperSegments=SuperSegments2;
@@ -195,10 +198,15 @@ int main(int argc,char** argv)
    }
  while(!quit);
 
+ printf("\n"); fflush(stdout);
 
- /* Fix the node indexes */
+ /* Mark the super-nodes */
 
- FixupSegments(OSMSegments,OSMNodes,SuperSegments);
+ MarkSuperNodes(OSMNodes,iteration);
+
+ /* Merge the super-segments */
+
+ MergeSuperSegments(OSMSegments,SuperSegments);
 
  FreeSegmentList(SuperSegments);
 
@@ -208,9 +216,31 @@ int main(int argc,char** argv)
  SortSegmentList(OSMSegments);
  printf("\rSorted Segments \n"); fflush(stdout);
 
- /* Fix the segment indexes */
+ /* Rotate segments so that node1<node2 */
 
- FixupNodes(OSMNodes,OSMSegments,iteration);
+ RotateSegments(OSMSegments,OSMNodes);
+
+ /* Sort the segments */
+
+ printf("Sorting Segments"); fflush(stdout);
+ SortSegmentList(OSMSegments);
+ printf("\rSorted Segments \n"); fflush(stdout);
+
+ /* Remove duplicated segments */
+
+ DeduplicateSegments(OSMSegments,OSMNodes,OSMWays);
+
+ /* Sort the segments */
+
+ printf("Sorting Segments"); fflush(stdout);
+ SortSegmentList(OSMSegments);
+ printf("\rSorted Segments \n"); fflush(stdout);
+
+ /* Fix the segment and node indexes */
+
+ IndexNodes(OSMNodes,OSMSegments);
+
+ IndexSegments(OSMSegments,OSMNodes);
 
  /* Write out the nodes */
 

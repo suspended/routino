@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.26 2009-02-01 17:11:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.27 2009-02-06 20:23:31 amb Exp $
 
  Header file for function prototypes
  ******************/ /******************
@@ -58,7 +58,8 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
 
 SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration);
 
-Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,WayX *match,int iteration);
+void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx);
 
+Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,WayX *match,int iteration);
 
 #endif /* FUNCTIONS_H */

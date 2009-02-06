@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.29 2009-02-04 18:26:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.30 2009-02-06 20:23:33 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -14,6 +14,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include "nodes.h"
@@ -29,7 +30,7 @@
 
 /* Functions */
 
-static int sort_by_id(SegmentX *a,SegmentX *b);
+static int sort_by_id(SegmentX **a,SegmentX **b);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -58,7 +59,7 @@ Segments *LoadSegmentList(const char *filename)
 
  /* Adjust the pointers in the Segments structure. */
 
- segments->data =data;
+ segments->data=data;
  segments->segments=(Segment*)(data+(off_t)segments->segments);
 
  return(segments);
@@ -79,9 +80,10 @@ SegmentsX *NewSegmentList(void)
 
  segmentsx->sorted=0;
  segmentsx->alloced=INCREMENT_SEGMENTS;
- segmentsx->number=0;
+ segmentsx->xnumber=0;
 
  segmentsx->xdata=(SegmentX*)malloc(segmentsx->alloced*sizeof(SegmentX));
+ segmentsx->sdata=NULL;
 
  return(segmentsx);
 }
@@ -96,6 +98,7 @@ SegmentsX *NewSegmentList(void)
 void FreeSegmentList(SegmentsX *segmentsx)
 {
  free(segmentsx->xdata);
+ free(segmentsx->sdata);
  free(segmentsx);
 }
 
@@ -114,7 +117,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  int fd;
  Segments *segments=calloc(1,sizeof(Segments));
 
- assert(segmentsx->sorted);      /* Must be sorted */
+ assert(segmentsx->sorted);     /* Must be sorted */
 
  /* Fill in a Segments structure with the offset of the real data in the file after
     the Segment structure itself. */
@@ -130,7 +133,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  WriteFile(fd,segments,sizeof(Segments));
 
  for(i=0;i<segmentsx->number;i++)
-    WriteFile(fd,&segmentsx->xdata[i].segment,sizeof(Segment));
+    WriteFile(fd,&segmentsx->sdata[i]->segment,sizeof(Segment));
 
  CloseFile(fd);
 
@@ -143,19 +146,21 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Find the first segment with a particular starting node.
 
-  SegmentX *FindFirstSegmentX Returns the first extended segment with the specified id.
+  SegmentX **FindFirstSegmentX Returns a pointer to the first extended segment with the specified id.
 
   SegmentsX* segmentsx The set of segments to process.
 
   node_t node The node to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *FindFirstSegmentX(SegmentsX* segmentsx,node_t node)
+SegmentX **FindFirstSegmentX(SegmentsX* segmentsx,node_t node)
 {
  int start=0;
  int end=segmentsx->number-1;
  int mid;
  int found;
+
+ assert(segmentsx->sorted);     /* Must be sorted */
 
  /* Binary search - search key exact match only is required.
   *
@@ -168,31 +173,31 @@ SegmentX *FindFirstSegmentX(SegmentsX* segmentsx,node_t node)
   *  # <- end    |  start or end is the wanted one.
   */
 
- if(end<start)                                 /* There are no nodes */
+ if(end<start)                                /* There are no nodes */
     return(NULL);
- else if(node<segmentsx->xdata[start].node1) /* Check key is not before start */
+ else if(node<segmentsx->sdata[start]->node1) /* Check key is not before start */
     return(NULL);
- else if(node>segmentsx->xdata[end].node1)   /* Check key is not after end */
+ else if(node>segmentsx->sdata[end]->node1)   /* Check key is not after end */
     return(NULL);
  else
    {
     do
       {
-       mid=(start+end)/2;                          /* Choose mid point */
+       mid=(start+end)/2;                         /* Choose mid point */
 
-       if(segmentsx->xdata[mid].node1<node)      /* Mid point is too low */
+       if(segmentsx->sdata[mid]->node1<node)      /* Mid point is too low */
           start=mid;
-       else if(segmentsx->xdata[mid].node1>node) /* Mid point is too high */
+       else if(segmentsx->sdata[mid]->node1>node) /* Mid point is too high */
           end=mid;
-       else                                        /* Mid point is correct */
+       else                                       /* Mid point is correct */
          {found=mid; goto found;}
       }
     while((end-start)>1);
 
-    if(segmentsx->xdata[start].node1==node)      /* Start is correct */
+    if(segmentsx->sdata[start]->node1==node)      /* Start is correct */
          {found=start; goto found;}
 
-    if(segmentsx->xdata[end].node1==node)        /* End is correct */
+    if(segmentsx->sdata[end]->node1==node)        /* End is correct */
          {found=end; goto found;}
    }
 
@@ -200,31 +205,31 @@ SegmentX *FindFirstSegmentX(SegmentsX* segmentsx,node_t node)
 
  found:
 
- while(found>0 && segmentsx->xdata[found-1].node1==node)
+ while(found>0 && segmentsx->sdata[found-1]->node1==node)
     found--;
 
- return(&segmentsx->xdata[found]);
+ return(&segmentsx->sdata[found]);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Find the next segment with a particular starting node.
 
-  SegmentX *FindNextSegmentX Returns a pointer to the next segment with the same id.
+  SegmentX **FindNextSegmentX Returns a pointer to the next segment with the same id.
 
-  SegmentsX* segmentss The set of segments to process.
+  SegmentsX* segmentsx The set of segments to process.
 
-  SegmentX *segmentx The current segment.
+  SegmentX **segmentx The current segment.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *FindNextSegmentX(SegmentsX* segmentsx,SegmentX *segmentx)
+SegmentX **FindNextSegmentX(SegmentsX* segmentsx,SegmentX **segmentx)
 {
- SegmentX *next=segmentx+1;
+ SegmentX **next=segmentx+1;
 
- if(IndexSegmentX(segmentsx,next)==segmentsx->number)
+ if((next-segmentsx->sdata)==segmentsx->number)
     return(NULL);
 
- if(next->node1==segmentx->node1)
+ if((*next)->node1==(*segmentx)->node1)
     return(next);
 
  return(NULL);
@@ -241,24 +246,26 @@ SegmentX *FindNextSegmentX(SegmentsX* segmentsx,SegmentX *segmentx)
   Segment *segment The current segment.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segment *NextSegment(Segments* segments,Segment *segment)
+Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
 {
- Segment *next=segment+1;
+ index_t next;
 
- if(IndexSegment(segments,next)==segments->number)
+ if(NODE(segment->node1)==node)
+    next=segment->next1;
+ else
+    next=segment->next2;
+
+ if(next==~0)
     return(NULL);
-
- if(NODE(next->node1)==NODE(segment->node1))
-    return(next);
-
- return(NULL);
+ else
+    return(LookupSegment(segments,next));
 }
  
  
 /*++++++++++++++++++++++++++++++++++++++
   Append a segment to a segment list.
 
-  Segment *AppendSegmentX Returns the appended segment.
+  Segment *AppendSegment Returns the appended segment.
 
   SegmentsX* segmentsx The set of segments to process.
 
@@ -271,7 +278,7 @@ Segment *AppendSegment(SegmentsX* segmentsx,node_t node1,node_t node2)
 {
  /* Check that the array has enough space. */
 
- if(segmentsx->number==segmentsx->alloced)
+ if(segmentsx->xnumber==segmentsx->alloced)
    {
     segmentsx->alloced+=INCREMENT_SEGMENTS;
 
@@ -280,16 +287,16 @@ Segment *AppendSegment(SegmentsX* segmentsx,node_t node1,node_t node2)
 
  /* Insert the segment */
 
- segmentsx->xdata[segmentsx->number].node1=node1;
- segmentsx->xdata[segmentsx->number].node2=node2;
+ segmentsx->xdata[segmentsx->xnumber].node1=node1;
+ segmentsx->xdata[segmentsx->xnumber].node2=node2;
 
- segmentsx->xdata[segmentsx->number].segment.distance=0;
+ memset(&segmentsx->xdata[segmentsx->xnumber].segment,0,sizeof(Segment));
 
- segmentsx->number++;
+ segmentsx->xnumber++;
 
  segmentsx->sorted=0;
 
- return(&segmentsx->xdata[segmentsx->number-1].segment);
+ return(&segmentsx->xdata[segmentsx->xnumber-1].segment);
 }
 
 
@@ -301,10 +308,25 @@ Segment *AppendSegment(SegmentsX* segmentsx,node_t node1,node_t node2)
 
 void SortSegmentList(SegmentsX* segmentsx)
 {
- qsort(segmentsx->xdata,segmentsx->number,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id);
+ int i;
 
- while(segmentsx->xdata[segmentsx->number-1].node1==~0)
-    segmentsx->number--;
+ /* Allocate the arrays of pointers */
+
+ if(segmentsx->sorted)
+    segmentsx->sdata=realloc(segmentsx->sdata,segmentsx->xnumber*sizeof(SegmentX*));
+ else
+    segmentsx->sdata=malloc(segmentsx->xnumber*sizeof(SegmentX*));
+
+ segmentsx->number=0;
+
+ for(i=0;i<segmentsx->xnumber;i++)
+    if(segmentsx->xdata[i].node1!=~0)
+      {
+       segmentsx->sdata[segmentsx->number]=&segmentsx->xdata[i];
+       segmentsx->number++;
+      }
+
+ qsort(segmentsx->sdata,segmentsx->number,sizeof(SegmentX*),(int (*)(const void*,const void*))sort_by_id);
 
  segmentsx->sorted=1;
 }
@@ -315,15 +337,15 @@ void SortSegmentList(SegmentsX* segmentsx)
 
   int sort_by_id Returns the comparison of the node fields.
 
-  SegmentX *a The first Segment.
+  SegmentX **a The first Segment.
 
-  SegmentX *b The second Segment.
+  SegmentX **b The second Segment.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_id(SegmentX *a,SegmentX *b)
+static int sort_by_id(SegmentX **a,SegmentX **b)
 {
- node_t a_id1=a->node1,a_id2=a->node2;
- node_t b_id1=b->node1,b_id2=b->node2;
+ node_t a_id1=(*a)->node1;
+ node_t b_id1=(*b)->node1;
 
  if(a_id1<b_id1)
     return(-1);
@@ -331,10 +353,25 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
     return(1);
  else /* if(a_id1==b_id1) */
    {
+    node_t a_id2=(*a)->node2;
+    node_t b_id2=(*b)->node2;
+
     if(a_id2<b_id2)
        return(-1);
-    else
+    else if(a_id2>b_id2)
        return(1);
+    else
+      {
+       distance_t a_distance=(*a)->segment.distance;
+       distance_t b_distance=(*b)->segment.distance;
+
+       if(a_distance<b_distance)
+          return(-1);
+       else if(a_distance>b_distance)
+          return(1);
+       else
+          return(0);
+      }
    }
 }
 
@@ -349,23 +386,22 @@ void RemoveBadSegments(SegmentsX *segmentsx)
 {
  int i;
  int duplicate=0,loop=0;
- node_t node1=~0,node2=~0;
+
+ assert(segmentsx->sorted);     /* Must be sorted */
 
  for(i=0;i<segmentsx->number;i++)
    {
-    if(segmentsx->xdata[i].node1==node1 && segmentsx->xdata[i].node2==node2)
+    if(i && segmentsx->sdata[i]->node1==segmentsx->sdata[i-1]->node1 &&
+            segmentsx->sdata[i]->node2==segmentsx->sdata[i-1]->node2)
       {
        duplicate++;
-       segmentsx->xdata[i].node1=~0;
+       segmentsx->sdata[i-1]->node1=~0;
       }
-    else if(segmentsx->xdata[i].node1==segmentsx->xdata[i].node2)
+    else if(segmentsx->sdata[i]->node1==segmentsx->sdata[i]->node2)
       {
        loop++;
-       segmentsx->xdata[i].node1=~0;
+       segmentsx->sdata[i]->node1=~0;
       }
-
-    node1=segmentsx->xdata[i].node1;
-    node2=segmentsx->xdata[i].node2;
 
     if(!((i+1)%10000))
       {
@@ -391,16 +427,16 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 {
  int i;
 
- assert(segmentsx->sorted);   /* Must be sorted */
+ assert(segmentsx->sorted);     /* Must be sorted */
 
  for(i=0;i<segmentsx->number;i++)
    {
-    NodeX *node1=FindNodeX(nodesx,segmentsx->xdata[i].node1);
-    NodeX *node2=FindNodeX(nodesx,segmentsx->xdata[i].node2);
+    NodeX *node1=FindNodeX(nodesx,segmentsx->sdata[i]->node1);
+    NodeX *node2=FindNodeX(nodesx,segmentsx->sdata[i]->node2);
 
-    /* Set the distance but preserve the ONEWAY_OPPOSITE flag */
+    /* Set the distance but preserve the ONEWAY_* flags */
 
-    segmentsx->xdata[i].segment.distance|=DistanceX(node1,node2);
+    segmentsx->sdata[i]->segment.distance|=DistanceX(node1,node2);
 
     if(!((i+1)%10000))
       {
@@ -415,98 +451,146 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Fix the segment indexes to the nodes.
+  Make the segments all point the same way (node1<node2).
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  NodesX *nodesx The list of nodes to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void RotateSegments(SegmentsX* segmentsx,NodesX *nodesx)
+{
+ int i,rotated=0;
+
+ assert(segmentsx->sorted);     /* Must be sorted */
+
+ for(i=0;i<segmentsx->number;i++)
+   {
+    if(segmentsx->sdata[i]->node1>segmentsx->sdata[i]->node2)
+      {
+       segmentsx->sdata[i]->node1^=segmentsx->sdata[i]->node2;
+       segmentsx->sdata[i]->node2^=segmentsx->sdata[i]->node1;
+       segmentsx->sdata[i]->node1^=segmentsx->sdata[i]->node2;
+
+       if(segmentsx->sdata[i]->segment.distance&(ONEWAY_2TO1|ONEWAY_1TO2))
+          segmentsx->sdata[i]->segment.distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+
+       rotated++;
+      }
+
+    if(!((i+1)%10000))
+      {
+       printf("\rRotating Segments: Segments=%d Rotated=%d",i+1,rotated);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rRotated Segments: Segments=%d Rotated=%d \n",segmentsx->number,rotated);
+ fflush(stdout);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Mark the duplicate segments.
 
   SegmentsX* segmentsx The set of segments to process.
 
   NodesX *nodesx The list of nodes to use.
 
-  SegmentsX* supersegmentsx The set of super-segments to append.
+  WaysX *waysx The list of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FixupSegments(SegmentsX* segmentsx,NodesX *nodesx,SegmentsX* supersegmentsx)
+void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 {
- int i,j,n;
+ int i,duplicate=0;
 
- assert(segmentsx->sorted);   /* Must be sorted */
- assert(supersegmentsx->sorted);   /* Must be sorted */
+ assert(segmentsx->sorted);     /* Must be sorted */
 
- for(i=0;i<segmentsx->number;i++)
+ for(i=1;i<segmentsx->number;i++)
    {
-    NodeX *node1=FindNodeX(nodesx,segmentsx->xdata[i].node1);
-    NodeX *node2=FindNodeX(nodesx,segmentsx->xdata[i].node2);
+    if(segmentsx->sdata[i]->node1==segmentsx->sdata[i-1]->node1 &&
+       segmentsx->sdata[i]->node2==segmentsx->sdata[i-1]->node2 &&
+       segmentsx->sdata[i]->segment.node1==segmentsx->sdata[i-1]->segment.node1 &&
+       segmentsx->sdata[i]->segment.node2==segmentsx->sdata[i-1]->segment.node2 &&
+       segmentsx->sdata[i]->segment.distance==segmentsx->sdata[i-1]->segment.distance)
+      {
+       WayX *wayx1=LookupWayX(waysx,segmentsx->sdata[i-1]->segment.way);
+       WayX *wayx2=LookupWayX(waysx,segmentsx->sdata[i]->segment.way);
 
-    segmentsx->xdata[i].segment.node1=IndexNodeX(nodesx,node1)|SUPER_FLAG;
-    segmentsx->xdata[i].segment.node2=IndexNodeX(nodesx,node2);
+       if(wayx1==wayx2 ||
+          (wayx1->way.type==wayx2->way.type && wayx1->way.allow==wayx2->way.allow && wayx1->way.limit==wayx2->way.limit))
+         {
+          segmentsx->sdata[i-1]->node1=~0;
+          segmentsx->sdata[i-1]->node2=~0;
+
+          duplicate++;
+         }
+      }
 
     if(!((i+1)%10000))
       {
-       printf("\rFixing Segments: Segments=%d",i+1);
+       printf("\rDeduplicating Segments: Segments=%d Duplicate=%d",i+1,duplicate);
        fflush(stdout);
       }
    }
 
- printf("\rFixed Segments: Segments=%d \n",segmentsx->number);
+ printf("\rDeduplicated Segments: Segments=%d Duplicate=%d \n",segmentsx->number,duplicate);
  fflush(stdout);
+}
 
- for(i=0;i<supersegmentsx->number;i++)
+
+/*++++++++++++++++++++++++++++++++++++++
+  Assign the nodes indexes to the segments.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  NodesX *nodesx The list of nodes to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
+{
+ int i;
+
+ assert(segmentsx->sorted);     /* Must be sorted */
+ assert(nodesx->sorted);        /* Must be sorted */
+
+ /* Index the segments */
+
+ for(i=0;i<nodesx->number;i++)
    {
-    NodeX *node1=FindNodeX(nodesx,supersegmentsx->xdata[i].node1);
-    NodeX *node2=FindNodeX(nodesx,supersegmentsx->xdata[i].node2);
+    SegmentX *segmentx=LookupSegmentX(segmentsx,SEGMENT(nodesx->gdata[i]->node.firstseg));
 
-    supersegmentsx->xdata[i].segment.node1=IndexNodeX(nodesx,node1);
-    supersegmentsx->xdata[i].segment.node2=IndexNodeX(nodesx,node2)|SUPER_FLAG;
-
-    if(!((i+1)%10000))
+    do
       {
-       printf("\rFixing Super-Segments: Super-Segments=%d",i+1);
-       fflush(stdout);
-      }
-   }
-
- printf("\rFixed Super-Segments: Super-Segments=%d \n",supersegmentsx->number);
- fflush(stdout);
-
- n=segmentsx->number;
-
- for(i=0,j=0;i<n;i++)
-   {
-    while(j<supersegmentsx->number)
-      {
-       if(segmentsx->xdata[i].node1==supersegmentsx->xdata[j].node1 &&
-          segmentsx->xdata[i].node2==supersegmentsx->xdata[j].node2)
+       if(segmentx->node1==nodesx->gdata[i]->id)
          {
-          segmentsx->xdata[i].segment.node2|=SUPER_FLAG;
-          j++;
-          break;
-         }
-       else if(segmentsx->xdata[i].node1==supersegmentsx->xdata[j].node1 &&
-               segmentsx->xdata[i].node2>supersegmentsx->xdata[j].node2)
-         {
-          Segment *supersegment=AppendSegment(segmentsx,supersegmentsx->xdata[j].node1,supersegmentsx->xdata[j].node2);
+          segmentx->segment.node1|=i;
 
-          *supersegment=supersegmentsx->xdata[j].segment;
-         }
-       else if(segmentsx->xdata[i].node1>supersegmentsx->xdata[j].node1)
-         {
-          Segment *supersegment=AppendSegment(segmentsx,supersegmentsx->xdata[j].node1,supersegmentsx->xdata[j].node2);
-
-          *supersegment=supersegmentsx->xdata[j].segment;
+          if(segmentx->segment.next1==~0)
+             segmentx=NULL;
+          else
+             segmentx=LookupSegmentX(segmentsx,segmentx->segment.next1);
          }
        else
-          break;
+         {
+          segmentx->segment.node2|=i;
 
-       j++;
+          if(segmentx->segment.next2==~0)
+             segmentx=NULL;
+          else
+             segmentx=LookupSegmentX(segmentsx,segmentx->segment.next2);
+         }
       }
+    while(segmentx);
 
     if(!((i+1)%10000))
       {
-       printf("\rMerging Segments: Segments=%d Super-Segment=%d Total=%d",i+1,j+1,segmentsx->number);
+       printf("\rIndexing Nodes: Nodes=%d",i+1);
        fflush(stdout);
       }
    }
 
- printf("\rMerged Segments: Segments=%d Super-Segment=%d Total=%d \n",n,supersegmentsx->number,segmentsx->number);
+ printf("\rIndexed Nodes: Nodes=%d \n",nodesx->number);
  fflush(stdout);
 }
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.17 2009-02-04 18:23:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.18 2009-02-06 20:23:32 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -33,12 +33,12 @@ typedef uint32_t node_t;
 /*+ An extended structure used for processing. +*/
 typedef struct _NodeX
 {
- node_t    id;                  /*+ The node identifier. +*/
- float     latitude;            /*+ The node latitude. +*/
- float     longitude;           /*+ The node longitude. +*/
- int       super;               /*+ A marker for super nodes. +*/
+ node_t   id;                   /*+ The node identifier. +*/
+ float    latitude;             /*+ The node latitude. +*/
+ float    longitude;            /*+ The node longitude. +*/
+ int      super;                /*+ A marker for super nodes. +*/
 
- Node      node;                /*+ The real node data. +*/
+ Node     node;                 /*+ The real node data. +*/
 }
  NodeX;
 
@@ -66,14 +66,16 @@ typedef struct _NodesX
 {
  uint32_t sorted;               /*+ Is the data sorted and therefore searchable? +*/
  uint32_t alloced;              /*+ How many entries are allocated? +*/
- uint32_t number;               /*+ How many entries are used? +*/
+ uint32_t xnumber;              /*+ How many entries are used from those allocated? +*/
+ uint32_t number;               /*+ How many entries are still useful? +*/
 
  float    lat_min;              /*+ The minimum latitude of the set of nodes. +*/
  float    lat_max;              /*+ The maximum latitude of the set of nodes. +*/
  float    lon_min;              /*+ The minimum longitude of the set of nodes. +*/
  float    lon_max;              /*+ The maximum longitude of the set of nodes. +*/
 
- NodeX   *gdata;                /*+ The extended node data (sorted geographically). +*/
+ NodeX   *xdata;                /*+ The extended node data (unsorted). +*/
+ NodeX  **gdata;                /*+ The extended node data (sorted geographically). +*/
  NodeX  **idata;                /*+ The extended node data (sorted by ID). +*/
 }
  NodesX;
@@ -102,11 +104,9 @@ void SortNodeList(NodesX *nodesx);
 
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
-void FixupNodes(NodesX *nodesx,SegmentsX* segmentsx,int iteration);
+void MarkSuperNodes(NodesX *nodesx,int iteration);
 
-#define LookupNodeX(xxx,yyy) (&(xxx)->gdata[NODE(yyy)])
-
-#define IndexNodeX(xxx,yyy)  ((yyy)-&(xxx)->gdata[0])
+void IndexNodes(NodesX *nodesx,SegmentsX* segmentsx);
 
 
 #endif /* NODES_H */
