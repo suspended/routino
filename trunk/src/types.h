@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.12 2009-02-07 10:06:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.13 2009-02-07 15:56:07 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -21,8 +21,25 @@
 /* Constants */
 
 
+/*+ The latitude and longitude conversion factor from float to integer. +*/
+#define LAT_LONG_SCALE  (1024*1024)
+
+/*+ The latitude and longitude integer range within each bin. +*/
+#define LAT_LONG_BIN    65536
+
+/*+ The latitude and longitude number of bins per degree. +*/
+#define LAT_LONG_DEGBIN (LAT_LONG_SCALE/LAT_LONG_BIN)
+
+
 /*+ A flag to mark super-nodes and super-segments. +*/
 #define SUPER_FLAG 0x80000000
+
+/*+ A node index excluding the super-node flag +*/
+#define NODE(xxx)    (index_t)((xxx)&(~SUPER_FLAG))
+
+/*+ A segment index excluding the super-segment flag +*/
+#define SEGMENT(xxx) (index_t)((xxx)&(~SUPER_FLAG))
+
 
 /*+ A flag to mark a distance as only applying from node1 to node2. +*/
 #define ONEWAY_1TO2 0x80000000
@@ -30,18 +47,19 @@
 /*+ A flag to mark a distance as only applying from node2 to node1. +*/
 #define ONEWAY_2TO1 0x40000000
 
+/*+ The real distance ignoring the ONEWAY_* flags. +*/
+#define DISTANCE(xx)  (distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1)))
+
 
 /* Simple Types */
 
 
+/*+ A node identifier. +*/
+typedef uint32_t node_t;
+
+
 /*+ A node, segment or way index. +*/
 typedef uint32_t index_t;
-
-/*+ A node index excluding the super-node flag +*/
-#define NODE(xxx)    (index_t)((xxx)&(~SUPER_FLAG))
-
-/*+ A segment index excluding the super-segment flag +*/
-#define SEGMENT(xxx) (index_t)((xxx)&(~SUPER_FLAG))
 
 
 /*+ A node latitude or longitude offset. +*/
@@ -54,9 +72,6 @@ typedef uint32_t distance_t;
 /*+ A duration, measured in 1/10th seconds. +*/
 typedef uint32_t duration_t;
 
-
-/*+ The real distance ignoring the ONEWAY_OPPOSITE flag. +*/
-#define DISTANCE(xx)  (distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1)))
 
 /*+ Conversion from distance_t to kilometres. +*/
 #define distance_to_km(xx) ((double)(xx)/1000.0)
@@ -151,94 +166,29 @@ typedef enum _Allowed
 
 /* Data structures */
 
+typedef struct _Node Node;
 
-/*+ A structure containing a single node. +*/
-typedef struct _Node
-{
- index_t    firstseg;           /*+ The index of the first segment. +*/
+typedef struct _Nodes Nodes;
 
- ll_off_t   latoffset;          /*+ The node latitude offset within its bin. +*/
- ll_off_t   lonoffset;          /*+ The node longitude offset within its bin. +*/
-}
- Node;
+typedef struct _Segment Segment;
 
+typedef struct _Segments Segments;
 
-/*+ A structure containing a single segment. +*/
-typedef struct _Segment
-{
- index_t    node1;              /*+ The index of the starting node. +*/
- index_t    node2;              /*+ The index of the finishing node. +*/
+typedef struct _Way Way;
 
- index_t    next1;              /*+ The index of the next segment sharing node1. +*/
- index_t    next2;              /*+ The index of the next segment sharing node2. +*/
+typedef struct _Ways Ways;
 
- index_t    way;                /*+ The index of the way associated with the segment. +*/
+typedef struct _NodeX NodeX;
 
- distance_t distance;           /*+ The distance between the nodes. +*/
-}
- Segment;
+typedef struct _NodesX NodesX;
 
+typedef struct _SegmentX SegmentX;
 
-/*+ A structure containing a single way. +*/
-typedef struct _Way
-{
- index_t    name;               /*+ The offset of the name of the way in the names array. +*/
+typedef struct _SegmentsX SegmentsX;
 
- speed_t    limit;              /*+ The defined speed limit on the way. +*/
+typedef struct _WayX WayX;
 
- waytype_t  type;               /*+ The type of the way. +*/
-
- wayallow_t allow;              /*+ The type of traffic allowed on the way. +*/
-}
- Way;
-
-
-/* Node Functions */
-
-
-/*+ Return a Node pointer given a set of nodes and an index. +*/
-#define LookupNode(xxx,yyy)    (&(xxx)->nodes[yyy])
-
-/*+ Return an index for a Node pointer given a set of nodes. +*/
-#define IndexNode(xxx,yyy)     ((yyy)-&(xxx)->nodes[0])
-
-/*+ Return a Segment points given a Node pointer and a set of segments. +*/
-#define FirstSegment(xxx,yyy)  LookupSegment((xxx),SEGMENT((yyy)->firstseg))
-
-/*+ Return true if this is a super-node. +*/
-#define IsSuperNode(xxx)       (((xxx)->firstseg)&SUPER_FLAG)
-
-
-/* Segment Functions */
-
-
-/*+ Return a Segment pointer given a set of segments and an index. +*/
-#define LookupSegment(xxx,yyy) (&(xxx)->segments[yyy])
-
-/*+ Return true if this is a normal segment. +*/
-#define IsNormalSegment(xxx)   (((xxx)->node1)&SUPER_FLAG)
-
-/*+ Return true if this is a super-segment. +*/
-#define IsSuperSegment(xxx)    (((xxx)->node2)&SUPER_FLAG)
-
-/*+ Return true if the segment is oneway towards the specified node. +*/
-#define IsOnewayTo(xxx,yyy)    ((NODE((xxx)->node1)==(yyy))?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
-
-/*+ Return true if the segment is oneway from the specified node. +*/
-#define IsOnewayFrom(xxx,yyy)  ((NODE((xxx)->node2)==(yyy))?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
-
-/*+ Return the other node in the segment that is not the specified node. +*/
-#define OtherNode(xxx,yyy)     ((NODE((xxx)->node1)==(yyy))?NODE((xxx)->node2):NODE((xxx)->node1))
-
-
-/* Way Functions */
-
-
-/*+ Return a Way* pointer given a set of ways and an index. +*/
-#define LookupWay(xxx,yyy)     (&(xxx)->ways[yyy])
-
-/*+ Return the name of a way given the Way pointer and a set of ways. +*/
-#define WayName(xxx,yyy)       (&(xxx)->names[(yyy)->name])
+typedef struct _WaysX WaysX;
 
 
 #endif /* TYPES_H */

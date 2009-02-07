@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.30 2009-02-07 11:50:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.31 2009-02-07 15:56:07 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -19,6 +19,7 @@
 #include "types.h"
 #include "functions.h"
 #include "profiles.h"
+#include "ways.h"
 
 
 /*+ The option not to print anything progress information. +*/
