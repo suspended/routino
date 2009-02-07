@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.6 2009-01-30 19:57:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.7 2009-02-07 18:41:34 amb Exp $
 
  Result data type functions.
  ******************/ /******************
@@ -28,12 +28,14 @@ typedef struct _Queue
 {
  uint32_t  alloced;             /*+ The amount of space allocated for results in the array. +*/
  uint32_t  number;              /*+ The number of occupied results in the array. +*/
+ uint32_t  start;               /*+ The start point (for reading the next value). +*/
+ uint32_t  end;                 /*+ The end point (the last written value). +*/
  Result  **xqueue;              /*+ An array of pointers to parts of the results structure. +*/
 }
  Queue;
 
 /*+ The queue of nodes. +*/
-static Queue queue={0,0,NULL};
+static Queue queue={0,0,0,0,NULL};
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -122,11 +124,7 @@ void FreeResultsList(Results *results)
 Result *InsertResult(Results *results,node_t node)
 {
  int bin=node&results->mask;
- int start=0;
- int end=results->count[bin]-1;
  int i;
- int mid;
- int insert=-1;
 
  /* Check that the arrays have enough space. */
 
@@ -146,60 +144,20 @@ Result *InsertResult(Results *results,node_t node)
     results->data[c]=(Result*)malloc(results->nbins*RESULTS_INCREMENT*sizeof(Result));
    }
 
- /* Binary search - search key may not match, if not then insertion point required
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since there may not be an exact match we must set end=mid
-  *  # <- mid    |  or start=mid because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually end=start+1 and the insertion point is before
-  *  # <- end    |  end (since it cannot be before the initial start or end).
-  */
-
- if(end<start)                                  /* There are no results */
-    insert=start;
- else if(node<results->point[bin][start]->node) /* Check key is not before start */
-    insert=start;
- else if(node>results->point[bin][end]->node)   /* Check key is not after end */
-    insert=end+1;
- else
-   {
-    do
-      {
-       mid=(start+end)/2;                           /* Choose mid point */
-
-       if(results->point[bin][mid]->node<node)      /* Mid point is too low */
-          start=mid;
-       else if(results->point[bin][mid]->node>node) /* Mid point is too high */
-          end=mid;
-       else
-          assert(0);
-      }
-    while((end-start)>1);
-
-    insert=end;
-   }
-
- /* Shuffle the array up */
-
- if(insert!=results->count[bin])
-    memmove(&results->point[bin][insert+1],&results->point[bin][insert],(results->count[bin]-insert)*sizeof(Result*));
-
  /* Insert the new entry */
 
- results->point[bin][insert]=&results->data[results->number/(results->nbins*RESULTS_INCREMENT)][results->number%(results->nbins*RESULTS_INCREMENT)];
+ results->point[bin][results->count[bin]]=&results->data[results->number/(results->nbins*RESULTS_INCREMENT)][results->number%(results->nbins*RESULTS_INCREMENT)];
 
  results->number++;
 
  results->count[bin]++;
 
- return(results->point[bin][insert]);
+ return(results->point[bin][results->count[bin]-1]);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find a result, ordered by node.
+  Find a result; search by node.
 
   Result *insert_result Returns the result that has been found.
 
@@ -211,48 +169,11 @@ Result *InsertResult(Results *results,node_t node)
 Result *FindResult(Results *results,node_t node)
 {
  int bin=node&results->mask;
- int start=0;
- int end=results->count[bin]-1;
- int mid;
+ int i;
 
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- if(end<start)                                  /* There are no results */
-    return(NULL);
- else if(node<results->point[bin][start]->node) /* Check key is not before start */
-    return(NULL);
- else if(node>results->point[bin][end]->node)   /* Check key is not after end */
-    return(NULL);
- else
-   {
-    do
-      {
-       mid=(start+end)/2;                           /* Choose mid point */
-
-       if(results->point[bin][mid]->node<node)      /* Mid point is too low */
-          start=mid+1;
-       else if(results->point[bin][mid]->node>node) /* Mid point is too high */
-          end=mid-1;
-       else                                         /* Mid point is correct */
-          return(results->point[bin][mid]);
-      }
-    while((end-start)>1);
-
-    if(results->point[bin][start]->node==node)      /* Start is correct */
-       return(results->point[bin][start]);
-
-    if(results->point[bin][end]->node==node)        /* End is correct */
-       return(results->point[bin][end]);
-   }
+ for(i=results->count[bin]-1;i>=0;i--)
+    if(results->point[bin][i]->node==node)
+       return(results->point[bin][i]);
 
  return(NULL);
 }
