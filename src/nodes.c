@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.19 2009-02-06 20:23:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.20 2009-02-07 11:50:48 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -92,7 +92,7 @@ Node *FindNode(Nodes* nodes,float latitude,float longitude)
  int32_t latbin=(int32_t)((latitude-nodes->latzero)*LAT_LONG_DEGBIN);
  int32_t lonbin=(int32_t)((longitude-nodes->lonzero)*LAT_LONG_DEGBIN);
  int llbin=lonbin*nodes->latbins+latbin;
- int i,best;
+ int i,best=~0;
  float distance=1000000;
 
  for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
@@ -106,7 +106,10 @@ Node *FindNode(Nodes* nodes,float latitude,float longitude)
       {best=i; distance=dist;}
    }
 
- return(&nodes->nodes[best]);
+ if(best==~0)
+    return(NULL);
+ else
+    return(&nodes->nodes[best]);
 }
 
 
