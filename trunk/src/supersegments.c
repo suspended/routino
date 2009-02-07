@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.27 2009-02-06 20:23:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/supersegments.c,v 1.28 2009-02-07 11:23:25 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -199,12 +199,12 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
     if(!((i+1)%10000))
       {
-       printf("\rCreating Super-Segments: Nodes=%d Super-Segments=%d",i+1,supersegmentsx->number);
+       printf("\rCreating Super-Segments: Nodes=%d Super-Segments=%d",i+1,supersegmentsx->xnumber);
        fflush(stdout);
       }
    }
 
- printf("\rCreated Super-Segments: Nodes=%d Super-Segments=%d \n",nodesx->number,supersegmentsx->number);
+ printf("\rCreated Super-Segments: Nodes=%d Super-Segments=%d \n",nodesx->number,supersegmentsx->xnumber);
  fflush(stdout);
 
  /* Append the new supersegments onto the segments. */
@@ -284,12 +284,12 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
     if(!((i+1)%10000))
       {
-       printf("\rMerging Segments: Segments=%d Super-Segment=%d Total=%d",i+1,j+1,segmentsx->number);
+       printf("\rMerging Segments: Segments=%d Super-Segment=%d Total=%d",i+1,j+1,segmentsx->xnumber);
        fflush(stdout);
       }
    }
 
- printf("\rMerged Segments: Segments=%d Super-Segment=%d Total=%d \n",n,supersegmentsx->number,segmentsx->number);
+ printf("\rMerged Segments: Segments=%d Super-Segment=%d Total=%d \n",n,supersegmentsx->number,segmentsx->xnumber);
  fflush(stdout);
 }
 
