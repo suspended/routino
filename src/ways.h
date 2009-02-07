@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.23 2009-02-04 18:51:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.24 2009-02-07 15:56:08 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -17,23 +17,27 @@
 
 #include <stdint.h>
 
-#include "ways.h"
+#include "types.h"
 
 
 /* Data structures */
 
 
-/*+ An extended structure containing a single way. +*/
-typedef struct _WayX
+/*+ A structure containing a single way. +*/
+struct _Way
 {
- char    *name;                 /*+ The name of the way. +*/
+ index_t    name;               /*+ The offset of the name of the way in the names array. +*/
 
- Way      way;                  /*+ The real Way data. +*/
-}
- WayX;
+ speed_t    limit;              /*+ The defined speed limit on the way. +*/
+
+ waytype_t  type;               /*+ The type of the way. +*/
+
+ wayallow_t allow;              /*+ The type of traffic allowed on the way. +*/
+};
+
 
 /*+ A structure containing a set of ways (mmap format). +*/
-typedef struct _Ways
+struct _Ways
 {
  uint32_t number;               /*+ How many entries are used? +*/
 
@@ -41,35 +45,23 @@ typedef struct _Ways
  char    *names;                /*+ An array of characters containing the names. +*/
 
  void    *data;                 /*+ The memory mapped data. +*/
-}
- Ways;
+};
 
-/*+ A structure containing a set of ways (memory format). +*/
-typedef struct _WaysX
-{
- uint32_t sorted;               /*+ Is the data sorted? +*/
- uint32_t alloced;              /*+ How many entries are allocated? +*/
- uint32_t number;               /*+ How many entries are used? +*/
- uint32_t length;               /*+ How long is the string of name entries? +*/
 
- WayX    *idata;                /*+ The extended data for the Ways (sorted by index). +*/
- WayX   **ndata;                /*+ The extended data for the Ways (sorted by name). +*/
- char    *names;                /*+ The array containing all the names. +*/
-}
- WaysX;
+/* Macros */
+
+
+/*+ Return a Way* pointer given a set of ways and an index. +*/
+#define LookupWay(xxx,yyy)     (&(xxx)->ways[yyy])
+
+/*+ Return the name of a way given the Way pointer and a set of ways. +*/
+#define WayName(xxx,yyy)       (&(xxx)->names[(yyy)->name])
 
 
 /* Functions */
 
 
-WaysX *NewWayList(void);
-
 Ways *LoadWayList(const char *filename);
-void SaveWayList(WaysX *waysx,const char *filename);
-
-Way *AppendWay(WaysX* waysx,const char *name);
-
-void SortWayList(WaysX *waysx);
 
 Highway HighwayType(const char *highway);
 Transport TransportType(const char *transport);
@@ -79,10 +71,6 @@ const char *TransportName(Transport transport);
 
 const char *HighwayList(void);
 const char *TransportList(void);
-
-#define LookupWayX(xxx,yyy) (&(xxx)->idata[yyy])
-
-#define IndexWayX(xxx,yyy)  ((yyy)-&(xxx)->idata[0])
 
 
 #endif /* WAYS_H */

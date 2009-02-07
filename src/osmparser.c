@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.26 2009-02-06 20:23:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.27 2009-02-07 15:56:07 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -18,10 +18,10 @@
 #include <ctype.h>
 
 #include "types.h"
-#include "nodes.h"
-#include "segments.h"
-#include "ways.h"
 #include "functions.h"
+#include "nodesx.h"
+#include "segmentsx.h"
+#include "waysx.h"
 
 
 #define BUFFSIZE 64

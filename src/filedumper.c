@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.17 2009-02-07 11:50:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.18 2009-02-07 15:56:07 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -20,7 +20,6 @@
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
-#include "functions.h"
 
 
 int main(int argc,char** argv)
