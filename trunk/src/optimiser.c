@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.46 2009-02-07 10:06:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.47 2009-02-07 11:50:37 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -22,7 +22,7 @@
 
 
 /*+ Print the progress? +*/
-int print_progress=1;
+extern int option_quiet;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -188,7 +188,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
       endloop:
 
-       if(print_progress && !(results->number%10000))
+       if(!option_quiet && !(results->number%10000))
          {
           printf("\rRouting: End Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin  ",results->number,
                  distance_to_km(shortest2.distance),duration_to_minutes(shortest2.duration),
@@ -200,7 +200,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
       }
    }
 
- if(print_progress)
+ if(!option_quiet)
    {
     printf("\rRouted: End Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin\n",results->number,
            distance_to_km(shortestfinish.distance),duration_to_minutes(shortestfinish.duration),
@@ -441,7 +441,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
 
       endloop:
 
-       if(print_progress && !(results->number%10000))
+       if(!option_quiet && !(results->number%10000))
          {
           printf("\rRouting: End Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin  ",results->number,
                  distance_to_km(shortest2.distance),duration_to_minutes(shortest2.duration),
@@ -453,7 +453,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
       }
    }
 
- if(print_progress)
+ if(!option_quiet)
    {
     printf("\rRouted: End Super-Nodes=%d Shortest=%.1fkm,%.0fmin Quickest=%.1fkm,%.0fmin\n",results->number,
            distance_to_km(shortestfinish.distance),duration_to_minutes(shortestfinish.duration),
@@ -993,10 +993,11 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
+ int quiet=option_quiet;
 
  combined=NewResultsList(64);
 
- print_progress=0;
+ option_quiet=1;
 
  /* Sort out the shortest */
 
@@ -1109,7 +1110,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 
  /* Now print out the result normally */
 
- print_progress=1;
+ option_quiet=quiet;
 
  return(combined);
 }

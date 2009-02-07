@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.29 2009-02-04 19:11:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.30 2009-02-07 11:50:37 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -19,6 +19,10 @@
 #include "types.h"
 #include "functions.h"
 #include "profiles.h"
+
+
+/*+ The option not to print anything progress information. +*/
+int option_quiet=0;
 
 
 int main(int argc,char** argv)
@@ -43,7 +47,7 @@ int main(int argc,char** argv)
                    "              [--help] [--help-profile]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
                    "              [--all] [--only-super]\n"
-                   "              [--no-print]\n"
+                   "              [--no-print] [--quiet]\n"
                    "              [--transport=<transport>]\n"
                    "              [--not-highway=<highway> ...]\n"
                    "              [--speed-<highway>=<speed> ...]\n"
@@ -96,6 +100,8 @@ int main(int argc,char** argv)
        only_super=1;
     else if(!strcmp(argv[argc],"--no-print"))
        no_print=1;
+    else if(!strcmp(argv[argc],"--quiet"))
+       option_quiet=1;
     else if(!strncmp(argv[argc],"--transport=",12))
        ; /* Done this already*/
     else if(!strncmp(argv[argc],"--not-highway=",14))
@@ -174,8 +180,46 @@ int main(int argc,char** argv)
 
  /* Get the start and finish */
 
- start=IndexNode(OSMNodes,FindNode(OSMNodes,atof(argv[1]),atof(argv[2])));
- finish=IndexNode(OSMNodes,FindNode(OSMNodes,atof(argv[3]),atof(argv[4])));
+   {
+    float lat_start =atof(argv[1]);
+    float lon_start =atof(argv[2]);
+    float lat_finish=atof(argv[3]);
+    float lon_finish=atof(argv[4]);
+
+    Node *start_node =FindNode(OSMNodes,lat_start ,lon_start );
+    Node *finish_node=FindNode(OSMNodes,lat_finish,lon_finish);
+
+    if(!start_node)
+      {
+       fprintf(stderr,"Cannot find start node.\n");
+       return(1);
+      }
+
+    if(!finish_node)
+      {
+       fprintf(stderr,"Cannot find finish node.\n");
+       return(1);
+      }
+
+    if(!option_quiet)
+      {
+       float lat,lon;
+       distance_t dist;
+
+       GetLatLong(OSMNodes,start_node,&lat,&lon);
+       dist=Distance(lat_start,lon_start,lat,lon);
+
+       printf("Start node : %3.6f %4.6f = %2.3f km\n",lat,lon,distance_to_km(dist));
+
+       GetLatLong(OSMNodes,finish_node,&lat,&lon);
+       dist=Distance(lat_finish,lon_finish,lat,lon);
+
+       printf("Finish node: %3.6f %4.6f = %2.3f km\n",lat,lon,distance_to_km(dist));
+      }
+
+    start =IndexNode(OSMNodes,start_node );
+    finish=IndexNode(OSMNodes,finish_node);
+   }
 
  /* Calculate the route. */
 

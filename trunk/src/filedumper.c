@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.16 2009-02-04 18:23:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.17 2009-02-07 11:50:37 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "types.h"
 #include "nodes.h"
@@ -27,10 +28,36 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
+ char *dirname=NULL,*prefix=NULL,*filename;
+
+ /* Parse the command line arguments */
+
+ while(--argc>=1)
+   {
+    if(!strcmp(argv[argc],"--help"))
+       goto usage;
+    else if(!strncmp(argv[argc],"--dir=",6))
+       dirname=&argv[argc][6];
+    else if(!strncmp(argv[argc],"--prefix=",9))
+       prefix=&argv[argc][9];
+    else
+      {
+      usage:
+
+       fprintf(stderr,"Usage: filedumper\n"
+                      "                  [--help]\n"
+                      "                  [--dir=<name>] [--prefix=<name>]\n");
+
+       return(1);
+      }
+   }
+
+ filename=(char*)malloc((dirname?strlen(dirname):0)+(prefix?strlen(prefix):0)+16);
 
  /* Examine the nodes */
 
- OSMNodes=LoadNodeList("data/nodes.mem");
+ sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ OSMNodes=LoadNodeList(filename);
 
  printf("Nodes\n");
  printf("-----\n");
@@ -46,7 +73,8 @@ int main(int argc,char** argv)
 
  /* Examine the segments */
 
- OSMSegments=LoadSegmentList("data/segments.mem");
+ sprintf(filename,"%s%s%s%ssegments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ OSMSegments=LoadSegmentList(filename);
 
  printf("\n");
  printf("Segments\n");
@@ -57,7 +85,8 @@ int main(int argc,char** argv)
 
  /* Examine the ways */
 
- OSMWays=LoadWayList("data/ways.mem");
+ sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
+ OSMWays=LoadWayList(filename);
 
  printf("\n");
  printf("Ways\n");
