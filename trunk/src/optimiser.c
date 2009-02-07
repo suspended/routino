@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.45 2009-02-06 20:23:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.46 2009-02-07 10:06:37 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -95,22 +95,13 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
        HalfResult shortest2,quickest2;
        duration_t segment_duration;
 
-       //       printf("%d %d %d %d %d\n",NODE(segment->node1),NODE(segment->node2),segment->next1,segment->next2,segment->distance);
-
-       //       printf("node1=%d\n",node1);
-
        if(!IsNormalSegment(segment))
           goto endloop;
 
-       if(profile->oneway && ONEWAY_TO(segment,node1))
+       if(profile->oneway && IsOnewayTo(segment,node1))
           goto endloop;
 
-       if(NODE(segment->node1)==node1)
-          node2=NODE(segment->node2);
-       else
-          node2=NODE(segment->node1);
-
-       //       printf("node2=%d\n",node2);
+       node2=OtherNode(segment,node1);
 
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
@@ -358,10 +349,10 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
        if(!IsSuperSegment(segment))
           goto endloop;
 
-       if(profile->oneway && ONEWAY_TO(segment,node1))
+       if(profile->oneway && IsOnewayTo(segment,node1))
           goto endloop;
 
-       node2=NODE(segment->node2);
+       node2=OtherNode(segment,node1);
 
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
@@ -624,7 +615,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
        fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",latitude,longitude,
                result->node,IsSuperNode(node)?'*':' ',
-               distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,profile)),
+               distance_to_km(DISTANCE(segment->distance)),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->shortest.distance),duration_to_minutes(result->shortest.duration),
                profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
@@ -681,7 +672,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
        fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",latitude,longitude,
                result->node,IsSuperNode(node)?'*':' ',
-               distance_to_km(segment->distance),duration_to_minutes(Duration(segment,way,profile)),
+               distance_to_km(DISTANCE(segment->distance)),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->quickest.distance),duration_to_minutes(result->quickest.duration),
                profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
@@ -764,10 +755,10 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Pro
        if(!IsNormalSegment(segment))
           goto endloop;
 
-       if(profile->oneway && ONEWAY_TO(segment,node1))
+       if(profile->oneway && IsOnewayTo(segment,node1))
           goto endloop;
 
-       node2=NODE(segment->node2);
+       node2=OtherNode(segment,node1);
 
        if(result1->shortest.prev==node2 && result1->quickest.prev==node2)
           goto endloop;
@@ -900,10 +891,10 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fi
        if(!IsNormalSegment(segment))
           goto endloop;
 
-       if(profile->oneway && ONEWAY_FROM(segment,node1))
+       if(profile->oneway && IsOnewayFrom(segment,node1))
           goto endloop;
 
-       node2=NODE(segment->node1);
+       node2=OtherNode(segment,node1);
 
        if(result1->shortest.next==node2 && result1->quickest.next==node2)
           goto endloop;

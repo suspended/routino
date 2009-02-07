@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.11 2009-02-06 20:23:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.12 2009-02-07 10:06:37 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -215,26 +215,27 @@ typedef struct _Way
 /*+ Return a Segment pointer given a set of segments and an index. +*/
 #define LookupSegment(xxx,yyy) (&(xxx)->segments[yyy])
 
-/*+ Return an index for a Segment pointer given a set of segments. +*/
-#define IndexSegment(xxx,yyy)  ((yyy)-&(xxx)->segments[0])
-
 /*+ Return true if this is a normal segment. +*/
 #define IsNormalSegment(xxx)   (((xxx)->node1)&SUPER_FLAG)
 
 /*+ Return true if this is a super-segment. +*/
 #define IsSuperSegment(xxx)    (((xxx)->node2)&SUPER_FLAG)
 
-#define ONEWAY_TO(xxx,yyy)     ((NODE((xxx)->node1)==(yyy))?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
-#define ONEWAY_FROM(xxx,yyy)   ((NODE((xxx)->node2)==(yyy))?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
+/*+ Return true if the segment is oneway towards the specified node. +*/
+#define IsOnewayTo(xxx,yyy)    ((NODE((xxx)->node1)==(yyy))?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
+
+/*+ Return true if the segment is oneway from the specified node. +*/
+#define IsOnewayFrom(xxx,yyy)  ((NODE((xxx)->node2)==(yyy))?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
+
+/*+ Return the other node in the segment that is not the specified node. +*/
+#define OtherNode(xxx,yyy)     ((NODE((xxx)->node1)==(yyy))?NODE((xxx)->node2):NODE((xxx)->node1))
+
 
 /* Way Functions */
 
 
 /*+ Return a Way* pointer given a set of ways and an index. +*/
 #define LookupWay(xxx,yyy)     (&(xxx)->ways[yyy])
-
-/*+ Return an index for a Way pointer given a set of ways. +*/
-#define IndexWay(xxx,yyy)      ((yyy)-&(xxx)->ways[0])
 
 /*+ Return the name of a way given the Way pointer and a set of ways. +*/
 #define WayName(xxx,yyy)       (&(xxx)->names[(yyy)->name])
