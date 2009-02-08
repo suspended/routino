@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.48 2009-02-07 15:56:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.49 2009-02-08 12:03:50 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -831,6 +831,14 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Pro
       }
    }
 
+ /* Check it worked */
+
+ if(results->number==1)
+   {
+    FreeResultsList(results);
+    return(NULL);
+   }
+
  return(results);
 }
 
@@ -965,6 +973,14 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fi
 
        segment=NextSegment(segments,segment,node1);
       }
+   }
+
+ /* Check it worked */
+
+ if(results->number==1)
+   {
+    FreeResultsList(results);
+    return(NULL);
    }
 
  return(results);
