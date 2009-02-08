@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.8 2009-01-24 16:21:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.9 2009-02-08 15:30:07 amb Exp $
 
  A header file for the results.
  ******************/ /******************
@@ -23,22 +23,15 @@
 
 /* Data structures */
 
-/*+ One part of the result for a node. +*/
-typedef struct _HalfResult
-{
- node_t      prev;              /*+ The previous node following the shortest path. +*/
- node_t      next;              /*+ The next node following the shortest path. +*/
- distance_t  distance;          /*+ The distance travelled to the node following the shortest path. +*/
- duration_t  duration;          /*+ The time taken to the node following the shortest path. +*/
-}
- HalfResult;
-
-/*+ One complete result for a node. +*/
+/*+ The result for a node. +*/
 typedef struct _Result
 {
  node_t     node;               /*+ The node for which this result applies. +*/
- HalfResult shortest;           /*+ The result for the shortest path. +*/
- HalfResult quickest;           /*+ The result for the quickest path. +*/
+
+ node_t      prev;              /*+ The previous node following the best path. +*/
+ node_t      next;              /*+ The next node following the best path. +*/
+ distance_t  distance;          /*+ The distance travelled to the node following the best path. +*/
+ duration_t  duration;          /*+ The time taken to the node following the best path. +*/
 }
  Result;
 
@@ -60,7 +53,7 @@ typedef struct _Results
                                     (don't need to realloc the array of data when adding more,
                                     only realloc the array that points to the array of data).
                                     Most importantly pointers into the real data don't change
-                                    as more space is allocted (since realloc is not being used). +*/
+                                    as more space is allocated (since realloc is not being used). +*/
 }
  Results;
 

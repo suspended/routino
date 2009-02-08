@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.32 2009-02-08 12:03:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.33 2009-02-08 15:30:07 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -22,8 +22,11 @@
 #include "ways.h"
 
 
-/*+ The option not to print anything progress information. +*/
+/*+ The option not to print any progress information. +*/
 int option_quiet=0;
+
+/*+ The option to calculate the quickest route insted of the shortest. +*/
+int option_quickest=0;
 
 
 int main(int argc,char** argv)
@@ -47,6 +50,7 @@ int main(int argc,char** argv)
     fprintf(stderr,"Usage: router <start-lat> <start-lon> <finish-lat> <finish-lon>\n"
                    "              [--help] [--help-profile]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
+                   "              [--shortest] [--quickest]\n"
                    "              [--all] [--only-super]\n"
                    "              [--no-print] [--quiet]\n"
                    "              [--transport=<transport>]\n"
@@ -97,6 +101,10 @@ int main(int argc,char** argv)
        prefix=&argv[argc][9];
     else if(!strcmp(argv[argc],"--all"))
        all=1;
+    else if(!strcmp(argv[argc],"--shortest"))
+       option_quickest=0;
+    else if(!strcmp(argv[argc],"--quickest"))
+       option_quickest=1;
     else if(!strcmp(argv[argc],"--only-super"))
        only_super=1;
     else if(!strcmp(argv[argc],"--no-print"))
@@ -257,14 +265,10 @@ int main(int argc,char** argv)
        result=InsertResult(begin,start);
 
        result->node=start;
-       result->shortest.prev=0;
-       result->shortest.next=0;
-       result->shortest.distance=0;
-       result->shortest.duration=0;
-       result->quickest.prev=0;
-       result->quickest.next=0;
-       result->quickest.distance=0;
-       result->quickest.duration=0;
+       result->prev=0;
+       result->next=0;
+       result->distance=0;
+       result->duration=0;
       }
     else
       {
@@ -299,14 +303,10 @@ int main(int argc,char** argv)
           result=InsertResult(end,finish);
 
           result->node=finish;
-          result->shortest.prev=0;
-          result->shortest.next=0;
-          result->shortest.distance=0;
-          result->shortest.duration=0;
-          result->quickest.prev=0;
-          result->quickest.next=0;
-          result->quickest.distance=0;
-          result->quickest.duration=0;
+          result->prev=0;
+          result->next=0;
+          result->distance=0;
+          result->duration=0;
          }
        else
          {
