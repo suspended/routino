@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.31 2009-02-07 15:56:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.32 2009-02-08 12:03:50 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -236,7 +236,7 @@ int main(int argc,char** argv)
 
     if(!results)
       {
-       fprintf(stderr,"No route found.\n");
+       fprintf(stderr,"Cannot find route compatible with profile.\n");
        return(1);
       }
     else if(!no_print)
@@ -267,7 +267,15 @@ int main(int argc,char** argv)
        result->quickest.duration=0;
       }
     else
+      {
        begin=FindRoutes(OSMNodes,OSMSegments,OSMWays,start,&profile);
+
+       if(!begin)
+         {
+          fprintf(stderr,"Cannot find initial section of route compatible with profile.\n");
+          return(1);
+         }
+      }
 
     if(FindResult(begin,finish))
       {
@@ -301,7 +309,15 @@ int main(int argc,char** argv)
           result->quickest.duration=0;
          }
        else
+         {
           end=FindReverseRoutes(OSMNodes,OSMSegments,OSMWays,finish,&profile);
+
+          if(!end)
+            {
+             fprintf(stderr,"Cannot find final section of route compatible with profile.\n");
+             return(1);
+            }
+         }
 
        /* Calculate the middle of the route */
 
@@ -311,7 +327,7 @@ int main(int argc,char** argv)
 
        if(!superresults)
          {
-          fprintf(stderr,"No route found.\n");
+          fprintf(stderr,"Cannot find route compatible with profile.\n");
           return(1);
          }
        else if(!no_print)

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.3 2009-02-01 17:11:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.4 2009-02-08 12:03:50 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
  ******************/ /******************
@@ -28,7 +28,7 @@ static Profile builtin_profiles[]=
                       .allow    =Allow_Foot,
                       .highways = {
                                    [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = 0,
+                                   [Way_Trunk       ] = 1,
                                    [Way_Primary     ] = 1,
                                    [Way_Secondary   ] = 1,
                                    [Way_Tertiary    ] = 1,
@@ -41,7 +41,7 @@ static Profile builtin_profiles[]=
                                    [Way_Footway     ] = 1,
                                   },
                       .speed    = {
-                                   [Way_Motorway    ] = 4,
+                                   [Way_Motorway    ] = 0,
                                    [Way_Trunk       ] = 4,
                                    [Way_Primary     ] = 4,
                                    [Way_Secondary   ] = 4,
@@ -77,8 +77,8 @@ static Profile builtin_profiles[]=
                                    [Way_Footway     ] = 0,
                                   },
                       .speed    = {
-                                   [Way_Motorway    ] =20,
-                                   [Way_Trunk       ] =20,
+                                   [Way_Motorway    ] = 0,
+                                   [Way_Trunk       ] = 0,
                                    [Way_Primary     ] =20,
                                    [Way_Secondary   ] =20,
                                    [Way_Tertiary    ] =20,
@@ -100,7 +100,7 @@ static Profile builtin_profiles[]=
                       .allow    =Allow_Horse,
                       .highways = {
                                    [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = 0,
+                                   [Way_Trunk       ] = 1,
                                    [Way_Primary     ] = 1,
                                    [Way_Secondary   ] = 1,
                                    [Way_Tertiary    ] = 1,
@@ -113,8 +113,8 @@ static Profile builtin_profiles[]=
                                    [Way_Footway     ] = 0,
                                   },
                       .speed    = {
-                                   [Way_Motorway    ] =10,
-                                   [Way_Trunk       ] =10,
+                                   [Way_Motorway    ] = 0,
+                                   [Way_Trunk       ] = 0,
                                    [Way_Primary     ] =10,
                                    [Way_Secondary   ] =10,
                                    [Way_Tertiary    ] =10,
@@ -143,7 +143,7 @@ static Profile builtin_profiles[]=
                                    [Way_Unclassified] = 1,
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
-                                   [Way_Track       ] = 0,
+                                   [Way_Track       ] = 1,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -179,7 +179,7 @@ static Profile builtin_profiles[]=
                                    [Way_Unclassified] = 1,
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
-                                   [Way_Track       ] = 0,
+                                   [Way_Track       ] = 1,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -215,7 +215,7 @@ static Profile builtin_profiles[]=
                                    [Way_Unclassified] = 1,
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
-                                   [Way_Track       ] = 0,
+                                   [Way_Track       ] = 1,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -251,7 +251,7 @@ static Profile builtin_profiles[]=
                                    [Way_Unclassified] = 1,
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
-                                   [Way_Track       ] = 0,
+                                   [Way_Track       ] = 1,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -287,7 +287,7 @@ static Profile builtin_profiles[]=
                                    [Way_Unclassified] = 1,
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
-                                   [Way_Track       ] = 0,
+                                   [Way_Track       ] = 1,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
