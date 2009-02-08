@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.7 2009-02-07 18:41:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.8 2009-02-08 15:30:07 amb Exp $
 
  Result data type functions.
  ******************/ /******************
@@ -28,14 +28,12 @@ typedef struct _Queue
 {
  uint32_t  alloced;             /*+ The amount of space allocated for results in the array. +*/
  uint32_t  number;              /*+ The number of occupied results in the array. +*/
- uint32_t  start;               /*+ The start point (for reading the next value). +*/
- uint32_t  end;                 /*+ The end point (the last written value). +*/
  Result  **xqueue;              /*+ An array of pointers to parts of the results structure. +*/
 }
  Queue;
 
 /*+ The queue of nodes. +*/
-static Queue queue={0,0,0,0,NULL};
+static Queue queue={0,0,NULL};
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -267,23 +265,23 @@ void insert_in_queue(Result *result)
   *  # <- end    |  end (since it cannot be before the initial start or end).
   */
 
- if(queue.number==0)                                                      /* There is nothing in the queue */
+ if(queue.number==0)                                     /* There is nothing in the queue */
     insert=0;
- else if(result->shortest.distance>queue.xqueue[start]->shortest.distance) /* Check key is not before start */
+ else if(result->distance>queue.xqueue[start]->distance) /* Check key is not before start */
     insert=start;
- else if(result->shortest.distance<queue.xqueue[end]->shortest.distance)   /* Check key is not after end */
+ else if(result->distance<queue.xqueue[end]->distance)   /* Check key is not after end */
     insert=end+1;
  else
    {
     do
       {
-       mid=(start+end)/2;                                                     /* Choose mid point */
+       mid=(start+end)/2;                                    /* Choose mid point */
 
-       if(queue.xqueue[mid]->shortest.distance>result->shortest.distance)      /* Mid point is too low */
+       if(queue.xqueue[mid]->distance>result->distance)      /* Mid point is too low */
           start=mid;
-       else if(queue.xqueue[mid]->shortest.distance<result->shortest.distance) /* Mid point is too high */
+       else if(queue.xqueue[mid]->distance<result->distance) /* Mid point is too high */
           end=mid;
-       else                                                                   /* Mid point is correct */
+       else                                                  /* Mid point is correct */
          {
           if(queue.xqueue[mid]==result)
              return;
