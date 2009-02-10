@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.33 2009-02-08 15:30:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.34 2009-02-10 19:42:56 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -19,6 +19,8 @@
 #include "types.h"
 #include "functions.h"
 #include "profiles.h"
+#include "nodes.h"
+#include "segments.h"
 #include "ways.h"
 
 
@@ -34,7 +36,7 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
- node_t    start,finish;
+ index_t   start,finish;
  int       help_profile=0,all=0,only_super=0,no_print=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
