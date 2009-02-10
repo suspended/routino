@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.8 2009-02-08 15:30:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.9 2009-02-10 19:49:26 amb Exp $
 
  Result data type functions.
  ******************/ /******************
@@ -19,8 +19,8 @@
 #include "results.h"
 
 
-#define RESULTS_INCREMENT   16
-#define QUEUE_INCREMENT   1024
+#define RESULTS_INCREMENT    16
+#define QUEUE_INCREMENT   10240
 
 
 /*+ A queue of results. +*/
@@ -116,10 +116,10 @@ void FreeResultsList(Results *results)
 
   Results *results The results structure to insert into.
 
-  node_t node The node that is to be inserted into the results.
+  index_t node The node that is to be inserted into the results.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Result *InsertResult(Results *results,node_t node)
+Result *InsertResult(Results *results,index_t node)
 {
  int bin=node&results->mask;
  int i;
@@ -161,10 +161,10 @@ Result *InsertResult(Results *results,node_t node)
 
   Results *results The results structure to search.
 
-  node_t node The node that is to be found.
+  index_t node The node that is to be found.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Result *FindResult(Results *results,node_t node)
+Result *FindResult(Results *results,index_t node)
 {
  int bin=node&results->mask;
  int i;
@@ -265,23 +265,25 @@ void insert_in_queue(Result *result)
   *  # <- end    |  end (since it cannot be before the initial start or end).
   */
 
- if(queue.number==0)                                     /* There is nothing in the queue */
+ if(queue.number==0)                                 /* There is nothing in the queue */
     insert=0;
- else if(result->distance>queue.xqueue[start]->distance) /* Check key is not before start */
+ else if(result->sortby>queue.xqueue[start]->sortby) /* Check key is not before start */
     insert=start;
- else if(result->distance<queue.xqueue[end]->distance)   /* Check key is not after end */
+ else if(result->sortby<queue.xqueue[end]->sortby)   /* Check key is not after end */
     insert=end+1;
+ else if(queue.number==2)                            /* Must be between them */
+    insert=1;
  else
    {
     do
       {
-       mid=(start+end)/2;                                    /* Choose mid point */
+       mid=(start+end)/2;                                /* Choose mid point */
 
-       if(queue.xqueue[mid]->distance>result->distance)      /* Mid point is too low */
+       if(queue.xqueue[mid]->sortby>result->sortby)      /* Mid point is too low */
           start=mid;
-       else if(queue.xqueue[mid]->distance<result->distance) /* Mid point is too high */
+       else if(queue.xqueue[mid]->sortby<result->sortby) /* Mid point is too high */
           end=mid;
-       else                                                  /* Mid point is correct */
+       else                                              /* Mid point is correct */
          {
           if(queue.xqueue[mid]==result)
              return;

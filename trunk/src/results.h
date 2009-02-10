@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.9 2009-02-08 15:30:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.10 2009-02-10 19:49:26 amb Exp $
 
  A header file for the results.
  ******************/ /******************
@@ -17,8 +17,7 @@
 
 #include <stdint.h>
 
-#include "nodes.h"
-#include "segments.h"
+#include "types.h"
 
 
 /* Data structures */
@@ -26,12 +25,15 @@
 /*+ The result for a node. +*/
 typedef struct _Result
 {
- node_t     node;               /*+ The node for which this result applies. +*/
+ index_t     node;              /*+ The node for which this result applies. +*/
 
- node_t      prev;              /*+ The previous node following the best path. +*/
- node_t      next;              /*+ The next node following the best path. +*/
+ index_t      prev;             /*+ The previous node following the best path. +*/
+ index_t      next;             /*+ The next node following the best path. +*/
+
  distance_t  distance;          /*+ The distance travelled to the node following the best path. +*/
  duration_t  duration;          /*+ The time taken to the node following the best path. +*/
+
+ distance_t  sortby;            /*+ The value to sort the results by in the queue. +*/
 }
  Result;
 
@@ -63,9 +65,9 @@ typedef struct _Results
 Results *NewResultsList(int nbins);
 void FreeResultsList(Results *results);
 
-Result *InsertResult(Results *results,node_t node);
+Result *InsertResult(Results *results,index_t node);
 
-Result *FindResult(Results *results,node_t node);
+Result *FindResult(Results *results,index_t node);
 
 Result *FirstResult(Results *results);
 Result *NextResult(Results *results,Result *result);
