@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.31 2009-02-07 15:56:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.32 2009-02-10 19:42:41 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -87,7 +87,7 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
 /*++++++++++++++++++++++++++++++++++++++
   Calculate the distance between two locations.
 
-  float Distance Returns the distance between the locations.
+  distance_t Distance Returns the distance between the locations.
 
   float lat1 The latitude of the first location.
 
@@ -98,7 +98,7 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
   float lon2 The longitude of the second location.
   ++++++++++++++++++++++++++++++++++++++*/
 
-float Distance(float lat1,float lon1,float lat2,float lon2)
+distance_t Distance(float lat1,float lon1,float lat2,float lon2)
 {
  double radiant = M_PI / 180;
 
@@ -120,7 +120,7 @@ float Distance(float lat1,float lon1,float lat2,float lon2)
    {c = 2 * asin (1.0);}
  d = 6378.137 * c;
 
- return d;
+ return km_to_distance(d);
 }
 
 

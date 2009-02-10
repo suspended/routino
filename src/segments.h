@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.27 2009-02-07 15:56:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.28 2009-02-10 19:42:41 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -79,7 +79,7 @@ Segments *LoadSegmentList(const char *filename);
 
 Segment *NextSegment(Segments* segments,Segment *segment,index_t node);
 
-float Distance(float lat1,float lon1,float lat2,float lon2);
+distance_t Distance(float lat1,float lon1,float lat2,float lon2);
 
 duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
