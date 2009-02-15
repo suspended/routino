@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.13 2009-02-07 15:56:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.14 2009-02-15 13:45:54 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -16,9 +16,10 @@
 #define TYPES_H    /*+ To stop multiple inclusions. +*/
 
 #include <stdint.h>
+#include <math.h>
 
 
-/* Constants */
+/* Constants and macros for handling them */
 
 
 /*+ The latitude and longitude conversion factor from float to integer. +*/
@@ -27,8 +28,11 @@
 /*+ The latitude and longitude integer range within each bin. +*/
 #define LAT_LONG_BIN    65536
 
-/*+ The latitude and longitude number of bins per degree. +*/
-#define LAT_LONG_DEGBIN (LAT_LONG_SCALE/LAT_LONG_BIN)
+/*+ Convert a latitude or longitude to a bin number (taking care of rounding). +*/
+#define lat_long_to_bin(xxx) ((int32_t)floorf((xxx)*(LAT_LONG_SCALE/LAT_LONG_BIN)))
+
+/*+ Convert a bin number to a latitude or longitude. +*/
+#define bin_to_lat_long(xxx) ((float)(xxx)/(LAT_LONG_SCALE/LAT_LONG_BIN))
 
 
 /*+ A flag to mark super-nodes and super-segments. +*/

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.18 2009-02-07 15:56:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.19 2009-02-15 13:45:54 amb Exp $
 
  Memory file dumper.
  ******************/ /******************
@@ -64,11 +64,11 @@ int main(int argc,char** argv)
  printf("sizeof(Node)=%9d Bytes\n",sizeof(Node));
  printf("number      =%9d\n",OSMNodes->number);
 
- printf("Lat bins=%3d\n",OSMNodes->latbins);
- printf("Lon bins=%3d\n",OSMNodes->lonbins);
+ printf("Lat bins= %4d\n",OSMNodes->latbins);
+ printf("Lon bins= %4d\n",OSMNodes->lonbins);
 
- printf("Lat zero=%4.6f\n",OSMNodes->latzero);
- printf("Lon zero=%4.6f\n",OSMNodes->lonzero);
+ printf("Lat zero=%5d (%8.4f)\n",OSMNodes->latzero,(double)bin_to_lat_long(OSMNodes->latzero));
+ printf("Lon zero=%5d (%8.4f)\n",OSMNodes->lonzero,(double)bin_to_lat_long(OSMNodes->lonzero));
 
  /* Examine the segments */
 

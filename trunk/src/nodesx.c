@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.1 2009-02-07 15:56:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.2 2009-02-15 13:45:54 amb Exp $
 
  Extented Node data type functions.
  ******************/ /******************
@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "types.h"
 #include "functions.h"
@@ -73,20 +74,20 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  int fd;
  Nodes *nodes=calloc(1,sizeof(Nodes));
  index_t *offsets;
- float lat_min,lat_max,lon_min,lon_max;
+ int32_t lat_min,lat_max,lon_min,lon_max;
  int latbins,lonbins,latlonbin;
 
  assert(nodesx->sorted);        /* Must be sorted */
 
- /* Work out the offsets (careful with the rounding) */
+ /* Work out the offsets */
 
- lat_min=-180.0+(float)((int32_t)((180.0+nodesx->lat_min)*LAT_LONG_DEGBIN))/LAT_LONG_DEGBIN;
- lon_min=-180.0+(float)((int32_t)((180.0+nodesx->lon_min)*LAT_LONG_DEGBIN))/LAT_LONG_DEGBIN;
- lat_max=-180.0+(float)((int32_t)((180.0+nodesx->lat_max)*LAT_LONG_DEGBIN+1))/LAT_LONG_DEGBIN;
- lon_max=-180.0+(float)((int32_t)((180.0+nodesx->lon_max)*LAT_LONG_DEGBIN+1))/LAT_LONG_DEGBIN;
+ lat_min=lat_long_to_bin(nodesx->lat_min);
+ lon_min=lat_long_to_bin(nodesx->lon_min);
+ lat_max=lat_long_to_bin(nodesx->lat_max);
+ lon_max=lat_long_to_bin(nodesx->lon_max);
 
- latbins=(lat_max-lat_min)*LAT_LONG_DEGBIN;
- lonbins=(lon_max-lon_min)*LAT_LONG_DEGBIN;
+ latbins=(lat_max-lat_min)+1;
+ lonbins=(lon_max-lon_min)+1;
 
  offsets=malloc((latbins*lonbins+1)*sizeof(index_t));
 
@@ -94,8 +95,8 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  for(i=0;i<nodesx->number;i++)
    {
-    int32_t latbin=(int32_t)((nodesx->gdata[i]->latitude-lat_min)*LAT_LONG_DEGBIN);
-    int32_t lonbin=(int32_t)((nodesx->gdata[i]->longitude-lon_min)*LAT_LONG_DEGBIN);
+    int32_t latbin=lat_long_to_bin(nodesx->gdata[i]->latitude )-lat_min;
+    int32_t lonbin=lat_long_to_bin(nodesx->gdata[i]->longitude)-lon_min;
     int llbin=lonbin*latbins+latbin;
 
     for(;latlonbin<=llbin;latlonbin++)
@@ -287,7 +288,7 @@ void SortNodeList(NodesX* nodesx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    int32_t lat=(int32_t)(nodesx->gdata[i]->latitude*LAT_LONG_SCALE);
+    int32_t lat=(int32_t)(nodesx->gdata[i]->latitude *LAT_LONG_SCALE);
     int32_t lon=(int32_t)(nodesx->gdata[i]->longitude*LAT_LONG_SCALE);
 
     nodesx->gdata[i]->node.latoffset=lat%LAT_LONG_BIN;
@@ -345,8 +346,8 @@ static int sort_by_id(NodeX **a,NodeX **b)
 
 static int sort_by_lat_long(NodeX **a,NodeX **b)
 {
- int32_t a_lon=(int32_t)((*a)->longitude*LAT_LONG_DEGBIN);
- int32_t b_lon=(int32_t)((*b)->longitude*LAT_LONG_DEGBIN);
+ int32_t a_lon=lat_long_to_bin((*a)->longitude);
+ int32_t b_lon=lat_long_to_bin((*b)->longitude);
 
  if(a_lon<b_lon)
     return(-1);
@@ -354,8 +355,8 @@ static int sort_by_lat_long(NodeX **a,NodeX **b)
     return(1);
  else
    {
-    int32_t a_lat=(int32_t)((*a)->latitude*LAT_LONG_DEGBIN);
-    int32_t b_lat=(int32_t)((*b)->latitude*LAT_LONG_DEGBIN);
+    int32_t a_lat=lat_long_to_bin((*a)->latitude);
+    int32_t b_lat=lat_long_to_bin((*b)->latitude);
 
     if(a_lat<b_lat)
        return(-1);
