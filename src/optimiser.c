@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.52 2009-02-15 14:30:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.53 2009-02-15 16:19:06 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -567,9 +567,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
 
  /* Check it worked */
 
- result2=FindResult(results,finish);
-
- if(!result2)
+ if(finish_distance == ~0)
    {
     FreeResultsList(results);
     return(NULL);
