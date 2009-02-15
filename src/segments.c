@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.32 2009-02-10 19:42:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.33 2009-02-15 13:58:50 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -100,24 +100,24 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
 
 distance_t Distance(float lat1,float lon1,float lat2,float lon2)
 {
- double radiant = M_PI / 180;
+ float radiant = M_PI / 180;
 
- double dlon = radiant * (lon1 - lon2);
- double dlat = radiant * (lat1 - lat2);
+ float dlon = radiant * (lon1 - lon2);
+ float dlat = radiant * (lat1 - lat2);
 
- double a1,a2,a,sa,c,d;
+ float a1,a2,a,sa,c,d;
 
  if(dlon==0 && dlat==0)
    return 0;
 
- a1 = sin (dlat / 2);
- a2 = sin (dlon / 2);
- a = (a1 * a1) + cos (lat1 * radiant) * cos (lat2 * radiant) * a2 * a2;
- sa = sqrt (a);
+ a1 = sinf (dlat / 2);
+ a2 = sinf (dlon / 2);
+ a = (a1 * a1) + cosf (lat1 * radiant) * cosf (lat2 * radiant) * a2 * a2;
+ sa = sqrtf (a);
  if (sa <= 1.0)
-   {c = 2 * asin (sa);}
+   {c = 2 * asinf (sa);}
  else
-   {c = 2 * asin (1.0);}
+   {c = 2 * asinf (1.0);}
  d = 6378.137 * c;
 
  return km_to_distance(d);
