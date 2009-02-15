@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.35 2009-02-15 14:30:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.36 2009-02-15 14:32:57 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -51,10 +51,10 @@ int main(int argc,char** argv)
    usage:
 
     fprintf(stderr,"Usage: router <start-lat> <start-lon> <finish-lat> <finish-lon>\n"
-                   "              [--help] [--help-profile]\n"
+                   "              [--help | --help-profile]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
-                   "              [--shortest] [--quickest]\n"
-                   "              [--all] [--only-super]\n"
+                   "              [--shortest | --quickest]\n"
+                   "              [--all | --super]\n"
                    "              [--no-print] [--quiet]\n"
                    "              [--transport=<transport>]\n"
                    "              [--not-highway=<highway> ...]\n"
@@ -102,13 +102,13 @@ int main(int argc,char** argv)
        dirname=&argv[argc][6];
     else if(!strncmp(argv[argc],"--prefix=",9))
        prefix=&argv[argc][9];
-    else if(!strcmp(argv[argc],"--all"))
-       all=1;
     else if(!strcmp(argv[argc],"--shortest"))
        option_quickest=0;
     else if(!strcmp(argv[argc],"--quickest"))
        option_quickest=1;
-    else if(!strcmp(argv[argc],"--only-super"))
+    else if(!strcmp(argv[argc],"--all"))
+       all=1;
+    else if(!strcmp(argv[argc],"--super"))
        only_super=1;
     else if(!strcmp(argv[argc],"--no-print"))
        no_print=1;
