@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.50 2009-02-08 15:30:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.51 2009-02-15 13:51:36 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -56,14 +56,23 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
  index_t node1,node2;
  distance_t finish_distance;
  duration_t finish_duration;
+ float finish_lat,finish_lon;
+ speed_t max_speed=0;
  Result *result1,*result2;
  Segment *segment;
  Way *way;
+ int i;
 
  /* Set up the finish conditions */
 
  finish_distance=~0;
  finish_duration=~0;
+
+ GetLatLong(nodes,LookupNode(nodes,finish),&finish_lat,&finish_lon);
+
+ for(i=0;i<sizeof(profile->speed)/sizeof(profile->speed[0]);i++)
+    if(profile->speed[i]>max_speed)
+       max_speed=profile->speed[i];
 
  /* Insert the first node into the queue */
 
@@ -79,6 +88,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
  result1->next=0;
  result1->distance=0;
  result1->duration=0;
+ result1->sortby=0;
 
  insert_in_queue(result1);
 
@@ -86,6 +96,10 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
  while((result1=pop_from_queue()))
    {
+    if((option_quickest==0 && result1->sortby>finish_distance) ||
+       (option_quickest==1 && result1->sortby>finish_duration))
+       continue;
+
     node1=result1->node;
 
     segment=FirstSegment(segments,LookupNode(nodes,node1));
@@ -137,8 +151,23 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
              finish_distance=cumulative_distance;
              finish_duration=cumulative_duration;
             }
-          else
+          else if(!all)
+            {
+             result2->sortby=result2->distance;
              insert_in_queue(result2);
+            }
+          else
+            {
+             float lat,lon;
+             GetLatLong(nodes,LookupNode(nodes,node2),&lat,&lon);
+
+             if(option_quickest==0)
+                result2->sortby=result2->distance+Distance(lat,lon,finish_lat,finish_lon);
+             else
+                result2->sortby=result2->duration+distance_speed_to_duration(Distance(lat,lon,finish_lat,finish_lon),max_speed);
+
+             insert_in_queue(result2);
+            }
          }
        else if(option_quickest==0) /* shortest */
          {
@@ -155,8 +184,19 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
                 finish_distance=cumulative_distance;
                 finish_duration=cumulative_duration;
                }
-             else
+             else if(!all)
+               {
+                result2->sortby=result2->distance;
                 insert_in_queue(result2);
+               }
+             else
+               {
+                float lat,lon;
+                GetLatLong(nodes,LookupNode(nodes,node2),&lat,&lon);
+
+                result2->sortby=result2->distance+Distance(lat,lon,finish_lat,finish_lon);
+                insert_in_queue(result2);
+               }
             }
          }
        else if(option_quickest==1) /* quickest */
@@ -174,8 +214,19 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
                 finish_distance=cumulative_distance;
                 finish_duration=cumulative_duration;
                }
-             else
+             else if(!all)
+               {
+                result2->sortby=result2->distance;
                 insert_in_queue(result2);
+               }
+             else
+               {
+                float lat,lon;
+                GetLatLong(nodes,LookupNode(nodes,node2),&lat,&lon);
+
+                result2->sortby=result2->duration+distance_speed_to_duration(Distance(lat,lon,finish_lat,finish_lon),max_speed);
+                insert_in_queue(result2);
+               }
             }
          }
 
@@ -184,7 +235,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
        if(!option_quiet && !(results->number%10000))
          {
           printf("\rRouting: End Nodes=%d %.1fkm %.0fmin  ",results->number,
-                 distance_to_km(cumulative_distance),duration_to_minutes(cumulative_duration));
+                 distance_to_km(result1->distance),duration_to_minutes(result1->duration));
           fflush(stdout);
          }
 
@@ -262,14 +313,23 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
  index_t node1,node2;
  distance_t finish_distance;
  duration_t finish_duration;
+ float finish_lat,finish_lon;
+ speed_t max_speed=0;
  Result *result1,*result2,*result3;
  Segment *segment;
  Way *way;
+ int i;
 
  /* Set up the finish conditions */
 
  finish_distance=~0;
  finish_duration=~0;
+
+ GetLatLong(nodes,LookupNode(nodes,finish),&finish_lat,&finish_lon);
+
+ for(i=0;i<sizeof(profile->speed)/sizeof(profile->speed[0]);i++)
+    if(profile->speed[i]>max_speed)
+       max_speed=profile->speed[i];
 
  /* Insert the start node */
 
@@ -295,6 +355,8 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
           *result2=*result3;
 
           result2->prev=start;
+
+          result2->sortby=result2->distance;
          }
 
        insert_in_queue(result2);
@@ -307,6 +369,10 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
 
  while((result1=pop_from_queue()))
    {
+    if((option_quickest==0 && result1->sortby>finish_distance) ||
+       (option_quickest==1 && result1->sortby>finish_duration))
+       continue;
+
     node1=result1->node;
 
     segment=FirstSegment(segments,LookupNode(nodes,node1));
@@ -359,7 +425,17 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
              finish_duration=cumulative_duration+result3->duration;
             }
           else
+            {
+             float lat,lon;
+             GetLatLong(nodes,LookupNode(nodes,node2),&lat,&lon);
+
+             if(option_quickest==0)
+                result2->sortby=result2->distance+Distance(lat,lon,finish_lat,finish_lon);
+             else
+                result2->sortby=result2->duration+distance_speed_to_duration(Distance(lat,lon,finish_lat,finish_lon),max_speed);
+
              insert_in_queue(result2);
+            }
          }
        else if(option_quickest==0) /* shortest */
          {
@@ -382,7 +458,13 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
                   }
                }
              else
+               {
+                float lat,lon;
+                GetLatLong(nodes,LookupNode(nodes,node2),&lat,&lon);
+
+                result2->sortby=result2->distance+Distance(lat,lon,finish_lat,finish_lon);
                 insert_in_queue(result2);
+               }
             }
          }
        else if(option_quickest==1) /* quickest */
@@ -406,7 +488,13 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
                   }
                }
              else
+               {
+                float lat,lon;
+                GetLatLong(nodes,LookupNode(nodes,node2),&lat,&lon);
+
+                result2->sortby=result2->duration+distance_speed_to_duration(Distance(lat,lon,finish_lat,finish_lon),max_speed);
                 insert_in_queue(result2);
+               }
             }
          }
 
@@ -415,7 +503,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
        if(!option_quiet && !(results->number%10000))
          {
           printf("\rRouting: End Nodes=%d %.1fkm %.0fmin  ",results->number,
-                 distance_to_km(cumulative_distance),duration_to_minutes(cumulative_duration));
+                 distance_to_km(result1->distance),duration_to_minutes(result1->duration));
           fflush(stdout);
          }
 
@@ -572,7 +660,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
        Way *way;
 
        segment=FirstSegment(segments,LookupNode(nodes,result->prev));
-       while(NODE(segment->node2)!=result->node && NODE(segment->node1)!=result->node)
+       while(OtherNode(segment,result->prev)!=result->node)
           segment=NextSegment(segments,segment,result->prev);
 
        way=LookupWay(ways,segment->way);
@@ -639,6 +727,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Pro
  result1->next=0;
  result1->distance=0;
  result1->duration=0;
+ result1->sortby=0;
 
  insert_in_queue(result1);
 
@@ -689,7 +778,10 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Pro
           result2->duration=cumulative_duration;
 
           if(!IsSuperNode(LookupNode(nodes,node2)))
+            {
+             result2->sortby=result2->distance;
              insert_in_queue(result2);
+            }
          }
        else if(option_quickest==0) /* shortest */
          {
@@ -702,7 +794,10 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Pro
              result2->duration=cumulative_duration;
 
              if(!IsSuperNode(LookupNode(nodes,node2)))
+               {
+                result2->sortby=result2->distance;
                 insert_in_queue(result2);
+               }
             }
          }
        else if(option_quickest==1) /* quickest */
@@ -716,7 +811,10 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Pro
              result2->duration=cumulative_duration;
 
              if(!IsSuperNode(LookupNode(nodes,node2)))
+               {
+                result2->sortby=result2->duration;
                 insert_in_queue(result2);
+               }
             }
          }
 
@@ -773,6 +871,7 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fi
  result1->next=0;
  result1->distance=0;
  result1->duration=0;
+ result1->sortby=0;
 
  insert_in_queue(result1);
 
@@ -823,7 +922,10 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fi
           result2->duration=cumulative_duration;
 
           if(!IsSuperNode(LookupNode(nodes,node2)))
+            {
+             result2->sortby=result2->distance;
              insert_in_queue(result2);
+            }
          }
        else if(option_quickest==0) /* shortest */
          {
@@ -836,7 +938,10 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fi
              result2->duration=cumulative_duration;
 
              if(!IsSuperNode(LookupNode(nodes,node2)))
+               {
+                result2->sortby=result2->distance;
                 insert_in_queue(result2);
+               }
             }
          }
        else if(option_quickest==1) /* quickest */
@@ -850,7 +955,10 @@ Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fi
              result2->duration=cumulative_duration;
 
              if(!IsSuperNode(LookupNode(nodes,node2)))
+               {
+                result2->sortby=result2->duration;
                 insert_in_queue(result2);
+               }
             }
          }
 
