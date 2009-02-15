@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.24 2009-02-15 14:30:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.25 2009-02-15 16:19:28 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -64,31 +64,88 @@ Nodes *LoadNodeList(const char *filename)
   float latitude The latitude to look for.
 
   float longitude The longitude to look for.
+
+  distance_t distance The maximum distance to look, returns the final distance.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Node *FindNode(Nodes* nodes,float latitude,float longitude)
+Node *FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance)
 {
  int32_t latbin=lat_long_to_bin(latitude )-nodes->latzero;
  int32_t lonbin=lat_long_to_bin(longitude)-nodes->lonzero;
- int llbin=lonbin*nodes->latbins+latbin;
- int i,best=~0;
- distance_t distance=km_to_distance(10);
+ int     delta=0,count;
+ index_t i,best=~0;
 
- // FIXME - closest could be outside of this square
+ /* Start with the bin containing the location, then spiral outwards. */
 
- if(llbin<0 || llbin>nodes->number)
-    return(NULL);
-
- for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
+ do
    {
-    float lat=(float)((nodes->latzero+latbin)*LAT_LONG_BIN+nodes->nodes[i].latoffset)/LAT_LONG_SCALE;
-    float lon=(float)((nodes->lonzero+lonbin)*LAT_LONG_BIN+nodes->nodes[i].lonoffset)/LAT_LONG_SCALE;
+    int latb,lonb,llbin;
 
-    float dist=Distance(lat,lon,latitude,longitude);
+    count=0;
+   
+    for(latb=latbin-delta;latb<=latbin+delta;latb++)
+       for(lonb=lonbin-delta;lonb<=lonbin+delta;lonb++)
+         {
+          if(abs(latb-latbin)<delta && abs(lonb-lonbin)<delta)
+             continue;
 
-    if(dist<distance)
-      {best=i; distance=dist;}
+          llbin=lonb*nodes->latbins+latb;
+
+          if(llbin<0 || llbin>nodes->number)
+             continue;
+
+          if(delta>0)
+            {
+             float lat1=(float)((nodes->latzero+latb)*LAT_LONG_BIN)/LAT_LONG_SCALE;
+             float lon1=(float)((nodes->lonzero+lonb)*LAT_LONG_BIN)/LAT_LONG_SCALE;
+             float lat2=(float)((nodes->latzero+latb+1)*LAT_LONG_BIN)/LAT_LONG_SCALE;
+             float lon2=(float)((nodes->lonzero+lonb+1)*LAT_LONG_BIN)/LAT_LONG_SCALE;
+
+             if(latb==latbin)
+               {
+                distance_t dist1=Distance(latitude,lon1,latitude,longitude);
+                distance_t dist2=Distance(latitude,lon2,latitude,longitude);
+
+                if(dist1>*distance && dist2>*distance)
+                   continue;
+               }
+             else if(lonb==lonbin)
+               {
+                distance_t dist1=Distance(lat1,longitude,latitude,longitude);
+                distance_t dist2=Distance(lat2,longitude,latitude,longitude);
+
+                if(dist1>*distance && dist2>*distance)
+                   continue;
+               }
+             else
+               {
+                distance_t dist1=Distance(lat1,lon1,latitude,longitude);
+                distance_t dist2=Distance(lat2,lon1,latitude,longitude);
+                distance_t dist3=Distance(lat2,lon2,latitude,longitude);
+                distance_t dist4=Distance(lat1,lon2,latitude,longitude);
+
+                if(dist1>*distance && dist2>*distance && dist3>*distance && dist4>*distance)
+                   continue;
+               }
+            }
+
+          for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
+            {
+             float lat=(float)((nodes->latzero+latbin)*LAT_LONG_BIN+nodes->nodes[i].latoffset)/LAT_LONG_SCALE;
+             float lon=(float)((nodes->lonzero+lonbin)*LAT_LONG_BIN+nodes->nodes[i].lonoffset)/LAT_LONG_SCALE;
+
+             distance_t dist=Distance(lat,lon,latitude,longitude);
+
+             if(dist<*distance)
+               {best=i; *distance=dist;}
+            }
+
+          count++;
+         }
+
+    delta++;
    }
+ while(count);
 
  if(best==~0)
     return(NULL);
