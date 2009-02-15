@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.2 2009-02-15 13:45:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.3 2009-02-15 14:30:11 amb Exp $
 
  Extented Node data type functions.
  ******************/ /******************
@@ -281,10 +281,10 @@ void SortNodeList(NodesX* nodesx)
 
  qsort(nodesx->gdata,nodesx->number,sizeof(NodeX*),(int (*)(const void*,const void*))sort_by_lat_long);
 
- nodesx->lat_min=90;
- nodesx->lat_max=-90;
- nodesx->lon_min=180;
- nodesx->lon_max=-180;
+ nodesx->lat_min=2;
+ nodesx->lat_max=-2;
+ nodesx->lon_min=4;
+ nodesx->lon_max=-4;
 
  for(i=0;i<nodesx->number;i++)
    {

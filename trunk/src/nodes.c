@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.23 2009-02-15 13:45:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.24 2009-02-15 14:30:10 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -75,6 +75,9 @@ Node *FindNode(Nodes* nodes,float latitude,float longitude)
  distance_t distance=km_to_distance(10);
 
  // FIXME - closest could be outside of this square
+
+ if(llbin<0 || llbin>nodes->number)
+    return(NULL);
 
  for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
    {

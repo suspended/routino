@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.2 2009-02-15 13:58:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.3 2009-02-15 14:30:11 amb Exp $
 
  Extended Segment data type functions.
  ******************/ /******************
@@ -551,10 +551,8 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
 distance_t DistanceX(NodeX *nodex1,NodeX *nodex2)
 {
- float radiant = M_PI / 180;
-
- float dlon = radiant * (nodex1->longitude - nodex2->longitude);
- float dlat = radiant * (nodex1->latitude  - nodex2->latitude);
+ float dlon = nodex1->longitude - nodex2->longitude;
+ float dlat = nodex1->latitude  - nodex2->latitude;
 
  float a1,a2,a,sa,c,d;
 
@@ -563,7 +561,7 @@ distance_t DistanceX(NodeX *nodex1,NodeX *nodex2)
 
  a1 = sinf (dlat / 2);
  a2 = sinf (dlon / 2);
- a = (a1 * a1) + cosf (nodex1->latitude * radiant) * cosf (nodex2->latitude * radiant) * a2 * a2;
+ a = (a1 * a1) + cosf (nodex1->latitude) * cosf (nodex2->latitude) * a2 * a2;
  sa = sqrtf (a);
  if (sa <= 1.0)
    {c = 2 * asinf (sa);}
