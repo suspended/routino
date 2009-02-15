@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.22 2009-02-10 19:42:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.23 2009-02-15 13:45:54 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -13,6 +13,7 @@
 
 
 #include <stdlib.h>
+#include <math.h>
 
 #include "nodes.h"
 #include "segments.h"
@@ -67,16 +68,18 @@ Nodes *LoadNodeList(const char *filename)
 
 Node *FindNode(Nodes* nodes,float latitude,float longitude)
 {
- int32_t latbin=(int32_t)((latitude-nodes->latzero)*LAT_LONG_DEGBIN);
- int32_t lonbin=(int32_t)((longitude-nodes->lonzero)*LAT_LONG_DEGBIN);
+ int32_t latbin=lat_long_to_bin(latitude )-nodes->latzero;
+ int32_t lonbin=lat_long_to_bin(longitude)-nodes->lonzero;
  int llbin=lonbin*nodes->latbins+latbin;
  int i,best=~0;
  distance_t distance=km_to_distance(10);
 
+ // FIXME - closest could be outside of this square
+
  for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
    {
-    float lat=nodes->latzero+(double)latbin/(double)LAT_LONG_DEGBIN+(double)nodes->nodes[i].latoffset/(double)LAT_LONG_SCALE;
-    float lon=nodes->lonzero+(double)lonbin/(double)LAT_LONG_DEGBIN+(double)nodes->nodes[i].lonoffset/(double)LAT_LONG_SCALE;
+    float lat=(float)((nodes->latzero+latbin)*LAT_LONG_BIN+nodes->nodes[i].latoffset)/LAT_LONG_SCALE;
+    float lon=(float)((nodes->lonzero+lonbin)*LAT_LONG_BIN+nodes->nodes[i].lonoffset)/LAT_LONG_SCALE;
 
     float dist=Distance(lat,lon,latitude,longitude);
 
@@ -180,6 +183,6 @@ void GetLatLong(Nodes *nodes,Node *node,float *latitude,float *longitude)
 
  /* Return the values */
 
- *latitude =nodes->latzero+(double)latbin/(double)LAT_LONG_DEGBIN+(double)node->latoffset/(double)LAT_LONG_SCALE;
- *longitude=nodes->lonzero+(double)lonbin/(double)LAT_LONG_DEGBIN+(double)node->lonoffset/(double)LAT_LONG_SCALE;
+ *latitude =(float)((nodes->latzero+latbin)*LAT_LONG_BIN+node->latoffset)/LAT_LONG_SCALE;
+ *longitude=(float)((nodes->lonzero+lonbin)*LAT_LONG_BIN+node->lonoffset)/LAT_LONG_SCALE;
 }

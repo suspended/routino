@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.19 2009-02-07 15:56:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.20 2009-02-15 13:45:54 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -41,8 +41,8 @@ struct _Nodes
  uint32_t latbins;              /*+ The number of bins containing latitude. +*/
  uint32_t lonbins;              /*+ The number of bins containing longitude. +*/
 
- float    latzero;              /*+ The latitude of the SW corner of the first bin. +*/
- float    lonzero;              /*+ The longitude of the SW corner of the first bin. +*/
+ int32_t  latzero;              /*+ The latitude of the SW corner of the first bin. +*/
+ int32_t  lonzero;              /*+ The longitude of the SW corner of the first bin. +*/
 
  index_t *offsets;              /*+ The offset of the first node in each bin. +*/
 
