@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.34 2009-02-10 19:42:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.35 2009-02-15 14:30:11 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "types.h"
 #include "functions.h"
@@ -192,10 +193,10 @@ int main(int argc,char** argv)
  /* Get the start and finish */
 
    {
-    float lat_start =atof(argv[1]);
-    float lon_start =atof(argv[2]);
-    float lat_finish=atof(argv[3]);
-    float lon_finish=atof(argv[4]);
+    float lat_start =(M_PI/180)*atof(argv[1]);
+    float lon_start =(M_PI/180)*atof(argv[2]);
+    float lat_finish=(M_PI/180)*atof(argv[3]);
+    float lon_finish=(M_PI/180)*atof(argv[4]);
 
     Node *start_node =FindNode(OSMNodes,lat_start ,lon_start );
     Node *finish_node=FindNode(OSMNodes,lat_finish,lon_finish);
@@ -220,12 +221,12 @@ int main(int argc,char** argv)
        GetLatLong(OSMNodes,start_node,&lat,&lon);
        dist=Distance(lat_start,lon_start,lat,lon);
 
-       printf("Start node : %3.6f %4.6f = %2.3f km\n",lat,lon,distance_to_km(dist));
+       printf("Start node : %3.6f %4.6f = %2.3f km\n",(180/M_PI)*lat,(180/M_PI)*lon,distance_to_km(dist));
 
        GetLatLong(OSMNodes,finish_node,&lat,&lon);
        dist=Distance(lat_finish,lon_finish,lat,lon);
 
-       printf("Finish node: %3.6f %4.6f = %2.3f km\n",lat,lon,distance_to_km(dist));
+       printf("Finish node: %3.6f %4.6f = %2.3f km\n",(180/M_PI)*lat,(180/M_PI)*lon,distance_to_km(dist));
       }
 
     start =IndexNode(OSMNodes,start_node );

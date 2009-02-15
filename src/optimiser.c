@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.51 2009-02-15 13:51:36 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.52 2009-02-15 14:30:11 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -652,7 +652,8 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
     GetLatLong(nodes,node,&latitude,&longitude);
 
-    fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",latitude,longitude);
+    fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",
+            (180/M_PI)*latitude,(180/M_PI)*longitude);
 
     if(result->prev)
       {
@@ -665,14 +666,16 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
        way=LookupWay(ways,segment->way);
 
-       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",latitude,longitude,
+       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",
+               (180/M_PI)*latitude,(180/M_PI)*longitude,
                result->node,IsSuperNode(node)?'*':' ',
                distance_to_km(DISTANCE(segment->distance)),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->distance),duration_to_minutes(result->duration),
                profile->speed[HIGHWAY(way->type)],WayName(ways,way));
       }
     else
-       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f\n",latitude,longitude,
+       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f\n",
+               (180/M_PI)*latitude,(180/M_PI)*longitude,
                result->node,IsSuperNode(node)?'*':' ',
                0.0,0.0,0.0,0.0);
 
