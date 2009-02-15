@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.36 2009-02-15 14:32:57 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.37 2009-02-15 16:19:28 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -38,7 +38,7 @@ int main(int argc,char** argv)
  Segments *OSMSegments;
  Ways     *OSMWays;
  index_t   start,finish;
- int       help_profile=0,all=0,only_super=0,no_print=0;
+ int       help_profile=0,all=0,super=0,no_print=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
  Profile   profile;
@@ -109,7 +109,7 @@ int main(int argc,char** argv)
     else if(!strcmp(argv[argc],"--all"))
        all=1;
     else if(!strcmp(argv[argc],"--super"))
-       only_super=1;
+       super=1;
     else if(!strcmp(argv[argc],"--no-print"))
        no_print=1;
     else if(!strcmp(argv[argc],"--quiet"))
@@ -197,9 +197,10 @@ int main(int argc,char** argv)
     float lon_start =(M_PI/180)*atof(argv[2]);
     float lat_finish=(M_PI/180)*atof(argv[3]);
     float lon_finish=(M_PI/180)*atof(argv[4]);
+    distance_t dist_start=km_to_distance(10),dist_finish=km_to_distance(10);
 
-    Node *start_node =FindNode(OSMNodes,lat_start ,lon_start );
-    Node *finish_node=FindNode(OSMNodes,lat_finish,lon_finish);
+    Node *start_node =FindNode(OSMNodes,lat_start ,lon_start ,&dist_start );
+    Node *finish_node=FindNode(OSMNodes,lat_finish,lon_finish,&dist_finish);
 
     if(!start_node)
       {
@@ -216,17 +217,14 @@ int main(int argc,char** argv)
     if(!option_quiet)
       {
        float lat,lon;
-       distance_t dist;
 
        GetLatLong(OSMNodes,start_node,&lat,&lon);
-       dist=Distance(lat_start,lon_start,lat,lon);
 
-       printf("Start node : %3.6f %4.6f = %2.3f km\n",(180/M_PI)*lat,(180/M_PI)*lon,distance_to_km(dist));
+       printf("Start node : %3.6f %4.6f = %2.3f km\n",(180/M_PI)*lat,(180/M_PI)*lon,distance_to_km(dist_start));
 
        GetLatLong(OSMNodes,finish_node,&lat,&lon);
-       dist=Distance(lat_finish,lon_finish,lat,lon);
 
-       printf("Finish node: %3.6f %4.6f = %2.3f km\n",(180/M_PI)*lat,(180/M_PI)*lon,distance_to_km(dist));
+       printf("Finish node: %3.6f %4.6f = %2.3f km\n",(180/M_PI)*lat,(180/M_PI)*lon,distance_to_km(dist_finish));
       }
 
     start =IndexNode(OSMNodes,start_node );
@@ -335,7 +333,7 @@ int main(int argc,char** argv)
          }
        else if(!no_print)
          {
-          if(only_super)
+          if(super)
             {
              PrintRoute(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
             }

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.20 2009-02-15 13:45:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.21 2009-02-15 16:19:28 amb Exp $
 
  A header file for the nodes.
  ******************/ /******************
@@ -73,7 +73,7 @@ struct _Nodes
 
 Nodes *LoadNodeList(const char *filename);
 
-Node *FindNode(Nodes* nodes,float latitude,float longitude);
+Node *FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance);
 
 void GetLatLong(Nodes *nodes,Node *node,float *latitude,float *longitude);
 
