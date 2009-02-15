@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.53 2009-02-15 16:19:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.54 2009-02-15 19:12:41 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -696,7 +696,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 /*++++++++++++++++++++++++++++++++++++++
   Find all routes from a specified node to any super-node.
 
-  Results *FindRoutes Returns a set of results.
+  Results *FindStartRoutes Returns a set of results.
 
   Nodes *nodes The set of nodes to use.
 
@@ -709,7 +709,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Profile *profile)
+Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Profile *profile)
 {
  Results *results;
  index_t node1,node2;
@@ -840,7 +840,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Pro
 /*++++++++++++++++++++++++++++++++++++++
   Find all routes from any super-node to a specific node.
 
-  Results *FindReverseRoute Returns a set of results.
+  Results *FindFinishRoutes Returns a set of results.
 
   Nodes *nodes The set of nodes to use.
 
@@ -853,7 +853,7 @@ Results *FindRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Pro
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindReverseRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t finish,Profile *profile)
+Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t finish,Profile *profile)
 {
  Results *results;
  index_t node1,node2;
