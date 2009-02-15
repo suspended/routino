@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.37 2009-02-15 16:19:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.38 2009-02-15 19:12:41 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -229,6 +229,12 @@ int main(int argc,char** argv)
 
     start =IndexNode(OSMNodes,start_node );
     finish=IndexNode(OSMNodes,finish_node);
+
+    if(super && !IsSuperNode(start_node) && !IsSuperNode(finish_node))
+      {
+       fprintf(stderr,"Start and/or finish nodes are not super-nodes.\n");
+       return(1);
+      }
    }
 
  /* Calculate the route. */
@@ -273,7 +279,7 @@ int main(int argc,char** argv)
       }
     else
       {
-       begin=FindRoutes(OSMNodes,OSMSegments,OSMWays,start,&profile);
+       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,start,&profile);
 
        if(!begin)
          {
@@ -311,7 +317,7 @@ int main(int argc,char** argv)
          }
        else
          {
-          end=FindReverseRoutes(OSMNodes,OSMSegments,OSMWays,finish,&profile);
+          end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,finish,&profile);
 
           if(!end)
             {
