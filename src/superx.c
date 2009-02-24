@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.2 2009-02-08 15:30:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.3 2009-02-24 19:59:37 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -51,10 +51,10 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
 
  for(i=0;i<segmentsx->number;i++)
    {
-    SegmentX *segmentx=LookupSegmentX(segmentsx,i);
-    WayX *wayx=LookupWayX(waysx,segmentx->segment.way);
+    SegmentX **segmentx=LookupSegmentX(segmentsx,i);
+    WayX *wayx=LookupWayX(waysx,(*segmentx)->segment.way);
 
-    if(segmentx->node1!=node)
+    if((*segmentx)->node1!=node)
       {
        /* Store the node if there is a difference in the ways that could affect routing.
           Store the node if it is not a dead-end and if it isn't just the middle of a way. */
@@ -71,7 +71,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
        segcount=1;
        difference=0;
 
-       node=segmentx->node1;
+       node=(*segmentx)->node1;
        type=wayx->way.type;
        limit=wayx->way.limit;
        allow=wayx->way.allow;
@@ -235,7 +235,6 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
    {
     segmentsx->sdata[i]->segment.node1=SUPER_FLAG; /* mark as normal segment */
 
-    segmentsx->sdata[i]->segment.next1=~0;
     segmentsx->sdata[i]->segment.next2=~0;
 
     while(j<supersegmentsx->number)
@@ -255,7 +254,6 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
           *supersegment=supersegmentsx->sdata[j]->segment;
           supersegment->node2=SUPER_FLAG; /* mark as super-segment */
-          supersegment->next1=~0;
           supersegment->next2=~0;
          }
        else if(segmentsx->sdata[i]->node1==supersegmentsx->sdata[j]->node1 &&
@@ -265,7 +263,6 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
           *supersegment=supersegmentsx->sdata[j]->segment;
           supersegment->node2=SUPER_FLAG; /* mark as super-segment */
-          supersegment->next1=~0;
           supersegment->next2=~0;
          }
        else if(segmentsx->sdata[i]->node1>supersegmentsx->sdata[j]->node1)
@@ -274,7 +271,6 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
           *supersegment=supersegmentsx->sdata[j]->segment;
           supersegment->node2=SUPER_FLAG; /* mark as super-segment */
-          supersegment->next1=~0;
           supersegment->next2=~0;
          }
        else

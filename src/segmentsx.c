@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.3 2009-02-15 14:30:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.4 2009-02-24 19:59:36 amb Exp $
 
  Extended Segment data type functions.
  ******************/ /******************
@@ -502,27 +502,27 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    SegmentX *segmentx=LookupSegmentX(segmentsx,SEGMENT(nodesx->gdata[i]->node.firstseg));
+    SegmentX **segmentx=LookupSegmentX(segmentsx,SEGMENT(nodesx->gdata[i]->node.firstseg));
 
     do
       {
-       if(segmentx->node1==nodesx->gdata[i]->id)
+       if((*segmentx)->node1==nodesx->gdata[i]->id)
          {
-          segmentx->segment.node1|=i;
+          (*segmentx)->segment.node1|=i;
 
-          if(segmentx->segment.next1==~0)
+          segmentx++;
+
+          if((*segmentx)->node1!=nodesx->gdata[i]->id || (segmentx-segmentsx->sdata)>=segmentsx->number)
              segmentx=NULL;
-          else
-             segmentx=LookupSegmentX(segmentsx,segmentx->segment.next1);
          }
        else
          {
-          segmentx->segment.node2|=i;
+          (*segmentx)->segment.node2|=i;
 
-          if(segmentx->segment.next2==~0)
+          if((*segmentx)->segment.next2==~0)
              segmentx=NULL;
           else
-             segmentx=LookupSegmentX(segmentsx,segmentx->segment.next2);
+             segmentx=LookupSegmentX(segmentsx,(*segmentx)->segment.next2);
          }
       }
     while(segmentx);

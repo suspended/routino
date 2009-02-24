@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.3 2009-02-15 14:30:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.4 2009-02-24 19:59:36 amb Exp $
 
  Extented Node data type functions.
  ******************/ /******************
@@ -472,29 +472,26 @@ void IndexNodes(NodesX *nodesx,SegmentsX* segmentsx)
       }
     else
       {
-       SegmentX *segmentx=LookupSegmentX(segmentsx,SEGMENT(node1->node.firstseg));
+       SegmentX **segmentx=LookupSegmentX(segmentsx,SEGMENT(node1->node.firstseg));
 
        do
          {
-          if(segmentx->node1==segmentsx->sdata[i]->node1)
+          if((*segmentx)->node1==segmentsx->sdata[i]->node1)
             {
-             if(SEGMENT(segmentx->segment.next1)==SEGMENT(~0))
-               {
-                segmentx->segment.next1=i;
+             segmentx++;
+
+             if((*segmentx)->node1!=segmentsx->sdata[i]->node1 || (segmentx-segmentsx->sdata)>=segmentsx->number)
                 segmentx=NULL;
-               }
-             else
-                segmentx=LookupSegmentX(segmentsx,SEGMENT(segmentx->segment.next1));
             }
           else
             {
-             if(SEGMENT(segmentx->segment.next2)==SEGMENT(~0))
+             if((*segmentx)->segment.next2==~0)
                {
-                segmentx->segment.next2=i;
+                (*segmentx)->segment.next2=i;
                 segmentx=NULL;
                }
              else
-                segmentx=LookupSegmentX(segmentsx,SEGMENT(segmentx->segment.next2));
+                segmentx=LookupSegmentX(segmentsx,(*segmentx)->segment.next2);
             }
          }
        while(segmentx);
@@ -509,29 +506,26 @@ void IndexNodes(NodesX *nodesx,SegmentsX* segmentsx)
       }
     else
       {
-       SegmentX *segmentx=LookupSegmentX(segmentsx,SEGMENT(node2->node.firstseg));
+       SegmentX **segmentx=LookupSegmentX(segmentsx,SEGMENT(node2->node.firstseg));
 
        do
          {
-          if(segmentx->node1==segmentsx->sdata[i]->node2)
+          if((*segmentx)->node1==segmentsx->sdata[i]->node2)
             {
-             if(SEGMENT(segmentx->segment.next1)==SEGMENT(~0))
-               {
-                segmentx->segment.next1=i;
+             segmentx++;
+
+             if((*segmentx)->node1!=segmentsx->sdata[i]->node2 || (segmentx-segmentsx->sdata)>=segmentsx->number)
                 segmentx=NULL;
-               }
-             else
-                segmentx=LookupSegmentX(segmentsx,SEGMENT(segmentx->segment.next1));
             }
           else
             {
-             if(SEGMENT(segmentx->segment.next2)==SEGMENT(~0))
+             if((*segmentx)->segment.next2==~0)
                {
-                segmentx->segment.next2=i;
+                (*segmentx)->segment.next2=i;
                 segmentx=NULL;
                }
              else
-                segmentx=LookupSegmentX(segmentsx,SEGMENT(segmentx->segment.next2));
+                segmentx=LookupSegmentX(segmentsx,(*segmentx)->segment.next2);
             }
          }
        while(segmentx);

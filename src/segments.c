@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.34 2009-02-15 14:30:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.35 2009-02-24 19:59:36 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -70,17 +70,21 @@ Segments *LoadSegmentList(const char *filename)
 
 Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
 {
- index_t next;
-
  if(NODE(segment->node1)==node)
-    next=segment->next1;
+   {
+    segment++;
+    if(NODE(segment->node1)!=node || (segment-segments->segments)>=segments->number)
+       return(NULL);
+    else
+       return(segment);
+   }
  else
-    next=segment->next2;
-
- if(next==~0)
-    return(NULL);
- else
-    return(LookupSegment(segments,next));
+   {
+    if(segment->next2==~0)
+       return(NULL);
+    else
+       return(LookupSegment(segments,segment->next2));
+   }
 }
  
  
