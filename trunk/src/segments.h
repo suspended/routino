@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.28 2009-02-10 19:42:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.29 2009-02-24 19:59:36 amb Exp $
 
  A header file for the segments.
  ******************/ /******************
@@ -30,7 +30,6 @@ struct _Segment
  index_t    node1;              /*+ The index of the starting node. +*/
  index_t    node2;              /*+ The index of the finishing node. +*/
 
- index_t    next1;              /*+ The index of the next segment sharing node1. +*/
  index_t    next2;              /*+ The index of the next segment sharing node2. +*/
 
  index_t    way;                /*+ The index of the way associated with the segment. +*/
