@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.5 2009-02-24 19:58:49 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.6 2009-02-27 20:16:47 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
  ******************/ /******************
@@ -355,4 +355,59 @@ void PrintProfile(const Profile *profile)
  printf("\n");
 
  printf("Ignore one-way: %s\n",profile->oneway?"no":"yes");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the profiles as Javascript for use in a web form.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void PrintProfilesJS(void)
+{
+ int i,j;
+
+ printf("// Transport types\n");
+ printf("router_transports={");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s%s: %d",j==1?"":",",TransportName(j),j-1);
+ printf("};\n");
+ printf("\n");
+
+ printf("// Highway types\n");
+ printf("router_highways={\n");
+ for(i=1;i<Way_Unknown;i++)
+    printf("%s%s: %d",i==1?"":",",HighwayName(i),i-1);
+ printf("};\n");
+ printf("\n");
+
+ printf("// Allowed highways\n");
+ printf("router_profile_highway={\n");
+ for(i=1;i<Way_Unknown;i++)
+   {
+    printf("  %16s: {",HighwayName(i));
+    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+       printf("%s%s: %d",j==1?"":",",TransportName(j),builtin_profiles[j].highways[i]);
+    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+   }
+ printf("   };\n");
+ printf("\n");
+
+ printf("// Speed limits\n");
+ printf("router_profile_speed={\n");
+ for(i=1;i<Way_Unknown;i++)
+   {
+    printf("  %16s: {",HighwayName(i));
+    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+       printf("%s%s: %3d",j==1?"":",",TransportName(j),builtin_profiles[j].speed[i]);
+    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+   }
+ printf("   };\n");
+ printf("\n");
+
+ printf("// Must obey oneway\n");
+ printf("router_profile_oneway={");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s%s: %d",j==1?"":",",TransportName(j),builtin_profiles[j].oneway);
+ printf("};\n");
+ printf("\n");
 }

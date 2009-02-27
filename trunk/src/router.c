@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.38 2009-02-15 19:12:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.39 2009-02-27 20:16:47 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -38,7 +38,7 @@ int main(int argc,char** argv)
  Segments *OSMSegments;
  Ways     *OSMWays;
  index_t   start,finish;
- int       help_profile=0,all=0,super=0,no_print=0;
+ int       help_profile=0,help_profile_js=0,all=0,super=0,no_print=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
  Profile   profile;
@@ -51,7 +51,7 @@ int main(int argc,char** argv)
    usage:
 
     fprintf(stderr,"Usage: router <start-lat> <start-lon> <finish-lat> <finish-lon>\n"
-                   "              [--help | --help-profile]\n"
+                   "              [--help | --help-profile | -help-profile-js]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
                    "              [--shortest | --quickest]\n"
                    "              [--all | --super]\n"
@@ -98,6 +98,8 @@ int main(int argc,char** argv)
        goto usage;
     else if(!strcmp(argv[argc],"--help-profile"))
        help_profile=1;
+    else if(!strcmp(argv[argc],"--help-profile-js"))
+       help_profile_js=1;
     else if(!strncmp(argv[argc],"--dir=",6))
        dirname=&argv[argc][6];
     else if(!strncmp(argv[argc],"--prefix=",9))
@@ -155,6 +157,12 @@ int main(int argc,char** argv)
  if(help_profile)
    {
     PrintProfile(&profile);
+
+    return(0);
+   }
+ else if(help_profile_js)
+   {
+    PrintProfilesJS();
 
     return(0);
    }
