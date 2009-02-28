@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.39 2009-02-27 20:16:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.40 2009-02-28 17:22:24 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <ctype.h>
 
 #include "types.h"
 #include "functions.h"
@@ -38,6 +39,7 @@ int main(int argc,char** argv)
  Segments *OSMSegments;
  Ways     *OSMWays;
  index_t   start,finish;
+ float     lon_start=999,lat_start=999,lon_finish=999,lat_finish=999;
  int       help_profile=0,help_profile_js=0,all=0,super=0,no_print=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
@@ -50,16 +52,17 @@ int main(int argc,char** argv)
    {
    usage:
 
-    fprintf(stderr,"Usage: router <start-lat> <start-lon> <finish-lat> <finish-lon>\n"
+    fprintf(stderr,"Usage: router [--lon1=]<start-lon>  [--lat1=]<start-lat>\n"
+                   "              [--lon2=]<finish-lon> [--lon2=]<finish-lat>\n"
                    "              [--help | --help-profile | -help-profile-js]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
                    "              [--shortest | --quickest]\n"
                    "              [--all | --super]\n"
                    "              [--no-print] [--quiet]\n"
                    "              [--transport=<transport>]\n"
-                   "              [--not-highway=<highway> ...]\n"
+                   "              [--highway-<highway>=[0|1] ...]\n"
                    "              [--speed-<highway>=<speed> ...]\n"
-                   "              [--ignore-oneway]\n"
+                   "              [--oneway=[0|1]]\n"
                    "\n"
                    "<transport> defaults to motorcar but can be set to:\n"
                    "%s"
@@ -74,9 +77,9 @@ int main(int argc,char** argv)
     return(1);
    }
 
- /* Get the transport type if specified and fill in the profile */
+ /* Get the transport type if specified and fill in the default profile */
 
- for(i=3;i<argc;i++)
+ for(i=1;i<argc;i++)
     if(!strncmp(argv[i],"--transport=",12))
       {
        transport=TransportType(&argv[i][12]);
@@ -92,9 +95,31 @@ int main(int argc,char** argv)
 
  /* Parse the other command line arguments */
 
- while(--argc>=5)
+ while(--argc>=1)
    {
-    if(!strcmp(argv[argc],"--help"))
+    if(isdigit(argv[argc][0]) ||
+       ((argv[argc][0]=='-' || argv[argc][0]=='+') && isdigit(argv[argc][1])))
+      {
+       if(lon_finish==999)
+          lon_finish=(M_PI/180)*atof(argv[argc]);
+       else if(lat_finish==999)
+          lat_finish=(M_PI/180)*atof(argv[argc]);
+       else if(lon_start==999)
+          lon_start=(M_PI/180)*atof(argv[argc]);
+       else if(lat_start==999)
+          lat_start=(M_PI/180)*atof(argv[argc]);
+       else
+          goto usage;
+      }
+    else if(!strncmp(argv[argc],"--lat1=",7))
+       lat_start=(M_PI/180)*atof(&argv[argc][7]);
+    else if(!strncmp(argv[argc],"--lon1=",7))
+       lon_start=(M_PI/180)*atof(&argv[argc][7]);
+    else if(!strncmp(argv[argc],"--lat2=",7))
+       lat_finish=(M_PI/180)*atof(&argv[argc][7]);
+    else if(!strncmp(argv[argc],"--lon2=",7))
+       lon_finish=(M_PI/180)*atof(&argv[argc][7]);
+    else if(!strcmp(argv[argc],"--help"))
        goto usage;
     else if(!strcmp(argv[argc],"--help-profile"))
        help_profile=1;
@@ -118,14 +143,26 @@ int main(int argc,char** argv)
        option_quiet=1;
     else if(!strncmp(argv[argc],"--transport=",12))
        ; /* Done this already*/
-    else if(!strncmp(argv[argc],"--not-highway=",14))
+    else if(!strncmp(argv[argc],"--highway-",10))
       {
-       Highway highway=HighwayType(&argv[argc][14]);
+       Highway highway;
+       char *equal=strchr(argv[argc],'=');
+       char *string;
+
+       if(!equal)
+          goto usage;
+
+       string=strcpy((char*)malloc(strlen(argv[argc])),argv[argc]+10);
+       string[equal-argv[argc]-10]=0;
+
+       highway=HighwayType(string);
+
+       free(string);
 
        if(highway==Way_Unknown)
           goto usage;
 
-       profile.highways[highway]=0;
+       profile.highways[highway]=atoi(equal+1);
       }
     else if(!strncmp(argv[argc],"--speed-",8))
       {
@@ -137,7 +174,7 @@ int main(int argc,char** argv)
           goto usage;
 
        string=strcpy((char*)malloc(strlen(argv[argc])),argv[argc]+8);
-       string[equal-argv[argc]]=0;
+       string[equal-argv[argc]-8]=0;
 
        highway=HighwayType(string);
 
@@ -148,8 +185,10 @@ int main(int argc,char** argv)
 
        profile.speed[highway]=atoi(equal+1);
       }
-    else if(!strcmp(argv[argc],"-ignore-oneway"))
-       profile.oneway=0;
+    else if(!strcmp(argv[argc],"--oneway"))
+       profile.oneway=1;
+    else if(!strncmp(argv[argc],"--oneway=",9))
+       profile.oneway=atoi(&argv[argc][9]);
     else
        goto usage;
    }
@@ -201,10 +240,6 @@ int main(int argc,char** argv)
  /* Get the start and finish */
 
    {
-    float lat_start =(M_PI/180)*atof(argv[1]);
-    float lon_start =(M_PI/180)*atof(argv[2]);
-    float lat_finish=(M_PI/180)*atof(argv[3]);
-    float lon_finish=(M_PI/180)*atof(argv[4]);
     distance_t dist_start=km_to_distance(10),dist_finish=km_to_distance(10);
 
     Node *start_node =FindNode(OSMNodes,lat_start ,lon_start ,&dist_start );
