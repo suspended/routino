@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.5 2009-02-28 17:31:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.6 2009-02-28 19:01:43 amb Exp $
 
  Extented Node data type functions.
  ******************/ /******************
@@ -242,8 +242,8 @@ Node *AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude)
 
  nodesx->xdata[nodesx->xnumber].id=id;
  nodesx->xdata[nodesx->xnumber].super=0;
- nodesx->xdata[nodesx->xnumber].latitude=latitude;
- nodesx->xdata[nodesx->xnumber].longitude=longitude;
+ nodesx->xdata[nodesx->xnumber].latitude =floorf(latitude *LAT_LONG_SCALE)/LAT_LONG_SCALE;
+ nodesx->xdata[nodesx->xnumber].longitude=floorf(longitude*LAT_LONG_SCALE)/LAT_LONG_SCALE;
 
  memset(&nodesx->xdata[nodesx->xnumber].node,0,sizeof(Node));
 
