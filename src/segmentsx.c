@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.4 2009-02-24 19:59:36 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.5 2009-02-28 17:31:41 amb Exp $
 
  Extended Segment data type functions.
  ******************/ /******************
@@ -103,7 +103,18 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  WriteFile(fd,segments,sizeof(Segments));
 
  for(i=0;i<segmentsx->number;i++)
+   {
     WriteFile(fd,&segmentsx->sdata[i]->segment,sizeof(Segment));
+
+    if(!((i+1)%10000))
+      {
+       printf("\rWriting Segments: Segments=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rWrote Segments: Segments=%d  \n",segmentsx->number);
+ fflush(stdout);
 
  CloseFile(fd);
 
@@ -254,6 +265,8 @@ void SortSegmentList(SegmentsX* segmentsx)
 {
  int i;
 
+ printf("Sorting Segments"); fflush(stdout);
+
  /* Allocate the arrays of pointers */
 
  if(segmentsx->sorted)
@@ -273,6 +286,8 @@ void SortSegmentList(SegmentsX* segmentsx)
  qsort(segmentsx->sdata,segmentsx->number,sizeof(SegmentX*),(int (*)(const void*,const void*))sort_by_id);
 
  segmentsx->sorted=1;
+
+ printf("\rSorted Segments \n"); fflush(stdout);
 }
 
 
