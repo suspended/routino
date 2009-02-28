@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.6 2009-02-27 20:16:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.7 2009-02-28 17:22:24 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
  ******************/ /******************
@@ -354,7 +354,7 @@ void PrintProfile(const Profile *profile)
 
  printf("\n");
 
- printf("Ignore one-way: %s\n",profile->oneway?"no":"yes");
+ printf("Obey one-way: %s\n",profile->oneway?"yes":"no");
 }
 
 
