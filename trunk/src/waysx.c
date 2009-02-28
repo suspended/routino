@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.1 2009-02-07 15:57:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.2 2009-02-28 17:31:41 amb Exp $
 
  Extended Way data type functions.
  ******************/ /******************
@@ -86,7 +86,18 @@ void SaveWayList(WaysX* waysx,const char *filename)
  WriteFile(fd,ways,sizeof(Ways));
 
  for(i=0;i<waysx->number;i++)
+   {
     WriteFile(fd,&waysx->idata[i].way,sizeof(Way));
+
+    if(!((i+1)%10000))
+      {
+       printf("\rWriting Ways: Ways=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rWrote Ways: Ways=%d  \n",waysx->number);
+ fflush(stdout);
 
  WriteFile(fd,waysx->names,waysx->length);
 
@@ -149,6 +160,8 @@ void SortWayList(WaysX* waysx)
 
  waysx->sorted=1;
 
+ printf("Sorting Ways"); fflush(stdout);
+
  /* Sort the ways by name */
 
  waysx->ndata=malloc(waysx->number*sizeof(WayX*));
@@ -184,6 +197,8 @@ void SortWayList(WaysX* waysx)
        waysx->length+=strlen(waysx->ndata[i]->name)+1;
       }
    }
+
+ printf("\rSorted Ways \n"); fflush(stdout);
 }
 
 

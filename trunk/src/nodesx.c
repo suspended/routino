@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.4 2009-02-24 19:59:36 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.5 2009-02-28 17:31:41 amb Exp $
 
  Extented Node data type functions.
  ******************/ /******************
@@ -130,7 +130,18 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  WriteFile(fd,offsets,(latbins*lonbins+1)*sizeof(index_t));
 
  for(i=0;i<nodesx->number;i++)
+   {
     WriteFile(fd,&nodesx->gdata[i]->node,sizeof(Node));
+
+    if(!((i+1)%10000))
+      {
+       printf("\rWriting Nodes: Nodes=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rWrote Nodes: Nodes=%d  \n",nodesx->number);
+ fflush(stdout);
 
  CloseFile(fd);
 
@@ -254,6 +265,8 @@ void SortNodeList(NodesX* nodesx)
 {
  int i;
 
+ printf("Sorting Nodes"); fflush(stdout);
+
  /* Allocate the arrays of pointers */
 
  if(nodesx->sorted)
@@ -309,6 +322,8 @@ void SortNodeList(NodesX* nodesx)
  qsort(nodesx->idata,nodesx->number,sizeof(NodeX*),(int (*)(const void*,const void*))sort_by_id);
 
  nodesx->sorted=1;
+
+ printf("\rSorted Nodes \n"); fflush(stdout);
 }
 
 

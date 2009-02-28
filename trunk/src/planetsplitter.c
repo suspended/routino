@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.31 2009-02-07 15:56:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.32 2009-02-28 17:31:41 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -119,31 +119,23 @@ int main(int argc,char** argv)
 
  /* Sort the ways */
 
- printf("Sorting Ways"); fflush(stdout);
  SortWayList(OSMWays);
- printf("\rSorted Ways \n"); fflush(stdout);
 
  /* Sort the segments */
 
- printf("Sorting Segments"); fflush(stdout);
  SortSegmentList(OSMSegments);
- printf("\rSorted Segments \n"); fflush(stdout);
 
  /* Remove bad segments */
 
  RemoveBadSegments(OSMSegments);
 
- printf("Sorting Segments"); fflush(stdout);
  SortSegmentList(OSMSegments);
- printf("\rSorted Segments \n"); fflush(stdout);
 
  /* Remove non-way nodes */
 
  RemoveNonHighwayNodes(OSMNodes,OSMSegments);
 
- printf("Sorting Nodes"); fflush(stdout);
  SortNodeList(OSMNodes);
- printf("\rSorted Nodes \n"); fflush(stdout);
 
  /* Measure the segments */
 
@@ -188,9 +180,7 @@ int main(int argc,char** argv)
 
     /* Sort the super-segments */
 
-    printf("Sorting Super-Segments"); fflush(stdout);
     SortSegmentList(SuperSegments);
-    printf("\rSorted Super-Segments \n"); fflush(stdout);
 
     iteration++;
 
@@ -213,9 +203,7 @@ int main(int argc,char** argv)
 
  /* Sort the segments */
 
- printf("Sorting Segments"); fflush(stdout);
  SortSegmentList(OSMSegments);
- printf("\rSorted Segments \n"); fflush(stdout);
 
  /* Rotate segments so that node1<node2 */
 
@@ -223,9 +211,7 @@ int main(int argc,char** argv)
 
  /* Sort the segments */
 
- printf("Sorting Segments"); fflush(stdout);
  SortSegmentList(OSMSegments);
- printf("\rSorted Segments \n"); fflush(stdout);
 
  /* Remove duplicated segments */
 
@@ -233,9 +219,7 @@ int main(int argc,char** argv)
 
  /* Sort the segments */
 
- printf("Sorting Segments"); fflush(stdout);
  SortSegmentList(OSMSegments);
- printf("\rSorted Segments \n"); fflush(stdout);
 
  /* Fix the segment and node indexes */
 
@@ -247,24 +231,18 @@ int main(int argc,char** argv)
 
  filename=(char*)malloc((dirname?strlen(dirname):0)+(prefix?strlen(prefix):0)+16);
 
- printf("Saving Nodes"); fflush(stdout);
  sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  SaveNodeList(OSMNodes,filename);
- printf("\rSaved Nodes: %d\n",OSMNodes->number); fflush(stdout);
 
  /* Write out the segments */
 
- printf("Saving Segments"); fflush(stdout);
  sprintf(filename,"%s%s%s%ssegments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  SaveSegmentList(OSMSegments,filename);
- printf("\rSaved Segments: %d\n",OSMSegments->number); fflush(stdout);
 
  /* Write out the ways */
 
- printf("Saving Ways"); fflush(stdout);
  sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
  SaveWayList(OSMWays,filename);
- printf("\rSaved Ways: %d\n",OSMWays->number); fflush(stdout);
 
  return(0);
 }
