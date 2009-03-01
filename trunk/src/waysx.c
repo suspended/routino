@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.2 2009-02-28 17:31:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.3 2009-03-01 17:23:30 amb Exp $
 
  Extended Way data type functions.
  ******************/ /******************
@@ -218,4 +218,29 @@ static int sort_by_name(WayX **a,WayX **b)
  char *b_name=(*b)->name;
 
  return(strcmp(a_name,b_name));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Return 1 if the two ways are the same (in respect of their types and limits).
+
+  int WaysSame Returns a comparison.
+
+  Way *way1 The first way.
+
+  Way *way2 The second way.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int WaysSame(Way *way1,Way *way2)
+{
+ if(way1->type  ==way2->type   &&
+    way1->allow ==way2->allow  &&
+    way1->speed ==way2->speed  &&
+    way1->weight==way2->weight &&
+    way1->height==way2->height &&
+    way1->width ==way2->width  &&
+    way1->length==way2->length)
+    return(1);
+ else
+    return(0);
 }
