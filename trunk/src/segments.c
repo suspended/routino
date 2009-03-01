@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.35 2009-02-24 19:59:36 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.36 2009-03-01 17:24:59 amb Exp $
 
  Segment data type functions.
  ******************/ /******************
@@ -140,8 +140,24 @@ distance_t Distance(float lat1,float lon1,float lat2,float lon2)
 
 duration_t Duration(Segment *segment,Way *way,Profile *profile)
 {
- speed_t    speed=profile->speed[HIGHWAY(way->type)];
+ speed_t    speed1=way->speed;
+ speed_t    speed2=profile->speed[HIGHWAY(way->type)];
  distance_t distance=DISTANCE(segment->distance);
 
- return distance_speed_to_duration(distance,speed);
+ if(speed1==0)
+   {
+    if(speed2==0)
+       return(hours_to_duration(10));
+    else
+       return distance_speed_to_duration(distance,speed2);
+   }
+ else /* if(speed1!=0) */
+   {
+    if(speed2==0)
+       return distance_speed_to_duration(distance,speed1);
+    else if(speed1<=speed2)
+       return distance_speed_to_duration(distance,speed1);
+    else
+       return distance_speed_to_duration(distance,speed2);
+   }
 }
