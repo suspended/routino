@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.15 2009-02-15 14:30:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.16 2009-03-01 17:24:21 amb Exp $
 
  Type definitions
  ******************/ /******************
@@ -96,9 +96,6 @@ typedef uint32_t duration_t;
 #define distance_speed_to_duration(xx,yy) ((duration_t)(((double)(xx)/(double)(yy))*(36000.0/1000.0)))
 
 
-/*+ The speed limit of a way. +*/
-typedef uint8_t speed_t;
-
 /*+ The type of a way. +*/
 typedef uint8_t waytype_t;
 
@@ -166,6 +163,52 @@ typedef enum _Allowed
   Allow_ALL       =255
  }
  Allowed;
+
+/*+ The speed limit of a way, measured in km/hour. +*/
+typedef uint8_t speed_t;
+
+/*+ The maximum weight of a way, measured in 0.2 tonnes. +*/
+typedef uint8_t weight_t;
+
+/*+ The maximum height of a way, measured in 0.1 metres. +*/
+typedef uint8_t height_t;
+
+/*+ The maximum width of a way, measured in 0.1 metres. +*/
+typedef uint8_t width_t;
+
+/*+ The maximum length of a way, measured in 0.1 metres. +*/
+typedef uint8_t length_t;
+
+
+/*+ Conversion of km/hr to speed_t. +*/
+#define kph_to_speed(xxx)      (speed_t)(xxx)
+
+/*+ Conversion of speed_t to km/hr. +*/
+#define speed_to_kph(xxx)      (xxx)
+
+/*+ Conversion of tonnes to weight_t. +*/
+#define tonnes_to_weight(xxx)  (weight_t)((xxx)*5)
+
+/*+ Conversion of weight_t to tonnes. +*/
+#define weight_to_tonnes(xxx)  ((double)(xxx)/5.0)
+
+/*+ Conversion of metres to height_t. +*/
+#define metres_to_height(xxx)  (height_t)((xxx)*10)
+
+/*+ Conversion of height_t to metres. +*/
+#define height_to_metres(xxx)  ((double)(xxx)/10.0)
+
+/*+ Conversion of metres to width_t. +*/
+#define metres_to_width(xxx)   (width_t)((xxx)*10)
+
+/*+ Conversion of width_t to metres. +*/
+#define width_to_metres(xxx)   ((double)(xxx)/10.0)
+
+/*+ Conversion of metres to length_t. +*/
+#define metres_to_length(xxx)  (length_t)((xxx)*10)
+
+/*+ Conversion of length_t to metres. +*/
+#define length_to_metres(xxx)  ((double)(xxx)/10.0)
 
 
 /* Data structures */

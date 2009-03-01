@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.24 2009-02-07 15:56:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.25 2009-03-01 17:24:22 amb Exp $
 
  A header file for the ways.
  ******************/ /******************
@@ -28,11 +28,16 @@ struct _Way
 {
  index_t    name;               /*+ The offset of the name of the way in the names array. +*/
 
- speed_t    limit;              /*+ The defined speed limit on the way. +*/
-
  waytype_t  type;               /*+ The type of the way. +*/
 
  wayallow_t allow;              /*+ The type of traffic allowed on the way. +*/
+
+ speed_t    speed;              /*+ The defined maximum speed limit of the way. +*/
+
+ weight_t   weight;             /*+ The defined maximum weight of traffic on the way. +*/
+ height_t   height;             /*+ The defined maximum height of traffic on the way. +*/
+ width_t    width;              /*+ The defined maximum width of traffic on the way. +*/
+ length_t   length;             /*+ The defined maximum length of traffic on the way. +*/
 };
 
 
