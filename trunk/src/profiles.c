@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.7 2009-02-28 17:22:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.8 2009-03-01 17:37:14 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
  ******************/ /******************
@@ -42,19 +42,23 @@ static Profile builtin_profiles[]=
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = 4,
-                                   [Way_Primary     ] = 4,
-                                   [Way_Secondary   ] = 4,
-                                   [Way_Tertiary    ] = 4,
-                                   [Way_Unclassified] = 4,
-                                   [Way_Residential ] = 4,
-                                   [Way_Service     ] = 4,
-                                   [Way_Track       ] = 4,
-                                   [Way_Bridleway   ] = 4,
-                                   [Way_Cycleway    ] = 4,
-                                   [Way_Footway     ] = 4,
+                                   [Way_Trunk       ] = kph_to_speed(4),
+                                   [Way_Primary     ] = kph_to_speed(4),
+                                   [Way_Secondary   ] = kph_to_speed(4),
+                                   [Way_Tertiary    ] = kph_to_speed(4),
+                                   [Way_Unclassified] = kph_to_speed(4),
+                                   [Way_Residential ] = kph_to_speed(4),
+                                   [Way_Service     ] = kph_to_speed(4),
+                                   [Way_Track       ] = kph_to_speed(4),
+                                   [Way_Bridleway   ] = kph_to_speed(4),
+                                   [Way_Cycleway    ] = kph_to_speed(4),
+                                   [Way_Footway     ] = kph_to_speed(4),
                                   },
                       .oneway   = 0,
+                      .weight   = 0,
+                      .height   = 0,
+                      .width    = 0,
+                      .length   = 0,
                      },
 
   /* The profile for travel by Bicycle */
@@ -79,18 +83,22 @@ static Profile builtin_profiles[]=
                       .speed    = {
                                    [Way_Motorway    ] = 0,
                                    [Way_Trunk       ] = 0,
-                                   [Way_Primary     ] =20,
-                                   [Way_Secondary   ] =20,
-                                   [Way_Tertiary    ] =20,
-                                   [Way_Unclassified] =20,
-                                   [Way_Residential ] =20,
-                                   [Way_Service     ] =20,
-                                   [Way_Track       ] =20,
-                                   [Way_Bridleway   ] =20,
-                                   [Way_Cycleway    ] =20,
+                                   [Way_Primary     ] = kph_to_speed(20),
+                                   [Way_Secondary   ] = kph_to_speed(20),
+                                   [Way_Tertiary    ] = kph_to_speed(20),
+                                   [Way_Unclassified] = kph_to_speed(20),
+                                   [Way_Residential ] = kph_to_speed(20),
+                                   [Way_Service     ] = kph_to_speed(20),
+                                   [Way_Track       ] = kph_to_speed(20),
+                                   [Way_Bridleway   ] = kph_to_speed(20),
+                                   [Way_Cycleway    ] = kph_to_speed(20),
                                    [Way_Footway     ] = 0,
                                   },
                       .oneway   = 1,
+                      .weight   = 0,
+                      .height   = 0,
+                      .width    = 0,
+                      .length   = 0,
                      },
 
   /* The profile for travel by Horse */
@@ -115,18 +123,22 @@ static Profile builtin_profiles[]=
                       .speed    = {
                                    [Way_Motorway    ] = 0,
                                    [Way_Trunk       ] = 0,
-                                   [Way_Primary     ] =10,
-                                   [Way_Secondary   ] =10,
-                                   [Way_Tertiary    ] =10,
-                                   [Way_Unclassified] =10,
-                                   [Way_Residential ] =10,
-                                   [Way_Service     ] =10,
-                                   [Way_Track       ] =10,
-                                   [Way_Bridleway   ] =10,
+                                   [Way_Primary     ] = kph_to_speed(10),
+                                   [Way_Secondary   ] = kph_to_speed(10),
+                                   [Way_Tertiary    ] = kph_to_speed(10),
+                                   [Way_Unclassified] = kph_to_speed(10),
+                                   [Way_Residential ] = kph_to_speed(10),
+                                   [Way_Service     ] = kph_to_speed(10),
+                                   [Way_Track       ] = kph_to_speed(10),
+                                   [Way_Bridleway   ] = kph_to_speed(10),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
                                   },
                       .oneway   = 1,
+                      .weight   = 0,
+                      .height   = 0,
+                      .width    = 0,
+                      .length   = 0,
                      },
 
   /* The profile for travel by Motorbike */
@@ -149,20 +161,24 @@ static Profile builtin_profiles[]=
                                    [Way_Footway     ] = 0,
                                   },
                       .speed    = {
-                                   [Way_Motorway    ] =70*1.6,
-                                   [Way_Trunk       ] =60*1.6,
-                                   [Way_Primary     ] =60*1.6,
-                                   [Way_Secondary   ] =55*1.6,
-                                   [Way_Tertiary    ] =50*1.6,
-                                   [Way_Unclassified] =40*1.6,
-                                   [Way_Residential ] =30*1.6,
-                                   [Way_Service     ] =20*1.6,
+                                   [Way_Motorway    ] = kph_to_speed(70*1.6),
+                                   [Way_Trunk       ] = kph_to_speed(60*1.6),
+                                   [Way_Primary     ] = kph_to_speed(60*1.6),
+                                   [Way_Secondary   ] = kph_to_speed(55*1.6),
+                                   [Way_Tertiary    ] = kph_to_speed(50*1.6),
+                                   [Way_Unclassified] = kph_to_speed(40*1.6),
+                                   [Way_Residential ] = kph_to_speed(30*1.6),
+                                   [Way_Service     ] = kph_to_speed(20*1.6),
                                    [Way_Track       ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
                                   },
                       .oneway   = 1,
+                      .weight   = 0,
+                      .height   = 0,
+                      .width    = 0,
+                      .length   = 0,
                      },
 
   /* The profile for travel by Motorcar */
@@ -185,20 +201,24 @@ static Profile builtin_profiles[]=
                                    [Way_Footway     ] = 0,
                                   },
                       .speed    = {
-                                   [Way_Motorway    ] =70*1.6,
-                                   [Way_Trunk       ] =60*1.6,
-                                   [Way_Primary     ] =60*1.6,
-                                   [Way_Secondary   ] =55*1.6,
-                                   [Way_Tertiary    ] =50*1.6,
-                                   [Way_Unclassified] =40*1.6,
-                                   [Way_Residential ] =30*1.6,
-                                   [Way_Service     ] =20*1.6,
+                                   [Way_Motorway    ] = kph_to_speed(70*1.6),
+                                   [Way_Trunk       ] = kph_to_speed(60*1.6),
+                                   [Way_Primary     ] = kph_to_speed(60*1.6),
+                                   [Way_Secondary   ] = kph_to_speed(55*1.6),
+                                   [Way_Tertiary    ] = kph_to_speed(50*1.6),
+                                   [Way_Unclassified] = kph_to_speed(40*1.6),
+                                   [Way_Residential ] = kph_to_speed(30*1.6),
+                                   [Way_Service     ] = kph_to_speed(20*1.6),
                                    [Way_Track       ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
                                   },
                       .oneway   = 1,
+                      .weight   = 0,
+                      .height   = 0,
+                      .width    = 0,
+                      .length   = 0,
                      },
 
   /* The profile for travel by Goods */
@@ -221,20 +241,24 @@ static Profile builtin_profiles[]=
                                    [Way_Footway     ] = 0,
                                   },
                       .speed    = {
-                                   [Way_Motorway    ] =60*1.6,
-                                   [Way_Trunk       ] =60*1.6,
-                                   [Way_Primary     ] =60*1.6,
-                                   [Way_Secondary   ] =55*1.6,
-                                   [Way_Tertiary    ] =50*1.6,
-                                   [Way_Unclassified] =40*1.6,
-                                   [Way_Residential ] =30*1.6,
-                                   [Way_Service     ] =20*1.6,
+                                   [Way_Motorway    ] = kph_to_speed(60*1.6),
+                                   [Way_Trunk       ] = kph_to_speed(60*1.6),
+                                   [Way_Primary     ] = kph_to_speed(60*1.6),
+                                   [Way_Secondary   ] = kph_to_speed(55*1.6),
+                                   [Way_Tertiary    ] = kph_to_speed(50*1.6),
+                                   [Way_Unclassified] = kph_to_speed(40*1.6),
+                                   [Way_Residential ] = kph_to_speed(30*1.6),
+                                   [Way_Service     ] = kph_to_speed(20*1.6),
                                    [Way_Track       ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
                                   },
                       .oneway   = 1,
+                      .weight   = tonnes_to_weight(5),
+                      .height   = metres_to_height(2.5),
+                      .width    = metres_to_width (2),
+                      .length   = metres_to_length(5),
                      },
 
   /* The profile for travel by HGV */
@@ -257,20 +281,24 @@ static Profile builtin_profiles[]=
                                    [Way_Footway     ] = 0,
                                   },
                       .speed    = {
-                                   [Way_Motorway    ] =56*1.6,
-                                   [Way_Trunk       ] =50*1.6,
-                                   [Way_Primary     ] =50*1.6,
-                                   [Way_Secondary   ] =50*1.6,
-                                   [Way_Tertiary    ] =50*1.6,
-                                   [Way_Unclassified] =40*1.6,
-                                   [Way_Residential ] =30*1.6,
-                                   [Way_Service     ] =20*1.6,
+                                   [Way_Motorway    ] = kph_to_speed(56*1.6),
+                                   [Way_Trunk       ] = kph_to_speed(50*1.6),
+                                   [Way_Primary     ] = kph_to_speed(50*1.6),
+                                   [Way_Secondary   ] = kph_to_speed(50*1.6),
+                                   [Way_Tertiary    ] = kph_to_speed(50*1.6),
+                                   [Way_Unclassified] = kph_to_speed(40*1.6),
+                                   [Way_Residential ] = kph_to_speed(30*1.6),
+                                   [Way_Service     ] = kph_to_speed(20*1.6),
                                    [Way_Track       ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
                                   },
                       .oneway   = 1,
+                      .weight   = tonnes_to_weight(10),
+                      .height   = metres_to_height(3),
+                      .width    = metres_to_width (2.5),
+                      .length   = metres_to_length(6),
                      },
 
   /* The profile for travel by PSV */
@@ -293,20 +321,24 @@ static Profile builtin_profiles[]=
                                    [Way_Footway     ] = 0,
                                   },
                       .speed    = {
-                                   [Way_Motorway    ] =56*1.6,
-                                   [Way_Trunk       ] =50*1.6,
-                                   [Way_Primary     ] =50*1.6,
-                                   [Way_Secondary   ] =50*1.6,
-                                   [Way_Tertiary    ] =50*1.6,
-                                   [Way_Unclassified] =40*1.6,
-                                   [Way_Residential ] =30*1.6,
-                                   [Way_Service     ] =20*1.6,
+                                   [Way_Motorway    ] = kph_to_speed(56*1.6),
+                                   [Way_Trunk       ] = kph_to_speed(50*1.6),
+                                   [Way_Primary     ] = kph_to_speed(50*1.6),
+                                   [Way_Secondary   ] = kph_to_speed(50*1.6),
+                                   [Way_Tertiary    ] = kph_to_speed(50*1.6),
+                                   [Way_Unclassified] = kph_to_speed(40*1.6),
+                                   [Way_Residential ] = kph_to_speed(30*1.6),
+                                   [Way_Service     ] = kph_to_speed(20*1.6),
                                    [Way_Track       ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
                                   },
                       .oneway   = 1,
+                      .weight   = tonnes_to_weight(15),
+                      .height   = metres_to_height(3),
+                      .width    = metres_to_width (2.5),
+                      .length   = metres_to_length(6),
                      },
  };
 
@@ -354,7 +386,11 @@ void PrintProfile(const Profile *profile)
 
  printf("\n");
 
- printf("Obey one-way: %s\n",profile->oneway?"yes":"no");
+ printf("Obey one-way  : %s\n",profile->oneway?"yes":"no");
+ printf("Minimum weight: %.1f tonnes\n",weight_to_tonnes(profile->weight));
+ printf("Minimum height: %.1f metres\n",height_to_metres(profile->height));
+ printf("Minimum width : %.1f metres\n",width_to_metres(profile->width));
+ printf("Minimum length: %.1f metres\n",length_to_metres(profile->length));
 }
 
 
@@ -378,6 +414,10 @@ void PrintProfilesJS(void)
  for(i=1;i<Way_Unknown;i++)
     printf("%s%s: %d",i==1?"":",",HighwayName(i),i-1);
  printf("};\n");
+ printf("\n");
+
+ printf("// Restriction types\n");
+ printf("router_restrictions={oneway: 1, weight: 2, height: 3, width: 4, length: 5};\n");
  printf("\n");
 
  printf("// Allowed highways\n");
@@ -404,10 +444,28 @@ void PrintProfilesJS(void)
  printf("   };\n");
  printf("\n");
 
- printf("// Must obey oneway\n");
- printf("router_profile_oneway={");
+ printf("// Restrictions\n");
+ printf("router_profile_restrictions={\n");
+ printf("oneway: {");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s%s: %d",j==1?"":",",TransportName(j),builtin_profiles[j].oneway);
+ printf("},\n");
+ printf("weight: {");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s%s: %.1f",j==1?"":",",TransportName(j),weight_to_tonnes(builtin_profiles[j].weight));
+ printf("},\n");
+ printf("height: {");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s%s: %.1f",j==1?"":",",TransportName(j),height_to_metres(builtin_profiles[j].height));
+ printf("},\n");
+ printf("width:  {");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s%s: %.1f",j==1?"":",",TransportName(j),width_to_metres(builtin_profiles[j].width));
+ printf("},\n");
+ printf("length: {");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s%s: %.1f",j==1?"":",",TransportName(j),length_to_metres(builtin_profiles[j].length));
+ printf("}\n");
  printf("};\n");
  printf("\n");
 }

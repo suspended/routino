@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.h,v 1.3 2009-02-27 20:16:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.h,v 1.4 2009-03-01 17:37:14 amb Exp $
 
  A header file for the profiles.
  ******************/ /******************
@@ -32,6 +32,12 @@ typedef struct _Profile
  speed_t   speed[Way_Unknown];  /*+ The maximum speed on each type of highway. +*/
 
  int       oneway;              /*+ A flag to indicate if one-way restrictions apply. +*/
+
+ weight_t  weight;              /*+ The minimum weight of the route. +*/
+
+ height_t  height;              /*+ The minimum height of vehicles on the route. +*/
+ width_t   width;               /*+ The minimum width of vehicles on the route. +*/
+ length_t  length;              /*+ The minimum length of vehicles on the route. +*/
 }
  Profile;
 
