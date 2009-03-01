@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.1 2009-02-07 15:57:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.2 2009-03-01 17:23:30 amb Exp $
 
  A header file for the extended Ways structure.
  ******************/ /******************
@@ -66,5 +66,6 @@ Way *AppendWay(WaysX* waysx,const char *name);
 
 void SortWayList(WaysX *waysx);
 
+int WaysSame(Way *way1,Way *way2);
 
 #endif /* WAYSX_H */
