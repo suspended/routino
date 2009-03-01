@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.30 2009-02-15 19:12:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.31 2009-03-01 17:24:44 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
  ******************/ /******************
@@ -54,6 +54,10 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
  int isnode=0,isway=0,isrelation=0;
  int way_oneway=0,way_roundabout=0;
  speed_t way_maxspeed=0;
+ weight_t way_maxweight=0;
+ height_t way_maxheight=0;
+ width_t way_maxwidth=0;
+ length_t way_maxlength=0;
  char *way_highway=NULL,*way_name=NULL,*way_ref=NULL;
  wayallow_t way_allow_no=0,way_allow_yes=0;
  node_t *way_nodes=NULL;
@@ -96,7 +100,8 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
        isnode=0; isway=1; isrelation=0;
 
        way_oneway=0; way_roundabout=0;
-       way_maxspeed=0;
+       way_maxspeed=0; way_maxweight=0; way_maxheight=0; way_maxwidth=0;
+       way_maxlength=0;
        way_highway=NULL; way_name=NULL; way_ref=NULL;
        way_allow_no=0; way_allow_yes=0;
        way_nnodes=0;
@@ -191,7 +196,11 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
 
              way=AppendWay(OSMWays,refname);
 
-             way->limit=way_maxspeed;
+             way->speed=way_maxspeed;
+             way->weight=way_maxweight;
+             way->height=way_maxheight;
+             way->width=way_maxwidth;
+             way->length=way_maxlength;
 
              way->type=type;
 
@@ -276,8 +285,12 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
             {
             case 'a':
              if(!strcmp(k,"access"))
-                if(!strcmp(v,"private") || !strcmp(v,"no"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive"))
+                   ;
+                else
                    way_allow_no=~0;
+               }
              break;
 
             case 'b':
@@ -342,9 +355,38 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
             case 'm':
              if(!strcmp(k,"maxspeed"))
                {
-                way_maxspeed=atof(v);
                 if(strstr(v,"mph"))
-                   way_maxspeed*=1.6;
+                   way_maxspeed=kph_to_speed(1.6*atof(v));
+                else
+                   way_maxspeed=kph_to_speed(atof(v));
+               }
+             if(!strcmp(k,"maxweight"))
+               {
+                if(strstr(v,"kg"))
+                   way_maxweight=tonnes_to_weight(atof(v)/1000);
+                else
+                   way_maxweight=tonnes_to_weight(atof(v));
+               }
+             if(!strcmp(k,"maxheight"))
+               {
+                if(strstr(v,"ft") || strstr(v,"feet"))
+                   way_maxheight=metres_to_height(atof(v)*0.254);
+                else
+                   way_maxheight=metres_to_height(atof(v));
+               }
+             if(!strcmp(k,"maxwidth"))
+               {
+                if(strstr(v,"ft") || strstr(v,"feet"))
+                   way_maxwidth=metres_to_width(atof(v)*0.254);
+                else
+                   way_maxwidth=metres_to_width(atof(v));
+               }
+             if(!strcmp(k,"maxlength"))
+               {
+                if(strstr(v,"ft") || strstr(v,"feet"))
+                   way_maxlength=metres_to_length(atof(v)*0.254);
+                else
+                   way_maxlength=metres_to_length(atof(v));
                }
              if(!strcmp(k,"motorbike"))
                {
