@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.3 2009-02-24 19:59:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.4 2009-03-01 17:24:21 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -39,11 +39,9 @@
 void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration)
 {
  int i;
- int        segcount=0,difference=0,nnodes=0;
- node_t     node=0;
- speed_t    limit=0;
- waytype_t  type=0;
- wayallow_t allow=0;
+ int    segcount=0,difference=0,nnodes=0;
+ node_t node=0;
+ Way    way;
 
  /* Find super-nodes */
 
@@ -72,19 +70,11 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
        difference=0;
 
        node=(*segmentx)->node1;
-       type=wayx->way.type;
-       limit=wayx->way.limit;
-       allow=wayx->way.allow;
+       way=wayx->way;
       }
     else                        /* Same starting node */
       {
-       if(wayx->way.type!=type)
-          difference=1;
-
-       if(wayx->way.limit!=limit)
-          difference=1;
-
-       if(wayx->way.allow!=allow)
+       if(!WaysSame(&wayx->way,&way))
           difference=1;
 
        segcount+=1;
@@ -147,9 +137,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                {
                 WayX *otherwayx=LookupWayX(waysx,(*othersegmentx)->segment.way);
 
-                if(otherwayx->way.type ==wayx->way.type  &&
-                   otherwayx->way.allow==wayx->way.allow &&
-                   otherwayx->way.limit==wayx->way.limit)
+                if(WaysSame(&otherwayx->way,&wayx->way))
                   {
                    wayx=NULL;
                    break;
@@ -353,9 +341,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
 
        wayx=LookupWayX(waysx,(*segmentx)->segment.way);
 
-       if(wayx->way.type !=match->way.type  ||
-          wayx->way.allow!=match->way.allow ||
-          wayx->way.limit!=match->way.limit)
+       if(!WaysSame(&wayx->way,&match->way))
           goto endloop;
 
        cumulative_distance=result1->distance+DISTANCE((*segmentx)->segment.distance);

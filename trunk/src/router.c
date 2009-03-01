@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.40 2009-02-28 17:22:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.41 2009-03-01 17:24:21 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -63,6 +63,8 @@ int main(int argc,char** argv)
                    "              [--highway-<highway>=[0|1] ...]\n"
                    "              [--speed-<highway>=<speed> ...]\n"
                    "              [--oneway=[0|1]]\n"
+                   "              [--weight=<weight>]\n"
+                   "              [--height=<height>] [--width=<width>] [--length=<length>]\n"
                    "\n"
                    "<transport> defaults to motorcar but can be set to:\n"
                    "%s"
@@ -71,6 +73,8 @@ int main(int argc,char** argv)
                    "%s"
                    "\n"
                    "<speed> is a speed in km/hour\n"
+                   "<weight> is a weight in tonnes\n"
+                   "<height>, <width>, <length> are dimensions in metres\n"
                    "\n",
                    TransportList(),HighwayList());
 
@@ -185,10 +189,16 @@ int main(int argc,char** argv)
 
        profile.speed[highway]=atoi(equal+1);
       }
-    else if(!strcmp(argv[argc],"--oneway"))
-       profile.oneway=1;
     else if(!strncmp(argv[argc],"--oneway=",9))
        profile.oneway=atoi(&argv[argc][9]);
+    else if(!strncmp(argv[argc],"--weight=",9))
+       profile.weight=tonnes_to_weight(atof(&argv[argc][9]));
+    else if(!strncmp(argv[argc],"--height=",9))
+       profile.height=metres_to_height(atof(&argv[argc][9]));
+    else if(!strncmp(argv[argc],"--width=",8))
+       profile.width=metres_to_width(atof(&argv[argc][8]));
+    else if(!strncmp(argv[argc],"--length=",9))
+       profile.length=metres_to_length(atof(&argv[argc][9]));
     else
        goto usage;
    }

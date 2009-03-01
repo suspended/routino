@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.54 2009-02-15 19:12:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.55 2009-03-01 17:24:21 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -126,6 +126,12 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
           goto endloop;
 
        if(!profile->highways[HIGHWAY(way->type)])
+          goto endloop;
+
+       if(way->weight<profile->weight)
+          goto endloop;
+
+       if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
           goto endloop;
 
        cumulative_distance=result1->distance+DISTANCE(segment->distance);
@@ -399,6 +405,12 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
           goto endloop;
 
        if(!profile->highways[HIGHWAY(way->type)])
+          goto endloop;
+
+       if(way->weight<profile->weight)
+          goto endloop;
+
+       if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
           goto endloop;
 
        cumulative_distance=result1->distance+DISTANCE(segment->distance);
@@ -764,6 +776,12 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        if(!profile->highways[HIGHWAY(way->type)])
           goto endloop;
 
+       if(way->weight<profile->weight)
+          goto endloop;
+
+       if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
+          goto endloop;
+
        cumulative_distance=result1->distance+DISTANCE(segment->distance);
        cumulative_duration=result1->duration+Duration(segment,way,profile);
 
@@ -906,6 +924,12 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
           goto endloop;
 
        if(!profile->highways[HIGHWAY(way->type)])
+          goto endloop;
+
+       if(way->weight<profile->weight)
+          goto endloop;
+
+       if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
           goto endloop;
 
        cumulative_distance=result1->distance+DISTANCE(segment->distance);
