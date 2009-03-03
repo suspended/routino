@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.4 2009-03-01 17:24:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.5 2009-03-03 19:58:58 amb Exp $
 
  Super-Segment data type functions.
  ******************/ /******************
@@ -232,34 +232,26 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
           segmentsx->sdata[i]->segment.distance==supersegmentsx->sdata[j]->segment.distance)
          {
           segmentsx->sdata[i]->segment.node2=SUPER_FLAG; /* mark as super-segment */
+          supersegmentsx->sdata[j]=NULL;
           j++;
           break;
          }
        else if(segmentsx->sdata[i]->node1==supersegmentsx->sdata[j]->node1 &&
                segmentsx->sdata[i]->node2==supersegmentsx->sdata[j]->node2)
          {
-          Segment *supersegment=AppendSegment(segmentsx,supersegmentsx->sdata[j]->node1,supersegmentsx->sdata[j]->node2);
-
-          *supersegment=supersegmentsx->sdata[j]->segment;
-          supersegment->node2=SUPER_FLAG; /* mark as super-segment */
-          supersegment->next2=~0;
+          supersegmentsx->sdata[j]->segment.node2=SUPER_FLAG; /* mark as super-segment */
+          supersegmentsx->sdata[j]->segment.next2=~0;
          }
        else if(segmentsx->sdata[i]->node1==supersegmentsx->sdata[j]->node1 &&
                segmentsx->sdata[i]->node2>supersegmentsx->sdata[j]->node2)
          {
-          Segment *supersegment=AppendSegment(segmentsx,supersegmentsx->sdata[j]->node1,supersegmentsx->sdata[j]->node2);
-
-          *supersegment=supersegmentsx->sdata[j]->segment;
-          supersegment->node2=SUPER_FLAG; /* mark as super-segment */
-          supersegment->next2=~0;
+          supersegmentsx->sdata[j]->segment.node2=SUPER_FLAG; /* mark as super-segment */
+          supersegmentsx->sdata[j]->segment.next2=~0;
          }
        else if(segmentsx->sdata[i]->node1>supersegmentsx->sdata[j]->node1)
          {
-          Segment *supersegment=AppendSegment(segmentsx,supersegmentsx->sdata[j]->node1,supersegmentsx->sdata[j]->node2);
-
-          *supersegment=supersegmentsx->sdata[j]->segment;
-          supersegment->node2=SUPER_FLAG; /* mark as super-segment */
-          supersegment->next2=~0;
+          supersegmentsx->sdata[j]->segment.node2=SUPER_FLAG; /* mark as super-segment */
+          supersegmentsx->sdata[j]->segment.next2=~0;
          }
        else
           break;
@@ -273,6 +265,14 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
        fflush(stdout);
       }
    }
+
+ for(j=0;j<supersegmentsx->number;j++)
+    if(supersegmentsx->sdata[j])
+      {
+       Segment *supersegment=AppendSegment(segmentsx,supersegmentsx->sdata[j]->node1,supersegmentsx->sdata[j]->node2);
+
+       *supersegment=supersegmentsx->sdata[j]->segment;
+      }
 
  printf("\rMerged Segments: Segments=%d Super-Segment=%d Total=%d \n",n,supersegmentsx->number,segmentsx->xnumber);
  fflush(stdout);
