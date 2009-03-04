@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.25 2009-02-15 16:19:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.26 2009-03-04 18:42:09 amb Exp $
 
  Node data type functions.
  ******************/ /******************
@@ -91,7 +91,7 @@ Node *FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance)
 
           llbin=lonb*nodes->latbins+latb;
 
-          if(llbin<0 || llbin>nodes->number)
+          if(llbin<0 || llbin>(nodes->latbins*nodes->lonbins))
              continue;
 
           if(delta>0)
@@ -131,8 +131,8 @@ Node *FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance)
 
           for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
             {
-             float lat=(float)((nodes->latzero+latbin)*LAT_LONG_BIN+nodes->nodes[i].latoffset)/LAT_LONG_SCALE;
-             float lon=(float)((nodes->lonzero+lonbin)*LAT_LONG_BIN+nodes->nodes[i].lonoffset)/LAT_LONG_SCALE;
+             float lat=(float)((nodes->latzero+latb)*LAT_LONG_BIN+nodes->nodes[i].latoffset)/LAT_LONG_SCALE;
+             float lon=(float)((nodes->lonzero+lonb)*LAT_LONG_BIN+nodes->nodes[i].lonoffset)/LAT_LONG_SCALE;
 
              distance_t dist=Distance(lat,lon,latitude,longitude);
 
