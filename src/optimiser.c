@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.55 2009-03-01 17:24:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.56 2009-03-07 14:26:55 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -630,7 +630,10 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
 
 void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile)
 {
- FILE *textfile,*gpxfile;
+ FILE *textfile,*gpxfile,*allfile;
+ distance_t distance=0;
+ duration_t duration=0;
+ char *prev_way_name=NULL;
  Result *result;
 
  if(option_quickest==0)
@@ -639,6 +642,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
     textfile=fopen("shortest.txt","w");
     gpxfile=fopen("shortest.gpx","w");
+    allfile=fopen("shortest-all.txt","w");
    }
  else
    {
@@ -646,6 +650,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
     textfile=fopen("quickest.txt","w");
     gpxfile=fopen("quickest.gpx","w");
+    allfile=fopen("quickest-all.txt","w");
    }
 
  fprintf(gpxfile,"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -669,6 +674,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
       {
        Segment *segment;
        Way *way;
+       char *way_name;
 
        segment=FirstSegment(segments,LookupNode(nodes,result->prev));
        while(OtherNode(segment,result->prev)!=result->node)
@@ -676,18 +682,39 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
        way=LookupWay(ways,segment->way);
 
-       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",
+       distance+=distance_to_km(distance);
+       duration+=Duration(segment,way,profile);
+       way_name=WayName(ways,way);
+
+       if(!result->next || (IsSuperNode(node) && way_name!=prev_way_name))
+         {
+          fprintf(textfile,"%8.4f\t%9.4f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t%s\n",
+                  (180/M_PI)*latitude,(180/M_PI)*longitude,
+                  distance_to_km(distance),duration_to_minutes(duration),
+                  distance_to_km(result->distance),duration_to_minutes(result->duration),
+                  way_name);
+
+          prev_way_name=way_name;
+         }
+
+       fprintf(allfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
                result->node,IsSuperNode(node)?'*':' ',
                distance_to_km(DISTANCE(segment->distance)),duration_to_minutes(Duration(segment,way,profile)),
                distance_to_km(result->distance),duration_to_minutes(result->duration),
-               profile->speed[HIGHWAY(way->type)],WayName(ways,way));
+               profile->speed[HIGHWAY(way->type)],way_name);
       }
     else
-       fprintf(textfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f\n",
+      {
+       fprintf(textfile,"%8.4f\t%9.4f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t\n",
+               (180/M_PI)*latitude,(180/M_PI)*longitude,
+               0.0,0.0,0.0,0.0);
+
+       fprintf(allfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
                result->node,IsSuperNode(node)?'*':' ',
                0.0,0.0,0.0,0.0);
+      }
 
     if(result->next)
        result=FindResult(results,result->next);
@@ -702,6 +729,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
  fclose(textfile);
  fclose(gpxfile);
+ fclose(allfile);
 }
 
 
