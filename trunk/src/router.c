@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.41 2009-03-01 17:24:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.42 2009-03-07 14:26:32 amb Exp $
 
  OSM router.
  ******************/ /******************
@@ -40,7 +40,7 @@ int main(int argc,char** argv)
  Ways     *OSMWays;
  index_t   start,finish;
  float     lon_start=999,lat_start=999,lon_finish=999,lat_finish=999;
- int       help_profile=0,help_profile_js=0,all=0,super=0,no_print=0;
+ int       help_profile=0,help_profile_js=0,all=0,super=0,no_output=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
  Profile   profile;
@@ -58,7 +58,7 @@ int main(int argc,char** argv)
                    "              [--dir=<name>] [--prefix=<name>]\n"
                    "              [--shortest | --quickest]\n"
                    "              [--all | --super]\n"
-                   "              [--no-print] [--quiet]\n"
+                   "              [--no-output] [--quiet]\n"
                    "              [--transport=<transport>]\n"
                    "              [--highway-<highway>=[0|1] ...]\n"
                    "              [--speed-<highway>=<speed> ...]\n"
@@ -141,8 +141,8 @@ int main(int argc,char** argv)
        all=1;
     else if(!strcmp(argv[argc],"--super"))
        super=1;
-    else if(!strcmp(argv[argc],"--no-print"))
-       no_print=1;
+    else if(!strcmp(argv[argc],"--no-output"))
+       no_output=1;
     else if(!strcmp(argv[argc],"--quiet"))
        option_quiet=1;
     else if(!strncmp(argv[argc],"--transport=",12))
@@ -273,11 +273,11 @@ int main(int argc,char** argv)
 
        GetLatLong(OSMNodes,start_node,&lat,&lon);
 
-       printf("Start node : %3.6f %4.6f = %2.3f km\n",(180/M_PI)*lat,(180/M_PI)*lon,distance_to_km(dist_start));
+       printf("Start node : %3.6f %4.6f = %2.3f km\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon,distance_to_km(dist_start));
 
        GetLatLong(OSMNodes,finish_node,&lat,&lon);
 
-       printf("Finish node: %3.6f %4.6f = %2.3f km\n",(180/M_PI)*lat,(180/M_PI)*lon,distance_to_km(dist_finish));
+       printf("Finish node: %3.6f %4.6f = %2.3f km\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon,distance_to_km(dist_finish));
       }
 
     start =IndexNode(OSMNodes,start_node );
@@ -307,7 +307,7 @@ int main(int argc,char** argv)
        fprintf(stderr,"Cannot find route compatible with profile.\n");
        return(1);
       }
-    else if(!no_print)
+    else if(!no_output)
        PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
    }
  else
@@ -345,7 +345,7 @@ int main(int argc,char** argv)
       {
        /* Print the route */
 
-       if(!no_print)
+       if(!no_output)
           PrintRoute(begin,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
       }
     else
@@ -390,7 +390,7 @@ int main(int argc,char** argv)
           fprintf(stderr,"Cannot find route compatible with profile.\n");
           return(1);
          }
-       else if(!no_print)
+       else if(!no_output)
          {
           if(super)
             {
