@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.6 2009-02-28 19:01:43 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.7 2009-03-21 17:55:28 amb Exp $
 
  Extented Node data type functions.
  ******************/ /******************
@@ -264,6 +264,7 @@ Node *AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude)
 void SortNodeList(NodesX* nodesx)
 {
  int i;
+ int duplicate;
 
  printf("Sorting Nodes"); fflush(stdout);
 
@@ -280,6 +281,8 @@ void SortNodeList(NodesX* nodesx)
     nodesx->idata=malloc(nodesx->xnumber*sizeof(NodeX*));
    }
 
+ sort_again:
+
  nodesx->number=0;
 
  for(i=0;i<nodesx->xnumber;i++)
@@ -289,6 +292,30 @@ void SortNodeList(NodesX* nodesx)
        nodesx->idata[nodesx->number]=&nodesx->xdata[i];
        nodesx->number++;
       }
+
+ nodesx->sorted=1;
+
+ /* Sort by id */
+
+ qsort(nodesx->idata,nodesx->number,sizeof(NodeX*),(int (*)(const void*,const void*))sort_by_id);
+
+ duplicate=0;
+
+ for(i=1;i<nodesx->number;i++)
+   {
+    if(nodesx->idata[i]->id==nodesx->idata[i-1]->id &&
+       nodesx->idata[i]->id!=~0)
+      {
+       nodesx->idata[i-1]->id=~0;
+       duplicate++;
+      }
+   }
+
+ if(duplicate)
+   {
+    printf(" - %d duplicates found; trying again.\nSorting Nodes",duplicate); fflush(stdout);
+    goto sort_again;
+   }
 
  /* Sort geographically */
 
@@ -317,12 +344,6 @@ void SortNodeList(NodesX* nodesx)
        nodesx->lon_max=nodesx->gdata[i]->longitude;
    }
 
- /* Sort by id */
-
- qsort(nodesx->idata,nodesx->number,sizeof(NodeX*),(int (*)(const void*,const void*))sort_by_id);
-
- nodesx->sorted=1;
-
  printf("\rSorted Nodes \n"); fflush(stdout);
 }
 
@@ -344,8 +365,10 @@ static int sort_by_id(NodeX **a,NodeX **b)
 
  if(a_id<b_id)
     return(-1);
- else
+ else if(a_id>b_id)
     return(1);
+ else
+    return(0);
 }
 
 
