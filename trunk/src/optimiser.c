@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.56 2009-03-07 14:26:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.57 2009-03-21 14:47:32 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -658,6 +658,14 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
  fprintf(gpxfile,"<trk>\n");
  fprintf(gpxfile,"<trkseg>\n");
 
+               /* "%8.4f\t%9.4f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t%s\n" */
+ fprintf(textfile,"#Latitude\tLongitude\tSegment \tSegment \tTotal   \tTotal   \tHighway\n");
+ fprintf(textfile,"#        \t         \tDistance\tDuration\tDistance\tDuration\t       \n");
+
+              /* "%8.4f\t%9.4f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n" */
+ fprintf(allfile,"#Latitude\tLongitude\t    Node\tSegment\tSegment \tTotal   \tTotal  \tSpeed\tHighway\n");
+ fprintf(allfile,"#        \t         \t        \tDist   \tDurat'n \tDistance\tDurat'n\t     \t       \n");
+
  result=FindResult(results,start);
 
  do
@@ -697,7 +705,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
           prev_way_name=way_name;
          }
 
-       fprintf(allfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f %3d %s\n",
+       fprintf(allfile,"%8.4f\t%9.4f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
                result->node,IsSuperNode(node)?'*':' ',
                distance_to_km(DISTANCE(segment->distance)),duration_to_minutes(Duration(segment,way,profile)),
@@ -710,7 +718,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
                (180/M_PI)*latitude,(180/M_PI)*longitude,
                0.0,0.0,0.0,0.0);
 
-       fprintf(allfile,"%8.4f %9.4f %8d%c %5.3f %5.2f %7.2f %5.1f\n",
+       fprintf(allfile,"%8.4f\t%9.4f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
                result->node,IsSuperNode(node)?'*':' ',
                0.0,0.0,0.0,0.0);
