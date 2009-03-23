@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.h,v 1.4 2009-03-01 17:37:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.h,v 1.5 2009-03-23 18:47:18 amb Exp $
 
  A header file for the profiles.
  ******************/ /******************
@@ -49,5 +49,7 @@ Profile *GetProfile(Transport transport);
 void PrintProfile(const Profile *profile);
 
 void PrintProfilesJS(void);
+
+void PrintProfilesPerl(void);
 
 #endif /* PROFILES_H */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.8 2009-03-01 17:37:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.9 2009-03-23 18:47:17 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
  ******************/ /******************
@@ -467,5 +467,82 @@ void PrintProfilesJS(void)
     printf("%s%s: %.1f",j==1?"":",",TransportName(j),length_to_metres(builtin_profiles[j].length));
  printf("}\n");
  printf("};\n");
+ printf("\n");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the profiles as Perl for use in a web CGI.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void PrintProfilesPerl(void)
+{
+ int i,j;
+
+ printf("# Transport types\n");
+ printf("@router_transports=(");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s'%s'",j==1?"":", ",TransportName(j));
+ printf(");\n");
+ printf("\n");
+
+ printf("# Highway types\n");
+ printf("@router_highways=(");
+ for(i=1;i<Way_Unknown;i++)
+    printf("%s'%s'",i==1?"":", ",HighwayName(i));
+ printf(");\n");
+ printf("\n");
+
+ printf("# Restriction types\n");
+ printf("@router_restrictions=('oneway', 'weight', 'height', 'width', 'length');\n");
+ printf("\n");
+
+ printf("# Allowed highways\n");
+ printf("%%router_profile_highway=(\n");
+ for(i=1;i<Way_Unknown;i++)
+   {
+    printf("  %16s => {",HighwayName(i));
+    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+       printf("%s %s => %d",j==1?"":",",TransportName(j),builtin_profiles[j].highways[i]);
+    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+   }
+ printf("   );\n");
+ printf("\n");
+
+ printf("# Speed limits\n");
+ printf("%%router_profile_speed=(\n");
+ for(i=1;i<Way_Unknown;i++)
+   {
+    printf("  %16s => {",HighwayName(i));
+    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+       printf("%s %s => %3d",j==1?"":",",TransportName(j),builtin_profiles[j].speed[i]);
+    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+   }
+ printf("   );\n");
+ printf("\n");
+
+ printf("# Restrictions\n");
+ printf("%%router_profile_restrictions=(\n");
+ printf("oneway => {");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s %s => %d",j==1?"":",",TransportName(j),builtin_profiles[j].oneway);
+ printf("},\n");
+ printf("  weight => {");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s %s => %.1f",j==1?"":",",TransportName(j),weight_to_tonnes(builtin_profiles[j].weight));
+ printf("},\n");
+ printf("  height => {");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s %s => %.1f",j==1?"":",",TransportName(j),height_to_metres(builtin_profiles[j].height));
+ printf("},\n");
+ printf("  width  => {");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s %s => %.1f",j==1?"":",",TransportName(j),width_to_metres(builtin_profiles[j].width));
+ printf("},\n");
+ printf("  length => {");
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+    printf("%s %s => %.1f",j==1?"":",",TransportName(j),length_to_metres(builtin_profiles[j].length));
+ printf("}\n");
+ printf(");\n");
  printf("\n");
 }
