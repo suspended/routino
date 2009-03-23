@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.57 2009-03-21 14:47:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.58 2009-03-23 19:25:59 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -663,8 +663,8 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
  fprintf(textfile,"#        \t         \tDistance\tDuration\tDistance\tDuration\t       \n");
 
               /* "%8.4f\t%9.4f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n" */
- fprintf(allfile,"#Latitude\tLongitude\t    Node\tSegment\tSegment \tTotal   \tTotal  \tSpeed\tHighway\n");
- fprintf(allfile,"#        \t         \t        \tDist   \tDurat'n \tDistance\tDurat'n\t     \t       \n");
+ fprintf(allfile,"#Latitude\tLongitude\t    Node\tSegment\tSegment\tTotal   \tTotal  \tSpeed\tHighway\n");
+ fprintf(allfile,"#        \t         \t        \tDist   \tDurat'n\tDist    \tDurat'n\t     \t       \n");
 
  result=FindResult(results,start);
 
