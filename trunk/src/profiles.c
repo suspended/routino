@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.9 2009-03-23 18:47:17 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.10 2009-03-24 17:30:49 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
  ******************/ /******************
@@ -36,6 +36,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
                                    [Way_Track       ] = 1,
+                                   [Way_Path        ] = 1,
                                    [Way_Bridleway   ] = 1,
                                    [Way_Cycleway    ] = 1,
                                    [Way_Footway     ] = 1,
@@ -50,6 +51,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = kph_to_speed(4),
                                    [Way_Service     ] = kph_to_speed(4),
                                    [Way_Track       ] = kph_to_speed(4),
+                                   [Way_Path        ] = kph_to_speed(4),
                                    [Way_Bridleway   ] = kph_to_speed(4),
                                    [Way_Cycleway    ] = kph_to_speed(4),
                                    [Way_Footway     ] = kph_to_speed(4),
@@ -76,6 +78,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
                                    [Way_Track       ] = 1,
+                                   [Way_Path        ] = 1,
                                    [Way_Bridleway   ] = 1,
                                    [Way_Cycleway    ] = 1,
                                    [Way_Footway     ] = 0,
@@ -90,6 +93,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = kph_to_speed(20),
                                    [Way_Service     ] = kph_to_speed(20),
                                    [Way_Track       ] = kph_to_speed(20),
+                                   [Way_Path        ] = kph_to_speed(20),
                                    [Way_Bridleway   ] = kph_to_speed(20),
                                    [Way_Cycleway    ] = kph_to_speed(20),
                                    [Way_Footway     ] = 0,
@@ -116,6 +120,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
                                    [Way_Track       ] = 1,
+                                   [Way_Path        ] = 1,
                                    [Way_Bridleway   ] = 1,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -130,6 +135,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = kph_to_speed(10),
                                    [Way_Service     ] = kph_to_speed(10),
                                    [Way_Track       ] = kph_to_speed(10),
+                                   [Way_Path        ] = kph_to_speed(10),
                                    [Way_Bridleway   ] = kph_to_speed(10),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -156,6 +162,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
                                    [Way_Track       ] = 0,
+                                   [Way_Path        ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -170,6 +177,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = kph_to_speed(30*1.6),
                                    [Way_Service     ] = kph_to_speed(20*1.6),
                                    [Way_Track       ] = 0,
+                                   [Way_Path        ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -196,6 +204,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
                                    [Way_Track       ] = 0,
+                                   [Way_Path        ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -210,6 +219,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = kph_to_speed(30*1.6),
                                    [Way_Service     ] = kph_to_speed(20*1.6),
                                    [Way_Track       ] = 0,
+                                   [Way_Path        ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -236,6 +246,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
                                    [Way_Track       ] = 0,
+                                   [Way_Path        ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -250,6 +261,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = kph_to_speed(30*1.6),
                                    [Way_Service     ] = kph_to_speed(20*1.6),
                                    [Way_Track       ] = 0,
+                                   [Way_Path        ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -276,6 +288,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
                                    [Way_Track       ] = 0,
+                                   [Way_Path        ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -290,6 +303,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = kph_to_speed(30*1.6),
                                    [Way_Service     ] = kph_to_speed(20*1.6),
                                    [Way_Track       ] = 0,
+                                   [Way_Path        ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -316,6 +330,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = 1,
                                    [Way_Service     ] = 1,
                                    [Way_Track       ] = 0,
+                                   [Way_Path        ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -330,6 +345,7 @@ static Profile builtin_profiles[]=
                                    [Way_Residential ] = kph_to_speed(30*1.6),
                                    [Way_Service     ] = kph_to_speed(20*1.6),
                                    [Way_Track       ] = 0,
+                                   [Way_Path        ] = 0,
                                    [Way_Bridleway   ] = 0,
                                    [Way_Cycleway    ] = 0,
                                    [Way_Footway     ] = 0,
@@ -410,7 +426,7 @@ void PrintProfilesJS(void)
  printf("\n");
 
  printf("// Highway types\n");
- printf("router_highways={\n");
+ printf("router_highways={");
  for(i=1;i<Way_Unknown;i++)
     printf("%s%s: %d",i==1?"":",",HighwayName(i),i-1);
  printf("};\n");
@@ -424,7 +440,7 @@ void PrintProfilesJS(void)
  printf("router_profile_highway={\n");
  for(i=1;i<Way_Unknown;i++)
    {
-    printf("  %16s: {",HighwayName(i));
+    printf("  %12s: {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s%s: %d",j==1?"":",",TransportName(j),builtin_profiles[j].highways[i]);
     printf("}%s\n",i==(Way_Unknown-1)?"":",");
@@ -436,7 +452,7 @@ void PrintProfilesJS(void)
  printf("router_profile_speed={\n");
  for(i=1;i<Way_Unknown;i++)
    {
-    printf("  %16s: {",HighwayName(i));
+    printf("  %12s: {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s%s: %3d",j==1?"":",",TransportName(j),builtin_profiles[j].speed[i]);
     printf("}%s\n",i==(Way_Unknown-1)?"":",");
@@ -450,19 +466,19 @@ void PrintProfilesJS(void)
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s%s: %d",j==1?"":",",TransportName(j),builtin_profiles[j].oneway);
  printf("},\n");
- printf("weight: {");
+ printf("  %12s: {","weight");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s%s: %.1f",j==1?"":",",TransportName(j),weight_to_tonnes(builtin_profiles[j].weight));
  printf("},\n");
- printf("height: {");
+ printf("  %12s: {","height");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s%s: %.1f",j==1?"":",",TransportName(j),height_to_metres(builtin_profiles[j].height));
  printf("},\n");
- printf("width:  {");
+ printf("  %12s: {","width");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s%s: %.1f",j==1?"":",",TransportName(j),width_to_metres(builtin_profiles[j].width));
  printf("},\n");
- printf("length: {");
+ printf("  %12s: {","length");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s%s: %.1f",j==1?"":",",TransportName(j),length_to_metres(builtin_profiles[j].length));
  printf("}\n");
@@ -501,7 +517,7 @@ void PrintProfilesPerl(void)
  printf("%%router_profile_highway=(\n");
  for(i=1;i<Way_Unknown;i++)
    {
-    printf("  %16s => {",HighwayName(i));
+    printf("  %12s => {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s %s => %d",j==1?"":",",TransportName(j),builtin_profiles[j].highways[i]);
     printf("}%s\n",i==(Way_Unknown-1)?"":",");
@@ -513,7 +529,7 @@ void PrintProfilesPerl(void)
  printf("%%router_profile_speed=(\n");
  for(i=1;i<Way_Unknown;i++)
    {
-    printf("  %16s => {",HighwayName(i));
+    printf("  %12s => {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s %s => %3d",j==1?"":",",TransportName(j),builtin_profiles[j].speed[i]);
     printf("}%s\n",i==(Way_Unknown-1)?"":",");
@@ -527,19 +543,19 @@ void PrintProfilesPerl(void)
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s %s => %d",j==1?"":",",TransportName(j),builtin_profiles[j].oneway);
  printf("},\n");
- printf("  weight => {");
+ printf("  %12s => {","weight");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s %s => %.1f",j==1?"":",",TransportName(j),weight_to_tonnes(builtin_profiles[j].weight));
  printf("},\n");
- printf("  height => {");
+ printf("  %12s => {","height");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s %s => %.1f",j==1?"":",",TransportName(j),height_to_metres(builtin_profiles[j].height));
  printf("},\n");
- printf("  width  => {");
+ printf("  %12s => {","width");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s %s => %.1f",j==1?"":",",TransportName(j),width_to_metres(builtin_profiles[j].width));
  printf("},\n");
- printf("  length => {");
+ printf("  %12s => {","length");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
     printf("%s %s => %.1f",j==1?"":",",TransportName(j),length_to_metres(builtin_profiles[j].length));
  printf("}\n");
