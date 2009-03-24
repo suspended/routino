@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.26 2009-03-01 17:24:22 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.27 2009-03-24 17:30:49 amb Exp $
 
  Way data type functions.
  ******************/ /******************
@@ -90,7 +90,7 @@ Highway HighwayType(const char *highway)
 
    case 'p':
     if(!strncmp(highway,"primary",7)) return(Way_Primary);
-    if(!strcmp(highway,"path")) return(Way_Footway);
+    if(!strcmp(highway,"path")) return(Way_Path);
     if(!strcmp(highway,"pedestrian")) return(Way_Footway);
     return(Way_Unknown);
 
@@ -214,6 +214,8 @@ const char *HighwayName(Highway highway)
     return("service");
    case Way_Track:
     return("track");
+   case Way_Path:
+    return("path");
    case Way_Bridleway:
     return("bridleway");
    case Way_Cycleway:
@@ -284,6 +286,7 @@ const char *HighwayList(void)
         "    residential  = Residential\n"
         "    service      = Service\n"
         "    track        = Track\n"
+        "    path         = Path\n"
         "    bridleway    = Bridleway\n"
         "    cycleway     = Cycleway\n"
         "    footway      = Footway\n";
