@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.58 2009-03-23 19:25:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.59 2009-03-28 14:31:06 amb Exp $
 
  Routing optimiser.
  ******************/ /******************
@@ -659,12 +659,12 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
  fprintf(gpxfile,"<trkseg>\n");
 
                /* "%8.4f\t%9.4f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t%s\n" */
- fprintf(textfile,"#Latitude\tLongitude\tSegment \tSegment \tTotal   \tTotal   \tHighway\n");
- fprintf(textfile,"#        \t         \tDistance\tDuration\tDistance\tDuration\t       \n");
+ fprintf(textfile,"#Latitude\tLongitude\tSegment \tSegment \tTotal   \tTotal  \tHighway\n");
+ fprintf(textfile,"#        \t         \tDistance\tDuration\tDistance\tDurat'n\t       \n");
 
               /* "%8.4f\t%9.4f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n" */
- fprintf(allfile,"#Latitude\tLongitude\t    Node\tSegment\tSegment\tTotal   \tTotal  \tSpeed\tHighway\n");
- fprintf(allfile,"#        \t         \t        \tDist   \tDurat'n\tDist    \tDurat'n\t     \t       \n");
+ fprintf(allfile,"#Latitude\tLongitude\t    Node\tSegment\tSegment\tTotal\tTotal  \tSpeed\tHighway\n");
+ fprintf(allfile,"#        \t         \t        \tDist   \tDurat'n\tDist \tDurat'n\t     \t       \n");
 
  result=FindResult(results,start);
 
@@ -690,7 +690,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
        way=LookupWay(ways,segment->way);
 
-       distance+=distance_to_km(distance);
+       distance+=DISTANCE(segment->distance);
        duration+=Duration(segment,way,profile);
        way_name=WayName(ways,way);
 
@@ -703,6 +703,8 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
                   way_name);
 
           prev_way_name=way_name;
+          distance=0;
+          duration=0;
          }
 
        fprintf(allfile,"%8.4f\t%9.4f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n",
