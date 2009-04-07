@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.32 2009-02-28 17:31:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.33 2009-04-07 18:32:50 amb Exp $
 
  OSM planet file splitter.
  ******************/ /******************
@@ -31,7 +31,7 @@ int main(int argc,char** argv)
  SegmentsX *OSMSegments,*SuperSegments=NULL;
  WaysX *OSMWays;
  int iteration=0,quit=0;
- int help_profile=0,max_iterations=10;
+ int max_iterations=10;
  char *dirname=NULL,*prefix=NULL,*filename;
  Profile profile;
  int i;
@@ -56,8 +56,6 @@ int main(int argc,char** argv)
    {
     if(!strcmp(argv[argc],"--help"))
        goto usage;
-    else if(!strcmp(argv[argc],"--help-profile"))
-       help_profile=1;
     else if(!strncmp(argv[argc],"--dir=",6))
        dirname=&argv[argc][6];
     else if(!strncmp(argv[argc],"--prefix=",9))
@@ -79,7 +77,7 @@ int main(int argc,char** argv)
       usage:
 
        fprintf(stderr,"Usage: planetsplitter\n"
-                      "                      [--help] [--help-profile]\n"
+                      "                      [--help]\n"
                       "                      [--dir=<name>] [--prefix=<name>]\n"
                       "                      [--max-iterations=<number>]\n"
                       "                      [--transport=<transport>]\n"
@@ -94,13 +92,6 @@ int main(int argc,char** argv)
 
        return(1);
       }
-   }
-
- if(help_profile)
-   {
-    PrintProfile(&profile);
-
-    return(0);
    }
 
  /* Create new variables */
