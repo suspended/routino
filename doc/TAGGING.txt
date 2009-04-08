@@ -1,0 +1,172 @@
+                                OpenStreetMap Tagging
+                                =====================
+
+   The different tags that are used by the router software are described
+   below.
+
+Node Tags
+
+   The only node tags that are used are the id, latitude and longitude of
+   the node. The id tag is required to associate the node with the ways
+   and the position tags are not tags in the normal sense.
+
+Way Tags
+
+   The tags from the ways in the data are the ones that provide most of
+   the information. The tag is used only so that the segments can be
+   associated with a way.
+
+The highway Tag
+
+   The most important tag that is used from a way is the highway tag. This
+   defines the type of highway that the way represents. Any way that does
+   not have a highway tag is discarded.
+
+   There are more highway types defined than are used by the router. The
+   subset that the router uses are:
+     * Motorway
+     * Trunk
+     * Primary
+     * Secondary
+     * tertiary
+     * unclassified
+     * residential
+     * service
+     * track
+     * path
+     * bridleway
+     * cycleway
+     * footway
+
+   The other highway types are assumed to be equivalent to one of the
+   types listed above according to the table below.
+
+                        Highway type  Equivalent type
+                            byway          track
+                        living_street   residential
+                            minor      unclassified
+                         pedestrian       footway
+                            road       unclassified
+                          services        service
+                            steps         footway
+                         unsurfaced        track
+                           unpaved         track
+                           walkway        footway
+                CAPTION: Aliasing of equivalent highway types
+
+   The second important thing that can be taken from the highway tag is
+   the type of tansport that is allowed to use the highway. The list can
+   be modified depending on other tags, but the default assumptions are as
+   shown in the table below.
+
+     Highway    foot bicycle horse motorbike motorcar goods hgv psv
+   motorway     no   no      no    yes       yes      yes   yes yes
+   trunk        yes  no      no    yes       yes      yes   yes yes
+   primary      yes  yes     yes   yes       yes      yes   yes yes
+   secondary    yes  yes     yes   yes       yes      yes   yes yes
+   tertiary     yes  yes     yes   yes       yes      yes   yes yes
+   unclassified yes  yes     yes   yes       yes      yes   yes yes
+   residential  yes  yes     yes   yes       yes      yes   yes yes
+   service      yes  yes     yes   yes       yes      yes   yes yes
+   track        yes  yes     yes   no        no       no    no  no
+   path         yes  yes     yes   no        no       no    no  no
+   bridleway    yes  yes     yes   no        no       no    no  no
+   cycleway     yes  yes     no    no        no       no    no  no
+   footway      yes  no      no    no        no       no    no  no
+
+   CAPTION: Default assumption about allowed transport on different
+   highway types
+
+   The type of highway and the method of transport chosen for routing
+   together define a default maximum speed limit.
+
+
+   One additional assumption is that a motorway implies that the highway
+   is also oneway.
+
+The access Tag
+
+   The access tag is used to specify the default access restrictions on
+   the way.
+
+   If the access tag is set to one of the values true, yes, 1, permissive
+   or designated then the normal access permissions above apply. If the
+   access tag is set to any other value then the default setting for the
+   way is set to no types of transport.
+
+   In addition to the access tag there is also one tag for each of the
+   different modes of transport: foot, bicycle, horse, motorbike,
+   motorcar, goods, hgv and psv. If one of these tags is present and the
+   value is set to one of true, yes, 1, permissive or designated then that
+   particular transport type is allowed (even if the generic access tag
+   says that it is not). If the tag is present but not one of the values
+   above then it is assumed that the particular form of transport is
+   forbidden.
+
+   For example a highway that has the tags: highway=service,
+   service=driveway, access=private, foot=designated is a private driveway
+   that has a public footpath running along it (not uncommon in the UK).
+
+The name Tag
+
+   The name tag is used to provide the label for the highway when printing
+   the results.
+
+The ref Tag
+
+   The ref tag is used to provide the label for the highway when printing
+   the results.
+
+The junction Tag
+
+   The junction tag is used only to check if a highway is (part of) a
+   roundabout. This tag is used for information to label the highway if no
+   other name is provided.
+
+   In addition to providing the label for the highway the presence of the
+   junction=roundabout tag also implies the highway is oneway.
+
+The oneway Tag
+
+   The oneway tag is used to specify that traffic is only allowed to
+   travel in one direction. When tagging it is important to make sure that
+   the direction that traffic is allowed follows the order of the nodes in
+   the way.
+
+The maxspeed Tag
+
+   The maxspeed tag is used to specify the maximum speed limit on the
+   highway. This is always measured in km/hr in OpenStreetMap data (some
+   attempts are made to detect a tag that contains "mph" and convert it).
+
+The maxweight Tag
+
+   The maxweight tag is used to specify the maximum weight of any traffic
+   on the way. In other words this must be set to the heaviest weight
+   allowed on the way (for example a bridge) in tonnes.
+
+The maxheight Tag
+
+   The maxheight tag is used to specify the maximum height of any traffic
+   on the way. In other words this must be set to the lowest height of
+   anything above the way (like a bridge) in metres.
+
+The maxwidth Tag
+
+   The maxwidth tag is used to specify the maximum width of any traffic on
+   the way. This must be set to the minimum width of the contraints at the
+   wayside in metres.
+
+The maxlength Tag
+
+   The maxlength tag is used to specify the maximum length of any traffic
+   on the way (usually from a traffic sign) in metres.
+
+Relation Tags
+
+   Currently no relation tags are used.
+
+
+--------
+
+Copyright 2008,2009 Andrew M. Bishop.
