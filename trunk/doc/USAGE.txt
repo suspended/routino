@@ -1,0 +1,206 @@
+                                Program Usage
+                                =============
+
+Routing Usage
+
+   There are two programs that make up this software. The first one takes
+   the planet.osm datafile from OpenStreetMap and converts it into a local
+   database. The second program uses the database to determine an optimum
+   route between two points.
+
+planetsplitter
+
+   Usage: planetsplitter
+                         [--help]
+                         [--dir=<name>] [--prefix=<name>]
+                         [--max-iterations=<number>]
+                         [--transport=<transport>]
+                         [--not-highway=<highway> ...]
+
+   --help
+          Prints out the help information.
+
+   --dir=<name>
+          Sets the directory name in which to save the results. Defaults
+          to the current directory.
+
+   --prefix=<name>
+          Sets the filename prefix for the files that are created.
+          Defaults to no prefix.
+
+   --max-iterations=<number>
+          The maximum number of iterations to use when generating
+          super-nodes and super-segments. Defaults to 10 which is normally
+          enough.
+
+   --transport=<transport>
+          Allows selection of only the routes that are possible for a
+          particular type of transport. Defaults to all transport types
+          allowed.
+
+   --not-highway=<highway>
+          Allows particular types of highways to be ignored. Defaults to
+          all highway types allowed. This option may be repeated.
+
+   Example usage:
+   bunzip2 -c great_britain.osm.bz2 | ./planetsplitter --dir=data --prefix=gb
+
+   This will generate the output files 'data/gb-nodes.mem',
+   'data/gb-segments.mem' and 'data/gb-ways.mem'.
+
+router
+
+   Usage: router [--lon1=]<start-lon>  [--lat1=]<start-lat>
+                 [--lon2=]<finish-lon> [--lon2=]<finish-lat>
+                 [--help | --help-profile | --help-profile-js | --help-profile-pl]
+                 [--dir=<name>] [--prefix=<name>]
+                 [--shortest | --quickest]
+                 [--all | --super]
+                 [--no-output] [--quiet]
+                 [--transport=<transport>]
+                 [--highway-<highway>=[0|1] ...]
+                 [--speed-<highway>=<speed> ...]
+                 [--oneway=[0|1]]
+                 [--weight=<weight>]
+                 [--height=<height>] [--width=<width>] [--length=<length>]
+
+   --lon1=<start-lon>, --lat1=<start-lat>
+          The location of the starting point. If the --lon1 and --lat1
+          prefixes are not used then these must be the first and second
+          options.
+
+   --lon2=<finish-lon>, --lat2=<finish-lat>
+          The location of the finishing point. If the --lon2 and --lat2
+          prefixes are not used then these must be the third and fourth
+          options.
+
+   --help
+          Prints out the help information.
+
+   --help-profile
+          Prints out the selected transport profile (type, speed limits,
+          highway preferences etc.)
+
+   --help-profile-js
+          Prints out all the compiled-in profiles as a set of Javascript
+          arrays for use in the interactive webpage.
+
+   --help-profile-pl
+          Prints out all the compiled-in profiles as a set of Perl arrays
+          for use in the router CGI.
+
+   --dir=<name>
+          Sets the directory name in which to save the results. Defaults
+          to the current directory.
+
+   --prefix=<name>
+          Sets the filename prefix for the files that are created.
+          Defaults to no prefix.
+
+   --shortest
+          Find the shortest route.
+
+   --quickest
+          Find the quickest route.
+
+   --all
+          Find the route using all nodes and segments, not using
+          super-nodes and super-segments (useful for debugging only).
+
+   --super
+          Find the route using only super-nodes and super-segments, not
+          using normal nodes and segments (useful for debugging only).
+
+   --no-output
+          Don't generate any output files (useful for debugging).
+
+   --quiet
+          Don't generate any screen output while running (useful for
+          running in a script).
+
+   --transport=<transport>
+          Select the type of transport to use. Defaults to 'Motorcar',
+          this option also selects the default profile.
+
+   --highway-<highway>=[0|1]
+          Selects the preference for using each particular type of
+          highway. Default value depends on the profile selected by the
+          --transport option.
+
+   --speed-<highway>=<speed>
+          Selects the speed limit for each type of highway. Default value
+          depends on the profile selected by the --transport option.
+
+   --oneway=[0|1]
+          Selects if the direction of oneway streets are to be obeyed
+          (useful to not obey them when walking). Default value depends on
+          the profile selected by the --transport option.
+
+   --weight=<weight>
+          Specifies the weight of the mode of transport, ensures that the
+          weight limit on the highway is not exceeded. Default value
+          depends on the profile selected by the --transport option.
+
+   --height=<height>
+          Specifies the height of the mode of transport, ensures that the
+          height limit on the highway is not exceeded. Default value
+          depends on the profile selected by the --transport option.
+
+   --width=<width>
+          Specifies the width of the mode of transport, ensures that the
+          width limit on the highway is not exceeded. Default value
+          depends on the profile selected by the --transport option.
+
+   --length=<length>
+          Specifies the length of the mode of transport, ensures that the
+          length limit on the highway is not exceeded. Default value
+          depends on the profile selected by the --transport option.
+
+   Example usage (motorbike journey, scenic route, not very fast):
+   ./router --dir=data --prefix=gb --transport=motorbike --highway-motorway=0 \
+            --highway-trunk=0 --speed-primary=80 --speed-secondary=80 --quickest
+
+   This will use the files 'data/gb-nodes.mem', 'data/gb-segments.mem' and
+   'data/gb-ways.mem' to find the quickest route by motorbike not using
+   motorways or trunk roads and not exceeding 80 km/hr.
+
+Common Parameters
+
+   There are a number of parameters that are used by both programs or are used
+   to specify a quantity or choice.  These are defined below.
+
+   <transport> can be set to:
+     * foot = Foot
+     * bicycle = Bicycle
+     * horse = Horse
+     * motorbike = Motorbike
+     * motorcar = Motorcar
+     * goods = Goods (Small lorry, van)
+     * hgv = HGV (Heavy Goods Vehicle - large lorry)
+     * psv = PSV (Public Service Vehicle - bus, coach)
+
+   <highway> can be selected from:
+     * motorway = Motorway
+     * trunk = Trunk
+     * primary = Primary
+     * secondary = Secondary
+     * tertiary = Tertiary
+     * unclassified = Unclassified
+     * residential = Residential
+     * service = Service
+     * track = Track
+     * path = Path
+     * bridleway = Bridleway
+     * cycleway = Cycleway
+     * footway = Footway
+
+   <speed> is a speed in km/hour.
+
+   <weight> is a weight in tonnes.
+
+   <height>, <width>, <length> are dimensions in metres.
+
+
+--------
+
+Copyright 2008,2009 Andrew M. Bishop.

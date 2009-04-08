@@ -1,0 +1,21 @@
+                        Program Compilation / Installation
+                        ==================================
+
+Compilation
+
+   This program has been written to run on Linux, no cross-platform
+   compatibility has been specifically included but on the other hand nothing
+   platform specific has been included.
+
+   Any information on improving the compilation process on anything other than
+   32-bit x86 Linux is welcome.
+
+   No external libraries are required and the programs are written in standard C
+   language.
+
+   To compile the programs just type 'make'.
+
+
+--------
+
+Copyright 2008,2009 Andrew M. Bishop.
