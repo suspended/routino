@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.17 2009-04-08 16:54:34 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.18 2009-04-08 18:46:52 amb Exp $
 #
 # Makefile
 #
@@ -71,30 +71,25 @@ router : $(ROUTER_OBJ)
 %.o : %.c
 	$(CC) -c $(CFLAGS) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
 
-%.s : %.c
-	$(CC) -S $(CFLAGS) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
-
 ########
 
 clean:
 	rm -f *.o
-	rm -f *.s
 	rm -f *~
-	rm -f *.gcno *.gcda *.gcov
 
 ########
 
 distclean: clean
 	-rm -f $(EXE)
 	-rm -f $(D)
-	-rm -f .deps
+	-rm -fr .deps
 
 ########
 
 .deps : .FORCE
 	@[ -d .deps ] || mkdir $@
 
-$(D) : .FORCE
+$(D) : .FORCE .deps
 	@touch $@
 
 include $(D)
