@@ -1,7 +1,7 @@
                                 Program Usage
                                 =============
 
-Routing Usage
+Program Usage
 
    There are two programs that make up this software. The first one takes
    the planet.osm datafile from OpenStreetMap and converts it into a local
@@ -199,6 +199,92 @@ Common Parameters
    <weight> is a weight in tonnes.
 
    <height>, <width>, <length> are dimensions in metres.
+
+
+Program Output
+
+   There are three possible formats of output from the router program: A
+   GPX track file, a text description with the junctions and a text file
+   with every node.
+
+   The output files are written to the current directory and are named
+   depending on the selection of shortest or quickest route. For the
+   shortest route the file names are "shortest.gpx", "shortest.txt" and
+   "shortest-all.txt", for the quickest route the names are
+   "quickest.gpx", "quickest.txt" and "quickest-all.txt".
+
+GPX File
+
+   The GPX (GPS eXchange) XML format file contains a track with all of
+   the individual nodes that the route passes through.
+
+   An example GPX file output is below:
+
+   <?xml version="1.0" encoding="UTF-8"?>
+   <gpx version="1.0" creator="Routino"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.topografix.com/GPX/1/0"
+           xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+   <trk>
+   <trkseg>
+   <trkpt lat="51.524676" lon="-0.127896"/>
+   <trkpt lat="51.523829" lon="-0.126993"/>
+   ...
+   <trkpt lat="51.478354" lon="-0.103561"/>
+   <trkpt lat="51.478244" lon="-0.103652"/>
+   </trkseg>
+   </trk>
+   </gpx>
+
+   There are several programs that can interpret GPX files and the format
+   is easy to interpret if just the latitude and longitude values are
+   required.
+
+Text File
+
+   The text file format contains one entry for all of the junctions in the
+   route and is intended to be easy to interpret.
+
+   An example Text file output is below:
+
+   #Latitude  Longitude  Segment   Segment    Total     Total   Highway
+   #                     Distance  Duration   Distance  Durat'n
+    51.5247     -0.1279  0.000 km    0.0 min    0.0 km   0 min
+    51.5238     -0.1270  0.113 km    0.1 min    0.1 km   0 min  Woburn Place
+    51.5227     -0.1257  0.153 km    0.2 min    0.3 km   0 min  Russell Square
+    51.5209     -0.1233  0.261 km    0.3 min    0.5 km   1 min  Southampton Row
+    51.5171     -0.1201  0.482 km    0.6 min    1.0 km   1 min  Kingsway
+    51.5133     -0.1167  0.525 km    0.7 min    1.5 km   2 min  Aldwych
+
+   The text file output contains a header (indicated by the lines starting
+   with '#' and then one line for each junction. For each of the lines the
+   latitude and longitude are the first two items. The length of the
+   segment in km and the journey duration for the segment in minutes are
+   the next two items. The cumulative journey distance and duration are
+   the 6th and 7th items and the final item is the name of the highway.
+   The individual items are separated by tabs but some of the items
+   contain spaces as well.
+
+All Nodes Text File
+
+   The all nodes text file format contains one entry for all of the nodes
+   on the route.
+
+   An example all nodes text file output is below:
+
+   #Latitude  Longitude     Node   Segment  Segment  Total  Total   Speed  Highway
+   #                               Dist     Durat'n  Dist   Durat'n
+    51.5247     -0.1279  4830582*  0.000     0.00     0.00    0.0
+    51.5238     -0.1270  4830562*  0.113     0.14     0.11    0.1     96   Woburn Place
+    51.5228     -0.1259  4831566*  0.138     0.17     0.25    0.3     96   Woburn Place
+    51.5227     -0.1257  4836497*  0.015     0.02     0.27    0.3     96   Russell Square
+    51.5221     -0.1250  4830548*  0.081     0.10     0.35    0.4     96   Russell Square
+
+   The nodes text file output is similar to the text file output except
+   that a line is printed for each of the nodes rather than just the
+   junctions. The additional information on each line is the node number
+   (not the OpenStreetMap node number but an internal value) as well as an
+   indicator for the super-nodes and the speed for the segment.
 
 
 --------
