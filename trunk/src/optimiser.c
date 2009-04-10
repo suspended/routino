@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.60 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.61 2009-04-10 19:15:20 amb Exp $
 
  Routing optimiser.
 
@@ -641,6 +641,8 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
 void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile)
 {
  FILE *textfile,*gpxfile,*allfile;
+ float finish_lat,finish_lon;
+ float start_lat,start_lon;
  distance_t distance=0;
  duration_t duration=0;
  char *prev_way_name=NULL;
@@ -663,8 +665,26 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
     allfile=fopen("quickest-all.txt","w");
    }
 
+ GetLatLong(nodes,LookupNode(nodes,start),&start_lat,&start_lon);
+ GetLatLong(nodes,LookupNode(nodes,finish),&finish_lat,&finish_lon);
+
  fprintf(gpxfile,"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
- fprintf(gpxfile,"<gpx version=\"1.0\" creator=\"Router\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/0\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd\">\n");
+ fprintf(gpxfile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
+
+ fprintf(gpxfile,"<metadata>\n");
+ fprintf(gpxfile,"<desc><![CDATA[%s route between 'start' and 'finish' waypoints]]></desc>\n",option_quickest?"Quickest":"Shortest");
+ fprintf(gpxfile,"</metadata>\n");
+
+ fprintf(gpxfile,"<wpt lat=\"%.6f\" lon=\"%.6f\">\n",(180/M_PI)*start_lat,(180/M_PI)*start_lon);
+ fprintf(gpxfile,"<name>Start</name>\n");
+ fprintf(gpxfile,"<sym>Dot</sym>\n");
+ fprintf(gpxfile,"</wpt>\n");
+
+ fprintf(gpxfile,"<wpt lat=\"%.6f\" lon=\"%.6f\">\n",(180/M_PI)*finish_lat,(180/M_PI)*finish_lon);
+ fprintf(gpxfile,"<name>Finish</name>\n");
+ fprintf(gpxfile,"<sym>Dot</sym>\n");
+ fprintf(gpxfile,"</wpt>\n");
+
  fprintf(gpxfile,"<trk>\n");
  fprintf(gpxfile,"<trkseg>\n");
 
