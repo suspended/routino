@@ -203,22 +203,24 @@ Common Parameters
 
 Program Output
 
-   There are three possible formats of output from the router program: A
-   GPX track file, a text description with the junctions and a text file
-   with every node.
+   There are two formats of output from the router, plain text and [17]GPX
+   (GPS eXchange) XML format. There are four outputs from the router
+   program: a GPX track file, a GPX route file, a text description with
+   the junctions and a text file with every node.
 
    The output files are written to the current directory and are named
    depending on the selection of shortest or quickest route. For the
-   shortest route the file names are "shortest.gpx", "shortest.txt" and
-   "shortest-all.txt", for the quickest route the names are
-   "quickest.gpx", "quickest.txt" and "quickest-all.txt".
+   shortest route the file names are "shortest-track.gpx",
+   "shortest-route.gpx", "shortest.txt" and "shortest-all.txt", for the
+   quickest route the names are "quickest-track.gpx",
+   "quickest-route.gpx", "quickest.txt" and "quickest-all.txt".
 
-GPX File
+GPX Track File
 
-   The GPX (GPS eXchange) XML format file contains a track with all of
-   the individual nodes that the route passes through.
+   The GPX track file contains a track with all of the individual nodes
+   that the route passes through.
 
-   An example GPX file output is below:
+   An example GPX track file output is below:
 
    <?xml version="1.0" encoding="UTF-8"?>
    <gpx version="1.0" creator="Routino"
@@ -236,9 +238,27 @@ GPX File
    </trk>
    </gpx>
 
-   There are several programs that can interpret GPX files and the format
-   is easy to interpret if just the latitude and longitude values are
-   required.
+GPX Route File
+
+   The GPX route file contains a route (ordered set of waypoints) with all
+   of the junctions that the route passes through.
+
+   An example GPX route file output is below:
+
+   <?xml version="1.0" encoding="UTF-8"?>
+   <gpx version="1.0" creator="Routino"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.topografix.com/GPX/1/0"
+           xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+   <rte>
+   <name>Shortest route</name>
+   <rtept lat="51.524676" lon="-0.127896"><name>START</name></rtept>
+   <rtept lat="51.523829" lon="-0.126993"><name>TRIP001</name></rtept>
+   ...
+   <rtept lat="51.480314" lon="-0.108381"><name>TRIP015</name></rtept>
+   <rtept lat="51.478244" lon="-0.103652"><name>FINISH</name></rtept>
+   </rte>
+   </gpx>
 
 Text File
 
@@ -247,17 +267,17 @@ Text File
 
    An example Text file output is below:
 
-   #Latitude  Longitude  Segment   Segment    Total     Total   Highway
-   #                     Distance  Duration   Distance  Durat'n
-    51.5247     -0.1279  0.000 km    0.0 min    0.0 km   0 min
-    51.5238     -0.1270  0.113 km    0.1 min    0.1 km   0 min  Woburn Place
-    51.5227     -0.1257  0.153 km    0.2 min    0.3 km   0 min  Russell Square
-    51.5209     -0.1233  0.261 km    0.3 min    0.5 km   1 min  Southampton Row
-    51.5171     -0.1201  0.482 km    0.6 min    1.0 km   1 min  Kingsway
-    51.5133     -0.1167  0.525 km    0.7 min    1.5 km   2 min  Aldwych
+   #Latitude   Longitude    Segment   Segment    Total     Total   Highway
+   #                        Distance  Duration   Distance  Durat'n
+    51.524676    -0.127896  0.000 km    0.0 min    0.0 km    0 min
+    51.523829    -0.126993  0.113 km    0.1 min    0.1 km    0 min Woburn Place
+   ...
+    51.480314    -0.108381  0.200 km    0.1 min    5.9 km    5 min Camberwell New Road (A202)
+    51.478244    -0.103652  0.411 km    0.3 min    6.3 km    5 min Vassall Road
 
    The text file output contains a header (indicated by the lines starting
-   with '#' and then one line for each junction. For each of the lines the
+   with '#') and then one line for each junction. Each line contains the
+   information for the route up to that point. For each of the lines the
    latitude and longitude are the first two items. The length of the
    segment in km and the journey duration for the segment in minutes are
    the next two items. The cumulative journey distance and duration are
@@ -267,24 +287,25 @@ Text File
 
 All Nodes Text File
 
-   The all nodes text file format contains one entry for all of the nodes
+   The all nodes text file format contains one entry for each of the nodes
    on the route.
 
    An example all nodes text file output is below:
 
-   #Latitude  Longitude     Node   Segment  Segment  Total  Total   Speed  Highway
-   #                               Dist     Durat'n  Dist   Durat'n
-    51.5247     -0.1279  4830582*  0.000     0.00     0.00    0.0
-    51.5238     -0.1270  4830562*  0.113     0.14     0.11    0.1     96   Woburn Place
-    51.5228     -0.1259  4831566*  0.138     0.17     0.25    0.3     96   Woburn Place
-    51.5227     -0.1257  4836497*  0.015     0.02     0.27    0.3     96   Russell Square
-    51.5221     -0.1250  4830548*  0.081     0.10     0.35    0.4     96   Russell Square
+   #Latitude   Longitude       Node   Segment Segment Total  Total   Speed  Highway
+   #                                  Dist    Durat'n Dist   Durat'n
 
-   The nodes text file output is similar to the text file output except
-   that a line is printed for each of the nodes rather than just the
-   junctions. The additional information on each line is the node number
-   (not the OpenStreetMap node number but an internal value) as well as an
-   indicator for the super-nodes and the speed for the segment.
+    51.524676    -0.127896  4830582*  0.000    0.00    0.00    0.0
+    51.523829    -0.126993  4830562*  0.113    0.14    0.11    0.1    96    Woburn Place
+   ...
+    51.478354    -0.103561  4904816*  0.104    0.07    6.30    5.1    96    Camberwell New Road (A202)
+    51.478244    -0.103652  4908481   0.013    0.01    6.31    5.1    64    Vassall Road
+
+   The all nodes text file output is similar to the text file output
+   except that a line is printed for each of the nodes rather than just
+   the junctions. The additional information on each line is the node
+   number (not the OpenStreetMap node number but an internal value) as
+   well as an indicator for the super-nodes and the speed for the segment.
 
 
 --------

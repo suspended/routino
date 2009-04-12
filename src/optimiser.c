@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.61 2009-04-10 19:15:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.62 2009-04-12 10:44:16 amb Exp $
 
  Routing optimiser.
 
@@ -640,61 +640,64 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
 
 void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile)
 {
- FILE *textfile,*gpxfile,*allfile;
+ FILE *gpxtrackfile,*gpxroutefile,*textfile,*textallfile;
  float finish_lat,finish_lon;
  float start_lat,start_lon;
  distance_t distance=0;
  duration_t duration=0;
  char *prev_way_name=NULL;
  Result *result;
+ int routecount=0;
 
  if(option_quickest==0)
    {
     /* Print the result for the shortest route */
 
-    textfile=fopen("shortest.txt","w");
-    gpxfile=fopen("shortest.gpx","w");
-    allfile=fopen("shortest-all.txt","w");
+    gpxtrackfile=fopen("shortest-track.gpx","w");
+    gpxroutefile=fopen("shortest-route.gpx","w");
+    textfile    =fopen("shortest.txt","w");
+    textallfile =fopen("shortest-all.txt","w");
    }
  else
    {
     /* Print the result for the quickest route */
 
-    textfile=fopen("quickest.txt","w");
-    gpxfile=fopen("quickest.gpx","w");
-    allfile=fopen("quickest-all.txt","w");
+    gpxtrackfile=fopen("quickest-track.gpx","w");
+    gpxroutefile=fopen("quickest-route.gpx","w");
+    textfile    =fopen("quickest.txt","w");
+    textallfile =fopen("quickest-all.txt","w");
    }
 
  GetLatLong(nodes,LookupNode(nodes,start),&start_lat,&start_lon);
  GetLatLong(nodes,LookupNode(nodes,finish),&finish_lat,&finish_lon);
 
- fprintf(gpxfile,"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
- fprintf(gpxfile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
+ fprintf(gpxtrackfile,"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+ fprintf(gpxtrackfile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
- fprintf(gpxfile,"<metadata>\n");
- fprintf(gpxfile,"<desc><![CDATA[%s route between 'start' and 'finish' waypoints]]></desc>\n",option_quickest?"Quickest":"Shortest");
- fprintf(gpxfile,"</metadata>\n");
+ fprintf(gpxtrackfile,"<metadata>\n");
+ fprintf(gpxtrackfile,"<desc><![CDATA[%s route between 'start' and 'finish' waypoints]]></desc>\n",option_quickest?"Quickest":"Shortest");
+ fprintf(gpxtrackfile,"</metadata>\n");
 
- fprintf(gpxfile,"<wpt lat=\"%.6f\" lon=\"%.6f\">\n",(180/M_PI)*start_lat,(180/M_PI)*start_lon);
- fprintf(gpxfile,"<name>Start</name>\n");
- fprintf(gpxfile,"<sym>Dot</sym>\n");
- fprintf(gpxfile,"</wpt>\n");
+ fprintf(gpxtrackfile,"<trk>\n");
+ fprintf(gpxtrackfile,"<trkseg>\n");
 
- fprintf(gpxfile,"<wpt lat=\"%.6f\" lon=\"%.6f\">\n",(180/M_PI)*finish_lat,(180/M_PI)*finish_lon);
- fprintf(gpxfile,"<name>Finish</name>\n");
- fprintf(gpxfile,"<sym>Dot</sym>\n");
- fprintf(gpxfile,"</wpt>\n");
+ fprintf(gpxroutefile,"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+ fprintf(gpxroutefile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
- fprintf(gpxfile,"<trk>\n");
- fprintf(gpxfile,"<trkseg>\n");
+ fprintf(gpxroutefile,"<metadata>\n");
+ fprintf(gpxroutefile,"<desc><![CDATA[%s route between 'start' and 'finish' waypoints]]></desc>\n",option_quickest?"Quickest":"Shortest");
+ fprintf(gpxroutefile,"</metadata>\n");
 
-               /* "%8.4f\t%9.4f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t%s\n" */
+ fprintf(gpxroutefile,"<rte>\n");
+ fprintf(gpxroutefile,"<name>%s route</name>\n",option_quickest?"Quickest":"Shortest");
+
+               /* "%10.6f\t%11.6f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t%s\n" */
  fprintf(textfile,"#Latitude\tLongitude\tSegment \tSegment \tTotal   \tTotal  \tHighway\n");
  fprintf(textfile,"#        \t         \tDistance\tDuration\tDistance\tDurat'n\t       \n");
 
-              /* "%8.4f\t%9.4f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n" */
- fprintf(allfile,"#Latitude\tLongitude\t    Node\tSegment\tSegment\tTotal\tTotal  \tSpeed\tHighway\n");
- fprintf(allfile,"#        \t         \t        \tDist   \tDurat'n\tDist \tDurat'n\t     \t       \n");
+                  /* "%10.6f\t%11.6f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n" */
+ fprintf(textallfile,"#Latitude\tLongitude\t    Node\tSegment\tSegment\tTotal\tTotal  \tSpeed\tHighway\n");
+ fprintf(textallfile,"#        \t         \t        \tDist   \tDurat'n\tDist \tDurat'n\t     \t       \n");
 
  result=FindResult(results,start);
 
@@ -705,7 +708,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
     GetLatLong(nodes,node,&latitude,&longitude);
 
-    fprintf(gpxfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"></trkpt>\n",
+    fprintf(gpxtrackfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"/>\n",
             (180/M_PI)*latitude,(180/M_PI)*longitude);
 
     if(result->prev)
@@ -726,7 +729,15 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
 
        if(!result->next || (IsSuperNode(node) && way_name!=prev_way_name))
          {
-          fprintf(textfile,"%8.4f\t%9.4f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t%s\n",
+          if(result->next)
+             fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>TRIP%03d</name></rtept>\n",
+                     (180/M_PI)*latitude,(180/M_PI)*longitude,
+                     ++routecount);
+          else
+             fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>FINISH</name></rtept>\n",
+                     (180/M_PI)*latitude,(180/M_PI)*longitude);
+
+          fprintf(textfile,"%10.6f\t%11.6f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t%s\n",
                   (180/M_PI)*latitude,(180/M_PI)*longitude,
                   distance_to_km(distance),duration_to_minutes(duration),
                   distance_to_km(result->distance),duration_to_minutes(result->duration),
@@ -737,7 +748,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
           duration=0;
          }
 
-       fprintf(allfile,"%8.4f\t%9.4f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n",
+       fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
                result->node,IsSuperNode(node)?'*':' ',
                distance_to_km(DISTANCE(segment->distance)),duration_to_minutes(Duration(segment,way,profile)),
@@ -746,11 +757,14 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
       }
     else
       {
-       fprintf(textfile,"%8.4f\t%9.4f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t\n",
+       fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>START</name></rtept>\n",
+               (180/M_PI)*latitude,(180/M_PI)*longitude);
+
+       fprintf(textfile,"%10.6f\t%11.6f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
                0.0,0.0,0.0,0.0);
 
-       fprintf(allfile,"%8.4f\t%9.4f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\n",
+       fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
                result->node,IsSuperNode(node)?'*':' ',
                0.0,0.0,0.0,0.0);
@@ -763,13 +777,17 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,inde
    }
     while(result);
 
- fprintf(gpxfile,"</trkseg>\n");
- fprintf(gpxfile,"</trk>\n");
- fprintf(gpxfile,"</gpx>\n");
+ fprintf(gpxtrackfile,"</trkseg>\n");
+ fprintf(gpxtrackfile,"</trk>\n");
+ fprintf(gpxtrackfile,"</gpx>\n");
 
+ fprintf(gpxroutefile,"</rte>\n");
+ fprintf(gpxroutefile,"</gpx>\n");
+
+ fclose(gpxtrackfile);
+ fclose(gpxroutefile);
  fclose(textfile);
- fclose(gpxfile);
- fclose(allfile);
+ fclose(textallfile);
 }
 
 
