@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.30 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.31 2009-04-22 18:52:35 amb Exp $
 
  Header file for function prototypes
 
@@ -51,12 +51,15 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
 Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile,int all);
 Results *FindRoute3(Nodes *supernodes,Segments *supersegments,Ways *superways,index_t start,index_t finish,Results *begin,Results *end,Profile *profile);
 
-void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile);
-
 Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Profile *profile);
 Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t finish,Profile *profile);
 
 Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile);
+
+
+/* In output.c */
+
+void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile);
 
 
 #endif /* FUNCTIONS_H */
