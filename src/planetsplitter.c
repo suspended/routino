@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.34 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.35 2009-04-23 17:37:04 amb Exp $
 
  OSM planet file splitter.
 
@@ -42,7 +42,7 @@ int main(int argc,char** argv)
  WaysX *OSMWays;
  int iteration=0,quit=0;
  int max_iterations=10;
- char *dirname=NULL,*prefix=NULL,*filename;
+ char *dirname=NULL,*prefix=NULL;
  Profile profile;
  int i;
 
@@ -230,20 +230,15 @@ int main(int argc,char** argv)
 
  /* Write out the nodes */
 
- filename=(char*)malloc((dirname?strlen(dirname):0)+(prefix?strlen(prefix):0)+16);
-
- sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- SaveNodeList(OSMNodes,filename);
+ SaveNodeList(OSMNodes,FileName(dirname,prefix,"nodes.mem"));
 
  /* Write out the segments */
 
- sprintf(filename,"%s%s%s%ssegments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- SaveSegmentList(OSMSegments,filename);
+ SaveSegmentList(OSMSegments,FileName(dirname,prefix,"segments.mem"));
 
  /* Write out the ways */
 
- sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- SaveWayList(OSMWays,filename);
+ SaveWayList(OSMWays,FileName(dirname,prefix,"ways.mem"));
 
  return(0);
 }

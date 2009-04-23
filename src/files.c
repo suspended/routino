@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.4 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.5 2009-04-23 17:37:04 amb Exp $
 
  Functions to map a file into memory.
 
@@ -25,12 +25,35 @@
 #include <unistd.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 
 #include "functions.h"
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Return a filename composed of the dirname, prefix and filename.
+
+  char *FileName Returns an allocated filename.
+
+  const char *dirname The directory name.
+
+  const char *prefix The file prefix.
+
+  const char *name The filename.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+char *FileName(const char *dirname,const char *prefix, const char *name)
+{
+ char *filename=(char*)malloc((dirname?strlen(dirname):0)+1+(prefix?strlen(prefix):0)+1+strlen(name));
+
+ sprintf(filename,"%s%s%s%s%s",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"",name);
+
+ return(filename);
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++

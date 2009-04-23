@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.20 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.21 2009-04-23 17:37:04 amb Exp $
 
  Memory file dumper.
 
@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "types.h"
+#include "functions.h"
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
@@ -37,7 +38,7 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
- char *dirname=NULL,*prefix=NULL,*filename;
+ char *dirname=NULL,*prefix=NULL;
 
  /* Parse the command line arguments */
 
@@ -61,12 +62,9 @@ int main(int argc,char** argv)
       }
    }
 
- filename=(char*)malloc((dirname?strlen(dirname):0)+(prefix?strlen(prefix):0)+16);
-
  /* Examine the nodes */
 
- sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- OSMNodes=LoadNodeList(filename);
+ OSMNodes=LoadNodeList(FileName(dirname,prefix,"nodes.mem"));
 
  printf("Nodes\n");
  printf("-----\n");
@@ -82,8 +80,7 @@ int main(int argc,char** argv)
 
  /* Examine the segments */
 
- sprintf(filename,"%s%s%s%ssegments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- OSMSegments=LoadSegmentList(filename);
+ OSMSegments=LoadSegmentList(FileName(dirname,prefix,"segments.mem"));
 
  printf("\n");
  printf("Segments\n");
@@ -94,8 +91,7 @@ int main(int argc,char** argv)
 
  /* Examine the ways */
 
- sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- OSMWays=LoadWayList(filename);
+ OSMWays=LoadWayList(FileName(dirname,prefix,"ways.mem"));
 
  printf("\n");
  printf("Ways\n");
