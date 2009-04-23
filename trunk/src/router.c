@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.44 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.45 2009-04-23 17:37:04 amb Exp $
 
  OSM router.
 
@@ -236,10 +236,7 @@ int main(int argc,char** argv)
 
  /* Load in the data */
 
- filename=(char*)malloc((dirname?strlen(dirname):0)+(prefix?strlen(prefix):0)+16);
-
- sprintf(filename,"%s%s%s%snodes.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- OSMNodes=LoadNodeList(filename);
+ OSMNodes=LoadNodeList(filename=FileName(dirname,prefix,"nodes.mem"));
 
  if(!OSMNodes)
    {
@@ -247,8 +244,7 @@ int main(int argc,char** argv)
     return(1);
    }
 
- sprintf(filename,"%s%s%s%ssegments.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- OSMSegments=LoadSegmentList(filename);
+ OSMSegments=LoadSegmentList(filename=FileName(dirname,prefix,"segments.mem"));
 
  if(!OSMSegments)
    {
@@ -256,8 +252,7 @@ int main(int argc,char** argv)
     return(1);
    }
 
- sprintf(filename,"%s%s%s%sways.mem",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"");
- OSMWays=LoadWayList(filename);
+ OSMWays=LoadWayList(filename=FileName(dirname,prefix,"ways.mem"));
 
  if(!OSMWays)
    {
