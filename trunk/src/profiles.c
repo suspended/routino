@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.11 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.12 2009-04-23 17:47:13 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -429,70 +429,70 @@ void PrintProfilesJS(void)
  int i,j;
 
  printf("// Transport types\n");
- printf("router_transports={");
+ printf("var router_transports={");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %d",j==1?"":",",TransportName(j),j-1);
+    printf("%s%s: %d",j==1?"":", ",TransportName(j),j-1);
  printf("};\n");
  printf("\n");
 
  printf("// Highway types\n");
- printf("router_highways={");
+ printf("var router_highways={");
  for(i=1;i<Way_Unknown;i++)
-    printf("%s%s: %d",i==1?"":",",HighwayName(i),i-1);
+    printf("%s%s: %d",i==1?"":", ",HighwayName(i),i-1);
  printf("};\n");
  printf("\n");
 
  printf("// Restriction types\n");
- printf("router_restrictions={oneway: 1, weight: 2, height: 3, width: 4, length: 5};\n");
+ printf("var router_restrictions={oneway: 1, weight: 2, height: 3, width: 4, length: 5};\n");
  printf("\n");
 
  printf("// Allowed highways\n");
- printf("router_profile_highway={\n");
+ printf("var router_profile_highway={\n");
  for(i=1;i<Way_Unknown;i++)
    {
     printf("  %12s: {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s%s: %d",j==1?"":",",TransportName(j),builtin_profiles[j].highways[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+       printf("%s%s: %d",j==1?"":", ",TransportName(j),builtin_profiles[j].highways[i]);
+    printf("}%s\n",i==(Way_Unknown-1)?"":", ");
    }
  printf("   };\n");
  printf("\n");
 
  printf("// Speed limits\n");
- printf("router_profile_speed={\n");
+ printf("var router_profile_speed={\n");
  for(i=1;i<Way_Unknown;i++)
    {
     printf("  %12s: {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s%s: %3d",j==1?"":",",TransportName(j),builtin_profiles[j].speed[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+       printf("%s%s: %3d",j==1?"":", ",TransportName(j),builtin_profiles[j].speed[i]);
+    printf("}%s\n",i==(Way_Unknown-1)?"":", ");
    }
  printf("   };\n");
  printf("\n");
 
  printf("// Restrictions\n");
- printf("router_profile_restrictions={\n");
- printf("oneway: {");
+ printf("var router_profile_restrictions={\n");
+ printf("  %12s: {","oneway");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %d",j==1?"":",",TransportName(j),builtin_profiles[j].oneway);
+    printf("%s%s: %4d",j==1?"":", ",TransportName(j),builtin_profiles[j].oneway);
  printf("},\n");
  printf("  %12s: {","weight");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %.1f",j==1?"":",",TransportName(j),weight_to_tonnes(builtin_profiles[j].weight));
+    printf("%s%s: %4.1f",j==1?"":", ",TransportName(j),weight_to_tonnes(builtin_profiles[j].weight));
  printf("},\n");
  printf("  %12s: {","height");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %.1f",j==1?"":",",TransportName(j),height_to_metres(builtin_profiles[j].height));
+    printf("%s%s: %4.1f",j==1?"":", ",TransportName(j),height_to_metres(builtin_profiles[j].height));
  printf("},\n");
  printf("  %12s: {","width");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %.1f",j==1?"":",",TransportName(j),width_to_metres(builtin_profiles[j].width));
+    printf("%s%s: %4.1f",j==1?"":", ",TransportName(j),width_to_metres(builtin_profiles[j].width));
  printf("},\n");
  printf("  %12s: {","length");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %.1f",j==1?"":",",TransportName(j),length_to_metres(builtin_profiles[j].length));
+    printf("%s%s: %4.1f",j==1?"":", ",TransportName(j),length_to_metres(builtin_profiles[j].length));
  printf("}\n");
- printf("};\n");
+ printf("   };\n");
  printf("\n");
 }
 
@@ -529,8 +529,8 @@ void PrintProfilesPerl(void)
    {
     printf("  %12s => {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s %s => %d",j==1?"":",",TransportName(j),builtin_profiles[j].highways[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+       printf("%s %s => %d",j==1?"":", ",TransportName(j),builtin_profiles[j].highways[i]);
+    printf("}%s\n",i==(Way_Unknown-1)?"":", ");
    }
  printf("   );\n");
  printf("\n");
@@ -541,34 +541,34 @@ void PrintProfilesPerl(void)
    {
     printf("  %12s => {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s %s => %3d",j==1?"":",",TransportName(j),builtin_profiles[j].speed[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+       printf("%s %s => %3d",j==1?"":", ",TransportName(j),builtin_profiles[j].speed[i]);
+    printf("}%s\n",i==(Way_Unknown-1)?"":", ");
    }
  printf("   );\n");
  printf("\n");
 
  printf("# Restrictions\n");
  printf("%%router_profile_restrictions=(\n");
- printf("oneway => {");
+ printf("  %12s => {","oneway");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s %s => %d",j==1?"":",",TransportName(j),builtin_profiles[j].oneway);
+    printf("%s %s => %4d",j==1?"":", ",TransportName(j),builtin_profiles[j].oneway);
  printf("},\n");
  printf("  %12s => {","weight");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s %s => %.1f",j==1?"":",",TransportName(j),weight_to_tonnes(builtin_profiles[j].weight));
+    printf("%s %s => %4.1f",j==1?"":", ",TransportName(j),weight_to_tonnes(builtin_profiles[j].weight));
  printf("},\n");
  printf("  %12s => {","height");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s %s => %.1f",j==1?"":",",TransportName(j),height_to_metres(builtin_profiles[j].height));
+    printf("%s %s => %4.1f",j==1?"":", ",TransportName(j),height_to_metres(builtin_profiles[j].height));
  printf("},\n");
  printf("  %12s => {","width");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s %s => %.1f",j==1?"":",",TransportName(j),width_to_metres(builtin_profiles[j].width));
+    printf("%s %s => %4.1f",j==1?"":", ",TransportName(j),width_to_metres(builtin_profiles[j].width));
  printf("},\n");
  printf("  %12s => {","length");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s %s => %.1f",j==1?"":",",TransportName(j),length_to_metres(builtin_profiles[j].length));
+    printf("%s %s => %4.1f",j==1?"":", ",TransportName(j),length_to_metres(builtin_profiles[j].length));
  printf("}\n");
- printf(");\n");
+ printf("   );\n");
  printf("\n");
 }
