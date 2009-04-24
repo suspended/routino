@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.32 2009-04-23 17:37:04 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.33 2009-04-24 16:53:37 amb Exp $
 
  Header file for function prototypes
 
@@ -61,7 +61,9 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 
 /* In output.c */
 
+void PrintRouteHead(const char *copyright);
 void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile);
+void PrintRouteTail(void);
 
 
 #endif /* FUNCTIONS_H */
