@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.45 2009-04-23 17:37:04 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.46 2009-04-24 16:53:37 amb Exp $
 
  OSM router.
 
@@ -48,6 +48,7 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
+ Results  *results;
  index_t   start,finish;
  float     lon_start=999,lat_start=999,lon_finish=999,lat_finish=999;
  int       help_profile=0,help_profile_js=0,help_profile_pl=0,all=0,super=0,no_output=0;
@@ -307,21 +308,15 @@ int main(int argc,char** argv)
 
  if(all)
    {
-    Results *results;
-
     /* Calculate the route */
 
     results=FindRoute(OSMNodes,OSMSegments,OSMWays,start,finish,&profile,all);
-
-    /* Print the route */
 
     if(!results)
       {
        fprintf(stderr,"Cannot find route compatible with profile.\n");
        return(1);
       }
-    else if(!no_output)
-       PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
    }
  else
    {
@@ -356,10 +351,7 @@ int main(int argc,char** argv)
 
     if(FindResult(begin,finish))
       {
-       /* Print the route */
-
-       if(!no_output)
-          PrintRoute(begin,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
+       results=begin;
       }
     else
       {
@@ -396,27 +388,26 @@ int main(int argc,char** argv)
 
        superresults=FindRoute3(OSMNodes,OSMSegments,OSMWays,start,finish,begin,end,&profile);
 
-       /* Print the route */
-
        if(!superresults)
          {
           fprintf(stderr,"Cannot find route compatible with profile.\n");
           return(1);
          }
-       else if(!no_output)
-         {
-          if(super)
-            {
-             PrintRoute(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
-            }
-          else
-            {
-             Results *results=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
 
-             PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
-            }
-         }
+       if(super)
+          results=superresults;
+       else
+          results=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
       }
+   }
+
+ if(!no_output)
+   {
+    PrintRouteHead(FileName(dirname,prefix,"copyright.txt"));
+
+    PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
+
+    PrintRouteTail();
    }
 
  return(0);
