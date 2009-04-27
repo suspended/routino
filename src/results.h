@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.11 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.12 2009-04-27 18:56:39 amb Exp $
 
  A header file for the results.
 
@@ -37,8 +37,8 @@ typedef struct _Result
 {
  index_t     node;              /*+ The node for which this result applies. +*/
 
- index_t      prev;             /*+ The previous node following the best path. +*/
- index_t      next;             /*+ The next node following the best path. +*/
+ index_t     prev;              /*+ The previous node following the best path. +*/
+ index_t     next;              /*+ The next node following the best path. +*/
 
  distance_t  distance;          /*+ The distance travelled to the node following the best path. +*/
  duration_t  duration;          /*+ The time taken to the node following the best path. +*/
@@ -50,13 +50,13 @@ typedef struct _Result
 /*+ A list of results. +*/
 typedef struct _Results
 {
- uint32_t nbins;                /*+ The number of bins. +*/
- uint32_t mask;                 /*+ A bit mask to select the bottom 'nbins' bits. +*/
+ uint32_t  nbins;               /*+ The number of bins. +*/
+ uint32_t  mask;                /*+ A bit mask to select the bottom 'nbins' bits. +*/
 
- uint32_t alloced;              /*+ The amount of space allocated for results
+ uint32_t  alloced;             /*+ The amount of space allocated for results
                                     (the length of the number and pointers arrays and
                                      1/nbins times the amount in the real results). +*/
- uint32_t number;               /*+ The total number of occupied results. +*/
+ uint32_t  number;              /*+ The total number of occupied results. +*/
 
  uint32_t *count;               /*+ An array of nbins counters of results in each array. +*/
  Result ***point;               /*+ An array of nbins arrays of pointers to actual results. +*/
@@ -66,6 +66,9 @@ typedef struct _Results
                                     only realloc the array that points to the array of data).
                                     Most importantly pointers into the real data don't change
                                     as more space is allocated (since realloc is not being used). +*/
+
+ index_t start;                 /*+ The start node. +*/
+ index_t finish;                /*+ The finish node. +*/
 }
  Results;
 

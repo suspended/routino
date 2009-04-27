@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.10 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.11 2009-04-27 18:56:39 amb Exp $
 
  Result data type functions.
 
@@ -87,6 +87,9 @@ Results *NewResultsList(int nbins)
 
  results->data=(Result**)malloc(1*sizeof(Result*));
  results->data[0]=(Result*)malloc(results->nbins*RESULTS_INCREMENT*sizeof(Result));
+
+ results->start=~0;
+ results->finish=~0;
 
  return(results);
 }

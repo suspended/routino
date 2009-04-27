@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.46 2009-04-24 16:53:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.47 2009-04-27 18:56:39 amb Exp $
 
  OSM router.
 
@@ -48,14 +48,16 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
- Results  *results;
- index_t   start,finish;
- float     lon_start=999,lat_start=999,lon_finish=999,lat_finish=999;
- int       help_profile=0,help_profile_js=0,help_profile_pl=0,all=0,super=0,no_output=0;
+ Results  *results[9]={NULL};
+ int       point_used[9]={0};
+ float     point_lon[9],point_lat[9];
+ int       help_profile=0,help_profile_js=0,help_profile_pl=0;
+ int       option_all=0,option_super=0,option_no_output=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
  Profile   profile;
- int i;
+ Node     *start_node=NULL,*finish_node=NULL;
+ int       arg,node;
 
  /* Parse the command line arguments */
 
@@ -63,8 +65,9 @@ int main(int argc,char** argv)
    {
    usage:
 
-    fprintf(stderr,"Usage: router [--lon1=]<start-lon>  [--lat1=]<start-lat>\n"
-                   "              [--lon2=]<finish-lon> [--lon2=]<finish-lat>\n"
+    fprintf(stderr,"Usage: router [--lon1=]<longitude> [--lat1=]<latitude>\n"
+                   "              [--lon2=]<longitude> [--lon2=]<latitude>\n"
+                   "              [ ... [--lon9=]<longitude> [--lon9=]<latitude> ]\n"
                    "              [--help | --help-profile | --help-profile-js | --help-profile-pl]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
                    "              [--shortest | --quickest]\n"
@@ -94,10 +97,10 @@ int main(int argc,char** argv)
 
  /* Get the transport type if specified and fill in the default profile */
 
- for(i=1;i<argc;i++)
-    if(!strncmp(argv[i],"--transport=",12))
+ for(arg=1;arg<argc;arg++)
+    if(!strncmp(argv[arg],"--transport=",12))
       {
-       transport=TransportType(&argv[i][12]);
+       transport=TransportType(&argv[arg][12]);
 
        if(transport==Transport_None)
           goto usage;
@@ -110,67 +113,80 @@ int main(int argc,char** argv)
 
  /* Parse the other command line arguments */
 
- while(--argc>=1)
+ for(arg=1;arg<argc;arg++)
    {
-    if(isdigit(argv[argc][0]) ||
-       ((argv[argc][0]=='-' || argv[argc][0]=='+') && isdigit(argv[argc][1])))
+    if(isdigit(argv[arg][0]) ||
+       ((argv[arg][0]=='-' || argv[arg][0]=='+') && isdigit(argv[arg][1])))
       {
-       if(lon_finish==999)
-          lon_finish=(M_PI/180)*atof(argv[argc]);
-       else if(lat_finish==999)
-          lat_finish=(M_PI/180)*atof(argv[argc]);
-       else if(lon_start==999)
-          lon_start=(M_PI/180)*atof(argv[argc]);
-       else if(lat_start==999)
-          lat_start=(M_PI/180)*atof(argv[argc]);
-       else
-          goto usage;
+       for(node=0;node<sizeof(point_used)/sizeof(point_used[0]);node++)
+          if(point_used[node]!=3)
+            {
+             if(point_used[node]==0)
+               {
+                point_lon[node]=(M_PI/180)*atof(argv[arg]);
+                point_used[node]=1;
+               }
+             else /* if(point_used[node]==1) */
+               {
+                point_lat[node]=(M_PI/180)*atof(argv[arg]);
+                point_used[node]=3;
+               }
+             break;
+            }
       }
-    else if(!strncmp(argv[argc],"--lat1=",7))
-       lat_start=(M_PI/180)*atof(&argv[argc][7]);
-    else if(!strncmp(argv[argc],"--lon1=",7))
-       lon_start=(M_PI/180)*atof(&argv[argc][7]);
-    else if(!strncmp(argv[argc],"--lat2=",7))
-       lat_finish=(M_PI/180)*atof(&argv[argc][7]);
-    else if(!strncmp(argv[argc],"--lon2=",7))
-       lon_finish=(M_PI/180)*atof(&argv[argc][7]);
-    else if(!strcmp(argv[argc],"--help"))
+    else if(!strncmp(argv[arg],"--lon",5) && isdigit(argv[arg][5]) && argv[arg][6]=='=')
+      {
+       node=atoi(&argv[arg][5]);
+       if(point_used[node]&1)
+          goto usage;
+       point_lon[node]=(M_PI/180)*atof(&argv[arg][7]);
+       point_used[node]+=1;
+      }
+    else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]) && argv[arg][6]=='=')
+      {
+       node=atoi(&argv[arg][5]);
+       if(point_used[node]&2)
+          goto usage;
+       point_lat[node]=(M_PI/180)*atof(&argv[arg][7]);
+       point_used[node]+=2;
+      }
+    else if(!strcmp(argv[arg],"--help"))
        goto usage;
-    else if(!strcmp(argv[argc],"--help-profile"))
+    else if(!strcmp(argv[arg],"--help-profile"))
        help_profile=1;
-    else if(!strcmp(argv[argc],"--help-profile-js"))
+    else if(!strcmp(argv[arg],"--help-profile-js"))
        help_profile_js=1;
-    else if(!strcmp(argv[argc],"--help-profile-pl"))
+    else if(!strcmp(argv[arg],"--help-profile-pl"))
        help_profile_pl=1;
-    else if(!strncmp(argv[argc],"--dir=",6))
-       dirname=&argv[argc][6];
-    else if(!strncmp(argv[argc],"--prefix=",9))
-       prefix=&argv[argc][9];
-    else if(!strcmp(argv[argc],"--shortest"))
+    else if(!strncmp(argv[arg],"--dir=",6))
+       dirname=&argv[arg][6];
+    else if(!strncmp(argv[arg],"--prefix=",9))
+       prefix=&argv[arg][9];
+    else if(!strcmp(argv[arg],"--shortest"))
        option_quickest=0;
-    else if(!strcmp(argv[argc],"--quickest"))
+    else if(!strcmp(argv[arg],"--quickest"))
        option_quickest=1;
-    else if(!strcmp(argv[argc],"--all"))
-       all=1;
-    else if(!strcmp(argv[argc],"--super"))
-       super=1;
-    else if(!strcmp(argv[argc],"--no-output"))
-       no_output=1;
-    else if(!strcmp(argv[argc],"--quiet"))
+    else if(!strcmp(argv[arg],"--all"))
+       option_all=1;
+    else if(!strcmp(argv[arg],"--super"))
+       option_super=1;
+    else if(!strcmp(argv[arg],"--no-output"))
+       option_no_output=1;
+    else if(!strcmp(argv[arg],"--quiet"))
        option_quiet=1;
-    else if(!strncmp(argv[argc],"--transport=",12))
+    else if(!strncmp(argv[arg],"--transport=",12))
        ; /* Done this already*/
-    else if(!strncmp(argv[argc],"--highway-",10))
+    else if(!strncmp(argv[arg],"--highway-",10))
       {
        Highway highway;
-       char *equal=strchr(argv[argc],'=');
+       char *equal=strchr(argv[arg],'=');
        char *string;
 
        if(!equal)
           goto usage;
 
-       string=strcpy((char*)malloc(strlen(argv[argc])),argv[argc]+10);
-       string[equal-argv[argc]-10]=0;
+       string=strcpy((char*)malloc(strlen(argv[arg])),argv[arg]+10);
+       string[equal-argv[arg]-10]=0;
 
        highway=HighwayType(string);
 
@@ -181,17 +197,17 @@ int main(int argc,char** argv)
 
        profile.highways[highway]=atoi(equal+1);
       }
-    else if(!strncmp(argv[argc],"--speed-",8))
+    else if(!strncmp(argv[arg],"--speed-",8))
       {
        Highway highway;
-       char *equal=strchr(argv[argc],'=');
+       char *equal=strchr(argv[arg],'=');
        char *string;
 
        if(!equal)
           goto usage;
 
-       string=strcpy((char*)malloc(strlen(argv[argc])),argv[argc]+8);
-       string[equal-argv[argc]-8]=0;
+       string=strcpy((char*)malloc(strlen(argv[arg])),argv[arg]+8);
+       string[equal-argv[arg]-8]=0;
 
        highway=HighwayType(string);
 
@@ -202,19 +218,23 @@ int main(int argc,char** argv)
 
        profile.speed[highway]=atoi(equal+1);
       }
-    else if(!strncmp(argv[argc],"--oneway=",9))
-       profile.oneway=atoi(&argv[argc][9]);
-    else if(!strncmp(argv[argc],"--weight=",9))
-       profile.weight=tonnes_to_weight(atof(&argv[argc][9]));
-    else if(!strncmp(argv[argc],"--height=",9))
-       profile.height=metres_to_height(atof(&argv[argc][9]));
-    else if(!strncmp(argv[argc],"--width=",8))
-       profile.width=metres_to_width(atof(&argv[argc][8]));
-    else if(!strncmp(argv[argc],"--length=",9))
-       profile.length=metres_to_length(atof(&argv[argc][9]));
+    else if(!strncmp(argv[arg],"--oneway=",9))
+       profile.oneway=atoi(&argv[arg][9]);
+    else if(!strncmp(argv[arg],"--weight=",9))
+       profile.weight=tonnes_to_weight(atof(&argv[arg][9]));
+    else if(!strncmp(argv[arg],"--height=",9))
+       profile.height=metres_to_height(atof(&argv[arg][9]));
+    else if(!strncmp(argv[arg],"--width=",8))
+       profile.width=metres_to_width(atof(&argv[arg][8]));
+    else if(!strncmp(argv[arg],"--length=",9))
+       profile.length=metres_to_length(atof(&argv[arg][9]));
     else
        goto usage;
    }
+
+ for(node=0;node<sizeof(point_used)/sizeof(point_used[0]);node++)
+    if(point_used[node]==1 || point_used[node]==2)
+       goto usage;
 
  if(help_profile)
    {
@@ -261,23 +281,25 @@ int main(int argc,char** argv)
     return(1);
    }
 
- /* Get the start and finish */
+ /* Loop through all pairs of nodes */
 
+ for(node=0;node<sizeof(point_used)/sizeof(point_used[0]);node++)
    {
-    distance_t dist_start=km_to_distance(10),dist_finish=km_to_distance(10);
+    distance_t dist=km_to_distance(10);
+    index_t start,finish;
 
-    Node *start_node =FindNode(OSMNodes,lat_start ,lon_start ,&dist_start );
-    Node *finish_node=FindNode(OSMNodes,lat_finish,lon_finish,&dist_finish);
+    if(point_used[node]!=3)
+       continue;
 
-    if(!start_node)
-      {
-       fprintf(stderr,"Cannot find start node.\n");
-       return(1);
-      }
+    /* Find the node */
+
+    start_node=finish_node;
+
+    finish_node=FindNode(OSMNodes,point_lat[node],point_lon[node],&dist);
 
     if(!finish_node)
       {
-       fprintf(stderr,"Cannot find finish node.\n");
+       fprintf(stderr,"Cannot find node close to specified point %d.\n",node);
        return(1);
       }
 
@@ -285,89 +307,56 @@ int main(int argc,char** argv)
       {
        float lat,lon;
 
-       GetLatLong(OSMNodes,start_node,&lat,&lon);
-
-       printf("Start node : %3.6f %4.6f = %2.3f km\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon,distance_to_km(dist_start));
-
        GetLatLong(OSMNodes,finish_node,&lat,&lon);
 
-       printf("Finish node: %3.6f %4.6f = %2.3f km\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon,distance_to_km(dist_finish));
+       printf("Node %d: %3.6f %4.6f = %2.3f km\n",node,(180.0/M_PI)*lat,(180.0/M_PI)*lon,distance_to_km(dist));
       }
+
+    if(!start_node || !finish_node)
+       continue;
+
+    /* Find the route segment */
 
     start =IndexNode(OSMNodes,start_node );
     finish=IndexNode(OSMNodes,finish_node);
 
-    if(super && !IsSuperNode(start_node) && !IsSuperNode(finish_node))
+    if(option_super && !IsSuperNode(start_node) && !IsSuperNode(finish_node))
       {
        fprintf(stderr,"Start and/or finish nodes are not super-nodes.\n");
        return(1);
       }
-   }
 
- /* Calculate the route. */
+    /* Calculate the route. */
 
- if(all)
-   {
-    /* Calculate the route */
-
-    results=FindRoute(OSMNodes,OSMSegments,OSMWays,start,finish,&profile,all);
-
-    if(!results)
+    if(option_all)
       {
-       fprintf(stderr,"Cannot find route compatible with profile.\n");
-       return(1);
-      }
-   }
- else
-   {
-    Results *begin,*end;
+       /* Calculate the route */
 
-    /* Calculate the beginning of the route */
+       results[node]=FindRoute(OSMNodes,OSMSegments,OSMWays,start,finish,&profile,option_all);
 
-    if(IsSuperNode(LookupNode(OSMNodes,start)))
-      {
-       Result *result;
-
-       begin=NewResultsList(1);
-
-       result=InsertResult(begin,start);
-
-       result->node=start;
-       result->prev=0;
-       result->next=0;
-       result->distance=0;
-       result->duration=0;
-      }
-    else
-      {
-       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,start,&profile);
-
-       if(!begin)
+       if(!results[node])
          {
-          fprintf(stderr,"Cannot find initial section of route compatible with profile.\n");
+          fprintf(stderr,"Cannot find route compatible with profile.\n");
           return(1);
          }
       }
-
-    if(FindResult(begin,finish))
-      {
-       results=begin;
-      }
     else
       {
-       Results *superresults;
+       Results *begin,*end;
 
-       /* Calculate the end of the route */
+       /* Calculate the beginning of the route */
 
-       if(IsSuperNode(LookupNode(OSMNodes,finish)))
+       if(IsSuperNode(LookupNode(OSMNodes,start)))
          {
           Result *result;
 
-          end=NewResultsList(1);
+          begin=NewResultsList(1);
 
-          result=InsertResult(end,finish);
+          begin->start=start;
 
-          result->node=finish;
+          result=InsertResult(begin,start);
+
+          result->node=start;
           result->prev=0;
           result->next=0;
           result->distance=0;
@@ -375,37 +364,79 @@ int main(int argc,char** argv)
          }
        else
          {
-          end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,finish,&profile);
+          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,start,&profile);
 
-          if(!end)
+          if(!begin)
             {
-             fprintf(stderr,"Cannot find final section of route compatible with profile.\n");
+             fprintf(stderr,"Cannot find initial section of route compatible with profile.\n");
              return(1);
             }
          }
 
-       /* Calculate the middle of the route */
-
-       superresults=FindRoute3(OSMNodes,OSMSegments,OSMWays,start,finish,begin,end,&profile);
-
-       if(!superresults)
+       if(FindResult(begin,finish))
          {
-          fprintf(stderr,"Cannot find route compatible with profile.\n");
-          return(1);
-         }
+          results[node]=begin;
 
-       if(super)
-          results=superresults;
+          results[node]->finish=finish;
+         }
        else
-          results=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
+         {
+          Results *superresults;
+
+          /* Calculate the end of the route */
+
+          if(IsSuperNode(LookupNode(OSMNodes,finish)))
+            {
+             Result *result;
+
+             end=NewResultsList(1);
+
+             end->finish=finish;
+
+             result=InsertResult(end,finish);
+
+             result->node=finish;
+             result->prev=0;
+             result->next=0;
+             result->distance=0;
+             result->duration=0;
+            }
+          else
+            {
+             end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,finish,&profile);
+
+             if(!end)
+               {
+                fprintf(stderr,"Cannot find final section of route compatible with profile.\n");
+                return(1);
+               }
+            }
+
+          /* Calculate the middle of the route */
+
+          superresults=FindRoute3(OSMNodes,OSMSegments,OSMWays,begin,end,&profile);
+
+          if(!superresults)
+            {
+             fprintf(stderr,"Cannot find route compatible with profile.\n");
+             return(1);
+            }
+
+          if(option_super)
+             results[node]=superresults;
+          else
+             results[node]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,&profile);
+         }
       }
    }
 
- if(!no_output)
+ if(!option_no_output)
    {
     PrintRouteHead(FileName(dirname,prefix,"copyright.txt"));
 
-    PrintRoute(results,OSMNodes,OSMSegments,OSMWays,start,finish,&profile);
+    for(node=1;node<sizeof(point_used)/sizeof(point_used[0]);node++)
+       if(results[node])
+          PrintRoute(results[node],OSMNodes,OSMSegments,OSMWays,&profile);
 
     PrintRouteTail();
    }

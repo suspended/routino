@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.63 2009-04-22 18:52:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.64 2009-04-27 18:56:39 amb Exp $
 
  Routing optimiser.
 
@@ -83,12 +83,15 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
     if(profile->speed[i]>max_speed)
        max_speed=profile->speed[i];
 
- /* Insert the first node into the queue */
+ /* Create the list of results and insert the first node into the queue */
 
  if(all)
     results=NewResultsList(65536);
  else
     results=NewResultsList(8);
+
+ results->start=start;
+ results->finish=finish;
 
  result1=InsertResult(results,start);
 
@@ -311,10 +314,6 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
   Ways *ways The set of ways to use.
 
-  index_t start The start node.
-
-  index_t finish The finish node.
-
   Results *begin The initial portion of the route.
 
   Results *end The final portion of the route.
@@ -322,7 +321,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Results *begin,Results *end,Profile *profile)
+Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Results *end,Profile *profile)
 {
  Results *results;
  index_t node1,node2;
@@ -340,18 +339,21 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
  finish_distance=~0;
  finish_duration=~0;
 
- GetLatLong(nodes,LookupNode(nodes,finish),&finish_lat,&finish_lon);
+ GetLatLong(nodes,LookupNode(nodes,end->finish),&finish_lat,&finish_lon);
 
  for(i=0;i<sizeof(profile->speed)/sizeof(profile->speed[0]);i++)
     if(profile->speed[i]>max_speed)
        max_speed=profile->speed[i];
 
- /* Insert the start node */
+ /* Create the list of results and insert the first node into the queue */
 
  results=NewResultsList(65536);
 
- result1=InsertResult(results,start);
- result3=FindResult(begin,start);
+ results->start=begin->start;
+ results->finish=end->finish;
+
+ result1=InsertResult(results,begin->start);
+ result3=FindResult(begin,begin->start);
 
  *result1=*result3;
 
@@ -369,7 +371,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
 
           *result2=*result3;
 
-          result2->prev=start;
+          result2->prev=begin->start;
 
           result2->sortby=result2->distance;
          }
@@ -541,10 +543,10 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
 
  /* Finish off the end part of the route. */
 
- if(!FindResult(results,finish))
+ if(!FindResult(results,end->finish))
    {
-    result2=InsertResult(results,finish);
-    result3=FindResult(end,finish);
+    result2=InsertResult(results,end->finish);
+    result3=FindResult(end,end->finish);
 
     *result2=*result3;
 
@@ -596,7 +598,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,index_t start,ind
 
  /* Reverse the results */
 
- result2=FindResult(results,finish);
+ result2=FindResult(results,end->finish);
 
  do
    {
@@ -646,6 +648,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
  /* Insert the first node into the queue */
 
  results=NewResultsList(8);
+
+ results->start=start;
 
  result1=InsertResult(results,start);
 
@@ -797,6 +801,8 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
 
  results=NewResultsList(8);
 
+ results->finish=finish;
+
  result1=InsertResult(results,finish);
 
  result1->node=finish;
@@ -932,14 +938,10 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
 
   Ways *ways The list of ways.
 
-  index_t start The start node.
-
-  index_t finish The finish node.
-
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile)
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile)
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
@@ -947,13 +949,16 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 
  combined=NewResultsList(64);
 
+ combined->start=results->start;
+ combined->finish=results->finish;
+
  option_quiet=1;
 
  /* Sort out the combined route */
 
- result1=FindResult(results,start);
+ result1=FindResult(results,results->start);
 
- result3=InsertResult(combined,start);
+ result3=InsertResult(combined,results->start);
 
  result3->node=result1->node;
 
