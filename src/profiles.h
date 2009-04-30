@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.h,v 1.6 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.h,v 1.7 2009-04-30 17:29:02 amb Exp $
 
  A header file for the profiles.
 
@@ -37,7 +37,8 @@ typedef struct _Profile
 
  Allowed   allow;               /*+ The type of transport expressed as what must be allowed on a way. +*/
 
- int       highways[Way_Unknown]; /*+ A flag to indicate if the transport is allowed on the highway. +*/
+ float     highway[Way_Unknown];/*+ A floating point preference for travel on the highway. +*/
+ invpref_t invpref[Way_Unknown];/*+ A scaling factor for inverse preference for travel on the highway. +*/
 
  speed_t   speed[Way_Unknown];  /*+ The maximum speed on each type of highway. +*/
 
@@ -55,6 +56,8 @@ typedef struct _Profile
 /* Functions */
 
 Profile *GetProfile(Transport transport);
+
+void UpdateProfile(Profile *profile);
 
 void PrintProfile(const Profile *profile);
 

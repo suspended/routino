@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.11 2009-04-27 18:56:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.12 2009-04-30 17:29:02 amb Exp $
 
  Result data type functions.
 
@@ -163,7 +163,28 @@ Result *InsertResult(Results *results,index_t node)
 
  results->count[bin]++;
 
+ results->point[bin][results->count[bin]-1]->node=node;
+
  return(results->point[bin][results->count[bin]-1]);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Zero the values in a result structure.
+
+  Result *result The result to modify.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void ZeroResult(Result *result)
+{
+ result->prev=0;
+ result->next=0;
+
+ result->distance=0;
+ result->duration=0;
+ result->score=0;
+
+ result->sortby=0;
 }
 
 

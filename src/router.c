@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.47 2009-04-27 18:56:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.48 2009-04-30 17:29:03 amb Exp $
 
  OSM router.
 
@@ -48,9 +48,9 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
- Results  *results[9]={NULL};
- int       point_used[9]={0};
- float     point_lon[9],point_lat[9];
+ Results  *results[10]={NULL};
+ int       point_used[10]={0};
+ float     point_lon[10],point_lat[10];
  int       help_profile=0,help_profile_js=0,help_profile_pl=0;
  int       option_all=0,option_super=0,option_no_output=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
@@ -74,7 +74,7 @@ int main(int argc,char** argv)
                    "              [--all | --super]\n"
                    "              [--no-output] [--quiet]\n"
                    "              [--transport=<transport>]\n"
-                   "              [--highway-<highway>=[0|1] ...]\n"
+                   "              [--highway-<highway>=<preference> ...]\n"
                    "              [--speed-<highway>=<speed> ...]\n"
                    "              [--oneway=[0|1]]\n"
                    "              [--weight=<weight>]\n"
@@ -86,6 +86,7 @@ int main(int argc,char** argv)
                    "<highway> can be selected from:\n"
                    "%s"
                    "\n"
+                   "<preference> is a preference expressed as a percentage\n"
                    "<speed> is a speed in km/hour\n"
                    "<weight> is a weight in tonnes\n"
                    "<height>, <width>, <length> are dimensions in metres\n"
@@ -118,7 +119,7 @@ int main(int argc,char** argv)
     if(isdigit(argv[arg][0]) ||
        ((argv[arg][0]=='-' || argv[arg][0]=='+') && isdigit(argv[arg][1])))
       {
-       for(node=0;node<sizeof(point_used)/sizeof(point_used[0]);node++)
+       for(node=1;node<sizeof(point_used)/sizeof(point_used[0]);node++)
           if(point_used[node]!=3)
             {
              if(point_used[node]==0)
@@ -195,7 +196,7 @@ int main(int argc,char** argv)
        if(highway==Way_Unknown)
           goto usage;
 
-       profile.highways[highway]=atoi(equal+1);
+       profile.highway[highway]=atof(equal+1);
       }
     else if(!strncmp(argv[arg],"--speed-",8))
       {
@@ -216,10 +217,10 @@ int main(int argc,char** argv)
        if(highway==Way_Unknown)
           goto usage;
 
-       profile.speed[highway]=atoi(equal+1);
+       profile.speed[highway]=kph_to_speed(atof(equal+1));
       }
     else if(!strncmp(argv[arg],"--oneway=",9))
-       profile.oneway=atoi(&argv[arg][9]);
+       profile.oneway=!!atoi(&argv[arg][9]);
     else if(!strncmp(argv[arg],"--weight=",9))
        profile.weight=tonnes_to_weight(atof(&argv[arg][9]));
     else if(!strncmp(argv[arg],"--height=",9))
@@ -255,6 +256,8 @@ int main(int argc,char** argv)
     return(0);
    }
 
+ UpdateProfile(&profile);
+
  /* Load in the data */
 
  OSMNodes=LoadNodeList(filename=FileName(dirname,prefix,"nodes.mem"));
@@ -283,7 +286,7 @@ int main(int argc,char** argv)
 
  /* Loop through all pairs of nodes */
 
- for(node=0;node<sizeof(point_used)/sizeof(point_used[0]);node++)
+ for(node=1;node<sizeof(point_used)/sizeof(point_used[0]);node++)
    {
     distance_t dist=km_to_distance(10);
     index_t start,finish;
@@ -356,11 +359,7 @@ int main(int argc,char** argv)
 
           result=InsertResult(begin,start);
 
-          result->node=start;
-          result->prev=0;
-          result->next=0;
-          result->distance=0;
-          result->duration=0;
+          ZeroResult(result);
          }
        else
          {
@@ -395,11 +394,7 @@ int main(int argc,char** argv)
 
              result=InsertResult(end,finish);
 
-             result->node=finish;
-             result->prev=0;
-             result->next=0;
-             result->distance=0;
-             result->duration=0;
+             ZeroResult(result);
             }
           else
             {

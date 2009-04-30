@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.35 2009-04-15 16:50:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.36 2009-04-30 17:29:02 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -184,7 +184,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
           if(way_allow_yes)     /* Add the ones explicitly allowed (e.g. footpath along private) */
              allow|=way_allow_yes;
 
-          if(allow&profile->allow && profile->highways[HIGHWAY(type)])
+          if(allow&profile->allow && profile->highway[HIGHWAY(type)])
             {
              Way *way;
              char *refname;
