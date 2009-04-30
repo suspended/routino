@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.18 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.19 2009-04-30 17:29:03 amb Exp $
 
  Type definitions
 
@@ -85,6 +85,9 @@ typedef uint32_t distance_t;
 
 /*+ A duration, measured in 1/10th seconds. +*/
 typedef uint32_t duration_t;
+
+/*+ A routing optimisation score. +*/
+typedef uint32_t score_t;
 
 
 /*+ Conversion from distance_t to kilometres. +*/
@@ -175,6 +178,7 @@ typedef enum _Allowed
  }
  Allowed;
 
+
 /*+ The speed limit of a way, measured in km/hour. +*/
 typedef uint8_t speed_t;
 
@@ -220,6 +224,10 @@ typedef uint8_t length_t;
 
 /*+ Conversion of length_t to metres. +*/
 #define length_to_metres(xxx)  ((double)(xxx)/10.0)
+
+
+/*+ The preference scaling for a highway type. +*/
+typedef uint8_t invpref_t;
 
 
 /* Data structures */

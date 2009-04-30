@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.12 2009-04-27 18:56:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.13 2009-04-30 17:29:03 amb Exp $
 
  A header file for the results.
 
@@ -42,6 +42,7 @@ typedef struct _Result
 
  distance_t  distance;          /*+ The distance travelled to the node following the best path. +*/
  duration_t  duration;          /*+ The time taken to the node following the best path. +*/
+ score_t     score;             /*+ The weighted distance or duration score to the node following the best path. +*/
 
  distance_t  sortby;            /*+ The value to sort the results by in the queue. +*/
 }
@@ -79,6 +80,7 @@ Results *NewResultsList(int nbins);
 void FreeResultsList(Results *results);
 
 Result *InsertResult(Results *results,index_t node);
+void ZeroResult(Result *result);
 
 Result *FindResult(Results *results,index_t node);
 

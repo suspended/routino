@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.12 2009-04-23 17:47:13 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.13 2009-04-30 17:29:02 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -36,20 +36,20 @@ static Profile builtin_profiles[]=
   [Transport_Foot] = {
                       .transport=Transport_Foot,
                       .allow    =Allow_Foot,
-                      .highways = {
-                                   [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = 1,
-                                   [Way_Primary     ] = 1,
-                                   [Way_Secondary   ] = 1,
-                                   [Way_Tertiary    ] = 1,
-                                   [Way_Unclassified] = 1,
-                                   [Way_Residential ] = 1,
-                                   [Way_Service     ] = 1,
-                                   [Way_Track       ] = 1,
-                                   [Way_Path        ] = 1,
-                                   [Way_Bridleway   ] = 1,
-                                   [Way_Cycleway    ] = 1,
-                                   [Way_Footway     ] = 1,
+                      .highway  = {
+                                   [Way_Motorway    ] =   0,
+                                   [Way_Trunk       ] =  40,
+                                   [Way_Primary     ] =  50,
+                                   [Way_Secondary   ] =  60,
+                                   [Way_Tertiary    ] =  70,
+                                   [Way_Unclassified] =  80,
+                                   [Way_Residential ] =  90,
+                                   [Way_Service     ] =  90,
+                                   [Way_Track       ] =  95,
+                                   [Way_Path        ] = 100,
+                                   [Way_Bridleway   ] = 100,
+                                   [Way_Cycleway    ] =  95,
+                                   [Way_Footway     ] = 100,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = 0,
@@ -78,20 +78,20 @@ static Profile builtin_profiles[]=
   [Transport_Bicycle] = {
                       .transport=Transport_Bicycle,
                       .allow    =Allow_Bicycle,
-                      .highways = {
-                                   [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = 0,
-                                   [Way_Primary     ] = 1,
-                                   [Way_Secondary   ] = 1,
-                                   [Way_Tertiary    ] = 1,
-                                   [Way_Unclassified] = 1,
-                                   [Way_Residential ] = 1,
-                                   [Way_Service     ] = 1,
-                                   [Way_Track       ] = 1,
-                                   [Way_Path        ] = 1,
-                                   [Way_Bridleway   ] = 1,
-                                   [Way_Cycleway    ] = 1,
-                                   [Way_Footway     ] = 0,
+                      .highway  = {
+                                   [Way_Motorway    ] =   0,
+                                   [Way_Trunk       ] =  30,
+                                   [Way_Primary     ] =  70,
+                                   [Way_Secondary   ] =  80,
+                                   [Way_Tertiary    ] =  90,
+                                   [Way_Unclassified] =  90,
+                                   [Way_Residential ] =  90,
+                                   [Way_Service     ] =  90,
+                                   [Way_Track       ] =  90,
+                                   [Way_Path        ] =  90,
+                                   [Way_Bridleway   ] =  90,
+                                   [Way_Cycleway    ] = 100,
+                                   [Way_Footway     ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = 0,
@@ -120,20 +120,20 @@ static Profile builtin_profiles[]=
   [Transport_Horse] = {
                       .transport=Transport_Horse,
                       .allow    =Allow_Horse,
-                      .highways = {
-                                   [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = 1,
-                                   [Way_Primary     ] = 1,
-                                   [Way_Secondary   ] = 1,
-                                   [Way_Tertiary    ] = 1,
-                                   [Way_Unclassified] = 1,
-                                   [Way_Residential ] = 1,
-                                   [Way_Service     ] = 1,
-                                   [Way_Track       ] = 1,
-                                   [Way_Path        ] = 1,
-                                   [Way_Bridleway   ] = 1,
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Footway     ] = 0,
+                      .highway  = {
+                                   [Way_Motorway    ] =   0,
+                                   [Way_Trunk       ] =  25,
+                                   [Way_Primary     ] =  50,
+                                   [Way_Secondary   ] =  50,
+                                   [Way_Tertiary    ] =  75,
+                                   [Way_Unclassified] =  75,
+                                   [Way_Residential ] =  75,
+                                   [Way_Service     ] =  75,
+                                   [Way_Track       ] = 100,
+                                   [Way_Path        ] = 100,
+                                   [Way_Bridleway   ] = 100,
+                                   [Way_Cycleway    ] =   0,
+                                   [Way_Footway     ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = 0,
@@ -162,20 +162,20 @@ static Profile builtin_profiles[]=
   [Transport_Motorbike] = {
                       .transport=Transport_Motorbike,
                       .allow    =Allow_Motorbike,
-                      .highways = {
-                                   [Way_Motorway    ] = 1,
-                                   [Way_Trunk       ] = 1,
-                                   [Way_Primary     ] = 1,
-                                   [Way_Secondary   ] = 1,
-                                   [Way_Tertiary    ] = 1,
-                                   [Way_Unclassified] = 1,
-                                   [Way_Residential ] = 1,
-                                   [Way_Service     ] = 1,
-                                   [Way_Track       ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Bridleway   ] = 0,
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Footway     ] = 0,
+                      .highway  = {
+                                   [Way_Motorway    ] = 100,
+                                   [Way_Trunk       ] = 100,
+                                   [Way_Primary     ] =  90,
+                                   [Way_Secondary   ] =  80,
+                                   [Way_Tertiary    ] =  70,
+                                   [Way_Unclassified] =  60,
+                                   [Way_Residential ] =  50,
+                                   [Way_Service     ] =  80,
+                                   [Way_Track       ] =   0,
+                                   [Way_Path        ] =   0,
+                                   [Way_Bridleway   ] =   0,
+                                   [Way_Cycleway    ] =   0,
+                                   [Way_Footway     ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(70*1.6),
@@ -204,20 +204,20 @@ static Profile builtin_profiles[]=
   [Transport_Motorcar] = {
                       .transport=Transport_Motorcar,
                       .allow    =Allow_Motorcar,
-                      .highways = {
-                                   [Way_Motorway    ] = 1,
-                                   [Way_Trunk       ] = 1,
-                                   [Way_Primary     ] = 1,
-                                   [Way_Secondary   ] = 1,
-                                   [Way_Tertiary    ] = 1,
-                                   [Way_Unclassified] = 1,
-                                   [Way_Residential ] = 1,
-                                   [Way_Service     ] = 1,
-                                   [Way_Track       ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Bridleway   ] = 0,
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Footway     ] = 0,
+                      .highway  = {
+                                   [Way_Motorway    ] = 100,
+                                   [Way_Trunk       ] = 100,
+                                   [Way_Primary     ] =  90,
+                                   [Way_Secondary   ] =  80,
+                                   [Way_Tertiary    ] =  70,
+                                   [Way_Unclassified] =  60,
+                                   [Way_Residential ] =  50,
+                                   [Way_Service     ] =  80,
+                                   [Way_Track       ] =   0,
+                                   [Way_Path        ] =   0,
+                                   [Way_Bridleway   ] =   0,
+                                   [Way_Cycleway    ] =   0,
+                                   [Way_Footway     ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(70*1.6),
@@ -246,20 +246,20 @@ static Profile builtin_profiles[]=
   [Transport_Goods] = {
                       .transport=Transport_Goods,
                       .allow    =Allow_Goods,
-                      .highways = {
-                                   [Way_Motorway    ] = 1,
-                                   [Way_Trunk       ] = 1,
-                                   [Way_Primary     ] = 1,
-                                   [Way_Secondary   ] = 1,
-                                   [Way_Tertiary    ] = 1,
-                                   [Way_Unclassified] = 1,
-                                   [Way_Residential ] = 1,
-                                   [Way_Service     ] = 1,
-                                   [Way_Track       ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Bridleway   ] = 0,
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Footway     ] = 0,
+                      .highway  = {
+                                   [Way_Motorway    ] = 100,
+                                   [Way_Trunk       ] = 100,
+                                   [Way_Primary     ] =  90,
+                                   [Way_Secondary   ] =  80,
+                                   [Way_Tertiary    ] =  70,
+                                   [Way_Unclassified] =  60,
+                                   [Way_Residential ] =  50,
+                                   [Way_Service     ] =  80,
+                                   [Way_Track       ] =   0,
+                                   [Way_Path        ] =   0,
+                                   [Way_Bridleway   ] =   0,
+                                   [Way_Cycleway    ] =   0,
+                                   [Way_Footway     ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(60*1.6),
@@ -288,20 +288,20 @@ static Profile builtin_profiles[]=
   [Transport_HGV] = {
                       .transport=Transport_HGV,
                       .allow    =Allow_HGV,
-                      .highways = {
-                                   [Way_Motorway    ] = 1,
-                                   [Way_Trunk       ] = 1,
-                                   [Way_Primary     ] = 1,
-                                   [Way_Secondary   ] = 1,
-                                   [Way_Tertiary    ] = 1,
-                                   [Way_Unclassified] = 1,
-                                   [Way_Residential ] = 1,
-                                   [Way_Service     ] = 1,
-                                   [Way_Track       ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Bridleway   ] = 0,
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Footway     ] = 0,
+                      .highway  = {
+                                   [Way_Motorway    ] = 100,
+                                   [Way_Trunk       ] = 100,
+                                   [Way_Primary     ] =  90,
+                                   [Way_Secondary   ] =  80,
+                                   [Way_Tertiary    ] =  70,
+                                   [Way_Unclassified] =  60,
+                                   [Way_Residential ] =  50,
+                                   [Way_Service     ] =  80,
+                                   [Way_Track       ] =   0,
+                                   [Way_Path        ] =   0,
+                                   [Way_Bridleway   ] =   0,
+                                   [Way_Cycleway    ] =   0,
+                                   [Way_Footway     ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(56*1.6),
@@ -330,20 +330,20 @@ static Profile builtin_profiles[]=
   [Transport_PSV] = {
                       .transport=Transport_PSV,
                       .allow    =Allow_PSV,
-                      .highways = {
-                                   [Way_Motorway    ] = 1,
-                                   [Way_Trunk       ] = 1,
-                                   [Way_Primary     ] = 1,
-                                   [Way_Secondary   ] = 1,
-                                   [Way_Tertiary    ] = 1,
-                                   [Way_Unclassified] = 1,
-                                   [Way_Residential ] = 1,
-                                   [Way_Service     ] = 1,
-                                   [Way_Track       ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Bridleway   ] = 0,
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Footway     ] = 0,
+                      .highway  = {
+                                   [Way_Motorway    ] = 100,
+                                   [Way_Trunk       ] = 100,
+                                   [Way_Primary     ] =  90,
+                                   [Way_Secondary   ] =  80,
+                                   [Way_Tertiary    ] =  70,
+                                   [Way_Unclassified] =  60,
+                                   [Way_Residential ] =  50,
+                                   [Way_Service     ] =  80,
+                                   [Way_Track       ] =   0,
+                                   [Way_Path        ] =   0,
+                                   [Way_Bridleway   ] =   0,
+                                   [Way_Cycleway    ] =   0,
+                                   [Way_Footway     ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(56*1.6),
@@ -384,6 +384,29 @@ Profile *GetProfile(Transport transport)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Update a profile with highway preference scaling factor.
+
+  Profile *profile The profile to be updated.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void UpdateProfile(Profile *profile)
+{
+ float hmax=0;
+ int i;
+
+ for(i=1;i<Way_Unknown;i++)
+    if(profile->highway[i]>hmax)
+       hmax=profile->highway[i];
+
+ for(i=1;i<Way_Unknown;i++)
+    if(profile->highway[i]>0)
+       profile->invpref[i]=2*(hmax/profile->highway[i]);
+    else
+       profile->invpref[i]=0;
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Print out a profile.
 
   const Profile *profile The profile to print.
@@ -402,12 +425,12 @@ void PrintProfile(const Profile *profile)
  printf("\n");
 
  for(i=1;i<Way_Unknown;i++)
-    printf("Highway %-12s: %s\n",HighwayName(i),profile->highways[i]?"yes":"no");
+    printf("Highway %-12s: %3d%%\n",HighwayName(i),(int)profile->highway[i]);
 
  printf("\n");
 
  for(i=1;i<Way_Unknown;i++)
-    if(profile->highways[i])
+    if(profile->highway[i])
        printf("Speed on %-12s: %3d km/h / %2.0f mph\n",HighwayName(i),profile->speed[i],(double)profile->speed[i]/1.6);
 
  printf("\n");
@@ -452,7 +475,7 @@ void PrintProfilesJS(void)
    {
     printf("  %12s: {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s%s: %d",j==1?"":", ",TransportName(j),builtin_profiles[j].highways[i]);
+       printf("%s%s: %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].highway[i]);
     printf("}%s\n",i==(Way_Unknown-1)?"":", ");
    }
  printf("   };\n");
@@ -529,7 +552,7 @@ void PrintProfilesPerl(void)
    {
     printf("  %12s => {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s %s => %d",j==1?"":", ",TransportName(j),builtin_profiles[j].highways[i]);
+       printf("%s %s => %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].highway[i]);
     printf("}%s\n",i==(Way_Unknown-1)?"":", ");
    }
  printf("   );\n");

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.6 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.7 2009-04-30 17:29:03 amb Exp $
 
  Super-Segment data type functions.
 
@@ -322,10 +322,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
 
  result1=InsertResult(results,start);
 
- result1->node=start;
- result1->prev=0;
- result1->next=0;
- result1->distance=0;
+ ZeroResult(result1);
 
  insert_in_queue(result1);
 
@@ -361,28 +358,26 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
        if(!result2)                         /* New end node */
          {
           result2=InsertResult(results,node2);
-          result2->node=node2;
           result2->prev=node1;
           result2->next=0;
           result2->distance=cumulative_distance;
+          result2->sortby=cumulative_distance;
 
           nodex=FindNodeX(nodesx,node2);
 
           if(nodex->super<=iteration)
              insert_in_queue(result2);
          }
-       else
+       else if(cumulative_distance<result2->distance)
          {
-          if(cumulative_distance<result2->distance)
-            {
-             result2->prev=node1;
-             result2->distance=cumulative_distance;
+          result2->prev=node1;
+          result2->distance=cumulative_distance;
+          result2->sortby=cumulative_distance;
 
-             nodex=FindNodeX(nodesx,node2);
+          nodex=FindNodeX(nodesx,node2);
 
-             if(nodex->super<=iteration)
-                insert_in_queue(result2);
-            }
+          if(nodex->super<=iteration)
+             insert_in_queue(result2);
          }
 
       endloop:
