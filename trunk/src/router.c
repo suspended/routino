@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.48 2009-04-30 17:29:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.49 2009-05-06 18:26:24 amb Exp $
 
  OSM router.
 
@@ -312,7 +312,7 @@ int main(int argc,char** argv)
 
        GetLatLong(OSMNodes,finish_node,&lat,&lon);
 
-       printf("Node %d: %3.6f %4.6f = %2.3f km\n",node,(180.0/M_PI)*lat,(180.0/M_PI)*lon,distance_to_km(dist));
+       printf("Node %d: %3.6f %4.6f = %2.3f km\n",node,(180.0/M_PI)*lon,(180.0/M_PI)*lat,distance_to_km(dist));
       }
 
     if(!start_node || !finish_node)
