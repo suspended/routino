@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.13 2009-04-30 17:29:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.14 2009-05-06 18:26:41 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -391,7 +391,7 @@ Profile *GetProfile(Transport transport)
 
 void UpdateProfile(Profile *profile)
 {
- float hmax=0;
+ score_t hmax=0;
  int i;
 
  for(i=1;i<Way_Unknown;i++)
@@ -400,9 +400,9 @@ void UpdateProfile(Profile *profile)
 
  for(i=1;i<Way_Unknown;i++)
     if(profile->highway[i]>0)
-       profile->invpref[i]=2*(hmax/profile->highway[i]);
+       profile->highway[i]/=hmax;
     else
-       profile->invpref[i]=0;
+       profile->highway[i]=0;
 }
 
 
