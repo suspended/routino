@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.19 2009-04-30 17:29:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.20 2009-05-06 18:26:41 amb Exp $
 
  Type definitions
 
@@ -87,7 +87,7 @@ typedef uint32_t distance_t;
 typedef uint32_t duration_t;
 
 /*+ A routing optimisation score. +*/
-typedef uint32_t score_t;
+typedef float score_t;
 
 
 /*+ Conversion from distance_t to kilometres. +*/
