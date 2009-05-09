@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.3 2009-04-27 18:56:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.4 2009-05-09 07:15:12 amb Exp $
 
  Routing output generator.
 
@@ -209,7 +209,6 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
  float start_lat,start_lon;
  distance_t junc_distance=0;
  duration_t junc_duration=0;
- char *prev_way_name=NULL;
  Result *result;
 
  fprintf(gpxtrackfile,"<trkseg>\n");
@@ -231,21 +230,40 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
     if(result->prev)
       {
-       Segment *segment;
-       Way *way;
+       Segment *segment,*thissegment=NULL;
+       Way *way,*thisway=NULL;
        char *way_name;
+       int count=0;
 
-       segment=FirstSegment(segments,LookupNode(nodes,result->prev));
-       while(OtherNode(segment,result->prev)!=result->node)
-          segment=NextSegment(segments,segment,result->prev);
+       segment=FirstSegment(segments,LookupNode(nodes,result->node));
 
-       way=LookupWay(ways,segment->way);
+       do
+         {
+          if(OtherNode(segment,result->node)==result->prev)
+            {
+             thissegment=segment;
+             thisway=LookupWay(ways,segment->way);
+            }
+          else
+            {
+             if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
+               {
+                way=LookupWay(ways,segment->way);
 
-       junc_distance+=DISTANCE(segment->distance);
-       junc_duration+=Duration(segment,way,profile);
-       way_name=WayName(ways,way);
+                if(way->allow&profile->allow && profile->highway[HIGHWAY(way->type)])
+                   count++;
+               }
+            }          
 
-       if(!result->next || (IsSuperNode(node) && way_name!=prev_way_name))
+          segment=NextSegment(segments,segment,result->node);
+         }
+       while(segment);
+
+       junc_distance+=DISTANCE(thissegment->distance);
+       junc_duration+=Duration(thissegment,thisway,profile);
+       way_name=WayName(ways,thisway);
+
+       if(!result->next || count>1)
          {
           if(result->next)
              fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>TRIP%03d</name></rtept>\n",
@@ -263,7 +281,6 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
                   distance_to_km(result->distance+cum_distance),duration_to_minutes(result->duration+cum_duration),
                   way_name);
 
-          prev_way_name=way_name;
           junc_distance=0;
           junc_duration=0;
          }
@@ -271,9 +288,9 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
        fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
                result->node,IsSuperNode(node)?'*':' ',
-               distance_to_km(DISTANCE(segment->distance)),duration_to_minutes(Duration(segment,way,profile)),
+               distance_to_km(DISTANCE(thissegment->distance)),duration_to_minutes(Duration(thissegment,thisway,profile)),
                distance_to_km(result->distance+cum_distance),duration_to_minutes(result->duration+cum_duration),
-               profile->speed[HIGHWAY(way->type)],way_name);
+               profile->speed[HIGHWAY(thisway->type)],way_name);
       }
     else if(!cum_distance)
       {
