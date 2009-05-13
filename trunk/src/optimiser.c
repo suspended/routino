@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.66 2009-05-06 18:26:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.67 2009-05-13 17:45:31 amb Exp $
 
  Routing optimiser.
 
@@ -119,9 +119,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
     while(segment)
       {
-       distance_t segment_distance,cumulative_distance;
-       duration_t segment_duration,cumulative_duration;
-       score_t    segment_score,   cumulative_score;
+       score_t segment_score,cumulative_score;
 
        if(!IsNormalSegment(segment))
           goto endloop;
@@ -148,16 +146,12 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
        if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
           goto endloop;
 
-       segment_distance=DISTANCE(segment->distance);
-       segment_duration=Duration(segment,way,profile);
        if(option_quickest==0)
-          segment_score=(score_t)segment_distance/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)DISTANCE(segment->distance)/profile->highway[HIGHWAY(way->type)];
        else
-          segment_score=(score_t)segment_duration/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)Duration(segment,way,profile)/profile->highway[HIGHWAY(way->type)];
 
-       cumulative_distance=result1->distance+segment_distance;
-       cumulative_duration=result1->duration+segment_duration;
-       cumulative_score   =result1->score   +segment_score;
+       cumulative_score=result1->score+segment_score;
 
        if(cumulative_score>finish_score)
           goto endloop;
@@ -169,15 +163,12 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
           result2=InsertResult(results,node2);
           result2->prev=node1;
           result2->next=0;
-          result2->distance=cumulative_distance;
-          result2->duration=cumulative_duration;
-          result2->score   =cumulative_score;
+          result2->score=cumulative_score;
+          result2->segment=segment;
 
           if(node2==finish)
             {
-             finish_distance=cumulative_distance;
-             finish_duration=cumulative_duration;
-             finish_score   =cumulative_score;
+             finish_score=cumulative_score;
             }
           else
             {
@@ -198,9 +189,8 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
        else if(cumulative_score<result2->score) /* New end node is better */
          {
           result2->prev=node1;
-          result2->distance=cumulative_distance;
-          result2->duration=cumulative_duration;
-          result2->score   =cumulative_score;
+          result2->score=cumulative_score;
+          result2->segment=segment;
 
           if(node2==finish)
             {
@@ -231,8 +221,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
        if(!option_quiet && !(results->number%10000))
          {
-          printf("\rRouting: End Nodes=%d %.1fkm %.0fmin  ",results->number,
-                 distance_to_km(result1->distance),duration_to_minutes(result1->duration));
+          printf("\rRouting: End Nodes=%d",results->number);
           fflush(stdout);
          }
 
@@ -242,8 +231,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
  if(!option_quiet)
    {
-    printf("\rRouted: End Nodes=%d %.1fkm %.0fmin \n",results->number,
-           distance_to_km(finish_distance),duration_to_minutes(finish_duration));
+    printf("\rRouted: End Nodes=%d\n",results->number);
     fflush(stdout);
    }
 
@@ -257,7 +245,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
     return(NULL);
    }
 
- /* Reverse the results */
+ /* Create the forward links for the optimum path */
 
  result2=FindResult(results,finish);
 
@@ -304,8 +292,6 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 {
  Results *results;
  index_t node1,node2;
- distance_t finish_distance;
- duration_t finish_duration;
  score_t finish_score;
  float finish_lat,finish_lon;
  speed_t max_speed=0;
@@ -317,9 +303,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
  /* Set up the finish conditions */
 
- finish_distance=~0;
- finish_duration=~0;
- finish_score   =~(distance_t)0;
+ finish_score=~(distance_t)0;
 
  GetLatLong(nodes,LookupNode(nodes,end->finish),&finish_lat,&finish_lon);
 
@@ -381,9 +365,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
     while(segment)
       {
-       distance_t segment_distance,cumulative_distance;
-       duration_t segment_duration,cumulative_duration;
-       score_t    segment_score,   cumulative_score;
+       score_t segment_score,cumulative_score;
 
        if(!IsSuperSegment(segment))
           goto endloop;
@@ -410,16 +392,12 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
        if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
           goto endloop;
 
-       segment_distance=DISTANCE(segment->distance);
-       segment_duration=Duration(segment,way,profile);
        if(option_quickest==0)
-          segment_score=(score_t)segment_distance/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)DISTANCE(segment->distance)/profile->highway[HIGHWAY(way->type)];
        else
-          segment_score=(score_t)segment_duration/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)Duration(segment,way,profile)/profile->highway[HIGHWAY(way->type)];
 
-       cumulative_distance=result1->distance+segment_distance;
-       cumulative_duration=result1->duration+segment_duration;
-       cumulative_score   =result1->score   +segment_score;
+       cumulative_score=result1->score+segment_score;
 
        if(cumulative_score>finish_score)
           goto endloop;
@@ -431,15 +409,12 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
           result2=InsertResult(results,node2);
           result2->prev=node1;
           result2->next=0;
-          result2->distance=cumulative_distance;
-          result2->duration=cumulative_duration;
-          result2->score   =cumulative_score;
+          result2->score=cumulative_score;
+          result2->segment=segment;
 
           if((result3=FindResult(end,node2)))
             {
-             finish_distance=result2->distance+result3->distance;
-             finish_duration=result2->duration+result3->duration;
-             finish_score   =result2->score   +result3->score;
+             finish_score=result2->score+result3->score;
             }
           else
             {
@@ -460,9 +435,8 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
        else if(cumulative_score<result2->score) /* New end node is better */
          {
           result2->prev=node1;
-          result2->distance=cumulative_distance;
-          result2->duration=cumulative_duration;
-          result2->score   =cumulative_score;
+          result2->score=cumulative_score;
+          result2->segment=segment;
 
           if((result3=FindResult(end,node2)))
             {
@@ -492,8 +466,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
        if(!option_quiet && !(results->number%10000))
          {
-          printf("\rRouting: End Nodes=%d %.1fkm %.0fmin  ",results->number,
-                 distance_to_km(result1->distance),duration_to_minutes(result1->duration));
+          printf("\rRouting: End Nodes=%d",results->number);
           fflush(stdout);
          }
 
@@ -503,8 +476,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
  if(!option_quiet)
    {
-    printf("\rRouted: End Super-Nodes=%d %.1fkm %.0fmin \n",results->number,
-           distance_to_km(finish_distance),duration_to_minutes(finish_duration));
+    printf("\rRouted: End Super-Nodes=%d\n",results->number);
     fflush(stdout);
    }
 
@@ -517,8 +489,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
     *result2=*result3;
 
-    result2->distance=~0;
-    result2->duration=~0;
+    result2->score=~(distance_t)0;
 
     result3=FirstResult(end);
 
@@ -526,30 +497,11 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
       {
        if(IsSuperNode(LookupNode(nodes,result3->node)))
           if((result1=FindResult(results,result3->node)))
-            {
-             if(option_quickest==0) /* shortest */
+             if((result1->score+result3->score)<result2->score)
                {
-                if((result1->distance+result3->distance)<result2->distance ||
-                   ((result1->distance+result3->distance)==result2->distance &&
-                    (result1->duration+result3->duration)<result2->duration))
-                  {
-                   result2->distance=result1->distance+result3->distance;
-                   result2->duration=result1->duration+result3->duration;
-                   result2->prev=result1->node;
-                  }
+                result2->score=result1->score+result3->score;
+                result2->prev=result1->node;
                }
-             else
-               {
-                if((result1->duration+result3->duration)<result2->duration ||
-                   ((result1->duration+result3->duration)==result2->duration &&
-                    (result1->distance+result3->distance)<result2->distance))
-                  {
-                   result2->distance=result1->distance+result3->distance;
-                   result2->duration=result1->duration+result3->duration;
-                   result2->prev=result1->node;
-                  }
-               }
-            }
 
        result3=NextResult(end,result3);
       }
@@ -557,13 +509,13 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
  /* Check it worked */
 
- if(finish_distance == ~0)
+ if(finish_score==~0)
    {
     FreeResultsList(results);
     return(NULL);
    }
 
- /* Reverse the results */
+ /* Create the forward links for the optimum path */
 
  result2=FindResult(results,end->finish);
 
@@ -634,9 +586,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
     while(segment)
       {
-       distance_t segment_distance,cumulative_distance;
-       duration_t segment_duration,cumulative_duration;
-       score_t    segment_score,   cumulative_score;
+       score_t segment_score,cumulative_score;
 
        if(!IsNormalSegment(segment))
           goto endloop;
@@ -663,16 +613,12 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
           goto endloop;
 
-       segment_distance=DISTANCE(segment->distance);
-       segment_duration=Duration(segment,way,profile);
        if(option_quickest==0)
-          segment_score=(score_t)segment_distance/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)DISTANCE(segment->distance)/profile->highway[HIGHWAY(way->type)];
        else
-          segment_score=(score_t)segment_duration/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)Duration(segment,way,profile)/profile->highway[HIGHWAY(way->type)];
 
-       cumulative_distance=result1->distance+segment_distance;
-       cumulative_duration=result1->duration+segment_duration;
-       cumulative_score   =result1->score   +segment_score;
+       cumulative_score=result1->score+segment_score;
 
        result2=FindResult(results,node2);
 
@@ -681,9 +627,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           result2=InsertResult(results,node2);
           result2->prev=node1;
           result2->next=0;
-          result2->distance=cumulative_distance;
-          result2->duration=cumulative_duration;
-          result2->score   =cumulative_score;
+          result2->score=cumulative_score;
+          result2->segment=segment;
 
           if(!IsSuperNode(LookupNode(nodes,node2)))
             {
@@ -694,9 +639,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        else if(cumulative_score<result2->score) /* New end node is better */
          {
           result2->prev=node1;
-          result2->distance=cumulative_distance;
-          result2->duration=cumulative_duration;
-          result2->score   =cumulative_score;
+          result2->score=cumulative_score;
+          result2->segment=segment;
 
           if(!IsSuperNode(LookupNode(nodes,node2)))
             {
@@ -769,9 +713,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
 
     while(segment)
       {
-       distance_t segment_distance,cumulative_distance;
-       duration_t segment_duration,cumulative_duration;
-       score_t    segment_score,   cumulative_score;
+       score_t segment_score,cumulative_score;
 
        if(!IsNormalSegment(segment))
           goto endloop;
@@ -798,16 +740,12 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
        if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
           goto endloop;
 
-       segment_distance=DISTANCE(segment->distance);
-       segment_duration=Duration(segment,way,profile);
        if(option_quickest==0)
-          segment_score=(score_t)segment_distance/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)DISTANCE(segment->distance)/profile->highway[HIGHWAY(way->type)];
        else
-          segment_score=(score_t)segment_duration/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)Duration(segment,way,profile)/profile->highway[HIGHWAY(way->type)];
 
-       cumulative_distance=result1->distance+segment_distance;
-       cumulative_duration=result1->duration+segment_duration;
-       cumulative_score   =result1->score   +segment_score;
+       cumulative_score=result1->score+segment_score;
 
        result2=FindResult(results,node2);
 
@@ -816,9 +754,8 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
           result2=InsertResult(results,node2);
           result2->prev=0;
           result2->next=node1;
-          result2->distance=cumulative_distance;
-          result2->duration=cumulative_duration;
-          result2->score   =cumulative_score;
+          result2->score=cumulative_score;
+          result2->segment=segment;
 
           if(!IsSuperNode(LookupNode(nodes,node2)))
             {
@@ -829,9 +766,8 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
        else if(cumulative_score<result2->score) /* New end node is better */
          {
           result2->next=node1;
-          result2->distance=cumulative_distance;
-          result2->duration=cumulative_duration;
-          result2->score   =cumulative_score;
+          result2->score=cumulative_score;
+          result2->segment=segment;
 
           if(!IsSuperNode(LookupNode(nodes,node2)))
             {
@@ -885,6 +821,8 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
  combined->start=results->start;
  combined->finish=results->finish;
 
+ /* Don't print any output for this part */
+
  option_quiet=1;
 
  /* Sort out the combined route */
@@ -912,9 +850,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
           result4=InsertResult(combined,result2->node);
 
           *result4=*result2;
-          result4->distance+=result3->distance;
-          result4->duration+=result3->duration;
-          result4->score   +=result3->score;
+          result4->score+=result3->score;
 
           if(result2->next)
              result2=FindResult(results2,result2->next);

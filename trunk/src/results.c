@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.12 2009-04-30 17:29:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.13 2009-05-13 17:45:31 amb Exp $
 
  Result data type functions.
 
@@ -180,11 +180,10 @@ void ZeroResult(Result *result)
  result->prev=0;
  result->next=0;
 
- result->distance=0;
- result->duration=0;
  result->score=0;
-
  result->sortby=0;
+
+ result->segment=NULL;
 }
 
 
