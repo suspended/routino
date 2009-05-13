@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.49 2009-05-06 18:26:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.50 2009-05-13 18:34:35 amb Exp $
 
  OSM router.
 
@@ -56,7 +56,7 @@ int main(int argc,char** argv)
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
  Profile   profile;
- Node     *start_node=NULL,*finish_node=NULL;
+ index_t   start=~0,finish=~0;
  int       arg,node;
 
  /* Parse the command line arguments */
@@ -289,18 +289,17 @@ int main(int argc,char** argv)
  for(node=1;node<sizeof(point_used)/sizeof(point_used[0]);node++)
    {
     distance_t dist=km_to_distance(10);
-    index_t start,finish;
 
     if(point_used[node]!=3)
        continue;
 
     /* Find the node */
 
-    start_node=finish_node;
+    start=finish;
 
-    finish_node=FindNode(OSMNodes,point_lat[node],point_lon[node],&dist);
+    finish=FindNode(OSMNodes,point_lat[node],point_lon[node],&dist);
 
-    if(!finish_node)
+    if(finish==~0)
       {
        fprintf(stderr,"Cannot find node close to specified point %d.\n",node);
        return(1);
@@ -310,20 +309,17 @@ int main(int argc,char** argv)
       {
        float lat,lon;
 
-       GetLatLong(OSMNodes,finish_node,&lat,&lon);
+       GetLatLong(OSMNodes,finish,&lat,&lon);
 
        printf("Node %d: %3.6f %4.6f = %2.3f km\n",node,(180.0/M_PI)*lon,(180.0/M_PI)*lat,distance_to_km(dist));
       }
 
-    if(!start_node || !finish_node)
+    if(start==~0)
        continue;
 
     /* Find the route segment */
 
-    start =IndexNode(OSMNodes,start_node );
-    finish=IndexNode(OSMNodes,finish_node);
-
-    if(option_super && !IsSuperNode(start_node) && !IsSuperNode(finish_node))
+    if(option_super && !IsSuperNode(OSMNodes,start) && !IsSuperNode(OSMNodes,finish))
       {
        fprintf(stderr,"Start and/or finish nodes are not super-nodes.\n");
        return(1);
@@ -349,7 +345,7 @@ int main(int argc,char** argv)
 
        /* Calculate the beginning of the route */
 
-       if(IsSuperNode(LookupNode(OSMNodes,start)))
+       if(IsSuperNode(OSMNodes,start))
          {
           Result *result;
 
@@ -384,7 +380,7 @@ int main(int argc,char** argv)
 
           /* Calculate the end of the route */
 
-          if(IsSuperNode(LookupNode(OSMNodes,finish)))
+          if(IsSuperNode(OSMNodes,finish))
             {
              Result *result;
 
