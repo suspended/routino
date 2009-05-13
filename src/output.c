@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.6 2009-05-13 18:34:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.7 2009-05-13 19:10:14 amb Exp $
 
  Routing output generator.
 
@@ -270,7 +270,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
        do
          {
-          index_t othernode=NODE(OtherNode(segment,result->node));
+          index_t othernode=OtherNode(segment,result->node);
 
           if(othernode!=result->prev)
              if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
@@ -331,7 +331,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
        fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>START</name></rtept>\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude);
 
-       fprintf(textfile,"%10.6f\t%11.6f\t%5.3f km\t%5.1f min\t%5.1f km\t%3.0f min\t\n",
+       fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%3.0f min\t\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
                0.0,0.0,0.0,0.0);
 
