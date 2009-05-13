@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.67 2009-05-13 17:45:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.68 2009-05-13 18:06:53 amb Exp $
 
  Routing optimiser.
 
@@ -67,12 +67,9 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
  duration_t finish_duration;
  score_t finish_score;
  float finish_lat,finish_lon;
- speed_t max_speed=0;
- score_t max_pref=0;
  Result *result1,*result2;
  Segment *segment;
  Way *way;
- int i;
 
  /* Set up the finish conditions */
 
@@ -81,14 +78,6 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
  finish_score   =~(distance_t)0;
 
  GetLatLong(nodes,LookupNode(nodes,finish),&finish_lat,&finish_lon);
-
- for(i=0;i<sizeof(profile->speed)/sizeof(profile->speed[0]);i++)
-    if(profile->speed[i]>max_speed)
-       max_speed=profile->speed[i];
-
- for(i=0;i<sizeof(profile->highway)/sizeof(profile->highway[0]);i++)
-    if(profile->highway[i]>max_pref)
-       max_pref=profile->highway[i];
 
  /* Create the list of results and insert the first node into the queue */
 
@@ -179,9 +168,9 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
-                result2->sortby=result2->score+(score_t)direct/max_pref;
+                result2->sortby=result2->score+(score_t)direct/profile->max_pref;
              else
-                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,max_speed)/max_pref;
+                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
              insert_in_queue(result2);
             }
@@ -209,9 +198,9 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
-                result2->sortby=result2->score+(score_t)direct/max_pref;
+                result2->sortby=result2->score+(score_t)direct/profile->max_pref;
              else
-                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,max_speed)/max_pref;
+                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
              insert_in_queue(result2);
             }
@@ -294,26 +283,15 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
  index_t node1,node2;
  score_t finish_score;
  float finish_lat,finish_lon;
- speed_t max_speed=0;
- score_t max_pref=0;
  Result *result1,*result2,*result3;
  Segment *segment;
  Way *way;
- int i;
 
  /* Set up the finish conditions */
 
  finish_score=~(distance_t)0;
 
  GetLatLong(nodes,LookupNode(nodes,end->finish),&finish_lat,&finish_lon);
-
- for(i=0;i<sizeof(profile->speed)/sizeof(profile->speed[0]);i++)
-    if(profile->speed[i]>max_speed)
-       max_speed=profile->speed[i];
-
- for(i=0;i<sizeof(profile->highway)/sizeof(profile->highway[0]);i++)
-    if(profile->highway[i]>max_pref)
-       max_pref=profile->highway[i];
 
  /* Create the list of results and insert the first node into the queue */
 
@@ -425,9 +403,9 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
-                result2->sortby=result2->score+(score_t)direct/max_pref;
+                result2->sortby=result2->score+(score_t)direct/profile->max_pref;
              else
-                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,max_speed)/max_pref;
+                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
              insert_in_queue(result2);
             }
@@ -454,9 +432,9 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
-                result2->sortby=result2->score+(score_t)direct/max_pref;
+                result2->sortby=result2->score+(score_t)direct/profile->max_pref;
              else
-                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,max_speed)/max_pref;
+                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
              insert_in_queue(result2);
             }
