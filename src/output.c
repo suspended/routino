@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.5 2009-05-13 17:45:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.6 2009-05-13 18:34:35 amb Exp $
 
  Routing output generator.
 
@@ -231,17 +231,16 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
  fprintf(gpxtrackfile,"<trkseg>\n");
 
- GetLatLong(nodes,LookupNode(nodes,results->start),&start_lat,&start_lon);
- GetLatLong(nodes,LookupNode(nodes,results->finish),&finish_lat,&finish_lon);
+ GetLatLong(nodes,results->start,&start_lat,&start_lon);
+ GetLatLong(nodes,results->finish,&finish_lat,&finish_lon);
 
  result=FindResult(results,results->start);
 
  do
    {
     float latitude,longitude;
-    Node *node=LookupNode(nodes,result->node);
 
-    GetLatLong(nodes,node,&latitude,&longitude);
+    GetLatLong(nodes,result->node,&latitude,&longitude);
 
     fprintf(gpxtrackfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"/>\n",
             (180/M_PI)*latitude,(180/M_PI)*longitude);
@@ -267,7 +266,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
        /* Decide if this is an important junction */
 
-       segment=FirstSegment(segments,LookupNode(nodes,result->node));
+       segment=FirstSegment(segments,nodes,result->node);
 
        do
          {
@@ -320,7 +319,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
        fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
-               result->node,IsSuperNode(node)?'*':' ',
+               result->node,IsSuperNode(nodes,result->node)?'*':' ',
                distance_to_km(seg_distance),duration_to_minutes(seg_duration),
                distance_to_km(cum_distance),duration_to_minutes(cum_duration),
                profile->speed[HIGHWAY(resultway->type)],WayName(ways,resultway));
@@ -338,7 +337,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
        fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\n",
                (180/M_PI)*latitude,(180/M_PI)*longitude,
-               result->node,IsSuperNode(node)?'*':' ',
+               result->node,IsSuperNode(nodes,result->node)?'*':' ',
                0.0,0.0,0.0,0.0);
       }
     else

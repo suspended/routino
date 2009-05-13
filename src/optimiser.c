@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.68 2009-05-13 18:06:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.69 2009-05-13 18:34:35 amb Exp $
 
  Routing optimiser.
 
@@ -77,7 +77,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
  finish_duration=~0;
  finish_score   =~(distance_t)0;
 
- GetLatLong(nodes,LookupNode(nodes,finish),&finish_lat,&finish_lon);
+ GetLatLong(nodes,finish,&finish_lat,&finish_lon);
 
  /* Create the list of results and insert the first node into the queue */
 
@@ -104,7 +104,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
     node1=result1->node;
 
-    segment=FirstSegment(segments,LookupNode(nodes,node1));
+    segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
@@ -164,7 +164,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
              float lat,lon;
              distance_t direct;
 
-             GetLatLong(nodes,LookupNode(nodes,node2),&lat,&lon);
+             GetLatLong(nodes,node2,&lat,&lon);
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
@@ -194,7 +194,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
              float lat,lon;
              distance_t direct;
 
-             GetLatLong(nodes,LookupNode(nodes,node2),&lat,&lon);
+             GetLatLong(nodes,node2,&lat,&lon);
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
@@ -291,7 +291,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
  finish_score=~(distance_t)0;
 
- GetLatLong(nodes,LookupNode(nodes,end->finish),&finish_lat,&finish_lon);
+ GetLatLong(nodes,end->finish,&finish_lat,&finish_lon);
 
  /* Create the list of results and insert the first node into the queue */
 
@@ -311,7 +311,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
  while(result3)
    {
-    if(IsSuperNode(LookupNode(nodes,result3->node)))
+    if(IsSuperNode(nodes,result3->node))
       {
        if(!(result2=FindResult(results,result3->node)))
          {
@@ -339,7 +339,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
     node1=result1->node;
 
-    segment=FirstSegment(segments,LookupNode(nodes,node1));
+    segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
@@ -399,7 +399,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
              float lat,lon;
              distance_t direct;
 
-             GetLatLong(nodes,LookupNode(nodes,node2),&lat,&lon);
+             GetLatLong(nodes,node2,&lat,&lon);
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
@@ -428,7 +428,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
              float lat,lon;
              distance_t direct;
 
-             GetLatLong(nodes,LookupNode(nodes,node2),&lat,&lon);
+             GetLatLong(nodes,node2,&lat,&lon);
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
@@ -473,7 +473,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
     while(result3)
       {
-       if(IsSuperNode(LookupNode(nodes,result3->node)))
+       if(IsSuperNode(nodes,result3->node))
           if((result1=FindResult(results,result3->node)))
              if((result1->score+result3->score)<result2->score)
                {
@@ -560,7 +560,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
    {
     node1=result1->node;
 
-    segment=FirstSegment(segments,LookupNode(nodes,node1));
+    segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
@@ -608,7 +608,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           result2->score=cumulative_score;
           result2->segment=segment;
 
-          if(!IsSuperNode(LookupNode(nodes,node2)))
+          if(!IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
              insert_in_queue(result2);
@@ -620,7 +620,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           result2->score=cumulative_score;
           result2->segment=segment;
 
-          if(!IsSuperNode(LookupNode(nodes,node2)))
+          if(!IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
              insert_in_queue(result2);
@@ -687,7 +687,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
    {
     node1=result1->node;
 
-    segment=FirstSegment(segments,LookupNode(nodes,node1));
+    segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
@@ -735,7 +735,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
           result2->score=cumulative_score;
           result2->segment=segment;
 
-          if(!IsSuperNode(LookupNode(nodes,node2)))
+          if(!IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
              insert_in_queue(result2);
@@ -747,7 +747,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
           result2->score=cumulative_score;
           result2->segment=segment;
 
-          if(!IsSuperNode(LookupNode(nodes,node2)))
+          if(!IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
              insert_in_queue(result2);

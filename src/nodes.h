@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.22 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.23 2009-05-13 18:34:35 amb Exp $
 
  A header file for the nodes.
 
@@ -65,17 +65,11 @@ struct _Nodes
 /* Macros */
 
 
-/*+ Return a Node pointer given a set of nodes and an index. +*/
-#define LookupNode(xxx,yyy)    (&(xxx)->nodes[yyy])
-
-/*+ Return an index for a Node pointer given a set of nodes. +*/
-#define IndexNode(xxx,yyy)     ((yyy)-&(xxx)->nodes[0])
-
 /*+ Return a Segment points given a Node pointer and a set of segments. +*/
-#define FirstSegment(xxx,yyy)  LookupSegment((xxx),SEGMENT((yyy)->firstseg))
+#define FirstSegment(xxx,yyy,zzz)  LookupSegment((xxx),SEGMENT((yyy)->nodes[zzz].firstseg))
 
 /*+ Return true if this is a super-node. +*/
-#define IsSuperNode(xxx)       (((xxx)->firstseg)&SUPER_FLAG)
+#define IsSuperNode(xxx,yyy)       (((xxx)->nodes[yyy].firstseg)&SUPER_FLAG)
 
 
 /* Functions */
@@ -83,9 +77,9 @@ struct _Nodes
 
 Nodes *LoadNodeList(const char *filename);
 
-Node *FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance);
+index_t FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance);
 
-void GetLatLong(Nodes *nodes,Node *node,float *latitude,float *longitude);
+void GetLatLong(Nodes *nodes,index_t index,float *latitude,float *longitude);
 
 
 #endif /* NODES_H */

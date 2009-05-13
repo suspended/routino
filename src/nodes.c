@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.27 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.28 2009-05-13 18:34:35 amb Exp $
 
  Node data type functions.
 
@@ -67,7 +67,7 @@ Nodes *LoadNodeList(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Find a node given its latitude and longitude.
 
-  Node *FindNode Returns the node.
+  index_t FindNode Returns the node index.
 
   Nodes* nodes The set of nodes to search.
 
@@ -78,7 +78,7 @@ Nodes *LoadNodeList(const char *filename)
   distance_t distance The maximum distance to look, returns the final distance.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Node *FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance)
+index_t FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance)
 {
  int32_t latbin=lat_long_to_bin(latitude )-nodes->latzero;
  int32_t lonbin=lat_long_to_bin(longitude)-nodes->lonzero;
@@ -157,10 +157,7 @@ Node *FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance)
    }
  while(count);
 
- if(best==~0)
-    return(NULL);
- else
-    return(&nodes->nodes[best]);
+ return(best);
 }
 
 
@@ -169,16 +166,16 @@ Node *FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance)
 
   Nodes *nodes The set of nodes.
 
-  Node *node The node.
+  index_t index The node index.
 
   float *latitude Returns the latitude.
 
   float *longitude Returns the logitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void GetLatLong(Nodes *nodes,Node *node,float *latitude,float *longitude)
+void GetLatLong(Nodes *nodes,index_t index,float *latitude,float *longitude)
 {
- index_t index=IndexNode(nodes,node);
+ Node *node=&nodes->nodes[index];
  int latbin=-1,lonbin=-1;
  int start,end,mid;
 
