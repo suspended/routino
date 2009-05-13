@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.13 2009-04-30 17:29:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.14 2009-05-13 17:45:31 amb Exp $
 
  A header file for the results.
 
@@ -35,16 +35,15 @@
 /*+ The result for a node. +*/
 typedef struct _Result
 {
- index_t     node;              /*+ The node for which this result applies. +*/
+ index_t   node;                /*+ The node for which this result applies. +*/
 
- index_t     prev;              /*+ The previous node following the best path. +*/
- index_t     next;              /*+ The next node following the best path. +*/
+ index_t   prev;                /*+ The previous node following the best path. +*/
+ index_t   next;                /*+ The next node following the best path. +*/
 
- distance_t  distance;          /*+ The distance travelled to the node following the best path. +*/
- duration_t  duration;          /*+ The time taken to the node following the best path. +*/
- score_t     score;             /*+ The weighted distance or duration score to the node following the best path. +*/
+ score_t   score;               /*+ The weighted distance or duration score to the node following the best path. +*/
+ score_t   sortby;              /*+ The value to sort the results by in the queue. +*/
 
- distance_t  sortby;            /*+ The value to sort the results by in the queue. +*/
+ Segment  *segment;             /*+ The segment for the path to here (from prev). +*/
 }
  Result;
 
