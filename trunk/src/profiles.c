@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.14 2009-05-06 18:26:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.15 2009-05-13 18:06:53 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -394,6 +394,8 @@ void UpdateProfile(Profile *profile)
  score_t hmax=0;
  int i;
 
+ /* Normalise the highway preferences into the range 0 -> 1 */
+
  for(i=1;i<Way_Unknown;i++)
     if(profile->highway[i]>hmax)
        hmax=profile->highway[i];
@@ -403,6 +405,20 @@ void UpdateProfile(Profile *profile)
        profile->highway[i]/=hmax;
     else
        profile->highway[i]=0;
+
+ /* Find the fastest and most preferred highway type */
+
+ profile->max_speed=0;
+
+ for(i=0;i<Way_Unknown;i++)
+    if(profile->speed[i]>profile->max_speed)
+       profile->max_speed=profile->speed[i];
+
+ profile->max_pref=0;
+
+ for(i=0;i<Way_Unknown;i++)
+    if(profile->highway[i]>profile->max_pref)
+       profile->max_pref=profile->highway[i];
 }
 
 
