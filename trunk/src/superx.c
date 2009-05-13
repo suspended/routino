@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.7 2009-04-30 17:29:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.8 2009-05-13 18:00:30 amb Exp $
 
  Super-Segment data type functions.
 
@@ -172,16 +172,19 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                   {
                    Segment *supersegment=AppendSegment(supersegmentsx,nodesx->gdata[i]->id,result->node);
 
-                   supersegment->distance=result->distance;
-                   supersegment->way=IndexWayX(waysx,wayx);
-
                    if(wayx->way.type&Way_OneWay)
                      {
-                      supersegment->distance=ONEWAY_1TO2|result->distance;
+                      supersegment->distance=ONEWAY_1TO2|(distance_t)result->score;
+                      supersegment->way=IndexWayX(waysx,wayx);
 
                       supersegment=AppendSegment(supersegmentsx,result->node,nodesx->gdata[i]->id);
 
-                      supersegment->distance=ONEWAY_2TO1|result->distance;
+                      supersegment->distance=ONEWAY_2TO1|(distance_t)result->score;
+                      supersegment->way=IndexWayX(waysx,wayx);
+                     }
+                   else
+                     {
+                      supersegment->distance=(distance_t)result->score;
                       supersegment->way=IndexWayX(waysx,wayx);
                      }
                   }
@@ -351,7 +354,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
        if(!WaysSame(&wayx->way,&match->way))
           goto endloop;
 
-       cumulative_distance=result1->distance+DISTANCE((*segmentx)->segment.distance);
+       cumulative_distance=(distance_t)result1->score+DISTANCE((*segmentx)->segment.distance);
 
        result2=FindResult(results,node2);
 
@@ -360,7 +363,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
           result2=InsertResult(results,node2);
           result2->prev=node1;
           result2->next=0;
-          result2->distance=cumulative_distance;
+          result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
           nodex=FindNodeX(nodesx,node2);
@@ -368,10 +371,10 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
           if(nodex->super<=iteration)
              insert_in_queue(result2);
          }
-       else if(cumulative_distance<result2->distance)
+       else if(cumulative_distance<result2->score)
          {
           result2->prev=node1;
-          result2->distance=cumulative_distance;
+          result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
           nodex=FindNodeX(nodesx,node2);
