@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.28 2009-05-13 18:34:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.29 2009-05-14 18:02:29 amb Exp $
 
  Node data type functions.
 
@@ -83,7 +83,7 @@ index_t FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distanc
  int32_t latbin=lat_long_to_bin(latitude )-nodes->latzero;
  int32_t lonbin=lat_long_to_bin(longitude)-nodes->lonzero;
  int     delta=0,count;
- index_t i,best=~0;
+ index_t i,best=NO_NODE;
 
  /* Start with the bin containing the location, then spiral outwards. */
 

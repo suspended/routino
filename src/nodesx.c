@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.8 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.9 2009-05-14 18:02:29 amb Exp $
 
  Extented Node data type functions.
 
@@ -296,7 +296,7 @@ void SortNodeList(NodesX* nodesx)
  nodesx->number=0;
 
  for(i=0;i<nodesx->xnumber;i++)
-    if(nodesx->xdata[i].id!=~0)
+    if(nodesx->xdata[i].id!=NO_NODE)
       {
        nodesx->gdata[nodesx->number]=&nodesx->xdata[i];
        nodesx->idata[nodesx->number]=&nodesx->xdata[i];
@@ -314,9 +314,9 @@ void SortNodeList(NodesX* nodesx)
  for(i=1;i<nodesx->number;i++)
    {
     if(nodesx->idata[i]->id==nodesx->idata[i-1]->id &&
-       nodesx->idata[i]->id!=~0)
+       nodesx->idata[i]->id!=NO_NODE)
       {
-       nodesx->idata[i-1]->id=~0;
+       nodesx->idata[i-1]->id=NO_NODE;
        duplicate++;
       }
    }
@@ -437,7 +437,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
        highway++;
     else
       {
-       nodesx->xdata[i].id=~0;
+       nodesx->xdata[i].id=NO_NODE;
        nothighway++;
       }
 
@@ -471,11 +471,11 @@ void MarkSuperNodes(NodesX *nodesx,int iteration)
    {
     if(nodesx->gdata[i]->super==iteration)
       {
-       nodesx->gdata[i]->node.firstseg=SEGMENT(~0)|SUPER_FLAG;
+       nodesx->gdata[i]->node.firstseg=SEGMENT(NO_SEGMENT)|SUPER_FLAG;
        nnodes++;
       }
     else
-       nodesx->gdata[i]->node.firstseg=SEGMENT(~0);
+       nodesx->gdata[i]->node.firstseg=SEGMENT(NO_SEGMENT);
 
     if(!((i+1)%10000))
       {
@@ -513,9 +513,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX* segmentsx)
 
     /* Check node1 */
 
-    if(SEGMENT(node1->node.firstseg)==SEGMENT(~0))
+    if(SEGMENT(node1->node.firstseg)==SEGMENT(NO_SEGMENT))
       {
-       node1->node.firstseg^=SEGMENT(~0);
+       node1->node.firstseg^=SEGMENT(NO_SEGMENT);
        node1->node.firstseg|=i;
       }
     else
@@ -533,7 +533,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX* segmentsx)
             }
           else
             {
-             if((*segmentx)->segment.next2==~0)
+             if((*segmentx)->segment.next2==NO_NODE)
                {
                 (*segmentx)->segment.next2=i;
                 segmentx=NULL;
@@ -547,9 +547,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX* segmentsx)
 
     /* Check node2 */
 
-    if(SEGMENT(node2->node.firstseg)==SEGMENT(~0))
+    if(SEGMENT(node2->node.firstseg)==SEGMENT(NO_SEGMENT))
       {
-       node2->node.firstseg^=SEGMENT(~0);
+       node2->node.firstseg^=SEGMENT(NO_SEGMENT);
        node2->node.firstseg|=i;
       }
     else
@@ -567,7 +567,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX* segmentsx)
             }
           else
             {
-             if((*segmentx)->segment.next2==~0)
+             if((*segmentx)->segment.next2==NO_NODE)
                {
                 (*segmentx)->segment.next2=i;
                 segmentx=NULL;
