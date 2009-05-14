@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.13 2009-05-13 17:45:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.14 2009-05-14 18:02:30 amb Exp $
 
  Result data type functions.
 
@@ -88,8 +88,8 @@ Results *NewResultsList(int nbins)
  results->data=(Result**)malloc(1*sizeof(Result*));
  results->data[0]=(Result*)malloc(results->nbins*RESULTS_INCREMENT*sizeof(Result));
 
- results->start=~0;
- results->finish=~0;
+ results->start=NO_NODE;
+ results->finish=NO_NODE;
 
  return(results);
 }
@@ -177,8 +177,8 @@ Result *InsertResult(Results *results,index_t node)
 
 void ZeroResult(Result *result)
 {
- result->prev=0;
- result->next=0;
+ result->prev=NO_NODE;
+ result->next=NO_NODE;
 
  result->score=0;
  result->sortby=0;

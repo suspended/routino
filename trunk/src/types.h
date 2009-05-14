@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.20 2009-05-06 18:26:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.21 2009-05-14 18:02:30 amb Exp $
 
  Type definitions
 
@@ -46,23 +46,33 @@
 
 
 /*+ A flag to mark super-nodes and super-segments. +*/
-#define SUPER_FLAG 0x80000000
+#define SUPER_FLAG   ((index_t)0x80000000)
 
-/*+ A node index excluding the super-node flag +*/
+/*+ A node index excluding the super-node flag. +*/
 #define NODE(xxx)    (index_t)((xxx)&(~SUPER_FLAG))
 
-/*+ A segment index excluding the super-segment flag +*/
+/*+ An undefined node index. +*/
+#define NO_NODE      (~(index_t)0)
+
+/*+ A segment index excluding the super-segment flag. +*/
 #define SEGMENT(xxx) (index_t)((xxx)&(~SUPER_FLAG))
+
+/*+ An undefined segment index. +*/
+#define NO_SEGMENT   (~(index_t)0)
 
 
 /*+ A flag to mark a distance as only applying from node1 to node2. +*/
-#define ONEWAY_1TO2 0x80000000
+#define ONEWAY_1TO2  ((distance_t)0x80000000)
 
 /*+ A flag to mark a distance as only applying from node2 to node1. +*/
-#define ONEWAY_2TO1 0x40000000
+#define ONEWAY_2TO1  ((distance_t)0x40000000)
 
 /*+ The real distance ignoring the ONEWAY_* flags. +*/
-#define DISTANCE(xx)  (distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1)))
+#define DISTANCE(xx) (distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1)))
+
+
+/*+ A very large almost infinite score. +*/
+#define INF_SCORE    (score_t)1E30
 
 
 /* Simple Types */
@@ -100,10 +110,10 @@ typedef float score_t;
 #define duration_to_minutes(xx) ((double)(xx)/600.0)
 
 /*+ Conversion from duration_t to hours. +*/
-#define duration_to_hours(xx) ((double)(xx)/36000.0)
+#define duration_to_hours(xx)   ((double)(xx)/36000.0)
 
 /*+ Conversion from hours to duration_t. +*/
-#define hours_to_duration(xx) ((duration_t)((double)(xx)*36000.0))
+#define hours_to_duration(xx)   ((duration_t)((double)(xx)*36000.0))
 
 /*+ Conversion from distance_t and speed_t to duration_t. +*/
 #define distance_speed_to_duration(xx,yy) ((duration_t)(((double)(xx)/(double)(yy))*(36000.0/1000.0)))

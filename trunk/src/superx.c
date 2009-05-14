@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.8 2009-05-13 18:00:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.9 2009-05-14 18:02:30 amb Exp $
 
  Super-Segment data type functions.
 
@@ -236,7 +236,7 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
    {
     segmentsx->sdata[i]->segment.node1=SUPER_FLAG; /* mark as normal segment */
 
-    segmentsx->sdata[i]->segment.next2=~0;
+    segmentsx->sdata[i]->segment.next2=NO_NODE;
 
     while(j<supersegmentsx->number)
       {
@@ -253,18 +253,18 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
                segmentsx->sdata[i]->node2==supersegmentsx->sdata[j]->node2)
          {
           supersegmentsx->sdata[j]->segment.node2=SUPER_FLAG; /* mark as super-segment */
-          supersegmentsx->sdata[j]->segment.next2=~0;
+          supersegmentsx->sdata[j]->segment.next2=NO_NODE;
          }
        else if(segmentsx->sdata[i]->node1==supersegmentsx->sdata[j]->node1 &&
                segmentsx->sdata[i]->node2>supersegmentsx->sdata[j]->node2)
          {
           supersegmentsx->sdata[j]->segment.node2=SUPER_FLAG; /* mark as super-segment */
-          supersegmentsx->sdata[j]->segment.next2=~0;
+          supersegmentsx->sdata[j]->segment.next2=NO_NODE;
          }
        else if(segmentsx->sdata[i]->node1>supersegmentsx->sdata[j]->node1)
          {
           supersegmentsx->sdata[j]->segment.node2=SUPER_FLAG; /* mark as super-segment */
-          supersegmentsx->sdata[j]->segment.next2=~0;
+          supersegmentsx->sdata[j]->segment.next2=NO_NODE;
          }
        else
           break;
@@ -362,7 +362,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
          {
           result2=InsertResult(results,node2);
           result2->prev=node1;
-          result2->next=0;
+          result2->next=NO_NODE;
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 

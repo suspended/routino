@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.50 2009-05-13 18:34:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.51 2009-05-14 18:02:30 amb Exp $
 
  OSM router.
 
@@ -56,7 +56,7 @@ int main(int argc,char** argv)
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
  Profile   profile;
- index_t   start=~0,finish=~0;
+ index_t   start=NO_NODE,finish=NO_NODE;
  int       arg,node;
 
  /* Parse the command line arguments */
@@ -299,7 +299,7 @@ int main(int argc,char** argv)
 
     finish=FindNode(OSMNodes,point_lat[node],point_lon[node],&dist);
 
-    if(finish==~0)
+    if(finish==NO_NODE)
       {
        fprintf(stderr,"Cannot find node close to specified point %d.\n",node);
        return(1);
@@ -314,7 +314,7 @@ int main(int argc,char** argv)
        printf("Node %d: %3.6f %4.6f = %2.3f km\n",node,(180.0/M_PI)*lon,(180.0/M_PI)*lat,distance_to_km(dist));
       }
 
-    if(start==~0)
+    if(start==NO_NODE)
        continue;
 
     /* Find the route segment */

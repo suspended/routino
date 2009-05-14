@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.7 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.8 2009-05-14 18:02:30 amb Exp $
 
  Extended Segment data type functions.
 
@@ -287,7 +287,7 @@ void SortSegmentList(SegmentsX* segmentsx)
  segmentsx->number=0;
 
  for(i=0;i<segmentsx->xnumber;i++)
-    if(segmentsx->xdata[i].node1!=~0)
+    if(segmentsx->xdata[i].node1!=NO_NODE)
       {
        segmentsx->sdata[segmentsx->number]=&segmentsx->xdata[i];
        segmentsx->number++;
@@ -364,12 +364,12 @@ void RemoveBadSegments(SegmentsX *segmentsx)
             segmentsx->sdata[i]->node2==segmentsx->sdata[i-1]->node2)
       {
        duplicate++;
-       segmentsx->sdata[i-1]->node1=~0;
+       segmentsx->sdata[i-1]->node1=NO_NODE;
       }
     else if(segmentsx->sdata[i]->node1==segmentsx->sdata[i]->node2)
       {
        loop++;
-       segmentsx->sdata[i]->node1=~0;
+       segmentsx->sdata[i]->node1=NO_NODE;
       }
 
     if(!((i+1)%10000))
@@ -488,8 +488,8 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
        if(wayx1==wayx2 || WaysSame(&wayx1->way,&wayx2->way))
          {
-          segmentsx->sdata[i-1]->node1=~0;
-          segmentsx->sdata[i-1]->node2=~0;
+          segmentsx->sdata[i-1]->node1=NO_NODE;
+          segmentsx->sdata[i-1]->node2=NO_NODE;
 
           duplicate++;
          }
@@ -543,7 +543,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
          {
           (*segmentx)->segment.node2|=i;
 
-          if((*segmentx)->segment.next2==~0)
+          if((*segmentx)->segment.next2==NO_NODE)
              segmentx=NULL;
           else
              segmentx=LookupSegmentX(segmentsx,(*segmentx)->segment.next2);

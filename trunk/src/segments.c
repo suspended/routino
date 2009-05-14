@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.37 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.38 2009-05-14 18:02:30 amb Exp $
 
  Segment data type functions.
 
@@ -90,7 +90,7 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
    }
  else
    {
-    if(segment->next2==~0)
+    if(segment->next2==NO_NODE)
        return(NULL);
     else
        return(LookupSegment(segments,segment->next2));

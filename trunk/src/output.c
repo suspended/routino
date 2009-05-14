@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.7 2009-05-13 19:10:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.8 2009-05-14 18:02:30 amb Exp $
 
  Routing output generator.
 
@@ -245,7 +245,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
     fprintf(gpxtrackfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"/>\n",
             (180/M_PI)*latitude,(180/M_PI)*longitude);
 
-    if(result->prev)
+    if(result->prev!=NO_NODE)
       {
        distance_t seg_distance=0;
        duration_t seg_duration=0;
@@ -293,9 +293,9 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
        /* Print out the junctions */
 
-       if(!result->next || other || change)
+       if(result->next==NO_NODE || other || change)
          {
-          if(result->next)
+          if(result->next!=NO_NODE)
              fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>TRIP%03d</name></rtept>\n",
                      (180/M_PI)*latitude,(180/M_PI)*longitude,
                      ++route_count);
@@ -349,7 +349,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
                ++segment_count);
       }
 
-    if(result->next)
+    if(result->next!=NO_NODE)
        result=FindResult(results,result->next);
     else
        result=NULL;

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.69 2009-05-13 18:34:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.70 2009-05-14 18:02:29 amb Exp $
 
  Routing optimiser.
 
@@ -63,8 +63,6 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 {
  Results *results;
  index_t node1,node2;
- distance_t finish_distance;
- duration_t finish_duration;
  score_t finish_score;
  float finish_lat,finish_lon;
  Result *result1,*result2;
@@ -73,9 +71,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
  /* Set up the finish conditions */
 
- finish_distance=~0;
- finish_duration=~0;
- finish_score   =~(distance_t)0;
+ finish_score=INF_SCORE;
 
  GetLatLong(nodes,finish,&finish_lat,&finish_lon);
 
@@ -151,7 +147,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
          {
           result2=InsertResult(results,node2);
           result2->prev=node1;
-          result2->next=0;
+          result2->next=NO_NODE;
           result2->score=cumulative_score;
           result2->segment=segment;
 
@@ -240,7 +236,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
  do
    {
-    if(result2->prev)
+    if(result2->prev!=NO_NODE)
       {
        index_t node1=result2->prev;
 
@@ -386,7 +382,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
          {
           result2=InsertResult(results,node2);
           result2->prev=node1;
-          result2->next=0;
+          result2->next=NO_NODE;
           result2->score=cumulative_score;
           result2->segment=segment;
 
@@ -487,7 +483,9 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
  /* Check it worked */
 
- if(finish_score==~0)
+ result2=FindResult(results,end->finish);
+
+ if(!result2)
    {
     FreeResultsList(results);
     return(NULL);
@@ -495,11 +493,9 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
  /* Create the forward links for the optimum path */
 
- result2=FindResult(results,end->finish);
-
  do
    {
-    if(result2->prev)
+    if(result2->prev!=NO_NODE)
       {
        index_t node1=result2->prev;
 
@@ -604,7 +600,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
          {
           result2=InsertResult(results,node2);
           result2->prev=node1;
-          result2->next=0;
+          result2->next=NO_NODE;
           result2->score=cumulative_score;
           result2->segment=segment;
 
@@ -730,7 +726,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
        if(!result2)                         /* New end node */
          {
           result2=InsertResult(results,node2);
-          result2->prev=0;
+          result2->prev=NO_NODE;
           result2->next=node1;
           result2->score=cumulative_score;
           result2->segment=segment;
@@ -813,7 +809,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 
  do
    {
-    if(result1->next)
+    if(result1->next!=NO_NODE)
       {
        Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->next,profile,0);
 
@@ -830,7 +826,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
           *result4=*result2;
           result4->score+=result3->score;
 
-          if(result2->next)
+          if(result2->next!=NO_NODE)
              result2=FindResult(results2,result2->next);
           else
              result2=NULL;
