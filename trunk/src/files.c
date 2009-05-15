@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.5 2009-04-23 17:37:04 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.6 2009-05-15 17:32:14 amb Exp $
 
  Functions to map a file into memory.
 
@@ -74,15 +74,20 @@ void *MapFile(const char *filename)
 
  fd=open(filename,O_RDONLY);
 
- if(fd==-1)
-    return(NULL);
+ if(fd<0)
+   {
+    fprintf(stderr,"Cannot open file '%s' to read.\n",filename);
+    exit(EXIT_FAILURE);
+   }
 
  /* Get the length of the file */
 
  if(fstat(fd,&buf))
    {
     close(fd);
-    return(NULL);
+
+    fprintf(stderr,"Cannot stat file '%s'.\n",filename);
+    exit(EXIT_FAILURE);
    }
 
  /* Map the file */
@@ -92,7 +97,9 @@ void *MapFile(const char *filename)
  if(!address)
    {
     close(fd);
-    return(NULL);
+
+    fprintf(stderr,"Cannot mmap file '%s'.\n",filename);
+    exit(EXIT_FAILURE);
    }
 
  return(address);
@@ -116,7 +123,10 @@ int OpenFile(const char *filename)
  fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRWXU|S_IRGRP|S_IROTH);
 
  if(fd<0)
-    assert(0);
+   {
+    fprintf(stderr,"Cannot open file '%s' to write.\n",filename);
+    exit(EXIT_FAILURE);
+   }
 
  return(fd);
 }
