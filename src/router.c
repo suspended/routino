@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.51 2009-05-14 18:02:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.52 2009-05-29 17:45:24 amb Exp $
 
  OSM router.
 
@@ -297,7 +297,7 @@ int main(int argc,char** argv)
 
     start=finish;
 
-    finish=FindNode(OSMNodes,point_lat[node],point_lon[node],&dist);
+    finish=FindNode(OSMNodes,OSMSegments,OSMWays,point_lat[node],point_lon[node],&dist,&profile);
 
     if(finish==NO_NODE)
       {

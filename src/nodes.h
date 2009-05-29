@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.23 2009-05-13 18:34:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.24 2009-05-29 17:45:24 amb Exp $
 
  A header file for the nodes.
 
@@ -28,6 +28,7 @@
 #include <stdint.h>
 
 #include "types.h"
+#include "profiles.h"
 
 
 /* Data structures */
@@ -77,7 +78,7 @@ struct _Nodes
 
 Nodes *LoadNodeList(const char *filename);
 
-index_t FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance);
+index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,float latitude,float longitude,distance_t *distance,Profile *profile);
 
 void GetLatLong(Nodes *nodes,index_t index,float *latitude,float *longitude);
 
