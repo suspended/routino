@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.29 2009-05-14 18:02:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.30 2009-05-29 17:45:24 amb Exp $
 
  Node data type functions.
 
@@ -25,8 +25,10 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "profiles.h"
 #include "nodes.h"
 #include "segments.h"
+#include "ways.h"
 #include "functions.h"
 
 
@@ -65,20 +67,26 @@ Nodes *LoadNodeList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find a node given its latitude and longitude.
+  Find the closest node given its latitude and longitude and optionally profile.
 
   index_t FindNode Returns the node index.
 
   Nodes* nodes The set of nodes to search.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
 
   float latitude The latitude to look for.
 
   float longitude The longitude to look for.
 
   distance_t distance The maximum distance to look, returns the final distance.
+
+  Profile *profile The profile of the mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distance)
+index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,float latitude,float longitude,distance_t *distance,Profile *profile)
 {
  int32_t latbin=lat_long_to_bin(latitude )-nodes->latzero;
  int32_t lonbin=lat_long_to_bin(longitude)-nodes->lonzero;
@@ -147,7 +155,32 @@ index_t FindNode(Nodes* nodes,float latitude,float longitude,distance_t *distanc
              distance_t dist=Distance(lat,lon,latitude,longitude);
 
              if(dist<*distance)
-               {best=i; *distance=dist;}
+               {
+                if(profile)
+                  {
+                   Segment *segment;
+
+                   /* Decide if this is node is valid for the profile */
+
+                   segment=FirstSegment(segments,nodes,i);
+
+                   do
+                     {
+                      Way *way=LookupWay(ways,segment->way);
+
+                      if(way->allow&profile->allow)
+                         break;
+
+                      segment=NextSegment(segments,segment,i);
+                     }
+                   while(segment);
+
+                   if(!segment)
+                      continue;
+                  }
+
+                best=i; *distance=dist;
+               }
             }
 
           count++;
