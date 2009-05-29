@@ -43,6 +43,7 @@ planetsplitter
           all highway types allowed. This option may be repeated.
 
    Example usage:
+
    bunzip2 -c great_britain.osm.bz2 | ./planetsplitter --dir=data --prefix=gb
 
    This will generate the output files 'data/gb-nodes.mem',
@@ -50,29 +51,28 @@ planetsplitter
 
 router
 
-   Usage: router [--lon1=]<start-lon>  [--lat1=]<start-lat>
-                 [--lon2=]<finish-lon> [--lon2=]<finish-lat>
+   Usage: router [--lon1=]<longitude> [--lat1=]<latitude>
+                 [--lon2=]<longitude> [--lon2=]<latitude>
+                 [ ... [--lon9=]<longitude> [--lon9=]<latitude> ]
                  [--help | --help-profile | --help-profile-js | --help-profile-pl]
                  [--dir=<name>] [--prefix=<name>]
                  [--shortest | --quickest]
                  [--all | --super]
                  [--no-output] [--quiet]
                  [--transport=<transport>]
-                 [--highway-<highway>=[0|1] ...]
+                 [--highway-<highway>=<preference> ...]
                  [--speed-<highway>=<speed> ...]
                  [--oneway=[0|1]]
                  [--weight=<weight>]
                  [--height=<height>] [--width=<width>] [--length=<length>]
 
-   --lon1=<start-lon>, --lat1=<start-lat>
-          The location of the starting point. If the --lon1 and --lat1
-          prefixes are not used then these must be the first and second
-          options.
-
-   --lon2=<finish-lon>, --lat2=<finish-lat>
-          The location of the finishing point. If the --lon2 and --lat2
-          prefixes are not used then these must be the third and fourth
-          options.
+   --lon1=<longitude>, --lat1=<latitude>
+   --lon2=<longitude>, --lat2=<latitude>
+   ...
+   --lon9=<longitude>, --lat9=<latitude>
+          The location of the points that make up the start, middle and
+          end points of the route. Up to 9 points can be specified and the
+          route will pass through each of them in sequence.
 
    --help
           Prints out the help information.
@@ -122,9 +122,9 @@ router
           Select the type of transport to use. Defaults to 'Motorcar',
           this option also selects the default profile.
 
-   --highway-<highway>=[0|1]
-          Selects the preference for using each particular type of
-          highway. Default value depends on the profile selected by the
+   --highway-<highway>=<preference>
+          Selects the percentage preference for using each particular type
+          of highway. Default value depends on the profile selected by the
           --transport option.
 
    --speed-<highway>=<speed>
@@ -157,12 +157,25 @@ router
           depends on the profile selected by the --transport option.
 
    Example usage (motorbike journey, scenic route, not very fast):
+
    ./router --dir=data --prefix=gb --transport=motorbike --highway-motorway=0 \
             --highway-trunk=0 --speed-primary=80 --speed-secondary=80 --quickest
 
    This will use the files 'data/gb-nodes.mem', 'data/gb-segments.mem' and
    'data/gb-ways.mem' to find the quickest route by motorbike not using
    motorways or trunk roads and not exceeding 80 km/hr.
+
+   If there is a file in the specified directory with the specified prefix
+   and a basename of "copyright.txt" (i.e. 'data/gb-copyright.txt' in the
+   example) this file will be read in and the contents used in the
+   generated files. The file is read in and the two lines starting with
+   'Source:' and 'License:' are extracted and used in the output files.
+
+   An appropriate file for use with data derived from OpenStreetMap data
+   would be the following:
+
+   Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
+   License: http://creativecommons.org/licenses/by-sa/2.0/
 
 Common Parameters
 
@@ -194,19 +207,21 @@ Common Parameters
      * cycleway = Cycleway
      * footway = Footway
 
+   <preference>is a preference expressed as a percentage.
+
    <speed> is a speed in km/hour.
 
    <weight> is a weight in tonnes.
 
    <height>, <width>, <length> are dimensions in metres.
 
-
 Program Output
 
-   There are two formats of output from the router, plain text and [17]GPX
-   (GPS eXchange) XML format. There are four outputs from the router
-   program: a GPX track file, a GPX route file, a text description with
-   the junctions and a text file with every node.
+   There are two different formats of output from the router, plain text and GPX
+   (GPS eXchange) XML format. There are a total of four possible outputs from
+   the router program: a GPX track file, a GPX route file with waypoints at
+   junctions, a text description with the junctions and a text file with every
+   node.
 
    The output files are written to the current directory and are named
    depending on the selection of shortest or quickest route. For the
@@ -223,10 +238,16 @@ GPX Track File
    An example GPX track file output is below:
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <gpx version="1.0" creator="Routino"
+   <gpx version="1.1" creator="Routino"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://www.topografix.com/GPX/1/0"
-           xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+           xmlns="http://www.topografix.com/GPX/1/1"
+           xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+   <metadata>
+   <desc><![CDATA[Shortest route between 'start' and 'finish' waypoints]]></desc>
+   <copyright author="Based on OpenStreetMap data from http://www.openstreetmap.org/">
+   <license>http://creativecommons.org/licenses/by-sa/2.0/</license>
+   </copyright>
+   </metadata>
    <trk>
    <trkseg>
    <trkpt lat="51.524676" lon="-0.127896"/>
@@ -246,10 +267,16 @@ GPX Route File
    An example GPX route file output is below:
 
    <?xml version="1.0" encoding="UTF-8"?>
-   <gpx version="1.0" creator="Routino"
+   <gpx version="1.1" creator="Routino"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://www.topografix.com/GPX/1/0"
-           xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+           xmlns="http://www.topografix.com/GPX/1/1"
+           xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+   <metadata>
+   <desc><![CDATA[Shortest route between 'start' and 'finish' waypoints]]></desc>
+   <copyright author="Based on OpenStreetMap data from http://www.openstreetmap.org/">
+   <license>http://creativecommons.org/licenses/by-sa/2.0/</license>
+   </copyright>
+   </metadata>
    <rte>
    <name>Shortest route</name>
    <rtept lat="51.524676" lon="-0.127896"><name>START</name></rtept>
@@ -267,6 +294,9 @@ Text File
 
    An example Text file output is below:
 
+   # Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
+   # License: http://creativecommons.org/licenses/by-sa/2.0/
+   #
    #Latitude   Longitude    Segment   Segment    Total     Total   Highway
    #                        Distance  Duration   Distance  Durat'n
     51.524676    -0.127896  0.000 km    0.0 min    0.0 km    0 min
@@ -292,6 +322,9 @@ All Nodes Text File
 
    An example all nodes text file output is below:
 
+   # Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
+   # License: http://creativecommons.org/licenses/by-sa/2.0/
+   #
    #Latitude   Longitude       Node   Segment Segment Total  Total   Speed  Highway
    #                                  Dist    Durat'n Dist   Durat'n
 
