@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.26 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.27 2009-05-31 12:30:12 amb Exp $
 
  A header file for the ways.
 
@@ -86,6 +86,8 @@ const char *TransportName(Transport transport);
 
 const char *HighwayList(void);
 const char *TransportList(void);
+
+int WaysSame(Way *way1,Way *way2);
 
 
 #endif /* WAYS_H */

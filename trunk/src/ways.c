@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.28 2009-04-12 10:43:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.29 2009-05-31 12:30:12 amb Exp $
 
  Way data type functions.
 
@@ -319,4 +319,32 @@ const char *TransportList(void)
         "    goods     = Goods     (Small lorry, van)\n"
         "    hgv       = HGV       (Heavy Goods Vehicle - large lorry)\n"
         "    psv       = PSV       (Public Service Vehicle - bus, coach)\n";
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Return 1 if the two ways are the same (in respect of their types and limits).
+
+  int WaysSame Returns a comparison.
+
+  Way *way1 The first way.
+
+  Way *way2 The second way.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int WaysSame(Way *way1,Way *way2)
+{
+ if(way1==way2)
+    return(1);
+
+ if(way1->type  ==way2->type   &&
+    way1->allow ==way2->allow  &&
+    way1->speed ==way2->speed  &&
+    way1->weight==way2->weight &&
+    way1->height==way2->height &&
+    way1->width ==way2->width  &&
+    way1->length==way2->length)
+    return(1);
+
+ return(0);
 }
