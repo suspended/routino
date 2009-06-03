@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.9 2009-05-14 18:02:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.10 2009-06-03 17:34:49 amb Exp $
 
  Extented Node data type functions.
 
@@ -192,11 +192,11 @@ NodeX *FindNodeX(NodesX* nodesx,node_t id)
   */
 
  if(end<start)                        /* There are no nodes */
-    return(NULL);
+    goto error;
  else if(id<nodesx->idata[start]->id) /* Check key is not before start */
-    return(NULL);
+    goto error;
  else if(id>nodesx->idata[end]->id)   /* Check key is not after end */
-    return(NULL);
+    goto error;
  else
    {
     do
@@ -218,6 +218,11 @@ NodeX *FindNodeX(NodesX* nodesx,node_t id)
     if(nodesx->idata[end]->id==id)        /* End is correct */
        return(nodesx->idata[end]);
    }
+
+ error:
+
+ fprintf(stderr,"Error: Node %d is referenced but does not exist in the dataset.\n",id);
+ exit(1);
 
  return(NULL);
 }
