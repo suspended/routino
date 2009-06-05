@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.36 2009-04-30 17:29:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.37 2009-06-05 16:39:11 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -374,10 +374,12 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
              if(!strcmp(k,"maxspeed"))
                {
                 if(strstr(v,"mph"))
-                   way_maxspeed=kph_to_speed(1.6*atof(v));
+                   way_maxspeed=kph_to_speed(1.609*atof(v));
                 else
                    way_maxspeed=kph_to_speed(atof(v));
                }
+             if(!strcmp(k,"maxspeed:mph"))
+                way_maxspeed=kph_to_speed(1.609*atof(v));
              if(!strcmp(k,"maxweight"))
                {
                 if(strstr(v,"kg"))
@@ -387,21 +389,48 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                }
              if(!strcmp(k,"maxheight"))
                {
-                if(strstr(v,"ft") || strstr(v,"feet"))
+                if(strchr(v,'\''))
+                  {
+                   int feet,inches;
+
+                   if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
+                      way_maxheight=metres_to_height((feet+(float)inches/12.0)*0.254);
+                   else if(sscanf(v,"%d'",&feet)==1)
+                      way_maxheight=metres_to_height((feet+(float)inches/12.0)*0.254);
+                  }
+                else if(strstr(v,"ft") || strstr(v,"feet"))
                    way_maxheight=metres_to_height(atof(v)*0.254);
                 else
                    way_maxheight=metres_to_height(atof(v));
                }
              if(!strcmp(k,"maxwidth"))
                {
-                if(strstr(v,"ft") || strstr(v,"feet"))
+                if(strchr(v,'\''))
+                  {
+                   int feet,inches;
+
+                   if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
+                      way_maxwidth=metres_to_height((feet+(float)inches/12.0)*0.254);
+                   else if(sscanf(v,"%d'",&feet)==1)
+                      way_maxwidth=metres_to_height((feet+(float)inches/12.0)*0.254);
+                  }
+                else if(strstr(v,"ft") || strstr(v,"feet"))
                    way_maxwidth=metres_to_width(atof(v)*0.254);
                 else
                    way_maxwidth=metres_to_width(atof(v));
                }
              if(!strcmp(k,"maxlength"))
                {
-                if(strstr(v,"ft") || strstr(v,"feet"))
+                if(strchr(v,'\''))
+                  {
+                   int feet,inches;
+
+                   if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
+                      way_maxlength=metres_to_height((feet+(float)inches/12.0)*0.254);
+                   else if(sscanf(v,"%d'",&feet)==1)
+                      way_maxlength=metres_to_height((feet+(float)inches/12.0)*0.254);
+                  }
+                else if(strstr(v,"ft") || strstr(v,"feet"))
                    way_maxlength=metres_to_length(atof(v)*0.254);
                 else
                    way_maxlength=metres_to_length(atof(v));
