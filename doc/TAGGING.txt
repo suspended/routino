@@ -136,8 +136,9 @@ The oneway Tag
 The maxspeed Tag
 
    The maxspeed tag is used to specify the maximum speed limit on the
-   highway. This is always measured in km/hr in OpenStreetMap data (some
-   attempts are made to detect a tag that contains "mph" and convert it).
+   highway; this is always measured in km/hr in OpenStreetMap data. If the
+   tag value contains "mph" or the tag name is actually maxspeed:mph then
+   it is assumed to be a value in those units and converted to km/hr.
 
 The maxweight Tag
 
@@ -149,18 +150,23 @@ The maxheight Tag
 
    The maxheight tag is used to specify the maximum height of any traffic
    on the way. In other words this must be set to the lowest height of
-   anything above the way (like a bridge) in metres.
+   anything above the way (like a bridge) in metres. If the tag value
+   contains a measurement in feet or feet and inches then attempts are
+   made to convert this to metres.
 
 The maxwidth Tag
 
    The maxwidth tag is used to specify the maximum width of any traffic on
    the way. This must be set to the minimum width of the contraints at the
-   wayside in metres.
+   wayside in metres. If the tag value contains a measurement in feet or
+   feet and inches then attempts are made to convert this to metres.
 
 The maxlength Tag
 
    The maxlength tag is used to specify the maximum length of any traffic
-   on the way (usually from a traffic sign) in metres.
+   on the way (usually from a traffic sign) in metres. If the tag value
+   contains a measurement in feet or feet and inches then attempts are
+   made to convert this to metres.
 
 Relation Tags
 
