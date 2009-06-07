@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.19 2009-04-22 18:52:35 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.20 2009-06-07 15:33:38 amb Exp $
 #
 # Makefile
 #
@@ -59,7 +59,8 @@ planetsplitter : $(PLANETSPLITTER_OBJ)
 
 FILEDUMPER_OBJ=filedumper.o \
 	       nodes.o segments.o ways.o results.o \
-	       files.o
+	       files.o \
+               visualiser.o
 
 filedumper : $(FILEDUMPER_OBJ)
 	$(LD) $(FILEDUMPER_OBJ) -o $@ $(LDFLAGS)
