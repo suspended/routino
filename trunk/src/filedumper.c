@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.22 2009-06-07 15:33:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.23 2009-06-08 18:21:21 amb Exp $
 
  Memory file dumper.
 
@@ -85,21 +85,19 @@ int main(int argc,char** argv)
                       "                  [--help]\n"
                       "                  [--dir=<name>] [--prefix=<name>]\n"
                       "                  [--statistics]\n"
-                      "                  [--visualiser\n"
-                      "                                --latmin=<latmin> --latmax=<latmax>\n"
+                      "                  [--visualiser --latmin=<latmin> --latmax=<latmax>\n"
                       "                                --lonmin=<lonmin> --lonmax=<lonmax>\n"
-                      "                                --data=<data-type>\n"
-                      "                  ]\n"
+                      "                                --data=<data-type>]\n"
                       "\n"
                       "<data-type> can be selected from:\n"
-                      "junctions   = segment count at each junction.\n"
-                      "super       = super-node and super-segments.\n"
-                      "oneway      = oneway segments.\n"
-                      "speed       = speed limits.\n"
-                      "weight      = weight limits.\n"
-                      "height      = height limits.\n"
-                      "width       = width limits.\n"
-                      "length      = length limits.\n");
+                      "junctions = segment count at each junction.\n"
+                      "super     = super-node and super-segments.\n"
+                      "oneway    = oneway segments.\n"
+                      "speed     = speed limits.\n"
+                      "weight    = weight limits.\n"
+                      "height    = height limits.\n"
+                      "width     = width limits.\n"
+                      "length    = length limits.\n");
 
        return(1);
       }
