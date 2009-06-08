@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.1 2009-06-07 15:32:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.2 2009-06-08 18:21:10 amb Exp $
 
  Extract data from Routino.
 
@@ -179,6 +179,8 @@ static void output_super(index_t node,float latitude,float longitude)
  if(!IsSuperNode(OSMNodes,node))
     return;
 
+ printf("%.6f %.6f n\n",(180.0/M_PI)*latitude,(180.0/M_PI)*longitude);
+
  segment=FirstSegment(OSMSegments,OSMNodes,node);
 
  do
@@ -193,7 +195,7 @@ static void output_super(index_t node,float latitude,float longitude)
 
           GetLatLong(OSMNodes,othernode,&lat,&lon);
 
-          printf("%.6f %.6f %.6f %.6f\n",(180.0/M_PI)*latitude,(180.0/M_PI)*longitude,(180.0/M_PI)*lat,(180.0/M_PI)*lon);
+          printf("%.6f %.6f s\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon);
          }
       }
 
