@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.20 2009-06-07 15:33:38 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.21 2009-06-12 18:36:23 amb Exp $
 #
 # Makefile
 #
@@ -28,6 +28,7 @@ LD=gcc
 # Program options
 
 CFLAGS=-O3 -Wall -Wmissing-prototypes
+#CFLAGS=-O3 -g -Wall -Wmissing-prototypes
 #CFLAGS=-pg -g -O0 -Wall -Wmissing-prototypes
 #CFLAGS=-pg --coverage -g -O0 -Wall -Wmissing-prototypes
 LDFLAGS=-lm
@@ -44,6 +45,7 @@ D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
 EXE=planetsplitter filedumper router
 
 all : $(EXE)
+	[ -d ../web/bin ] && cp $(EXE) ../web/bin
 
 ########
 
