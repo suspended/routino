@@ -5,9 +5,9 @@ Routino Introduction
 
    Routino is an application for finding a route between two points using
    the dataset of topographical information collected by
-   OpenStreetMap.org.
+   http://www.OpenStreetMap.org.
 
-   Starting from the raw OpenStreetMap data (in the form of the .osm
+   Starting from the raw OpenStreetMap data (in the form of the '.osm'
    XML files available on the internet) a custom database is generated
    that contains the information useful for routing. With this database
    and two points specified by latitude and longitude an optimum route
@@ -51,13 +51,13 @@ Demonstration
 
    A live demonstration of the router is available on the internet:
 
-   http://www.gedanken.org.uk/mapping/router/router.html
+   http://www.gedanken.org.uk/mapping/routino/router.html
 
-   The source code download available below also includes a set of files
-   that can be used to create your own interactive map.
+   The source code download available also includes a set of files that can
+   be used to create your own interactive map.
 
-   The interactive map is made possible by use of the amazing
-   OpenLayers Javascript library.
+   The interactive map is made possible by use of the OpenLayers Javascript
+   library from http://www.openlayers.org/.
 
 Documentation
 
@@ -71,6 +71,7 @@ Documentation
 Status
 
    Version 1.0 of Routino was released on 8th April 2009.
+   Version 1.1 of Routino was released on 13th June 2009.
 
 License
 
