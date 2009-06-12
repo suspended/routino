@@ -3,10 +3,12 @@
 
 Program Usage
 
-   There are two programs that make up this software. The first one takes
-   the planet.osm datafile from OpenStreetMap and converts it into a local
-   database. The second program uses the database to determine an optimum
-   route between two points.
+   There are three programs that make up this software. The first one
+   takes the planet.osm datafile from OpenStreetMap (or other source of
+   data using the same formats) and converts it into a local database. The
+   second program uses the database to determine an optimum route between
+   two points. The third program allows visualisation of the data and
+   statistics to be extracted.
 
 planetsplitter
 
@@ -36,11 +38,27 @@ planetsplitter
    --transport=<transport>
           Allows selection of only the routes that are possible for a
           particular type of transport. Defaults to all transport types
-          allowed.
+          allowed (see the router for the list of possible transport
+          types).
 
    --not-highway=<highway>
-          Allows particular types of highways to be ignored. Defaults to
-          all highway types allowed. This option may be repeated.
+          Allows particular types of highways to be ignored, <highway> can
+          be selected from:
+             + motorway = Motorway
+             + trunk = Trunk
+             + primary = Primary
+             + secondary = Secondary
+             + tertiary = Tertiary
+             + unclassified = Unclassified
+             + residential = Residential
+             + service = Service
+             + track = Track
+             + path = Path
+             + bridleway = Bridleway
+             + cycleway = Cycleway
+             + footway = Footway
+          Defaults to all highway types allowed. This option may be
+          repeated.
 
    Example usage:
 
@@ -72,7 +90,7 @@ router
    --lon9=<longitude>, --lat9=<latitude>
           The location of the points that make up the start, middle and
           end points of the route. Up to 9 points can be specified and the
-          route will pass through each of them in sequence.
+          route will pass through each of the specified ones in sequence.
 
    --help
           Prints out the help information.
@@ -90,11 +108,11 @@ router
           for use in the router CGI.
 
    --dir=<name>
-          Sets the directory name in which to save the results. Defaults
-          to the current directory.
+          Sets the directory name in which to read the local database.
+          Defaults to the current directory.
 
    --prefix=<name>
-          Sets the filename prefix for the files that are created.
+          Sets the filename prefix for the files in the local database.
           Defaults to no prefix.
 
    --shortest
@@ -119,17 +137,28 @@ router
           running in a script).
 
    --transport=<transport>
-          Select the type of transport to use. Defaults to 'Motorcar',
-          this option also selects the default profile.
+          Select the type of transport to use, <transport> can be set to:
+             + foot = Foot
+             + bicycle = Bicycle
+             + horse = Horse
+             + motorbike = Motorbike
+             + motorcar = Motorcar
+             + goods = Goods (Small lorry, van)
+             + hgv = HGV (Heavy Goods Vehicle - large lorry)
+             + psv = PSV (Public Service Vehicle - bus, coach)
+          Defaults to 'Motorcar', this option also selects the default
+          profile information.
 
    --highway-<highway>=<preference>
           Selects the percentage preference for using each particular type
-          of highway. Default value depends on the profile selected by the
+          of highway (see the planetsplitter for the list of highway
+          types). Default value depends on the profile selected by the
           --transport option.
 
    --speed-<highway>=<speed>
-          Selects the speed limit for each type of highway. Default value
-          depends on the profile selected by the --transport option.
+          Selects the speed limit in km/hour for each type of highway.
+          Default value depends on the profile selected by the --transport
+          option.
 
    --oneway=[0|1]
           Selects if the direction of oneway streets are to be obeyed
@@ -137,24 +166,24 @@ router
           the profile selected by the --transport option.
 
    --weight=<weight>
-          Specifies the weight of the mode of transport, ensures that the
-          weight limit on the highway is not exceeded. Default value
-          depends on the profile selected by the --transport option.
+          Specifies the weight of the mode of transport in tonnes, ensures
+          that the weight limit on the highway is not exceeded. Default
+          value depends on the profile selected by the --transport option.
 
    --height=<height>
-          Specifies the height of the mode of transport, ensures that the
-          height limit on the highway is not exceeded. Default value
-          depends on the profile selected by the --transport option.
+          Specifies the height of the mode of transport in metres, ensures
+          that the height limit on the highway is not exceeded. Default
+          value depends on the profile selected by the --transport option.
 
    --width=<width>
-          Specifies the width of the mode of transport, ensures that the
-          width limit on the highway is not exceeded. Default value
-          depends on the profile selected by the --transport option.
+          Specifies the width of the mode of transport in metres, ensures
+          that the width limit on the highway is not exceeded. Default
+          value depends on the profile selected by the --transport option.
 
    --length=<length>
-          Specifies the length of the mode of transport, ensures that the
-          length limit on the highway is not exceeded. Default value
-          depends on the profile selected by the --transport option.
+          Specifies the length of the mode of transport in metres, ensures
+          that the length limit on the highway is not exceeded. Default
+          value depends on the profile selected by the --transport option.
 
    Example usage (motorbike journey, scenic route, not very fast):
 
@@ -177,51 +206,59 @@ router
    Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
    License: http://creativecommons.org/licenses/by-sa/2.0/
 
-Common Parameters
+filedumper
 
-   There are a number of parameters that are used by both programs or are used
-   to specify a quantity or choice.  These are defined below.
+   Usage: filedumper
+                     [--help]
+                     [--dir=<name>] [--prefix=<name>]
+                     [--statistics]
+                     [--visualiser --latmin=<latmin> --latmax=<latmax>
+                                   --lonmin=<lonmin> --lonmax=<lonmax>
+                                   --data=<data-type>]
 
-   <transport> can be set to:
-     * foot = Foot
-     * bicycle = Bicycle
-     * horse = Horse
-     * motorbike = Motorbike
-     * motorcar = Motorcar
-     * goods = Goods (Small lorry, van)
-     * hgv = HGV (Heavy Goods Vehicle - large lorry)
-     * psv = PSV (Public Service Vehicle - bus, coach)
+   --help
+          Prints out the help information.
 
-   <highway> can be selected from:
-     * motorway = Motorway
-     * trunk = Trunk
-     * primary = Primary
-     * secondary = Secondary
-     * tertiary = Tertiary
-     * unclassified = Unclassified
-     * residential = Residential
-     * service = Service
-     * track = Track
-     * path = Path
-     * bridleway = Bridleway
-     * cycleway = Cycleway
-     * footway = Footway
+   --dir=<name>
+          Sets the directory name in which to read the local database.
+          Defaults to the current directory.
 
-   <preference>is a preference expressed as a percentage.
+   --prefix=<name>
+          Sets the filename prefix for the files in the local database.
 
-   <speed> is a speed in km/hour.
+   --statistics
+          Prints out statistics about the database files.
 
-   <weight> is a weight in tonnes.
+   --visualiser
+          Selects a data visualiser mode which will output a set of data
+          according to the other parameters below.
 
-   <height>, <width>, <length> are dimensions in metres.
+        --latmin=<latmin> --latmax=<latmax>
+                The range of latitudes to print the data for.
 
-Program Output
+        --lonmin=<lonmin> --lonmax=<lonmax>
+                The range of longitudes to print the data for.
 
-   There are two different formats of output from the router, plain text and GPX
-   (GPS eXchange) XML format. There are a total of four possible outputs from
-   the router program: a GPX track file, a GPX route file with waypoints at
-   junctions, a text description with the junctions and a text file with every
-   node.
+        --data=<data-type>
+                The type of data to output, <data-type> can be selected
+                from:
+               o junctions = segment count at each junction.
+               o super = super-node and super-segments.
+               o oneway = oneway segments.
+               o speed = speed limits.
+               o weight = weight limits.
+               o height = height limits.
+               o width = width limits.
+               o length = length limits.
+
+
+Router Output
+
+   There are two different formats of output from the router, plain text
+   and GPX (GPS eXchange) XML format. There are a total of four possible
+   outputs from the router program: a GPX track file, a GPX route file
+   with waypoints at junctions, a text description with the junctions and
+   a text file with every node.
 
    The output files are written to the current directory and are named
    depending on the selection of shortest or quickest route. For the
