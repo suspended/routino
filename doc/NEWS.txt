@@ -1,0 +1,31 @@
+Version 1.1 of Routino released : Sat Jun 13 2009
+-------------------------------------------------
+
+Inputs
+  Improve parsing of OSM file (imperial units).
+
+Outputs
+  Create GPX route files as well as GPX track files.
+  Read in an optional copyright.txt file and include contents in output.
+  Make better choices about what to output in the abbreviated text file.
+
+Routing
+  Allow generating a route with intermediate waypoints.
+  Use preferences for highway types instead of yes/no choice.
+  Choice of closest node to start/finish points ensures transport allowed.
+
+Visualiser
+  Added data extraction function for viewing routing database data.
+
+Web Pages
+  Include full set of web pages for creating customised online router.
+
+Documentation
+  Included NEWS.txt file.
+  Included documentation for installation of web pages.
+
+
+Version 1.0 of Routino released : Wed Apr 08 2009
+-------------------------------------------------
+
+First version.
