@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.21 2009-06-12 18:36:23 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.22 2009-06-13 10:27:49 amb Exp $
 #
 # Makefile
 #
@@ -90,6 +90,7 @@ clean:
 ########
 
 distclean: clean
+	-[ -d ../web/bin ] && cd ../web/bin/ && rm -f $(EXE)
 	-rm -f $(EXE)
 	-rm -f $(D)
 	-rm -fr .deps
