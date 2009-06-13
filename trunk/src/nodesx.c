@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.11 2009-06-13 12:43:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.12 2009-06-13 13:02:12 amb Exp $
 
  Extented Node data type functions.
 
@@ -428,8 +428,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  int i;
  int highway=0,nothighway=0;
-
- assert(!nodesx->sorted);     /* Must not be sorted */
 
  for(i=0;i<nodesx->xnumber;i++)
    {

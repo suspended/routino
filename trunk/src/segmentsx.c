@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.8 2009-05-14 18:02:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.9 2009-06-13 13:02:12 amb Exp $
 
  Extended Segment data type functions.
 
@@ -348,13 +348,15 @@ static int sort_by_id(SegmentX **a,SegmentX **b)
 /*++++++++++++++++++++++++++++++++++++++
   Remove bad segments (zero length or duplicated).
 
+  NodesX *nodesx The nodes to check.
+
   SegmentsX *segmentsx The segments to modify.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveBadSegments(SegmentsX *segmentsx)
+void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 {
  int i;
- int duplicate=0,loop=0;
+ int duplicate=0,loop=0,missing=0;
 
  assert(segmentsx->sorted);     /* Must be sorted */
 
@@ -371,15 +373,21 @@ void RemoveBadSegments(SegmentsX *segmentsx)
        loop++;
        segmentsx->sdata[i]->node1=NO_NODE;
       }
+    else if(!FindNodeX(nodesx,segmentsx->sdata[i]->node1) ||
+            !FindNodeX(nodesx,segmentsx->sdata[i]->node2))
+      {
+       missing++;
+       segmentsx->sdata[i]->node1=NO_NODE;
+      }
 
     if(!((i+1)%10000))
       {
-       printf("\rChecking: Segments=%d Duplicate=%d Loop=%d",i+1,duplicate,loop);
+       printf("\rChecking: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",i+1,duplicate,loop,missing);
        fflush(stdout);
       }
    }
 
- printf("\rChecked: Segments=%d Duplicate=%d Loop=%d  \n",segmentsx->number,duplicate,loop);
+ printf("\rChecked: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d \n",segmentsx->number,duplicate,loop,missing);
  fflush(stdout);
 }
 
