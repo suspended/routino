@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.22 2009-06-15 18:52:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.23 2009-06-15 18:56:09 amb Exp $
 
  Type definitions
 
@@ -83,10 +83,6 @@
 
 
 /* Simple Types */
-
-
-/*+ A node identifier. +*/
-typedef uint32_t node_t;
 
 
 /*+ A node, segment or way index. +*/
@@ -256,18 +252,6 @@ typedef struct _Segments Segments;
 typedef struct _Way Way;
 
 typedef struct _Ways Ways;
-
-typedef struct _NodeX NodeX;
-
-typedef struct _NodesX NodesX;
-
-typedef struct _SegmentX SegmentX;
-
-typedef struct _SegmentsX SegmentsX;
-
-typedef struct _WayX WayX;
-
-typedef struct _WaysX WaysX;
 
 
 #endif /* TYPES_H */

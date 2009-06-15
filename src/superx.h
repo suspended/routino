@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.h,v 1.2 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.h,v 1.3 2009-06-15 18:56:09 amb Exp $
 
  Header for super-node and super-segment functions.
 
@@ -25,6 +25,7 @@
 #ifndef SUPERX_H
 #define SUPERX_H    /*+ To stop multiple inclusions. +*/
 
+#include "typesx.h"
 #include "types.h"
 #include "results.h"
 #include "nodesx.h"

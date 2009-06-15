@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.34 2009-04-27 18:56:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.35 2009-06-15 18:56:09 amb Exp $
 
  Header file for function prototypes
 
@@ -41,11 +41,6 @@ void *MapFile(const char *filename);
 int OpenFile(const char *filename);
 int WriteFile(int fd,void *address,size_t length);
 void CloseFile(int fd);
-
-
-/* In osmparser.c */
-
-int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *profile);
 
 
 /* In optimiser.c */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.4 2009-06-13 13:02:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.5 2009-06-15 18:56:09 amb Exp $
 
  A header file for the extended segments.
 
@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 
+#include "typesx.h"
 #include "types.h"
 #include "segments.h"
 
