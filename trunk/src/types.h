@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.21 2009-05-14 18:02:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.22 2009-06-15 18:52:54 amb Exp $
 
  Type definitions
 
@@ -43,6 +43,13 @@
 
 /*+ Convert a bin number to a latitude or longitude. +*/
 #define bin_to_lat_long(xxx) ((float)(xxx)/1024)
+
+
+/*+ Convert radians to degrees. +*/
+#define radians_to_degrees(xxx) ((xxx)*(180.0/M_PI))
+
+/*+ Convert degrees to radians. +*/
+#define degrees_to_radians(xxx) ((xxx)*(M_PI/180.0))
 
 
 /*+ A flag to mark super-nodes and super-segments. +*/
@@ -234,10 +241,6 @@ typedef uint8_t length_t;
 
 /*+ Conversion of length_t to metres. +*/
 #define length_to_metres(xxx)  ((double)(xxx)/10.0)
-
-
-/*+ The preference scaling for a highway type. +*/
-typedef uint8_t invpref_t;
 
 
 /* Data structures */
