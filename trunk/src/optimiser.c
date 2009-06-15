@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.70 2009-05-14 18:02:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.71 2009-06-15 18:50:41 amb Exp $
 
  Routing optimiser.
 
@@ -125,10 +125,12 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
        if(!profile->highway[HIGHWAY(way->type)])
           goto endloop;
 
-       if(way->weight<profile->weight)
+       if(way->weight && way->weight<profile->weight)
           goto endloop;
 
-       if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
+       if((way->height && way->height<profile->height) ||
+          (way->width  && way->width <profile->width ) ||
+          (way->length && way->length<profile->length))
           goto endloop;
 
        if(option_quickest==0)
@@ -360,10 +362,12 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
        if(!profile->highway[HIGHWAY(way->type)])
           goto endloop;
 
-       if(way->weight<profile->weight)
+       if(way->weight && way->weight<profile->weight)
           goto endloop;
 
-       if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
+       if((way->height && way->height<profile->height) ||
+          (way->width  && way->width <profile->width ) ||
+          (way->length && way->length<profile->length))
           goto endloop;
 
        if(option_quickest==0)
@@ -581,10 +585,12 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        if(!profile->highway[HIGHWAY(way->type)])
           goto endloop;
 
-       if(way->weight<profile->weight)
+       if(way->weight && way->weight<profile->weight)
           goto endloop;
 
-       if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
+       if((way->height && way->height<profile->height) ||
+          (way->width  && way->width <profile->width ) ||
+          (way->length && way->length<profile->length))
           goto endloop;
 
        if(option_quickest==0)
@@ -708,10 +714,12 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
        if(!profile->highway[HIGHWAY(way->type)])
           goto endloop;
 
-       if(way->weight<profile->weight)
+       if(way->weight && way->weight<profile->weight)
           goto endloop;
 
-       if(way->height<profile->height || way->width<profile->width || way->length<profile->length)
+       if((way->height && way->height<profile->height) ||
+          (way->width  && way->width <profile->width ) ||
+          (way->length && way->length<profile->length))
           goto endloop;
 
        if(option_quickest==0)
