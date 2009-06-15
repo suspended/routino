@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.9 2009-05-15 17:32:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.10 2009-06-15 18:52:54 amb Exp $
 
  Routing output generator.
 
@@ -274,7 +274,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
     if(gpxtrackfile)
        fprintf(gpxtrackfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"/>\n",
-               (180/M_PI)*latitude,(180/M_PI)*longitude);
+               radians_to_degrees(latitude),radians_to_degrees(longitude));
 
     if(result->prev!=NO_NODE)
       {
@@ -329,7 +329,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
             {
              if(gpxroutefile)
                 fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>TRIP%03d</name></rtept>\n",
-                        (180/M_PI)*latitude,(180/M_PI)*longitude,
+                        radians_to_degrees(latitude),radians_to_degrees(longitude),
                         ++route_count);
             }
           else
@@ -340,7 +340,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
           if(textfile)
              fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%3.0f min\t%s\n",
-                     (180/M_PI)*latitude,(180/M_PI)*longitude,
+                     radians_to_degrees(latitude),radians_to_degrees(longitude),
                      distance_to_km(junc_distance),duration_to_minutes(junc_duration),
                      distance_to_km(cum_distance),duration_to_minutes(cum_duration),
                      WayName(ways,resultway));
@@ -353,7 +353,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
        if(textallfile)
           fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n",
-                  (180/M_PI)*latitude,(180/M_PI)*longitude,
+                  radians_to_degrees(latitude),radians_to_degrees(longitude),
                   result->node,IsSuperNode(nodes,result->node)?'*':' ',
                   distance_to_km(seg_distance),duration_to_minutes(seg_duration),
                   distance_to_km(cum_distance),duration_to_minutes(cum_duration),
@@ -365,16 +365,16 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
        if(gpxroutefile)
           fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>START</name></rtept>\n",
-                  (180/M_PI)*latitude,(180/M_PI)*longitude);
+                  radians_to_degrees(latitude),radians_to_degrees(longitude));
 
        if(textfile)
           fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%3.0f min\t\n",
-                  (180/M_PI)*latitude,(180/M_PI)*longitude,
+                  radians_to_degrees(latitude),radians_to_degrees(longitude),
                   0.0,0.0,0.0,0.0);
 
        if(textallfile)
           fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\n",
-                  (180/M_PI)*latitude,(180/M_PI)*longitude,
+                  radians_to_degrees(latitude),radians_to_degrees(longitude),
                   result->node,IsSuperNode(nodes,result->node)?'*':' ',
                   0.0,0.0,0.0,0.0);
       }
@@ -384,7 +384,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
        if(gpxroutefile)
           fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>INTER%d</name></rtept>\n",
-                  (180/M_PI)*latitude,(180/M_PI)*longitude,
+                  radians_to_degrees(latitude),radians_to_degrees(longitude),
                   ++segment_count);
       }
 
@@ -410,7 +410,7 @@ void PrintRouteTail(void)
 
  if(gpxroutefile)
     fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>FINISH</name></rtept>\n",
-            (180/M_PI)*finish_latitude,(180/M_PI)*finish_longitude);
+            radians_to_degrees(finish_latitude),radians_to_degrees(finish_longitude));
 
  /* Print the tail of the files */
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.52 2009-05-29 17:45:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.53 2009-06-15 18:52:54 amb Exp $
 
  OSM router.
 
@@ -124,12 +124,12 @@ int main(int argc,char** argv)
             {
              if(point_used[node]==0)
                {
-                point_lon[node]=(M_PI/180)*atof(argv[arg]);
+                point_lon[node]=degrees_to_radians(atof(argv[arg]));
                 point_used[node]=1;
                }
              else /* if(point_used[node]==1) */
                {
-                point_lat[node]=(M_PI/180)*atof(argv[arg]);
+                point_lat[node]=degrees_to_radians(atof(argv[arg]));
                 point_used[node]=3;
                }
              break;
@@ -140,7 +140,7 @@ int main(int argc,char** argv)
        node=atoi(&argv[arg][5]);
        if(point_used[node]&1)
           goto usage;
-       point_lon[node]=(M_PI/180)*atof(&argv[arg][7]);
+       point_lon[node]=degrees_to_radians(atof(&argv[arg][7]));
        point_used[node]+=1;
       }
     else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]) && argv[arg][6]=='=')
@@ -148,7 +148,7 @@ int main(int argc,char** argv)
        node=atoi(&argv[arg][5]);
        if(point_used[node]&2)
           goto usage;
-       point_lat[node]=(M_PI/180)*atof(&argv[arg][7]);
+       point_lat[node]=degrees_to_radians(atof(&argv[arg][7]));
        point_used[node]+=2;
       }
     else if(!strcmp(argv[arg],"--help"))
@@ -311,7 +311,7 @@ int main(int argc,char** argv)
 
        GetLatLong(OSMNodes,finish,&lat,&lon);
 
-       printf("Node %d: %3.6f %4.6f = %2.3f km\n",node,(180.0/M_PI)*lon,(180.0/M_PI)*lat,distance_to_km(dist));
+       printf("Node %d: %3.6f %4.6f = %2.3f km\n",node,radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(dist));
       }
 
     if(start==NO_NODE)

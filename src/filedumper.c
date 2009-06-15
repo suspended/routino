@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.23 2009-06-08 18:21:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.24 2009-06-15 18:52:54 amb Exp $
 
  Memory file dumper.
 
@@ -68,13 +68,13 @@ int main(int argc,char** argv)
     else if(!strncmp(argv[argc],"--visualiser",12))
        option_visualiser=1;
     else if(!strncmp(argv[argc],"--latmin",8) && argv[argc][8]=='=')
-      {latmin=(M_PI/180)*atof(&argv[argc][9]);coordcount++;}
+      {latmin=degrees_to_radians(atof(&argv[argc][9]));coordcount++;}
     else if(!strncmp(argv[argc],"--latmax",8) && argv[argc][8]=='=')
-      {latmax=(M_PI/180)*atof(&argv[argc][9]);coordcount++;}
+      {latmax=degrees_to_radians(atof(&argv[argc][9]));coordcount++;}
     else if(!strncmp(argv[argc],"--lonmin",8) && argv[argc][8]=='=')
-      {lonmin=(M_PI/180)*atof(&argv[argc][9]);coordcount++;}
+      {lonmin=degrees_to_radians(atof(&argv[argc][9]));coordcount++;}
     else if(!strncmp(argv[argc],"--lonmax",8) && argv[argc][8]=='=')
-      {lonmax=(M_PI/180)*atof(&argv[argc][9]);coordcount++;}
+      {lonmax=degrees_to_radians(atof(&argv[argc][9]));coordcount++;}
     else if(!strncmp(argv[argc],"--data",6) && argv[argc][6]=='=')
        option_data=&argv[argc][7];
     else
@@ -215,8 +215,8 @@ int main(int argc,char** argv)
     printf("Lon bins= %4d\n",OSMNodes->lonbins);
     printf("\n");
 
-    printf("Lat zero=%5d (%8.4f deg)\n",OSMNodes->latzero,(180.0/M_PI)*(double)bin_to_lat_long(OSMNodes->latzero));
-    printf("Lon zero=%5d (%8.4f deg)\n",OSMNodes->lonzero,(180.0/M_PI)*(double)bin_to_lat_long(OSMNodes->lonzero));
+    printf("Lat zero=%5d (%8.4f deg)\n",OSMNodes->latzero,radians_to_degrees(bin_to_lat_long(OSMNodes->latzero)));
+    printf("Lon zero=%5d (%8.4f deg)\n",OSMNodes->lonzero,radians_to_degrees(bin_to_lat_long(OSMNodes->lonzero)));
 
     /* Examine the segments */
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.38 2009-06-15 17:29:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.39 2009-06-15 18:52:54 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -94,8 +94,8 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
        isnode=1; isway=0; isrelation=0;
 
        m=strstr(l,"id=");  m+=4; if(*m=='"' || *m=='\'') m++; id=atoll(m);
-       m=strstr(l,"lat="); m+=5; if(*m=='"' || *m=='\'') m++; latitude=(M_PI/180)*atof(m);
-       m=strstr(l,"lon="); m+=4; if(*m=='"' || *m=='\'') m++; longitude=(M_PI/180)*atof(m);
+       m=strstr(l,"lat="); m+=5; if(*m=='"' || *m=='\'') m++; latitude=degrees_to_radians(atof(m));
+       m=strstr(l,"lon="); m+=4; if(*m=='"' || *m=='\'') m++; longitude=degrees_to_radians(atof(m));
 
        AppendNode(OSMNodes,id,latitude,longitude);
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.2 2009-06-08 18:21:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.3 2009-06-15 18:52:54 amb Exp $
 
  Extract data from Routino.
 
@@ -126,7 +126,7 @@ static void output_junctions(index_t node,float latitude,float longitude)
  while(segment);
 
  if(count!=2 || difference)
-    printf("%.6f %.6f %d\n",(180.0/M_PI)*latitude,(180.0/M_PI)*longitude,count);
+    printf("%.6f %.6f %d\n",radians_to_degrees(latitude),radians_to_degrees(longitude),count);
 }
 
 
@@ -179,7 +179,7 @@ static void output_super(index_t node,float latitude,float longitude)
  if(!IsSuperNode(OSMNodes,node))
     return;
 
- printf("%.6f %.6f n\n",(180.0/M_PI)*latitude,(180.0/M_PI)*longitude);
+ printf("%.6f %.6f n\n",radians_to_degrees(latitude),radians_to_degrees(longitude));
 
  segment=FirstSegment(OSMSegments,OSMNodes,node);
 
@@ -195,7 +195,7 @@ static void output_super(index_t node,float latitude,float longitude)
 
           GetLatLong(OSMNodes,othernode,&lat,&lon);
 
-          printf("%.6f %.6f s\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon);
+          printf("%.6f %.6f s\n",radians_to_degrees(lat),radians_to_degrees(lon));
          }
       }
 
@@ -266,9 +266,9 @@ static void output_oneway(index_t node,float latitude,float longitude)
           GetLatLong(OSMNodes,othernode,&lat,&lon);
 
           if(IsOnewayFrom(segment,node))
-             printf("%.6f %.6f %.6f %.6f\n",(180.0/M_PI)*latitude,(180.0/M_PI)*longitude,(180.0/M_PI)*lat,(180.0/M_PI)*lon);
+             printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
           else if(IsOnewayFrom(segment,othernode))
-             printf("%.6f %.6f %.6f %.6f\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon,(180.0/M_PI)*latitude,(180.0/M_PI)*longitude);
+             printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(lat),radians_to_degrees(lon),radians_to_degrees(latitude),radians_to_degrees(longitude));
          }
       }
 
@@ -508,7 +508,7 @@ static void output_limits(index_t node,float latitude,float longitude)
 
  /* Display the interesting speed limits */
 
- printf("%.6f %.6f\n",(180.0/M_PI)*latitude,(180.0/M_PI)*longitude);
+ printf("%.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude));
 
  for(i=0;i<count;i++)
    {
@@ -526,19 +526,19 @@ static void output_limits(index_t node,float latitude,float longitude)
        switch(limit_type)
          {
          case SPEED_LIMIT:
-          printf("%.6f %.6f %.0f\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon,(float)speed_to_kph(limits[i]));
+          printf("%.6f %.6f %.0f\n",radians_to_degrees(lat),radians_to_degrees(lon),(float)speed_to_kph(limits[i]));
           break;
          case WEIGHT_LIMIT:
-          printf("%.6f %.6f %.1f\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon,weight_to_tonnes(limits[i]));
+          printf("%.6f %.6f %.1f\n",radians_to_degrees(lat),radians_to_degrees(lon),weight_to_tonnes(limits[i]));
           break;
          case HEIGHT_LIMIT:
-          printf("%.6f %.6f %.1f\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon,height_to_metres(limits[i]));
+          printf("%.6f %.6f %.1f\n",radians_to_degrees(lat),radians_to_degrees(lon),height_to_metres(limits[i]));
           break;
          case WIDTH_LIMIT:
-          printf("%.6f %.6f %.1f\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon,width_to_metres(limits[i]));
+          printf("%.6f %.6f %.1f\n",radians_to_degrees(lat),radians_to_degrees(lon),width_to_metres(limits[i]));
           break;
          case LENGTH_LIMIT:
-          printf("%.6f %.6f %.1f\n",(180.0/M_PI)*lat,(180.0/M_PI)*lon,length_to_metres(limits[i]));
+          printf("%.6f %.6f %.1f\n",radians_to_degrees(lat),radians_to_degrees(lon),length_to_metres(limits[i]));
           break;
          }
       }
