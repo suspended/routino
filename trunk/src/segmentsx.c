@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.9 2009-06-13 13:02:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.10 2009-06-15 19:06:03 amb Exp $
 
  Extended Segment data type functions.
 
@@ -494,7 +494,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
        WayX *wayx1=LookupWayX(waysx,segmentsx->sdata[i-1]->segment.way);
        WayX *wayx2=LookupWayX(waysx,segmentsx->sdata[i]->segment.way);
 
-       if(wayx1==wayx2 || WaysSame(&wayx1->way,&wayx2->way))
+       if(wayx1==wayx2 || !WaysCompare(&wayx1->way,&wayx2->way))
          {
           segmentsx->sdata[i-1]->node1=NO_NODE;
           segmentsx->sdata[i-1]->node2=NO_NODE;

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.29 2009-05-31 12:30:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.30 2009-06-15 19:06:03 amb Exp $
 
  Way data type functions.
 
@@ -323,28 +323,41 @@ const char *TransportList(void)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Return 1 if the two ways are the same (in respect of their types and limits).
+  Return 0 if the two ways are the same (in respect of their types and limits),
+           otherwise return positive or negative to allow sorting.
 
-  int WaysSame Returns a comparison.
+  int WaysCompare Returns a comparison.
 
   Way *way1 The first way.
 
   Way *way2 The second way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int WaysSame(Way *way1,Way *way2)
+int WaysCompare(Way *way1,Way *way2)
 {
  if(way1==way2)
-    return(1);
+    return(0);
 
- if(way1->type  ==way2->type   &&
-    way1->allow ==way2->allow  &&
-    way1->speed ==way2->speed  &&
-    way1->weight==way2->weight &&
-    way1->height==way2->height &&
-    way1->width ==way2->width  &&
-    way1->length==way2->length)
-    return(1);
+ if(way1->type!=way2->type)
+    return((int)way1->type - (int)way2->type);
+
+ if(way1->allow!=way2->allow)
+    return((int)way1->allow - (int)way2->allow);
+
+ if(way1->speed!=way2->speed)
+    return((int)way1->speed - (int)way2->speed);
+
+ if(way1->weight!=way2->weight)
+    return((int)way1->weight - (int)way2->weight);
+
+ if(way1->height!=way2->height)
+    return((int)way1->height - (int)way2->height);
+
+ if(way1->width!=way2->width)
+    return((int)way1->width - (int)way2->width);
+
+ if(way1->length!=way2->length)
+    return((int)way1->length - (int)way2->length);
 
  return(0);
 }

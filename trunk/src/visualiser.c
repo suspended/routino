@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.3 2009-06-15 18:52:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.4 2009-06-15 19:06:03 amb Exp $
 
  Extract data from Routino.
 
@@ -118,7 +118,7 @@ static void output_junctions(index_t node,float latitude,float longitude)
     if(IsNormalSegment(segment))
        count++;
 
-    if(!WaysSame(firstway,way))
+    if(WaysCompare(firstway,way))
        difference=1;
 
     segment=NextSegment(OSMSegments,segment,node);
