@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.37 2009-06-05 16:39:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.38 2009-06-15 17:29:51 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -449,6 +449,13 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_allow_no|=Allow_Motorcar;
                }
+             if(!strcmp(k,"motor_vehicle"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                   way_allow_yes|=Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+                else
+                   way_allow_no|=Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+               }
              break;
 
             case 'n':
@@ -479,6 +486,16 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
             case 'r':
              if(!strcmp(k,"ref"))
                 way_ref=strcpy((char*)malloc(strlen(v)+1),v);
+             break;
+
+            case 'v':
+             if(!strcmp(k,"vehicle"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                   way_allow_yes|=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+                else
+                   way_allow_no|=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+               }
              break;
 
             default:
