@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.37 2009-06-13 13:02:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.38 2009-06-15 18:56:09 amb Exp $
 
  OSM planet file splitter.
 
@@ -26,7 +26,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "typesx.h"
 #include "types.h"
+#include "functionsx.h"
 #include "functions.h"
 #include "nodesx.h"
 #include "segmentsx.h"

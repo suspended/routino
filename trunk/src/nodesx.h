@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.2 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.3 2009-06-15 18:56:09 amb Exp $
 
  A header file for the extended nodes.
 
@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 
+#include "typesx.h"
 #include "types.h"
 #include "nodes.h"
 
@@ -38,8 +39,10 @@
 struct _NodeX
 {
  node_t   id;                   /*+ The node identifier. +*/
+
  float    latitude;             /*+ The node latitude. +*/
  float    longitude;            /*+ The node longitude. +*/
+
  int      super;                /*+ A marker for super nodes. +*/
 
  Node     node;                 /*+ The real node data. +*/

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.4 2009-05-31 12:30:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.5 2009-06-15 18:56:09 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 
+#include "typesx.h"
 #include "types.h"
 #include "ways.h"
 
