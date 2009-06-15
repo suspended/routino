@@ -101,7 +101,8 @@ The access Tag
    particular transport type is allowed (even if the generic access tag
    says that it is not). If the tag is present but not one of the values
    above then it is assumed that the particular form of transport is
-   forbidden.
+   forbidden. A tag named vehicle means any of the above transport types
+   that have wheels and motor_vehicle is any vehicle except a bicycle.
 
    For example a highway that has the tags: highway=service,
    service=driveway, access=private, foot=designated is a private driveway
