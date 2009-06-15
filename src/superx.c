@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.9 2009-05-14 18:02:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.10 2009-06-15 19:06:03 amb Exp $
 
  Super-Segment data type functions.
 
@@ -84,7 +84,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
       }
     else                        /* Same starting node */
       {
-       if(!WaysSame(&wayx->way,&way))
+       if(WaysCompare(&wayx->way,&way))
           difference=1;
 
        segcount+=1;
@@ -147,7 +147,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                {
                 WayX *otherwayx=LookupWayX(waysx,(*othersegmentx)->segment.way);
 
-                if(WaysSame(&otherwayx->way,&wayx->way))
+                if(!WaysCompare(&otherwayx->way,&wayx->way))
                   {
                    wayx=NULL;
                    break;
@@ -351,7 +351,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
 
        wayx=LookupWayX(waysx,(*segmentx)->segment.way);
 
-       if(!WaysSame(&wayx->way,&match->way))
+       if(WaysCompare(&wayx->way,&match->way))
           goto endloop;
 
        cumulative_distance=(distance_t)result1->score+DISTANCE((*segmentx)->segment.distance);
