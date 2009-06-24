@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.24 2009-05-29 17:45:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.25 2009-06-24 18:49:52 amb Exp $
 
  A header file for the nodes.
 
@@ -65,6 +65,8 @@ struct _Nodes
 
 /* Macros */
 
+/*+ Return a Node pointer given a set of nodes and an index. +*/
+#define LookupNode(xxx,yyy)        (&(xxx)->nodes[yyy])
 
 /*+ Return a Segment points given a Node pointer and a set of segments. +*/
 #define FirstSegment(xxx,yyy,zzz)  LookupSegment((xxx),SEGMENT((yyy)->nodes[zzz].firstseg))

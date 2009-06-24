@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.24 2009-06-15 18:52:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.25 2009-06-24 18:49:52 amb Exp $
 
  Memory file dumper.
 
@@ -40,43 +40,56 @@
 
 static char *RFC822Date(time_t t);
 
+static void print_node(Nodes* nodes,index_t item);
+static void print_segment(Segments *segments,index_t item);
+static void print_way(Ways *ways,index_t item);
 
 int main(int argc,char** argv)
 {
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
+ int   arg;
  char *dirname=NULL,*prefix=NULL;
  char *nodes_filename,*segments_filename,*ways_filename;
  int   option_statistics=0;
  int   option_visualiser=0,coordcount=0;
  float latmin=0,latmax=0,lonmin=0,lonmax=0;
  char *option_data=NULL;
+ int   option_dump=0;
 
  /* Parse the command line arguments */
 
- while(--argc>=1)
+ for(arg=1;arg<argc;arg++)
    {
-    if(!strcmp(argv[argc],"--help"))
+    if(!strcmp(argv[arg],"--help"))
        goto usage;
-    else if(!strncmp(argv[argc],"--dir=",6))
-       dirname=&argv[argc][6];
-    else if(!strncmp(argv[argc],"--prefix=",9))
-       prefix=&argv[argc][9];
-    else if(!strncmp(argv[argc],"--statistics",12))
+    else if(!strncmp(argv[arg],"--dir=",6))
+       dirname=&argv[arg][6];
+    else if(!strncmp(argv[arg],"--prefix=",9))
+       prefix=&argv[arg][9];
+    else if(!strncmp(argv[arg],"--statistics",12))
        option_statistics=1;
-    else if(!strncmp(argv[argc],"--visualiser",12))
+    else if(!strncmp(argv[arg],"--visualiser",12))
        option_visualiser=1;
-    else if(!strncmp(argv[argc],"--latmin",8) && argv[argc][8]=='=')
-      {latmin=degrees_to_radians(atof(&argv[argc][9]));coordcount++;}
-    else if(!strncmp(argv[argc],"--latmax",8) && argv[argc][8]=='=')
-      {latmax=degrees_to_radians(atof(&argv[argc][9]));coordcount++;}
-    else if(!strncmp(argv[argc],"--lonmin",8) && argv[argc][8]=='=')
-      {lonmin=degrees_to_radians(atof(&argv[argc][9]));coordcount++;}
-    else if(!strncmp(argv[argc],"--lonmax",8) && argv[argc][8]=='=')
-      {lonmax=degrees_to_radians(atof(&argv[argc][9]));coordcount++;}
-    else if(!strncmp(argv[argc],"--data",6) && argv[argc][6]=='=')
-       option_data=&argv[argc][7];
+    else if(!strncmp(argv[arg],"--dump",6))
+       option_dump=1;
+    else if(!strncmp(argv[arg],"--latmin",8) && argv[arg][8]=='=')
+      {latmin=degrees_to_radians(atof(&argv[arg][9]));coordcount++;}
+    else if(!strncmp(argv[arg],"--latmax",8) && argv[arg][8]=='=')
+      {latmax=degrees_to_radians(atof(&argv[arg][9]));coordcount++;}
+    else if(!strncmp(argv[arg],"--lonmin",8) && argv[arg][8]=='=')
+      {lonmin=degrees_to_radians(atof(&argv[arg][9]));coordcount++;}
+    else if(!strncmp(argv[arg],"--lonmax",8) && argv[arg][8]=='=')
+      {lonmax=degrees_to_radians(atof(&argv[arg][9]));coordcount++;}
+    else if(!strncmp(argv[arg],"--data",6) && argv[arg][6]=='=')
+       option_data=&argv[arg][7];
+    else if(!strncmp(argv[arg],"--node=",7))
+       ;
+    else if(!strncmp(argv[arg],"--segment=",10))
+       ;
+    else if(!strncmp(argv[arg],"--way=",6))
+       ;
     else
       {
       usage:
@@ -88,6 +101,9 @@ int main(int argc,char** argv)
                       "                  [--visualiser --latmin=<latmin> --latmax=<latmax>\n"
                       "                                --lonmin=<lonmin> --lonmax=<lonmax>\n"
                       "                                --data=<data-type>]\n"
+                      "                  [--dump --node=<node> ...\n"
+                      "                          --segment=<segment> ...\n"
+                      "                          --way=<way> ...]\n"
                       "\n"
                       "<data-type> can be selected from:\n"
                       "junctions = segment count at each junction.\n"
@@ -103,7 +119,7 @@ int main(int argc,char** argv)
       }
    }
 
- if(!option_statistics && !option_visualiser)
+ if(!option_statistics && !option_visualiser && !option_dump)
     goto usage;
 
  /* Load in the data */
@@ -185,19 +201,19 @@ int main(int argc,char** argv)
 
     stat(nodes_filename,&buf);
 
-    printf("'%s%snodes.mem'    - %ld Bytes\n",prefix?prefix:"",prefix?"-":"",buf.st_size);
+    printf("'%s%snodes.mem'    - %9ld Bytes\n",prefix?prefix:"",prefix?"-":"",buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
 
     stat(segments_filename,&buf);
 
-    printf("'%s%ssegments.mem' - %ld Bytes\n",prefix?prefix:"",prefix?"-":"",buf.st_size);
+    printf("'%s%ssegments.mem' - %9ld Bytes\n",prefix?prefix:"",prefix?"-":"",buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
 
     stat(ways_filename,&buf);
 
-    printf("'%s%sways.mem'     - %ld Bytes\n",prefix?prefix:"",prefix?"-":"",buf.st_size);
+    printf("'%s%sways.mem'     - %9ld Bytes\n",prefix?prefix:"",prefix?"-":"",buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
 
@@ -208,7 +224,7 @@ int main(int argc,char** argv)
     printf("\n");
 
     printf("sizeof(Node)=%9d Bytes\n",sizeof(Node));
-    printf("number      =%9d\n",OSMNodes->number);
+    printf("Number      =%9d\n",OSMNodes->number);
     printf("\n");
 
     printf("Lat bins= %4d\n",OSMNodes->latbins);
@@ -226,7 +242,7 @@ int main(int argc,char** argv)
     printf("\n");
 
     printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
-    printf("number         =%9d\n",OSMSegments->number);
+    printf("Number         =%9d\n",OSMSegments->number);
 
     /* Examine the ways */
 
@@ -236,10 +252,120 @@ int main(int argc,char** argv)
     printf("\n");
 
     printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
-    printf("number      =%9d\n",OSMWays->number);
+    printf("Number      =%9d\n",OSMWays->number);
+    printf("\n");
+
+    printf("Total names =%9ld Bytes\n",buf.st_size-sizeof(Ways)-OSMWays->number*sizeof(Way));
+   }
+
+ /* Print out internal data */
+
+ if(option_dump)
+   {
+    index_t item;
+
+    for(arg=1;arg<argc;arg++)
+       if(!strncmp(argv[arg],"--node=",7))
+         {
+          item=atoi(&argv[arg][7]);
+
+          print_node(OSMNodes,item);
+         }
+       else if(!strncmp(argv[arg],"--segment=",10))
+         {
+          item=atoi(&argv[arg][10]);
+
+          print_segment(OSMSegments,item);
+         }
+       else if(!strncmp(argv[arg],"--way=",6))
+         {
+          item=atoi(&argv[arg][6]);
+
+          print_way(OSMWays,item);
+         }
    }
 
  return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of a node from the routing database.
+
+  Nodes *nodes The set of nodes to use.
+
+  index_t item The node index to print.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_node(Nodes* nodes,index_t item)
+{
+ Node *node=LookupNode(nodes,item);
+ float latitude,longitude;
+
+ GetLatLong(nodes,item,&latitude,&longitude);
+
+ printf("Node %d\n",item);
+ printf("  firstseg=%d\n",node->firstseg);
+ printf("  latoffset=%d lonoffset=%d (latitude=%.5f longitude=%.5f)\n",node->latoffset,node->lonoffset,latitude,longitude);
+ if(IsSuperNode(nodes,item))
+    printf("  Super-Node\n");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of a segment from the routing database.
+
+  Segments *segments The set of segments to use.
+
+  index_t item The segment index to print.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_segment(Segments *segments,index_t item)
+{
+ Segment *segment=LookupSegment(segments,item);
+
+ printf("Segment %d\n",item);
+ printf("  node1=%d node2=%d\n",NODE(segment->node1),NODE(segment->node2));
+ printf("  next2=%d\n",segment->next2);
+ printf("  way=%d\n",segment->way);
+ printf("  distance=%d (%.3f km)\n",DISTANCE(segment->distance),distance_to_km(DISTANCE(segment->distance)));
+ if(IsSuperSegment(segment) && IsNormalSegment(segment))
+    printf("  Super-Segment AND normal Segment\n");
+ else if(IsSuperSegment(segment) && !IsNormalSegment(segment))
+    printf("  Super-Segment\n");
+ if(IsOnewayTo(segment,segment->node1))
+    printf("  One-Way from node2 to node1\n");
+ if(IsOnewayTo(segment,segment->node2))
+    printf("  One-Way from node1 to node2\n");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of a way from the routing database.
+
+  Ways *ways The set of ways to use.
+
+  index_t item The way index to print.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_way(Ways *ways,index_t item)
+{
+ Way *way=LookupWay(ways,item);
+
+ printf("Way %d\n",item);
+ printf("  name=%s\n",WayName(ways,way));
+ printf("  type=%02x (%s%s%s)\n",way->type,HighwayName(HIGHWAY(way->type)),way->type&Way_OneWay?",One-Way":"",way->type&Way_Roundabout?",Roundabout":"");
+ printf("  allow=%02x\n",way->allow);
+ if(way->speed)
+    printf("  speed=%d (%d km/hr)\n",way->speed,speed_to_kph(way->speed));
+ if(way->weight)
+    printf("  weight=%d (%.0f tonnes)\n",way->weight,weight_to_tonnes(way->weight));
+ if(way->height)
+    printf("  height=%d (%.0f m)\n",way->height,height_to_metres(way->height));
+ if(way->width)
+    printf("  width=%d (%.0f m)\n",way->width,width_to_metres(way->width));
+ if(way->length)
+    printf("  length=%d (%.0f m)\n",way->length,length_to_metres(way->length));
 }
 
 
