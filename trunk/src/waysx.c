@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.6 2009-06-25 17:46:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.7 2009-06-25 18:25:46 amb Exp $
 
  Extended Way data type functions.
 
@@ -60,7 +60,7 @@ WaysX *NewWayList(void)
  waysx->length=0;
 
  waysx->xdata=(WayX*)malloc(waysx->alloced*sizeof(WayX));
- waysx->ixdata=NULL;
+ waysx->idata=NULL;
  waysx->ndata=NULL;
 
  waysx->wnumber=0;
@@ -158,9 +158,9 @@ WayX *FindWayX(WaysX* waysx,way_t id)
 
  if(end<start)                       /* There are no ways */
     return(NULL);
- else if(id<waysx->ixdata[start]->id) /* Check key is not before start */
+ else if(id<waysx->idata[start]->id) /* Check key is not before start */
     return(NULL);
- else if(id>waysx->ixdata[end]->id)   /* Check key is not after end */
+ else if(id>waysx->idata[end]->id)   /* Check key is not after end */
     return(NULL);
  else
    {
@@ -168,20 +168,20 @@ WayX *FindWayX(WaysX* waysx,way_t id)
       {
        mid=(start+end)/2;                /* Choose mid point */
 
-       if(waysx->ixdata[mid]->id<id)      /* Mid point is too low */
+       if(waysx->idata[mid]->id<id)      /* Mid point is too low */
           start=mid+1;
-       else if(waysx->ixdata[mid]->id>id) /* Mid point is too high */
+       else if(waysx->idata[mid]->id>id) /* Mid point is too high */
           end=mid-1;
-       else                               /* Mid point is correct */
-          return(waysx->ixdata[mid]);
+       else                              /* Mid point is correct */
+          return(waysx->idata[mid]);
       }
     while((end-start)>1);
 
-    if(waysx->ixdata[start]->id==id)      /* Start is correct */
-       return(waysx->ixdata[start]);
+    if(waysx->idata[start]->id==id)      /* Start is correct */
+       return(waysx->idata[start]);
 
-    if(waysx->ixdata[end]->id==id)        /* End is correct */
-       return(waysx->ixdata[end]);
+    if(waysx->idata[end]->id==id)        /* End is correct */
+       return(waysx->idata[end]);
    }
 
  return(NULL);
@@ -250,12 +250,12 @@ void SortWayList(WaysX* waysx)
 
  /* Sort the ways by id */
 
- waysx->ixdata=malloc(waysx->number*sizeof(WayX*));
+ waysx->idata=malloc(waysx->number*sizeof(WayX*));
 
  for(i=0;i<waysx->number;i++)
-    waysx->ixdata[i]=&waysx->xdata[i];
+    waysx->idata[i]=&waysx->xdata[i];
 
- qsort(waysx->ixdata,waysx->number,sizeof(WayX*),(int (*)(const void*,const void*))sort_by_id);
+ qsort(waysx->idata,waysx->number,sizeof(WayX*),(int (*)(const void*,const void*))sort_by_id);
 
  /* Sort the ways by name and way properties */
 
