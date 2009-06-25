@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.11 2009-06-25 17:46:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.12 2009-06-25 18:17:58 amb Exp $
 
  Super-Segment data type functions.
 
@@ -51,17 +51,17 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
  int i;
  int    segcount=0,difference=0,nnodes=0;
  node_t node=0;
- Way   *way1;
+ WayX  *wayx1;
 
  /* Find super-nodes */
 
  node=segmentsx->sdata[0]->node1;
- way1=LookupWayInWayX(waysx,segmentsx->sdata[0]->segment.way);
+ wayx1=FindWayX(waysx,segmentsx->sdata[0]->way);
 
  for(i=0;i<segmentsx->number;i++)
    {
     SegmentX **segmentx=LookupSegmentX(segmentsx,i);
-    Way *way2=LookupWayInWayX(waysx,(*segmentx)->segment.way);
+    WayX *wayx2=FindWayX(waysx,(*segmentx)->way);
 
     if((*segmentx)->node1!=node)
       {
@@ -81,11 +81,11 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
        difference=0;
 
        node=(*segmentx)->node1;
-       way1=way2;
+       wayx1=wayx2;
       }
     else                        /* Same starting node */
       {
-       if(WaysCompare(way2,way1))
+       if(WaysCompare(wayx2->way,wayx1->way))
           difference=1;
 
        segcount+=1;
@@ -136,7 +136,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
        while(segmentx)
          {
-          Way *way=LookupWayInWayX(waysx,(*segmentx)->segment.way);
+          WayX *wayx=FindWayX(waysx,(*segmentx)->way);
 
           /* Check that this type of way hasn't already been routed */
 
@@ -146,11 +146,11 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
              while(othersegmentx && othersegmentx!=segmentx)
                {
-                Way *otherway=LookupWayInWayX(waysx,(*othersegmentx)->segment.way);
+                WayX *otherwayx=FindWayX(waysx,(*othersegmentx)->way);
 
-                if(!WaysCompare(otherway,way))
+                if(!WaysCompare(otherwayx->way,wayx->way))
                   {
-                   way=NULL;
+                   wayx=NULL;
                    break;
                   }
 
@@ -160,9 +160,9 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           /* Route the way and store the super-segments. */
 
-          if(way)
+          if(wayx)
             {
-             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,nodesx->gdata[i]->id,way,iteration);
+             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,nodesx->gdata[i]->id,wayx->way,iteration);
              Result *result=FirstResult(results);
 
              while(result)
@@ -177,18 +177,13 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                    if(wayx->way->type&Way_OneWay)
                      {
                       supersegment->distance=ONEWAY_1TO2|(distance_t)result->score;
-                      supersegment->way=IndexWayInWayX(waysx,wayx);
 
                       supersegment=AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->gdata[i]->id);
 
                       supersegment->distance=ONEWAY_2TO1|(distance_t)result->score;
-                      supersegment->way=IndexWayInWayX(waysx,wayx);
                      }
                    else
-                     {
                       supersegment->distance=(distance_t)result->score;
-                      supersegment->way=IndexWayInWayX(waysx,wayx);
-                     }
                   }
 
                 result=NextResult(results,result);
@@ -319,7 +314,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
  Result *result1,*result2;
  NodeX *nodex;
  SegmentX **segmentx;
- Way *way;
+ WayX *wayx;
 
  /* Insert the first node into the queue */
 
@@ -351,9 +346,9 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
        if(result1->prev==node2)
           goto endloop;
 
-       way=LookupWayInWayX(waysx,(*segmentx)->segment.way);
+       wayx=FindWayX(waysx,(*segmentx)->way);
 
-       if(WaysCompare(way,match))
+       if(WaysCompare(wayx->way,match))
           goto endloop;
 
        cumulative_distance=(distance_t)result1->score+DISTANCE((*segmentx)->segment.distance);
