@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.7 2009-06-25 18:17:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.8 2009-06-25 18:25:46 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -55,7 +55,7 @@ struct _WaysX
  uint32_t length;               /*+ How long is the string of name entries? +*/
 
  WayX    *xdata;                /*+ The extended data for the Ways (unsorted). +*/
- WayX   **ixdata;                /*+ The extended data for the Ways (sorted by ID). +*/
+ WayX   **idata;                /*+ The extended data for the Ways (sorted by ID). +*/
  WayX   **ndata;                /*+ The extended data for the Ways (sorted by name and way properties). +*/
 
  uint32_t wnumber;              /*+ How many way entries are used? +*/
