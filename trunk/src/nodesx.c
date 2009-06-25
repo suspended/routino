@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.12 2009-06-13 13:02:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.13 2009-06-25 17:46:45 amb Exp $
 
  Extented Node data type functions.
 
@@ -139,7 +139,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  WriteFile(fd,offsets,(latbins*lonbins+1)*sizeof(index_t));
 
- for(i=0;i<nodesx->number;i++)
+ for(i=0;i<nodes->number;i++)
    {
     WriteFile(fd,&nodesx->gdata[i]->node,sizeof(Node));
 
@@ -150,7 +150,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
       }
    }
 
- printf("\rWrote Nodes: Nodes=%d  \n",nodesx->number);
+ printf("\rWrote Nodes: Nodes=%d  \n",nodes->number);
  fflush(stdout);
 
  CloseFile(fd);

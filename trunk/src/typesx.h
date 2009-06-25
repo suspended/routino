@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/typesx.h,v 1.1 2009-06-15 18:56:43 amb Exp $
+ $Header: /home/amb/CVS/routino/src/typesx.h,v 1.2 2009-06-25 17:46:45 amb Exp $
 
  Type definitions for eXtended types.
 
@@ -33,6 +33,9 @@
 
 /*+ A node identifier. +*/
 typedef uint32_t node_t;
+
+/*+ A way identifier. +*/
+typedef uint32_t way_t;
 
 
 /* Data structures */
