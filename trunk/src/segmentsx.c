@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.11 2009-06-25 17:46:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.12 2009-06-25 18:17:58 amb Exp $
 
  Extended Segment data type functions.
 
@@ -43,7 +43,7 @@
 
 /* Functions */
 
-static int sort_by_id(SegmentX **a,SegmentX **b);
+static int sort_by_id_and_distance(SegmentX **a,SegmentX **b);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -296,7 +296,7 @@ void SortSegmentList(SegmentsX* segmentsx)
        segmentsx->number++;
       }
 
- qsort(segmentsx->sdata,segmentsx->number,sizeof(SegmentX*),(int (*)(const void*,const void*))sort_by_id);
+ qsort(segmentsx->sdata,segmentsx->number,sizeof(SegmentX*),(int (*)(const void*,const void*))sort_by_id_and_distance);
 
  segmentsx->sorted=1;
 
@@ -305,16 +305,16 @@ void SortSegmentList(SegmentsX* segmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the segments into id order.
+  Sort the segments into id order and then distance order.
 
-  int sort_by_id Returns the comparison of the node fields.
+  int sort_by_id_and_distance Returns the comparison of the node fields.
 
   SegmentX **a The first Segment.
 
   SegmentX **b The second Segment.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_id(SegmentX **a,SegmentX **b)
+static int sort_by_id_and_distance(SegmentX **a,SegmentX **b)
 {
  node_t a_id1=(*a)->node1;
  node_t b_id1=(*b)->node1;
@@ -354,11 +354,9 @@ static int sort_by_id(SegmentX **a,SegmentX **b)
   NodesX *nodesx The nodes to check.
 
   SegmentsX *segmentsx The segments to modify.
-
-  WaysX *waysx The ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
+void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 {
  int i;
  int duplicate=0,loop=0,missing=0;
@@ -367,10 +365,6 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    WayX *wayx=FindWayX(waysx,segmentsx->sdata[i]->way);
-
-    segmentsx->sdata[i]->segment.way=IndexWayInWayX(waysx,wayx);
-
     if(i && segmentsx->sdata[i]->node1==segmentsx->sdata[i-1]->node1 &&
             segmentsx->sdata[i]->node2==segmentsx->sdata[i-1]->node2)
       {
@@ -500,10 +494,10 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
        segmentsx->sdata[i]->segment.node2==segmentsx->sdata[i-1]->segment.node2 &&
        segmentsx->sdata[i]->segment.distance==segmentsx->sdata[i-1]->segment.distance)
       {
-       Way *way1=LookupWayInWayX(waysx,segmentsx->sdata[i-1]->segment.way);
-       Way *way2=LookupWayInWayX(waysx,segmentsx->sdata[i  ]->segment.way);
+       WayX *wayx1=FindWayX(waysx,segmentsx->sdata[i-1]->way);
+       WayX *wayx2=FindWayX(waysx,segmentsx->sdata[i  ]->way);
 
-       if(way1==way2 || !WaysCompare(way1,way2))
+       if(!WaysCompare(wayx1->way,wayx2->way))
          {
           segmentsx->sdata[i-1]->node1=NO_NODE;
           segmentsx->sdata[i-1]->node2=NO_NODE;

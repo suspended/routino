@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.3 2009-06-15 18:56:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.4 2009-06-25 18:17:58 amb Exp $
 
  A header file for the extended nodes.
 
@@ -83,7 +83,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 void MarkSuperNodes(NodesX *nodesx,int iteration);
 
-void IndexNodes(NodesX *nodesx,SegmentsX* segmentsx);
+void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 
 
 #endif /* NODESX_H */

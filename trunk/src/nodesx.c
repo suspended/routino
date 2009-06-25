@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.13 2009-06-25 17:46:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.14 2009-06-25 18:17:58 amb Exp $
 
  Extented Node data type functions.
 
@@ -32,6 +32,7 @@
 #include "functions.h"
 #include "nodesx.h"
 #include "segmentsx.h"
+#include "waysx.h"
 
 
 /* Constants */
@@ -493,14 +494,17 @@ void MarkSuperNodes(NodesX *nodesx,int iteration)
   NodesX *nodesx The list of nodes to process.
 
   SegmentsX* segmentsx The set of segments to use.
+
+  WaysX* waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void IndexNodes(NodesX *nodesx,SegmentsX* segmentsx)
+void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
  int i;
 
  assert(nodesx->sorted);        /* Must be sorted */
  assert(segmentsx->sorted);     /* Must be sorted */
+ assert(waysx->sorted);         /* Must be sorted */
 
  /* Index the nodes */
 
@@ -508,6 +512,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX* segmentsx)
    {
     NodeX *node1=FindNodeX(nodesx,segmentsx->sdata[i]->node1);
     NodeX *node2=FindNodeX(nodesx,segmentsx->sdata[i]->node2);
+    WayX  *wayx=FindWayX(waysx,segmentsx->sdata[i]->way);
+
+    segmentsx->sdata[i]->segment.way=IndexWayInWayX(waysx,wayx);
 
     /* Check node1 */
 
