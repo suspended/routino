@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.5 2009-06-15 18:56:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.6 2009-06-25 17:46:45 amb Exp $
 
  A header file for the extended segments.
 
@@ -38,8 +38,10 @@
 /*+ An extended structure used for processing. +*/
 struct _SegmentX
 {
- node_t    node1;               /*+ The starting node. +*/
- node_t    node2;               /*+ The finishing node. +*/
+ node_t    node1;               /*+ The id of the starting node. +*/
+ node_t    node2;               /*+ The id of the finishing node. +*/
+
+ way_t     way;                 /*+ The id of the way. +*/
 
  Segment   segment;             /*+ The real segment data. +*/
 };
@@ -75,11 +77,11 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 SegmentX **FindFirstSegmentX(SegmentsX* segmentsx,node_t node);
 SegmentX **FindNextSegmentX(SegmentsX* segmentsx,SegmentX **segmentx);
 
-Segment *AppendSegment(SegmentsX* segmentsx,node_t node1,node_t node2);
+Segment *AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2);
 
 void SortSegmentList(SegmentsX *segmentsx);
 
-void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
+void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx);
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.5 2009-06-15 18:56:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.6 2009-06-25 17:46:46 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -38,9 +38,11 @@
 /*+ An extended structure containing a single way. +*/
 struct _WayX
 {
+ way_t    id;                   /*+ The way identifier. +*/
+
  char    *name;                 /*+ The name of the way. +*/
 
- Way      way;                  /*+ The real Way data. +*/
+ Way     *way;                  /*+ A pointer to the real Way data. +*/
 };
 
 
@@ -52,18 +54,23 @@ struct _WaysX
  uint32_t number;               /*+ How many entries are used? +*/
  uint32_t length;               /*+ How long is the string of name entries? +*/
 
- WayX    *idata;                /*+ The extended data for the Ways (sorted by index). +*/
- WayX   **ndata;                /*+ The extended data for the Ways (sorted by name). +*/
+ WayX    *xdata;                /*+ The extended data for the Ways (unsorted). +*/
+ WayX   **ixdata;                /*+ The extended data for the Ways (sorted by ID). +*/
+ WayX   **ndata;                /*+ The extended data for the Ways (sorted by name and way properties). +*/
+
+ uint32_t wnumber;              /*+ How many way entries are used? +*/
+
+ Way     *wdata;                /*+ The data for the Ways (unsorted). +*/
+
  char    *names;                /*+ The array containing all the names. +*/
 };
 
 
 /* Macros */
+ 
+#define LookupWayInWayX(xxx,yyy) (&(xxx)->wdata[yyy])
 
-
-#define LookupWayX(xxx,yyy) (&(xxx)->idata[yyy])
-
-#define IndexWayX(xxx,yyy)  ((yyy)-&(xxx)->idata[0])
+#define IndexWayInWayX(xxx,yyy)  ((yyy->way)-&(xxx)->wdata[0])
 
 
 /* Functions */
@@ -73,7 +80,9 @@ WaysX *NewWayList(void);
 
 void SaveWayList(WaysX *waysx,const char *filename);
 
-Way *AppendWay(WaysX* waysx,const char *name);
+WayX *FindWayX(WaysX* waysx,way_t id);
+
+Way *AppendWay(WaysX* waysx,way_t id,const char *name);
 
 void SortWayList(WaysX *waysx);
 

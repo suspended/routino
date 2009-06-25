@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.10 2009-06-15 19:06:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.11 2009-06-25 17:46:45 amb Exp $
 
  Extended Segment data type functions.
 
@@ -112,7 +112,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  WriteFile(fd,segments,sizeof(Segments));
 
- for(i=0;i<segmentsx->number;i++)
+ for(i=0;i<segments->number;i++)
    {
     WriteFile(fd,&segmentsx->sdata[i]->segment,sizeof(Segment));
 
@@ -123,7 +123,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
       }
    }
 
- printf("\rWrote Segments: Segments=%d  \n",segmentsx->number);
+ printf("\rWrote Segments: Segments=%d  \n",segments->number);
  fflush(stdout);
 
  CloseFile(fd);
@@ -234,12 +234,14 @@ SegmentX **FindNextSegmentX(SegmentsX* segmentsx,SegmentX **segmentx)
 
   SegmentsX* segmentsx The set of segments to process.
 
+  way_t way The way that the segment belongs to.
+
   node_t node1 The first node in the segment.
 
   node_t node2 The second node in the segment.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segment *AppendSegment(SegmentsX* segmentsx,node_t node1,node_t node2)
+Segment *AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2)
 {
  /* Check that the array has enough space. */
 
@@ -252,6 +254,7 @@ Segment *AppendSegment(SegmentsX* segmentsx,node_t node1,node_t node2)
 
  /* Insert the segment */
 
+ segmentsx->xdata[segmentsx->xnumber].way=way;
  segmentsx->xdata[segmentsx->xnumber].node1=node1;
  segmentsx->xdata[segmentsx->xnumber].node2=node2;
 
@@ -351,9 +354,11 @@ static int sort_by_id(SegmentX **a,SegmentX **b)
   NodesX *nodesx The nodes to check.
 
   SegmentsX *segmentsx The segments to modify.
+
+  WaysX *waysx The ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
+void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
  int i;
  int duplicate=0,loop=0,missing=0;
@@ -362,6 +367,10 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  for(i=0;i<segmentsx->number;i++)
    {
+    WayX *wayx=FindWayX(waysx,segmentsx->sdata[i]->way);
+
+    segmentsx->sdata[i]->segment.way=IndexWayInWayX(waysx,wayx);
+
     if(i && segmentsx->sdata[i]->node1==segmentsx->sdata[i-1]->node1 &&
             segmentsx->sdata[i]->node2==segmentsx->sdata[i-1]->node2)
       {
@@ -491,10 +500,10 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
        segmentsx->sdata[i]->segment.node2==segmentsx->sdata[i-1]->segment.node2 &&
        segmentsx->sdata[i]->segment.distance==segmentsx->sdata[i-1]->segment.distance)
       {
-       WayX *wayx1=LookupWayX(waysx,segmentsx->sdata[i-1]->segment.way);
-       WayX *wayx2=LookupWayX(waysx,segmentsx->sdata[i]->segment.way);
+       Way *way1=LookupWayInWayX(waysx,segmentsx->sdata[i-1]->segment.way);
+       Way *way2=LookupWayInWayX(waysx,segmentsx->sdata[i  ]->segment.way);
 
-       if(wayx1==wayx2 || !WaysCompare(&wayx1->way,&wayx2->way))
+       if(way1==way2 || !WaysCompare(way1,way2))
          {
           segmentsx->sdata[i-1]->node1=NO_NODE;
           segmentsx->sdata[i-1]->node2=NO_NODE;

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.h,v 1.3 2009-06-15 18:56:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.h,v 1.4 2009-06-25 17:46:45 amb Exp $
 
  Header for super-node and super-segment functions.
 
@@ -39,7 +39,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
 void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx);
 
-Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,WayX *match,int iteration);
+Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match,int iteration);
 
 
 #endif /* SUPERX_H */
