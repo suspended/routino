@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.7 2009-06-25 18:25:46 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.8 2009-06-29 16:46:09 amb Exp $
 
  Extended Way data type functions.
 
@@ -286,7 +286,7 @@ void SortWayList(WaysX* waysx)
           waysx->ndata[i]->way=waysx->ndata[i-1]->way;
        else
          {
-          memmove(&uniq_ways[j],waysx->ndata[i]->way,sizeof(Way));
+          uniq_ways[j]=*waysx->ndata[i]->way;
           waysx->ndata[i]->way=&uniq_ways[j++];
          }
       }
@@ -305,7 +305,7 @@ void SortWayList(WaysX* waysx)
 
        waysx->length+=strlen(waysx->ndata[i]->name)+1;
 
-       memmove(&uniq_ways[j],waysx->ndata[i]->way,sizeof(Way));
+       uniq_ways[j]=*waysx->ndata[i]->way;
        waysx->ndata[i]->way=&uniq_ways[j++];
       }
    }
