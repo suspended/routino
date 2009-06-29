@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.14 2009-06-25 18:17:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.15 2009-06-29 16:45:50 amb Exp $
 
  Extented Node data type functions.
 
@@ -510,11 +510,11 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    NodeX *node1=FindNodeX(nodesx,segmentsx->sdata[i]->node1);
-    NodeX *node2=FindNodeX(nodesx,segmentsx->sdata[i]->node2);
-    WayX  *wayx=FindWayX(waysx,segmentsx->sdata[i]->way);
+    NodeX *node1=FindNodeX(nodesx,segmentsx->ndata[i]->node1);
+    NodeX *node2=FindNodeX(nodesx,segmentsx->ndata[i]->node2);
+    WayX  *wayx=FindWayX(waysx,segmentsx->ndata[i]->way);
 
-    segmentsx->sdata[i]->segment.way=IndexWayInWayX(waysx,wayx);
+    segmentsx->ndata[i]->segment.way=IndexWayInWayX(waysx,wayx);
 
     /* Check node1 */
 
@@ -529,11 +529,11 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
        do
          {
-          if((*segmentx)->node1==segmentsx->sdata[i]->node1)
+          if((*segmentx)->node1==segmentsx->ndata[i]->node1)
             {
              segmentx++;
 
-             if((*segmentx)->node1!=segmentsx->sdata[i]->node1 || (segmentx-segmentsx->sdata)>=segmentsx->number)
+             if((*segmentx)->node1!=segmentsx->ndata[i]->node1 || (segmentx-segmentsx->ndata)>=segmentsx->number)
                 segmentx=NULL;
             }
           else
@@ -563,11 +563,11 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
        do
          {
-          if((*segmentx)->node1==segmentsx->sdata[i]->node2)
+          if((*segmentx)->node1==segmentsx->ndata[i]->node2)
             {
              segmentx++;
 
-             if((*segmentx)->node1!=segmentsx->sdata[i]->node2 || (segmentx-segmentsx->sdata)>=segmentsx->number)
+             if((*segmentx)->node1!=segmentsx->ndata[i]->node2 || (segmentx-segmentsx->ndata)>=segmentsx->number)
                 segmentx=NULL;
             }
           else
