@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.12 2009-06-25 18:17:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.13 2009-06-29 16:45:50 amb Exp $
 
  Extended Segment data type functions.
 
@@ -63,7 +63,7 @@ SegmentsX *NewSegmentList(void)
  segmentsx->xnumber=0;
 
  segmentsx->xdata=(SegmentX*)malloc(segmentsx->alloced*sizeof(SegmentX));
- segmentsx->sdata=NULL;
+ segmentsx->ndata=NULL;
 
  return(segmentsx);
 }
@@ -78,7 +78,7 @@ SegmentsX *NewSegmentList(void)
 void FreeSegmentList(SegmentsX *segmentsx)
 {
  free(segmentsx->xdata);
- free(segmentsx->sdata);
+ free(segmentsx->ndata);
  free(segmentsx);
 }
 
@@ -114,7 +114,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  for(i=0;i<segments->number;i++)
    {
-    WriteFile(fd,&segmentsx->sdata[i]->segment,sizeof(Segment));
+    WriteFile(fd,&segmentsx->ndata[i]->segment,sizeof(Segment));
 
     if(!((i+1)%10000))
       {
@@ -166,9 +166,9 @@ SegmentX **FindFirstSegmentX(SegmentsX* segmentsx,node_t node)
 
  if(end<start)                                /* There are no nodes */
     return(NULL);
- else if(node<segmentsx->sdata[start]->node1) /* Check key is not before start */
+ else if(node<segmentsx->ndata[start]->node1) /* Check key is not before start */
     return(NULL);
- else if(node>segmentsx->sdata[end]->node1)   /* Check key is not after end */
+ else if(node>segmentsx->ndata[end]->node1)   /* Check key is not after end */
     return(NULL);
  else
    {
@@ -176,19 +176,19 @@ SegmentX **FindFirstSegmentX(SegmentsX* segmentsx,node_t node)
       {
        mid=(start+end)/2;                         /* Choose mid point */
 
-       if(segmentsx->sdata[mid]->node1<node)      /* Mid point is too low */
+       if(segmentsx->ndata[mid]->node1<node)      /* Mid point is too low */
           start=mid;
-       else if(segmentsx->sdata[mid]->node1>node) /* Mid point is too high */
+       else if(segmentsx->ndata[mid]->node1>node) /* Mid point is too high */
           end=mid;
        else                                       /* Mid point is correct */
          {found=mid; goto found;}
       }
     while((end-start)>1);
 
-    if(segmentsx->sdata[start]->node1==node)      /* Start is correct */
+    if(segmentsx->ndata[start]->node1==node)      /* Start is correct */
          {found=start; goto found;}
 
-    if(segmentsx->sdata[end]->node1==node)        /* End is correct */
+    if(segmentsx->ndata[end]->node1==node)        /* End is correct */
          {found=end; goto found;}
    }
 
@@ -196,10 +196,10 @@ SegmentX **FindFirstSegmentX(SegmentsX* segmentsx,node_t node)
 
  found:
 
- while(found>0 && segmentsx->sdata[found-1]->node1==node)
+ while(found>0 && segmentsx->ndata[found-1]->node1==node)
     found--;
 
- return(&segmentsx->sdata[found]);
+ return(&segmentsx->ndata[found]);
 }
 
 
@@ -217,7 +217,7 @@ SegmentX **FindNextSegmentX(SegmentsX* segmentsx,SegmentX **segmentx)
 {
  SegmentX **next=segmentx+1;
 
- if((next-segmentsx->sdata)==segmentsx->number)
+ if((next-segmentsx->ndata)==segmentsx->number)
     return(NULL);
 
  if((*next)->node1==(*segmentx)->node1)
@@ -283,20 +283,20 @@ void SortSegmentList(SegmentsX* segmentsx)
  /* Allocate the arrays of pointers */
 
  if(segmentsx->sorted)
-    segmentsx->sdata=realloc(segmentsx->sdata,segmentsx->xnumber*sizeof(SegmentX*));
+    segmentsx->ndata=realloc(segmentsx->ndata,segmentsx->xnumber*sizeof(SegmentX*));
  else
-    segmentsx->sdata=malloc(segmentsx->xnumber*sizeof(SegmentX*));
+    segmentsx->ndata=malloc(segmentsx->xnumber*sizeof(SegmentX*));
 
  segmentsx->number=0;
 
  for(i=0;i<segmentsx->xnumber;i++)
     if(segmentsx->xdata[i].node1!=NO_NODE)
       {
-       segmentsx->sdata[segmentsx->number]=&segmentsx->xdata[i];
+       segmentsx->ndata[segmentsx->number]=&segmentsx->xdata[i];
        segmentsx->number++;
       }
 
- qsort(segmentsx->sdata,segmentsx->number,sizeof(SegmentX*),(int (*)(const void*,const void*))sort_by_id_and_distance);
+ qsort(segmentsx->ndata,segmentsx->number,sizeof(SegmentX*),(int (*)(const void*,const void*))sort_by_id_and_distance);
 
  segmentsx->sorted=1;
 
@@ -365,22 +365,22 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    if(i && segmentsx->sdata[i]->node1==segmentsx->sdata[i-1]->node1 &&
-            segmentsx->sdata[i]->node2==segmentsx->sdata[i-1]->node2)
+    if(i && segmentsx->ndata[i]->node1==segmentsx->ndata[i-1]->node1 &&
+            segmentsx->ndata[i]->node2==segmentsx->ndata[i-1]->node2)
       {
        duplicate++;
-       segmentsx->sdata[i-1]->node1=NO_NODE;
+       segmentsx->ndata[i-1]->node1=NO_NODE;
       }
-    else if(segmentsx->sdata[i]->node1==segmentsx->sdata[i]->node2)
+    else if(segmentsx->ndata[i]->node1==segmentsx->ndata[i]->node2)
       {
        loop++;
-       segmentsx->sdata[i]->node1=NO_NODE;
+       segmentsx->ndata[i]->node1=NO_NODE;
       }
-    else if(!FindNodeX(nodesx,segmentsx->sdata[i]->node1) ||
-            !FindNodeX(nodesx,segmentsx->sdata[i]->node2))
+    else if(!FindNodeX(nodesx,segmentsx->ndata[i]->node1) ||
+            !FindNodeX(nodesx,segmentsx->ndata[i]->node2))
       {
        missing++;
-       segmentsx->sdata[i]->node1=NO_NODE;
+       segmentsx->ndata[i]->node1=NO_NODE;
       }
 
     if(!((i+1)%10000))
@@ -411,12 +411,12 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    NodeX *node1=FindNodeX(nodesx,segmentsx->sdata[i]->node1);
-    NodeX *node2=FindNodeX(nodesx,segmentsx->sdata[i]->node2);
+    NodeX *node1=FindNodeX(nodesx,segmentsx->ndata[i]->node1);
+    NodeX *node2=FindNodeX(nodesx,segmentsx->ndata[i]->node2);
 
     /* Set the distance but preserve the ONEWAY_* flags */
 
-    segmentsx->sdata[i]->segment.distance|=DistanceX(node1,node2);
+    segmentsx->ndata[i]->segment.distance|=DistanceX(node1,node2);
 
     if(!((i+1)%10000))
       {
@@ -446,14 +446,14 @@ void RotateSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    if(segmentsx->sdata[i]->node1>segmentsx->sdata[i]->node2)
+    if(segmentsx->ndata[i]->node1>segmentsx->ndata[i]->node2)
       {
-       segmentsx->sdata[i]->node1^=segmentsx->sdata[i]->node2;
-       segmentsx->sdata[i]->node2^=segmentsx->sdata[i]->node1;
-       segmentsx->sdata[i]->node1^=segmentsx->sdata[i]->node2;
+       segmentsx->ndata[i]->node1^=segmentsx->ndata[i]->node2;
+       segmentsx->ndata[i]->node2^=segmentsx->ndata[i]->node1;
+       segmentsx->ndata[i]->node1^=segmentsx->ndata[i]->node2;
 
-       if(segmentsx->sdata[i]->segment.distance&(ONEWAY_2TO1|ONEWAY_1TO2))
-          segmentsx->sdata[i]->segment.distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+       if(segmentsx->ndata[i]->segment.distance&(ONEWAY_2TO1|ONEWAY_1TO2))
+          segmentsx->ndata[i]->segment.distance^=ONEWAY_2TO1|ONEWAY_1TO2;
 
        rotated++;
       }
@@ -488,19 +488,19 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  for(i=1;i<segmentsx->number;i++)
    {
-    if(segmentsx->sdata[i]->node1==segmentsx->sdata[i-1]->node1 &&
-       segmentsx->sdata[i]->node2==segmentsx->sdata[i-1]->node2 &&
-       segmentsx->sdata[i]->segment.node1==segmentsx->sdata[i-1]->segment.node1 &&
-       segmentsx->sdata[i]->segment.node2==segmentsx->sdata[i-1]->segment.node2 &&
-       segmentsx->sdata[i]->segment.distance==segmentsx->sdata[i-1]->segment.distance)
+    if(segmentsx->ndata[i]->node1==segmentsx->ndata[i-1]->node1 &&
+       segmentsx->ndata[i]->node2==segmentsx->ndata[i-1]->node2 &&
+       segmentsx->ndata[i]->segment.node1==segmentsx->ndata[i-1]->segment.node1 &&
+       segmentsx->ndata[i]->segment.node2==segmentsx->ndata[i-1]->segment.node2 &&
+       segmentsx->ndata[i]->segment.distance==segmentsx->ndata[i-1]->segment.distance)
       {
-       WayX *wayx1=FindWayX(waysx,segmentsx->sdata[i-1]->way);
-       WayX *wayx2=FindWayX(waysx,segmentsx->sdata[i  ]->way);
+       WayX *wayx1=FindWayX(waysx,segmentsx->ndata[i-1]->way);
+       WayX *wayx2=FindWayX(waysx,segmentsx->ndata[i  ]->way);
 
        if(!WaysCompare(wayx1->way,wayx2->way))
          {
-          segmentsx->sdata[i-1]->node1=NO_NODE;
-          segmentsx->sdata[i-1]->node2=NO_NODE;
+          segmentsx->ndata[i-1]->node1=NO_NODE;
+          segmentsx->ndata[i-1]->node2=NO_NODE;
 
           duplicate++;
          }
@@ -547,7 +547,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
           segmentx++;
 
-          if((*segmentx)->node1!=nodesx->gdata[i]->id || (segmentx-segmentsx->sdata)>=segmentsx->number)
+          if((*segmentx)->node1!=nodesx->gdata[i]->id || (segmentx-segmentsx->ndata)>=segmentsx->number)
              segmentx=NULL;
          }
        else
