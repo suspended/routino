@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.13 2009-06-29 16:45:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.14 2009-06-29 17:39:20 amb Exp $
 
  Extended Segment data type functions.
 
@@ -334,8 +334,8 @@ static int sort_by_id_and_distance(SegmentX **a,SegmentX **b)
        return(1);
     else
       {
-       distance_t a_distance=(*a)->segment.distance;
-       distance_t b_distance=(*b)->segment.distance;
+       distance_t a_distance=DISTANCE((*a)->segment.distance);
+       distance_t b_distance=DISTANCE((*b)->segment.distance);
 
        if(a_distance<b_distance)
           return(-1);
@@ -416,7 +416,7 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
     /* Set the distance but preserve the ONEWAY_* flags */
 
-    segmentsx->ndata[i]->segment.distance|=DistanceX(node1,node2);
+    segmentsx->ndata[i]->segment.distance|=DISTANCE(DistanceX(node1,node2));
 
     if(!((i+1)%10000))
       {
@@ -490,8 +490,6 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
    {
     if(segmentsx->ndata[i]->node1==segmentsx->ndata[i-1]->node1 &&
        segmentsx->ndata[i]->node2==segmentsx->ndata[i-1]->node2 &&
-       segmentsx->ndata[i]->segment.node1==segmentsx->ndata[i-1]->segment.node1 &&
-       segmentsx->ndata[i]->segment.node2==segmentsx->ndata[i-1]->segment.node2 &&
        segmentsx->ndata[i]->segment.distance==segmentsx->ndata[i-1]->segment.distance)
       {
        WayX *wayx1=FindWayX(waysx,segmentsx->ndata[i-1]->way);

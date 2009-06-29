@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.15 2009-06-29 16:45:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.16 2009-06-29 17:39:20 amb Exp $
 
  Extented Node data type functions.
 
@@ -468,13 +468,13 @@ void MarkSuperNodes(NodesX *nodesx,int iteration)
 
  for(i=0;i<nodesx->number;i++)
    {
+    nodesx->gdata[i]->node.firstseg=SEGMENT(NO_SEGMENT);
+
     if(nodesx->gdata[i]->super==iteration)
       {
-       nodesx->gdata[i]->node.firstseg=SEGMENT(NO_SEGMENT)|SUPER_FLAG;
+       nodesx->gdata[i]->node.firstseg|=NODE_SUPER;
        nnodes++;
       }
-    else
-       nodesx->gdata[i]->node.firstseg=SEGMENT(NO_SEGMENT);
 
     if(!((i+1)%10000))
       {
