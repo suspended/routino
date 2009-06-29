@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.25 2009-06-24 18:49:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.26 2009-06-29 17:39:20 amb Exp $
 
  Memory file dumper.
 
@@ -325,7 +325,7 @@ static void print_segment(Segments *segments,index_t item)
  Segment *segment=LookupSegment(segments,item);
 
  printf("Segment %d\n",item);
- printf("  node1=%d node2=%d\n",NODE(segment->node1),NODE(segment->node2));
+ printf("  node1=%d node2=%d\n",segment->node1,segment->node2);
  printf("  next2=%d\n",segment->next2);
  printf("  way=%d\n",segment->way);
  printf("  distance=%d (%.3f km)\n",DISTANCE(segment->distance),distance_to_km(DISTANCE(segment->distance)));

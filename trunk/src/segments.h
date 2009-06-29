@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.30 2009-04-08 16:54:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.31 2009-06-29 17:39:20 amb Exp $
 
  A header file for the segments.
 
@@ -66,19 +66,19 @@ struct _Segments
 #define LookupSegment(xxx,yyy) (&(xxx)->segments[yyy])
 
 /*+ Return true if this is a normal segment. +*/
-#define IsNormalSegment(xxx)   (((xxx)->node1)&SUPER_FLAG)
+#define IsNormalSegment(xxx)   (((xxx)->distance)&SEGMENT_NORMAL)
 
 /*+ Return true if this is a super-segment. +*/
-#define IsSuperSegment(xxx)    (((xxx)->node2)&SUPER_FLAG)
+#define IsSuperSegment(xxx)    (((xxx)->distance)&SEGMENT_SUPER)
 
 /*+ Return true if the segment is oneway towards the specified node. +*/
-#define IsOnewayTo(xxx,yyy)    ((NODE((xxx)->node1)==(yyy))?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
+#define IsOnewayTo(xxx,yyy)    ((xxx)->node1==(yyy)?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
 
 /*+ Return true if the segment is oneway from the specified node. +*/
-#define IsOnewayFrom(xxx,yyy)  ((NODE((xxx)->node2)==(yyy))?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
+#define IsOnewayFrom(xxx,yyy)  ((xxx)->node2==(yyy)?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
 
 /*+ Return the other node in the segment that is not the specified node. +*/
-#define OtherNode(xxx,yyy)     ((NODE((xxx)->node1)==(yyy))?NODE((xxx)->node2):NODE((xxx)->node1))
+#define OtherNode(xxx,yyy)     ((xxx)->node1==(yyy)?(xxx)->node2:(xxx)->node1)
 
 
 /* Functions */

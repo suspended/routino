@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.23 2009-06-15 18:56:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.24 2009-06-29 17:39:20 amb Exp $
 
  Type definitions
 
@@ -52,30 +52,33 @@
 #define degrees_to_radians(xxx) ((xxx)*(M_PI/180.0))
 
 
-/*+ A flag to mark super-nodes and super-segments. +*/
-#define SUPER_FLAG   ((index_t)0x80000000)
+/*+ A flag to mark a node as a super-node. +*/
+#define NODE_SUPER   ((index_t)0x80000000)
 
-/*+ A node index excluding the super-node flag. +*/
-#define NODE(xxx)    (index_t)((xxx)&(~SUPER_FLAG))
+/*+ A segment index excluding the super-node flag. +*/
+#define SEGMENT(xxx) (index_t)((xxx)&(~NODE_SUPER))
 
 /*+ An undefined node index. +*/
 #define NO_NODE      (~(index_t)0)
-
-/*+ A segment index excluding the super-segment flag. +*/
-#define SEGMENT(xxx) (index_t)((xxx)&(~SUPER_FLAG))
 
 /*+ An undefined segment index. +*/
 #define NO_SEGMENT   (~(index_t)0)
 
 
-/*+ A flag to mark a distance as only applying from node1 to node2. +*/
-#define ONEWAY_1TO2  ((distance_t)0x80000000)
+/*+ A flag to mark a segment as one-way from node1 to node2. +*/
+#define ONEWAY_1TO2    ((distance_t)0x80000000)
 
-/*+ A flag to mark a distance as only applying from node2 to node1. +*/
-#define ONEWAY_2TO1  ((distance_t)0x40000000)
+/*+ A flag to mark a segment as one-way node2 to node1. +*/
+#define ONEWAY_2TO1    ((distance_t)0x40000000)
 
-/*+ The real distance ignoring the ONEWAY_* flags. +*/
-#define DISTANCE(xx) (distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1)))
+/*+ A flag to mark a segment as a super-segment. +*/
+#define SEGMENT_SUPER  ((distance_t)0x20000000)
+
+/*+ A flag to mark a segment as a normal segment. +*/
+#define SEGMENT_NORMAL ((distance_t)0x10000000)
+
+/*+ The real distance ignoring the ONEWAY_* and SEGMENT_* flags. +*/
+#define DISTANCE(xx) (distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
 
 
 /*+ A very large almost infinite score. +*/

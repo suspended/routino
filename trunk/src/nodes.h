@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.25 2009-06-24 18:49:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.26 2009-06-29 17:39:20 amb Exp $
 
  A header file for the nodes.
 
@@ -72,7 +72,7 @@ struct _Nodes
 #define FirstSegment(xxx,yyy,zzz)  LookupSegment((xxx),SEGMENT((yyy)->nodes[zzz].firstseg))
 
 /*+ Return true if this is a super-node. +*/
-#define IsSuperNode(xxx,yyy)       (((xxx)->nodes[yyy].firstseg)&SUPER_FLAG)
+#define IsSuperNode(xxx,yyy)       (((xxx)->nodes[yyy].firstseg)&NODE_SUPER)
 
 
 /* Functions */

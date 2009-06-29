@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.13 2009-06-29 16:45:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.14 2009-06-29 17:39:20 amb Exp $
 
  Super-Segment data type functions.
 
@@ -231,8 +231,6 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
  for(i=0,j=0;i<n;i++)
    {
-    segmentsx->ndata[i]->segment.node1=SUPER_FLAG; /* mark as normal segment */
-
     segmentsx->ndata[i]->segment.next2=NO_NODE;
 
     while(j<supersegmentsx->number)
@@ -241,7 +239,7 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
           segmentsx->ndata[i]->node2==supersegmentsx->ndata[j]->node2 &&
           segmentsx->ndata[i]->segment.distance==supersegmentsx->ndata[j]->segment.distance)
          {
-          segmentsx->ndata[i]->segment.node2=SUPER_FLAG; /* mark as super-segment */
+          segmentsx->ndata[i]->segment.distance|=SEGMENT_SUPER; /* mark as super-segment */
           supersegmentsx->ndata[j]=NULL;
           j++;
           break;
@@ -249,18 +247,18 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
        else if(segmentsx->ndata[i]->node1==supersegmentsx->ndata[j]->node1 &&
                segmentsx->ndata[i]->node2==supersegmentsx->ndata[j]->node2)
          {
-          supersegmentsx->ndata[j]->segment.node2=SUPER_FLAG; /* mark as super-segment */
+          supersegmentsx->ndata[j]->segment.distance|=SEGMENT_SUPER; /* mark as super-segment */
           supersegmentsx->ndata[j]->segment.next2=NO_NODE;
          }
        else if(segmentsx->ndata[i]->node1==supersegmentsx->ndata[j]->node1 &&
                segmentsx->ndata[i]->node2>supersegmentsx->ndata[j]->node2)
          {
-          supersegmentsx->ndata[j]->segment.node2=SUPER_FLAG; /* mark as super-segment */
+          supersegmentsx->ndata[j]->segment.distance|=SEGMENT_SUPER; /* mark as super-segment */
           supersegmentsx->ndata[j]->segment.next2=NO_NODE;
          }
        else if(segmentsx->ndata[i]->node1>supersegmentsx->ndata[j]->node1)
          {
-          supersegmentsx->ndata[j]->segment.node2=SUPER_FLAG; /* mark as super-segment */
+          supersegmentsx->ndata[j]->segment.distance|=SEGMENT_SUPER; /* mark as super-segment */
           supersegmentsx->ndata[j]->segment.next2=NO_NODE;
          }
        else
@@ -268,6 +266,8 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
        j++;
       }
+
+    segmentsx->ndata[i]->segment.distance|=SEGMENT_NORMAL; /* mark as normal segment */
 
     if(!((i+1)%10000))
       {
