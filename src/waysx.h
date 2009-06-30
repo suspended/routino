@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.8 2009-06-25 18:25:46 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.9 2009-06-30 18:32:42 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -64,11 +64,6 @@ struct _WaysX
 
  char    *names;                /*+ The array containing all the names. +*/
 };
-
-
-/* Macros */
- 
-#define IndexWayInWayX(xxx,yyy)  ((yyy->way)-&(xxx)->wdata[0])
 
 
 /* Functions */

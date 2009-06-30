@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.14 2009-06-29 17:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.15 2009-06-30 18:32:42 amb Exp $
 
  Extended Segment data type functions.
 
@@ -61,9 +61,12 @@ SegmentsX *NewSegmentList(void)
  segmentsx->sorted=0;
  segmentsx->alloced=INCREMENT_SEGMENTS;
  segmentsx->xnumber=0;
+ segmentsx->number=0;
 
  segmentsx->xdata=(SegmentX*)malloc(segmentsx->alloced*sizeof(SegmentX));
  segmentsx->ndata=NULL;
+
+ segmentsx->sdata=NULL;
 
  return(segmentsx);
 }
@@ -77,6 +80,8 @@ SegmentsX *NewSegmentList(void)
 
 void FreeSegmentList(SegmentsX *segmentsx)
 {
+ if(segmentsx->sdata)
+    free(segmentsx->sdata);
  free(segmentsx->xdata);
  free(segmentsx->ndata);
  free(segmentsx);
@@ -114,7 +119,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  for(i=0;i<segments->number;i++)
    {
-    WriteFile(fd,&segmentsx->ndata[i]->segment,sizeof(Segment));
+    WriteFile(fd,&segmentsx->sdata[i],sizeof(Segment));
 
     if(!((i+1)%10000))
       {
@@ -230,8 +235,6 @@ SegmentX **FindNextSegmentX(SegmentsX* segmentsx,SegmentX **segmentx)
 /*++++++++++++++++++++++++++++++++++++++
   Append a segment to a segment list.
 
-  Segment *AppendSegment Returns the appended segment.
-
   SegmentsX* segmentsx The set of segments to process.
 
   way_t way The way that the segment belongs to.
@@ -241,7 +244,7 @@ SegmentX **FindNextSegmentX(SegmentsX* segmentsx,SegmentX **segmentx)
   node_t node2 The second node in the segment.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segment *AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2)
+void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance)
 {
  /* Check that the array has enough space. */
 
@@ -257,14 +260,11 @@ Segment *AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2)
  segmentsx->xdata[segmentsx->xnumber].way=way;
  segmentsx->xdata[segmentsx->xnumber].node1=node1;
  segmentsx->xdata[segmentsx->xnumber].node2=node2;
-
- memset(&segmentsx->xdata[segmentsx->xnumber].segment,0,sizeof(Segment));
+ segmentsx->xdata[segmentsx->xnumber].distance=distance;
 
  segmentsx->xnumber++;
 
  segmentsx->sorted=0;
-
- return(&segmentsx->xdata[segmentsx->xnumber-1].segment);
 }
 
 
@@ -334,8 +334,8 @@ static int sort_by_id_and_distance(SegmentX **a,SegmentX **b)
        return(1);
     else
       {
-       distance_t a_distance=DISTANCE((*a)->segment.distance);
-       distance_t b_distance=DISTANCE((*b)->segment.distance);
+       distance_t a_distance=DISTANCE((*a)->distance);
+       distance_t b_distance=DISTANCE((*b)->distance);
 
        if(a_distance<b_distance)
           return(-1);
@@ -416,7 +416,7 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
     /* Set the distance but preserve the ONEWAY_* flags */
 
-    segmentsx->ndata[i]->segment.distance|=DISTANCE(DistanceX(node1,node2));
+    segmentsx->ndata[i]->distance|=DISTANCE(DistanceX(node1,node2));
 
     if(!((i+1)%10000))
       {
@@ -452,8 +452,8 @@ void RotateSegments(SegmentsX* segmentsx,NodesX *nodesx)
        segmentsx->ndata[i]->node2^=segmentsx->ndata[i]->node1;
        segmentsx->ndata[i]->node1^=segmentsx->ndata[i]->node2;
 
-       if(segmentsx->ndata[i]->segment.distance&(ONEWAY_2TO1|ONEWAY_1TO2))
-          segmentsx->ndata[i]->segment.distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+       if(segmentsx->ndata[i]->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
+          segmentsx->ndata[i]->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
 
        rotated++;
       }
@@ -490,7 +490,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
    {
     if(segmentsx->ndata[i]->node1==segmentsx->ndata[i-1]->node1 &&
        segmentsx->ndata[i]->node2==segmentsx->ndata[i-1]->node2 &&
-       segmentsx->ndata[i]->segment.distance==segmentsx->ndata[i-1]->segment.distance)
+       segmentsx->ndata[i]->distance==segmentsx->ndata[i-1]->distance)
       {
        WayX *wayx1=FindWayX(waysx,segmentsx->ndata[i-1]->way);
        WayX *wayx2=FindWayX(waysx,segmentsx->ndata[i  ]->way);
@@ -517,6 +517,46 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Create the real segments data.
+
+  SegmentsX* segmentsx The set of segments to use.
+
+  WaysX* waysx The set of ways to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
+{
+ int i;
+
+ /* Allocate the memory */
+
+ segmentsx->sdata=(Segment*)malloc(segmentsx->number*sizeof(Segment));
+
+ /* Loop through and allocate. */
+
+ for(i=0;i<segmentsx->number;i++)
+   {
+    WayX *wayx=FindWayX(waysx,segmentsx->ndata[i]->way);
+
+    segmentsx->sdata[i].node1=0;
+    segmentsx->sdata[i].node2=0;
+    segmentsx->sdata[i].next2=NO_NODE;
+    segmentsx->sdata[i].way=wayx->way-waysx->wdata;
+    segmentsx->sdata[i].distance=segmentsx->ndata[i]->distance;
+
+    if(!((i+1)%10000))
+      {
+       printf("\rCreating Real Segments: Segments=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ printf("\rCreating Real Segments: Segments=%d \n",segmentsx->number);
+ fflush(stdout);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Assign the nodes indexes to the segments.
 
   SegmentsX* segmentsx The set of segments to process.
@@ -529,36 +569,37 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
  int i;
 
  assert(segmentsx->sorted);     /* Must be sorted */
+ assert(segmentsx->sdata);      /* Must have real segments */
  assert(nodesx->sorted);        /* Must be sorted */
 
  /* Index the segments */
 
  for(i=0;i<nodesx->number;i++)
    {
-    SegmentX **segmentx=LookupSegmentX(segmentsx,SEGMENT(nodesx->gdata[i]->node.firstseg));
+    index_t index=SEGMENT(nodesx->gdata[i]->node.firstseg);
 
     do
       {
-       if((*segmentx)->node1==nodesx->gdata[i]->id)
+       if(segmentsx->ndata[index]->node1==nodesx->gdata[i]->id)
          {
-          (*segmentx)->segment.node1|=i;
+          segmentsx->sdata[index].node1=i;
 
-          segmentx++;
+          index++;
 
-          if((*segmentx)->node1!=nodesx->gdata[i]->id || (segmentx-segmentsx->ndata)>=segmentsx->number)
-             segmentx=NULL;
+          if(index>=segmentsx->number || segmentsx->ndata[index]->node1!=nodesx->gdata[i]->id)
+             break;
          }
        else
          {
-          (*segmentx)->segment.node2|=i;
+          segmentsx->sdata[index].node2=i;
 
-          if((*segmentx)->segment.next2==NO_NODE)
-             segmentx=NULL;
+          if(segmentsx->sdata[index].next2==NO_NODE)
+             break;
           else
-             segmentx=LookupSegmentX(segmentsx,(*segmentx)->segment.next2);
+             index=segmentsx->sdata[index].next2;
          }
       }
-    while(segmentx);
+    while(1);
 
     if(!((i+1)%10000))
       {

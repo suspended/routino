@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.16 2009-06-29 17:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.17 2009-06-30 18:32:42 amb Exp $
 
  Extented Node data type functions.
 
@@ -494,17 +494,15 @@ void MarkSuperNodes(NodesX *nodesx,int iteration)
   NodesX *nodesx The list of nodes to process.
 
   SegmentsX* segmentsx The set of segments to use.
-
-  WaysX* waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
+void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  int i;
 
  assert(nodesx->sorted);        /* Must be sorted */
  assert(segmentsx->sorted);     /* Must be sorted */
- assert(waysx->sorted);         /* Must be sorted */
+ assert(segmentsx->sdata);      /* Must have real segments */
 
  /* Index the nodes */
 
@@ -512,9 +510,6 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
    {
     NodeX *node1=FindNodeX(nodesx,segmentsx->ndata[i]->node1);
     NodeX *node2=FindNodeX(nodesx,segmentsx->ndata[i]->node2);
-    WayX  *wayx=FindWayX(waysx,segmentsx->ndata[i]->way);
-
-    segmentsx->ndata[i]->segment.way=IndexWayInWayX(waysx,wayx);
 
     /* Check node1 */
 
@@ -525,29 +520,29 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
       }
     else
       {
-       SegmentX **segmentx=LookupSegmentX(segmentsx,SEGMENT(node1->node.firstseg));
+       index_t index=SEGMENT(node1->node.firstseg);
 
        do
          {
-          if((*segmentx)->node1==segmentsx->ndata[i]->node1)
+          if(segmentsx->ndata[index]->node1==segmentsx->ndata[i]->node1)
             {
-             segmentx++;
+             index++;
 
-             if((*segmentx)->node1!=segmentsx->ndata[i]->node1 || (segmentx-segmentsx->ndata)>=segmentsx->number)
-                segmentx=NULL;
+             if(index>=segmentsx->number || segmentsx->ndata[index]->node1!=segmentsx->ndata[i]->node1)
+                break;
             }
           else
             {
-             if((*segmentx)->segment.next2==NO_NODE)
+             if(segmentsx->sdata[index].next2==NO_NODE)
                {
-                (*segmentx)->segment.next2=i;
-                segmentx=NULL;
+                segmentsx->sdata[index].next2=i;
+                break;
                }
              else
-                segmentx=LookupSegmentX(segmentsx,(*segmentx)->segment.next2);
+                index=segmentsx->sdata[index].next2;
             }
          }
-       while(segmentx);
+       while(1);
       }
 
     /* Check node2 */
@@ -559,29 +554,29 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
       }
     else
       {
-       SegmentX **segmentx=LookupSegmentX(segmentsx,SEGMENT(node2->node.firstseg));
+       index_t index=SEGMENT(node2->node.firstseg);
 
        do
          {
-          if((*segmentx)->node1==segmentsx->ndata[i]->node2)
+          if(segmentsx->ndata[index]->node1==segmentsx->ndata[i]->node2)
             {
-             segmentx++;
+             index++;
 
-             if((*segmentx)->node1!=segmentsx->ndata[i]->node2 || (segmentx-segmentsx->ndata)>=segmentsx->number)
-                segmentx=NULL;
+             if(index>=segmentsx->number || segmentsx->ndata[index]->node1!=segmentsx->ndata[i]->node2)
+                break;
             }
           else
             {
-             if((*segmentx)->segment.next2==NO_NODE)
+             if(segmentsx->sdata[index].next2==NO_NODE)
                {
-                (*segmentx)->segment.next2=i;
-                segmentx=NULL;
+                segmentsx->sdata[index].next2=i;
+                break;
                }
              else
-                segmentx=LookupSegmentX(segmentsx,(*segmentx)->segment.next2);
+                index=segmentsx->sdata[index].next2;
             }
          }
-       while(segmentx);
+       while(1);
       }
 
     if(!((i+1)%10000))
