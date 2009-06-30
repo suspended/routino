@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.8 2009-06-29 16:45:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.9 2009-06-30 18:32:42 amb Exp $
 
  A header file for the extended segments.
 
@@ -38,12 +38,12 @@
 /*+ An extended structure used for processing. +*/
 struct _SegmentX
 {
- node_t    node1;               /*+ The id of the starting node. +*/
- node_t    node2;               /*+ The id of the finishing node. +*/
+ node_t     node1;              /*+ The id of the starting node. +*/
+ node_t     node2;              /*+ The id of the finishing node. +*/
 
- way_t     way;                 /*+ The id of the way. +*/
+ way_t      way;                /*+ The id of the way. +*/
 
- Segment   segment;             /*+ The real segment data. +*/
+ distance_t distance;           /*+ The distance between the nodes. +*/
 };
 
 
@@ -57,13 +57,9 @@ struct _SegmentsX
 
  SegmentX **ndata;              /*+ The extended segment data (sorted by node). +*/
  SegmentX  *xdata;              /*+ The extended segment data (unsorted). +*/
+
+ Segment   *sdata;              /*+ The segment data (same order as ndata). +*/
 };
-
-
-/* Macros */
-
-
-#define LookupSegmentX(xxx,yyy) (&(xxx)->ndata[yyy])
 
 
 /* Functions */
@@ -77,7 +73,7 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 SegmentX **FindFirstSegmentX(SegmentsX* segmentsx,node_t node);
 SegmentX **FindNextSegmentX(SegmentsX* segmentsx,SegmentX **segmentx);
 
-Segment *AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2);
+void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 
 void SortSegmentList(SegmentsX *segmentsx);
 
@@ -88,6 +84,8 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx);
 void RotateSegments(SegmentsX* segmentsx,NodesX *nodesx);
 
 void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx);
+
+void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 
 void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx);
 

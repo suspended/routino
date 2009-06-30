@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.14 2009-06-29 17:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.15 2009-06-30 18:32:42 amb Exp $
 
  Super-Segment data type functions.
 
@@ -60,10 +60,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
 
  for(i=0;i<segmentsx->number;i++)
    {
-    SegmentX **segmentx=LookupSegmentX(segmentsx,i);
-    WayX *wayx2=FindWayX(waysx,(*segmentx)->way);
+    WayX *wayx2=FindWayX(waysx,segmentsx->ndata[i]->way);
 
-    if((*segmentx)->node1!=node)
+    if(segmentsx->ndata[i]->node1!=node)
       {
        /* Store the node if there is a difference in the ways that could affect routing.
           Store the node if it is not a dead-end and if it isn't just the middle of a way. */
@@ -80,7 +79,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
        segcount=1;
        difference=0;
 
-       node=(*segmentx)->node1;
+       node=segmentsx->ndata[i]->node1;
        wayx1=wayx2;
       }
     else                        /* Same starting node */
@@ -172,18 +171,14 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
                 if(result->node!=nodesx->gdata[i]->id && nodex->super>iteration)
                   {
-                   Segment *supersegment=AppendSegment(supersegmentsx,wayx->id,nodesx->gdata[i]->id,result->node);
-
                    if(wayx->way->type&Way_OneWay)
                      {
-                      supersegment->distance=ONEWAY_1TO2|(distance_t)result->score;
+                      AppendSegment(supersegmentsx,wayx->id,nodesx->gdata[i]->id,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
 
-                      supersegment=AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->gdata[i]->id);
-
-                      supersegment->distance=ONEWAY_2TO1|(distance_t)result->score;
+                      AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->gdata[i]->id,DISTANCE((distance_t)result->score)|ONEWAY_2TO1);
                      }
                    else
-                      supersegment->distance=(distance_t)result->score;
+                      AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->gdata[i]->id,DISTANCE((distance_t)result->score));
                   }
 
                 result=NextResult(results,result);
@@ -231,15 +226,13 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
  for(i=0,j=0;i<n;i++)
    {
-    segmentsx->ndata[i]->segment.next2=NO_NODE;
-
     while(j<supersegmentsx->number)
       {
        if(segmentsx->ndata[i]->node1==supersegmentsx->ndata[j]->node1 &&
           segmentsx->ndata[i]->node2==supersegmentsx->ndata[j]->node2 &&
-          segmentsx->ndata[i]->segment.distance==supersegmentsx->ndata[j]->segment.distance)
+          segmentsx->ndata[i]->distance==supersegmentsx->ndata[j]->distance)
          {
-          segmentsx->ndata[i]->segment.distance|=SEGMENT_SUPER; /* mark as super-segment */
+          segmentsx->ndata[i]->distance|=SEGMENT_SUPER; /* mark as super-segment */
           supersegmentsx->ndata[j]=NULL;
           j++;
           break;
@@ -247,19 +240,16 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
        else if(segmentsx->ndata[i]->node1==supersegmentsx->ndata[j]->node1 &&
                segmentsx->ndata[i]->node2==supersegmentsx->ndata[j]->node2)
          {
-          supersegmentsx->ndata[j]->segment.distance|=SEGMENT_SUPER; /* mark as super-segment */
-          supersegmentsx->ndata[j]->segment.next2=NO_NODE;
+          supersegmentsx->ndata[j]->distance|=SEGMENT_SUPER; /* mark as super-segment */
          }
        else if(segmentsx->ndata[i]->node1==supersegmentsx->ndata[j]->node1 &&
                segmentsx->ndata[i]->node2>supersegmentsx->ndata[j]->node2)
          {
-          supersegmentsx->ndata[j]->segment.distance|=SEGMENT_SUPER; /* mark as super-segment */
-          supersegmentsx->ndata[j]->segment.next2=NO_NODE;
+          supersegmentsx->ndata[j]->distance|=SEGMENT_SUPER; /* mark as super-segment */
          }
        else if(segmentsx->ndata[i]->node1>supersegmentsx->ndata[j]->node1)
          {
-          supersegmentsx->ndata[j]->segment.distance|=SEGMENT_SUPER; /* mark as super-segment */
-          supersegmentsx->ndata[j]->segment.next2=NO_NODE;
+          supersegmentsx->ndata[j]->distance|=SEGMENT_SUPER; /* mark as super-segment */
          }
        else
           break;
@@ -267,7 +257,7 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
        j++;
       }
 
-    segmentsx->ndata[i]->segment.distance|=SEGMENT_NORMAL; /* mark as normal segment */
+    segmentsx->ndata[i]->distance|=SEGMENT_NORMAL; /* mark as normal segment */
 
     if(!((i+1)%10000))
       {
@@ -278,11 +268,7 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
  for(j=0;j<supersegmentsx->number;j++)
     if(supersegmentsx->ndata[j])
-      {
-       Segment *supersegment=AppendSegment(segmentsx,supersegmentsx->ndata[j]->way,supersegmentsx->ndata[j]->node1,supersegmentsx->ndata[j]->node2);
-
-       *supersegment=supersegmentsx->ndata[j]->segment;
-      }
+       AppendSegment(segmentsx,supersegmentsx->ndata[j]->way,supersegmentsx->ndata[j]->node1,supersegmentsx->ndata[j]->node2,supersegmentsx->ndata[j]->distance);
 
  printf("\rMerged Segments: Segments=%d Super-Segment=%d Total=%d \n",n,supersegmentsx->number,segmentsx->xnumber);
  fflush(stdout);
@@ -338,7 +324,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
       {
        distance_t cumulative_distance;
 
-       if((*segmentx)->segment.distance&ONEWAY_2TO1)
+       if((*segmentx)->distance&ONEWAY_2TO1)
           goto endloop;
 
        node2=(*segmentx)->node2;
@@ -351,7 +337,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
        if(WaysCompare(wayx->way,match))
           goto endloop;
 
-       cumulative_distance=(distance_t)result1->score+DISTANCE((*segmentx)->segment.distance);
+       cumulative_distance=(distance_t)result1->score+DISTANCE((*segmentx)->distance);
 
        result2=FindResult(results,node2);
 
