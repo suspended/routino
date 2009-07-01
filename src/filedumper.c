@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.26 2009-06-29 17:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.27 2009-07-01 18:19:10 amb Exp $
 
  Memory file dumper.
 
@@ -306,7 +306,7 @@ static void print_node(Nodes* nodes,index_t item)
 
  printf("Node %d\n",item);
  printf("  firstseg=%d\n",node->firstseg);
- printf("  latoffset=%d lonoffset=%d (latitude=%.5f longitude=%.5f)\n",node->latoffset,node->lonoffset,latitude,longitude);
+ printf("  latoffset=%d lonoffset=%d (latitude=%.5f longitude=%.5f)\n",node->latoffset,node->lonoffset,radians_to_degrees(latitude),radians_to_degrees(longitude));
  if(IsSuperNode(nodes,item))
     printf("  Super-Node\n");
 }
