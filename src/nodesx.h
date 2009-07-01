@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.5 2009-06-30 18:32:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.6 2009-07-01 18:23:26 amb Exp $
 
  A header file for the extended nodes.
 
@@ -43,9 +43,7 @@ struct _NodeX
  float    latitude;             /*+ The node latitude. +*/
  float    longitude;            /*+ The node longitude. +*/
 
- int      super;                /*+ A marker for super nodes. +*/
-
- Node     node;                 /*+ The real node data. +*/
+ uint8_t  super;                /*+ A marker for super nodes. +*/
 };
 
 /*+ A structure containing a set of nodes (memory format). +*/
@@ -64,6 +62,8 @@ struct _NodesX
  NodeX   *xdata;                /*+ The extended node data (unsorted). +*/
  NodeX  **gdata;                /*+ The extended node data (sorted geographically). +*/
  NodeX  **idata;                /*+ The extended node data (sorted by ID). +*/
+
+ Node    *ndata;                /*+ The actual nodes (same order as idata). +*/
 };
 
 
@@ -73,15 +73,17 @@ NodesX *NewNodeList(void);
 
 void SaveNodeList(NodesX *nodesx,const char *filename);
 
-NodeX *FindNodeX(NodesX* nodesx,node_t id);
+NodeX **FindNodeX(NodesX* nodesx,node_t id);
 
-Node *AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude);
+void AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude);
 
 void SortNodeList(NodesX *nodesx);
 
+void SortNodeListGeographically(NodesX* nodesx);
+
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
-void MarkSuperNodes(NodesX *nodesx,int iteration);
+void CreateRealNodes(NodesX *nodesx,int iteration);
 
 void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx);
 

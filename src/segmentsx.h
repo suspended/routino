@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.10 2009-06-30 19:03:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.11 2009-07-01 18:23:26 amb Exp $
 
  A header file for the extended segments.
 
@@ -81,9 +81,9 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
 
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx);
 
-void RotateSegments(SegmentsX* segmentsx,NodesX *nodesx);
+void RotateSegments(SegmentsX* segmentsx);
 
-void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx);
+void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx);
 
 void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 

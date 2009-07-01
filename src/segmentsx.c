@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.15 2009-06-30 18:32:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.16 2009-07-01 18:23:26 amb Exp $
 
  Extended Segment data type functions.
 
@@ -411,12 +411,12 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    NodeX *node1=FindNodeX(nodesx,segmentsx->ndata[i]->node1);
-    NodeX *node2=FindNodeX(nodesx,segmentsx->ndata[i]->node2);
+    NodeX **nodex1=FindNodeX(nodesx,segmentsx->ndata[i]->node1);
+    NodeX **nodex2=FindNodeX(nodesx,segmentsx->ndata[i]->node2);
 
     /* Set the distance but preserve the ONEWAY_* flags */
 
-    segmentsx->ndata[i]->distance|=DISTANCE(DistanceX(node1,node2));
+    segmentsx->ndata[i]->distance|=DISTANCE(DistanceX(*nodex1,*nodex2));
 
     if(!((i+1)%10000))
       {
@@ -434,11 +434,9 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
   Make the segments all point the same way (node1<node2).
 
   SegmentsX* segmentsx The set of segments to process.
-
-  NodesX *nodesx The list of nodes to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RotateSegments(SegmentsX* segmentsx,NodesX *nodesx)
+void RotateSegments(SegmentsX* segmentsx)
 {
  int i,rotated=0;
 
@@ -475,12 +473,10 @@ void RotateSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
   SegmentsX* segmentsx The set of segments to process.
 
-  NodesX *nodesx The list of nodes to use.
-
   WaysX *waysx The list of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
+void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx)
 {
  int i,duplicate=0;
 
@@ -576,7 +572,9 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    index_t index=SEGMENT(nodesx->gdata[i]->node.firstseg);
+    NodeX **nodex=FindNodeX(nodesx,nodesx->gdata[i]->id);
+    Node   *node =&nodesx->ndata[nodex-nodesx->idata];
+    index_t index=SEGMENT(node->firstseg);
 
     do
       {
