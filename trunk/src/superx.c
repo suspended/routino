@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.15 2009-06-30 18:32:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.16 2009-07-01 18:23:26 amb Exp $
 
  Super-Segment data type functions.
 
@@ -69,9 +69,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
 
        if(difference || segcount>2)
          {
-          NodeX *nodex=FindNodeX(nodesx,node);
+          NodeX **nodex=FindNodeX(nodesx,node);
 
-          nodex->super++;
+          (*nodex)->super++;
 
           nnodes++;
          }
@@ -127,11 +127,11 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  for(i=0;i<nodesx->number;i++)
    {
-    if(nodesx->gdata[i]->super>iteration)
+    if(nodesx->idata[i]->super>iteration)
       {
        SegmentX **segmentx,**first;
 
-       segmentx=first=FindFirstSegmentX(segmentsx,nodesx->gdata[i]->id);
+       segmentx=first=FindFirstSegmentX(segmentsx,nodesx->idata[i]->id);
 
        while(segmentx)
          {
@@ -161,24 +161,24 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           if(wayx)
             {
-             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,nodesx->gdata[i]->id,wayx->way,iteration);
+             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,nodesx->idata[i]->id,wayx->way,iteration);
              Result *result=FirstResult(results);
 
              while(result)
                {
-                NodeX *nodex=FindNodeX(nodesx,result->node);
-                WayX  *wayx =FindWayX (waysx ,(*segmentx)->way);
+                NodeX **nodex=FindNodeX(nodesx,result->node);
+                WayX   *wayx =FindWayX (waysx ,(*segmentx)->way);
 
-                if(result->node!=nodesx->gdata[i]->id && nodex->super>iteration)
+                if(result->node!=nodesx->idata[i]->id && (*nodex)->super>iteration)
                   {
                    if(wayx->way->type&Way_OneWay)
                      {
-                      AppendSegment(supersegmentsx,wayx->id,nodesx->gdata[i]->id,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
+                      AppendSegment(supersegmentsx,wayx->id,nodesx->idata[i]->id,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
 
-                      AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->gdata[i]->id,DISTANCE((distance_t)result->score)|ONEWAY_2TO1);
+                      AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->idata[i]->id,DISTANCE((distance_t)result->score)|ONEWAY_2TO1);
                      }
                    else
-                      AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->gdata[i]->id,DISTANCE((distance_t)result->score));
+                      AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->idata[i]->id,DISTANCE((distance_t)result->score));
                   }
 
                 result=NextResult(results,result);
@@ -298,7 +298,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
  Results *results;
  index_t node1,node2;
  Result *result1,*result2;
- NodeX *nodex;
+ NodeX **nodex;
  SegmentX **segmentx;
  WayX *wayx;
 
@@ -351,7 +351,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
 
           nodex=FindNodeX(nodesx,node2);
 
-          if(nodex->super<=iteration)
+          if((*nodex)->super<=iteration)
              insert_in_queue(result2);
          }
        else if(cumulative_distance<result2->score)
@@ -362,7 +362,7 @@ Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t s
 
           nodex=FindNodeX(nodesx,node2);
 
-          if(nodex->super<=iteration)
+          if((*nodex)->super<=iteration)
              insert_in_queue(result2);
          }
 

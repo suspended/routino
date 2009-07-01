@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.41 2009-06-30 18:32:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.42 2009-07-01 18:23:26 amb Exp $
 
  OSM planet file splitter.
 
@@ -198,37 +198,33 @@ int main(int argc,char** argv)
 
  printf("\n"); fflush(stdout);
 
- /* Mark the super-nodes */
-
- MarkSuperNodes(OSMNodes,iteration);
-
  /* Merge the super-segments */
 
  MergeSuperSegments(OSMSegments,SuperSegments);
 
  FreeSegmentList(SuperSegments);
 
- /* Sort the segments */
-
  SortSegmentList(OSMSegments);
 
  /* Rotate segments so that node1<node2 */
 
- RotateSegments(OSMSegments,OSMNodes);
-
- /* Sort the segments */
+ RotateSegments(OSMSegments);
 
  SortSegmentList(OSMSegments);
 
  /* Remove duplicated segments */
 
- DeduplicateSegments(OSMSegments,OSMNodes,OSMWays);
-
- /* Sort the segments */
+ DeduplicateSegments(OSMSegments,OSMWays);
 
  SortSegmentList(OSMSegments);
 
- /* Create the real segments */
+ /* Sort the node list geographically */
+
+ SortNodeListGeographically(OSMNodes);
+
+ /* Create the real segments and nodes */
+
+ CreateRealNodes(OSMNodes,iteration);
 
  CreateRealSegments(OSMSegments,OSMWays);
 
