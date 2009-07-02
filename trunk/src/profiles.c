@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.16 2009-05-23 16:55:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.17 2009-07-02 17:49:16 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -430,7 +430,7 @@ void UpdateProfile(Profile *profile)
 
 void PrintProfile(const Profile *profile)
 {
- int i;
+ unsigned int i;
 
  printf("Profile\n=======\n");
 
@@ -465,7 +465,7 @@ void PrintProfile(const Profile *profile)
 
 void PrintProfilesJS(void)
 {
- int i,j;
+ unsigned int i,j;
 
  printf("// Transport types\n");
  printf("var router_transports={");
@@ -542,7 +542,7 @@ void PrintProfilesJS(void)
 
 void PrintProfilesPerl(void)
 {
- int i,j;
+ unsigned int i,j;
 
  printf("# Transport types\n");
  printf("@router_transports=(");

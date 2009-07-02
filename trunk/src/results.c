@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.15 2009-07-02 16:33:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.16 2009-07-02 17:49:16 amb Exp $
 
  Result data type functions.
 
@@ -22,6 +22,7 @@
  ***************************************/
 
 
+#include <sys/types.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -56,7 +57,7 @@ static Queue queue={0,0,NULL};
 Results *NewResultsList(int nbins)
 {
  Results *results;
- int i;
+ uint32_t i;
 
  results=(Results*)malloc(sizeof(Results));
 
@@ -102,8 +103,7 @@ Results *NewResultsList(int nbins)
 
 void FreeResultsList(Results *results)
 {
- int c=(results->number-1)/(results->nbins*RESULTS_INCREMENT);
- int i;
+ int i,c=(results->number-1)/(results->nbins*RESULTS_INCREMENT);
 
  for(i=c;i>=0;i--)
     free(results->data[i]);
@@ -134,7 +134,7 @@ void FreeResultsList(Results *results)
 Result *InsertResult(Results *results,index_t node)
 {
  int bin=node&results->mask;
- int i;
+ uint32_t i;
 
  /* Check that the arrays have enough space. */
 
@@ -235,12 +235,11 @@ Result *FirstResult(Results *results)
 
 Result *NextResult(Results *results,Result *result)
 {
- int c=(results->number-1)/(results->nbins*RESULTS_INCREMENT);
- int i,j=0;
+ int i,j=0,c=(results->number-1)/(results->nbins*RESULTS_INCREMENT);
 
  for(i=0;i<=c;i++)
    {
-    j=(result-results->data[i]);
+    j=result-results->data[i];
 
     if(j>=0 && j<(results->nbins*RESULTS_INCREMENT))
        break;

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.9 2009-07-02 16:33:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.10 2009-07-02 17:49:16 amb Exp $
 
  Extended Way data type functions.
 
@@ -68,7 +68,7 @@ WaysX *NewWayList(void)
 
 void SaveWayList(WaysX* waysx,const char *filename)
 {
- int i;
+ index_t i;
  int fd;
  Ways *ways=calloc(1,sizeof(Ways));
 
@@ -81,7 +81,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
  ways->number=waysx->wnumber;
  ways->data=NULL;
  ways->ways=(void*)sizeof(Ways);
- ways->names=(void*)sizeof(Ways)+ways->number*sizeof(Way);
+ ways->names=(void*)(sizeof(Ways)+ways->number*sizeof(Way));
 
  /* Write out the Ways structure and then the real data. */
 
@@ -225,7 +225,7 @@ Way *AppendWay(WaysX* waysx,way_t id,const char *name)
 void SortWayList(WaysX* waysx)
 {
  Way *uniq_ways;
- int i,j;
+ index_t i,j;
 
  assert(waysx->xdata);         /* Must have xdata filled in */
 
