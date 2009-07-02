@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.10 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.11 2009-07-02 19:41:38 amb Exp $
 
  Extended Way data type functions.
 
@@ -191,7 +191,7 @@ Way *AppendWay(WaysX* waysx,way_t id,const char *name)
 {
  /* Check that the arrays have enough space. */
 
- if(waysx->number==waysx->alloced)
+ if(waysx->xnumber==waysx->alloced)
    {
     waysx->alloced+=INCREMENT_WAYS;
 
@@ -202,17 +202,17 @@ Way *AppendWay(WaysX* waysx,way_t id,const char *name)
 
  /* Insert the way */
 
- waysx->xdata[waysx->number].id=id;
- waysx->xdata[waysx->number].name=strcpy((char*)malloc(strlen(name)+1),name);
- waysx->xdata[waysx->number].way=&waysx->wdata[waysx->number];
+ waysx->xdata[waysx->xnumber].id=id;
+ waysx->xdata[waysx->xnumber].name=strcpy((char*)malloc(strlen(name)+1),name);
+ waysx->xdata[waysx->xnumber].way=&waysx->wdata[waysx->xnumber];
 
- memset(&waysx->wdata[waysx->number],0,sizeof(Way));
+ memset(&waysx->wdata[waysx->xnumber],0,sizeof(Way));
 
- waysx->number++;
-
- return(&waysx->wdata[waysx->number-1]);
+ waysx->xnumber++;
 
  waysx->sorted=0;
+
+ return(&waysx->wdata[waysx->xnumber-1]);
 }
 
 
@@ -226,26 +226,51 @@ void SortWayList(WaysX* waysx)
 {
  Way *uniq_ways;
  index_t i,j;
+ int duplicate;
 
  assert(waysx->xdata);         /* Must have xdata filled in */
-
- printf("Sorting Ways"); fflush(stdout);
+ assert(waysx->wdata);         /* Must have wdata filled in */
 
  /* Sort the ways by id */
 
- waysx->idata=malloc(waysx->number*sizeof(WayX*));
+ waysx->idata=(WayX**)malloc(waysx->xnumber*sizeof(WayX*));
 
- for(i=0;i<waysx->number;i++)
-    waysx->idata[i]=&waysx->xdata[i];
+ do
+   {
+    waysx->number=0;
 
- qsort(waysx->idata,waysx->number,sizeof(WayX*),(int (*)(const void*,const void*))sort_by_id);
+    for(i=0;i<waysx->xnumber;i++)
+       if(waysx->xdata[i].id!=NO_WAY)
+         {
+          waysx->idata[waysx->number]=&waysx->xdata[i];
+          waysx->number++;
+         }
+
+    qsort(waysx->idata,waysx->number,sizeof(WayX*),(int (*)(const void*,const void*))sort_by_id);
+
+    duplicate=0;
+
+    for(i=1;i<waysx->number;i++)
+      {
+       if(waysx->idata[i]->id==waysx->idata[i-1]->id &&
+          waysx->idata[i]->id!=NO_WAY)
+         {
+          waysx->idata[i-1]->id=NO_WAY;
+          duplicate++;
+         }
+      }
+
+    if(duplicate)
+       printf(" - %d duplicates found; trying again.\nSorting Ways",duplicate); fflush(stdout);
+   }
+ while(duplicate);
 
  /* Sort the ways by name and way properties */
 
- waysx->ndata=malloc(waysx->number*sizeof(WayX*));
+ waysx->ndata=(WayX**)malloc(waysx->number*sizeof(WayX*));
 
  for(i=0;i<waysx->number;i++)
-    waysx->ndata[i]=&waysx->xdata[i];
+    waysx->ndata[i]=waysx->idata[i];
 
  qsort(waysx->ndata,waysx->number,sizeof(WayX*),(int (*)(const void*,const void*))sort_by_name_and_properties);
 
@@ -298,8 +323,6 @@ void SortWayList(WaysX* waysx)
  free(waysx->wdata);
 
  waysx->wdata=uniq_ways;
-
- printf("\rSorted Ways \n"); fflush(stdout);
 
  waysx->sorted=1;
 }

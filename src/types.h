@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.25 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.26 2009-07-02 19:41:38 amb Exp $
 
  Type definitions
 
@@ -68,6 +68,9 @@
 
 /*+ An undefined segment index. +*/
 #define NO_SEGMENT   (~(index_t)0)
+
+/*+ An undefined way index. +*/
+#define NO_WAY       (~(index_t)0)
 
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/
