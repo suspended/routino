@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.16 2009-07-01 18:23:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.17 2009-07-02 16:33:31 amb Exp $
 
  Extended Segment data type functions.
 
@@ -24,7 +24,6 @@
 
 #include <assert.h>
 #include <math.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -56,24 +55,14 @@ SegmentsX *NewSegmentList(void)
 {
  SegmentsX *segmentsx;
 
- segmentsx=(SegmentsX*)malloc(sizeof(SegmentsX));
-
- segmentsx->sorted=0;
- segmentsx->alloced=INCREMENT_SEGMENTS;
- segmentsx->xnumber=0;
- segmentsx->number=0;
-
- segmentsx->xdata=(SegmentX*)malloc(segmentsx->alloced*sizeof(SegmentX));
- segmentsx->ndata=NULL;
-
- segmentsx->sdata=NULL;
+ segmentsx=(SegmentsX*)calloc(1,sizeof(SegmentsX));
 
  return(segmentsx);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Free a segment list.
+  Free a segment list (needed by planetsplitter for temporary super-segment lists).
 
   SegmentsX *segmentsx The list to be freed.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -82,8 +71,10 @@ void FreeSegmentList(SegmentsX *segmentsx)
 {
  if(segmentsx->sdata)
     free(segmentsx->sdata);
- free(segmentsx->xdata);
- free(segmentsx->ndata);
+ if(segmentsx->ndata)
+    free(segmentsx->ndata);
+ if(segmentsx->xdata)
+    free(segmentsx->xdata);
  free(segmentsx);
 }
 
@@ -103,6 +94,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  Segments *segments=calloc(1,sizeof(Segments));
 
  assert(segmentsx->sorted);     /* Must be sorted */
+ assert(segmentsx->sdata);      /* Must have sdata filled in */
 
  /* Fill in a Segments structure with the offset of the real data in the file after
     the Segment structure itself. */
@@ -157,6 +149,7 @@ SegmentX **FindFirstSegmentX(SegmentsX* segmentsx,node_t node)
  int found;
 
  assert(segmentsx->sorted);     /* Must be sorted */
+ assert(segmentsx->ndata);      /* Must have ndata filled in */
 
  /* Binary search - search key exact match only is required.
   *
@@ -278,14 +271,13 @@ void SortSegmentList(SegmentsX* segmentsx)
 {
  int i;
 
+ assert(segmentsx->xdata);      /* Must have xdata filled in */
+
  printf("Sorting Segments"); fflush(stdout);
 
- /* Allocate the arrays of pointers */
+ /* Allocate the array of pointers and sort them */
 
- if(segmentsx->sorted)
-    segmentsx->ndata=realloc(segmentsx->ndata,segmentsx->xnumber*sizeof(SegmentX*));
- else
-    segmentsx->ndata=malloc(segmentsx->xnumber*sizeof(SegmentX*));
+ segmentsx->ndata=(SegmentX**)realloc(segmentsx->ndata,segmentsx->xnumber*sizeof(SegmentX*));
 
  segmentsx->number=0;
 
@@ -298,9 +290,9 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  qsort(segmentsx->ndata,segmentsx->number,sizeof(SegmentX*),(int (*)(const void*,const void*))sort_by_id_and_distance);
 
- segmentsx->sorted=1;
-
  printf("\rSorted Segments \n"); fflush(stdout);
+
+ segmentsx->sorted=1;
 }
 
 
@@ -361,7 +353,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
  int i;
  int duplicate=0,loop=0,missing=0;
 
- assert(segmentsx->sorted);     /* Must be sorted */
+ assert(segmentsx->ndata);      /* Must have ndata filled in */
 
  for(i=0;i<segmentsx->number;i++)
    {
@@ -407,7 +399,7 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 {
  int i;
 
- assert(segmentsx->sorted);     /* Must be sorted */
+ assert(segmentsx->ndata);      /* Must have ndata filled in */
 
  for(i=0;i<segmentsx->number;i++)
    {
@@ -440,7 +432,7 @@ void RotateSegments(SegmentsX* segmentsx)
 {
  int i,rotated=0;
 
- assert(segmentsx->sorted);     /* Must be sorted */
+ assert(segmentsx->ndata);      /* Must have ndata filled in */
 
  for(i=0;i<segmentsx->number;i++)
    {
@@ -480,7 +472,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx)
 {
  int i,duplicate=0;
 
- assert(segmentsx->sorted);     /* Must be sorted */
+ assert(segmentsx->ndata);      /* Must have ndata filled in */
 
  for(i=1;i<segmentsx->number;i++)
    {
@@ -524,6 +516,8 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 {
  int i;
 
+ assert(segmentsx->ndata);      /* Must have ndata filled in */
+
  /* Allocate the memory */
 
  segmentsx->sdata=(Segment*)malloc(segmentsx->number*sizeof(Segment));
@@ -565,8 +559,10 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
  int i;
 
  assert(segmentsx->sorted);     /* Must be sorted */
- assert(segmentsx->sdata);      /* Must have real segments */
+ assert(segmentsx->ndata);      /* Must have ndata filled in */
+ assert(segmentsx->sdata);      /* Must have sdata filled in */
  assert(nodesx->sorted);        /* Must be sorted */
+ assert(nodesx->gdata);         /* Must have gdata filled in */
 
  /* Index the segments */
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.30 2009-06-15 19:06:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.31 2009-07-02 16:33:31 amb Exp $
 
  Way data type functions.
 
@@ -22,7 +22,6 @@
  ***************************************/
 
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 

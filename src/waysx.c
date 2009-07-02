@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.8 2009-06-29 16:46:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.9 2009-07-02 16:33:31 amb Exp $
 
  Extended Way data type functions.
 
@@ -52,22 +52,7 @@ WaysX *NewWayList(void)
 {
  WaysX *waysx;
 
- waysx=(WaysX*)malloc(sizeof(WaysX));
-
- waysx->sorted=0;
- waysx->alloced=INCREMENT_WAYS;
- waysx->number=0;
- waysx->length=0;
-
- waysx->xdata=(WayX*)malloc(waysx->alloced*sizeof(WayX));
- waysx->idata=NULL;
- waysx->ndata=NULL;
-
- waysx->wnumber=0;
-
- waysx->wdata=(Way*)malloc(waysx->alloced*sizeof(Way));
-
- waysx->names=NULL;
+ waysx=(WaysX*)calloc(1,sizeof(WaysX));
 
  return(waysx);
 }
@@ -88,6 +73,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
  Ways *ways=calloc(1,sizeof(Ways));
 
  assert(waysx->sorted);       /* Must be sorted */
+ assert(waysx->wdata);        /* Must have wdata filled in */
 
  /* Fill in a Ways structure with the offset of the real data in the file after
     the Way structure itself. */
@@ -144,6 +130,7 @@ WayX *FindWayX(WaysX* waysx,way_t id)
  int mid;
 
  assert(waysx->sorted);        /* Must be sorted */
+ assert(waysx->idata);         /* Must have idata filled in */
 
  /* Binary search - search key exact match only is required.
   *
@@ -202,11 +189,7 @@ WayX *FindWayX(WaysX* waysx,way_t id)
 
 Way *AppendWay(WaysX* waysx,way_t id,const char *name)
 {
- assert(!waysx->sorted);      /* Must not be sorted */
-
- waysx->sorted=0;
-
- /* Check that the array has enough space. */
+ /* Check that the arrays have enough space. */
 
  if(waysx->number==waysx->alloced)
    {
@@ -228,6 +211,8 @@ Way *AppendWay(WaysX* waysx,way_t id,const char *name)
  waysx->number++;
 
  return(&waysx->wdata[waysx->number-1]);
+
+ waysx->sorted=0;
 }
 
 
@@ -242,9 +227,7 @@ void SortWayList(WaysX* waysx)
  Way *uniq_ways;
  int i,j;
 
- assert(!waysx->sorted);      /* Must not be sorted */
-
- waysx->sorted=1;
+ assert(waysx->xdata);         /* Must have xdata filled in */
 
  printf("Sorting Ways"); fflush(stdout);
 
@@ -317,6 +300,8 @@ void SortWayList(WaysX* waysx)
  waysx->wdata=uniq_ways;
 
  printf("\rSorted Ways \n"); fflush(stdout);
+
+ waysx->sorted=1;
 }
 
 

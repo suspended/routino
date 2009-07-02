@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.6 2009-05-15 17:32:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.7 2009-07-02 16:33:31 amb Exp $
 
  Functions to map a file into memory.
 
@@ -23,11 +23,9 @@
 
 
 #include <unistd.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 
