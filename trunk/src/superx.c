@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.16 2009-07-01 18:23:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.17 2009-07-02 16:33:31 amb Exp $
 
  Super-Segment data type functions.
 
@@ -23,7 +23,6 @@
 
 
 #include <assert.h>
-#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -52,6 +51,8 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
  int    segcount=0,difference=0,nnodes=0;
  node_t node=0;
  WayX  *wayx1;
+
+ assert(segmentsx->ndata);      /* Must have ndata filled in */
 
  /* Find super-nodes */
 
@@ -120,6 +121,8 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 {
  int i;
  SegmentsX *supersegmentsx;
+
+ assert(nodesx->idata);         /* Must have idata filled in */
 
  supersegmentsx=NewSegmentList();
 
@@ -220,7 +223,9 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
  int i,j,n;
 
  assert(segmentsx->sorted);      /* Must be sorted */
+ assert(segmentsx->ndata);       /* Must have ndata filled in */
  assert(supersegmentsx->sorted); /* Must be sorted */
+ assert(supersegmentsx->ndata);  /* Must have ndata filled in */
 
  n=segmentsx->number;
 

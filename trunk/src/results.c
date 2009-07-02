@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.14 2009-05-14 18:02:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.15 2009-07-02 16:33:31 amb Exp $
 
  Result data type functions.
 
@@ -22,7 +22,6 @@
  ***************************************/
 
 
-#include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 

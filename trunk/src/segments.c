@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.39 2009-06-29 17:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.40 2009-07-02 16:33:31 amb Exp $
 
  Segment data type functions.
 
@@ -22,9 +22,6 @@
  ***************************************/
 
 
-#include <assert.h>
-#include <math.h>
-#include <string.h>
 #include <stdlib.h>
 
 #include "types.h"

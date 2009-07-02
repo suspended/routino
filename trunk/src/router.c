@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.53 2009-06-15 18:52:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.54 2009-07-02 16:33:31 amb Exp $
 
  OSM router.
 
@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
 #include <ctype.h>
 
 #include "types.h"

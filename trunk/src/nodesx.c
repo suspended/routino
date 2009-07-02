@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.18 2009-07-01 18:23:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.19 2009-07-02 16:33:31 amb Exp $
 
  Extented Node data type functions.
 
@@ -24,9 +24,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
-#include <math.h>
 
 #include "types.h"
 #include "functions.h"
@@ -57,17 +55,7 @@ NodesX *NewNodeList(void)
 {
  NodesX *nodesx;
 
- nodesx=(NodesX*)malloc(sizeof(NodesX));
-
- nodesx->alloced=INCREMENT_NODES;
- nodesx->xnumber=0;
- nodesx->sorted=0;
-
- nodesx->xdata=(NodeX*)malloc(nodesx->alloced*sizeof(NodeX));
- nodesx->gdata=NULL;
- nodesx->idata=NULL;
-
- nodesx->ndata=NULL;
+ nodesx=(NodesX*)calloc(1,sizeof(NodesX));
 
  return(nodesx);
 }
@@ -91,6 +79,8 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  int latbins,lonbins,latlonbin;
 
  assert(nodesx->sorted);        /* Must be sorted */
+ assert(nodesx->gdata);         /* Must have gdata filled in */
+ assert(nodesx->ndata);         /* Must have ndata filled in */
 
  /* Work out the offsets */
 
@@ -185,6 +175,7 @@ NodeX **FindNodeX(NodesX* nodesx,node_t id)
  int mid;
 
  assert(nodesx->sorted);        /* Must be sorted */
+ assert(nodesx->idata);         /* Must have idata filled in */
 
  /* Binary search - search key exact match only is required.
   *
@@ -276,51 +267,47 @@ void SortNodeList(NodesX* nodesx)
  int i;
  int duplicate;
 
+ assert(nodesx->xdata);         /* Must have xdata filled in */
+
  printf("Sorting Nodes"); fflush(stdout);
 
- /* Allocate the arrays of pointers */
+ /* Allocate the array of pointers and sort them */
 
- if(nodesx->idata)
-    nodesx->idata=realloc(nodesx->idata,nodesx->xnumber*sizeof(NodeX*));
- else
-    nodesx->idata=malloc(nodesx->xnumber*sizeof(NodeX*));
+ nodesx->idata=(NodeX**)realloc(nodesx->idata,nodesx->xnumber*sizeof(NodeX*));
 
- sort_again:
+ do
+   {
+    nodesx->number=0;
 
- nodesx->number=0;
+    for(i=0;i<nodesx->xnumber;i++)
+       if(nodesx->xdata[i].id!=NO_NODE)
+         {
+          nodesx->idata[nodesx->number]=&nodesx->xdata[i];
+          nodesx->number++;
+         }
 
- for(i=0;i<nodesx->xnumber;i++)
-    if(nodesx->xdata[i].id!=NO_NODE)
+    qsort(nodesx->idata,nodesx->number,sizeof(NodeX*),(int (*)(const void*,const void*))sort_by_id);
+
+    duplicate=0;
+
+    for(i=1;i<nodesx->number;i++)
       {
-       nodesx->idata[nodesx->number]=&nodesx->xdata[i];
-       nodesx->number++;
+       if(nodesx->idata[i]->id==nodesx->idata[i-1]->id &&
+          nodesx->idata[i]->id!=NO_NODE)
+         {
+          nodesx->idata[i-1]->id=NO_NODE;
+          duplicate++;
+         }
       }
 
- nodesx->sorted=1;
-
- /* Sort by id */
-
- qsort(nodesx->idata,nodesx->number,sizeof(NodeX*),(int (*)(const void*,const void*))sort_by_id);
-
- duplicate=0;
-
- for(i=1;i<nodesx->number;i++)
-   {
-    if(nodesx->idata[i]->id==nodesx->idata[i-1]->id &&
-       nodesx->idata[i]->id!=NO_NODE)
-      {
-       nodesx->idata[i-1]->id=NO_NODE;
-       duplicate++;
-      }
+    if(duplicate)
+       printf(" - %d duplicates found; trying again.\nSorting Nodes",duplicate); fflush(stdout);
    }
-
- if(duplicate)
-   {
-    printf(" - %d duplicates found; trying again.\nSorting Nodes",duplicate); fflush(stdout);
-    goto sort_again;
-   }
+ while(duplicate);
 
  printf("\rSorted Nodes \n"); fflush(stdout);
+
+ nodesx->sorted=1;
 }
 
 
@@ -358,11 +345,11 @@ void SortNodeListGeographically(NodesX* nodesx)
 {
  int i;
 
- assert(nodesx->sorted);        /* Must be sorted */
+ assert(nodesx->idata);         /* Must have idata filled in */
 
  printf("Sorting Nodes Geographically"); fflush(stdout);
 
- /* Sort geographically */
+ /* Allocate the array of pointers and sort them */
 
  nodesx->gdata=(NodeX**)malloc(nodesx->number*sizeof(NodeX*));
 
@@ -441,6 +428,8 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  int i;
  int highway=0,nothighway=0;
 
+ assert(nodesx->xdata);         /* Must have xdata filled in */
+
  for(i=0;i<nodesx->xnumber;i++)
    {
     if(FindFirstSegmentX(segmentsx,nodesx->xdata[i].id))
@@ -460,6 +449,8 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",nodesx->xnumber,highway,nothighway);
  fflush(stdout);
+
+ nodesx->sorted=0;
 }
 
 
@@ -475,7 +466,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 {
  int i;
 
- assert(nodesx->sorted);        /* Must be sorted */
+ assert(nodesx->gdata);         /* Must have gdata filled in */
 
  /* Allocate the memory */
 
@@ -521,8 +512,11 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
  int i;
 
  assert(nodesx->sorted);        /* Must be sorted */
+ assert(nodesx->idata);         /* Must have idata filled in */
+ assert(nodesx->ndata);         /* Must have ndata filled in */
  assert(segmentsx->sorted);     /* Must be sorted */
- assert(segmentsx->sdata);      /* Must have real segments */
+ assert(segmentsx->ndata);      /* Must have ndata filled in */
+ assert(segmentsx->sdata);      /* Must have sdata filled in */
 
  /* Index the nodes */
 

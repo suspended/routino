@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.42 2009-06-30 18:32:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.43 2009-07-02 16:33:31 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -26,7 +26,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <math.h>
 
 #include "typesx.h"
 #include "functionsx.h"
