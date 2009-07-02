@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.30 2009-05-29 17:45:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.31 2009-07-02 17:49:16 amb Exp $
 
  Node data type functions.
 
@@ -22,6 +22,7 @@
  ***************************************/
 
 
+#include <sys/types.h>
 #include <stdlib.h>
 #include <math.h>
 

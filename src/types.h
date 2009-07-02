@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.24 2009-06-29 17:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.25 2009-07-02 17:49:16 amb Exp $
 
  Type definitions
 
@@ -27,6 +27,11 @@
 
 #include <stdint.h>
 #include <math.h>
+
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 
 /* Constants and macros for handling them */

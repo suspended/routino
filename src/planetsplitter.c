@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.42 2009-07-01 18:23:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.43 2009-07-02 17:49:16 amb Exp $
 
  OSM planet file splitter.
 
@@ -159,7 +159,7 @@ int main(int argc,char** argv)
       {
        /* Select the super-nodes */
 
-       ChooseSuperNodes(OSMNodes,OSMSegments,OSMWays,iteration);
+       ChooseSuperNodes(OSMNodes,OSMSegments,OSMWays);
 
        /* Select the super-segments */
 
@@ -171,7 +171,7 @@ int main(int argc,char** argv)
 
        /* Select the super-nodes */
 
-       ChooseSuperNodes(OSMNodes,SuperSegments,OSMWays,iteration);
+       ChooseSuperNodes(OSMNodes,SuperSegments,OSMWays);
 
        /* Select the super-segments */
 

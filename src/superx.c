@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.17 2009-07-02 16:33:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.18 2009-07-02 17:49:16 amb Exp $
 
  Super-Segment data type functions.
 
@@ -41,16 +41,14 @@
   SegmentsX *segmentsx The segments.
 
   WaysX *waysx The ways.
-
-  int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration)
+void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
- int i;
- int    segcount=0,difference=0,nnodes=0;
- node_t node=0;
- WayX  *wayx1;
+ index_t i;
+ int     segcount=0,difference=0,nnodes=0;
+ node_t  node=0;
+ WayX   *wayx1;
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
 
@@ -119,7 +117,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
 
 SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration)
 {
- int i;
+ index_t i;
  SegmentsX *supersegmentsx;
 
  assert(nodesx->idata);         /* Must have idata filled in */
@@ -220,7 +218,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
 void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 {
- int i,j,n;
+ index_t i,j,n;
 
  assert(segmentsx->sorted);      /* Must be sorted */
  assert(segmentsx->ndata);       /* Must have ndata filled in */

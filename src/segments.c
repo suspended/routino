@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.40 2009-07-02 16:33:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.41 2009-07-02 17:49:16 amb Exp $
 
  Segment data type functions.
 
@@ -22,6 +22,7 @@
  ***************************************/
 
 
+#include <sys/types.h>
 #include <stdlib.h>
 
 #include "types.h"
@@ -80,7 +81,7 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
  if(segment->node1==node)
    {
     segment++;
-    if(segment->node1!=node || (segment-segments->segments)>=segments->number)
+    if((segment-segments->segments)>=segments->number || segment->node1!=node)
        return(NULL);
     else
        return(segment);

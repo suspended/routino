@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.19 2009-07-02 16:33:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.20 2009-07-02 17:49:16 amb Exp $
 
  Extented Node data type functions.
 
@@ -71,7 +71,7 @@ NodesX *NewNodeList(void)
 
 void SaveNodeList(NodesX* nodesx,const char *filename)
 {
- int i;
+ index_t i;
  int fd;
  Nodes *nodes=calloc(1,sizeof(Nodes));
  index_t *offsets;
@@ -122,7 +122,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  nodes->data=NULL;
  nodes->offsets=(void*)sizeof(Nodes);
- nodes->nodes=(void*)sizeof(Nodes)+(latbins*lonbins+1)*sizeof(index_t);
+ nodes->nodes=(void*)(sizeof(Nodes)+(latbins*lonbins+1)*sizeof(index_t));
 
  /* Write out the Nodes structure and then the real data. */
 
@@ -264,7 +264,7 @@ void AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude)
 
 void SortNodeList(NodesX* nodesx)
 {
- int i;
+ index_t i;
  int duplicate;
 
  assert(nodesx->xdata);         /* Must have xdata filled in */
@@ -343,7 +343,7 @@ static int sort_by_id(NodeX **a,NodeX **b)
 
 void SortNodeListGeographically(NodesX* nodesx)
 {
- int i;
+ index_t i;
 
  assert(nodesx->idata);         /* Must have idata filled in */
 
@@ -425,7 +425,7 @@ static int sort_by_lat_long(NodeX **a,NodeX **b)
 
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
- int i;
+ index_t i;
  int highway=0,nothighway=0;
 
  assert(nodesx->xdata);         /* Must have xdata filled in */
@@ -464,7 +464,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
 void CreateRealNodes(NodesX *nodesx,int iteration)
 {
- int i;
+ index_t i;
 
  assert(nodesx->gdata);         /* Must have gdata filled in */
 
@@ -509,7 +509,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
 void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
- int i;
+ index_t i;
 
  assert(nodesx->sorted);        /* Must be sorted */
  assert(nodesx->idata);         /* Must have idata filled in */

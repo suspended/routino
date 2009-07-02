@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.17 2009-07-02 16:33:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.18 2009-07-02 17:49:16 amb Exp $
 
  Extended Segment data type functions.
 
@@ -89,7 +89,7 @@ void FreeSegmentList(SegmentsX *segmentsx)
 
 void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 {
- int i;
+ index_t i;
  int fd;
  Segments *segments=calloc(1,sizeof(Segments));
 
@@ -269,7 +269,7 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
 
 void SortSegmentList(SegmentsX* segmentsx)
 {
- int i;
+ index_t i;
 
  assert(segmentsx->xdata);      /* Must have xdata filled in */
 
@@ -350,7 +350,7 @@ static int sort_by_id_and_distance(SegmentX **a,SegmentX **b)
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 {
- int i;
+ index_t i;
  int duplicate=0,loop=0,missing=0;
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
@@ -397,7 +397,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
 void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 {
- int i;
+ index_t i;
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
 
@@ -430,7 +430,8 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
 void RotateSegments(SegmentsX* segmentsx)
 {
- int i,rotated=0;
+ index_t i;
+ int rotated=0;
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
 
@@ -470,7 +471,8 @@ void RotateSegments(SegmentsX* segmentsx)
 
 void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx)
 {
- int i,duplicate=0;
+ index_t i;
+ int duplicate=0;
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
 
@@ -514,7 +516,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx)
 
 void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 {
- int i;
+ index_t i;
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
 
@@ -556,7 +558,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 
 void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 {
- int i;
+ index_t i;
 
  assert(segmentsx->sorted);     /* Must be sorted */
  assert(segmentsx->ndata);      /* Must have ndata filled in */
