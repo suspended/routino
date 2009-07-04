@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.18 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.19 2009-07-04 17:58:06 amb Exp $
 
  Super-Segment data type functions.
 
@@ -119,6 +119,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 {
  index_t i;
  SegmentsX *supersegmentsx;
+ int ss;
 
  assert(nodesx->idata);         /* Must have idata filled in */
 
@@ -177,9 +178,15 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                       AppendSegment(supersegmentsx,wayx->id,nodesx->idata[i]->id,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
 
                       AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->idata[i]->id,DISTANCE((distance_t)result->score)|ONEWAY_2TO1);
+
+                      ss+=2;
                      }
                    else
+                     {
                       AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->idata[i]->id,DISTANCE((distance_t)result->score));
+
+                      ss++;
+                     }
                   }
 
                 result=NextResult(results,result);
@@ -194,15 +201,13 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
     if(!((i+1)%10000))
       {
-       printf("\rCreating Super-Segments: Nodes=%d Super-Segments=%d",i+1,supersegmentsx->xnumber);
+       printf("\rCreating Super-Segments: Nodes=%d Super-Segments=%d",i+1,ss);
        fflush(stdout);
       }
    }
 
- printf("\rCreated Super-Segments: Nodes=%d Super-Segments=%d \n",nodesx->number,supersegmentsx->xnumber);
+ printf("\rCreated Super-Segments: Nodes=%d Super-Segments=%d \n",nodesx->number,ss);
  fflush(stdout);
-
- /* Append the new supersegments onto the segments. */
 
  return(supersegmentsx);
 }
@@ -218,16 +223,15 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
 void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 {
- index_t i,j,n;
+ index_t i,j;
+ int m=0,a=0;
 
  assert(segmentsx->sorted);      /* Must be sorted */
  assert(segmentsx->ndata);       /* Must have ndata filled in */
  assert(supersegmentsx->sorted); /* Must be sorted */
  assert(supersegmentsx->ndata);  /* Must have ndata filled in */
 
- n=segmentsx->number;
-
- for(i=0,j=0;i<n;i++)
+ for(i=0,j=0;i<segmentsx->number;i++)
    {
     while(j<supersegmentsx->number)
       {
@@ -236,44 +240,35 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
           segmentsx->ndata[i]->distance==supersegmentsx->ndata[j]->distance)
          {
           segmentsx->ndata[i]->distance|=SEGMENT_SUPER; /* mark as super-segment */
-          supersegmentsx->ndata[j]=NULL;
+          m++;
           j++;
           break;
          }
-       else if(segmentsx->ndata[i]->node1==supersegmentsx->ndata[j]->node1 &&
-               segmentsx->ndata[i]->node2==supersegmentsx->ndata[j]->node2)
+       else if((segmentsx->ndata[i]->node1==supersegmentsx->ndata[j]->node1 &&
+                segmentsx->ndata[i]->node2==supersegmentsx->ndata[j]->node2) ||
+               (segmentsx->ndata[i]->node1==supersegmentsx->ndata[j]->node1 &&
+                segmentsx->ndata[i]->node2>supersegmentsx->ndata[j]->node2) ||
+               (segmentsx->ndata[i]->node1>supersegmentsx->ndata[j]->node1))
          {
           supersegmentsx->ndata[j]->distance|=SEGMENT_SUPER; /* mark as super-segment */
-         }
-       else if(segmentsx->ndata[i]->node1==supersegmentsx->ndata[j]->node1 &&
-               segmentsx->ndata[i]->node2>supersegmentsx->ndata[j]->node2)
-         {
-          supersegmentsx->ndata[j]->distance|=SEGMENT_SUPER; /* mark as super-segment */
-         }
-       else if(segmentsx->ndata[i]->node1>supersegmentsx->ndata[j]->node1)
-         {
-          supersegmentsx->ndata[j]->distance|=SEGMENT_SUPER; /* mark as super-segment */
+          AppendSegment(segmentsx,supersegmentsx->ndata[j]->way,supersegmentsx->ndata[j]->node1,supersegmentsx->ndata[j]->node2,supersegmentsx->ndata[j]->distance);
+          a++;
+          j++;
          }
        else
           break;
-
-       j++;
       }
 
     segmentsx->ndata[i]->distance|=SEGMENT_NORMAL; /* mark as normal segment */
 
     if(!((i+1)%10000))
       {
-       printf("\rMerging Segments: Segments=%d Super-Segment=%d Total=%d",i+1,j+1,segmentsx->xnumber);
+       printf("\rMerging: Segments=%d Super-Segments=%d Merged=%d Added=%d",i+1,j,m,a);
        fflush(stdout);
       }
    }
 
- for(j=0;j<supersegmentsx->number;j++)
-    if(supersegmentsx->ndata[j])
-       AppendSegment(segmentsx,supersegmentsx->ndata[j]->way,supersegmentsx->ndata[j]->node1,supersegmentsx->ndata[j]->node2,supersegmentsx->ndata[j]->distance);
-
- printf("\rMerged Segments: Segments=%d Super-Segment=%d Total=%d \n",n,supersegmentsx->number,segmentsx->xnumber);
+ printf("\rMerged: Segments=%d Super-Segments=%d Merged=%d Added=%d \n",segmentsx->number,supersegmentsx->number,m,a);
  fflush(stdout);
 }
 
