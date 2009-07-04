@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.18 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.19 2009-07-04 17:58:05 amb Exp $
 
  Extended Segment data type functions.
 
@@ -36,8 +36,8 @@
 
 /* Constants */
 
-/*+ The array size increment for segments - expect ~8,000,000 segments. +*/
-#define INCREMENT_SEGMENTS 1024*1024
+/*+ The array size increment for SegmentsX (UK is ~14.1M raw segments, this is ~53 increments). +*/
+#define INCREMENT_SEGMENTSX (256*1024)
 
 
 /* Functions */
@@ -56,6 +56,8 @@ SegmentsX *NewSegmentList(void)
  SegmentsX *segmentsx;
 
  segmentsx=(SegmentsX*)calloc(1,sizeof(SegmentsX));
+
+ segmentsx->row=-1;
 
  return(segmentsx);
 }
@@ -241,21 +243,25 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
 {
  /* Check that the array has enough space. */
 
- if(segmentsx->xnumber==segmentsx->alloced)
+ if(segmentsx->row==-1 || segmentsx->col==INCREMENT_SEGMENTSX)
    {
-    segmentsx->alloced+=INCREMENT_SEGMENTS;
+    segmentsx->row++;
+    segmentsx->col=0;
 
-    segmentsx->xdata=(SegmentX*)realloc((void*)segmentsx->xdata,segmentsx->alloced*sizeof(SegmentX));
+    if((segmentsx->row%16)==0)
+       segmentsx->xdata=(SegmentX**)realloc((void*)segmentsx->xdata,(segmentsx->row+16)*sizeof(SegmentX*));
+
+    segmentsx->xdata[segmentsx->row]=(SegmentX*)malloc(INCREMENT_SEGMENTSX*sizeof(SegmentX));
    }
 
  /* Insert the segment */
 
- segmentsx->xdata[segmentsx->xnumber].way=way;
- segmentsx->xdata[segmentsx->xnumber].node1=node1;
- segmentsx->xdata[segmentsx->xnumber].node2=node2;
- segmentsx->xdata[segmentsx->xnumber].distance=distance;
+ segmentsx->xdata[segmentsx->row][segmentsx->col].way=way;
+ segmentsx->xdata[segmentsx->row][segmentsx->col].node1=node1;
+ segmentsx->xdata[segmentsx->row][segmentsx->col].node2=node2;
+ segmentsx->xdata[segmentsx->row][segmentsx->col].distance=distance;
 
- segmentsx->xnumber++;
+ segmentsx->col++;
 
  segmentsx->sorted=0;
 }
@@ -277,14 +283,14 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  /* Allocate the array of pointers and sort them */
 
- segmentsx->ndata=(SegmentX**)realloc(segmentsx->ndata,segmentsx->xnumber*sizeof(SegmentX*));
+ segmentsx->ndata=(SegmentX**)realloc(segmentsx->ndata,(segmentsx->row*INCREMENT_SEGMENTSX+segmentsx->col)*sizeof(SegmentX*));
 
  segmentsx->number=0;
 
- for(i=0;i<segmentsx->xnumber;i++)
-    if(segmentsx->xdata[i].node1!=NO_NODE)
+ for(i=0;i<(segmentsx->row*INCREMENT_SEGMENTSX+segmentsx->col);i++)
+    if(segmentsx->xdata[i/INCREMENT_SEGMENTSX][i%INCREMENT_SEGMENTSX].node1!=NO_NODE)
       {
-       segmentsx->ndata[segmentsx->number]=&segmentsx->xdata[i];
+       segmentsx->ndata[segmentsx->number]=&segmentsx->xdata[i/INCREMENT_SEGMENTSX][i%INCREMENT_SEGMENTSX];
        segmentsx->number++;
       }
 
@@ -533,7 +539,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
     segmentsx->sdata[i].node1=0;
     segmentsx->sdata[i].node2=0;
     segmentsx->sdata[i].next2=NO_NODE;
-    segmentsx->sdata[i].way=wayx->way-waysx->wdata;
+    segmentsx->sdata[i].way=IndexWayInWaysX(waysx,wayx);
     segmentsx->sdata[i].distance=segmentsx->ndata[i]->distance;
 
     if(!((i+1)%10000))

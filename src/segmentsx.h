@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.11 2009-07-01 18:23:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.12 2009-07-04 17:58:06 amb Exp $
 
  A header file for the extended segments.
 
@@ -51,11 +51,14 @@ struct _SegmentX
 struct _SegmentsX
 {
  uint32_t   sorted;             /*+ Is the data sorted and therefore searchable? +*/
- uint32_t   alloced;            /*+ How many entries are allocated? +*/
- uint32_t   xnumber;            /*+ How many entries are used from those allocated? +*/
+
+ int32_t    row;                /*+ How many rows are allocated? +*/
+ uint32_t   col;                /*+ How many columns are used in the last row? +*/
+
+ SegmentX **xdata;              /*+ The extended segment data (unsorted). +*/
+
  uint32_t   number;             /*+ How many entries are still useful? +*/
 
- SegmentX  *xdata;              /*+ The extended segment data (unsorted). +*/
  SegmentX **ndata;              /*+ The extended segment data (sorted by node). +*/
 
  Segment   *sdata;              /*+ The segment data (same order as ndata). +*/

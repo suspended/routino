@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.10 2009-07-02 19:41:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.11 2009-07-04 17:58:06 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -50,20 +50,26 @@ struct _WayX
 struct _WaysX
 {
  uint32_t sorted;               /*+ Is the data sorted? +*/
- uint32_t alloced;              /*+ How many entries are allocated? +*/
- uint32_t xnumber;              /*+ How many entries are used from those allocated? +*/
- uint32_t number;               /*+ How many entries are still useful? +*/
- uint32_t length;               /*+ How long is the string of name entries? +*/
 
- WayX    *xdata;                /*+ The extended data for the Ways (unsorted). +*/
+ int32_t  row;                  /*+ How many rows are allocated? +*/
+ uint32_t col;                  /*+ How many columns are used in the last row? +*/
+
+ WayX   **xdata;                /*+ The extended data for the Ways (unsorted). +*/
+
+ uint32_t number;               /*+ How many entries are still useful? +*/
+
  WayX   **idata;                /*+ The extended data for the Ways (sorted by ID). +*/
  WayX   **ndata;                /*+ The extended data for the Ways (sorted by name and way properties). +*/
 
- uint32_t wnumber;              /*+ How many way entries are used? +*/
+ int32_t  wrow;                 /*+ How many rows are allocated? +*/
+ uint32_t wcol;                 /*+ How many columns are used in the last row? +*/
 
- Way     *wdata;                /*+ The data for the Ways (unsorted). +*/
+ Way    **wxdata;               /*+ The data for the Ways (unsorted). +*/
+ Way    **wdata;                /*+ The data for the Ways (sorted like ndata and compacted). +*/
 
  char    *names;                /*+ The array containing all the names. +*/
+
+ uint32_t length;               /*+ How long is the string of name entries? +*/
 };
 
 
@@ -79,5 +85,7 @@ WayX *FindWayX(WaysX* waysx,way_t id);
 Way *AppendWay(WaysX* waysx,way_t id,const char *name);
 
 void SortWayList(WaysX *waysx);
+
+index_t IndexWayInWaysX(WaysX *waysx,WayX *wayx);
 
 #endif /* WAYSX_H */

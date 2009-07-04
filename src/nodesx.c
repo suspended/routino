@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.20 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.21 2009-07-04 17:58:04 amb Exp $
 
  Extented Node data type functions.
 
@@ -35,8 +35,8 @@
 
 /* Constants */
 
-/*+ The array size increment for nodes - expect ~8,000,000 nodes. +*/
-#define INCREMENT_NODES 1024*1024
+/*+ The array size increment for NodesX (UK is ~10.3M raw nodes, this is ~78 increments). +*/
+#define INCREMENT_NODESX (128*1024)
 
 
 /* Functions */
@@ -56,6 +56,8 @@ NodesX *NewNodeList(void)
  NodesX *nodesx;
 
  nodesx=(NodesX*)calloc(1,sizeof(NodesX));
+
+ nodesx->row=-1;
 
  return(nodesx);
 }
@@ -92,7 +94,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  latbins=(lat_max-lat_min)+1;
  lonbins=(lon_max-lon_min)+1;
 
- offsets=malloc((latbins*lonbins+1)*sizeof(index_t));
+ offsets=(index_t*)malloc((latbins*lonbins+1)*sizeof(index_t));
 
  latlonbin=0;
 
@@ -236,21 +238,25 @@ void AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude)
 {
  /* Check that the array has enough space. */
 
- if(nodesx->xnumber==nodesx->alloced)
+ if(nodesx->row==-1 || nodesx->col==INCREMENT_NODESX)
    {
-    nodesx->alloced+=INCREMENT_NODES;
+    nodesx->row++;
+    nodesx->col=0;
 
-    nodesx->xdata=(NodeX*)realloc((void*)nodesx->xdata,nodesx->alloced*sizeof(NodeX));
+    if((nodesx->row%16)==0)
+       nodesx->xdata=(NodeX**)realloc((void*)nodesx->xdata,(nodesx->row+16)*sizeof(NodeX*));
+
+    nodesx->xdata[nodesx->row]=(NodeX*)malloc(INCREMENT_NODESX*sizeof(NodeX));
    }
 
  /* Insert the node */
 
- nodesx->xdata[nodesx->xnumber].id=id;
- nodesx->xdata[nodesx->xnumber].super=0;
- nodesx->xdata[nodesx->xnumber].latitude =floorf(latitude *LAT_LONG_SCALE)/LAT_LONG_SCALE;
- nodesx->xdata[nodesx->xnumber].longitude=floorf(longitude*LAT_LONG_SCALE)/LAT_LONG_SCALE;
+ nodesx->xdata[nodesx->row][nodesx->col].id=id;
+ nodesx->xdata[nodesx->row][nodesx->col].super=0;
+ nodesx->xdata[nodesx->row][nodesx->col].latitude =floorf(latitude *LAT_LONG_SCALE)/LAT_LONG_SCALE;
+ nodesx->xdata[nodesx->row][nodesx->col].longitude=floorf(longitude*LAT_LONG_SCALE)/LAT_LONG_SCALE;
 
- nodesx->xnumber++;
+ nodesx->col++;
 
  nodesx->sorted=0;
 }
@@ -273,16 +279,16 @@ void SortNodeList(NodesX* nodesx)
 
  /* Allocate the array of pointers and sort them */
 
- nodesx->idata=(NodeX**)realloc(nodesx->idata,nodesx->xnumber*sizeof(NodeX*));
+ nodesx->idata=(NodeX**)realloc(nodesx->idata,(nodesx->row*INCREMENT_NODESX+nodesx->col)*sizeof(NodeX*));
 
  do
    {
     nodesx->number=0;
 
-    for(i=0;i<nodesx->xnumber;i++)
-       if(nodesx->xdata[i].id!=NO_NODE)
+    for(i=0;i<(nodesx->row*INCREMENT_NODESX+nodesx->col);i++)
+       if(nodesx->xdata[i/INCREMENT_NODESX][i%INCREMENT_NODESX].id!=NO_NODE)
          {
-          nodesx->idata[nodesx->number]=&nodesx->xdata[i];
+          nodesx->idata[nodesx->number]=&nodesx->xdata[i/INCREMENT_NODESX][i%INCREMENT_NODESX];
           nodesx->number++;
          }
 
@@ -377,7 +383,7 @@ void SortNodeListGeographically(NodesX* nodesx)
        nodesx->lon_max=nodesx->idata[i]->longitude;
    }
 
- printf("\rSorted Nodes Geographically\n"); fflush(stdout);
+ printf("\rSorted Nodes Geographically \n"); fflush(stdout);
 }
 
 
@@ -430,13 +436,13 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  assert(nodesx->xdata);         /* Must have xdata filled in */
 
- for(i=0;i<nodesx->xnumber;i++)
+ for(i=0;i<(nodesx->row*INCREMENT_NODESX+nodesx->col);i++)
    {
-    if(FindFirstSegmentX(segmentsx,nodesx->xdata[i].id))
+    if(FindFirstSegmentX(segmentsx,nodesx->xdata[i/INCREMENT_NODESX][i%INCREMENT_NODESX].id))
        highway++;
     else
       {
-       nodesx->xdata[i].id=NO_NODE;
+       nodesx->xdata[i/INCREMENT_NODESX][i%INCREMENT_NODESX].id=NO_NODE;
        nothighway++;
       }
 
@@ -447,7 +453,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
       }
    }
 
- printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",nodesx->xnumber,highway,nothighway);
+ printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",i,highway,nothighway);
  fflush(stdout);
 
  nodesx->sorted=0;

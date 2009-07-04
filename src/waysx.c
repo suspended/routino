@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.11 2009-07-02 19:41:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.12 2009-07-04 17:58:06 amb Exp $
 
  Extended Way data type functions.
 
@@ -32,8 +32,14 @@
 
 /* Constants */
 
-/*+ The array size increment for ways - expect ~1,000,000 ways. +*/
-#define INCREMENT_WAYS 256*1024
+/*+ The array size increment for WaysX (UK is ~1.3M raw ways, this is ~79 increments). +*/
+#define INCREMENT_WAYSX (16*1024)
+
+/*+ The array size increment for Ways (UK is ~240k compacted ways, this is ~59 increments). +*/
+#define INCREMENT_WAYS   (4*1024)
+
+/*+ The array size increment for names (UK is ~2.9MBytes of compacted names, this is ~22 increments). +*/
+#define INCREMENT_NAMES (128*1024)
 
 
 /* Functions */
@@ -53,6 +59,9 @@ WaysX *NewWayList(void)
  WaysX *waysx;
 
  waysx=(WaysX*)calloc(1,sizeof(WaysX));
+
+ waysx->row=-1;
+ waysx->wrow=-1;
 
  return(waysx);
 }
@@ -78,7 +87,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
  /* Fill in a Ways structure with the offset of the real data in the file after
     the Way structure itself. */
 
- ways->number=waysx->wnumber;
+ ways->number=waysx->wrow*INCREMENT_WAYS+waysx->wcol;
  ways->data=NULL;
  ways->ways=(void*)sizeof(Ways);
  ways->names=(void*)(sizeof(Ways)+ways->number*sizeof(Way));
@@ -91,7 +100,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  for(i=0;i<ways->number;i++)
    {
-    WriteFile(fd,&waysx->wdata[i],sizeof(Way));
+    WriteFile(fd,&waysx->wdata[i/INCREMENT_WAYS][i%INCREMENT_WAYS],sizeof(Way));
 
     if(!((i+1)%10000))
       {
@@ -189,30 +198,38 @@ WayX *FindWayX(WaysX* waysx,way_t id)
 
 Way *AppendWay(WaysX* waysx,way_t id,const char *name)
 {
+ assert(!waysx->wdata);       /* Must not have wdata filled in */
+
  /* Check that the arrays have enough space. */
 
- if(waysx->xnumber==waysx->alloced)
+ if(waysx->row==-1 || waysx->col==INCREMENT_WAYSX)
    {
-    waysx->alloced+=INCREMENT_WAYS;
+    waysx->row++;
+    waysx->col=0;
 
-    waysx->xdata=(WayX*)realloc((void*)waysx->xdata,waysx->alloced*sizeof(WayX));
+    if((waysx->row%16)==0)
+      {
+       waysx->xdata=(WayX**)realloc((void*)waysx->xdata,(waysx->row+16)*sizeof(WayX*));
+       waysx->wxdata=(Way**)realloc((void*)waysx->wxdata,(waysx->row+16)*sizeof(Way*));
+      }
 
-    waysx->wdata=(Way*)realloc((void*)waysx->wdata,waysx->alloced*sizeof(Way));
+    waysx->xdata[waysx->row]=(WayX*)malloc(INCREMENT_WAYSX*sizeof(WayX));
+    waysx->wxdata[waysx->row]=(Way*)malloc(INCREMENT_WAYSX*sizeof(Way));
    }
 
  /* Insert the way */
 
- waysx->xdata[waysx->xnumber].id=id;
- waysx->xdata[waysx->xnumber].name=strcpy((char*)malloc(strlen(name)+1),name);
- waysx->xdata[waysx->xnumber].way=&waysx->wdata[waysx->xnumber];
+ waysx->xdata[waysx->row][waysx->col].id=id;
+ waysx->xdata[waysx->row][waysx->col].name=strcpy((char*)malloc(strlen(name)+1),name);
+ waysx->xdata[waysx->row][waysx->col].way=&waysx->wxdata[waysx->row][waysx->col];
 
- memset(&waysx->wdata[waysx->xnumber],0,sizeof(Way));
+ memset(&waysx->wxdata[waysx->row][waysx->col],0,sizeof(Way));
 
- waysx->xnumber++;
+ waysx->col++;
 
  waysx->sorted=0;
 
- return(&waysx->wdata[waysx->xnumber-1]);
+ return(&waysx->wxdata[waysx->row][waysx->col-1]);
 }
 
 
@@ -224,25 +241,27 @@ Way *AppendWay(WaysX* waysx,way_t id,const char *name)
 
 void SortWayList(WaysX* waysx)
 {
- Way *uniq_ways;
  index_t i,j;
  int duplicate;
 
  assert(waysx->xdata);         /* Must have xdata filled in */
- assert(waysx->wdata);         /* Must have wdata filled in */
+ assert(waysx->wxdata);         /* Must have wxdata filled in */
+ assert(!waysx->wdata);         /* Must not have wdata filled in */
 
- /* Sort the ways by id */
+ printf("Sorting Ways"); fflush(stdout);
 
- waysx->idata=(WayX**)malloc(waysx->xnumber*sizeof(WayX*));
+ /* Allocate the array of pointers and sort them */
+
+ waysx->idata=(WayX**)malloc((waysx->row*INCREMENT_WAYSX+waysx->col)*sizeof(WayX*));
 
  do
    {
     waysx->number=0;
 
-    for(i=0;i<waysx->xnumber;i++)
-       if(waysx->xdata[i].id!=NO_WAY)
+    for(i=0;i<(waysx->row*INCREMENT_WAYSX+waysx->col);i++)
+       if(waysx->xdata[i/INCREMENT_WAYSX][i%INCREMENT_WAYSX].id!=NO_WAY)
          {
-          waysx->idata[waysx->number]=&waysx->xdata[i];
+          waysx->idata[waysx->number]=&waysx->xdata[i/INCREMENT_WAYSX][i%INCREMENT_WAYSX];
           waysx->number++;
          }
 
@@ -276,16 +295,14 @@ void SortWayList(WaysX* waysx)
 
  /* Allocate the new data for names */
 
- waysx->names=(char*)malloc(waysx->alloced*sizeof(char));
-
- /* Allocate the data for unique ways */
-
- uniq_ways=(Way*)malloc(waysx->number*sizeof(Way));
+ waysx->names=(char*)malloc(INCREMENT_NAMES*sizeof(char));
 
  /* Setup the offsets for the names in the way array */
 
  for(i=0,j=0;i<waysx->number;i++)
    {
+    int copy=0;
+
     if(i && !strcmp(waysx->ndata[i]->name,waysx->ndata[i-1]->name)) /* Same name */
       {
        waysx->ndata[i]->way->name=waysx->ndata[i-1]->way->name;
@@ -293,19 +310,12 @@ void SortWayList(WaysX* waysx)
        if(!WaysCompare(waysx->ndata[i]->way,waysx->ndata[i-1]->way)) /* Same properties */
           waysx->ndata[i]->way=waysx->ndata[i-1]->way;
        else
-         {
-          uniq_ways[j]=*waysx->ndata[i]->way;
-          waysx->ndata[i]->way=&uniq_ways[j++];
-         }
+          copy=1;
       }
     else                                                          /* Different name */
       {
-       if((waysx->length+strlen(waysx->ndata[i]->name)+1)>=waysx->alloced)
-         {
-          waysx->alloced+=INCREMENT_WAYS;
-
-          waysx->names=(char*)realloc((void*)waysx->names,waysx->alloced*sizeof(char));
-         }
+       if(((waysx->length+strlen(waysx->ndata[i]->name)+INCREMENT_NAMES)/INCREMENT_NAMES)>(waysx->length/INCREMENT_NAMES))
+          waysx->names=(char*)realloc((void*)waysx->names,(waysx->length/INCREMENT_NAMES+1)*INCREMENT_NAMES*sizeof(char));
 
        strcpy(&waysx->names[waysx->length],waysx->ndata[i]->name);
 
@@ -313,16 +323,38 @@ void SortWayList(WaysX* waysx)
 
        waysx->length+=strlen(waysx->ndata[i]->name)+1;
 
-       uniq_ways[j]=*waysx->ndata[i]->way;
-       waysx->ndata[i]->way=&uniq_ways[j++];
+       copy=1;
+      }
+
+    if(copy)
+      {
+       /* Check that the array has enough space. */
+
+       if(waysx->wrow==-1 || waysx->wcol==INCREMENT_WAYS)
+         {
+          waysx->wrow++;
+          waysx->wcol=0;
+
+          if((waysx->wrow%16)==0)
+             waysx->wdata=(Way **)realloc((void*)waysx->wdata,(waysx->wrow+16)*sizeof(Way*));
+
+          waysx->wdata[waysx->wrow]=(Way *)malloc(INCREMENT_WAYSX*sizeof(Way));
+         }
+
+       waysx->wdata[waysx->wrow][waysx->wcol]=*waysx->ndata[i]->way;
+
+       waysx->ndata[i]->way=&waysx->wdata[waysx->wrow][waysx->wcol];
+
+       waysx->wcol++;
       }
    }
 
- waysx->wnumber=j;
+ for(i=0;i<waysx->row;i++)
+    free(waysx->wxdata[i]);
+ free(waysx->wxdata);
+ waysx->wxdata=NULL;
 
- free(waysx->wdata);
-
- waysx->wdata=uniq_ways;
+ printf("\rSorted Ways \n"); fflush(stdout);
 
  waysx->sorted=1;
 }
@@ -379,4 +411,29 @@ static int sort_by_name_and_properties(WayX **a,WayX **b)
 
     return(WaysCompare(a_way,b_way));
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Work out the index of the Way in the final data.
+
+  index_t IndexWayInWaysX Returns the index of the Way.
+
+  WaysX *waysx The Ways to use.
+
+  WayX *wayx The extended way attached to the way.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexWayInWaysX(WaysX *waysx,WayX *wayx)
+{
+ int row;
+
+ assert(waysx->wdata);          /* Must have wdata filled in */
+
+ for(row=waysx->wrow;row>=0;row--)
+    if((wayx->way-waysx->wdata[row])>=0 &&
+       (wayx->way-waysx->wdata[row])<INCREMENT_WAYSX)
+       break;
+
+ return(row*INCREMENT_WAYS+(off_t)(wayx->way-waysx->wdata[row]));
 }

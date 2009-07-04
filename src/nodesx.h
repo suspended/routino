@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.6 2009-07-01 18:23:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.7 2009-07-04 17:58:05 amb Exp $
 
  A header file for the extended nodes.
 
@@ -50,20 +50,23 @@ struct _NodeX
 struct _NodesX
 {
  uint32_t sorted;               /*+ Is the data sorted and therefore searchable? +*/
- uint32_t alloced;              /*+ How many entries are allocated? +*/
- uint32_t xnumber;              /*+ How many entries are used from those allocated? +*/
+
+ int32_t  row;                  /*+ How many rows are allocated? +*/
+ uint32_t col;                  /*+ How many columns are used in the last row? +*/
+
+ NodeX  **xdata;                /*+ The extended node data (unsorted). +*/
+
  uint32_t number;               /*+ How many entries are still useful? +*/
+
+ NodeX  **gdata;                /*+ The extended node data (sorted geographically). +*/
+ NodeX  **idata;                /*+ The extended node data (sorted by ID). +*/
+
+ Node    *ndata;                /*+ The actual nodes (same order as idata). +*/
 
  float    lat_min;              /*+ The minimum latitude of the set of nodes. +*/
  float    lat_max;              /*+ The maximum latitude of the set of nodes. +*/
  float    lon_min;              /*+ The minimum longitude of the set of nodes. +*/
  float    lon_max;              /*+ The maximum longitude of the set of nodes. +*/
-
- NodeX   *xdata;                /*+ The extended node data (unsorted). +*/
- NodeX  **gdata;                /*+ The extended node data (sorted geographically). +*/
- NodeX  **idata;                /*+ The extended node data (sorted by ID). +*/
-
- Node    *ndata;                /*+ The actual nodes (same order as idata). +*/
 };
 
 
