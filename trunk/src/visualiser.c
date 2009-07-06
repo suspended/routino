@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.4 2009-06-15 19:06:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.5 2009-07-06 17:51:37 amb Exp $
 
  Extract data from Routino.
 
@@ -49,11 +49,16 @@ static Nodes    *OSMNodes;
 static Segments *OSMSegments;
 static Ways     *OSMWays;
 
+static float LatMin;
+static float LatMax;
+static float LonMin;
+static float LonMax;
+
 static int limit_type=0;
 
 /* Local functions */
 
-static void find_all_nodes(Nodes *nodes,float latmin,float latmax,float lonmin,float lonmax,callback_t callback);
+static void find_all_nodes(Nodes *nodes,callback_t callback);
 static void output_junctions(index_t node,float latitude,float longitude);
 static void output_super(index_t node,float latitude,float longitude);
 static void output_oneway(index_t node,float latitude,float longitude);
@@ -86,9 +91,14 @@ void OutputJunctions(Nodes *nodes,Segments *segments,Ways *ways,float latmin,flo
  OSMSegments=segments;
  OSMWays=ways;
 
+ LatMin=latmin;
+ LatMax=latmax;
+ LonMin=lonmin;
+ LonMax=lonmax;
+
  /* Iterate through the nodes and process them */
 
- find_all_nodes(nodes,latmin,latmax,lonmin,lonmax,(callback_t)output_junctions);
+ find_all_nodes(nodes,(callback_t)output_junctions);
 }
 
 
@@ -156,9 +166,14 @@ void OutputSuper(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float l
  OSMSegments=segments;
  OSMWays=ways;
 
+ LatMin=latmin;
+ LatMax=latmax;
+ LonMin=lonmin;
+ LonMax=lonmax;
+
  /* Iterate through the nodes and process them */
 
- find_all_nodes(nodes,latmin,latmax,lonmin,lonmax,(callback_t)output_super);
+ find_all_nodes(nodes,(callback_t)output_super);
 }
 
 
@@ -188,15 +203,12 @@ static void output_super(index_t node,float latitude,float longitude)
     if(IsSuperSegment(segment))
       {
        index_t othernode=OtherNode(segment,node);
+       float lat,lon;
 
-       if(node>othernode)
-         {
-          float lat,lon;
+       GetLatLong(OSMNodes,othernode,&lat,&lon);
 
-          GetLatLong(OSMNodes,othernode,&lat,&lon);
-
+       if(node>othernode || (lat<LatMin || lat>LatMax || lon<LonMin || lon>LonMax))
           printf("%.6f %.6f s\n",radians_to_degrees(lat),radians_to_degrees(lon));
-         }
       }
 
     segment=NextSegment(OSMSegments,segment,node);
@@ -231,9 +243,14 @@ void OutputOneway(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float 
  OSMSegments=segments;
  OSMWays=ways;
 
+ LatMin=latmin;
+ LatMax=latmax;
+ LonMin=lonmin;
+ LonMax=lonmax;
+
  /* Iterate through the nodes and process them */
 
- find_all_nodes(nodes,latmin,latmax,lonmin,lonmax,(callback_t)output_oneway);
+ find_all_nodes(nodes,(callback_t)output_oneway);
 }
 
 
@@ -304,11 +321,16 @@ void OutputSpeedLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,f
  OSMSegments=segments;
  OSMWays=ways;
 
+ LatMin=latmin;
+ LatMax=latmax;
+ LonMin=lonmin;
+ LonMax=lonmax;
+
  /* Iterate through the nodes and process them */
 
  limit_type=SPEED_LIMIT;
 
- find_all_nodes(nodes,latmin,latmax,lonmin,lonmax,(callback_t)output_limits);
+ find_all_nodes(nodes,(callback_t)output_limits);
 }
 
 
@@ -338,11 +360,16 @@ void OutputWeightLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,
  OSMSegments=segments;
  OSMWays=ways;
 
+ LatMin=latmin;
+ LatMax=latmax;
+ LonMin=lonmin;
+ LonMax=lonmax;
+
  /* Iterate through the nodes and process them */
 
  limit_type=WEIGHT_LIMIT;
 
- find_all_nodes(nodes,latmin,latmax,lonmin,lonmax,(callback_t)output_limits);
+ find_all_nodes(nodes,(callback_t)output_limits);
 }
 
 
@@ -372,11 +399,16 @@ void OutputHeightLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,
  OSMSegments=segments;
  OSMWays=ways;
 
+ LatMin=latmin;
+ LatMax=latmax;
+ LonMin=lonmin;
+ LonMax=lonmax;
+
  /* Iterate through the nodes and process them */
 
  limit_type=HEIGHT_LIMIT;
 
- find_all_nodes(nodes,latmin,latmax,lonmin,lonmax,(callback_t)output_limits);
+ find_all_nodes(nodes,(callback_t)output_limits);
 }
 
 
@@ -406,11 +438,16 @@ void OutputWidthLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,f
  OSMSegments=segments;
  OSMWays=ways;
 
+ LatMin=latmin;
+ LatMax=latmax;
+ LonMin=lonmin;
+ LonMax=lonmax;
+
  /* Iterate through the nodes and process them */
 
  limit_type=WIDTH_LIMIT;
 
- find_all_nodes(nodes,latmin,latmax,lonmin,lonmax,(callback_t)output_limits);
+ find_all_nodes(nodes,(callback_t)output_limits);
 }
 
 
@@ -440,11 +477,16 @@ void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,
  OSMSegments=segments;
  OSMWays=ways;
 
+ LatMin=latmin;
+ LatMax=latmax;
+ LonMin=lonmin;
+ LonMax=lonmax;
+
  /* Iterate through the nodes and process them */
 
  limit_type=LENGTH_LIMIT;
 
- find_all_nodes(nodes,latmin,latmax,lonmin,lonmax,(callback_t)output_limits);
+ find_all_nodes(nodes,(callback_t)output_limits);
 }
 
 
@@ -484,7 +526,8 @@ static void output_limits(index_t node,float latitude,float longitude)
          case LENGTH_LIMIT: limits[count]=ways[count]->length; break;
          }
 
-       count++;
+       if(limits[count] || ways[count]->type<Way_Track)
+          count++;
       }
 
     segment=NextSegment(OSMSegments,segment,node);
@@ -551,23 +594,15 @@ static void output_limits(index_t node,float latitude,float longitude)
 
   Nodes *nodes The list of nodes to process.
 
-  float latmin The minimum latitude.
-
-  float latmax The maximum latitude.
-
-  float lonmin The minimum longitude.
-
-  float lonmax The maximum longitude.
-
   callback_t callback The callback function for each node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void find_all_nodes(Nodes *nodes,float latmin,float latmax,float lonmin,float lonmax,callback_t callback)
+static void find_all_nodes(Nodes *nodes,callback_t callback)
 {
- int32_t latminbin=lat_long_to_bin(latmin)-nodes->latzero;
- int32_t latmaxbin=lat_long_to_bin(latmax)-nodes->latzero;
- int32_t lonminbin=lat_long_to_bin(lonmin)-nodes->lonzero;
- int32_t lonmaxbin=lat_long_to_bin(lonmax)-nodes->lonzero;
+ int32_t latminbin=lat_long_to_bin(LatMin)-nodes->latzero;
+ int32_t latmaxbin=lat_long_to_bin(LatMax)-nodes->latzero;
+ int32_t lonminbin=lat_long_to_bin(LonMin)-nodes->lonzero;
+ int32_t lonmaxbin=lat_long_to_bin(LonMax)-nodes->lonzero;
  int latb,lonb,llbin;
  index_t node;
 
@@ -586,7 +621,7 @@ static void find_all_nodes(Nodes *nodes,float latmin,float latmax,float lonmin,f
           float lat=(float)((nodes->latzero+latb)*LAT_LONG_BIN+nodes->nodes[node].latoffset)/LAT_LONG_SCALE;
           float lon=(float)((nodes->lonzero+lonb)*LAT_LONG_BIN+nodes->nodes[node].lonoffset)/LAT_LONG_SCALE;
 
-          if(lat>latmin && lat<latmax && lon>lonmin && lon<lonmax)
+          if(lat>LatMin && lat<LatMax && lon>LonMin && lon<LonMax)
              (*callback)(node,lat,lon);
          }
       }
