@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.19 2009-07-04 17:58:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.20 2009-07-08 17:35:15 amb Exp $
 
  Super-Segment data type functions.
 
@@ -119,7 +119,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 {
  index_t i;
  SegmentsX *supersegmentsx;
- int ss;
+ int ss=0;
 
  assert(nodesx->idata);         /* Must have idata filled in */
 
