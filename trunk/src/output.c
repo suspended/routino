@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.10 2009-06-15 18:52:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.11 2009-07-09 17:31:55 amb Exp $
 
  Routing output generator.
 
@@ -45,7 +45,7 @@ extern int option_quickest;
 static FILE *gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
 
 /*+ The final latitude, longitude point. +*/
-static float finish_latitude,finish_longitude;
+static double finish_latitude,finish_longitude;
 
 /*+ Heuristics for determining if a junction is important. +*/
 static char junction_other_way[Way_Unknown][Way_Unknown]=
@@ -253,8 +253,8 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
  static duration_t cum_duration=0;
  static int segment_count=0;
  static int route_count=0;
- float finish_lat,finish_lon;
- float start_lat,start_lon;
+ double finish_lat,finish_lon;
+ double start_lat,start_lon;
  distance_t junc_distance=0;
  duration_t junc_duration=0;
  Result *result;
@@ -268,7 +268,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
  do
    {
-    float latitude,longitude;
+    double latitude,longitude;
 
     GetLatLong(nodes,result->node,&latitude,&longitude);
 

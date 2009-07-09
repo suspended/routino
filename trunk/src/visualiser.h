@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.h,v 1.1 2009-06-07 15:32:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/visualiser.h,v 1.2 2009-07-09 17:31:56 amb Exp $
 
  Header file for visualiser functions.
 
@@ -30,19 +30,19 @@
 
 /* In visualiser.c */
 
-void OutputJunctions(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax);
+void OutputJunctions(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax);
 
-void OutputSuper(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax);
+void OutputSuper(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax);
 
-void OutputOneway(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax);
+void OutputOneway(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax);
 
-void OutputSpeedLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax);
+void OutputSpeedLimits(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax);
 
-void OutputWeightLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax);
+void OutputWeightLimits(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax);
 
-void OutputHeightLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax);
-void OutputWidthLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax);
-void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax);
+void OutputHeightLimits(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax);
+void OutputWidthLimits(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax);
+void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax);
 
 
 #endif /* VISUALISER_H */

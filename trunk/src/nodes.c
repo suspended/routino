@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.31 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.32 2009-07-09 17:31:55 amb Exp $
 
  Node data type functions.
 
@@ -78,21 +78,21 @@ Nodes *LoadNodeList(const char *filename)
 
   Ways *ways The set of ways to use.
 
-  float latitude The latitude to look for.
+  double latitude The latitude to look for.
 
-  float longitude The longitude to look for.
+  double longitude The longitude to look for.
 
-  distance_t distance The maximum distance to look, returns the final distance.
+  distance_t *distance The maximum distance to look, returns the final distance.
 
   Profile *profile The profile of the mode of transport.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,float latitude,float longitude,distance_t *distance,Profile *profile)
+index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,distance_t *distance,Profile *profile)
 {
- int32_t latbin=lat_long_to_bin(latitude )-nodes->latzero;
- int32_t lonbin=lat_long_to_bin(longitude)-nodes->lonzero;
- int     delta=0,count;
- index_t i,best=NO_NODE;
+ ll_bin_t latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->xlatzero;
+ ll_bin_t lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->xlonzero;
+ int      delta=0,count;
+ index_t  i,best=NO_NODE;
 
  /* Start with the bin containing the location, then spiral outwards. */
 
@@ -115,10 +115,10 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,float latitude,float
 
           if(delta>0)
             {
-             float lat1=(float)((nodes->latzero+latb)*LAT_LONG_BIN)/LAT_LONG_SCALE;
-             float lon1=(float)((nodes->lonzero+lonb)*LAT_LONG_BIN)/LAT_LONG_SCALE;
-             float lat2=(float)((nodes->latzero+latb+1)*LAT_LONG_BIN)/LAT_LONG_SCALE;
-             float lon2=(float)((nodes->lonzero+lonb+1)*LAT_LONG_BIN)/LAT_LONG_SCALE;
+             double lat1=latlong_to_radians(bin_to_latlong(nodes->xlatzero+latb));
+             double lon1=latlong_to_radians(bin_to_latlong(nodes->xlonzero+lonb));
+             double lat2=latlong_to_radians(bin_to_latlong(nodes->xlatzero+latb+1));
+             double lon2=latlong_to_radians(bin_to_latlong(nodes->xlonzero+lonb+1));
 
              if(latb==latbin)
                {
@@ -150,8 +150,8 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,float latitude,float
 
           for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
             {
-             float lat=(float)((nodes->latzero+latb)*LAT_LONG_BIN+nodes->nodes[i].latoffset)/LAT_LONG_SCALE;
-             float lon=(float)((nodes->lonzero+lonb)*LAT_LONG_BIN+nodes->nodes[i].lonoffset)/LAT_LONG_SCALE;
+             double lat=latlong_to_radians(bin_to_latlong(nodes->xlatzero+latb)+off_to_latlong(nodes->nodes[i].latoffset));
+             double lon=latlong_to_radians(bin_to_latlong(nodes->xlonzero+lonb)+off_to_latlong(nodes->nodes[i].lonoffset));
 
              distance_t dist=Distance(lat,lon,latitude,longitude);
 
@@ -202,12 +202,12 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,float latitude,float
 
   index_t index The node index.
 
-  float *latitude Returns the latitude.
+  double *latitude Returns the latitude.
 
-  float *longitude Returns the logitude.
+  double *longitude Returns the logitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void GetLatLong(Nodes *nodes,index_t index,float *latitude,float *longitude)
+void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
 {
  Node *node=&nodes->nodes[index];
  int latbin=-1,lonbin=-1;
@@ -284,6 +284,6 @@ void GetLatLong(Nodes *nodes,index_t index,float *latitude,float *longitude)
 
  /* Return the values */
 
- *latitude =(float)((nodes->latzero+latbin)*LAT_LONG_BIN+node->latoffset)/LAT_LONG_SCALE;
- *longitude=(float)((nodes->lonzero+lonbin)*LAT_LONG_BIN+node->lonoffset)/LAT_LONG_SCALE;
+ *latitude =latlong_to_radians(bin_to_latlong(nodes->xlatzero+latbin)+off_to_latlong(node->latoffset));
+ *longitude=latlong_to_radians(bin_to_latlong(nodes->xlonzero+lonbin)+off_to_latlong(node->lonoffset));
 }

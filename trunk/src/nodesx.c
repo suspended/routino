@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.21 2009-07-04 17:58:04 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.22 2009-07-09 17:31:55 amb Exp $
 
  Extented Node data type functions.
 
@@ -77,22 +77,42 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  int fd;
  Nodes *nodes=calloc(1,sizeof(Nodes));
  index_t *offsets;
- int32_t lat_min,lat_max,lon_min,lon_max;
+ ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
+ latlong_t lat_min,lat_max,lon_min,lon_max;
  int latbins,lonbins,latlonbin;
 
  assert(nodesx->sorted);        /* Must be sorted */
  assert(nodesx->gdata);         /* Must have gdata filled in */
  assert(nodesx->ndata);         /* Must have ndata filled in */
 
+ /* Work out the range of data */
+
+ lat_min=radians_to_latlong( 2);
+ lat_max=radians_to_latlong(-2);
+ lon_min=radians_to_latlong( 4);
+ lon_max=radians_to_latlong(-4);
+
+ for(i=0;i<nodesx->number;i++)
+   {
+    if(nodesx->idata[i]->xlatitude<lat_min)
+       lat_min=nodesx->idata[i]->xlatitude;
+    if(nodesx->idata[i]->xlatitude>lat_max)
+       lat_max=nodesx->idata[i]->xlatitude;
+    if(nodesx->idata[i]->xlongitude<lon_min)
+       lon_min=nodesx->idata[i]->xlongitude;
+    if(nodesx->idata[i]->xlongitude>lon_max)
+       lon_max=nodesx->idata[i]->xlongitude;
+   }
+
  /* Work out the offsets */
 
- lat_min=lat_long_to_bin(nodesx->lat_min);
- lon_min=lat_long_to_bin(nodesx->lon_min);
- lat_max=lat_long_to_bin(nodesx->lat_max);
- lon_max=lat_long_to_bin(nodesx->lon_max);
+ lat_min_bin=latlong_to_bin(lat_min);
+ lon_min_bin=latlong_to_bin(lon_min);
+ lat_max_bin=latlong_to_bin(lat_max);
+ lon_max_bin=latlong_to_bin(lon_max);
 
- latbins=(lat_max-lat_min)+1;
- lonbins=(lon_max-lon_min)+1;
+ latbins=(lat_max_bin-lat_min_bin)+1;
+ lonbins=(lon_max_bin-lon_min_bin)+1;
 
  offsets=(index_t*)malloc((latbins*lonbins+1)*sizeof(index_t));
 
@@ -100,8 +120,8 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  for(i=0;i<nodesx->number;i++)
    {
-    int32_t latbin=lat_long_to_bin(nodesx->gdata[i]->latitude )-lat_min;
-    int32_t lonbin=lat_long_to_bin(nodesx->gdata[i]->longitude)-lon_min;
+    ll_bin_t latbin=latlong_to_bin(nodesx->gdata[i]->xlatitude )-lat_min_bin;
+    ll_bin_t lonbin=latlong_to_bin(nodesx->gdata[i]->xlongitude)-lon_min_bin;
     int llbin=lonbin*latbins+latbin;
 
     for(;latlonbin<=llbin;latlonbin++)
@@ -119,8 +139,8 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  nodes->latbins=latbins;
  nodes->lonbins=lonbins;
 
- nodes->latzero=lat_min;
- nodes->lonzero=lon_min;
+ nodes->xlatzero=lat_min_bin;
+ nodes->xlonzero=lon_min_bin;
 
  nodes->data=NULL;
  nodes->offsets=(void*)sizeof(Nodes);
@@ -229,12 +249,12 @@ NodeX **FindNodeX(NodesX* nodesx,node_t id)
 
   node_t id The node identification.
 
-  float latitude The latitude of the node.
+  double latitude The latitude of the node.
 
-  float longitude The longitude of the node.
+  double longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude)
+void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 {
  /* Check that the array has enough space. */
 
@@ -253,8 +273,8 @@ void AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude)
 
  nodesx->xdata[nodesx->row][nodesx->col].id=id;
  nodesx->xdata[nodesx->row][nodesx->col].super=0;
- nodesx->xdata[nodesx->row][nodesx->col].latitude =floorf(latitude *LAT_LONG_SCALE)/LAT_LONG_SCALE;
- nodesx->xdata[nodesx->row][nodesx->col].longitude=floorf(longitude*LAT_LONG_SCALE)/LAT_LONG_SCALE;
+ nodesx->xdata[nodesx->row][nodesx->col].xlatitude =radians_to_latlong(latitude);
+ nodesx->xdata[nodesx->row][nodesx->col].xlongitude=radians_to_latlong(longitude);
 
  nodesx->col++;
 
@@ -364,25 +384,6 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  qsort(nodesx->gdata,nodesx->number,sizeof(NodeX*),(int (*)(const void*,const void*))sort_by_lat_long);
 
- /* Work out the range of data */
-
- nodesx->lat_min=2;
- nodesx->lat_max=-2;
- nodesx->lon_min=4;
- nodesx->lon_max=-4;
-
- for(i=0;i<nodesx->number;i++)
-   {
-    if(nodesx->idata[i]->latitude<nodesx->lat_min)
-       nodesx->lat_min=nodesx->idata[i]->latitude;
-    if(nodesx->idata[i]->latitude>nodesx->lat_max)
-       nodesx->lat_max=nodesx->idata[i]->latitude;
-    if(nodesx->idata[i]->longitude<nodesx->lon_min)
-       nodesx->lon_min=nodesx->idata[i]->longitude;
-    if(nodesx->idata[i]->longitude>nodesx->lon_max)
-       nodesx->lon_max=nodesx->idata[i]->longitude;
-   }
-
  printf("\rSorted Nodes Geographically \n"); fflush(stdout);
 }
 
@@ -399,8 +400,8 @@ void SortNodeListGeographically(NodesX* nodesx)
 
 static int sort_by_lat_long(NodeX **a,NodeX **b)
 {
- int32_t a_lon=lat_long_to_bin((*a)->longitude);
- int32_t b_lon=lat_long_to_bin((*b)->longitude);
+ ll_bin_t a_lon=latlong_to_bin((*a)->xlongitude);
+ ll_bin_t b_lon=latlong_to_bin((*b)->xlongitude);
 
  if(a_lon<b_lon)
     return(-1);
@@ -408,8 +409,8 @@ static int sort_by_lat_long(NodeX **a,NodeX **b)
     return(1);
  else
    {
-    int32_t a_lat=lat_long_to_bin((*a)->latitude);
-    int32_t b_lat=lat_long_to_bin((*b)->latitude);
+    ll_bin_t a_lat=latlong_to_bin((*a)->xlatitude);
+    ll_bin_t b_lat=latlong_to_bin((*b)->xlatitude);
 
     if(a_lat<b_lat)
        return(-1);
@@ -482,11 +483,8 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  for(i=0;i<nodesx->number;i++)
    {
-    int32_t lat=(int32_t)(nodesx->idata[i]->latitude *LAT_LONG_SCALE);
-    int32_t lon=(int32_t)(nodesx->idata[i]->longitude*LAT_LONG_SCALE);
-
-    nodesx->ndata[i].latoffset=lat%LAT_LONG_BIN;
-    nodesx->ndata[i].lonoffset=lon%LAT_LONG_BIN;
+    nodesx->ndata[i].latoffset=latlong_to_off(nodesx->idata[i]->xlatitude);
+    nodesx->ndata[i].lonoffset=latlong_to_off(nodesx->idata[i]->xlongitude);
 
     nodesx->ndata[i].firstseg=SEGMENT(NO_SEGMENT);
 

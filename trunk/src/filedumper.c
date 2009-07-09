@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.27 2009-07-01 18:19:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.28 2009-07-09 17:31:55 amb Exp $
 
  Memory file dumper.
 
@@ -49,14 +49,14 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
- int   arg;
- char *dirname=NULL,*prefix=NULL;
- char *nodes_filename,*segments_filename,*ways_filename;
- int   option_statistics=0;
- int   option_visualiser=0,coordcount=0;
- float latmin=0,latmax=0,lonmin=0,lonmax=0;
- char *option_data=NULL;
- int   option_dump=0;
+ int    arg;
+ char  *dirname=NULL,*prefix=NULL;
+ char  *nodes_filename,*segments_filename,*ways_filename;
+ int    option_statistics=0;
+ int    option_visualiser=0,coordcount=0;
+ double latmin=0,latmax=0,lonmin=0,lonmax=0;
+ char  *option_data=NULL;
+ int    option_dump=0;
 
  /* Parse the command line arguments */
 
@@ -231,8 +231,8 @@ int main(int argc,char** argv)
     printf("Lon bins= %4d\n",OSMNodes->lonbins);
     printf("\n");
 
-    printf("Lat zero=%5d (%8.4f deg)\n",OSMNodes->latzero,radians_to_degrees(bin_to_lat_long(OSMNodes->latzero)));
-    printf("Lon zero=%5d (%8.4f deg)\n",OSMNodes->lonzero,radians_to_degrees(bin_to_lat_long(OSMNodes->lonzero)));
+    printf("Lat zero=%5d (%8.4f deg)\n",OSMNodes->xlatzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->xlatzero))));
+    printf("Lon zero=%5d (%8.4f deg)\n",OSMNodes->xlonzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->xlonzero))));
 
     /* Examine the segments */
 
@@ -300,7 +300,7 @@ int main(int argc,char** argv)
 static void print_node(Nodes* nodes,index_t item)
 {
  Node *node=LookupNode(nodes,item);
- float latitude,longitude;
+ double latitude,longitude;
 
  GetLatLong(nodes,item,&latitude,&longitude);
 

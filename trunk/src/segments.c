@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.41 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.42 2009-07-09 17:31:55 amb Exp $
 
  Segment data type functions.
 
@@ -101,33 +101,33 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
 
   distance_t Distance Returns the distance between the locations.
 
-  float lat1 The latitude of the first location.
+  double lat1 The latitude of the first location.
 
-  float lon1 The longitude of the first location.
+  double lon1 The longitude of the first location.
 
-  float lat2 The latitude of the second location.
+  double lat2 The latitude of the second location.
 
-  float lon2 The longitude of the second location.
+  double lon2 The longitude of the second location.
   ++++++++++++++++++++++++++++++++++++++*/
 
-distance_t Distance(float lat1,float lon1,float lat2,float lon2)
+distance_t Distance(double lat1,double lon1,double lat2,double lon2)
 {
- float dlon = lon1 - lon2;
- float dlat = lat1 - lat2;
+ double dlon = lon1 - lon2;
+ double dlat = lat1 - lat2;
 
- float a1,a2,a,sa,c,d;
+ double a1,a2,a,sa,c,d;
 
  if(dlon==0 && dlat==0)
    return 0;
 
- a1 = sinf (dlat / 2);
- a2 = sinf (dlon / 2);
- a = (a1 * a1) + cosf (lat1) * cosf (lat2) * a2 * a2;
- sa = sqrtf (a);
+ a1 = sin (dlat / 2);
+ a2 = sin (dlon / 2);
+ a = (a1 * a1) + cos (lat1) * cos (lat2) * a2 * a2;
+ sa = sqrt (a);
  if (sa <= 1.0)
-   {c = 2 * asinf (sa);}
+   {c = 2 * asin (sa);}
  else
-   {c = 2 * asinf (1.0);}
+   {c = 2 * asin (1.0);}
  d = 6378.137 * c;
 
  return km_to_distance(d);

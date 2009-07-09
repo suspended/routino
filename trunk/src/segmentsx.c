@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.19 2009-07-04 17:58:05 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.20 2009-07-09 17:31:55 amb Exp $
 
  Extended Segment data type functions.
 
@@ -627,22 +627,24 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
 distance_t DistanceX(NodeX *nodex1,NodeX *nodex2)
 {
- float dlon = nodex1->longitude - nodex2->longitude;
- float dlat = nodex1->latitude  - nodex2->latitude;
+ double dlon = latlong_to_radians(nodex1->xlongitude) - latlong_to_radians(nodex2->xlongitude);
+ double dlat = latlong_to_radians(nodex1->xlatitude)  - latlong_to_radians(nodex2->xlatitude);
+ double lat1 = latlong_to_radians(nodex1->xlatitude);
+ double lat2 = latlong_to_radians(nodex2->xlatitude);
 
- float a1,a2,a,sa,c,d;
+ double a1,a2,a,sa,c,d;
 
  if(dlon==0 && dlat==0)
    return 0;
 
- a1 = sinf (dlat / 2);
- a2 = sinf (dlon / 2);
- a = (a1 * a1) + cosf (nodex1->latitude) * cosf (nodex2->latitude) * a2 * a2;
- sa = sqrtf (a);
+ a1 = sin (dlat / 2);
+ a2 = sin (dlon / 2);
+ a = (a1 * a1) + cos (lat1) * cos (lat2) * a2 * a2;
+ sa = sqrt (a);
  if (sa <= 1.0)
-   {c = 2 * asinf (sa);}
+   {c = 2 * asin (sa);}
  else
-   {c = 2 * asinf (1.0);}
+   {c = 2 * asin (1.0);}
  d = 6378.137 * c;
 
  return km_to_distance(d);

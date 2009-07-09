@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.5 2009-07-06 17:51:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.6 2009-07-09 17:31:56 amb Exp $
 
  Extract data from Routino.
 
@@ -41,7 +41,7 @@
 
 /* Local types */
 
-typedef void (*callback_t)(index_t node,float latitude,float longitude);
+typedef void (*callback_t)(index_t node,double latitude,double longitude);
 
 /* Local variables */
 
@@ -49,20 +49,20 @@ static Nodes    *OSMNodes;
 static Segments *OSMSegments;
 static Ways     *OSMWays;
 
-static float LatMin;
-static float LatMax;
-static float LonMin;
-static float LonMax;
+static double LatMin;
+static double LatMax;
+static double LonMin;
+static double LonMax;
 
 static int limit_type=0;
 
 /* Local functions */
 
 static void find_all_nodes(Nodes *nodes,callback_t callback);
-static void output_junctions(index_t node,float latitude,float longitude);
-static void output_super(index_t node,float latitude,float longitude);
-static void output_oneway(index_t node,float latitude,float longitude);
-static void output_limits(index_t node,float latitude,float longitude);
+static void output_junctions(index_t node,double latitude,double longitude);
+static void output_super(index_t node,double latitude,double longitude);
+static void output_oneway(index_t node,double latitude,double longitude);
+static void output_limits(index_t node,double latitude,double longitude);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -74,16 +74,16 @@ static void output_limits(index_t node,float latitude,float longitude);
 
   Ways *ways The set of ways to use.
 
-  float latmin The minimum latitude.
+  double latmin The minimum latitude.
 
-  float latmax The maximum latitude.
+  double latmax The maximum latitude.
 
-  float lonmin The minimum longitude.
+  double lonmin The minimum longitude.
 
-  float lonmax The maximum longitude.
+  double lonmax The maximum longitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void OutputJunctions(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax)
+void OutputJunctions(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax)
 {
  /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
 
@@ -107,12 +107,12 @@ void OutputJunctions(Nodes *nodes,Segments *segments,Ways *ways,float latmin,flo
 
   index_t node The node to output.
 
-  float latitude The latitude of the node.
+  double latitude The latitude of the node.
 
-  float longitude The longitude of the node.
+  double longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void output_junctions(index_t node,float latitude,float longitude)
+static void output_junctions(index_t node,double latitude,double longitude)
 {
  Segment *segment;
  Way *firstway;
@@ -149,16 +149,16 @@ static void output_junctions(index_t node,float latitude,float longitude)
 
   Ways *ways The set of ways to use.
 
-  float latmin The minimum latitude.
+  double latmin The minimum latitude.
 
-  float latmax The maximum latitude.
+  double latmax The maximum latitude.
 
-  float lonmin The minimum longitude.
+  double lonmin The minimum longitude.
 
-  float lonmax The maximum longitude.
+  double lonmax The maximum longitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void OutputSuper(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax)
+void OutputSuper(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax)
 {
  /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
 
@@ -182,12 +182,12 @@ void OutputSuper(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float l
 
   index_t node The node to output.
 
-  float latitude The latitude of the node.
+  double latitude The latitude of the node.
 
-  float longitude The longitude of the node.
+  double longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void output_super(index_t node,float latitude,float longitude)
+static void output_super(index_t node,double latitude,double longitude)
 {
  Segment *segment;
 
@@ -203,7 +203,7 @@ static void output_super(index_t node,float latitude,float longitude)
     if(IsSuperSegment(segment))
       {
        index_t othernode=OtherNode(segment,node);
-       float lat,lon;
+       double lat,lon;
 
        GetLatLong(OSMNodes,othernode,&lat,&lon);
 
@@ -226,16 +226,16 @@ static void output_super(index_t node,float latitude,float longitude)
 
   Ways *ways The set of ways to use.
 
-  float latmin The minimum latitude.
+  double latmin The minimum latitude.
 
-  float latmax The maximum latitude.
+  double latmax The maximum latitude.
 
-  float lonmin The minimum longitude.
+  double lonmin The minimum longitude.
 
-  float lonmax The maximum longitude.
+  double lonmax The maximum longitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void OutputOneway(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax)
+void OutputOneway(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax)
 {
  /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
 
@@ -259,12 +259,12 @@ void OutputOneway(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float 
 
   index_t node The node to output.
 
-  float latitude The latitude of the node.
+  double latitude The latitude of the node.
 
-  float longitude The longitude of the node.
+  double longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void output_oneway(index_t node,float latitude,float longitude)
+static void output_oneway(index_t node,double latitude,double longitude)
 {
  Segment *segment;
 
@@ -278,7 +278,7 @@ static void output_oneway(index_t node,float latitude,float longitude)
 
        if(node>othernode)
          {
-          float lat,lon;
+          double lat,lon;
 
           GetLatLong(OSMNodes,othernode,&lat,&lon);
 
@@ -304,16 +304,16 @@ static void output_oneway(index_t node,float latitude,float longitude)
 
   Ways *ways The set of ways to use.
 
-  float latmin The minimum latitude.
+  double latmin The minimum latitude.
 
-  float latmax The maximum latitude.
+  double latmax The maximum latitude.
 
-  float lonmin The minimum longitude.
+  double lonmin The minimum longitude.
 
-  float lonmax The maximum longitude.
+  double lonmax The maximum longitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void OutputSpeedLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax)
+void OutputSpeedLimits(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax)
 {
  /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
 
@@ -343,16 +343,16 @@ void OutputSpeedLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,f
 
   Ways *ways The set of ways to use.
 
-  float latmin The minimum latitude.
+  double latmin The minimum latitude.
 
-  float latmax The maximum latitude.
+  double latmax The maximum latitude.
 
-  float lonmin The minimum longitude.
+  double lonmin The minimum longitude.
 
-  float lonmax The maximum longitude.
+  double lonmax The maximum longitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void OutputWeightLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax)
+void OutputWeightLimits(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax)
 {
  /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
 
@@ -382,16 +382,16 @@ void OutputWeightLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,
 
   Ways *ways The set of ways to use.
 
-  float latmin The minimum latitude.
+  double latmin The minimum latitude.
 
-  float latmax The maximum latitude.
+  double latmax The maximum latitude.
 
-  float lonmin The minimum longitude.
+  double lonmin The minimum longitude.
 
-  float lonmax The maximum longitude.
+  double lonmax The maximum longitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void OutputHeightLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax)
+void OutputHeightLimits(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax)
 {
  /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
 
@@ -421,16 +421,16 @@ void OutputHeightLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,
 
   Ways *ways The set of ways to use.
 
-  float latmin The minimum latitude.
+  double latmin The minimum latitude.
 
-  float latmax The maximum latitude.
+  double latmax The maximum latitude.
 
-  float lonmin The minimum longitude.
+  double lonmin The minimum longitude.
 
-  float lonmax The maximum longitude.
+  double lonmax The maximum longitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void OutputWidthLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax)
+void OutputWidthLimits(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax)
 {
  /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
 
@@ -460,16 +460,16 @@ void OutputWidthLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,f
 
   Ways *ways The set of ways to use.
 
-  float latmin The minimum latitude.
+  double latmin The minimum latitude.
 
-  float latmax The maximum latitude.
+  double latmax The maximum latitude.
 
-  float lonmin The minimum longitude.
+  double lonmin The minimum longitude.
 
-  float lonmax The maximum longitude.
+  double lonmax The maximum longitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,float latmax,float lonmin,float lonmax)
+void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,double latmin,double latmax,double lonmin,double lonmax)
 {
  /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
 
@@ -495,12 +495,12 @@ void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,float latmin,
 
   index_t node The node to output.
 
-  float latitude The latitude of the node.
+  double latitude The latitude of the node.
 
-  float longitude The longitude of the node.
+  double longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void output_limits(index_t node,float latitude,float longitude)
+static void output_limits(index_t node,double latitude,double longitude)
 {
  Segment *segment,*segments[16];
  Way *ways[16];
@@ -562,14 +562,14 @@ static void output_limits(index_t node,float latitude,float longitude)
 
     if(count==2 || same!=(count-1))
       {
-       float lat,lon;
+       double lat,lon;
 
        GetLatLong(OSMNodes,OtherNode(segments[i],node),&lat,&lon);
 
        switch(limit_type)
          {
          case SPEED_LIMIT:
-          printf("%.6f %.6f %.0f\n",radians_to_degrees(lat),radians_to_degrees(lon),(float)speed_to_kph(limits[i]));
+          printf("%.6f %.6f %d\n",radians_to_degrees(lat),radians_to_degrees(lon),speed_to_kph(limits[i]));
           break;
          case WEIGHT_LIMIT:
           printf("%.6f %.6f %.1f\n",radians_to_degrees(lat),radians_to_degrees(lon),weight_to_tonnes(limits[i]));
@@ -599,10 +599,10 @@ static void output_limits(index_t node,float latitude,float longitude)
 
 static void find_all_nodes(Nodes *nodes,callback_t callback)
 {
- int32_t latminbin=lat_long_to_bin(LatMin)-nodes->latzero;
- int32_t latmaxbin=lat_long_to_bin(LatMax)-nodes->latzero;
- int32_t lonminbin=lat_long_to_bin(LonMin)-nodes->lonzero;
- int32_t lonmaxbin=lat_long_to_bin(LonMax)-nodes->lonzero;
+ int32_t latminbin=latlong_to_bin(radians_to_latlong(LatMin))-nodes->xlatzero;
+ int32_t latmaxbin=latlong_to_bin(radians_to_latlong(LatMax))-nodes->xlatzero;
+ int32_t lonminbin=latlong_to_bin(radians_to_latlong(LonMin))-nodes->xlonzero;
+ int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(LonMax))-nodes->xlonzero;
  int latb,lonb,llbin;
  index_t node;
 
@@ -618,8 +618,8 @@ static void find_all_nodes(Nodes *nodes,callback_t callback)
 
        for(node=nodes->offsets[llbin];node<nodes->offsets[llbin+1];node++)
          {
-          float lat=(float)((nodes->latzero+latb)*LAT_LONG_BIN+nodes->nodes[node].latoffset)/LAT_LONG_SCALE;
-          float lon=(float)((nodes->lonzero+lonb)*LAT_LONG_BIN+nodes->nodes[node].lonoffset)/LAT_LONG_SCALE;
+          double lat=latlong_to_radians(bin_to_latlong(nodes->xlatzero+latb)+off_to_latlong(nodes->nodes[node].latoffset));
+          double lon=latlong_to_radians(bin_to_latlong(nodes->xlonzero+lonb)+off_to_latlong(nodes->nodes[node].lonoffset));
 
           if(lat>LatMin && lat<LatMax && lon>LonMin && lon<LonMax)
              (*callback)(node,lat,lon);

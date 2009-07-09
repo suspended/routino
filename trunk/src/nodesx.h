@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.7 2009-07-04 17:58:05 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.8 2009-07-09 17:31:55 amb Exp $
 
  A header file for the extended nodes.
 
@@ -38,35 +38,30 @@
 /*+ An extended structure used for processing. +*/
 struct _NodeX
 {
- node_t   id;                   /*+ The node identifier. +*/
+ node_t    id;                  /*+ The node identifier. +*/
 
- float    latitude;             /*+ The node latitude. +*/
- float    longitude;            /*+ The node longitude. +*/
+ latlong_t xlatitude;            /*+ The node latitude. +*/
+ latlong_t xlongitude;           /*+ The node longitude. +*/
 
- uint8_t  super;                /*+ A marker for super nodes. +*/
+ uint8_t   super;               /*+ A marker for super nodes. +*/
 };
 
 /*+ A structure containing a set of nodes (memory format). +*/
 struct _NodesX
 {
- uint32_t sorted;               /*+ Is the data sorted and therefore searchable? +*/
+ uint32_t  sorted;              /*+ Is the data sorted and therefore searchable? +*/
 
- int32_t  row;                  /*+ How many rows are allocated? +*/
- uint32_t col;                  /*+ How many columns are used in the last row? +*/
+ int32_t   row;                 /*+ How many rows are allocated? +*/
+ uint32_t  col;                 /*+ How many columns are used in the last row? +*/
 
- NodeX  **xdata;                /*+ The extended node data (unsorted). +*/
+ NodeX   **xdata;               /*+ The extended node data (unsorted). +*/
 
- uint32_t number;               /*+ How many entries are still useful? +*/
+ uint32_t  number;              /*+ How many entries are still useful? +*/
 
- NodeX  **gdata;                /*+ The extended node data (sorted geographically). +*/
- NodeX  **idata;                /*+ The extended node data (sorted by ID). +*/
+ NodeX   **gdata;               /*+ The extended node data (sorted geographically). +*/
+ NodeX   **idata;               /*+ The extended node data (sorted by ID). +*/
 
- Node    *ndata;                /*+ The actual nodes (same order as idata). +*/
-
- float    lat_min;              /*+ The minimum latitude of the set of nodes. +*/
- float    lat_max;              /*+ The maximum latitude of the set of nodes. +*/
- float    lon_min;              /*+ The minimum longitude of the set of nodes. +*/
- float    lon_max;              /*+ The maximum longitude of the set of nodes. +*/
+ Node     *ndata;               /*+ The actual nodes (same order as idata). +*/
 };
 
 
@@ -78,7 +73,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename);
 
 NodeX **FindNodeX(NodesX* nodesx,node_t id);
 
-void AppendNode(NodesX* nodesx,node_t id,float latitude,float longitude);
+void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude);
 
 void SortNodeList(NodesX *nodesx);
 

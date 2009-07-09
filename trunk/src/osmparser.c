@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.43 2009-07-02 16:33:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.44 2009-07-09 17:31:55 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -87,7 +87,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
     if(!strncmp(l,"<node",5)) /* The start of a node */
       {
        node_t id;
-       float latitude,longitude;
+       double latitude,longitude;
 
        nnodes++;
 
@@ -395,9 +395,9 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                    int feet,inches;
 
                    if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
-                      way_maxheight=metres_to_height((feet+(float)inches/12.0)*0.254);
+                      way_maxheight=metres_to_height((feet+(double)inches/12.0)*0.254);
                    else if(sscanf(v,"%d'",&feet)==1)
-                      way_maxheight=metres_to_height((feet+(float)inches/12.0)*0.254);
+                      way_maxheight=metres_to_height((feet+(double)inches/12.0)*0.254);
                   }
                 else if(strstr(v,"ft") || strstr(v,"feet"))
                    way_maxheight=metres_to_height(atof(v)*0.254);
@@ -411,9 +411,9 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                    int feet,inches;
 
                    if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
-                      way_maxwidth=metres_to_height((feet+(float)inches/12.0)*0.254);
+                      way_maxwidth=metres_to_height((feet+(double)inches/12.0)*0.254);
                    else if(sscanf(v,"%d'",&feet)==1)
-                      way_maxwidth=metres_to_height((feet+(float)inches/12.0)*0.254);
+                      way_maxwidth=metres_to_height((feet+(double)inches/12.0)*0.254);
                   }
                 else if(strstr(v,"ft") || strstr(v,"feet"))
                    way_maxwidth=metres_to_width(atof(v)*0.254);
@@ -427,9 +427,9 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                    int feet,inches;
 
                    if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
-                      way_maxlength=metres_to_height((feet+(float)inches/12.0)*0.254);
+                      way_maxlength=metres_to_height((feet+(double)inches/12.0)*0.254);
                    else if(sscanf(v,"%d'",&feet)==1)
-                      way_maxlength=metres_to_height((feet+(float)inches/12.0)*0.254);
+                      way_maxlength=metres_to_height((feet+(double)inches/12.0)*0.254);
                   }
                 else if(strstr(v,"ft") || strstr(v,"feet"))
                    way_maxlength=metres_to_length(atof(v)*0.254);
