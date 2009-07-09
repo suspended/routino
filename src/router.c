@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.54 2009-07-02 16:33:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.55 2009-07-09 17:31:55 amb Exp $
 
  OSM router.
 
@@ -49,7 +49,7 @@ int main(int argc,char** argv)
  Ways     *OSMWays;
  Results  *results[10]={NULL};
  int       point_used[10]={0};
- float     point_lon[10],point_lat[10];
+ double    point_lon[10],point_lat[10];
  int       help_profile=0,help_profile_js=0,help_profile_pl=0;
  int       option_all=0,option_super=0,option_no_output=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
@@ -306,7 +306,7 @@ int main(int argc,char** argv)
 
     if(!option_quiet)
       {
-       float lat,lon;
+       double lat,lon;
 
        GetLatLong(OSMNodes,finish,&lat,&lon);
 

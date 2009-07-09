@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.26 2009-06-29 17:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.27 2009-07-09 17:31:55 amb Exp $
 
  A header file for the nodes.
 
@@ -52,10 +52,10 @@ struct _Nodes
  uint32_t latbins;              /*+ The number of bins containing latitude. +*/
  uint32_t lonbins;              /*+ The number of bins containing longitude. +*/
 
- int32_t  latzero;              /*+ The latitude of the SW corner of the first bin. +*/
- int32_t  lonzero;              /*+ The longitude of the SW corner of the first bin. +*/
+ ll_bin_t xlatzero;              /*+ The bin number of the furthest south bin. +*/
+ ll_bin_t xlonzero;              /*+ The bin number of the furthest west bin. +*/
 
- index_t *offsets;              /*+ The offset of the first node in each bin. +*/
+ index_t *offsets;              /*+ An array of offset to the first node in each bin. +*/
 
  Node    *nodes;                /*+ An array of nodes. +*/
 
@@ -80,9 +80,9 @@ struct _Nodes
 
 Nodes *LoadNodeList(const char *filename);
 
-index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,float latitude,float longitude,distance_t *distance,Profile *profile);
+index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,distance_t *distance,Profile *profile);
 
-void GetLatLong(Nodes *nodes,index_t index,float *latitude,float *longitude);
+void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 
 
 #endif /* NODES_H */

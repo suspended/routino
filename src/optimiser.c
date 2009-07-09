@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.71 2009-06-15 18:50:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.72 2009-07-09 17:31:55 amb Exp $
 
  Routing optimiser.
 
@@ -64,7 +64,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
  Results *results;
  index_t node1,node2;
  score_t finish_score;
- float finish_lat,finish_lon;
+ double  finish_lat,finish_lon;
  Result *result1,*result2;
  Segment *segment;
  Way *way;
@@ -159,7 +159,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
             }
           else
             {
-             float lat,lon;
+             double lat,lon;
              distance_t direct;
 
              GetLatLong(nodes,node2,&lat,&lon);
@@ -189,7 +189,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
             }
           else
             {
-             float lat,lon;
+             double lat,lon;
              distance_t direct;
 
              GetLatLong(nodes,node2,&lat,&lon);
@@ -280,7 +280,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
  Results *results;
  index_t node1,node2;
  score_t finish_score;
- float finish_lat,finish_lon;
+ double  finish_lat,finish_lon;
  Result *result1,*result2,*result3;
  Segment *segment;
  Way *way;
@@ -396,7 +396,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
             }
           else
             {
-             float lat,lon;
+             double lat,lon;
              distance_t direct;
 
              GetLatLong(nodes,node2,&lat,&lon);
@@ -425,7 +425,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
             }
           else
             {
-             float lat,lon;
+             double lat,lon;
              distance_t direct;
 
              GetLatLong(nodes,node2,&lat,&lon);

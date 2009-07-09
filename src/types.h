@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.26 2009-07-02 19:41:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.27 2009-07-09 17:31:56 amb Exp $
 
  Type definitions
 
@@ -37,24 +37,11 @@
 /* Constants and macros for handling them */
 
 
-/*+ The latitude and longitude conversion factor from float (radians) to integer. +*/
+/*+ The latitude and longitude conversion factor from floating point (radians) to integer. +*/
 #define LAT_LONG_SCALE  (1024*65536)
 
 /*+ The latitude and longitude integer range within each bin. +*/
 #define LAT_LONG_BIN    65536
-
-/*+ Convert a latitude or longitude to a bin number (taking care of rounding). +*/
-#define lat_long_to_bin(xxx) ((int32_t)floorf((xxx)*1024))
-
-/*+ Convert a bin number to a latitude or longitude. +*/
-#define bin_to_lat_long(xxx) ((float)(xxx)/1024)
-
-
-/*+ Convert radians to degrees. +*/
-#define radians_to_degrees(xxx) ((xxx)*(180.0/M_PI))
-
-/*+ Convert degrees to radians. +*/
-#define degrees_to_radians(xxx) ((xxx)*(M_PI/180.0))
 
 
 /*+ A flag to mark a node as a super-node. +*/
@@ -100,8 +87,41 @@
 typedef uint32_t index_t;
 
 
+/*+ A node latitude or longitude. +*/
+typedef int32_t  latlong_t;
+
+/*+ A node latitude or longitude bin number. +*/
+typedef int16_t  ll_bin_t;
+
 /*+ A node latitude or longitude offset. +*/
 typedef uint16_t ll_off_t;
+
+
+/*+ Conversion from a latlong (integer latitude or longitude) to a bin number. +*/
+#define latlong_to_bin(xxx) (ll_bin_t)((latlong_t)((xxx)&~(LAT_LONG_BIN-1))/LAT_LONG_BIN)
+
+/*+ Conversion from a bin number to a latlong (integer latitude or longitude). +*/
+#define bin_to_latlong(xxx) ((latlong_t)(xxx)*LAT_LONG_BIN)
+
+/*+ Conversion from a latlong (integer latitude or longitude) to a bin offset. +*/
+#define latlong_to_off(xxx) (ll_off_t)((latlong_t)(xxx)&(LAT_LONG_BIN-1))
+
+/*+ Conversion from a bin offset to a latlong (integer latitude or longitude). +*/
+#define off_to_latlong(xxx) ((latlong_t)(xxx))
+
+
+/*+ Conversion from a latitude or longitude in radians to a latlong (integer latitude or longitude). +*/
+#define radians_to_latlong(xxx) ((latlong_t)floor((xxx)*LAT_LONG_SCALE))
+
+/*+ Conversion from a latlong (integer latitude or longitude) to a latitude or longitude in radians. +*/
+#define latlong_to_radians(xxx) ((double)(xxx)/LAT_LONG_SCALE)
+
+
+/*+ Conversion from radians to degrees. +*/
+#define radians_to_degrees(xxx) ((xxx)*(180.0/M_PI))
+
+/*+ Conversion from degrees to radians. +*/
+#define degrees_to_radians(xxx) ((xxx)*(M_PI/180.0))
 
 
 /*+ A distance, measured in metres. +*/
@@ -223,7 +243,7 @@ typedef uint8_t length_t;
 #define kph_to_speed(xxx)      (speed_t)(xxx)
 
 /*+ Conversion of speed_t to km/hr. +*/
-#define speed_to_kph(xxx)      (xxx)
+#define speed_to_kph(xxx)      (int)(xxx)
 
 /*+ Conversion of tonnes to weight_t. +*/
 #define tonnes_to_weight(xxx)  (weight_t)((xxx)*5)
