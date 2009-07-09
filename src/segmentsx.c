@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.22 2009-07-09 18:24:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.23 2009-07-09 18:34:38 amb Exp $
 
  Extended Segment data type functions.
 
@@ -632,10 +632,10 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
 distance_t DistanceX(NodeX *nodex1,NodeX *nodex2)
 {
- double dlon = latlong_to_radians(nodex1->xlongitude) - latlong_to_radians(nodex2->xlongitude);
- double dlat = latlong_to_radians(nodex1->xlatitude)  - latlong_to_radians(nodex2->xlatitude);
- double lat1 = latlong_to_radians(nodex1->xlatitude);
- double lat2 = latlong_to_radians(nodex2->xlatitude);
+ double dlon = latlong_to_radians(nodex1->longitude) - latlong_to_radians(nodex2->longitude);
+ double dlat = latlong_to_radians(nodex1->latitude)  - latlong_to_radians(nodex2->latitude);
+ double lat1 = latlong_to_radians(nodex1->latitude);
+ double lat2 = latlong_to_radians(nodex2->latitude);
 
  double a1,a2,a,sa,c,d;
 

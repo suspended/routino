@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.28 2009-07-09 17:31:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.29 2009-07-09 18:34:37 amb Exp $
 
  Memory file dumper.
 
@@ -231,8 +231,8 @@ int main(int argc,char** argv)
     printf("Lon bins= %4d\n",OSMNodes->lonbins);
     printf("\n");
 
-    printf("Lat zero=%5d (%8.4f deg)\n",OSMNodes->xlatzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->xlatzero))));
-    printf("Lon zero=%5d (%8.4f deg)\n",OSMNodes->xlonzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->xlonzero))));
+    printf("Lat zero=%5d (%8.4f deg)\n",OSMNodes->latzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->latzero))));
+    printf("Lon zero=%5d (%8.4f deg)\n",OSMNodes->lonzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->lonzero))));
 
     /* Examine the segments */
 

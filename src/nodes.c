@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.32 2009-07-09 17:31:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.33 2009-07-09 18:34:37 amb Exp $
 
  Node data type functions.
 
@@ -89,8 +89,8 @@ Nodes *LoadNodeList(const char *filename)
 
 index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,distance_t *distance,Profile *profile)
 {
- ll_bin_t latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->xlatzero;
- ll_bin_t lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->xlonzero;
+ ll_bin_t latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->latzero;
+ ll_bin_t lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->lonzero;
  int      delta=0,count;
  index_t  i,best=NO_NODE;
 
@@ -115,10 +115,10 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,doub
 
           if(delta>0)
             {
-             double lat1=latlong_to_radians(bin_to_latlong(nodes->xlatzero+latb));
-             double lon1=latlong_to_radians(bin_to_latlong(nodes->xlonzero+lonb));
-             double lat2=latlong_to_radians(bin_to_latlong(nodes->xlatzero+latb+1));
-             double lon2=latlong_to_radians(bin_to_latlong(nodes->xlonzero+lonb+1));
+             double lat1=latlong_to_radians(bin_to_latlong(nodes->latzero+latb));
+             double lon1=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb));
+             double lat2=latlong_to_radians(bin_to_latlong(nodes->latzero+latb+1));
+             double lon2=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb+1));
 
              if(latb==latbin)
                {
@@ -150,8 +150,8 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,doub
 
           for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
             {
-             double lat=latlong_to_radians(bin_to_latlong(nodes->xlatzero+latb)+off_to_latlong(nodes->nodes[i].latoffset));
-             double lon=latlong_to_radians(bin_to_latlong(nodes->xlonzero+lonb)+off_to_latlong(nodes->nodes[i].lonoffset));
+             double lat=latlong_to_radians(bin_to_latlong(nodes->latzero+latb)+off_to_latlong(nodes->nodes[i].latoffset));
+             double lon=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb)+off_to_latlong(nodes->nodes[i].lonoffset));
 
              distance_t dist=Distance(lat,lon,latitude,longitude);
 
@@ -284,6 +284,6 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
 
  /* Return the values */
 
- *latitude =latlong_to_radians(bin_to_latlong(nodes->xlatzero+latbin)+off_to_latlong(node->latoffset));
- *longitude=latlong_to_radians(bin_to_latlong(nodes->xlonzero+lonbin)+off_to_latlong(node->lonoffset));
+ *latitude =latlong_to_radians(bin_to_latlong(nodes->latzero+latbin)+off_to_latlong(node->latoffset));
+ *longitude=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonbin)+off_to_latlong(node->lonoffset));
 }
