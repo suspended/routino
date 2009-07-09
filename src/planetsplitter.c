@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.43 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.44 2009-07-09 17:32:35 amb Exp $
 
  OSM planet file splitter.
 
@@ -45,7 +45,7 @@ int main(int argc,char** argv)
  int iteration=0,quit=0;
  int max_iterations=10;
  char *dirname=NULL,*prefix=NULL;
- Profile profile;
+ Profile profile={0};
  int i;
 
  /* Fill in the default profile. */
@@ -56,9 +56,6 @@ int main(int argc,char** argv)
 
  for(i=1;i<Way_Unknown;i++)
     profile.highway[i]=1;
-
- for(i=1;i<Way_Unknown;i++)
-    profile.speed[i]=0; /* Not used by planetsplitter */
 
  profile.oneway=1; /* Not used by planetsplitter */
 
