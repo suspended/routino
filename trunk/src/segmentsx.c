@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.21 2009-07-09 17:44:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.22 2009-07-09 18:24:40 amb Exp $
 
  Extended Segment data type functions.
 
@@ -76,7 +76,12 @@ void FreeSegmentList(SegmentsX *segmentsx)
  if(segmentsx->ndata)
     free(segmentsx->ndata);
  if(segmentsx->xdata)
+   {
+    int i;
+    for(i=0;i<segmentsx->row;i++)
+       free(segmentsx->xdata[i]);
     free(segmentsx->xdata);
+   }
  free(segmentsx);
 }
 
