@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.27 2009-07-09 17:31:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.28 2009-07-09 17:44:26 amb Exp $
 
  Type definitions
 
@@ -73,7 +73,10 @@
 #define SEGMENT_NORMAL ((distance_t)0x10000000)
 
 /*+ The real distance ignoring the ONEWAY_* and SEGMENT_* flags. +*/
-#define DISTANCE(xx) (distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
+#define DISTANCE(xx) ((distance_t)(xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
+
+/*+ The distance flags selecting only the ONEWAY_* and SEGMENT_* flags. +*/
+#define DISTFLAG(xx) ((distance_t)(xx)&(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL))
 
 
 /*+ A very large almost infinite score. +*/
