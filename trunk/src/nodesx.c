@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.22 2009-07-09 17:31:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.23 2009-07-09 18:34:38 amb Exp $
 
  Extented Node data type functions.
 
@@ -94,14 +94,14 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  for(i=0;i<nodesx->number;i++)
    {
-    if(nodesx->idata[i]->xlatitude<lat_min)
-       lat_min=nodesx->idata[i]->xlatitude;
-    if(nodesx->idata[i]->xlatitude>lat_max)
-       lat_max=nodesx->idata[i]->xlatitude;
-    if(nodesx->idata[i]->xlongitude<lon_min)
-       lon_min=nodesx->idata[i]->xlongitude;
-    if(nodesx->idata[i]->xlongitude>lon_max)
-       lon_max=nodesx->idata[i]->xlongitude;
+    if(nodesx->idata[i]->latitude<lat_min)
+       lat_min=nodesx->idata[i]->latitude;
+    if(nodesx->idata[i]->latitude>lat_max)
+       lat_max=nodesx->idata[i]->latitude;
+    if(nodesx->idata[i]->longitude<lon_min)
+       lon_min=nodesx->idata[i]->longitude;
+    if(nodesx->idata[i]->longitude>lon_max)
+       lon_max=nodesx->idata[i]->longitude;
    }
 
  /* Work out the offsets */
@@ -120,8 +120,8 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  for(i=0;i<nodesx->number;i++)
    {
-    ll_bin_t latbin=latlong_to_bin(nodesx->gdata[i]->xlatitude )-lat_min_bin;
-    ll_bin_t lonbin=latlong_to_bin(nodesx->gdata[i]->xlongitude)-lon_min_bin;
+    ll_bin_t latbin=latlong_to_bin(nodesx->gdata[i]->latitude )-lat_min_bin;
+    ll_bin_t lonbin=latlong_to_bin(nodesx->gdata[i]->longitude)-lon_min_bin;
     int llbin=lonbin*latbins+latbin;
 
     for(;latlonbin<=llbin;latlonbin++)
@@ -139,8 +139,8 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  nodes->latbins=latbins;
  nodes->lonbins=lonbins;
 
- nodes->xlatzero=lat_min_bin;
- nodes->xlonzero=lon_min_bin;
+ nodes->latzero=lat_min_bin;
+ nodes->lonzero=lon_min_bin;
 
  nodes->data=NULL;
  nodes->offsets=(void*)sizeof(Nodes);
@@ -273,8 +273,8 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 
  nodesx->xdata[nodesx->row][nodesx->col].id=id;
  nodesx->xdata[nodesx->row][nodesx->col].super=0;
- nodesx->xdata[nodesx->row][nodesx->col].xlatitude =radians_to_latlong(latitude);
- nodesx->xdata[nodesx->row][nodesx->col].xlongitude=radians_to_latlong(longitude);
+ nodesx->xdata[nodesx->row][nodesx->col].latitude =radians_to_latlong(latitude);
+ nodesx->xdata[nodesx->row][nodesx->col].longitude=radians_to_latlong(longitude);
 
  nodesx->col++;
 
@@ -400,8 +400,8 @@ void SortNodeListGeographically(NodesX* nodesx)
 
 static int sort_by_lat_long(NodeX **a,NodeX **b)
 {
- ll_bin_t a_lon=latlong_to_bin((*a)->xlongitude);
- ll_bin_t b_lon=latlong_to_bin((*b)->xlongitude);
+ ll_bin_t a_lon=latlong_to_bin((*a)->longitude);
+ ll_bin_t b_lon=latlong_to_bin((*b)->longitude);
 
  if(a_lon<b_lon)
     return(-1);
@@ -409,8 +409,8 @@ static int sort_by_lat_long(NodeX **a,NodeX **b)
     return(1);
  else
    {
-    ll_bin_t a_lat=latlong_to_bin((*a)->xlatitude);
-    ll_bin_t b_lat=latlong_to_bin((*b)->xlatitude);
+    ll_bin_t a_lat=latlong_to_bin((*a)->latitude);
+    ll_bin_t b_lat=latlong_to_bin((*b)->latitude);
 
     if(a_lat<b_lat)
        return(-1);
@@ -483,8 +483,8 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  for(i=0;i<nodesx->number;i++)
    {
-    nodesx->ndata[i].latoffset=latlong_to_off(nodesx->idata[i]->xlatitude);
-    nodesx->ndata[i].lonoffset=latlong_to_off(nodesx->idata[i]->xlongitude);
+    nodesx->ndata[i].latoffset=latlong_to_off(nodesx->idata[i]->latitude);
+    nodesx->ndata[i].lonoffset=latlong_to_off(nodesx->idata[i]->longitude);
 
     nodesx->ndata[i].firstseg=SEGMENT(NO_SEGMENT);
 

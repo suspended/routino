@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.6 2009-07-09 17:31:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.7 2009-07-09 18:34:38 amb Exp $
 
  Extract data from Routino.
 
@@ -599,10 +599,10 @@ static void output_limits(index_t node,double latitude,double longitude)
 
 static void find_all_nodes(Nodes *nodes,callback_t callback)
 {
- int32_t latminbin=latlong_to_bin(radians_to_latlong(LatMin))-nodes->xlatzero;
- int32_t latmaxbin=latlong_to_bin(radians_to_latlong(LatMax))-nodes->xlatzero;
- int32_t lonminbin=latlong_to_bin(radians_to_latlong(LonMin))-nodes->xlonzero;
- int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(LonMax))-nodes->xlonzero;
+ int32_t latminbin=latlong_to_bin(radians_to_latlong(LatMin))-nodes->latzero;
+ int32_t latmaxbin=latlong_to_bin(radians_to_latlong(LatMax))-nodes->latzero;
+ int32_t lonminbin=latlong_to_bin(radians_to_latlong(LonMin))-nodes->lonzero;
+ int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(LonMax))-nodes->lonzero;
  int latb,lonb,llbin;
  index_t node;
 
@@ -618,8 +618,8 @@ static void find_all_nodes(Nodes *nodes,callback_t callback)
 
        for(node=nodes->offsets[llbin];node<nodes->offsets[llbin+1];node++)
          {
-          double lat=latlong_to_radians(bin_to_latlong(nodes->xlatzero+latb)+off_to_latlong(nodes->nodes[node].latoffset));
-          double lon=latlong_to_radians(bin_to_latlong(nodes->xlonzero+lonb)+off_to_latlong(nodes->nodes[node].lonoffset));
+          double lat=latlong_to_radians(bin_to_latlong(nodes->latzero+latb)+off_to_latlong(nodes->nodes[node].latoffset));
+          double lon=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb)+off_to_latlong(nodes->nodes[node].lonoffset));
 
           if(lat>LatMin && lat<LatMax && lon>LonMin && lon<LonMax)
              (*callback)(node,lat,lon);

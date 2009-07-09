@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.8 2009-07-09 17:31:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.9 2009-07-09 18:34:38 amb Exp $
 
  A header file for the extended nodes.
 
@@ -40,8 +40,8 @@ struct _NodeX
 {
  node_t    id;                  /*+ The node identifier. +*/
 
- latlong_t xlatitude;            /*+ The node latitude. +*/
- latlong_t xlongitude;           /*+ The node longitude. +*/
+ latlong_t latitude;            /*+ The node latitude. +*/
+ latlong_t longitude;           /*+ The node longitude. +*/
 
  uint8_t   super;               /*+ A marker for super nodes. +*/
 };
