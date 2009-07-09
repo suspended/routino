@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.44 2009-07-09 17:32:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.45 2009-07-09 18:56:50 amb Exp $
 
  OSM planet file splitter.
 
@@ -128,6 +128,10 @@ int main(int argc,char** argv)
  /* Sort the nodes */
 
  SortNodeList(OSMNodes);
+
+ /* Compact the ways */
+
+ CompactWays(OSMWays);
 
  /* Remove bad segments */
 
