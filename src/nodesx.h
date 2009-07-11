@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.9 2009-07-09 18:34:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.10 2009-07-11 19:29:19 amb Exp $
 
  A header file for the extended nodes.
 
@@ -68,6 +68,7 @@ struct _NodesX
 /* Functions */
 
 NodesX *NewNodeList(void);
+void FreeNodeList(NodesX *nodesx);
 
 void SaveNodeList(NodesX *nodesx,const char *filename);
 

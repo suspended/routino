@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.13 2009-07-09 18:56:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.14 2009-07-11 19:29:19 amb Exp $
 
  Extended Way data type functions.
 
@@ -64,6 +64,52 @@ WaysX *NewWayList(void)
  waysx->wrow=-1;
 
  return(waysx);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Free a way list.
+
+  WaysX *waysx The list to be freed.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FreeWayList(WaysX *waysx)
+{
+ if(waysx->xdata)
+   {
+    int i;
+    for(i=0;i<(waysx->row*INCREMENT_WAYSX+waysx->col);i++)
+       free(waysx->xdata[i/INCREMENT_WAYSX][i%INCREMENT_WAYSX].name);
+    for(i=0;i<=waysx->row;i++)
+       free(waysx->xdata[i]);
+    free(waysx->xdata);
+   }
+
+ if(waysx->wxdata)
+   {
+    int i;
+    for(i=0;i<=waysx->row;i++)
+       free(waysx->wxdata[i]);
+    free(waysx->wxdata);
+   }
+
+ if(waysx->ndata)
+    free(waysx->ndata);
+ if(waysx->idata)
+    free(waysx->idata);
+
+ if(waysx->wdata)
+   {
+    int i;
+    for(i=0;i<=waysx->wrow;i++)
+       free(waysx->wdata[i]);
+    free(waysx->wdata);
+   }
+
+ if(waysx->names)
+    free(waysx->names);
+
+ free(waysx);
 }
 
 
@@ -380,7 +426,7 @@ void CompactWays(WaysX* waysx)
  printf("\rCompacted Ways: Ways=%d Compacted=%d Names=%d \n",waysx->number,waysx->wrow*INCREMENT_WAYS+waysx->wcol,waysx->length);
  fflush(stdout);
 
- for(i=0;i<waysx->row;i++)
+ for(i=0;i<=waysx->row;i++)
     free(waysx->wxdata[i]);
  free(waysx->wxdata);
  waysx->wxdata=NULL;
