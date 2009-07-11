@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.24 2009-07-09 19:13:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.25 2009-07-11 19:29:19 amb Exp $
 
  Extended Segment data type functions.
 
@@ -64,17 +64,13 @@ SegmentsX *NewSegmentList(void)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Free a segment list (needed by planetsplitter for temporary super-segment lists).
+  Free a segment list.
 
   SegmentsX *segmentsx The list to be freed.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void FreeSegmentList(SegmentsX *segmentsx)
 {
- if(segmentsx->sdata)
-    free(segmentsx->sdata);
- if(segmentsx->ndata)
-    free(segmentsx->ndata);
  if(segmentsx->xdata)
    {
     int i;
@@ -82,6 +78,13 @@ void FreeSegmentList(SegmentsX *segmentsx)
        free(segmentsx->xdata[i]);
     free(segmentsx->xdata);
    }
+
+ if(segmentsx->ndata)
+    free(segmentsx->ndata);
+
+ if(segmentsx->sdata)
+    free(segmentsx->sdata);
+
  free(segmentsx);
 }
 

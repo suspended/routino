@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.23 2009-07-09 18:34:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.24 2009-07-11 19:29:19 amb Exp $
 
  Extented Node data type functions.
 
@@ -60,6 +60,34 @@ NodesX *NewNodeList(void)
  nodesx->row=-1;
 
  return(nodesx);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Free a node list.
+
+  NodesX *nodesx The list to be freed.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FreeNodeList(NodesX *nodesx)
+{
+ if(nodesx->xdata)
+   {
+    int i;
+    for(i=0;i<=nodesx->row;i++)
+       free(nodesx->xdata[i]);
+    free(nodesx->xdata);
+   }
+
+ if(nodesx->gdata)
+    free(nodesx->gdata);
+ if(nodesx->idata)
+    free(nodesx->idata);
+
+ if(nodesx->ndata)
+    free(nodesx->ndata);
+
+ free(nodesx);
 }
 
 

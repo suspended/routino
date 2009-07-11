@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.45 2009-07-09 18:56:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.46 2009-07-11 19:29:19 amb Exp $
 
  OSM planet file splitter.
 
@@ -239,13 +239,19 @@ int main(int argc,char** argv)
 
  SaveNodeList(OSMNodes,FileName(dirname,prefix,"nodes.mem"));
 
+ FreeNodeList(OSMNodes);
+
  /* Write out the segments */
 
  SaveSegmentList(OSMSegments,FileName(dirname,prefix,"segments.mem"));
 
+ FreeSegmentList(OSMSegments);
+
  /* Write out the ways */
 
  SaveWayList(OSMWays,FileName(dirname,prefix,"ways.mem"));
+
+ FreeWayList(OSMWays);
 
  return(0);
 }
