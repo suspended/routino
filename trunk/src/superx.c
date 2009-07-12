@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.21 2009-07-12 08:38:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.22 2009-07-12 09:01:48 amb Exp $
 
  Super-Segment data type functions.
 
@@ -31,6 +31,12 @@
 #include "segmentsx.h"
 #include "waysx.h"
 #include "superx.h"
+#include "ways.h"
+
+
+/* Local Functions */
+
+static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match,int iteration);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -302,7 +308,7 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
   int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match,int iteration)
+static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match,int iteration)
 {
  Results *results;
  index_t node1,node2;

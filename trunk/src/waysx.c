@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.15 2009-07-12 08:38:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.16 2009-07-12 09:01:48 amb Exp $
 
  Extended Way data type functions.
 
@@ -28,6 +28,7 @@
 
 #include "functions.h"
 #include "waysx.h"
+#include "ways.h"
 
 
 /* Constants */
@@ -447,9 +448,9 @@ void CompactWays(WaysX* waysx)
 
   int sort_by_id Returns the comparison of the id fields.
 
-  Way **a The first Way.
+  WayX **a The first extended Way.
 
-  Way **b The second Way.
+  WayX **b The second extended Way.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int sort_by_id(WayX **a,WayX **b)
@@ -471,9 +472,9 @@ static int sort_by_id(WayX **a,WayX **b)
 
   int sort_by_name_and_properties Returns the comparison of the name and properties fields.
 
-  Way **a The first Way.
+  WayX **a The first extended Way.
 
-  Way **b The second Way.
+  WayX **b The second extended Way.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int sort_by_name_and_properties(WayX **a,WayX **b)

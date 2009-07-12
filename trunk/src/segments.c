@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.42 2009-07-09 17:31:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.43 2009-07-12 09:01:48 amb Exp $
 
  Segment data type functions.
 
@@ -36,7 +36,7 @@
 /*++++++++++++++++++++++++++++++++++++++
   Load in a segment list from a file.
 
-  Segments* SaveSegmentList Returns the segment list that has just been loaded.
+  Segments* LoadSegmentList Returns the segment list that has just been loaded.
 
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -74,6 +74,8 @@ Segments *LoadSegmentList(const char *filename)
   Segments* segments The set of segments to process.
 
   Segment *segment The current segment.
+
+  index_t node The current node.
   ++++++++++++++++++++++++++++++++++++++*/
 
 Segment *NextSegment(Segments* segments,Segment *segment,index_t node)

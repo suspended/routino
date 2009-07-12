@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.11 2009-07-09 17:31:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.12 2009-07-12 09:01:48 amb Exp $
 
  Routing output generator.
 
@@ -236,7 +236,7 @@ void PrintRouteHead(const char *copyright)
 /*++++++++++++++++++++++++++++++++++++++
   Print the optimum route between two nodes.
 
-  Results *Results The set of results to print.
+  Results *results The set of results to print.
 
   Nodes *nodes The list of nodes.
 

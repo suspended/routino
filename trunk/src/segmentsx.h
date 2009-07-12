@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.12 2009-07-04 17:58:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.13 2009-07-12 09:01:48 amb Exp $
 
  A header file for the extended segments.
 
@@ -29,7 +29,6 @@
 
 #include "typesx.h"
 #include "types.h"
-#include "segments.h"
 
 
 /* Data structures */
@@ -91,8 +90,6 @@ void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx);
 void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 
 void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx);
-
-distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
 
 #endif /* SEGMENTSX_H */

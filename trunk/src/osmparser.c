@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.45 2009-07-12 08:38:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.46 2009-07-12 09:01:48 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -32,9 +32,13 @@
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
+#include "ways.h"
 
 
+/*+ The length of the buffer and the size increment for reading lines from the file. +*/
 #define BUFFSIZE 64
+
+/* Local functions */
 
 static char *fgets_realloc(char *buffer,FILE *file);
 
@@ -52,7 +56,7 @@ static char *fgets_realloc(char *buffer,FILE *file);
 
   WaysX *OSMWays The arrray of ways to fill in.
 
-  Profile profile A profile of the allowed transport types and included/excluded highway types.
+  Profile *profile A profile of the allowed transport types and included/excluded highway types.
   ++++++++++++++++++++++++++++++++++++++*/
 
 int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *profile)
