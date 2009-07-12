@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.29 2009-07-09 18:34:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.30 2009-07-12 08:38:11 amb Exp $
 
  Memory file dumper.
 
@@ -306,7 +306,7 @@ static void print_node(Nodes* nodes,index_t item)
 
  printf("Node %d\n",item);
  printf("  firstseg=%d\n",node->firstseg);
- printf("  latoffset=%d lonoffset=%d (latitude=%.5f longitude=%.5f)\n",node->latoffset,node->lonoffset,radians_to_degrees(latitude),radians_to_degrees(longitude));
+ printf("  latoffset=%d lonoffset=%d (latitude=%.6f longitude=%.6f)\n",node->latoffset,node->lonoffset,radians_to_degrees(latitude),radians_to_degrees(longitude));
  if(IsSuperNode(nodes,item))
     printf("  Super-Node\n");
 }
@@ -359,13 +359,13 @@ static void print_way(Ways *ways,index_t item)
  if(way->speed)
     printf("  speed=%d (%d km/hr)\n",way->speed,speed_to_kph(way->speed));
  if(way->weight)
-    printf("  weight=%d (%.0f tonnes)\n",way->weight,weight_to_tonnes(way->weight));
+    printf("  weight=%d (%.1f tonnes)\n",way->weight,weight_to_tonnes(way->weight));
  if(way->height)
-    printf("  height=%d (%.0f m)\n",way->height,height_to_metres(way->height));
+    printf("  height=%d (%.1f m)\n",way->height,height_to_metres(way->height));
  if(way->width)
-    printf("  width=%d (%.0f m)\n",way->width,width_to_metres(way->width));
+    printf("  width=%d (%.1f m)\n",way->width,width_to_metres(way->width));
  if(way->length)
-    printf("  length=%d (%.0f m)\n",way->length,length_to_metres(way->length));
+    printf("  length=%d (%.1f m)\n",way->length,length_to_metres(way->length));
 }
 
 

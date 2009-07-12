@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.20 2009-07-08 17:35:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.21 2009-07-12 08:38:12 amb Exp $
 
  Super-Segment data type functions.
 
@@ -52,6 +52,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
 
+ printf("Finding Super-Nodes: (Super-)Segments=0 Super-Nodes=0");
+ fflush(stdout);
+
  /* Find super-nodes */
 
  node=segmentsx->ndata[0]->node1;
@@ -91,12 +94,12 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
     if(!((i+1)%10000))
       {
-       printf("\rFinding Super-Nodes: Segments=%d Super-Nodes=%d",i+1,nnodes);
+       printf("\rFinding Super-Nodes: (Super-)Segments=%d Super-Nodes=%d",i+1,nnodes);
        fflush(stdout);
       }
    }
 
- printf("\rFound Super-Nodes: Segments=%d Super-Nodes=%d  \n",segmentsx->number,nnodes);
+ printf("\rFound Super-Nodes: (Super-)Segments=%d Super-Nodes=%d  \n",segmentsx->number,nnodes);
  fflush(stdout);
 }
 
@@ -119,9 +122,12 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 {
  index_t i;
  SegmentsX *supersegmentsx;
- int ss=0;
+ int sn=0,ss=0;
 
  assert(nodesx->idata);         /* Must have idata filled in */
+
+ printf("Creating Super-Segments: Super-Nodes=0 Super-Segments=0");
+ fflush(stdout);
 
  supersegmentsx=NewSegmentList();
 
@@ -197,16 +203,18 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           segmentx=FindNextSegmentX(segmentsx,segmentx);
          }
+
+       sn++;
       }
 
-    if(!((i+1)%10000))
+    if(!(sn%10000))
       {
-       printf("\rCreating Super-Segments: Nodes=%d Super-Segments=%d",i+1,ss);
+       printf("\rCreating Super-Segments: Super-Nodes=%d Super-Segments=%d",sn,ss);
        fflush(stdout);
       }
    }
 
- printf("\rCreated Super-Segments: Nodes=%d Super-Segments=%d \n",nodesx->number,ss);
+ printf("\rCreated Super-Segments: Super-Nodes=%d Super-Segments=%d \n",sn,ss);
  fflush(stdout);
 
  return(supersegmentsx);
@@ -230,6 +238,9 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
  assert(segmentsx->ndata);       /* Must have ndata filled in */
  assert(supersegmentsx->sorted); /* Must be sorted */
  assert(supersegmentsx->ndata);  /* Must have ndata filled in */
+
+ printf("Merging: Segments=0 Super-Segments=0 Merged=0 Added=0");
+ fflush(stdout);
 
  for(i=0,j=0;i<segmentsx->number;i++)
    {

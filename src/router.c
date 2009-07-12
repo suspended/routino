@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.55 2009-07-09 17:31:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.56 2009-07-12 08:38:12 amb Exp $
 
  OSM router.
 
@@ -263,7 +263,7 @@ int main(int argc,char** argv)
 
  if(!OSMNodes)
    {
-    fprintf(stderr,"Cannot open nodes file '%s'.\n",filename);
+    fprintf(stderr,"Error: Cannot open nodes file '%s'.\n",filename);
     return(1);
    }
 
@@ -271,7 +271,7 @@ int main(int argc,char** argv)
 
  if(!OSMSegments)
    {
-    fprintf(stderr,"Cannot open segments file '%s'.\n",filename);
+    fprintf(stderr,"Error: Cannot open segments file '%s'.\n",filename);
     return(1);
    }
 
@@ -279,7 +279,7 @@ int main(int argc,char** argv)
 
  if(!OSMWays)
    {
-    fprintf(stderr,"Cannot open ways file '%s'.\n",filename);
+    fprintf(stderr,"Error: Cannot open ways file '%s'.\n",filename);
     return(1);
    }
 
@@ -300,7 +300,7 @@ int main(int argc,char** argv)
 
     if(finish==NO_NODE)
       {
-       fprintf(stderr,"Cannot find node close to specified point %d.\n",node);
+       fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",node);
        return(1);
       }
 
@@ -320,7 +320,7 @@ int main(int argc,char** argv)
 
     if(option_super && !IsSuperNode(OSMNodes,start) && !IsSuperNode(OSMNodes,finish))
       {
-       fprintf(stderr,"Start and/or finish nodes are not super-nodes.\n");
+       fprintf(stderr,"Error: Start and/or finish nodes are not super-nodes.\n");
        return(1);
       }
 
@@ -334,7 +334,7 @@ int main(int argc,char** argv)
 
        if(!results[node])
          {
-          fprintf(stderr,"Cannot find route compatible with profile.\n");
+          fprintf(stderr,"Error: Cannot find route compatible with profile.\n");
           return(1);
          }
       }
@@ -362,7 +362,7 @@ int main(int argc,char** argv)
 
           if(!begin)
             {
-             fprintf(stderr,"Cannot find initial section of route compatible with profile.\n");
+             fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
              return(1);
             }
          }
@@ -397,7 +397,7 @@ int main(int argc,char** argv)
 
              if(!end)
                {
-                fprintf(stderr,"Cannot find final section of route compatible with profile.\n");
+                fprintf(stderr,"Error: Cannot find final section of route compatible with profile.\n");
                 return(1);
                }
             }
@@ -408,7 +408,7 @@ int main(int argc,char** argv)
 
           if(!superresults)
             {
-             fprintf(stderr,"Cannot find route compatible with profile.\n");
+             fprintf(stderr,"Error: Cannot find route compatible with profile.\n");
              return(1);
             }
 
