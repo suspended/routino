@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.46 2009-07-11 19:29:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.47 2009-07-12 08:38:12 amb Exp $
 
  OSM planet file splitter.
 
@@ -111,11 +111,13 @@ int main(int argc,char** argv)
 
  /* Parse the file */
 
- printf("\nParsing OSM Data\n================\n\n"); fflush(stdout);
+ printf("\nParsing OSM Data\n================\n\n");
+ fflush(stdout);
 
  ParseXML(stdin,OSMNodes,OSMSegments,OSMWays,&profile);
 
- printf("\nProcessing OSM Data\n===================\n\n"); fflush(stdout);
+ printf("\nProcessing OSM Data\n===================\n\n");
+ fflush(stdout);
 
  /* Sort the ways */
 
@@ -154,7 +156,8 @@ int main(int argc,char** argv)
 
  do
    {
-    printf("\nProcessing Super-Data (iteration %d)\n===================================%s\n\n",iteration,iteration>10?"=":""); fflush(stdout);
+    printf("\nProcessing Super-Data (iteration %d)\n===================================%s\n\n",iteration,iteration>10?"=":"");
+    fflush(stdout);
 
     if(iteration==0)
       {
@@ -197,7 +200,8 @@ int main(int argc,char** argv)
    }
  while(!quit);
 
- printf("\n"); fflush(stdout);
+ printf("\n");
+ fflush(stdout);
 
  /* Merge the super-segments */
 

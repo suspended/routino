@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.44 2009-07-09 17:31:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.45 2009-07-12 08:38:12 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -72,6 +72,9 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
  wayallow_t way_allow_no=0,way_allow_yes=0;
  node_t *way_nodes=NULL;
  int way_nnodes=0,way_nalloc=0;
+
+ printf("\rReading: Lines=0 Nodes=0 Ways=0 Relations=0");
+ fflush(stdout);
 
  /* Parse the file */
 

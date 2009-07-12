@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.14 2009-07-11 19:29:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.15 2009-07-12 08:38:12 amb Exp $
 
  Extended Way data type functions.
 
@@ -129,6 +129,9 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  assert(waysx->sorted);       /* Must be sorted */
  assert(waysx->wdata);        /* Must have wdata filled in */
+
+ printf("Writing Ways: Ways=0");
+ fflush(stdout);
 
  /* Fill in a Ways structure with the offset of the real data in the file after
     the Way structure itself. */
@@ -294,7 +297,8 @@ void SortWayList(WaysX* waysx)
  assert(waysx->wxdata);         /* Must have wxdata filled in */
  assert(!waysx->wdata);         /* Must not have wdata filled in */
 
- printf("Sorting Ways"); fflush(stdout);
+ printf("Sorting Ways");
+ fflush(stdout);
 
  /* Allocate the array of pointers and sort them */
 
@@ -326,7 +330,10 @@ void SortWayList(WaysX* waysx)
       }
 
     if(duplicate)
-       printf(" - %d duplicates found; trying again.\nSorting Ways",duplicate); fflush(stdout);
+      {
+       printf(" - %d duplicates found; trying again.\nSorting Ways",duplicate);
+       fflush(stdout);
+      }
    }
  while(duplicate);
 
@@ -339,7 +346,8 @@ void SortWayList(WaysX* waysx)
 
  qsort(waysx->ndata,waysx->number,sizeof(WayX*),(int (*)(const void*,const void*))sort_by_name_and_properties);
 
- printf("\rSorted Ways \n"); fflush(stdout);
+ printf("\rSorted Ways \n");
+ fflush(stdout);
 
  waysx->sorted=1;
 }
@@ -359,7 +367,8 @@ void CompactWays(WaysX* waysx)
  assert(waysx->ndata);          /* Must have ndata filled in */
  assert(waysx->wxdata);         /* Must have wxdata filled in */
 
- printf("Sorting Ways"); fflush(stdout);
+ printf("\rCompacting Ways: Ways=0 Compacted=0 Names=0 Bytes");
+ fflush(stdout);
 
  /* Allocate the new data for names */
 
@@ -418,12 +427,12 @@ void CompactWays(WaysX* waysx)
 
     if(!((i+1)%10000))
       {
-       printf("\rCompacting Ways: Ways=%d Compacted=%d Names=%d",i+1,waysx->wrow*INCREMENT_WAYS+waysx->wcol,waysx->length);
+       printf("\rCompacting Ways: Ways=%d Compacted=%d Names=%d Bytes",i+1,waysx->wrow*INCREMENT_WAYS+waysx->wcol,waysx->length);
        fflush(stdout);
       }
    }
 
- printf("\rCompacted Ways: Ways=%d Compacted=%d Names=%d \n",waysx->number,waysx->wrow*INCREMENT_WAYS+waysx->wcol,waysx->length);
+ printf("\rCompacted Ways: Ways=%d Compacted=%d Names=%d Bytes \n",waysx->number,waysx->wrow*INCREMENT_WAYS+waysx->wcol,waysx->length);
  fflush(stdout);
 
  for(i=0;i<=waysx->row;i++)

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.72 2009-07-09 17:31:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.73 2009-07-12 08:38:11 amb Exp $
 
  Routing optimiser.
 
@@ -68,6 +68,12 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
  Result *result1,*result2;
  Segment *segment;
  Way *way;
+
+ if(!option_quiet)
+   {
+    printf("Routing: End Nodes=0");
+    fflush(stdout);
+   }
 
  /* Set up the finish conditions */
 
@@ -284,6 +290,12 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
  Result *result1,*result2,*result3;
  Segment *segment;
  Way *way;
+
+ if(!option_quiet)
+   {
+    printf("Routing: End Nodes=0");
+    fflush(stdout);
+   }
 
  /* Set up the finish conditions */
 

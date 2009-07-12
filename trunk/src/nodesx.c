@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.24 2009-07-11 19:29:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.25 2009-07-12 08:38:11 amb Exp $
 
  Extented Node data type functions.
 
@@ -112,6 +112,9 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  assert(nodesx->sorted);        /* Must be sorted */
  assert(nodesx->gdata);         /* Must have gdata filled in */
  assert(nodesx->ndata);         /* Must have ndata filled in */
+
+ printf("Writing Nodes: Nodes=0");
+ fflush(stdout);
 
  /* Work out the range of data */
 
@@ -323,7 +326,8 @@ void SortNodeList(NodesX* nodesx)
 
  assert(nodesx->xdata);         /* Must have xdata filled in */
 
- printf("Sorting Nodes"); fflush(stdout);
+ printf("Sorting Nodes");
+ fflush(stdout);
 
  /* Allocate the array of pointers and sort them */
 
@@ -355,11 +359,15 @@ void SortNodeList(NodesX* nodesx)
       }
 
     if(duplicate)
-       printf(" - %d duplicates found; trying again.\nSorting Nodes",duplicate); fflush(stdout);
+      {
+       printf(" - %d duplicates found; trying again.\nSorting Nodes",duplicate);
+       fflush(stdout);
+      }
    }
  while(duplicate);
 
- printf("\rSorted Nodes \n"); fflush(stdout);
+ printf("\rSorted Nodes \n");
+ fflush(stdout);
 
  nodesx->sorted=1;
 }
@@ -401,7 +409,8 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  assert(nodesx->idata);         /* Must have idata filled in */
 
- printf("Sorting Nodes Geographically"); fflush(stdout);
+ printf("Sorting Nodes Geographically");
+ fflush(stdout);
 
  /* Allocate the array of pointers and sort them */
 
@@ -412,7 +421,8 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  qsort(nodesx->gdata,nodesx->number,sizeof(NodeX*),(int (*)(const void*,const void*))sort_by_lat_long);
 
- printf("\rSorted Nodes Geographically \n"); fflush(stdout);
+ printf("\rSorted Nodes Geographically \n");
+ fflush(stdout);
 }
 
 
@@ -465,6 +475,9 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  assert(nodesx->xdata);         /* Must have xdata filled in */
 
+ printf("Checking: Nodes=0");
+ fflush(stdout);
+
  for(i=0;i<(nodesx->row*INCREMENT_NODESX+nodesx->col);i++)
    {
     if(FindFirstSegmentX(segmentsx,nodesx->xdata[i/INCREMENT_NODESX][i%INCREMENT_NODESX].id))
@@ -502,6 +515,9 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
  index_t i;
 
  assert(nodesx->gdata);         /* Must have gdata filled in */
+
+ printf("Creating Real Nodes: Nodes=0");
+ fflush(stdout);
 
  /* Allocate the memory */
 
@@ -549,6 +565,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
  assert(segmentsx->sorted);     /* Must be sorted */
  assert(segmentsx->ndata);      /* Must have ndata filled in */
  assert(segmentsx->sdata);      /* Must have sdata filled in */
+
+ printf("Indexing Segments: Segments=0");
+ fflush(stdout);
 
  /* Index the nodes */
 

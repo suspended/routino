@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.25 2009-07-11 19:29:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.26 2009-07-12 08:38:12 amb Exp $
 
  Extended Segment data type functions.
 
@@ -105,6 +105,9 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  assert(segmentsx->sorted);     /* Must be sorted */
  assert(segmentsx->sdata);      /* Must have sdata filled in */
+
+ printf("Writing Segments: Segments=0");
+ fflush(stdout);
 
  /* Fill in a Segments structure with the offset of the real data in the file after
     the Segment structure itself. */
@@ -287,7 +290,8 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  assert(segmentsx->xdata);      /* Must have xdata filled in */
 
- printf("Sorting Segments"); fflush(stdout);
+ printf("Sorting Segments");
+ fflush(stdout);
 
  /* Allocate the array of pointers and sort them */
 
@@ -304,7 +308,8 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  qsort(segmentsx->ndata,segmentsx->number,sizeof(SegmentX*),(int (*)(const void*,const void*))sort_by_id_and_distance);
 
- printf("\rSorted Segments \n"); fflush(stdout);
+ printf("\rSorted Segments \n");
+ fflush(stdout);
 
  segmentsx->sorted=1;
 }
@@ -369,6 +374,9 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
 
+ printf("Checking: Segments=0 Duplicate=0 Loop=0 Missing-Node=0");
+ fflush(stdout);
+
  for(i=0;i<segmentsx->number;i++)
    {
     if(i && segmentsx->ndata[i]->node1==segmentsx->ndata[i-1]->node1 &&
@@ -415,6 +423,9 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
 
+ printf("Measuring Segments: Segments=0");
+ fflush(stdout);
+
  for(i=0;i<segmentsx->number;i++)
    {
     NodeX **nodex1=FindNodeX(nodesx,segmentsx->ndata[i]->node1);
@@ -448,6 +459,9 @@ void RotateSegments(SegmentsX* segmentsx)
  int rotated=0;
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
+
+ printf("Rotating Segments: Segments=0 Rotated=0");
+ fflush(stdout);
 
  for(i=0;i<segmentsx->number;i++)
    {
@@ -489,6 +503,9 @@ void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx)
  int duplicate=0;
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
+
+ printf("Deduplicating Segments: Segments=0 Duplicate=0");
+ fflush(stdout);
 
  for(i=1;i<segmentsx->number;i++)
    {
@@ -533,6 +550,9 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
  index_t i;
 
  assert(segmentsx->ndata);      /* Must have ndata filled in */
+
+ printf("Creating Real Segments: Segments=0");
+ fflush(stdout);
 
  /* Allocate the memory */
 
@@ -579,6 +599,9 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
  assert(segmentsx->sdata);      /* Must have sdata filled in */
  assert(nodesx->sorted);        /* Must be sorted */
  assert(nodesx->gdata);         /* Must have gdata filled in */
+
+ printf("Indexing Nodes: Nodes=0");
+ fflush(stdout);
 
  /* Index the segments */
 
