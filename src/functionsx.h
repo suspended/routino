@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functionsx.h,v 1.1 2009-06-15 18:56:57 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functionsx.h,v 1.2 2009-07-12 09:01:48 amb Exp $
 
  Header file for function prototypes for extended data types.
 
@@ -24,6 +24,8 @@
 
 #ifndef FUNCTIONSX_H
 #define FUNCTIONSX_H    /*+ To stop multiple inclusions. +*/
+
+#include <stdio.h>
 
 #include "typesx.h"
 #include "profiles.h"

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.17 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.18 2009-07-12 09:01:48 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -29,6 +29,7 @@
 #include "ways.h"
 
 
+/*+ The set of built-in profiles for different transport types. +*/
 static Profile builtin_profiles[]=
  {
   /* The profile for travel by Foot */

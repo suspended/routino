@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.16 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.17 2009-07-12 09:01:48 amb Exp $
 
  Result data type functions.
 
@@ -28,8 +28,10 @@
 
 #include "results.h"
 
-
+/*+ The size of the increment for the Results data structure. +*/
 #define RESULTS_INCREMENT    16
+
+/*+ The size of the increment for the Queue data structure. +*/
 #define QUEUE_INCREMENT   10240
 
 
@@ -124,7 +126,7 @@ void FreeResultsList(Results *results)
 /*++++++++++++++++++++++++++++++++++++++
   Insert a new result into the results data structure in the right order.
 
-  Result *insert_result Returns the result that has been inserted.
+  Result *InsertResult Returns the result that has been inserted.
 
   Results *results The results structure to insert into.
 
@@ -189,7 +191,7 @@ void ZeroResult(Result *result)
 /*++++++++++++++++++++++++++++++++++++++
   Find a result; search by node.
 
-  Result *insert_result Returns the result that has been found.
+  Result *FindResult Returns the result that has been found.
 
   Results *results The results structure to search.
 

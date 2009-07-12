@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.26 2009-07-12 08:38:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.27 2009-07-12 09:01:48 amb Exp $
 
  Extended Segment data type functions.
 
@@ -32,6 +32,9 @@
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
+#include "nodes.h"
+#include "segments.h"
+#include "ways.h"
 
 
 /* Constants */
@@ -40,9 +43,10 @@
 #define INCREMENT_SEGMENTSX (256*1024)
 
 
-/* Functions */
+/* Local Functions */
 
 static int sort_by_id_and_distance(SegmentX **a,SegmentX **b);
+static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -248,6 +252,8 @@ SegmentX **FindNextSegmentX(SegmentsX* segmentsx,SegmentX **segmentx)
   node_t node1 The first node in the segment.
 
   node_t node2 The second node in the segment.
+
+  distance_t distance The distance between the nodes (or just the flags).
   ++++++++++++++++++++++++++++++++++++++*/
 
 void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance)
@@ -656,7 +662,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
   NodeX *nodex2 The end node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-distance_t DistanceX(NodeX *nodex1,NodeX *nodex2)
+static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2)
 {
  double dlon = latlong_to_radians(nodex1->longitude) - latlong_to_radians(nodex2->longitude);
  double dlat = latlong_to_radians(nodex1->latitude)  - latlong_to_radians(nodex2->latitude);
