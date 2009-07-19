@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.48 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.49 2009-07-19 12:54:07 amb Exp $
 
  OSM planet file splitter.
 
@@ -112,12 +112,14 @@ int main(int argc,char** argv)
 
  /* Parse the file */
 
- printf("\nParsing OSM Data\n================\n\n");
+ printf("\nParse OSM Data\n==============\n\n");
  fflush(stdout);
 
  ParseXML(stdin,OSMNodes,OSMSegments,OSMWays,&profile);
 
- printf("\nProcessing OSM Data\n===================\n\n");
+ /* Process the data */
+
+ printf("\nProcess OSM Data\n================\n\n");
  fflush(stdout);
 
  /* Sort the ways */
@@ -157,7 +159,7 @@ int main(int argc,char** argv)
 
  do
    {
-    printf("\nProcessing Super-Data (iteration %d)\n===================================%s\n\n",iteration,iteration>10?"=":"");
+    printf("\nProcess Super-Data (iteration %d)\n================================%s\n\n",iteration,iteration>9?"=":"");
     fflush(stdout);
 
     if(iteration==0)
@@ -194,6 +196,12 @@ int main(int argc,char** argv)
 
     SortSegmentList(SuperSegments);
 
+    /* Remove duplicated super-segments */
+
+    DeduplicateSegments(SuperSegments,OSMWays);
+
+    SortSegmentList(SuperSegments);
+
     iteration++;
 
     if(iteration>max_iterations)
@@ -201,7 +209,9 @@ int main(int argc,char** argv)
    }
  while(!quit);
 
- printf("\n");
+ /* Combine the super-segments */
+
+ printf("\nCombine Segments and Super-Segments\n===================================\n\n");
  fflush(stdout);
 
  /* Merge the super-segments */
@@ -212,17 +222,10 @@ int main(int argc,char** argv)
 
  SortSegmentList(OSMSegments);
 
- /* Rotate segments so that node1<node2 */
+ /* Cross reference the nodes and segments */
 
- RotateSegments(OSMSegments);
-
- SortSegmentList(OSMSegments);
-
- /* Remove duplicated segments */
-
- DeduplicateSegments(OSMSegments,OSMWays);
-
- SortSegmentList(OSMSegments);
+ printf("\nCross-Reference Nodes and Segments\n==================================\n\n");
+ fflush(stdout);
 
  /* Sort the node list geographically */
 
@@ -239,6 +242,11 @@ int main(int argc,char** argv)
  IndexNodes(OSMNodes,OSMSegments);
 
  IndexSegments(OSMSegments,OSMNodes);
+
+ /* Output the results */
+
+ printf("\nWrite Out Database Files\n========================\n\n");
+ fflush(stdout);
 
  /* Write out the nodes */
 
