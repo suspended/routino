@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.23 2009-07-19 12:54:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.24 2009-07-19 13:17:35 amb Exp $
 
  Super-Segment data type functions.
 
@@ -56,7 +56,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  assert(nodesx->idata);         /* Must have idata filled in */
 
- printf("Finding Super-Nodes: (Super-)Segments=0 Super-Nodes=0");
+ printf("Finding Super-Nodes: Nodes=0 Super-Nodes=0");
  fflush(stdout);
 
  /* Find super-nodes */
@@ -97,12 +97,12 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
     if(!((i+1)%10000))
       {
-       printf("\rFinding Super-Nodes: (Super-)Segments=%d Super-Nodes=%d",i+1,nnodes);
+       printf("\rFinding Super-Nodes: Nodes=%d Super-Nodes=%d",i+1,nnodes);
        fflush(stdout);
       }
    }
 
- printf("\rFound Super-Nodes: (Super-)Segments=%d Super-Nodes=%d  \n",segmentsx->number,nnodes);
+ printf("\rFound Super-Nodes: Nodes=%d Super-Nodes=%d  \n",nodesx->number,nnodes);
  fflush(stdout);
 }
 
