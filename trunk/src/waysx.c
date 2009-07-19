@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.16 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.17 2009-07-19 13:17:00 amb Exp $
 
  Extended Way data type functions.
 
@@ -392,8 +392,8 @@ void CompactWays(WaysX* waysx)
       }
     else                                                          /* Different name */
       {
-       if(((waysx->length+strlen(waysx->ndata[i]->name)+INCREMENT_NAMES)/INCREMENT_NAMES)>(waysx->length/INCREMENT_NAMES))
-          waysx->names=(char*)realloc((void*)waysx->names,(waysx->length/INCREMENT_NAMES+1)*INCREMENT_NAMES*sizeof(char));
+       if(((waysx->length+strlen(waysx->ndata[i]->name)+1)/INCREMENT_NAMES)>(waysx->length/INCREMENT_NAMES))
+          waysx->names=(char*)realloc((void*)waysx->names,(waysx->length/INCREMENT_NAMES+2)*INCREMENT_NAMES*sizeof(char));
 
        strcpy(&waysx->names[waysx->length],waysx->ndata[i]->name);
 
