@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.27 2009-07-19 12:54:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.28 2009-07-19 14:10:27 amb Exp $
 
  Extented Node data type functions.
 
@@ -110,6 +110,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
  latlong_t lat_min,lat_max,lon_min,lon_max;
  int latbins,lonbins,latlonbin;
+ int super_number=0;
 
  assert(nodesx->sorted);        /* Must be sorted */
  assert(nodesx->gdata);         /* Must have gdata filled in */
@@ -135,6 +136,9 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
        lon_min=nodesx->idata[i]->longitude;
     if(nodesx->idata[i]->longitude>lon_max)
        lon_max=nodesx->idata[i]->longitude;
+
+    if(nodesx->ndata[i].firstseg&NODE_SUPER)
+       super_number++;
    }
 
  /* Work out the offsets */
@@ -168,6 +172,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
     the Node structure itself. */
 
  nodes->number=nodesx->number;
+ nodes->snumber=super_number;
 
  nodes->latbins=latbins;
  nodes->lonbins=lonbins;
@@ -176,6 +181,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  nodes->lonzero=lon_min_bin;
 
  nodes->data=NULL;
+
  nodes->offsets=(void*)sizeof(Nodes);
  nodes->nodes=(void*)(sizeof(Nodes)+(latbins*lonbins+1)*sizeof(index_t));
 

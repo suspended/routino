@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.32 2009-07-09 17:31:55 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.33 2009-07-19 14:10:27 amb Exp $
 
  A header file for the segments.
 
@@ -51,7 +51,9 @@ struct _Segment
 /*+ A structure containing a set of segments (mmap format). +*/
 struct _Segments
 {
- uint32_t  number;              /*+ How many entries are used in total? +*/
+ uint32_t  number;              /*+ How many segments in total? +*/
+ uint32_t  snumber;             /*+ How many super-segments? +*/
+ uint32_t  nnumber;             /*+ How many normal segments? +*/
 
  Segment  *segments;            /*+ An array of segments. +*/
 
