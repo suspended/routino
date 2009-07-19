@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.13 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.14 2009-07-19 12:54:07 amb Exp $
 
  A header file for the extended segments.
 
@@ -58,9 +58,10 @@ struct _SegmentsX
 
  uint32_t   number;             /*+ How many entries are still useful? +*/
 
- SegmentX **ndata;              /*+ The extended segment data (sorted by node). +*/
+ SegmentX **n1data;             /*+ The extended segment data (sorted by node1). +*/
+ SegmentX **n2data;             /*+ The extended segment data (sorted by node2). +*/
 
- Segment   *sdata;              /*+ The segment data (same order as ndata). +*/
+ Segment   *sdata;              /*+ The segment data (same order as n1data). +*/
 };
 
 
@@ -82,8 +83,6 @@ void SortSegmentList(SegmentsX *segmentsx);
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
 
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx);
-
-void RotateSegments(SegmentsX* segmentsx);
 
 void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx);
 

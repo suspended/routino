@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.26 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.27 2009-07-19 12:54:07 amb Exp $
 
  Extented Node data type functions.
 
@@ -565,7 +565,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
  assert(nodesx->idata);         /* Must have idata filled in */
  assert(nodesx->ndata);         /* Must have ndata filled in */
  assert(segmentsx->sorted);     /* Must be sorted */
- assert(segmentsx->ndata);      /* Must have ndata filled in */
+ assert(segmentsx->n1data);     /* Must have n1data filled in */
  assert(segmentsx->sdata);      /* Must have sdata filled in */
 
  printf("Indexing Segments: Segments=0");
@@ -575,8 +575,8 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    NodeX **nodex1=FindNodeX(nodesx,segmentsx->ndata[i]->node1);
-    NodeX **nodex2=FindNodeX(nodesx,segmentsx->ndata[i]->node2);
+    NodeX **nodex1=FindNodeX(nodesx,segmentsx->n1data[i]->node1);
+    NodeX **nodex2=FindNodeX(nodesx,segmentsx->n1data[i]->node2);
     Node  *node1=&nodesx->ndata[nodex1-nodesx->idata];
     Node  *node2=&nodesx->ndata[nodex2-nodesx->idata];
 
@@ -593,11 +593,11 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
        do
          {
-          if(segmentsx->ndata[index]->node1==segmentsx->ndata[i]->node1)
+          if(segmentsx->n1data[index]->node1==segmentsx->n1data[i]->node1)
             {
              index++;
 
-             if(index>=segmentsx->number || segmentsx->ndata[index]->node1!=segmentsx->ndata[i]->node1)
+             if(index>=segmentsx->number || segmentsx->n1data[index]->node1!=segmentsx->n1data[i]->node1)
                 break;
             }
           else
@@ -627,11 +627,11 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
        do
          {
-          if(segmentsx->ndata[index]->node1==segmentsx->ndata[i]->node2)
+          if(segmentsx->n1data[index]->node1==segmentsx->n1data[i]->node2)
             {
              index++;
 
-             if(index>=segmentsx->number || segmentsx->ndata[index]->node1!=segmentsx->ndata[i]->node2)
+             if(index>=segmentsx->number || segmentsx->n1data[index]->node1!=segmentsx->n1data[i]->node2)
                 break;
             }
           else
