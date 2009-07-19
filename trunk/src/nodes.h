@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.28 2009-07-09 18:34:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.29 2009-07-19 14:10:26 amb Exp $
 
  A header file for the nodes.
 
@@ -47,7 +47,8 @@ struct _Node
 /*+ A structure containing a set of nodes (mmap format). +*/
 struct _Nodes
 {
- uint32_t number;               /*+ How many entries are used in total? +*/
+ uint32_t number;               /*+ How many nodes in total? +*/
+ uint32_t snumber;              /*+ How many super-nodes? +*/
 
  uint32_t latbins;              /*+ The number of bins containing latitude. +*/
  uint32_t lonbins;              /*+ The number of bins containing longitude. +*/

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.29 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.30 2009-07-19 14:10:27 amb Exp $
 
  A header file for the ways.
 
@@ -54,7 +54,8 @@ struct _Way
 /*+ A structure containing a set of ways (mmap format). +*/
 struct _Ways
 {
- uint32_t number;               /*+ How many entries are used? +*/
+ uint32_t number;               /*+ How many ways are stored? +*/
+ uint32_t onumber;              /*+ How many ways were there originally? +*/
 
  Way     *ways;                 /*+ An array of ways. +*/
  char    *names;                /*+ An array of characters containing the names. +*/

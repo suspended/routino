@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.30 2009-07-12 08:38:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.31 2009-07-19 14:10:26 amb Exp $
 
  Memory file dumper.
 
@@ -223,8 +223,9 @@ int main(int argc,char** argv)
     printf("-----\n");
     printf("\n");
 
-    printf("sizeof(Node)=%9d Bytes\n",sizeof(Node));
-    printf("Number      =%9d\n",OSMNodes->number);
+    printf("sizeof(Node) =%9d Bytes\n",sizeof(Node));
+    printf("Number       =%9d\n",OSMNodes->number);
+    printf("Number(super)=%9d\n",OSMNodes->snumber);
     printf("\n");
 
     printf("Lat bins= %4d\n",OSMNodes->latbins);
@@ -242,7 +243,9 @@ int main(int argc,char** argv)
     printf("\n");
 
     printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
-    printf("Number         =%9d\n",OSMSegments->number);
+    printf("Number(total)  =%9d\n",OSMSegments->number);
+    printf("Number(super)  =%9d\n",OSMSegments->snumber);
+    printf("Number(normal) =%9d\n",OSMSegments->nnumber);
 
     /* Examine the ways */
 
@@ -251,8 +254,9 @@ int main(int argc,char** argv)
     printf("----\n");
     printf("\n");
 
-    printf("sizeof(Way) =%9d Bytes\n",sizeof(Way));
-    printf("Number      =%9d\n",OSMWays->number);
+    printf("sizeof(Way)      =%9d Bytes\n",sizeof(Way));
+    printf("Number(compacted)=%9d\n",OSMWays->number);
+    printf("Number(original) =%9d\n",OSMWays->onumber);
     printf("\n");
 
     printf("Total names =%9ld Bytes\n",buf.st_size-sizeof(Ways)-OSMWays->number*sizeof(Way));

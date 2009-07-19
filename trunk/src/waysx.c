@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.17 2009-07-19 13:17:00 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.18 2009-07-19 14:10:27 amb Exp $
 
  Extended Way data type functions.
 
@@ -138,7 +138,10 @@ void SaveWayList(WaysX* waysx,const char *filename)
     the Way structure itself. */
 
  ways->number=waysx->wrow*INCREMENT_WAYS+waysx->wcol;
+ ways->onumber=waysx->number;
+
  ways->data=NULL;
+
  ways->ways=(void*)sizeof(Ways);
  ways->names=(void*)(sizeof(Ways)+ways->number*sizeof(Way));
 
