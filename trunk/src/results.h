@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.14 2009-05-13 17:45:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.15 2009-07-23 17:36:11 amb Exp $
 
  A header file for the results.
 
@@ -73,7 +73,7 @@ typedef struct _Results
  Results;
 
 
-/* Functions */
+/* Results Functions */
 
 Results *NewResultsList(int nbins);
 void FreeResultsList(Results *results);
@@ -86,10 +86,11 @@ Result *FindResult(Results *results,index_t node);
 Result *FirstResult(Results *results);
 Result *NextResult(Results *results,Result *result);
 
+
 /* Queue Functions */
 
-void insert_in_queue(Result *result);
-Result *pop_from_queue(void);
+void InsertInQueue(Result *result);
+Result *PopFromQueue(void);
 
 
 #endif /* RESULTS_H */
