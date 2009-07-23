@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.24 2009-07-19 13:17:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.25 2009-07-23 17:36:11 amb Exp $
 
  Super-Segment data type functions.
 
@@ -314,11 +314,11 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
  ZeroResult(result1);
 
- insert_in_queue(result1);
+ InsertInQueue(result1);
 
  /* Loop across all nodes in the queue */
 
- while((result1=pop_from_queue()))
+ while((result1=PopFromQueue()))
    {
     node1=result1->node;
 
@@ -366,7 +366,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           nodex=FindNodeX(nodesx,node2);
 
           if((*nodex)->super<=iteration)
-             insert_in_queue(result2);
+             InsertInQueue(result2);
          }
        else if(cumulative_distance<result2->score)
          {
@@ -377,7 +377,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           nodex=FindNodeX(nodesx,node2);
 
           if((*nodex)->super<=iteration)
-             insert_in_queue(result2);
+             InsertInQueue(result2);
          }
 
       endloop:
