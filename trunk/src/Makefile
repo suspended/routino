@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.23 2009-07-23 17:36:11 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.24 2009-08-15 15:29:23 amb Exp $
 #
 # Makefile
 #
@@ -27,13 +27,18 @@ LD=gcc
 
 # Program options
 
-CFLAGS=-O3 -Wall -Wmissing-prototypes
-#CFLAGS=-O3 -g -Wall -Wmissing-prototypes
-#CFLAGS=-pg -g -O0 -Wall -Wmissing-prototypes
-#CFLAGS=-pg --coverage -g -O0 -Wall -Wmissing-prototypes
-LDFLAGS=-lm
-#LDFLAGS=-pg -static -lm -lc
-#LDFLAGS=-pg --coverage -static -lm -lc
+CFLAGS=-Wall -Wmissing-prototypes
+#CFLAGS+= -Wextra -pedantic -std=c99
+LDFLAGS=-lm -lc
+
+CFLAGS+= -O3
+#CFLAGS+= -O0 -g
+#CFLAGS+= -pg
+#CFLAGS+= --coverage
+
+LDFLAGS+=
+#LDFLAGS+= -pg -static
+#LDFLAGS+= --coverage
 
 # Compilation targets
 
@@ -52,7 +57,8 @@ all : $(EXE)
 PLANETSPLITTER_OBJ=planetsplitter.o \
 	           nodesx.o segmentsx.o waysx.o superx.o \
 	           ways.o \
-	           files.o profiles.o results.o queue.o osmparser.o
+	           files.o profiles.o results.o queue.o \
+	           osmparser.o
 
 planetsplitter : $(PLANETSPLITTER_OBJ)
 	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
@@ -60,7 +66,7 @@ planetsplitter : $(PLANETSPLITTER_OBJ)
 ########
 
 FILEDUMPER_OBJ=filedumper.o \
-	       nodes.o segments.o ways.o results.o \
+	       nodes.o segments.o ways.o \
 	       files.o \
                visualiser.o
 
