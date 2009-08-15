@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.75 2009-08-15 14:18:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.76 2009-08-15 15:27:47 amb Exp $
 
  Routing optimiser.
 
@@ -40,9 +40,9 @@ extern int option_quickest;
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the optimum route between two nodes.
+  Find the optimum route between two nodes not passing through a super-node.
 
-  Results *FindRoute Returns a set of results.
+  Results *FindNormalRoute Returns a set of results.
 
   Nodes *nodes The set of nodes to use.
 
@@ -55,11 +55,9 @@ extern int option_quickest;
   index_t finish The finish node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
-
-  int all A flag to indicate that a big results structure is required.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile,int all)
+Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile)
 {
  Results *results;
  Queue *queue;
@@ -70,12 +68,6 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
  Segment *segment;
  Way *way;
 
- if(!option_quiet)
-   {
-    printf("Routing: End Nodes=0");
-    fflush(stdout);
-   }
-
  /* Set up the finish conditions */
 
  finish_score=INF_SCORE;
@@ -84,10 +76,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
  /* Create the list of results and insert the first node into the queue */
 
- if(all)
-    results=NewResultsList(65536);
- else
-    results=NewResultsList(8);
+ results=NewResultsList(8);
 
  results->start=start;
  results->finish=finish;
@@ -104,7 +93,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
  while((result1=PopFromQueue(queue)))
    {
-    if(result1->sortby>finish_score)
+    if(result1->score>finish_score)
        continue;
 
     node1=result1->node;
@@ -124,6 +113,9 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
        node2=OtherNode(segment,node1);
 
        if(result1->prev==node2)
+          goto endloop;
+
+       if(node2!=finish && IsSuperNode(nodes,node2))
           goto endloop;
 
        way=LookupWay(ways,segment->way);
@@ -168,16 +160,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
             }
           else
             {
-             double lat,lon;
-             distance_t direct;
-
-             GetLatLong(nodes,node2,&lat,&lon);
-             direct=Distance(lat,lon,finish_lat,finish_lon);
-
-             if(option_quickest==0)
-                result2->sortby=result2->score+(score_t)direct/profile->max_pref;
-             else
-                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
+             result2->sortby=result2->score;
 
              InsertInQueue(queue,result2);
             }
@@ -192,44 +175,19 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
             {
              finish_score=cumulative_score;
             }
-          else if(!all)
-            {
-             InsertInQueue(queue,result2);
-            }
           else
             {
-             double lat,lon;
-             distance_t direct;
+             result2->sortby=result2->score;
 
-             GetLatLong(nodes,node2,&lat,&lon);
-             direct=Distance(lat,lon,finish_lat,finish_lon);
-
-             if(option_quickest==0)
-                result2->sortby=result2->score+(score_t)direct/profile->max_pref;
-             else
-                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
-
-             if(result2->sortby<finish_score)
+             if(result2->score<finish_score)
                 InsertInQueue(queue,result2);
             }
          }
 
       endloop:
 
-       if(!option_quiet && !(results->number%10000))
-         {
-          printf("\rRouting: End Nodes=%d",results->number);
-          fflush(stdout);
-         }
-
        segment=NextSegment(segments,segment,node1);
       }
-   }
-
- if(!option_quiet)
-   {
-    printf("\rRouted: End Nodes=%d\n",results->number);
-    fflush(stdout);
    }
 
  FreeQueueList(queue);
@@ -270,9 +228,9 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the optimum route between two nodes.
+  Find the optimum route between two nodes where the start and end are a set of pre-routed super-nodes.
 
-  Results *FindRoute3 Returns a set of results.
+  Results *FindMiddleRoute Returns a set of results.
 
   Nodes *nodes The set of nodes to use.
 
@@ -287,7 +245,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Results *end,Profile *profile)
+Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Results *end,Profile *profile)
 {
  Results *results;
  Queue *queue;
@@ -330,18 +288,15 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
  while(result3)
    {
-    if(IsSuperNode(nodes,result3->node))
+    if(result3->node!=begin->start && IsSuperNode(nodes,result3->node))
       {
-       if(!(result2=FindResult(results,result3->node)))
-         {
-          result2=InsertResult(results,result3->node);
+       result2=InsertResult(results,result3->node);
 
-          *result2=*result3;
+       *result2=*result3;
 
-          result2->prev=begin->start;
+       result2->prev=begin->start;
 
-          result2->sortby=result2->score;
-         }
+       result2->sortby=result2->score;
 
        InsertInQueue(queue,result2);
       }
@@ -349,11 +304,14 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
     result3=NextResult(begin,result3);
    }
 
+ if(begin->number==1)
+    InsertInQueue(queue,result1);
+
  /* Loop across all nodes in the queue */
 
  while((result1=PopFromQueue(queue)))
    {
-    if(result1->sortby>finish_score)
+    if(result1->score>finish_score)
        continue;
 
     node1=result1->node;
@@ -444,7 +402,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
                 finish_score=result2->score+result3->score;
                }
             }
-          else
+          else if(result2->score<finish_score)
             {
              double lat,lon;
              distance_t direct;
@@ -457,8 +415,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
              else
                 result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-             if(result2->sortby<finish_score)
-                InsertInQueue(queue,result2);
+             InsertInQueue(queue,result2);
             }
          }
 
@@ -830,16 +787,11 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
- int quiet=option_quiet;
 
  combined=NewResultsList(64);
 
  combined->start=results->start;
  combined->finish=results->finish;
-
- /* Don't print any output for this part */
-
- option_quiet=1;
 
  /* Sort out the combined route */
 
@@ -853,7 +805,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
    {
     if(result1->next!=NO_NODE)
       {
-       Results *results2=FindRoute(nodes,segments,ways,result1->node,result1->next,profile,0);
+       Results *results2=FindNormalRoute(nodes,segments,ways,result1->node,result1->next,profile);
 
        result2=FindResult(results2,result1->node);
 
@@ -885,10 +837,6 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
        result1=NULL;
    }
  while(result1);
-
- /* Now print out the result normally */
-
- option_quiet=quiet;
 
  return(combined);
 }
