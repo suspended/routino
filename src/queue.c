@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/queue.c,v 1.3 2009-08-15 15:26:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/queue.c,v 1.4 2009-08-15 16:22:43 amb Exp $
 
  Queue data type functions.
 
@@ -42,7 +42,7 @@ struct _Queue
 /*++++++++++++++++++++++++++++++++++++++
   Allocate a new queue.
 
-  Queue *NewQueue Returns the queue.
+  Queue *NewQueueList Returns the queue.
   ++++++++++++++++++++++++++++++++++++++*/
 
 Queue *NewQueueList(void)
