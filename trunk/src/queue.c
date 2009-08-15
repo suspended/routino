@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/queue.c,v 1.1 2009-07-23 17:34:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/queue.c,v 1.2 2009-08-15 14:18:23 amb Exp $
 
  Queue data type functions.
 
@@ -28,108 +28,102 @@
 
 #include "results.h"
 
-/*+ The size of the increment for the Queue data structure. +*/
-#define QUEUE_INCREMENT   10240
-
 
 /*+ A queue of results. +*/
-typedef struct _Queue
+struct _Queue
 {
- uint32_t  alloced;             /*+ The amount of space allocated for results in the array. +*/
- uint32_t  number;              /*+ The number of occupied results in the array. +*/
+ uint32_t nallocated;           /*+ The number of entries allocated. +*/
+ uint32_t noccupied;            /*+ The number of entries occupied. +*/
 
- Result  **xqueue;              /*+ An array of pointers to parts of the results structure. +*/
-}
- Queue;
-
-/*+ The queue of nodes. +*/
-static Queue queue={0,0,NULL};
+ Result **data;                 /*+ The queue of pointers to results. +*/
+};
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Insert an item into the queue in the right order.
+  Allocate a new queue.
+
+  Queue *NewQueue Returns the queue.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Queue *NewQueueList(void)
+{
+ Queue *queue;
+
+ queue=(Queue*)malloc(sizeof(Queue));
+
+ queue->nallocated=1023;
+ queue->noccupied=0;
+
+ queue->data=(Result**)malloc(queue->nallocated*sizeof(Result*));
+
+ return(queue);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Free a queue.
+
+  Queue *queue The queue to be freed.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FreeQueueList(Queue *queue)
+{
+ free(queue->data);
+
+ free(queue);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Insert a new item into the queue in the right place.
+
+  Queue *queue The queue to insert the result into.
 
   Result *result The result to insert into the queue.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void InsertInQueue(Result *result)
+void InsertInQueue(Queue *queue,Result *result)
 {
- int start=0;
- int end=queue.number-1;
- int mid;
- int insert=-1;
+ uint32_t index;
 
- /* Check that the array is allocated. */
-
- if(!queue.xqueue)
+ if(result->queued==~0)
    {
-    queue.alloced=QUEUE_INCREMENT;
-    queue.number=0;
-    queue.xqueue=(Result**)malloc(queue.alloced*sizeof(Result*));
+    if(queue->noccupied==queue->nallocated)
+      {
+       queue->nallocated=2*queue->nallocated+1;
+       queue->data=(Result**)realloc((void*)queue->data,queue->nallocated*sizeof(Result*));
+      }
+
+    index=queue->noccupied;
+    queue->noccupied++;
+
+    queue->data[index]=result;
+    queue->data[index]->queued=index;
    }
-
- /* Check that the arrays have enough space. */
-
- if(queue.number==queue.alloced)
-   {
-    queue.alloced+=QUEUE_INCREMENT;
-    queue.xqueue=(Result**)realloc((void*)queue.xqueue,queue.alloced*sizeof(Result*));
-   }
-
- /* Binary search - search key may not match, new insertion point required
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since there may not be an exact match we must set end=mid
-  *  # <- mid    |  or start=mid because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually end=start+1 and the insertion point is before
-  *  # <- end    |  end (since it cannot be before the initial start or end).
-  */
-
- if(queue.number==0)                                 /* There is nothing in the queue */
-    insert=0;
- else if(result->sortby>queue.xqueue[start]->sortby) /* Check key is not before start */
-    insert=start;
- else if(result->sortby<queue.xqueue[end]->sortby)   /* Check key is not after end */
-    insert=end+1;
- else if(queue.number==2)                            /* Must be between them */
-    insert=1;
  else
    {
-    do
-      {
-       mid=(start+end)/2;                                /* Choose mid point */
-
-       if(queue.xqueue[mid]->sortby>result->sortby)      /* Mid point is too low */
-          start=mid;
-       else if(queue.xqueue[mid]->sortby<result->sortby) /* Mid point is too high */
-          end=mid;
-       else                                              /* Mid point is correct */
-         {
-          if(queue.xqueue[mid]==result)
-             return;
-
-          insert=mid;
-          break;
-         }
-      }
-    while((end-start)>1);
-
-    if(insert==-1)
-       insert=end;
+    index=result->queued;
    }
 
- /* Shuffle the array up */
+ /* Bubble up the new value */
 
- if(insert!=queue.number)
-    memmove(&queue.xqueue[insert+1],&queue.xqueue[insert],(queue.number-insert)*sizeof(Result*));
+ while(index>0 &&
+       queue->data[index]->sortby<queue->data[index/2]->sortby)
+   {
+    uint32_t newindex;
+    Result *temp;
 
- /* Insert the new entry */
+    newindex=index/2;
 
- queue.xqueue[insert]=result;
+    temp=queue->data[index];
+    queue->data[index]=queue->data[newindex];
+    queue->data[newindex]=temp;
 
- queue.number++;
+    queue->data[index]->queued=index;
+    queue->data[newindex]->queued=newindex;
+
+    index=newindex;
+   }
 }
 
 
@@ -138,13 +132,61 @@ void InsertInQueue(Result *result)
 
   Result *PopFromQueue Returns the top item.
 
-  Results *results The set of results that the queue is processing.
+  Queue *queue The queue to remove the result from.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Result *PopFromQueue()
+Result *PopFromQueue(Queue *queue)
 {
- if(queue.number)
-    return(queue.xqueue[--queue.number]);
- else
+ uint32_t index;
+ Result *retval=queue->data[0];
+
+ if(queue->noccupied==0)
     return(NULL);
+
+ index=0;
+ queue->noccupied--;
+
+ queue->data[index]=queue->data[queue->noccupied];
+
+ /* Bubble down the newly promoted value */
+
+ while((2*index+2)<queue->noccupied &&
+       (queue->data[index]->sortby>queue->data[2*index+1]->sortby ||
+        queue->data[index]->sortby>queue->data[2*index+2]->sortby))
+   {
+    uint32_t newindex;
+    Result *temp;
+
+    if(queue->data[2*index+1]->sortby<queue->data[2*index+2]->sortby)
+       newindex=2*index+1;
+    else
+       newindex=2*index+2;
+
+    temp=queue->data[newindex];
+    queue->data[newindex]=queue->data[index];
+    queue->data[index]=temp;
+
+    queue->data[index]->queued=index;
+    queue->data[newindex]->queued=newindex;
+
+    index=newindex;
+   }
+
+ if((2*index+2)==queue->noccupied &&
+    queue->data[index]->sortby>queue->data[2*index+1]->sortby) /* only one child and needs bubbling */
+   {
+    uint32_t newindex;
+    Result *temp;
+
+    newindex=2*index+1;
+
+    temp=queue->data[newindex];
+    queue->data[newindex]=queue->data[index];
+    queue->data[index]=temp;
+
+    queue->data[index]->queued=index;
+    queue->data[newindex]->queued=newindex;
+   }
+
+ return(retval);
 }

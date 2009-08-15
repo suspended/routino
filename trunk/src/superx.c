@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.25 2009-07-23 17:36:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.26 2009-08-15 14:18:23 amb Exp $
 
  Super-Segment data type functions.
 
@@ -300,6 +300,7 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match,int iteration)
 {
  Results *results;
+ Queue *queue;
  index_t node1,node2;
  Result *result1,*result2;
  NodeX **nodex;
@@ -310,15 +311,17 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
  results=NewResultsList(8);
 
+ queue=NewQueueList();
+
  result1=InsertResult(results,start);
 
  ZeroResult(result1);
 
- InsertInQueue(result1);
+ InsertInQueue(queue,result1);
 
  /* Loop across all nodes in the queue */
 
- while((result1=PopFromQueue()))
+ while((result1=PopFromQueue(queue)))
    {
     node1=result1->node;
 
@@ -366,7 +369,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           nodex=FindNodeX(nodesx,node2);
 
           if((*nodex)->super<=iteration)
-             InsertInQueue(result2);
+             InsertInQueue(queue,result2);
          }
        else if(cumulative_distance<result2->score)
          {
@@ -377,7 +380,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           nodex=FindNodeX(nodesx,node2);
 
           if((*nodex)->super<=iteration)
-             InsertInQueue(result2);
+             InsertInQueue(queue,result2);
          }
 
       endloop:
@@ -385,6 +388,8 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
        segmentx=FindNextSegmentX(segmentsx,segmentx);
       }
    }
+
+ FreeQueueList(queue);
 
  return(results);
 }

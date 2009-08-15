@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.74 2009-07-23 17:36:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.75 2009-08-15 14:18:23 amb Exp $
 
  Routing optimiser.
 
@@ -62,6 +62,7 @@ extern int option_quickest;
 Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile,int all)
 {
  Results *results;
+ Queue *queue;
  index_t node1,node2;
  score_t finish_score;
  double  finish_lat,finish_lon;
@@ -95,11 +96,13 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 
  ZeroResult(result1);
 
- InsertInQueue(result1);
+ queue=NewQueueList();
+
+ InsertInQueue(queue,result1);
 
  /* Loop across all nodes in the queue */
 
- while((result1=PopFromQueue()))
+ while((result1=PopFromQueue(queue)))
    {
     if(result1->sortby>finish_score)
        continue;
@@ -176,7 +179,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
              else
                 result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-             InsertInQueue(result2);
+             InsertInQueue(queue,result2);
             }
          }
        else if(cumulative_score<result2->score) /* New end node is better */
@@ -191,7 +194,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
             }
           else if(!all)
             {
-             InsertInQueue(result2);
+             InsertInQueue(queue,result2);
             }
           else
             {
@@ -206,7 +209,8 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
              else
                 result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-             InsertInQueue(result2);
+             if(result2->sortby<finish_score)
+                InsertInQueue(queue,result2);
             }
          }
 
@@ -227,6 +231,8 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
     printf("\rRouted: End Nodes=%d\n",results->number);
     fflush(stdout);
    }
+
+ FreeQueueList(queue);
 
  /* Check it worked */
 
@@ -284,6 +290,7 @@ Results *FindRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,inde
 Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Results *end,Profile *profile)
 {
  Results *results;
+ Queue *queue;
  index_t node1,node2;
  score_t finish_score;
  double  finish_lat,finish_lon;
@@ -315,6 +322,8 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
  *result1=*result3;
 
+ queue=NewQueueList();
+
  /* Insert the finish points of the beginning part of the path into the queue */
 
  result3=FirstResult(begin);
@@ -334,7 +343,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
           result2->sortby=result2->score;
          }
 
-       InsertInQueue(result2);
+       InsertInQueue(queue,result2);
       }
 
     result3=NextResult(begin,result3);
@@ -342,7 +351,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 
  /* Loop across all nodes in the queue */
 
- while((result1=PopFromQueue()))
+ while((result1=PopFromQueue(queue)))
    {
     if(result1->sortby>finish_score)
        continue;
@@ -419,7 +428,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
              else
                 result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-             InsertInQueue(result2);
+             InsertInQueue(queue,result2);
             }
          }
        else if(cumulative_score<result2->score) /* New end node is better */
@@ -448,7 +457,8 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
              else
                 result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-             InsertInQueue(result2);
+             if(result2->sortby<finish_score)
+                InsertInQueue(queue,result2);
             }
          }
 
@@ -496,6 +506,8 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
        result3=NextResult(end,result3);
       }
    }
+
+ FreeQueueList(queue);
 
  /* Check it worked */
 
@@ -549,6 +561,7 @@ Results *FindRoute3(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Re
 Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Profile *profile)
 {
  Results *results;
+ Queue *queue;
  index_t node1,node2;
  Result *result1,*result2;
  Segment *segment;
@@ -564,11 +577,13 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
  ZeroResult(result1);
 
- InsertInQueue(result1);
+ queue=NewQueueList();
+
+ InsertInQueue(queue,result1);
 
  /* Loop across all nodes in the queue */
 
- while((result1=PopFromQueue()))
+ while((result1=PopFromQueue(queue)))
    {
     node1=result1->node;
 
@@ -625,7 +640,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           if(!IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
-             InsertInQueue(result2);
+             InsertInQueue(queue,result2);
             }
          }
        else if(cumulative_score<result2->score) /* New end node is better */
@@ -637,7 +652,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           if(!IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
-             InsertInQueue(result2);
+             InsertInQueue(queue,result2);
             }
          }
 
@@ -646,6 +661,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        segment=NextSegment(segments,segment,node1);
       }
    }
+
+ FreeQueueList(queue);
 
  /* Check it worked */
 
@@ -678,6 +695,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t finish,Profile *profile)
 {
  Results *results;
+ Queue *queue;
  index_t node1,node2;
  Result *result1,*result2;
  Segment *segment;
@@ -693,11 +711,13 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
 
  ZeroResult(result1);
 
- InsertInQueue(result1);
+ queue=NewQueueList();
+
+ InsertInQueue(queue,result1);
 
  /* Loop across all nodes in the queue */
 
- while((result1=PopFromQueue()))
+ while((result1=PopFromQueue(queue)))
    {
     node1=result1->node;
 
@@ -754,7 +774,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
           if(!IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
-             InsertInQueue(result2);
+             InsertInQueue(queue,result2);
             }
          }
        else if(cumulative_score<result2->score) /* New end node is better */
@@ -766,7 +786,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
           if(!IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
-             InsertInQueue(result2);
+             InsertInQueue(queue,result2);
             }
          }
 
@@ -775,6 +795,8 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
        segment=NextSegment(segments,segment,node1);
       }
    }
+
+ FreeQueueList(queue);
 
  /* Check it worked */
 

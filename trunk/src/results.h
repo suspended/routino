@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.15 2009-07-23 17:36:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.16 2009-08-15 14:18:23 amb Exp $
 
  A header file for the results.
 
@@ -40,8 +40,10 @@ typedef struct _Result
  index_t   prev;                /*+ The previous node following the best path. +*/
  index_t   next;                /*+ The next node following the best path. +*/
 
- score_t   score;               /*+ The weighted distance or duration score to the node following the best path. +*/
- score_t   sortby;              /*+ The value to sort the results by in the queue. +*/
+ score_t   score;               /*+ The best actual weighted distance or duration score from the start to the node. +*/
+
+ score_t   sortby;              /*+ The best possible weighted distance or duration score from the start to the finish. +*/
+ uint32_t  queued;              /*+ The position of this result in the queue. +*/
 
  Segment  *segment;             /*+ The segment for the path to here (from prev). +*/
 }
@@ -73,6 +75,11 @@ typedef struct _Results
  Results;
 
 
+/* Forward definitions for opaque type */
+
+typedef struct _Queue Queue;
+
+
 /* Results Functions */
 
 Results *NewResultsList(int nbins);
@@ -89,8 +96,11 @@ Result *NextResult(Results *results,Result *result);
 
 /* Queue Functions */
 
-void InsertInQueue(Result *result);
-Result *PopFromQueue(void);
+Queue *NewQueueList(void);
+void FreeQueueList(Queue *queue);
+
+void InsertInQueue(Queue *queue,Result *result);
+Result *PopFromQueue(Queue *queue);
 
 
 #endif /* RESULTS_H */
