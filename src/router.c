@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.56 2009-07-12 08:38:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.57 2009-08-15 15:28:27 amb Exp $
 
  OSM router.
 
@@ -51,7 +51,6 @@ int main(int argc,char** argv)
  int       point_used[10]={0};
  double    point_lon[10],point_lat[10];
  int       help_profile=0,help_profile_js=0,help_profile_pl=0;
- int       option_all=0,option_super=0,option_no_output=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
  Profile   profile;
@@ -70,8 +69,7 @@ int main(int argc,char** argv)
                    "              [--help | --help-profile | --help-profile-js | --help-profile-pl]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
                    "              [--shortest | --quickest]\n"
-                   "              [--all | --super]\n"
-                   "              [--no-output] [--quiet]\n"
+                   "              [--quiet]\n"
                    "              [--transport=<transport>]\n"
                    "              [--highway-<highway>=<preference> ...]\n"
                    "              [--speed-<highway>=<speed> ...]\n"
@@ -166,12 +164,6 @@ int main(int argc,char** argv)
        option_quickest=0;
     else if(!strcmp(argv[arg],"--quickest"))
        option_quickest=1;
-    else if(!strcmp(argv[arg],"--all"))
-       option_all=1;
-    else if(!strcmp(argv[arg],"--super"))
-       option_super=1;
-    else if(!strcmp(argv[arg],"--no-output"))
-       option_no_output=1;
     else if(!strcmp(argv[arg],"--quiet"))
        option_quiet=1;
     else if(!strncmp(argv[arg],"--transport=",12))
@@ -287,6 +279,7 @@ int main(int argc,char** argv)
 
  for(node=1;node<sizeof(point_used)/sizeof(point_used[0]);node++)
    {
+    Results *begin,*end;
     distance_t dist=km_to_distance(10);
 
     if(point_used[node]!=3)
@@ -316,120 +309,89 @@ int main(int argc,char** argv)
     if(start==NO_NODE)
        continue;
 
-    /* Find the route segment */
+    /* Calculate the beginning of the route */
 
-    if(option_super && !IsSuperNode(OSMNodes,start) && !IsSuperNode(OSMNodes,finish))
+    if(IsSuperNode(OSMNodes,start))
       {
-       fprintf(stderr,"Error: Start and/or finish nodes are not super-nodes.\n");
-       return(1);
-      }
+       Result *result;
 
-    /* Calculate the route. */
+       begin=NewResultsList(1);
 
-    if(option_all)
-      {
-       /* Calculate the route */
+       begin->start=start;
 
-       results[node]=FindRoute(OSMNodes,OSMSegments,OSMWays,start,finish,&profile,option_all);
+       result=InsertResult(begin,start);
 
-       if(!results[node])
-         {
-          fprintf(stderr,"Error: Cannot find route compatible with profile.\n");
-          return(1);
-         }
+       ZeroResult(result);
       }
     else
       {
-       Results *begin,*end;
+       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,start,&profile);
 
-       /* Calculate the beginning of the route */
+       if(!begin)
+         {
+          fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
+          return(1);
+         }
+      }
 
-       if(IsSuperNode(OSMNodes,start))
+    if(FindResult(begin,finish))
+      {
+       results[node]=begin;
+
+       results[node]->finish=finish;
+      }
+    else
+      {
+       Results *superresults;
+
+       /* Calculate the end of the route */
+
+       if(IsSuperNode(OSMNodes,finish))
          {
           Result *result;
 
-          begin=NewResultsList(1);
+          end=NewResultsList(1);
 
-          begin->start=start;
+          end->finish=finish;
 
-          result=InsertResult(begin,start);
+          result=InsertResult(end,finish);
 
           ZeroResult(result);
          }
        else
          {
-          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,start,&profile);
+          end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,finish,&profile);
 
-          if(!begin)
+          if(!end)
             {
-             fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
+             fprintf(stderr,"Error: Cannot find final section of route compatible with profile.\n");
              return(1);
             }
          }
 
-       if(FindResult(begin,finish))
+       /* Calculate the middle of the route */
+
+       superresults=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,begin,end,&profile);
+
+       if(!superresults)
          {
-          results[node]=begin;
-
-          results[node]->finish=finish;
+          fprintf(stderr,"Error: Cannot find route compatible with profile.\n");
+          return(1);
          }
-       else
-         {
-          Results *superresults;
 
-          /* Calculate the end of the route */
-
-          if(IsSuperNode(OSMNodes,finish))
-            {
-             Result *result;
-
-             end=NewResultsList(1);
-
-             end->finish=finish;
-
-             result=InsertResult(end,finish);
-
-             ZeroResult(result);
-            }
-          else
-            {
-             end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,finish,&profile);
-
-             if(!end)
-               {
-                fprintf(stderr,"Error: Cannot find final section of route compatible with profile.\n");
-                return(1);
-               }
-            }
-
-          /* Calculate the middle of the route */
-
-          superresults=FindRoute3(OSMNodes,OSMSegments,OSMWays,begin,end,&profile);
-
-          if(!superresults)
-            {
-             fprintf(stderr,"Error: Cannot find route compatible with profile.\n");
-             return(1);
-            }
-
-          if(option_super)
-             results[node]=superresults;
-          else
-             results[node]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,&profile);
-         }
+       results[node]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,&profile);
       }
    }
 
- if(!option_no_output)
-   {
-    PrintRouteHead(FileName(dirname,prefix,"copyright.txt"));
+ /* Print out the combined route */
 
-    for(node=1;node<sizeof(point_used)/sizeof(point_used[0]);node++)
-       if(results[node])
-          PrintRoute(results[node],OSMNodes,OSMSegments,OSMWays,&profile);
+ PrintRouteHead(FileName(dirname,prefix,"copyright.txt"));
 
-    PrintRouteTail();
-   }
+ for(node=1;node<sizeof(point_used)/sizeof(point_used[0]);node++)
+    if(results[node])
+       PrintRoute(results[node],OSMNodes,OSMSegments,OSMWays,&profile);
+
+ PrintRouteTail();
 
  return(0);
 }
