@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.57 2009-08-15 15:28:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.58 2009-08-17 18:26:22 amb Exp $
 
  OSM router.
 
@@ -35,6 +35,10 @@
 #include "ways.h"
 
 
+/*+ The number of waypoints allowed to be specified. +*/
+#define NWAYPOINTS 99
+
+
 /*+ The option not to print any progress information. +*/
 int option_quiet=0;
 
@@ -47,9 +51,9 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
- Results  *results[10]={NULL};
- int       point_used[10]={0};
- double    point_lon[10],point_lat[10];
+ Results  *results[NWAYPOINTS+1]={NULL};
+ int       point_used[NWAYPOINTS+1]={0};
+ double    point_lon[NWAYPOINTS+1],point_lat[NWAYPOINTS+1];
  int       help_profile=0,help_profile_js=0,help_profile_pl=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
@@ -65,7 +69,7 @@ int main(int argc,char** argv)
 
     fprintf(stderr,"Usage: router [--lon1=]<longitude> [--lat1=]<latitude>\n"
                    "              [--lon2=]<longitude> [--lon2=]<latitude>\n"
-                   "              [ ... [--lon9=]<longitude> [--lon9=]<latitude> ]\n"
+                   "              [ ... [--lon99=]<longitude> [--lon99=]<latitude>]\n"
                    "              [--help | --help-profile | --help-profile-js | --help-profile-pl]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
                    "              [--shortest | --quickest]\n"
@@ -116,7 +120,7 @@ int main(int argc,char** argv)
     if(isdigit(argv[arg][0]) ||
        ((argv[arg][0]=='-' || argv[arg][0]=='+') && isdigit(argv[arg][1])))
       {
-       for(node=1;node<sizeof(point_used)/sizeof(point_used[0]);node++)
+       for(node=1;node<=NWAYPOINTS;node++)
           if(point_used[node]!=3)
             {
              if(point_used[node]==0)
@@ -132,20 +136,32 @@ int main(int argc,char** argv)
              break;
             }
       }
-    else if(!strncmp(argv[arg],"--lon",5) && isdigit(argv[arg][5]) && argv[arg][6]=='=')
-      {
-       node=atoi(&argv[arg][5]);
-       if(point_used[node]&1)
-          goto usage;
-       point_lon[node]=degrees_to_radians(atof(&argv[arg][7]));
+     else if(!strncmp(argv[arg],"--lon",5) && isdigit(argv[arg][5]))
+       {
+        char *p=&argv[arg][6];
+        while(isdigit(*p)) p++;
+        if(*p++!='=')
+           goto usage;
+ 
+        node=atoi(&argv[arg][5]);
+        if(node>NWAYPOINTS || point_used[node]&1)
+           goto usage;
+ 
+       point_lon[node]=degrees_to_radians(atof(p));
        point_used[node]+=1;
       }
-    else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]) && argv[arg][6]=='=')
-      {
-       node=atoi(&argv[arg][5]);
-       if(point_used[node]&2)
-          goto usage;
-       point_lat[node]=degrees_to_radians(atof(&argv[arg][7]));
+     else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]))
+       {
+        char *p=&argv[arg][6];
+        while(isdigit(*p)) p++;
+        if(*p++!='=')
+           goto usage;
+ 
+        node=atoi(&argv[arg][5]);
+        if(node>NWAYPOINTS || point_used[node]&2)
+           goto usage;
+ 
+       point_lat[node]=degrees_to_radians(atof(p));
        point_used[node]+=2;
       }
     else if(!strcmp(argv[arg],"--help"))
@@ -224,7 +240,7 @@ int main(int argc,char** argv)
        goto usage;
    }
 
- for(node=0;node<sizeof(point_used)/sizeof(point_used[0]);node++)
+ for(node=0;node<=NWAYPOINTS;node++)
     if(point_used[node]==1 || point_used[node]==2)
        goto usage;
 
@@ -277,7 +293,7 @@ int main(int argc,char** argv)
 
  /* Loop through all pairs of nodes */
 
- for(node=1;node<sizeof(point_used)/sizeof(point_used[0]);node++)
+ for(node=1;node<=NWAYPOINTS;node++)
    {
     Results *begin,*end;
     distance_t dist=km_to_distance(10);
@@ -387,7 +403,7 @@ int main(int argc,char** argv)
 
  PrintRouteHead(FileName(dirname,prefix,"copyright.txt"));
 
- for(node=1;node<sizeof(point_used)/sizeof(point_used[0]);node++)
+ for(node=1;node<=NWAYPOINTS;node++)
     if(results[node])
        PrintRoute(results[node],OSMNodes,OSMSegments,OSMWays,&profile);
 
