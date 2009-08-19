@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.18 2009-07-19 14:10:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.19 2009-08-19 18:02:08 amb Exp $
 
  Extended Way data type functions.
 
@@ -60,6 +60,8 @@ WaysX *NewWayList(void)
  WaysX *waysx;
 
  waysx=(WaysX*)calloc(1,sizeof(WaysX));
+
+ assert(waysx); /* Check calloc() worked */
 
  waysx->row=-1;
  waysx->wrow=-1;
@@ -126,16 +128,20 @@ void SaveWayList(WaysX* waysx,const char *filename)
 {
  index_t i;
  int fd;
- Ways *ways=calloc(1,sizeof(Ways));
+ Ways *ways;
 
- assert(waysx->sorted);       /* Must be sorted */
- assert(waysx->wdata);        /* Must have wdata filled in */
+ assert(waysx->wdata);        /* Must have wdata filled in => compacted */
+ assert(waysx->names);        /* Must have names filled in => compacted */
 
  printf("Writing Ways: Ways=0");
  fflush(stdout);
 
  /* Fill in a Ways structure with the offset of the real data in the file after
     the Way structure itself. */
+
+ ways=calloc(1,sizeof(Ways));
+
+ assert(ways); /* Check calloc() worked */
 
  ways->number=waysx->wrow*INCREMENT_WAYS+waysx->wcol;
  ways->onumber=waysx->number;
@@ -191,8 +197,7 @@ WayX *FindWayX(WaysX* waysx,way_t id)
  int end=waysx->number-1;
  int mid;
 
- assert(waysx->sorted);        /* Must be sorted */
- assert(waysx->idata);         /* Must have idata filled in */
+ assert(waysx->idata);         /* Must have idata filled in => sorted */
 
  /* Binary search - search key exact match only is required.
   *
@@ -251,7 +256,7 @@ WayX *FindWayX(WaysX* waysx,way_t id)
 
 Way *AppendWay(WaysX* waysx,way_t id,const char *name)
 {
- assert(!waysx->wdata);       /* Must not have wdata filled in */
+ assert(!waysx->idata);       /* Must not have idata filled in => unsorted */
 
  /* Check that the arrays have enough space. */
 
@@ -264,10 +269,16 @@ Way *AppendWay(WaysX* waysx,way_t id,const char *name)
       {
        waysx->xdata=(WayX**)realloc((void*)waysx->xdata,(waysx->row+16)*sizeof(WayX*));
        waysx->wxdata=(Way**)realloc((void*)waysx->wxdata,(waysx->row+16)*sizeof(Way*));
+
+       assert(waysx->xdata); /* Check realloc() worked */
+       assert(waysx->wxdata); /* Check realloc() worked */
       }
 
     waysx->xdata[waysx->row]=(WayX*)malloc(INCREMENT_WAYSX*sizeof(WayX));
     waysx->wxdata[waysx->row]=(Way*)malloc(INCREMENT_WAYSX*sizeof(Way));
+
+    assert(waysx->xdata[waysx->row]); /* Check malloc() worked */
+    assert(waysx->wxdata[waysx->row]); /* Check malloc() worked */
    }
 
  /* Insert the way */
@@ -279,8 +290,6 @@ Way *AppendWay(WaysX* waysx,way_t id,const char *name)
  memset(&waysx->wxdata[waysx->row][waysx->col],0,sizeof(Way));
 
  waysx->col++;
-
- waysx->sorted=0;
 
  return(&waysx->wxdata[waysx->row][waysx->col-1]);
 }
@@ -297,9 +306,10 @@ void SortWayList(WaysX* waysx)
  index_t i;
  int duplicate;
 
- assert(waysx->xdata);          /* Must have xdata filled in */
- assert(waysx->wxdata);         /* Must have wxdata filled in */
- assert(!waysx->wdata);         /* Must not have wdata filled in */
+ assert(waysx->xdata);          /* Must have xdata filled in => data exists */
+ assert(waysx->wxdata);         /* Must have wxdata filled in => data exists */
+ assert(!waysx->idata);         /* Must not have idata filled in => unsorted */
+ assert(!waysx->ndata);         /* Must not have ndata filled in => unsorted */
 
  printf("Sorting Ways");
  fflush(stdout);
@@ -307,6 +317,8 @@ void SortWayList(WaysX* waysx)
  /* Allocate the array of pointers and sort them */
 
  waysx->idata=(WayX**)malloc((waysx->row*INCREMENT_WAYSX+waysx->col)*sizeof(WayX*));
+
+ assert(waysx->idata); /* Check malloc() worked */
 
  do
    {
@@ -345,6 +357,8 @@ void SortWayList(WaysX* waysx)
 
  waysx->ndata=(WayX**)malloc(waysx->number*sizeof(WayX*));
 
+ assert(waysx->ndata); /* Check malloc() worked */
+
  for(i=0;i<waysx->number;i++)
     waysx->ndata[i]=waysx->idata[i];
 
@@ -352,8 +366,6 @@ void SortWayList(WaysX* waysx)
 
  printf("\rSorted Ways \n");
  fflush(stdout);
-
- waysx->sorted=1;
 }
 
 
@@ -367,9 +379,10 @@ void CompactWays(WaysX* waysx)
 {
  index_t i;
 
- assert(waysx->sorted);         /* Must be sorted */
- assert(waysx->ndata);          /* Must have ndata filled in */
- assert(waysx->wxdata);         /* Must have wxdata filled in */
+ assert(waysx->ndata);          /* Must have ndata filled in => sorted */
+ assert(waysx->wxdata);         /* Must have wxdata filled in => data exists */
+ assert(!waysx->names);         /* Must not have names filled in => uncompacted */
+ assert(!waysx->wdata);         /* Must not have wdata filled in => uncompacted */
 
  printf("\rCompacting Ways: Ways=0 Compacted=0 Names=0 Bytes");
  fflush(stdout);
@@ -377,6 +390,8 @@ void CompactWays(WaysX* waysx)
  /* Allocate the new data for names */
 
  waysx->names=(char*)malloc(INCREMENT_NAMES*sizeof(char));
+
+ assert(waysx->names); /* Check malloc() worked */
 
  /* Setup the offsets for the names in the way array */
 
@@ -396,7 +411,11 @@ void CompactWays(WaysX* waysx)
     else                                                          /* Different name */
       {
        if(((waysx->length+strlen(waysx->ndata[i]->name)+1)/INCREMENT_NAMES)>(waysx->length/INCREMENT_NAMES))
+         {
           waysx->names=(char*)realloc((void*)waysx->names,(waysx->length/INCREMENT_NAMES+2)*INCREMENT_NAMES*sizeof(char));
+
+          assert(waysx->names); /* Check realloc() worked */
+         }
 
        strcpy(&waysx->names[waysx->length],waysx->ndata[i]->name);
 
@@ -417,9 +436,15 @@ void CompactWays(WaysX* waysx)
           waysx->wcol=0;
 
           if((waysx->wrow%16)==0)
+            {
              waysx->wdata=(Way **)realloc((void*)waysx->wdata,(waysx->wrow+16)*sizeof(Way*));
 
+             assert(waysx->wdata); /* Check realloc() worked */
+            }
+
           waysx->wdata[waysx->wrow]=(Way *)malloc(INCREMENT_WAYSX*sizeof(Way));
+
+          assert(waysx->wdata); /* Check malloc() worked */
          }
 
        waysx->wdata[waysx->wrow][waysx->wcol]=*waysx->ndata[i]->way;
@@ -514,7 +539,7 @@ index_t IndexWayInWaysX(WaysX *waysx,WayX *wayx)
 {
  int row;
 
- assert(waysx->wdata);          /* Must have wdata filled in */
+ assert(waysx->wdata);          /* Must have wdata filled in => data exists */
 
  for(row=waysx->wrow;row>=0;row--)
     if((wayx->way-waysx->wdata[row])>=0 &&

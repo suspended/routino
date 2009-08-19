@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.14 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.15 2009-08-19 18:02:08 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -48,8 +48,6 @@ struct _WayX
 /*+ A structure containing a set of ways (memory format). +*/
 struct _WaysX
 {
- uint32_t sorted;               /*+ Is the data sorted? +*/
-
  int32_t  row;                  /*+ How many rows are allocated? +*/
  uint32_t col;                  /*+ How many columns are used in the last row? +*/
 
