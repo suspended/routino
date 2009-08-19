@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.11 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.12 2009-08-19 18:02:08 amb Exp $
 
  A header file for the extended nodes.
 
@@ -48,8 +48,6 @@ struct _NodeX
 /*+ A structure containing a set of nodes (memory format). +*/
 struct _NodesX
 {
- uint32_t  sorted;              /*+ Is the data sorted and therefore searchable? +*/
-
  int32_t   row;                 /*+ How many rows are allocated? +*/
  uint32_t  col;                 /*+ How many columns are used in the last row? +*/
 

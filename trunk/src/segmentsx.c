@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.29 2009-07-19 14:10:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.30 2009-08-19 18:02:08 amb Exp $
 
  Extended Segment data type functions.
 
@@ -64,6 +64,8 @@ SegmentsX *NewSegmentList(void)
 
  segmentsx=(SegmentsX*)calloc(1,sizeof(SegmentsX));
 
+ assert(segmentsx); /* Check calloc() worked */
+
  segmentsx->row=-1;
 
  return(segmentsx);
@@ -111,11 +113,10 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 {
  index_t i;
  int fd;
- Segments *segments=calloc(1,sizeof(Segments));
+ Segments *segments;
  int super_number=0,normal_number=0;
 
- assert(segmentsx->sorted);     /* Must be sorted */
- assert(segmentsx->sdata);      /* Must have sdata filled in */
+ assert(segmentsx->sdata);      /* Must have sdata filled in => real segments */
 
  printf("Writing Segments: Segments=0");
  fflush(stdout);
@@ -130,6 +131,10 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  /* Fill in a Segments structure with the offset of the real data in the file after
     the Segment structure itself. */
+
+ segments=calloc(1,sizeof(Segments));
+
+ assert(segments); /* Check calloc() worked */
 
  segments->number=segmentsx->number;
  segments->snumber=super_number;
@@ -205,8 +210,7 @@ static SegmentX **find_first1_segmentx(SegmentsX* segmentsx,node_t node)
  int mid;
  int found;
 
- assert(segmentsx->sorted);     /* Must be sorted */
- assert(segmentsx->n1data);     /* Must have n1data filled in */
+ assert(segmentsx->n1data);     /* Must have n1data filled in => sorted by node 1 */
 
  /* Binary search - search key exact match only is required.
   *
@@ -275,8 +279,7 @@ static SegmentX **find_first2_segmentx(SegmentsX* segmentsx,node_t node)
  int mid;
  int found;
 
- assert(segmentsx->sorted);     /* Must be sorted */
- assert(segmentsx->n2data);     /* Must have n2data filled in */
+ assert(segmentsx->n2data);     /* Must have n2data filled in => sorted by node 2 */
 
  /* Binary search - search key exact match only is required.
   *
@@ -392,9 +395,15 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
     segmentsx->col=0;
 
     if((segmentsx->row%16)==0)
+      {
        segmentsx->xdata=(SegmentX**)realloc((void*)segmentsx->xdata,(segmentsx->row+16)*sizeof(SegmentX*));
 
+       assert(segmentsx->xdata); /* Check realloc() worked */
+      }
+
     segmentsx->xdata[segmentsx->row]=(SegmentX*)malloc(INCREMENT_SEGMENTSX*sizeof(SegmentX));
+
+    assert(segmentsx->xdata[segmentsx->row]); /* Check malloc() worked */
    }
 
  /* Insert the segment */
@@ -416,8 +425,6 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
    }
 
  segmentsx->col++;
-
- segmentsx->sorted=0;
 }
 
 
@@ -441,6 +448,9 @@ void SortSegmentList(SegmentsX* segmentsx)
  segmentsx->n1data=(SegmentX**)realloc(segmentsx->n1data,(segmentsx->row*INCREMENT_SEGMENTSX+segmentsx->col)*sizeof(SegmentX*));
  segmentsx->n2data=(SegmentX**)realloc(segmentsx->n2data,(segmentsx->row*INCREMENT_SEGMENTSX+segmentsx->col)*sizeof(SegmentX*));
 
+ assert(segmentsx->n1data); /* Check realloc() worked */
+ assert(segmentsx->n2data); /* Check realloc() worked */
+
  segmentsx->number=0;
 
  for(i=0;i<(segmentsx->row*INCREMENT_SEGMENTSX+segmentsx->col);i++)
@@ -456,8 +466,6 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  printf("\rSorted Segments \n");
  fflush(stdout);
-
- segmentsx->sorted=1;
 }
 
 
@@ -562,7 +570,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
  index_t i;
  int duplicate=0,loop=0,missing=0;
 
- assert(segmentsx->n1data);     /* Must have n1data filled in */
+ assert(segmentsx->n1data);     /* Must have n1data filled in => sorted by node 1 */
 
  printf("Checking: Segments=0 Duplicate=0 Loop=0 Missing-Node=0");
  fflush(stdout);
@@ -611,7 +619,7 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 {
  index_t i;
 
- assert(segmentsx->n1data);     /* Must have n1data filled in */
+ assert(segmentsx->n1data);     /* Must have n1data filled in => sorted by node 1 */
 
  printf("Measuring Segments: Segments=0");
  fflush(stdout);
@@ -650,7 +658,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx)
  index_t i;
  int duplicate=0;
 
- assert(segmentsx->n1data);     /* Must have n1data filled in */
+ assert(segmentsx->n1data);     /* Must have n1data filled in => sorted by node 1 */
 
  printf("Deduplicating Segments: Segments=0 Duplicate=0");
  fflush(stdout);
@@ -696,7 +704,8 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 {
  index_t i;
 
- assert(segmentsx->n1data);     /* Must have n1data filled in */
+ assert(segmentsx->n1data);     /* Must have n1data filled in => sorted by node 1 */
+ assert(!segmentsx->sdata);     /* Must not have sdata filled in => no real segments */
 
  printf("Creating Real Segments: Segments=0");
  fflush(stdout);
@@ -704,6 +713,8 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
  /* Allocate the memory */
 
  segmentsx->sdata=(Segment*)malloc(segmentsx->number*sizeof(Segment));
+
+ assert(segmentsx->sdata); /* Check malloc() worked */
 
  /* Loop through and allocate. */
 
@@ -741,11 +752,10 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 {
  index_t i;
 
- assert(segmentsx->sorted);     /* Must be sorted */
- assert(segmentsx->n1data);     /* Must have n1data filled in */
- assert(segmentsx->sdata);      /* Must have sdata filled in */
- assert(nodesx->sorted);        /* Must be sorted */
- assert(nodesx->gdata);         /* Must have gdata filled in */
+ assert(segmentsx->n1data);     /* Must have n1data filled in => sorted by node 1 */
+ assert(segmentsx->sdata);      /* Must have sdata filled in => real segments */
+ assert(nodesx->idata);         /* Must have gdata filled in => sorted by id */
+ assert(nodesx->gdata);         /* Must have gdata filled in => sorted geographically */
 
  printf("Indexing Nodes: Nodes=0");
  fflush(stdout);

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.28 2009-07-19 14:10:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.29 2009-08-19 18:02:08 amb Exp $
 
  Extented Node data type functions.
 
@@ -59,6 +59,8 @@ NodesX *NewNodeList(void)
 
  nodesx=(NodesX*)calloc(1,sizeof(NodesX));
 
+ assert(nodesx); /* Check calloc() worked */
+
  nodesx->row=-1;
 
  return(nodesx);
@@ -105,16 +107,16 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 {
  index_t i;
  int fd;
- Nodes *nodes=calloc(1,sizeof(Nodes));
+ Nodes *nodes;
  index_t *offsets;
  ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
  latlong_t lat_min,lat_max,lon_min,lon_max;
  int latbins,lonbins,latlonbin;
  int super_number=0;
 
- assert(nodesx->sorted);        /* Must be sorted */
- assert(nodesx->gdata);         /* Must have gdata filled in */
- assert(nodesx->ndata);         /* Must have ndata filled in */
+ assert(nodesx->gdata);         /* Must have gdata filled in => sorted geographically */
+ assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
+ assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
 
  printf("Writing Nodes: Nodes=0");
  fflush(stdout);
@@ -170,6 +172,10 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Fill in a Nodes structure with the offset of the real data in the file after
     the Node structure itself. */
+
+ nodes=calloc(1,sizeof(Nodes));
+
+ assert(nodes); /* Check calloc() worked */
 
  nodes->number=nodesx->number;
  nodes->snumber=super_number;
@@ -235,8 +241,7 @@ NodeX **FindNodeX(NodesX* nodesx,node_t id)
  int end=nodesx->number-1;
  int mid;
 
- assert(nodesx->sorted);        /* Must be sorted */
- assert(nodesx->idata);         /* Must have idata filled in */
+ assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
 
  /* Binary search - search key exact match only is required.
   *
@@ -295,6 +300,8 @@ NodeX **FindNodeX(NodesX* nodesx,node_t id)
 
 void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 {
+ assert(!nodesx->idata);        /* Must not have idata filled in => unsorted */
+
  /* Check that the array has enough space. */
 
  if(nodesx->row==-1 || nodesx->col==INCREMENT_NODESX)
@@ -303,9 +310,15 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
     nodesx->col=0;
 
     if((nodesx->row%16)==0)
+      {
        nodesx->xdata=(NodeX**)realloc((void*)nodesx->xdata,(nodesx->row+16)*sizeof(NodeX*));
 
+       assert(nodesx->xdata); /* Check realloc() worked */
+      }
+
     nodesx->xdata[nodesx->row]=(NodeX*)malloc(INCREMENT_NODESX*sizeof(NodeX));
+
+    assert(nodesx->xdata[nodesx->row]); /* Check malloc() worked */
    }
 
  /* Insert the node */
@@ -316,8 +329,6 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
  nodesx->xdata[nodesx->row][nodesx->col].longitude=radians_to_latlong(longitude);
 
  nodesx->col++;
-
- nodesx->sorted=0;
 }
 
 
@@ -332,7 +343,7 @@ void SortNodeList(NodesX* nodesx)
  index_t i;
  int duplicate;
 
- assert(nodesx->xdata);         /* Must have xdata filled in */
+ assert(nodesx->xdata);         /* Must have xdata filled in => data exists */
 
  printf("Sorting Nodes");
  fflush(stdout);
@@ -340,6 +351,8 @@ void SortNodeList(NodesX* nodesx)
  /* Allocate the array of pointers and sort them */
 
  nodesx->idata=(NodeX**)realloc(nodesx->idata,(nodesx->row*INCREMENT_NODESX+nodesx->col)*sizeof(NodeX*));
+
+ assert(nodesx->idata); /* Check realloc() worked */
 
  do
    {
@@ -376,8 +389,6 @@ void SortNodeList(NodesX* nodesx)
 
  printf("\rSorted Nodes \n");
  fflush(stdout);
-
- nodesx->sorted=1;
 }
 
 
@@ -415,7 +426,8 @@ void SortNodeListGeographically(NodesX* nodesx)
 {
  index_t i;
 
- assert(nodesx->idata);         /* Must have idata filled in */
+ assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
+ assert(!nodesx->gdata);        /* Must not have gdata filled in => unsorted geographically */
 
  printf("Sorting Nodes Geographically");
  fflush(stdout);
@@ -423,6 +435,8 @@ void SortNodeListGeographically(NodesX* nodesx)
  /* Allocate the array of pointers and sort them */
 
  nodesx->gdata=(NodeX**)malloc(nodesx->number*sizeof(NodeX*));
+
+ assert(nodesx->gdata); /* Check malloc() worked */
 
  for(i=0;i<nodesx->number;i++)
     nodesx->gdata[i]=nodesx->idata[i];
@@ -481,7 +495,8 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  index_t i;
  int highway=0,nothighway=0;
 
- assert(nodesx->xdata);         /* Must have xdata filled in */
+ assert(nodesx->xdata);         /* Must have xdata filled in => data exists */
+ assert(!nodesx->idata);        /* Must not have idata filled in => unsorted */
 
  printf("Checking: Nodes=0");
  fflush(stdout);
@@ -505,8 +520,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",i,highway,nothighway);
  fflush(stdout);
-
- nodesx->sorted=0;
 }
 
 
@@ -522,7 +535,8 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 {
  index_t i;
 
- assert(nodesx->gdata);         /* Must have gdata filled in */
+ assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
+ assert(!nodesx->ndata);        /* Must not have ndata filled in => no real nodes */
 
  printf("Creating Real Nodes: Nodes=0");
  fflush(stdout);
@@ -530,6 +544,8 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
  /* Allocate the memory */
 
  nodesx->ndata=(Node*)malloc(nodesx->number*sizeof(Node));
+
+ assert(nodesx->ndata); /* Check malloc() worked */
 
  /* Loop through and allocate. */
 
@@ -567,12 +583,10 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  index_t i;
 
- assert(nodesx->sorted);        /* Must be sorted */
- assert(nodesx->idata);         /* Must have idata filled in */
- assert(nodesx->ndata);         /* Must have ndata filled in */
- assert(segmentsx->sorted);     /* Must be sorted */
- assert(segmentsx->n1data);     /* Must have n1data filled in */
- assert(segmentsx->sdata);      /* Must have sdata filled in */
+ assert(nodesx->idata);         /* Must have idata filled in => sorted */
+ assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
+ assert(segmentsx->n1data);     /* Must have n1data filled in => sorted */
+ assert(segmentsx->sdata);      /* Must have sdata filled in => real segments exist */
 
  printf("Indexing Segments: Segments=0");
  fflush(stdout);

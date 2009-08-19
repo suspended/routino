@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.26 2009-08-15 14:18:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.27 2009-08-19 18:02:08 amb Exp $
 
  Super-Segment data type functions.
 
@@ -54,7 +54,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  index_t i;
  int nnodes=0;
 
- assert(nodesx->idata);         /* Must have idata filled in */
+ assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
 
  printf("Finding Super-Nodes: Nodes=0 Super-Nodes=0");
  fflush(stdout);
@@ -127,7 +127,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  SegmentsX *supersegmentsx;
  int sn=0,ss=0;
 
- assert(nodesx->idata);         /* Must have idata filled in */
+ assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
 
  printf("Creating Super-Segments: Super-Nodes=0 Super-Segments=0");
  fflush(stdout);
@@ -229,10 +229,8 @@ void MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
  index_t i,j;
  int m=0,a=0;
 
- assert(segmentsx->sorted);      /* Must be sorted */
- assert(segmentsx->n1data);      /* Must have n1data filled in */
- assert(supersegmentsx->sorted); /* Must be sorted */
- assert(supersegmentsx->n1data); /* Must have n1data filled in */
+ assert(segmentsx->n1data);      /* Must have n1data filled in => sorted by node 1 */
+ assert(supersegmentsx->n1data); /* Must have n1data filled in => sorted by node 1 */
 
  printf("Merging: Segments=0 Super-Segments=0 Merged=0 Added=0");
  fflush(stdout);
