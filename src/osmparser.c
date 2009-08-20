@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.47 2009-07-19 12:54:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.48 2009-08-20 18:38:41 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -36,7 +36,7 @@
 
 
 /*+ The length of the buffer and the size increment for reading lines from the file. +*/
-#define BUFFSIZE 64
+#define BUFFSIZE 256
 
 /* Local functions */
 
@@ -282,8 +282,8 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
          {
           m=strstr(l,"ref="); m+=4; if(*m=='"' || *m=='\'') m++; id=atoll(m);
 
-          if(way_nnodes<=way_nalloc)
-             way_nodes=(node_t*)realloc((void*)way_nodes,(way_nalloc+=16)*sizeof(node_t));
+          if(way_nnodes==way_nalloc)
+             way_nodes=(node_t*)realloc((void*)way_nodes,(way_nalloc+=256)*sizeof(node_t));
 
           way_nodes[way_nnodes++]=id;
          }
