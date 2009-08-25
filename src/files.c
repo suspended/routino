@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.7 2009-07-02 16:33:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.8 2009-08-25 17:59:51 amb Exp $
 
  Functions to map a file into memory.
 
@@ -92,7 +92,7 @@ void *MapFile(const char *filename)
 
  address=mmap(NULL,buf.st_size,PROT_READ,MAP_PRIVATE,fd,0);
 
- if(!address)
+ if(address==MAP_FAILED)
    {
     close(fd);
 
