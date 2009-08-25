@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.29 2009-08-19 18:02:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.30 2009-08-25 18:00:05 amb Exp $
 
  Extented Node data type functions.
 
@@ -496,7 +496,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  int highway=0,nothighway=0;
 
  assert(nodesx->xdata);         /* Must have xdata filled in => data exists */
- assert(!nodesx->idata);        /* Must not have idata filled in => unsorted */
 
  printf("Checking: Nodes=0");
  fflush(stdout);
