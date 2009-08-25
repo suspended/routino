@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.50 2009-08-19 18:02:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.51 2009-08-25 18:00:21 amb Exp $
 
  OSM planet file splitter.
 
@@ -122,29 +122,35 @@ int main(int argc,char** argv)
  printf("\nProcess OSM Data\n================\n\n");
  fflush(stdout);
 
- /* Compact the ways */
+ /* Sort the ways */
 
  SortWayList(OSMWays);
-
- CompactWays(OSMWays);
 
  /* Sort the segments */
 
  SortSegmentList(OSMSegments);
 
- /* Remove non-way nodes */
-
- RemoveNonHighwayNodes(OSMNodes,OSMSegments);
+ /* Sort the nodes */
 
  SortNodeList(OSMNodes);
 
- /* Remove bad segments */
+ /* Compact the ways */
+
+ CompactWays(OSMWays);
+
+ /* Remove bad segments (must be after sorting the nodes) */
 
  RemoveBadSegments(OSMNodes,OSMSegments);
 
  SortSegmentList(OSMSegments);
 
- /* Measure the segments */
+ /* Remove non-highway nodes (must be after removing the bad segments) */
+
+ RemoveNonHighwayNodes(OSMNodes,OSMSegments);
+
+ SortNodeList(OSMNodes);
+
+ /* Measure the segments (must be after sorting the nodes) */
 
  MeasureSegments(OSMSegments,OSMNodes);
 
