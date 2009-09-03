@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.37 2009-09-03 17:49:49 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.38 2009-09-03 18:35:47 amb Exp $
 
  Header file for function prototypes
 
@@ -36,7 +36,7 @@
 
 char *FileName(const char *dirname,const char *prefix, const char *name);
 
-void *MapFile(const char *filename,size_t *length);
+void *MapFile(const char *filename);
 void UnmapFile(const char *filename,int delete);
 
 int OpenFile(const char *filename);

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.9 2009-09-03 17:49:49 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.10 2009-09-03 18:35:47 amb Exp $
 
  Functions to map a file into memory.
 
@@ -67,16 +67,14 @@ char *FileName(const char *dirname,const char *prefix, const char *name)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a file read-only and map it into memory.
+  Open a file and map it into memory.
 
   void *MapFile Returns the address of the file.
 
   const char *filename The name of the file to open.
-
-  size_t *length Returns the length of the file (in bytes).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void *MapFile(const char *filename,size_t *length)
+void *MapFile(const char *filename)
 {
  int fd;
  struct stat buf;
@@ -113,9 +111,6 @@ void *MapFile(const char *filename,size_t *length)
     fprintf(stderr,"Cannot mmap file '%s'.\n",filename);
     exit(EXIT_FAILURE);
    }
-
- if(length)
-    *length=buf.st_size;
 
  mappedfiles=(struct mmapinfo*)realloc((void*)mappedfiles,(nmappedfiles+1)*sizeof(struct mmapinfo));
 

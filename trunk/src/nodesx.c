@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.31 2009-09-03 17:51:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.32 2009-09-03 18:35:59 amb Exp $
 
  Extented Node data type functions.
 
@@ -328,11 +328,19 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
    {
     NodeX temp;
 
+    if(nodesx->row==-1 || nodesx->col==INCREMENT_NODESX)
+      {
+       nodesx->row++;
+       nodesx->col=0;
+      }
+
     temp.id=id;
     temp.latitude =radians_to_latlong(latitude);
     temp.longitude=radians_to_latlong(longitude);
 
     WriteFile(nodesx->fd,&temp,sizeof(temp));
+
+    nodesx->col++;
    }
  else                           /* normal mode */
    {
@@ -383,16 +391,11 @@ void SortNodeList(NodesX* nodesx)
  if(nodesx->filename && !nodesx->xdata) /* slim mode */
    {
     NodeX* address;
-    size_t length;
 
     CloseFile(nodesx->fd);
     nodesx->fd=-1;
 
-    address=MapFile(nodesx->filename,&length);
-    length/=sizeof(NodeX);
-
-    nodesx->row=length/INCREMENT_NODESX;
-    nodesx->col=length%INCREMENT_NODESX;
+    address=MapFile(nodesx->filename);
 
     nodesx->xdata=(NodeX**)malloc((nodesx->row+1)*sizeof(NodeX*));
     for(i=0;i<=nodesx->row;i++)
