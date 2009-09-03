@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.51 2009-08-25 18:00:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.52 2009-09-03 17:51:03 amb Exp $
 
  OSM planet file splitter.
 
@@ -38,6 +38,10 @@
 #include "ways.h"
 
 
+/*+ The option to use a slim mode with file-backed read-only intermediate storage. +*/
+int option_slim=0;
+
+
 int main(int argc,char** argv)
 {
  NodesX *OSMNodes;
@@ -66,6 +70,8 @@ int main(int argc,char** argv)
    {
     if(!strcmp(argv[argc],"--help"))
        goto usage;
+    else if(!strcmp(argv[argc],"--slim"))
+       option_slim=1;
     else if(!strncmp(argv[argc],"--dir=",6))
        dirname=&argv[argc][6];
     else if(!strncmp(argv[argc],"--prefix=",9))
@@ -88,6 +94,7 @@ int main(int argc,char** argv)
 
        fprintf(stderr,"Usage: planetsplitter\n"
                       "                      [--help]\n"
+                      "                      [--slim]\n"
                       "                      [--dir=<name>] [--prefix=<name>]\n"
                       "                      [--max-iterations=<number>]\n"
                       "                      [--transport=<transport>]\n"
@@ -106,7 +113,7 @@ int main(int argc,char** argv)
 
  /* Create new variables */
 
- OSMNodes=NewNodeList();
+ OSMNodes=NewNodeList(option_slim?(dirname?dirname:""):NULL);
  OSMSegments=NewSegmentList();
  OSMWays=NewWayList();
 

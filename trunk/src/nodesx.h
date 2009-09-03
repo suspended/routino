@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.12 2009-08-19 18:02:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.13 2009-09-03 17:51:03 amb Exp $
 
  A header file for the extended nodes.
 
@@ -41,8 +41,6 @@ struct _NodeX
 
  latlong_t latitude;            /*+ The node latitude. +*/
  latlong_t longitude;           /*+ The node longitude. +*/
-
- uint8_t   super;               /*+ A marker for super nodes. +*/
 };
 
 /*+ A structure containing a set of nodes (memory format). +*/
@@ -51,6 +49,9 @@ struct _NodesX
  int32_t   row;                 /*+ How many rows are allocated? +*/
  uint32_t  col;                 /*+ How many columns are used in the last row? +*/
 
+ char     *filename;            /*+ The name of the temporary file in slim mode. +*/
+ int       fd;                  /*+ The file descriptor of the temporary file in slim mode. +*/
+
  NodeX   **xdata;               /*+ The extended node data (unsorted). +*/
 
  uint32_t  number;              /*+ How many entries are still useful? +*/
@@ -58,18 +59,20 @@ struct _NodesX
  NodeX   **gdata;               /*+ The extended node data (sorted geographically). +*/
  NodeX   **idata;               /*+ The extended node data (sorted by ID). +*/
 
+ uint8_t  *super;               /*+ A marker for super nodes (same order as idata). +*/
+
  Node     *ndata;               /*+ The actual nodes (same order as idata). +*/
 };
 
 
 /* Functions */
 
-NodesX *NewNodeList(void);
+NodesX *NewNodeList(const char *dirname);
 void FreeNodeList(NodesX *nodesx);
 
 void SaveNodeList(NodesX *nodesx,const char *filename);
 
-NodeX **FindNodeX(NodesX* nodesx,node_t id);
+index_t IndexNodeX(NodesX* nodesx,node_t id);
 
 void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude);
 

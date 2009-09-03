@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.30 2009-08-19 18:02:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.31 2009-09-03 17:51:03 amb Exp $
 
  Extended Segment data type functions.
 
@@ -588,8 +588,8 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
        loop++;
        segmentsx->n1data[i]->node1=NO_NODE;
       }
-    else if(!FindNodeX(nodesx,segmentsx->n1data[i]->node1) ||
-            !FindNodeX(nodesx,segmentsx->n1data[i]->node2))
+    else if(IndexNodeX(nodesx,segmentsx->n1data[i]->node1)==NO_NODE ||
+            IndexNodeX(nodesx,segmentsx->n1data[i]->node2)==NO_NODE)
       {
        missing++;
        segmentsx->n1data[i]->node1=NO_NODE;
@@ -626,12 +626,12 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    NodeX **nodex1=FindNodeX(nodesx,segmentsx->n1data[i]->node1);
-    NodeX **nodex2=FindNodeX(nodesx,segmentsx->n1data[i]->node2);
+    NodeX *nodex1=nodesx->idata[IndexNodeX(nodesx,segmentsx->n1data[i]->node1)];
+    NodeX *nodex2=nodesx->idata[IndexNodeX(nodesx,segmentsx->n1data[i]->node2)];
 
     /* Set the distance but preserve the ONEWAY_* flags */
 
-    segmentsx->n1data[i]->distance|=DISTANCE(DistanceX(*nodex1,*nodex2));
+    segmentsx->n1data[i]->distance|=DISTANCE(DistanceX(nodex1,nodex2));
 
     if(!((i+1)%10000))
       {
@@ -754,7 +754,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  assert(segmentsx->n1data);     /* Must have n1data filled in => sorted by node 1 */
  assert(segmentsx->sdata);      /* Must have sdata filled in => real segments */
- assert(nodesx->idata);         /* Must have gdata filled in => sorted by id */
+ assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
  assert(nodesx->gdata);         /* Must have gdata filled in => sorted geographically */
 
  printf("Indexing Nodes: Nodes=0");
@@ -764,8 +764,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    NodeX **nodex=FindNodeX(nodesx,nodesx->gdata[i]->id);
-    Node   *node =&nodesx->ndata[nodex-nodesx->idata];
+    Node   *node =&nodesx->ndata[IndexNodeX(nodesx,nodesx->gdata[i]->id)];
     index_t index=SEGMENT(node->firstseg);
 
     do
