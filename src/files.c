@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.8 2009-08-25 17:59:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.9 2009-09-03 17:49:49 amb Exp $
 
  Functions to map a file into memory.
 
@@ -32,6 +32,18 @@
 #include "functions.h"
 
 
+struct mmapinfo
+{
+ const char  *filename;
+       int    fd;
+       void  *address;
+       size_t length;
+};
+
+struct mmapinfo *mappedfiles;
+int nmappedfiles=0;
+
+
 /*++++++++++++++++++++++++++++++++++++++
   Return a filename composed of the dirname, prefix and filename.
 
@@ -55,14 +67,16 @@ char *FileName(const char *dirname,const char *prefix, const char *name)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a file and map it into memory.
+  Open a file read-only and map it into memory.
 
   void *MapFile Returns the address of the file.
 
   const char *filename The name of the file to open.
+
+  size_t *length Returns the length of the file (in bytes).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void *MapFile(const char *filename)
+void *MapFile(const char *filename,size_t *length)
 {
  int fd;
  struct stat buf;
@@ -90,7 +104,7 @@ void *MapFile(const char *filename)
 
  /* Map the file */
 
- address=mmap(NULL,buf.st_size,PROT_READ,MAP_PRIVATE,fd,0);
+ address=mmap(NULL,buf.st_size,PROT_READ,MAP_SHARED,fd,0);
 
  if(address==MAP_FAILED)
    {
@@ -100,14 +114,70 @@ void *MapFile(const char *filename)
     exit(EXIT_FAILURE);
    }
 
+ if(length)
+    *length=buf.st_size;
+
+ mappedfiles=(struct mmapinfo*)realloc((void*)mappedfiles,(nmappedfiles+1)*sizeof(struct mmapinfo));
+
+ mappedfiles[nmappedfiles].filename=filename;
+ mappedfiles[nmappedfiles].fd=fd;
+ mappedfiles[nmappedfiles].address=address;
+ mappedfiles[nmappedfiles].length=buf.st_size;
+
+ nmappedfiles++;
+
  return(address);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a new file on disk.
+  Unmap a file and optionally delete it.
 
-  int OpenFile Returns the file descriptor if OK or something negative else in case of an error.
+  const char *filename The name of the file when it was opened.
+
+  int delete If set then delete the file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void UnmapFile(const char *filename,int delete)
+{
+ int i;
+
+ for(i=0;i<nmappedfiles;i++)
+    if(!strcmp(mappedfiles[i].filename,filename))
+       break;
+
+ if(i==nmappedfiles)
+   {
+    fprintf(stderr,"Cannot find file '%s' to unmap.\n",filename);
+    exit(EXIT_FAILURE);
+   }
+
+ /* Close the file */
+
+ close(mappedfiles[i].fd);
+
+ /* Unmap the file */
+
+ munmap(mappedfiles[i].address,mappedfiles[i].length);
+
+ /* Delete the file */
+
+ if(delete)
+    unlink(filename);
+
+ /* Shuffle the list of files */
+
+ nmappedfiles--;
+
+ if(nmappedfiles>i)
+    memmove(&mappedfiles[i],&mappedfiles[i+1],(nmappedfiles-i)*sizeof(struct mmapinfo));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open a new file on disk for writing to.
+
+  int OpenFile Returns the file descriptor if OK or something negative in case of an error.
 
   const char *filename The name of the file to create.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -118,7 +188,7 @@ int OpenFile(const char *filename)
 
  /* Open the file */
 
- fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRWXU|S_IRGRP|S_IROTH);
+ fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 
  if(fd<0)
    {
