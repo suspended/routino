@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.30 2009-08-25 18:00:05 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.31 2009-09-03 17:51:03 amb Exp $
 
  Extented Node data type functions.
 
@@ -25,6 +25,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "types.h"
 #include "functions.h"
@@ -51,9 +52,11 @@ static int sort_by_lat_long(NodeX **a,NodeX **b);
   Allocate a new node list.
 
   NodesX *NewNodeList Returns the node list.
+
+  const char *dirname The name of the directory to save the temporary file into or NULL to use RAM.
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodesX *NewNodeList(void)
+NodesX *NewNodeList(const char *dirname)
 {
  NodesX *nodesx;
 
@@ -62,6 +65,17 @@ NodesX *NewNodeList(void)
  assert(nodesx); /* Check calloc() worked */
 
  nodesx->row=-1;
+
+ if(dirname)                    /* slim mode */
+   {
+    nodesx->filename=(char*)malloc(strlen(dirname)+24);
+    if(*dirname)
+       sprintf(nodesx->filename,"%s/nodes.%p.tmp",dirname,nodesx);
+    else
+       sprintf(nodesx->filename,"nodes.%p.tmp",nodesx);
+
+    nodesx->fd=OpenFile(nodesx->filename);
+   }
 
  return(nodesx);
 }
@@ -75,12 +89,21 @@ NodesX *NewNodeList(void)
 
 void FreeNodeList(NodesX *nodesx)
 {
- if(nodesx->xdata)
+ if(nodesx->filename)           /* slim mode */
    {
-    int i;
-    for(i=0;i<=nodesx->row;i++)
-       free(nodesx->xdata[i]);
-    free(nodesx->xdata);
+    UnmapFile(nodesx->filename,1);
+    if(nodesx->xdata)
+       free(nodesx->xdata);
+   }
+ else                           /* normal mode */
+   {
+    if(nodesx->xdata)
+      {
+       int i;
+       for(i=0;i<=nodesx->row;i++)
+          free(nodesx->xdata[i]);
+       free(nodesx->xdata);
+      }
    }
 
  if(nodesx->gdata)
@@ -201,8 +224,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  for(i=0;i<nodes->number;i++)
    {
-    NodeX **nodex=FindNodeX(nodesx,nodesx->gdata[i]->id);
-    Node   *node =&nodesx->ndata[nodex-nodesx->idata];
+    Node *node=&nodesx->ndata[IndexNodeX(nodesx,nodesx->gdata[i]->id)];
 
     WriteFile(fd,node,sizeof(Node));
 
@@ -228,14 +250,14 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Find a particular node.
 
-  NodeX **FindNodeX Returns a pointer to the extended node with the specified id.
+  index_t IndexNodeX Returns the index of the extended node with the specified id.
 
   NodesX* nodesx The set of nodes to process.
 
   node_t id The node id to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodeX **FindNodeX(NodesX* nodesx,node_t id)
+index_t IndexNodeX(NodesX* nodesx,node_t id)
 {
  int start=0;
  int end=nodesx->number-1;
@@ -255,11 +277,11 @@ NodeX **FindNodeX(NodesX* nodesx,node_t id)
   */
 
  if(end<start)                        /* There are no nodes */
-    return(NULL);
+    return(NO_NODE);
  else if(id<nodesx->idata[start]->id) /* Check key is not before start */
-    return(NULL);
+    return(NO_NODE);
  else if(id>nodesx->idata[end]->id)   /* Check key is not after end */
-    return(NULL);
+    return(NO_NODE);
  else
    {
     do
@@ -271,18 +293,18 @@ NodeX **FindNodeX(NodesX* nodesx,node_t id)
        else if(nodesx->idata[mid]->id>id) /* Mid point is too high */
           end=mid-1;
        else                               /* Mid point is correct */
-          return(&nodesx->idata[mid]);
+          return(mid);
       }
     while((end-start)>1);
 
     if(nodesx->idata[start]->id==id)      /* Start is correct */
-       return(&nodesx->idata[start]);
+       return(start);
 
     if(nodesx->idata[end]->id==id)        /* End is correct */
-       return(&nodesx->idata[end]);
+       return(end);
    }
 
- return(NULL);
+ return(NO_NODE);
 }
 
 
@@ -302,33 +324,45 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 {
  assert(!nodesx->idata);        /* Must not have idata filled in => unsorted */
 
- /* Check that the array has enough space. */
-
- if(nodesx->row==-1 || nodesx->col==INCREMENT_NODESX)
+ if(nodesx->filename)           /* slim mode */
    {
-    nodesx->row++;
-    nodesx->col=0;
+    NodeX temp;
 
-    if((nodesx->row%16)==0)
+    temp.id=id;
+    temp.latitude =radians_to_latlong(latitude);
+    temp.longitude=radians_to_latlong(longitude);
+
+    WriteFile(nodesx->fd,&temp,sizeof(temp));
+   }
+ else                           /* normal mode */
+   {
+    /* Check that the array has enough space. */
+
+    if(nodesx->row==-1 || nodesx->col==INCREMENT_NODESX)
       {
-       nodesx->xdata=(NodeX**)realloc((void*)nodesx->xdata,(nodesx->row+16)*sizeof(NodeX*));
+       nodesx->row++;
+       nodesx->col=0;
 
-       assert(nodesx->xdata); /* Check realloc() worked */
+       if((nodesx->row%16)==0)
+         {
+          nodesx->xdata=(NodeX**)realloc((void*)nodesx->xdata,(nodesx->row+16)*sizeof(NodeX*));
+
+          assert(nodesx->xdata); /* Check realloc() worked */
+         }
+
+       nodesx->xdata[nodesx->row]=(NodeX*)malloc(INCREMENT_NODESX*sizeof(NodeX));
+
+       assert(nodesx->xdata[nodesx->row]); /* Check malloc() worked */
       }
 
-    nodesx->xdata[nodesx->row]=(NodeX*)malloc(INCREMENT_NODESX*sizeof(NodeX));
+    /* Insert the node */
 
-    assert(nodesx->xdata[nodesx->row]); /* Check malloc() worked */
+    nodesx->xdata[nodesx->row][nodesx->col].id=id;
+    nodesx->xdata[nodesx->row][nodesx->col].latitude =radians_to_latlong(latitude);
+    nodesx->xdata[nodesx->row][nodesx->col].longitude=radians_to_latlong(longitude);
+
+    nodesx->col++;
    }
-
- /* Insert the node */
-
- nodesx->xdata[nodesx->row][nodesx->col].id=id;
- nodesx->xdata[nodesx->row][nodesx->col].super=0;
- nodesx->xdata[nodesx->row][nodesx->col].latitude =radians_to_latlong(latitude);
- nodesx->xdata[nodesx->row][nodesx->col].longitude=radians_to_latlong(longitude);
-
- nodesx->col++;
 }
 
 
@@ -343,41 +377,64 @@ void SortNodeList(NodesX* nodesx)
  index_t i;
  int duplicate;
 
- assert(nodesx->xdata);         /* Must have xdata filled in => data exists */
-
  printf("Sorting Nodes");
  fflush(stdout);
 
+ if(nodesx->filename && !nodesx->xdata) /* slim mode */
+   {
+    NodeX* address;
+    size_t length;
+
+    CloseFile(nodesx->fd);
+    nodesx->fd=-1;
+
+    address=MapFile(nodesx->filename,&length);
+    length/=sizeof(NodeX);
+
+    nodesx->row=length/INCREMENT_NODESX;
+    nodesx->col=length%INCREMENT_NODESX;
+
+    nodesx->xdata=(NodeX**)malloc((nodesx->row+1)*sizeof(NodeX*));
+    for(i=0;i<=nodesx->row;i++)
+       nodesx->xdata[i]=&address[i*INCREMENT_NODESX];
+   }
+
+ assert(nodesx->xdata);         /* Must have xdata filled in => data exists */
+
  /* Allocate the array of pointers and sort them */
 
- nodesx->idata=(NodeX**)realloc(nodesx->idata,(nodesx->row*INCREMENT_NODESX+nodesx->col)*sizeof(NodeX*));
-
- assert(nodesx->idata); /* Check realloc() worked */
-
- do
+ if(!nodesx->idata)
    {
+    nodesx->idata=(NodeX**)malloc((nodesx->row*INCREMENT_NODESX+nodesx->col)*sizeof(NodeX*));
+
+    assert(nodesx->idata); /* Check realloc() worked */
+
     nodesx->number=0;
 
     for(i=0;i<(nodesx->row*INCREMENT_NODESX+nodesx->col);i++)
-       if(nodesx->xdata[i/INCREMENT_NODESX][i%INCREMENT_NODESX].id!=NO_NODE)
-         {
-          nodesx->idata[nodesx->number]=&nodesx->xdata[i/INCREMENT_NODESX][i%INCREMENT_NODESX];
-          nodesx->number++;
-         }
+      {
+       nodesx->idata[nodesx->number]=&nodesx->xdata[i/INCREMENT_NODESX][i%INCREMENT_NODESX];
+       nodesx->number++;
+      }
+   }
 
+ /* Sort the nodes */
+
+ do
+   {
     qsort(nodesx->idata,nodesx->number,sizeof(NodeX*),(int (*)(const void*,const void*))sort_by_id);
 
     duplicate=0;
 
     for(i=1;i<nodesx->number;i++)
-      {
-       if(nodesx->idata[i]->id==nodesx->idata[i-1]->id &&
-          nodesx->idata[i]->id!=NO_NODE)
+       if(nodesx->idata[i] && nodesx->idata[i]->id==nodesx->idata[i-1]->id)
          {
-          nodesx->idata[i-1]->id=NO_NODE;
+          nodesx->idata[i-1]=NULL;
           duplicate++;
          }
-      }
+
+    while(!nodesx->idata[nodesx->number-1])
+       nodesx->number--;
 
     if(duplicate)
       {
@@ -389,6 +446,14 @@ void SortNodeList(NodesX* nodesx)
 
  printf("\rSorted Nodes \n");
  fflush(stdout);
+
+ /* Allocate and clear the super-node markers */
+
+ if(!nodesx->super)
+   {
+    nodesx->super=(uint8_t*)malloc(nodesx->number*sizeof(uint8_t));
+    memset(nodesx->super,0,nodesx->number*sizeof(uint8_t));
+   }
 }
 
 
@@ -404,15 +469,22 @@ void SortNodeList(NodesX* nodesx)
 
 static int sort_by_id(NodeX **a,NodeX **b)
 {
- node_t a_id=(*a)->id;
- node_t b_id=(*b)->id;
-
- if(a_id<b_id)
-    return(-1);
- else if(a_id>b_id)
+ if(!*a)
     return(1);
+ else if(!*b)
+    return(-1);
  else
-    return(0);
+   {
+    node_t a_id=(*a)->id;
+    node_t b_id=(*b)->id;
+
+    if(a_id<b_id)
+       return(-1);
+    else if(a_id>b_id)
+       return(1);
+    else
+       return(0);
+   }
 }
 
 
@@ -495,18 +567,18 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  index_t i;
  int highway=0,nothighway=0;
 
- assert(nodesx->xdata);         /* Must have xdata filled in => data exists */
+ assert(nodesx->idata);         /* Must have idata filled in => data sorted */
 
  printf("Checking: Nodes=0");
  fflush(stdout);
 
- for(i=0;i<(nodesx->row*INCREMENT_NODESX+nodesx->col);i++)
+ for(i=0;i<nodesx->number;i++)
    {
-    if(FindFirstSegmentX(segmentsx,nodesx->xdata[i/INCREMENT_NODESX][i%INCREMENT_NODESX].id))
+    if(FindFirstSegmentX(segmentsx,nodesx->idata[i]->id))
        highway++;
     else
       {
-       nodesx->xdata[i/INCREMENT_NODESX][i%INCREMENT_NODESX].id=NO_NODE;
+       nodesx->idata[i]=NULL;
        nothighway++;
       }
 
@@ -555,7 +627,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
     nodesx->ndata[i].firstseg=SEGMENT(NO_SEGMENT);
 
-    if(nodesx->idata[i]->super==iteration)
+    if(nodesx->super[i]==iteration)
        nodesx->ndata[i].firstseg|=NODE_SUPER;
 
     if(!((i+1)%10000))
@@ -594,10 +666,8 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    NodeX **nodex1=FindNodeX(nodesx,segmentsx->n1data[i]->node1);
-    NodeX **nodex2=FindNodeX(nodesx,segmentsx->n1data[i]->node2);
-    Node  *node1=&nodesx->ndata[nodex1-nodesx->idata];
-    Node  *node2=&nodesx->ndata[nodex2-nodesx->idata];
+    Node *node1=&nodesx->ndata[IndexNodeX(nodesx,segmentsx->n1data[i]->node1)];
+    Node *node2=&nodesx->ndata[IndexNodeX(nodesx,segmentsx->n1data[i]->node2)];
 
     /* Check node1 */
 
