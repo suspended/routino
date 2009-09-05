@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.33 2009-09-05 09:37:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.34 2009-09-05 10:35:47 amb Exp $
 
  Extented Node data type functions.
 
@@ -385,7 +385,7 @@ void InitialSortNodeList(NodesX* nodesx)
     nodesx->number++;
    }
 
- printf("\rCreated sortable index\n");
+ printf("\rCreated sortable index \n");
 
  ReSortNodeList(nodesx);
 }
@@ -416,15 +416,15 @@ void ReSortNodeList(NodesX* nodesx)
 
     duplicate=0;
 
+    while(nodesx->idata[nodesx->number-1]==NO_NODE)
+       nodesx->number--;
+
     for(i=1;i<nodesx->number;i++)
        if(nodesx->idata[i]==nodesx->idata[i-1])
          {
           nodesx->idata[i-1]=NO_NODE;
           duplicate++;
          }
-
-    while(nodesx->idata[nodesx->number-1]==NO_NODE)
-       nodesx->number--;
 
     if(duplicate)
       {
