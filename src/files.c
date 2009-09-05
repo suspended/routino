@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.10 2009-09-03 18:35:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.11 2009-09-05 09:36:57 amb Exp $
 
  Functions to map a file into memory.
 
@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <sys/types.h>
 
 #include "functions.h"
 
@@ -196,13 +197,39 @@ int OpenFile(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Open an existing file on disk for reading from.
+
+  int OpenFile Returns the file descriptor if OK or something negative in case of an error.
+
+  const char *filename The name of the file to open.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ReOpenFile(const char *filename)
+{
+ int fd;
+
+ /* Open the file */
+
+ fd=open(filename,O_RDONLY);
+
+ if(fd<0)
+   {
+    fprintf(stderr,"Cannot open file '%s' to read.\n",filename);
+    exit(EXIT_FAILURE);
+   }
+
+ return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Write data to a file on disk.
 
   int WriteFile Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to write to.
 
-  void *address The address of the data to be written.
+  void *address The address of the data to be written from.
 
   size_t length The length of data to write.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -219,6 +246,50 @@ int WriteFile(int fd,void *address,size_t length)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Read data from a file on disk.
+
+  int ReadFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor to read from.
+
+  void *address The address of the data to be read into.
+
+  size_t length The length of data to read.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ReadFile(int fd,void *address,size_t length)
+{
+ /* Read the data */
+
+ if(read(fd,address,length)!=length)
+    return(-1);
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Seek to a position in a file on disk.
+
+  int SeekFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor to seek within.
+
+  size_t position The position to seek to.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int SeekFile(int fd,size_t position)
+{
+ /* Seek the data */
+
+ if(lseek(fd,position,SEEK_SET)!=position)
+    return(-1);
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Close a file on disk.
 
   int fd The file descriptor to close.
@@ -227,4 +298,20 @@ int WriteFile(int fd,void *address,size_t length)
 void CloseFile(int fd)
 {
  close(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Delete a file from disk.
+
+  int DeleteFile Returns 0 if OK or something else in case of an error.
+
+  char *filename The name of the file to delete.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int DeleteFile(char *filename)
+{
+ unlink(filename);
+
+ return(0);
 }
