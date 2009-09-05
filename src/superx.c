@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.28 2009-09-03 17:51:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.29 2009-09-05 09:37:31 amb Exp $
 
  Super-Segment data type functions.
 
@@ -66,7 +66,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
     int      difference=0;
     SegmentX **segmentx;
 
-    segmentx=FindFirstSegmentX(segmentsx,nodesx->idata[i]->id);
+    segmentx=FindFirstSegmentX(segmentsx,nodesx->idata[i]);
 
     if(segmentx)
       {
@@ -142,7 +142,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
       {
        SegmentX **segmentx,**first;
 
-       segmentx=first=FindFirstSegmentX(segmentsx,nodesx->idata[i]->id);
+       segmentx=first=FindFirstSegmentX(segmentsx,nodesx->idata[i]);
 
        while(segmentx)
          {
@@ -172,7 +172,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           if(wayx)
             {
-             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,nodesx->idata[i]->id,wayx->way,iteration);
+             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,nodesx->idata[i],wayx->way,iteration);
              Result *result=FirstResult(results);
 
              while(result)
@@ -180,12 +180,12 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                 index_t index=IndexNodeX(nodesx,result->node);
                 WayX   *wayx =FindWayX (waysx ,(*segmentx)->way);
 
-                if(result->node!=nodesx->idata[i]->id && nodesx->super[index]>iteration)
+                if(result->node!=nodesx->idata[i] && nodesx->super[index]>iteration)
                   {
                    if(wayx->way->type&Way_OneWay)
-                      AppendSegment(supersegmentsx,wayx->id,nodesx->idata[i]->id,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
+                      AppendSegment(supersegmentsx,wayx->id,nodesx->idata[i],result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
                    else
-                      AppendSegment(supersegmentsx,wayx->id,nodesx->idata[i]->id,result->node,DISTANCE((distance_t)result->score));
+                      AppendSegment(supersegmentsx,wayx->id,nodesx->idata[i],result->node,DISTANCE((distance_t)result->score));
 
                    ss++;
                   }
