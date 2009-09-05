@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.38 2009-09-03 18:35:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.39 2009-09-05 09:36:57 amb Exp $
 
  Header file for function prototypes
 
@@ -40,8 +40,15 @@ void *MapFile(const char *filename);
 void UnmapFile(const char *filename,int delete);
 
 int OpenFile(const char *filename);
+int ReOpenFile(const char *filename);
+
 int WriteFile(int fd,void *address,size_t length);
+int ReadFile(int fd,void *address,size_t length);
+int SeekFile(int fd,size_t position);
+
 void CloseFile(int fd);
+
+int DeleteFile(char *filename);
 
 
 /* In optimiser.c */
