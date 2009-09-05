@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.13 2009-09-03 17:51:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.14 2009-09-05 09:37:31 amb Exp $
 
  A header file for the extended nodes.
 
@@ -46,18 +46,17 @@ struct _NodeX
 /*+ A structure containing a set of nodes (memory format). +*/
 struct _NodesX
 {
- int32_t   row;                 /*+ How many rows are allocated? +*/
- uint32_t  col;                 /*+ How many columns are used in the last row? +*/
+ char     *filename;            /*+ The name of the temporary file. +*/
+ int       fd;                  /*+ The file descriptor of the temporary file. +*/
 
- char     *filename;            /*+ The name of the temporary file in slim mode. +*/
- int       fd;                  /*+ The file descriptor of the temporary file in slim mode. +*/
+ uint32_t  xnumber;             /*+ The number of unsorted extended nodes. +*/
 
- NodeX   **xdata;               /*+ The extended node data (unsorted). +*/
+ NodeX    *xdata;               /*+ The extended node data (sorted). +*/
 
  uint32_t  number;              /*+ How many entries are still useful? +*/
 
- NodeX   **gdata;               /*+ The extended node data (sorted geographically). +*/
- NodeX   **idata;               /*+ The extended node data (sorted by ID). +*/
+ node_t  *gdata;                /*+ The extended node data (sorted geographically). +*/
+ node_t  *idata;                /*+ The extended node data (sorted by ID). +*/
 
  uint8_t  *super;               /*+ A marker for super nodes (same order as idata). +*/
 
@@ -73,10 +72,13 @@ void FreeNodeList(NodesX *nodesx);
 void SaveNodeList(NodesX *nodesx,const char *filename);
 
 index_t IndexNodeX(NodesX* nodesx,node_t id);
+NodeX *FindNodeX(NodesX* nodesx,node_t id);
 
 void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude);
 
-void SortNodeList(NodesX *nodesx);
+void InitialSortNodeList(NodesX *nodesx);
+void ReSortNodeList(NodesX *nodesx);
+void FinalSortNodeList(NodesX* nodesx);
 
 void SortNodeListGeographically(NodesX* nodesx);
 

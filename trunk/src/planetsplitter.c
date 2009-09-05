@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.52 2009-09-03 17:51:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.53 2009-09-05 09:37:31 amb Exp $
 
  OSM planet file splitter.
 
@@ -49,7 +49,7 @@ int main(int argc,char** argv)
  WaysX *OSMWays;
  int iteration=0,quit=0;
  int max_iterations=10;
- char *dirname=NULL,*prefix=NULL;
+ char *dirname=NULL,*tmpdirname=NULL,*prefix=NULL;
  Profile profile={0};
  int i;
 
@@ -74,6 +74,8 @@ int main(int argc,char** argv)
        option_slim=1;
     else if(!strncmp(argv[argc],"--dir=",6))
        dirname=&argv[argc][6];
+    else if(!strncmp(argv[argc],"--tmpdir=",9))
+       tmpdirname=&argv[argc][9];
     else if(!strncmp(argv[argc],"--prefix=",9))
        prefix=&argv[argc][9];
     else if(!strncmp(argv[argc],"--max-iterations=",17))
@@ -94,7 +96,7 @@ int main(int argc,char** argv)
 
        fprintf(stderr,"Usage: planetsplitter\n"
                       "                      [--help]\n"
-                      "                      [--slim]\n"
+                      "                      [--slim] [--tmpdir=<name>]\n"
                       "                      [--dir=<name>] [--prefix=<name>]\n"
                       "                      [--max-iterations=<number>]\n"
                       "                      [--transport=<transport>]\n"
@@ -111,9 +113,17 @@ int main(int argc,char** argv)
       }
    }
 
+ if(!tmpdirname)
+   {
+    if(!dirname)
+       tmpdirname=".";
+    else
+       tmpdirname=dirname;
+   }
+
  /* Create new variables */
 
- OSMNodes=NewNodeList(option_slim?(dirname?dirname:""):NULL);
+ OSMNodes=NewNodeList(tmpdirname);
  OSMSegments=NewSegmentList();
  OSMWays=NewWayList();
 
@@ -137,9 +147,9 @@ int main(int argc,char** argv)
 
  SortSegmentList(OSMSegments);
 
- /* Sort the nodes */
+ /* Sort the nodes (first time) */
 
- SortNodeList(OSMNodes);
+ InitialSortNodeList(OSMNodes);
 
  /* Compact the ways */
 
@@ -155,7 +165,9 @@ int main(int argc,char** argv)
 
  RemoveNonHighwayNodes(OSMNodes,OSMSegments);
 
- SortNodeList(OSMNodes);
+ /* Sort the nodes (final time) */
+
+ FinalSortNodeList(OSMNodes);
 
  /* Measure the segments (must be after sorting the nodes) */
 
