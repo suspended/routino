@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.53 2009-09-05 09:37:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.54 2009-09-06 15:51:09 amb Exp $
 
  OSM planet file splitter.
 
@@ -41,15 +41,17 @@
 /*+ The option to use a slim mode with file-backed read-only intermediate storage. +*/
 int option_slim=0;
 
+/*+ The name of the temporary directory. +*/
+char *tmpdirname=NULL;
 
 int main(int argc,char** argv)
 {
- NodesX *OSMNodes;
- SegmentsX *OSMSegments,*SuperSegments=NULL;
- WaysX *OSMWays;
+ NodesX *Nodes;
+ SegmentsX *Segments,*SuperSegments=NULL,*MergedSegments=NULL;
+ WaysX *Ways;
  int iteration=0,quit=0;
  int max_iterations=10;
- char *dirname=NULL,*tmpdirname=NULL,*prefix=NULL;
+ char *dirname=NULL,*prefix=NULL;
  Profile profile={0};
  int i;
 
@@ -123,16 +125,16 @@ int main(int argc,char** argv)
 
  /* Create new variables */
 
- OSMNodes=NewNodeList(tmpdirname);
- OSMSegments=NewSegmentList();
- OSMWays=NewWayList();
+ Nodes=NewNodeList();
+ Segments=NewSegmentList();
+ Ways=NewWayList();
 
  /* Parse the file */
 
  printf("\nParse OSM Data\n==============\n\n");
  fflush(stdout);
 
- ParseXML(stdin,OSMNodes,OSMSegments,OSMWays,&profile);
+ ParseXML(stdin,Nodes,Segments,Ways,&profile);
 
  /* Process the data */
 
@@ -141,37 +143,39 @@ int main(int argc,char** argv)
 
  /* Sort the ways */
 
- SortWayList(OSMWays);
+ SortWayList(Ways);
 
- /* Sort the segments */
+ /* Sort the segments (first time) */
 
- SortSegmentList(OSMSegments);
+ InitialSortSegmentList(Segments);
 
  /* Sort the nodes (first time) */
 
- InitialSortNodeList(OSMNodes);
+ InitialSortNodeList(Nodes);
 
  /* Compact the ways */
 
- CompactWays(OSMWays);
+ CompactWays(Ways);
 
  /* Remove bad segments (must be after sorting the nodes) */
 
- RemoveBadSegments(OSMNodes,OSMSegments);
+ RemoveBadSegments(Nodes,Segments);
 
- SortSegmentList(OSMSegments);
+ /* Sort the segments (final time) */
+
+ FinalSortSegmentList(Segments);
 
  /* Remove non-highway nodes (must be after removing the bad segments) */
 
- RemoveNonHighwayNodes(OSMNodes,OSMSegments);
+ RemoveNonHighwayNodes(Nodes,Segments);
 
  /* Sort the nodes (final time) */
 
- FinalSortNodeList(OSMNodes);
+ FinalSortNodeList(Nodes);
 
- /* Measure the segments (must be after sorting the nodes) */
+ /* Measure the segments (must be after final sorting of the nodes) */
 
- MeasureSegments(OSMSegments,OSMNodes);
+ MeasureSegments(Segments,Nodes);
 
 
  /* Repeated iteration on Super-Nodes, Super-Segments and Super-Ways */
@@ -185,11 +189,11 @@ int main(int argc,char** argv)
       {
        /* Select the super-nodes */
 
-       ChooseSuperNodes(OSMNodes,OSMSegments,OSMWays);
+       ChooseSuperNodes(Nodes,Segments,Ways);
 
        /* Select the super-segments */
 
-       SuperSegments=CreateSuperSegments(OSMNodes,OSMSegments,OSMWays,iteration);
+       SuperSegments=CreateSuperSegments(Nodes,Segments,Ways,iteration);
       }
     else
       {
@@ -197,11 +201,11 @@ int main(int argc,char** argv)
 
        /* Select the super-nodes */
 
-       ChooseSuperNodes(OSMNodes,SuperSegments,OSMWays);
+       ChooseSuperNodes(Nodes,SuperSegments,Ways);
 
        /* Select the super-segments */
 
-       SuperSegments2=CreateSuperSegments(OSMNodes,SuperSegments,OSMWays,iteration);
+       SuperSegments2=CreateSuperSegments(Nodes,SuperSegments,Ways,iteration);
 
        if(SuperSegments->number==SuperSegments2->number)
           quit=1;
@@ -211,15 +215,17 @@ int main(int argc,char** argv)
        SuperSegments=SuperSegments2;
       }
 
-    /* Sort the super-segments */
+    /* Sort the super-segments (first time) */
 
-    SortSegmentList(SuperSegments);
+    InitialSortSegmentList(SuperSegments);
 
     /* Remove duplicated super-segments */
 
-    DeduplicateSegments(SuperSegments,OSMWays);
+    DeduplicateSegments(SuperSegments,Ways);
 
-    SortSegmentList(SuperSegments);
+    /* Sort the super-segments (final time) */
+
+    FinalSortSegmentList(SuperSegments);
 
     iteration++;
 
@@ -235,11 +241,18 @@ int main(int argc,char** argv)
 
  /* Merge the super-segments */
 
- MergeSuperSegments(OSMSegments,SuperSegments);
+ MergedSegments=MergeSuperSegments(Segments,SuperSegments);
+
+ FreeSegmentList(Segments);
 
  FreeSegmentList(SuperSegments);
 
- SortSegmentList(OSMSegments);
+ Segments=MergedSegments;
+
+ /* Sort the merged segments (thoroughly) */
+
+ InitialSortSegmentList(Segments);
+ FinalSortSegmentList(Segments);
 
  /* Cross reference the nodes and segments */
 
@@ -248,19 +261,19 @@ int main(int argc,char** argv)
 
  /* Sort the node list geographically */
 
- SortNodeListGeographically(OSMNodes);
+ SortNodeListGeographically(Nodes);
 
  /* Create the real segments and nodes */
 
- CreateRealNodes(OSMNodes,iteration);
+ CreateRealNodes(Nodes,iteration);
 
- CreateRealSegments(OSMSegments,OSMWays);
+ CreateRealSegments(Segments,Ways);
 
  /* Fix the segment and node indexes */
 
- IndexNodes(OSMNodes,OSMSegments);
+ IndexNodes(Nodes,Segments);
 
- IndexSegments(OSMSegments,OSMNodes);
+ IndexSegments(Segments,Nodes);
 
  /* Output the results */
 
@@ -269,21 +282,21 @@ int main(int argc,char** argv)
 
  /* Write out the nodes */
 
- SaveNodeList(OSMNodes,FileName(dirname,prefix,"nodes.mem"));
+ SaveNodeList(Nodes,FileName(dirname,prefix,"nodes.mem"));
 
- FreeNodeList(OSMNodes);
+ FreeNodeList(Nodes);
 
  /* Write out the segments */
 
- SaveSegmentList(OSMSegments,FileName(dirname,prefix,"segments.mem"));
+ SaveSegmentList(Segments,FileName(dirname,prefix,"segments.mem"));
 
- FreeSegmentList(OSMSegments);
+ FreeSegmentList(Segments);
 
  /* Write out the ways */
 
- SaveWayList(OSMWays,FileName(dirname,prefix,"ways.mem"));
+ SaveWayList(Ways,FileName(dirname,prefix,"ways.mem"));
 
- FreeWayList(OSMWays);
+ FreeWayList(Ways);
 
  return(0);
 }
