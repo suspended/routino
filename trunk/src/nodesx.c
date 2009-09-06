@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.34 2009-09-05 10:35:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.35 2009-09-06 15:51:08 amb Exp $
 
  Extented Node data type functions.
 
@@ -39,6 +39,7 @@
 /* Variables */
 
 extern int option_slim;
+extern char *tmpdirname;
 
 /* Functions */
 
@@ -50,11 +51,9 @@ static int sort_by_lat_long(node_t *a,node_t *b);
   Allocate a new node list.
 
   NodesX *NewNodeList Returns the node list.
-
-  const char *dirname The name of the directory to save the temporary file into.
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodesX *NewNodeList(const char *dirname)
+NodesX *NewNodeList(void)
 {
  NodesX *nodesx;
 
@@ -62,8 +61,8 @@ NodesX *NewNodeList(const char *dirname)
 
  assert(nodesx); /* Check calloc() worked */
 
- nodesx->filename=(char*)malloc(strlen(dirname)+24);
- sprintf(nodesx->filename,"nodes.%p.tmp",nodesx);
+ nodesx->filename=(char*)malloc(strlen(tmpdirname)+24);
+ sprintf(nodesx->filename,"%s/nodes.%p.tmp",tmpdirname,nodesx);
 
  nodesx->fd=OpenFile(nodesx->filename);
 
@@ -304,6 +303,8 @@ NodeX *FindNodeX(NodesX* nodesx,node_t id)
 {
  index_t index=IndexNodeX(nodesx,id);
 
+ assert(index!=NO_NODE);        /* Must be a valid node */
+
  if(option_slim)
    {
     static NodeX nodex[2];
@@ -364,7 +365,7 @@ void InitialSortNodeList(NodesX* nodesx)
 
  assert(!nodesx->idata);        /* Must not have idata filled in => unsorted */
 
- printf("Creating sortable index");
+ printf("Sorting Nodes (pre-sort)");
  fflush(stdout);
 
  /* Allocate the array of indexes */
@@ -385,7 +386,8 @@ void InitialSortNodeList(NodesX* nodesx)
     nodesx->number++;
    }
 
- printf("\rCreated sortable index \n");
+ printf("\rSorted Nodes (pre-sort) \n");
+ fflush(stdout);
 
  ReSortNodeList(nodesx);
 }
@@ -456,12 +458,12 @@ void FinalSortNodeList(NodesX* nodesx)
 
  /* Sort the on-disk image */
 
+ printf("Sorting Nodes (post-sort)");
+ fflush(stdout);
+
  if(option_slim)
    {
     int fd;
-
-    printf("Sorting disk file");
-    fflush(stdout);
 
     DeleteFile(nodesx->filename);
 
@@ -483,9 +485,6 @@ void FinalSortNodeList(NodesX* nodesx)
     CloseFile(fd);
 
     nodesx->fd=ReOpenFile(nodesx->filename);
-
-    printf("\rSorted disk file \n");
-    fflush(stdout);
    }
  else
    {
@@ -513,6 +512,9 @@ void FinalSortNodeList(NodesX* nodesx)
     nodesx->super=(uint8_t*)malloc(nodesx->number*sizeof(uint8_t));
     memset(nodesx->super,0,nodesx->number*sizeof(uint8_t));
    }
+
+ printf("\rSorted Nodes (post-sort) \n");
+ fflush(stdout);
 }
 
 
@@ -635,7 +637,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    if(FindFirstSegmentX(segmentsx,nodesx->idata[i]))
+    if(IndexFirstSegmentX(segmentsx,nodesx->idata[i]))
        highway++;
     else
       {
@@ -729,8 +731,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    Node *node1=&nodesx->ndata[IndexNodeX(nodesx,segmentsx->n1data[i]->node1)];
-    Node *node2=&nodesx->ndata[IndexNodeX(nodesx,segmentsx->n1data[i]->node2)];
+    SegmentX *segmentx=FindSegmentX(segmentsx,segmentsx->n1data[i]);
+    Node *node1=&nodesx->ndata[IndexNodeX(nodesx,segmentx->node1)];
+    Node *node2=&nodesx->ndata[IndexNodeX(nodesx,segmentx->node2)];
 
     /* Check node1 */
 
@@ -745,11 +748,18 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
        do
          {
-          if(segmentsx->n1data[index]->node1==segmentsx->n1data[i]->node1)
+          SegmentX *segmentx2=FindSegmentX(segmentsx,segmentsx->n1data[index]);
+
+          if(segmentx2->node1==segmentx->node1)
             {
              index++;
 
-             if(index>=segmentsx->number || segmentsx->n1data[index]->node1!=segmentsx->n1data[i]->node1)
+             if(index>=segmentsx->number)
+                break;
+
+             segmentx2=FindSegmentX(segmentsx,segmentsx->n1data[index]);
+
+             if(segmentx2->node1!=segmentx->node1)
                 break;
             }
           else
@@ -779,11 +789,18 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
        do
          {
-          if(segmentsx->n1data[index]->node1==segmentsx->n1data[i]->node2)
+          SegmentX *segmentx2=FindSegmentX(segmentsx,segmentsx->n1data[index]);
+
+          if(segmentx2->node1==segmentx->node2)
             {
              index++;
 
-             if(index>=segmentsx->number || segmentsx->n1data[index]->node1!=segmentsx->n1data[i]->node2)
+             if(index>=segmentsx->number)
+                break;
+
+             segmentx2=FindSegmentX(segmentsx,segmentsx->n1data[index]);
+
+             if(segmentx2->node1!=segmentx->node2)
                 break;
             }
           else

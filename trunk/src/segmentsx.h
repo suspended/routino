@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.15 2009-08-19 18:02:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.16 2009-09-06 15:51:09 amb Exp $
 
  A header file for the extended segments.
 
@@ -49,15 +49,17 @@ struct _SegmentX
 /*+ A structure containing a set of segments (memory format). +*/
 struct _SegmentsX
 {
- int32_t    row;                /*+ How many rows are allocated? +*/
- uint32_t   col;                /*+ How many columns are used in the last row? +*/
+ char      *filename;           /*+ The name of the temporary file. +*/
+ int        fd;                 /*+ The file descriptor of the temporary file. +*/
 
- SegmentX **xdata;              /*+ The extended segment data (unsorted). +*/
+ uint32_t   xnumber;            /*+ The number of unsorted extended nodes. +*/
+
+ SegmentX  *xdata;              /*+ The extended segment data (unsorted). +*/
 
  uint32_t   number;             /*+ How many entries are still useful? +*/
 
- SegmentX **n1data;             /*+ The extended segment data (sorted by node1). +*/
- SegmentX **n2data;             /*+ The extended segment data (sorted by node2). +*/
+ index_t   *n1data;             /*+ The extended segment data (sorted by node1). +*/
+ index_t   *n2data;             /*+ The extended segment data (sorted by node2). +*/
 
  Segment   *sdata;              /*+ The segment data (same order as n1data). +*/
 };
@@ -71,12 +73,16 @@ void FreeSegmentList(SegmentsX *segmentsx);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
-SegmentX **FindFirstSegmentX(SegmentsX* segmentsx,node_t node);
-SegmentX **FindNextSegmentX(SegmentsX* segmentsx,SegmentX **segmentx);
+SegmentX *FindSegmentX(SegmentsX* segmentsx,index_t index);
+
+index_t *IndexFirstSegmentX(SegmentsX* segmentsx,node_t node);
+index_t *IndexNextSegmentX(SegmentsX* segmentsx,index_t *index);
 
 void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 
-void SortSegmentList(SegmentsX *segmentsx);
+void InitialSortSegmentList(SegmentsX *segmentsx);
+void ReSortSegmentList(SegmentsX *segmentsx);
+void FinalSortSegmentList(SegmentsX *segmentsx);
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
 
