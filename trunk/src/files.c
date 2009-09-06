@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.11 2009-09-05 09:36:57 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.12 2009-09-06 15:50:15 amb Exp $
 
  Functions to map a file into memory.
 
@@ -129,12 +129,12 @@ void *MapFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Unmap a file and optionally delete it.
 
-  const char *filename The name of the file when it was opened.
+  Returns NULL (for similarity to the MapFile function).
 
-  int delete If set then delete the file.
+  const char *filename The name of the file when it was opened.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void UnmapFile(const char *filename,int delete)
+void *UnmapFile(const char *filename)
 {
  int i;
 
@@ -156,17 +156,14 @@ void UnmapFile(const char *filename,int delete)
 
  munmap(mappedfiles[i].address,mappedfiles[i].length);
 
- /* Delete the file */
-
- if(delete)
-    unlink(filename);
-
  /* Shuffle the list of files */
 
  nmappedfiles--;
 
  if(nmappedfiles>i)
     memmove(&mappedfiles[i],&mappedfiles[i+1],(nmappedfiles-i)*sizeof(struct mmapinfo));
+
+ return(NULL);
 }
 
 
