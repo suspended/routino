@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.32 2009-08-15 14:18:05 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.33 2009-09-06 15:48:42 amb Exp $
 
  Memory file dumper.
 
@@ -269,17 +269,32 @@ int main(int argc,char** argv)
     index_t item;
 
     for(arg=1;arg<argc;arg++)
-       if(!strncmp(argv[arg],"--node=",7))
+       if(!strcmp(argv[arg],"--node=all"))
+         {
+          for(item=0;item<OSMNodes->number;item++)
+             print_node(OSMNodes,item);
+         }
+       else if(!strncmp(argv[arg],"--node=",7))
          {
           item=atoi(&argv[arg][7]);
 
           print_node(OSMNodes,item);
+         }
+       else if(!strcmp(argv[arg],"--segment=all"))
+         {
+          for(item=0;item<OSMSegments->number;item++)
+             print_segment(OSMSegments,item);
          }
        else if(!strncmp(argv[arg],"--segment=",10))
          {
           item=atoi(&argv[arg][10]);
 
           print_segment(OSMSegments,item);
+         }
+       else if(!strcmp(argv[arg],"--way=all"))
+         {
+          for(item=0;item<OSMWays->number;item++)
+             print_way(OSMWays,item);
          }
        else if(!strncmp(argv[arg],"--way=",6))
          {
