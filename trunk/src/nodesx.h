@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.15 2009-09-06 15:51:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.16 2009-09-07 19:01:58 amb Exp $
 
  A header file for the extended nodes.
 
@@ -55,12 +55,21 @@ struct _NodesX
 
  uint32_t  number;              /*+ How many entries are still useful? +*/
 
- node_t  *gdata;                /*+ The extended node data (sorted geographically). +*/
  node_t  *idata;                /*+ The extended node data (sorted by ID). +*/
 
  uint8_t  *super;               /*+ A marker for super nodes (same order as idata). +*/
 
  Node     *ndata;               /*+ The actual nodes (same order as idata). +*/
+
+ index_t  *gdata;               /*+ The extended node data (sorted geographically). +*/
+
+ uint32_t latbins;              /*+ The number of bins containing latitude. +*/
+ uint32_t lonbins;              /*+ The number of bins containing longitude. +*/
+
+ ll_bin_t latzero;              /*+ The bin number of the furthest south bin. +*/
+ ll_bin_t lonzero;              /*+ The bin number of the furthest west bin. +*/
+
+ index_t *offsets;              /*+ An array of offset to the first node in each bin. +*/
 };
 
 
@@ -72,7 +81,6 @@ void FreeNodeList(NodesX *nodesx);
 void SaveNodeList(NodesX *nodesx,const char *filename);
 
 index_t IndexNodeX(NodesX* nodesx,node_t id);
-NodeX *FindNodeX(NodesX* nodesx,node_t id);
 
 void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude);
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.35 2009-09-06 15:51:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.36 2009-09-07 19:01:58 amb Exp $
 
  Extented Node data type functions.
 
@@ -81,7 +81,7 @@ void FreeNodeList(NodesX *nodesx)
  DeleteFile(nodesx->filename);
 
  if(nodesx->xdata)
-    free(nodesx->xdata);
+    UnmapFile(nodesx->filename);
 
  if(nodesx->gdata)
     free(nodesx->gdata);
@@ -90,6 +90,9 @@ void FreeNodeList(NodesX *nodesx)
 
  if(nodesx->ndata)
     free(nodesx->ndata);
+
+ if(nodesx->offsets)
+    free(nodesx->offsets);
 
  free(nodesx);
 }
@@ -108,71 +111,17 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  index_t i;
  int fd;
  Nodes *nodes;
- index_t *offsets;
- ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
- latlong_t lat_min,lat_max,lon_min,lon_max;
- int latbins,lonbins,latlonbin;
  int super_number=0;
 
  assert(nodesx->gdata);         /* Must have gdata filled in => sorted geographically */
  assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
- assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
 
  printf("Writing Nodes: Nodes=0");
  fflush(stdout);
 
- /* Work out the range of data */
-
- lat_min=radians_to_latlong( 2);
- lat_max=radians_to_latlong(-2);
- lon_min=radians_to_latlong( 4);
- lon_max=radians_to_latlong(-4);
-
  for(i=0;i<nodesx->number;i++)
-   {
-    NodeX *nodex=FindNodeX(nodesx,nodesx->idata[i]);
-
-    if(nodex->latitude<lat_min)
-       lat_min=nodex->latitude;
-    if(nodex->latitude>lat_max)
-       lat_max=nodex->latitude;
-    if(nodex->longitude<lon_min)
-       lon_min=nodex->longitude;
-    if(nodex->longitude>lon_max)
-       lon_max=nodex->longitude;
-
     if(nodesx->ndata[i].firstseg&NODE_SUPER)
        super_number++;
-   }
-
- /* Work out the offsets */
-
- lat_min_bin=latlong_to_bin(lat_min);
- lon_min_bin=latlong_to_bin(lon_min);
- lat_max_bin=latlong_to_bin(lat_max);
- lon_max_bin=latlong_to_bin(lon_max);
-
- latbins=(lat_max_bin-lat_min_bin)+1;
- lonbins=(lon_max_bin-lon_min_bin)+1;
-
- offsets=(index_t*)malloc((latbins*lonbins+1)*sizeof(index_t));
-
- latlonbin=0;
-
- for(i=0;i<nodesx->number;i++)
-   {
-    NodeX *nodex=FindNodeX(nodesx,nodesx->gdata[i]);
-
-    ll_bin_t latbin=latlong_to_bin(nodex->latitude )-lat_min_bin;
-    ll_bin_t lonbin=latlong_to_bin(nodex->longitude)-lon_min_bin;
-    int llbin=lonbin*latbins+latbin;
-
-    for(;latlonbin<=llbin;latlonbin++)
-       offsets[latlonbin]=i;
-   }
-
- for(;latlonbin<=(latbins*lonbins);latlonbin++)
-    offsets[latlonbin]=nodesx->number;
 
  /* Fill in a Nodes structure with the offset of the real data in the file after
     the Node structure itself. */
@@ -184,16 +133,16 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  nodes->number=nodesx->number;
  nodes->snumber=super_number;
 
- nodes->latbins=latbins;
- nodes->lonbins=lonbins;
+ nodes->latbins=nodesx->latbins;
+ nodes->lonbins=nodesx->lonbins;
 
- nodes->latzero=lat_min_bin;
- nodes->lonzero=lon_min_bin;
+ nodes->latzero=nodesx->latzero;
+ nodes->lonzero=nodesx->lonzero;
 
  nodes->data=NULL;
 
  nodes->offsets=(void*)sizeof(Nodes);
- nodes->nodes=(void*)(sizeof(Nodes)+(latbins*lonbins+1)*sizeof(index_t));
+ nodes->nodes=(void*)(sizeof(Nodes)+(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
  /* Write out the Nodes structure and then the real data. */
 
@@ -201,11 +150,11 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  WriteFile(fd,nodes,sizeof(Nodes));
 
- WriteFile(fd,offsets,(latbins*lonbins+1)*sizeof(index_t));
+ WriteFile(fd,nodesx->offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
  for(i=0;i<nodes->number;i++)
    {
-    Node *node=&nodesx->ndata[IndexNodeX(nodesx,nodesx->gdata[i])];
+    Node *node=&nodesx->ndata[nodesx->gdata[i]];
 
     WriteFile(fd,node,sizeof(Node));
 
@@ -224,7 +173,6 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  /* Free the fake Nodes */
 
  free(nodes);
- free(offsets);
 }
 
 
@@ -286,42 +234,6 @@ index_t IndexNodeX(NodesX* nodesx,node_t id)
    }
 
  return(NO_NODE);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find a particular node.
-
-  NodeX *FindNodeX Returns a pointer to the extended node with the specified id.
-
-  NodesX* nodesx The set of nodes to process.
-
-  node_t id The node id to look for.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-NodeX *FindNodeX(NodesX* nodesx,node_t id)
-{
- index_t index=IndexNodeX(nodesx,id);
-
- assert(index!=NO_NODE);        /* Must be a valid node */
-
- if(option_slim)
-   {
-    static NodeX nodex[2];
-    static int count=0;
-
-    SeekFile(nodesx->fd,index*sizeof(NodeX));
-
-    count=(count+1)%2;
-
-    ReadFile(nodesx->fd,&nodex[count],sizeof(NodeX));
-
-    return(&nodex[count]);
-   }
- else
-   {
-    return(&nodesx->xdata[index]);
-   }
 }
 
 
@@ -450,6 +362,7 @@ void ReSortNodeList(NodesX* nodesx)
 void FinalSortNodeList(NodesX* nodesx)
 {
  NodeX nodex;
+ int fd;
 
  assert(nodesx->idata);         /* Must have idata filled in => initially sorted */
  assert(!nodesx->super);        /* Must not have super filled in => not finally sorted */
@@ -461,49 +374,29 @@ void FinalSortNodeList(NodesX* nodesx)
  printf("Sorting Nodes (post-sort)");
  fflush(stdout);
 
- if(option_slim)
+ DeleteFile(nodesx->filename);
+
+ fd=OpenFile(nodesx->filename);
+ SeekFile(nodesx->fd,0);
+
+ while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
-    int fd;
+    index_t index=IndexNodeX(nodesx,nodex.id);
 
-    DeleteFile(nodesx->filename);
-
-    fd=OpenFile(nodesx->filename);
-    SeekFile(nodesx->fd,0);
-
-    while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
+    if(index!=NO_NODE)
       {
-       index_t index=IndexNodeX(nodesx,nodex.id);
-
-       if(index!=NO_NODE)
-         {
-          SeekFile(fd,index*sizeof(NodeX));
-          WriteFile(fd,&nodex,sizeof(NodeX));
-         }
+       SeekFile(fd,index*sizeof(NodeX));
+       WriteFile(fd,&nodex,sizeof(NodeX));
       }
-
-    CloseFile(nodesx->fd);
-    CloseFile(fd);
-
-    nodesx->fd=ReOpenFile(nodesx->filename);
    }
- else
-   {
-    nodesx->xdata=(NodeX*)malloc(nodesx->number*sizeof(NodeX));
 
-    assert(nodesx->xdata);      /* Check malloc() worked */
+ CloseFile(nodesx->fd);
+ CloseFile(fd);
 
-    SeekFile(nodesx->fd,0);
+ nodesx->fd=ReOpenFile(nodesx->filename);
 
-    while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
-      {
-       index_t index=IndexNodeX(nodesx,nodex.id);
-
-       if(index!=NO_NODE)
-          nodesx->xdata[index]=nodex;
-      }
-
-    CloseFile(nodesx->fd);
-   }
+ if(!option_slim)
+    nodesx->xdata=MapFile(nodesx->filename);
 
  /* Allocate and clear the super-node markers */
 
@@ -555,6 +448,9 @@ static NodesX *sortnodesx;
 void SortNodeListGeographically(NodesX* nodesx)
 {
  index_t i;
+ ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
+ latlong_t lat_min,lat_max,lon_min,lon_max;
+ uint32_t latlonbin;
 
  assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
  assert(!nodesx->gdata);        /* Must not have gdata filled in => unsorted geographically */
@@ -562,18 +458,77 @@ void SortNodeListGeographically(NodesX* nodesx)
  printf("Sorting Nodes Geographically");
  fflush(stdout);
 
+ if(option_slim)
+    nodesx->xdata=MapFile(nodesx->filename);
+
  /* Allocate the array of pointers and sort them */
 
- nodesx->gdata=(node_t*)malloc(nodesx->number*sizeof(node_t));
+ nodesx->gdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
 
  assert(nodesx->gdata); /* Check malloc() worked */
 
  for(i=0;i<nodesx->number;i++)
-    nodesx->gdata[i]=nodesx->idata[i];
+    nodesx->gdata[i]=i;
 
  sortnodesx=nodesx;
 
- qsort(nodesx->gdata,nodesx->number,sizeof(node_t),(int (*)(const void*,const void*))sort_by_lat_long);
+ qsort(nodesx->gdata,nodesx->number,sizeof(index_t),(int (*)(const void*,const void*))sort_by_lat_long);
+
+ /* Work out the range of data */
+
+ lat_min=radians_to_latlong( 2);
+ lat_max=radians_to_latlong(-2);
+ lon_min=radians_to_latlong( 4);
+ lon_max=radians_to_latlong(-4);
+
+ for(i=0;i<nodesx->number;i++)
+   {
+    NodeX *nodex=&nodesx->xdata[i];
+
+    if(nodex->latitude<lat_min)
+       lat_min=nodex->latitude;
+    if(nodex->latitude>lat_max)
+       lat_max=nodex->latitude;
+    if(nodex->longitude<lon_min)
+       lon_min=nodex->longitude;
+    if(nodex->longitude>lon_max)
+       lon_max=nodex->longitude;
+   }
+
+ /* Work out the offsets */
+
+ lat_min_bin=latlong_to_bin(lat_min);
+ lon_min_bin=latlong_to_bin(lon_min);
+ lat_max_bin=latlong_to_bin(lat_max);
+ lon_max_bin=latlong_to_bin(lon_max);
+
+ nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
+ nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
+
+ nodesx->offsets=(index_t*)malloc((nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+
+ latlonbin=0;
+
+ for(i=0;i<nodesx->number;i++)
+   {
+    NodeX *nodex=&nodesx->xdata[nodesx->gdata[i]];
+
+    ll_bin_t latbin=latlong_to_bin(nodex->latitude )-lat_min_bin;
+    ll_bin_t lonbin=latlong_to_bin(nodex->longitude)-lon_min_bin;
+    int llbin=lonbin*nodesx->latbins+latbin;
+
+    for(;latlonbin<=llbin;latlonbin++)
+       nodesx->offsets[latlonbin]=i;
+   }
+
+ for(;latlonbin<=(nodesx->latbins*nodesx->lonbins);latlonbin++)
+    nodesx->offsets[latlonbin]=nodesx->number;
+
+ nodesx->latzero=lat_min_bin;
+ nodesx->lonzero=lon_min_bin;
+
+ if(option_slim)
+    nodesx->xdata=UnmapFile(nodesx->filename);
 
  printf("\rSorted Nodes Geographically \n");
  fflush(stdout);
@@ -585,15 +540,15 @@ void SortNodeListGeographically(NodesX* nodesx)
 
   int sort_by_lat_long Returns the comparison of the latitude and longitude fields.
 
-  node_t *a The first node id.
+  index_t *a The first node id.
 
-  node_t *b The second node id.
+  index_t *b The second node id.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_lat_long(node_t *a,node_t *b)
+static int sort_by_lat_long(index_t *a,index_t *b)
 {
- NodeX *nodex_a=FindNodeX(sortnodesx,*a);
- NodeX *nodex_b=FindNodeX(sortnodesx,*b);
+ NodeX *nodex_a=&sortnodesx->xdata[*a];
+ NodeX *nodex_b=&sortnodesx->xdata[*b];
 
  ll_bin_t a_lon=latlong_to_bin(nodex_a->longitude);
  ll_bin_t b_lon=latlong_to_bin(nodex_b->longitude);
@@ -681,14 +636,26 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  assert(nodesx->ndata); /* Check malloc() worked */
 
+ SeekFile(nodesx->fd,0);
+
  /* Loop through and allocate. */
 
  for(i=0;i<nodesx->number;i++)
    {
-    NodeX *nodex=FindNodeX(nodesx,nodesx->idata[i]);
+    if(option_slim)
+      {
+       NodeX nodex;
 
-    nodesx->ndata[i].latoffset=latlong_to_off(nodex->latitude);
-    nodesx->ndata[i].lonoffset=latlong_to_off(nodex->longitude);
+       ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
+
+       nodesx->ndata[i].latoffset=latlong_to_off(nodex.latitude);
+       nodesx->ndata[i].lonoffset=latlong_to_off(nodex.longitude);
+      }
+    else
+      {
+       nodesx->ndata[i].latoffset=latlong_to_off(nodesx->xdata[i].latitude);
+       nodesx->ndata[i].lonoffset=latlong_to_off(nodesx->xdata[i].longitude);
+      }
 
     nodesx->ndata[i].firstseg=SEGMENT(NO_SEGMENT);
 
@@ -731,9 +698,11 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    SegmentX *segmentx=FindSegmentX(segmentsx,segmentsx->n1data[i]);
-    Node *node1=&nodesx->ndata[IndexNodeX(nodesx,segmentx->node1)];
-    Node *node2=&nodesx->ndata[IndexNodeX(nodesx,segmentx->node2)];
+    SegmentX *segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[i]);
+    node_t id1=segmentx->node1;
+    node_t id2=segmentx->node2;
+    Node *node1=&nodesx->ndata[IndexNodeX(nodesx,id1)];
+    Node *node2=&nodesx->ndata[IndexNodeX(nodesx,id2)];
 
     /* Check node1 */
 
@@ -748,18 +717,18 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
        do
          {
-          SegmentX *segmentx2=FindSegmentX(segmentsx,segmentsx->n1data[index]);
+          segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[index]);
 
-          if(segmentx2->node1==segmentx->node1)
+          if(segmentx->node1==id1)
             {
              index++;
 
              if(index>=segmentsx->number)
                 break;
 
-             segmentx2=FindSegmentX(segmentsx,segmentsx->n1data[index]);
+             segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[index]);
 
-             if(segmentx2->node1!=segmentx->node1)
+             if(segmentx->node1!=id1)
                 break;
             }
           else
@@ -789,18 +758,18 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
        do
          {
-          SegmentX *segmentx2=FindSegmentX(segmentsx,segmentsx->n1data[index]);
+          segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[index]);
 
-          if(segmentx2->node1==segmentx->node2)
+          if(segmentx->node1==id2)
             {
              index++;
 
              if(index>=segmentsx->number)
                 break;
 
-             segmentx2=FindSegmentX(segmentsx,segmentsx->n1data[index]);
+             segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[index]);
 
-             if(segmentx2->node1!=segmentx->node2)
+             if(segmentx->node1!=id2)
                 break;
             }
           else
