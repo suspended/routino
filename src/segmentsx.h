@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.16 2009-09-06 15:51:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.17 2009-09-07 19:01:59 amb Exp $
 
  A header file for the extended segments.
 
@@ -55,6 +55,7 @@ struct _SegmentsX
  uint32_t   xnumber;            /*+ The number of unsorted extended nodes. +*/
 
  SegmentX  *xdata;              /*+ The extended segment data (unsorted). +*/
+ SegmentX   cached;             /*+ A cached segment read from the file in slim mode. +*/
 
  uint32_t   number;             /*+ How many entries are still useful? +*/
 
@@ -73,10 +74,10 @@ void FreeSegmentList(SegmentsX *segmentsx);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
-SegmentX *FindSegmentX(SegmentsX* segmentsx,index_t index);
+SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index);
 
 index_t *IndexFirstSegmentX(SegmentsX* segmentsx,node_t node);
-index_t *IndexNextSegmentX(SegmentsX* segmentsx,index_t *index);
+index_t *IndexNextSegmentX(SegmentsX* segmentsx,index_t *index,node_t node);
 
 void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 
