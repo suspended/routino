@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.16 2009-09-07 19:01:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.17 2009-09-15 11:39:50 amb Exp $
 
  A header file for the extended nodes.
 
@@ -55,7 +55,7 @@ struct _NodesX
 
  uint32_t  number;              /*+ How many entries are still useful? +*/
 
- node_t  *idata;                /*+ The extended node data (sorted by ID). +*/
+ node_t   *idata;               /*+ The extended node data (sorted by ID). +*/
 
  uint8_t  *super;               /*+ A marker for super nodes (same order as idata). +*/
 
@@ -63,13 +63,13 @@ struct _NodesX
 
  index_t  *gdata;               /*+ The extended node data (sorted geographically). +*/
 
- uint32_t latbins;              /*+ The number of bins containing latitude. +*/
- uint32_t lonbins;              /*+ The number of bins containing longitude. +*/
+ uint32_t  latbins;             /*+ The number of bins containing latitude. +*/
+ uint32_t  lonbins;             /*+ The number of bins containing longitude. +*/
 
- ll_bin_t latzero;              /*+ The bin number of the furthest south bin. +*/
- ll_bin_t lonzero;              /*+ The bin number of the furthest west bin. +*/
+ ll_bin_t  latzero;             /*+ The bin number of the furthest south bin. +*/
+ ll_bin_t  lonzero;             /*+ The bin number of the furthest west bin. +*/
 
- index_t *offsets;              /*+ An array of offset to the first node in each bin. +*/
+ index_t  *offsets;             /*+ An array of offset to the first node in each bin. +*/
 };
 
 

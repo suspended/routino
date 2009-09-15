@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.54 2009-09-06 15:51:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.55 2009-09-15 11:39:50 amb Exp $
 
  OSM planet file splitter.
 
@@ -145,17 +145,17 @@ int main(int argc,char** argv)
 
  SortWayList(Ways);
 
- /* Sort the segments (first time) */
+ /* Compact the ways */
 
- InitialSortSegmentList(Segments);
+ CompactWays(Ways);
 
  /* Sort the nodes (first time) */
 
  InitialSortNodeList(Nodes);
 
- /* Compact the ways */
+ /* Sort the segments (first time) */
 
- CompactWays(Ways);
+ InitialSortSegmentList(Segments);
 
  /* Remove bad segments (must be after sorting the nodes) */
 
@@ -178,7 +178,7 @@ int main(int argc,char** argv)
  MeasureSegments(Segments,Nodes);
 
 
- /* Repeated iteration on Super-Nodes, Super-Segments and Super-Ways */
+ /* Repeated iteration on Super-Nodes and Super-Segments */
 
  do
    {
@@ -253,6 +253,14 @@ int main(int argc,char** argv)
 
  InitialSortSegmentList(Segments);
  FinalSortSegmentList(Segments);
+
+ /* De-allocate some un-used memory */
+
+ if(option_slim)
+   {
+    free(Segments->n2data);
+    Segments->n2data=NULL;
+   }
 
  /* Cross reference the nodes and segments */
 
