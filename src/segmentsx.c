@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.34 2009-09-07 19:01:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.35 2009-09-15 11:39:50 amb Exp $
 
  Extended Segment data type functions.
 
@@ -545,6 +545,9 @@ void FinalSortSegmentList(SegmentsX* segmentsx)
 
  qsort(segmentsx->n2data,segmentsx->number,sizeof(index_t),(int (*)(const void*,const void*))sort_by_id2_and_distance);
 
+ if(option_slim)
+    segmentsx->xdata=UnmapFile(segmentsx->filename);
+
  printf("\rSorted Segments (post-sort) \n");
  fflush(stdout);
 }
@@ -727,6 +730,9 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
  if(option_slim)
     nodesx->xdata=MapFile(nodesx->filename);
 
+ if(!option_slim)
+    segmentsx->xdata=UnmapFile(segmentsx->filename);
+
  DeleteFile(segmentsx->filename);
 
  fd=OpenFile(segmentsx->filename);
@@ -764,10 +770,7 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx)
  segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  if(!option_slim)
-   {
-    UnmapFile(segmentsx->filename);
     segmentsx->xdata=MapFile(segmentsx->filename);
-   }
 
  if(option_slim)
     nodesx->xdata=UnmapFile(nodesx->filename);
