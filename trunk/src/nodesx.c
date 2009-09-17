@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.37 2009-09-15 11:39:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.38 2009-09-17 12:42:39 amb Exp $
 
  Extented Node data type functions.
 
@@ -280,6 +280,11 @@ void InitialSortNodeList(NodesX* nodesx)
  printf("Sorting Nodes (pre-sort)");
  fflush(stdout);
 
+ /* Close the files and re-open them */
+
+ CloseFile(nodesx->fd);
+ nodesx->fd=ReOpenFile(nodesx->filename);
+
  /* Allocate the array of indexes */
 
  nodesx->idata=(node_t*)malloc(nodesx->xnumber*sizeof(node_t));
@@ -287,10 +292,6 @@ void InitialSortNodeList(NodesX* nodesx)
  assert(nodesx->idata); /* Check malloc() worked */
 
  nodesx->number=0;
-
- CloseFile(nodesx->fd);
-
- nodesx->fd=ReOpenFile(nodesx->filename);
 
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
@@ -389,6 +390,8 @@ void FinalSortNodeList(NodesX* nodesx)
        WriteFile(fd,&nodex,sizeof(NodeX));
       }
    }
+
+ /* Close the files and re-open them */
 
  CloseFile(nodesx->fd);
  CloseFile(fd);
