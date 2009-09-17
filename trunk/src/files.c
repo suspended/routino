@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.12 2009-09-06 15:50:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.13 2009-09-17 12:41:21 amb Exp $
 
  Functions to map a file into memory.
 
@@ -226,12 +226,12 @@ int ReOpenFile(const char *filename)
 
   int fd The file descriptor to write to.
 
-  void *address The address of the data to be written from.
+  const void *address The address of the data to be written from.
 
   size_t length The length of data to write.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int WriteFile(int fd,void *address,size_t length)
+int WriteFile(int fd,const void *address,size_t length)
 {
  /* Write the data */
 
