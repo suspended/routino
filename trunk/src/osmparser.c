@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.48 2009-08-20 18:38:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.49 2009-09-17 12:55:15 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -195,7 +195,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
 
           if(allow&profile->allow && profile->highway[HIGHWAY(type)])
             {
-             Way *way;
+             Way way;
              char *refname;
              int i;
 
@@ -221,23 +221,25 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
              else /* if(!way_ref && !way_name && !way_roundabout) */
                 refname=way_highway;
 
-             way=AppendWay(OSMWays,way_id,refname);
+             way.speed=way_maxspeed;
+             way.weight=way_maxweight;
+             way.height=way_maxheight;
+             way.width=way_maxwidth;
+             way.length=way_maxlength;
 
-             way->speed=way_maxspeed;
-             way->weight=way_maxweight;
-             way->height=way_maxheight;
-             way->width=way_maxwidth;
-             way->length=way_maxlength;
+             way.type=type;
 
-             way->type=type;
-
-             way->allow=allow;
+             way.allow=allow;
 
              if(way_oneway)
-                way->type|=Way_OneWay;
+                way.type|=Way_OneWay;
 
              if(way_roundabout)
-                way->type|=Way_Roundabout;
+                way.type|=Way_Roundabout;
+
+             way.padding=0;
+
+             AppendWay(OSMWays,way_id,&way,refname);
 
              if(refname!=way_ref && refname!=way_name && refname!=way_highway)
                 free(refname);

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.35 2009-09-15 11:39:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.36 2009-09-17 12:55:15 amb Exp $
 
  Extended Segment data type functions.
 
@@ -461,14 +461,16 @@ void InitialSortSegmentList(SegmentsX* segmentsx)
  printf("Sorting Segments (pre-sort)");
  fflush(stdout);
 
+ /* Close the files and re-open them */
+
+ CloseFile(segmentsx->fd);
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
+
  /* Allocate the array of indexes */
 
  segmentsx->n1data=(index_t*)malloc(segmentsx->xnumber*sizeof(index_t));
 
  assert(segmentsx->n1data); /* Check malloc() worked */
-
- CloseFile(segmentsx->fd);
- segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  segmentsx->xdata=MapFile(segmentsx->filename);
 
@@ -810,10 +812,10 @@ void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx)
        segmentx->node2==prevsegmentx->node2 &&
        DISTFLAG(segmentx->distance)==DISTFLAG(prevsegmentx->distance))
       {
-       WayX *wayx1=FindWayX(waysx,prevsegmentx->way);
-       WayX *wayx2=FindWayX(waysx,    segmentx->way);
+       WayX *wayx1=LookupWayX(waysx,IndexWayX(waysx,prevsegmentx->way),1);
+       WayX *wayx2=LookupWayX(waysx,IndexWayX(waysx,    segmentx->way),2);
 
-       if(!WaysCompare(wayx1->way,wayx2->way))
+       if(!WaysCompare(&wayx1->way,&wayx2->way))
          {
           segmentsx->n1data[i-1]=NO_SEGMENT;
 
@@ -864,12 +866,12 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
  for(i=0;i<segmentsx->number;i++)
    {
     SegmentX *segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[i]);
-    WayX *wayx=FindWayX(waysx,segmentx->way);
+    WayX *wayx=LookupWayX(waysx,IndexWayX(waysx,segmentx->way),1);
 
     segmentsx->sdata[i].node1=0;
     segmentsx->sdata[i].node2=0;
     segmentsx->sdata[i].next2=NO_NODE;
-    segmentsx->sdata[i].way=IndexWayInWaysX(waysx,wayx);
+    segmentsx->sdata[i].way=wayx->cid;
     segmentsx->sdata[i].distance=segmentx->distance;
 
     if(!((i+1)%10000))

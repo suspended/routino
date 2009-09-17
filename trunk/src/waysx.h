@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.15 2009-08-19 18:02:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.16 2009-09-17 12:55:15 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -29,6 +29,7 @@
 
 #include "typesx.h"
 #include "types.h"
+#include "ways.h"
 
 
 /* Data structures */
@@ -38,35 +39,39 @@
 struct _WayX
 {
  way_t    id;                   /*+ The way identifier. +*/
+ index_t  cid;                  /*+ The index of the way in the compacted ways. +*/
 
- char    *name;                 /*+ The name of the way. +*/
+ Way      way;                  /*+ The real Way data. +*/
 
- Way     *way;                  /*+ A pointer to the real Way data. +*/
+ index_t  name;                 /*+ The index of the name of the way. +*/
 };
 
 
 /*+ A structure containing a set of ways (memory format). +*/
 struct _WaysX
 {
- int32_t  row;                  /*+ How many rows are allocated? +*/
- uint32_t col;                  /*+ How many columns are used in the last row? +*/
+ char    *filename;             /*+ The name of the temporary file (for the WaysX). +*/
+ int      fd;                   /*+ The file descriptor of the temporary file (for the WaysX). +*/
 
- WayX   **xdata;                /*+ The extended data for the Ways (unsorted). +*/
+ uint32_t xnumber;              /*+ The number of unsorted extended ways. +*/
+
+ WayX    *xdata;                /*+ The extended data for the Ways (sorted). +*/
+ WayX     cached[2];            /*+ Two cached ways read from the file in slim mode. +*/
 
  uint32_t number;               /*+ How many entries are still useful? +*/
 
- WayX   **idata;                /*+ The extended data for the Ways (sorted by ID). +*/
- WayX   **ndata;                /*+ The extended data for the Ways (sorted by name and way properties). +*/
+ uint32_t cnumber;              /*+ How many entries are there after compacting? +*/
 
- int32_t  wrow;                 /*+ How many rows are allocated? +*/
- uint32_t wcol;                 /*+ How many columns are used in the last row? +*/
+ index_t *idata;                /*+ The extended data for the Ways (sorted by ID). +*/
 
- Way    **wxdata;               /*+ The data for the Ways (unsorted). +*/
- Way    **wdata;                /*+ The data for the Ways (sorted like ndata and compacted). +*/
+ char    *nfilename;            /*+ The name of the temporary file (for the names). +*/
+ int      nfd;                  /*+ The file descriptor of the temporary file (for the names). +*/
 
- char    *names;                /*+ The array containing all the names. +*/
+ char    *names;                /*+ The names of the ways (unsorted). +*/
 
- uint32_t length;               /*+ How long is the string of name entries? +*/
+ uint32_t nnumber;              /*+ How many names are there after compacting? +*/
+
+ uint32_t nlength;              /*+ How long is the string of name entries? +*/
 };
 
 
@@ -78,14 +83,14 @@ void FreeWayList(WaysX *waysx);
 
 void SaveWayList(WaysX *waysx,const char *filename);
 
-WayX *FindWayX(WaysX* waysx,way_t id);
+index_t IndexWayX(WaysX* waysx,way_t id);
+WayX *LookupWayX(WaysX* waysx,index_t index,int position);
 
-Way *AppendWay(WaysX* waysx,way_t id,const char *name);
+void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name);
 
 void SortWayList(WaysX *waysx);
 
-void CompactWays(WaysX* waysx);
-
-index_t IndexWayInWaysX(WaysX *waysx,WayX *wayx);
+void CompactWayNames(WaysX* waysx);
+void CompactWayProperties(WaysX* waysx);
 
 #endif /* WAYSX_H */
