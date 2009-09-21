@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.17 2009-09-15 11:39:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.18 2009-09-21 19:23:13 amb Exp $
 
  A header file for the extended nodes.
 
@@ -41,6 +41,8 @@ struct _NodeX
 
  latlong_t latitude;            /*+ The node latitude. +*/
  latlong_t longitude;           /*+ The node longitude. +*/
+
+ index_t  *firstseg;            /*+ The index of the first segment. +*/
 };
 
 /*+ A structure containing a set of nodes (memory format). +*/
@@ -84,9 +86,7 @@ index_t IndexNodeX(NodesX* nodesx,node_t id);
 
 void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude);
 
-void InitialSortNodeList(NodesX *nodesx);
-void ReSortNodeList(NodesX *nodesx);
-void FinalSortNodeList(NodesX* nodesx);
+void SortNodeList(NodesX *nodesx);
 
 void SortNodeListGeographically(NodesX* nodesx);
 

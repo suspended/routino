@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.38 2009-09-17 12:42:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.39 2009-09-21 19:23:13 amb Exp $
 
  Extented Node data type functions.
 
@@ -266,21 +266,28 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the node list for the first time (i.e. create the sortable indexes).
+  Sort the node list (i.e. create the sortable indexes).
 
   NodesX* nodesx The set of nodes to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void InitialSortNodeList(NodesX* nodesx)
+void SortNodeList(NodesX* nodesx)
 {
  NodeX nodex;
+ index_t i;
+ int duplicate;
+ int fd;
+
+ /* Check the start conditions */
 
  assert(!nodesx->idata);        /* Must not have idata filled in => unsorted */
 
- printf("Sorting Nodes (pre-sort)");
+ /* Print the start message */
+
+ printf("Sorting Nodes");
  fflush(stdout);
 
- /* Close the files and re-open them */
+ /* Close the files and re-open them (finished appending) */
 
  CloseFile(nodesx->fd);
  nodesx->fd=ReOpenFile(nodesx->filename);
@@ -298,30 +305,6 @@ void InitialSortNodeList(NodesX* nodesx)
     nodesx->idata[nodesx->number]=nodex.id;
     nodesx->number++;
    }
-
- printf("\rSorted Nodes (pre-sort) \n");
- fflush(stdout);
-
- ReSortNodeList(nodesx);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the node list again.
-
-  NodesX* nodesx The set of nodes to process.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void ReSortNodeList(NodesX* nodesx)
-{
- index_t i;
- int duplicate;
-
- assert(nodesx->idata);         /* Must have idata filled in => initially sorted */
- assert(!nodesx->super);        /* Must not have super filled in => not finally sorted */
-
- printf("Sorting Nodes");
- fflush(stdout);
 
  /* Sort the node indexes */
 
@@ -349,31 +332,7 @@ void ReSortNodeList(NodesX* nodesx)
    }
  while(duplicate);
 
- printf("\rSorted Nodes \n");
- fflush(stdout);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the node list for the final time.
-
-  NodesX* nodesx The set of nodes to process.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void FinalSortNodeList(NodesX* nodesx)
-{
- NodeX nodex;
- int fd;
-
- assert(nodesx->idata);         /* Must have idata filled in => initially sorted */
- assert(!nodesx->super);        /* Must not have super filled in => not finally sorted */
-
- ReSortNodeList(nodesx);
-
  /* Sort the on-disk image */
-
- printf("Sorting Nodes (post-sort)");
- fflush(stdout);
 
  DeleteFile(nodesx->filename);
 
@@ -398,19 +357,13 @@ void FinalSortNodeList(NodesX* nodesx)
 
  nodesx->fd=ReOpenFile(nodesx->filename);
 
+ /* Print the final message */
+
+ printf("\rSorted Nodes \n");
+ fflush(stdout);
+
  if(!option_slim)
     nodesx->xdata=MapFile(nodesx->filename);
-
- /* Allocate and clear the super-node markers */
-
- if(!nodesx->super)
-   {
-    nodesx->super=(uint8_t*)malloc(nodesx->number*sizeof(uint8_t));
-    memset(nodesx->super,0,nodesx->number*sizeof(uint8_t));
-   }
-
- printf("\rSorted Nodes (post-sort) \n");
- fflush(stdout);
 }
 
 
@@ -455,14 +408,18 @@ void SortNodeListGeographically(NodesX* nodesx)
  latlong_t lat_min,lat_max,lon_min,lon_max;
  uint32_t latlonbin;
 
+ /* Check the start conditions */
+
  assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
  assert(!nodesx->gdata);        /* Must not have gdata filled in => unsorted geographically */
 
- printf("Sorting Nodes Geographically");
- fflush(stdout);
-
  if(option_slim)
     nodesx->xdata=MapFile(nodesx->filename);
+
+ /* Print the start message */
+
+ printf("Sorting Nodes Geographically");
+ fflush(stdout);
 
  /* Allocate the array of pointers and sort them */
 
@@ -498,7 +455,7 @@ void SortNodeListGeographically(NodesX* nodesx)
        lon_max=nodex->longitude;
    }
 
- /* Work out the offsets */
+ /* Work out the number of bins */
 
  lat_min_bin=latlong_to_bin(lat_min);
  lon_min_bin=latlong_to_bin(lon_min);
@@ -507,6 +464,8 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
  nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
+
+ /* Work out the offsets */
 
  nodesx->offsets=(index_t*)malloc((nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
@@ -530,8 +489,7 @@ void SortNodeListGeographically(NodesX* nodesx)
  nodesx->latzero=lat_min_bin;
  nodesx->lonzero=lon_min_bin;
 
- if(option_slim)
-    nodesx->xdata=UnmapFile(nodesx->filename);
+ /* Print the final message */
 
  printf("\rSorted Nodes Geographically \n");
  fflush(stdout);
@@ -585,36 +543,89 @@ static int sort_by_lat_long(index_t *a,index_t *b)
 
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
- index_t i;
- int highway=0,nothighway=0;
+ NodeX nodex;
+ int total=0,highway=0,nothighway=0;
+ int fd;
+ node_t *idata;
+
+ /* Check the start conditions */
 
  assert(nodesx->idata);         /* Must have idata filled in => data sorted */
+
+ if(!option_slim)
+    nodesx->xdata=UnmapFile(nodesx->filename);
 
  if(option_slim)
     segmentsx->xdata=MapFile(segmentsx->filename);
 
+ /* Print the start message */
+
  printf("Checking: Nodes=0");
  fflush(stdout);
 
- for(i=0;i<nodesx->number;i++)
-   {
-    if(IndexFirstSegmentX(segmentsx,nodesx->idata[i]))
-       highway++;
-    else
-      {
-       nodesx->idata[i]=NO_NODE;
-       nothighway++;
-      }
+ /* Modify the on-disk image */
 
-    if(!((i+1)%10000))
+ DeleteFile(nodesx->filename);
+
+ fd=OpenFile(nodesx->filename);
+ SeekFile(nodesx->fd,0);
+
+ while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
+   {
+    nodex.firstseg=IndexFirstSegmentX(segmentsx,nodex.id);
+
+    if(nodex.firstseg)
       {
-       printf("\rChecking: Nodes=%d Highway=%d not-Highway=%d",i+1,highway,nothighway);
+       WriteFile(fd,&nodex,sizeof(NodeX));
+
+       nodesx->idata[highway]=nodesx->idata[total];
+       highway++;
+      }
+    else
+       nothighway++;
+
+    total++;
+
+    if(!(total%10000))
+      {
+       printf("\rChecking: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
        fflush(stdout);
       }
    }
 
- printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",i,highway,nothighway);
+ /* Close the files and re-open them */
+
+ CloseFile(nodesx->fd);
+ CloseFile(fd);
+
+ nodesx->fd=ReOpenFile(nodesx->filename);
+
+ /* Allocate a smaller array for the node index (don't trust realloc to make it smaller) */
+
+ idata=(node_t*)malloc(highway*sizeof(node_t));
+
+ assert(idata); /* Check malloc() worked */
+
+ memcpy(idata,nodesx->idata,highway*sizeof(node_t));
+
+ free(nodesx->idata);
+
+ nodesx->idata=idata;
+ nodesx->number=highway;
+
+ /* Allocate and clear the super-node markers */
+
+ nodesx->super=(uint8_t*)calloc(nodesx->number,sizeof(uint8_t));
+
+ assert(nodesx->super); /* Check calloc() worked */
+
+ /* Print the final message */
+
+ printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",total,highway,nothighway);
  fflush(stdout);
+
+ if(!option_slim)
+    nodesx->xdata=MapFile(nodesx->filename);
 
  if(option_slim)
     segmentsx->xdata=UnmapFile(segmentsx->filename);
