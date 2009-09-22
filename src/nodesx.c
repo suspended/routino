@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.39 2009-09-21 19:23:13 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.40 2009-09-22 18:54:21 amb Exp $
 
  Extented Node data type functions.
 
@@ -572,9 +572,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
-    nodex.firstseg=IndexFirstSegmentX(segmentsx,nodex.id);
-
-    if(nodex.firstseg)
+    if(IndexFirstSegmentX(segmentsx,nodex.id))
       {
        WriteFile(fd,&nodex,sizeof(NodeX));
 

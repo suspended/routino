@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.18 2009-09-21 19:23:13 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.19 2009-09-22 18:54:21 amb Exp $
 
  A header file for the extended nodes.
 
@@ -41,8 +41,6 @@ struct _NodeX
 
  latlong_t latitude;            /*+ The node latitude. +*/
  latlong_t longitude;           /*+ The node longitude. +*/
-
- index_t  *firstseg;            /*+ The index of the first segment. +*/
 };
 
 /*+ A structure containing a set of nodes (memory format). +*/
