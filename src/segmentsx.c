@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.36 2009-09-17 12:55:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.37 2009-09-22 17:59:50 amb Exp $
 
  Extended Segment data type functions.
 
@@ -794,7 +794,8 @@ void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx)
 {
  index_t i;
  int duplicate=0;
- SegmentX *prevsegmentx;
+ index_t firstindex=0;
+ SegmentX *firstsegmentx;
 
  assert(segmentsx->n1data);     /* Must have n1data filled in => sorted by node 1 */
  assert(segmentsx->xdata);      /* Must have xdata filled in => mapped from file */
@@ -802,28 +803,45 @@ void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx)
  printf("Deduplicating Segments: Segments=0 Duplicate=0");
  fflush(stdout);
 
- prevsegmentx=&segmentsx->xdata[segmentsx->n1data[0]];
+ firstsegmentx=&segmentsx->xdata[segmentsx->n1data[firstindex]];
 
  for(i=1;i<segmentsx->number;i++)
    {
     SegmentX *segmentx=&segmentsx->xdata[segmentsx->n1data[i]];
 
-    if(segmentx->node1==prevsegmentx->node1 &&
-       segmentx->node2==prevsegmentx->node2 &&
-       DISTFLAG(segmentx->distance)==DISTFLAG(prevsegmentx->distance))
+    if(segmentx->node1==firstsegmentx->node1 &&
+       segmentx->node2==firstsegmentx->node2)
       {
-       WayX *wayx1=LookupWayX(waysx,IndexWayX(waysx,prevsegmentx->way),1);
-       WayX *wayx2=LookupWayX(waysx,IndexWayX(waysx,    segmentx->way),2);
+       index_t previndex=firstindex;
 
-       if(!WaysCompare(&wayx1->way,&wayx2->way))
+       while(previndex<i)
          {
-          segmentsx->n1data[i-1]=NO_SEGMENT;
+          if(segmentsx->n1data[previndex]!=NO_SEGMENT)
+            {
+             SegmentX *prevsegmentx=&segmentsx->xdata[segmentsx->n1data[previndex]];
 
-          duplicate++;
+             if(DISTFLAG(segmentx->distance)==DISTFLAG(prevsegmentx->distance))
+               {
+                WayX *wayx1=LookupWayX(waysx,IndexWayX(waysx,prevsegmentx->way),1);
+                WayX *wayx2=LookupWayX(waysx,IndexWayX(waysx,    segmentx->way),2);
+
+                if(!WaysCompare(&wayx1->way,&wayx2->way))
+                  {
+                   segmentsx->n1data[previndex]=NO_SEGMENT;
+
+                   duplicate++;
+                  }
+               }
+            }
+
+          previndex++;
          }
       }
-
-    prevsegmentx=segmentx;
+    else
+      {
+       firstindex=i;
+       firstsegmentx=segmentx;
+      }
 
     if(!((i+1)%10000))
       {
