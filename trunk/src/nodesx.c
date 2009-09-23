@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.40 2009-09-22 18:54:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.41 2009-09-23 18:36:58 amb Exp $
 
  Extented Node data type functions.
 
@@ -274,8 +274,8 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 void SortNodeList(NodesX* nodesx)
 {
  NodeX nodex;
- index_t i;
- int duplicate;
+ index_t i,j;
+ int duplicate=0;
  int fd;
 
  /* Check the start conditions */
@@ -308,29 +308,16 @@ void SortNodeList(NodesX* nodesx)
 
  /* Sort the node indexes */
 
- do
-   {
-    qsort(nodesx->idata,nodesx->number,sizeof(node_t),(int (*)(const void*,const void*))sort_by_id);
+ qsort(nodesx->idata,nodesx->number,sizeof(node_t),(int (*)(const void*,const void*))sort_by_id);
 
-    duplicate=0;
+ j=0;
+ for(i=1;i<nodesx->number;i++)
+    if(nodesx->idata[i]!=nodesx->idata[i-1])
+       nodesx->idata[++j]=nodesx->idata[i];
+    else
+       duplicate++;
 
-    while(nodesx->idata[nodesx->number-1]==NO_NODE)
-       nodesx->number--;
-
-    for(i=1;i<nodesx->number;i++)
-       if(nodesx->idata[i]==nodesx->idata[i-1])
-         {
-          nodesx->idata[i-1]=NO_NODE;
-          duplicate++;
-         }
-
-    if(duplicate)
-      {
-       printf(" - %d duplicates found; trying again.\nSorting Nodes",duplicate);
-       fflush(stdout);
-      }
-   }
- while(duplicate);
+ nodesx->number=++j;
 
  /* Sort the on-disk image */
 
@@ -357,13 +344,13 @@ void SortNodeList(NodesX* nodesx)
 
  nodesx->fd=ReOpenFile(nodesx->filename);
 
- /* Print the final message */
-
- printf("\rSorted Nodes \n");
- fflush(stdout);
-
  if(!option_slim)
     nodesx->xdata=MapFile(nodesx->filename);
+
+ /* Print the final message */
+
+ printf("\rSorted Nodes: Nodes=%d Duplicate=%d\n",nodesx->xnumber,nodesx->number);
+ fflush(stdout);
 }
 
 
@@ -552,18 +539,18 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  assert(nodesx->idata);         /* Must have idata filled in => data sorted */
 
- if(!option_slim)
-    nodesx->xdata=UnmapFile(nodesx->filename);
-
- if(option_slim)
-    segmentsx->xdata=MapFile(segmentsx->filename);
-
  /* Print the start message */
 
  printf("Checking: Nodes=0");
  fflush(stdout);
 
  /* Modify the on-disk image */
+
+ if(!option_slim)
+    nodesx->xdata=UnmapFile(nodesx->filename);
+
+ if(option_slim)
+    segmentsx->xdata=MapFile(segmentsx->filename);
 
  DeleteFile(nodesx->filename);
 
@@ -598,6 +585,12 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  nodesx->fd=ReOpenFile(nodesx->filename);
 
+ if(!option_slim)
+    nodesx->xdata=MapFile(nodesx->filename);
+
+ if(option_slim)
+    segmentsx->xdata=UnmapFile(segmentsx->filename);
+
  /* Allocate a smaller array for the node index (don't trust realloc to make it smaller) */
 
  idata=(node_t*)malloc(highway*sizeof(node_t));
@@ -621,12 +614,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",total,highway,nothighway);
  fflush(stdout);
-
- if(!option_slim)
-    nodesx->xdata=MapFile(nodesx->filename);
-
- if(option_slim)
-    segmentsx->xdata=UnmapFile(segmentsx->filename);
 }
 
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.20 2009-09-17 12:55:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.21 2009-09-23 18:36:58 amb Exp $
 
  Extended Way data type functions.
 
@@ -304,11 +304,15 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
 void SortWayList(WaysX* waysx)
 {
  WayX wayx;
- index_t i;
- int duplicate;
+ index_t i,j;
+ int duplicate=0;
  int fd;
 
+ /* Check the start conditions */
+
  assert(!waysx->idata);         /* Must not have idata filled in => unsorted */
+
+ /* Print the start message */
 
  printf("Sorting Ways");
  fflush(stdout);
@@ -335,31 +339,18 @@ void SortWayList(WaysX* waysx)
     waysx->number++;
    }
 
- /* Sort the way indexes */
+ /* Sort the way indexes and remove duplicates */
 
- do
-   {
-    qsort(waysx->idata,waysx->number,sizeof(way_t),(int (*)(const void*,const void*))sort_by_id);
+ qsort(waysx->idata,waysx->number,sizeof(way_t),(int (*)(const void*,const void*))sort_by_id);
 
-    duplicate=0;
+ j=0;
+ for(i=1;i<waysx->number;i++)
+    if(waysx->idata[i]!=waysx->idata[i-1])
+       waysx->idata[++j]=waysx->idata[i];
+    else
+       duplicate++;
 
-    while(waysx->idata[waysx->number-1]==NO_WAY)
-       waysx->number--;
-
-    for(i=1;i<waysx->number;i++)
-       if(waysx->idata[i]==waysx->idata[i-1])
-         {
-          waysx->idata[i-1]=NO_WAY;
-          duplicate++;
-         }
-
-    if(duplicate)
-      {
-       printf(" - %d duplicates found; trying again.\nSorting Ways",duplicate);
-       fflush(stdout);
-      }
-   }
- while(duplicate);
+ waysx->number=++j;
 
  /* Sort the on-disk image */
 
@@ -389,7 +380,9 @@ void SortWayList(WaysX* waysx)
  if(!option_slim)
     waysx->xdata=MapFile(waysx->filename);
 
- printf("\rSorted Ways \n");
+ /* Print the final message */
+
+ printf("\rSorted Ways: Ways=%d Duplicate=%d\n",waysx->xnumber,duplicate);
  fflush(stdout);
 }
 
@@ -426,16 +419,18 @@ static int sort_by_id(way_t *a,way_t *b)
 
 void CompactWayNames(WaysX* waysx)
 {
- index_t i,*offsets;
+ index_t i,j,*offsets;
  char **cnames;
  WayX wayx;
- int duplicate;
+ int duplicate=0;
  int fd,nfd;
 
- /* Sort the names */
+ /* Print the start message for sorting names */
 
  printf("Sorting Way names");
  fflush(stdout);
+
+ /* Get the uncompacted name data and create list for compacted */
 
  if(option_slim)
     waysx->xdata=MapFile(waysx->filename);
@@ -448,32 +443,23 @@ void CompactWayNames(WaysX* waysx)
 
  assert(cnames); /* Check malloc() worked */
 
+ /* Create the index of names, sort it and remove duplicates */
+
  for(i=0;i<waysx->nnumber;i++)
     cnames[i]=&waysx->names[waysx->xdata[i].name];
 
- do
-   {
-    qsort(cnames,waysx->nnumber,sizeof(char*),(int (*)(const void*,const void*))sort_by_name);
+ qsort(cnames,waysx->nnumber,sizeof(char*),(int (*)(const void*,const void*))sort_by_name);
 
-    duplicate=0;
+ j=0;
+ for(i=1;i<waysx->nnumber;i++)
+    if(strcmp(cnames[i],cnames[j]))
+       cnames[++j]=cnames[i];
+    else
+       duplicate++;
 
-    while(cnames[waysx->nnumber-1]==NULL)
-       waysx->nnumber--;
+ waysx->nnumber=++j;
 
-    for(i=1;i<waysx->nnumber;i++)
-       if(!strcmp(cnames[i],cnames[i-1]))
-         {
-          cnames[i-1]=NULL;
-          duplicate++;
-         }
-
-    if(duplicate)
-      {
-       printf(" - %d duplicates found; trying again.\nSorting Way names",duplicate);
-       fflush(stdout);
-      }
-   }
- while(duplicate);
+ /* Sort the on-disk image */
 
  DeleteFile(waysx->nfilename);
 
@@ -497,10 +483,12 @@ void CompactWayNames(WaysX* waysx)
 
  waysx->nfd=ReOpenFile(waysx->nfilename);
 
- printf("\rSorted Way names \n");
+ /* Print the final message for sorting names */
+
+ printf("\rSorted Way names: Names=%d Duplicate=%d\n",waysx->number,duplicate);
  fflush(stdout);
 
- /* Compact the way names */
+ /* Print the start message for compacting names */
 
  printf("Compacting Way names");
  fflush(stdout);
@@ -530,7 +518,9 @@ void CompactWayNames(WaysX* waysx)
  if(!option_slim)
     waysx->xdata=MapFile(waysx->filename);
 
- printf("\rCompacted Way names: Ways=%d Names=%d\n",waysx->number,waysx->nnumber);
+ /* Print the final message for compacting names */
+
+ printf("\rCompacted Way names: Names=%d Unique=%d\n",waysx->number,waysx->nnumber);
  fflush(stdout);
 
  free(cnames);
@@ -621,16 +611,18 @@ static index_t index_way_name(char** names,int number,char *name)
 
 void CompactWayProperties(WaysX* waysx)
 {
- index_t i;
+ index_t i,j;
  WayX wayx;
  Way **cdata;
- int duplicate;
+ int duplicate=0;
  int fd;
 
- /* Sort the ways by name and way properties */
+ /* Print the start message for sorting properties */
 
  printf("Sorting Ways by properties");
  fflush(stdout);
+
+ /* Get the uncompacted data and create list for compacted */
 
  if(option_slim)
     waysx->xdata=MapFile(waysx->filename);
@@ -644,34 +636,25 @@ void CompactWayProperties(WaysX* waysx)
  for(i=0;i<waysx->cnumber;i++)
     cdata[i]=&waysx->xdata[i].way;
 
- do
-   {
-    qsort(cdata,waysx->cnumber,sizeof(Way*),(int (*)(const void*,const void*))sort_by_name_and_properties);
+ /* Create the index of names, sort it and remove duplicates */
 
-    duplicate=0;
+ qsort(cdata,waysx->cnumber,sizeof(Way*),(int (*)(const void*,const void*))sort_by_name_and_properties);
 
-    while(cdata[waysx->cnumber-1]==NULL)
-       waysx->cnumber--;
+ j=0;
+ for(i=1;i<waysx->cnumber;i++)
+    if(cdata[i-1]->name!=cdata[i]->name || WaysCompare(cdata[i-1],cdata[i]))
+       cdata[++j]=cdata[i];
+    else
+       duplicate++;
 
-    for(i=1;i<waysx->cnumber;i++)
-       if(cdata[i-1]->name==cdata[i]->name && !WaysCompare(cdata[i-1],cdata[i]))
-         {
-          cdata[i-1]=NULL;
-          duplicate++;
-         }
+ waysx->cnumber=++j;
 
-    if(duplicate)
-      {
-       printf(" - %d duplicates found; trying again.\nSorting Ways by properties",duplicate);
-       fflush(stdout);
-      }
-   }
- while(duplicate);
+ /* Print the final message for sorting properties */
 
- printf("\rSorted Ways by properties \n");
+ printf("\rSorted Ways by properties: Properties=%d Duplicate=%d\n",waysx->number,duplicate);
  fflush(stdout);
 
- /* Compact the way properties */
+ /* Print the start message for compacting properties */
 
  printf("Compacting Way properties");
  fflush(stdout);
@@ -700,7 +683,9 @@ void CompactWayProperties(WaysX* waysx)
  if(!option_slim)
     waysx->xdata=MapFile(waysx->filename);
 
- printf("\rCompacted Way properties: Ways=%d Compacted=%d\n",waysx->number,waysx->cnumber);
+ /* Print the final message for compacting properties */
+
+ printf("\rCompacted Way properties: Properties=%d Unique=%d\n",waysx->number,waysx->cnumber);
  fflush(stdout);
 
  free(cdata);
