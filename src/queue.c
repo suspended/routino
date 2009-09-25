@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/queue.c,v 1.4 2009-08-15 16:22:43 amb Exp $
+ $Header: /home/amb/CVS/routino/src/queue.c,v 1.5 2009-09-25 19:41:01 amb Exp $
 
  Queue data type functions.
 
@@ -77,6 +77,9 @@ void FreeQueueList(Queue *queue)
 /*++++++++++++++++++++++++++++++++++++++
   Insert a new item into the queue in the right place.
 
+  The data is stored in a "Binary Heap" http://en.wikipedia.org/wiki/Binary_heap
+  and this operation is adding an item to the heap.
+
   Queue *queue The queue to insert the result into.
 
   Result *result The result to insert into the queue.
@@ -128,7 +131,10 @@ void InsertInQueue(Queue *queue,Result *result)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Pop an item from the end of the queue.
+  Pop an item from the front of the queue.
+
+  The data is stored in a "Binary Heap" http://en.wikipedia.org/wiki/Binary_heap
+  and this operation is deleting the root item from the heap.
 
   Result *PopFromQueue Returns the top item.
 
@@ -176,7 +182,7 @@ Result *PopFromQueue(Queue *queue)
    }
 
  if((2*index+2)==queue->noccupied &&
-    queue->data[index]->sortby>queue->data[2*index+1]->sortby) /* only one child and needs bubbling */
+    queue->data[index]->sortby>queue->data[2*index+1]->sortby)
    {
     uint32_t newindex;
     Result *temp;
