@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.21 2009-09-23 18:36:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.22 2009-10-04 15:52:37 amb Exp $
 
  Extended Way data type functions.
 
@@ -31,6 +31,10 @@
 #include "ways.h"
 
 
+/* Constants */
+
+#define SORT_RAMSIZE (64*1024*1024)
+
 /* Variables */
 
 extern int option_slim;
@@ -38,7 +42,9 @@ extern char *tmpdirname;
 
 /* Functions */
 
-static int sort_by_id(way_t *a,way_t *b);
+static int sort_by_id(WayX *a,WayX *b);
+static int index_by_id(WayX *wayx,index_t index);
+
 static int sort_by_name(char **a,char **b);
 static index_t index_way_name(char** names,int number,char *name);
 static int sort_by_name_and_properties(Way **a,Way **b);
@@ -295,6 +301,10 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
 }
 
 
+/*+ A temporary file-local variable for use by the sort functions. +*/
+static WaysX *sortwaysx;
+
+
 /*++++++++++++++++++++++++++++++++++++++
   Sort the list of ways.
 
@@ -303,9 +313,6 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
 
 void SortWayList(WaysX* waysx)
 {
- WayX wayx;
- index_t i,j;
- int duplicate=0;
  int fd;
 
  /* Check the start conditions */
@@ -317,7 +324,7 @@ void SortWayList(WaysX* waysx)
  printf("Sorting Ways");
  fflush(stdout);
 
- /* Close the files and re-open them */
+ /* Close the files and re-open them (finished appending) */
 
  CloseFile(waysx->fd);
  waysx->fd=ReOpenFile(waysx->filename);
@@ -325,50 +332,21 @@ void SortWayList(WaysX* waysx)
  CloseFile(waysx->nfd);
  waysx->nfd=ReOpenFile(waysx->nfilename);
 
- /* Allocate the array of pointers and fill them */
+ DeleteFile(waysx->filename);
+
+ fd=OpenFile(waysx->filename);
+
+ /* Allocate the array of indexes */
 
  waysx->idata=(way_t*)malloc(waysx->xnumber*sizeof(way_t));
 
  assert(waysx->idata); /* Check malloc() worked */
 
- waysx->number=0;
-
- while(!ReadFile(waysx->fd,&wayx,sizeof(WayX)))
-   {
-    waysx->idata[waysx->number]=wayx.id;
-    waysx->number++;
-   }
-
  /* Sort the way indexes and remove duplicates */
 
- qsort(waysx->idata,waysx->number,sizeof(way_t),(int (*)(const void*,const void*))sort_by_id);
+ sortwaysx=waysx;
 
- j=0;
- for(i=1;i<waysx->number;i++)
-    if(waysx->idata[i]!=waysx->idata[i-1])
-       waysx->idata[++j]=waysx->idata[i];
-    else
-       duplicate++;
-
- waysx->number=++j;
-
- /* Sort the on-disk image */
-
- DeleteFile(waysx->filename);
-
- fd=OpenFile(waysx->filename);
- SeekFile(waysx->fd,0);
-
- while(!ReadFile(waysx->fd,&wayx,sizeof(WayX)))
-   {
-    index_t index=IndexWayX(waysx,wayx.id);
-
-    if(index!=NO_WAY)
-      {
-       SeekFile(fd,index*sizeof(WayX));
-       WriteFile(fd,&wayx,sizeof(WayX));
-      }
-   }
+ filesort(waysx->fd,fd,sizeof(WayX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
 
  /* Close the files and re-open them */
 
@@ -382,7 +360,7 @@ void SortWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf("\rSorted Ways: Ways=%d Duplicate=%d\n",waysx->xnumber,duplicate);
+ printf("\rSorted Ways: Ways=%d Duplicates=%d\n",waysx->xnumber,waysx->xnumber-waysx->number);
  fflush(stdout);
 }
 
@@ -392,15 +370,15 @@ void SortWayList(WaysX* waysx)
 
   int sort_by_id Returns the comparison of the id fields.
 
-  way_t *a The first way id.
+  WayX *a The first extended way.
 
-  way_t *b The second way id.
+  WayX *b The second extended way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_id(way_t *a,way_t *b)
+static int sort_by_id(WayX *a,WayX *b)
 {
- node_t a_id=*a;
- node_t b_id=*b;
+ way_t a_id=a->id;
+ way_t b_id=b->id;
 
  if(a_id<b_id)
     return(-1);
@@ -408,6 +386,31 @@ static int sort_by_id(way_t *a,way_t *b)
     return(1);
  else
     return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Index the ways after sorting.
+
+  index_by_id Return 1 if the value is to be kept, otherwise zero.
+
+  WayX *wayx The extended way.
+
+  index_t index The index of this way in the total.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int index_by_id(WayX *wayx,index_t index)
+{
+ if(index==0 || sortwaysx->idata[index-1]!=wayx->id)
+   {
+    sortwaysx->idata[index]=wayx->id;
+
+    sortwaysx->number++;
+
+    return(1);
+   }
+
+ return(0);
 }
 
 
