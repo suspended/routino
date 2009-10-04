@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.1 2009-10-04 10:44:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.2 2009-10-04 15:53:31 amb Exp $
 
  Merge sort functions.
 
@@ -55,12 +55,12 @@ extern char *tmpdirname;
   int (*compare)(const void*, const void*) The comparison function (identical to qsort if the
                                            data to be sorted is an array of things not pointers).
 
-  void (buildindex)(void *,index_t,index_t) If non-NULL then this function is called for each item as
-                                            it is written to the output file.
+  int (*buildindex)(void *,index_t) If non-NULL then this function is called for each item, if it
+                                    returns 1 then it is written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)(const void*,const void*),
-                                                                  void (*buildindex)(void*,index_t,index_t))
+                                                                  int (*buildindex)(void*,index_t))
 {
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
@@ -113,10 +113,11 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
       {
        for(i=0;i<n;i++)
          {
-          if(buildindex)
-             buildindex(datap[i],i,n);
-
-          WriteFile(fd_out,datap[i],itemsize);
+          if(!buildindex || buildindex(datap[i],count))
+            {
+             WriteFile(fd_out,datap[i],itemsize);
+             count++;
+            }
          }
 
        return;
@@ -144,10 +145,11 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
    {
     for(i=0;i<nitems;i++)
       {
-       if(buildindex)
-          buildindex(datap[i],i,nitems);
-
-       WriteFile(fd_out,datap[i],itemsize);
+       if(!buildindex || buildindex(datap[i],count))
+         {
+          WriteFile(fd_out,datap[i],itemsize);
+          count++;
+         }
       }
 
     DeleteFile(filename);
@@ -216,10 +218,11 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
    {
     int index=0;
 
-    if(buildindex)
-       buildindex(datap[heap[0]],count++,total);
-
-    WriteFile(fd_out,datap[heap[0]],itemsize);
+    if(!buildindex || buildindex(datap[heap[0]],count))
+      {
+       WriteFile(fd_out,datap[heap[0]],itemsize);
+       count++;
+      }
 
     if(ReadFile(fds[heap[0]],datap[heap[0]],itemsize))
       {
