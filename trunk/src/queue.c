@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/queue.c,v 1.5 2009-09-25 19:41:01 amb Exp $
+ $Header: /home/amb/CVS/routino/src/queue.c,v 1.6 2009-10-04 10:43:23 amb Exp $
 
  Queue data type functions.
 
@@ -111,12 +111,12 @@ void InsertInQueue(Queue *queue,Result *result)
  /* Bubble up the new value */
 
  while(index>0 &&
-       queue->data[index]->sortby<queue->data[index/2]->sortby)
+       queue->data[index]->sortby<queue->data[(index-1)/2]->sortby)
    {
     uint32_t newindex;
     Result *temp;
 
-    newindex=index/2;
+    newindex=(index-1)/2;
 
     temp=queue->data[index];
     queue->data[index]=queue->data[newindex];
