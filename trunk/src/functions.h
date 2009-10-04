@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.41 2009-09-17 12:41:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.42 2009-10-04 10:45:04 amb Exp $
 
  Header file for function prototypes
 
@@ -67,6 +67,13 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 void PrintRouteHead(const char *copyright);
 void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile);
 void PrintRouteTail(void);
+
+
+/* In sorting.c */
+
+void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)(const void*,const void*),
+                                                                  void (*buildindex)(void*,index_t,index_t));
+void heapsort(void **datap,size_t nitems,int(*compare)(const void*, const void*));
 
 
 #endif /* FUNCTIONS_H */
