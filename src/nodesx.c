@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.41 2009-09-23 18:36:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.42 2009-10-04 10:45:51 amb Exp $
 
  Extented Node data type functions.
 
@@ -36,6 +36,10 @@
 #include "nodes.h"
 
 
+/* Constants */
+
+#define SORT_RAMSIZE (64*1024*1024)
+
 /* Variables */
 
 extern int option_slim;
@@ -43,7 +47,9 @@ extern char *tmpdirname;
 
 /* Functions */
 
-static int sort_by_id(node_t *a,node_t *b);
+static int sort_by_id(NodeX *a,NodeX *b);
+static void index_by_id(NodeX *nodex,index_t index,index_t total);
+
 static int sort_by_lat_long(node_t *a,node_t *b);
 
 
@@ -265,6 +271,10 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 }
 
 
+/*+ A temporary file-local variable for use by the sort functions. +*/
+static NodesX *sortnodesx;
+
+
 /*++++++++++++++++++++++++++++++++++++++
   Sort the node list (i.e. create the sortable indexes).
 
@@ -273,9 +283,6 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 
 void SortNodeList(NodesX* nodesx)
 {
- NodeX nodex;
- index_t i,j;
- int duplicate=0;
  int fd;
 
  /* Check the start conditions */
@@ -292,50 +299,21 @@ void SortNodeList(NodesX* nodesx)
  CloseFile(nodesx->fd);
  nodesx->fd=ReOpenFile(nodesx->filename);
 
+ DeleteFile(nodesx->filename);
+
+ fd=OpenFile(nodesx->filename);
+
  /* Allocate the array of indexes */
 
  nodesx->idata=(node_t*)malloc(nodesx->xnumber*sizeof(node_t));
 
  assert(nodesx->idata); /* Check malloc() worked */
 
- nodesx->number=0;
+ /* Sort by node indexes */
 
- while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
-   {
-    nodesx->idata[nodesx->number]=nodex.id;
-    nodesx->number++;
-   }
+ sortnodesx=nodesx;
 
- /* Sort the node indexes */
-
- qsort(nodesx->idata,nodesx->number,sizeof(node_t),(int (*)(const void*,const void*))sort_by_id);
-
- j=0;
- for(i=1;i<nodesx->number;i++)
-    if(nodesx->idata[i]!=nodesx->idata[i-1])
-       nodesx->idata[++j]=nodesx->idata[i];
-    else
-       duplicate++;
-
- nodesx->number=++j;
-
- /* Sort the on-disk image */
-
- DeleteFile(nodesx->filename);
-
- fd=OpenFile(nodesx->filename);
- SeekFile(nodesx->fd,0);
-
- while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
-   {
-    index_t index=IndexNodeX(nodesx,nodex.id);
-
-    if(index!=NO_NODE)
-      {
-       SeekFile(fd,index*sizeof(NodeX));
-       WriteFile(fd,&nodex,sizeof(NodeX));
-      }
-   }
+ filesort(nodesx->fd,fd,sizeof(NodeX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,(void (*)(void*,index_t,index_t))index_by_id);
 
  /* Close the files and re-open them */
 
@@ -349,7 +327,7 @@ void SortNodeList(NodesX* nodesx)
 
  /* Print the final message */
 
- printf("\rSorted Nodes: Nodes=%d Duplicate=%d\n",nodesx->xnumber,nodesx->number);
+ printf("\rSorted Nodes: Nodes=%d\n",nodesx->xnumber);
  fflush(stdout);
 }
 
@@ -359,15 +337,15 @@ void SortNodeList(NodesX* nodesx)
 
   int sort_by_id Returns the comparison of the id fields.
 
-  node_t *a The first node id.
+  NodeX *a The first extended node.
 
-  node_t *b The second node id.
+  NodeX *b The second extended node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_id(node_t *a,node_t *b)
+static int sort_by_id(NodeX *a,NodeX *b)
 {
- node_t a_id=*a;
- node_t b_id=*b;
+ node_t a_id=a->id;
+ node_t b_id=b->id;
 
  if(a_id<b_id)
     return(-1);
@@ -378,8 +356,22 @@ static int sort_by_id(node_t *a,node_t *b)
 }
 
 
-/*+ A temporary file-local variable for use by the sort function. +*/
-static NodesX *sortnodesx;
+/*++++++++++++++++++++++++++++++++++++++
+  Index the nodes after sorting.
+
+  NodeX *nodex The extended node.
+
+  index_t index The index of this node in the total.
+
+  index_t total The total number of nodes.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void index_by_id(NodeX *nodex,index_t index,index_t total)
+{
+ printf("node %d of %d = %d\n",index,total,nodex->id);
+
+ sortnodesx->idata[index]=nodex->id;
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -531,9 +523,9 @@ static int sort_by_lat_long(index_t *a,index_t *b)
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  NodeX nodex;
- int total=0,highway=0,nothighway=0;
+ int total=0,highway=0,nothighway=0,duplicate=0;
  int fd;
- node_t *idata;
+ node_t previd=NO_NODE,*idata;
 
  /* Check the start conditions */
 
@@ -559,21 +551,25 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
-    if(IndexFirstSegmentX(segmentsx,nodex.id))
+    if(nodex.id==previd)
+       duplicate++;
+    else if(!IndexFirstSegmentX(segmentsx,nodex.id))
+       nothighway++;
+    else
       {
        WriteFile(fd,&nodex,sizeof(NodeX));
 
        nodesx->idata[highway]=nodesx->idata[total];
        highway++;
       }
-    else
-       nothighway++;
+
+    previd=nodex.id;
 
     total++;
 
     if(!(total%10000))
       {
-       printf("\rChecking: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
+       printf("\rChecking: Nodes=%d Duplicate=%d Highway=%d not-Highway=%d",total,duplicate,highway,nothighway);
        fflush(stdout);
       }
    }
@@ -612,7 +608,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",total,highway,nothighway);
+ printf("\rChecked: Nodes=%d Duplicate=%d Highway=%d not-Highway=%d  \n",total,duplicate,highway,nothighway);
  fflush(stdout);
 }
 
