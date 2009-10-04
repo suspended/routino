@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.42 2009-10-04 10:45:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.43 2009-10-04 15:52:47 amb Exp $
 
  Extented Node data type functions.
 
@@ -48,7 +48,7 @@ extern char *tmpdirname;
 /* Functions */
 
 static int sort_by_id(NodeX *a,NodeX *b);
-static void index_by_id(NodeX *nodex,index_t index,index_t total);
+static int index_by_id(NodeX *nodex,index_t index);
 
 static int sort_by_lat_long(node_t *a,node_t *b);
 
@@ -313,7 +313,7 @@ void SortNodeList(NodesX* nodesx)
 
  sortnodesx=nodesx;
 
- filesort(nodesx->fd,fd,sizeof(NodeX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,(void (*)(void*,index_t,index_t))index_by_id);
+ filesort(nodesx->fd,fd,sizeof(NodeX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
 
  /* Close the files and re-open them */
 
@@ -327,7 +327,7 @@ void SortNodeList(NodesX* nodesx)
 
  /* Print the final message */
 
- printf("\rSorted Nodes: Nodes=%d\n",nodesx->xnumber);
+ printf("\rSorted Nodes: Nodes=%d Duplicates=%d\n",nodesx->xnumber,nodesx->xnumber-nodesx->number);
  fflush(stdout);
 }
 
@@ -359,18 +359,25 @@ static int sort_by_id(NodeX *a,NodeX *b)
 /*++++++++++++++++++++++++++++++++++++++
   Index the nodes after sorting.
 
+  index_by_id Return 1 if the value is to be kept, otherwise zero.
+
   NodeX *nodex The extended node.
 
   index_t index The index of this node in the total.
-
-  index_t total The total number of nodes.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void index_by_id(NodeX *nodex,index_t index,index_t total)
+static int index_by_id(NodeX *nodex,index_t index)
 {
- printf("node %d of %d = %d\n",index,total,nodex->id);
+ if(index==0 || sortnodesx->idata[index-1]!=nodex->id)
+   {
+    sortnodesx->idata[index]=nodex->id;
 
- sortnodesx->idata[index]=nodex->id;
+    sortnodesx->number++;
+
+    return(1);
+   }
+
+ return(0);
 }
 
 
@@ -523,7 +530,7 @@ static int sort_by_lat_long(index_t *a,index_t *b)
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  NodeX nodex;
- int total=0,highway=0,nothighway=0,duplicate=0;
+ int total=0,highway=0,nothighway=0;
  int fd;
  node_t previd=NO_NODE,*idata;
 
@@ -551,9 +558,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
-    if(nodex.id==previd)
-       duplicate++;
-    else if(!IndexFirstSegmentX(segmentsx,nodex.id))
+    if(!IndexFirstSegmentX(segmentsx,nodex.id))
        nothighway++;
     else
       {
@@ -569,7 +574,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
     if(!(total%10000))
       {
-       printf("\rChecking: Nodes=%d Duplicate=%d Highway=%d not-Highway=%d",total,duplicate,highway,nothighway);
+       printf("\rChecking: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
        fflush(stdout);
       }
    }
@@ -608,7 +613,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf("\rChecked: Nodes=%d Duplicate=%d Highway=%d not-Highway=%d  \n",total,duplicate,highway,nothighway);
+ printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",total,highway,nothighway);
  fflush(stdout);
 }
 
