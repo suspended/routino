@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.33 2009-10-07 18:03:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.34 2009-10-07 18:53:19 amb Exp $
 
  Super-Segment data type functions.
 
@@ -225,7 +225,10 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                 if(result->node!=nodesx->idata[i] && nodesx->super[IndexNodeX(nodesx,result->node)]>iteration)
                   {
                    if(wayx->way.type&Way_OneWay)
+                     {
                       AppendSegment(supersegmentsx,wayx->id,nodesx->idata[i],result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
+                      AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->idata[i],DISTANCE((distance_t)result->score)|ONEWAY_2TO1);
+                     }
                    else
                       AppendSegment(supersegmentsx,wayx->id,nodesx->idata[i],result->node,DISTANCE((distance_t)result->score));
 

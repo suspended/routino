@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.38 2009-10-07 18:03:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.39 2009-10-07 18:53:19 amb Exp $
 
  Extended Segment data type functions.
 
@@ -294,7 +294,7 @@ index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t index)
  
  
 /*++++++++++++++++++++++++++++++++++++++
-  Append a segment to a segment list.
+  Append a single segment to a segment list.
 
   SegmentsX* segmentsx The set of segments to process.
 
@@ -313,21 +313,10 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
 
  assert(!segmentsx->idata);    /* Must not have idata filled in => unsorted */
 
- segmentx.way=way;
- segmentx.distance=distance;
-
  segmentx.node1=node1;
  segmentx.node2=node2;
-
- WriteFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
-
- segmentsx->xnumber++;
-
- segmentx.node1=node2;
- segmentx.node2=node1;
-
- if(distance&(ONEWAY_2TO1|ONEWAY_1TO2))
-    segmentx.distance^=(ONEWAY_2TO1|ONEWAY_1TO2);
+ segmentx.way=way;
+ segmentx.distance=distance;
 
  WriteFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
