@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.43 2009-10-04 15:52:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.44 2009-10-07 18:03:48 amb Exp $
 
  Extented Node data type functions.
 
@@ -244,6 +244,37 @@ index_t IndexNodeX(NodesX* nodesx,node_t id)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Lookup a particular node.
+
+  NodeX *LookupNodeX Returns a pointer to the extended node with the specified id.
+
+  NodesX* nodesx The set of nodes to process.
+
+  index_t index The node index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
+{
+ assert(index!=NO_NODE);     /* Must be a valid node */
+
+ if(option_slim)
+   {
+    SeekFile(nodesx->fd,index*sizeof(NodeX));
+
+    ReadFile(nodesx->fd,&nodesx->cached[position-1],sizeof(NodeX));
+
+    return(&nodesx->cached[position-1]);
+   }
+ else
+   {
+    return(&nodesx->xdata[index]);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Append a node to a newly created node list (unsorted).
 
   NodesX* nodesx The set of nodes to process.
@@ -322,9 +353,6 @@ void SortNodeList(NodesX* nodesx)
 
  nodesx->fd=ReOpenFile(nodesx->filename);
 
- if(!option_slim)
-    nodesx->xdata=MapFile(nodesx->filename);
-
  /* Print the final message */
 
  printf("\rSorted Nodes: Nodes=%d Duplicates=%d\n",nodesx->xnumber,nodesx->xnumber-nodesx->number);
@@ -399,13 +427,15 @@ void SortNodeListGeographically(NodesX* nodesx)
  assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
  assert(!nodesx->gdata);        /* Must not have gdata filled in => unsorted geographically */
 
- if(option_slim)
-    nodesx->xdata=MapFile(nodesx->filename);
-
  /* Print the start message */
 
  printf("Sorting Nodes Geographically");
  fflush(stdout);
+
+ /* Map into memory */
+
+ // FIXME
+ nodesx->xdata=MapFile(nodesx->filename);
 
  /* Allocate the array of pointers and sort them */
 
@@ -475,6 +505,9 @@ void SortNodeListGeographically(NodesX* nodesx)
  nodesx->latzero=lat_min_bin;
  nodesx->lonzero=lon_min_bin;
 
+ // FIXME
+ nodesx->xdata=UnmapFile(nodesx->filename);
+
  /* Print the final message */
 
  printf("\rSorted Nodes Geographically \n");
@@ -532,7 +565,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  NodeX nodex;
  int total=0,highway=0,nothighway=0;
  int fd;
- node_t previd=NO_NODE,*idata;
+ node_t *idata;
 
  /* Check the start conditions */
 
@@ -545,12 +578,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Modify the on-disk image */
 
- if(!option_slim)
-    nodesx->xdata=UnmapFile(nodesx->filename);
-
- if(option_slim)
-    segmentsx->xdata=MapFile(segmentsx->filename);
-
  DeleteFile(nodesx->filename);
 
  fd=OpenFile(nodesx->filename);
@@ -558,7 +585,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
-    if(!IndexFirstSegmentX(segmentsx,nodex.id))
+    if(IndexFirstSegmentX(segmentsx,nodex.id)==NO_SEGMENT)
        nothighway++;
     else
       {
@@ -567,8 +594,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
        nodesx->idata[highway]=nodesx->idata[total];
        highway++;
       }
-
-    previd=nodex.id;
 
     total++;
 
@@ -585,12 +610,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  CloseFile(fd);
 
  nodesx->fd=ReOpenFile(nodesx->filename);
-
- if(!option_slim)
-    nodesx->xdata=MapFile(nodesx->filename);
-
- if(option_slim)
-    segmentsx->xdata=UnmapFile(segmentsx->filename);
 
  /* Allocate a smaller array for the node index (don't trust realloc to make it smaller) */
 
@@ -630,11 +649,20 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 {
  index_t i;
 
+ /* Check the start conditions */
+
  assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
  assert(!nodesx->ndata);        /* Must not have ndata filled in => no real nodes */
 
+ /* Print the start message */
+
  printf("Creating Real Nodes: Nodes=0");
  fflush(stdout);
+
+ /* Map into memory */
+
+ if(!option_slim)
+    nodesx->xdata=MapFile(nodesx->filename);
 
  /* Allocate the memory */
 
@@ -642,27 +670,14 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  assert(nodesx->ndata); /* Check malloc() worked */
 
- SeekFile(nodesx->fd,0);
-
  /* Loop through and allocate. */
 
  for(i=0;i<nodesx->number;i++)
    {
-    if(option_slim)
-      {
-       NodeX nodex;
+    NodeX *nodex=LookupNodeX(nodesx,i,1);
 
-       ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
-
-       nodesx->ndata[i].latoffset=latlong_to_off(nodex.latitude);
-       nodesx->ndata[i].lonoffset=latlong_to_off(nodex.longitude);
-      }
-    else
-      {
-       nodesx->ndata[i].latoffset=latlong_to_off(nodesx->xdata[i].latitude);
-       nodesx->ndata[i].lonoffset=latlong_to_off(nodesx->xdata[i].longitude);
-      }
-
+    nodesx->ndata[i].latoffset=latlong_to_off(nodex->latitude);
+    nodesx->ndata[i].lonoffset=latlong_to_off(nodex->longitude);
     nodesx->ndata[i].firstseg=SEGMENT(NO_SEGMENT);
 
     if(nodesx->super[i]==iteration)
@@ -674,6 +689,13 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
        fflush(stdout);
       }
    }
+
+ /* Unmap from memory */
+
+ if(!option_slim)
+    nodesx->xdata=UnmapFile(nodesx->filename);
+
+ /* Print the final message */
 
  printf("\rCreating Real Nodes: Nodes=%d \n",nodesx->number);
  fflush(stdout);
@@ -692,19 +714,27 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  index_t i;
 
+ /* Check the start conditions */
+
  assert(nodesx->idata);         /* Must have idata filled in => sorted */
  assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
- assert(segmentsx->n1data);     /* Must have n1data filled in => sorted */
  assert(segmentsx->sdata);      /* Must have sdata filled in => real segments exist */
+
+ /* Print the start message */
 
  printf("Indexing Segments: Segments=0");
  fflush(stdout);
+
+ /* Map into memory */
+
+ if(!option_slim)
+    segmentsx->xdata=MapFile(segmentsx->filename);
 
  /* Index the nodes */
 
  for(i=0;i<segmentsx->number;i++)
    {
-    SegmentX *segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[i]);
+    SegmentX *segmentx=LookupSegmentX(segmentsx,i,1);
     node_t id1=segmentx->node1;
     node_t id2=segmentx->node2;
     Node *node1=&nodesx->ndata[IndexNodeX(nodesx,id1)];
@@ -723,7 +753,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
        do
          {
-          segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[index]);
+          segmentx=LookupSegmentX(segmentsx,index,1);
 
           if(segmentx->node1==id1)
             {
@@ -732,7 +762,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
              if(index>=segmentsx->number)
                 break;
 
-             segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[index]);
+             segmentx=LookupSegmentX(segmentsx,index,1);
 
              if(segmentx->node1!=id1)
                 break;
@@ -764,7 +794,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
        do
          {
-          segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[index]);
+          segmentx=LookupSegmentX(segmentsx,index,1);
 
           if(segmentx->node1==id2)
             {
@@ -773,7 +803,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
              if(index>=segmentsx->number)
                 break;
 
-             segmentx=LookupSegmentX(segmentsx,segmentsx->n1data[index]);
+             segmentx=LookupSegmentX(segmentsx,index,1);
 
              if(segmentx->node1!=id2)
                 break;
@@ -798,6 +828,13 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
        fflush(stdout);
       }
    }
+
+ /* Unmap from memory */
+
+ if(!option_slim)
+    segmentsx->xdata=UnmapFile(segmentsx->filename);
+
+ /* Print the final message */
 
  printf("\rIndexed Segments: Segments=%d \n",segmentsx->number);
  fflush(stdout);

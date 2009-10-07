@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.17 2009-09-07 19:01:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.18 2009-10-07 18:03:48 amb Exp $
 
  A header file for the extended segments.
 
@@ -55,12 +55,11 @@ struct _SegmentsX
  uint32_t   xnumber;            /*+ The number of unsorted extended nodes. +*/
 
  SegmentX  *xdata;              /*+ The extended segment data (unsorted). +*/
- SegmentX   cached;             /*+ A cached segment read from the file in slim mode. +*/
+ SegmentX   cached[2];          /*+ Two cached segments read from the file in slim mode. +*/
 
  uint32_t   number;             /*+ How many entries are still useful? +*/
 
- index_t   *n1data;             /*+ The extended segment data (sorted by node1). +*/
- index_t   *n2data;             /*+ The extended segment data (sorted by node2). +*/
+ node_t   *idata;               /*+ The extended segment data (sorted by node1 then node2). +*/
 
  Segment   *sdata;              /*+ The segment data (same order as n1data). +*/
 };
@@ -74,20 +73,20 @@ void FreeSegmentList(SegmentsX *segmentsx);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
-SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index);
+SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position);
 
-index_t *IndexFirstSegmentX(SegmentsX* segmentsx,node_t node);
-index_t *IndexNextSegmentX(SegmentsX* segmentsx,index_t *index,node_t node);
+index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node);
+index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t index);
 
 void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 
-void InitialSortSegmentList(SegmentsX *segmentsx);
-void ReSortSegmentList(SegmentsX *segmentsx);
-void FinalSortSegmentList(SegmentsX *segmentsx);
+void SortSegmentList(SegmentsX *segmentsx);
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
 
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx);
+
+void RotateSegments(SegmentsX* segmentsx);
 
 void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx);
 
