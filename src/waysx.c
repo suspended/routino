@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.23 2009-10-07 18:03:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.24 2009-10-07 18:17:27 amb Exp $
 
  Extended Way data type functions.
 
@@ -45,9 +45,9 @@ extern char *tmpdirname;
 static int sort_by_id(WayX *a,WayX *b);
 static int index_by_id(WayX *wayx,index_t index);
 
-static int sort_by_name(char **a,char **b);
+static int sort_by_name(char *a,char *b);
 static index_t index_way_name(char** names,int number,char *name);
-static int sort_by_name_and_properties(Way **a,Way **b);
+static int sort_by_name_and_properties(Way *a,Way *b);
 static index_t index_way(Way** data,int number,Way *way);
 
 
@@ -445,7 +445,7 @@ void CompactWayNames(WaysX* waysx)
  for(i=0;i<waysx->nnumber;i++)
     cnames[i]=&waysx->names[waysx->xdata[i].name];
 
- qsort(cnames,waysx->nnumber,sizeof(char*),(int (*)(const void*,const void*))sort_by_name);
+ heapsort((void**)cnames,waysx->nnumber,(int (*)(const void*,const void*))sort_by_name);
 
  j=0;
  for(i=1;i<waysx->nnumber;i++)
@@ -527,19 +527,19 @@ void CompactWayNames(WaysX* waysx)
 
   int sort_by_name Returns the comparison of the name fields.
 
-  char **a The first extended Way.
+  char *a The first extended Way.
 
-  char **b The second extended Way.
+  char *b The second extended Way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_name(char **a,char **b)
+static int sort_by_name(char *a,char *b)
 {
- if(*a==NULL)
+ if(a==NULL)
     return(1);
- else if(*b==NULL)
+ else if(b==NULL)
     return(-1);
  else
-    return(strcmp(*a,*b));
+    return(strcmp(a,b));
 }
 
 
@@ -631,7 +631,7 @@ void CompactWayProperties(WaysX* waysx)
 
  /* Create the index of names, sort it and remove duplicates */
 
- qsort(cdata,waysx->cnumber,sizeof(Way*),(int (*)(const void*,const void*))sort_by_name_and_properties);
+ heapsort((void**)cdata,waysx->cnumber,(int (*)(const void*,const void*))sort_by_name_and_properties);
 
  j=0;
  for(i=1;i<waysx->cnumber;i++)
@@ -687,33 +687,28 @@ void CompactWayProperties(WaysX* waysx)
 
   int sort_by_name_and_properties Returns the comparison of the name and properties fields.
 
-  Way **a The first Way.
+  Way *a The first Way.
 
-  Way **b The second Way.
+  Way *b The second Way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_name_and_properties(Way **a,Way **b)
+static int sort_by_name_and_properties(Way *a,Way *b)
 {
- if(*a==NULL)
+ if(a==NULL)
     return(1);
- else if(*b==NULL)
+ else if(b==NULL)
     return(-1);
  else
    {
-    index_t a_name=(*a)->name;
-    index_t b_name=(*b)->name;
+    index_t a_name=a->name;
+    index_t b_name=b->name;
 
     if(a_name<b_name)
        return(-1);
     else if(a_name>b_name)
        return(1);
     else
-      {
-       Way *a_way=*a;
-       Way *b_way=*b;
-
-       return(WaysCompare(a_way,b_way));
-      }
+       return(WaysCompare(a,b));
    }
 }
 
