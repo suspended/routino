@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.19 2009-09-22 18:54:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.20 2009-10-07 18:03:48 amb Exp $
 
  A header file for the extended nodes.
 
@@ -52,6 +52,7 @@ struct _NodesX
  uint32_t  xnumber;             /*+ The number of unsorted extended nodes. +*/
 
  NodeX    *xdata;               /*+ The extended node data (sorted). +*/
+ NodeX     cached[2];           /*+ Two cached nodes read from the file in slim mode. +*/
 
  uint32_t  number;              /*+ How many entries are still useful? +*/
 
@@ -81,6 +82,7 @@ void FreeNodeList(NodesX *nodesx);
 void SaveNodeList(NodesX *nodesx,const char *filename);
 
 index_t IndexNodeX(NodesX* nodesx,node_t id);
+NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position);
 
 void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude);
 

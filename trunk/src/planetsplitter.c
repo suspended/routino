@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.57 2009-09-21 19:23:13 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.58 2009-10-07 18:03:48 amb Exp $
 
  OSM planet file splitter.
 
@@ -123,10 +123,12 @@ int main(int argc,char** argv)
        tmpdirname=dirname;
    }
 
- /* Create new variables */
+ /* Create new node, segment and way variables */
 
  Nodes=NewNodeList();
+
  Segments=NewSegmentList();
+
  Ways=NewWayList();
 
  /* Parse the file */
@@ -141,31 +143,23 @@ int main(int argc,char** argv)
  printf("\nProcess OSM Data\n================\n\n");
  fflush(stdout);
 
- /* Sort the nodes */
+ /* Sort the nodes, segments and ways */
 
  SortNodeList(Nodes);
 
- /* Sort the ways */
+ SortSegmentList(Segments);
 
  SortWayList(Ways);
-
- /* Sort the segments (first time) */
-
- InitialSortSegmentList(Segments);
 
  /* Remove bad segments */
 
  RemoveBadSegments(Nodes,Segments);
 
- /* Sort the segments (final time) */
-
- FinalSortSegmentList(Segments);
-
  /* Remove non-highway nodes (must be after removing the bad segments) */
 
  RemoveNonHighwayNodes(Nodes,Segments);
 
- /* Measure the segments */
+ /* Measure the segments (preferably after removing non-highway nodes) */
 
  MeasureSegments(Segments,Nodes);
 
@@ -207,17 +201,13 @@ int main(int argc,char** argv)
        SuperSegments=SuperSegments2;
       }
 
-    /* Sort the super-segments (first time) */
+    /* Sort the super-segments */
 
-    InitialSortSegmentList(SuperSegments);
+    SortSegmentList(SuperSegments);
 
     /* Remove duplicated super-segments */
 
     DeduplicateSegments(SuperSegments,Ways);
-
-    /* Sort the super-segments (final time) */
-
-    FinalSortSegmentList(SuperSegments);
 
     iteration++;
 
@@ -241,18 +231,17 @@ int main(int argc,char** argv)
 
  Segments=MergedSegments;
 
- /* Sort the merged segments (thoroughly) */
+ /* Rotate segments so that node1<node2 */
 
- InitialSortSegmentList(Segments);
- FinalSortSegmentList(Segments);
+ RotateSegments(Segments);
 
- /* De-allocate some un-used memory */
+ /* Sort the segments */
 
- if(option_slim)
-   {
-    free(Segments->n2data);
-    Segments->n2data=NULL;
-   }
+ SortSegmentList(Segments);
+
+ /* Remove duplicated segments */
+
+ DeduplicateSegments(Segments,Ways);
 
  /* Cross reference the nodes and segments */
 

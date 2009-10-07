@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.22 2009-10-04 15:52:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.23 2009-10-07 18:03:48 amb Exp $
 
  Extended Way data type functions.
 
@@ -118,8 +118,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
  printf("Writing Ways: Ways=0");
  fflush(stdout);
 
- if(option_slim)
-    waysx->xdata=MapFile(waysx->filename);
+ waysx->xdata=MapFile(waysx->filename);
 
  /* Fill in a Ways structure with the offset of the real data in the file after
     the Way structure itself. */
@@ -154,8 +153,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
       }
    }
 
- if(option_slim)
-    waysx->xdata=UnmapFile(waysx->filename);
+ waysx->xdata=UnmapFile(waysx->filename);
 
  waysx->names=MapFile(waysx->nfilename);
 
@@ -355,9 +353,6 @@ void SortWayList(WaysX* waysx)
 
  waysx->fd=ReOpenFile(waysx->filename);
 
- if(!option_slim)
-    waysx->xdata=MapFile(waysx->filename);
-
  /* Print the final message */
 
  printf("\rSorted Ways: Ways=%d Duplicates=%d\n",waysx->xnumber,waysx->xnumber-waysx->number);
@@ -435,8 +430,7 @@ void CompactWayNames(WaysX* waysx)
 
  /* Get the uncompacted name data and create list for compacted */
 
- if(option_slim)
-    waysx->xdata=MapFile(waysx->filename);
+ waysx->xdata=MapFile(waysx->filename);
 
  waysx->names=MapFile(waysx->nfilename);
 
@@ -517,9 +511,6 @@ void CompactWayNames(WaysX* waysx)
  waysx->names=UnmapFile(waysx->nfilename);
 
  waysx->fd=ReOpenFile(waysx->filename);
-
- if(!option_slim)
-    waysx->xdata=MapFile(waysx->filename);
 
  /* Print the final message for compacting names */
 
@@ -627,8 +618,7 @@ void CompactWayProperties(WaysX* waysx)
 
  /* Get the uncompacted data and create list for compacted */
 
- if(option_slim)
-    waysx->xdata=MapFile(waysx->filename);
+ waysx->xdata=MapFile(waysx->filename);
 
  waysx->cnumber=waysx->number;
 
@@ -682,9 +672,6 @@ void CompactWayProperties(WaysX* waysx)
  waysx->fd=ReOpenFile(waysx->filename);
 
  waysx->xdata=UnmapFile(waysx->filename);
-
- if(!option_slim)
-    waysx->xdata=MapFile(waysx->filename);
 
  /* Print the final message for compacting properties */
 
