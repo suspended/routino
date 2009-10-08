@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.34 2009-10-07 18:53:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.35 2009-10-08 19:20:29 amb Exp $
 
  Super-Segment data type functions.
 
@@ -61,8 +61,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  /* Check the start conditions */
 
- assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
- assert(segmentsx->idata);      /* Must have idata filled in => sorted by node 1 */
+ assert(segmentsx->firstnode); /* Must have firstnode filled in => segments are updated */
 
  /* Print the start message */
 
@@ -84,24 +83,24 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
     int     difference=0;
     index_t index;
 
-    index=IndexFirstSegmentX(segmentsx,nodesx->idata[i]);
+    index=IndexFirstSegmentX(segmentsx,i);
 
     if(index!=NO_SEGMENT)
       {
        SegmentX *segmentx1=LookupSegmentX(segmentsx,index,1);
-       WayX *wayx1=LookupWayX(waysx,IndexWayX(waysx,segmentx1->way),1);
+       WayX *wayx1=LookupWayX(waysx,segmentx1->way,1);
 
-       index=IndexNextSegmentX(segmentsx,index);
+       index=IndexNextSegmentX(segmentsx,index,i);
 
        if(index!=NO_SEGMENT)
          {
           SegmentX *segmentx2=LookupSegmentX(segmentsx,index,2);
-          WayX *wayx2=LookupWayX(waysx,IndexWayX(waysx,segmentx2->way),2);
+          WayX *wayx2=LookupWayX(waysx,segmentx2->way,2);
 
           if(WaysCompare(&wayx2->way,&wayx1->way))
              difference=1;
 
-          index=IndexNextSegmentX(segmentsx,index);
+          index=IndexNextSegmentX(segmentsx,index,i);
          }
 
        /* Store the node if there is a difference in the first two ways that could affect routing.
@@ -159,8 +158,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  /* Check the start conditions */
 
- assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
- assert(segmentsx->idata);      /* Must have idata filled in => sorted by node 1 */
+ assert(segmentsx->firstnode); /* Must have firstnode filled in => segments are updated */
 
  /* Print the start message */
 
@@ -185,12 +183,12 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
       {
        index_t index,first;
 
-       index=first=IndexFirstSegmentX(segmentsx,nodesx->idata[i]);
+       index=first=IndexFirstSegmentX(segmentsx,i);
 
        while(index!=NO_SEGMENT)
          {
           SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
-          WayX *wayx=LookupWayX(waysx,IndexWayX(waysx,segmentx->way),1);
+          WayX *wayx=LookupWayX(waysx,segmentx->way,1);
 
           /* Check that this type of way hasn't already been routed */
 
@@ -201,7 +199,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
              while(otherindex!=NO_SEGMENT && otherindex!=index)
                {
                 SegmentX *othersegmentx=LookupSegmentX(segmentsx,otherindex,2);
-                WayX *otherwayx=LookupWayX(waysx,IndexWayX(waysx,othersegmentx->way),2);
+                WayX *otherwayx=LookupWayX(waysx,othersegmentx->way,2);
 
                 if(!WaysCompare(&otherwayx->way,&wayx->way))
                   {
@@ -209,7 +207,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                    break;
                   }
 
-                otherindex=IndexNextSegmentX(segmentsx,otherindex);
+                otherindex=IndexNextSegmentX(segmentsx,otherindex,i);
                }
             }
 
@@ -217,20 +215,20 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           if(wayx)
             {
-             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,nodesx->idata[i],&wayx->way,iteration);
+             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,i,&wayx->way,iteration);
              Result *result=FirstResult(results);
 
              while(result)
                {
-                if(result->node!=nodesx->idata[i] && nodesx->super[IndexNodeX(nodesx,result->node)]>iteration)
+                if(result->node!=i && nodesx->super[result->node]>iteration)
                   {
                    if(wayx->way.type&Way_OneWay)
                      {
-                      AppendSegment(supersegmentsx,wayx->id,nodesx->idata[i],result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
-                      AppendSegment(supersegmentsx,wayx->id,result->node,nodesx->idata[i],DISTANCE((distance_t)result->score)|ONEWAY_2TO1);
+                      AppendSegment(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
+                      AppendSegment(supersegmentsx,segmentx->way,result->node,i,DISTANCE((distance_t)result->score)|ONEWAY_2TO1);
                      }
                    else
-                      AppendSegment(supersegmentsx,wayx->id,nodesx->idata[i],result->node,DISTANCE((distance_t)result->score));
+                      AppendSegment(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score));
 
                    ss++;
                   }
@@ -241,7 +239,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
              FreeResultsList(results);
             }
 
-          index=IndexNextSegmentX(segmentsx,index);
+          index=IndexNextSegmentX(segmentsx,index,i);
          }
 
        sn++;
@@ -286,11 +284,6 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
  index_t i,j;
  int m=0,a=0;
  SegmentsX* mergedsegmentsx;
-
- /* Check the start conditions */
-
- assert(segmentsx->idata);      /* Must have idata filled in => sorted by node 1 */
- assert(supersegmentsx->idata); /* Must have idata filled in => sorted by node 1 */
 
  /* Print the start message */
 
@@ -424,7 +417,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
     while(index!=NO_SEGMENT)
       {
-       SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
+       SegmentX *segmentx=LookupSegmentX(segmentsx,index,2); /* must use 2 here */
        distance_t cumulative_distance;
 
        if(segmentx->distance&ONEWAY_2TO1)
@@ -435,7 +428,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
        if(result1->prev==node2)
           goto endloop;
 
-       wayx=LookupWayX(waysx,IndexWayX(waysx,segmentx->way),2);
+       wayx=LookupWayX(waysx,segmentx->way,2);
 
        if(WaysCompare(&wayx->way,match))
           goto endloop;
@@ -452,7 +445,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
-          if(nodesx->super[IndexNodeX(nodesx,node2)]<=iteration)
+          if(nodesx->super[node2]<=iteration)
              InsertInQueue(queue,result2);
          }
        else if(cumulative_distance<result2->score)
@@ -461,13 +454,13 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
-          if(nodesx->super[IndexNodeX(nodesx,node2)]<=iteration)
+          if(nodesx->super[node2]<=iteration)
              InsertInQueue(queue,result2);
          }
 
       endloop:
 
-       index=IndexNextSegmentX(segmentsx,index);
+       index=IndexNextSegmentX(segmentsx,index,node1);
       }
    }
 

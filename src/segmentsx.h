@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.18 2009-10-07 18:03:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.19 2009-10-08 19:20:29 amb Exp $
 
  A header file for the extended segments.
 
@@ -60,6 +60,7 @@ struct _SegmentsX
  uint32_t   number;             /*+ How many entries are still useful? +*/
 
  node_t   *idata;               /*+ The extended segment data (sorted by node1 then node2). +*/
+ index_t  *firstnode;           /*+ The first segment index for each node. +*/
 
  Segment   *sdata;              /*+ The segment data (same order as n1data). +*/
 };
@@ -76,19 +77,20 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position);
 
 index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node);
-index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t index);
+
+index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t segindex,index_t nodeindex);
 
 void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 
-void SortSegmentList(SegmentsX *segmentsx);
+void SortSegmentList(SegmentsX* segmentsx);
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
 
-void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx);
+void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 void RotateSegments(SegmentsX* segmentsx);
 
-void DeduplicateSegments(SegmentsX* segmentsx,WaysX *waysx);
+void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx);
 
 void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 

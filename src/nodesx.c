@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.44 2009-10-07 18:03:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.45 2009-10-08 19:20:29 amb Exp $
 
  Extented Node data type functions.
 
@@ -91,6 +91,7 @@ void FreeNodeList(NodesX *nodesx)
 
  if(nodesx->gdata)
     free(nodesx->gdata);
+
  if(nodesx->idata)
     free(nodesx->idata);
 
@@ -424,8 +425,7 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  /* Check the start conditions */
 
- assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
- assert(!nodesx->gdata);        /* Must not have gdata filled in => unsorted geographically */
+ assert(!nodesx->gdata); /* Must not have gdata filled in => unsorted geographically */
 
  /* Print the start message */
 
@@ -651,7 +651,6 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  /* Check the start conditions */
 
- assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
  assert(!nodesx->ndata);        /* Must not have ndata filled in => no real nodes */
 
  /* Print the start message */
@@ -716,7 +715,6 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Check the start conditions */
 
- assert(nodesx->idata);         /* Must have idata filled in => sorted */
  assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
  assert(segmentsx->sdata);      /* Must have sdata filled in => real segments exist */
 
@@ -737,8 +735,8 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
     SegmentX *segmentx=LookupSegmentX(segmentsx,i,1);
     node_t id1=segmentx->node1;
     node_t id2=segmentx->node2;
-    Node *node1=&nodesx->ndata[IndexNodeX(nodesx,id1)];
-    Node *node2=&nodesx->ndata[IndexNodeX(nodesx,id2)];
+    Node *node1=&nodesx->ndata[id1];
+    Node *node2=&nodesx->ndata[id2];
 
     /* Check node1 */
 
