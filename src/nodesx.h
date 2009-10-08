@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.20 2009-10-07 18:03:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.21 2009-10-08 18:02:02 amb Exp $
 
  A header file for the extended nodes.
 
@@ -56,7 +56,7 @@ struct _NodesX
 
  uint32_t  number;              /*+ How many entries are still useful? +*/
 
- node_t   *idata;               /*+ The extended node data (sorted by ID). +*/
+ node_t   *idata;               /*+ The extended node IDs (sorted by ID). +*/
 
  uint8_t  *super;               /*+ A marker for super nodes (same order as idata). +*/
 
