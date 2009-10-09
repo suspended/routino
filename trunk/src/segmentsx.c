@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.40 2009-10-08 19:20:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.41 2009-10-09 18:47:40 amb Exp $
 
  Extended Segment data type functions.
 
@@ -221,6 +221,8 @@ index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node)
  int end=segmentsx->number-1;
  int mid;
  int found;
+
+ /* Check if the first node index exists */
 
  if(segmentsx->firstnode)
    {
@@ -534,6 +536,11 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
  if(!option_slim)
     nodesx->xdata=MapFile(nodesx->filename);
 
+ /* Free the now-unneeded index */
+
+ free(segmentsx->idata);
+ segmentsx->idata=NULL;
+
  /* Allocate the array of indexes */
 
  segmentsx->firstnode=(index_t*)malloc((nodesx->number+1)*sizeof(index_t));
@@ -596,13 +603,10 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  segmentsx->fd=ReOpenFile(segmentsx->filename);
 
- /* Free the now-unneeded indexes */
+ /* Free the other now-unneeded indexes */
 
  free(nodesx->idata);
  nodesx->idata=NULL;
-
- free(segmentsx->idata);
- segmentsx->idata=NULL;
 
  free(waysx->idata);
  waysx->idata=NULL;
@@ -851,6 +855,11 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
     waysx->xdata=MapFile(waysx->filename);
    }
 
+ /* Free the unneeded memory */
+
+ free(segmentsx->firstnode);
+ segmentsx->firstnode=NULL;
+
  /* Allocate the memory */
 
  segmentsx->sdata=(Segment*)malloc(segmentsx->number*sizeof(Segment));
@@ -867,7 +876,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
     segmentsx->sdata[i].node1=0;
     segmentsx->sdata[i].node2=0;
     segmentsx->sdata[i].next2=NO_NODE;
-    segmentsx->sdata[i].way=wayx->cid;
+    segmentsx->sdata[i].way=wayx->id;
     segmentsx->sdata[i].distance=segmentx->distance;
 
     if(!((i+1)%10000))

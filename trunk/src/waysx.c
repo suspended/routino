@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.24 2009-10-07 18:17:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.25 2009-10-09 18:47:40 amb Exp $
 
  Extended Way data type functions.
 
@@ -143,7 +143,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  for(i=0;i<waysx->number;i++)
    {
-    SeekFile(fd,sizeof(Ways)+waysx->xdata[i].cid*sizeof(Way));
+    SeekFile(fd,sizeof(Ways)+waysx->xdata[i].id*sizeof(Way));
     WriteFile(fd,&waysx->xdata[i].way,sizeof(Way));
 
     if(!((i+1)%10000))
@@ -434,21 +434,19 @@ void CompactWayNames(WaysX* waysx)
 
  waysx->names=MapFile(waysx->nfilename);
 
- waysx->nnumber=waysx->number;
-
- cnames=(char**)malloc(waysx->nnumber*sizeof(char*));
+ cnames=(char**)malloc(waysx->number*sizeof(char*));
 
  assert(cnames); /* Check malloc() worked */
 
  /* Create the index of names, sort it and remove duplicates */
 
- for(i=0;i<waysx->nnumber;i++)
+ for(i=0;i<waysx->number;i++)
     cnames[i]=&waysx->names[waysx->xdata[i].name];
 
- heapsort((void**)cnames,waysx->nnumber,(int (*)(const void*,const void*))sort_by_name);
+ heapsort((void**)cnames,waysx->number,(int (*)(const void*,const void*))sort_by_name);
 
  j=0;
- for(i=1;i<waysx->nnumber;i++)
+ for(i=1;i<waysx->number;i++)
     if(strcmp(cnames[i],cnames[j]))
        cnames[++j]=cnames[i];
     else
@@ -620,21 +618,19 @@ void CompactWayProperties(WaysX* waysx)
 
  waysx->xdata=MapFile(waysx->filename);
 
- waysx->cnumber=waysx->number;
-
- cdata=(Way**)malloc(waysx->cnumber*sizeof(Way*));
+ cdata=(Way**)malloc(waysx->number*sizeof(Way*));
 
  assert(cdata); /* Check malloc() worked */
 
- for(i=0;i<waysx->cnumber;i++)
+ for(i=0;i<waysx->number;i++)
     cdata[i]=&waysx->xdata[i].way;
 
  /* Create the index of names, sort it and remove duplicates */
 
- heapsort((void**)cdata,waysx->cnumber,(int (*)(const void*,const void*))sort_by_name_and_properties);
+ heapsort((void**)cdata,waysx->number,(int (*)(const void*,const void*))sort_by_name_and_properties);
 
  j=0;
- for(i=1;i<waysx->cnumber;i++)
+ for(i=1;i<waysx->number;i++)
     if(cdata[i-1]->name!=cdata[i]->name || WaysCompare(cdata[i-1],cdata[i]))
        cdata[++j]=cdata[i];
     else
@@ -661,7 +657,7 @@ void CompactWayProperties(WaysX* waysx)
 
  while(!ReadFile(waysx->fd,&wayx,sizeof(WayX)))
    {
-    wayx.cid=index_way(cdata,waysx->cnumber,&wayx.way);
+    wayx.id=index_way(cdata,waysx->cnumber,&wayx.way);
 
     WriteFile(fd,&wayx,sizeof(WayX));
    }
@@ -744,25 +740,25 @@ static index_t index_way(Way** data,int number,Way *way)
 
  do
    {
-    mid=(start+end)/2;                                                 /* Choose mid point */
+    mid=(start+end)/2;                    /* Choose mid point */
 
-    if(way->name>data[mid]->name)      /* Mid point is too low */
+    if(way->name>data[mid]->name)         /* Mid point is too low */
        start=mid+1;
-    else if(way->name<data[mid]->name) /* Mid point is too high */
+    else if(way->name<data[mid]->name)    /* Mid point is too high */
        end=mid-1;
     else if(WaysCompare(way,data[mid])>0) /* Mid point is too low */
        start=mid+1;
     else if(WaysCompare(way,data[mid])<0) /* Mid point is too high */
        end=mid-1;
-    else                                                               /* Mid point is correct */
+    else                                  /* Mid point is correct */
        return(mid);
    }
  while((end-start)>1);
 
- if(way->name==data[start]->name && WaysCompare(way,data[start])==0)   /* Start is correct */
+ if(way->name==data[start]->name && !WaysCompare(way,data[start]))   /* Start is correct */
     return(start);
 
- if(way->name==data[end]->name && WaysCompare(way,data[end])==0)       /* End is correct */
+ if(way->name==data[end]->name && !WaysCompare(way,data[end]))       /* End is correct */
     return(end);
 
  assert(0);
