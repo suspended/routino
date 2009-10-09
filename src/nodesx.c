@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.45 2009-10-08 19:20:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.46 2009-10-09 18:47:40 amb Exp $
 
  Extented Node data type functions.
 
@@ -565,7 +565,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  NodeX nodex;
  int total=0,highway=0,nothighway=0;
  int fd;
- node_t *idata;
 
  /* Check the start conditions */
 
@@ -589,6 +588,8 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
        nothighway++;
     else
       {
+       nodex.id=highway;
+
        WriteFile(fd,&nodex,sizeof(NodeX));
 
        nodesx->idata[highway]=nodesx->idata[total];
@@ -611,17 +612,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  nodesx->fd=ReOpenFile(nodesx->filename);
 
- /* Allocate a smaller array for the node index (don't trust realloc to make it smaller) */
-
- idata=(node_t*)malloc(highway*sizeof(node_t));
-
- assert(idata); /* Check malloc() worked */
-
- memcpy(idata,nodesx->idata,highway*sizeof(node_t));
-
- free(nodesx->idata);
-
- nodesx->idata=idata;
  nodesx->number=highway;
 
  /* Allocate and clear the super-node markers */
@@ -688,6 +678,11 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
        fflush(stdout);
       }
    }
+
+ /* Free the unneeded memory */
+
+ free(nodesx->super);
+ nodesx->super=NULL;
 
  /* Unmap from memory */
 

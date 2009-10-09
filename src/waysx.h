@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.16 2009-09-17 12:55:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.17 2009-10-09 18:47:40 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -39,7 +39,6 @@
 struct _WayX
 {
  way_t    id;                   /*+ The way identifier. +*/
- index_t  cid;                  /*+ The index of the way in the compacted ways. +*/
 
  Way      way;                  /*+ The real Way data. +*/
 
