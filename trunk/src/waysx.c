@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.25 2009-10-09 18:47:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.26 2009-10-10 16:21:19 amb Exp $
 
  Extended Way data type functions.
 
@@ -65,12 +65,12 @@ WaysX *NewWayList(void)
 
  assert(waysx); /* Check calloc() worked */
 
- waysx->filename=(char*)malloc(strlen(tmpdirname)+24);
+ waysx->filename=(char*)malloc(strlen(tmpdirname)+32);
  sprintf(waysx->filename,"%s/ways.%p.tmp",tmpdirname,waysx);
 
  waysx->fd=OpenFile(waysx->filename);
 
- waysx->nfilename=(char*)malloc(strlen(tmpdirname)+24);
+ waysx->nfilename=(char*)malloc(strlen(tmpdirname)+32);
  sprintf(waysx->nfilename,"%s/waynames.%p.tmp",tmpdirname,waysx);
 
  waysx->nfd=OpenFile(waysx->nfilename);
@@ -88,14 +88,13 @@ WaysX *NewWayList(void)
 void FreeWayList(WaysX *waysx)
 {
  DeleteFile(waysx->filename);
-
- if(waysx->xdata)
-    UnmapFile(waysx->filename);
+ free(waysx->filename);
 
  if(waysx->idata)
     free(waysx->idata);
 
  DeleteFile(waysx->nfilename);
+ free(waysx->nfilename);
 
  free(waysx);
 }

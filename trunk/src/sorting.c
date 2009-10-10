@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.2 2009-10-04 15:53:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.3 2009-10-10 16:21:19 amb Exp $
 
  Merge sort functions.
 
@@ -66,7 +66,7 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
  int nfiles=0,ndata=0;
  index_t count=0,total=0;
  size_t nitems=ramsize/(itemsize+sizeof(void*));
- void *data,**datap;
+ void *data=NULL,**datap=NULL;
  char *filename;
  int i,more=1;
 
@@ -120,7 +120,7 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
             }
          }
 
-       return;
+       goto tidy_and_exit;
       }
 
     /* Create a temporary file and write the result */
@@ -154,7 +154,7 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
 
     DeleteFile(filename);
 
-    return;
+    goto tidy_and_exit;
    }
 
  /* Check that number of files is less than file size */
@@ -268,10 +268,18 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
 
  /* Tidy up */
 
- for(i=0;i<nfiles;i++)
-    CloseFile(fds[i]);
+ tidy_and_exit:
 
- free(heap);
+ if(fds)
+   {
+    for(i=0;i<nfiles;i++)
+       CloseFile(fds[i]);
+    free(fds);
+   }
+
+ if(heap)
+    free(heap);
+
  free(data);
  free(datap);
  free(filename);
