@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.50 2009-10-07 18:53:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.51 2009-10-10 16:21:19 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -195,7 +195,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
 
           if(allow&profile->allow && profile->highway[HIGHWAY(type)])
             {
-             Way way;
+             Way way={0};
              char *refname;
              int i;
 
@@ -236,8 +236,6 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
 
              if(way_roundabout)
                 way.type|=Way_Roundabout;
-
-             way.padding=0;
 
              AppendWay(OSMWays,way_id,&way,refname);
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.42 2009-10-10 15:22:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.43 2009-10-10 16:21:19 amb Exp $
 
  Extended Segment data type functions.
 
@@ -68,7 +68,7 @@ SegmentsX *NewSegmentList(void)
 
  assert(segmentsx); /* Check calloc() worked */
 
- segmentsx->filename=(char*)malloc(strlen(tmpdirname)+24);
+ segmentsx->filename=(char*)malloc(strlen(tmpdirname)+32);
  sprintf(segmentsx->filename,"%s/segments.%p.tmp",tmpdirname,segmentsx);
 
  segmentsx->fd=OpenFile(segmentsx->filename);
@@ -85,10 +85,8 @@ SegmentsX *NewSegmentList(void)
 
 void FreeSegmentList(SegmentsX *segmentsx)
 {
- if(segmentsx->xdata)
-    UnmapFile(segmentsx->filename);
-
  DeleteFile(segmentsx->filename);
+ free(segmentsx->filename);
 
  if(segmentsx->idata)
     free(segmentsx->idata);

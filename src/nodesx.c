@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.47 2009-10-10 15:22:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.48 2009-10-10 16:21:19 amb Exp $
 
  Extented Node data type functions.
 
@@ -68,7 +68,7 @@ NodesX *NewNodeList(void)
 
  assert(nodesx); /* Check calloc() worked */
 
- nodesx->filename=(char*)malloc(strlen(tmpdirname)+24);
+ nodesx->filename=(char*)malloc(strlen(tmpdirname)+32);
  sprintf(nodesx->filename,"%s/nodes.%p.tmp",tmpdirname,nodesx);
 
  nodesx->fd=OpenFile(nodesx->filename);
@@ -86,15 +86,16 @@ NodesX *NewNodeList(void)
 void FreeNodeList(NodesX *nodesx)
 {
  DeleteFile(nodesx->filename);
-
- if(nodesx->xdata)
-    UnmapFile(nodesx->filename);
+ free(nodesx->filename);
 
  if(nodesx->idata)
     free(nodesx->idata);
 
  if(nodesx->ndata)
     free(nodesx->ndata);
+
+ if(nodesx->super)
+    free(nodesx->super);
 
  if(nodesx->offsets)
     free(nodesx->offsets);
