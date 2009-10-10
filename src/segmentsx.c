@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.41 2009-10-09 18:47:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.42 2009-10-10 15:22:48 amb Exp $
 
  Extended Segment data type functions.
 
@@ -118,10 +118,16 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  Segments *segments;
  int super_number=0,normal_number=0;
 
+ /* Check the start conditions */
+
  assert(segmentsx->sdata);      /* Must have sdata filled in => real segments */
+
+ /* Print the start message */
 
  printf("Writing Segments: Segments=0");
  fflush(stdout);
+
+ /* Count the number of super-segments and normal segments */
 
  for(i=0;i<segmentsx->number;i++)
    {
@@ -163,10 +169,12 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
       }
    }
 
+ CloseFile(fd);
+
+ /* Print the final message */
+
  printf("\rWrote Segments: Segments=%d  \n",segments->number);
  fflush(stdout);
-
- CloseFile(fd);
 
  /* Free the fake Segments */
 
@@ -915,8 +923,8 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  /* Check the start conditions */
 
- assert(segmentsx->sdata);      /* Must have sdata filled in => real segments */
- assert(nodesx->gdata);         /* Must have gdata filled in => sorted geographically */
+ assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
+ assert(segmentsx->sdata);      /* Must have sdata filled in => real segments exist */
 
  /* Print the start message */
 
@@ -926,20 +934,24 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
  /* Map into memory */
 
  if(!option_slim)
+   {
+    nodesx->xdata=MapFile(nodesx->filename);
     segmentsx->xdata=MapFile(segmentsx->filename);
+   }
 
  /* Index the segments */
 
  for(i=0;i<nodesx->number;i++)
    {
-    Node   *node =&nodesx->ndata[nodesx->gdata[i]];
+    NodeX  *nodex=LookupNodeX(nodesx,i,1);
+    Node   *node =&nodesx->ndata[nodex->id];
     index_t index=SEGMENT(node->firstseg);
 
     do
       {
        SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
 
-       if(segmentx->node1==nodesx->gdata[i])
+       if(segmentx->node1==nodex->id)
          {
           segmentsx->sdata[index].node1=i;
 
@@ -950,7 +962,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
           segmentx=LookupSegmentX(segmentsx,index,1);
 
-          if(segmentx->node1!=nodesx->gdata[i])
+          if(segmentx->node1!=nodex->id)
              break;
          }
        else
@@ -975,7 +987,10 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
  /* Unmap from memory */
 
  if(!option_slim)
+   {
+    nodesx->xdata=UnmapFile(nodesx->filename);
     segmentsx->xdata=UnmapFile(segmentsx->filename);
+   }
 
  /* Print the final message */
 

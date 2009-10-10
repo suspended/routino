@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.46 2009-10-09 18:47:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.47 2009-10-10 15:22:48 amb Exp $
 
  Extented Node data type functions.
 
@@ -50,7 +50,8 @@ extern char *tmpdirname;
 static int sort_by_id(NodeX *a,NodeX *b);
 static int index_by_id(NodeX *nodex,index_t index);
 
-static int sort_by_lat_long(node_t *a,node_t *b);
+static int sort_by_lat_long(NodeX *a,NodeX *b);
+static int index_by_lat_long(NodeX *nodex,index_t index);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -89,9 +90,6 @@ void FreeNodeList(NodesX *nodesx)
  if(nodesx->xdata)
     UnmapFile(nodesx->filename);
 
- if(nodesx->gdata)
-    free(nodesx->gdata);
-
  if(nodesx->idata)
     free(nodesx->idata);
 
@@ -120,11 +118,21 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  Nodes *nodes;
  int super_number=0;
 
- assert(nodesx->gdata);         /* Must have gdata filled in => sorted geographically */
+ /* Check the start conditions */
+
  assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
+
+ /* Print the start message */
 
  printf("Writing Nodes: Nodes=0");
  fflush(stdout);
+
+ /* Map into memory */
+
+ if(!option_slim)
+    nodesx->xdata=MapFile(nodesx->filename);
+
+ /* Count the number of super-nodes */
 
  for(i=0;i<nodesx->number;i++)
     if(nodesx->ndata[i].firstseg&NODE_SUPER)
@@ -161,7 +169,8 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  for(i=0;i<nodes->number;i++)
    {
-    Node *node=&nodesx->ndata[nodesx->gdata[i]];
+    NodeX *nodex=LookupNodeX(nodesx,i,1);
+    Node *node=&nodesx->ndata[nodex->id];
 
     WriteFile(fd,node,sizeof(Node));
 
@@ -172,10 +181,17 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
       }
    }
 
+ CloseFile(fd);
+
+ /* Unmap from memory */
+
+ if(!option_slim)
+    nodesx->xdata=UnmapFile(nodesx->filename);
+
+ /* Print the final message */
+
  printf("\rWrote Nodes: Nodes=%d  \n",nodes->number);
  fflush(stdout);
-
- CloseFile(fd);
 
  /* Free the fake Nodes */
 
@@ -418,95 +434,45 @@ static int index_by_id(NodeX *nodex,index_t index)
 
 void SortNodeListGeographically(NodesX* nodesx)
 {
- index_t i;
- ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
- latlong_t lat_min,lat_max,lon_min,lon_max;
- uint32_t latlonbin;
-
- /* Check the start conditions */
-
- assert(!nodesx->gdata); /* Must not have gdata filled in => unsorted geographically */
+ int fd;
 
  /* Print the start message */
 
  printf("Sorting Nodes Geographically");
  fflush(stdout);
 
- /* Map into memory */
-
- // FIXME
- nodesx->xdata=MapFile(nodesx->filename);
-
- /* Allocate the array of pointers and sort them */
-
- nodesx->gdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
-
- assert(nodesx->gdata); /* Check malloc() worked */
-
- for(i=0;i<nodesx->number;i++)
-    nodesx->gdata[i]=i;
-
- sortnodesx=nodesx;
-
- qsort(nodesx->gdata,nodesx->number,sizeof(index_t),(int (*)(const void*,const void*))sort_by_lat_long);
-
- /* Work out the range of data */
-
- lat_min=radians_to_latlong( 2);
- lat_max=radians_to_latlong(-2);
- lon_min=radians_to_latlong( 4);
- lon_max=radians_to_latlong(-4);
-
- for(i=0;i<nodesx->number;i++)
-   {
-    NodeX *nodex=&nodesx->xdata[i];
-
-    if(nodex->latitude<lat_min)
-       lat_min=nodex->latitude;
-    if(nodex->latitude>lat_max)
-       lat_max=nodex->latitude;
-    if(nodex->longitude<lon_min)
-       lon_min=nodex->longitude;
-    if(nodex->longitude>lon_max)
-       lon_max=nodex->longitude;
-   }
-
- /* Work out the number of bins */
-
- lat_min_bin=latlong_to_bin(lat_min);
- lon_min_bin=latlong_to_bin(lon_min);
- lat_max_bin=latlong_to_bin(lat_max);
- lon_max_bin=latlong_to_bin(lon_max);
-
- nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
- nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
-
- /* Work out the offsets */
+ /* Allocate the memory for the geographical offsets array */
 
  nodesx->offsets=(index_t*)malloc((nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
- latlonbin=0;
+ nodesx->latlonbin=0;
 
- for(i=0;i<nodesx->number;i++)
-   {
-    NodeX *nodex=&nodesx->xdata[nodesx->gdata[i]];
+ /* Close the files and re-open them */
 
-    ll_bin_t latbin=latlong_to_bin(nodex->latitude )-lat_min_bin;
-    ll_bin_t lonbin=latlong_to_bin(nodex->longitude)-lon_min_bin;
-    int llbin=lonbin*nodesx->latbins+latbin;
+ CloseFile(nodesx->fd);
+ nodesx->fd=ReOpenFile(nodesx->filename);
 
-    for(;latlonbin<=llbin;latlonbin++)
-       nodesx->offsets[latlonbin]=i;
-   }
+ DeleteFile(nodesx->filename);
 
- for(;latlonbin<=(nodesx->latbins*nodesx->lonbins);latlonbin++)
-    nodesx->offsets[latlonbin]=nodesx->number;
+ fd=OpenFile(nodesx->filename);
 
- nodesx->latzero=lat_min_bin;
- nodesx->lonzero=lon_min_bin;
+ /* Sort geographically */
 
- // FIXME
- nodesx->xdata=UnmapFile(nodesx->filename);
+ sortnodesx=nodesx;
+
+ filesort(nodesx->fd,fd,sizeof(NodeX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
+
+ /* Close the files and re-open them */
+
+ CloseFile(nodesx->fd);
+ CloseFile(fd);
+
+ nodesx->fd=ReOpenFile(nodesx->filename);
+
+ /* Finish off the indexing */
+
+ for(;nodesx->latlonbin<=(nodesx->latbins*nodesx->lonbins);nodesx->latlonbin++)
+    nodesx->offsets[nodesx->latlonbin]=nodesx->number;
 
  /* Print the final message */
 
@@ -520,18 +486,15 @@ void SortNodeListGeographically(NodesX* nodesx)
 
   int sort_by_lat_long Returns the comparison of the latitude and longitude fields.
 
-  index_t *a The first node id.
+  NodeX *a The first extended node.
 
-  index_t *b The second node id.
+  NodeX *b The second extended node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_lat_long(index_t *a,index_t *b)
+static int sort_by_lat_long(NodeX *a,NodeX *b)
 {
- NodeX *nodex_a=&sortnodesx->xdata[*a];
- NodeX *nodex_b=&sortnodesx->xdata[*b];
-
- ll_bin_t a_lon=latlong_to_bin(nodex_a->longitude);
- ll_bin_t b_lon=latlong_to_bin(nodex_b->longitude);
+ ll_bin_t a_lon=latlong_to_bin(a->longitude);
+ ll_bin_t b_lon=latlong_to_bin(b->longitude);
 
  if(a_lon<b_lon)
     return(-1);
@@ -539,16 +502,56 @@ static int sort_by_lat_long(index_t *a,index_t *b)
     return(1);
  else
    {
-    ll_bin_t a_lat=latlong_to_bin(nodex_a->latitude);
-    ll_bin_t b_lat=latlong_to_bin(nodex_b->latitude);
+    ll_bin_t a_lat=latlong_to_bin(a->latitude);
+    ll_bin_t b_lat=latlong_to_bin(b->latitude);
 
     if(a_lat<b_lat)
        return(-1);
     else if(a_lat>b_lat)
        return(1);
     else
-       return(0);
+      {
+#ifdef REGRESSION_TESTING
+       // Need this for regression testing because heapsort() is not order
+       // preserving like qsort() is (or was when tested).
+
+       index_t a_id=a->id;
+       index_t b_id=b->id;
+
+       if(a_id<b_id)
+          return(-1);
+       else if(a_id>b_id)
+          return(1);
+       else
+#endif
+          return(0);
+      }
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Index the nodes after sorting.
+
+  index_by_lat_long Return 1 if the value is to be kept, otherwise zero.
+
+  NodeX *nodex The extended node.
+
+  index_t index The index of this node in the total.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int index_by_lat_long(NodeX *nodex,index_t index)
+{
+ /* Work out the offsets */
+
+ ll_bin_t latbin=latlong_to_bin(nodex->latitude )-sortnodesx->latzero;
+ ll_bin_t lonbin=latlong_to_bin(nodex->longitude)-sortnodesx->lonzero;
+ int llbin=lonbin*sortnodesx->latbins+latbin;
+
+ for(;sortnodesx->latlonbin<=llbin;sortnodesx->latlonbin++)
+    sortnodesx->offsets[sortnodesx->latlonbin]=index;
+
+ return(1);
 }
 
 
@@ -564,6 +567,8 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  NodeX nodex;
  int total=0,highway=0,nothighway=0;
+ ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
+ latlong_t lat_min,lat_max,lon_min,lon_max;
  int fd;
 
  /* Check the start conditions */
@@ -574,6 +579,13 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  printf("Checking: Nodes=0");
  fflush(stdout);
+
+ /* While we are here we can work out the range of data */
+
+ lat_min=radians_to_latlong( 2);
+ lat_max=radians_to_latlong(-2);
+ lon_min=radians_to_latlong( 4);
+ lon_max=radians_to_latlong(-4);
 
  /* Modify the on-disk image */
 
@@ -594,6 +606,15 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
        nodesx->idata[highway]=nodesx->idata[total];
        highway++;
+
+       if(nodex.latitude<lat_min)
+          lat_min=nodex.latitude;
+       if(nodex.latitude>lat_max)
+          lat_max=nodex.latitude;
+       if(nodex.longitude<lon_min)
+          lon_min=nodex.longitude;
+       if(nodex.longitude>lon_max)
+          lon_max=nodex.longitude;
       }
 
     total++;
@@ -613,6 +634,19 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  nodesx->fd=ReOpenFile(nodesx->filename);
 
  nodesx->number=highway;
+
+ /* Work out the number of bins */
+
+ lat_min_bin=latlong_to_bin(lat_min);
+ lon_min_bin=latlong_to_bin(lon_min);
+ lat_max_bin=latlong_to_bin(lat_max);
+ lon_max_bin=latlong_to_bin(lon_max);
+
+ nodesx->latzero=lat_min_bin;
+ nodesx->lonzero=lon_min_bin;
+
+ nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
+ nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
 
  /* Allocate and clear the super-node markers */
 
@@ -665,12 +699,12 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
    {
     NodeX *nodex=LookupNodeX(nodesx,i,1);
 
-    nodesx->ndata[i].latoffset=latlong_to_off(nodex->latitude);
-    nodesx->ndata[i].lonoffset=latlong_to_off(nodex->longitude);
-    nodesx->ndata[i].firstseg=SEGMENT(NO_SEGMENT);
+    nodesx->ndata[nodex->id].latoffset=latlong_to_off(nodex->latitude);
+    nodesx->ndata[nodex->id].lonoffset=latlong_to_off(nodex->longitude);
+    nodesx->ndata[nodex->id].firstseg=SEGMENT(NO_SEGMENT);
 
-    if(nodesx->super[i]==iteration)
-       nodesx->ndata[i].firstseg|=NODE_SUPER;
+    if(nodesx->super[nodex->id]==iteration)
+       nodesx->ndata[nodex->id].firstseg|=NODE_SUPER;
 
     if(!((i+1)%10000))
       {
@@ -721,7 +755,10 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
  /* Map into memory */
 
  if(!option_slim)
+   {
+    nodesx->xdata=MapFile(nodesx->filename);
     segmentsx->xdata=MapFile(segmentsx->filename);
+   }
 
  /* Index the nodes */
 
@@ -825,7 +862,10 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
  /* Unmap from memory */
 
  if(!option_slim)
+   {
+    nodesx->xdata=UnmapFile(nodesx->filename);
     segmentsx->xdata=UnmapFile(segmentsx->filename);
+   }
 
  /* Print the final message */
 
