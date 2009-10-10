@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.59 2009-10-08 19:20:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.60 2009-10-10 15:56:23 amb Exp $
 
  OSM planet file splitter.
 
@@ -193,7 +193,7 @@ int main(int argc,char** argv)
 
        SuperSegments2=CreateSuperSegments(Nodes,SuperSegments,Ways,iteration);
 
-       if(SuperSegments->number==SuperSegments2->number)
+       if(SuperSegments->xnumber==SuperSegments2->xnumber)
           quit=1;
 
        FreeSegmentList(SuperSegments);
