@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.27 2009-10-12 17:35:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.28 2009-10-12 17:54:18 amb Exp $
 
  Extended Way data type functions.
 
@@ -100,170 +100,6 @@ void FreeWayList(WaysX *waysx)
  free(waysx->nfilename);
 
  free(waysx);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Save the way list to a file.
-
-  WaysX* waysx The set of ways to save.
-
-  const char *filename The name of the file to save.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void SaveWayList(WaysX* waysx,const char *filename)
-{
- index_t i;
- int fd;
- Ways *ways;
-
- printf("Writing Ways: Ways=0");
- fflush(stdout);
-
- waysx->xdata=MapFile(waysx->filename);
-
- /* Fill in a Ways structure with the offset of the real data in the file after
-    the Way structure itself. */
-
- ways=calloc(1,sizeof(Ways));
-
- assert(ways); /* Check calloc() worked */
-
- ways->number=waysx->cnumber;
- ways->onumber=waysx->number;
-
- ways->data=NULL;
-
- ways->ways=(void*)sizeof(Ways);
- ways->names=(void*)(sizeof(Ways)+ways->number*sizeof(Way));
-
- /* Write out the Ways structure and then the real data. */
-
- fd=OpenFile(filename);
-
- WriteFile(fd,ways,sizeof(Ways));
-
- for(i=0;i<waysx->number;i++)
-   {
-    SeekFile(fd,sizeof(Ways)+waysx->xdata[i].id*sizeof(Way));
-    WriteFile(fd,&waysx->xdata[i].way,sizeof(Way));
-
-    if(!((i+1)%10000))
-      {
-       printf("\rWriting Ways: Ways=%d",i+1);
-       fflush(stdout);
-      }
-   }
-
- waysx->xdata=UnmapFile(waysx->filename);
-
- waysx->names=MapFile(waysx->nfilename);
-
- SeekFile(fd,sizeof(Ways)+waysx->cnumber*sizeof(Way));
- WriteFile(fd,waysx->names,waysx->nlength);
-
- waysx->names=UnmapFile(waysx->nfilename);
-
- CloseFile(fd);
-
- printf("\rWrote Ways: Ways=%d  \n",waysx->number);
- fflush(stdout);
-
- /* Free the fake Ways */
-
- free(ways);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find a particular way index.
-
-  index_t IndexWayX Returns the index of the extended way with the specified id.
-
-  WaysX* waysx The set of ways to process.
-
-  way_t id The way id to look for.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-index_t IndexWayX(WaysX* waysx,way_t id)
-{
- int start=0;
- int end=waysx->number-1;
- int mid;
-
- assert(waysx->idata);         /* Must have idata filled in => sorted */
-
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- if(end<start)                   /* There are no ways */
-    return(NO_WAY);
- else if(id<waysx->idata[start]) /* Check key is not before start */
-    return(NO_WAY);
- else if(id>waysx->idata[end])   /* Check key is not after end */
-    return(NO_WAY);
- else
-   {
-    do
-      {
-       mid=(start+end)/2;            /* Choose mid point */
-
-       if(waysx->idata[mid]<id)      /* Mid point is too low */
-          start=mid+1;
-       else if(waysx->idata[mid]>id) /* Mid point is too high */
-          end=mid-1;
-       else                          /* Mid point is correct */
-          return(mid);
-      }
-    while((end-start)>1);
-
-    if(waysx->idata[start]==id)      /* Start is correct */
-       return(start);
-
-    if(waysx->idata[end]==id)        /* End is correct */
-       return(end);
-   }
-
- return(NO_WAY);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular way.
-
-  WayX *LookupWayX Returns a pointer to the extended way with the specified id.
-
-  WaysX* waysx The set of ways to process.
-
-  index_t index The way index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-WayX *LookupWayX(WaysX* waysx,index_t index,int position)
-{
- assert(index!=NO_WAY);     /* Must be a valid way */
-
- if(option_slim)
-   {
-    SeekFile(waysx->fd,index*sizeof(WayX));
-
-    ReadFile(waysx->fd,&waysx->cached[position-1],sizeof(WayX));
-
-    return(&waysx->cached[position-1]);
-   }
- else
-   {
-    return(&waysx->xdata[index]);
-   }
 }
 
 
@@ -404,6 +240,98 @@ static int index_by_id(WayX *wayx,index_t index)
    }
 
  return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find a particular way index.
+
+  index_t IndexWayX Returns the index of the extended way with the specified id.
+
+  WaysX* waysx The set of ways to process.
+
+  way_t id The way id to look for.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexWayX(WaysX* waysx,way_t id)
+{
+ int start=0;
+ int end=waysx->number-1;
+ int mid;
+
+ assert(waysx->idata);         /* Must have idata filled in => sorted */
+
+ /* Binary search - search key exact match only is required.
+  *
+  *  # <- start  |  Check mid and move start or end if it doesn't match
+  *  #           |
+  *  #           |  Since an exact match is wanted we can set end=mid-1
+  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
+  *  #           |
+  *  #           |  Eventually either end=start or end=start+1 and one of
+  *  # <- end    |  start or end is the wanted one.
+  */
+
+ if(end<start)                   /* There are no ways */
+    return(NO_WAY);
+ else if(id<waysx->idata[start]) /* Check key is not before start */
+    return(NO_WAY);
+ else if(id>waysx->idata[end])   /* Check key is not after end */
+    return(NO_WAY);
+ else
+   {
+    do
+      {
+       mid=(start+end)/2;            /* Choose mid point */
+
+       if(waysx->idata[mid]<id)      /* Mid point is too low */
+          start=mid+1;
+       else if(waysx->idata[mid]>id) /* Mid point is too high */
+          end=mid-1;
+       else                          /* Mid point is correct */
+          return(mid);
+      }
+    while((end-start)>1);
+
+    if(waysx->idata[start]==id)      /* Start is correct */
+       return(start);
+
+    if(waysx->idata[end]==id)        /* End is correct */
+       return(end);
+   }
+
+ return(NO_WAY);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a particular way.
+
+  WayX *LookupWayX Returns a pointer to the extended way with the specified id.
+
+  WaysX* waysx The set of ways to process.
+
+  index_t index The way index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+WayX *LookupWayX(WaysX* waysx,index_t index,int position)
+{
+ assert(index!=NO_WAY);     /* Must be a valid way */
+
+ if(option_slim)
+   {
+    SeekFile(waysx->fd,index*sizeof(WayX));
+
+    ReadFile(waysx->fd,&waysx->cached[position-1],sizeof(WayX));
+
+    return(&waysx->cached[position-1]);
+   }
+ else
+   {
+    return(&waysx->xdata[index]);
+   }
 }
 
 
@@ -762,4 +690,76 @@ static index_t index_way(Way** data,int number,Way *way)
  assert(0);
 
  return(NO_WAY);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Save the way list to a file.
+
+  WaysX* waysx The set of ways to save.
+
+  const char *filename The name of the file to save.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void SaveWayList(WaysX* waysx,const char *filename)
+{
+ index_t i;
+ int fd;
+ Ways *ways;
+
+ printf("Writing Ways: Ways=0");
+ fflush(stdout);
+
+ waysx->xdata=MapFile(waysx->filename);
+
+ /* Fill in a Ways structure with the offset of the real data in the file after
+    the Way structure itself. */
+
+ ways=calloc(1,sizeof(Ways));
+
+ assert(ways); /* Check calloc() worked */
+
+ ways->number=waysx->cnumber;
+ ways->onumber=waysx->number;
+
+ ways->data=NULL;
+
+ ways->ways=(void*)sizeof(Ways);
+ ways->names=(void*)(sizeof(Ways)+ways->number*sizeof(Way));
+
+ /* Write out the Ways structure and then the real data. */
+
+ fd=OpenFile(filename);
+
+ WriteFile(fd,ways,sizeof(Ways));
+
+ for(i=0;i<waysx->number;i++)
+   {
+    SeekFile(fd,sizeof(Ways)+waysx->xdata[i].id*sizeof(Way));
+    WriteFile(fd,&waysx->xdata[i].way,sizeof(Way));
+
+    if(!((i+1)%10000))
+      {
+       printf("\rWriting Ways: Ways=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ waysx->xdata=UnmapFile(waysx->filename);
+
+ waysx->names=MapFile(waysx->nfilename);
+
+ SeekFile(fd,sizeof(Ways)+waysx->cnumber*sizeof(Way));
+ WriteFile(fd,waysx->names,waysx->nlength);
+
+ waysx->names=UnmapFile(waysx->nfilename);
+
+ CloseFile(fd);
+
+ printf("\rWrote Ways: Ways=%d  \n",waysx->number);
+ fflush(stdout);
+
+ /* Free the fake Ways */
+
+ free(ways);
 }
