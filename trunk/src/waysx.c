@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.28 2009-10-12 17:54:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.29 2009-10-12 17:55:23 amb Exp $
 
  Extended Way data type functions.
 
@@ -458,12 +458,7 @@ void CompactWayNames(WaysX* waysx)
 
 static int sort_by_name(char *a,char *b)
 {
- if(a==NULL)
-    return(1);
- else if(b==NULL)
-    return(-1);
- else
-    return(strcmp(a,b));
+ return(strcmp(a,b));
 }
 
 
@@ -616,22 +611,15 @@ void CompactWayProperties(WaysX* waysx)
 
 static int sort_by_name_and_properties(Way *a,Way *b)
 {
- if(a==NULL)
-    return(1);
- else if(b==NULL)
-    return(-1);
- else
-   {
-    index_t a_name=a->name;
-    index_t b_name=b->name;
+ index_t a_name=a->name;
+ index_t b_name=b->name;
 
-    if(a_name<b_name)
-       return(-1);
-    else if(a_name>b_name)
-       return(1);
-    else
-       return(WaysCompare(a,b));
-   }
+ if(a_name<b_name)
+    return(-1);
+ else if(a_name>b_name)
+    return(1);
+ else
+    return(WaysCompare(a,b));
 }
 
 
