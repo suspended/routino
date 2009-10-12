@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.49 2009-10-12 17:35:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.50 2009-10-12 17:54:18 amb Exp $
 
  Extented Node data type functions.
 
@@ -104,194 +104,6 @@ void FreeNodeList(NodesX *nodesx)
     free(nodesx->offsets);
 
  free(nodesx);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Save the node list to a file.
-
-  NodesX* nodesx The set of nodes to save.
-
-  const char *filename The name of the file to save.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void SaveNodeList(NodesX* nodesx,const char *filename)
-{
- index_t i;
- int fd;
- Nodes *nodes;
- int super_number=0;
-
- /* Check the start conditions */
-
- assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
-
- /* Print the start message */
-
- printf("Writing Nodes: Nodes=0");
- fflush(stdout);
-
- /* Map into memory */
-
- if(!option_slim)
-    nodesx->xdata=MapFile(nodesx->filename);
-
- /* Count the number of super-nodes */
-
- for(i=0;i<nodesx->number;i++)
-    if(nodesx->ndata[i].firstseg&NODE_SUPER)
-       super_number++;
-
- /* Fill in a Nodes structure with the offset of the real data in the file after
-    the Node structure itself. */
-
- nodes=calloc(1,sizeof(Nodes));
-
- assert(nodes); /* Check calloc() worked */
-
- nodes->number=nodesx->number;
- nodes->snumber=super_number;
-
- nodes->latbins=nodesx->latbins;
- nodes->lonbins=nodesx->lonbins;
-
- nodes->latzero=nodesx->latzero;
- nodes->lonzero=nodesx->lonzero;
-
- nodes->data=NULL;
-
- nodes->offsets=(void*)sizeof(Nodes);
- nodes->nodes=(void*)(sizeof(Nodes)+(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
-
- /* Write out the Nodes structure and then the real data. */
-
- fd=OpenFile(filename);
-
- WriteFile(fd,nodes,sizeof(Nodes));
-
- WriteFile(fd,nodesx->offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
-
- for(i=0;i<nodes->number;i++)
-   {
-    NodeX *nodex=LookupNodeX(nodesx,i,1);
-    Node *node=&nodesx->ndata[nodex->id];
-
-    WriteFile(fd,node,sizeof(Node));
-
-    if(!((i+1)%10000))
-      {
-       printf("\rWriting Nodes: Nodes=%d",i+1);
-       fflush(stdout);
-      }
-   }
-
- CloseFile(fd);
-
- /* Unmap from memory */
-
- if(!option_slim)
-    nodesx->xdata=UnmapFile(nodesx->filename);
-
- /* Print the final message */
-
- printf("\rWrote Nodes: Nodes=%d  \n",nodes->number);
- fflush(stdout);
-
- /* Free the fake Nodes */
-
- free(nodes);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find a particular node index.
-
-  index_t IndexNodeX Returns the index of the extended node with the specified id.
-
-  NodesX* nodesx The set of nodes to process.
-
-  node_t id The node id to look for.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-index_t IndexNodeX(NodesX* nodesx,node_t id)
-{
- int start=0;
- int end=nodesx->number-1;
- int mid;
-
- assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
-
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- if(end<start)                    /* There are no nodes */
-    return(NO_NODE);
- else if(id<nodesx->idata[start]) /* Check key is not before start */
-    return(NO_NODE);
- else if(id>nodesx->idata[end])   /* Check key is not after end */
-    return(NO_NODE);
- else
-   {
-    do
-      {
-       mid=(start+end)/2;             /* Choose mid point */
-
-       if(nodesx->idata[mid]<id)      /* Mid point is too low */
-          start=mid+1;
-       else if(nodesx->idata[mid]>id) /* Mid point is too high */
-          end=mid-1;
-       else                           /* Mid point is correct */
-          return(mid);
-      }
-    while((end-start)>1);
-
-    if(nodesx->idata[start]==id)      /* Start is correct */
-       return(start);
-
-    if(nodesx->idata[end]==id)        /* End is correct */
-       return(end);
-   }
-
- return(NO_NODE);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular node.
-
-  NodeX *LookupNodeX Returns a pointer to the extended node with the specified id.
-
-  NodesX* nodesx The set of nodes to process.
-
-  index_t index The node index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
-{
- assert(index!=NO_NODE);     /* Must be a valid node */
-
- if(option_slim)
-   {
-    SeekFile(nodesx->fd,index*sizeof(NodeX));
-
-    ReadFile(nodesx->fd,&nodesx->cached[position-1],sizeof(NodeX));
-
-    return(&nodesx->cached[position-1]);
-   }
- else
-   {
-    return(&nodesx->xdata[index]);
-   }
 }
 
 
@@ -552,6 +364,98 @@ static int index_by_lat_long(NodeX *nodex,index_t index)
     sortnodesx->offsets[sortnodesx->latlonbin]=index;
 
  return(1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find a particular node index.
+
+  index_t IndexNodeX Returns the index of the extended node with the specified id.
+
+  NodesX* nodesx The set of nodes to process.
+
+  node_t id The node id to look for.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexNodeX(NodesX* nodesx,node_t id)
+{
+ int start=0;
+ int end=nodesx->number-1;
+ int mid;
+
+ assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
+
+ /* Binary search - search key exact match only is required.
+  *
+  *  # <- start  |  Check mid and move start or end if it doesn't match
+  *  #           |
+  *  #           |  Since an exact match is wanted we can set end=mid-1
+  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
+  *  #           |
+  *  #           |  Eventually either end=start or end=start+1 and one of
+  *  # <- end    |  start or end is the wanted one.
+  */
+
+ if(end<start)                        /* There are no nodes */
+    return(NO_NODE);
+ else if(id<nodesx->idata[start])     /* Check key is not before start */
+    return(NO_NODE);
+ else if(id>nodesx->idata[end])       /* Check key is not after end */
+    return(NO_NODE);
+ else
+   {
+    do
+      {
+       mid=(start+end)/2;             /* Choose mid point */
+
+       if(nodesx->idata[mid]<id)      /* Mid point is too low */
+          start=mid+1;
+       else if(nodesx->idata[mid]>id) /* Mid point is too high */
+          end=mid-1;
+       else                           /* Mid point is correct */
+          return(mid);
+      }
+    while((end-start)>1);
+
+    if(nodesx->idata[start]==id)      /* Start is correct */
+       return(start);
+
+    if(nodesx->idata[end]==id)        /* End is correct */
+       return(end);
+   }
+
+ return(NO_NODE);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a particular node.
+
+  NodeX *LookupNodeX Returns a pointer to the extended node with the specified id.
+
+  NodesX* nodesx The set of nodes to process.
+
+  index_t index The node index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
+{
+ assert(index!=NO_NODE);     /* Must be a valid node */
+
+ if(option_slim)
+   {
+    SeekFile(nodesx->fd,index*sizeof(NodeX));
+
+    ReadFile(nodesx->fd,&nodesx->cached[position-1],sizeof(NodeX));
+
+    return(&nodesx->cached[position-1]);
+   }
+ else
+   {
+    return(&nodesx->xdata[index]);
+   }
 }
 
 
@@ -871,4 +775,100 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  printf("\rIndexed Segments: Segments=%d \n",segmentsx->number);
  fflush(stdout);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Save the node list to a file.
+
+  NodesX* nodesx The set of nodes to save.
+
+  const char *filename The name of the file to save.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void SaveNodeList(NodesX* nodesx,const char *filename)
+{
+ index_t i;
+ int fd;
+ Nodes *nodes;
+ int super_number=0;
+
+ /* Check the start conditions */
+
+ assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
+
+ /* Print the start message */
+
+ printf("Writing Nodes: Nodes=0");
+ fflush(stdout);
+
+ /* Map into memory */
+
+ if(!option_slim)
+    nodesx->xdata=MapFile(nodesx->filename);
+
+ /* Count the number of super-nodes */
+
+ for(i=0;i<nodesx->number;i++)
+    if(nodesx->ndata[i].firstseg&NODE_SUPER)
+       super_number++;
+
+ /* Fill in a Nodes structure with the offset of the real data in the file after
+    the Node structure itself. */
+
+ nodes=calloc(1,sizeof(Nodes));
+
+ assert(nodes); /* Check calloc() worked */
+
+ nodes->number=nodesx->number;
+ nodes->snumber=super_number;
+
+ nodes->latbins=nodesx->latbins;
+ nodes->lonbins=nodesx->lonbins;
+
+ nodes->latzero=nodesx->latzero;
+ nodes->lonzero=nodesx->lonzero;
+
+ nodes->data=NULL;
+
+ nodes->offsets=(void*)sizeof(Nodes);
+ nodes->nodes=(void*)(sizeof(Nodes)+(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+
+ /* Write out the Nodes structure and then the real data. */
+
+ fd=OpenFile(filename);
+
+ WriteFile(fd,nodes,sizeof(Nodes));
+
+ WriteFile(fd,nodesx->offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+
+ for(i=0;i<nodes->number;i++)
+   {
+    NodeX *nodex=LookupNodeX(nodesx,i,1);
+    Node *node=&nodesx->ndata[nodex->id];
+
+    WriteFile(fd,node,sizeof(Node));
+
+    if(!((i+1)%10000))
+      {
+       printf("\rWriting Nodes: Nodes=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ CloseFile(fd);
+
+ /* Unmap from memory */
+
+ if(!option_slim)
+    nodesx->xdata=UnmapFile(nodesx->filename);
+
+ /* Print the final message */
+
+ printf("\rWrote Nodes: Nodes=%d  \n",nodes->number);
+ fflush(stdout);
+
+ /* Free the fake Nodes */
+
+ free(nodes);
 }

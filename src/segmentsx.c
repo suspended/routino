@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.44 2009-10-12 17:35:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.45 2009-10-12 17:54:18 amb Exp $
 
  Extended Segment data type functions.
 
@@ -101,220 +101,6 @@ void FreeSegmentList(SegmentsX *segmentsx)
 }
 
 
-/*++++++++++++++++++++++++++++++++++++++
-  Save the segment list to a file.
-
-  SegmentsX* segmentsx The set of segments to save.
-
-  const char *filename The name of the file to save.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
-{
- index_t i;
- int fd;
- Segments *segments;
- int super_number=0,normal_number=0;
-
- /* Check the start conditions */
-
- assert(segmentsx->sdata);      /* Must have sdata filled in => real segments */
-
- /* Print the start message */
-
- printf("Writing Segments: Segments=0");
- fflush(stdout);
-
- /* Count the number of super-segments and normal segments */
-
- for(i=0;i<segmentsx->number;i++)
-   {
-    if(IsSuperSegment(&segmentsx->sdata[i]))
-       super_number++;
-    if(IsNormalSegment(&segmentsx->sdata[i]))
-       normal_number++;
-   }
-
- /* Fill in a Segments structure with the offset of the real data in the file after
-    the Segment structure itself. */
-
- segments=calloc(1,sizeof(Segments));
-
- assert(segments); /* Check calloc() worked */
-
- segments->number=segmentsx->number;
- segments->snumber=super_number;
- segments->nnumber=normal_number;
-
- segments->data=NULL;
-
- segments->segments=(void*)sizeof(Segments);
-
- /* Write out the Segments structure and then the real data. */
-
- fd=OpenFile(filename);
-
- WriteFile(fd,segments,sizeof(Segments));
-
- for(i=0;i<segments->number;i++)
-   {
-    WriteFile(fd,&segmentsx->sdata[i],sizeof(Segment));
-
-    if(!((i+1)%10000))
-      {
-       printf("\rWriting Segments: Segments=%d",i+1);
-       fflush(stdout);
-      }
-   }
-
- CloseFile(fd);
-
- /* Print the final message */
-
- printf("\rWrote Segments: Segments=%d  \n",segments->number);
- fflush(stdout);
-
- /* Free the fake Segments */
-
- free(segments);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular segment.
-
-  SegmentX *LookupSegmentX Returns a pointer to the extended segment with the specified id.
-
-  SegmentsX* segmentsx The set of segments to process.
-
-  index_t index The segment index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position)
-{
- assert(index!=NO_SEGMENT);     /* Must be a valid segment */
-
- if(option_slim)
-   {
-    SeekFile(segmentsx->fd,index*sizeof(SegmentX));
-
-    ReadFile(segmentsx->fd,&segmentsx->cached[position-1],sizeof(SegmentX));
-
-    return(&segmentsx->cached[position-1]);
-   }
- else
-   {
-    return(&segmentsx->xdata[index]);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find the first segment index with a particular starting node.
- 
-  index_t IndexFirstSegmentX Returns a pointer to the index of the first extended segment with the specified id.
-
-  SegmentsX* segmentsx The set of segments to process.
-
-  node_t node The node to look for.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node)
-{
- int start=0;
- int end=segmentsx->number-1;
- int mid;
- int found;
-
- /* Check if the first node index exists */
-
- if(segmentsx->firstnode)
-   {
-    index_t index=segmentsx->firstnode[node];
-
-    if(segmentsx->firstnode[node+1]==index)
-       return(NO_SEGMENT);
-
-    return(index);
-   }
-
- assert(segmentsx->idata);      /* Must have idata filled in => sorted by node 1 */
-
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- if(end<start)                         /* There are no nodes */
-    return(NO_SEGMENT);
- else if(node<segmentsx->idata[start]) /* Check key is not before start */
-    return(NO_SEGMENT);
- else if(node>segmentsx->idata[end])   /* Check key is not after end */
-    return(NO_SEGMENT);
- else
-   {
-    do
-      {
-       mid=(start+end)/2;                  /* Choose mid point */
-
-       if(segmentsx->idata[mid]<node)      /* Mid point is too low */
-          start=mid;
-       else if(segmentsx->idata[mid]>node) /* Mid point is too high */
-          end=mid;
-       else                                /* Mid point is correct */
-         {found=mid; goto found;}
-      }
-    while((end-start)>1);
-
-    if(segmentsx->idata[start]==node)      /* Start is correct */
-      {found=start; goto found;}
-
-    if(segmentsx->idata[end]==node)        /* End is correct */
-      {found=end; goto found;}
-   }
-
- return(NO_SEGMENT);
-
- found:
-
- while(found>0 && segmentsx->idata[found-1]==node)
-    found--;
-
- return(found);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find the next segment index with a particular starting node.
-
-  index_t IndexNextSegmentX Returns the index of the next segment with the same id.
-
-  SegmentsX* segmentsx The set of segments to process.
-
-  index_t segindex The current segment index.
-
-  index_t nodeindex The node index.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t segindex,index_t nodeindex)
-{
- assert(segmentsx->firstnode);   /* Must have firstnode filled in => segments updated */
-
- if(++segindex==segmentsx->firstnode[nodeindex+1])
-    return(NO_SEGMENT);
- else
-    return(segindex);
-}
- 
- 
 /*++++++++++++++++++++++++++++++++++++++
   Append a single segment to a segment list.
 
@@ -439,6 +225,141 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Find the first segment index with a particular starting node.
+ 
+  index_t IndexFirstSegmentX Returns a pointer to the index of the first extended segment with the specified id.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  node_t node The node to look for.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node)
+{
+ int start=0;
+ int end=segmentsx->number-1;
+ int mid;
+ int found;
+
+ /* Check if the first node index exists */
+
+ if(segmentsx->firstnode)
+   {
+    index_t index=segmentsx->firstnode[node];
+
+    if(segmentsx->firstnode[node+1]==index)
+       return(NO_SEGMENT);
+
+    return(index);
+   }
+
+ assert(segmentsx->idata);      /* Must have idata filled in => sorted by node 1 */
+
+ /* Binary search - search key exact match only is required.
+  *
+  *  # <- start  |  Check mid and move start or end if it doesn't match
+  *  #           |
+  *  #           |  Since an exact match is wanted we can set end=mid-1
+  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
+  *  #           |
+  *  #           |  Eventually either end=start or end=start+1 and one of
+  *  # <- end    |  start or end is the wanted one.
+  */
+
+ if(end<start)                         /* There are no nodes */
+    return(NO_SEGMENT);
+ else if(node<segmentsx->idata[start]) /* Check key is not before start */
+    return(NO_SEGMENT);
+ else if(node>segmentsx->idata[end])   /* Check key is not after end */
+    return(NO_SEGMENT);
+ else
+   {
+    do
+      {
+       mid=(start+end)/2;                  /* Choose mid point */
+
+       if(segmentsx->idata[mid]<node)      /* Mid point is too low */
+          start=mid;
+       else if(segmentsx->idata[mid]>node) /* Mid point is too high */
+          end=mid;
+       else                                /* Mid point is correct */
+         {found=mid; goto found;}
+      }
+    while((end-start)>1);
+
+    if(segmentsx->idata[start]==node)      /* Start is correct */
+      {found=start; goto found;}
+
+    if(segmentsx->idata[end]==node)        /* End is correct */
+      {found=end; goto found;}
+   }
+
+ return(NO_SEGMENT);
+
+ found:
+
+ while(found>0 && segmentsx->idata[found-1]==node)
+    found--;
+
+ return(found);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the next segment index with a particular starting node.
+
+  index_t IndexNextSegmentX Returns the index of the next segment with the same id.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  index_t segindex The current segment index.
+
+  index_t nodeindex The node index.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t segindex,index_t nodeindex)
+{
+ assert(segmentsx->firstnode);   /* Must have firstnode filled in => segments updated */
+
+ if(++segindex==segmentsx->firstnode[nodeindex+1])
+    return(NO_SEGMENT);
+ else
+    return(segindex);
+}
+ 
+ 
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a particular segment.
+
+  SegmentX *LookupSegmentX Returns a pointer to the extended segment with the specified id.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  index_t index The segment index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position)
+{
+ assert(index!=NO_SEGMENT);     /* Must be a valid segment */
+
+ if(option_slim)
+   {
+    SeekFile(segmentsx->fd,index*sizeof(SegmentX));
+
+    ReadFile(segmentsx->fd,&segmentsx->cached[position-1],sizeof(SegmentX));
+
+    return(&segmentsx->cached[position-1]);
+   }
+ else
+   {
+    return(&segmentsx->xdata[index]);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Remove bad segments (duplicated, zero length or missing nodes).
 
   NodesX *nodesx The nodes to check.
@@ -517,7 +438,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Mwasure the segments and replace node/way ids with indexes.
+  Measure the segments and replace node/way ids with indexes.
 
   SegmentsX* segmentsx The set of segments to process.
 
@@ -994,6 +915,85 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  printf("\rIndexed Nodes: Nodes=%d \n",nodesx->number);
  fflush(stdout);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Save the segment list to a file.
+
+  SegmentsX* segmentsx The set of segments to save.
+
+  const char *filename The name of the file to save.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
+{
+ index_t i;
+ int fd;
+ Segments *segments;
+ int super_number=0,normal_number=0;
+
+ /* Check the start conditions */
+
+ assert(segmentsx->sdata);      /* Must have sdata filled in => real segments */
+
+ /* Print the start message */
+
+ printf("Writing Segments: Segments=0");
+ fflush(stdout);
+
+ /* Count the number of super-segments and normal segments */
+
+ for(i=0;i<segmentsx->number;i++)
+   {
+    if(IsSuperSegment(&segmentsx->sdata[i]))
+       super_number++;
+    if(IsNormalSegment(&segmentsx->sdata[i]))
+       normal_number++;
+   }
+
+ /* Fill in a Segments structure with the offset of the real data in the file after
+    the Segment structure itself. */
+
+ segments=calloc(1,sizeof(Segments));
+
+ assert(segments); /* Check calloc() worked */
+
+ segments->number=segmentsx->number;
+ segments->snumber=super_number;
+ segments->nnumber=normal_number;
+
+ segments->data=NULL;
+
+ segments->segments=(void*)sizeof(Segments);
+
+ /* Write out the Segments structure and then the real data. */
+
+ fd=OpenFile(filename);
+
+ WriteFile(fd,segments,sizeof(Segments));
+
+ for(i=0;i<segments->number;i++)
+   {
+    WriteFile(fd,&segmentsx->sdata[i],sizeof(Segment));
+
+    if(!((i+1)%10000))
+      {
+       printf("\rWriting Segments: Segments=%d",i+1);
+       fflush(stdout);
+      }
+   }
+
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf("\rWrote Segments: Segments=%d  \n",segments->number);
+ fflush(stdout);
+
+ /* Free the fake Segments */
+
+ free(segments);
 }
 
 
