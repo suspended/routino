@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.3 2009-10-10 16:21:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.4 2009-10-12 17:35:26 amb Exp $
 
  Merge sort functions.
 
@@ -32,7 +32,7 @@
 
 /* Variables */
 
-extern char *tmpdirname;
+extern char *option_tmpdirname;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -75,7 +75,7 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
  data=malloc(nitems*itemsize);
  datap=malloc(nitems*sizeof(void*));
 
- filename=(char*)malloc(strlen(tmpdirname)+24);
+ filename=(char*)malloc(strlen(option_tmpdirname)+24);
 
  /* Loop around, fill the buffer, sort the data and write a temporary file */
 
@@ -125,7 +125,7 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
 
     /* Create a temporary file and write the result */
 
-    sprintf(filename,"%s/filesort.%d.tmp",tmpdirname,nfiles);
+    sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,nfiles);
 
     fd=OpenFile(filename);
 
@@ -167,7 +167,7 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
 
  for(i=0;i<nfiles;i++)
    {
-    sprintf(filename,"%s/filesort.%d.tmp",tmpdirname,i);
+    sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,i);
 
     fds[i]=ReOpenFile(filename);
 

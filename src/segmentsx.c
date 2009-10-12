@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.43 2009-10-10 16:21:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.44 2009-10-12 17:35:26 amb Exp $
 
  Extended Segment data type functions.
 
@@ -45,7 +45,7 @@
 /* Variables */
 
 extern int option_slim;
-extern char *tmpdirname;
+extern char *option_tmpdirname;
 
 /* Local Functions */
 
@@ -68,8 +68,8 @@ SegmentsX *NewSegmentList(void)
 
  assert(segmentsx); /* Check calloc() worked */
 
- segmentsx->filename=(char*)malloc(strlen(tmpdirname)+32);
- sprintf(segmentsx->filename,"%s/segments.%p.tmp",tmpdirname,segmentsx);
+ segmentsx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
+ sprintf(segmentsx->filename,"%s/segments.%p.tmp",option_tmpdirname,segmentsx);
 
  segmentsx->fd=OpenFile(segmentsx->filename);
 

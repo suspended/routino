@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.26 2009-10-10 16:21:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.27 2009-10-12 17:35:26 amb Exp $
 
  Extended Way data type functions.
 
@@ -38,7 +38,10 @@
 /* Variables */
 
 extern int option_slim;
-extern char *tmpdirname;
+extern char *option_tmpdirname;
+
+/*+ A temporary file-local variable for use by the sort functions. +*/
+static WaysX *sortwaysx;
 
 /* Functions */
 
@@ -65,13 +68,13 @@ WaysX *NewWayList(void)
 
  assert(waysx); /* Check calloc() worked */
 
- waysx->filename=(char*)malloc(strlen(tmpdirname)+32);
- sprintf(waysx->filename,"%s/ways.%p.tmp",tmpdirname,waysx);
+ waysx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
+ sprintf(waysx->filename,"%s/ways.%p.tmp",option_tmpdirname,waysx);
 
  waysx->fd=OpenFile(waysx->filename);
 
- waysx->nfilename=(char*)malloc(strlen(tmpdirname)+32);
- sprintf(waysx->nfilename,"%s/waynames.%p.tmp",tmpdirname,waysx);
+ waysx->nfilename=(char*)malloc(strlen(option_tmpdirname)+32);
+ sprintf(waysx->nfilename,"%s/waynames.%p.tmp",option_tmpdirname,waysx);
 
  waysx->nfd=OpenFile(waysx->nfilename);
 
@@ -296,10 +299,6 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
 
  waysx->nlength+=strlen(name)+1;
 }
-
-
-/*+ A temporary file-local variable for use by the sort functions. +*/
-static WaysX *sortwaysx;
 
 
 /*++++++++++++++++++++++++++++++++++++++

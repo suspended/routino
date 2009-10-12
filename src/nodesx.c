@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.48 2009-10-10 16:21:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.49 2009-10-12 17:35:26 amb Exp $
 
  Extented Node data type functions.
 
@@ -43,7 +43,10 @@
 /* Variables */
 
 extern int option_slim;
-extern char *tmpdirname;
+extern char *option_tmpdirname;
+
+/*+ A temporary file-local variable for use by the sort functions. +*/
+static NodesX *sortnodesx;
 
 /* Functions */
 
@@ -68,8 +71,8 @@ NodesX *NewNodeList(void)
 
  assert(nodesx); /* Check calloc() worked */
 
- nodesx->filename=(char*)malloc(strlen(tmpdirname)+32);
- sprintf(nodesx->filename,"%s/nodes.%p.tmp",tmpdirname,nodesx);
+ nodesx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
+ sprintf(nodesx->filename,"%s/nodes.%p.tmp",option_tmpdirname,nodesx);
 
  nodesx->fd=OpenFile(nodesx->filename);
 
@@ -318,10 +321,6 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 
  nodesx->xnumber++;
 }
-
-
-/*+ A temporary file-local variable for use by the sort functions. +*/
-static NodesX *sortnodesx;
 
 
 /*++++++++++++++++++++++++++++++++++++++
