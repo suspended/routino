@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.60 2009-10-10 15:56:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.61 2009-10-12 17:35:26 amb Exp $
 
  OSM planet file splitter.
 
@@ -38,11 +38,14 @@
 #include "ways.h"
 
 
+/* Variables */
+
 /*+ The option to use a slim mode with file-backed read-only intermediate storage. +*/
 int option_slim=0;
 
 /*+ The name of the temporary directory. +*/
-char *tmpdirname=NULL;
+char *option_tmpdirname=NULL;
+
 
 int main(int argc,char** argv)
 {
@@ -77,7 +80,7 @@ int main(int argc,char** argv)
     else if(!strncmp(argv[argc],"--dir=",6))
        dirname=&argv[argc][6];
     else if(!strncmp(argv[argc],"--tmpdir=",9))
-       tmpdirname=&argv[argc][9];
+       option_tmpdirname=&argv[argc][9];
     else if(!strncmp(argv[argc],"--prefix=",9))
        prefix=&argv[argc][9];
     else if(!strncmp(argv[argc],"--max-iterations=",17))
@@ -115,12 +118,12 @@ int main(int argc,char** argv)
       }
    }
 
- if(!tmpdirname)
+ if(!option_tmpdirname)
    {
     if(!dirname)
-       tmpdirname=".";
+       option_tmpdirname=".";
     else
-       tmpdirname=dirname;
+       option_tmpdirname=dirname;
    }
 
  /* Create new node, segment and way variables */
