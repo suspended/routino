@@ -1,8 +1,37 @@
+Version 1.2 of Routino released : Wed Oct 21 2009
+-------------------------------------------------
+
+Inputs
+  Recognise tags "vehicle" and "motor_vehicle".
+  Handle duplicate ways in the input OSM file (e.g. concatenation of 2 files).
+
+Database
+  Identical ways are combined to reduce database size (~80% fewer ways stored).
+
+Routing
+  Fix weight, height, width, length restriction routing.
+  Allow up to 99 waypoints to be specified instead of 9.
+
+Visualiser
+  Don't display speed limits for tracks and paths unless a value is set.
+  Draw all super-segments that cross the selected boundary.
+
+planetsplitter
+  Optional slim mode uses minimal memory at the expense of temporary files.
+
+router
+  Less CPU time for routing (~30% less).
+
+filedumper
+  Allow dumping individual nodes, segments and ways (for debug).
+
+
 Version 1.1 of Routino released : Sat Jun 13 2009
 -------------------------------------------------
 
 Inputs
   Improve parsing of OSM file (imperial units).
+  Ignore nodes that are missing from the input OSM file.
 
 Outputs
   Create GPX route files as well as GPX track files.
