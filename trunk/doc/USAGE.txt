@@ -14,6 +14,7 @@ planetsplitter
 
    Usage: planetsplitter
                          [--help]
+                         [--slim] [--tmpdir=<name>]
                          [--dir=<name>] [--prefix=<name>]
                          [--max-iterations=<number>]
                          [--transport=<transport>]
@@ -60,6 +61,19 @@ planetsplitter
           Defaults to all highway types allowed. This option may be
           repeated.
 
+   --slim
+          Selects a mode of operation that uses less memory and will
+          therefore work where virtual memory is very limited or
+          unavailable. Selecting this option will cause raw data to be
+          held in disk files with only indexes in RAM. Not using this
+          option will still use disk files but only for sequential access
+          and the files are memory mapped for random access.
+
+   --tmpdir=<name>
+          Specifies the name of the directory to store the temporary disk
+          files. If not specified then it defaults to either the value of
+          the --dir option or the current directory.
+
    Example usage:
 
    bunzip2 -c great_britain.osm.bz2 | ./planetsplitter --dir=data --prefix=gb
@@ -71,12 +85,11 @@ router
 
    Usage: router [--lon1=]<longitude> [--lat1=]<latitude>
                  [--lon2=]<longitude> [--lon2=]<latitude>
-                 [ ... [--lon9=]<longitude> [--lon9=]<latitude> ]
+                 [ ... [--lon99=]<longitude> [--lon99=]<latitude> ]
                  [--help | --help-profile | --help-profile-js | --help-profile-pl]
                  [--dir=<name>] [--prefix=<name>]
                  [--shortest | --quickest]
-                 [--all | --super]
-                 [--no-output] [--quiet]
+                 [--quiet]
                  [--transport=<transport>]
                  [--highway-<highway>=<preference> ...]
                  [--speed-<highway>=<speed> ...]
@@ -87,9 +100,9 @@ router
    --lon1=<longitude>, --lat1=<latitude>
    --lon2=<longitude>, --lat2=<latitude>
    ...
-   --lon9=<longitude>, --lat9=<latitude>
+   --lon99=<longitude>, --lat99=<latitude>
           The location of the points that make up the start, middle and
-          end points of the route. Up to 9 points can be specified and the
+          end points of the route. Up to 99 points can be specified and the
           route will pass through each of the specified ones in sequence.
 
    --help
@@ -120,17 +133,6 @@ router
 
    --quickest
           Find the quickest route.
-
-   --all
-          Find the route using all nodes and segments, not using
-          super-nodes and super-segments (useful for debugging only).
-
-   --super
-          Find the route using only super-nodes and super-segments, not
-          using normal nodes and segments (useful for debugging only).
-
-   --no-output
-          Don't generate any output files (useful for debugging).
 
    --quiet
           Don't generate any screen output while running (useful for
@@ -215,6 +217,9 @@ filedumper
                      [--visualiser --latmin=<latmin> --latmax=<latmax>
                                    --lonmin=<lonmin> --lonmax=<lonmax>
                                    --data=<data-type>]
+                     [--dump --node=<node> ...
+                             --segment=<segment> ...
+                             --way=<way> ...]
 
    --help
           Prints out the help information.
@@ -250,6 +255,21 @@ filedumper
                o height = height limits.
                o width = width limits.
                o length = length limits.
+
+   --dump
+          Selects a data dumping mode which allows looking at individual
+          items in the databases.
+
+        --node=<node>
+                Prints the information about the selected node number
+                (internal number, not the node number in the original
+                source file).
+
+        --segment=<segment>
+                Prints the information about the selected segment number.
+
+        --way=<way>
+                Prints the information about the selected way number.
 
 
 Router Output
