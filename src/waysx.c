@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.29 2009-10-12 17:55:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.30 2009-10-22 18:17:51 amb Exp $
 
  Extended Way data type functions.
 
@@ -33,11 +33,15 @@
 
 /* Constants */
 
+/*+ The amount of memory to use for sorting. +*/
 #define SORT_RAMSIZE (64*1024*1024)
 
 /* Variables */
 
+/*+ The command line '--slim' option. +*/
 extern int option_slim;
+
+/*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
 /*+ A temporary file-local variable for use by the sort functions. +*/
@@ -221,7 +225,7 @@ static int sort_by_id(WayX *a,WayX *b)
 /*++++++++++++++++++++++++++++++++++++++
   Index the ways after sorting.
 
-  index_by_id Return 1 if the value is to be kept, otherwise zero.
+  int index_by_id Return 1 if the value is to be kept, otherwise zero.
 
   WayX *wayx The extended way.
 

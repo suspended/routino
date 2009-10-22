@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.35 2009-10-08 19:20:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.36 2009-10-22 18:17:51 amb Exp $
 
  Super-Segment data type functions.
 
@@ -37,6 +37,7 @@
 
 /* Variables */
 
+/*+ The command line '--slim' option. +*/
 extern int option_slim;
 
 /* Local Functions */

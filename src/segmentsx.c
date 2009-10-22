@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.45 2009-10-12 17:54:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.46 2009-10-22 18:17:51 amb Exp $
 
  Extended Segment data type functions.
 
@@ -40,11 +40,15 @@
 
 /* Constants */
 
+/*+ The amount of memory to use for sorting. +*/
 #define SORT_RAMSIZE (64*1024*1024)
 
 /* Variables */
 
+/*+ The command line '--slim' option. +*/
 extern int option_slim;
+
+/*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
 /* Local Functions */
