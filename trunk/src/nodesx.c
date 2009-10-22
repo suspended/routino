@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.50 2009-10-12 17:54:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.51 2009-10-22 18:17:51 amb Exp $
 
  Extented Node data type functions.
 
@@ -38,11 +38,15 @@
 
 /* Constants */
 
+/*+ The amount of memory to use for sorting. +*/
 #define SORT_RAMSIZE (64*1024*1024)
 
 /* Variables */
 
+/*+ The command line '--slim' option. +*/
 extern int option_slim;
+
+/*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
 /*+ A temporary file-local variable for use by the sort functions. +*/
@@ -216,7 +220,7 @@ static int sort_by_id(NodeX *a,NodeX *b)
 /*++++++++++++++++++++++++++++++++++++++
   Index the nodes after sorting.
 
-  index_by_id Return 1 if the value is to be kept, otherwise zero.
+  int index_by_id Return 1 if the value is to be kept, otherwise zero.
 
   NodeX *nodex The extended node.
 
@@ -345,7 +349,7 @@ static int sort_by_lat_long(NodeX *a,NodeX *b)
 /*++++++++++++++++++++++++++++++++++++++
   Index the nodes after sorting.
 
-  index_by_lat_long Return 1 if the value is to be kept, otherwise zero.
+  int index_by_lat_long Return 1 if the value is to be kept, otherwise zero.
 
   NodeX *nodex The extended node.
 

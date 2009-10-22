@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.13 2009-09-17 12:41:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.14 2009-10-22 18:17:51 amb Exp $
 
  Functions to map a file into memory.
 
@@ -33,16 +33,20 @@
 #include "functions.h"
 
 
+/*+ A structure to contain the list of memory mapped files. +*/
 struct mmapinfo
 {
- const char  *filename;
-       int    fd;
-       void  *address;
-       size_t length;
+ const char  *filename;         /*+ The name of the file (the index of the list). +*/
+       int    fd;               /*+ The file descriptor used when it was opened. +*/
+       void  *address;          /*+ The address the file was mapped to. +*/
+       size_t length;           /*+ The length of the file. +*/
 };
 
-struct mmapinfo *mappedfiles;
-int nmappedfiles=0;
+/*+ The list of memory mapped files. +*/
+static struct mmapinfo *mappedfiles;
+
+/*+ The number of mapped files. +*/
+static int nmappedfiles=0;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -129,7 +133,7 @@ void *MapFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Unmap a file and optionally delete it.
 
-  Returns NULL (for similarity to the MapFile function).
+  void *UnmapFile Returns NULL (for similarity to the MapFile function).
 
   const char *filename The name of the file when it was opened.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -196,7 +200,7 @@ int OpenFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Open an existing file on disk for reading from.
 
-  int OpenFile Returns the file descriptor if OK or something negative in case of an error.
+  int ReOpenFile Returns the file descriptor if OK or something negative in case of an error.
 
   const char *filename The name of the file to open.
   ++++++++++++++++++++++++++++++++++++++*/

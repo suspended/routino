@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.4 2009-10-12 17:35:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.5 2009-10-22 18:17:51 amb Exp $
 
  Merge sort functions.
 
@@ -32,6 +32,7 @@
 
 /* Variables */
 
+/*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
 
