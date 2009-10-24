@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.76 2009-08-15 15:27:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.77 2009-10-24 10:44:48 amb Exp $
 
  Routing optimiser.
 
@@ -194,34 +194,13 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
  /* Check it worked */
 
- result2=FindResult(results,finish);
-
- if(!result2)
+ if(!FindResult(results,finish))
    {
     FreeResultsList(results);
     return(NULL);
    }
 
- /* Create the forward links for the optimum path */
-
- result2=FindResult(results,finish);
-
- do
-   {
-    if(result2->prev!=NO_NODE)
-      {
-       index_t node1=result2->prev;
-
-       result1=FindResult(results,node1);
-
-       result1->next=result2->node;
-
-       result2=result1;
-      }
-    else
-       result2=NULL;
-   }
- while(result2);
+ FixForwardRoute(results,finish);
 
  return(results);
 }
@@ -468,32 +447,13 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
  /* Check it worked */
 
- result2=FindResult(results,end->finish);
-
- if(!result2)
+ if(!FindResult(results,end->finish))
    {
     FreeResultsList(results);
     return(NULL);
    }
 
- /* Create the forward links for the optimum path */
-
- do
-   {
-    if(result2->prev!=NO_NODE)
-      {
-       index_t node1=result2->prev;
-
-       result1=FindResult(results,node1);
-
-       result1->next=result2->node;
-
-       result2=result1;
-      }
-    else
-       result2=NULL;
-   }
- while(result2);
+ FixForwardRoute(results,end->finish);
 
  return(results);
 }
@@ -839,4 +799,40 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
  while(result1);
 
  return(combined);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Fx the forward route (i.e. setup next nodes for forward path from prev nodes on reverse path).
+
+  Results *results The set of results to update.
+
+  index_t finish The finish point.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FixForwardRoute(Results *results,index_t finish)
+{
+ Result *result2=FindResult(results,finish);
+ Result *result1;
+
+ /* Create the forward links for the optimum path */
+
+ do
+   {
+    if(result2->prev!=NO_NODE)
+      {
+       index_t node1=result2->prev;
+
+       result1=FindResult(results,node1);
+
+       result1->next=result2->node;
+
+       result2=result1;
+      }
+    else
+       result2=NULL;
+   }
+ while(result2);
+
+ results->finish=finish;
 }

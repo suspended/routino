@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.43 2009-10-04 15:53:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.44 2009-10-24 10:44:48 amb Exp $
 
  Header file for function prototypes
 
@@ -60,6 +60,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t finish,Profile *profile);
 
 Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile);
+
+void FixForwardRoute(Results *results,index_t finish);
 
 
 /* In output.c */

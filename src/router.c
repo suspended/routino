@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.58 2009-08-17 18:26:22 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.59 2009-10-24 10:44:48 amb Exp $
 
  OSM router.
 
@@ -352,9 +352,9 @@ int main(int argc,char** argv)
 
     if(FindResult(begin,finish))
       {
-       results[node]=begin;
+       FixForwardRoute(begin,finish);
 
-       results[node]->finish=finish;
+       results[node]=begin;
       }
     else
       {
