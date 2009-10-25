@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.12 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.13 2009-10-25 16:59:47 amb Exp $
 
  Routing output generator.
 
@@ -314,7 +314,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
                       change=1;
                   }
                 else /* a segment that we don't follow */
-                   other+=junction_other_way[HIGHWAY(resultway->type)][HIGHWAY(way->type)];
+                   other+=junction_other_way[HIGHWAY(resultway->type)-1][HIGHWAY(way->type)-1];
                }
 
           segment=NextSegment(segments,segment,result->node);
