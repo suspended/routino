@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.32 2009-07-02 17:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.33 2009-10-26 19:04:40 amb Exp $
 
  Way data type functions.
 
@@ -78,7 +78,7 @@ Highway HighwayType(const char *highway)
    {
    case 'b':
     if(!strcmp(highway,"byway")) return(Way_Track);
-    if(!strcmp(highway,"bridleway")) return(Way_Bridleway);
+    if(!strcmp(highway,"bridleway")) return(Way_Path);
     return(Way_Unknown);
 
    case 'c':
@@ -86,7 +86,7 @@ Highway HighwayType(const char *highway)
     return(Way_Unknown);
 
    case 'f':
-    if(!strcmp(highway,"footway")) return(Way_Footway);
+    if(!strcmp(highway,"footway")) return(Way_Path);
     return(Way_Unknown);
 
    case 'l':
@@ -101,7 +101,7 @@ Highway HighwayType(const char *highway)
    case 'p':
     if(!strncmp(highway,"primary",7)) return(Way_Primary);
     if(!strcmp(highway,"path")) return(Way_Path);
-    if(!strcmp(highway,"pedestrian")) return(Way_Footway);
+    if(!strcmp(highway,"pedestrian")) return(Way_Path);
     return(Way_Unknown);
 
    case 'r':
@@ -113,7 +113,7 @@ Highway HighwayType(const char *highway)
     if(!strncmp(highway,"secondary",9)) return(Way_Secondary);
     if(!strcmp(highway,"service")) return(Way_Service);
     if(!strcmp(highway,"services")) return(Way_Service);
-    if(!strcmp(highway,"steps")) return(Way_Footway);
+    if(!strcmp(highway,"steps")) return(Way_Path);
     return(Way_Unknown);
 
    case 't':
@@ -129,7 +129,7 @@ Highway HighwayType(const char *highway)
     return(Way_Unknown);
 
    case 'w':
-    if(!strcmp(highway,"walkway")) return(Way_Footway);
+    if(!strcmp(highway,"walkway")) return(Way_Path);
     return(Way_Unknown);
 
    default:
@@ -224,14 +224,10 @@ const char *HighwayName(Highway highway)
     return("service");
    case Way_Track:
     return("track");
-   case Way_Path:
-    return("path");
-   case Way_Bridleway:
-    return("bridleway");
    case Way_Cycleway:
     return("cycleway");
-   case Way_Footway:
-    return("footway");
+   case Way_Path:
+    return("path");
 
    case Way_Unknown:
    case Way_OneWay:
@@ -296,10 +292,9 @@ const char *HighwayList(void)
         "    residential  = Residential\n"
         "    service      = Service\n"
         "    track        = Track\n"
-        "    path         = Path\n"
-        "    bridleway    = Bridleway\n"
         "    cycleway     = Cycleway\n"
-        "    footway      = Footway\n";
+        "    path         = Path\n"
+        ;
 }
 
 
@@ -318,7 +313,8 @@ const char *TransportList(void)
         "    motorcar  = Motorcar\n"
         "    goods     = Goods     (Small lorry, van)\n"
         "    hgv       = HGV       (Heavy Goods Vehicle - large lorry)\n"
-        "    psv       = PSV       (Public Service Vehicle - bus, coach)\n";
+        "    psv       = PSV       (Public Service Vehicle - bus, coach)\n"
+        ;
 }
 
 
