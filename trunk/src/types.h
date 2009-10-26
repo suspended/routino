@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.28 2009-07-09 17:44:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.29 2009-10-26 19:04:40 amb Exp $
 
  Type definitions
 
@@ -171,12 +171,10 @@ typedef enum _Highway
   Way_Residential = 7,
   Way_Service     = 8,
   Way_Track       = 9,
-  Way_Path        =10,
-  Way_Bridleway   =11,
-  Way_Cycleway    =12,
-  Way_Footway     =13,
+  Way_Cycleway    =10,
+  Way_Path        =11,
 
-  Way_Unknown     =14,
+  Way_Unknown     =12,
 
   Way_OneWay      =32,
   Way_Roundabout  =64

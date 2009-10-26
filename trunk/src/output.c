@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.13 2009-10-25 16:59:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.14 2009-10-26 19:04:40 amb Exp $
 
  Routing output generator.
 
@@ -49,20 +49,18 @@ static double finish_latitude,finish_longitude;
 
 /*+ Heuristics for determining if a junction is important. +*/
 static char junction_other_way[Way_Unknown][Way_Unknown]=
- { /* M, T, P, S, T, U, R, S, T, P, B, C, F = Way type of route not taken */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 }, /* Motorway     */
-  {   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Trunk        */
-  {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Primary      */
-  {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Secondary    */
-  {   1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 }, /* Tertiary     */
-  {   1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 }, /* Unclassified */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 }, /* Residential  */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 }, /* Service      */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Track        */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Path         */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Bridleway    */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Cycleway     */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Footway      */
+ { /* M, T, P, S, T, U, R, S, T, C, P = Way type of route not taken */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 }, /* Motorway     */
+  {   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Trunk        */
+  {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 }, /* Primary      */
+  {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 }, /* Secondary    */
+  {   1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 }, /* Tertiary     */
+  {   1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 }, /* Unclassified */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 }, /* Residential  */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 }, /* Service      */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Track        */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Cycleway     */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Path         */
  };
 
 
