@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.52 2009-10-26 19:04:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.53 2009-10-26 19:11:41 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -150,32 +150,32 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
              allow=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Primary:
-             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Secondary:
-             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Tertiary:
-             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Unclassified:
-             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Residential:
-             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Service:
-             allow=Allow_Foot|Allow_Bicycle|Allow_Horse|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Track:
-             allow=Allow_Foot|Allow_Bicycle|Allow_Horse;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle;
              break;
             case Way_Cycleway:
              allow=Allow_Foot|Allow_Bicycle;
              break;
             case Way_Path:
              if(!strcmp(way_highway,"bridleway"))
-                allow=Allow_Foot|Allow_Bicycle|Allow_Horse; /* Special case for UK "bridleway". */
+                allow=Allow_Foot|Allow_Horse|Allow_Bicycle; /* Special case for UK "bridleway". */
              else
                 allow=Allow_Foot; /* Only allow bicycle and horse if so indicated. */
              break;

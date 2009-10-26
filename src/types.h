@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.29 2009-10-26 19:04:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.30 2009-10-26 19:11:41 amb Exp $
 
  Type definitions
 
@@ -193,8 +193,8 @@ typedef enum _Transport
   Transport_None      = 0,
 
   Transport_Foot      = 1,
-  Transport_Bicycle   = 2,
-  Transport_Horse     = 3,
+  Transport_Horse     = 2,
+  Transport_Bicycle   = 3,
   Transport_Motorbike = 4,
   Transport_Motorcar  = 5,
   Transport_Goods     = 6,
@@ -211,8 +211,8 @@ typedef uint8_t wayallow_t;
 typedef enum _Allowed
  {
   Allow_Foot      =1<<(Transport_Foot     -1),
-  Allow_Bicycle   =1<<(Transport_Bicycle  -1),
   Allow_Horse     =1<<(Transport_Horse    -1),
+  Allow_Bicycle   =1<<(Transport_Bicycle  -1),
   Allow_Motorbike =1<<(Transport_Motorbike-1),
   Allow_Motorcar  =1<<(Transport_Motorcar -1),
   Allow_Goods     =1<<(Transport_Goods    -1),

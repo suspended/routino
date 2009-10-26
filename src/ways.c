@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.33 2009-10-26 19:04:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.34 2009-10-26 19:11:41 amb Exp $
 
  Way data type functions.
 
@@ -256,10 +256,10 @@ const char *TransportName(Transport transport)
 
    case Transport_Foot:
     return("foot");
-   case Transport_Bicycle:
-    return("bicycle");
    case Transport_Horse:
     return("horse");
+   case Transport_Bicycle:
+    return("bicycle");
    case Transport_Motorbike:
     return("motorbike");
    case Transport_Motorcar:
