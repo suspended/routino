@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.21 2009-10-26 19:11:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.22 2009-10-26 19:14:42 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -90,7 +90,7 @@ static Profile builtin_profiles[]=
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = 0,
+                                   [Way_Trunk       ] = kph_to_speed(8),
                                    [Way_Primary     ] = kph_to_speed(8),
                                    [Way_Secondary   ] = kph_to_speed(8),
                                    [Way_Tertiary    ] = kph_to_speed(8),
@@ -128,7 +128,7 @@ static Profile builtin_profiles[]=
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = 0,
+                                   [Way_Trunk       ] = kph_to_speed(20),
                                    [Way_Primary     ] = kph_to_speed(20),
                                    [Way_Secondary   ] = kph_to_speed(20),
                                    [Way_Tertiary    ] = kph_to_speed(20),
