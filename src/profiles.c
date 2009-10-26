@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.18 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.19 2009-10-26 18:37:39 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -471,14 +471,14 @@ void PrintProfilesJS(void)
  printf("// Transport types\n");
  printf("var router_transports={");
  for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %d",j==1?"":", ",TransportName(j),j-1);
+    printf("%s%s: %d",j==1?"":", ",TransportName(j),j);
  printf("};\n");
  printf("\n");
 
  printf("// Highway types\n");
  printf("var router_highways={");
  for(i=1;i<Way_Unknown;i++)
-    printf("%s%s: %d",i==1?"":", ",HighwayName(i),i-1);
+    printf("%s%s: %d",i==1?"":", ",HighwayName(i),i);
  printf("};\n");
  printf("\n");
 
@@ -493,7 +493,7 @@ void PrintProfilesJS(void)
     printf("  %12s: {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s%s: %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].highway[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":", ");
+    printf("}%s\n",i==(Way_Unknown-1)?"":",");
    }
  printf("   };\n");
  printf("\n");
@@ -505,7 +505,7 @@ void PrintProfilesJS(void)
     printf("  %12s: {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s%s: %3d",j==1?"":", ",TransportName(j),builtin_profiles[j].speed[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":", ");
+    printf("}%s\n",i==(Way_Unknown-1)?"":",");
    }
  printf("   };\n");
  printf("\n");
@@ -570,7 +570,7 @@ void PrintProfilesPerl(void)
     printf("  %12s => {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s %s => %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].highway[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":", ");
+    printf("}%s\n",i==(Way_Unknown-1)?"":",");
    }
  printf("   );\n");
  printf("\n");
@@ -582,7 +582,7 @@ void PrintProfilesPerl(void)
     printf("  %12s => {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s %s => %3d",j==1?"":", ",TransportName(j),builtin_profiles[j].speed[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":", ");
+    printf("}%s\n",i==(Way_Unknown-1)?"":",");
    }
  printf("   );\n");
  printf("\n");
