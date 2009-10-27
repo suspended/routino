@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.30 2009-10-26 19:11:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.31 2009-10-27 17:31:44 amb Exp $
 
  Type definitions
 
@@ -185,7 +185,7 @@ typedef enum _Highway
 
 
 /*+ The method of transport. +*/
-typedef uint8_t transport_t;
+typedef uint16_t transport_t;
 
 /*+ The different methods of transport. +*/
 typedef enum _Transport
@@ -195,17 +195,18 @@ typedef enum _Transport
   Transport_Foot      = 1,
   Transport_Horse     = 2,
   Transport_Bicycle   = 3,
-  Transport_Motorbike = 4,
-  Transport_Motorcar  = 5,
-  Transport_Goods     = 6,
-  Transport_HGV       = 7,
-  Transport_PSV       = 8
+  Transport_Moped     = 4,
+  Transport_Motorbike = 5,
+  Transport_Motorcar  = 6,
+  Transport_Goods     = 7,
+  Transport_HGV       = 8,
+  Transport_PSV       = 9
  }
  Transport;
 
 
 /*+ The allowed traffic on a way. +*/
-typedef uint8_t wayallow_t;
+typedef transport_t wayallow_t;
 
 /*+ The different allowed traffic on a way. +*/
 typedef enum _Allowed
@@ -213,13 +214,14 @@ typedef enum _Allowed
   Allow_Foot      =1<<(Transport_Foot     -1),
   Allow_Horse     =1<<(Transport_Horse    -1),
   Allow_Bicycle   =1<<(Transport_Bicycle  -1),
+  Allow_Moped     =1<<(Transport_Moped    -1),
   Allow_Motorbike =1<<(Transport_Motorbike-1),
   Allow_Motorcar  =1<<(Transport_Motorcar -1),
   Allow_Goods     =1<<(Transport_Goods    -1),
   Allow_HGV       =1<<(Transport_HGV      -1),
   Allow_PSV       =1<<(Transport_PSV      -1),
 
-  Allow_ALL       =255
+  Allow_ALL       =65535
  }
  Allowed;
 
