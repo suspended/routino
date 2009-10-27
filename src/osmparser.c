@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.53 2009-10-26 19:11:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.54 2009-10-27 17:31:44 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -147,25 +147,25 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
              allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Trunk:
-             allow=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Primary:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Secondary:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Tertiary:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Unclassified:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Residential:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Service:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
              break;
             case Way_Track:
              allow=Allow_Foot|Allow_Horse|Allow_Bicycle;
@@ -440,6 +440,13 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_maxlength=metres_to_length(atof(v));
                }
+             if(!strcmp(k,"moped"))
+               {
+                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                   way_allow_yes|=Allow_Moped;
+                else
+                   way_allow_no|=Allow_Moped;
+               }
              if(!strcmp(k,"motorbike"))
                {
                 if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
@@ -457,9 +464,9 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
              if(!strcmp(k,"motor_vehicle"))
                {
                 if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
-                   way_allow_yes|=Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+                   way_allow_yes|=Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
                 else
-                   way_allow_no|=Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+                   way_allow_no|=Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
                }
              break;
 
@@ -497,9 +504,9 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
              if(!strcmp(k,"vehicle"))
                {
                 if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
-                   way_allow_yes|=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+                   way_allow_yes|=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
                 else
-                   way_allow_no|=Allow_Bicycle|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+                   way_allow_no|=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
                }
              break;
 

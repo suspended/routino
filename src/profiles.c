@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.22 2009-10-26 19:14:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.23 2009-10-27 17:31:44 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -138,6 +138,44 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(20),
                                    [Way_Cycleway    ] = kph_to_speed(20),
                                    [Way_Path        ] = kph_to_speed(20),
+                                  },
+                      .oneway   = 1,
+                      .weight   = 0,
+                      .height   = 0,
+                      .width    = 0,
+                      .length   = 0,
+                     },
+
+  /* The profile for travel by Moped */
+
+  [Transport_Moped] = {
+                      .transport=Transport_Moped,
+                      .allow    =Allow_Moped,
+                      .highway  = {
+                                   [Way_Motorway    ] =   0,
+                                   [Way_Trunk       ] =  90,
+                                   [Way_Primary     ] = 100,
+                                   [Way_Secondary   ] =  90,
+                                   [Way_Tertiary    ] =  80,
+                                   [Way_Unclassified] =  70,
+                                   [Way_Residential ] =  60,
+                                   [Way_Service     ] =  80,
+                                   [Way_Track       ] =   0,
+                                   [Way_Cycleway    ] =   0,
+                                   [Way_Path        ] =   0,
+                                  },
+                      .speed    = {
+                                   [Way_Motorway    ] = kph_to_speed(30*1.6),
+                                   [Way_Trunk       ] = kph_to_speed(30*1.6),
+                                   [Way_Primary     ] = kph_to_speed(30*1.6),
+                                   [Way_Secondary   ] = kph_to_speed(30*1.6),
+                                   [Way_Tertiary    ] = kph_to_speed(30*1.6),
+                                   [Way_Unclassified] = kph_to_speed(30*1.6),
+                                   [Way_Residential ] = kph_to_speed(30*1.6),
+                                   [Way_Service     ] = kph_to_speed(20*1.6),
+                                   [Way_Track       ] = kph_to_speed(10*1.6),
+                                   [Way_Cycleway    ] = 0,
+                                   [Way_Path        ] = 0,
                                   },
                       .oneway   = 1,
                       .weight   = 0,

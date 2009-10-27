@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.34 2009-10-26 19:11:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.35 2009-10-27 17:31:44 amb Exp $
 
  Way data type functions.
 
@@ -175,6 +175,8 @@ Transport TransportType(const char *transport)
     break;
 
    case 'm':
+    if(!strcmp(transport,"moped"))
+       return(Transport_Moped);
     if(!strcmp(transport,"motorbike"))
        return(Transport_Motorbike);
     if(!strcmp(transport,"motorcar"))
@@ -260,6 +262,8 @@ const char *TransportName(Transport transport)
     return("horse");
    case Transport_Bicycle:
     return("bicycle");
+   case Transport_Moped:
+    return("moped");
    case Transport_Motorbike:
     return("motorbike");
    case Transport_Motorcar:
@@ -309,6 +313,7 @@ const char *TransportList(void)
  return "    foot      = Foot\n"
         "    bicycle   = Bicycle\n"
         "    horse     = Horse\n"
+        "    moped     = Moped     (Small motorbike, limited speed)\n"
         "    motorbike = Motorbike\n"
         "    motorcar  = Motorcar\n"
         "    goods     = Goods     (Small lorry, van)\n"
