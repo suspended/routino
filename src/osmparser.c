@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.54 2009-10-27 17:31:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.55 2009-10-27 18:48:53 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -37,6 +37,8 @@
 
 /*+ The length of the buffer and the size increment for reading lines from the file. +*/
 #define BUFFSIZE 256
+
+#define ISALLOWED(xx) (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1") || !strcmp(xx,"permissive") || !strcmp(xx,"designated") || !strcmp(xx,"destination"))
 
 /* Local functions */
 
@@ -309,7 +311,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
             case 'a':
              if(!strcmp(k,"access"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    ;
                 else
                    way_allow_no=~0;
@@ -319,30 +321,42 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
             case 'b':
              if(!strcmp(k,"bicycle"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_Bicycle;
                 else
-                   way_allow_no|=Allow_Bicycle;
+                   way_allow_no |=Allow_Bicycle;
+               }
+             break;
+
+            case 'd':
+             if(!strcmp(k,"designation"))
+               {
+                if(!strcmp(v,"bridleway"))
+                   way_allow_yes|=Allow_Foot|Allow_Horse|Allow_Bicycle;
+                else if(!strcmp(v,"byway"))
+                   way_allow_yes|=Allow_Foot|Allow_Horse|Allow_Bicycle;
+                else if(!strcmp(v,"footpath"))
+                   way_allow_yes|=Allow_Foot;
                }
              break;
 
             case 'f':
              if(!strcmp(k,"foot"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_Foot;
                 else
-                   way_allow_no|=Allow_Foot;
+                   way_allow_no |=Allow_Foot;
                }
              break;
 
             case 'g':
              if(!strcmp(k,"goods"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_Goods;
                 else
-                   way_allow_no|=Allow_Goods;
+                   way_allow_no |=Allow_Goods;
                }
              break;
 
@@ -355,17 +369,17 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                }
              if(!strcmp(k,"horse"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_Horse;
                 else
-                   way_allow_no|=Allow_Horse;
+                   way_allow_no |=Allow_Horse;
                }
              if(!strcmp(k,"hgv"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_HGV;
                 else
-                   way_allow_no|=Allow_HGV;
+                   way_allow_no |=Allow_HGV;
                }
              break;
 
@@ -442,31 +456,31 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                }
              if(!strcmp(k,"moped"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_Moped;
                 else
-                   way_allow_no|=Allow_Moped;
+                   way_allow_no |=Allow_Moped;
                }
              if(!strcmp(k,"motorbike"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_Motorbike;
                 else
-                   way_allow_no|=Allow_Motorbike;
+                   way_allow_no |=Allow_Motorbike;
                }
              if(!strcmp(k,"motorcar"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_Motorcar;
                 else
-                   way_allow_no|=Allow_Motorcar;
+                   way_allow_no |=Allow_Motorcar;
                }
              if(!strcmp(k,"motor_vehicle"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
                 else
-                   way_allow_no|=Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+                   way_allow_no |=Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
                }
              break;
 
@@ -488,10 +502,10 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
             case 'p':
              if(!strcmp(k,"psv"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_PSV;
                 else
-                   way_allow_no|=Allow_PSV;
+                   way_allow_no |=Allow_PSV;
                }
              break;
 
@@ -503,10 +517,10 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
             case 'v':
              if(!strcmp(k,"vehicle"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1") || !strcmp(v,"permissive") || !strcmp(v,"designated"))
+                if(ISALLOWED(v))
                    way_allow_yes|=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
                 else
-                   way_allow_no|=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+                   way_allow_no |=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
                }
              break;
 
