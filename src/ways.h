@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.32 2009-10-27 17:31:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.33 2009-11-02 19:32:06 amb Exp $
 
  A header file for the ways.
 
@@ -33,14 +33,16 @@
 /* Data structures */
 
 
-/*+ A structure containing a single way. +*/
+/*+ A structure containing a single way (members ordered to minimise overall size). +*/
 struct _Way
 {
  index_t    name;               /*+ The offset of the name of the way in the names array. +*/
 
  wayallow_t allow;              /*+ The type of traffic allowed on the way. +*/
 
- waytype_t  type;               /*+ The type of the way. +*/
+ waytype_t  type;               /*+ The highway type of the way. +*/
+
+ wayprop_t  props;              /*+ The properties of the way. +*/
 
  speed_t    speed;              /*+ The defined maximum speed limit of the way. +*/
 
@@ -81,12 +83,18 @@ Ways *LoadWayList(const char *filename);
 
 Highway HighwayType(const char *highway);
 Transport TransportType(const char *transport);
+Property PropertyType(const char *property);
 
 const char *HighwayName(Highway highway);
 const char *TransportName(Transport transport);
+const char *PropertyName(Property property);
+
+const char *AllowedNameList(wayallow_t allowed);
+const char *PropertiesNameList(wayprop_t properties);
 
 const char *HighwayList(void);
 const char *TransportList(void);
+const char *PropertyList(void);
 
 int WaysCompare(Way *way1,Way *way2);
 

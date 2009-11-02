@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.33 2009-09-06 15:48:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.34 2009-11-02 19:32:06 amb Exp $
 
  Memory file dumper.
 
@@ -374,7 +374,9 @@ static void print_way(Ways *ways,index_t item)
  printf("Way %d\n",item);
  printf("  name=%s\n",WayName(ways,way));
  printf("  type=%02x (%s%s%s)\n",way->type,HighwayName(HIGHWAY(way->type)),way->type&Way_OneWay?",One-Way":"",way->type&Way_Roundabout?",Roundabout":"");
- printf("  allow=%02x\n",way->allow);
+ printf("  allow=%02x (%s)\n",way->allow,AllowedNameList(way->allow));
+ if(way->props)
+    printf("  props=%02x (%s)\n",way->props,PropertiesNameList(way->props));
  if(way->speed)
     printf("  speed=%d (%d km/hr)\n",way->speed,speed_to_kph(way->speed));
  if(way->weight)
