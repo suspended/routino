@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.56 2009-11-02 19:32:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.57 2009-11-02 19:45:25 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -527,6 +527,14 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
              break;
 
             case 'p':
+             if(!strcmp(k,"paved"))
+               {
+                if(ISTRUE(v))
+                   way_paved=1;
+                else
+                   way_paved=-1;
+               }
+
              if(!strcmp(k,"psv"))
                {
                 if(ISALLOWED(v))
@@ -540,7 +548,6 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
              if(!strcmp(k,"ref"))
                 way_ref=strcpy((char*)malloc(strlen(v)+1),v);
              break;
-
 
             case 's':
              if(!strcmp(k,"surface"))
