@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.77 2009-10-24 10:44:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.78 2009-11-02 19:32:06 amb Exp $
 
  Routing optimiser.
 
@@ -102,7 +102,8 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
     while(segment)
       {
-       score_t segment_score,cumulative_score;
+       score_t segment_pref,segment_score,cumulative_score;
+       int i;
 
        if(!IsNormalSegment(segment))
           goto endloop;
@@ -134,10 +135,21 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           (way->length && way->length<profile->length))
           goto endloop;
 
+       segment_pref=profile->highway[HIGHWAY(way->type)];
+
+       for(i=1;i<Property_Count;i++)
+          if(way->props && PROPERTIES(i))
+             segment_pref*=profile->props_yes[i];
+          else
+             segment_pref*=profile->props_no[i];
+
+       if(segment_pref==0)
+          goto endloop;
+
        if(option_quickest==0)
-          segment_score=(score_t)DISTANCE(segment->distance)/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segment,way,profile)/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)Duration(segment,way,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -299,7 +311,8 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
     while(segment)
       {
-       score_t segment_score,cumulative_score;
+       score_t segment_pref,segment_score,cumulative_score;
+       int i;
 
        if(!IsSuperSegment(segment))
           goto endloop;
@@ -328,10 +341,21 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
           (way->length && way->length<profile->length))
           goto endloop;
 
+       segment_pref=profile->highway[HIGHWAY(way->type)];
+
+       for(i=1;i<Property_Count;i++)
+          if(way->props && PROPERTIES(i))
+             segment_pref*=profile->props_yes[i];
+          else
+             segment_pref*=profile->props_no[i];
+
+       if(segment_pref==0)
+          goto endloop;
+
        if(option_quickest==0)
-          segment_score=(score_t)DISTANCE(segment->distance)/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segment,way,profile)/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)Duration(segment,way,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -508,7 +532,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
     while(segment)
       {
-       score_t segment_score,cumulative_score;
+       score_t segment_pref,segment_score,cumulative_score;
+       int i;
 
        if(!IsNormalSegment(segment))
           goto endloop;
@@ -537,10 +562,21 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           (way->length && way->length<profile->length))
           goto endloop;
 
+       segment_pref=profile->highway[HIGHWAY(way->type)];
+
+       for(i=1;i<Property_Count;i++)
+          if(way->props && PROPERTIES(i))
+             segment_pref*=profile->props_yes[i];
+          else
+             segment_pref*=profile->props_no[i];
+
+       if(segment_pref==0)
+          goto endloop;
+
        if(option_quickest==0)
-          segment_score=(score_t)DISTANCE(segment->distance)/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segment,way,profile)/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)Duration(segment,way,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -642,7 +678,8 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
 
     while(segment)
       {
-       score_t segment_score,cumulative_score;
+       score_t segment_pref,segment_score,cumulative_score;
+       int i;
 
        if(!IsNormalSegment(segment))
           goto endloop;
@@ -671,10 +708,21 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
           (way->length && way->length<profile->length))
           goto endloop;
 
+       segment_pref=profile->highway[HIGHWAY(way->type)];
+
+       for(i=1;i<Property_Count;i++)
+          if(way->props && PROPERTIES(i))
+             segment_pref*=profile->props_yes[i];
+          else
+             segment_pref*=profile->props_no[i];
+
+       if(segment_pref==0)
+          goto endloop;
+
        if(option_quickest==0)
-          segment_score=(score_t)DISTANCE(segment->distance)/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segment,way,profile)/profile->highway[HIGHWAY(way->type)];
+          segment_score=(score_t)Duration(segment,way,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 

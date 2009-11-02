@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.31 2009-10-27 17:31:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.32 2009-11-02 19:32:06 amb Exp $
 
  Type definitions
 
@@ -175,17 +175,15 @@ typedef enum _Highway
   Way_Path        =11,
 
   Way_Unknown     =12,
+//  Way_Count       =12,       /* One more than the number of highways. */
 
   Way_OneWay      =32,
   Way_Roundabout  =64
  }
  Highway;
 
-#define HIGHWAY(xx) ((xx)&0x0f)
+#define HIGHWAY(xx) ((xx)&0x1f)
 
-
-/*+ The method of transport. +*/
-typedef uint16_t transport_t;
 
 /*+ The different methods of transport. +*/
 typedef enum _Transport
@@ -206,24 +204,53 @@ typedef enum _Transport
 
 
 /*+ The allowed traffic on a way. +*/
-typedef transport_t wayallow_t;
+typedef uint16_t wayallow_t;
+
+#define ALLOWED(xx)  (1<<((xx)-1))
 
 /*+ The different allowed traffic on a way. +*/
 typedef enum _Allowed
  {
-  Allow_Foot      =1<<(Transport_Foot     -1),
-  Allow_Horse     =1<<(Transport_Horse    -1),
-  Allow_Bicycle   =1<<(Transport_Bicycle  -1),
-  Allow_Moped     =1<<(Transport_Moped    -1),
-  Allow_Motorbike =1<<(Transport_Motorbike-1),
-  Allow_Motorcar  =1<<(Transport_Motorcar -1),
-  Allow_Goods     =1<<(Transport_Goods    -1),
-  Allow_HGV       =1<<(Transport_HGV      -1),
-  Allow_PSV       =1<<(Transport_PSV      -1),
+  Allow_Foot      = ALLOWED(Transport_Foot     ),
+  Allow_Horse     = ALLOWED(Transport_Horse    ),
+  Allow_Bicycle   = ALLOWED(Transport_Bicycle  ),
+  Allow_Moped     = ALLOWED(Transport_Moped    ),
+  Allow_Motorbike = ALLOWED(Transport_Motorbike),
+  Allow_Motorcar  = ALLOWED(Transport_Motorcar ),
+  Allow_Goods     = ALLOWED(Transport_Goods    ),
+  Allow_HGV       = ALLOWED(Transport_HGV      ),
+  Allow_PSV       = ALLOWED(Transport_PSV      ),
 
-  Allow_ALL       =65535
+  Allow_ALL       = 65535
  }
  Allowed;
+
+
+/*+ The individual properties of a highway. +*/
+typedef enum _Property
+ {
+  Property_None      = 0,
+
+  Property_Paved     = 1,
+
+  Property_Count     = 2       /* One more than the number of properties. */
+ }
+ Property;
+
+
+/*+ The combined set of properties of a way. +*/
+typedef uint8_t wayprop_t;
+
+#define PROPERTIES(xx)  (1<<((xx)-1))
+
+/*+ The different properties of a way. +*/
+typedef enum _Properties
+ {
+  Properties_Paved     = PROPERTIES(Property_Paved),
+
+  Properties_ALL       = 255
+ }
+ Properties;
 
 
 /*+ The speed limit of a way, measured in km/hour. +*/

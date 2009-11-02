@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.23 2009-10-27 17:31:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.24 2009-11-02 19:32:06 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -63,6 +63,9 @@ static Profile builtin_profiles[]=
                                    [Way_Cycleway    ] = kph_to_speed(4),
                                    [Way_Path        ] = kph_to_speed(4),
                                   },
+                      .props_yes= {
+                                   [Property_Paved] = 50,
+                                  },
                       .oneway   = 0,
                       .weight   = 0,
                       .height   = 0,
@@ -100,6 +103,9 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(8),
                                    [Way_Cycleway    ] = kph_to_speed(8),
                                    [Way_Path        ] = kph_to_speed(8),
+                                  },
+                      .props_yes= {
+                                   [Property_Paved] = 20,
                                   },
                       .oneway   = 1,
                       .weight   = 0,
@@ -139,6 +145,9 @@ static Profile builtin_profiles[]=
                                    [Way_Cycleway    ] = kph_to_speed(20),
                                    [Way_Path        ] = kph_to_speed(20),
                                   },
+                      .props_yes= {
+                                   [Property_Paved] = 50,
+                                  },
                       .oneway   = 1,
                       .weight   = 0,
                       .height   = 0,
@@ -176,6 +185,9 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(10*1.6),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
+                                  },
+                      .props_yes= {
+                                   [Property_Paved] = 100,
                                   },
                       .oneway   = 1,
                       .weight   = 0,
@@ -215,6 +227,9 @@ static Profile builtin_profiles[]=
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
                                   },
+                      .props_yes= {
+                                   [Property_Paved] = 100,
+                                  },
                       .oneway   = 1,
                       .weight   = 0,
                       .height   = 0,
@@ -252,6 +267,9 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(10*1.6),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
+                                  },
+                      .props_yes= {
+                                   [Property_Paved] = 100,
                                   },
                       .oneway   = 1,
                       .weight   = 0,
@@ -291,6 +309,9 @@ static Profile builtin_profiles[]=
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
                                   },
+                      .props_yes= {
+                                   [Property_Paved] = 100,
+                                  },
                       .oneway   = 1,
                       .weight   = tonnes_to_weight(5),
                       .height   = metres_to_height(2.5),
@@ -328,6 +349,9 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(10*1.6),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
+                                  },
+                      .props_yes= {
+                                   [Property_Paved] = 100,
                                   },
                       .oneway   = 1,
                       .weight   = tonnes_to_weight(10),
@@ -367,6 +391,9 @@ static Profile builtin_profiles[]=
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
                                   },
+                      .props_yes= {
+                                   [Property_Paved] = 100,
+                                  },
                       .oneway   = 1,
                       .weight   = tonnes_to_weight(15),
                       .height   = metres_to_height(3),
@@ -404,28 +431,46 @@ void UpdateProfile(Profile *profile)
  /* Normalise the highway preferences into the range 0 -> 1 */
 
  for(i=1;i<Way_Unknown;i++)
+   {
+    if(profile->highway[i]<0)
+       profile->highway[i]=0;
+
     if(profile->highway[i]>hmax)
        hmax=profile->highway[i];
+   }
 
  for(i=1;i<Way_Unknown;i++)
-    if(profile->highway[i]>0)
-       profile->highway[i]/=hmax;
-    else
-       profile->highway[i]=0;
+    profile->highway[i]/=hmax;
+
+ /* Normalise the attribute preferences into the range 0 -> 1 */
+
+ for(i=1;i<Property_Count;i++)
+   {
+    if(profile->props_yes[i]<0)
+       profile->props_yes[i]=0;
+
+    if(profile->props_yes[i]>100)
+       profile->props_yes[i]=100;
+
+    profile->props_yes[i]/=100;
+    profile->props_no [i] =1-profile->props_yes[i];
+   }
 
  /* Find the fastest and most preferred highway type */
 
  profile->max_speed=0;
 
- for(i=0;i<Way_Unknown;i++)
+ for(i=1;i<Way_Unknown;i++)
     if(profile->speed[i]>profile->max_speed)
        profile->max_speed=profile->speed[i];
 
- profile->max_pref=0;
+ profile->max_pref=1; /* since highway prefs were normalised to 1 */
 
- for(i=0;i<Way_Unknown;i++)
-    if(profile->highway[i]>profile->max_pref)
-       profile->max_pref=profile->highway[i];
+ for(i=1;i<Property_Count;i++)
+    if(profile->props_yes[i]>profile->props_no[i])
+       profile->max_pref*=profile->props_yes[i];
+    else if(profile->props_no[i]>profile->props_yes[i])
+       profile->max_pref*=profile->props_no[i];
 }
 
 
@@ -455,6 +500,11 @@ void PrintProfile(const Profile *profile)
  for(i=1;i<Way_Unknown;i++)
     if(profile->highway[i])
        printf("Speed on %-12s: %3d km/h / %2.0f mph\n",HighwayName(i),profile->speed[i],(double)profile->speed[i]/1.6);
+
+ printf("\n");
+
+ for(i=1;i<Property_Count;i++)
+    printf("Highway property %-12s: %3d%%\n",PropertyName(i),(int)profile->props_yes[i]);
 
  printf("\n");
 
@@ -488,6 +538,13 @@ void PrintProfilesJS(void)
  printf("};\n");
  printf("\n");
 
+ printf("// Property types\n");
+ printf("var router_properties={");
+ for(i=1;i<Property_Count;i++)
+    printf("%s%s: %d",i==1?"":", ",PropertyName(i),i);
+ printf("};\n");
+ printf("\n");
+
  printf("// Restriction types\n");
  printf("var router_restrictions={oneway: 1, weight: 2, height: 3, width: 4, length: 5};\n");
  printf("\n");
@@ -512,6 +569,18 @@ void PrintProfilesJS(void)
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s%s: %3d",j==1?"":", ",TransportName(j),builtin_profiles[j].speed[i]);
     printf("}%s\n",i==(Way_Unknown-1)?"":",");
+   }
+ printf("   };\n");
+ printf("\n");
+
+ printf("// Highway properties\n");
+ printf("var router_profile_property={\n");
+ for(i=1;i<Property_Count;i++)
+   {
+    printf("  %12s: {",PropertyName(i));
+    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+       printf("%s%s: %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].props_yes[i]);
+    printf("}%s\n",i==(Property_Count-1)?"":",");
    }
  printf("   };\n");
  printf("\n");
@@ -565,6 +634,13 @@ void PrintProfilesPerl(void)
  printf(");\n");
  printf("\n");
 
+ printf("# Property types\n");
+ printf("@router_properties=(");
+ for(i=1;i<Property_Count;i++)
+    printf("%s'%s'",i==1?"":", ",PropertyName(i));
+ printf(");\n");
+ printf("\n");
+
  printf("# Restriction types\n");
  printf("@router_restrictions=('oneway', 'weight', 'height', 'width', 'length');\n");
  printf("\n");
@@ -589,6 +665,18 @@ void PrintProfilesPerl(void)
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s %s => %3d",j==1?"":", ",TransportName(j),builtin_profiles[j].speed[i]);
     printf("}%s\n",i==(Way_Unknown-1)?"":",");
+   }
+ printf("   );\n");
+ printf("\n");
+
+ printf("# Highway properties\n");
+ printf("%%router_profile_property=(\n");
+ for(i=1;i<Property_Count;i++)
+   {
+    printf("  %12s => {",PropertyName(i));
+    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+       printf("%s %s => %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].props_yes[i]);
+    printf("}%s\n",i==(Property_Count-1)?"":",");
    }
  printf("   );\n");
  printf("\n");

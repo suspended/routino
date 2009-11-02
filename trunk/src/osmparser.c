@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.55 2009-10-27 18:48:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.56 2009-11-02 19:32:06 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -38,7 +38,10 @@
 /*+ The length of the buffer and the size increment for reading lines from the file. +*/
 #define BUFFSIZE 256
 
-#define ISALLOWED(xx) (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1") || !strcmp(xx,"permissive") || !strcmp(xx,"designated") || !strcmp(xx,"destination"))
+#define ISTRUE(xx)    (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1"))
+
+#define ISALLOWED(xx) (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1") || \
+                       !strcmp(xx,"permissive") || !strcmp(xx,"designated") || !strcmp(xx,"destination"))
 
 /* Local functions */
 
@@ -68,14 +71,15 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
  long nnodes=0,nways=0,nrelations=0;
  int isnode=0,isway=0,isrelation=0;
  way_t way_id=0;
+ wayallow_t way_allow_no=0,way_allow_yes=0;
  int way_oneway=0,way_roundabout=0;
+ int way_paved=0;
  speed_t way_maxspeed=0;
  weight_t way_maxweight=0;
  height_t way_maxheight=0;
  width_t way_maxwidth=0;
  length_t way_maxlength=0;
  char *way_highway=NULL,*way_name=NULL,*way_ref=NULL;
- wayallow_t way_allow_no=0,way_allow_yes=0;
  node_t *way_nodes=NULL;
  int way_nnodes=0,way_nalloc=0;
 
@@ -125,11 +129,12 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
 
        m=strstr(l,"id=");  m+=4; if(*m=='"' || *m=='\'') m++; way_id=atoll(m);
 
+       way_allow_no=0; way_allow_yes=0;
        way_oneway=0; way_roundabout=0;
+       way_paved=0;
        way_maxspeed=0; way_maxweight=0; way_maxheight=0; way_maxwidth=0;
        way_maxlength=0;
        way_highway=NULL; way_name=NULL; way_ref=NULL;
-       way_allow_no=0; way_allow_yes=0;
        way_nnodes=0;
       }
     else if(!strncmp(l,"</way",5)) /* The end of a way */
@@ -138,128 +143,143 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
 
        if(way_highway)
          {
-          waytype_t type;
-          wayallow_t allow;
+          Way way={0};
 
-          type=HighwayType(way_highway);
+          way.type=HighwayType(way_highway);
 
-          switch(type)
+          if(profile->highway[way.type])
             {
-            case Way_Motorway:
-             allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Trunk:
-             allow=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Primary:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Secondary:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Tertiary:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Unclassified:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Residential:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Service:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-             break;
-            case Way_Track:
-             allow=Allow_Foot|Allow_Horse|Allow_Bicycle;
-             break;
-            case Way_Cycleway:
-             allow=Allow_Foot|Allow_Bicycle;
-             break;
-            case Way_Path:
-             if(!strcmp(way_highway,"bridleway"))
-                allow=Allow_Foot|Allow_Horse|Allow_Bicycle; /* Special case for UK "bridleway". */
-             else
-                allow=Allow_Foot; /* Only allow bicycle and horse if so indicated. */
-             break;
-            default:
-             allow=0;
-             break;
-            }
-
-          if(way_allow_no)      /* Remove the ones explicitly denied (e.g. private) */
-             allow&=~way_allow_no;
-
-          if(way_allow_yes)     /* Add the ones explicitly allowed (e.g. footpath along private) */
-             allow|=way_allow_yes;
-
-          if(allow&profile->allow && profile->highway[HIGHWAY(type)])
-            {
-             Way way={0};
-             char *refname;
-             int i;
-
-             if(way_ref && way_name)
+             switch(way.type)
                {
-                refname=(char*)malloc(strlen(way_ref)+strlen(way_name)+4);
-                sprintf(refname,"%s (%s)",way_name,way_ref);
-               }
-             else if(way_ref && !way_name && way_roundabout)
-               {
-                refname=(char*)malloc(strlen(way_ref)+14);
-                sprintf(refname,"%s (roundabout)",way_ref);
-               }
-             else if(way_ref && !way_name)
-                refname=way_ref;
-             else if(!way_ref && way_name)
-                refname=way_name;
-             else if(way_roundabout)
-               {
-                refname=(char*)malloc(strlen(way_highway)+14);
-                sprintf(refname,"%s (roundabout)",way_highway);
-               }
-             else /* if(!way_ref && !way_name && !way_roundabout) */
-                refname=way_highway;
-
-             way.speed=way_maxspeed;
-             way.weight=way_maxweight;
-             way.height=way_maxheight;
-             way.width=way_maxwidth;
-             way.length=way_maxlength;
-
-             way.type=type;
-
-             way.allow=allow;
-
-             if(way_oneway)
+               case Way_Motorway:
                 way.type|=Way_OneWay;
-
-             if(way_roundabout)
-                way.type|=Way_Roundabout;
-
-             AppendWay(OSMWays,way_id,&way,refname);
-
-             if(refname!=way_ref && refname!=way_name && refname!=way_highway)
-                free(refname);
-
-             for(i=1;i<way_nnodes;i++)
-               {
-                node_t from=way_nodes[i-1];
-                node_t to  =way_nodes[i];
-
-                if(way_oneway>0)
-                  {
-                   AppendSegment(OSMSegments,way_id,from,to,ONEWAY_1TO2);
-                   AppendSegment(OSMSegments,way_id,to,from,ONEWAY_2TO1);
-                  }
-                else if(way_oneway<0)
-                  {
-                   AppendSegment(OSMSegments,way_id,from,to,ONEWAY_2TO1);
-                   AppendSegment(OSMSegments,way_id,to,from,ONEWAY_1TO2);
-                  }
+                way.allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                way.props=Properties_Paved;
+                break;
+               case Way_Trunk:
+                way.allow=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                way.props=Properties_Paved;
+                break;
+               case Way_Primary:
+                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                way.props=Properties_Paved;
+                break;
+               case Way_Secondary:
+                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                way.props=Properties_Paved;
+                break;
+               case Way_Tertiary:
+                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                way.props=Properties_Paved;
+                break;
+               case Way_Unclassified:
+                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                way.props=Properties_Paved;
+                break;
+               case Way_Residential:
+                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                way.props=Properties_Paved;
+                break;
+               case Way_Service:
+                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
+                way.props=Properties_Paved;
+                break;
+               case Way_Track:
+                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle;
+                way.props=0;
+                break;
+               case Way_Cycleway:
+                way.allow=Allow_Foot|Allow_Bicycle;
+                way.props=Properties_Paved;
+                break;
+               case Way_Path:
+                if(!strcmp(way_highway,"bridleway"))
+                   way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle; /* Special case for "bridleway". */
                 else
+                   way.allow=Allow_Foot; /* Only allow bicycle and horse if so indicated. */
+                way.props=0;
+                break;
+               default:
+                way.allow=0;
+                way.props=0;
+                break;
+               }
+
+             if(way_allow_no)      /* Remove the ones explicitly denied (e.g. private) */
+                way.allow&=~way_allow_no;
+
+             if(way_allow_yes)     /* Add the ones explicitly allowed (e.g. footpath along private) */
+                way.allow|=way_allow_yes;
+
+             if(way.allow)
+               {
+                char *refname;
+                int i;
+
+                if(way_oneway)
+                   way.type|=Way_OneWay;
+
+                if(way_roundabout)
+                   way.type|=Way_Roundabout;
+
+                if(way_paved>0 && profile->props_yes[Property_Paved])
+                   way.props|=Properties_Paved;
+                if(way_paved<0)
+                   way.props&=~Properties_Paved;
+
+                if(way_ref && way_name)
                   {
-                   AppendSegment(OSMSegments,way_id,from,to,0);
-                   AppendSegment(OSMSegments,way_id,to,from,0);
+                   refname=(char*)malloc(strlen(way_ref)+strlen(way_name)+4);
+                   sprintf(refname,"%s (%s)",way_name,way_ref);
+                  }
+                else if(way_ref && !way_name && way_roundabout)
+                  {
+                   refname=(char*)malloc(strlen(way_ref)+14);
+                   sprintf(refname,"%s (roundabout)",way_ref);
+                  }
+                else if(way_ref && !way_name)
+                   refname=way_ref;
+                else if(!way_ref && way_name)
+                   refname=way_name;
+                else if(way_roundabout)
+                  {
+                   refname=(char*)malloc(strlen(way_highway)+14);
+                   sprintf(refname,"%s (roundabout)",way_highway);
+                  }
+                else /* if(!way_ref && !way_name && !way_roundabout) */
+                   refname=way_highway;
+
+                way.speed =way_maxspeed;
+                way.weight=way_maxweight;
+                way.height=way_maxheight;
+                way.width =way_maxwidth;
+                way.length=way_maxlength;
+
+                AppendWay(OSMWays,way_id,&way,refname);
+
+                if(refname!=way_ref && refname!=way_name && refname!=way_highway)
+                   free(refname);
+
+                for(i=1;i<way_nnodes;i++)
+                  {
+                   node_t from=way_nodes[i-1];
+                   node_t to  =way_nodes[i];
+
+                   if(way_oneway>0)
+                     {
+                      AppendSegment(OSMSegments,way_id,from,to,ONEWAY_1TO2);
+                      AppendSegment(OSMSegments,way_id,to,from,ONEWAY_2TO1);
+                     }
+                   else if(way_oneway<0)
+                     {
+                      AppendSegment(OSMSegments,way_id,from,to,ONEWAY_2TO1);
+                      AppendSegment(OSMSegments,way_id,to,from,ONEWAY_1TO2);
+                     }
+                   else
+                     {
+                      AppendSegment(OSMSegments,way_id,from,to,0);
+                      AppendSegment(OSMSegments,way_id,to,from,0);
+                     }
                   }
                }
             }
@@ -362,11 +382,8 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
 
             case 'h':
              if(!strcmp(k,"highway"))
-               {
-                if(!strncmp(v,"motorway",8)) way_oneway=1;
-
                 way_highway=strcpy((char*)malloc(strlen(v)+1),v);
-               }
+
              if(!strcmp(k,"horse"))
                {
                 if(ISALLOWED(v))
@@ -374,6 +391,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_allow_no |=Allow_Horse;
                }
+
              if(!strcmp(k,"hgv"))
                {
                 if(ISALLOWED(v))
@@ -397,8 +415,10 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_maxspeed=kph_to_speed(atof(v));
                }
+
              if(!strcmp(k,"maxspeed:mph"))
                 way_maxspeed=kph_to_speed(1.609*atof(v));
+
              if(!strcmp(k,"maxweight"))
                {
                 if(strstr(v,"kg"))
@@ -406,6 +426,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_maxweight=tonnes_to_weight(atof(v));
                }
+
              if(!strcmp(k,"maxheight"))
                {
                 if(strchr(v,'\''))
@@ -422,6 +443,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_maxheight=metres_to_height(atof(v));
                }
+
              if(!strcmp(k,"maxwidth"))
                {
                 if(strchr(v,'\''))
@@ -438,6 +460,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_maxwidth=metres_to_width(atof(v));
                }
+
              if(!strcmp(k,"maxlength"))
                {
                 if(strchr(v,'\''))
@@ -454,6 +477,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_maxlength=metres_to_length(atof(v));
                }
+
              if(!strcmp(k,"moped"))
                {
                 if(ISALLOWED(v))
@@ -461,6 +485,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_allow_no |=Allow_Moped;
                }
+
              if(!strcmp(k,"motorbike"))
                {
                 if(ISALLOWED(v))
@@ -468,6 +493,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_allow_no |=Allow_Motorbike;
                }
+
              if(!strcmp(k,"motorcar"))
                {
                 if(ISALLOWED(v))
@@ -475,6 +501,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_allow_no |=Allow_Motorcar;
                }
+
              if(!strcmp(k,"motor_vehicle"))
                {
                 if(ISALLOWED(v))
@@ -492,7 +519,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
             case 'o':
              if(!strcmp(k,"oneway"))
                {
-                if(!strcmp(v,"true") || !strcmp(v,"yes") || !strcmp(v,"1"))
+                if(ISTRUE(v))
                    way_oneway=1;
                 else if(!strcmp(v,"-1"))
                    way_oneway=-1;
@@ -512,6 +539,17 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
             case 'r':
              if(!strcmp(k,"ref"))
                 way_ref=strcpy((char*)malloc(strlen(v)+1),v);
+             break;
+
+
+            case 's':
+             if(!strcmp(k,"surface"))
+               {
+                if(!strcmp(v,"paved") || !strcmp(v,"asphalt") || !strcmp(v,"concrete"))
+                   way_paved=1;
+                else
+                   way_paved=-1;
+               }
              break;
 
             case 'v':

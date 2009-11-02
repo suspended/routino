@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.35 2009-10-27 17:31:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.36 2009-11-02 19:32:06 amb Exp $
 
  Way data type functions.
 
@@ -141,7 +141,7 @@ Highway HighwayType(const char *highway)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Decide on the allowed type of transport given the name of it.
+  Decide on the type of transport given the name of it.
 
   Transport TransportType Returns the type of the transport.
 
@@ -197,6 +197,31 @@ Transport TransportType(const char *transport)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Decide on the type of property given the name of it.
+
+  Property PropertyType Returns the type of the property.
+
+  const char *property The string containing the method of property.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Property PropertyType(const char *property)
+{
+ switch(*property)
+   {
+   case 'p':
+    if(!strcmp(property,"paved"))
+       return(Property_Paved);
+    break;
+
+   default:
+    return(Property_None);
+   }
+
+ return(Property_None);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   A string containing the name of a type of highway.
 
   const char *HighwayName Returns the name.
@@ -234,7 +259,7 @@ const char *HighwayName(Highway highway)
    case Way_Unknown:
    case Way_OneWay:
    case Way_Roundabout:
-    return(NULL);
+    ;
    }
 
  return(NULL);
@@ -275,7 +300,127 @@ const char *TransportName(Transport transport)
    case Transport_PSV:
     return("psv");
   }
+
  return(NULL);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  A string containing the name of a highway property.
+
+  const char *PropertyName Returns the name.
+
+  Property property The property type.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *PropertyName(Property property)
+{
+ switch(property)
+   {
+   case Property_None:
+    return("NONE");
+
+   case Property_Paved:
+    return("paved");
+
+   case Property_Count:
+    ;
+  }
+
+ return(NULL);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  A string containing the names of allowed transports on a way.
+
+  const char *AllowedNameList Returns the list of names.
+
+  wayallow_t allowed The allowed type.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *AllowedNameList(wayallow_t allowed)
+{
+ static char string[256];
+
+ string[0]=0;
+
+ if(allowed & Allow_Foot)
+    strcat(string,"foot");
+
+ if(allowed & Allow_Horse)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"horse");
+   }
+
+ if(allowed & Allow_Bicycle)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"bicycle");
+   }
+
+ if(allowed & Allow_Moped)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"moped");
+   }
+
+ if(allowed & Allow_Motorbike)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"motorbike");
+   }
+
+ if(allowed & Allow_Motorcar)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"motorcar");
+   }
+
+ if(allowed & Allow_Goods)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"goods");
+   }
+
+ if(allowed & Allow_HGV)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"hgv");
+   }
+
+ if(allowed & Allow_PSV)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"psv");
+   }
+
+ return(string);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  A string containing the names of the properties of a way.
+
+  const char *PropertiesNameList Returns the list of names.
+
+  wayprop_t properties The properties of the way.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *PropertiesNameList(wayprop_t properties)
+{
+ static char string[256];
+
+ string[0]=0;
+
+ if(properties & Properties_Paved)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"paved");
+   }
+
+ return(string);
 }
 
 
@@ -324,6 +469,19 @@ const char *TransportList(void)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Returns a list of all the property types.
+
+  const char *PropertyList Return a list of all the highway proprties.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *PropertyList(void)
+{
+ return "    paved     = Paved\n"
+        ;
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Return 0 if the two ways are the same (in respect of their types and limits),
            otherwise return positive or negative to allow sorting.
 
@@ -344,6 +502,9 @@ int WaysCompare(Way *way1,Way *way2)
 
  if(way1->allow!=way2->allow)
     return((int)way1->allow - (int)way2->allow);
+
+ if(way1->props!=way2->props)
+    return((int)way1->props - (int)way2->props);
 
  if(way1->speed!=way2->speed)
     return((int)way1->speed - (int)way2->speed);

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.59 2009-10-24 10:44:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.60 2009-11-02 19:32:06 amb Exp $
 
  OSM router.
 
@@ -77,6 +77,7 @@ int main(int argc,char** argv)
                    "              [--transport=<transport>]\n"
                    "              [--highway-<highway>=<preference> ...]\n"
                    "              [--speed-<highway>=<speed> ...]\n"
+                   "              [--property-<property>=<preference> ...]\n"
                    "              [--oneway=[0|1]]\n"
                    "              [--weight=<weight>]\n"
                    "              [--height=<height>] [--width=<width>] [--length=<length>]\n"
@@ -87,12 +88,15 @@ int main(int argc,char** argv)
                    "<highway> can be selected from:\n"
                    "%s"
                    "\n"
+                   "<property> can be selected from:\n"
+                   "%s"
+                   "\n"
                    "<preference> is a preference expressed as a percentage\n"
                    "<speed> is a speed in km/hour\n"
                    "<weight> is a weight in tonnes\n"
                    "<height>, <width>, <length> are dimensions in metres\n"
                    "\n",
-                   TransportList(),HighwayList());
+            TransportList(),HighwayList(),PropertyList());
 
     return(1);
    }
@@ -198,12 +202,12 @@ int main(int argc,char** argv)
 
        highway=HighwayType(string);
 
-       free(string);
-
        if(highway==Way_Unknown)
           goto usage;
 
        profile.highway[highway]=atof(equal+1);
+
+       free(string);
       }
     else if(!strncmp(argv[arg],"--speed-",8))
       {
@@ -219,12 +223,33 @@ int main(int argc,char** argv)
 
        highway=HighwayType(string);
 
-       free(string);
-
        if(highway==Way_Unknown)
           goto usage;
 
        profile.speed[highway]=kph_to_speed(atof(equal+1));
+
+       free(string);
+      }
+    else if(!strncmp(argv[arg],"--property-",11))
+      {
+       Property property;
+       char *equal=strchr(argv[arg],'=');
+       char *string;
+
+       if(!equal)
+          goto usage;
+
+       string=strcpy((char*)malloc(strlen(argv[arg])),argv[arg]+11);
+       string[equal-argv[arg]-11]=0;
+
+       property=PropertyType(string);
+
+       if(property==Way_Unknown)
+          goto usage;
+
+       profile.props_yes[property]=atof(equal+1);
+
+       free(string);
       }
     else if(!strncmp(argv[arg],"--oneway=",9))
        profile.oneway=!!atoi(&argv[arg][9]);

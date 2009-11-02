@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.61 2009-10-12 17:35:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.62 2009-11-02 19:32:06 amb Exp $
 
  OSM planet file splitter.
 
@@ -67,6 +67,9 @@ int main(int argc,char** argv)
  for(i=1;i<Way_Unknown;i++)
     profile.highway[i]=1;
 
+ for(i=1;i<Property_Count;i++)
+    profile.props_yes[i]=1;
+
  profile.oneway=1; /* Not used by planetsplitter */
 
  /* Parse the command line arguments */
@@ -93,7 +96,16 @@ int main(int argc,char** argv)
     else if(!strncmp(argv[argc],"--not-highway=",14))
       {
        Highway highway=HighwayType(&argv[argc][14]);
+       if(highway==Way_Unknown)
+          goto usage;
        profile.highway[highway]=0;
+      }
+    else if(!strncmp(argv[argc],"--not-property=",15))
+      {
+       Property property=PropertyType(&argv[argc][15]);
+       if(property==Property_Count)
+          goto usage;
+       profile.props_yes[property]=0;
       }
     else
       {
@@ -101,18 +113,22 @@ int main(int argc,char** argv)
 
        fprintf(stderr,"Usage: planetsplitter\n"
                       "                      [--help]\n"
-                      "                      [--slim] [--tmpdir=<name>]\n"
                       "                      [--dir=<name>] [--prefix=<name>]\n"
+                      "                      [--slim] [--tmpdir=<name>]\n"
                       "                      [--max-iterations=<number>]\n"
                       "                      [--transport=<transport>]\n"
                       "                      [--not-highway=<highway> ...]\n"
+                      "                      [--not-property=<property> ...]\n"
                       "\n"
                       "<transport> defaults to all but can be set to:\n"
                       "%s"
                       "\n"
                       "<highway> can be selected from:\n"
+                      "%s"
+                      "\n"
+                      "<property> can be selected from:\n"
                       "%s",
-                      TransportList(),HighwayList());
+               TransportList(),HighwayList(),PropertyList());
 
        return(1);
       }
