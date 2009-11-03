@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.24 2009-11-02 19:32:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.25 2009-11-03 18:44:30 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -430,7 +430,7 @@ void UpdateProfile(Profile *profile)
 
  /* Normalise the highway preferences into the range 0 -> 1 */
 
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
    {
     if(profile->highway[i]<0)
        profile->highway[i]=0;
@@ -439,7 +439,7 @@ void UpdateProfile(Profile *profile)
        hmax=profile->highway[i];
    }
 
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
     profile->highway[i]/=hmax;
 
  /* Normalise the attribute preferences into the range 0 -> 1 */
@@ -460,7 +460,7 @@ void UpdateProfile(Profile *profile)
 
  profile->max_speed=0;
 
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
     if(profile->speed[i]>profile->max_speed)
        profile->max_speed=profile->speed[i];
 
@@ -492,12 +492,12 @@ void PrintProfile(const Profile *profile)
 
  printf("\n");
 
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
     printf("Highway %-12s: %3d%%\n",HighwayName(i),(int)profile->highway[i]);
 
  printf("\n");
 
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
     if(profile->highway[i])
        printf("Speed on %-12s: %3d km/h / %2.0f mph\n",HighwayName(i),profile->speed[i],(double)profile->speed[i]/1.6);
 
@@ -533,7 +533,7 @@ void PrintProfilesJS(void)
 
  printf("// Highway types\n");
  printf("var router_highways={");
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
     printf("%s%s: %d",i==1?"":", ",HighwayName(i),i);
  printf("};\n");
  printf("\n");
@@ -551,24 +551,24 @@ void PrintProfilesJS(void)
 
  printf("// Allowed highways\n");
  printf("var router_profile_highway={\n");
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
    {
     printf("  %12s: {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s%s: %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].highway[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+    printf("}%s\n",i==(Way_Count-1)?"":",");
    }
  printf("   };\n");
  printf("\n");
 
  printf("// Speed limits\n");
  printf("var router_profile_speed={\n");
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
    {
     printf("  %12s: {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s%s: %3d",j==1?"":", ",TransportName(j),builtin_profiles[j].speed[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+    printf("}%s\n",i==(Way_Count-1)?"":",");
    }
  printf("   };\n");
  printf("\n");
@@ -629,7 +629,7 @@ void PrintProfilesPerl(void)
 
  printf("# Highway types\n");
  printf("@router_highways=(");
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
     printf("%s'%s'",i==1?"":", ",HighwayName(i));
  printf(");\n");
  printf("\n");
@@ -647,24 +647,24 @@ void PrintProfilesPerl(void)
 
  printf("# Allowed highways\n");
  printf("%%router_profile_highway=(\n");
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
    {
     printf("  %12s => {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s %s => %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].highway[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+    printf("}%s\n",i==(Way_Count-1)?"":",");
    }
  printf("   );\n");
  printf("\n");
 
  printf("# Speed limits\n");
  printf("%%router_profile_speed=(\n");
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
    {
     printf("  %12s => {",HighwayName(i));
     for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
        printf("%s %s => %3d",j==1?"":", ",TransportName(j),builtin_profiles[j].speed[i]);
-    printf("}%s\n",i==(Way_Unknown-1)?"":",");
+    printf("}%s\n",i==(Way_Count-1)?"":",");
    }
  printf("   );\n");
  printf("\n");

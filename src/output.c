@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.14 2009-10-26 19:04:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.15 2009-11-03 18:44:30 amb Exp $
 
  Routing output generator.
 
@@ -48,7 +48,7 @@ static FILE *gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NU
 static double finish_latitude,finish_longitude;
 
 /*+ Heuristics for determining if a junction is important. +*/
-static char junction_other_way[Way_Unknown][Way_Unknown]=
+static char junction_other_way[Way_Count][Way_Count]=
  { /* M, T, P, S, T, U, R, S, T, C, P = Way type of route not taken */
   {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 }, /* Motorway     */
   {   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Trunk        */

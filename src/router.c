@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.60 2009-11-02 19:32:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.61 2009-11-03 18:44:30 amb Exp $
 
  OSM router.
 
@@ -202,7 +202,7 @@ int main(int argc,char** argv)
 
        highway=HighwayType(string);
 
-       if(highway==Way_Unknown)
+       if(highway==Way_Count)
           goto usage;
 
        profile.highway[highway]=atof(equal+1);
@@ -223,7 +223,7 @@ int main(int argc,char** argv)
 
        highway=HighwayType(string);
 
-       if(highway==Way_Unknown)
+       if(highway==Way_Count)
           goto usage;
 
        profile.speed[highway]=kph_to_speed(atof(equal+1));
@@ -244,7 +244,7 @@ int main(int argc,char** argv)
 
        property=PropertyType(string);
 
-       if(property==Way_Unknown)
+       if(property==Way_Count)
           goto usage;
 
        profile.props_yes[property]=atof(equal+1);
