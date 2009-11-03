@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.62 2009-11-02 19:32:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.63 2009-11-03 18:44:30 amb Exp $
 
  OSM planet file splitter.
 
@@ -64,7 +64,7 @@ int main(int argc,char** argv)
 
  profile.allow=Allow_ALL;
 
- for(i=1;i<Way_Unknown;i++)
+ for(i=1;i<Way_Count;i++)
     profile.highway[i]=1;
 
  for(i=1;i<Property_Count;i++)
@@ -96,7 +96,7 @@ int main(int argc,char** argv)
     else if(!strncmp(argv[argc],"--not-highway=",14))
       {
        Highway highway=HighwayType(&argv[argc][14]);
-       if(highway==Way_Unknown)
+       if(highway==Way_Count)
           goto usage;
        profile.highway[highway]=0;
       }
