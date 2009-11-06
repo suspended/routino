@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.34 2009-11-02 19:32:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.35 2009-11-06 18:34:47 amb Exp $
 
  Memory file dumper.
 
@@ -278,7 +278,10 @@ int main(int argc,char** argv)
          {
           item=atoi(&argv[arg][7]);
 
-          print_node(OSMNodes,item);
+          if(item>=0 && item<OSMNodes->number)
+             print_node(OSMNodes,item);
+          else
+             printf("Invalid node number; minimum=0, maximum=%d.\n",OSMNodes->number-1);
          }
        else if(!strcmp(argv[arg],"--segment=all"))
          {
@@ -289,7 +292,10 @@ int main(int argc,char** argv)
          {
           item=atoi(&argv[arg][10]);
 
-          print_segment(OSMSegments,item);
+          if(item>=0 && item<OSMSegments->number)
+             print_segment(OSMSegments,item);
+          else
+             printf("Invalid segment number; minimum=0, maximum=%d.\n",OSMSegments->number-1);
          }
        else if(!strcmp(argv[arg],"--way=all"))
          {
@@ -300,7 +306,10 @@ int main(int argc,char** argv)
          {
           item=atoi(&argv[arg][6]);
 
-          print_way(OSMWays,item);
+          if(item>=0 && item<OSMWays->number)
+             print_way(OSMWays,item);
+          else
+             printf("Invalid way number; minimum=0, maximum=%d.\n",OSMWays->number-1);
          }
    }
 
