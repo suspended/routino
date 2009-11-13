@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.33 2009-11-03 18:44:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.34 2009-11-13 19:24:11 amb Exp $
 
  Type definitions
 
@@ -38,26 +38,27 @@
 
 
 /*+ The latitude and longitude conversion factor from floating point (radians) to integer. +*/
-#define LAT_LONG_SCALE  (1024*65536)
+#define LAT_LONG_SCALE (1024*65536)
 
 /*+ The latitude and longitude integer range within each bin. +*/
-#define LAT_LONG_BIN    65536
+#define LAT_LONG_BIN   65536
 
 
 /*+ A flag to mark a node as a super-node. +*/
-#define NODE_SUPER   ((index_t)0x80000000)
+#define NODE_SUPER     ((index_t)0x80000000)
 
 /*+ A segment index excluding the super-node flag. +*/
-#define SEGMENT(xxx) (index_t)((xxx)&(~NODE_SUPER))
+#define SEGMENT(xxx)   (index_t)((xxx)&(~NODE_SUPER))
+
 
 /*+ An undefined node index. +*/
-#define NO_NODE      (~(index_t)0)
+#define NO_NODE        (~(index_t)0)
 
 /*+ An undefined segment index. +*/
-#define NO_SEGMENT   (~(index_t)0)
+#define NO_SEGMENT     (~(index_t)0)
 
 /*+ An undefined way index. +*/
-#define NO_WAY       (~(index_t)0)
+#define NO_WAY         (~(index_t)0)
 
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/
@@ -73,14 +74,17 @@
 #define SEGMENT_NORMAL ((distance_t)0x10000000)
 
 /*+ The real distance ignoring the ONEWAY_* and SEGMENT_* flags. +*/
-#define DISTANCE(xx) ((distance_t)(xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
+#define DISTANCE(xx)   ((distance_t)(xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
 
 /*+ The distance flags selecting only the ONEWAY_* and SEGMENT_* flags. +*/
-#define DISTFLAG(xx) ((distance_t)(xx)&(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL))
+#define DISTFLAG(xx)   ((distance_t)(xx)&(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL))
 
+
+/*+ A very large almost infinite distance. +*/
+#define INF_DISTANCE   DISTANCE(~0)
 
 /*+ A very large almost infinite score. +*/
-#define INF_SCORE    (score_t)1E30
+#define INF_SCORE      (score_t)1E30
 
 
 /* Simple Types */
