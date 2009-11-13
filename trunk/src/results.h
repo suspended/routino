@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.16 2009-08-15 14:18:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.17 2009-11-13 19:24:11 amb Exp $
 
  A header file for the results.
 
@@ -28,6 +28,12 @@
 #include <stdint.h>
 
 #include "types.h"
+
+
+/* Constants */
+
+/*+ A result is not currently queued. +*/
+#define NOT_QUEUED (uint32_t)(~0)
 
 
 /* Data structures */

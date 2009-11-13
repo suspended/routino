@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.19 2009-08-15 14:18:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.20 2009-11-13 19:24:11 amb Exp $
 
  Result data type functions.
 
@@ -149,7 +149,7 @@ Result *InsertResult(Results *results,index_t node)
  results->count[bin]++;
 
  results->point[bin][results->count[bin]-1]->node=node;
- results->point[bin][results->count[bin]-1]->queued=~0;
+ results->point[bin][results->count[bin]-1]->queued=NOT_QUEUED;
 
  return(results->point[bin][results->count[bin]-1]);
 }

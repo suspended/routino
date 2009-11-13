@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.78 2009-11-02 19:32:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.79 2009-11-13 19:26:18 amb Exp $
 
  Routing optimiser.
 
@@ -255,7 +255,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
  /* Set up the finish conditions */
 
- finish_score=~(distance_t)0;
+ finish_score=INF_DISTANCE;
 
  GetLatLong(nodes,end->finish,&finish_lat,&finish_lon);
 
@@ -449,7 +449,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
     *result2=*result3;
 
-    result2->score=~(distance_t)0;
+    result2->score=INF_DISTANCE;
 
     result3=FirstResult(end);
 

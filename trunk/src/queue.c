@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/queue.c,v 1.6 2009-10-04 10:43:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/queue.c,v 1.7 2009-11-13 19:24:11 amb Exp $
 
  Queue data type functions.
 
@@ -89,7 +89,7 @@ void InsertInQueue(Queue *queue,Result *result)
 {
  uint32_t index;
 
- if(result->queued==~0)
+ if(result->queued==NOT_QUEUED)
    {
     if(queue->noccupied==queue->nallocated)
       {
@@ -150,7 +150,7 @@ Result *PopFromQueue(Queue *queue)
     return(NULL);
 
  retval=queue->data[0];
- retval->queued=~0;
+ retval->queued=NOT_QUEUED;
 
  index=0;
  queue->noccupied--;
