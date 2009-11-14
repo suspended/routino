@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.29 2009-07-19 14:10:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.30 2009-11-14 19:39:19 amb Exp $
 
  A header file for the nodes.
 
@@ -81,7 +81,12 @@ struct _Nodes
 
 Nodes *LoadNodeList(const char *filename);
 
-index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,distance_t *distance,Profile *profile);
+index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
+                        distance_t distance,Profile *profile,distance_t *bestdist);
+
+Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
+                            distance_t distance,Profile *profile, distance_t *bestdist,
+                            index_t *bestnode1,index_t *bestnode2,distance_t *bestdist1,distance_t *bestdist2);
 
 void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 

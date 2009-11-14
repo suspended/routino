@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.79 2009-11-13 19:26:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.80 2009-11-14 19:39:20 amb Exp $
 
  Routing optimiser.
 
@@ -72,7 +72,10 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
  finish_score=INF_SCORE;
 
- GetLatLong(nodes,finish,&finish_lat,&finish_lon);
+ if(IsFakeNode(finish))
+    GetFakeLatLong(finish,&finish_lat,&finish_lon);
+ else
+    GetLatLong(nodes,finish,&finish_lat,&finish_lon);
 
  /* Create the list of results and insert the first node into the queue */
 
@@ -98,12 +101,17 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
     node1=result1->node;
 
-    segment=FirstSegment(segments,nodes,node1);
+    if(IsFakeNode(node1))
+       segment=FirstFakeSegment(node1);
+    else
+       segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
        score_t segment_pref,segment_score,cumulative_score;
        int i;
+
+       node2=OtherNode(segment,node1);  /* need this here because we use node2 later */
 
        if(!IsNormalSegment(segment))
           goto endloop;
@@ -111,12 +119,10 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        if(profile->oneway && IsOnewayTo(segment,node1))
           goto endloop;
 
-       node2=OtherNode(segment,node1);
-
        if(result1->prev==node2)
           goto endloop;
 
-       if(node2!=finish && IsSuperNode(nodes,node2))
+       if(node2!=finish && !IsFakeNode(node2) && IsSuperNode(nodes,node2))
           goto endloop;
 
        way=LookupWay(ways,segment->way);
@@ -198,7 +204,17 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
       endloop:
 
-       segment=NextSegment(segments,segment,node1);
+       if(IsFakeNode(node1))
+          segment=NextFakeSegment(segment,node1);
+       else if(IsFakeNode(node2))
+          segment=NULL; /* cannot call NextSegment() with a fake segment */
+       else
+         {
+          segment=NextSegment(segments,segment,node1);
+
+          if(!segment && IsFakeNode(finish))
+             segment=ExtraFakeSegment(node1,finish);
+         }
       }
    }
 
@@ -257,7 +273,10 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
  finish_score=INF_DISTANCE;
 
- GetLatLong(nodes,end->finish,&finish_lat,&finish_lon);
+ if(IsFakeNode(end->finish))
+    GetFakeLatLong(end->finish,&finish_lat,&finish_lon);
+ else
+    GetLatLong(nodes,end->finish,&finish_lat,&finish_lon);
 
  /* Create the list of results and insert the first node into the queue */
 
@@ -279,7 +298,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
  while(result3)
    {
-    if(result3->node!=begin->start && IsSuperNode(nodes,result3->node))
+    if(result3->node!=begin->start && !IsFakeNode(result3->node) && IsSuperNode(nodes,result3->node))
       {
        result2=InsertResult(results,result3->node);
 
@@ -307,7 +326,10 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
     node1=result1->node;
 
-    segment=FirstSegment(segments,nodes,node1);
+    if(IsFakeNode(node1))
+       segment=FirstFakeSegment(node1);
+    else
+       segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
@@ -381,7 +403,10 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
              double lat,lon;
              distance_t direct;
 
-             GetLatLong(nodes,node2,&lat,&lon);
+             if(IsFakeNode(node2))
+                GetFakeLatLong(node2,&lat,&lon);
+             else
+                GetLatLong(nodes,node2,&lat,&lon);
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
@@ -410,7 +435,10 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
              double lat,lon;
              distance_t direct;
 
-             GetLatLong(nodes,node2,&lat,&lon);
+             if(IsFakeNode(node2))
+                GetFakeLatLong(node2,&lat,&lon);
+             else
+                GetLatLong(nodes,node2,&lat,&lon);
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
@@ -430,7 +458,10 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
           fflush(stdout);
          }
 
-       segment=NextSegment(segments,segment,node1);
+       if(IsFakeNode(node1))
+          segment=NextFakeSegment(segment,node1);
+       else
+          segment=NextSegment(segments,segment,node1);
       }
    }
 
@@ -455,7 +486,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
     while(result3)
       {
-       if(IsSuperNode(nodes,result3->node))
+       if(!IsFakeNode(result3->node) && IsSuperNode(nodes,result3->node))
           if((result1=FindResult(results,result3->node)))
              if((result1->score+result3->score)<result2->score)
                {
@@ -528,7 +559,10 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
    {
     node1=result1->node;
 
-    segment=FirstSegment(segments,nodes,node1);
+    if(IsFakeNode(node1))
+       segment=FirstFakeSegment(node1);
+    else
+       segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
@@ -590,7 +624,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           result2->score=cumulative_score;
           result2->segment=segment;
 
-          if(!IsSuperNode(nodes,node2))
+          if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
@@ -602,7 +636,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           result2->score=cumulative_score;
           result2->segment=segment;
 
-          if(!IsSuperNode(nodes,node2))
+          if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
@@ -611,7 +645,10 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
       endloop:
 
-       segment=NextSegment(segments,segment,node1);
+       if(IsFakeNode(node1))
+          segment=NextFakeSegment(segment,node1);
+       else
+          segment=NextSegment(segments,segment,node1);
       }
    }
 
@@ -674,7 +711,10 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
    {
     node1=result1->node;
 
-    segment=FirstSegment(segments,nodes,node1);
+    if(IsFakeNode(node1))
+       segment=FirstFakeSegment(node1);
+    else
+       segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
@@ -736,7 +776,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
           result2->score=cumulative_score;
           result2->segment=segment;
 
-          if(!IsSuperNode(nodes,node2))
+          if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
@@ -748,7 +788,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
           result2->score=cumulative_score;
           result2->segment=segment;
 
-          if(!IsSuperNode(nodes,node2))
+          if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
@@ -757,7 +797,10 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
 
       endloop:
 
-       segment=NextSegment(segments,segment,node1);
+       if(IsFakeNode(node1))
+          segment=NextFakeSegment(segment,node1);
+       else
+          segment=NextSegment(segments,segment,node1);
       }
    }
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.33 2009-07-09 18:34:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.34 2009-11-14 19:39:19 amb Exp $
 
  Node data type functions.
 
@@ -68,9 +68,9 @@ Nodes *LoadNodeList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the closest node given its latitude and longitude and optionally profile.
+  Find the closest node given its latitude, longitude and optionally profile.
 
-  index_t FindNode Returns the node index.
+  index_t FindClosestNode Returns the closest node.
 
   Nodes* nodes The set of nodes to search.
 
@@ -82,17 +82,21 @@ Nodes *LoadNodeList(const char *filename)
 
   double longitude The longitude to look for.
 
-  distance_t *distance The maximum distance to look, returns the final distance.
+  distance_t distance The maximum distance to look.
 
-  Profile *profile The profile of the mode of transport.
+  Profile *profile The profile of the mode of transport (or NULL).
+
+  distance_t *bestdist Returns the distance to the best node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,distance_t *distance,Profile *profile)
+index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
+                        distance_t distance,Profile *profile,distance_t *bestdist)
 {
- ll_bin_t latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->latzero;
- ll_bin_t lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->lonzero;
- int      delta=0,count;
- index_t  i,best=NO_NODE;
+ ll_bin_t   latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->latzero;
+ ll_bin_t   lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->lonzero;
+ int        delta=0,count;
+ index_t    i,bestn=NO_NODE;
+ distance_t bestd=INF_DISTANCE;
 
  /* Start with the bin containing the location, then spiral outwards. */
 
@@ -103,15 +107,21 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,doub
     count=0;
    
     for(latb=latbin-delta;latb<=latbin+delta;latb++)
+      {
+       if(latb<0 || latb>=nodes->latbins)
+          continue;
+
        for(lonb=lonbin-delta;lonb<=lonbin+delta;lonb++)
          {
+          if(lonb<0 || lonb>=nodes->lonbins)
+             continue;
+
           if(abs(latb-latbin)<delta && abs(lonb-lonbin)<delta)
              continue;
 
           llbin=lonb*nodes->latbins+latb;
 
-          if(llbin<0 || llbin>(nodes->latbins*nodes->lonbins))
-             continue;
+          /* Check if this grid square has any hope of being close enough */
 
           if(delta>0)
             {
@@ -125,7 +135,7 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,doub
                 distance_t dist1=Distance(latitude,lon1,latitude,longitude);
                 distance_t dist2=Distance(latitude,lon2,latitude,longitude);
 
-                if(dist1>*distance && dist2>*distance)
+                if(dist1>distance && dist2>distance)
                    continue;
                }
              else if(lonb==lonbin)
@@ -133,7 +143,7 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,doub
                 distance_t dist1=Distance(lat1,longitude,latitude,longitude);
                 distance_t dist2=Distance(lat2,longitude,latitude,longitude);
 
-                if(dist1>*distance && dist2>*distance)
+                if(dist1>distance && dist2>distance)
                    continue;
                }
              else
@@ -143,10 +153,12 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,doub
                 distance_t dist3=Distance(lat2,lon2,latitude,longitude);
                 distance_t dist4=Distance(lat1,lon2,latitude,longitude);
 
-                if(dist1>*distance && dist2>*distance && dist3>*distance && dist4>*distance)
+                if(dist1>distance && dist2>distance && dist3>distance && dist4>distance)
                    continue;
                }
             }
+
+          /* Check every node in this grid square. */
 
           for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
             {
@@ -155,7 +167,7 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,doub
 
              distance_t dist=Distance(lat,lon,latitude,longitude);
 
-             if(dist<*distance)
+             if(dist<distance)
                {
                 if(profile)
                   {
@@ -180,18 +192,201 @@ index_t FindNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,doub
                       continue;
                   }
 
-                best=i; *distance=dist;
+                bestn=i; bestd=distance=dist;
                }
             }
 
           count++;
          }
+      }
 
     delta++;
    }
  while(count);
 
- return(best);
+ *bestdist=bestd;
+
+ return(bestn);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the closest segment to a latitude, longitude and optionally profile.
+
+  Segment *FindClosestSegment Returns the closest segment.
+
+  Nodes* nodes The set of nodes to search.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  double latitude The latitude to look for.
+
+  double longitude The longitude to look for.
+
+  distance_t distance The maximum distance to look.
+
+  Profile *profile The profile of the mode of transport (or NULL).
+
+  distance_t *bestdist Returns the distance to the best segment.
+
+  index_t *bestnode1 Returns the best node at one end.
+
+  index_t *bestnode2 Returns the best node at the other end.
+
+  distance_t *bestdist1 Returns the distance to the best node at one end.
+
+  distance_t *bestdist2 Returns the distance to the best node at the other end.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
+                            distance_t distance,Profile *profile, distance_t *bestdist,
+                            index_t *bestnode1,index_t *bestnode2,distance_t *bestdist1,distance_t *bestdist2)
+{
+ ll_bin_t   latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->latzero;
+ ll_bin_t   lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->lonzero;
+ int        delta=0,count;
+ index_t    i,bestn1=NO_NODE,bestn2=NO_NODE;
+ distance_t bestd=INF_DISTANCE,bestd1=INF_DISTANCE,bestd2=INF_DISTANCE;
+ Segment   *bests=NULL;
+
+ /* Start with the bin containing the location, then spiral outwards. */
+
+ do
+   {
+    int latb,lonb,llbin;
+
+    count=0;
+   
+    for(latb=latbin-delta;latb<=latbin+delta;latb++)
+      {
+       if(latb<0 || latb>=nodes->latbins)
+          continue;
+
+       for(lonb=lonbin-delta;lonb<=lonbin+delta;lonb++)
+         {
+          if(lonb<0 || lonb>=nodes->lonbins)
+             continue;
+
+          if(abs(latb-latbin)<delta && abs(lonb-lonbin)<delta)
+             continue;
+
+          llbin=lonb*nodes->latbins+latb;
+
+          /* Check if this grid square has any hope of being close enough */
+
+          if(delta>0)
+            {
+             double lat1=latlong_to_radians(bin_to_latlong(nodes->latzero+latb));
+             double lon1=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb));
+             double lat2=latlong_to_radians(bin_to_latlong(nodes->latzero+latb+1));
+             double lon2=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb+1));
+
+             if(latb==latbin)
+               {
+                distance_t dist1=Distance(latitude,lon1,latitude,longitude);
+                distance_t dist2=Distance(latitude,lon2,latitude,longitude);
+
+                if(dist1>distance && dist2>distance)
+                   continue;
+               }
+             else if(lonb==lonbin)
+               {
+                distance_t dist1=Distance(lat1,longitude,latitude,longitude);
+                distance_t dist2=Distance(lat2,longitude,latitude,longitude);
+
+                if(dist1>distance && dist2>distance)
+                   continue;
+               }
+             else
+               {
+                distance_t dist1=Distance(lat1,lon1,latitude,longitude);
+                distance_t dist2=Distance(lat2,lon1,latitude,longitude);
+                distance_t dist3=Distance(lat2,lon2,latitude,longitude);
+                distance_t dist4=Distance(lat1,lon2,latitude,longitude);
+
+                if(dist1>distance && dist2>distance && dist3>distance && dist4>distance)
+                   continue;
+               }
+            }
+
+          /* Check every node in this grid square. */
+
+          for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
+            {
+             double lat1=latlong_to_radians(bin_to_latlong(nodes->latzero+latb)+off_to_latlong(nodes->nodes[i].latoffset));
+             double lon1=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb)+off_to_latlong(nodes->nodes[i].lonoffset));
+             Segment *segment;
+             double dist1,dist2,dist3,dist3a,dist3b,distp;
+
+             dist1=Distance(lat1,lon1,latitude,longitude);
+
+             /* Check each segment for closeness and if valid for the profile */
+
+             segment=FirstSegment(segments,nodes,i);
+
+             do
+               {
+                if(IsNormalSegment(segment))
+                  {
+                   Way *way=NULL;
+
+                   if(profile)
+                      way=LookupWay(ways,segment->way);
+
+                   if(!profile || way->allow&profile->allow)
+                     {
+                      double lat2,lon2;
+
+                      GetLatLong(nodes,OtherNode(segment,i),&lat2,&lon2);
+
+                      dist2=Distance(lat2,lon2,latitude,longitude);
+                      dist3=Distance(lat1,lon1,lat2,lon2);
+
+                      /* Use law of cosines (assume flat Earth) */
+
+                      dist3a=(dist1*dist1-dist2*dist2+dist3*dist3)/(2*dist3);
+                      dist3b=dist3-dist3a;
+
+                      if(dist3a>=0 && dist3b>=0)
+                        {
+                         distp=sqrt(dist1*dist1-dist3a*dist3a);
+
+                         if((distance_t)distp<bestd)
+                           {
+                            bests=segment;
+                            bestn1=i;
+                            bestn2=OtherNode(segment,i);
+                            bestd1=(distance_t)dist3a;
+                            bestd2=(distance_t)dist3b;
+                            bestd=(distance_t)distp;
+                           }
+                        }
+                     }
+                  }
+
+                segment=NextSegment(segments,segment,i);
+               }
+             while(segment);
+            }
+
+          count++;
+         }
+      }
+
+    delta++;
+   }
+ while(count);
+
+ *bestdist=bestd;
+
+ *bestnode1=bestn1;
+ *bestnode2=bestn2;
+ *bestdist1=bestd1;
+ *bestdist2=bestd2;
+
+ return(bests);
 }
 
 

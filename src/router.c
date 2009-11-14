@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.61 2009-11-03 18:44:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.62 2009-11-14 19:39:20 amb Exp $
 
  OSM router.
 
@@ -38,6 +38,18 @@
 /*+ The number of waypoints allowed to be specified. +*/
 #define NWAYPOINTS 99
 
+/*+ The maximum distance from the specified point to search for a node or segment (in km). +*/
+#define MAXSEARCH  5
+
+/*+ The minimum distance along a segment from a node to insert a fake node. (in km). +*/
+#define MINSEGMENT 0.005
+
+
+/*+ A set of fake segments to allow start/finish in the middle of a segment. +*/
+static Segment fake_segments[2*NWAYPOINTS];
+
+/*+ A set of fake node latitudes and longitudes. +*/
+static double point_lon[NWAYPOINTS+1],point_lat[NWAYPOINTS+1];
 
 /*+ The option not to print any progress information. +*/
 int option_quiet=0;
@@ -53,13 +65,12 @@ int main(int argc,char** argv)
  Ways     *OSMWays;
  Results  *results[NWAYPOINTS+1]={NULL};
  int       point_used[NWAYPOINTS+1]={0};
- double    point_lon[NWAYPOINTS+1],point_lat[NWAYPOINTS+1];
  int       help_profile=0,help_profile_js=0,help_profile_pl=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
  Transport transport=Transport_None;
  Profile   profile;
  index_t   start=NO_NODE,finish=NO_NODE;
- int       arg,node;
+ int       arg,point;
 
  /* Parse the command line arguments */
 
@@ -124,18 +135,18 @@ int main(int argc,char** argv)
     if(isdigit(argv[arg][0]) ||
        ((argv[arg][0]=='-' || argv[arg][0]=='+') && isdigit(argv[arg][1])))
       {
-       for(node=1;node<=NWAYPOINTS;node++)
-          if(point_used[node]!=3)
+       for(point=1;point<=NWAYPOINTS;point++)
+          if(point_used[point]!=3)
             {
-             if(point_used[node]==0)
+             if(point_used[point]==0)
                {
-                point_lon[node]=degrees_to_radians(atof(argv[arg]));
-                point_used[node]=1;
+                point_lon[point]=degrees_to_radians(atof(argv[arg]));
+                point_used[point]=1;
                }
-             else /* if(point_used[node]==1) */
+             else /* if(point_used[point]==1) */
                {
-                point_lat[node]=degrees_to_radians(atof(argv[arg]));
-                point_used[node]=3;
+                point_lat[point]=degrees_to_radians(atof(argv[arg]));
+                point_used[point]=3;
                }
              break;
             }
@@ -147,12 +158,12 @@ int main(int argc,char** argv)
         if(*p++!='=')
            goto usage;
  
-        node=atoi(&argv[arg][5]);
-        if(node>NWAYPOINTS || point_used[node]&1)
+        point=atoi(&argv[arg][5]);
+        if(point>NWAYPOINTS || point_used[point]&1)
            goto usage;
  
-       point_lon[node]=degrees_to_radians(atof(p));
-       point_used[node]+=1;
+       point_lon[point]=degrees_to_radians(atof(p));
+       point_used[point]+=1;
       }
      else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]))
        {
@@ -161,12 +172,12 @@ int main(int argc,char** argv)
         if(*p++!='=')
            goto usage;
  
-        node=atoi(&argv[arg][5]);
-        if(node>NWAYPOINTS || point_used[node]&2)
+        point=atoi(&argv[arg][5]);
+        if(point>NWAYPOINTS || point_used[point]&2)
            goto usage;
  
-       point_lat[node]=degrees_to_radians(atof(p));
-       point_used[node]+=2;
+       point_lat[point]=degrees_to_radians(atof(p));
+       point_used[point]+=2;
       }
     else if(!strcmp(argv[arg],"--help"))
        goto usage;
@@ -265,8 +276,8 @@ int main(int argc,char** argv)
        goto usage;
    }
 
- for(node=0;node<=NWAYPOINTS;node++)
-    if(point_used[node]==1 || point_used[node]==2)
+ for(point=1;point<=NWAYPOINTS;point++)
+    if(point_used[point]==1 || point_used[point]==2)
        goto usage;
 
  if(help_profile)
@@ -316,25 +327,33 @@ int main(int argc,char** argv)
     return(1);
    }
 
- /* Loop through all pairs of nodes */
+ /* Loop through all pairs of points */
 
- for(node=1;node<=NWAYPOINTS;node++)
+ for(point=1;point<=NWAYPOINTS;point++)
    {
     Results *begin,*end;
-    distance_t dist=km_to_distance(10);
+    Segment *segment;
+    distance_t dist=km_to_distance(MAXSEARCH);
+    distance_t dists;
+    index_t node1,node2;
+    distance_t dist1,dist2;
 
-    if(point_used[node]!=3)
+    if(point_used[point]!=3)
        continue;
 
-    /* Find the node */
+    /* Find the closest point */
 
     start=finish;
 
-    finish=FindNode(OSMNodes,OSMSegments,OSMWays,point_lat[node],point_lon[node],&dist,&profile);
+    segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],dist,&profile,&dists,&node1,&node2,&dist1,&dist2);
+
+    finish=CreateFakes(OSMNodes,point,segment,node1,node2,dist1,dist2);
+
+//    finish=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],dist,&profile,&dist);
 
     if(finish==NO_NODE)
       {
-       fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",node);
+       fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",point);
        return(1);
       }
 
@@ -342,9 +361,17 @@ int main(int argc,char** argv)
       {
        double lat,lon;
 
-       GetLatLong(OSMNodes,finish,&lat,&lon);
+       if(IsFakeNode(finish))
+          GetFakeLatLong(finish,&lat,&lon);
+       else
+          GetLatLong(OSMNodes,finish,&lat,&lon);
 
-       printf("Node %d: %3.6f %4.6f = %2.3f km\n",node,radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(dist));
+       if(IsFakeNode(finish))
+          printf("Point %d is segment %d (node %d -> %d): %3.6f %4.6f = %2.3f km\n",point,IndexSegment(OSMSegments,segment),node1,node2,
+                 radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(dists));
+       else
+          printf("Point %d is node %d: %3.6f %4.6f = %2.3f km\n",point,finish,
+                 radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(dists));
       }
 
     if(start==NO_NODE)
@@ -352,7 +379,7 @@ int main(int argc,char** argv)
 
     /* Calculate the beginning of the route */
 
-    if(IsSuperNode(OSMNodes,start))
+    if(!IsFakeNode(start) && IsSuperNode(OSMNodes,start))
       {
        Result *result;
 
@@ -379,7 +406,7 @@ int main(int argc,char** argv)
       {
        FixForwardRoute(begin,finish);
 
-       results[node]=begin;
+       results[point]=begin;
       }
     else
       {
@@ -387,7 +414,7 @@ int main(int argc,char** argv)
 
        /* Calculate the end of the route */
 
-       if(IsSuperNode(OSMNodes,finish))
+       if(!IsFakeNode(finish) && IsSuperNode(OSMNodes,finish))
          {
           Result *result;
 
@@ -420,7 +447,7 @@ int main(int argc,char** argv)
           return(1);
          }
 
-       results[node]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,&profile);
+       results[point]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,&profile);
       }
    }
 
@@ -428,11 +455,175 @@ int main(int argc,char** argv)
 
  PrintRouteHead(FileName(dirname,prefix,"copyright.txt"));
 
- for(node=1;node<=NWAYPOINTS;node++)
-    if(results[node])
-       PrintRoute(results[node],OSMNodes,OSMSegments,OSMWays,&profile);
+ for(point=1;point<=NWAYPOINTS;point++)
+    if(results[point])
+       PrintRoute(results[point],OSMNodes,OSMSegments,OSMWays,&profile);
 
  PrintRouteTail();
 
  return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Create a pair of fake segments corresponding to the given segment split in two.
+
+  index_t CreateFakes Returns the fake node index (or a real one in special cases).
+
+  Nodes *nodes The set of nodes to use.
+
+  int point Which of the waypoints is this.
+
+  Segment *segment The segment to split.
+
+  index_t node1 The first node at the end of this segment.
+
+  index_t node2 The second node at the end of this segment.
+
+  distance_t dist1 The distance to the first node.
+
+  distance_t dist2 The distance to the second node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t CreateFakes(Nodes *nodes,int point,Segment *segment,index_t node1,index_t node2,distance_t dist1,distance_t dist2)
+{
+ index_t fakenode;
+ double lat1,lon1,lat2,lon2;
+
+ /* Check if we are actually close enough to an existing node */
+
+ if(dist1<km_to_distance(MINSEGMENT) && dist2>km_to_distance(MINSEGMENT))
+    return(node1);
+
+ if(dist2<km_to_distance(MINSEGMENT) && dist1>km_to_distance(MINSEGMENT))
+    return(node2);
+
+ if(dist1<km_to_distance(MINSEGMENT) && dist2<km_to_distance(MINSEGMENT))
+   {
+    if(dist1<dist2)
+       return(node1);
+    else
+       return(node2);
+   }
+
+ /* Create the fake node */
+
+ fakenode=point|NODE_SUPER;
+
+ GetLatLong(nodes,node1,&lat1,&lon1);
+ GetLatLong(nodes,node2,&lat2,&lon2);
+
+ if(lat1>3 && lat2<-3)
+    lat2+=2*M_PI;
+ else if(lat1<-3 && lat2>3)
+    lat1+=2*M_PI;
+
+ point_lat[point]=lat1+(lat2-lat1)*(double)dist1/(double)(dist1+dist2);
+ point_lon[point]=lon1+(lon2-lon1)*(double)dist1/(double)(dist1+dist2);
+
+ if(point_lat[point]>M_PI) point_lat[point]-=2*M_PI;
+
+ /* Create the first fake segment */
+
+ fake_segments[2*point-2]=*segment;
+
+ if(segment->node1==node1)
+    fake_segments[2*point-2].node1=fakenode;
+ else
+    fake_segments[2*point-2].node2=fakenode;
+
+ fake_segments[2*point-2].distance=DISTANCE(dist1)|DISTFLAG(segment->distance);
+
+ /* Create the second fake segment */
+
+ fake_segments[2*point-1]=*segment;
+
+ if(segment->node1==node2)
+    fake_segments[2*point-1].node1=fakenode;
+ else
+    fake_segments[2*point-1].node2=fakenode;
+
+ fake_segments[2*point-1].distance=DISTANCE(dist2)|DISTFLAG(segment->distance);
+
+ return(fakenode);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup the latitude and longitude of a fake node.
+
+  index_t fakenode The node to lookup.
+
+  double *latitude Returns the latitude
+
+  double *longitude Returns the longitude.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void GetFakeLatLong(index_t fakenode, double *latitude,double *longitude)
+{
+ index_t realnode=fakenode&(~NODE_SUPER);
+
+ *latitude =point_lat[realnode];
+ *longitude=point_lon[realnode];
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Finds the first fake segment associated to a fake node.
+
+  Segment *FirstFakeSegment Returns the first fake segment.
+
+  index_t fakenode The node to lookup.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Segment *FirstFakeSegment(index_t fakenode)
+{
+ index_t realnode=fakenode&(~NODE_SUPER);
+
+ return(&fake_segments[2*realnode-2]);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Finds the next (there can only be two) fake segment associated to a fake node.
+
+  Segment *NextFakeSegment Returns the second fake segment.
+
+  Segment *segment The first fake segment.
+
+  index_t fakenode The node to lookup.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Segment *NextFakeSegment(Segment *segment,index_t fakenode)
+{
+ index_t realnode=fakenode&(~NODE_SUPER);
+
+ if(segment==&fake_segments[2*realnode-2])
+    return(&fake_segments[2*realnode-1]);
+ else
+    return(NULL);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Finds the next (there can only be two) fake segment associated to a fake node.
+
+  Segment *ExtraFakeSegment Returns a segment between the two specified nodes if it exists.
+
+  index_t node The real node.
+
+  index_t fakenode The fake node to lookup.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Segment *ExtraFakeSegment(index_t node,index_t fakenode)
+{
+ index_t realnode=fakenode&(~NODE_SUPER);
+
+ if(fake_segments[2*realnode-2].node1==node || fake_segments[2*realnode-2].node2==node)
+    return(&fake_segments[2*realnode-1]);
+
+ if(fake_segments[2*realnode-1].node1==node || fake_segments[2*realnode-1].node2==node)
+    return(&fake_segments[2*realnode-1]);
+
+ return(NULL);
 }
