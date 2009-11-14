@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.33 2009-07-19 14:10:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.34 2009-11-14 19:39:20 amb Exp $
 
  A header file for the segments.
 
@@ -64,8 +64,11 @@ struct _Segments
 /* Macros */
 
 
-/*+ Return a Segment pointer given a set of segments and an index. +*/
+/*+ Return a segment pointer given a set of segments and an index. +*/
 #define LookupSegment(xxx,yyy) (&(xxx)->segments[yyy])
+
+/*+ Return a segment index given a set of segments and a pointer. +*/
+#define IndexSegment(xxx,yyy)  ((yyy)-&(xxx)->segments[0])
 
 /*+ Return true if this is a normal segment. +*/
 #define IsNormalSegment(xxx)   (((xxx)->distance)&SEGMENT_NORMAL)

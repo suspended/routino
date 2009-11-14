@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.44 2009-10-24 10:44:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.45 2009-11-14 19:39:19 amb Exp $
 
  Header file for function prototypes
 
@@ -30,6 +30,20 @@
 #include "types.h"
 #include "profiles.h"
 #include "results.h"
+
+
+/* In router.c */
+
+/*+ Return true if this is a fake node. +*/
+#define IsFakeNode(xxx)  ((xxx)&NODE_SUPER)
+
+index_t CreateFakes(Nodes *nodes,int point,Segment *segment,index_t node1,index_t node2,distance_t dist1,distance_t dist2);
+
+void GetFakeLatLong(index_t node, double *latitude,double *longitude);
+
+Segment *FirstFakeSegment(index_t node);
+Segment *NextFakeSegment(Segment *segment,index_t node);
+Segment *ExtraFakeSegment(index_t node,index_t fakenode);
 
 
 /* In files.c */

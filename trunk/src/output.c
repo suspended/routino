@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.15 2009-11-03 18:44:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.16 2009-11-14 19:39:20 amb Exp $
 
  Routing output generator.
 
@@ -259,8 +259,15 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
  fprintf(gpxtrackfile,"<trkseg>\n");
 
- GetLatLong(nodes,results->start,&start_lat,&start_lon);
- GetLatLong(nodes,results->finish,&finish_lat,&finish_lon);
+ if(IsFakeNode(results->start))
+    GetFakeLatLong(results->start,&start_lat,&start_lon);
+ else
+    GetLatLong(nodes,results->start,&start_lat,&start_lon);
+
+ if(IsFakeNode(results->finish))
+    GetFakeLatLong(results->finish,&finish_lat,&finish_lon);
+ else
+    GetLatLong(nodes,results->finish,&finish_lat,&finish_lon);
 
  result=FindResult(results,results->start);
 
@@ -268,19 +275,24 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
    {
     double latitude,longitude;
 
-    GetLatLong(nodes,result->node,&latitude,&longitude);
+    if(result->node==results->start)
+      {latitude=start_lat; longitude=start_lon;}
+    else if(result->node==results->finish)
+      {latitude=finish_lat; longitude=finish_lon;}
+    else
+       GetLatLong(nodes,result->node,&latitude,&longitude);
 
     if(gpxtrackfile)
        fprintf(gpxtrackfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"/>\n",
                radians_to_degrees(latitude),radians_to_degrees(longitude));
 
-    if(result->prev!=NO_NODE)
+    if(result->node!=results->start)
       {
        distance_t seg_distance=0;
        duration_t seg_duration=0;
        Segment *segment;
        Way *resultway;
-       int other=0,change=0;
+       int important=0;
 
        /* Get the properties of this segment */
 
@@ -295,36 +307,44 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
        /* Decide if this is an important junction */
 
-       segment=FirstSegment(segments,nodes,result->node);
-
-       do
+       if(result->node==results->finish)
+          important=1;
+       else
          {
-          index_t othernode=OtherNode(segment,result->node);
+          segment=FirstSegment(segments,nodes,result->node);
 
-          if(othernode!=result->prev)
-             if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
-               {
-                Way *way=LookupWay(ways,segment->way);
+          do
+            {
+             index_t othernode=OtherNode(segment,result->node);
 
-                if(othernode==result->next) /* the next segment that we follow */
+             if(othernode!=result->prev)
+                if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
                   {
-                   if(HIGHWAY(way->type)!=HIGHWAY(resultway->type))
-                      change=1;
-                  }
-                else /* a segment that we don't follow */
-                   other+=junction_other_way[HIGHWAY(resultway->type)-1][HIGHWAY(way->type)-1];
-               }
+                   Way *way=LookupWay(ways,segment->way);
 
-          segment=NextSegment(segments,segment,result->node);
+                   if(othernode==result->next) /* the next segment that we follow */
+                     {
+                      if(HIGHWAY(way->type)!=HIGHWAY(resultway->type))
+                        {important=1; break;}
+                     }
+                   else /* a segment that we don't follow */
+                      if(junction_other_way[HIGHWAY(resultway->type)-1][HIGHWAY(way->type)-1])
+                        {important=1; break;}
+                  }
+
+             segment=NextSegment(segments,segment,result->node);
+            }
+          while(segment);
          }
-       while(segment);
 
        /* Print out the junctions */
 
-       if(result->next==NO_NODE || other || change)
+       if(important)
          {
-          if(result->next!=NO_NODE)
+          if(result->node!=results->finish)
             {
+             /* Don't print the intermediate finish points (because they are also intermediate start points) */
+
              if(gpxroutefile)
                 fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>TRIP%03d</name></rtept>\n",
                         radians_to_degrees(latitude),radians_to_degrees(longitude),
@@ -335,6 +355,8 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
              finish_latitude=latitude;
              finish_longitude=longitude;
             }
+
+          /* Do print the intermediate finish points (because they have correct junction distances) */
 
           if(textfile)
              fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%3.0f min\t%s\n",
@@ -352,14 +374,15 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
        if(textallfile)
           fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%s\n",
                   radians_to_degrees(latitude),radians_to_degrees(longitude),
-                  result->node,IsSuperNode(nodes,result->node)?'*':' ',
+                  IsFakeNode(result->node)?-(result->node&(~NODE_SUPER)):result->node,
+                  (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',
                   distance_to_km(seg_distance),duration_to_minutes(seg_duration),
                   distance_to_km(cum_distance),duration_to_minutes(cum_duration),
                   profile->speed[HIGHWAY(resultway->type)],WayName(ways,resultway));
       }
     else if(!cum_distance)
       {
-       /* Print out the start points */
+       /* Print out the very first start point */
 
        if(gpxroutefile)
           fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>START</name></rtept>\n",
@@ -373,12 +396,13 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
        if(textallfile)
           fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%5.3f\t%5.2f\t%5.2f\t%5.1f\n",
                   radians_to_degrees(latitude),radians_to_degrees(longitude),
-                  result->node,IsSuperNode(nodes,result->node)?'*':' ',
+                  IsFakeNode(result->node)?-(result->node&(~NODE_SUPER)):result->node,
+                  (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',
                   0.0,0.0,0.0,0.0);
       }
     else
       {
-       /* Print out the intermediate points */
+       /* Print out the intermediate start points */
 
        if(gpxroutefile)
           fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>INTER%d</name></rtept>\n",
@@ -386,10 +410,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
                   ++segment_count);
       }
 
-    if(result->next!=NO_NODE)
-       result=FindResult(results,result->next);
-    else
-       result=NULL;
+    result=FindResult(results,result->next);
    }
     while(result);
 
@@ -404,7 +425,7 @@ void PrintRoute(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Prof
 
 void PrintRouteTail(void)
 {
- /* Print the final point in the route */
+ /* Print the very final point in the route */
 
  if(gpxroutefile)
     fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>FINISH</name></rtept>\n",
