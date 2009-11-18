@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.62 2009-11-14 19:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.63 2009-11-18 20:13:36 amb Exp $
 
  OSM router.
 
@@ -620,7 +620,7 @@ Segment *ExtraFakeSegment(index_t node,index_t fakenode)
  index_t realnode=fakenode&(~NODE_SUPER);
 
  if(fake_segments[2*realnode-2].node1==node || fake_segments[2*realnode-2].node2==node)
-    return(&fake_segments[2*realnode-1]);
+    return(&fake_segments[2*realnode-2]);
 
  if(fake_segments[2*realnode-1].node1==node || fake_segments[2*realnode-1].node2==node)
     return(&fake_segments[2*realnode-1]);
