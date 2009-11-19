@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.80 2009-11-14 19:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.81 2009-11-19 18:53:23 amb Exp $
 
  Routing optimiser.
 
@@ -265,7 +265,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
  if(!option_quiet)
    {
-    printf("Routing: End Nodes=0");
+    printf("Routing: Super-Nodes checked = 0");
     fflush(stdout);
    }
 
@@ -454,7 +454,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
        if(!option_quiet && !(results->number%10000))
          {
-          printf("\rRouting: End Nodes=%d",results->number);
+          printf("\rRouting: Super-Nodes checked = %d",results->number);
           fflush(stdout);
          }
 
@@ -467,7 +467,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
  if(!option_quiet)
    {
-    printf("\rRouted: End Super-Nodes=%d\n",results->number);
+    printf("\rRouted: Super-Nodes checked = %d\n",results->number);
     fflush(stdout);
    }
 
