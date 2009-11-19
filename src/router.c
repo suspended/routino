@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.63 2009-11-18 20:13:36 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.64 2009-11-19 18:53:23 amb Exp $
 
  OSM router.
 
@@ -407,6 +407,12 @@ int main(int argc,char** argv)
        FixForwardRoute(begin,finish);
 
        results[point]=begin;
+
+       if(!option_quiet)
+         {
+          printf("\rRouted: Super-Nodes Checked = %d\n",begin->number);
+          fflush(stdout);
+         }
       }
     else
       {
