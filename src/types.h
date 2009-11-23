@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.34 2009-11-13 19:24:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.35 2009-11-23 18:42:40 amb Exp $
 
  Type definitions
 
@@ -177,8 +177,9 @@ typedef enum _Highway
   Way_Track       = 9,
   Way_Cycleway    =10,
   Way_Path        =11,
+  Way_Steps       =12,
 
-  Way_Count       =12,       /* One more than the number of highways. */
+  Way_Count       =13,       /* One more than the number of highways. */
 
   Way_OneWay      =32,
   Way_Roundabout  =64
