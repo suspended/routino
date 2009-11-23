@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.25 2009-11-03 18:44:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.26 2009-11-23 18:42:40 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -49,6 +49,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] =  95,
                                    [Way_Cycleway    ] =  95,
                                    [Way_Path        ] = 100,
+                                   [Way_Steps       ] =  80,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = 0,
@@ -62,6 +63,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(4),
                                    [Way_Cycleway    ] = kph_to_speed(4),
                                    [Way_Path        ] = kph_to_speed(4),
+                                   [Way_Steps       ] = kph_to_speed(4),
                                   },
                       .props_yes= {
                                    [Property_Paved] = 50,
@@ -90,6 +92,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = 100,
                                    [Way_Cycleway    ] =  90,
                                    [Way_Path        ] = 100,
+                                   [Way_Steps       ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = 0,
@@ -103,6 +106,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(8),
                                    [Way_Cycleway    ] = kph_to_speed(8),
                                    [Way_Path        ] = kph_to_speed(8),
+                                   [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
                                    [Property_Paved] = 20,
@@ -131,6 +135,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] =  90,
                                    [Way_Cycleway    ] = 100,
                                    [Way_Path        ] =  90,
+                                   [Way_Steps       ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = 0,
@@ -144,6 +149,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(20),
                                    [Way_Cycleway    ] = kph_to_speed(20),
                                    [Way_Path        ] = kph_to_speed(20),
+                                   [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
                                    [Property_Paved] = 50,
@@ -172,6 +178,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] =   0,
                                    [Way_Cycleway    ] =   0,
                                    [Way_Path        ] =   0,
+                                   [Way_Steps       ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(30*1.6),
@@ -185,6 +192,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(10*1.6),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
+                                   [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
                                    [Property_Paved] = 100,
@@ -213,6 +221,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] =   0,
                                    [Way_Cycleway    ] =   0,
                                    [Way_Path        ] =   0,
+                                   [Way_Steps       ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(70*1.6),
@@ -226,6 +235,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(10*1.6),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
+                                   [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
                                    [Property_Paved] = 100,
@@ -254,6 +264,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] =   0,
                                    [Way_Cycleway    ] =   0,
                                    [Way_Path        ] =   0,
+                                   [Way_Steps       ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(70*1.6),
@@ -267,6 +278,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(10*1.6),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
+                                   [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
                                    [Property_Paved] = 100,
@@ -295,6 +307,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] =   0,
                                    [Way_Cycleway    ] =   0,
                                    [Way_Path        ] =   0,
+                                   [Way_Steps       ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(60*1.6),
@@ -308,6 +321,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(10*1.6),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
+                                   [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
                                    [Property_Paved] = 100,
@@ -336,6 +350,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] =   0,
                                    [Way_Cycleway    ] =   0,
                                    [Way_Path        ] =   0,
+                                   [Way_Steps       ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(56*1.6),
@@ -349,6 +364,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(10*1.6),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
+                                   [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
                                    [Property_Paved] = 100,
@@ -377,6 +393,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] =   0,
                                    [Way_Cycleway    ] =   0,
                                    [Way_Path        ] =   0,
+                                   [Way_Steps       ] =   0,
                                   },
                       .speed    = {
                                    [Way_Motorway    ] = kph_to_speed(56*1.6),
@@ -390,6 +407,7 @@ static Profile builtin_profiles[]=
                                    [Way_Track       ] = kph_to_speed(10*1.6),
                                    [Way_Cycleway    ] = 0,
                                    [Way_Path        ] = 0,
+                                   [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
                                    [Property_Paved] = 100,

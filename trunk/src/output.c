@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.16 2009-11-14 19:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.17 2009-11-23 18:42:40 amb Exp $
 
  Routing output generator.
 
@@ -49,18 +49,19 @@ static double finish_latitude,finish_longitude;
 
 /*+ Heuristics for determining if a junction is important. +*/
 static char junction_other_way[Way_Count][Way_Count]=
- { /* M, T, P, S, T, U, R, S, T, C, P = Way type of route not taken */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 }, /* Motorway     */
-  {   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Trunk        */
-  {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 }, /* Primary      */
-  {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 }, /* Secondary    */
-  {   1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 }, /* Tertiary     */
-  {   1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 }, /* Unclassified */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 }, /* Residential  */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 }, /* Service      */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Track        */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Cycleway     */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Path         */
+ { /* M, T, P, S, T, U, R, S, T, C, P, S = Way type of route not taken */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 }, /* Motorway     */
+  {   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Trunk        */
+  {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Primary      */
+  {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Secondary    */
+  {   1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 }, /* Tertiary     */
+  {   1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 }, /* Unclassified */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 }, /* Residential  */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 }, /* Service      */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Track        */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Cycleway     */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Path         */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Steps        */
  };
 
 
