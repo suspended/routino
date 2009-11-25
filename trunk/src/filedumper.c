@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.35 2009-11-06 18:34:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.36 2009-11-25 15:00:37 amb Exp $
 
  Memory file dumper.
 
@@ -260,6 +260,10 @@ int main(int argc,char** argv)
     printf("\n");
 
     printf("Total names =%9ld Bytes\n",buf.st_size-sizeof(Ways)-OSMWays->number*sizeof(Way));
+    printf("\n");
+
+    printf("Included transports: %s\n",AllowedNameList(OSMWays->allow));
+    printf("Included properties: %s\n",PropertiesNameList(OSMWays->props));
    }
 
  /* Print out internal data */
