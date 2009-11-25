@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.81 2009-11-19 18:53:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.82 2009-11-25 15:00:37 amb Exp $
 
  Routing optimiser.
 
@@ -144,10 +144,13 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(way->props && PROPERTIES(i))
-             segment_pref*=profile->props_yes[i];
-          else
-             segment_pref*=profile->props_no[i];
+          if(ways->props && PROPERTIES(i))
+            {
+             if(way->props && PROPERTIES(i))
+                segment_pref*=profile->props_yes[i];
+             else
+                segment_pref*=profile->props_no[i];
+            }
 
        if(segment_pref==0)
           goto endloop;
@@ -366,10 +369,13 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(way->props && PROPERTIES(i))
-             segment_pref*=profile->props_yes[i];
-          else
-             segment_pref*=profile->props_no[i];
+          if(ways->props && PROPERTIES(i))
+            {
+             if(way->props && PROPERTIES(i))
+                segment_pref*=profile->props_yes[i];
+             else
+                segment_pref*=profile->props_no[i];
+            }
 
        if(segment_pref==0)
           goto endloop;
@@ -599,10 +605,13 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(way->props && PROPERTIES(i))
-             segment_pref*=profile->props_yes[i];
-          else
-             segment_pref*=profile->props_no[i];
+          if(ways->props && PROPERTIES(i))
+            {
+             if(way->props && PROPERTIES(i))
+                segment_pref*=profile->props_yes[i];
+             else
+                segment_pref*=profile->props_no[i];
+            }
 
        if(segment_pref==0)
           goto endloop;
@@ -751,10 +760,13 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(way->props && PROPERTIES(i))
-             segment_pref*=profile->props_yes[i];
-          else
-             segment_pref*=profile->props_no[i];
+          if(ways->props && PROPERTIES(i))
+            {
+             if(way->props && PROPERTIES(i))
+                segment_pref*=profile->props_yes[i];
+             else
+                segment_pref*=profile->props_no[i];
+            }
 
        if(segment_pref==0)
           goto endloop;

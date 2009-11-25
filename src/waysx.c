@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.30 2009-10-22 18:17:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.31 2009-11-25 15:00:37 amb Exp $
 
  Extended Way data type functions.
 
@@ -691,9 +691,11 @@ static index_t index_way(Way** data,int number,Way *way)
   WaysX* waysx The set of ways to save.
 
   const char *filename The name of the file to save.
+
+  Profile *profile The profile used during parsing.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SaveWayList(WaysX* waysx,const char *filename)
+void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
 {
  index_t i;
  int fd;
@@ -713,6 +715,13 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  ways->number=waysx->cnumber;
  ways->onumber=waysx->number;
+
+ ways->allow=profile->allow;
+
+ ways->props=0;
+ for(i=1;i<Property_Count;i++)
+    if(profile->props_yes[i])
+       ways->props|=PROPERTIES(i);
 
  ways->data=NULL;
 

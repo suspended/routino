@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.64 2009-11-19 18:53:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.65 2009-11-25 15:00:37 amb Exp $
 
  OSM router.
 
@@ -324,6 +324,12 @@ int main(int argc,char** argv)
  if(!OSMWays)
    {
     fprintf(stderr,"Error: Cannot open ways file '%s'.\n",filename);
+    return(1);
+   }
+
+ if(!(profile.allow & OSMWays->allow))
+   {
+    fprintf(stderr,"Error: Database was not generated for selected transport.\n");
     return(1);
    }
 

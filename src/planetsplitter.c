@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.63 2009-11-03 18:44:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.64 2009-11-25 15:00:37 amb Exp $
 
  OSM planet file splitter.
 
@@ -62,7 +62,7 @@ int main(int argc,char** argv)
 
  profile.transport=Transport_None; /* Not used by planetsplitter */
 
- profile.allow=Allow_ALL;
+ profile.allow=0;
 
  for(i=1;i<Way_Count;i++)
     profile.highway[i]=1;
@@ -90,8 +90,10 @@ int main(int argc,char** argv)
        max_iterations=atoi(&argv[argc][17]);
     else if(!strncmp(argv[argc],"--transport=",12))
       {
-       profile.transport=TransportType(&argv[argc][12]);
-       profile.allow=1<<(profile.transport-1);
+       Transport transport=TransportType(&argv[argc][12]);
+       if(transport==Transport_None)
+          goto usage;
+       profile.allow|=ALLOWED(transport);
       }
     else if(!strncmp(argv[argc],"--not-highway=",14))
       {
@@ -116,7 +118,7 @@ int main(int argc,char** argv)
                       "                      [--dir=<name>] [--prefix=<name>]\n"
                       "                      [--slim] [--tmpdir=<name>]\n"
                       "                      [--max-iterations=<number>]\n"
-                      "                      [--transport=<transport>]\n"
+                      "                      [--transport=<transport> ...]\n"
                       "                      [--not-highway=<highway> ...]\n"
                       "                      [--not-property=<property> ...]\n"
                       "\n"
@@ -141,6 +143,9 @@ int main(int argc,char** argv)
     else
        option_tmpdirname=dirname;
    }
+
+ if(!profile.allow)
+    profile.allow=Allow_ALL;
 
  /* Create new node, segment and way variables */
 
@@ -308,7 +313,7 @@ int main(int argc,char** argv)
 
  /* Write out the ways */
 
- SaveWayList(Ways,FileName(dirname,prefix,"ways.mem"));
+ SaveWayList(Ways,FileName(dirname,prefix,"ways.mem"),&profile);
 
  FreeWayList(Ways);
 
