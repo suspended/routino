@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.38 2009-11-23 18:42:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.39 2009-11-27 11:03:41 amb Exp $
 
  Way data type functions.
 
@@ -208,6 +208,11 @@ Property PropertyType(const char *property)
 {
  switch(*property)
    {
+   case 'm':
+    if(!strcmp(property,"multilane"))
+       return(Property_Multilane);
+    break;
+
    case 'p':
     if(!strcmp(property,"paved"))
        return(Property_Paved);
@@ -327,6 +332,9 @@ const char *PropertyName(Property property)
    case Property_Paved:
     return("paved");
 
+   case Property_Multilane:
+    return("multilane");
+
    case Property_Count:
     ;
   }
@@ -424,6 +432,12 @@ const char *PropertiesNameList(wayprop_t properties)
     strcat(string,"paved");
    }
 
+ if(properties & Properties_Multilane)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"multilane");
+   }
+
  return(string);
 }
 
@@ -481,7 +495,8 @@ const char *TransportList(void)
 
 const char *PropertyList(void)
 {
- return "    paved     = Paved\n"
+ return "    paved     = Paved (suitable for normal wheels)\n"
+        "    multilane = Multiple lanes\n"
         ;
 }
 
