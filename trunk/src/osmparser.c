@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.60 2009-11-25 15:00:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.61 2009-11-27 11:03:41 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -73,7 +73,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
  way_t way_id=0;
  wayallow_t way_allow_no=0,way_allow_yes=0;
  int way_oneway=0,way_roundabout=0;
- int way_paved=0;
+ int way_paved=0,way_multilane=0;
  speed_t way_maxspeed=0;
  weight_t way_maxweight=0;
  height_t way_maxheight=0;
@@ -131,7 +131,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
 
        way_allow_no=0; way_allow_yes=0;
        way_oneway=0; way_roundabout=0;
-       way_paved=0;
+       way_paved=0; way_multilane=0;
        way_maxspeed=0; way_maxweight=0; way_maxheight=0; way_maxwidth=0;
        way_maxlength=0;
        way_highway=NULL; way_name=NULL; way_ref=NULL;
@@ -154,7 +154,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                case Way_Motorway:
                 way.type|=Way_OneWay;
                 way.allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                way.props=Properties_Paved;
+                way.props=Properties_Paved|Properties_Multilane;
                 break;
                case Way_Trunk:
                 way.allow=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
@@ -232,6 +232,14 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                       way.props|=Properties_Paved;
                    else if(way_paved<0)
                       way.props&=~Properties_Paved;
+                  }
+
+                if(profile->props_yes[Property_Multilane])
+                  {
+                   if(way_multilane>1)
+                      way.props|=Properties_Multilane;
+                   else if(way_paved==1)
+                      way.props&=~Properties_Multilane;
                   }
 
                 if(way_ref && way_name)
@@ -413,6 +421,10 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 if(!strcmp(v,"roundabout"))
                   {way_oneway=1; way_roundabout=1;}
              break;
+
+            case 'l':
+             if(!strcmp(k,"lanes"))
+                way_multilane=atoi(v);
 
             case 'm':
              if(!strcmp(k,"maxspeed"))

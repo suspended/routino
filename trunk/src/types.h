@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.35 2009-11-23 18:42:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.36 2009-11-27 11:03:41 amb Exp $
 
  Type definitions
 
@@ -236,8 +236,9 @@ typedef enum _Property
   Property_None      = 0,
 
   Property_Paved     = 1,
+  Property_Multilane = 2,
 
-  Property_Count     = 2       /* One more than the number of properties. */
+  Property_Count     = 3       /* One more than the number of properties. */
  }
  Property;
 
@@ -251,6 +252,7 @@ typedef uint8_t wayprop_t;
 typedef enum _Properties
  {
   Properties_Paved     = PROPERTIES(Property_Paved),
+  Properties_Multilane = PROPERTIES(Property_Multilane),
 
   Properties_ALL       = 255
  }
