@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.31 2009-11-25 15:00:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.32 2009-12-10 18:49:18 amb Exp $
 
  Extended Way data type functions.
 
@@ -698,13 +698,14 @@ static index_t index_way(Way** data,int number,Way *way)
 void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
 {
  index_t i;
- int fd;
+ int fd,position=0;
  Ways *ways;
 
  printf("Writing Ways: Ways=0");
  fflush(stdout);
 
- waysx->xdata=MapFile(waysx->filename);
+ if(!option_slim)
+    waysx->xdata=MapFile(waysx->filename);
 
  /* Fill in a Ways structure with the offset of the real data in the file after
     the Way structure itself. */
@@ -736,8 +737,10 @@ void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
 
  for(i=0;i<waysx->number;i++)
    {
-    SeekFile(fd,sizeof(Ways)+waysx->xdata[i].id*sizeof(Way));
-    WriteFile(fd,&waysx->xdata[i].way,sizeof(Way));
+    WayX *wayx=LookupWayX(waysx,i,1);
+
+    SeekFile(fd,sizeof(Ways)+wayx->id*sizeof(Way));
+    WriteFile(fd,&wayx->way,sizeof(Way));
 
     if(!((i+1)%10000))
       {
@@ -746,14 +749,28 @@ void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
       }
    }
 
- waysx->xdata=UnmapFile(waysx->filename);
-
- waysx->names=MapFile(waysx->nfilename);
+ if(!option_slim)
+    waysx->xdata=UnmapFile(waysx->filename);
 
  SeekFile(fd,sizeof(Ways)+waysx->cnumber*sizeof(Way));
- WriteFile(fd,waysx->names,waysx->nlength);
 
- waysx->names=UnmapFile(waysx->nfilename);
+ SeekFile(waysx->nfd,0);
+
+ while(position<waysx->nlength)
+   {
+    int len=1024;
+    char temp[1024];
+
+    if((waysx->nlength-position)<1024)
+       len=waysx->nlength-position;
+
+    ReadFile(waysx->nfd,temp,len);
+    WriteFile(fd,temp,len);
+
+    position+=len;
+   }
+
+ CloseFile(waysx->nfd);
 
  CloseFile(fd);
 
