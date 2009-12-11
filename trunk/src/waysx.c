@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.32 2009-12-10 18:49:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.33 2009-12-11 19:27:39 amb Exp $
 
  Extended Way data type functions.
 
@@ -49,13 +49,11 @@ static WaysX *sortwaysx;
 
 /* Functions */
 
+static int sort_by_name_and_prop_and_id(WayX *a,WayX *b);
+static int deduplicate_by_id(WayX *wayx,index_t index);
+
 static int sort_by_id(WayX *a,WayX *b);
 static int index_by_id(WayX *wayx,index_t index);
-
-static int sort_by_name(char *a,char *b);
-static index_t index_way_name(char** names,int number,char *name);
-static int sort_by_name_and_properties(Way *a,Way *b);
-static index_t index_way(Way** data,int number,Way *way);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -79,8 +77,6 @@ WaysX *NewWayList(void)
 
  waysx->nfilename=(char*)malloc(strlen(option_tmpdirname)+32);
  sprintf(waysx->nfilename,"%s/waynames.%p.tmp",option_tmpdirname,waysx);
-
- waysx->nfd=OpenFile(waysx->nfilename);
 
  return(waysx);
 }
@@ -124,20 +120,21 @@ void FreeWayList(WaysX *waysx)
 void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
 {
  WayX wayx;
+ unsigned short size;
 
  assert(!waysx->idata);       /* Must not have idata filled in => unsorted */
 
  wayx.id=id;
+ wayx.prop=0;
  wayx.way=*way;
- wayx.name=waysx->nlength;
 
+ size=sizeof(WayX)+strlen(name)+1;
+
+ WriteFile(waysx->fd,&size,2);
  WriteFile(waysx->fd,&wayx,sizeof(WayX));
+ WriteFile(waysx->fd,name,strlen(name)+1);
 
  waysx->xnumber++;
-
- WriteFile(waysx->nfd,name,strlen(name)+1);
-
- waysx->nlength+=strlen(name)+1;
 }
 
 
@@ -149,7 +146,13 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
 
 void SortWayList(WaysX* waysx)
 {
- int fd;
+ index_t i;
+ int fd,nfd;
+ char *names[2]={NULL,NULL};
+ int namelen[2]={0,0};
+ int nnames=0,nprops=0;
+ uint32_t lastlength=0;
+ Way lastway;
 
  /* Check the start conditions */
 
@@ -160,13 +163,119 @@ void SortWayList(WaysX* waysx)
  printf("Sorting Ways");
  fflush(stdout);
 
- /* Close the files and re-open them (finished appending) */
+ /* Close the file and re-open it (finished appending) */
 
  CloseFile(waysx->fd);
  waysx->fd=ReOpenFile(waysx->filename);
 
- CloseFile(waysx->nfd);
- waysx->nfd=ReOpenFile(waysx->nfilename);
+ DeleteFile(waysx->filename);
+
+ fd=OpenFile(waysx->filename);
+
+ /* Sort the ways to allow compacting them and remove duplicates */
+
+ sortwaysx=waysx;
+
+ filesort_vary(waysx->fd,fd,SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_name_and_prop_and_id,(int (*)(void*,index_t))deduplicate_by_id);
+
+ /* Close the files */
+
+ CloseFile(waysx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf("\rSorted Ways: Ways=%d Duplicates=%d\n",waysx->xnumber,waysx->xnumber-waysx->number);
+ fflush(stdout);
+
+
+ /* Print the start message */
+
+ printf("Compacting Ways: Ways=0 Names=0 Properties=0");
+ fflush(stdout);
+
+ /* Open the files */
+
+ waysx->fd=ReOpenFile(waysx->filename);
+
+ DeleteFile(waysx->filename);
+
+ fd=OpenFile(waysx->filename);
+ nfd=OpenFile(waysx->nfilename);
+
+ /* Copy from the single file into two files and index as we go. */
+
+ for(i=0;i<waysx->number;i++)
+   {
+    WayX wayx;
+    unsigned short size;
+
+    ReadFile(waysx->fd,&size,2);
+
+    if(namelen[nnames%2]<size)
+       names[nnames%2]=(char*)realloc((void*)names[nnames%2],namelen[nnames%2]=size);
+
+    ReadFile(waysx->fd,&wayx,sizeof(WayX));
+    ReadFile(waysx->fd,names[nnames%2],size-sizeof(WayX));
+
+    if(nnames==0 || strcmp(names[0],names[1]))
+      {
+       WriteFile(nfd,names[nnames%2],size-sizeof(WayX));
+
+       lastlength=waysx->nlength;
+       waysx->nlength+=size-sizeof(WayX);
+
+       nnames++;
+      }
+
+    wayx.way.name=lastlength;
+
+    if(nprops==0 || wayx.way.name!=lastway.name || WaysCompare(&lastway,&wayx.way))
+      {
+       lastway=wayx.way;
+
+       waysx->cnumber++;
+
+       nprops++;
+      }
+
+    wayx.prop=nprops-1;
+
+    WriteFile(fd,&wayx,sizeof(WayX));
+
+    if(!((i+1)%10000))
+      {
+       printf("\rCompacting Ways: Ways=%d Names=%d Properties=%d",i+1,nnames,nprops);
+       fflush(stdout);
+      }
+   }
+
+ if(names[0]) free(names[0]);
+ if(names[1]) free(names[1]);
+
+ /* Close the files */
+
+ CloseFile(waysx->fd);
+ CloseFile(fd);
+
+ waysx->fd=ReOpenFile(waysx->filename);
+
+ CloseFile(nfd);
+
+ /* Print the final message */
+
+ printf("\rCompacted Ways: Ways=%d Names=%d Properties=%d \n",waysx->number,nnames,nprops);
+ fflush(stdout);
+
+
+ /* Print the start message */
+
+ printf("Sorting Ways");
+ fflush(stdout);
+
+ /* Open the files */
+
+ waysx->fd=ReOpenFile(waysx->filename);
 
  DeleteFile(waysx->filename);
 
@@ -174,15 +283,15 @@ void SortWayList(WaysX* waysx)
 
  /* Allocate the array of indexes */
 
- waysx->idata=(way_t*)malloc(waysx->xnumber*sizeof(way_t));
+ waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
 
  assert(waysx->idata); /* Check malloc() worked */
 
- /* Sort the way indexes and remove duplicates */
+ /* Sort the ways by index and index them */
 
  sortwaysx=waysx;
 
- filesort(waysx->fd,fd,sizeof(WayX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
+ filesort_fixed(waysx->fd,fd,sizeof(WayX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
 
  /* Close the files and re-open them */
 
@@ -193,7 +302,7 @@ void SortWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf("\rSorted Ways: Ways=%d Duplicates=%d\n",waysx->xnumber,waysx->xnumber-waysx->number);
+ printf("\rSorted Ways: Ways=%d\n",waysx->number);
  fflush(stdout);
 }
 
@@ -223,6 +332,63 @@ static int sort_by_id(WayX *a,WayX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Sort the ways into name, properties and id order.
+
+  int sort_by_name_and_prop_and_id Returns the comparison of the name, properties and id fields.
+
+  WayX *a The first extended Way.
+
+  WayX *b The second extended Way.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int sort_by_name_and_prop_and_id(WayX *a,WayX *b)
+{
+ int compare;
+ char *a_name=(char*)a+sizeof(WayX);
+ char *b_name=(char*)b+sizeof(WayX);
+
+ compare=strcmp(a_name,b_name);
+
+ if(compare)
+    return(compare);
+
+ compare=WaysCompare(&a->way,&b->way);
+
+ if(compare)
+    return(compare);
+
+ return(sort_by_id(a,b));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Deduplicate the extended ways using the id after sorting.
+
+  int deduplicate_by_id Return 1 if the value is to be kept, otherwise zero.
+
+  WayX *wayx The extended way.
+
+  index_t index The index of this way in the total.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int deduplicate_by_id(WayX *wayx,index_t index)
+{
+ static way_t previd;
+
+ if(index==0 || wayx->id!=previd)
+   {
+    previd=wayx->id;
+
+    sortwaysx->number++;
+
+    return(1);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Index the ways after sorting.
 
   int index_by_id Return 1 if the value is to be kept, otherwise zero.
@@ -234,16 +400,9 @@ static int sort_by_id(WayX *a,WayX *b)
 
 static int index_by_id(WayX *wayx,index_t index)
 {
- if(index==0 || sortwaysx->idata[index-1]!=wayx->id)
-   {
-    sortwaysx->idata[index]=wayx->id;
+ sortwaysx->idata[index]=wayx->id;
 
-    sortwaysx->number++;
-
-    return(1);
-   }
-
- return(0);
+ return(1);
 }
 
 
@@ -340,352 +499,6 @@ WayX *LookupWayX(WaysX* waysx,index_t index,int position)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Compact the list of way names.
-
-  WaysX* waysx The set of ways to process.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void CompactWayNames(WaysX* waysx)
-{
- index_t i,j,*offsets;
- char **cnames;
- WayX wayx;
- int duplicate=0;
- int fd,nfd;
-
- /* Print the start message for sorting names */
-
- printf("Sorting Way names");
- fflush(stdout);
-
- /* Get the uncompacted name data and create list for compacted */
-
- waysx->xdata=MapFile(waysx->filename);
-
- waysx->names=MapFile(waysx->nfilename);
-
- cnames=(char**)malloc(waysx->number*sizeof(char*));
-
- assert(cnames); /* Check malloc() worked */
-
- /* Create the index of names, sort it and remove duplicates */
-
- for(i=0;i<waysx->number;i++)
-    cnames[i]=&waysx->names[waysx->xdata[i].name];
-
- heapsort((void**)cnames,waysx->number,(int (*)(const void*,const void*))sort_by_name);
-
- j=0;
- for(i=1;i<waysx->number;i++)
-    if(strcmp(cnames[i],cnames[j]))
-       cnames[++j]=cnames[i];
-    else
-       duplicate++;
-
- waysx->nnumber=++j;
-
- /* Sort the on-disk image */
-
- DeleteFile(waysx->nfilename);
-
- nfd=OpenFile(waysx->nfilename);
-
- offsets=(index_t*)malloc(waysx->nnumber*sizeof(index_t));
-
- assert(offsets); /* Check malloc() worked */
-
- waysx->nlength=0;
-
- for(i=0;i<waysx->nnumber;i++)
-   {
-    offsets[i]=waysx->nlength;
-    waysx->nlength+=strlen(cnames[i])+1;
-    WriteFile(nfd,cnames[i],strlen(cnames[i])+1);
-   }
-
- CloseFile(waysx->nfd);
- CloseFile(nfd);
-
- waysx->nfd=ReOpenFile(waysx->nfilename);
-
- /* Print the final message for sorting names */
-
- printf("\rSorted Way names: Names=%d Duplicate=%d\n",waysx->number,duplicate);
- fflush(stdout);
-
- /* Print the start message for compacting names */
-
- printf("Compacting Way names");
- fflush(stdout);
-
- /* Update the on-disk image */
-
- DeleteFile(waysx->filename);
-
- fd=OpenFile(waysx->filename);
- SeekFile(waysx->fd,0);
-
- while(!ReadFile(waysx->fd,&wayx,sizeof(WayX)))
-   {
-    wayx.way.name=offsets[index_way_name(cnames,waysx->nnumber,&waysx->names[wayx.name])];
-
-    WriteFile(fd,&wayx,sizeof(WayX));
-   }
-
- CloseFile(waysx->fd);
- CloseFile(fd);
-
- waysx->xdata=UnmapFile(waysx->filename);
- waysx->names=UnmapFile(waysx->nfilename);
-
- waysx->fd=ReOpenFile(waysx->filename);
-
- /* Print the final message for compacting names */
-
- printf("\rCompacted Way names: Names=%d Unique=%d\n",waysx->number,waysx->nnumber);
- fflush(stdout);
-
- free(cnames);
- free(offsets);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the way names.
-
-  int sort_by_name Returns the comparison of the name fields.
-
-  char *a The first extended Way.
-
-  char *b The second extended Way.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int sort_by_name(char *a,char *b)
-{
- return(strcmp(a,b));
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find a particular name within the sorted list of names.
-
-  index_t index_way_name Returns the index of the name within the list.
-
-  char **names The set of names to search.
-
-  int number The number of names.
-
-  char *name The name to look for.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static index_t index_way_name(char** names,int number,char *name)
-{
- int start=0;
- int end=number-1;
- int mid;
-
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- do
-   {
-    mid=(start+end)/2;                 /* Choose mid point */
-
-    if(strcmp(name,names[mid])>0)      /* Mid point is too low */
-       start=mid+1;
-    else if(strcmp(name,names[mid])<0) /* Mid point is too high */
-       end=mid-1;
-    else                               /* Mid point is correct */
-       return(mid);
-   }
- while((end-start)>1);
-
- if(strcmp(name,names[start])==0)      /* Start is correct */
-    return(start);
-
- if(strcmp(name,names[end])==0)        /* End is correct */
-    return(end);
-
- assert(0);
-
- return(NO_WAY);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Compact the list of way properties.
-
-  WaysX* waysx The set of ways to process.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void CompactWayProperties(WaysX* waysx)
-{
- index_t i,j;
- WayX wayx;
- Way **cdata;
- int duplicate=0;
- int fd;
-
- /* Print the start message for sorting properties */
-
- printf("Sorting Ways by properties");
- fflush(stdout);
-
- /* Get the uncompacted data and create list for compacted */
-
- waysx->xdata=MapFile(waysx->filename);
-
- cdata=(Way**)malloc(waysx->number*sizeof(Way*));
-
- assert(cdata); /* Check malloc() worked */
-
- for(i=0;i<waysx->number;i++)
-    cdata[i]=&waysx->xdata[i].way;
-
- /* Create the index of names, sort it and remove duplicates */
-
- heapsort((void**)cdata,waysx->number,(int (*)(const void*,const void*))sort_by_name_and_properties);
-
- j=0;
- for(i=1;i<waysx->number;i++)
-    if(cdata[i-1]->name!=cdata[i]->name || WaysCompare(cdata[i-1],cdata[i]))
-       cdata[++j]=cdata[i];
-    else
-       duplicate++;
-
- waysx->cnumber=++j;
-
- /* Print the final message for sorting properties */
-
- printf("\rSorted Ways by properties: Properties=%d Duplicate=%d\n",waysx->number,duplicate);
- fflush(stdout);
-
- /* Print the start message for compacting properties */
-
- printf("Compacting Way properties");
- fflush(stdout);
-
- /* Update the on-disk image */
-
- DeleteFile(waysx->filename);
-
- fd=OpenFile(waysx->filename);
- SeekFile(waysx->fd,0);
-
- while(!ReadFile(waysx->fd,&wayx,sizeof(WayX)))
-   {
-    wayx.id=index_way(cdata,waysx->cnumber,&wayx.way);
-
-    WriteFile(fd,&wayx,sizeof(WayX));
-   }
-
- CloseFile(waysx->fd);
- CloseFile(fd);
-
- waysx->fd=ReOpenFile(waysx->filename);
-
- waysx->xdata=UnmapFile(waysx->filename);
-
- /* Print the final message for compacting properties */
-
- printf("\rCompacted Way properties: Properties=%d Unique=%d\n",waysx->number,waysx->cnumber);
- fflush(stdout);
-
- free(cdata);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the ways into name and properties order.
-
-  int sort_by_name_and_properties Returns the comparison of the name and properties fields.
-
-  Way *a The first Way.
-
-  Way *b The second Way.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int sort_by_name_and_properties(Way *a,Way *b)
-{
- index_t a_name=a->name;
- index_t b_name=b->name;
-
- if(a_name<b_name)
-    return(-1);
- else if(a_name>b_name)
-    return(1);
- else
-    return(WaysCompare(a,b));
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find a particular Way within the sorted list of ways.
-
-  index_t index_way Returns the index of the Way within the list.
-
-  Way **data The set of Ways to search.
-
-  int number The number of Ways.
-
-  Way *way The name to look for.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static index_t index_way(Way** data,int number,Way *way)
-{
- int start=0;
- int end=number-1;
- int mid;
-
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- do
-   {
-    mid=(start+end)/2;                    /* Choose mid point */
-
-    if(way->name>data[mid]->name)         /* Mid point is too low */
-       start=mid+1;
-    else if(way->name<data[mid]->name)    /* Mid point is too high */
-       end=mid-1;
-    else if(WaysCompare(way,data[mid])>0) /* Mid point is too low */
-       start=mid+1;
-    else if(WaysCompare(way,data[mid])<0) /* Mid point is too high */
-       end=mid-1;
-    else                                  /* Mid point is correct */
-       return(mid);
-   }
- while((end-start)>1);
-
- if(way->name==data[start]->name && !WaysCompare(way,data[start]))   /* Start is correct */
-    return(start);
-
- if(way->name==data[end]->name && !WaysCompare(way,data[end]))       /* End is correct */
-    return(end);
-
- assert(0);
-
- return(NO_WAY);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Save the way list to a file.
 
   WaysX* waysx The set of ways to save.
@@ -698,7 +511,8 @@ static index_t index_way(Way** data,int number,Way *way)
 void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
 {
  index_t i;
- int fd,position=0;
+ int fd,nfd;
+ int position=0;
  Ways *ways;
 
  printf("Writing Ways: Ways=0");
@@ -739,7 +553,7 @@ void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
    {
     WayX *wayx=LookupWayX(waysx,i,1);
 
-    SeekFile(fd,sizeof(Ways)+wayx->id*sizeof(Way));
+    SeekFile(fd,sizeof(Ways)+wayx->prop*sizeof(Way));
     WriteFile(fd,&wayx->way,sizeof(Way));
 
     if(!((i+1)%10000))
@@ -752,9 +566,9 @@ void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
  if(!option_slim)
     waysx->xdata=UnmapFile(waysx->filename);
 
- SeekFile(fd,sizeof(Ways)+waysx->cnumber*sizeof(Way));
+ SeekFile(fd,sizeof(Ways)+ways->number*sizeof(Way));
 
- SeekFile(waysx->nfd,0);
+ nfd=ReOpenFile(waysx->nfilename);
 
  while(position<waysx->nlength)
    {
@@ -764,13 +578,13 @@ void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
     if((waysx->nlength-position)<1024)
        len=waysx->nlength-position;
 
-    ReadFile(waysx->nfd,temp,len);
+    ReadFile(nfd,temp,len);
     WriteFile(fd,temp,len);
 
     position+=len;
    }
 
- CloseFile(waysx->nfd);
+ CloseFile(nfd);
 
  CloseFile(fd);
 

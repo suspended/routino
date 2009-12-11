@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.18 2009-11-25 15:00:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.19 2009-12-11 19:27:39 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -41,9 +41,9 @@ struct _WayX
 {
  way_t    id;                   /*+ The way identifier. +*/
 
- Way      way;                  /*+ The real Way data. +*/
+ index_t  prop;                 /*+ The index of the properties of the way in the compacted list. +*/
 
- index_t  name;                 /*+ The index of the name of the way. +*/
+ Way      way;                  /*+ The real Way data. +*/
 };
 
 
@@ -62,14 +62,9 @@ struct _WaysX
 
  uint32_t cnumber;              /*+ How many entries are there after compacting? +*/
 
- index_t *idata;                /*+ The extended data for the Ways (sorted by ID). +*/
+ index_t *idata;                /*+ The index of the extended data for the Ways (sorted by ID). +*/
 
  char    *nfilename;            /*+ The name of the temporary file (for the names). +*/
- int      nfd;                  /*+ The file descriptor of the temporary file (for the names). +*/
-
- char    *names;                /*+ The names of the ways (unsorted). +*/
-
- uint32_t nnumber;              /*+ How many names are there after compacting? +*/
 
  uint32_t nlength;              /*+ How long is the string of name entries? +*/
 };
@@ -89,8 +84,5 @@ WayX *LookupWayX(WaysX* waysx,index_t index,int position);
 void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name);
 
 void SortWayList(WaysX *waysx);
-
-void CompactWayNames(WaysX* waysx);
-void CompactWayProperties(WaysX* waysx);
 
 #endif /* WAYSX_H */

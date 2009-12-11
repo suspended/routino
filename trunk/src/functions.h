@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.45 2009-11-14 19:39:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.46 2009-12-11 19:27:39 amb Exp $
 
  Header file for function prototypes
 
@@ -87,8 +87,12 @@ void PrintRouteTail(void);
 
 /* In sorting.c */
 
-void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)(const void*,const void*),
-                                                                  int (*buildindex)(void*,index_t));
+void filesort_fixed(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)(const void*,const void*),
+                                                                        int (*buildindex)(void*,index_t));
+
+void filesort_vary(int fd_in,int fd_out,size_t ramsize,int (*compare)(const void*,const void*),
+                                                       int (*buildindex)(void*,index_t));
+
 void heapsort(void **datap,size_t nitems,int(*compare)(const void*, const void*));
 
 

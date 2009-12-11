@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.51 2009-10-22 18:17:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.52 2009-12-11 19:27:39 amb Exp $
 
  Extented Node data type functions.
 
@@ -177,7 +177,7 @@ void SortNodeList(NodesX* nodesx)
 
  sortnodesx=nodesx;
 
- filesort(nodesx->fd,fd,sizeof(NodeX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
+ filesort_fixed(nodesx->fd,fd,sizeof(NodeX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
 
  /* Close the files and re-open them */
 
@@ -276,7 +276,7 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  sortnodesx=nodesx;
 
- filesort(nodesx->fd,fd,sizeof(NodeX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
+ filesort_fixed(nodesx->fd,fd,sizeof(NodeX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
 
  /* Close the files and re-open them */
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.5 2009-10-22 18:17:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.6 2009-12-11 19:27:39 amb Exp $
 
  Merge sort functions.
 
@@ -37,7 +37,8 @@ extern char *option_tmpdirname;
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  A function to sort the contents of a file using a limited amount of RAM.
+  A function to sort the contents of a file of fixed length objects using a
+  limited amount of RAM.
 
   The data is sorted using a "Merge sort" http://en.wikipedia.org/wiki/Merge_sort
   and in particular an "external sort" http://en.wikipedia.org/wiki/External_sorting.
@@ -60,8 +61,8 @@ extern char *option_tmpdirname;
                                     returns 1 then it is written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)(const void*,const void*),
-                                                                  int (*buildindex)(void*,index_t))
+void filesort_fixed(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)(const void*,const void*),
+                                                                        int (*buildindex)(void*,index_t))
 {
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
@@ -110,7 +111,7 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
 
     /* Shortcut if all read in and sorted at once */
 
-    if(nfiles==0 && n<nitems)
+    if(nfiles==0 && !more)
       {
        for(i=0;i<n;i++)
          {
@@ -283,6 +284,276 @@ void filesort(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)
 
  free(data);
  free(datap);
+ free(filename);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  A function to sort the contents of a file of variable length objects (each
+  preceded by its length in 2 bytes) using a limited amount of RAM.
+
+  The data is sorted using a "Merge sort" http://en.wikipedia.org/wiki/Merge_sort
+  and in particular an "external sort" http://en.wikipedia.org/wiki/External_sorting.
+  The individual sort steps and the merge step both use a "Heap sort"
+  http://en.wikipedia.org/wiki/Heapsort.  The combination of the two should work well
+  if the data is already partially sorted.
+
+  int fd_in The file descriptor of the input file (opened for reading and at the beginning).
+
+  int fd_out The file descriptor of the output file (opened for writing and empty).
+
+  size_t ramsize The maximum in-core buffer size to use when sorting.
+
+  int (*compare)(const void*, const void*) The comparison function (identical to qsort if the
+                                           data to be sorted is an array of things not pointers).
+
+  int (*buildindex)(void *,index_t) If non-NULL then this function is called for each item, if it
+                                    returns 1 then it is written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void filesort_vary(int fd_in,int fd_out,size_t ramsize,int (*compare)(const void*,const void*),
+                                                       int (*buildindex)(void*,index_t))
+{
+ int *fds=NULL,*heap=NULL;
+ int nfiles=0,ndata=0;
+ index_t count=0,total=0;
+ unsigned short nextitemsize,largestitemsize=0;
+ void *data=NULL,**datap=NULL;
+ char *filename;
+ int i,more=1;
+
+ /* Allocate the RAM buffer and other bits */
+
+ data=malloc(ramsize);
+
+ filename=(char*)malloc(strlen(option_tmpdirname)+24);
+
+ /* Loop around, fill the buffer, sort the data and write a temporary file */
+
+ if(ReadFile(fd_in,&nextitemsize,2))    /* Always have the next item size known in advance */
+    goto tidy_and_exit;
+
+ do
+   {
+    int fd,n=0;
+    size_t ramused=sizeof(void*)-2;
+
+    datap=data+ramsize;
+
+    /* Read in the data and create pointers */
+
+    while((ramused+sizeof(void*)+2+nextitemsize)<=((void*)datap-data))
+      {
+       unsigned short itemsize=nextitemsize;
+
+       if(itemsize>largestitemsize)
+          largestitemsize=itemsize;
+
+       *(unsigned short*)(data+ramused)=itemsize;
+
+       ReadFile(fd_in,data+ramused+2,itemsize);
+
+       *--datap=data+ramused+2; /* points to real data */
+
+       ramused+=2+itemsize;
+       ramused=sizeof(void*)*((ramused+1)/sizeof(void*))+sizeof(void*)-2; /* Always 2 less than a multiple of pointer alignment. */
+
+       total++;
+       n++;
+
+       if(ReadFile(fd_in,&nextitemsize,2))
+         {
+          more=0;
+          break;
+         }
+      }
+
+    if(n==0)
+       break;
+
+    /* Sort the data pointers using a heap sort */
+
+    heapsort(datap,n,compare);
+
+    /* Shortcut if all read in and sorted at once */
+
+    if(nfiles==0 && !more)
+      {
+       for(i=0;i<n;i++)
+         {
+          if(!buildindex || buildindex(datap[i],count))
+            {
+             unsigned short itemsize=*(unsigned short*)(datap[i]-2);
+
+             WriteFile(fd_out,datap[i]-2,itemsize+2);
+             count++;
+            }
+         }
+
+       goto tidy_and_exit;
+      }
+
+    /* Create a temporary file and write the result */
+
+    sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,nfiles);
+
+    fd=OpenFile(filename);
+
+    for(i=0;i<n;i++)
+      {
+       unsigned short itemsize=*(unsigned short*)(datap[i]-2);
+
+       WriteFile(fd,datap[i]-2,itemsize+2);
+      }
+
+    CloseFile(fd);
+
+    nfiles++;
+   }
+ while(more);
+
+ /* Check that number of files is less than file size */
+
+ largestitemsize=sizeof(void*)*(1+(largestitemsize+2)/sizeof(void*));
+
+ assert(nfiles<((ramsize-sizeof(void*)-nfiles*sizeof(void*))/largestitemsize));
+
+ /* Open all of the temporary files */
+
+ fds=(int*)malloc(nfiles*sizeof(int));
+
+ for(i=0;i<nfiles;i++)
+   {
+    sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,i);
+
+    fds[i]=ReOpenFile(filename);
+
+    DeleteFile(filename);
+   }
+
+ /* Perform an n-way merge using a binary heap */
+
+ heap=(int*)malloc(nfiles*sizeof(int));
+
+ datap=data+ramsize-nfiles*sizeof(void*);
+
+ /* Fill the heap to start with */
+
+ for(i=0;i<nfiles;i++)
+   {
+    int index;
+    unsigned short itemsize;
+
+    datap[i]=data+sizeof(void*)-2+i*largestitemsize;
+
+    ReadFile(fds[i],&itemsize,2);
+
+    *(unsigned short*)(datap[i]-2)=itemsize;
+
+    ReadFile(fds[i],datap[i],itemsize);
+
+    heap[i]=i;
+
+    index=i;
+
+    /* Bubble up the new value */
+
+    while(index>0 &&
+          compare(datap[heap[index]],datap[heap[(index-1)/2]])<0)
+      {
+       int newindex;
+       int temp;
+
+       newindex=(index-1)/2;
+
+       temp=heap[index];
+       heap[index]=heap[newindex];
+       heap[newindex]=temp;
+
+       index=newindex;
+      }
+   }
+
+ /* Repeatedly pull out the root of the heap and refill from the same file */
+
+ ndata=nfiles;
+
+ do
+   {
+    int index=0;
+    unsigned short itemsize;
+
+    if(!buildindex || buildindex(datap[heap[0]],count))
+      {
+       itemsize=*(unsigned short*)(datap[heap[0]]-2);
+
+       WriteFile(fd_out,datap[heap[0]]-2,itemsize+2);
+       count++;
+      }
+
+    if(ReadFile(fds[heap[0]],&itemsize,2))
+      {
+       ndata--;
+       heap[0]=heap[ndata];
+      }
+    else
+      {
+       *(unsigned short*)(datap[heap[0]]-2)=itemsize;
+
+       ReadFile(fds[heap[0]],datap[heap[0]],itemsize);
+      }
+
+    /* Bubble down the new value */
+
+    while((2*index+2)<ndata &&
+          (compare(datap[heap[index]],datap[heap[2*index+1]])>0 ||
+           compare(datap[heap[index]],datap[heap[2*index+2]])>0))
+      {
+       int newindex;
+       int temp;
+
+       if(compare(datap[heap[2*index+1]],datap[heap[2*index+2]])<0)
+          newindex=2*index+1;
+       else
+          newindex=2*index+2;
+
+       temp=heap[newindex];
+       heap[newindex]=heap[index];
+       heap[index]=temp;
+
+       index=newindex;
+      }
+
+    if((2*index+2)==ndata &&
+       compare(datap[heap[index]],datap[heap[2*index+1]])>0)
+      {
+       int newindex;
+       int temp;
+
+       newindex=2*index+1;
+
+       temp=heap[newindex];
+       heap[newindex]=heap[index];
+       heap[index]=temp;
+      }
+   }
+ while(ndata>0);
+
+ /* Tidy up */
+
+ tidy_and_exit:
+
+ if(fds)
+   {
+    for(i=0;i<nfiles;i++)
+       CloseFile(fds[i]);
+    free(fds);
+   }
+
+ if(heap)
+    free(heap);
+
+ free(data);
  free(filename);
 }
 
