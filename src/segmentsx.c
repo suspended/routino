@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.46 2009-10-22 18:17:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.47 2009-12-11 19:27:39 amb Exp $
 
  Extended Segment data type functions.
 
@@ -166,7 +166,7 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  /* Sort by node indexes */
 
- filesort(segmentsx->fd,fd,sizeof(SegmentX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,NULL);
+ filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,NULL);
 
  segmentsx->number=segmentsx->xnumber;
 
@@ -807,7 +807,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
     segmentsx->sdata[i].node1=0;
     segmentsx->sdata[i].node2=0;
     segmentsx->sdata[i].next2=NO_NODE;
-    segmentsx->sdata[i].way=wayx->id;
+    segmentsx->sdata[i].way=wayx->prop;
     segmentsx->sdata[i].distance=segmentx->distance;
 
     if(!((i+1)%10000))

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.64 2009-11-25 15:00:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.65 2009-12-11 19:27:39 amb Exp $
 
  OSM planet file splitter.
 
@@ -271,12 +271,6 @@ int main(int argc,char** argv)
 
  printf("\nCross-Reference Nodes and Segments\n==================================\n\n");
  fflush(stdout);
-
- /* Compact the ways */
-
- CompactWayNames(Ways);
-
- CompactWayProperties(Ways);
 
  /* Sort the node list geographically */
 
