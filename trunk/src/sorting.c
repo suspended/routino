@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.6 2009-12-11 19:27:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.7 2009-12-12 11:08:50 amb Exp $
 
  Merge sort functions.
 
@@ -30,6 +30,15 @@
 #include "functions.h"
 
 
+/* Constants */
+
+/*+ The amount of memory to use for sorting. +*/
+#define FILESORT_RAMSIZE    (64*1024*1024)
+
+/*+ The alignment of the +*/
+#define FILESORT_VARALIGN   sizeof(void*)
+
+
 /* Variables */
 
 /*+ The command line '--tmpdir' option or its default value. +*/
@@ -52,8 +61,6 @@ extern char *option_tmpdirname;
 
   size_t itemsize The size of each item in the file that needs sorting.
 
-  size_t ramsize The maximum in-core buffer size to use when sorting.
-
   int (*compare)(const void*, const void*) The comparison function (identical to qsort if the
                                            data to be sorted is an array of things not pointers).
 
@@ -61,13 +68,12 @@ extern char *option_tmpdirname;
                                     returns 1 then it is written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void filesort_fixed(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)(const void*,const void*),
-                                                                        int (*buildindex)(void*,index_t))
+void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const void*,const void*),int (*buildindex)(void*,index_t))
 {
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
  index_t count=0,total=0;
- size_t nitems=ramsize/(itemsize+sizeof(void*));
+ size_t nitems=FILESORT_RAMSIZE/(itemsize+sizeof(void*));
  void *data=NULL,**datap=NULL;
  char *filename;
  int i,more=1;
@@ -302,8 +308,6 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*co
 
   int fd_out The file descriptor of the output file (opened for writing and empty).
 
-  size_t ramsize The maximum in-core buffer size to use when sorting.
-
   int (*compare)(const void*, const void*) The comparison function (identical to qsort if the
                                            data to be sorted is an array of things not pointers).
 
@@ -311,57 +315,60 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*co
                                     returns 1 then it is written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void filesort_vary(int fd_in,int fd_out,size_t ramsize,int (*compare)(const void*,const void*),
-                                                       int (*buildindex)(void*,index_t))
+void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),int (*buildindex)(void*,index_t))
 {
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
  index_t count=0,total=0;
- unsigned short nextitemsize,largestitemsize=0;
+ FILESORT_VARINT nextitemsize,largestitemsize=0;
  void *data=NULL,**datap=NULL;
  char *filename;
  int i,more=1;
 
  /* Allocate the RAM buffer and other bits */
 
- data=malloc(ramsize);
+ data=malloc(FILESORT_RAMSIZE);
 
  filename=(char*)malloc(strlen(option_tmpdirname)+24);
 
  /* Loop around, fill the buffer, sort the data and write a temporary file */
 
- if(ReadFile(fd_in,&nextitemsize,2))    /* Always have the next item size known in advance */
+ if(ReadFile(fd_in,&nextitemsize,FILESORT_VARSIZE))    /* Always have the next item size known in advance */
     goto tidy_and_exit;
 
  do
    {
     int fd,n=0;
-    size_t ramused=sizeof(void*)-2;
+    size_t ramused=FILESORT_VARALIGN-FILESORT_VARSIZE;
 
-    datap=data+ramsize;
+    datap=data+FILESORT_RAMSIZE;
 
     /* Read in the data and create pointers */
 
-    while((ramused+sizeof(void*)+2+nextitemsize)<=((void*)datap-data))
+    while((ramused+FILESORT_VARSIZE+nextitemsize)<=((void*)datap-sizeof(void*)-data))
       {
-       unsigned short itemsize=nextitemsize;
+       FILESORT_VARINT itemsize=nextitemsize;
 
        if(itemsize>largestitemsize)
           largestitemsize=itemsize;
 
-       *(unsigned short*)(data+ramused)=itemsize;
+       *(FILESORT_VARINT*)(data+ramused)=itemsize;
 
-       ReadFile(fd_in,data+ramused+2,itemsize);
+       ramused+=FILESORT_VARSIZE;
 
-       *--datap=data+ramused+2; /* points to real data */
+       ReadFile(fd_in,data+ramused,itemsize);
 
-       ramused+=2+itemsize;
-       ramused=sizeof(void*)*((ramused+1)/sizeof(void*))+sizeof(void*)-2; /* Always 2 less than a multiple of pointer alignment. */
+       *--datap=data+ramused; /* points to real data */
+
+       ramused+=itemsize;
+
+       ramused =FILESORT_VARALIGN*((ramused+FILESORT_VARSIZE-1)/FILESORT_VARALIGN);
+       ramused+=FILESORT_VARALIGN-FILESORT_VARSIZE;
 
        total++;
        n++;
 
-       if(ReadFile(fd_in,&nextitemsize,2))
+       if(ReadFile(fd_in,&nextitemsize,FILESORT_VARSIZE))
          {
           more=0;
           break;
@@ -383,9 +390,9 @@ void filesort_vary(int fd_in,int fd_out,size_t ramsize,int (*compare)(const void
          {
           if(!buildindex || buildindex(datap[i],count))
             {
-             unsigned short itemsize=*(unsigned short*)(datap[i]-2);
+             FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(datap[i]-FILESORT_VARSIZE);
 
-             WriteFile(fd_out,datap[i]-2,itemsize+2);
+             WriteFile(fd_out,datap[i]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
              count++;
             }
          }
@@ -401,9 +408,9 @@ void filesort_vary(int fd_in,int fd_out,size_t ramsize,int (*compare)(const void
 
     for(i=0;i<n;i++)
       {
-       unsigned short itemsize=*(unsigned short*)(datap[i]-2);
+       FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(datap[i]-FILESORT_VARSIZE);
 
-       WriteFile(fd,datap[i]-2,itemsize+2);
+       WriteFile(fd,datap[i]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
       }
 
     CloseFile(fd);
@@ -414,9 +421,9 @@ void filesort_vary(int fd_in,int fd_out,size_t ramsize,int (*compare)(const void
 
  /* Check that number of files is less than file size */
 
- largestitemsize=sizeof(void*)*(1+(largestitemsize+2)/sizeof(void*));
+ largestitemsize=FILESORT_VARALIGN*(1+(largestitemsize+FILESORT_VARALIGN-FILESORT_VARSIZE)/FILESORT_VARALIGN);
 
- assert(nfiles<((ramsize-sizeof(void*)-nfiles*sizeof(void*))/largestitemsize));
+ assert(nfiles<((FILESORT_RAMSIZE-nfiles*sizeof(void*))/largestitemsize));
 
  /* Open all of the temporary files */
 
@@ -435,20 +442,20 @@ void filesort_vary(int fd_in,int fd_out,size_t ramsize,int (*compare)(const void
 
  heap=(int*)malloc(nfiles*sizeof(int));
 
- datap=data+ramsize-nfiles*sizeof(void*);
+ datap=data+FILESORT_RAMSIZE-nfiles*sizeof(void*);
 
  /* Fill the heap to start with */
 
  for(i=0;i<nfiles;i++)
    {
     int index;
-    unsigned short itemsize;
+    FILESORT_VARINT itemsize;
 
-    datap[i]=data+sizeof(void*)-2+i*largestitemsize;
+    datap[i]=data+FILESORT_VARALIGN-FILESORT_VARSIZE+i*largestitemsize;
 
-    ReadFile(fds[i],&itemsize,2);
+    ReadFile(fds[i],&itemsize,FILESORT_VARSIZE);
 
-    *(unsigned short*)(datap[i]-2)=itemsize;
+    *(FILESORT_VARINT*)(datap[i]-FILESORT_VARSIZE)=itemsize;
 
     ReadFile(fds[i],datap[i],itemsize);
 
@@ -481,24 +488,24 @@ void filesort_vary(int fd_in,int fd_out,size_t ramsize,int (*compare)(const void
  do
    {
     int index=0;
-    unsigned short itemsize;
+    FILESORT_VARINT itemsize;
 
     if(!buildindex || buildindex(datap[heap[0]],count))
       {
-       itemsize=*(unsigned short*)(datap[heap[0]]-2);
+       itemsize=*(FILESORT_VARINT*)(datap[heap[0]]-FILESORT_VARSIZE);
 
-       WriteFile(fd_out,datap[heap[0]]-2,itemsize+2);
+       WriteFile(fd_out,datap[heap[0]]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
        count++;
       }
 
-    if(ReadFile(fds[heap[0]],&itemsize,2))
+    if(ReadFile(fds[heap[0]],&itemsize,FILESORT_VARSIZE))
       {
        ndata--;
        heap[0]=heap[ndata];
       }
     else
       {
-       *(unsigned short*)(datap[heap[0]]-2)=itemsize;
+       *(FILESORT_VARINT*)(datap[heap[0]]-FILESORT_VARSIZE)=itemsize;
 
        ReadFile(fds[heap[0]],datap[heap[0]],itemsize);
       }
