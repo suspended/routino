@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.25 2009-10-20 15:22:05 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.26 2009-12-12 11:09:16 amb Exp $
 #
 # Makefile
 #
@@ -50,7 +50,7 @@ D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
 EXE=planetsplitter filedumper router
 
 all : $(EXE)
-	[ -d ../web/bin ] && cp $(EXE) ../web/bin
+	-[ -d ../web/bin ] && cp $(EXE) ../web/bin
 
 ########
 
