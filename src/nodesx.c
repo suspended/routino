@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.52 2009-12-11 19:27:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.53 2009-12-12 11:08:50 amb Exp $
 
  Extented Node data type functions.
 
@@ -35,11 +35,6 @@
 #include "segments.h"
 #include "nodes.h"
 
-
-/* Constants */
-
-/*+ The amount of memory to use for sorting. +*/
-#define SORT_RAMSIZE (64*1024*1024)
 
 /* Variables */
 
@@ -177,7 +172,7 @@ void SortNodeList(NodesX* nodesx)
 
  sortnodesx=nodesx;
 
- filesort_fixed(nodesx->fd,fd,sizeof(NodeX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
+ filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
 
  /* Close the files and re-open them */
 
@@ -276,7 +271,7 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  sortnodesx=nodesx;
 
- filesort_fixed(nodesx->fd,fd,sizeof(NodeX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
+ filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
 
  /* Close the files and re-open them */
 

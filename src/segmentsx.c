@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.47 2009-12-11 19:27:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.48 2009-12-12 11:08:50 amb Exp $
 
  Extended Segment data type functions.
 
@@ -37,11 +37,6 @@
 #include "segments.h"
 #include "ways.h"
 
-
-/* Constants */
-
-/*+ The amount of memory to use for sorting. +*/
-#define SORT_RAMSIZE (64*1024*1024)
 
 /* Variables */
 
@@ -166,7 +161,7 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  /* Sort by node indexes */
 
- filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,NULL);
+ filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,NULL);
 
  segmentsx->number=segmentsx->xnumber;
 

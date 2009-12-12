@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.33 2009-12-11 19:27:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.34 2009-12-12 11:08:50 amb Exp $
 
  Extended Way data type functions.
 
@@ -30,11 +30,6 @@
 #include "waysx.h"
 #include "ways.h"
 
-
-/* Constants */
-
-/*+ The amount of memory to use for sorting. +*/
-#define SORT_RAMSIZE (64*1024*1024)
 
 /* Variables */
 
@@ -120,7 +115,7 @@ void FreeWayList(WaysX *waysx)
 void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
 {
  WayX wayx;
- unsigned short size;
+ FILESORT_VARINT size;
 
  assert(!waysx->idata);       /* Must not have idata filled in => unsorted */
 
@@ -130,7 +125,7 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
 
  size=sizeof(WayX)+strlen(name)+1;
 
- WriteFile(waysx->fd,&size,2);
+ WriteFile(waysx->fd,&size,FILESORT_VARSIZE);
  WriteFile(waysx->fd,&wayx,sizeof(WayX));
  WriteFile(waysx->fd,name,strlen(name)+1);
 
@@ -176,7 +171,7 @@ void SortWayList(WaysX* waysx)
 
  sortwaysx=waysx;
 
- filesort_vary(waysx->fd,fd,SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_name_and_prop_and_id,(int (*)(void*,index_t))deduplicate_by_id);
+ filesort_vary(waysx->fd,fd,(int (*)(const void*,const void*))sort_by_name_and_prop_and_id,(int (*)(void*,index_t))deduplicate_by_id);
 
  /* Close the files */
 
@@ -208,9 +203,9 @@ void SortWayList(WaysX* waysx)
  for(i=0;i<waysx->number;i++)
    {
     WayX wayx;
-    unsigned short size;
+    FILESORT_VARINT size;
 
-    ReadFile(waysx->fd,&size,2);
+    ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
 
     if(namelen[nnames%2]<size)
        names[nnames%2]=(char*)realloc((void*)names[nnames%2],namelen[nnames%2]=size);
@@ -291,7 +286,7 @@ void SortWayList(WaysX* waysx)
 
  sortwaysx=waysx;
 
- filesort_fixed(waysx->fd,fd,sizeof(WayX),SORT_RAMSIZE,(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
+ filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
 
  /* Close the files and re-open them */
 

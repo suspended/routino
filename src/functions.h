@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.46 2009-12-11 19:27:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.47 2009-12-12 11:08:50 amb Exp $
 
  Header file for function prototypes
 
@@ -87,11 +87,13 @@ void PrintRouteTail(void);
 
 /* In sorting.c */
 
-void filesort_fixed(int fd_in,int fd_out,size_t itemsize,size_t ramsize,int (*compare)(const void*,const void*),
-                                                                        int (*buildindex)(void*,index_t));
+/*+ The type and size of variable to store the variable length +*/
+#define FILESORT_VARINT   unsigned short
+#define FILESORT_VARSIZE  sizeof(FILESORT_VARINT)
 
-void filesort_vary(int fd_in,int fd_out,size_t ramsize,int (*compare)(const void*,const void*),
-                                                       int (*buildindex)(void*,index_t));
+void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const void*,const void*),int (*buildindex)(void*,index_t));
+
+void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),int (*buildindex)(void*,index_t));
 
 void heapsort(void **datap,size_t nitems,int(*compare)(const void*, const void*));
 
