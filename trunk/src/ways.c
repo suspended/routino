@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.39 2009-11-27 11:03:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.40 2009-12-13 16:43:35 amb Exp $
 
  Way data type functions.
 
@@ -208,6 +208,11 @@ Property PropertyType(const char *property)
 {
  switch(*property)
    {
+   case 'b':
+    if(!strcmp(property,"bridge"))
+       return(Property_Bridge);
+    break;
+
    case 'm':
     if(!strcmp(property,"multilane"))
        return(Property_Multilane);
@@ -216,6 +221,11 @@ Property PropertyType(const char *property)
    case 'p':
     if(!strcmp(property,"paved"))
        return(Property_Paved);
+    break;
+
+   case 't':
+    if(!strcmp(property,"tunnel"))
+       return(Property_Tunnel);
     break;
 
    default:
@@ -335,6 +345,12 @@ const char *PropertyName(Property property)
    case Property_Multilane:
     return("multilane");
 
+   case Property_Bridge:
+    return("bridge");
+
+   case Property_Tunnel:
+    return("tunnel");
+
    case Property_Count:
     ;
   }
@@ -438,6 +454,18 @@ const char *PropertiesNameList(wayprop_t properties)
     strcat(string,"multilane");
    }
 
+ if(properties & Properties_Bridge)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"bridge");
+   }
+
+ if(properties & Properties_Tunnel)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"tunnel");
+   }
+
  return(string);
 }
 
@@ -497,6 +525,8 @@ const char *PropertyList(void)
 {
  return "    paved     = Paved (suitable for normal wheels)\n"
         "    multilane = Multiple lanes\n"
+        "    bridge    = Bridge\n"
+        "    Tunnel    = Tunnel\n"
         ;
 }
 
