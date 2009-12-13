@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.61 2009-11-27 11:03:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.62 2009-12-13 16:43:35 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -73,7 +73,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
  way_t way_id=0;
  wayallow_t way_allow_no=0,way_allow_yes=0;
  int way_oneway=0,way_roundabout=0;
- int way_paved=0,way_multilane=0;
+ int way_paved=0,way_multilane=0,way_bridge=0,way_tunnel=0;
  speed_t way_maxspeed=0;
  weight_t way_maxweight=0;
  height_t way_maxheight=0;
@@ -131,7 +131,7 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
 
        way_allow_no=0; way_allow_yes=0;
        way_oneway=0; way_roundabout=0;
-       way_paved=0; way_multilane=0;
+       way_paved=0; way_multilane=0; way_bridge=0; way_tunnel=0;
        way_maxspeed=0; way_maxweight=0; way_maxheight=0; way_maxwidth=0;
        way_maxlength=0;
        way_highway=NULL; way_name=NULL; way_ref=NULL;
@@ -240,6 +240,18 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                       way.props|=Properties_Multilane;
                    else if(way_paved==1)
                       way.props&=~Properties_Multilane;
+                  }
+
+                if(profile->props_yes[Property_Bridge])
+                  {
+                   if(way_bridge)
+                      way.props|=Properties_Bridge;
+                  }
+
+                if(profile->props_yes[Property_Tunnel])
+                  {
+                   if(way_tunnel)
+                      way.props|=Properties_Tunnel;
                   }
 
                 if(way_ref && way_name)
@@ -361,6 +373,9 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_allow_no |=Allow_Bicycle;
                }
+
+             if(!strcmp(k,"bridge"))
+                way_bridge=ISTRUE(v);
              break;
 
             case 'd':
@@ -576,6 +591,11 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 else
                    way_paved=-1;
                }
+             break;
+
+            case 't':
+             if(!strcmp(k,"tunnel"))
+                way_tunnel=ISTRUE(v);
              break;
 
             case 'v':

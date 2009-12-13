@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.27 2009-11-27 11:03:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.28 2009-12-13 16:43:35 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -66,8 +66,10 @@ static Profile builtin_profiles[]=
                                    [Way_Steps       ] = kph_to_speed(4),
                                   },
                       .props_yes= {
-                                   [Property_Paved]     = 50,
+                                   [Property_Paved    ] = 50,
                                    [Property_Multilane] = 25,
+                                   [Property_Bridge   ] = 50,
+                                   [Property_Tunnel   ] = 50,
                                   },
                       .oneway   = 0,
                       .weight   = 0,
@@ -110,8 +112,10 @@ static Profile builtin_profiles[]=
                                    [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
-                                   [Property_Paved]     = 20,
+                                   [Property_Paved    ] = 20,
                                    [Property_Multilane] = 25,
+                                   [Property_Bridge   ] = 50,
+                                   [Property_Tunnel   ] = 50,
                                   },
                       .oneway   = 1,
                       .weight   = 0,
@@ -154,8 +158,10 @@ static Profile builtin_profiles[]=
                                    [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
-                                   [Property_Paved]     = 50,
+                                   [Property_Paved    ] = 50,
                                    [Property_Multilane] = 25,
+                                   [Property_Bridge   ] = 50,
+                                   [Property_Tunnel   ] = 50,
                                   },
                       .oneway   = 1,
                       .weight   = 0,
@@ -198,8 +204,10 @@ static Profile builtin_profiles[]=
                                    [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
-                                   [Property_Paved]     = 100,
+                                   [Property_Paved    ] = 100,
                                    [Property_Multilane] = 25,
+                                   [Property_Bridge   ] = 50,
+                                   [Property_Tunnel   ] = 50,
                                   },
                       .oneway   = 1,
                       .weight   = 0,
@@ -242,8 +250,10 @@ static Profile builtin_profiles[]=
                                    [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
-                                   [Property_Paved]     = 100,
+                                   [Property_Paved    ] = 100,
                                    [Property_Multilane] = 75,
+                                   [Property_Bridge   ] = 50,
+                                   [Property_Tunnel   ] = 50,
                                   },
                       .oneway   = 1,
                       .weight   = 0,
@@ -286,8 +296,10 @@ static Profile builtin_profiles[]=
                                    [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
-                                   [Property_Paved]     = 100,
+                                   [Property_Paved    ] = 100,
                                    [Property_Multilane] = 75,
+                                   [Property_Bridge   ] = 50,
+                                   [Property_Tunnel   ] = 50,
                                   },
                       .oneway   = 1,
                       .weight   = 0,
@@ -330,8 +342,10 @@ static Profile builtin_profiles[]=
                                    [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
-                                   [Property_Paved]     = 100,
+                                   [Property_Paved    ] = 100,
                                    [Property_Multilane] = 75,
+                                   [Property_Bridge   ] = 50,
+                                   [Property_Tunnel   ] = 50,
                                   },
                       .oneway   = 1,
                       .weight   = tonnes_to_weight(5),
@@ -374,8 +388,10 @@ static Profile builtin_profiles[]=
                                    [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
-                                   [Property_Paved]     = 100,
+                                   [Property_Paved    ] = 100,
                                    [Property_Multilane] = 75,
+                                   [Property_Bridge   ] = 50,
+                                   [Property_Tunnel   ] = 50,
                                   },
                       .oneway   = 1,
                       .weight   = tonnes_to_weight(10),
@@ -418,8 +434,10 @@ static Profile builtin_profiles[]=
                                    [Way_Steps       ] = 0,
                                   },
                       .props_yes= {
-                                   [Property_Paved]     = 100,
+                                   [Property_Paved    ] = 100,
                                    [Property_Multilane] = 75,
+                                   [Property_Bridge   ] = 50,
+                                   [Property_Tunnel   ] = 50,
                                   },
                       .oneway   = 1,
                       .weight   = tonnes_to_weight(15),

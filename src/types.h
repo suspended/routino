@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.36 2009-11-27 11:03:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.37 2009-12-13 16:43:35 amb Exp $
 
  Type definitions
 
@@ -237,8 +237,10 @@ typedef enum _Property
 
   Property_Paved     = 1,
   Property_Multilane = 2,
+  Property_Bridge    = 3,
+  Property_Tunnel    = 4,
 
-  Property_Count     = 3       /* One more than the number of properties. */
+  Property_Count     = 5       /* One more than the number of properties. */
  }
  Property;
 
@@ -253,6 +255,8 @@ typedef enum _Properties
  {
   Properties_Paved     = PROPERTIES(Property_Paved),
   Properties_Multilane = PROPERTIES(Property_Multilane),
+  Properties_Bridge    = PROPERTIES(Property_Bridge),
+  Properties_Tunnel    = PROPERTIES(Property_Tunnel),
 
   Properties_ALL       = 255
  }
