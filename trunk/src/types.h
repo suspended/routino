@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.37 2009-12-13 16:43:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.38 2009-12-15 18:44:28 amb Exp $
 
  Type definitions
 
@@ -192,17 +192,18 @@ typedef enum _Highway
 /*+ The different methods of transport. +*/
 typedef enum _Transport
  {
-  Transport_None      = 0,
+  Transport_None       =  0,
 
-  Transport_Foot      = 1,
-  Transport_Horse     = 2,
-  Transport_Bicycle   = 3,
-  Transport_Moped     = 4,
-  Transport_Motorbike = 5,
-  Transport_Motorcar  = 6,
-  Transport_Goods     = 7,
-  Transport_HGV       = 8,
-  Transport_PSV       = 9
+  Transport_Foot       =  1,
+  Transport_Horse      =  2,
+  Transport_Wheelchair =  3,
+  Transport_Bicycle    =  4,
+  Transport_Moped      =  5,
+  Transport_Motorbike  =  6,
+  Transport_Motorcar   =  7,
+  Transport_Goods      =  8,
+  Transport_HGV        =  9,
+  Transport_PSV        = 10
  }
  Transport;
 
@@ -215,17 +216,18 @@ typedef uint16_t wayallow_t;
 /*+ The different allowed traffic on a way. +*/
 typedef enum _Allowed
  {
-  Allow_Foot      = ALLOWED(Transport_Foot     ),
-  Allow_Horse     = ALLOWED(Transport_Horse    ),
-  Allow_Bicycle   = ALLOWED(Transport_Bicycle  ),
-  Allow_Moped     = ALLOWED(Transport_Moped    ),
-  Allow_Motorbike = ALLOWED(Transport_Motorbike),
-  Allow_Motorcar  = ALLOWED(Transport_Motorcar ),
-  Allow_Goods     = ALLOWED(Transport_Goods    ),
-  Allow_HGV       = ALLOWED(Transport_HGV      ),
-  Allow_PSV       = ALLOWED(Transport_PSV      ),
+  Allow_Foot       = ALLOWED(Transport_Foot      ),
+  Allow_Horse      = ALLOWED(Transport_Horse     ),
+  Allow_Wheelchair = ALLOWED(Transport_Wheelchair),
+  Allow_Bicycle    = ALLOWED(Transport_Bicycle   ),
+  Allow_Moped      = ALLOWED(Transport_Moped     ),
+  Allow_Motorbike  = ALLOWED(Transport_Motorbike ),
+  Allow_Motorcar   = ALLOWED(Transport_Motorcar  ),
+  Allow_Goods      = ALLOWED(Transport_Goods     ),
+  Allow_HGV        = ALLOWED(Transport_HGV       ),
+  Allow_PSV        = ALLOWED(Transport_PSV       ),
 
-  Allow_ALL       = 65535
+  Allow_ALL        = 65535
  }
  Allowed;
 
