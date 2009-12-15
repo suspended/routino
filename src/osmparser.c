@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.62 2009-12-13 16:43:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.63 2009-12-15 18:44:28 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -208,6 +208,9 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                 way.props=0;
                 break;
                }
+
+             if(way_allow_yes&Allow_Foot && !(way_allow_no&Allow_Wheelchair)) /* Allow wheelchair if foot allowed and wheelchair not disallowed. */
+                way_allow_yes|=Allow_Wheelchair;
 
              if(way_allow_no)      /* Remove the ones explicitly denied (e.g. private) */
                 way.allow&=~way_allow_no;
@@ -605,6 +608,16 @@ int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
                    way_allow_yes|=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
                 else
                    way_allow_no |=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
+               }
+             break;
+
+            case 'w':
+             if(!strcmp(k,"wheelchair"))
+               {
+                if(ISALLOWED(v))
+                   way_allow_yes|=Allow_Wheelchair;
+                else
+                   way_allow_no |=Allow_Wheelchair;
                }
              break;
 

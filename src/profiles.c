@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.28 2009-12-13 16:43:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.29 2009-12-15 18:44:28 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -118,6 +118,52 @@ static Profile builtin_profiles[]=
                                    [Property_Tunnel   ] = 50,
                                   },
                       .oneway   = 1,
+                      .weight   = 0,
+                      .height   = 0,
+                      .width    = 0,
+                      .length   = 0,
+                     },
+
+  /* The profile for travel by Wheelchair */
+
+  [Transport_Wheelchair] = {
+                      .transport=Transport_Wheelchair,
+                      .allow    =Allow_Wheelchair,
+                      .highway  = {
+                                   [Way_Motorway    ] =   0,
+                                   [Way_Trunk       ] =  40,
+                                   [Way_Primary     ] =  50,
+                                   [Way_Secondary   ] =  60,
+                                   [Way_Tertiary    ] =  70,
+                                   [Way_Unclassified] =  80,
+                                   [Way_Residential ] =  90,
+                                   [Way_Service     ] =  90,
+                                   [Way_Track       ] =  95,
+                                   [Way_Cycleway    ] =  95,
+                                   [Way_Path        ] = 100,
+                                   [Way_Steps       ] =   0,
+                                  },
+                      .speed    = {
+                                   [Way_Motorway    ] = 0,
+                                   [Way_Trunk       ] = kph_to_speed(4),
+                                   [Way_Primary     ] = kph_to_speed(4),
+                                   [Way_Secondary   ] = kph_to_speed(4),
+                                   [Way_Tertiary    ] = kph_to_speed(4),
+                                   [Way_Unclassified] = kph_to_speed(4),
+                                   [Way_Residential ] = kph_to_speed(4),
+                                   [Way_Service     ] = kph_to_speed(4),
+                                   [Way_Track       ] = kph_to_speed(4),
+                                   [Way_Cycleway    ] = kph_to_speed(4),
+                                   [Way_Path        ] = kph_to_speed(4),
+                                   [Way_Steps       ] = kph_to_speed(4),
+                                  },
+                      .props_yes= {
+                                   [Property_Paved    ] = 90,
+                                   [Property_Multilane] = 25,
+                                   [Property_Bridge   ] = 50,
+                                   [Property_Tunnel   ] = 50,
+                                  },
+                      .oneway   = 0,
                       .weight   = 0,
                       .height   = 0,
                       .width    = 0,

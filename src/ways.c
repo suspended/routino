@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.40 2009-12-13 16:43:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.41 2009-12-15 18:44:28 amb Exp $
 
  Way data type functions.
 
@@ -188,6 +188,11 @@ Transport TransportType(const char *transport)
        return(Transport_PSV);
     break;
 
+   case 'w':
+    if(!strcmp(transport,"wheelchair"))
+       return(Transport_Wheelchair);
+    break;
+
    default:
     return(Transport_None);
    }
@@ -304,6 +309,8 @@ const char *TransportName(Transport transport)
     return("foot");
    case Transport_Horse:
     return("horse");
+   case Transport_Wheelchair:
+    return("wheelchair");
    case Transport_Bicycle:
     return("bicycle");
    case Transport_Moped:
@@ -380,6 +387,12 @@ const char *AllowedNameList(wayallow_t allowed)
    {
     if(*string) strcat(string,", ");
     strcat(string,"horse");
+   }
+
+ if(allowed & Allow_Wheelchair)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"wheelchair");
    }
 
  if(allowed & Allow_Bicycle)
@@ -502,15 +515,16 @@ const char *HighwayList(void)
 
 const char *TransportList(void)
 {
- return "    foot      = Foot\n"
-        "    bicycle   = Bicycle\n"
-        "    horse     = Horse\n"
-        "    moped     = Moped     (Small motorbike, limited speed)\n"
-        "    motorbike = Motorbike\n"
-        "    motorcar  = Motorcar\n"
-        "    goods     = Goods     (Small lorry, van)\n"
-        "    hgv       = HGV       (Heavy Goods Vehicle - large lorry)\n"
-        "    psv       = PSV       (Public Service Vehicle - bus, coach)\n"
+ return "    foot       = Foot\n"
+        "    bicycle    = Bicycle\n"
+        "    wheelchair = Wheelchair\n"
+        "    horse      = Horse\n"
+        "    moped      = Moped     (Small motorbike, limited speed)\n"
+        "    motorbike  = Motorbike\n"
+        "    motorcar   = Motorcar\n"
+        "    goods      = Goods     (Small lorry, van)\n"
+        "    hgv        = HGV       (Heavy Goods Vehicle - large lorry)\n"
+        "    psv        = PSV       (Public Service Vehicle - bus, coach)\n"
         ;
 }
 
