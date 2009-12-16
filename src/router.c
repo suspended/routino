@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.65 2009-11-25 15:00:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.66 2009-12-16 19:30:27 amb Exp $
 
  OSM router.
 
@@ -67,6 +67,7 @@ int main(int argc,char** argv)
  int       point_used[NWAYPOINTS+1]={0};
  int       help_profile=0,help_profile_js=0,help_profile_pl=0;
  char     *dirname=NULL,*prefix=NULL,*filename;
+ int       exactnodes=0;
  Transport transport=Transport_None;
  Profile   profile;
  index_t   start=NO_NODE,finish=NO_NODE;
@@ -84,6 +85,7 @@ int main(int argc,char** argv)
                    "              [--help | --help-profile | --help-profile-js | --help-profile-pl]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
                    "              [--shortest | --quickest]\n"
+                   "              [--exact-nodes-only]\n"
                    "              [--quiet]\n"
                    "              [--transport=<transport>]\n"
                    "              [--highway-<highway>=<preference> ...]\n"
@@ -195,6 +197,8 @@ int main(int argc,char** argv)
        option_quickest=0;
     else if(!strcmp(argv[arg],"--quickest"))
        option_quickest=1;
+    else if(!strcmp(argv[arg],"--exact-nodes-only"))
+       exactnodes=1;
     else if(!strcmp(argv[arg],"--quiet"))
        option_quiet=1;
     else if(!strncmp(argv[arg],"--transport=",12))
@@ -338,11 +342,10 @@ int main(int argc,char** argv)
  for(point=1;point<=NWAYPOINTS;point++)
    {
     Results *begin,*end;
-    Segment *segment;
-    distance_t dist=km_to_distance(MAXSEARCH);
-    distance_t dists;
+    distance_t distmax=km_to_distance(MAXSEARCH);
+    distance_t distmin;
+    Segment *segment=NULL;
     index_t node1,node2;
-    distance_t dist1,dist2;
 
     if(point_used[point]!=3)
        continue;
@@ -351,11 +354,18 @@ int main(int argc,char** argv)
 
     start=finish;
 
-    segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],dist,&profile,&dists,&node1,&node2,&dist1,&dist2);
+    if(exactnodes)
+      {
+       finish=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,&profile,&distmin);
+      }
+    else
+      {
+       distance_t dist1,dist2;
 
-    finish=CreateFakes(OSMNodes,point,segment,node1,node2,dist1,dist2);
+       segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,&profile,&distmin,&node1,&node2,&dist1,&dist2);
 
-//    finish=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],dist,&profile,&dist);
+       finish=CreateFakes(OSMNodes,point,segment,node1,node2,dist1,dist2);
+      }
 
     if(finish==NO_NODE)
       {
@@ -374,10 +384,10 @@ int main(int argc,char** argv)
 
        if(IsFakeNode(finish))
           printf("Point %d is segment %d (node %d -> %d): %3.6f %4.6f = %2.3f km\n",point,IndexSegment(OSMSegments,segment),node1,node2,
-                 radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(dists));
+                 radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
        else
           printf("Point %d is node %d: %3.6f %4.6f = %2.3f km\n",point,finish,
-                 radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(dists));
+                 radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
       }
 
     if(start==NO_NODE)
