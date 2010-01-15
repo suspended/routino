@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.66 2009-12-16 19:30:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.67 2010-01-15 19:48:46 amb Exp $
 
  OSM router.
 
@@ -463,6 +463,9 @@ int main(int argc,char** argv)
 
        superresults=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,begin,end,&profile);
 
+       FreeResultsList(begin);
+       FreeResultsList(end);
+
        if(!superresults)
          {
           fprintf(stderr,"Error: Cannot find route compatible with profile.\n");
@@ -470,6 +473,8 @@ int main(int argc,char** argv)
          }
 
        results[point]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,&profile);
+
+       FreeResultsList(superresults);
       }
    }
 
@@ -477,9 +482,7 @@ int main(int argc,char** argv)
 
  PrintRouteHead(FileName(dirname,prefix,"copyright.txt"));
 
- for(point=1;point<=NWAYPOINTS;point++)
-    if(results[point])
-       PrintRoute(results[point],OSMNodes,OSMSegments,OSMWays,&profile);
+ PrintRoute(results,NWAYPOINTS,OSMNodes,OSMSegments,OSMWays,&profile);
 
  PrintRouteTail();
 
