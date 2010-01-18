@@ -2,6 +2,7 @@
                                 =============
 
 Program Usage
+-------------
 
    There are three programs that make up this software. The first one
    takes the planet.osm datafile from OpenStreetMap (or other source of
@@ -10,15 +11,18 @@ Program Usage
    two points. The third program allows visualisation of the data and
    statistics to be extracted.
 
+
 planetsplitter
+--------------
 
    Usage: planetsplitter
                          [--help]
-                         [--slim] [--tmpdir=<name>]
                          [--dir=<name>] [--prefix=<name>]
+                         [--slim] [--tmpdir=<name>]
                          [--max-iterations=<number>]
-                         [--transport=<transport>]
+                         [--transport=<transport> ...]
                          [--not-highway=<highway> ...]
+                         [--not-property=<property> ...]
 
    --help
           Prints out the help information.
@@ -30,36 +34,6 @@ planetsplitter
    --prefix=<name>
           Sets the filename prefix for the files that are created.
           Defaults to no prefix.
-
-   --max-iterations=<number>
-          The maximum number of iterations to use when generating
-          super-nodes and super-segments. Defaults to 10 which is normally
-          enough.
-
-   --transport=<transport>
-          Allows selection of only the routes that are possible for a
-          particular type of transport. Defaults to all transport types
-          allowed (see the router for the list of possible transport
-          types).
-
-   --not-highway=<highway>
-          Allows particular types of highways to be ignored, <highway> can
-          be selected from:
-             + motorway = Motorway
-             + trunk = Trunk
-             + primary = Primary
-             + secondary = Secondary
-             + tertiary = Tertiary
-             + unclassified = Unclassified
-             + residential = Residential
-             + service = Service
-             + track = Track
-             + path = Path
-             + bridleway = Bridleway
-             + cycleway = Cycleway
-             + footway = Footway
-          Defaults to all highway types allowed. This option may be
-          repeated.
 
    --slim
           Selects a mode of operation that uses less memory and will
@@ -74,14 +48,42 @@ planetsplitter
           files. If not specified then it defaults to either the value of
           the --dir option or the current directory.
 
-   Example usage:
+   --max-iterations=<number>
+          The maximum number of iterations to use when generating
+          super-nodes and super-segments. Defaults to 10 which is normally
+          enough.
 
-   bunzip2 -c great_britain.osm.bz2 | ./planetsplitter --dir=data --prefix=gb
+   --transport=<transport>
+          Allows selection of only the routes that are possible for
+          particular types of transport. Defaults to all transport types
+          allowed (see the router for the list of possible transport
+          types), this option may be repeated for additional transport
+          types.
+
+   --not-highway=<highway>
+          Allows particular types of highways to be ignored to produce a
+          smaller database or one that is more specific to a particular
+          application (e.g. motorcar routing does not need footpaths).
+          Defaults to all highway types allowed (see the router for the
+          list of possible highway types), this option may be repeated for
+          additional highway types.
+
+   --not-property=<property>
+          Allows particular highway properties to be ignored to produce a
+          smaller database or one that is more specific to a particular
+          application. Defaults to all highway properties allowed (see the
+          router for the list of possible highway properties), this option
+          may be repeated for additional highway properties.
+
+   Example usage:
+bunzip2 -c great_britain.osm.bz2 | ./planetsplitter --dir=data --prefix=gb
 
    This will generate the output files 'data/gb-nodes.mem',
    'data/gb-segments.mem' and 'data/gb-ways.mem'.
 
+
 router
+------
 
    Usage: router [--lon1=]<longitude> [--lat1=]<latitude>
                  [--lon2=]<longitude> [--lon2=]<latitude>
@@ -89,10 +91,12 @@ router
                  [--help | --help-profile | --help-profile-js | --help-profile-pl]
                  [--dir=<name>] [--prefix=<name>]
                  [--shortest | --quickest]
+                 [--exact-nodes-only]
                  [--quiet]
                  [--transport=<transport>]
                  [--highway-<highway>=<preference> ...]
                  [--speed-<highway>=<speed> ...]
+                 [--property-<property>=<preference> ...]
                  [--oneway=[0|1]]
                  [--weight=<weight>]
                  [--height=<height>] [--width=<width>] [--length=<length>]
@@ -102,8 +106,10 @@ router
    ...
    --lon99=<longitude>, --lat99=<latitude>
           The location of the points that make up the start, middle and
-          end points of the route. Up to 99 points can be specified and the
-          route will pass through each of the specified ones in sequence.
+          end points of the route. Up to 99 points can be specified and
+          the route will pass through each of the specified ones in
+          sequence. The algorithm will find the closest node or point
+          within a segment that allows the specified traffic type.
 
    --help
           Prints out the help information.
@@ -134,31 +140,66 @@ router
    --quickest
           Find the quickest route.
 
+   --exact-nodes-only
+          When processing the specified latitude and longitude points only
+          select the nearest node instead of finding the nearest point
+          within a segment.
+
    --quiet
           Don't generate any screen output while running (useful for
           running in a script).
 
    --transport=<transport>
           Select the type of transport to use, <transport> can be set to:
-             + foot = Foot
-             + bicycle = Bicycle
-             + horse = Horse
-             + motorbike = Motorbike
-             + motorcar = Motorcar
-             + goods = Goods (Small lorry, van)
-             + hgv = HGV (Heavy Goods Vehicle - large lorry)
-             + psv = PSV (Public Service Vehicle - bus, coach)
-          Defaults to 'Motorcar', this option also selects the default
+
+          + foot = Foot
+          + horse = Horse
+          + wheelchair = Wheelchair
+          + bicycle = Bicycle
+          + moped = Moped (Small motorbike, limited speed)
+          + motorbike = Motorbike
+          + motorcar = Motorcar
+          + goods = Goods (Small lorry, van)
+          + hgv = HGV (Heavy Goods Vehicle - large lorry)
+          + psv = PSV (Public Service Vehicle - bus, coach)
+
+          Defaults to 'motorcar', this option also selects the default
           profile information.
 
    --highway-<highway>=<preference>
           Selects the percentage preference for using each particular type
-          of highway (see the planetsplitter for the list of highway
-          types). Default value depends on the profile selected by the
-          --transport option.
+          of highway. The value of <highway> can be selected from:
+
+          + motorway = Motorway
+          + trunk = Trunk
+          + primary = Primary
+          + secondary = Secondary
+          + tertiary = Tertiary
+          + unclassified = Unclassified
+          + residential = Residential
+          + service = Service
+          + track = Track
+          + cycleway = Cycleway
+          + path = Path
+          + steps = Steps
+
+          Default value depends on the profile selected by the --transport
+          option.
 
    --speed-<highway>=<speed>
           Selects the speed limit in km/hour for each type of highway.
+          Default value depends on the profile selected by the --transport
+          option.
+
+   --property-<property>=<preference>
+          Selects the percentage preference for using each particular
+          highway property The value of <property> can be selected from:
+
+          + paved = Paved (suitable for normal wheels)
+          + multilane = Multiple lanes
+          + bridge = Bridge
+          + tunnel = Tunnel
+
           Default value depends on the profile selected by the --transport
           option.
 
@@ -168,24 +209,37 @@ router
           the profile selected by the --transport option.
 
    --weight=<weight>
-          Specifies the weight of the mode of transport in tonnes, ensures
+          Specifies the weight of the mode of transport in tonnes; ensures
           that the weight limit on the highway is not exceeded. Default
           value depends on the profile selected by the --transport option.
 
    --height=<height>
-          Specifies the height of the mode of transport in metres, ensures
+          Specifies the height of the mode of transport in metres; ensures
           that the height limit on the highway is not exceeded. Default
           value depends on the profile selected by the --transport option.
 
    --width=<width>
-          Specifies the width of the mode of transport in metres, ensures
+          Specifies the width of the mode of transport in metres; ensures
           that the width limit on the highway is not exceeded. Default
           value depends on the profile selected by the --transport option.
 
    --length=<length>
-          Specifies the length of the mode of transport in metres, ensures
+          Specifies the length of the mode of transport in metres; ensures
           that the length limit on the highway is not exceeded. Default
           value depends on the profile selected by the --transport option.
+
+   The meaning of the <preference> parameter in the command line options
+   is slightly different for the highway preferences and the property
+   preferences. For the highway preference consider the choice between two
+   possible highways between the start and finish when looking for the
+   shortest route. If highway A has a preference of 100% and highway B has
+   a preference of 90% then highway A will be chosen even if it is up to
+   11% longer (100/90 = 111%). For the highway properties each highway
+   either has a particular property or not. If the preference for highways
+   with the property is 60% then the preference for highways without the
+   property is 40%. The overall preference for the highway is the product
+   of the highway preference and the preference for highways with (or
+   without) each property that the highway has (or doesn't have).
 
    Example usage (motorbike journey, scenic route, not very fast):
 
@@ -208,7 +262,9 @@ router
    Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
    License: http://creativecommons.org/licenses/by-sa/2.0/
 
+
 filedumper
+----------
 
    Usage: filedumper
                      [--help]
@@ -262,17 +318,20 @@ filedumper
 
         --node=<node>
                 Prints the information about the selected node number
-                (internal number, not the node number in the original
+                (internal number, not the node id number in the original
                 source file).
 
         --segment=<segment>
                 Prints the information about the selected segment number.
 
         --way=<way>
-                Prints the information about the selected way number.
+                Prints the information about the selected way number
+                (internal number, not the way id number in the original
+                source file).
 
 
 Router Output
+-------------
 
    There are two different formats of output from the router, plain text
    and GPX (GPS eXchange) XML format. There are a total of four possible
@@ -287,7 +346,9 @@ Router Output
    quickest route the names are "quickest-track.gpx",
    "quickest-route.gpx", "quickest.txt" and "quickest-all.txt".
 
+
 GPX Track File
+--------------
 
    The GPX track file contains a track with all of the individual nodes
    that the route passes through.
@@ -316,7 +377,9 @@ GPX Track File
    </trk>
    </gpx>
 
+
 GPX Route File
+--------------
 
    The GPX route file contains a route (ordered set of waypoints) with all
    of the junctions that the route passes through.
@@ -344,60 +407,122 @@ GPX Route File
    </rte>
    </gpx>
 
+
 Text File
+---------
 
    The text file format contains one entry for all of the junctions in the
    route and is intended to be easy to interpret.
 
-   An example Text file output is below:
+   An example text file output is below:
 
-   # Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
-   # License: http://creativecommons.org/licenses/by-sa/2.0/
-   #
-   #Latitude   Longitude    Segment   Segment    Total     Total   Highway
-   #                        Distance  Duration   Distance  Durat'n
-    51.524676    -0.127896  0.000 km    0.0 min    0.0 km    0 min
-    51.523829    -0.126993  0.113 km    0.1 min    0.1 km    0 min Woburn Place
-   ...
-    51.480314    -0.108381  0.200 km    0.1 min    5.9 km    5 min Camberwell New Road (A202)
-    51.478244    -0.103652  0.411 km    0.3 min    6.3 km    5 min Vassall Road
+# Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
+# License: http://creativecommons.org/licenses/by-sa/2.0/
+#
+#Latitude   Longitude  Section   Section   Total     Total   Point Turn Bearing Highway
+#                      Distance  Duration  Distance  Durat'n Type
+
+ 51.524676  -0.127896  0.000 km   0.0 min  0.0 km    0 min   Waypt       +3
+ 51.523829  -0.126993  0.113 km   0.1 min  0.1 km    0 min   Junct  +0   +3     Woburn Place
+...
+ 51.480314  -0.108381  0.200 km   0.1 min  5.9 km    5 min   Junct  +0   +3     Camberwell New Road (A202)
+ 51.478244  -0.103652  0.411 km   0.3 min  6.3 km    5 min   Waypt              Vassall Road
 
    The text file output contains a header (indicated by the lines starting
    with '#') and then one line for each junction. Each line contains the
-   information for the route up to that point. For each of the lines the
-   latitude and longitude are the first two items. The length of the
-   segment in km and the journey duration for the segment in minutes are
-   the next two items. The cumulative journey distance and duration are
-   the 6th and 7th items and the final item is the name of the highway.
+   information for the route up to that point and the direction to go
+   next. For each of the lines the individual fields contain the
+   following:
+
+   Latitude - Location of the point (degrees)
+
+   Longitude - Location of the point (degrees)
+
+   Section Distance - The distance travelled on the section of the journey
+   that ends at this point (defined on this line).
+
+   Section Duration - The duration of travel on the section of the journey
+   that ends at this point (defined on this line).
+
+   Total Distance - The total distance travelled up to this point.
+
+   Total Duration - The total duration of travel up to this point.
+
+   Point Type - The type of point; either a waypoint Waypt or junction
+   Junct.
+
+   Turn - The direction to turn at this point (missing for the first point
+   since the journey has not started yet and the last point because it has
+   finished). This can take one of nine values between -4 and +4 defined
+   by: 0 = Straight, +2 = Right, -2 = Left and +/-4 = Reverse.
+
+   Bearing - The direction to head at this point (missing for the last point
+   since the journey has finished). This can take one of nine values
+   between -4 and +4 defined by: 0 = North, +2 = East, -2 = West and +/-4
+   = South.
+
+   Highway - The name (or description) of the highway to follow (missing on
+   the first line).
+
    The individual items are separated by tabs but some of the items
    contain spaces as well.
 
+
 All Nodes Text File
+-------------------
 
    The all nodes text file format contains one entry for each of the nodes
    on the route.
 
    An example all nodes text file output is below:
 
-   # Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
-   # License: http://creativecommons.org/licenses/by-sa/2.0/
-   #
-   #Latitude   Longitude       Node   Segment Segment Total  Total   Speed  Highway
-   #                                  Dist    Durat'n Dist   Durat'n
+# Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
+# License: http://creativecommons.org/licenses/by-sa/2.0/
+#
+#Latitude  Longitude  Node    Type  Segment Segment Total  Total   Speed Bearing Highway
+#                                      Dist Durat'n Dist   Durat'n                
 
-    51.524676    -0.127896  4830582*  0.000    0.00    0.00    0.0
-    51.523829    -0.126993  4830562*  0.113    0.14    0.11    0.1    96    Woburn Place
-   ...
-    51.478354    -0.103561  4904816*  0.104    0.07    6.30    5.1    96    Camberwell New Road (A202)
-    51.478244    -0.103652  4908481   0.013    0.01    6.31    5.1    64    Vassall Road
+ 51.524676 -0.127896  483058* Waypt 0.000    0.00    0.00    0.0
+ 51.523829 -0.126993  483056* Junct 0.113    0.14    0.11    0.1    96    135    Woburn Place
+...
+ 51.478354 -0.103561  490481* Junct 0.104    0.07    6.30    5.1    96    180    Camberwell New Road (A202)
+ 51.478244 -0.103652  490848  Waypt 0.013    0.01    6.31    5.1    64    90     Vassall Road
 
    The all nodes text file output is similar to the text file output
    except that a line is printed for each of the nodes rather than just
-   the junctions. The additional information on each line is the node
-   number (not the OpenStreetMap node number but an internal value) as
-   well as an indicator for the super-nodes and the speed for the segment.
+   the junctions. For each of the lines the individual fields contain the
+   following:
+
+   Latitude - Location of the point in degrees.
+
+   Longitude - Location of the point in degrees.
+
+   Node - The internal node number and an indicator "*" if the node is a
+   super-node.
+
+   Type - The type of point; a waypoint Waypt, junction Junct, change of
+   highway Change or intermediate node Inter.
+
+   Segment Distance - The distance travelled on the segment defined on this
+   line.
+
+   Segment Duration - The duration of travel on the segment defined on this
+   line.
+
+   Total Distance - The total distance travelled up to this point.
+
+   Total Duration - The total duration of travel up to this point.
+
+   Speed - The speed of travel on the segment defined on this line (missing
+   on the first line).
+
+   Bearing - The direction that the segment defined on this line travels in
+   degrees (missing on the first line).
+
+   Highway - The name (or description) of the highway segment (missing on
+   the first line).
 
 
 --------
 
-Copyright 2008,2009 Andrew M. Bishop.
+Copyright 2008,2009,2010 Andrew M. Bishop.
