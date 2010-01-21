@@ -1,7 +1,38 @@
+Version 1.3 of Routino released : Thu Jan 21 2010
+-------------------------------------------------
+
+Bug fixes:
+  Ensure output even if the distance between two adjacent route points is small.
+  Correct the determination of waypoints for abbreviated output.
+  Check the command line values for filedumper --dump options.
+  Made the verbose output consistent between different places.
+
+OSM tagging
+  Recognise "designation" tag to determine designated paths.
+  Recognise "steps" tag to determine the highway type.
+  Recognise "wheelchair" tag to determine if wheelchairs are allowed on highway.
+  Recognise "moped" tag to determine if mopeds are allowed on a highway.
+  Recognise "surface" and "paved" tags to determine if a highway is paved.
+  Recognise "lanes" tag to determine if a highway has multiple lanes.
+  Recognise "bridge" tag to determine if a highway is a bridge.
+  Recognise "tunnel" tag to determine if a highway is a tunnel.
+
+New Features
+  Remove "bridleway" and "footway" highway types and use "path" highway instead.
+  Added "steps" as a new highway type separate from the "path" type.
+  Added "wheelchair" and "moped" to the list of possible transports.
+  Added "paved", "multilane", "bridge", "tunnel" to list of highway properties.
+
+router
+  For each waypoint choose closest point on a segment and not just closest node.
+  Added the ability to set preferences based on highway properties.
+  Changed the text output formats to include bearing and turn information.
+
+
 Version 1.2 of Routino released : Wed Oct 21 2009
 -------------------------------------------------
 
-Inputs
+OSM tagging
   Recognise tags "vehicle" and "motor_vehicle".
   Handle duplicate ways in the input OSM file (e.g. concatenation of 2 files).
 
