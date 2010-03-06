@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.67 2010-01-15 19:48:46 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.68 2010-03-06 22:07:47 amb Exp $
 
  OSM router.
 
@@ -39,7 +39,7 @@
 #define NWAYPOINTS 99
 
 /*+ The maximum distance from the specified point to search for a node or segment (in km). +*/
-#define MAXSEARCH  5
+#define MAXSEARCH  1
 
 /*+ The minimum distance along a segment from a node to insert a fake node. (in km). +*/
 #define MINSEGMENT 0.005
