@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.34 2009-11-14 19:39:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.35 2010-03-06 22:07:41 amb Exp $
 
  Node data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008,2009,2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -317,59 +317,73 @@ Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double la
             {
              double lat1=latlong_to_radians(bin_to_latlong(nodes->latzero+latb)+off_to_latlong(nodes->nodes[i].latoffset));
              double lon1=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb)+off_to_latlong(nodes->nodes[i].lonoffset));
-             Segment *segment;
-             double dist1,dist2,dist3,dist3a,dist3b,distp;
+             double dist1;
 
              dist1=Distance(lat1,lon1,latitude,longitude);
 
-             /* Check each segment for closeness and if valid for the profile */
-
-             segment=FirstSegment(segments,nodes,i);
-
-             do
+             if(dist1<distance)
                {
-                if(IsNormalSegment(segment))
+                Segment *segment;
+
+                /* Check each segment for closeness and if valid for the profile */
+
+                segment=FirstSegment(segments,nodes,i);
+
+                do
                   {
-                   Way *way=NULL;
-
-                   if(profile)
-                      way=LookupWay(ways,segment->way);
-
-                   if(!profile || way->allow&profile->allow)
+                   if(IsNormalSegment(segment))
                      {
-                      double lat2,lon2;
+                      Way *way=NULL;
 
-                      GetLatLong(nodes,OtherNode(segment,i),&lat2,&lon2);
+                      if(profile)
+                         way=LookupWay(ways,segment->way);
 
-                      dist2=Distance(lat2,lon2,latitude,longitude);
-                      dist3=Distance(lat1,lon1,lat2,lon2);
-
-                      /* Use law of cosines (assume flat Earth) */
-
-                      dist3a=(dist1*dist1-dist2*dist2+dist3*dist3)/(2*dist3);
-                      dist3b=dist3-dist3a;
-
-                      if(dist3a>=0 && dist3b>=0)
+                      if(!profile || way->allow&profile->allow)
                         {
-                         distp=sqrt(dist1*dist1-dist3a*dist3a);
+                         double lat2,lon2;
+                         double dist2;
 
-                         if((distance_t)distp<bestd)
+                         GetLatLong(nodes,OtherNode(segment,i),&lat2,&lon2);
+
+                         dist2=Distance(lat2,lon2,latitude,longitude);
+
+                         if(dist2<distance)
                            {
-                            bests=segment;
-                            bestn1=i;
-                            bestn2=OtherNode(segment,i);
-                            bestd1=(distance_t)dist3a;
-                            bestd2=(distance_t)dist3b;
-                            bestd=(distance_t)distp;
-                           }
+                            double dist3,dist3a,dist3b,distp;
+
+                            dist3=Distance(lat1,lon1,lat2,lon2);
+
+                            /* Use law of cosines (assume flat Earth) */
+
+                            dist3a=(dist1*dist1-dist2*dist2+dist3*dist3)/(2*dist3);
+                            dist3b=dist3-dist3a;
+
+                            if(dist3a>=0 && dist3b>=0)
+                              {
+                               distp=sqrt(dist1*dist1-dist3a*dist3a);
+
+                               if((distance_t)distp<bestd)
+                                 {
+                                  bests=segment;
+                                  bestn1=i;
+                                  bestn2=OtherNode(segment,i);
+                                  bestd1=(distance_t)dist3a;
+                                  bestd2=(distance_t)dist3b;
+                                  bestd=(distance_t)distp;
+                                 }
+                              }
+
+                           } /* dist2 < distance */
+
                         }
                      }
-                  }
 
-                segment=NextSegment(segments,segment,i);
+                   segment=NextSegment(segments,segment,i);
+                  }
+                while(segment);
                }
-             while(segment);
-            }
+
+            } /* dist1 < distance */
 
           count++;
          }
