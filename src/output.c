@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.18 2010-01-13 18:49:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.19 2010-03-15 19:47:25 amb Exp $
 
  Routing output generator.
 
@@ -43,7 +43,7 @@
 extern int option_quickest;
 
 /*+ The files to write to. +*/
-static FILE *gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
+static FILE *gpxtrackfile=NULL,*gpxroutefile=NULL,*htmlfile=NULL,*textfile=NULL,*textallfile=NULL;
 
 /*+ Heuristics for determining if a junction is important. +*/
 static char junction_other_way[Way_Count][Way_Count]=
@@ -64,6 +64,9 @@ static char junction_other_way[Way_Count][Way_Count]=
 
 static int junction_angle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node);
 static int bearing_angle(Nodes *nodes,Segment *segment,index_t node);
+
+static char *junction_instruction[]={"Very sharp left","Sharp left","Left","Slight left","Straight on","Slight right","Right","Sharp right","Very sharp right"};
+static char *bearing_instruction[]={"South","South-West","West","North-West","North","North-East","East","South-East","South"};
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -135,6 +138,7 @@ void PrintRouteHead(const char *copyright)
 
     gpxtrackfile=fopen("shortest-track.gpx","w");
     gpxroutefile=fopen("shortest-route.gpx","w");
+    htmlfile    =fopen("shortest.html","w");
     textfile    =fopen("shortest.txt","w");
     textallfile =fopen("shortest-all.txt","w");
 
@@ -144,6 +148,8 @@ void PrintRouteHead(const char *copyright)
        fprintf(stderr,"Warning: Cannot open file 'shortest-route.gpx' to write.\n");
     if(!textfile)
        fprintf(stderr,"Warning: Cannot open file 'shortest.txt' to write.\n");
+    if(!htmlfile)
+       fprintf(stderr,"Warning: Cannot open file 'shortest.html' to write.\n");
     if(!textallfile)
        fprintf(stderr,"Warning: Cannot open file 'shortest-all.txt' to write.\n");
    }
@@ -153,6 +159,7 @@ void PrintRouteHead(const char *copyright)
 
     gpxtrackfile=fopen("quickest-track.gpx","w");
     gpxroutefile=fopen("quickest-route.gpx","w");
+    htmlfile    =fopen("quickest.html","w");
     textfile    =fopen("quickest.txt","w");
     textallfile =fopen("quickest-all.txt","w");
 
@@ -160,6 +167,8 @@ void PrintRouteHead(const char *copyright)
        fprintf(stderr,"Warning: Cannot open file 'quickest-track.gpx' to write.\n");
     if(!gpxroutefile)
        fprintf(stderr,"Warning: Cannot open file 'quickest-route.gpx' to write.\n");
+    if(!htmlfile)
+       fprintf(stderr,"Warning: Cannot open file 'quickest.html' to write.\n");
     if(!textfile)
        fprintf(stderr,"Warning: Cannot open file 'quickest.txt' to write.\n");
     if(!textallfile)
@@ -203,6 +212,35 @@ void PrintRouteHead(const char *copyright)
 
     fprintf(gpxroutefile,"<rte>\n");
     fprintf(gpxroutefile,"<name>%s route</name>\n",option_quickest?"Quickest":"Shortest");
+   }
+
+ if(htmlfile)
+   {
+    fprintf(htmlfile,"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n");
+    fprintf(htmlfile,"<HTML>\n");
+    fprintf(htmlfile,"<HEAD>\n");
+    if(source)
+       fprintf(htmlfile,"<!-- Source: %s -->\n",source);
+    if(license)
+       fprintf(htmlfile,"<!-- License: %s -->\n",license);
+    fprintf(htmlfile,"<TITLE>Routino: %s Route</TITLE>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(htmlfile,"<STYLE type='text/css'>\n");
+    fprintf(htmlfile,"<!--\n");
+    fprintf(htmlfile,"   table   {table-layout: fixed; border: none; border-collapse: collapse;}\n");
+    fprintf(htmlfile,"   tr      {border: 0px;}\n");
+    fprintf(htmlfile,"   td.l    {font-weight: bold;}\n");
+    fprintf(htmlfile,"   td.r    {}\n");
+    fprintf(htmlfile,"   span.w  {font-weight: bold;}\n");
+    fprintf(htmlfile,"   span.d  {}\n");
+    fprintf(htmlfile,"   span.dt {}\n");
+    fprintf(htmlfile,"   span.t  {font-variant: small-caps;}\n");
+    fprintf(htmlfile,"   span.b  {font-variant: small-caps;}\n");
+    fprintf(htmlfile,"-->\n");
+    fprintf(htmlfile,"</STYLE>\n");
+    fprintf(htmlfile,"</HEAD>\n");
+    fprintf(htmlfile,"<BODY>\n");
+    fprintf(htmlfile,"<H1>Routino: %s Route</H1>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(htmlfile,"<table>\n");
    }
 
  if(textfile)
@@ -381,17 +419,40 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           if(important>1)
             {
-             char *type;
-
-             if(important==10)
-                type="Waypt";
-             else
-                type="Junct";
-
              /* Do print the intermediate finish points (because they have correct junction distances) */
+
+             if(htmlfile)
+               {
+                char *type;
+
+                if(important==10)
+                   type="<span class='w'>Waypoint</span>";
+                else
+                   type="Junction";
+
+                fprintf(htmlfile,"<tr><td class='l'>Follow:<td class='r'>'%s' for <span class='d'>%6.3f km, %4.1f min</span> <span='td'>[%5.1f km, %4.0f min]</span>\n",
+                        WayName(ways,resultway),
+                        distance_to_km(junc_distance),duration_to_minutes(junc_duration),
+                        distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+
+                if(nextresult)
+                   fprintf(htmlfile,"<tr><td class='l'>At:<td class='r'>%s, turn <span class='t'>%s</span> and head <span class='b'>%s</span>\n",
+                           type,
+                           junction_instruction[(4+(22+junction_angle(nodes,result->segment,nextresult->segment,result->node))/45)%8],
+                           bearing_instruction[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
+                else
+                   fprintf(htmlfile,"<tr><td class='l'>Stop:<td class='r'><span class='w'>Waypoint</span>\n");
+               }
 
              if(textfile)
                {
+                char *type;
+
+                if(important==10)
+                   type="Waypt";
+                else
+                   type="Junct";
+
                 if(nextresult)
                    fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t %+d\t %+d\t%s\n",
                            radians_to_degrees(latitude),radians_to_degrees(longitude),
@@ -447,6 +508,10 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           if(gpxroutefile)
              fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>START</name></rtept>\n",
                      radians_to_degrees(latitude),radians_to_degrees(longitude));
+
+          if(htmlfile)
+             fprintf(htmlfile,"<tr><td class='l'>Start:<td class='r'><span class='w'>Waypoint</span>, head <span class='b'>%s</span>\n",
+                     bearing_instruction[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
 
           if(textfile)
              fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t\t +%d\t\n",
@@ -510,12 +575,21 @@ void PrintRouteTail(void)
     fprintf(gpxroutefile,"</gpx>\n");
    }
 
+ if(htmlfile)
+   {
+    fprintf(htmlfile,"</table>\n");
+    fprintf(htmlfile,"</BODY>\n");
+    fprintf(htmlfile,"</HTML>\n");
+   }
+
  /* Close the files */
 
  if(gpxtrackfile)
     fclose(gpxtrackfile);
  if(gpxroutefile)
     fclose(gpxroutefile);
+ if(htmlfile)
+    fclose(htmlfile);
  if(textfile)
     fclose(textfile);
  if(textallfile)
