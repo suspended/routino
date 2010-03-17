@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.19 2010-03-15 19:47:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.20 2010-03-17 19:50:53 amb Exp $
 
  Routing output generator.
 
@@ -43,7 +43,7 @@
 extern int option_quickest;
 
 /*+ The files to write to. +*/
-static FILE *gpxtrackfile=NULL,*gpxroutefile=NULL,*htmlfile=NULL,*textfile=NULL,*textallfile=NULL;
+static FILE *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
 
 /*+ Heuristics for determining if a junction is important. +*/
 static char junction_other_way[Way_Count][Way_Count]=
@@ -136,20 +136,20 @@ void PrintRouteHead(const char *copyright)
    {
     /* Print the result for the shortest route */
 
+    htmlfile    =fopen("shortest.html","w");
     gpxtrackfile=fopen("shortest-track.gpx","w");
     gpxroutefile=fopen("shortest-route.gpx","w");
-    htmlfile    =fopen("shortest.html","w");
     textfile    =fopen("shortest.txt","w");
     textallfile =fopen("shortest-all.txt","w");
 
+    if(!htmlfile)
+       fprintf(stderr,"Warning: Cannot open file 'shortest.html' to write.\n");
     if(!gpxtrackfile)
        fprintf(stderr,"Warning: Cannot open file 'shortest-track.gpx' to write.\n");
     if(!gpxroutefile)
        fprintf(stderr,"Warning: Cannot open file 'shortest-route.gpx' to write.\n");
     if(!textfile)
        fprintf(stderr,"Warning: Cannot open file 'shortest.txt' to write.\n");
-    if(!htmlfile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest.html' to write.\n");
     if(!textallfile)
        fprintf(stderr,"Warning: Cannot open file 'shortest-all.txt' to write.\n");
    }
@@ -157,18 +157,18 @@ void PrintRouteHead(const char *copyright)
    {
     /* Print the result for the quickest route */
 
+    htmlfile    =fopen("quickest.html","w");
     gpxtrackfile=fopen("quickest-track.gpx","w");
     gpxroutefile=fopen("quickest-route.gpx","w");
-    htmlfile    =fopen("quickest.html","w");
     textfile    =fopen("quickest.txt","w");
     textallfile =fopen("quickest-all.txt","w");
 
+    if(!htmlfile)
+       fprintf(stderr,"Warning: Cannot open file 'quickest.html' to write.\n");
     if(!gpxtrackfile)
        fprintf(stderr,"Warning: Cannot open file 'quickest-track.gpx' to write.\n");
     if(!gpxroutefile)
        fprintf(stderr,"Warning: Cannot open file 'quickest-route.gpx' to write.\n");
-    if(!htmlfile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest.html' to write.\n");
     if(!textfile)
        fprintf(stderr,"Warning: Cannot open file 'quickest.txt' to write.\n");
     if(!textallfile)
@@ -176,6 +176,35 @@ void PrintRouteHead(const char *copyright)
    }
 
  /* Print the head of the files */
+
+ if(htmlfile)
+   {
+    fprintf(htmlfile,"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n");
+    fprintf(htmlfile,"<HTML>\n");
+    fprintf(htmlfile,"<HEAD>\n");
+    if(source)
+       fprintf(htmlfile,"<!-- Source: %s -->\n",source);
+    if(license)
+       fprintf(htmlfile,"<!-- License: %s -->\n",license);
+    fprintf(htmlfile,"<TITLE>Routino: %s Route</TITLE>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(htmlfile,"<STYLE type='text/css'>\n");
+    fprintf(htmlfile,"<!--\n");
+    fprintf(htmlfile,"   table   {table-layout: fixed; border: none; border-collapse: collapse;}\n");
+    fprintf(htmlfile,"   tr      {border: 0px;}\n");
+    fprintf(htmlfile,"   td.l    {font-weight: bold;}\n");
+    fprintf(htmlfile,"   td.r    {}\n");
+    fprintf(htmlfile,"   span.w  {font-weight: bold;}\n");
+    fprintf(htmlfile,"   span.d  {}\n");
+    fprintf(htmlfile,"   span.dt {}\n");
+    fprintf(htmlfile,"   span.t  {font-variant: small-caps;}\n");
+    fprintf(htmlfile,"   span.b  {font-variant: small-caps;}\n");
+    fprintf(htmlfile,"-->\n");
+    fprintf(htmlfile,"</STYLE>\n");
+    fprintf(htmlfile,"</HEAD>\n");
+    fprintf(htmlfile,"<BODY>\n");
+    fprintf(htmlfile,"<H1>Routino: %s Route</H1>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(htmlfile,"<table>\n");
+   }
 
  if(gpxtrackfile)
    {
@@ -212,35 +241,6 @@ void PrintRouteHead(const char *copyright)
 
     fprintf(gpxroutefile,"<rte>\n");
     fprintf(gpxroutefile,"<name>%s route</name>\n",option_quickest?"Quickest":"Shortest");
-   }
-
- if(htmlfile)
-   {
-    fprintf(htmlfile,"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n");
-    fprintf(htmlfile,"<HTML>\n");
-    fprintf(htmlfile,"<HEAD>\n");
-    if(source)
-       fprintf(htmlfile,"<!-- Source: %s -->\n",source);
-    if(license)
-       fprintf(htmlfile,"<!-- License: %s -->\n",license);
-    fprintf(htmlfile,"<TITLE>Routino: %s Route</TITLE>\n",option_quickest?"Quickest":"Shortest");
-    fprintf(htmlfile,"<STYLE type='text/css'>\n");
-    fprintf(htmlfile,"<!--\n");
-    fprintf(htmlfile,"   table   {table-layout: fixed; border: none; border-collapse: collapse;}\n");
-    fprintf(htmlfile,"   tr      {border: 0px;}\n");
-    fprintf(htmlfile,"   td.l    {font-weight: bold;}\n");
-    fprintf(htmlfile,"   td.r    {}\n");
-    fprintf(htmlfile,"   span.w  {font-weight: bold;}\n");
-    fprintf(htmlfile,"   span.d  {}\n");
-    fprintf(htmlfile,"   span.dt {}\n");
-    fprintf(htmlfile,"   span.t  {font-variant: small-caps;}\n");
-    fprintf(htmlfile,"   span.b  {font-variant: small-caps;}\n");
-    fprintf(htmlfile,"-->\n");
-    fprintf(htmlfile,"</STYLE>\n");
-    fprintf(htmlfile,"</HEAD>\n");
-    fprintf(htmlfile,"<BODY>\n");
-    fprintf(htmlfile,"<H1>Routino: %s Route</H1>\n",option_quickest?"Quickest":"Shortest");
-    fprintf(htmlfile,"<table>\n");
    }
 
  if(textfile)
@@ -505,13 +505,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
          {
           /* Print out the very first start point */
 
-          if(gpxroutefile)
-             fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>START</name></rtept>\n",
-                     radians_to_degrees(latitude),radians_to_degrees(longitude));
-
           if(htmlfile)
              fprintf(htmlfile,"<tr><td class='l'>Start:<td class='r'><span class='w'>Waypoint</span>, head <span class='b'>%s</span>\n",
                      bearing_instruction[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
+
+          if(gpxroutefile)
+             fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>START</name></rtept>\n",
+                     radians_to_degrees(latitude),radians_to_degrees(longitude));
 
           if(textfile)
              fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t\t +%d\t\n",
@@ -563,6 +563,13 @@ void PrintRouteTail(void)
 {
  /* Print the tail of the files */
 
+ if(htmlfile)
+   {
+    fprintf(htmlfile,"</table>\n");
+    fprintf(htmlfile,"</BODY>\n");
+    fprintf(htmlfile,"</HTML>\n");
+   }
+
  if(gpxtrackfile)
    {
     fprintf(gpxtrackfile,"</trk>\n");
@@ -575,21 +582,14 @@ void PrintRouteTail(void)
     fprintf(gpxroutefile,"</gpx>\n");
    }
 
- if(htmlfile)
-   {
-    fprintf(htmlfile,"</table>\n");
-    fprintf(htmlfile,"</BODY>\n");
-    fprintf(htmlfile,"</HTML>\n");
-   }
-
  /* Close the files */
 
+ if(htmlfile)
+    fclose(htmlfile);
  if(gpxtrackfile)
     fclose(gpxtrackfile);
  if(gpxroutefile)
     fclose(gpxroutefile);
- if(htmlfile)
-    fclose(htmlfile);
  if(textfile)
     fclose(textfile);
  if(textallfile)
