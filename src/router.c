@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.69 2010-03-18 18:59:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.70 2010-03-18 19:11:32 amb Exp $
 
  OSM router.
 
@@ -87,8 +87,9 @@ int main(int argc,char** argv)
                    "              [--exact-nodes-only]\n"
                    "              [--quiet]\n"
                    "              [--output-html]\n"
-                   "              [--output-gpx-track | --output-gpx-route]\n"
-                   "              [--output-text | --output-text-all]\n"
+                   "              [--output-gpx-track] [--output-gpx-route]\n"
+                   "              [--output-text] [--output-text-all]\n"
+                   "              [--shortest | --quickest]\n"
                    "              --lon1=<longitude> --lat1=<latitude>\n"
                    "              --lon2=<longitude> --lon2=<latitude>\n"
                    "              [ ... --lon99=<longitude> --lon99=<latitude>]\n"
@@ -99,7 +100,6 @@ int main(int argc,char** argv)
                    "              [--oneway=[0|1]]\n"
                    "              [--weight=<weight>]\n"
                    "              [--height=<height>] [--width=<width>] [--length=<length>]\n"
-                   "              [--shortest | --quickest]\n"
                    "\n"
                    "<transport> defaults to motorcar but can be set to:\n"
                    "%s"
@@ -166,6 +166,10 @@ int main(int argc,char** argv)
        option_text=1;
     else if(!strcmp(argv[arg],"--output-text-all"))
        option_text_all=1;
+    else if(!strcmp(argv[arg],"--shortest"))
+       option_quickest=0;
+    else if(!strcmp(argv[arg],"--quickest"))
+       option_quickest=1;
     else if(isdigit(argv[arg][0]) ||
        ((argv[arg][0]=='-' || argv[arg][0]=='+') && isdigit(argv[arg][1])))
       {
@@ -288,10 +292,6 @@ int main(int argc,char** argv)
        profile.width=metres_to_width(atof(&argv[arg][8]));
     else if(!strncmp(argv[arg],"--length=",9))
        profile.length=metres_to_length(atof(&argv[arg][9]));
-    else if(!strcmp(argv[arg],"--shortest"))
-       option_quickest=0;
-    else if(!strcmp(argv[arg],"--quickest"))
-       option_quickest=1;
     else
        goto usage;
    }
