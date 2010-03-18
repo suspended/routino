@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.20 2010-03-17 19:50:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.21 2010-03-18 18:59:20 amb Exp $
 
  Routing output generator.
 
@@ -41,6 +41,9 @@
 
 /*+ The option to calculate the quickest route insted of the shortest. +*/
 extern int option_quickest;
+
+/*+ The options to select the format of the output. +*/
+extern int option_html,option_gpx_track,option_gpx_route,option_text,option_text_all;
 
 /*+ The files to write to. +*/
 static FILE *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
@@ -136,42 +139,52 @@ void PrintRouteHead(const char *copyright)
    {
     /* Print the result for the shortest route */
 
-    htmlfile    =fopen("shortest.html","w");
-    gpxtrackfile=fopen("shortest-track.gpx","w");
-    gpxroutefile=fopen("shortest-route.gpx","w");
-    textfile    =fopen("shortest.txt","w");
-    textallfile =fopen("shortest-all.txt","w");
+    if(option_html)
+       htmlfile    =fopen("shortest.html","w");
+    if(option_gpx_track)
+       gpxtrackfile=fopen("shortest-track.gpx","w");
+    if(option_gpx_route)
+       gpxroutefile=fopen("shortest-route.gpx","w");
+    if(option_text)
+       textfile    =fopen("shortest.txt","w");
+    if(option_text_all)
+       textallfile =fopen("shortest-all.txt","w");
 
-    if(!htmlfile)
+    if(option_html && !htmlfile)
        fprintf(stderr,"Warning: Cannot open file 'shortest.html' to write.\n");
-    if(!gpxtrackfile)
+    if(option_gpx_track && !gpxtrackfile)
        fprintf(stderr,"Warning: Cannot open file 'shortest-track.gpx' to write.\n");
-    if(!gpxroutefile)
+    if(option_gpx_route && !gpxroutefile)
        fprintf(stderr,"Warning: Cannot open file 'shortest-route.gpx' to write.\n");
-    if(!textfile)
+    if(option_text && !textfile)
        fprintf(stderr,"Warning: Cannot open file 'shortest.txt' to write.\n");
-    if(!textallfile)
+    if(option_text_all && !textallfile)
        fprintf(stderr,"Warning: Cannot open file 'shortest-all.txt' to write.\n");
    }
  else
    {
     /* Print the result for the quickest route */
 
-    htmlfile    =fopen("quickest.html","w");
-    gpxtrackfile=fopen("quickest-track.gpx","w");
-    gpxroutefile=fopen("quickest-route.gpx","w");
-    textfile    =fopen("quickest.txt","w");
-    textallfile =fopen("quickest-all.txt","w");
+    if(option_html)
+       htmlfile    =fopen("quickest.html","w");
+    if(option_gpx_track)
+       gpxtrackfile=fopen("quickest-track.gpx","w");
+    if(option_gpx_route)
+       gpxroutefile=fopen("quickest-route.gpx","w");
+    if(option_text)
+       textfile    =fopen("quickest.txt","w");
+    if(option_text_all)
+       textallfile =fopen("quickest-all.txt","w");
 
-    if(!htmlfile)
+    if(option_html && !htmlfile)
        fprintf(stderr,"Warning: Cannot open file 'quickest.html' to write.\n");
-    if(!gpxtrackfile)
+    if(option_gpx_track && !gpxtrackfile)
        fprintf(stderr,"Warning: Cannot open file 'quickest-track.gpx' to write.\n");
-    if(!gpxroutefile)
+    if(option_gpx_route && !gpxroutefile)
        fprintf(stderr,"Warning: Cannot open file 'quickest-route.gpx' to write.\n");
-    if(!textfile)
+    if(option_text && !textfile)
        fprintf(stderr,"Warning: Cannot open file 'quickest.txt' to write.\n");
-    if(!textallfile)
+    if(option_text_all && !textallfile)
        fprintf(stderr,"Warning: Cannot open file 'quickest-all.txt' to write.\n");
    }
 
@@ -307,7 +320,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     duration_t junc_duration=0;
     Result *result;
 
-    fprintf(gpxtrackfile,"<trkseg>\n");
+    if(gpxtrackfile)
+       fprintf(gpxtrackfile,"<trkseg>\n");
 
     if(IsFakeNode(results[point]->start))
        GetFakeLatLong(results[point]->start,&start_lat,&start_lon);

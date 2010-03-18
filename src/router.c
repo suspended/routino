@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.68 2010-03-06 22:07:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.69 2010-03-18 18:59:20 amb Exp $
 
  OSM router.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -54,6 +54,9 @@ static double point_lon[NWAYPOINTS+1],point_lat[NWAYPOINTS+1];
 /*+ The option not to print any progress information. +*/
 int option_quiet=0;
 
+/*+ The options to select the format of the output. +*/
+int option_html=0,option_gpx_track=0,option_gpx_route=0,option_text=0,option_text_all=0;
+
 /*+ The option to calculate the quickest route insted of the shortest. +*/
 int option_quickest=0;
 
@@ -79,14 +82,16 @@ int main(int argc,char** argv)
    {
    usage:
 
-    fprintf(stderr,"Usage: router [--lon1=]<longitude> [--lat1=]<latitude>\n"
-                   "              [--lon2=]<longitude> [--lon2=]<latitude>\n"
-                   "              [ ... [--lon99=]<longitude> [--lon99=]<latitude>]\n"
-                   "              [--help | --help-profile | --help-profile-js | --help-profile-pl]\n"
+    fprintf(stderr,"Usage: router [--help | --help-profile | --help-profile-js | --help-profile-pl]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
-                   "              [--shortest | --quickest]\n"
                    "              [--exact-nodes-only]\n"
                    "              [--quiet]\n"
+                   "              [--output-html]\n"
+                   "              [--output-gpx-track | --output-gpx-route]\n"
+                   "              [--output-text | --output-text-all]\n"
+                   "              --lon1=<longitude> --lat1=<latitude>\n"
+                   "              --lon2=<longitude> --lon2=<latitude>\n"
+                   "              [ ... --lon99=<longitude> --lon99=<latitude>]\n"
                    "              [--transport=<transport>]\n"
                    "              [--highway-<highway>=<preference> ...]\n"
                    "              [--speed-<highway>=<speed> ...]\n"
@@ -94,6 +99,7 @@ int main(int argc,char** argv)
                    "              [--oneway=[0|1]]\n"
                    "              [--weight=<weight>]\n"
                    "              [--height=<height>] [--width=<width>] [--length=<length>]\n"
+                   "              [--shortest | --quickest]\n"
                    "\n"
                    "<transport> defaults to motorcar but can be set to:\n"
                    "%s"
@@ -134,7 +140,33 @@ int main(int argc,char** argv)
 
  for(arg=1;arg<argc;arg++)
    {
-    if(isdigit(argv[arg][0]) ||
+    if(!strcmp(argv[arg],"--help"))
+       goto usage;
+    else if(!strcmp(argv[arg],"--help-profile"))
+       help_profile=1;
+    else if(!strcmp(argv[arg],"--help-profile-js"))
+       help_profile_js=1;
+    else if(!strcmp(argv[arg],"--help-profile-pl"))
+       help_profile_pl=1;
+    else if(!strncmp(argv[arg],"--dir=",6))
+       dirname=&argv[arg][6];
+    else if(!strncmp(argv[arg],"--prefix=",9))
+       prefix=&argv[arg][9];
+    else if(!strcmp(argv[arg],"--exact-nodes-only"))
+       exactnodes=1;
+    else if(!strcmp(argv[arg],"--quiet"))
+       option_quiet=1;
+    else if(!strcmp(argv[arg],"--output-html"))
+       option_html=1;
+    else if(!strcmp(argv[arg],"--output-gpx-track"))
+       option_gpx_track=1;
+    else if(!strcmp(argv[arg],"--output-gpx-route"))
+       option_gpx_route=1;
+    else if(!strcmp(argv[arg],"--output-text"))
+       option_text=1;
+    else if(!strcmp(argv[arg],"--output-text-all"))
+       option_text_all=1;
+    else if(isdigit(argv[arg][0]) ||
        ((argv[arg][0]=='-' || argv[arg][0]=='+') && isdigit(argv[arg][1])))
       {
        for(point=1;point<=NWAYPOINTS;point++)
@@ -181,28 +213,8 @@ int main(int argc,char** argv)
        point_lat[point]=degrees_to_radians(atof(p));
        point_used[point]+=2;
       }
-    else if(!strcmp(argv[arg],"--help"))
-       goto usage;
-    else if(!strcmp(argv[arg],"--help-profile"))
-       help_profile=1;
-    else if(!strcmp(argv[arg],"--help-profile-js"))
-       help_profile_js=1;
-    else if(!strcmp(argv[arg],"--help-profile-pl"))
-       help_profile_pl=1;
-    else if(!strncmp(argv[arg],"--dir=",6))
-       dirname=&argv[arg][6];
-    else if(!strncmp(argv[arg],"--prefix=",9))
-       prefix=&argv[arg][9];
-    else if(!strcmp(argv[arg],"--shortest"))
-       option_quickest=0;
-    else if(!strcmp(argv[arg],"--quickest"))
-       option_quickest=1;
-    else if(!strcmp(argv[arg],"--exact-nodes-only"))
-       exactnodes=1;
-    else if(!strcmp(argv[arg],"--quiet"))
-       option_quiet=1;
     else if(!strncmp(argv[arg],"--transport=",12))
-       ; /* Done this already*/
+       ; /* Done this already */
     else if(!strncmp(argv[arg],"--highway-",10))
       {
        Highway highway;
@@ -276,6 +288,10 @@ int main(int argc,char** argv)
        profile.width=metres_to_width(atof(&argv[arg][8]));
     else if(!strncmp(argv[arg],"--length=",9))
        profile.length=metres_to_length(atof(&argv[arg][9]));
+    else if(!strcmp(argv[arg],"--shortest"))
+       option_quickest=0;
+    else if(!strcmp(argv[arg],"--quickest"))
+       option_quickest=1;
     else
        goto usage;
    }
@@ -336,6 +352,9 @@ int main(int argc,char** argv)
     fprintf(stderr,"Error: Database was not generated for selected transport.\n");
     return(1);
    }
+
+ if(option_html==0 && option_gpx_track==0 && option_gpx_route==0 && option_text==0 && option_text_all==0)
+    option_html=option_gpx_track=option_gpx_route=option_text=option_text_all=1;
 
  /* Loop through all pairs of points */
 
