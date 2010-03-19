@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.19 2009-10-08 19:20:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.20 2010-03-19 19:47:09 amb Exp $
 
  A header file for the extended segments.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -69,8 +69,8 @@ struct _SegmentsX
 /* Functions */
 
 
-SegmentsX *NewSegmentList(void);
-void FreeSegmentList(SegmentsX *segmentsx);
+SegmentsX *NewSegmentList(int append);
+void FreeSegmentList(SegmentsX *segmentsx,int keep);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 

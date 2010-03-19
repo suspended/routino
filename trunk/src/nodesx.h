@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.22 2009-10-10 15:22:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.23 2010-03-19 19:47:09 amb Exp $
 
  A header file for the extended nodes.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -76,8 +76,8 @@ struct _NodesX
 
 /* Functions */
 
-NodesX *NewNodeList(void);
-void FreeNodeList(NodesX *nodesx);
+NodesX *NewNodeList(int append);
+void FreeNodeList(NodesX *nodesx,int keep);
 
 void SaveNodeList(NodesX *nodesx,const char *filename);
 

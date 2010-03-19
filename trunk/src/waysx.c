@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.34 2009-12-12 11:08:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.35 2010-03-19 19:47:09 amb Exp $
 
  Extended Way data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "functions.h"
 #include "waysx.h"
@@ -52,12 +53,14 @@ static int index_by_id(WayX *wayx,index_t index);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Allocate a new way list.
+  Allocate a new way list (create a new file or open an existing one).
 
   WaysX *NewWayList Returns the way list.
+
+  int append Set to 1 if the file is to be opened for appending (now or later).
   ++++++++++++++++++++++++++++++++++++++*/
 
-WaysX *NewWayList(void)
+WaysX *NewWayList(int append)
 {
  WaysX *waysx;
 
@@ -66,9 +69,36 @@ WaysX *NewWayList(void)
  assert(waysx); /* Check calloc() worked */
 
  waysx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
- sprintf(waysx->filename,"%s/ways.%p.tmp",option_tmpdirname,waysx);
 
- waysx->fd=OpenFile(waysx->filename);
+ if(append)
+    sprintf(waysx->filename,"%s/ways.input.tmp",option_tmpdirname);
+ else
+    sprintf(waysx->filename,"%s/ways.%p.tmp",option_tmpdirname,waysx);
+
+ if(append)
+   {
+    struct stat buf;
+    size_t position=0;
+
+    waysx->fd=AppendFile(waysx->filename);
+
+    fstat(waysx->fd,&buf);
+
+    while(position<buf.st_size)
+      {
+       FILESORT_VARINT size;
+
+       SeekFile(waysx->fd,position);
+       ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
+
+       waysx->xnumber++;
+       position+=size+FILESORT_VARSIZE;
+      }
+
+    SeekFile(waysx->fd,buf.st_size);
+   }
+ else
+    waysx->fd=OpenFile(waysx->filename);
 
  waysx->nfilename=(char*)malloc(strlen(option_tmpdirname)+32);
  sprintf(waysx->nfilename,"%s/waynames.%p.tmp",option_tmpdirname,waysx);
@@ -81,17 +111,22 @@ WaysX *NewWayList(void)
   Free a way list.
 
   WaysX *waysx The list to be freed.
+
+  int keep Set to 1 if the file is to be kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeWayList(WaysX *waysx)
+void FreeWayList(WaysX *waysx,int keep)
 {
- DeleteFile(waysx->filename);
+ if(!keep)
+    DeleteFile(waysx->filename);
+
  free(waysx->filename);
 
  if(waysx->idata)
     free(waysx->idata);
 
  DeleteFile(waysx->nfilename);
+
  free(waysx->nfilename);
 
  free(waysx);

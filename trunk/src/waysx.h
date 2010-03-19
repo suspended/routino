@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.19 2009-12-11 19:27:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.20 2010-03-19 19:47:10 amb Exp $
 
  A header file for the extended Ways structure.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -73,8 +73,8 @@ struct _WaysX
 /* Functions */
 
 
-WaysX *NewWayList(void);
-void FreeWayList(WaysX *waysx);
+WaysX *NewWayList(int append);
+void FreeWayList(WaysX *waysx,int keep);
 
 void SaveWayList(WaysX *waysx,const char *filename,Profile *profile);
 

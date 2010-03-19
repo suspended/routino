@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.36 2009-10-22 18:17:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.37 2010-03-19 19:47:09 amb Exp $
 
  Super-Segment data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -176,7 +176,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  /* Create super-segments for each super-node. */
 
- supersegmentsx=NewSegmentList();
+ supersegmentsx=NewSegmentList(0);
 
  for(i=0;i<nodesx->number;i++)
    {
@@ -301,7 +301,7 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
  /* Loop through and create a new list of combined segments */
 
- mergedsegmentsx=NewSegmentList();
+ mergedsegmentsx=NewSegmentList(0);
 
  for(i=0,j=0;i<segmentsx->number;i++)
    {
