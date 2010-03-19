@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.65 2009-12-11 19:27:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.66 2010-03-19 19:47:09 amb Exp $
 
  OSM planet file splitter.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -45,6 +45,9 @@ int option_slim=0;
 
 /*+ The name of the temporary directory. +*/
 char *option_tmpdirname=NULL;
+
+/*+ The options to only parse the input file or only process the resulting file. +*/
+int option_parse_only=0,option_process_only=0;
 
 
 int main(int argc,char** argv)
@@ -86,6 +89,10 @@ int main(int argc,char** argv)
        option_tmpdirname=&argv[argc][9];
     else if(!strncmp(argv[argc],"--prefix=",9))
        prefix=&argv[argc][9];
+    else if(!strcmp(argv[argc],"--parse-only"))
+       option_parse_only=1;
+    else if(!strcmp(argv[argc],"--process-only"))
+       option_process_only=1;
     else if(!strncmp(argv[argc],"--max-iterations=",17))
        max_iterations=atoi(&argv[argc][17]);
     else if(!strncmp(argv[argc],"--transport=",12))
@@ -113,10 +120,10 @@ int main(int argc,char** argv)
       {
       usage:
 
-       fprintf(stderr,"Usage: planetsplitter\n"
-                      "                      [--help]\n"
+       fprintf(stderr,"Usage: planetsplitter [--help]\n"
                       "                      [--dir=<name>] [--prefix=<name>]\n"
                       "                      [--slim] [--tmpdir=<name>]\n"
+                      "                      [--parse-only | --process-only]\n"
                       "                      [--max-iterations=<number>]\n"
                       "                      [--transport=<transport> ...]\n"
                       "                      [--not-highway=<highway> ...]\n"
@@ -136,6 +143,9 @@ int main(int argc,char** argv)
       }
    }
 
+ if(option_parse_only && option_process_only)
+    goto usage;
+
  if(!option_tmpdirname)
    {
     if(!dirname)
@@ -149,18 +159,30 @@ int main(int argc,char** argv)
 
  /* Create new node, segment and way variables */
 
- Nodes=NewNodeList();
+ Nodes=NewNodeList(option_parse_only||option_process_only);
 
- Segments=NewSegmentList();
+ Segments=NewSegmentList(option_parse_only||option_process_only);
 
- Ways=NewWayList();
+ Ways=NewWayList(option_parse_only||option_process_only);
 
  /* Parse the file */
 
- printf("\nParse OSM Data\n==============\n\n");
- fflush(stdout);
+ if(!option_process_only)
+   {
+    printf("\nParse OSM Data\n==============\n\n");
+    fflush(stdout);
 
- ParseXML(stdin,Nodes,Segments,Ways,&profile);
+    ParseXML(stdin,Nodes,Segments,Ways,&profile);
+   }
+
+ if(option_parse_only)
+   {
+    FreeNodeList(Nodes,1);
+    FreeSegmentList(Segments,1);
+    FreeWayList(Ways,1);
+
+    return(0);
+   }
 
  /* Process the data */
 
@@ -220,7 +242,7 @@ int main(int argc,char** argv)
        if(SuperSegments->xnumber==SuperSegments2->xnumber)
           quit=1;
 
-       FreeSegmentList(SuperSegments);
+       FreeSegmentList(SuperSegments,0);
 
        SuperSegments=SuperSegments2;
       }
@@ -249,9 +271,9 @@ int main(int argc,char** argv)
 
  MergedSegments=MergeSuperSegments(Segments,SuperSegments);
 
- FreeSegmentList(Segments);
+ FreeSegmentList(Segments,0);
 
- FreeSegmentList(SuperSegments);
+ FreeSegmentList(SuperSegments,0);
 
  Segments=MergedSegments;
 
@@ -297,19 +319,19 @@ int main(int argc,char** argv)
 
  SaveNodeList(Nodes,FileName(dirname,prefix,"nodes.mem"));
 
- FreeNodeList(Nodes);
+ FreeNodeList(Nodes,0);
 
  /* Write out the segments */
 
  SaveSegmentList(Segments,FileName(dirname,prefix,"segments.mem"));
 
- FreeSegmentList(Segments);
+ FreeSegmentList(Segments,0);
 
  /* Write out the ways */
 
  SaveWayList(Ways,FileName(dirname,prefix,"ways.mem"),&profile);
 
- FreeWayList(Ways);
+ FreeWayList(Ways,0);
 
  return(0);
 }

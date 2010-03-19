@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.48 2010-01-15 19:48:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.49 2010-03-19 19:47:09 amb Exp $
 
  Header file for function prototypes
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -54,6 +54,7 @@ void *MapFile(const char *filename);
 void *UnmapFile(const char *filename);
 
 int OpenFile(const char *filename);
+int AppendFile(const char *filename);
 int ReOpenFile(const char *filename);
 
 int WriteFile(int fd,const void *address,size_t length);

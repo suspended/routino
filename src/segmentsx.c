@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.48 2009-12-12 11:08:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.49 2010-03-19 19:47:09 amb Exp $
 
  Extended Segment data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "types.h"
 #include "functions.h"
@@ -54,12 +55,14 @@ static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Allocate a new segment list.
+  Allocate a new segment list (create a new file or open an existing one).
 
   SegmentsX *NewSegmentList Returns the segment list.
+
+  int append Set to 1 if the file is to be opened for appending (now or later).
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsX *NewSegmentList(void)
+SegmentsX *NewSegmentList(int append)
 {
  SegmentsX *segmentsx;
 
@@ -68,9 +71,24 @@ SegmentsX *NewSegmentList(void)
  assert(segmentsx); /* Check calloc() worked */
 
  segmentsx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
- sprintf(segmentsx->filename,"%s/segments.%p.tmp",option_tmpdirname,segmentsx);
 
- segmentsx->fd=OpenFile(segmentsx->filename);
+ if(append)
+    sprintf(segmentsx->filename,"%s/segments.input.tmp",option_tmpdirname);
+ else
+    sprintf(segmentsx->filename,"%s/segments.%p.tmp",option_tmpdirname,segmentsx);
+
+ if(append)
+   {
+    struct stat buf;
+
+    segmentsx->fd=AppendFile(segmentsx->filename);
+
+    fstat(segmentsx->fd,&buf);
+
+    segmentsx->xnumber=buf.st_size/sizeof(SegmentX);
+   }
+ else
+    segmentsx->fd=OpenFile(segmentsx->filename);
 
  return(segmentsx);
 }
@@ -80,11 +98,15 @@ SegmentsX *NewSegmentList(void)
   Free a segment list.
 
   SegmentsX *segmentsx The list to be freed.
+
+  int keep Set to 1 if the file is to be kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeSegmentList(SegmentsX *segmentsx)
+void FreeSegmentList(SegmentsX *segmentsx,int keep)
 {
- DeleteFile(segmentsx->filename);
+ if(!keep)
+    DeleteFile(segmentsx->filename);
+
  free(segmentsx->filename);
 
  if(segmentsx->idata)

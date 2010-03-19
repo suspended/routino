@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.14 2009-10-22 18:17:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.15 2010-03-19 19:47:09 amb Exp $
 
- Functions to map a file into memory.
+ Functions to handle files.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -190,6 +190,32 @@ int OpenFile(const char *filename)
  if(fd<0)
    {
     fprintf(stderr,"Cannot open file '%s' to write.\n",filename);
+    exit(EXIT_FAILURE);
+   }
+
+ return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open a new file on disk for reading and appending.
+
+  int AppendFile Returns the file descriptor if OK or something negative in case of an error.
+
+  const char *filename The name of the file to create.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int AppendFile(const char *filename)
+{
+ int fd;
+
+ /* Open the file */
+
+ fd=open(filename,O_RDWR|O_CREAT|O_APPEND,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+
+ if(fd<0)
+   {
+    fprintf(stderr,"Cannot open file '%s' to read and append.\n",filename);
     exit(EXIT_FAILURE);
    }
 

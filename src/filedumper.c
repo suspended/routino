@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.36 2009-11-25 15:00:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.37 2010-03-19 19:47:09 amb Exp $
 
  Memory file dumper.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -94,8 +94,7 @@ int main(int argc,char** argv)
       {
       usage:
 
-       fprintf(stderr,"Usage: filedumper\n"
-                      "                  [--help]\n"
+       fprintf(stderr,"Usage: filedumper [--help]\n"
                       "                  [--dir=<name>] [--prefix=<name>]\n"
                       "                  [--statistics]\n"
                       "                  [--visualiser --latmin=<latmin> --latmax=<latmax>\n"

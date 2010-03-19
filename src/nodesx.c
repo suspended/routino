@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.53 2009-12-12 11:08:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.54 2010-03-19 19:47:09 amb Exp $
 
  Extented Node data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "types.h"
 #include "functions.h"
@@ -57,12 +58,14 @@ static int index_by_lat_long(NodeX *nodex,index_t index);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Allocate a new node list.
+  Allocate a new node list (create a new file or open an existing one).
 
   NodesX *NewNodeList Returns the node list.
+
+  int append Set to 1 if the file is to be opened for appending (now or later).
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodesX *NewNodeList(void)
+NodesX *NewNodeList(int append)
 {
  NodesX *nodesx;
 
@@ -71,9 +74,24 @@ NodesX *NewNodeList(void)
  assert(nodesx); /* Check calloc() worked */
 
  nodesx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
- sprintf(nodesx->filename,"%s/nodes.%p.tmp",option_tmpdirname,nodesx);
 
- nodesx->fd=OpenFile(nodesx->filename);
+ if(append)
+    sprintf(nodesx->filename,"%s/nodes.input.tmp",option_tmpdirname);
+ else
+    sprintf(nodesx->filename,"%s/nodes.%p.tmp",option_tmpdirname,nodesx);
+
+ if(append)
+   {
+    struct stat buf;
+
+    nodesx->fd=AppendFile(nodesx->filename);
+
+    fstat(nodesx->fd,&buf);
+
+    nodesx->xnumber=buf.st_size/sizeof(NodeX);
+   }
+ else
+    nodesx->fd=OpenFile(nodesx->filename);
 
  return(nodesx);
 }
@@ -83,11 +101,15 @@ NodesX *NewNodeList(void)
   Free a node list.
 
   NodesX *nodesx The list to be freed.
+
+  int keep Set to 1 if the file is to be kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeNodeList(NodesX *nodesx)
+void FreeNodeList(NodesX *nodesx,int keep)
 {
- DeleteFile(nodesx->filename);
+ if(!keep)
+    DeleteFile(nodesx->filename);
+
  free(nodesx->filename);
 
  if(nodesx->idata)
