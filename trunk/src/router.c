@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.70 2010-03-18 19:11:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.71 2010-03-20 12:23:39 amb Exp $
 
  OSM router.
 
@@ -69,7 +69,7 @@ int main(int argc,char** argv)
  Results  *results[NWAYPOINTS+1]={NULL};
  int       point_used[NWAYPOINTS+1]={0};
  int       help_profile=0,help_profile_js=0,help_profile_pl=0;
- char     *dirname=NULL,*prefix=NULL,*filename;
+ char     *dirname=NULL,*prefix=NULL;
  int       exactnodes=0;
  Transport transport=Transport_None;
  Profile   profile;
@@ -321,31 +321,13 @@ int main(int argc,char** argv)
 
  UpdateProfile(&profile);
 
- /* Load in the data */
+ /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
 
- OSMNodes=LoadNodeList(filename=FileName(dirname,prefix,"nodes.mem"));
+ OSMNodes=LoadNodeList(FileName(dirname,prefix,"nodes.mem"));
 
- if(!OSMNodes)
-   {
-    fprintf(stderr,"Error: Cannot open nodes file '%s'.\n",filename);
-    return(1);
-   }
+ OSMSegments=LoadSegmentList(FileName(dirname,prefix,"segments.mem"));
 
- OSMSegments=LoadSegmentList(filename=FileName(dirname,prefix,"segments.mem"));
-
- if(!OSMSegments)
-   {
-    fprintf(stderr,"Error: Cannot open segments file '%s'.\n",filename);
-    return(1);
-   }
-
- OSMWays=LoadWayList(filename=FileName(dirname,prefix,"ways.mem"));
-
- if(!OSMWays)
-   {
-    fprintf(stderr,"Error: Cannot open ways file '%s'.\n",filename);
-    return(1);
-   }
+ OSMWays=LoadWayList(FileName(dirname,prefix,"ways.mem"));
 
  if(!(profile.allow & OSMWays->allow))
    {

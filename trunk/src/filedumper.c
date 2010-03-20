@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.37 2010-03-19 19:47:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.38 2010-03-20 12:23:39 amb Exp $
 
  Memory file dumper.
 
@@ -121,31 +121,13 @@ int main(int argc,char** argv)
  if(!option_statistics && !option_visualiser && !option_dump)
     goto usage;
 
- /* Load in the data */
+ /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
 
  OSMNodes=LoadNodeList(nodes_filename=FileName(dirname,prefix,"nodes.mem"));
 
- if(!OSMNodes)
-   {
-    fprintf(stderr,"Cannot open nodes file '%s'.\n",nodes_filename);
-    return(1);
-   }
-
  OSMSegments=LoadSegmentList(segments_filename=FileName(dirname,prefix,"segments.mem"));
 
- if(!OSMSegments)
-   {
-    fprintf(stderr,"Cannot open segments file '%s'.\n",segments_filename);
-    return(1);
-   }
-
  OSMWays=LoadWayList(ways_filename=FileName(dirname,prefix,"ways.mem"));
-
- if(!OSMWays)
-   {
-    fprintf(stderr,"Cannot open ways file '%s'.\n",ways_filename);
-    return(1);
-   }
 
  /* Write out the visualiser data */
 
