@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.43 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.44 2010-03-20 12:23:07 amb Exp $
 
  Segment data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -49,9 +49,6 @@ Segments *LoadSegmentList(const char *filename)
  segments=(Segments*)malloc(sizeof(Segments));
 
  data=MapFile(filename);
-
- if(!data)
-    return(NULL);
 
  /* Copy the Segments structure from the loaded data */
 
