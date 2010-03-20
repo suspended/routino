@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.67 2010-03-20 11:38:05 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.68 2010-03-20 12:24:20 amb Exp $
 
  OSM planet file splitter.
 
@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "typesx.h"
 #include "types.h"
@@ -185,7 +186,7 @@ int main(int argc,char** argv)
 
        if(!file)
          {
-          fprintf(stderr,"Cannot open file '%s' to read.\n",argv[arg]);
+          fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",argv[arg],strerror(errno));
           exit(EXIT_FAILURE);
          }
 

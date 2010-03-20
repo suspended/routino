@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.15 2010-03-19 19:47:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.16 2010-03-20 12:24:20 amb Exp $
 
  Functions to handle files.
 
@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -91,7 +92,7 @@ void *MapFile(const char *filename)
 
  if(fd<0)
    {
-    fprintf(stderr,"Cannot open file '%s' to read.\n",filename);
+    fprintf(stderr,"Cannot open file '%s' to read from [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
 
@@ -101,7 +102,7 @@ void *MapFile(const char *filename)
    {
     close(fd);
 
-    fprintf(stderr,"Cannot stat file '%s'.\n",filename);
+    fprintf(stderr,"Cannot stat file '%s' [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
 
@@ -113,7 +114,7 @@ void *MapFile(const char *filename)
    {
     close(fd);
 
-    fprintf(stderr,"Cannot mmap file '%s'.\n",filename);
+    fprintf(stderr,"Cannot mmap file '%s' [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
 
@@ -148,7 +149,7 @@ void *UnmapFile(const char *filename)
 
  if(i==nmappedfiles)
    {
-    fprintf(stderr,"Cannot find file '%s' to unmap.\n",filename);
+    fprintf(stderr,"The file '%s' was not mapped using MapFile().\n",filename);
     exit(EXIT_FAILURE);
    }
 
@@ -189,7 +190,7 @@ int OpenFile(const char *filename)
 
  if(fd<0)
    {
-    fprintf(stderr,"Cannot open file '%s' to write.\n",filename);
+    fprintf(stderr,"Cannot open file '%s' for writing [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
 
@@ -215,7 +216,7 @@ int AppendFile(const char *filename)
 
  if(fd<0)
    {
-    fprintf(stderr,"Cannot open file '%s' to read and append.\n",filename);
+    fprintf(stderr,"Cannot open file '%s' for appending [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
 
@@ -241,7 +242,7 @@ int ReOpenFile(const char *filename)
 
  if(fd<0)
    {
-    fprintf(stderr,"Cannot open file '%s' to read.\n",filename);
+    fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
 
