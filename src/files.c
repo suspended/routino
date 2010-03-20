@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.16 2010-03-20 12:24:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.17 2010-03-20 13:35:15 amb Exp $
 
  Functions to handle files.
 
@@ -75,7 +75,7 @@ char *FileName(const char *dirname,const char *prefix, const char *name)
 /*++++++++++++++++++++++++++++++++++++++
   Open a file and map it into memory.
 
-  void *MapFile Returns the address of the file.
+  void *MapFile Returns the address of the file or exits in case of an error.
 
   const char *filename The name of the file to open.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -83,32 +83,18 @@ char *FileName(const char *dirname,const char *prefix, const char *name)
 void *MapFile(const char *filename)
 {
  int fd;
- struct stat buf;
+ off_t size;
  void *address;
 
- /* Open the file */
+ /* Open the file and get its size */
 
- fd=open(filename,O_RDONLY);
+ fd=ReOpenFile(filename);
 
- if(fd<0)
-   {
-    fprintf(stderr,"Cannot open file '%s' to read from [%s].\n",filename,strerror(errno));
-    exit(EXIT_FAILURE);
-   }
-
- /* Get the length of the file */
-
- if(fstat(fd,&buf))
-   {
-    close(fd);
-
-    fprintf(stderr,"Cannot stat file '%s' [%s].\n",filename,strerror(errno));
-    exit(EXIT_FAILURE);
-   }
+ size=SizeFile(filename);
 
  /* Map the file */
 
- address=mmap(NULL,buf.st_size,PROT_READ,MAP_SHARED,fd,0);
+ address=mmap(NULL,size,PROT_READ,MAP_SHARED,fd,0);
 
  if(address==MAP_FAILED)
    {
@@ -123,7 +109,7 @@ void *MapFile(const char *filename)
  mappedfiles[nmappedfiles].filename=filename;
  mappedfiles[nmappedfiles].fd=fd;
  mappedfiles[nmappedfiles].address=address;
- mappedfiles[nmappedfiles].length=buf.st_size;
+ mappedfiles[nmappedfiles].length=size;
 
  nmappedfiles++;
 
@@ -132,7 +118,7 @@ void *MapFile(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Unmap a file and optionally delete it.
+  Unmap a file.
 
   void *UnmapFile Returns NULL (for similarity to the MapFile function).
 
@@ -175,7 +161,7 @@ void *UnmapFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Open a new file on disk for writing to.
 
-  int OpenFile Returns the file descriptor if OK or something negative in case of an error.
+  int OpenFile Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to create.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -201,7 +187,7 @@ int OpenFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Open a new file on disk for reading and appending.
 
-  int AppendFile Returns the file descriptor if OK or something negative in case of an error.
+  int AppendFile Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to create.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -227,7 +213,7 @@ int AppendFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Open an existing file on disk for reading from.
 
-  int ReOpenFile Returns the file descriptor if OK or something negative in case of an error.
+  int ReOpenFile Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to open.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -297,16 +283,38 @@ int ReadFile(int fd,void *address,size_t length)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Get the size of a file.
+
+  off_t SizeFile Returns the file size.
+
+  const char *filename The name of the file to check.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+off_t SizeFile(const char *filename)
+{
+ struct stat buf;
+
+ if(stat(filename,&buf))
+   {
+    fprintf(stderr,"Cannot stat file '%s' [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ return(buf.st_size);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Seek to a position in a file on disk.
 
   int SeekFile Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to seek within.
 
-  size_t position The position to seek to.
+  off_t position The position to seek to.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int SeekFile(int fd,size_t position)
+int SeekFile(int fd,off_t position)
 {
  /* Seek the data */
 

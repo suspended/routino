@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.49 2010-03-19 19:47:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.50 2010-03-20 13:35:15 amb Exp $
 
  Extended Segment data type functions.
 
@@ -79,13 +79,13 @@ SegmentsX *NewSegmentList(int append)
 
  if(append)
    {
-    struct stat buf;
+    off_t size;
 
     segmentsx->fd=AppendFile(segmentsx->filename);
 
-    fstat(segmentsx->fd,&buf);
+    size=SizeFile(segmentsx->filename);
 
-    segmentsx->xnumber=buf.st_size/sizeof(SegmentX);
+    segmentsx->xnumber=size/sizeof(SegmentX);
    }
  else
     segmentsx->fd=OpenFile(segmentsx->filename);
