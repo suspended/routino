@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.66 2010-03-19 19:47:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.67 2010-03-20 11:38:05 amb Exp $
 
  OSM planet file splitter.
 
@@ -46,20 +46,19 @@ int option_slim=0;
 /*+ The name of the temporary directory. +*/
 char *option_tmpdirname=NULL;
 
-/*+ The options to only parse the input file or only process the resulting file. +*/
-int option_parse_only=0,option_process_only=0;
-
 
 int main(int argc,char** argv)
 {
- NodesX *Nodes;
+ NodesX    *Nodes;
  SegmentsX *Segments,*SuperSegments=NULL,*MergedSegments=NULL;
- WaysX *Ways;
- int iteration=0,quit=0;
- int max_iterations=10;
- char *dirname=NULL,*prefix=NULL;
- Profile profile={0};
- int i;
+ WaysX     *Ways;
+ int        iteration=0,quit=0;
+ int        max_iterations=10;
+ char      *dirname=NULL,*prefix=NULL;
+ int        option_parse_only=0,option_process_only=0;
+ int        option_filenames=0;
+ Profile    profile={0};
+ int        arg,i;
 
  /* Fill in the default profile. */
 
@@ -77,46 +76,46 @@ int main(int argc,char** argv)
 
  /* Parse the command line arguments */
 
- while(--argc>=1)
+ for(arg=1;arg<argc;arg++)
    {
-    if(!strcmp(argv[argc],"--help"))
+    if(!strcmp(argv[arg],"--help"))
        goto usage;
-    else if(!strcmp(argv[argc],"--slim"))
+    else if(!strcmp(argv[arg],"--slim"))
        option_slim=1;
-    else if(!strncmp(argv[argc],"--dir=",6))
-       dirname=&argv[argc][6];
-    else if(!strncmp(argv[argc],"--tmpdir=",9))
-       option_tmpdirname=&argv[argc][9];
-    else if(!strncmp(argv[argc],"--prefix=",9))
-       prefix=&argv[argc][9];
-    else if(!strcmp(argv[argc],"--parse-only"))
+    else if(!strncmp(argv[arg],"--dir=",6))
+       dirname=&argv[arg][6];
+    else if(!strncmp(argv[arg],"--tmpdir=",9))
+       option_tmpdirname=&argv[arg][9];
+    else if(!strncmp(argv[arg],"--prefix=",9))
+       prefix=&argv[arg][9];
+    else if(!strcmp(argv[arg],"--parse-only"))
        option_parse_only=1;
-    else if(!strcmp(argv[argc],"--process-only"))
+    else if(!strcmp(argv[arg],"--process-only"))
        option_process_only=1;
-    else if(!strncmp(argv[argc],"--max-iterations=",17))
-       max_iterations=atoi(&argv[argc][17]);
-    else if(!strncmp(argv[argc],"--transport=",12))
+    else if(!strncmp(argv[arg],"--max-iterations=",17))
+       max_iterations=atoi(&argv[arg][17]);
+    else if(!strncmp(argv[arg],"--transport=",12))
       {
-       Transport transport=TransportType(&argv[argc][12]);
+       Transport transport=TransportType(&argv[arg][12]);
        if(transport==Transport_None)
           goto usage;
        profile.allow|=ALLOWED(transport);
       }
-    else if(!strncmp(argv[argc],"--not-highway=",14))
+    else if(!strncmp(argv[arg],"--not-highway=",14))
       {
-       Highway highway=HighwayType(&argv[argc][14]);
+       Highway highway=HighwayType(&argv[arg][14]);
        if(highway==Way_Count)
           goto usage;
        profile.highway[highway]=0;
       }
-    else if(!strncmp(argv[argc],"--not-property=",15))
+    else if(!strncmp(argv[arg],"--not-property=",15))
       {
-       Property property=PropertyType(&argv[argc][15]);
+       Property property=PropertyType(&argv[arg][15]);
        if(property==Property_Count)
           goto usage;
        profile.props_yes[property]=0;
       }
-    else
+    else if(argv[arg][0]=='-' && argv[arg][1]=='-')
       {
       usage:
 
@@ -128,6 +127,7 @@ int main(int argc,char** argv)
                       "                      [--transport=<transport> ...]\n"
                       "                      [--not-highway=<highway> ...]\n"
                       "                      [--not-property=<property> ...]\n"
+                      "                      [<filename.osm> ...]\n"
                       "\n"
                       "<transport> defaults to all but can be set to:\n"
                       "%s"
@@ -141,9 +141,14 @@ int main(int argc,char** argv)
 
        return(1);
       }
+    else
+       option_filenames++;
    }
 
  if(option_parse_only && option_process_only)
+    goto usage;
+
+ if(option_filenames && option_process_only)
     goto usage;
 
  if(!option_tmpdirname)
@@ -167,7 +172,32 @@ int main(int argc,char** argv)
 
  /* Parse the file */
 
- if(!option_process_only)
+ if(option_filenames)
+   {
+    for(arg=1;arg<argc;arg++)
+      {
+       FILE *file;
+
+       if(argv[arg][0]=='-' && argv[arg][1]=='-')
+          continue;
+
+       file=fopen(argv[arg],"rb");
+
+       if(!file)
+         {
+          fprintf(stderr,"Cannot open file '%s' to read.\n",argv[arg]);
+          exit(EXIT_FAILURE);
+         }
+
+       printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
+       fflush(stdout);
+
+       ParseXML(file,Nodes,Segments,Ways,&profile);
+
+       fclose(file);
+      }
+   }
+ else if(!option_process_only)
    {
     printf("\nParse OSM Data\n==============\n\n");
     fflush(stdout);
