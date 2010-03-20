@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.49 2010-03-19 19:47:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.50 2010-03-20 13:35:15 amb Exp $
 
  Header file for function prototypes
 
@@ -25,6 +25,7 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H    /*+ To stop multiple inclusions. +*/
 
+#include <sys/types.h>
 #include <stdio.h>
 
 #include "types.h"
@@ -59,7 +60,9 @@ int ReOpenFile(const char *filename);
 
 int WriteFile(int fd,const void *address,size_t length);
 int ReadFile(int fd,void *address,size_t length);
-int SeekFile(int fd,size_t position);
+
+off_t SizeFile(const char *filename);
+int SeekFile(int fd,off_t position);
 
 void CloseFile(int fd);
 

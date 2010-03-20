@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.54 2010-03-19 19:47:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.55 2010-03-20 13:35:15 amb Exp $
 
  Extented Node data type functions.
 
@@ -82,13 +82,13 @@ NodesX *NewNodeList(int append)
 
  if(append)
    {
-    struct stat buf;
+    off_t size;
 
     nodesx->fd=AppendFile(nodesx->filename);
 
-    fstat(nodesx->fd,&buf);
+    size=SizeFile(nodesx->filename);
 
-    nodesx->xnumber=buf.st_size/sizeof(NodeX);
+    nodesx->xnumber=size/sizeof(NodeX);
    }
  else
     nodesx->fd=OpenFile(nodesx->filename);

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.35 2010-03-19 19:47:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.36 2010-03-20 13:35:15 amb Exp $
 
  Extended Way data type functions.
 
@@ -77,25 +77,24 @@ WaysX *NewWayList(int append)
 
  if(append)
    {
-    struct stat buf;
-    size_t position=0;
+    off_t size,position=0;
 
     waysx->fd=AppendFile(waysx->filename);
 
-    fstat(waysx->fd,&buf);
+    size=SizeFile(waysx->filename);
 
-    while(position<buf.st_size)
+    while(position<size)
       {
-       FILESORT_VARINT size;
+       FILESORT_VARINT waysize;
 
        SeekFile(waysx->fd,position);
-       ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
+       ReadFile(waysx->fd,&waysize,FILESORT_VARSIZE);
 
        waysx->xnumber++;
-       position+=size+FILESORT_VARSIZE;
+       position+=waysize+FILESORT_VARSIZE;
       }
 
-    SeekFile(waysx->fd,buf.st_size);
+    SeekFile(waysx->fd,size);
    }
  else
     waysx->fd=OpenFile(waysx->filename);

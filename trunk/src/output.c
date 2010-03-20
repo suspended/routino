@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.22 2010-03-20 12:24:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.23 2010-03-20 13:35:15 amb Exp $
 
  Routing output generator.
 
@@ -85,16 +85,16 @@ void PrintRouteHead(const char *copyright)
 
  if(copyright)
    {
-    struct stat buf;
+    FILE *file=fopen(copyright,"r");
 
-    if(!stat(copyright,&buf))
+    if(file)
       {
-       FILE *file=fopen(copyright,"r");
-       char *string=(char*)malloc(buf.st_size+1);
+       off_t size=SizeFile(copyright);
+       char *string=(char*)malloc(size+1);
        char *p;
 
-       fread(string,buf.st_size,1,file);
-       string[buf.st_size]=0;
+       fread(string,size,1,file);
+       string[size]=0;
 
        p=string;
        while(*p)
