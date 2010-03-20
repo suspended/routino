@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.21 2010-03-18 18:59:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.22 2010-03-20 12:24:20 amb Exp $
 
  Routing output generator.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009,2010 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <math.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -151,15 +152,15 @@ void PrintRouteHead(const char *copyright)
        textallfile =fopen("shortest-all.txt","w");
 
     if(option_html && !htmlfile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest.html' to write.\n");
+       fprintf(stderr,"Warning: Cannot open file 'shortest.html' for writing [%s].\n",strerror(errno));
     if(option_gpx_track && !gpxtrackfile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest-track.gpx' to write.\n");
+       fprintf(stderr,"Warning: Cannot open file 'shortest-track.gpx' for writing [%s].\n",strerror(errno));
     if(option_gpx_route && !gpxroutefile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest-route.gpx' to write.\n");
+       fprintf(stderr,"Warning: Cannot open file 'shortest-route.gpx' for writing [%s].\n",strerror(errno));
     if(option_text && !textfile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest.txt' to write.\n");
+       fprintf(stderr,"Warning: Cannot open file 'shortest.txt' for writing [%s].\n",strerror(errno));
     if(option_text_all && !textallfile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest-all.txt' to write.\n");
+       fprintf(stderr,"Warning: Cannot open file 'shortest-all.txt' for writing [%s].\n",strerror(errno));
    }
  else
    {
@@ -177,15 +178,15 @@ void PrintRouteHead(const char *copyright)
        textallfile =fopen("quickest-all.txt","w");
 
     if(option_html && !htmlfile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest.html' to write.\n");
+       fprintf(stderr,"Warning: Cannot open file 'quickest.html' for writing [%s].\n",strerror(errno));
     if(option_gpx_track && !gpxtrackfile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest-track.gpx' to write.\n");
+       fprintf(stderr,"Warning: Cannot open file 'quickest-track.gpx' for writing [%s].\n",strerror(errno));
     if(option_gpx_route && !gpxroutefile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest-route.gpx' to write.\n");
+       fprintf(stderr,"Warning: Cannot open file 'quickest-route.gpx' for writing [%s].\n",strerror(errno));
     if(option_text && !textfile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest.txt' to write.\n");
+       fprintf(stderr,"Warning: Cannot open file 'quickest.txt' for writing [%s].\n",strerror(errno));
     if(option_text_all && !textallfile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest-all.txt' to write.\n");
+       fprintf(stderr,"Warning: Cannot open file 'quickest-all.txt' for writing [%s].\n",strerror(errno));
    }
 
  /* Print the head of the files */
