@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.41 2009-12-15 18:44:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.42 2010-03-20 12:23:07 amb Exp $
 
  Way data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -46,9 +46,6 @@ Ways *LoadWayList(const char *filename)
  ways=(Ways*)malloc(sizeof(Ways));
 
  data=MapFile(filename);
-
- if(!data)
-    return(NULL);
 
  /* Copy the Ways structure from the loaded data */
 

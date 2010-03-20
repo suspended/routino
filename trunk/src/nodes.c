@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.35 2010-03-06 22:07:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.36 2010-03-20 12:23:07 amb Exp $
 
  Node data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009,2010 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -49,9 +49,6 @@ Nodes *LoadNodeList(const char *filename)
  nodes=(Nodes*)malloc(sizeof(Nodes));
 
  data=MapFile(filename);
-
- if(!data)
-    return(NULL);
 
  /* Copy the Nodes structure from the loaded data */
 
