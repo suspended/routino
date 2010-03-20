@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.23 2010-03-20 13:35:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.24 2010-03-20 20:15:10 amb Exp $
 
  Routing output generator.
 
@@ -422,19 +422,33 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           /* Print out the important points (junctions / waypoints) */
 
-          if(important>1 && important<10)
-            {
-             /* Don't print the intermediate finish points (the final finish point is special) */
-
-             if(gpxroutefile)
-                fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>TRIP%03d</name></rtept>\n",
-                        radians_to_degrees(latitude),radians_to_degrees(longitude),
-                        ++route_count);
-            }
-
           if(important>1)
             {
-             /* Do print the intermediate finish points (because they have correct junction distances) */
+             /* Print the intermediate finish points (because they have correct junction distances) */
+
+             if(gpxroutefile)
+               {
+                fprintf(gpxroutefile,"<desc>%s on '%s' for %.3f km, %.1f min</desc></rtept>\n",
+                        bearing_instruction[(4+(22+bearing_angle(nodes,result->segment,result->node))/45)%8],
+                        WayName(ways,resultway),
+                        distance_to_km(junc_distance),duration_to_minutes(junc_duration));
+
+                if(!nextresult)
+                  {
+                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>FINISH</name>\n",
+                           radians_to_degrees(finish_lat),radians_to_degrees(finish_lon));
+                   fprintf(gpxroutefile,"<desc>Total Journey %.1f km, %.0f min</desc></rtept>\n",
+                           distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                  }
+                else if(important==10)
+                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>INTER%d</name>\n",
+                           radians_to_degrees(latitude),radians_to_degrees(longitude),
+                           ++segment_count);
+                else
+                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>TRIP%03d</name>\n",
+                           radians_to_degrees(latitude),radians_to_degrees(longitude),
+                           ++route_count);
+               }
 
              if(htmlfile)
                {
@@ -445,7 +459,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 else
                    type="Junction";
 
-                fprintf(htmlfile,"<tr><td class='l'>Follow:<td class='r'>'%s' for <span class='d'>%6.3f km, %4.1f min</span> <span='td'>[%5.1f km, %4.0f min]</span>\n",
+                fprintf(htmlfile,"<tr><td class='l'>Follow:<td class='r'>'%s' for <span class='d'>%.3f km, %.1f min</span> <span='td'>[%.1f km, %.0f min]</span>\n",
                         WayName(ways,resultway),
                         distance_to_km(junc_distance),duration_to_minutes(junc_duration),
                         distance_to_km(cum_distance),duration_to_minutes(cum_duration));
@@ -525,7 +539,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                      bearing_instruction[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
 
           if(gpxroutefile)
-             fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>START</name></rtept>\n",
+             fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>START</name>\n",
                      radians_to_degrees(latitude),radians_to_degrees(longitude));
 
           if(textfile)
@@ -542,15 +556,6 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                      (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',"Waypt",
                      0.0,0.0,0.0,0.0);
          }
-       else
-         {
-          /* Print out the intermediate start points */
-
-          if(gpxroutefile)
-             fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>INTER%d</name></rtept>\n",
-                     radians_to_degrees(latitude),radians_to_degrees(longitude),
-                     ++segment_count);
-         }
 
        result=nextresult;
       }
@@ -561,12 +566,6 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
     point=nextpoint;
    }
-
- /* Print the very final point in the route */
-
- if(gpxroutefile)
-    fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>FINISH</name></rtept>\n",
-            radians_to_degrees(finish_lat),radians_to_degrees(finish_lon));
 }
 
 
