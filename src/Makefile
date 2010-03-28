@@ -1,10 +1,10 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.26 2009-12-12 11:09:16 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.27 2010-03-28 15:24:29 amb Exp $
 #
-# Makefile
+# Source code Makefile
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008,2009 Andrew M. Bishop
+# This file Copyright 2008-2010 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,8 @@
 CC=gcc
 LD=gcc
 
+LEX=flex
+
 # Program options
 
 CFLAGS=-Wall -Wmissing-prototypes
@@ -40,24 +42,29 @@ LDFLAGS+=
 #LDFLAGS+= -pg -static
 #LDFLAGS+= --coverage
 
+LEXFLAGS=
+FLEXFLAGS=-p -B -F -8 -s
+
 # Compilation targets
 
 C=$(wildcard *.c)
 D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
 
-########
-
 EXE=planetsplitter filedumper router
+
+########
 
 all : $(EXE)
 	-[ -d ../web/bin ] && cp $(EXE) ../web/bin
+	cd xml && make CC="$(CC)" LD="$(LD)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 ########
 
 PLANETSPLITTER_OBJ=planetsplitter.o \
 	           nodesx.o segmentsx.o waysx.o superx.o \
 	           ways.o \
-	           files.o profiles.o results.o queue.o sorting.o \
+	           files.o profiles.o \
+	           results.o queue.o sorting.o \
 	           osmparser.o
 
 planetsplitter : $(PLANETSPLITTER_OBJ)
@@ -77,10 +84,19 @@ filedumper : $(FILEDUMPER_OBJ)
 
 ROUTER_OBJ=router.o \
 	   nodes.o segments.o ways.o \
-	   files.o profiles.o optimiser.o output.o results.o queue.o
+	   files.o profiles.o xmlparse.o \
+	   optimiser.o output.o results.o queue.o
 
 router : $(ROUTER_OBJ)
 	$(LD) $(ROUTER_OBJ) -o $@ $(LDFLAGS)
+
+########
+
+xmlparse.c : xmlparse.l
+	[ ! "$(LEX)" = "flex" ] || $(LEX) $(FLEXFLAGS) $<
+	[   "$(LEX)" = "flex" ] || $(LEX) $(LEXFLAGS)  $<
+	-@mv lex.yy.c xmlparse.c
+	@echo Created xmlparse.c
 
 ########
 
