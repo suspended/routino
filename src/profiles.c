@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.30 2010-03-05 19:34:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.31 2010-03-28 17:50:06 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -23,6 +23,7 @@
 
 
 #include <stdio.h>
+#include <string.h>
 
 #include "profiles.h"
 #include "types.h"
@@ -608,6 +609,56 @@ void PrintProfile(const Profile *profile)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Print out the profiles as XML for use as program input.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void PrintProfilesXML(void)
+{
+ unsigned int i,j;
+ char *padding="                ";
+
+ printf("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+ printf("\n");
+
+ printf("<routino-profiles xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"routino-profiles.xsd\">\n");
+ printf("\n");
+
+ for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+   {
+    printf("  <profile name=\"%s\" transport=\"%s\">\n",TransportName(j),TransportName(j));
+
+    printf("    <speeds>\n");
+    for(i=1;i<Way_Count;i++)
+       printf("      <speed highway=\"%s\"%s kph=\"%d\" />\n",HighwayName(i),padding+3+strlen(HighwayName(i)),builtin_profiles[j].speed[i]);
+    printf("    </speeds>\n");
+
+    printf("    <preferences>\n");
+    for(i=1;i<Way_Count;i++)
+       printf("      <preference highway=\"%s\"%s percent=\"%.0f\" />\n",HighwayName(i),padding+3+strlen(HighwayName(i)),builtin_profiles[j].highway[i]);
+    printf("    </preferences>\n");
+
+    printf("    <properties>\n");
+    for(i=1;i<Property_Count;i++)
+       printf("      <property type=\"%s\"%s percent=\"%.0f\" />\n",PropertyName(i),padding+6+strlen(PropertyName(i)),builtin_profiles[j].props_yes[i]);
+    printf("    </properties>\n");
+
+    printf("    <restrictions>\n");
+    printf("      <oneway obey=\"%d\" /> \n",builtin_profiles[j].oneway);
+    printf("      <weight limit=\"%.1f\" />\n",weight_to_tonnes(builtin_profiles[j].weight));
+    printf("      <height limit=\"%.1f\" />\n",height_to_metres(builtin_profiles[j].height));
+    printf("      <width  limit=\"%.1f\" />\n",width_to_metres(builtin_profiles[j].width));
+    printf("      <length limit=\"%.1f\" />\n",length_to_metres(builtin_profiles[j].length));
+    printf("    </restrictions>\n");
+
+    printf("  </profile>\n");
+    printf("\n");
+   }
+
+ printf("</routino-profiles>\n");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Print out the profiles as Javascript for use in a web form.
   ++++++++++++++++++++++++++++++++++++++*/
 
@@ -615,7 +666,8 @@ void PrintProfilesJS(void)
 {
  unsigned int i,j;
 
- printf("var routino={ // contains all default Routino options (generated using \"--help-profile-js\").\n\n");
+ printf("var routino={ // contains all default Routino options (generated using \"--help-profile-js\").\n");
+ printf("\n");
 
  printf("  // Default transport type\n");
  printf("  transport: 'motorcar',\n");
@@ -719,7 +771,8 @@ void PrintProfilesPerl(void)
 {
  unsigned int i,j;
 
- printf("$routino={ # contains all default Routino options (generated using \"--help-profile-pl\").\n\n");
+ printf("$routino={ # contains all default Routino options (generated using \"--help-profile-pl\").\n");
+ printf("\n");
 
  printf("  # Default transport type\n");
  printf("  transport => 'motorcar',\n");
