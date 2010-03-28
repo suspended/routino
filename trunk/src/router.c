@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.71 2010-03-20 12:23:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.72 2010-03-28 17:50:17 amb Exp $
 
  OSM router.
 
@@ -68,7 +68,7 @@ int main(int argc,char** argv)
  Ways     *OSMWays;
  Results  *results[NWAYPOINTS+1]={NULL};
  int       point_used[NWAYPOINTS+1]={0};
- int       help_profile=0,help_profile_js=0,help_profile_pl=0;
+ int       help_profile=0,help_profile_xml=0,help_profile_js=0,help_profile_pl=0;
  char     *dirname=NULL,*prefix=NULL;
  int       exactnodes=0;
  Transport transport=Transport_None;
@@ -82,7 +82,8 @@ int main(int argc,char** argv)
    {
    usage:
 
-    fprintf(stderr,"Usage: router [--help | --help-profile | --help-profile-js | --help-profile-pl]\n"
+    fprintf(stderr,"Usage: router [--help | --help-profile | --help-profile-xml |\n"
+                   "                        --help-profile-js | --help-profile-pl ]\n"
                    "              [--dir=<name>] [--prefix=<name>]\n"
                    "              [--exact-nodes-only]\n"
                    "              [--quiet]\n"
@@ -144,6 +145,8 @@ int main(int argc,char** argv)
        goto usage;
     else if(!strcmp(argv[arg],"--help-profile"))
        help_profile=1;
+    else if(!strcmp(argv[arg],"--help-profile-xml"))
+       help_profile_xml=1;
     else if(!strcmp(argv[arg],"--help-profile-js"))
        help_profile_js=1;
     else if(!strcmp(argv[arg],"--help-profile-pl"))
@@ -303,6 +306,12 @@ int main(int argc,char** argv)
  if(help_profile)
    {
     PrintProfile(&profile);
+
+    return(0);
+   }
+ else if(help_profile_xml)
+   {
+    PrintProfilesXML();
 
     return(0);
    }

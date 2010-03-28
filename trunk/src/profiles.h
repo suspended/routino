@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.h,v 1.12 2009-11-25 15:00:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.h,v 1.13 2010-03-28 17:50:43 amb Exp $
 
  A header file for the profiles.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -64,6 +64,8 @@ Profile *GetProfile(Transport transport);
 void UpdateProfile(Profile *profile);
 
 void PrintProfile(const Profile *profile);
+
+void PrintProfilesXML(void);
 
 void PrintProfilesJS(void);
 
