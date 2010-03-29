@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.h,v 1.13 2010-03-28 17:50:43 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.h,v 1.14 2010-03-29 18:20:06 amb Exp $
 
  A header file for the profiles.
 
@@ -33,6 +33,8 @@
 /*+ A data structure to hold a transport type profile. +*/
 typedef struct _Profile
 {
+ char      *name;                      /*+ The name of the profile. +*/
+
  Transport  transport;                 /*+ The type of transport. +*/
 
  wayallow_t allow;                     /*+ The type of transport expressed as what must be allowed on a way. +*/
@@ -59,7 +61,9 @@ typedef struct _Profile
 
 /* Functions */
 
-Profile *GetProfile(Transport transport);
+int ParseXMLProfiles(const char *filename);
+
+Profile *GetProfile(const char *name);
 
 void UpdateProfile(Profile *profile);
 

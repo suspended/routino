@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.17 2010-03-20 13:35:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.18 2010-03-29 18:20:06 amb Exp $
 
  Functions to handle files.
 
@@ -301,6 +301,25 @@ off_t SizeFile(const char *filename)
    }
 
  return(buf.st_size);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Check if a file exists.
+
+  int ExistsFile Returns 1 if the file exists and 0 if not.
+
+  const char *filename The name of the file to check.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ExistsFile(const char *filename)
+{
+ struct stat buf;
+
+ if(stat(filename,&buf))
+    return(0);
+ else
+    return(1);
 }
 
 

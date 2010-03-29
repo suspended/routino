@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.50 2010-03-20 13:35:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.51 2010-03-29 18:20:06 amb Exp $
 
  Header file for function prototypes
 
@@ -62,6 +62,8 @@ int WriteFile(int fd,const void *address,size_t length);
 int ReadFile(int fd,void *address,size_t length);
 
 off_t SizeFile(const char *filename);
+int ExistsFile(const char *filename);
+
 int SeekFile(int fd,off_t position);
 
 void CloseFile(int fd);
