@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.1 2010-03-28 15:23:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.2 2010-03-29 18:13:20 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
 
@@ -168,9 +168,11 @@ val             ({alphanum}|{nonascii}|{safepunct})+
   FILE *file The file to parse.
 
   xmltag **tags The array of pointers to tags for the top level.
+
+  int ignore_unknown_attributes If set to 0 then exit if unknown attribute is seen, if sete to 1 then warn, if set to 2 then ignore.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ParseXML(FILE *file,xmltag **tags)
+void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 {
  int yychar,i;
 
@@ -302,8 +304,13 @@ void ParseXML(FILE *file,xmltag **tags)
 
        if(attribute==-1)
          {
-          fprintf(stderr,"XML Parser: Error unexpected attribute '%s' for tag '%s' on line %d.\n",yylval,tag->name,lineno);
-          exit(1);
+          if(ignore_unknown_attributes==0)
+            {
+             fprintf(stderr,"XML Parser: Error unexpected attribute '%s' for tag '%s' on line %d.\n",yylval,tag->name,lineno);
+             exit(1);
+            }
+          else if(ignore_unknown_attributes==1)
+             fprintf(stderr,"XML Parser: Warning unexpected attribute '%s' for tag '%s' on line %d.\n",yylval,tag->name,lineno);
          }
        break;
 
@@ -311,7 +318,7 @@ void ParseXML(FILE *file,xmltag **tags)
 
       case LEX_ATTR_VAL:
 
-       if(yylval)
+       if(yylval && attribute!=-1)
           attributes[attribute]=strcpy(malloc(strlen(yylval)+1),yylval);
       }
 
