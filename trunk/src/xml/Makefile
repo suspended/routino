@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.1 2010-03-28 15:23:03 amb Exp $
+# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.2 2010-03-29 18:16:35 amb Exp $
 #
 # XML test programs Makefile
 #
@@ -37,28 +37,37 @@ XMLDIR=../../xml
 X=$(notdir $(wildcard $(XMLDIR)/*.xsd))
 C=$(foreach f,$(X),$(addsuffix -skeleton.c,$(basename $f)))
 D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
+O=$(foreach f,$(C),$(addsuffix .o,$(basename $f)))
 E=$(foreach f,$(C),$(basename $f))
 
 EXE=xsd-to-xmlparser
 
 ########
 
-all : $(EXE) $(E)
+all : $(EXE) $(C) $(E)
 
 ########
 
 xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
-	$(LD) $(LDFLAGS) xsd-to-xmlparser.o ../xmlparse.o -o $@ $(LDFLAGS)
+	$(LD) xsd-to-xmlparser.o ../xmlparse.o -o $@ $(LDFLAGS)
 
 ########
-
-$(E) : $(C)
 
 %-skeleton.c : $(XMLDIR)/%.xsd xsd-to-xmlparser
 	./xsd-to-xmlparser < $< > $@
 
 %-skeleton : %-skeleton.o ../xmlparse.o
-	$(LD) $(LDFLAGS) $< ../xmlparse.o -o $@ $(LDFLAGS)
+	$(LD) $< ../xmlparse.o -o $@ $(LDFLAGS)
+
+.SECONDARY : $(O)
+
+########
+
+../xmlparse.o : ../xmlparse.c ../xmlparse.h
+	cd .. && $(MAKE) xmlparse.o
+
+../xmlparse.c : ../xmlparse.l
+	cd .. && $(MAKE) xmlparse.o
 
 ########
 
