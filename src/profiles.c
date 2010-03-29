@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.31 2010-03-28 17:50:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.32 2010-03-29 18:20:06 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -24,475 +24,300 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "profiles.h"
 #include "types.h"
 #include "ways.h"
+#include "xmlparse.h"
 
 
-/*+ The set of built-in profiles for different transport types. +*/
-static Profile builtin_profiles[]=
- {
-  /* The profile for travel by Foot */
+/*+ The profiles that have been loaded from file. +*/
+static Profile **loaded_profiles=NULL;
 
-  [Transport_Foot] = {
-                      .transport=Transport_Foot,
-                      .allow    =Allow_Foot,
-                      .highway  = {
-                                   [Way_Motorway    ] =   0,
-                                   [Way_Trunk       ] =  40,
-                                   [Way_Primary     ] =  50,
-                                   [Way_Secondary   ] =  60,
-                                   [Way_Tertiary    ] =  70,
-                                   [Way_Unclassified] =  80,
-                                   [Way_Residential ] =  90,
-                                   [Way_Service     ] =  90,
-                                   [Way_Track       ] =  95,
-                                   [Way_Cycleway    ] =  95,
-                                   [Way_Path        ] = 100,
-                                   [Way_Steps       ] =  80,
-                                  },
-                      .speed    = {
-                                   [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = kph_to_speed(4),
-                                   [Way_Primary     ] = kph_to_speed(4),
-                                   [Way_Secondary   ] = kph_to_speed(4),
-                                   [Way_Tertiary    ] = kph_to_speed(4),
-                                   [Way_Unclassified] = kph_to_speed(4),
-                                   [Way_Residential ] = kph_to_speed(4),
-                                   [Way_Service     ] = kph_to_speed(4),
-                                   [Way_Track       ] = kph_to_speed(4),
-                                   [Way_Cycleway    ] = kph_to_speed(4),
-                                   [Way_Path        ] = kph_to_speed(4),
-                                   [Way_Steps       ] = kph_to_speed(4),
-                                  },
-                      .props_yes= {
-                                   [Property_Paved    ] = 50,
-                                   [Property_Multilane] = 25,
-                                   [Property_Bridge   ] = 50,
-                                   [Property_Tunnel   ] = 50,
-                                  },
-                      .oneway   = 0,
-                      .weight   = 0,
-                      .height   = 0,
-                      .width    = 0,
-                      .length   = 0,
-                     },
+/*+ The number of profiles that have been loaded from file. +*/
+static int nloaded_profiles=0;
 
-  /* The profile for travel by Horse */
 
-  [Transport_Horse] = {
-                      .transport=Transport_Horse,
-                      .allow    =Allow_Horse,
-                      .highway  = {
-                                   [Way_Motorway    ] =   0,
-                                   [Way_Trunk       ] =  25,
-                                   [Way_Primary     ] =  50,
-                                   [Way_Secondary   ] =  50,
-                                   [Way_Tertiary    ] =  75,
-                                   [Way_Unclassified] =  75,
-                                   [Way_Residential ] =  75,
-                                   [Way_Service     ] =  75,
-                                   [Way_Track       ] = 100,
-                                   [Way_Cycleway    ] =  90,
-                                   [Way_Path        ] = 100,
-                                   [Way_Steps       ] =   0,
-                                  },
-                      .speed    = {
-                                   [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = kph_to_speed(8),
-                                   [Way_Primary     ] = kph_to_speed(8),
-                                   [Way_Secondary   ] = kph_to_speed(8),
-                                   [Way_Tertiary    ] = kph_to_speed(8),
-                                   [Way_Unclassified] = kph_to_speed(8),
-                                   [Way_Residential ] = kph_to_speed(8),
-                                   [Way_Service     ] = kph_to_speed(8),
-                                   [Way_Track       ] = kph_to_speed(8),
-                                   [Way_Cycleway    ] = kph_to_speed(8),
-                                   [Way_Path        ] = kph_to_speed(8),
-                                   [Way_Steps       ] = 0,
-                                  },
-                      .props_yes= {
-                                   [Property_Paved    ] = 20,
-                                   [Property_Multilane] = 25,
-                                   [Property_Bridge   ] = 50,
-                                   [Property_Tunnel   ] = 50,
-                                  },
-                      .oneway   = 1,
-                      .weight   = 0,
-                      .height   = 0,
-                      .width    = 0,
-                      .length   = 0,
-                     },
+/* The XML tag processing function prototypes */
 
-  /* The profile for travel by Wheelchair */
+static void profile_function(char *name,char *transport);
+static void length_function(char *limit);
+static void width_function(char *limit);
+static void height_function(char *limit);
+static void weight_function(char *limit);
+static void oneway_function(char *obey);
+static void property_function(char *type,char *percent);
+static void preference_function(char *highway,char *percent);
+static void speed_function(char *highway,char *kph);
 
-  [Transport_Wheelchair] = {
-                      .transport=Transport_Wheelchair,
-                      .allow    =Allow_Wheelchair,
-                      .highway  = {
-                                   [Way_Motorway    ] =   0,
-                                   [Way_Trunk       ] =  40,
-                                   [Way_Primary     ] =  50,
-                                   [Way_Secondary   ] =  60,
-                                   [Way_Tertiary    ] =  70,
-                                   [Way_Unclassified] =  80,
-                                   [Way_Residential ] =  90,
-                                   [Way_Service     ] =  90,
-                                   [Way_Track       ] =  95,
-                                   [Way_Cycleway    ] =  95,
-                                   [Way_Path        ] = 100,
-                                   [Way_Steps       ] =   0,
-                                  },
-                      .speed    = {
-                                   [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = kph_to_speed(4),
-                                   [Way_Primary     ] = kph_to_speed(4),
-                                   [Way_Secondary   ] = kph_to_speed(4),
-                                   [Way_Tertiary    ] = kph_to_speed(4),
-                                   [Way_Unclassified] = kph_to_speed(4),
-                                   [Way_Residential ] = kph_to_speed(4),
-                                   [Way_Service     ] = kph_to_speed(4),
-                                   [Way_Track       ] = kph_to_speed(4),
-                                   [Way_Cycleway    ] = kph_to_speed(4),
-                                   [Way_Path        ] = kph_to_speed(4),
-                                   [Way_Steps       ] = kph_to_speed(4),
-                                  },
-                      .props_yes= {
-                                   [Property_Paved    ] = 90,
-                                   [Property_Multilane] = 25,
-                                   [Property_Bridge   ] = 50,
-                                   [Property_Tunnel   ] = 50,
-                                  },
-                      .oneway   = 0,
-                      .weight   = 0,
-                      .height   = 0,
-                      .width    = 0,
-                      .length   = 0,
-                     },
 
-  /* The profile for travel by Bicycle */
+/* The XML tag definitions */
 
-  [Transport_Bicycle] = {
-                      .transport=Transport_Bicycle,
-                      .allow    =Allow_Bicycle,
-                      .highway  = {
-                                   [Way_Motorway    ] =   0,
-                                   [Way_Trunk       ] =  30,
-                                   [Way_Primary     ] =  70,
-                                   [Way_Secondary   ] =  80,
-                                   [Way_Tertiary    ] =  90,
-                                   [Way_Unclassified] =  90,
-                                   [Way_Residential ] =  90,
-                                   [Way_Service     ] =  90,
-                                   [Way_Track       ] =  90,
-                                   [Way_Cycleway    ] = 100,
-                                   [Way_Path        ] =  90,
-                                   [Way_Steps       ] =   0,
-                                  },
-                      .speed    = {
-                                   [Way_Motorway    ] = 0,
-                                   [Way_Trunk       ] = kph_to_speed(20),
-                                   [Way_Primary     ] = kph_to_speed(20),
-                                   [Way_Secondary   ] = kph_to_speed(20),
-                                   [Way_Tertiary    ] = kph_to_speed(20),
-                                   [Way_Unclassified] = kph_to_speed(20),
-                                   [Way_Residential ] = kph_to_speed(20),
-                                   [Way_Service     ] = kph_to_speed(20),
-                                   [Way_Track       ] = kph_to_speed(20),
-                                   [Way_Cycleway    ] = kph_to_speed(20),
-                                   [Way_Path        ] = kph_to_speed(20),
-                                   [Way_Steps       ] = 0,
-                                  },
-                      .props_yes= {
-                                   [Property_Paved    ] = 50,
-                                   [Property_Multilane] = 25,
-                                   [Property_Bridge   ] = 50,
-                                   [Property_Tunnel   ] = 50,
-                                  },
-                      .oneway   = 1,
-                      .weight   = 0,
-                      .height   = 0,
-                      .width    = 0,
-                      .length   = 0,
-                     },
+/*+ The speedType type tag. +*/
+static xmltag speed_tag=
+              {"speed",
+               {"highway","kph",NULL},
+               speed_function,
+               {NULL}};
 
-  /* The profile for travel by Moped */
+/*+ The speedsType type tag. +*/
+static xmltag speeds_tag=
+              {"speeds",
+               {NULL},
+               NULL,
+               {&speed_tag,NULL}};
 
-  [Transport_Moped] = {
-                      .transport=Transport_Moped,
-                      .allow    =Allow_Moped,
-                      .highway  = {
-                                   [Way_Motorway    ] =   0,
-                                   [Way_Trunk       ] =  90,
-                                   [Way_Primary     ] = 100,
-                                   [Way_Secondary   ] =  90,
-                                   [Way_Tertiary    ] =  80,
-                                   [Way_Unclassified] =  70,
-                                   [Way_Residential ] =  60,
-                                   [Way_Service     ] =  80,
-                                   [Way_Track       ] =   0,
-                                   [Way_Cycleway    ] =   0,
-                                   [Way_Path        ] =   0,
-                                   [Way_Steps       ] =   0,
-                                  },
-                      .speed    = {
-                                   [Way_Motorway    ] = kph_to_speed(30*1.6),
-                                   [Way_Trunk       ] = kph_to_speed(30*1.6),
-                                   [Way_Primary     ] = kph_to_speed(30*1.6),
-                                   [Way_Secondary   ] = kph_to_speed(30*1.6),
-                                   [Way_Tertiary    ] = kph_to_speed(30*1.6),
-                                   [Way_Unclassified] = kph_to_speed(30*1.6),
-                                   [Way_Residential ] = kph_to_speed(30*1.6),
-                                   [Way_Service     ] = kph_to_speed(20*1.6),
-                                   [Way_Track       ] = kph_to_speed(10*1.6),
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Steps       ] = 0,
-                                  },
-                      .props_yes= {
-                                   [Property_Paved    ] = 100,
-                                   [Property_Multilane] = 25,
-                                   [Property_Bridge   ] = 50,
-                                   [Property_Tunnel   ] = 50,
-                                  },
-                      .oneway   = 1,
-                      .weight   = 0,
-                      .height   = 0,
-                      .width    = 0,
-                      .length   = 0,
-                     },
+/*+ The preferenceType type tag. +*/
+static xmltag preference_tag=
+              {"preference",
+               {"highway","percent",NULL},
+               preference_function,
+               {NULL}};
 
-  /* The profile for travel by Motorbike */
+/*+ The preferencesType type tag. +*/
+static xmltag preferences_tag=
+              {"preferences",
+               {NULL},
+               NULL,
+               {&preference_tag,NULL}};
 
-  [Transport_Motorbike] = {
-                      .transport=Transport_Motorbike,
-                      .allow    =Allow_Motorbike,
-                      .highway  = {
-                                   [Way_Motorway    ] = 100,
-                                   [Way_Trunk       ] = 100,
-                                   [Way_Primary     ] =  90,
-                                   [Way_Secondary   ] =  80,
-                                   [Way_Tertiary    ] =  70,
-                                   [Way_Unclassified] =  60,
-                                   [Way_Residential ] =  50,
-                                   [Way_Service     ] =  80,
-                                   [Way_Track       ] =   0,
-                                   [Way_Cycleway    ] =   0,
-                                   [Way_Path        ] =   0,
-                                   [Way_Steps       ] =   0,
-                                  },
-                      .speed    = {
-                                   [Way_Motorway    ] = kph_to_speed(70*1.6),
-                                   [Way_Trunk       ] = kph_to_speed(60*1.6),
-                                   [Way_Primary     ] = kph_to_speed(60*1.6),
-                                   [Way_Secondary   ] = kph_to_speed(55*1.6),
-                                   [Way_Tertiary    ] = kph_to_speed(50*1.6),
-                                   [Way_Unclassified] = kph_to_speed(40*1.6),
-                                   [Way_Residential ] = kph_to_speed(30*1.6),
-                                   [Way_Service     ] = kph_to_speed(20*1.6),
-                                   [Way_Track       ] = kph_to_speed(10*1.6),
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Steps       ] = 0,
-                                  },
-                      .props_yes= {
-                                   [Property_Paved    ] = 100,
-                                   [Property_Multilane] = 75,
-                                   [Property_Bridge   ] = 50,
-                                   [Property_Tunnel   ] = 50,
-                                  },
-                      .oneway   = 1,
-                      .weight   = 0,
-                      .height   = 0,
-                      .width    = 0,
-                      .length   = 0,
-                     },
+/*+ The propertyType type tag. +*/
+static xmltag property_tag=
+              {"property",
+               {"type","percent",NULL},
+               property_function,
+               {NULL}};
 
-  /* The profile for travel by Motorcar */
+/*+ The onewayType type tag. +*/
+static xmltag oneway_tag=
+              {"oneway",
+               {"obey",NULL},
+               oneway_function,
+               {NULL}};
 
-  [Transport_Motorcar] = {
-                      .transport=Transport_Motorcar,
-                      .allow    =Allow_Motorcar,
-                      .highway  = {
-                                   [Way_Motorway    ] = 100,
-                                   [Way_Trunk       ] = 100,
-                                   [Way_Primary     ] =  90,
-                                   [Way_Secondary   ] =  80,
-                                   [Way_Tertiary    ] =  70,
-                                   [Way_Unclassified] =  60,
-                                   [Way_Residential ] =  50,
-                                   [Way_Service     ] =  80,
-                                   [Way_Track       ] =   0,
-                                   [Way_Cycleway    ] =   0,
-                                   [Way_Path        ] =   0,
-                                   [Way_Steps       ] =   0,
-                                  },
-                      .speed    = {
-                                   [Way_Motorway    ] = kph_to_speed(70*1.6),
-                                   [Way_Trunk       ] = kph_to_speed(60*1.6),
-                                   [Way_Primary     ] = kph_to_speed(60*1.6),
-                                   [Way_Secondary   ] = kph_to_speed(55*1.6),
-                                   [Way_Tertiary    ] = kph_to_speed(50*1.6),
-                                   [Way_Unclassified] = kph_to_speed(40*1.6),
-                                   [Way_Residential ] = kph_to_speed(30*1.6),
-                                   [Way_Service     ] = kph_to_speed(20*1.6),
-                                   [Way_Track       ] = kph_to_speed(10*1.6),
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Steps       ] = 0,
-                                  },
-                      .props_yes= {
-                                   [Property_Paved    ] = 100,
-                                   [Property_Multilane] = 75,
-                                   [Property_Bridge   ] = 50,
-                                   [Property_Tunnel   ] = 50,
-                                  },
-                      .oneway   = 1,
-                      .weight   = 0,
-                      .height   = 0,
-                      .width    = 0,
-                      .length   = 0,
-                     },
+/*+ The propertiesType type tag. +*/
+static xmltag properties_tag=
+              {"properties",
+               {NULL},
+               NULL,
+               {&property_tag,NULL}};
 
-  /* The profile for travel by Goods */
+/*+ The weightType type tag. +*/
+static xmltag weight_tag=
+              {"weight",
+               {"limit",NULL},
+               weight_function,
+               {NULL}};
 
-  [Transport_Goods] = {
-                      .transport=Transport_Goods,
-                      .allow    =Allow_Goods,
-                      .highway  = {
-                                   [Way_Motorway    ] = 100,
-                                   [Way_Trunk       ] = 100,
-                                   [Way_Primary     ] =  90,
-                                   [Way_Secondary   ] =  80,
-                                   [Way_Tertiary    ] =  70,
-                                   [Way_Unclassified] =  60,
-                                   [Way_Residential ] =  50,
-                                   [Way_Service     ] =  80,
-                                   [Way_Track       ] =   0,
-                                   [Way_Cycleway    ] =   0,
-                                   [Way_Path        ] =   0,
-                                   [Way_Steps       ] =   0,
-                                  },
-                      .speed    = {
-                                   [Way_Motorway    ] = kph_to_speed(60*1.6),
-                                   [Way_Trunk       ] = kph_to_speed(60*1.6),
-                                   [Way_Primary     ] = kph_to_speed(60*1.6),
-                                   [Way_Secondary   ] = kph_to_speed(55*1.6),
-                                   [Way_Tertiary    ] = kph_to_speed(50*1.6),
-                                   [Way_Unclassified] = kph_to_speed(40*1.6),
-                                   [Way_Residential ] = kph_to_speed(30*1.6),
-                                   [Way_Service     ] = kph_to_speed(20*1.6),
-                                   [Way_Track       ] = kph_to_speed(10*1.6),
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Steps       ] = 0,
-                                  },
-                      .props_yes= {
-                                   [Property_Paved    ] = 100,
-                                   [Property_Multilane] = 75,
-                                   [Property_Bridge   ] = 50,
-                                   [Property_Tunnel   ] = 50,
-                                  },
-                      .oneway   = 1,
-                      .weight   = tonnes_to_weight(5),
-                      .height   = metres_to_height(2.5),
-                      .width    = metres_to_width (2),
-                      .length   = metres_to_length(5),
-                     },
+/*+ The heightType type tag. +*/
+static xmltag height_tag=
+              {"height",
+               {"limit",NULL},
+               height_function,
+               {NULL}};
 
-  /* The profile for travel by HGV */
+/*+ The widthType type tag. +*/
+static xmltag width_tag=
+              {"width",
+               {"limit",NULL},
+               width_function,
+               {NULL}};
 
-  [Transport_HGV] = {
-                      .transport=Transport_HGV,
-                      .allow    =Allow_HGV,
-                      .highway  = {
-                                   [Way_Motorway    ] = 100,
-                                   [Way_Trunk       ] = 100,
-                                   [Way_Primary     ] =  90,
-                                   [Way_Secondary   ] =  80,
-                                   [Way_Tertiary    ] =  70,
-                                   [Way_Unclassified] =  60,
-                                   [Way_Residential ] =  50,
-                                   [Way_Service     ] =  80,
-                                   [Way_Track       ] =   0,
-                                   [Way_Cycleway    ] =   0,
-                                   [Way_Path        ] =   0,
-                                   [Way_Steps       ] =   0,
-                                  },
-                      .speed    = {
-                                   [Way_Motorway    ] = kph_to_speed(56*1.6),
-                                   [Way_Trunk       ] = kph_to_speed(50*1.6),
-                                   [Way_Primary     ] = kph_to_speed(50*1.6),
-                                   [Way_Secondary   ] = kph_to_speed(50*1.6),
-                                   [Way_Tertiary    ] = kph_to_speed(50*1.6),
-                                   [Way_Unclassified] = kph_to_speed(40*1.6),
-                                   [Way_Residential ] = kph_to_speed(30*1.6),
-                                   [Way_Service     ] = kph_to_speed(20*1.6),
-                                   [Way_Track       ] = kph_to_speed(10*1.6),
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Steps       ] = 0,
-                                  },
-                      .props_yes= {
-                                   [Property_Paved    ] = 100,
-                                   [Property_Multilane] = 75,
-                                   [Property_Bridge   ] = 50,
-                                   [Property_Tunnel   ] = 50,
-                                  },
-                      .oneway   = 1,
-                      .weight   = tonnes_to_weight(10),
-                      .height   = metres_to_height(3),
-                      .width    = metres_to_width (2.5),
-                      .length   = metres_to_length(6),
-                     },
+/*+ The lengthType type tag. +*/
+static xmltag length_tag=
+              {"length",
+               {"limit",NULL},
+               length_function,
+               {NULL}};
 
-  /* The profile for travel by PSV */
+/*+ The restrictionsType type tag. +*/
+static xmltag restrictions_tag=
+              {"restrictions",
+               {NULL},
+               NULL,
+               {&oneway_tag,&weight_tag,&height_tag,&width_tag,&length_tag,NULL}};
 
-  [Transport_PSV] = {
-                      .transport=Transport_PSV,
-                      .allow    =Allow_PSV,
-                      .highway  = {
-                                   [Way_Motorway    ] = 100,
-                                   [Way_Trunk       ] = 100,
-                                   [Way_Primary     ] =  90,
-                                   [Way_Secondary   ] =  80,
-                                   [Way_Tertiary    ] =  70,
-                                   [Way_Unclassified] =  60,
-                                   [Way_Residential ] =  50,
-                                   [Way_Service     ] =  80,
-                                   [Way_Track       ] =   0,
-                                   [Way_Cycleway    ] =   0,
-                                   [Way_Path        ] =   0,
-                                   [Way_Steps       ] =   0,
-                                  },
-                      .speed    = {
-                                   [Way_Motorway    ] = kph_to_speed(56*1.6),
-                                   [Way_Trunk       ] = kph_to_speed(50*1.6),
-                                   [Way_Primary     ] = kph_to_speed(50*1.6),
-                                   [Way_Secondary   ] = kph_to_speed(50*1.6),
-                                   [Way_Tertiary    ] = kph_to_speed(50*1.6),
-                                   [Way_Unclassified] = kph_to_speed(40*1.6),
-                                   [Way_Residential ] = kph_to_speed(30*1.6),
-                                   [Way_Service     ] = kph_to_speed(20*1.6),
-                                   [Way_Track       ] = kph_to_speed(10*1.6),
-                                   [Way_Cycleway    ] = 0,
-                                   [Way_Path        ] = 0,
-                                   [Way_Steps       ] = 0,
-                                  },
-                      .props_yes= {
-                                   [Property_Paved    ] = 100,
-                                   [Property_Multilane] = 75,
-                                   [Property_Bridge   ] = 50,
-                                   [Property_Tunnel   ] = 50,
-                                  },
-                      .oneway   = 1,
-                      .weight   = tonnes_to_weight(15),
-                      .height   = metres_to_height(3),
-                      .width    = metres_to_width (2.5),
-                      .length   = metres_to_length(6),
-                     },
- };
+/*+ The profileType type tag. +*/
+static xmltag profile_tag=
+              {"profile",
+               {"name","transport",NULL},
+               profile_function,
+               {&speeds_tag,&preferences_tag,&properties_tag,&restrictions_tag,NULL}};
+
+/*+ The RoutinoProfilesType type tag. +*/
+static xmltag routino_profiles_tag=
+              {"routino-profiles",
+               {NULL},
+               NULL,
+               {&profile_tag,NULL}};
+
+/*+ The ?xmlType type tag. +*/
+static xmltag _xml_tag=
+              {"?xml",
+               {"version","encoding",NULL},
+               NULL,
+               {NULL}};
+
+
+/*+ The complete set of tags at the top level. +*/
+static xmltag *xml_toplevel_tags[]={&_xml_tag,&routino_profiles_tag,NULL};
+
+
+/* The XML tag processing functions */
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the speedType type is seen
+
+  char *highway The contents of the 'highway' attribute (or NULL if not defined).
+
+  char *kph The contents of the 'kph' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void speed_function(char *highway,char *kph)
+{
+ Highway highwaytype=HighwayType(highway);
+
+ loaded_profiles[nloaded_profiles-1]->speed[highwaytype]=kph_to_speed(atoi(kph));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the preferenceType type is seen
+
+  char *highway The contents of the 'highway' attribute (or NULL if not defined).
+
+  char *percent The contents of the 'percent' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void preference_function(char *highway,char *percent)
+{
+ Highway highwaytype=HighwayType(highway);
+
+ loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=atoi(percent);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the propertyType type is seen
+
+  char *type The contents of the 'type' attribute (or NULL if not defined).
+
+  char *percent The contents of the 'percent' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void property_function(char *type,char *percent)
+{
+ Property property=PropertyType(type);
+
+ loaded_profiles[nloaded_profiles-1]->props_yes[property]=atoi(percent);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the onewayType type is seen
+
+  char *obey The contents of the 'obey' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void oneway_function(char *obey)
+{
+ loaded_profiles[nloaded_profiles-1]->oneway=!!atoi(obey);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the weightType type is seen
+
+  char *limit The contents of the 'limit' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void weight_function(char *limit)
+{
+ loaded_profiles[nloaded_profiles-1]->weight=tonnes_to_weight(atof(limit));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the heightType type is seen
+
+  char *limit The contents of the 'limit' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void height_function(char *limit)
+{
+ loaded_profiles[nloaded_profiles-1]->height=metres_to_height(atof(limit));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the widthType type is seen
+
+  char *limit The contents of the 'limit' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void width_function(char *limit)
+{
+ loaded_profiles[nloaded_profiles-1]->width=metres_to_width(atof(limit));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the lengthType type is seen
+
+  char *limit The contents of the 'limit' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void length_function(char *limit)
+{
+ loaded_profiles[nloaded_profiles-1]->length=metres_to_length(atof(limit));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the profileType type is seen
+
+  char *name The contents of the 'name' attribute (or NULL if not defined).
+
+  char *transport The contents of the 'transport' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void profile_function(char *name,char *transport)
+{
+ if((nloaded_profiles%16)==0)
+    loaded_profiles=(Profile**)realloc((void*)loaded_profiles,(nloaded_profiles+16)*sizeof(Profile*));
+
+ nloaded_profiles++;
+
+ loaded_profiles[nloaded_profiles-1]=(Profile*)calloc(1,sizeof(Profile));
+
+ loaded_profiles[nloaded_profiles-1]->name=strcpy(malloc(strlen(name)+1),name);
+ loaded_profiles[nloaded_profiles-1]->transport=TransportType(transport);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The XML profile parser.
+
+  int ParseXMLProfiles Returns 0 if OK or something else in case of an error.
+
+  const char *filename The name of the file to read.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseXMLProfiles(const char *filename)
+{
+ FILE *file=fopen(filename,"r");
+
+ if(!file)
+    return(1);
+
+ ParseXML(file,xml_toplevel_tags,2);
+
+ fclose(file);
+
+ return(0);
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -500,12 +325,18 @@ static Profile builtin_profiles[]=
 
   Profile *GetProfile Returns a pointer to the profile.
 
-  Transport transport The type of transport.
+  const char *name The name of the profile.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Profile *GetProfile(Transport transport)
+Profile *GetProfile(const char *name)
 {
- return(&builtin_profiles[transport]);
+ int i;
+
+ for(i=0;i<nloaded_profiles;i++)
+    if(!strcmp(loaded_profiles[i]->name,name))
+       return(loaded_profiles[i]);
+
+ return(NULL);
 }
 
 
@@ -519,6 +350,8 @@ void UpdateProfile(Profile *profile)
 {
  score_t hmax=0;
  int i;
+
+ profile->allow=ALLOWED(profile->transport);
 
  /* Normalise the highway preferences into the range 0 -> 1 */
 
@@ -623,31 +456,31 @@ void PrintProfilesXML(void)
  printf("<routino-profiles xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"routino-profiles.xsd\">\n");
  printf("\n");
 
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
+ for(j=0;j<nloaded_profiles;j++)
    {
-    printf("  <profile name=\"%s\" transport=\"%s\">\n",TransportName(j),TransportName(j));
+    printf("  <profile name=\"%s\" transport=\"%s\">\n",loaded_profiles[j]->name,TransportName(loaded_profiles[j]->transport));
 
     printf("    <speeds>\n");
     for(i=1;i<Way_Count;i++)
-       printf("      <speed highway=\"%s\"%s kph=\"%d\" />\n",HighwayName(i),padding+3+strlen(HighwayName(i)),builtin_profiles[j].speed[i]);
+       printf("      <speed highway=\"%s\"%s kph=\"%d\" />\n",HighwayName(i),padding+3+strlen(HighwayName(i)),loaded_profiles[j]->speed[i]);
     printf("    </speeds>\n");
 
     printf("    <preferences>\n");
     for(i=1;i<Way_Count;i++)
-       printf("      <preference highway=\"%s\"%s percent=\"%.0f\" />\n",HighwayName(i),padding+3+strlen(HighwayName(i)),builtin_profiles[j].highway[i]);
+       printf("      <preference highway=\"%s\"%s percent=\"%.0f\" />\n",HighwayName(i),padding+3+strlen(HighwayName(i)),loaded_profiles[j]->highway[i]);
     printf("    </preferences>\n");
 
     printf("    <properties>\n");
     for(i=1;i<Property_Count;i++)
-       printf("      <property type=\"%s\"%s percent=\"%.0f\" />\n",PropertyName(i),padding+6+strlen(PropertyName(i)),builtin_profiles[j].props_yes[i]);
+       printf("      <property type=\"%s\"%s percent=\"%.0f\" />\n",PropertyName(i),padding+6+strlen(PropertyName(i)),loaded_profiles[j]->props_yes[i]);
     printf("    </properties>\n");
 
     printf("    <restrictions>\n");
-    printf("      <oneway obey=\"%d\" /> \n",builtin_profiles[j].oneway);
-    printf("      <weight limit=\"%.1f\" />\n",weight_to_tonnes(builtin_profiles[j].weight));
-    printf("      <height limit=\"%.1f\" />\n",height_to_metres(builtin_profiles[j].height));
-    printf("      <width  limit=\"%.1f\" />\n",width_to_metres(builtin_profiles[j].width));
-    printf("      <length limit=\"%.1f\" />\n",length_to_metres(builtin_profiles[j].length));
+    printf("      <oneway obey=\"%d\" /> \n",loaded_profiles[j]->oneway);
+    printf("      <weight limit=\"%.1f\" />\n",weight_to_tonnes(loaded_profiles[j]->weight));
+    printf("      <height limit=\"%.1f\" />\n",height_to_metres(loaded_profiles[j]->height));
+    printf("      <width  limit=\"%.1f\" />\n",width_to_metres(loaded_profiles[j]->width));
+    printf("      <length limit=\"%.1f\" />\n",length_to_metres(loaded_profiles[j]->length));
     printf("    </restrictions>\n");
 
     printf("  </profile>\n");
@@ -675,8 +508,8 @@ void PrintProfilesJS(void)
 
  printf("  // Transport types\n");
  printf("  transports: {");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %d",j==1?"":", ",TransportName(j),j);
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s%s: %d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),j);
  printf("},\n");
  printf("\n");
 
@@ -703,8 +536,8 @@ void PrintProfilesJS(void)
  for(i=1;i<Way_Count;i++)
    {
     printf("    %12s: {",HighwayName(i));
-    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s%s: %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].highway[i]);
+    for(j=0;j<nloaded_profiles;j++)
+       printf("%s%s: %3d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->highway[i]);
     printf("}%s\n",i==(Way_Count-1)?"":",");
    }
  printf("     },\n");
@@ -715,8 +548,8 @@ void PrintProfilesJS(void)
  for(i=1;i<Way_Count;i++)
    {
     printf("    %12s: {",HighwayName(i));
-    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s%s: %3d",j==1?"":", ",TransportName(j),builtin_profiles[j].speed[i]);
+    for(j=0;j<nloaded_profiles;j++)
+       printf("%s%s: %3d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),loaded_profiles[j]->speed[i]);
     printf("}%s\n",i==(Way_Count-1)?"":",");
    }
  printf("     },\n");
@@ -727,8 +560,8 @@ void PrintProfilesJS(void)
  for(i=1;i<Property_Count;i++)
    {
     printf("    %12s: {",PropertyName(i));
-    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s%s: %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].props_yes[i]);
+    for(j=0;j<nloaded_profiles;j++)
+       printf("%s%s: %3d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->props_yes[i]);
     printf("}%s\n",i==(Property_Count-1)?"":",");
    }
  printf("     },\n");
@@ -737,24 +570,24 @@ void PrintProfilesJS(void)
  printf("  // Restrictions\n");
  printf("  profile_restrictions: {\n");
  printf("    %12s: {","oneway");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %4d",j==1?"":", ",TransportName(j),builtin_profiles[j].oneway);
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s%s: %4d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),loaded_profiles[j]->oneway);
  printf("},\n");
  printf("    %12s: {","weight");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %4.1f",j==1?"":", ",TransportName(j),weight_to_tonnes(builtin_profiles[j].weight));
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s%s: %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),weight_to_tonnes(loaded_profiles[j]->weight));
  printf("},\n");
  printf("    %12s: {","height");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %4.1f",j==1?"":", ",TransportName(j),height_to_metres(builtin_profiles[j].height));
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s%s: %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),height_to_metres(loaded_profiles[j]->height));
  printf("},\n");
  printf("    %12s: {","width");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %4.1f",j==1?"":", ",TransportName(j),width_to_metres(builtin_profiles[j].width));
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s%s: %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),width_to_metres(loaded_profiles[j]->width));
  printf("},\n");
  printf("    %12s: {","length");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s: %4.1f",j==1?"":", ",TransportName(j),length_to_metres(builtin_profiles[j].length));
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s%s: %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),length_to_metres(loaded_profiles[j]->length));
  printf("}\n");
  printf("     }\n");
  printf("\n");
@@ -780,8 +613,8 @@ void PrintProfilesPerl(void)
 
  printf("  # Transport types\n");
  printf("  transports => {");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s%s => %d",j==1?"":", ",TransportName(j),j);
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s%s => %d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),j);
  printf("},\n");
  printf("\n");
 
@@ -808,8 +641,8 @@ void PrintProfilesPerl(void)
  for(i=1;i<Way_Count;i++)
    {
     printf("  %12s => {",HighwayName(i));
-    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s %s => %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].highway[i]);
+    for(j=0;j<nloaded_profiles;j++)
+       printf("%s %s => %3d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->highway[i]);
     printf("}%s\n",i==(Way_Count-1)?"":",");
    }
  printf("     },\n");
@@ -820,8 +653,8 @@ void PrintProfilesPerl(void)
  for(i=1;i<Way_Count;i++)
    {
     printf("  %12s => {",HighwayName(i));
-    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s %s => %3d",j==1?"":", ",TransportName(j),builtin_profiles[j].speed[i]);
+    for(j=0;j<nloaded_profiles;j++)
+       printf("%s %s => %3d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),loaded_profiles[j]->speed[i]);
     printf("}%s\n",i==(Way_Count-1)?"":",");
    }
  printf("     },\n");
@@ -832,8 +665,8 @@ void PrintProfilesPerl(void)
  for(i=1;i<Property_Count;i++)
    {
     printf("  %12s => {",PropertyName(i));
-    for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-       printf("%s %s => %3d",j==1?"":", ",TransportName(j),(int)builtin_profiles[j].props_yes[i]);
+    for(j=0;j<nloaded_profiles;j++)
+       printf("%s %s => %3d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->props_yes[i]);
     printf("}%s\n",i==(Property_Count-1)?"":",");
    }
  printf("     },\n");
@@ -842,24 +675,24 @@ void PrintProfilesPerl(void)
  printf("  # Restrictions\n");
  printf("  profile_restrictions => {\n");
  printf("    %12s => {","oneway");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s %s => %4d",j==1?"":", ",TransportName(j),builtin_profiles[j].oneway);
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s %s => %4d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),loaded_profiles[j]->oneway);
  printf("},\n");
  printf("    %12s => {","weight");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s %s => %4.1f",j==1?"":", ",TransportName(j),weight_to_tonnes(builtin_profiles[j].weight));
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s %s => %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),weight_to_tonnes(loaded_profiles[j]->weight));
  printf("},\n");
  printf("    %12s => {","height");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s %s => %4.1f",j==1?"":", ",TransportName(j),height_to_metres(builtin_profiles[j].height));
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s %s => %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),height_to_metres(loaded_profiles[j]->height));
  printf("},\n");
  printf("    %12s => {","width");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s %s => %4.1f",j==1?"":", ",TransportName(j),width_to_metres(builtin_profiles[j].width));
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s %s => %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),width_to_metres(loaded_profiles[j]->width));
  printf("},\n");
  printf("    %12s => {","length");
- for(j=1;j<sizeof(builtin_profiles)/sizeof(builtin_profiles[0]);j++)
-    printf("%s %s => %4.1f",j==1?"":", ",TransportName(j),length_to_metres(builtin_profiles[j].length));
+ for(j=0;j<nloaded_profiles;j++)
+    printf("%s %s => %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),length_to_metres(loaded_profiles[j]->length));
  printf("}\n");
  printf("     },\n");
  printf("\n");

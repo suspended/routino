@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.72 2010-03-28 17:50:17 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.73 2010-03-29 18:20:06 amb Exp $
 
  OSM router.
 
@@ -69,10 +69,10 @@ int main(int argc,char** argv)
  Results  *results[NWAYPOINTS+1]={NULL};
  int       point_used[NWAYPOINTS+1]={0};
  int       help_profile=0,help_profile_xml=0,help_profile_js=0,help_profile_pl=0;
- char     *dirname=NULL,*prefix=NULL;
+ char     *dirname=NULL,*prefix=NULL,*profiles=NULL,*profilename=NULL;
  int       exactnodes=0;
  Transport transport=Transport_None;
- Profile   profile;
+ Profile  *profile;
  index_t   start=NO_NODE,finish=NO_NODE;
  int       arg,point;
 
@@ -84,12 +84,13 @@ int main(int argc,char** argv)
 
     fprintf(stderr,"Usage: router [--help | --help-profile | --help-profile-xml |\n"
                    "                        --help-profile-js | --help-profile-pl ]\n"
-                   "              [--dir=<name>] [--prefix=<name>]\n"
+                   "              [--dir=<dirname>] [--prefix=<name>] [--profiles=<filename>]\n"
                    "              [--exact-nodes-only]\n"
                    "              [--quiet]\n"
                    "              [--output-html]\n"
                    "              [--output-gpx-track] [--output-gpx-route]\n"
                    "              [--output-text] [--output-text-all]\n"
+                   "              [--profile=<profile-name>]\n"
                    "              [--shortest | --quickest]\n"
                    "              --lon1=<longitude> --lat1=<latitude>\n"
                    "              --lon2=<longitude> --lon2=<latitude>\n"
@@ -121,23 +122,7 @@ int main(int argc,char** argv)
     return(1);
    }
 
- /* Get the transport type if specified and fill in the default profile */
-
- for(arg=1;arg<argc;arg++)
-    if(!strncmp(argv[arg],"--transport=",12))
-      {
-       transport=TransportType(&argv[arg][12]);
-
-       if(transport==Transport_None)
-          goto usage;
-      }
-
- if(transport==Transport_None)
-    transport=Transport_Motorcar;
-
- profile=*GetProfile(transport);
-
- /* Parse the other command line arguments */
+ /* Get the non-routing, general program options */
 
  for(arg=1;arg<argc;arg++)
    {
@@ -155,6 +140,8 @@ int main(int argc,char** argv)
        dirname=&argv[arg][6];
     else if(!strncmp(argv[arg],"--prefix=",9))
        prefix=&argv[arg][9];
+    else if(!strncmp(argv[arg],"--profiles=",11))
+       profiles=&argv[arg][11];
     else if(!strcmp(argv[arg],"--exact-nodes-only"))
        exactnodes=1;
     else if(!strcmp(argv[arg],"--quiet"))
@@ -169,6 +156,55 @@ int main(int argc,char** argv)
        option_text=1;
     else if(!strcmp(argv[arg],"--output-text-all"))
        option_text_all=1;
+    else if(!strncmp(argv[arg],"--profile=",10))
+       profilename=&argv[arg][10];
+    else if(!strncmp(argv[arg],"--transport=",12))
+      {
+       transport=TransportType(&argv[arg][12]);
+
+       if(transport==Transport_None)
+          goto usage;
+      }
+    else
+       continue;
+
+    argv[arg]=NULL;
+   }
+
+ /* Load in the profiles */
+
+ if(transport==Transport_None)
+    transport=Transport_Motorcar;
+
+ if(profiles && ExistsFile(profiles))
+    ;
+ else if(!profiles && ExistsFile(FileName(dirname,prefix,"profiles.xml")))
+    profiles=FileName(dirname,prefix,"profiles.xml");
+
+ if(profiles && ParseXMLProfiles(profiles))
+   {
+    fprintf(stderr,"Error: Cannot read the profiles in the file '%s'.\n",profiles);
+    return(1);
+   }
+
+ if(profilename)
+    profile=GetProfile(profilename);
+
+ if(!profile)
+    profile=GetProfile(TransportName(transport));
+
+ if(!profile)
+   {
+    profile=(Profile*)calloc(1,sizeof(Profile));
+    profile->transport=transport;
+   }
+
+ /* Parse the other command line arguments */
+
+ for(arg=1;arg<argc;arg++)
+   {
+    if(!argv[arg])
+       continue;
     else if(!strcmp(argv[arg],"--shortest"))
        option_quickest=0;
     else if(!strcmp(argv[arg],"--quickest"))
@@ -239,7 +275,7 @@ int main(int argc,char** argv)
        if(highway==Way_Count)
           goto usage;
 
-       profile.highway[highway]=atof(equal+1);
+       profile->highway[highway]=atof(equal+1);
 
        free(string);
       }
@@ -260,7 +296,7 @@ int main(int argc,char** argv)
        if(highway==Way_Count)
           goto usage;
 
-       profile.speed[highway]=kph_to_speed(atof(equal+1));
+       profile->speed[highway]=kph_to_speed(atof(equal+1));
 
        free(string);
       }
@@ -281,20 +317,20 @@ int main(int argc,char** argv)
        if(property==Way_Count)
           goto usage;
 
-       profile.props_yes[property]=atof(equal+1);
+       profile->props_yes[property]=atof(equal+1);
 
        free(string);
       }
     else if(!strncmp(argv[arg],"--oneway=",9))
-       profile.oneway=!!atoi(&argv[arg][9]);
+       profile->oneway=!!atoi(&argv[arg][9]);
     else if(!strncmp(argv[arg],"--weight=",9))
-       profile.weight=tonnes_to_weight(atof(&argv[arg][9]));
+       profile->weight=tonnes_to_weight(atof(&argv[arg][9]));
     else if(!strncmp(argv[arg],"--height=",9))
-       profile.height=metres_to_height(atof(&argv[arg][9]));
+       profile->height=metres_to_height(atof(&argv[arg][9]));
     else if(!strncmp(argv[arg],"--width=",8))
-       profile.width=metres_to_width(atof(&argv[arg][8]));
+       profile->width=metres_to_width(atof(&argv[arg][8]));
     else if(!strncmp(argv[arg],"--length=",9))
-       profile.length=metres_to_length(atof(&argv[arg][9]));
+       profile->length=metres_to_length(atof(&argv[arg][9]));
     else
        goto usage;
    }
@@ -305,7 +341,7 @@ int main(int argc,char** argv)
 
  if(help_profile)
    {
-    PrintProfile(&profile);
+    PrintProfile(profile);
 
     return(0);
    }
@@ -328,7 +364,7 @@ int main(int argc,char** argv)
     return(0);
    }
 
- UpdateProfile(&profile);
+ UpdateProfile(profile);
 
  /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
 
@@ -338,7 +374,7 @@ int main(int argc,char** argv)
 
  OSMWays=LoadWayList(FileName(dirname,prefix,"ways.mem"));
 
- if(!(profile.allow & OSMWays->allow))
+ if(!(profile->allow & OSMWays->allow))
    {
     fprintf(stderr,"Error: Database was not generated for selected transport.\n");
     return(1);
@@ -366,13 +402,13 @@ int main(int argc,char** argv)
 
     if(exactnodes)
       {
-       finish=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,&profile,&distmin);
+       finish=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin);
       }
     else
       {
        distance_t dist1,dist2;
 
-       segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,&profile,&distmin,&node1,&node2,&dist1,&dist2);
+       segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2);
 
        finish=CreateFakes(OSMNodes,point,segment,node1,node2,dist1,dist2);
       }
@@ -419,7 +455,7 @@ int main(int argc,char** argv)
       }
     else
       {
-       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,start,&profile);
+       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,start,profile);
 
        if(!begin)
          {
@@ -460,7 +496,7 @@ int main(int argc,char** argv)
          }
        else
          {
-          end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,finish,&profile);
+          end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,finish,profile);
 
           if(!end)
             {
@@ -471,7 +507,7 @@ int main(int argc,char** argv)
 
        /* Calculate the middle of the route */
 
-       superresults=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,begin,end,&profile);
+       superresults=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,begin,end,profile);
 
        FreeResultsList(begin);
        FreeResultsList(end);
@@ -482,7 +518,7 @@ int main(int argc,char** argv)
           return(1);
          }
 
-       results[point]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,&profile);
+       results[point]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,profile);
 
        FreeResultsList(superresults);
       }
@@ -492,7 +528,7 @@ int main(int argc,char** argv)
 
  PrintRouteHead(FileName(dirname,prefix,"copyright.txt"));
 
- PrintRoute(results,NWAYPOINTS,OSMNodes,OSMSegments,OSMWays,&profile);
+ PrintRoute(results,NWAYPOINTS,OSMNodes,OSMSegments,OSMWays,profile);
 
  PrintRouteTail();
 
