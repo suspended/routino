@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.27 2010-03-28 15:24:29 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.28 2010-03-29 18:18:54 amb Exp $
 #
 # Source code Makefile
 #
@@ -56,7 +56,7 @@ EXE=planetsplitter filedumper router
 
 all : $(EXE)
 	-[ -d ../web/bin ] && cp $(EXE) ../web/bin
-	cd xml && make CC="$(CC)" LD="$(LD)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
+	cd xml && $(MAKE) CC="$(CC)" LD="$(LD)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 ########
 
@@ -108,6 +108,7 @@ xmlparse.c : xmlparse.l
 clean:
 	rm -f *.o
 	rm -f *~
+	cd xml && $(MAKE) clean
 
 ########
 
@@ -116,6 +117,7 @@ distclean: clean
 	-rm -f $(EXE)
 	-rm -f $(D)
 	-rm -fr .deps
+	cd xml && $(MAKE) distclean
 
 ########
 
