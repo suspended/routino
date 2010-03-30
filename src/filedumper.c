@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.38 2010-03-20 12:23:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.39 2010-03-30 17:58:35 amb Exp $
 
  Memory file dumper.
 
@@ -44,6 +44,13 @@ static void print_node(Nodes* nodes,index_t item);
 static void print_segment(Segments *segments,index_t item);
 static void print_way(Ways *ways,index_t item);
 
+static void print_usage(int detail);
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The main program for the router.
+  ++++++++++++++++++++++++++++++++++++++*/
+
 int main(int argc,char** argv)
 {
  Nodes    *OSMNodes;
@@ -63,7 +70,7 @@ int main(int argc,char** argv)
  for(arg=1;arg<argc;arg++)
    {
     if(!strcmp(argv[arg],"--help"))
-       goto usage;
+       print_usage(1);
     else if(!strncmp(argv[arg],"--dir=",6))
        dirname=&argv[arg][6];
     else if(!strncmp(argv[arg],"--prefix=",9))
@@ -91,35 +98,11 @@ int main(int argc,char** argv)
     else if(!strncmp(argv[arg],"--way=",6))
        ;
     else
-      {
-      usage:
-
-       fprintf(stderr,"Usage: filedumper [--help]\n"
-                      "                  [--dir=<name>] [--prefix=<name>]\n"
-                      "                  [--statistics]\n"
-                      "                  [--visualiser --latmin=<latmin> --latmax=<latmax>\n"
-                      "                                --lonmin=<lonmin> --lonmax=<lonmax>\n"
-                      "                                --data=<data-type>]\n"
-                      "                  [--dump --node=<node> ...\n"
-                      "                          --segment=<segment> ...\n"
-                      "                          --way=<way> ...]\n"
-                      "\n"
-                      "<data-type> can be selected from:\n"
-                      "junctions = segment count at each junction.\n"
-                      "super     = super-node and super-segments.\n"
-                      "oneway    = oneway segments.\n"
-                      "speed     = speed limits.\n"
-                      "weight    = weight limits.\n"
-                      "height    = height limits.\n"
-                      "width     = width limits.\n"
-                      "length    = length limits.\n");
-
-       return(1);
-      }
+       print_usage(0);
    }
 
  if(!option_statistics && !option_visualiser && !option_dump)
-    goto usage;
+    print_usage(0);
 
  /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
 
@@ -425,4 +408,59 @@ static char *RFC822Date(time_t t)
          );
 
  return(value);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the usage information.
+
+  int detail The level of detail to use - 0 = low, 1 = high.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_usage(int detail)
+{
+ fprintf(stderr,
+         "Usage: filedumper [--help]\n"
+         "                  [--dir=<dirname>] [--prefix=<name>]\n"
+         "                  [--statistics]\n"
+         "                  [--visualiser --latmin=<latmin> --latmax=<latmax>\n"
+         "                                --lonmin=<lonmin> --lonmax=<lonmax>\n"
+         "                                --data=<data-type>]\n"
+         "                  [--dump [--node=<node> ...]\n"
+         "                          [--segment=<segment> ...]\n"
+         "                          [--way=<way> ...]]\n");
+
+ if(detail)
+    fprintf(stderr,
+            "\n"
+            "--help                    Prints this information.\n"
+            "\n"
+            "--dir=<dirname>           The directory containing the routing database.\n"
+            "--prefix=<name>           The filename prefix for the routing database.\n"
+            "\n"
+            "--statistics              Print statistics about the routing database.\n"
+            "\n"
+            "--visualiser              Extract selected data from the routing database:\n"
+            "  --latmin=<latmin>       * the minimum latitude (degrees N).\n"
+            "  --latmax=<latmax>       * the maximum latitude (degrees N).\n"
+            "  --lonmin=<lonmin>       * the minimum longitude (degrees E).\n"
+            "  --lonmax=<lonmax>       * the maximum longitude (degrees E).\n"
+            "  --data=<data-type>      * the type of data to select.\n"
+            "\n"
+            "  <data-type> can be selected from:\n"
+            "      junctions = segment count at each junction.\n"
+            "      super     = super-node and super-segments.\n"
+            "      oneway    = oneway segments.\n"
+            "      speed     = speed limits.\n"
+            "      weight    = weight limits.\n"
+            "      height    = height limits.\n"
+            "      width     = width limits.\n"
+            "      length    = length limits.\n"
+            "\n"
+            "--dump                    Dump selected contents of the database.\n"
+            "  --node=<node>           * the node with the selected number.\n"
+            "  --segment=<segment>     * the segment with the selected number.\n"
+            "  --way=<way>             * the way with the selected number.\n");
+
+ exit(!detail);
 }

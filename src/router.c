@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.73 2010-03-29 18:20:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.74 2010-03-30 17:58:35 amb Exp $
 
  OSM router.
 
@@ -61,6 +61,15 @@ int option_html=0,option_gpx_track=0,option_gpx_route=0,option_text=0,option_tex
 int option_quickest=0;
 
 
+/* Local functions */
+
+static void print_usage(int detail);
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The main program for the router.
+  ++++++++++++++++++++++++++++++++++++++*/
+
 int main(int argc,char** argv)
 {
  Nodes    *OSMNodes;
@@ -68,73 +77,32 @@ int main(int argc,char** argv)
  Ways     *OSMWays;
  Results  *results[NWAYPOINTS+1]={NULL};
  int       point_used[NWAYPOINTS+1]={0};
- int       help_profile=0,help_profile_xml=0,help_profile_js=0,help_profile_pl=0;
+ int       help_profile=0,help_profile_xml=0,help_profile_json=0,help_profile_pl=0;
  char     *dirname=NULL,*prefix=NULL,*profiles=NULL,*profilename=NULL;
  int       exactnodes=0;
  Transport transport=Transport_None;
- Profile  *profile;
+ Profile  *profile=NULL;
  index_t   start=NO_NODE,finish=NO_NODE;
  int       arg,point;
 
  /* Parse the command line arguments */
 
  if(argc<2)
-   {
-   usage:
-
-    fprintf(stderr,"Usage: router [--help | --help-profile | --help-profile-xml |\n"
-                   "                        --help-profile-js | --help-profile-pl ]\n"
-                   "              [--dir=<dirname>] [--prefix=<name>] [--profiles=<filename>]\n"
-                   "              [--exact-nodes-only]\n"
-                   "              [--quiet]\n"
-                   "              [--output-html]\n"
-                   "              [--output-gpx-track] [--output-gpx-route]\n"
-                   "              [--output-text] [--output-text-all]\n"
-                   "              [--profile=<profile-name>]\n"
-                   "              [--shortest | --quickest]\n"
-                   "              --lon1=<longitude> --lat1=<latitude>\n"
-                   "              --lon2=<longitude> --lon2=<latitude>\n"
-                   "              [ ... --lon99=<longitude> --lon99=<latitude>]\n"
-                   "              [--transport=<transport>]\n"
-                   "              [--highway-<highway>=<preference> ...]\n"
-                   "              [--speed-<highway>=<speed> ...]\n"
-                   "              [--property-<property>=<preference> ...]\n"
-                   "              [--oneway=[0|1]]\n"
-                   "              [--weight=<weight>]\n"
-                   "              [--height=<height>] [--width=<width>] [--length=<length>]\n"
-                   "\n"
-                   "<transport> defaults to motorcar but can be set to:\n"
-                   "%s"
-                   "\n"
-                   "<highway> can be selected from:\n"
-                   "%s"
-                   "\n"
-                   "<property> can be selected from:\n"
-                   "%s"
-                   "\n"
-                   "<preference> is a preference expressed as a percentage\n"
-                   "<speed> is a speed in km/hour\n"
-                   "<weight> is a weight in tonnes\n"
-                   "<height>, <width>, <length> are dimensions in metres\n"
-                   "\n",
-            TransportList(),HighwayList(),PropertyList());
-
-    return(1);
-   }
+    print_usage(0);
 
  /* Get the non-routing, general program options */
 
  for(arg=1;arg<argc;arg++)
    {
     if(!strcmp(argv[arg],"--help"))
-       goto usage;
+       print_usage(1);
     else if(!strcmp(argv[arg],"--help-profile"))
        help_profile=1;
     else if(!strcmp(argv[arg],"--help-profile-xml"))
        help_profile_xml=1;
-    else if(!strcmp(argv[arg],"--help-profile-js"))
-       help_profile_js=1;
-    else if(!strcmp(argv[arg],"--help-profile-pl"))
+    else if(!strcmp(argv[arg],"--help-profile-json"))
+       help_profile_json=1;
+    else if(!strcmp(argv[arg],"--help-profile-perl"))
        help_profile_pl=1;
     else if(!strncmp(argv[arg],"--dir=",6))
        dirname=&argv[arg][6];
@@ -163,7 +131,7 @@ int main(int argc,char** argv)
        transport=TransportType(&argv[arg][12]);
 
        if(transport==Transport_None)
-          goto usage;
+         print_usage(0);
       }
     else
        continue;
@@ -187,10 +155,23 @@ int main(int argc,char** argv)
     return(1);
    }
 
+ if(!profiles && profile)
+   {
+    fprintf(stderr,"Error: Cannot use '--profile' option without reading some profiles.\n");
+    return(1);
+   }
+
  if(profilename)
+   {
     profile=GetProfile(profilename);
 
- if(!profile)
+    if(!profile)
+      {
+       fprintf(stderr,"Error: Cannot find a profile called '%s' in '%s'.\n",profilename,profiles);
+       return(1);
+      }
+   }
+ else
     profile=GetProfile(TransportName(transport));
 
  if(!profile)
@@ -233,11 +214,11 @@ int main(int argc,char** argv)
         char *p=&argv[arg][6];
         while(isdigit(*p)) p++;
         if(*p++!='=')
-           goto usage;
+           print_usage(0);
  
         point=atoi(&argv[arg][5]);
         if(point>NWAYPOINTS || point_used[point]&1)
-           goto usage;
+           print_usage(0);
  
        point_lon[point]=degrees_to_radians(atof(p));
        point_used[point]+=1;
@@ -247,11 +228,11 @@ int main(int argc,char** argv)
         char *p=&argv[arg][6];
         while(isdigit(*p)) p++;
         if(*p++!='=')
-           goto usage;
+           print_usage(0);
  
         point=atoi(&argv[arg][5]);
         if(point>NWAYPOINTS || point_used[point]&2)
-           goto usage;
+           print_usage(0);
  
        point_lat[point]=degrees_to_radians(atof(p));
        point_used[point]+=2;
@@ -265,7 +246,7 @@ int main(int argc,char** argv)
        char *string;
 
        if(!equal)
-          goto usage;
+           print_usage(0);
 
        string=strcpy((char*)malloc(strlen(argv[arg])),argv[arg]+10);
        string[equal-argv[arg]-10]=0;
@@ -273,7 +254,7 @@ int main(int argc,char** argv)
        highway=HighwayType(string);
 
        if(highway==Way_Count)
-          goto usage;
+          print_usage(0);
 
        profile->highway[highway]=atof(equal+1);
 
@@ -286,7 +267,7 @@ int main(int argc,char** argv)
        char *string;
 
        if(!equal)
-          goto usage;
+          print_usage(0);
 
        string=strcpy((char*)malloc(strlen(argv[arg])),argv[arg]+8);
        string[equal-argv[arg]-8]=0;
@@ -294,7 +275,7 @@ int main(int argc,char** argv)
        highway=HighwayType(string);
 
        if(highway==Way_Count)
-          goto usage;
+          print_usage(0);
 
        profile->speed[highway]=kph_to_speed(atof(equal+1));
 
@@ -307,7 +288,7 @@ int main(int argc,char** argv)
        char *string;
 
        if(!equal)
-          goto usage;
+          print_usage(0);
 
        string=strcpy((char*)malloc(strlen(argv[arg])),argv[arg]+11);
        string[equal-argv[arg]-11]=0;
@@ -315,7 +296,7 @@ int main(int argc,char** argv)
        property=PropertyType(string);
 
        if(property==Way_Count)
-          goto usage;
+          print_usage(0);
 
        profile->props_yes[property]=atof(equal+1);
 
@@ -332,12 +313,12 @@ int main(int argc,char** argv)
     else if(!strncmp(argv[arg],"--length=",9))
        profile->length=metres_to_length(atof(&argv[arg][9]));
     else
-       goto usage;
+       print_usage(0);
    }
 
  for(point=1;point<=NWAYPOINTS;point++)
     if(point_used[point]==1 || point_used[point]==2)
-       goto usage;
+       print_usage(0);
 
  if(help_profile)
    {
@@ -351,9 +332,9 @@ int main(int argc,char** argv)
 
     return(0);
    }
- else if(help_profile_js)
+ else if(help_profile_json)
    {
-    PrintProfilesJS();
+    PrintProfilesJSON();
 
     return(0);
    }
@@ -697,4 +678,92 @@ Segment *ExtraFakeSegment(index_t node,index_t fakenode)
     return(&fake_segments[2*realnode-1]);
 
  return(NULL);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the usage information.
+
+  int detail The level of detail to use - 0 = low, 1 = high.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_usage(int detail)
+{
+ fprintf(stderr,
+         "Usage: router [--help | --help-profile | --help-profile-xml |\n"
+         "                        --help-profile-json | --help-profile-perl ]\n"
+         "              [--dir=<dirname>] [--prefix=<name>] [--profiles=<filename>]\n"
+         "              [--exact-nodes-only]\n"
+         "              [--quiet]\n"
+         "              [--output-html]\n"
+         "              [--output-gpx-track] [--output-gpx-route]\n"
+         "              [--output-text] [--output-text-all]\n"
+         "              [--profile=<name>]\n"
+         "              [--transport=<transport>]\n"
+         "              [--shortest | --quickest]\n"
+         "              --lon1=<longitude> --lat1=<latitude>\n"
+         "              --lon2=<longitude> --lon2=<latitude>\n"
+         "              [ ... --lon99=<longitude> --lon99=<latitude>]\n"
+         "              [--highway-<highway>=<preference> ...]\n"
+         "              [--speed-<highway>=<speed> ...]\n"
+         "              [--property-<property>=<preference> ...]\n"
+         "              [--oneway=(0|1)]\n"
+         "              [--weight=<weight>]\n"
+         "              [--height=<height>] [--width=<width>] [--length=<length>]\n");
+
+ if(detail)
+    fprintf(stderr,
+            "\n"
+            "--help                  Prints this information.\n"
+            "--help-profile          Prints the information about the selected profile.\n"
+            "--help-profile-xml      Prints all loaded profiles in XML format.\n"
+            "--help-profile-json     Prints all loaded profiles in JSON format.\n"
+            "--help-profile-perl     Prints all loaded profiles in Perl format.\n"
+            "\n"
+            "--dir=<dirname>         The directory containing the routing database.\n"
+            "--prefix=<name>         The filename prefix for the routing database.\n"
+            "--profiles=<filename>   The name of the profiles (defaults to 'profiles.xml'\n"
+            "                        with '--dirname' and '--prefix' options).\n"
+            "\n"
+            "--exact-nodes-only      Only route between nodes (don't find closest segment).\n"
+            "\n"
+            "--quiet                 Don't print any output when running.\n"
+            "--output-html           Write an HTML description of the route.\n"
+            "--output-gpx-track      Write a GPX track file with all route points.\n"
+            "--output-gpx-route      Write a GPX route file with interesting junctions.\n"
+            "--output-text           Write a plain text file with interesting junctions.\n"
+            "--output-text-all       Write a plain test file with all route points.\n"
+            "                        (If no output option is given then all are written.)\n"
+            "\n"
+            "--profile=<name>        Select the loaded profile with this name.\n"
+            "--transport=<transport> Select the transport to use (selects the profile\n"
+            "                        named after the transport if '--profile' is not used.)\n"
+            "\n"
+            "--shortest              Find the shortest route between the waypoints.\n"
+            "--quickest              Find the quickest route between the waypoints.\n"
+            "\n"
+            "--lon<n>=<longitude>    Specify the longitude of the n'th waypoint.\n"
+            "--lat<n>=<latitude>     Specify the latitude of the n'th waypoint.\n"
+            "\n"
+            "                                   Routing preference options\n"
+            "--highway-<highway>=<preference>   * preference for highway type (%%).\n"
+            "--speed-<highway>=<speed>          * speed for highway type (km/h).\n"
+            "--property-<property>=<preference> * preference for proprty type (%%).\n"
+            "--oneway=(0|1)                     * oneway streets are to be obeyed.\n"
+            "--weight=<weight>                  * maximum weight limit (tonnes).\n"
+            "--height=<height>                  * maximum height limit (metres).\n"
+            "--width=<width>                    * maximum width limit (metres).\n"
+            "--length=<length>                  * maximum length limit (metres).\n"
+            "\n"
+            "<transport> defaults to motorcar but can be set to:\n"
+            "%s"
+            "\n"
+            "<highway> can be selected from:\n"
+            "%s"
+            "\n"
+            "<property> can be selected from:\n"
+            "%s",
+            TransportList(),HighwayList(),PropertyList());
+
+ exit(!detail);
 }

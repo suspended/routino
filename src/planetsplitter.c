@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.68 2010-03-20 12:24:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.69 2010-03-30 17:58:35 amb Exp $
 
  OSM planet file splitter.
 
@@ -48,6 +48,15 @@ int option_slim=0;
 char *option_tmpdirname=NULL;
 
 
+/* Local functions */
+
+static void print_usage(int detail);
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The main program for the router.
+  ++++++++++++++++++++++++++++++++++++++*/
+
 int main(int argc,char** argv)
 {
  NodesX    *Nodes;
@@ -80,7 +89,7 @@ int main(int argc,char** argv)
  for(arg=1;arg<argc;arg++)
    {
     if(!strcmp(argv[arg],"--help"))
-       goto usage;
+       print_usage(1);
     else if(!strcmp(argv[arg],"--slim"))
        option_slim=1;
     else if(!strncmp(argv[arg],"--dir=",6))
@@ -99,58 +108,34 @@ int main(int argc,char** argv)
       {
        Transport transport=TransportType(&argv[arg][12]);
        if(transport==Transport_None)
-          goto usage;
+          print_usage(0);
        profile.allow|=ALLOWED(transport);
       }
     else if(!strncmp(argv[arg],"--not-highway=",14))
       {
        Highway highway=HighwayType(&argv[arg][14]);
        if(highway==Way_Count)
-          goto usage;
+          print_usage(0);
        profile.highway[highway]=0;
       }
     else if(!strncmp(argv[arg],"--not-property=",15))
       {
        Property property=PropertyType(&argv[arg][15]);
        if(property==Property_Count)
-          goto usage;
+          print_usage(0);
        profile.props_yes[property]=0;
       }
     else if(argv[arg][0]=='-' && argv[arg][1]=='-')
-      {
-      usage:
-
-       fprintf(stderr,"Usage: planetsplitter [--help]\n"
-                      "                      [--dir=<name>] [--prefix=<name>]\n"
-                      "                      [--slim] [--tmpdir=<name>]\n"
-                      "                      [--parse-only | --process-only]\n"
-                      "                      [--max-iterations=<number>]\n"
-                      "                      [--transport=<transport> ...]\n"
-                      "                      [--not-highway=<highway> ...]\n"
-                      "                      [--not-property=<property> ...]\n"
-                      "                      [<filename.osm> ...]\n"
-                      "\n"
-                      "<transport> defaults to all but can be set to:\n"
-                      "%s"
-                      "\n"
-                      "<highway> can be selected from:\n"
-                      "%s"
-                      "\n"
-                      "<property> can be selected from:\n"
-                      "%s",
-               TransportList(),HighwayList(),PropertyList());
-
-       return(1);
-      }
+       print_usage(0);
     else
        option_filenames++;
    }
 
  if(option_parse_only && option_process_only)
-    goto usage;
+    print_usage(0);
 
  if(option_filenames && option_process_only)
-    goto usage;
+    print_usage(0);
 
  if(!option_tmpdirname)
    {
@@ -365,4 +350,60 @@ int main(int argc,char** argv)
  FreeWayList(Ways,0);
 
  return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the usage information.
+
+  int detail The level of detail to use - 0 = low, 1 = high.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_usage(int detail)
+{
+ fprintf(stderr,
+         "Usage: planetsplitter [--help]\n"
+         "                      [--dir=<dirname>] [--prefix=<name>]\n"
+         "                      [--slim] [--tmpdir=<dirname>]\n"
+         "                      [--parse-only | --process-only]\n"
+         "                      [--max-iterations=<number>]\n"
+         "                      [--transport=<transport> ...]\n"
+         "                      [--not-highway=<highway> ...]\n"
+         "                      [--not-property=<property> ...]\n"
+         "                      [<filename.osm> ...]\n");
+
+ if(detail)
+    fprintf(stderr,
+            "\n"
+            "--help                    Prints this information.\n"
+            "\n"
+            "--dir=<dirname>           The directory containing the routing database.\n"
+            "--prefix=<name>           The filename prefix for the routing database.\n"
+            "\n"
+            "--slim                    Use less RAM and more temporary files.\n"
+            "--tmpdir=<dirname>        The directory name for temporary files.\n"
+            "\n"
+            "--parse-only              Parse the input OSM files and store the results.\n"
+            "--process-only            Process the stored results from previous option.\n"
+            "\n"
+            "--max-iterations=<number> The number of iterations for finding super-nodes.\n"
+            "\n"
+            "--transport=<transport>   Store only data usable by the selected transports.\n"
+            "--not-highway=<highway>   Ignore highways of the selected types.\n"
+            "--not-property=<property> Ignore highway properties of the selected types.\n"
+            "\n"
+            "<filename.osm>            The name of the file to process (by default data\n"
+            "                          is read from standard input).\n"
+            "\n"
+            "<transport> defaults to all but can be set to:\n"
+            "%s"
+            "\n"
+            "<highway> can be selected from:\n"
+            "%s"
+            "\n"
+            "<property> can be selected from:\n"
+            "%s",
+            TransportList(),HighwayList(),PropertyList());
+
+ exit(!detail);
 }
