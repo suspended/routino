@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.32 2010-03-29 18:20:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.33 2010-03-30 17:58:58 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -492,14 +492,14 @@ void PrintProfilesXML(void)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the profiles as Javascript for use in a web form.
+  Print out the profiles as JavaScript Object Notation for use in a web form.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintProfilesJS(void)
+void PrintProfilesJSON(void)
 {
  unsigned int i,j;
 
- printf("var routino={ // contains all default Routino options (generated using \"--help-profile-js\").\n");
+ printf("var routino={ // contains all default Routino options (generated using \"--help-profile-json\").\n");
  printf("\n");
 
  printf("  // Default transport type\n");
@@ -604,7 +604,7 @@ void PrintProfilesPerl(void)
 {
  unsigned int i,j;
 
- printf("$routino={ # contains all default Routino options (generated using \"--help-profile-pl\").\n");
+ printf("$routino={ # contains all default Routino options (generated using \"--help-profile-perl\").\n");
  printf("\n");
 
  printf("  # Default transport type\n");
