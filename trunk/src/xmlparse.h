@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.2 2010-03-29 18:13:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.3 2010-03-31 17:18:27 amb Exp $
 
  A simple XML parser
 
@@ -33,6 +33,10 @@
 
 /*+ The maximum number of subtags per tag. +*/
 #define XMLPARSE_MAX_SUBTAGS 16
+
+/*+ A flag to indicate the start and/or end of a tag. +*/
+#define XMLPARSE_TAG_START    1
+#define XMLPARSE_TAG_END      2
 
 
 /*+ A forward definition of the xmltag +*/

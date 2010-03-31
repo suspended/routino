@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.2 2010-03-29 18:13:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.3 2010-03-31 17:18:27 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
 
@@ -66,9 +66,15 @@
 extern int yylex(void);
 
 static char *yylval=NULL;
-static int lineno=0;
 
 %}
+
+%option 8bit
+%option batch
+%option yylineno
+%option nodefault
+%option perf-report
+%option fast
 
 W               [ \t]
 
@@ -96,16 +102,14 @@ val             ({alphanum}|{nonascii}|{safepunct})+
 
 "<!--"                      { BEGIN(COMMENT); }
 "<"                         { BEGIN(TAG_START); }
-\n                          { lineno++; }
-[^<\n]+                     { }
+[^<]+                       { }
 
  /* Comments - not strictly correct. */
 
 <COMMENT>"--"{W}*">"        { BEGIN(INITIAL); }
 <COMMENT>">"                { }
 <COMMENT>"-"                { }
-<COMMENT>\n                 { lineno++; }
-<COMMENT>[^->\n]+           { }
+<COMMENT>[^->]+             { }
 
  /* Tags */
 
@@ -115,27 +119,23 @@ val             ({alphanum}|{nonascii}|{safepunct})+
 
 <TAG_START>"/"{tag}">"      { BEGIN(INITIAL); return(LEX_TAG_POP); }
 
-<TAG_START>\n               { BEGIN(INITIAL); lineno++; }
-<TAG_START>.                { BEGIN(INITIAL); }
+<TAG_START>.|\n             { BEGIN(INITIAL); }
 
 <TAG>{W}+                   { }
 <TAG>"/>"                   { BEGIN(INITIAL); return(LEX_TAG_FINISH); }
 <TAG>"?>"                   { BEGIN(INITIAL); return(LEX_TAG_FINISH); }
 <TAG>">"                    { BEGIN(INITIAL); return(LEX_TAG_PUSH); }
 <TAG>{key}                  { BEGIN(TAG_ATTR_KEY); yylval=yytext; return(LEX_ATTR_KEY); }
-<TAG>\n                     { lineno++; }
-<TAG>.                      { }
+<TAG>.|\n                   { }
 
 <TAG_ATTR_KEY>{W}*=         { BEGIN(TAG_ATTR_VAL); }
-<TAG_ATTR_KEY>\n            { lineno++; }
-<TAG_ATTR_KEY>.             { BEGIN(TAG); unput(yytext[0]); yylval=NULL; return(LEX_ATTR_VAL); }
+<TAG_ATTR_KEY>.|\n          { BEGIN(TAG); unput(yytext[0]); yylval=NULL; return(LEX_ATTR_VAL); }
 
 <TAG_ATTR_VAL>{W}+          { }
 <TAG_ATTR_VAL>\"            { BEGIN(DQUOTED); reset_string; }
 <TAG_ATTR_VAL>\'            { BEGIN(SQUOTED); reset_string; }
 <TAG_ATTR_VAL>{val}         { BEGIN(TAG);                   yylval=yytext; return(LEX_ATTR_VAL); }
-<TAG_ATTR_VAL>\n            { lineno++; }
-<TAG_ATTR_VAL>.             { BEGIN(TAG); unput(yytext[0]); yylval=NULL;   return(LEX_ATTR_VAL); }
+<TAG_ATTR_VAL>.|\n          { BEGIN(TAG); unput(yytext[0]); yylval=NULL;   return(LEX_ATTR_VAL); }
 
  /* Quoted strings */
 
@@ -143,15 +143,13 @@ val             ({alphanum}|{nonascii}|{safepunct})+
 <DQUOTED>\\\"               { append_string(yytext); }
 <DQUOTED>\\                 { append_string(yytext); }
 <DQUOTED>\"                 { BEGIN(TAG); yylval=string; return(LEX_ATTR_VAL); }
-<DQUOTED>\n                 { lineno++; }
-<DQUOTED>[^\\\"\n]+         { append_string(yytext); }
+<DQUOTED>[^\\\"]+           { append_string(yytext); }
 
 <SQUOTED>\\\\               { append_string(yytext); }
 <SQUOTED>\\\'               { append_string(yytext); }
 <SQUOTED>\\                 { append_string(yytext); }
 <SQUOTED>\'                 { BEGIN(TAG); yylval=string; return(LEX_ATTR_VAL); }
-<SQUOTED>\n                 { lineno++; }
-<SQUOTED>[^\\\'\n]+         { append_string(yytext); }
+<SQUOTED>[^\\\']+           { append_string(yytext); }
 
  /* End of file */
 
@@ -160,6 +158,34 @@ val             ({alphanum}|{nonascii}|{safepunct})+
 %%
 
 #include "xmlparse.h"
+
+static inline void call_callback(char *name,void (*callback)(),int type,int nattributes,char *attributes[XMLPARSE_MAX_ATTRS])
+{
+ switch(nattributes)
+   {
+   case  0: (*callback)(type); break;
+   case  1: (*callback)(type,attributes[0]); break;
+   case  2: (*callback)(type,attributes[0],attributes[1]); break;
+   case  3: (*callback)(type,attributes[0],attributes[1],attributes[2]); break;
+   case  4: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3]); break;
+   case  5: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4]); break;
+   case  6: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5]); break;
+   case  7: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6]); break;
+   case  8: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7]); break;
+   case  9: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8]); break;
+   case 10: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9]); break;
+   case 11: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10]); break;
+   case 12: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11]); break;
+   case 13: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12]); break;
+   case 14: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13]); break;
+   case 15: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14]); break;
+   case 16: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14],attributes[15]); break;
+
+   default:
+    fprintf(stderr,"XML Parser: Error too many attributes for tag '%s' on line %d.\n",name,yylineno);
+    exit(1);
+   }
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -181,7 +207,8 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
  int attribute=0;
 
  int stackdepth=0,stackused=0;
- xmltag ***tagstack=NULL;
+ xmltag ***tags_stack=NULL;
+ xmltag **tag_stack=NULL;
  xmltag *tag=NULL;
 
  static int first=1;
@@ -194,8 +221,6 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
     yyrestart(NULL);
 
  first=0;
-
- lineno=1;
 
  /* The actual parser. */
 
@@ -230,7 +255,7 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
        if(tag==NULL)
          {
-          fprintf(stderr,"XML Parser: Error unexpected tag '%s' on line %d.\n",yylval,lineno);
+          fprintf(stderr,"XML Parser: Error unexpected tag '%s' on line %d.\n",yylval,yylineno);
           exit(1);
          }
        break;
@@ -240,42 +265,33 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
       case LEX_TAG_PUSH:
 
        if(stackused==stackdepth)
-          tagstack=(xmltag***)realloc((void*)tagstack,(stackdepth+=8)*sizeof(xmltag**));
+         {
+          tag_stack =(xmltag**) realloc((void*)tag_stack ,(stackdepth+=8)*sizeof(xmltag*));
+          tags_stack=(xmltag***)realloc((void*)tags_stack,(stackdepth+=8)*sizeof(xmltag**));
+         }
 
-       tagstack[stackused++]=tags;
+       tag_stack [stackused]=tag;
+       tags_stack[stackused]=tags;
+       stackused++;
+
+       if(tag->callback)
+          call_callback(tag->name,tag->callback,XMLPARSE_TAG_START,nattributes,attributes);
+
        tags=tag->subtags;
+
+       break;
 
        /* The end of the empty-element-tag for an element */
 
       case LEX_TAG_FINISH:
 
        if(tag->callback)
-          switch(nattributes)
-            {
-            case  0: (*tag->callback)(); break;
-            case  1: (*tag->callback)(attributes[0]); break;
-            case  2: (*tag->callback)(attributes[0],attributes[1]); break;
-            case  3: (*tag->callback)(attributes[0],attributes[1],attributes[2]); break;
-            case  4: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3]); break;
-            case  5: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4]); break;
-            case  6: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5]); break;
-            case  7: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6]); break;
-            case  8: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7]); break;
-            case  9: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8]); break;
-            case 10: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9]); break;
-            case 11: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10]); break;
-            case 12: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11]); break;
-            case 13: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12]); break;
-            case 14: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13]); break;
-            case 15: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14]); break;
-            case 16: (*tag->callback)(attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14],attributes[15]); break;
+          call_callback(tag->name,tag->callback,XMLPARSE_TAG_START|XMLPARSE_TAG_END,nattributes,attributes);
 
-            default:
-             fprintf(stderr,"XML Parser: Error too many attributes for tag '%s' on line %d.\n",tag->name,lineno);
-             exit(1);
-            }
-
-       tag=NULL;
+       if(stackused>0)
+          tag=tag_stack[stackused-1];
+       else
+          tag=NULL;
 
        break;
 
@@ -283,8 +299,14 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
       case LEX_TAG_POP:
 
-       tags=tagstack[--stackused];
-       tag=NULL;
+       stackused--;
+       tags=tags_stack[stackused];
+       tag =tag_stack [stackused];
+
+       if(tag->callback)
+          call_callback(tag->name,tag->callback,XMLPARSE_TAG_END,nattributes,attributes);
+
+       tag=tag_stack[stackused-1];
 
        break;
 
@@ -306,11 +328,11 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
          {
           if(ignore_unknown_attributes==0)
             {
-             fprintf(stderr,"XML Parser: Error unexpected attribute '%s' for tag '%s' on line %d.\n",yylval,tag->name,lineno);
+             fprintf(stderr,"XML Parser: Error unexpected attribute '%s' for tag '%s' on line %d.\n",yylval,tag->name,yylineno);
              exit(1);
             }
           else if(ignore_unknown_attributes==1)
-             fprintf(stderr,"XML Parser: Warning unexpected attribute '%s' for tag '%s' on line %d.\n",yylval,tag->name,lineno);
+             fprintf(stderr,"XML Parser: Warning unexpected attribute '%s' for tag '%s' on line %d.\n",yylval,tag->name,yylineno);
          }
        break;
 
@@ -329,5 +351,5 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
        free(attributes[i]);
 
  if(stackdepth)
-    free(tagstack);
+    free(tags_stack);
 }
