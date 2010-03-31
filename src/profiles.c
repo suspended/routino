@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.33 2010-03-30 17:58:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.34 2010-03-31 17:18:27 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -41,15 +41,15 @@ static int nloaded_profiles=0;
 
 /* The XML tag processing function prototypes */
 
-static void profile_function(char *name,char *transport);
-static void length_function(char *limit);
-static void width_function(char *limit);
-static void height_function(char *limit);
-static void weight_function(char *limit);
-static void oneway_function(char *obey);
-static void property_function(char *type,char *percent);
-static void preference_function(char *highway,char *percent);
-static void speed_function(char *highway,char *kph);
+static void profile_function(int _type_,char *name,char *transport);
+static void length_function(int _type_,char *limit);
+static void width_function(int _type_,char *limit);
+static void height_function(int _type_,char *limit);
+static void weight_function(int _type_,char *limit);
+static void oneway_function(int _type_,char *obey);
+static void property_function(int _type_,char *type,char *percent);
+static void preference_function(int _type_,char *highway,char *percent);
+static void speed_function(int _type_,char *highway,char *kph);
 
 
 /* The XML tag definitions */
@@ -168,132 +168,167 @@ static xmltag *xml_toplevel_tags[]={&_xml_tag,&routino_profiles_tag,NULL};
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the speedType type is seen
+  The function that is called when the speedType XSD type is seen
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   char *highway The contents of the 'highway' attribute (or NULL if not defined).
 
   char *kph The contents of the 'kph' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void speed_function(char *highway,char *kph)
+static void speed_function(int _type_,char *highway,char *kph)
 {
- Highway highwaytype=HighwayType(highway);
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    Highway highwaytype=HighwayType(highway);
 
- loaded_profiles[nloaded_profiles-1]->speed[highwaytype]=kph_to_speed(atoi(kph));
+    loaded_profiles[nloaded_profiles-1]->speed[highwaytype]=kph_to_speed(atoi(kph));
+   }
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the preferenceType type is seen
+  The function that is called when the preferenceType XSD type is seen
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   char *highway The contents of the 'highway' attribute (or NULL if not defined).
 
   char *percent The contents of the 'percent' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void preference_function(char *highway,char *percent)
+static void preference_function(int _type_,char *highway,char *percent)
 {
- Highway highwaytype=HighwayType(highway);
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    Highway highwaytype=HighwayType(highway);
 
- loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=atoi(percent);
+    loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=atoi(percent);
+   }
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the propertyType type is seen
+  The function that is called when the propertyType XSD type is seen
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   char *type The contents of the 'type' attribute (or NULL if not defined).
 
   char *percent The contents of the 'percent' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void property_function(char *type,char *percent)
+static void property_function(int _type_,char *type,char *percent)
 {
- Property property=PropertyType(type);
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    Property property=PropertyType(type);
 
- loaded_profiles[nloaded_profiles-1]->props_yes[property]=atoi(percent);
+    loaded_profiles[nloaded_profiles-1]->props_yes[property]=atoi(percent);
+   }
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the onewayType type is seen
+  The function that is called when the onewayType XSD type is seen
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   char *obey The contents of the 'obey' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void oneway_function(char *obey)
+static void oneway_function(int _type_,char *obey)
 {
- loaded_profiles[nloaded_profiles-1]->oneway=!!atoi(obey);
+ if(_type_&XMLPARSE_TAG_START)
+    loaded_profiles[nloaded_profiles-1]->oneway=!!atoi(obey);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the weightType type is seen
+  The function that is called when the weightType XSD type is seen
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void weight_function(char *limit)
+static void weight_function(int _type_,char *limit)
 {
- loaded_profiles[nloaded_profiles-1]->weight=tonnes_to_weight(atof(limit));
+ if(_type_&XMLPARSE_TAG_START)
+    loaded_profiles[nloaded_profiles-1]->weight=tonnes_to_weight(atof(limit));
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the heightType type is seen
+  The function that is called when the heightType XSD type is seen
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void height_function(char *limit)
+static void height_function(int _type_,char *limit)
 {
- loaded_profiles[nloaded_profiles-1]->height=metres_to_height(atof(limit));
+ if(_type_&XMLPARSE_TAG_START)
+    loaded_profiles[nloaded_profiles-1]->height=metres_to_height(atof(limit));
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the widthType type is seen
+  The function that is called when the widthType XSD type is seen
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void width_function(char *limit)
+static void width_function(int _type_,char *limit)
 {
- loaded_profiles[nloaded_profiles-1]->width=metres_to_width(atof(limit));
+ if(_type_&XMLPARSE_TAG_START)
+    loaded_profiles[nloaded_profiles-1]->width=metres_to_width(atof(limit));
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the lengthType type is seen
+  The function that is called when the lengthType XSD type is seen
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void length_function(char *limit)
+static void length_function(int _type_,char *limit)
 {
- loaded_profiles[nloaded_profiles-1]->length=metres_to_length(atof(limit));
+ if(_type_&XMLPARSE_TAG_START)
+    loaded_profiles[nloaded_profiles-1]->length=metres_to_length(atof(limit));
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the profileType type is seen
+  The function that is called when the profileType XSD type is seen
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   char *name The contents of the 'name' attribute (or NULL if not defined).
 
   char *transport The contents of the 'transport' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void profile_function(char *name,char *transport)
+static void profile_function(int _type_,char *name,char *transport)
 {
- if((nloaded_profiles%16)==0)
-    loaded_profiles=(Profile**)realloc((void*)loaded_profiles,(nloaded_profiles+16)*sizeof(Profile*));
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    if((nloaded_profiles%16)==0)
+       loaded_profiles=(Profile**)realloc((void*)loaded_profiles,(nloaded_profiles+16)*sizeof(Profile*));
 
- nloaded_profiles++;
+    nloaded_profiles++;
 
- loaded_profiles[nloaded_profiles-1]=(Profile*)calloc(1,sizeof(Profile));
+    loaded_profiles[nloaded_profiles-1]=(Profile*)calloc(1,sizeof(Profile));
 
- loaded_profiles[nloaded_profiles-1]->name=strcpy(malloc(strlen(name)+1),name);
- loaded_profiles[nloaded_profiles-1]->transport=TransportType(transport);
+    loaded_profiles[nloaded_profiles-1]->name=strcpy(malloc(strlen(name)+1),name);
+    loaded_profiles[nloaded_profiles-1]->transport=TransportType(transport);
+   }
 }
 
 
