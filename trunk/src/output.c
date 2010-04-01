@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.24 2010-03-20 20:15:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.25 2010-04-01 18:24:39 amb Exp $
 
  Routing output generator.
 
@@ -428,7 +428,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
              if(gpxroutefile)
                {
-                fprintf(gpxroutefile,"<desc>%s on '%s' for %.3f km, %.1f min</desc></rtept>\n",
+                fprintf(gpxroutefile,"<desc><![CDATA[%s on '%s' for %.3f km, %.1f min]]></desc></rtept>\n",
                         bearing_instruction[(4+(22+bearing_angle(nodes,result->segment,result->node))/45)%8],
                         WayName(ways,resultway),
                         distance_to_km(junc_distance),duration_to_minutes(junc_duration));
@@ -437,7 +437,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                   {
                    fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>FINISH</name>\n",
                            radians_to_degrees(finish_lat),radians_to_degrees(finish_lon));
-                   fprintf(gpxroutefile,"<desc>Total Journey %.1f km, %.0f min</desc></rtept>\n",
+                   fprintf(gpxroutefile,"<desc><![CDATA[Total Journey %.1f km, %.0f min]]></desc></rtept>\n",
                            distance_to_km(cum_distance),duration_to_minutes(cum_duration));
                   }
                 else if(important==10)
