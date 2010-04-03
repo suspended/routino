@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functionsx.h,v 1.2 2009-07-12 09:01:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functionsx.h,v 1.3 2010-04-03 14:20:16 amb Exp $
 
  Header file for function prototypes for extended data types.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@
 
 /* In osmparser.c */
 
-int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *profile);
+int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *profile);
 
 
 #endif /* FUNCTIONSX_H */
