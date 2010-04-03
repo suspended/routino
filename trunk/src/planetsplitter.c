@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.69 2010-03-30 17:58:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.70 2010-04-03 14:20:16 amb Exp $
 
  OSM planet file splitter.
 
@@ -178,7 +178,7 @@ int main(int argc,char** argv)
        printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
        fflush(stdout);
 
-       ParseXML(file,Nodes,Segments,Ways,&profile);
+       ParseOSM(file,Nodes,Segments,Ways,&profile);
 
        fclose(file);
       }
@@ -188,7 +188,7 @@ int main(int argc,char** argv)
     printf("\nParse OSM Data\n==============\n\n");
     fflush(stdout);
 
-    ParseXML(stdin,Nodes,Segments,Ways,&profile);
+    ParseOSM(stdin,Nodes,Segments,Ways,&profile);
    }
 
  if(option_parse_only)

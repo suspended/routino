@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.63 2009-12-15 18:44:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.64 2010-04-03 14:20:16 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -51,7 +51,7 @@ static char *fgets_realloc(char *buffer,FILE *file);
 /*++++++++++++++++++++++++++++++++++++++
   Parse an OSM XML file (from JOSM or planet download).
 
-  int ParseXML Returns 0 if OK or something else in case of an error.
+  int ParseOSM Returns 0 if OK or something else in case of an error.
 
   FILE *file The file to read from.
 
@@ -64,7 +64,7 @@ static char *fgets_realloc(char *buffer,FILE *file);
   Profile *profile A profile of the allowed transport types and included/excluded highway types.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXML(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *profile)
+int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *profile)
 {
  char *line=NULL;
  long nlines=0;
