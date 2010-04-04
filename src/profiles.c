@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.34 2010-03-31 17:18:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.35 2010-04-04 14:29:33 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -25,11 +25,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "profiles.h"
 #include "types.h"
 #include "ways.h"
 #include "xmlparse.h"
+#include "functions.h"
 
 
 /*+ The profiles that have been loaded from file. +*/
@@ -37,6 +39,9 @@ static Profile **loaded_profiles=NULL;
 
 /*+ The number of profiles that have been loaded from file. +*/
 static int nloaded_profiles=0;
+
+/*+ The number of errors found in the XML file. +*/
+static int profile_parse_error=0;
 
 
 /* The XML tag processing function prototypes */
@@ -153,15 +158,15 @@ static xmltag routino_profiles_tag=
                {&profile_tag,NULL}};
 
 /*+ The ?xmlType type tag. +*/
-static xmltag _xml_tag=
-              {"?xml",
+static xmltag xml_tag=
+              {"xml",
                {"version","encoding",NULL},
                NULL,
                {NULL}};
 
 
 /*+ The complete set of tags at the top level. +*/
-static xmltag *xml_toplevel_tags[]={&_xml_tag,&routino_profiles_tag,NULL};
+static xmltag *xml_toplevel_tags[]={&xml_tag,&routino_profiles_tag,NULL};
 
 
 /* The XML tag processing functions */
@@ -181,7 +186,30 @@ static void speed_function(int _type_,char *highway,char *kph)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    Highway highwaytype=HighwayType(highway);
+    Highway highwaytype;
+
+    if(!highway || !kph)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: 'highway' and 'kph' attributes must be specified in <speed> tag.\n",ParseXML_LineNumber());
+       profile_parse_error++;
+       return;
+      }
+
+    highwaytype=HighwayType(highway);
+
+    if(highwaytype==Way_Count)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid highway type '%s' in <speed> tag.\n",ParseXML_LineNumber(),highway);
+       profile_parse_error++;
+       return;
+      }
+
+    if(!isdigit(*kph))
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid speed '%s' in <speed> tag.\n",ParseXML_LineNumber(),kph);
+       profile_parse_error++;
+       return;
+      }
 
     loaded_profiles[nloaded_profiles-1]->speed[highwaytype]=kph_to_speed(atoi(kph));
    }
@@ -202,7 +230,30 @@ static void preference_function(int _type_,char *highway,char *percent)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    Highway highwaytype=HighwayType(highway);
+    Highway highwaytype;
+
+    if(!highway || !percent)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: 'highway' and 'percent' attributes must be specified in <preference> tag.\n",ParseXML_LineNumber());
+       profile_parse_error++;
+       return;
+      }
+
+    highwaytype=HighwayType(highway);
+
+    if(highwaytype==Way_Count)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid highway type '%s' in <preference> tag.\n",ParseXML_LineNumber(),highway);
+       profile_parse_error++;
+       return;
+      }
+
+    if(!isdigit(*percent))
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid percentage '%s' in <preference> tag.\n",ParseXML_LineNumber(),percent);
+       profile_parse_error++;
+       return;
+      }
 
     loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=atoi(percent);
    }
@@ -223,7 +274,30 @@ static void property_function(int _type_,char *type,char *percent)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    Property property=PropertyType(type);
+    Property property;
+
+    if(!type || !percent)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: 'property' and 'percent' attributes must be specified in <property> tag.\n",ParseXML_LineNumber());
+       profile_parse_error++;
+       return;
+      }
+
+    property=PropertyType(type);
+
+    if(property==Property_Count)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid property type '%s' in <property> tag.\n",ParseXML_LineNumber(),type);
+       profile_parse_error++;
+       return;
+      }
+
+    if(!isdigit(*percent))
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid percentage '%s' in <property> tag.\n",ParseXML_LineNumber(),percent);
+       profile_parse_error++;
+       return;
+      }
 
     loaded_profiles[nloaded_profiles-1]->props_yes[property]=atoi(percent);
    }
@@ -241,7 +315,23 @@ static void property_function(int _type_,char *type,char *percent)
 static void oneway_function(int _type_,char *obey)
 {
  if(_type_&XMLPARSE_TAG_START)
+   {
+    if(!obey)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: 'obey' attribute must be specified in <oneway> tag.\n",ParseXML_LineNumber());
+       profile_parse_error++;
+       return;
+      }
+
+    if(!isdigit(*obey))
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid value for 'obey' attribute '%s' in <oneway> tag.\n",ParseXML_LineNumber(),obey);
+       profile_parse_error++;
+       return;
+      }
+
     loaded_profiles[nloaded_profiles-1]->oneway=!!atoi(obey);
+   }
 }
 
 
@@ -256,7 +346,23 @@ static void oneway_function(int _type_,char *obey)
 static void weight_function(int _type_,char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
+   {
+    if(!limit)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: 'limit' attribute must be specified in <weight> tag.\n",ParseXML_LineNumber());
+       profile_parse_error++;
+       return;
+      }
+
+    if(!isdigit(*limit))
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid value for 'limit' attribute '%s' in <weight> tag.\n",ParseXML_LineNumber(),limit);
+       profile_parse_error++;
+       return;
+      }
+
     loaded_profiles[nloaded_profiles-1]->weight=tonnes_to_weight(atof(limit));
+   }
 }
 
 
@@ -271,7 +377,23 @@ static void weight_function(int _type_,char *limit)
 static void height_function(int _type_,char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
+   {
+    if(!limit)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: 'limit' attribute must be specified in <height> tag.\n",ParseXML_LineNumber());
+       profile_parse_error++;
+       return;
+      }
+
+    if(!isdigit(*limit))
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid value for 'limit' attribute '%s' in <height> tag.\n",ParseXML_LineNumber(),limit);
+       profile_parse_error++;
+       return;
+      }
+
     loaded_profiles[nloaded_profiles-1]->height=metres_to_height(atof(limit));
+   }
 }
 
 
@@ -286,7 +408,23 @@ static void height_function(int _type_,char *limit)
 static void width_function(int _type_,char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
+   {
+    if(!limit)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: 'limit' attribute must be specified in <width> tag.\n",ParseXML_LineNumber());
+       profile_parse_error++;
+       return;
+      }
+
+    if(!isdigit(*limit))
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid value for 'limit' attribute '%s' in <width> tag.\n",ParseXML_LineNumber(),limit);
+       profile_parse_error++;
+       return;
+      }
+
     loaded_profiles[nloaded_profiles-1]->width=metres_to_width(atof(limit));
+   }
 }
 
 
@@ -301,7 +439,23 @@ static void width_function(int _type_,char *limit)
 static void length_function(int _type_,char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
+   {
+    if(!limit)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: 'limit' attribute must be specified in <length> tag.\n",ParseXML_LineNumber());
+       profile_parse_error++;
+       return;
+      }
+
+    if(!isdigit(*limit))
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid value for 'limit' attribute '%s' in <length> tag.\n",ParseXML_LineNumber(),limit);
+       profile_parse_error++;
+       return;
+      }
+
     loaded_profiles[nloaded_profiles-1]->length=metres_to_length(atof(limit));
+   }
 }
 
 
@@ -319,6 +473,33 @@ static void profile_function(int _type_,char *name,char *transport)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
+    Transport transporttype;
+    int i;
+
+    if(!name || !transport)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: 'name' and 'transport' attributes must be specified in <profile> tag.\n",ParseXML_LineNumber());
+       profile_parse_error++;
+       return;
+      }
+
+    for(i=0;i<nloaded_profiles;i++)
+       if(!strcmp(name,loaded_profiles[i]->name))
+         {
+          fprintf(stderr,"XML Parser: Error on line %d: profile name '%s' must be unique in <profile> tag.\n",ParseXML_LineNumber(),name);
+          profile_parse_error++;
+          return;
+         }
+
+    transporttype=TransportType(transport);
+
+    if(transporttype==Transport_None)
+      {
+       fprintf(stderr,"XML Parser: Error on line %d: invalid transport type '%s' in <profile> tag.\n",ParseXML_LineNumber(),transport);
+       profile_parse_error++;
+       return;
+      }
+
     if((nloaded_profiles%16)==0)
        loaded_profiles=(Profile**)realloc((void*)loaded_profiles,(nloaded_profiles+16)*sizeof(Profile*));
 
@@ -327,7 +508,7 @@ static void profile_function(int _type_,char *name,char *transport)
     loaded_profiles[nloaded_profiles-1]=(Profile*)calloc(1,sizeof(Profile));
 
     loaded_profiles[nloaded_profiles-1]->name=strcpy(malloc(strlen(name)+1),name);
-    loaded_profiles[nloaded_profiles-1]->transport=TransportType(transport);
+    loaded_profiles[nloaded_profiles-1]->transport=transporttype;
    }
 }
 
@@ -342,14 +523,40 @@ static void profile_function(int _type_,char *name,char *transport)
 
 int ParseXMLProfiles(const char *filename)
 {
+ int retval;
+
+ if(!ExistsFile(filename))
+   {
+    fprintf(stderr,"Error: Specified profiles file '%s' does not exist.\n",filename);
+    return(1);
+   }
+
  FILE *file=fopen(filename,"r");
 
  if(!file)
+   {
+    fprintf(stderr,"Error: Cannot open profiles file '%s' for reading.\n",filename);
     return(1);
+   }
 
- ParseXML(file,xml_toplevel_tags,2);
+ profile_parse_error=0;
+
+ retval=ParseXML(file,xml_toplevel_tags,2);
 
  fclose(file);
+
+ if(retval || profile_parse_error)
+   {
+    int i;
+
+    for(i=0;i<nloaded_profiles;i++)
+       free(loaded_profiles[i]);
+    free(loaded_profiles);
+
+    nloaded_profiles=0;
+
+    return(1);
+   }
 
  return(0);
 }
