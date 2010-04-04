@@ -1,8 +1,10 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.3 2010-03-31 17:18:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.4 2010-04-04 14:29:34 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
+ Not intended to be fully conforming to XML staandard or a validating parser but
+ sufficient to parse OSM XML and simple program configuration files.
 
  Part of the Routino routing software.
  ******************/ /******************
@@ -29,12 +31,34 @@
 
 /* Parser outputs */
 
-#define LEX_TAG_BEGIN     1
-#define LEX_TAG_POP       2
-#define LEX_TAG_PUSH      3
-#define LEX_TAG_FINISH    4
-#define LEX_ATTR_KEY      5
-#define LEX_ATTR_VAL      6
+#define LEX_EOF                    0
+
+#define LEX_TAG_BEGIN              1
+#define LEX_XML_DECL_BEGIN         2
+#define LEX_TAG_POP                3
+#define LEX_TAG_PUSH               4
+#define LEX_XML_DECL_FINISH        6
+#define LEX_TAG_FINISH             7
+#define LEX_ATTR_KEY               8
+#define LEX_ATTR_VAL               9
+
+#define LEX_ERROR                100
+
+#define LEX_ERROR_TAG_START      101
+#define LEX_ERROR_XML_DECL_START 102
+#define LEX_ERROR_TAG            103
+#define LEX_ERROR_XML_DECL       104
+#define LEX_ERROR_ATTR           105
+#define LEX_ERROR_END_TAG        106
+#define LEX_ERROR_COMMENT        107
+#define LEX_ERROR_CLOSE          108
+
+#define LEX_ERROR_UNEXP_TAG      201
+#define LEX_ERROR_UNBALANCED     202
+#define LEX_ERROR_NO_START       203
+#define LEX_ERROR_UNEXP_ATT      204
+#define LEX_ERROR_UNEXP_EOF      205
+#define LEX_ERROR_XML_NOT_FIRST  206
 
 
 /* Lexer definitions */
@@ -70,94 +94,157 @@ static char *yylval=NULL;
 %}
 
 %option 8bit
+%option pointer
 %option batch
 %option yylineno
+
 %option nodefault
 %option perf-report
 %option fast
+%option nounput
 
-W               [ \t]
 
-nonascii        [\200-\377]
-ascii           [ -~]
-alphanum        [a-zA-Z0-9]
-punct           [][!\"#$%&\'()*+,-./:;<=>?@\\^_`{|}~]
-safepunct       [][!\#$%\()*+,-./:;=?@\\^_`{|}~]
+ /* Grammar based on http://www.w3.org/TR/2004/REC-xml-20040204/ but for ASCII not Unicode. */
 
-tag             ({alphanum}|[-:])+
-key             ({alphanum}|[-:])+
-val             ({alphanum}|{nonascii}|{safepunct})+
+S               [ \t\r\n]
+
+letter          [a-zA-Z]
+digit           [0-9]
+xdigit          [a-fA-F0-9]
+
+namechar        ({letter}|{digit}|[-._:])
+name            ({letter}|[_:]){namechar}*
+
+entityref       &{name};
+charref         &#({digit}+|x{xdigit}+);
+
 
 %x COMMENT
-%x TAG_START TAG TAG_ATTR_KEY TAG_ATTR_VAL
+%x CDATA
+%x DOCTYPE
+%x XML_DECL_START XML_DECL
+%x TAG_START TAG
+%x ATTR_KEY ATTR_VAL
+%x END_TAG1 END_TAG2
 %x DQUOTED SQUOTED
 
 %%
  /* Must use static variables since the parser returns often. */
  static char *string=NULL;
  static int stringlen=0,stringused=0;
+ static int after_attr=0;
  int newlen;
+ int doctype_depth=0;
 
- /* Handle comments and other tags */
+ /* Handle top level entities */
 
 "<!--"                      { BEGIN(COMMENT); }
+"<![CDATA["                 { BEGIN(CDATA); }
+"<!DOCTYPE"                 { BEGIN(DOCTYPE); doctype_depth=0; }
+"</"                        { BEGIN(END_TAG1); }
+"<?"                        { BEGIN(XML_DECL_START); }
 "<"                         { BEGIN(TAG_START); }
-[^<]+                       { }
+">"                         { return(LEX_ERROR_CLOSE); }
+[^<>]+                      { }
 
- /* Comments - not strictly correct. */
+ /* Comments */
 
-<COMMENT>"--"{W}*">"        { BEGIN(INITIAL); }
-<COMMENT>">"                { }
+<COMMENT>"--->"             { return(LEX_ERROR_COMMENT); }
+<COMMENT>"-->"              { BEGIN(INITIAL); }
+<COMMENT>"--"[^->]+         { }
+<COMMENT>[^-]+              { }
 <COMMENT>"-"                { }
-<COMMENT>[^->]+             { }
 
- /* Tags */
+ /* CDATA */
 
-<TAG_START>{W}+             { }
-<TAG_START>"?xml"           { BEGIN(TAG); yylval=yytext; return(LEX_TAG_BEGIN); }
-<TAG_START>{tag}            { BEGIN(TAG); yylval=yytext; return(LEX_TAG_BEGIN); }
+<CDATA>"]]>"                { BEGIN(INITIAL); }
+<CDATA>"]"                  { }
+<CDATA>[^]]+                { }
 
-<TAG_START>"/"{tag}">"      { BEGIN(INITIAL); return(LEX_TAG_POP); }
+ /* CDATA */
 
-<TAG_START>.|\n             { BEGIN(INITIAL); }
+<DOCTYPE>"<"                { doctype_depth++; }
+<DOCTYPE>">"                { if(doctype_depth==0) BEGIN(INITIAL); else doctype_depth--; }
+<DOCTYPE>[^<>]+             { }
 
-<TAG>{W}+                   { }
+ /* XML Declaration start */
+
+<XML_DECL_START>{name}      { BEGIN(XML_DECL); yylval=yytext; return(LEX_XML_DECL_BEGIN); }
+<XML_DECL_START>.|\n        { return(LEX_ERROR_XML_DECL_START); }
+
+ /* Tag middle */
+
+<XML_DECL>"?>"              { BEGIN(INITIAL); return(LEX_XML_DECL_FINISH); }
+<XML_DECL>{S}+              { }
+<XML_DECL>{name}            { after_attr=XML_DECL; BEGIN(ATTR_KEY); yylval=yytext; return(LEX_ATTR_KEY); }
+<XML_DECL>.|\n              { return(LEX_ERROR_XML_DECL); }
+
+ /* Any tag start */
+
+<TAG_START>{name}           { BEGIN(TAG); yylval=yytext; return(LEX_TAG_BEGIN); }
+<TAG_START>.|\n             { return(LEX_ERROR_TAG_START); }
+
+ /* End-tag start */
+
+<END_TAG1>{name}            { BEGIN(END_TAG2); yylval=yytext; return(LEX_TAG_POP); }
+<END_TAG1>.|\n              { return(LEX_ERROR_END_TAG); }
+
+<END_TAG2>">"               { BEGIN(INITIAL); }
+<END_TAG2>.|\n              { return(LEX_ERROR_END_TAG); }
+
+ /* Any tag middle */
+
 <TAG>"/>"                   { BEGIN(INITIAL); return(LEX_TAG_FINISH); }
-<TAG>"?>"                   { BEGIN(INITIAL); return(LEX_TAG_FINISH); }
 <TAG>">"                    { BEGIN(INITIAL); return(LEX_TAG_PUSH); }
-<TAG>{key}                  { BEGIN(TAG_ATTR_KEY); yylval=yytext; return(LEX_ATTR_KEY); }
-<TAG>.|\n                   { }
+<TAG>{S}+                   { }
+<TAG>{name}                 { after_attr=TAG; BEGIN(ATTR_KEY); yylval=yytext; return(LEX_ATTR_KEY); }
+<TAG>.|\n                   { return(LEX_ERROR_TAG); }
 
-<TAG_ATTR_KEY>{W}*=         { BEGIN(TAG_ATTR_VAL); }
-<TAG_ATTR_KEY>.|\n          { BEGIN(TAG); unput(yytext[0]); yylval=NULL; return(LEX_ATTR_VAL); }
+ /* Attributes */
 
-<TAG_ATTR_VAL>{W}+          { }
-<TAG_ATTR_VAL>\"            { BEGIN(DQUOTED); reset_string; }
-<TAG_ATTR_VAL>\'            { BEGIN(SQUOTED); reset_string; }
-<TAG_ATTR_VAL>{val}         { BEGIN(TAG);                   yylval=yytext; return(LEX_ATTR_VAL); }
-<TAG_ATTR_VAL>.|\n          { BEGIN(TAG); unput(yytext[0]); yylval=NULL;   return(LEX_ATTR_VAL); }
+<ATTR_KEY>=                 { BEGIN(ATTR_VAL); }
+<ATTR_KEY>.|\n              { return(LEX_ERROR_ATTR); }
+
+<ATTR_VAL>\"                { BEGIN(DQUOTED); reset_string; }
+<ATTR_VAL>\'                { BEGIN(SQUOTED); reset_string; }
+<ATTR_VAL>.|\n              { return(LEX_ERROR_ATTR); }
 
  /* Quoted strings */
 
-<DQUOTED>\\\\               { append_string(yytext); }
-<DQUOTED>\\\"               { append_string(yytext); }
-<DQUOTED>\\                 { append_string(yytext); }
-<DQUOTED>\"                 { BEGIN(TAG); yylval=string; return(LEX_ATTR_VAL); }
-<DQUOTED>[^\\\"]+           { append_string(yytext); }
+<DQUOTED>\"                 { BEGIN(after_attr); yylval=string; return(LEX_ATTR_VAL); }
+<DQUOTED>{entityref}        { append_string(yytext); }
+<DQUOTED>{charref}          { append_string(yytext); }
+<DQUOTED>[<>&]              { return(LEX_ERROR_TAG); }
+<DQUOTED>[^<>&\"]+          { append_string(yytext); }
 
-<SQUOTED>\\\\               { append_string(yytext); }
-<SQUOTED>\\\'               { append_string(yytext); }
-<SQUOTED>\\                 { append_string(yytext); }
-<SQUOTED>\'                 { BEGIN(TAG); yylval=string; return(LEX_ATTR_VAL); }
-<SQUOTED>[^\\\']+           { append_string(yytext); }
+<SQUOTED>\'                 { BEGIN(after_attr); yylval=string; return(LEX_ATTR_VAL); }
+<SQUOTED>{entityref}        { append_string(yytext); }
+<SQUOTED>{charref}          { append_string(yytext); }
+<SQUOTED>[<>&]              { return(LEX_ERROR_TAG); }
+<SQUOTED>[^<>&\']+          { append_string(yytext); }
 
  /* End of file */
 
-<<EOF>>                     { free(string); string=NULL; BEGIN(INITIAL); return(0); }
+<<EOF>>                     { free(string); string=NULL; BEGIN(INITIAL); return(LEX_EOF); }
 
 %%
 
 #include "xmlparse.h"
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  A function to call the callback function with the parameters needed.
+
+  char *name The name of the tag.
+
+  void (*callback)() The callback function.
+
+  int type The type of tag (start and/or end).
+
+  int nattributes The number of attributes collected.
+
+  char *attributes[XMLPARSE_MAX_ATTRS] The list of attributes.
+  ++++++++++++++++++++++++++++++++++++++*/
 
 static inline void call_callback(char *name,void (*callback)(),int type,int nattributes,char *attributes[XMLPARSE_MAX_ATTRS])
 {
@@ -182,7 +269,7 @@ static inline void call_callback(char *name,void (*callback)(),int type,int natt
    case 16: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14],attributes[15]); break;
 
    default:
-    fprintf(stderr,"XML Parser: Error too many attributes for tag '%s' on line %d.\n",name,yylineno);
+    fprintf(stderr,"XML Parser: Error on line %d: too many attributes for tag '%s'.\n",yylineno,name);
     exit(1);
    }
 }
@@ -191,6 +278,8 @@ static inline void call_callback(char *name,void (*callback)(),int type,int natt
 /*++++++++++++++++++++++++++++++++++++++
   Parse the XML and call the functions for each tag as seen.
 
+  int ParseXML Returns 0 if OK or something else in case of an error.
+
   FILE *file The file to parse.
 
   xmltag **tags The array of pointers to tags for the top level.
@@ -198,7 +287,7 @@ static inline void call_callback(char *name,void (*callback)(),int type,int natt
   int ignore_unknown_attributes If set to 0 then exit if unknown attribute is seen, if sete to 1 then warn, if set to 2 then ignore.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
+int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 {
  int yychar,i;
 
@@ -224,9 +313,23 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
  /* The actual parser. */
 
- while((yychar=yylex()))
+ do
+   {
+    yychar=yylex();
+
     switch(yychar)
       {
+       /* The start of a tag for an XML declaration */
+
+      case LEX_XML_DECL_BEGIN:
+
+       if(tag_stack)
+         {
+          fprintf(stderr,"XML Parser: Error on line %d: XML declaration not before all other tags.\n",yylineno);
+          yychar=LEX_ERROR_XML_NOT_FIRST;
+          break;
+         }
+
        /* The start of a tag for an element */
 
       case LEX_TAG_BEGIN:
@@ -255,9 +358,10 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
        if(tag==NULL)
          {
-          fprintf(stderr,"XML Parser: Error unexpected tag '%s' on line %d.\n",yylval,yylineno);
-          exit(1);
+          fprintf(stderr,"XML Parser: Error on line %d: unexpected tag '%s'.\n",yylineno,yylval);
+          yychar=LEX_ERROR_UNEXP_TAG;
          }
+
        break;
 
        /* The end of the start-tag for an element */
@@ -281,6 +385,10 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
        break;
 
+       /* The end of the empty-element-tag for an XML declaration */
+
+      case LEX_XML_DECL_FINISH:
+
        /* The end of the empty-element-tag for an element */
 
       case LEX_TAG_FINISH:
@@ -303,10 +411,25 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
        tags=tags_stack[stackused];
        tag =tag_stack [stackused];
 
+       if(strcmp(tag->name,yylval))
+         {
+          fprintf(stderr,"XML Parser: Error on line %d: end tag '</%s>' doesn't match start tag '<%s ...>'.\n",yylineno,yylval,tag->name);
+          yychar=LEX_ERROR_UNBALANCED;
+         }
+
+       if(stackused<0)
+         {
+          fprintf(stderr,"XML Parser: Error on line %d: end tag '</%s>' seen but there was no start tag '<%s ...>'.\n",yylineno,yylval,yylval);
+          yychar=LEX_ERROR_NO_START;
+         }
+
        if(tag->callback)
           call_callback(tag->name,tag->callback,XMLPARSE_TAG_END,nattributes,attributes);
 
-       tag=tag_stack[stackused-1];
+       if(stackused>0)
+          tag=tag_stack[stackused-1];
+       else
+          tag=NULL;
 
        break;
 
@@ -328,12 +451,13 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
          {
           if(ignore_unknown_attributes==0)
             {
-             fprintf(stderr,"XML Parser: Error unexpected attribute '%s' for tag '%s' on line %d.\n",yylval,tag->name,yylineno);
-             exit(1);
+             fprintf(stderr,"XML Parser: Error on line %d: unexpected attribute '%s' for tag '%s'.\n",yylineno,yylval,tag->name);
+             yychar=LEX_ERROR_UNEXP_ATT;
             }
           else if(ignore_unknown_attributes==1)
-             fprintf(stderr,"XML Parser: Warning unexpected attribute '%s' for tag '%s' on line %d.\n",yylval,tag->name,yylineno);
+             fprintf(stderr,"XML Parser: Warning on line %d: unexpected attribute '%s' for tag '%s'.\n",yylineno,yylval,tag->name);
          }
+
        break;
 
        /* An attribute value */
@@ -342,7 +466,55 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
        if(yylval && attribute!=-1)
           attributes[attribute]=strcpy(malloc(strlen(yylval)+1),yylval);
+
+       break;
+
+       /* End of file */
+
+      case LEX_EOF:
+
+       if(tag)
+         {
+          fprintf(stderr,"XML Parser: Error on line %d: end of file seen without end tag '</%s>'.\n",yylineno,tag->name);
+          yychar=LEX_ERROR_UNEXP_EOF;
+         }
+
+       break;
+
+      case LEX_ERROR_TAG_START:
+       fprintf(stderr,"XML Parser: Error on line %d: character '<' seen not at start of tag.\n",yylineno);
+       break;
+
+      case LEX_ERROR_XML_DECL_START:
+       fprintf(stderr,"XML Parser: Error on line %d: characters '<?' seen not at start of XML declaration.\n",yylineno);
+       break;
+
+      case LEX_ERROR_TAG:
+       fprintf(stderr,"XML Parser: Error on line %d: invalid character seen inside tag '<%s...>'.\n",yylineno,tag->name);
+       break;
+
+      case LEX_ERROR_XML_DECL:
+       fprintf(stderr,"XML Parser: Error on line %d: invalid character seen inside XML declaration '<?%s...>'.\n",yylineno,tag->name);
+       break;
+
+      case LEX_ERROR_ATTR:
+       fprintf(stderr,"XML Parser: Error on line %d: invalid attribute definition seen in tag.\n",yylineno);
+       break;
+
+      case LEX_ERROR_END_TAG:
+       fprintf(stderr,"XML Parser: Error on line %d: invalid character seen in end-tag.\n",yylineno);
+       break;
+
+      case LEX_ERROR_COMMENT:
+       fprintf(stderr,"XML Parser: Error on line %d: invalid comment seen.\n",yylineno);
+       break;
+
+      case LEX_ERROR_CLOSE:
+       fprintf(stderr,"XML Parser: Error on line %d: character '>' seen not at end of tag.\n",yylineno);
+       break;
       }
+   }
+ while(yychar>LEX_EOF && yychar<LEX_ERROR);
 
  /* Delete the tagdata */
 
@@ -352,4 +524,18 @@ void ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
  if(stackdepth)
     free(tags_stack);
+
+ return(yychar);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Return the current parser line number.
+
+  int ParseXML_LineNumber Returns the line number.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseXML_LineNumber(void)
+{
+ return(yylineno);
 }
