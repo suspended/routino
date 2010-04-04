@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.2 2010-03-29 18:16:35 amb Exp $
+# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.3 2010-04-04 14:31:00 amb Exp $
 #
 # XML test programs Makefile
 #
@@ -76,6 +76,30 @@ xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
 
 ########
 
+test : test-skeleton .FORCE
+	@status=true ;\
+	echo "" ;\
+	for good in test/good*.xml; do \
+	   echo "Testing: $$good ... " ;\
+	   if ./test-skeleton < $$good > /dev/null; then echo "... passed"; else echo "... FAILED"  status=false; fi ;\
+	   echo "" ;\
+	done ;\
+	for bad in test/bad*.xml; do \
+	   echo "Testing: $$bad ... " ;\
+	   if ./test-skeleton < $$bad > /dev/null; then echo "... FAILED"; status=false; else echo "... passed"; fi ;\
+	   echo "" ;\
+	done ;\
+	if $$status; then echo "Success: all tests passed"; else echo "Warning: Some tests FAILED"; fi ;\
+	$$status
+
+test-skeleton : test-skeleton.o
+	$(LD) $< ../xmlparse.o -o $@ $(LDFLAGS)
+
+test-skeleton.c : test/test.xsd xsd-to-xmlparser
+	./xsd-to-xmlparser < $< | sed -e 's/1))/0))/' > $@
+
+########
+
 clean:
 	rm -f *.o
 	rm -f *~
@@ -94,7 +118,7 @@ distclean: clean
 .deps : .FORCE
 	@[ -d .deps ] || mkdir $@
 
-$(D) : .FORCE .deps
+$(D) : .deps
 	@touch $@
 
 include $(D)
