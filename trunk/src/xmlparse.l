@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.4 2010-04-04 14:29:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.5 2010-04-06 18:48:07 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -52,6 +52,7 @@
 #define LEX_ERROR_END_TAG        106
 #define LEX_ERROR_COMMENT        107
 #define LEX_ERROR_CLOSE          108
+#define LEX_ERROR_ATTR_VAL       109
 
 #define LEX_ERROR_UNEXP_TAG      201
 #define LEX_ERROR_UNBALANCED     202
@@ -214,13 +215,13 @@ charref         &#({digit}+|x{xdigit}+);
 <DQUOTED>\"                 { BEGIN(after_attr); yylval=string; return(LEX_ATTR_VAL); }
 <DQUOTED>{entityref}        { append_string(yytext); }
 <DQUOTED>{charref}          { append_string(yytext); }
-<DQUOTED>[<>&]              { return(LEX_ERROR_TAG); }
+<DQUOTED>[<>&]              { return(LEX_ERROR_ATTR_VAL); }
 <DQUOTED>[^<>&\"]+          { append_string(yytext); }
 
 <SQUOTED>\'                 { BEGIN(after_attr); yylval=string; return(LEX_ATTR_VAL); }
 <SQUOTED>{entityref}        { append_string(yytext); }
 <SQUOTED>{charref}          { append_string(yytext); }
-<SQUOTED>[<>&]              { return(LEX_ERROR_TAG); }
+<SQUOTED>[<>&]              { return(LEX_ERROR_ATTR_VAL); }
 <SQUOTED>[^<>&\']+          { append_string(yytext); }
 
  /* End of file */
@@ -292,7 +293,7 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
  int yychar,i;
 
  int nattributes=0;
- char *attributes[XMLPARSE_MAX_ATTRS];
+ char *attributes[XMLPARSE_MAX_ATTRS]={NULL};
  int attribute=0;
 
  int stackdepth=0,stackused=0;
@@ -341,17 +342,18 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
             {
              tag=tags[i];
 
-             for(i=0;i<nattributes;i++)
-                free(attributes[i]);
+             for(i=0;i<XMLPARSE_MAX_ATTRS;i++)
+                if(attributes[i])
+                  {
+                   free(attributes[i]);
+                   attributes[i]=NULL;
+                  }
 
              for(i=0;i<XMLPARSE_MAX_ATTRS;i++)
                 if(!tag->attributes[i])
                    break;
 
              nattributes=i;
-
-             for(i=0;i<nattributes;i++)
-                attributes[i]=NULL;
 
              break;
             }
@@ -422,6 +424,13 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
           fprintf(stderr,"XML Parser: Error on line %d: end tag '</%s>' seen but there was no start tag '<%s ...>'.\n",yylineno,yylval,yylval);
           yychar=LEX_ERROR_NO_START;
          }
+
+       for(i=0;i<XMLPARSE_MAX_ATTRS;i++)
+          if(attributes[i])
+            {
+             free(attributes[i]);
+             attributes[i]=NULL;
+            }
 
        if(tag->callback)
           call_callback(tag->name,tag->callback,XMLPARSE_TAG_END,nattributes,attributes);
@@ -511,6 +520,10 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
       case LEX_ERROR_CLOSE:
        fprintf(stderr,"XML Parser: Error on line %d: character '>' seen not at end of tag.\n",yylineno);
+       break;
+
+      case LEX_ERROR_ATTR_VAL:
+       fprintf(stderr,"XML Parser: Error on line %d: invalid character seen in attribute value.\n",yylineno);
        break;
       }
    }
