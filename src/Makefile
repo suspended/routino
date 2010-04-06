@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.28 2010-03-29 18:18:54 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.29 2010-04-06 18:49:50 amb Exp $
 #
 # Source code Makefile
 #
@@ -43,7 +43,6 @@ LDFLAGS+=
 #LDFLAGS+= --coverage
 
 LEXFLAGS=
-FLEXFLAGS=-p -B -F -8 -s
 
 # Compilation targets
 
@@ -63,7 +62,7 @@ all : $(EXE)
 PLANETSPLITTER_OBJ=planetsplitter.o \
 	           nodesx.o segmentsx.o waysx.o superx.o \
 	           ways.o \
-	           files.o profiles.o \
+	           files.o \
 	           results.o queue.o sorting.o \
 	           osmparser.o
 
@@ -93,8 +92,7 @@ router : $(ROUTER_OBJ)
 ########
 
 xmlparse.c : xmlparse.l
-	[ ! "$(LEX)" = "flex" ] || $(LEX) $(FLEXFLAGS) $<
-	[   "$(LEX)" = "flex" ] || $(LEX) $(LEXFLAGS)  $<
+	$(LEX) $(LEXFLAGS)  $<
 	-@mv lex.yy.c xmlparse.c
 	@echo Created xmlparse.c
 
@@ -124,7 +122,7 @@ distclean: clean
 .deps : .FORCE
 	@[ -d .deps ] || mkdir $@
 
-$(D) : .FORCE .deps
+$(D) : .deps
 	@touch $@
 
 include $(D)
