@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xml/xsd-to-xmlparser.c,v 1.4 2010-04-04 14:30:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xml/xsd-to-xmlparser.c,v 1.5 2010-04-06 18:48:41 amb Exp $
 
  An XML parser for simplified XML Schema Definitions to create XML parser skeletons.
 
@@ -403,30 +403,25 @@ int main(int argc,char **argv)
 
     if(i==(ntags-1))            /* XML tag */
       {
-       printf(" printf(\"<?%s",tags[i]->name);
+       printf(" printf(\"<?%s\");\n",tags[i]->name);
        for(j=0;j<XMLPARSE_MAX_ATTRS;j++)
           if(tags[i]->attributes[j])
-             printf(" %s=\\\"%%s\\\"",tags[i]->attributes[j]);
-       printf("%s?>\\n\"",tags[i]->attributes[0]?" ":"");
-       for(j=0;j<XMLPARSE_MAX_ATTRS;j++)
-          if(tags[i]->attributes[j])
-             printf(",(%s?%s:\"\")",safe(tags[i]->attributes[j]),safe(tags[i]->attributes[j]));
-       printf(");\n");
+            {
+             char *safename=safe(tags[i]->attributes[j]);
+             printf(" if(%s) printf(\" %s=\\\"%%s\\\"\",%s);\n",safename,tags[i]->attributes[j],safename);
+            }
+       printf(" printf(\" ?>\\n\");\n");
       }
     else
       {
-       printf(" if(_type_&XMLPARSE_TAG_START)\n");
-       printf("    printf(\"<%s",tags[i]->name);
+       printf(" printf(\"<%%s%s\",(_type_==XMLPARSE_TAG_END)?\"/\":\"\");\n",tags[i]->name);
        for(j=0;j<XMLPARSE_MAX_ATTRS;j++)
           if(tags[i]->attributes[j])
-             printf(" %s=\\\"%%s\\\"",tags[i]->attributes[j]);
-       printf("%%s>\\n\"");
-       for(j=0;j<XMLPARSE_MAX_ATTRS;j++)
-          if(tags[i]->attributes[j])
-             printf(",(%s?%s:\"\")",safe(tags[i]->attributes[j]),safe(tags[i]->attributes[j]));
-       printf(",(_type_&XMLPARSE_TAG_END)?\" /\":\"\");\n");
-       printf(" else\n");
-       printf("    printf(\"</%s>\\n\");\n",tags[i]->name);
+            {
+             char *safename=safe(tags[i]->attributes[j]);
+             printf(" if(%s) printf(\" %s=\\\"%%s\\\"\",%s);\n",safename,tags[i]->attributes[j],safename);
+            }
+       printf(" printf(\"%%s>\\n\",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?\" /\":\"\");\n");
       }
 
     printf("}\n");
