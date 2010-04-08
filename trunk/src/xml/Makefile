@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.3 2010-04-04 14:31:00 amb Exp $
+# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.4 2010-04-08 17:24:34 amb Exp $
 #
 # XML test programs Makefile
 #
@@ -27,7 +27,7 @@ LD=gcc
 
 # Program options
 
-CFLAGS=-Wall -Wmissing-prototypes -O3
+CFLAGS=-Wall -Wmissing-prototypes -O0 -g
 LDFLAGS=-lm -lc
 
 # Compilation targets
@@ -81,7 +81,7 @@ test : test-skeleton .FORCE
 	echo "" ;\
 	for good in test/good*.xml; do \
 	   echo "Testing: $$good ... " ;\
-	   if ./test-skeleton < $$good > /dev/null; then echo "... passed"; else echo "... FAILED"  status=false; fi ;\
+	   if ./test-skeleton < $$good > /dev/null; then echo "... passed"; else echo "... FAILED"; status=false; fi ;\
 	   echo "" ;\
 	done ;\
 	for bad in test/bad*.xml; do \
@@ -96,7 +96,7 @@ test-skeleton : test-skeleton.o
 	$(LD) $< ../xmlparse.o -o $@ $(LDFLAGS)
 
 test-skeleton.c : test/test.xsd xsd-to-xmlparser
-	./xsd-to-xmlparser < $< | sed -e 's/1))/0))/' > $@
+	./xsd-to-xmlparser < $< | sed -e 's/1))$$/0))/' > $@
 
 ########
 
