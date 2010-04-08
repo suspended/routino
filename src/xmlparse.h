@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.4 2010-04-04 14:29:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.5 2010-04-08 17:21:45 amb Exp $
 
  A simple XML parser
 
@@ -48,7 +48,8 @@ struct _xmltag
 {
  char *name;                            /*+ The name of the tag. +*/
 
- char *attributes[XMLPARSE_MAX_ATTRS];  /*+ The valid attributes for the tag (null terminated). +*/
+ int  nattributes;                      /*+ The number of valid attributes for the tag. +*/
+ char *attributes[XMLPARSE_MAX_ATTRS];  /*+ The valid attributes for the tag. +*/
 
  void (*callback)();                    /*+ The callback function when the tag is seen. +*/
 
@@ -61,6 +62,10 @@ struct _xmltag
 int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes);
 
 int ParseXML_LineNumber(void);
+
+const char *ParseXML_Decode_Entity_Ref(const char *string);
+const char *ParseXML_Decode_Char_Ref(const char *string);
+const char *ParseXML_Encode_Safe_XML(const char *string);
 
 
 #endif /* XMLPARSE_H */
