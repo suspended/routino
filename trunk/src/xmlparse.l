@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.5 2010-04-06 18:48:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.6 2010-04-08 17:21:45 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -29,6 +29,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "xmlparse.h"
+
+
 /* Parser outputs */
 
 #define LEX_EOF                    0
@@ -53,6 +56,8 @@
 #define LEX_ERROR_COMMENT        107
 #define LEX_ERROR_CLOSE          108
 #define LEX_ERROR_ATTR_VAL       109
+#define LEX_ERROR_ENTITY_REF     110
+#define LEX_ERROR_CHAR_REF       111
 
 #define LEX_ERROR_UNEXP_TAG      201
 #define LEX_ERROR_UNBALANCED     202
@@ -213,15 +218,15 @@ charref         &#({digit}+|x{xdigit}+);
  /* Quoted strings */
 
 <DQUOTED>\"                 { BEGIN(after_attr); yylval=string; return(LEX_ATTR_VAL); }
-<DQUOTED>{entityref}        { append_string(yytext); }
-<DQUOTED>{charref}          { append_string(yytext); }
-<DQUOTED>[<>&]              { return(LEX_ERROR_ATTR_VAL); }
+<DQUOTED>{entityref}        { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} }
+<DQUOTED>{charref}          { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} }
+<DQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 <DQUOTED>[^<>&\"]+          { append_string(yytext); }
 
 <SQUOTED>\'                 { BEGIN(after_attr); yylval=string; return(LEX_ATTR_VAL); }
-<SQUOTED>{entityref}        { append_string(yytext); }
-<SQUOTED>{charref}          { append_string(yytext); }
-<SQUOTED>[<>&]              { return(LEX_ERROR_ATTR_VAL); }
+<SQUOTED>{entityref}        { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} }
+<SQUOTED>{charref}          { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} }
+<SQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 <SQUOTED>[^<>&\']+          { append_string(yytext); }
 
  /* End of file */
@@ -230,13 +235,11 @@ charref         &#({digit}+|x{xdigit}+);
 
 %%
 
-#include "xmlparse.h"
-
 
 /*++++++++++++++++++++++++++++++++++++++
   A function to call the callback function with the parameters needed.
 
-  char *name The name of the tag.
+  const char *name The name of the tag.
 
   void (*callback)() The callback function.
 
@@ -247,7 +250,7 @@ charref         &#({digit}+|x{xdigit}+);
   char *attributes[XMLPARSE_MAX_ATTRS] The list of attributes.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline void call_callback(char *name,void (*callback)(),int type,int nattributes,char *attributes[XMLPARSE_MAX_ATTRS])
+static inline void call_callback(const char *name,void (*callback)(),int type,int nattributes,char *attributes[XMLPARSE_MAX_ATTRS])
 {
  switch(nattributes)
    {
@@ -292,7 +295,6 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 {
  int yychar,i;
 
- int nattributes=0;
  char *attributes[XMLPARSE_MAX_ATTRS]={NULL};
  int attribute=0;
 
@@ -342,18 +344,12 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
             {
              tag=tags[i];
 
-             for(i=0;i<XMLPARSE_MAX_ATTRS;i++)
+             for(i=0;i<tag->nattributes;i++)
                 if(attributes[i])
                   {
                    free(attributes[i]);
                    attributes[i]=NULL;
                   }
-
-             for(i=0;i<XMLPARSE_MAX_ATTRS;i++)
-                if(!tag->attributes[i])
-                   break;
-
-             nattributes=i;
 
              break;
             }
@@ -381,7 +377,7 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
        stackused++;
 
        if(tag->callback)
-          call_callback(tag->name,tag->callback,XMLPARSE_TAG_START,nattributes,attributes);
+          call_callback(tag->name,tag->callback,XMLPARSE_TAG_START,tag->nattributes,attributes);
 
        tags=tag->subtags;
 
@@ -396,7 +392,7 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
       case LEX_TAG_FINISH:
 
        if(tag->callback)
-          call_callback(tag->name,tag->callback,XMLPARSE_TAG_START|XMLPARSE_TAG_END,nattributes,attributes);
+          call_callback(tag->name,tag->callback,XMLPARSE_TAG_START|XMLPARSE_TAG_END,tag->nattributes,attributes);
 
        if(stackused>0)
           tag=tag_stack[stackused-1];
@@ -425,7 +421,7 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
           yychar=LEX_ERROR_NO_START;
          }
 
-       for(i=0;i<XMLPARSE_MAX_ATTRS;i++)
+       for(i=0;i<tag->nattributes;i++)
           if(attributes[i])
             {
              free(attributes[i]);
@@ -433,7 +429,7 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
             }
 
        if(tag->callback)
-          call_callback(tag->name,tag->callback,XMLPARSE_TAG_END,nattributes,attributes);
+          call_callback(tag->name,tag->callback,XMLPARSE_TAG_END,tag->nattributes,attributes);
 
        if(stackused>0)
           tag=tag_stack[stackused-1];
@@ -448,7 +444,7 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
        attribute=-1;
 
-       for(i=0;i<nattributes;i++)
+       for(i=0;i<tag->nattributes;i++)
           if(!strcasecmp(yylval,tag->attributes[i]))
             {
              attribute=i;
@@ -523,7 +519,15 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
        break;
 
       case LEX_ERROR_ATTR_VAL:
-       fprintf(stderr,"XML Parser: Error on line %d: invalid character seen in attribute value.\n",yylineno);
+       fprintf(stderr,"XML Parser: Error on line %d: invalid character '%s' seen in attribute value.\n",yylineno,yylval);
+       break;
+
+      case LEX_ERROR_ENTITY_REF:
+       fprintf(stderr,"XML Parser: Error on line %d: invalid entity reference '%s' seen in attribute value.\n",yylineno,yylval);
+       break;
+
+      case LEX_ERROR_CHAR_REF:
+       fprintf(stderr,"XML Parser: Error on line %d: invalid character reference '%s' seen in attribute value.\n",yylineno,yylval);
        break;
       }
    }
@@ -531,7 +535,7 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
  /* Delete the tagdata */
 
- for(i=0;i<nattributes;i++)
+ for(i=0;i<XMLPARSE_MAX_ATTRS;i++)
     if(attributes[i])
        free(attributes[i]);
 
@@ -551,4 +555,143 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 int ParseXML_LineNumber(void)
 {
  return(yylineno);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Convert an XML entity reference into an ASCII string.
+
+  const char *ParseXML_Decode_Entity_Ref Returns a pointer to the replacement decoded string.
+
+  const char *string The entity reference string.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *ParseXML_Decode_Entity_Ref(const char *string)
+{
+ if(!strcmp(string,"&amp;"))  return("&");
+ if(!strcmp(string,"&lt;"))   return("<");
+ if(!strcmp(string,"&gt;"))   return(">");
+ if(!strcmp(string,"&apos;")) return("'");
+ if(!strcmp(string,"&quot;")) return("\"");
+ return(NULL);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Convert an XML character reference into an ASCII string.
+
+  const char *ParseXML_Decode_Char_Ref Returns a pointer to the replacement decoded string.
+
+  const char *string The character reference string.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *ParseXML_Decode_Char_Ref(const char *string)
+{
+ static char result[2]=" ";
+ long int val;
+
+ if(string[2]=='x') val=strtol(string+3,NULL,16);
+ else               val=strtol(string+2,NULL,10);
+
+ if(val<0 || val>255)
+    return(NULL);
+
+ result[0]=val&0xff;
+
+ return(result);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Convert a string into something that is safe to output in an XML file.
+
+  const char *ParseXML_Encode_Safe_XML Returns a pointer to the replacement encoded string (or the original if no change needed).
+
+  const char *string The string to convert.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+const char *ParseXML_Encode_Safe_XML(const char *string)
+{
+ static const char hexstring[17]="0123456789ABCDEF";
+ int i=0,j=0,len;
+ char *result;
+
+ for(i=0;string[i];i++)
+    if(string[i]=='<' || string[i]=='>' || string[i]=='&' || string[i]=='\'' || string[i]=='"' || string[i]<32 || string[i]>126)
+       break;
+
+ if(!string[i])
+    return(string);
+
+ len=i+256-6;
+
+ result=(char*)malloc(len+7);
+ strncpy(result,string,i);
+
+ do
+   {
+    for(;j<len && string[i];i++)
+       if(string[i]=='<')
+         {
+          result[j++]='&';
+          result[j++]='l';
+          result[j++]='t';
+          result[j++]=';';
+         }
+       else if(string[i]=='>')
+         {
+          result[j++]='&';
+          result[j++]='g';
+          result[j++]='t';
+          result[j++]=';';
+         }
+       else if(string[i]=='&')
+         {
+          result[j++]='&';
+          result[j++]='a';
+          result[j++]='m';
+          result[j++]='p';
+          result[j++]=';';
+         }
+       else if(string[i]=='\'')
+         {
+          result[j++]='&';
+          result[j++]='a';
+          result[j++]='p';
+          result[j++]='o';
+          result[j++]='s';
+          result[j++]=';';
+         }
+       else if(string[i]=='"')
+         {
+          result[j++]='&';
+          result[j++]='q';
+          result[j++]='u';
+          result[j++]='o';
+          result[j++]='t';
+          result[j++]=';';
+         }
+       else if(string[i]<32 || string[i]>126)
+         {
+          result[j++]='&';
+          result[j++]='#';
+          result[j++]='x';
+          result[j++]=hexstring[(string[i]&0xf0)>>4];
+          result[j++]=hexstring[ string[i]&0x0f    ];
+          result[j++]=';';
+         }
+       else
+          result[j++]=string[i];
+
+    if(string[i])                  /* Not finished */
+      {
+       len+=256;
+       result=(char*)realloc((void*)result,len+7);
+      }
+   }
+ while(string[i]);
+
+ result[j]=0;
+
+ return(result);
 }
