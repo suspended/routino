@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.35 2010-04-04 14:29:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.36 2010-04-08 17:21:06 amb Exp $
 
  The pre-defined profiles and the functions for handling them.
 
@@ -46,15 +46,15 @@ static int profile_parse_error=0;
 
 /* The XML tag processing function prototypes */
 
-static void profile_function(int _type_,char *name,char *transport);
-static void length_function(int _type_,char *limit);
-static void width_function(int _type_,char *limit);
-static void height_function(int _type_,char *limit);
-static void weight_function(int _type_,char *limit);
-static void oneway_function(int _type_,char *obey);
-static void property_function(int _type_,char *type,char *percent);
-static void preference_function(int _type_,char *highway,char *percent);
-static void speed_function(int _type_,char *highway,char *kph);
+static void profile_function(int _type_,const char *name,const char *transport);
+static void length_function(int _type_,const char *limit);
+static void width_function(int _type_,const char *limit);
+static void height_function(int _type_,const char *limit);
+static void weight_function(int _type_,const char *limit);
+static void oneway_function(int _type_,const char *obey);
+static void property_function(int _type_,const char *type,const char *percent);
+static void preference_function(int _type_,const char *highway,const char *percent);
+static void speed_function(int _type_,const char *highway,const char *kph);
 
 
 /* The XML tag definitions */
@@ -62,105 +62,105 @@ static void speed_function(int _type_,char *highway,char *kph);
 /*+ The speedType type tag. +*/
 static xmltag speed_tag=
               {"speed",
-               {"highway","kph",NULL},
+               2, {"highway","kph"},
                speed_function,
                {NULL}};
 
 /*+ The speedsType type tag. +*/
 static xmltag speeds_tag=
               {"speeds",
-               {NULL},
+               0, {NULL},
                NULL,
                {&speed_tag,NULL}};
 
 /*+ The preferenceType type tag. +*/
 static xmltag preference_tag=
               {"preference",
-               {"highway","percent",NULL},
+               2, {"highway","percent"},
                preference_function,
                {NULL}};
 
 /*+ The preferencesType type tag. +*/
 static xmltag preferences_tag=
               {"preferences",
-               {NULL},
+               0, {NULL},
                NULL,
                {&preference_tag,NULL}};
 
 /*+ The propertyType type tag. +*/
 static xmltag property_tag=
               {"property",
-               {"type","percent",NULL},
+               2, {"type","percent"},
                property_function,
                {NULL}};
 
 /*+ The onewayType type tag. +*/
 static xmltag oneway_tag=
               {"oneway",
-               {"obey",NULL},
+               1, {"obey"},
                oneway_function,
                {NULL}};
 
 /*+ The propertiesType type tag. +*/
 static xmltag properties_tag=
               {"properties",
-               {NULL},
+               0, {NULL},
                NULL,
                {&property_tag,NULL}};
 
 /*+ The weightType type tag. +*/
 static xmltag weight_tag=
               {"weight",
-               {"limit",NULL},
+               1, {"limit"},
                weight_function,
                {NULL}};
 
 /*+ The heightType type tag. +*/
 static xmltag height_tag=
               {"height",
-               {"limit",NULL},
+               1, {"limit"},
                height_function,
                {NULL}};
 
 /*+ The widthType type tag. +*/
 static xmltag width_tag=
               {"width",
-               {"limit",NULL},
+               1, {"limit"},
                width_function,
                {NULL}};
 
 /*+ The lengthType type tag. +*/
 static xmltag length_tag=
               {"length",
-               {"limit",NULL},
+               1, {"limit"},
                length_function,
                {NULL}};
 
 /*+ The restrictionsType type tag. +*/
 static xmltag restrictions_tag=
               {"restrictions",
-               {NULL},
+               0, {NULL},
                NULL,
                {&oneway_tag,&weight_tag,&height_tag,&width_tag,&length_tag,NULL}};
 
 /*+ The profileType type tag. +*/
 static xmltag profile_tag=
               {"profile",
-               {"name","transport",NULL},
+               2, {"name","transport"},
                profile_function,
                {&speeds_tag,&preferences_tag,&properties_tag,&restrictions_tag,NULL}};
 
 /*+ The RoutinoProfilesType type tag. +*/
 static xmltag routino_profiles_tag=
               {"routino-profiles",
-               {NULL},
+               0, {NULL},
                NULL,
                {&profile_tag,NULL}};
 
-/*+ The ?xmlType type tag. +*/
+/*+ The xmlType type tag. +*/
 static xmltag xml_tag=
               {"xml",
-               {"version","encoding",NULL},
+               2, {"version","encoding"},
                NULL,
                {NULL}};
 
@@ -177,12 +177,12 @@ static xmltag *xml_toplevel_tags[]={&xml_tag,&routino_profiles_tag,NULL};
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *highway The contents of the 'highway' attribute (or NULL if not defined).
+  const char *highway The contents of the 'highway' attribute (or NULL if not defined).
 
-  char *kph The contents of the 'kph' attribute (or NULL if not defined).
+  const char *kph The contents of the 'kph' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void speed_function(int _type_,char *highway,char *kph)
+static void speed_function(int _type_,const char *highway,const char *kph)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -221,12 +221,12 @@ static void speed_function(int _type_,char *highway,char *kph)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *highway The contents of the 'highway' attribute (or NULL if not defined).
+  const char *highway The contents of the 'highway' attribute (or NULL if not defined).
 
-  char *percent The contents of the 'percent' attribute (or NULL if not defined).
+  const char *percent The contents of the 'percent' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void preference_function(int _type_,char *highway,char *percent)
+static void preference_function(int _type_,const char *highway,const char *percent)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -265,12 +265,12 @@ static void preference_function(int _type_,char *highway,char *percent)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *type The contents of the 'type' attribute (or NULL if not defined).
+  const char *type The contents of the 'type' attribute (or NULL if not defined).
 
-  char *percent The contents of the 'percent' attribute (or NULL if not defined).
+  const char *percent The contents of the 'percent' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void property_function(int _type_,char *type,char *percent)
+static void property_function(int _type_,const char *type,const char *percent)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -309,10 +309,10 @@ static void property_function(int _type_,char *type,char *percent)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *obey The contents of the 'obey' attribute (or NULL if not defined).
+  const char *obey The contents of the 'obey' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void oneway_function(int _type_,char *obey)
+static void oneway_function(int _type_,const char *obey)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -340,10 +340,10 @@ static void oneway_function(int _type_,char *obey)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *limit The contents of the 'limit' attribute (or NULL if not defined).
+  const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void weight_function(int _type_,char *limit)
+static void weight_function(int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -371,10 +371,10 @@ static void weight_function(int _type_,char *limit)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *limit The contents of the 'limit' attribute (or NULL if not defined).
+  const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void height_function(int _type_,char *limit)
+static void height_function(int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -402,10 +402,10 @@ static void height_function(int _type_,char *limit)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *limit The contents of the 'limit' attribute (or NULL if not defined).
+  const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void width_function(int _type_,char *limit)
+static void width_function(int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -433,10 +433,10 @@ static void width_function(int _type_,char *limit)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *limit The contents of the 'limit' attribute (or NULL if not defined).
+  const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void length_function(int _type_,char *limit)
+static void length_function(int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -464,12 +464,12 @@ static void length_function(int _type_,char *limit)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *name The contents of the 'name' attribute (or NULL if not defined).
+  const char *name The contents of the 'name' attribute (or NULL if not defined).
 
-  char *transport The contents of the 'transport' attribute (or NULL if not defined).
+  const char *transport The contents of the 'transport' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void profile_function(int _type_,char *name,char *transport)
+static void profile_function(int _type_,const char *name,const char *transport)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
