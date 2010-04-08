@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xml/xsd-to-xmlparser.c,v 1.5 2010-04-06 18:48:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xml/xsd-to-xmlparser.c,v 1.6 2010-04-08 17:20:43 amb Exp $
 
  An XML parser for simplified XML Schema Definitions to create XML parser skeletons.
 
@@ -42,12 +42,12 @@ static char *safe(const char *name);
 
 /* The XML tag processing function prototypes */
 
-static void xml_function(int _type_,char *version,char *encoding);
-static void xsd_schema_function(int _type_,char *elementFormDefault,char *xmlns_xsd);
-static void xsd_complexType_function(int _type_,char *name);
-static void xsd_attribute_function(int _type_,char *name,char *type);
+static void xml_function(int _type_,const char *version,const char *encoding);
+static void xsd_schema_function(int _type_,const char *elementFormDefault,const char *xmlns_xsd);
+static void xsd_complexType_function(int _type_,const char *name);
+static void xsd_attribute_function(int _type_,const char *name,const char *type);
 static void xsd_sequence_function(int _type_);
-static void xsd_element_function(int _type_,char *name,char *type,char *minOccurs,char *maxOccurs);
+static void xsd_element_function(int _type_,const char *name,const char *type,const char *minOccurs,const char *maxOccurs);
 
 
 /* The XML tag definitions */
@@ -55,42 +55,42 @@ static void xsd_element_function(int _type_,char *name,char *type,char *minOccur
 /*+ The elementType type tag. +*/
 static xmltag xsd_element_tag=
               {"xsd:element",
-               {"name","type","minOccurs","maxOccurs",NULL},
+               4, {"name","type","minOccurs","maxOccurs"},
                xsd_element_function,
                {NULL}};
 
 /*+ The sequenceType type tag. +*/
 static xmltag xsd_sequence_tag=
               {"xsd:sequence",
-               {NULL},
+               0, {NULL},
                xsd_sequence_function,
                {&xsd_element_tag,NULL}};
 
 /*+ The attributeType type tag. +*/
 static xmltag xsd_attribute_tag=
               {"xsd:attribute",
-               {"name","type",NULL},
+               2, {"name","type"},
                xsd_attribute_function,
                {NULL}};
 
 /*+ The complexType type tag. +*/
 static xmltag xsd_complexType_tag=
               {"xsd:complexType",
-               {"name",NULL},
+               1, {"name"},
                xsd_complexType_function,
                {&xsd_sequence_tag,&xsd_attribute_tag,NULL}};
 
 /*+ The schemaType type tag. +*/
 static xmltag xsd_schema_tag=
               {"xsd:schema",
-               {"elementFormDefault","xmlns:xsd",NULL},
+               2, {"elementFormDefault","xmlns:xsd"},
                xsd_schema_function,
                {&xsd_element_tag,&xsd_complexType_tag,NULL}};
 
 /*+ The xmlType type tag. +*/
 static xmltag xml_tag=
               {"xml",
-               {"version","encoding",NULL},
+               2, {"version","encoding"},
                xml_function,
                {NULL}};
 
@@ -107,16 +107,16 @@ static xmltag *xml_toplevel_tags[]={&xml_tag,&xsd_schema_tag,NULL};
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *name The contents of the 'name' attribute (or NULL if not defined).
+  const char *name The contents of the 'name' attribute (or NULL if not defined).
 
-  char *type The contents of the 'type' attribute (or NULL if not defined).
+  const char *type The contents of the 'type' attribute (or NULL if not defined).
 
-  char *minOccurs The contents of the 'minOccurs' attribute (or NULL if not defined).
+  const char *minOccurs The contents of the 'minOccurs' attribute (or NULL if not defined).
 
-  char *maxOccurs The contents of the 'maxOccurs' attribute (or NULL if not defined).
+  const char *maxOccurs The contents of the 'maxOccurs' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xsd_element_function(int _type_,char *name,char *type,char *minOccurs,char *maxOccurs)
+static void xsd_element_function(int _type_,const char *name,const char *type,const char *minOccurs,const char *maxOccurs)
 {
  xmltag *tag=NULL;
  int i,j;
@@ -176,12 +176,12 @@ static void xsd_sequence_function(int _type_)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *name The contents of the 'name' attribute (or NULL if not defined).
+  const char *name The contents of the 'name' attribute (or NULL if not defined).
 
-  char *type The contents of the 'type' attribute (or NULL if not defined).
+  const char *type The contents of the 'type' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xsd_attribute_function(int _type_,char *name,char *type)
+static void xsd_attribute_function(int _type_,const char *name,const char *type)
 {
  int i,j;
 
@@ -195,6 +195,7 @@ static void xsd_attribute_function(int _type_,char *name,char *type)
           if(!tags[i]->attributes[j])
             {
              tags[i]->attributes[j]=strcpy(malloc(strlen(name)+1),name);
+             tags[i]->nattributes++;
              break;
             }
 
@@ -209,10 +210,10 @@ static void xsd_attribute_function(int _type_,char *name,char *type)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *name The contents of the 'name' attribute (or NULL if not defined).
+  const char *name The contents of the 'name' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xsd_complexType_function(int _type_,char *name)
+static void xsd_complexType_function(int _type_,const char *name)
 {
  if(_type_==XMLPARSE_TAG_END)
     return;
@@ -226,12 +227,12 @@ static void xsd_complexType_function(int _type_,char *name)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *elementFormDefault The contents of the 'elementFormDefault' attribute (or NULL if not defined).
+  const char *elementFormDefault The contents of the 'elementFormDefault' attribute (or NULL if not defined).
 
-  char *xmlns_xsd The contents of the 'xmlns:xsd' attribute (or NULL if not defined).
+  const char *xmlns_xsd The contents of the 'xmlns:xsd' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xsd_schema_function(int _type_,char *elementFormDefault,char *xmlns_xsd)
+static void xsd_schema_function(int _type_,const char *elementFormDefault,const char *xmlns_xsd)
 {
 }
 
@@ -241,12 +242,12 @@ static void xsd_schema_function(int _type_,char *elementFormDefault,char *xmlns_
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  char *version The contents of the 'version' attribute (or NULL if not defined).
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
 
-  char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
+  const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xml_function(int _type_,char *version,char *encoding)
+static void xml_function(int _type_,const char *version,const char *encoding)
 {
 }
 
@@ -325,9 +326,8 @@ int main(int argc,char **argv)
    {
     printf("static void %s_function(int _type_",safe(tags[i]->name));
 
-    for(j=0;j<XMLPARSE_MAX_ATTRS;j++)
-       if(tags[i]->attributes[j])
-          printf(",char *%s",safe(tags[i]->attributes[j]));
+    for(j=0;j<tags[i]->nattributes;j++)
+       printf(",const char *%s",safe(tags[i]->attributes[j]));
 
     printf(");\n");
    }
@@ -345,11 +345,10 @@ int main(int argc,char **argv)
     printf("static xmltag %s_tag=\n",safe(tags[i]->name));
     printf("              {\"%s\",\n",tags[i]->name);
 
-    printf("               {");
-    for(j=0;j<XMLPARSE_MAX_ATTRS;j++)
-       if(tags[i]->attributes[j])
-          printf("\"%s\",",tags[i]->attributes[j]);
-    printf("NULL},\n");
+    printf("               %d, {",tags[i]->nattributes);
+    for(j=0;j<tags[i]->nattributes;j++)
+       printf("%s\"%s\"",(j?",":""),tags[i]->attributes[j]);
+    printf("%s},\n",(tags[i]->nattributes?"":"NULL"));
 
     printf("               %s_function,\n",safe(tags[i]->name));
 
@@ -382,20 +381,18 @@ int main(int argc,char **argv)
     printf("  The function that is called when the %s XSD type is seen\n",types[i]);
     printf("\n");
     printf("  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.\n");
-    for(j=0;j<XMLPARSE_MAX_ATTRS;j++)
-       if(tags[i]->attributes[j])
-         {
-          printf("\n");
-          printf("  char *%s The contents of the '%s' attribute (or NULL if not defined).\n",safe(tags[i]->attributes[j]),tags[i]->attributes[j]);
-         }
+    for(j=0;j<tags[i]->nattributes;j++)
+      {
+       printf("\n");
+       printf("  const char *%s The contents of the '%s' attribute (or NULL if not defined).\n",safe(tags[i]->attributes[j]),tags[i]->attributes[j]);
+      }
     printf("  ++++++++++++++++++++++++++++++++++++++*/\n");
     printf("\n");
 
     printf("static void %s_function(int _type_",safe(tags[i]->name));
 
-    for(j=0;j<XMLPARSE_MAX_ATTRS;j++)
-       if(tags[i]->attributes[j])
-          printf(",char *%s",safe(tags[i]->attributes[j]));
+    for(j=0;j<tags[i]->nattributes;j++)
+       printf(",const char *%s",safe(tags[i]->attributes[j]));
 
     printf(")\n");
 
@@ -404,23 +401,21 @@ int main(int argc,char **argv)
     if(i==(ntags-1))            /* XML tag */
       {
        printf(" printf(\"<?%s\");\n",tags[i]->name);
-       for(j=0;j<XMLPARSE_MAX_ATTRS;j++)
-          if(tags[i]->attributes[j])
-            {
-             char *safename=safe(tags[i]->attributes[j]);
-             printf(" if(%s) printf(\" %s=\\\"%%s\\\"\",%s);\n",safename,tags[i]->attributes[j],safename);
-            }
+       for(j=0;j<tags[i]->nattributes;j++)
+         {
+          char *safename=safe(tags[i]->attributes[j]);
+          printf(" if(%s) printf(\" %s=\\\"%%s\\\"\",ParseXML_Encode_Safe_XML(%s));\n",safename,tags[i]->attributes[j],safename);
+         }
        printf(" printf(\" ?>\\n\");\n");
       }
     else
       {
        printf(" printf(\"<%%s%s\",(_type_==XMLPARSE_TAG_END)?\"/\":\"\");\n",tags[i]->name);
-       for(j=0;j<XMLPARSE_MAX_ATTRS;j++)
-          if(tags[i]->attributes[j])
-            {
-             char *safename=safe(tags[i]->attributes[j]);
-             printf(" if(%s) printf(\" %s=\\\"%%s\\\"\",%s);\n",safename,tags[i]->attributes[j],safename);
-            }
+       for(j=0;j<tags[i]->nattributes;j++)
+         {
+          char *safename=safe(tags[i]->attributes[j]);
+          printf(" if(%s) printf(\" %s=\\\"%%s\\\"\",ParseXML_Encode_Safe_XML(%s));\n",safename,tags[i]->attributes[j],safename);
+         }
        printf(" printf(\"%%s>\\n\",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?\" /\":\"\");\n");
       }
 
