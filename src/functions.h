@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.51 2010-03-29 18:20:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.52 2010-04-09 15:15:02 amb Exp $
 
  Header file for function prototypes
 
@@ -93,9 +93,10 @@ void PrintRouteTail(void);
 
 /* In sorting.c */
 
-/*+ The type and size of variable to store the variable length +*/
+/*+ The type, size and alignment of variable to store the variable length +*/
 #define FILESORT_VARINT   unsigned short
 #define FILESORT_VARSIZE  sizeof(FILESORT_VARINT)
+#define FILESORT_VARALIGN sizeof(void*)
 
 void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const void*,const void*),int (*buildindex)(void*,index_t));
 
