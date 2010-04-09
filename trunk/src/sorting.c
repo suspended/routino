@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.7 2009-12-12 11:08:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.8 2010-04-09 15:15:02 amb Exp $
 
  Merge sort functions.
 
@@ -30,19 +30,13 @@
 #include "functions.h"
 
 
-/* Constants */
-
-/*+ The amount of memory to use for sorting. +*/
-#define FILESORT_RAMSIZE    (64*1024*1024)
-
-/*+ The alignment of the +*/
-#define FILESORT_VARALIGN   sizeof(void*)
-
-
 /* Variables */
 
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
+
+/*+ The amount of RAM to use for filesorting. +*/
+extern size_t option_filesort_ramsize;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -73,7 +67,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
  index_t count=0,total=0;
- size_t nitems=FILESORT_RAMSIZE/(itemsize+sizeof(void*));
+ size_t nitems=option_filesort_ramsize/(itemsize+sizeof(void*));
  void *data=NULL,**datap=NULL;
  char *filename;
  int i,more=1;
@@ -327,7 +321,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
  /* Allocate the RAM buffer and other bits */
 
- data=malloc(FILESORT_RAMSIZE);
+ data=malloc(option_filesort_ramsize);
 
  filename=(char*)malloc(strlen(option_tmpdirname)+24);
 
@@ -341,7 +335,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
     int fd,n=0;
     size_t ramused=FILESORT_VARALIGN-FILESORT_VARSIZE;
 
-    datap=data+FILESORT_RAMSIZE;
+    datap=data+option_filesort_ramsize;
 
     /* Read in the data and create pointers */
 
@@ -423,7 +417,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
  largestitemsize=FILESORT_VARALIGN*(1+(largestitemsize+FILESORT_VARALIGN-FILESORT_VARSIZE)/FILESORT_VARALIGN);
 
- assert(nfiles<((FILESORT_RAMSIZE-nfiles*sizeof(void*))/largestitemsize));
+ assert(nfiles<((option_filesort_ramsize-nfiles*sizeof(void*))/largestitemsize));
 
  /* Open all of the temporary files */
 
@@ -442,7 +436,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
  heap=(int*)malloc(nfiles*sizeof(int));
 
- datap=data+FILESORT_RAMSIZE-nfiles*sizeof(void*);
+ datap=data+option_filesort_ramsize-nfiles*sizeof(void*);
 
  /* Fill the heap to start with */
 

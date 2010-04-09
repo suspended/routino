@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.70 2010-04-03 14:20:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.71 2010-04-09 15:15:02 amb Exp $
 
  OSM planet file splitter.
 
@@ -47,6 +47,9 @@ int option_slim=0;
 /*+ The name of the temporary directory. +*/
 char *option_tmpdirname=NULL;
 
+/*+ The amount of RAM to use for filesorting. +*/
+size_t option_filesort_ramsize=0;
+
 
 /* Local functions */
 
@@ -92,6 +95,8 @@ int main(int argc,char** argv)
        print_usage(1);
     else if(!strcmp(argv[arg],"--slim"))
        option_slim=1;
+    else if(!strncmp(argv[arg],"--sort-ram-size=",16))
+       option_filesort_ramsize=atoi(&argv[arg][16]);
     else if(!strncmp(argv[arg],"--dir=",6))
        dirname=&argv[arg][6];
     else if(!strncmp(argv[arg],"--tmpdir=",9))
@@ -136,6 +141,16 @@ int main(int argc,char** argv)
 
  if(option_filenames && option_process_only)
     print_usage(0);
+
+ if(!option_filesort_ramsize)
+   {
+    if(option_slim)
+       option_filesort_ramsize=64*1024*1024;
+    else
+       option_filesort_ramsize=256*1024*1024;
+   }
+ else
+    option_filesort_ramsize*=1024*1024;
 
  if(!option_tmpdirname)
    {
@@ -364,7 +379,8 @@ static void print_usage(int detail)
  fprintf(stderr,
          "Usage: planetsplitter [--help]\n"
          "                      [--dir=<dirname>] [--prefix=<name>]\n"
-         "                      [--slim] [--tmpdir=<dirname>]\n"
+         "                      [--slim] [--sort-ram-size=<size>]\n"
+         "                      [--tmpdir=<dirname>]\n"
          "                      [--parse-only | --process-only]\n"
          "                      [--max-iterations=<number>]\n"
          "                      [--transport=<transport> ...]\n"
@@ -381,7 +397,10 @@ static void print_usage(int detail)
             "--prefix=<name>           The filename prefix for the routing database.\n"
             "\n"
             "--slim                    Use less RAM and more temporary files.\n"
+            "--sort-ram-size=<size>    The amount of RAM (in MB) to use for data sorting\n"
+            "                          (defaults to 64MB with '--slim' or 256MB otherwise.)\n"
             "--tmpdir=<dirname>        The directory name for temporary files.\n"
+            "                          (defaults to the '--dir' option directory.)\n"
             "\n"
             "--parse-only              Parse the input OSM files and store the results.\n"
             "--process-only            Process the stored results from previous option.\n"
@@ -392,8 +411,8 @@ static void print_usage(int detail)
             "--not-highway=<highway>   Ignore highways of the selected types.\n"
             "--not-property=<property> Ignore highway properties of the selected types.\n"
             "\n"
-            "<filename.osm>            The name of the file to process (by default data\n"
-            "                          is read from standard input).\n"
+            "<filename.osm> ...        The name(s) of the file(s) to process (by default\n"
+            "                          data is read from standard input).\n"
             "\n"
             "<transport> defaults to all but can be set to:\n"
             "%s"
