@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.75 2010-04-10 18:33:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.76 2010-04-10 18:38:35 amb Exp $
 
  OSM router.
 
@@ -722,7 +722,7 @@ static void print_usage(int detail)
          "              [--profiles=<filename>] [--translations=<filename>]\n"
          "              [--exact-nodes-only]\n"
          "              [--quiet]\n"
-         "              [--lang=<language>]\n"
+         "              [--language=<lang>]\n"
          "              [--output-html]\n"
          "              [--output-gpx-track] [--output-gpx-route]\n"
          "              [--output-text] [--output-text-all]\n"
@@ -758,7 +758,7 @@ static void print_usage(int detail)
             "--exact-nodes-only      Only route between nodes (don't find closest segment).\n"
             "\n"
             "--quiet                 Don't print any output when running.\n"
-            "--lang=<language>       Use the translations for specified language.\n"
+            "--language=<lang>       Use the translations for specified language.\n"
             "--output-html           Write an HTML description of the route.\n"
             "--output-gpx-track      Write a GPX track file with all route points.\n"
             "--output-gpx-route      Write a GPX route file with interesting junctions.\n"
