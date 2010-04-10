@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.25 2010-04-01 18:24:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.26 2010-04-10 18:33:39 amb Exp $
 
  Routing output generator.
 
@@ -34,17 +34,22 @@
 
 #include "types.h"
 #include "functions.h"
+#include "translations.h"
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
 #include "results.h"
 
 
+/* Global variables */
+
 /*+ The option to calculate the quickest route insted of the shortest. +*/
 extern int option_quickest;
 
 /*+ The options to select the format of the output. +*/
 extern int option_html,option_gpx_track,option_gpx_route,option_text,option_text_all;
+
+/* Local variables */
 
 /*+ The files to write to. +*/
 static FILE *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
@@ -66,11 +71,11 @@ static char junction_other_way[Way_Count][Way_Count]=
   {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Steps        */
  };
 
+
+/* Local functions */
+
 static int junction_angle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node);
 static int bearing_angle(Nodes *nodes,Segment *segment,index_t node);
-
-static char *junction_instruction[]={"Very sharp left","Sharp left","Left","Slight left","Straight on","Slight right","Right","Sharp right","Very sharp right"};
-static char *bearing_instruction[]={"South","South-West","West","North-West","North","North-East","East","South-East","South"};
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -226,7 +231,9 @@ void PrintRouteHead(const char *copyright)
     fprintf(gpxtrackfile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
     fprintf(gpxtrackfile,"<metadata>\n");
-    fprintf(gpxtrackfile,"<desc><![CDATA[%s route between 'start' and 'finish' waypoints]]></desc>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(gpxtrackfile,"<desc><![CDATA[");
+    fprintf(gpxtrackfile,translate_gpx_desc,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
+    fprintf(gpxtrackfile,"]]></desc>\n");
     if(source)
        fprintf(gpxtrackfile,"<copyright author=\"%s\">\n",source);
     if(license)
@@ -244,7 +251,9 @@ void PrintRouteHead(const char *copyright)
     fprintf(gpxroutefile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
     fprintf(gpxroutefile,"<metadata>\n");
-    fprintf(gpxroutefile,"<desc><![CDATA[%s route between 'start' and 'finish' waypoints]]></desc>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(gpxtrackfile,"<desc><![CDATA[");
+    fprintf(gpxtrackfile,translate_gpx_desc,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
+    fprintf(gpxtrackfile,"]]></desc>\n");
     if(source)
        fprintf(gpxroutefile,"<copyright author=\"%s\">\n",source);
     if(license)
@@ -254,7 +263,9 @@ void PrintRouteHead(const char *copyright)
     fprintf(gpxroutefile,"</metadata>\n");
 
     fprintf(gpxroutefile,"<rte>\n");
-    fprintf(gpxroutefile,"<name>%s route</name>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(gpxroutefile,"<name>");
+    fprintf(gpxroutefile,translate_gpx_name,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
+    fprintf(gpxroutefile,"</name>\n");
    }
 
  if(textfile)
@@ -428,26 +439,31 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
              if(gpxroutefile)
                {
-                fprintf(gpxroutefile,"<desc><![CDATA[%s on '%s' for %.3f km, %.1f min]]></desc></rtept>\n",
-                        bearing_instruction[(4+(22+bearing_angle(nodes,result->segment,result->node))/45)%8],
+                fprintf(gpxroutefile,"<desc><![CDATA[");
+                fprintf(gpxroutefile,translate_gpx_step,
+                        translate_heading[(4+(22+bearing_angle(nodes,result->segment,result->node))/45)%8],
                         WayName(ways,resultway),
                         distance_to_km(junc_distance),duration_to_minutes(junc_duration));
+                fprintf(gpxroutefile,"]]></desc></rtept>\n");
 
                 if(!nextresult)
                   {
-                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>FINISH</name>\n",
-                           radians_to_degrees(finish_lat),radians_to_degrees(finish_lon));
-                   fprintf(gpxroutefile,"<desc><![CDATA[Total Journey %.1f km, %.0f min]]></desc></rtept>\n",
+                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
+                           radians_to_degrees(finish_lat),radians_to_degrees(finish_lon),
+                           translate_gpx_finish);
+                   fprintf(gpxroutefile,"<desc><![CDATA[");
+                   fprintf(gpxroutefile,translate_gpx_final,
                            distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                   fprintf(gpxroutefile,"]]></desc></rtept>\n");
                   }
                 else if(important==10)
-                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>INTER%d</name>\n",
+                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s%d</name>\n",
                            radians_to_degrees(latitude),radians_to_degrees(longitude),
-                           ++segment_count);
+                           translate_gpx_inter,++segment_count);
                 else
-                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>TRIP%03d</name>\n",
+                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s%03d</name>\n",
                            radians_to_degrees(latitude),radians_to_degrees(longitude),
-                           ++route_count);
+                           translate_gpx_trip,++route_count);
                }
 
              if(htmlfile)
@@ -467,8 +483,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 if(nextresult)
                    fprintf(htmlfile,"<tr><td class='l'>At:<td class='r'>%s, turn <span class='t'>%s</span> and head <span class='b'>%s</span>\n",
                            type,
-                           junction_instruction[(4+(22+junction_angle(nodes,result->segment,nextresult->segment,result->node))/45)%8],
-                           bearing_instruction[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
+                           translate_turn[(4+(22+junction_angle(nodes,result->segment,nextresult->segment,result->node))/45)%8],
+                           translate_heading[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
                 else
                    fprintf(htmlfile,"<tr><td class='l'>Stop:<td class='r'><span class='w'>Waypoint</span>\n");
                }
@@ -536,11 +552,12 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           if(htmlfile)
              fprintf(htmlfile,"<tr><td class='l'>Start:<td class='r'><span class='w'>Waypoint</span>, head <span class='b'>%s</span>\n",
-                     bearing_instruction[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
+                     translate_heading[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
 
           if(gpxroutefile)
-             fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>START</name>\n",
-                     radians_to_degrees(latitude),radians_to_degrees(longitude));
+             fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
+                     radians_to_degrees(latitude),radians_to_degrees(longitude),
+                     translate_gpx_start);
 
           if(textfile)
              fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t\t +%d\t\n",
