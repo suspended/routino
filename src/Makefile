@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.29 2010-04-06 18:49:50 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.30 2010-04-10 18:33:20 amb Exp $
 #
 # Source code Makefile
 #
@@ -34,7 +34,7 @@ CFLAGS=-Wall -Wmissing-prototypes
 LDFLAGS=-lm -lc
 
 CFLAGS+= -O3
-#CFLAGS+= -O0 -g
+CFLAGS+= -O0 -g
 #CFLAGS+= -pg
 #CFLAGS+= --coverage
 
@@ -84,7 +84,7 @@ filedumper : $(FILEDUMPER_OBJ)
 ROUTER_OBJ=router.o \
 	   nodes.o segments.o ways.o \
 	   files.o profiles.o xmlparse.o \
-	   optimiser.o output.o results.o queue.o
+	   optimiser.o output.o results.o queue.o translations.o
 
 router : $(ROUTER_OBJ)
 	$(LD) $(ROUTER_OBJ) -o $@ $(LDFLAGS)
