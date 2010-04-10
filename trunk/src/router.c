@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.74 2010-03-30 17:58:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.75 2010-04-10 18:33:20 amb Exp $
 
  OSM router.
 
@@ -29,6 +29,7 @@
 
 #include "types.h"
 #include "functions.h"
+#include "translations.h"
 #include "profiles.h"
 #include "nodes.h"
 #include "segments.h"
@@ -78,7 +79,9 @@ int main(int argc,char** argv)
  Results  *results[NWAYPOINTS+1]={NULL};
  int       point_used[NWAYPOINTS+1]={0};
  int       help_profile=0,help_profile_xml=0,help_profile_json=0,help_profile_pl=0;
- char     *dirname=NULL,*prefix=NULL,*profiles=NULL,*profilename=NULL;
+ char     *dirname=NULL,*prefix=NULL;
+ char     *profiles=NULL,*profilename=NULL;
+ char     *translations=NULL,*language=NULL;
  int       exactnodes=0;
  Transport transport=Transport_None;
  Profile  *profile=NULL;
@@ -110,6 +113,8 @@ int main(int argc,char** argv)
        prefix=&argv[arg][9];
     else if(!strncmp(argv[arg],"--profiles=",11))
        profiles=&argv[arg][11];
+    else if(!strncmp(argv[arg],"--translations=",15))
+       translations=&argv[arg][15];
     else if(!strcmp(argv[arg],"--exact-nodes-only"))
        exactnodes=1;
     else if(!strcmp(argv[arg],"--quiet"))
@@ -126,6 +131,8 @@ int main(int argc,char** argv)
        option_text_all=1;
     else if(!strncmp(argv[arg],"--profile=",10))
        profilename=&argv[arg][10];
+    else if(!strncmp(argv[arg],"--language=",11))
+       language=&argv[arg][11];
     else if(!strncmp(argv[arg],"--transport=",12))
       {
        transport=TransportType(&argv[arg][12]);
@@ -346,6 +353,25 @@ int main(int argc,char** argv)
    }
 
  UpdateProfile(profile);
+
+ /* Load in the translations */
+
+ if(translations && ExistsFile(translations))
+    ;
+ else if(!translations && ExistsFile(FileName(dirname,prefix,"translations.xml")))
+    translations=FileName(dirname,prefix,"translations.xml");
+
+ if(!translations && language)
+   {
+    fprintf(stderr,"Error: Cannot use '--language' option without reading some translations.\n");
+    return(1);
+   }
+
+ if(translations && ParseXMLTranslations(translations,language))
+   {
+    fprintf(stderr,"Error: Cannot read the translations in the file '%s'.\n",translations);
+    return(1);
+   }
 
  /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
 
@@ -692,9 +718,11 @@ static void print_usage(int detail)
  fprintf(stderr,
          "Usage: router [--help | --help-profile | --help-profile-xml |\n"
          "                        --help-profile-json | --help-profile-perl ]\n"
-         "              [--dir=<dirname>] [--prefix=<name>] [--profiles=<filename>]\n"
+         "              [--dir=<dirname>] [--prefix=<name>]\n"
+         "              [--profiles=<filename>] [--translations=<filename>]\n"
          "              [--exact-nodes-only]\n"
          "              [--quiet]\n"
+         "              [--lang=<language>]\n"
          "              [--output-html]\n"
          "              [--output-gpx-track] [--output-gpx-route]\n"
          "              [--output-text] [--output-text-all]\n"
@@ -724,10 +752,13 @@ static void print_usage(int detail)
             "--prefix=<name>         The filename prefix for the routing database.\n"
             "--profiles=<filename>   The name of the profiles (defaults to 'profiles.xml'\n"
             "                        with '--dirname' and '--prefix' options).\n"
+            "--translations=<fname>  The filename of the translations (defaults to\n"
+            "                         'translations.xml' with '--dirname' and '--prefix').\n"
             "\n"
             "--exact-nodes-only      Only route between nodes (don't find closest segment).\n"
             "\n"
             "--quiet                 Don't print any output when running.\n"
+            "--lang=<language>       Use the translations for specified language.\n"
             "--output-html           Write an HTML description of the route.\n"
             "--output-gpx-track      Write a GPX track file with all route points.\n"
             "--output-gpx-route      Write a GPX route file with interesting junctions.\n"
