@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xml/xsd-to-xmlparser.c,v 1.6 2010-04-08 17:20:43 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xml/xsd-to-xmlparser.c,v 1.7 2010-04-11 13:01:38 amb Exp $
 
  An XML parser for simplified XML Schema Definitions to create XML parser skeletons.
 
@@ -42,12 +42,12 @@ static char *safe(const char *name);
 
 /* The XML tag processing function prototypes */
 
-static void xml_function(int _type_,const char *version,const char *encoding);
-static void xsd_schema_function(int _type_,const char *elementFormDefault,const char *xmlns_xsd);
-static void xsd_complexType_function(int _type_,const char *name);
-static void xsd_attribute_function(int _type_,const char *name,const char *type);
-static void xsd_sequence_function(int _type_);
-static void xsd_element_function(int _type_,const char *name,const char *type,const char *minOccurs,const char *maxOccurs);
+static int xml_function(int _type_,const char *version,const char *encoding);
+static int xsd_schema_function(int _type_,const char *elementFormDefault,const char *xmlns_xsd);
+static int xsd_complexType_function(int _type_,const char *name);
+static int xsd_attribute_function(int _type_,const char *name,const char *type);
+static int xsd_sequence_function(int _type_);
+static int xsd_element_function(int _type_,const char *name,const char *type,const char *minOccurs,const char *maxOccurs);
 
 
 /* The XML tag definitions */
@@ -105,6 +105,8 @@ static xmltag *xml_toplevel_tags[]={&xml_tag,&xsd_schema_tag,NULL};
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the elementType XSD type is seen
 
+  int xsd_element_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *name The contents of the 'name' attribute (or NULL if not defined).
@@ -116,13 +118,13 @@ static xmltag *xml_toplevel_tags[]={&xml_tag,&xsd_schema_tag,NULL};
   const char *maxOccurs The contents of the 'maxOccurs' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xsd_element_function(int _type_,const char *name,const char *type,const char *minOccurs,const char *maxOccurs)
+static int xsd_element_function(int _type_,const char *name,const char *type,const char *minOccurs,const char *maxOccurs)
 {
  xmltag *tag=NULL;
  int i,j;
 
  if(_type_==XMLPARSE_TAG_END)
-    return;
+    return(0);
 
  for(i=0;i<ntags;i++)
     if(!strcmp(type,types[i]) && !strcmp(name,tags[i]->name))
@@ -142,7 +144,7 @@ static void xsd_element_function(int _type_,const char *name,const char *type,co
    }
 
  if(!currenttype)
-    return;
+    return(0);
 
  for(i=0;i<ntags;i++)
     if(!strcmp(types[i],currenttype))
@@ -157,22 +159,29 @@ static void xsd_element_function(int _type_,const char *name,const char *type,co
        if(j==XMLPARSE_MAX_SUBTAGS)
          {fprintf(stderr,"Too many subtags seen for type '%s'.\n",currenttype); exit(1);}
       }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the sequenceType XSD type is seen
 
+  int xsd_sequence_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xsd_sequence_function(int _type_)
+static int xsd_sequence_function(int _type_)
 {
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the attributeType XSD type is seen
+
+  int xsd_attribute_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -181,12 +190,12 @@ static void xsd_sequence_function(int _type_)
   const char *type The contents of the 'type' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xsd_attribute_function(int _type_,const char *name,const char *type)
+static int xsd_attribute_function(int _type_,const char *name,const char *type)
 {
  int i,j;
 
  if(_type_==XMLPARSE_TAG_END)
-    return;
+    return(0);
 
  for(i=0;i<ntags;i++)
     if(!strcmp(types[i],currenttype))
@@ -202,28 +211,36 @@ static void xsd_attribute_function(int _type_,const char *name,const char *type)
        if(j==XMLPARSE_MAX_ATTRS)
          {fprintf(stderr,"Too many attributes seen for type '%s'.\n",currenttype); exit(1);}
       }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the complexType XSD type is seen
 
+  int xsd_complexType_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *name The contents of the 'name' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xsd_complexType_function(int _type_,const char *name)
+static int xsd_complexType_function(int _type_,const char *name)
 {
  if(_type_==XMLPARSE_TAG_END)
-    return;
+    return(0);
 
  currenttype=strcpy(realloc(currenttype,strlen(name)+1),name);
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the schemaType XSD type is seen
+
+  int xsd_schema_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -232,13 +249,16 @@ static void xsd_complexType_function(int _type_,const char *name)
   const char *xmlns_xsd The contents of the 'xmlns:xsd' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xsd_schema_function(int _type_,const char *elementFormDefault,const char *xmlns_xsd)
+static int xsd_schema_function(int _type_,const char *elementFormDefault,const char *xmlns_xsd)
 {
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the xmlType XSD type is seen
+
+  int xml_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -247,8 +267,9 @@ static void xsd_schema_function(int _type_,const char *elementFormDefault,const 
   const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void xml_function(int _type_,const char *version,const char *encoding)
+static int xml_function(int _type_,const char *version,const char *encoding)
 {
+ return(0);
 }
 
 
@@ -265,6 +286,15 @@ int main(int argc,char **argv)
     fprintf(stderr,"Cannot parse XML file - exiting.\n");
     exit(1);
    }
+
+ /* Add the XML declaration as a tag. */
+
+ currenttype=NULL;
+ xsd_element_function(XMLPARSE_TAG_START|XMLPARSE_TAG_END,"xml","xmlType",NULL,NULL);
+ xsd_complexType_function(XMLPARSE_TAG_START,"xmlType");
+ xsd_attribute_function(XMLPARSE_TAG_START|XMLPARSE_TAG_END,"version",NULL);
+ xsd_attribute_function(XMLPARSE_TAG_START|XMLPARSE_TAG_END,"encoding",NULL);
+ xsd_complexType_function(XMLPARSE_TAG_END,NULL);
 
  /* Sort the tags */
 
@@ -295,13 +325,6 @@ int main(int argc,char **argv)
          }
    }
 
- currenttype=NULL;
- xsd_element_function(XMLPARSE_TAG_START|XMLPARSE_TAG_END,"xml","xmlType",NULL,NULL);
- xsd_complexType_function(XMLPARSE_TAG_START,"xmlType");
- xsd_attribute_function(XMLPARSE_TAG_START|XMLPARSE_TAG_END,"version",NULL);
- xsd_attribute_function(XMLPARSE_TAG_START|XMLPARSE_TAG_END,"encoding",NULL);
- xsd_complexType_function(XMLPARSE_TAG_END,NULL);
-
  /* Print the header */
 
  printf("/***************************************\n");
@@ -324,7 +347,7 @@ int main(int argc,char **argv)
 
  for(i=ntags-1;i>=0;i--)
    {
-    printf("static void %s_function(int _type_",safe(tags[i]->name));
+    printf("static int %s_function(int _type_",safe(tags[i]->name));
 
     for(j=0;j<tags[i]->nattributes;j++)
        printf(",const char *%s",safe(tags[i]->attributes[j]));
@@ -380,6 +403,8 @@ int main(int argc,char **argv)
     printf("/*++++++++++++++++++++++++++++++++++++++\n");
     printf("  The function that is called when the %s XSD type is seen\n",types[i]);
     printf("\n");
+    printf("  int %s_function Returns 0 if no error occured or something else otherwise.\n",safe(tags[i]->name));
+    printf("\n");
     printf("  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.\n");
     for(j=0;j<tags[i]->nattributes;j++)
       {
@@ -389,7 +414,7 @@ int main(int argc,char **argv)
     printf("  ++++++++++++++++++++++++++++++++++++++*/\n");
     printf("\n");
 
-    printf("static void %s_function(int _type_",safe(tags[i]->name));
+    printf("static int %s_function(int _type_",safe(tags[i]->name));
 
     for(j=0;j<tags[i]->nattributes;j++)
        printf(",const char *%s",safe(tags[i]->attributes[j]));
@@ -419,6 +444,7 @@ int main(int argc,char **argv)
        printf(" printf(\"%%s>\\n\",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?\" /\":\"\");\n");
       }
 
+    printf(" return(0);\n");
     printf("}\n");
    }
 
