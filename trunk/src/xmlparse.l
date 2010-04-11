@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.6 2010-04-08 17:21:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.7 2010-04-11 13:01:24 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 
 #include "xmlparse.h"
@@ -65,6 +66,8 @@
 #define LEX_ERROR_UNEXP_ATT      204
 #define LEX_ERROR_UNEXP_EOF      205
 #define LEX_ERROR_XML_NOT_FIRST  206
+
+#define LEX_ERROR_CALLBACK       255
 
 
 /* Lexer definitions */
@@ -239,9 +242,11 @@ charref         &#({digit}+|x{xdigit}+);
 /*++++++++++++++++++++++++++++++++++++++
   A function to call the callback function with the parameters needed.
 
+  int call_callback Returns 1 if the callback returned with an error.
+
   const char *name The name of the tag.
 
-  void (*callback)() The callback function.
+  int (*callback)() The callback function.
 
   int type The type of tag (start and/or end).
 
@@ -250,30 +255,30 @@ charref         &#({digit}+|x{xdigit}+);
   char *attributes[XMLPARSE_MAX_ATTRS] The list of attributes.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline void call_callback(const char *name,void (*callback)(),int type,int nattributes,char *attributes[XMLPARSE_MAX_ATTRS])
+static inline int call_callback(const char *name,int (*callback)(),int type,int nattributes,char *attributes[XMLPARSE_MAX_ATTRS])
 {
  switch(nattributes)
    {
-   case  0: (*callback)(type); break;
-   case  1: (*callback)(type,attributes[0]); break;
-   case  2: (*callback)(type,attributes[0],attributes[1]); break;
-   case  3: (*callback)(type,attributes[0],attributes[1],attributes[2]); break;
-   case  4: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3]); break;
-   case  5: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4]); break;
-   case  6: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5]); break;
-   case  7: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6]); break;
-   case  8: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7]); break;
-   case  9: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8]); break;
-   case 10: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9]); break;
-   case 11: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10]); break;
-   case 12: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11]); break;
-   case 13: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12]); break;
-   case 14: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13]); break;
-   case 15: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14]); break;
-   case 16: (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14],attributes[15]); break;
+   case  0: return (*callback)(type);
+   case  1: return (*callback)(type,attributes[0]);
+   case  2: return (*callback)(type,attributes[0],attributes[1]);
+   case  3: return (*callback)(type,attributes[0],attributes[1],attributes[2]);
+   case  4: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3]);
+   case  5: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4]);
+   case  6: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5]);
+   case  7: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6]);
+   case  8: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7]);
+   case  9: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8]);
+   case 10: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9]);
+   case 11: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10]);
+   case 12: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11]);
+   case 13: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12]);
+   case 14: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13]);
+   case 15: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14]);
+   case 16: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14],attributes[15]);
 
    default:
-    fprintf(stderr,"XML Parser: Error on line %d: too many attributes for tag '%s'.\n",yylineno,name);
+    fprintf(stderr,"XML Parser: Error on line %d: too many attributes for tag '%s' source code needs changing.\n",yylineno,name);
     exit(1);
    }
 }
@@ -377,7 +382,8 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
        stackused++;
 
        if(tag->callback)
-          call_callback(tag->name,tag->callback,XMLPARSE_TAG_START,tag->nattributes,attributes);
+          if(call_callback(tag->name,tag->callback,XMLPARSE_TAG_START,tag->nattributes,attributes))
+             yychar=LEX_ERROR_CALLBACK;
 
        tags=tag->subtags;
 
@@ -392,7 +398,8 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
       case LEX_TAG_FINISH:
 
        if(tag->callback)
-          call_callback(tag->name,tag->callback,XMLPARSE_TAG_START|XMLPARSE_TAG_END,tag->nattributes,attributes);
+          if(call_callback(tag->name,tag->callback,XMLPARSE_TAG_START|XMLPARSE_TAG_END,tag->nattributes,attributes))
+             yychar=LEX_ERROR_CALLBACK;
 
        if(stackused>0)
           tag=tag_stack[stackused-1];
@@ -429,7 +436,8 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
             }
 
        if(tag->callback)
-          call_callback(tag->name,tag->callback,XMLPARSE_TAG_END,tag->nattributes,attributes);
+          if(call_callback(tag->name,tag->callback,XMLPARSE_TAG_END,tag->nattributes,attributes))
+             yychar=LEX_ERROR_CALLBACK;
 
        if(stackused>0)
           tag=tag_stack[stackused-1];
@@ -469,7 +477,7 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
       case LEX_ATTR_VAL:
 
-       if(yylval && attribute!=-1)
+       if(tag->callback && attribute!=-1 && yylval)
           attributes[attribute]=strcpy(malloc(strlen(yylval)+1),yylval);
 
        break;
@@ -694,4 +702,62 @@ const char *ParseXML_Encode_Safe_XML(const char *string)
  result[j]=0;
 
  return(result);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Convert a string to a integer (checking that it really is a integer).
+
+  int ParseXML_GetInteger Returns 1 if a integer could be found or 0 otherwise.
+
+  const char *string The string to be parsed.
+
+  int *number Returns the number.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseXML_GetInteger(const char *string,int *number)
+{
+ const char *p=string;
+
+ if(*p=='-' || *p=='+')
+    p++;
+
+ while(isdigit(*p))
+    p++;
+
+ if(*p)
+    return(0);
+
+ *number=atoi(string);
+
+ return(1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Convert a string to a floating point number (checking that it really is a number).
+
+  int ParseXML_GetFloating Returns 1 if a number could be found or 0 otherwise.
+
+  const char *string The string to be parsed.
+
+  int *number Returns the number.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseXML_GetFloating(const char *string,double *number)
+{
+ const char *p=string;
+
+ if(*p=='-' || *p=='+')
+    p++;
+
+ while(isdigit(*p) || *p=='.')
+    p++;
+
+ if(*p)
+    return(0);
+
+ *number=atof(string);
+
+ return(1);
 }

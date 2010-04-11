@@ -1,7 +1,7 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.36 2010-04-08 17:21:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.37 2010-04-11 13:01:24 amb Exp $
 
- The pre-defined profiles and the functions for handling them.
+ Load the profiles from a file and the functions for handling them.
 
  Part of the Routino routing software.
  ******************/ /******************
@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 #include "profiles.h"
 #include "types.h"
@@ -40,21 +39,24 @@ static Profile **loaded_profiles=NULL;
 /*+ The number of profiles that have been loaded from file. +*/
 static int nloaded_profiles=0;
 
-/*+ The number of errors found in the XML file. +*/
-static int profile_parse_error=0;
-
 
 /* The XML tag processing function prototypes */
 
-static void profile_function(int _type_,const char *name,const char *transport);
-static void length_function(int _type_,const char *limit);
-static void width_function(int _type_,const char *limit);
-static void height_function(int _type_,const char *limit);
-static void weight_function(int _type_,const char *limit);
-static void oneway_function(int _type_,const char *obey);
-static void property_function(int _type_,const char *type,const char *percent);
-static void preference_function(int _type_,const char *highway,const char *percent);
-static void speed_function(int _type_,const char *highway,const char *kph);
+//static int xml_function(int _type_,const char *version,const char *encoding);
+//static int routino_profiles_function(int _type_);
+static int profile_function(int _type_,const char *name,const char *transport);
+//static int restrictions_function(int _type_);
+static int length_function(int _type_,const char *limit);
+static int width_function(int _type_,const char *limit);
+static int height_function(int _type_,const char *limit);
+static int weight_function(int _type_,const char *limit);
+static int oneway_function(int _type_,const char *obey);
+//static int properties_function(int _type_);
+static int property_function(int _type_,const char *type,const char *percent);
+//static int preference_function(int _type_,const char *highway,const char *percent);
+static int preference_function(int _type_,const char *highway,const char *percent);
+//static int speeds_function(int _type_);
+static int speed_function(int _type_,const char *highway,const char *kph);
 
 
 /* The XML tag definitions */
@@ -175,6 +177,8 @@ static xmltag *xml_toplevel_tags[]={&xml_tag,&routino_profiles_tag,NULL};
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the speedType XSD type is seen
 
+  int speed_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *highway The contents of the 'highway' attribute (or NULL if not defined).
@@ -182,42 +186,47 @@ static xmltag *xml_toplevel_tags[]={&xml_tag,&routino_profiles_tag,NULL};
   const char *kph The contents of the 'kph' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void speed_function(int _type_,const char *highway,const char *kph)
+static int speed_function(int _type_,const char *highway,const char *kph)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
+    double speed;
     Highway highwaytype;
 
-    if(!highway || !kph)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'highway' and 'kph' attributes must be specified in <speed> tag.\n",ParseXML_LineNumber());
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("speed",highway);
 
     highwaytype=HighwayType(highway);
 
     if(highwaytype==Way_Count)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid highway type '%s' in <speed> tag.\n",ParseXML_LineNumber(),highway);
-       profile_parse_error++;
-       return;
-      }
+       XMLPARSE_INVALID("speed",highway);
 
-    if(!isdigit(*kph))
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid speed '%s' in <speed> tag.\n",ParseXML_LineNumber(),kph);
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_FLOATING("speed",kph,speed);
 
-    loaded_profiles[nloaded_profiles-1]->speed[highwaytype]=kph_to_speed(atoi(kph));
+    loaded_profiles[nloaded_profiles-1]->speed[highwaytype]=kph_to_speed(speed);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the speedsType XSD type is seen
+
+  int speeds_function Returns 0 if no error occured or something else otherwise.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int speeds_function(int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the preferenceType XSD type is seen
+
+  int preference_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -226,42 +235,47 @@ static void speed_function(int _type_,const char *highway,const char *kph)
   const char *percent The contents of the 'percent' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void preference_function(int _type_,const char *highway,const char *percent)
+static int preference_function(int _type_,const char *highway,const char *percent)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     Highway highwaytype;
+    double p;
 
-    if(!highway || !percent)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'highway' and 'percent' attributes must be specified in <preference> tag.\n",ParseXML_LineNumber());
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("preference",highway);
 
     highwaytype=HighwayType(highway);
 
     if(highwaytype==Way_Count)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid highway type '%s' in <preference> tag.\n",ParseXML_LineNumber(),highway);
-       profile_parse_error++;
-       return;
-      }
+       XMLPARSE_INVALID("preference",highway);
 
-    if(!isdigit(*percent))
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid percentage '%s' in <preference> tag.\n",ParseXML_LineNumber(),percent);
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_FLOATING("preference",percent,p);
 
-    loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=atoi(percent);
+    loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=p;
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the preferencesType XSD type is seen
+
+  int preferences_function Returns 0 if no error occured or something else otherwise.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int preferences_function(int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the propertyType XSD type is seen
+
+  int property_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -270,197 +284,186 @@ static void preference_function(int _type_,const char *highway,const char *perce
   const char *percent The contents of the 'percent' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void property_function(int _type_,const char *type,const char *percent)
+static int property_function(int _type_,const char *type,const char *percent)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     Property property;
+    double p;
 
-    if(!type || !percent)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'property' and 'percent' attributes must be specified in <property> tag.\n",ParseXML_LineNumber());
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("property",type);
 
     property=PropertyType(type);
 
     if(property==Property_Count)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid property type '%s' in <property> tag.\n",ParseXML_LineNumber(),type);
-       profile_parse_error++;
-       return;
-      }
+       XMLPARSE_INVALID("property",type);
 
-    if(!isdigit(*percent))
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid percentage '%s' in <property> tag.\n",ParseXML_LineNumber(),percent);
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_FLOATING("property",percent,p);
 
-    loaded_profiles[nloaded_profiles-1]->props_yes[property]=atoi(percent);
+    loaded_profiles[nloaded_profiles-1]->props_yes[property]=p;
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the onewayType XSD type is seen
 
+  int oneway_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *obey The contents of the 'obey' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void oneway_function(int _type_,const char *obey)
+static int oneway_function(int _type_,const char *obey)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    if(!obey)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'obey' attribute must be specified in <oneway> tag.\n",ParseXML_LineNumber());
-       profile_parse_error++;
-       return;
-      }
+    int o;
 
-    if(!isdigit(*obey))
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid value for 'obey' attribute '%s' in <oneway> tag.\n",ParseXML_LineNumber(),obey);
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_INTEGER("oneway",obey,o);
 
-    loaded_profiles[nloaded_profiles-1]->oneway=!!atoi(obey);
+    loaded_profiles[nloaded_profiles-1]->oneway=!!o;
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the propertiesType XSD type is seen
+
+  int properties_function Returns 0 if no error occured or something else otherwise.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int properties_function(int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the weightType XSD type is seen
+
+  int weight_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void weight_function(int _type_,const char *limit)
+static int weight_function(int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    if(!limit)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'limit' attribute must be specified in <weight> tag.\n",ParseXML_LineNumber());
-       profile_parse_error++;
-       return;
-      }
+    double l;
 
-    if(!isdigit(*limit))
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid value for 'limit' attribute '%s' in <weight> tag.\n",ParseXML_LineNumber(),limit);
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_FLOATING("weight",limit,l);
 
-    loaded_profiles[nloaded_profiles-1]->weight=tonnes_to_weight(atof(limit));
+    loaded_profiles[nloaded_profiles-1]->weight=tonnes_to_weight(l);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the heightType XSD type is seen
 
+  int height_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void height_function(int _type_,const char *limit)
+static int height_function(int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    if(!limit)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'limit' attribute must be specified in <height> tag.\n",ParseXML_LineNumber());
-       profile_parse_error++;
-       return;
-      }
+    double l;
 
-    if(!isdigit(*limit))
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid value for 'limit' attribute '%s' in <height> tag.\n",ParseXML_LineNumber(),limit);
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_FLOATING("height",limit,l);
 
-    loaded_profiles[nloaded_profiles-1]->height=metres_to_height(atof(limit));
+    loaded_profiles[nloaded_profiles-1]->height=metres_to_height(l);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the widthType XSD type is seen
 
+  int width_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void width_function(int _type_,const char *limit)
+static int width_function(int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    if(!limit)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'limit' attribute must be specified in <width> tag.\n",ParseXML_LineNumber());
-       profile_parse_error++;
-       return;
-      }
+    double l;
 
-    if(!isdigit(*limit))
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid value for 'limit' attribute '%s' in <width> tag.\n",ParseXML_LineNumber(),limit);
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_FLOATING("width",limit,l);
 
-    loaded_profiles[nloaded_profiles-1]->width=metres_to_width(atof(limit));
+    loaded_profiles[nloaded_profiles-1]->width=metres_to_width(l);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the lengthType XSD type is seen
 
+  int length_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void length_function(int _type_,const char *limit)
+static int length_function(int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    if(!limit)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'limit' attribute must be specified in <length> tag.\n",ParseXML_LineNumber());
-       profile_parse_error++;
-       return;
-      }
+    double l;
 
-    if(!isdigit(*limit))
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid value for 'limit' attribute '%s' in <length> tag.\n",ParseXML_LineNumber(),limit);
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_FLOATING("length",limit,l);
 
-    loaded_profiles[nloaded_profiles-1]->length=metres_to_length(atof(limit));
+    loaded_profiles[nloaded_profiles-1]->length=metres_to_length(l);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the restrictionsType XSD type is seen
+
+  int restrictions_function Returns 0 if no error occured or something else otherwise.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int restrictions_function(int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the profileType XSD type is seen
+
+  int profile_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -469,36 +472,24 @@ static void length_function(int _type_,const char *limit)
   const char *transport The contents of the 'transport' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void profile_function(int _type_,const char *name,const char *transport)
+static int profile_function(int _type_,const char *name,const char *transport)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     Transport transporttype;
     int i;
 
-    if(!name || !transport)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'name' and 'transport' attributes must be specified in <profile> tag.\n",ParseXML_LineNumber());
-       profile_parse_error++;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("profile",name);
+    XMLPARSE_ASSERT_STRING("profile",transport);
 
     for(i=0;i<nloaded_profiles;i++)
        if(!strcmp(name,loaded_profiles[i]->name))
-         {
-          fprintf(stderr,"XML Parser: Error on line %d: profile name '%s' must be unique in <profile> tag.\n",ParseXML_LineNumber(),name);
-          profile_parse_error++;
-          return;
-         }
+          XMLPARSE_MESSAGE("profile","profile name must be unique");
 
     transporttype=TransportType(transport);
 
     if(transporttype==Transport_None)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid transport type '%s' in <profile> tag.\n",ParseXML_LineNumber(),transport);
-       profile_parse_error++;
-       return;
-      }
+       XMLPARSE_INVALID("profile",transport);
 
     if((nloaded_profiles%16)==0)
        loaded_profiles=(Profile**)realloc((void*)loaded_profiles,(nloaded_profiles+16)*sizeof(Profile*));
@@ -510,7 +501,41 @@ static void profile_function(int _type_,const char *name,const char *transport)
     loaded_profiles[nloaded_profiles-1]->name=strcpy(malloc(strlen(name)+1),name);
     loaded_profiles[nloaded_profiles-1]->transport=transporttype;
    }
+
+ return(0);
 }
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the RoutinoProfilesType XSD type is seen
+
+  int routino_profiles_function Returns 0 if no error occured or something else otherwise.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int routino_profiles_function(int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the xmlType XSD type is seen
+
+  int xml_function Returns 0 if no error occured or something else otherwise.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
+
+  const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int xml_function(int _type_,const char *version,const char *encoding)
+//{
+// return(0);
+//}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -539,13 +564,11 @@ int ParseXMLProfiles(const char *filename)
     return(1);
    }
 
- profile_parse_error=0;
-
  retval=ParseXML(file,xml_toplevel_tags,2);
 
  fclose(file);
 
- if(retval || profile_parse_error)
+ if(retval)
    {
     int i;
 

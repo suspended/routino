@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.5 2010-04-08 17:21:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.6 2010-04-11 13:01:24 amb Exp $
 
  A simple XML parser
 
@@ -51,13 +51,13 @@ struct _xmltag
  int  nattributes;                      /*+ The number of valid attributes for the tag. +*/
  char *attributes[XMLPARSE_MAX_ATTRS];  /*+ The valid attributes for the tag. +*/
 
- void (*callback)();                    /*+ The callback function when the tag is seen. +*/
+ int  (*callback)();                    /*+ The callback function when the tag is seen. +*/
 
  xmltag *subtags[XMLPARSE_MAX_SUBTAGS]; /*+ The list of valid tags contained within this one (null terminated). +*/
 };
 
 
-/* XML parser function */
+/* XML parser functions */
 
 int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes);
 
@@ -66,6 +66,60 @@ int ParseXML_LineNumber(void);
 const char *ParseXML_Decode_Entity_Ref(const char *string);
 const char *ParseXML_Decode_Char_Ref(const char *string);
 const char *ParseXML_Encode_Safe_XML(const char *string);
+
+int ParseXML_GetInteger(const char *string,int *number);
+int ParseXML_GetFloating(const char *string,double *number);
+
+/* Macros to simplify the callback functions */
+
+#define XMLPARSE_MESSAGE(tag,message) \
+ do \
+   { \
+    fprintf(stderr,"XML Parser: Error on line %d: " message " in <" tag "> tag.\n",ParseXML_LineNumber()); \
+    return(1); \
+   } \
+    while(0)
+
+#define XMLPARSE_INVALID(tag,attribute) \
+ do \
+   { \
+    fprintf(stderr,"XML Parser: Error on line %d: Invalid value for '" #attribute "' attribute in <" tag "> tag.\n",ParseXML_LineNumber()); \
+    return(1); \
+   } \
+    while(0)
+
+#define XMLPARSE_ASSERT_STRING(tag,attribute) \
+ do \
+   { \
+    if(!attribute || !*attribute) \
+      { \
+       fprintf(stderr,"XML Parser: Error on line %d: '" #attribute "' attribute must be specified in <" tag "> tag.\n",ParseXML_LineNumber()); \
+       return(1); \
+      } \
+   } \
+    while(0)
+
+#define XMLPARSE_ASSERT_INTEGER(tag,attribute,result)  \
+ do \
+   { \
+    if(!attribute || !*attribute || !ParseXML_GetInteger(attribute,&result)) \
+      { \
+       fprintf(stderr,"XML Parser: Error on line %d: '" #attribute "' attribute must be a integer in <" tag "> tag.\n",ParseXML_LineNumber()); \
+       return(1); \
+      } \
+   } \
+    while(0)
+
+#define XMLPARSE_ASSERT_FLOATING(tag,attribute,result)  \
+ do \
+   { \
+    if(!attribute || !*attribute || !ParseXML_GetFloating(attribute,&result)) \
+      { \
+       fprintf(stderr,"XML Parser: Error on line %d: '" #attribute "' attribute must be a number in <" tag "> tag.\n",ParseXML_LineNumber()); \
+       return(1); \
+      } \
+   } \
+    while(0)
 
 
 #endif /* XMLPARSE_H */

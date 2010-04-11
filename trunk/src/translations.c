@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.c,v 1.1 2010-04-10 18:33:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.c,v 1.2 2010-04-11 13:01:24 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 #include "functions.h"
 #include "translations.h"
@@ -62,23 +61,22 @@ static int store=0;
 /*+ The chosen language has been stored. +*/
 static int stored=0;
 
-/*+ The number of errors found in the XML file. +*/
-static int translations_parse_error=0;
-
 
 /* The XML tag processing function prototypes */
 
-static void language_function(int _type_,const char *lang);
-
-static void gpx_final_function(int _type_,const char *text);
-static void gpx_step_function(int _type_,const char *text);
-static void gpx_name_function(int _type_,const char *text);
-static void gpx_desc_function(int _type_,const char *text);
-static void gpx_waypoint_function(int _type_,const char *type,const char *string);
-static void gpx_route_function(int _type_,const char *type,const char *string);
-
-static void heading_function(int _type_,const char *direction,const char *string);
-static void turn_function(int _type_,const char *direction,const char *string);
+//static int xml_function(int _type_,const char *version,const char *encoding);
+//static int routino_translations_function(int _type_);
+static int language_function(int _type_,const char *lang);
+//static int output_gpx_function(int _type_);
+static int gpx_final_function(int _type_,const char *text);
+static int gpx_step_function(int _type_,const char *text);
+static int gpx_name_function(int _type_,const char *text);
+static int gpx_desc_function(int _type_,const char *text);
+static int gpx_waypoint_function(int _type_,const char *type,const char *string);
+static int gpx_route_function(int _type_,const char *type,const char *string);
+//static int output_html_function(int _type_);
+static int heading_function(int _type_,const char *direction,const char *string);
+static int turn_function(int _type_,const char *direction,const char *string);
 
 
 /* The XML tag definitions */
@@ -185,6 +183,8 @@ static xmltag *xml_toplevel_tags[]={&xml_tag,&routino_translations_tag,NULL};
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the TurnType XSD type is seen
 
+  int turn_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *direction The contents of the 'direction' attribute (or NULL if not defined).
@@ -192,43 +192,32 @@ static xmltag *xml_toplevel_tags[]={&xml_tag,&routino_translations_tag,NULL};
   const char *string The contents of the 'string' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void turn_function(int _type_,const char *direction,const char *string)
+static int turn_function(int _type_,const char *direction,const char *string)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
     int d;
 
-    if(!direction || !string)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'direction' and 'string' attributes must be specified in <turn> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+    XMLPARSE_ASSERT_INTEGER("turn",direction,d);
+    XMLPARSE_ASSERT_STRING("turn",string);
 
-    if(!isdigit(direction[0]) && (direction[0]!='-' || !isdigit(direction[1])))
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid direction '%s' in <turn> tag.\n",ParseXML_LineNumber(),direction);
-       translations_parse_error=1;
-       return;
-      }
-
-    d=atoi(direction)+4;
+    d+=4;
 
     if(d<0 || d>8)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid direction '%s' in <turn> tag.\n",ParseXML_LineNumber(),direction);
-       translations_parse_error=1;
-       return;
-      }
+       XMLPARSE_INVALID("turn",direction);
 
     translate_turn[d]=strcpy(malloc(strlen(string)+1),string);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the HeadingType XSD type is seen
 
+  int heading_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *direction The contents of the 'direction' attribute (or NULL if not defined).
@@ -236,42 +225,45 @@ static void turn_function(int _type_,const char *direction,const char *string)
   const char *string The contents of the 'string' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void heading_function(int _type_,const char *direction,const char *string)
+static int heading_function(int _type_,const char *direction,const char *string)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
     int d;
 
-    if(!direction || !string)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'direction' and 'string' attributes must be specified in <heading> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+    XMLPARSE_ASSERT_INTEGER("heading",direction,d);
+    XMLPARSE_ASSERT_STRING("heading",string);
 
-    if(!isdigit(direction[0]) && (direction[0]!='-' || !isdigit(direction[1])))
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid direction '%s' in <heading> tag.\n",ParseXML_LineNumber(),direction);
-       translations_parse_error=1;
-       return;
-      }
-
-    d=atoi(direction)+4;
+    d+=4;
 
     if(d<0 || d>8)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: invalid direction '%s' in <heading> tag.\n",ParseXML_LineNumber(),direction);
-       translations_parse_error=1;
-       return;
-      }
+       XMLPARSE_INVALID("heading",direction);
 
     translate_heading[d]=strcpy(malloc(strlen(string)+1),string);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HTMLType XSD type is seen
+
+  int output_html_function Returns 0 if no error occured or something else otherwise.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int output_html_function(int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXRouteType XSD type is seen
+
+  int gpx_route_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -280,40 +272,29 @@ static void heading_function(int _type_,const char *direction,const char *string
   const char *string The contents of the 'string' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void gpx_route_function(int _type_,const char *type,const char *string)
+static int gpx_route_function(int _type_,const char *type,const char *string)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    if(!type || !*type)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'type' attribute must be specified in <route> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
-
-    if(!string || !*string)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'string' attribute must be specified in <route> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("route",type);
+    XMLPARSE_ASSERT_STRING("route",string);
 
     if(!strcmp(type,"shortest"))
        translate_gpx_shortest=strcpy(malloc(strlen(string)+1),string);
     else if(!strcmp(type,"quickest"))
        translate_gpx_quickest=strcpy(malloc(strlen(string)+1),string);
     else
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'type' attribute must be 'shortest' or 'quickest' in <route> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+       XMLPARSE_INVALID("route",type);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXWaypointType XSD type is seen
+
+  int gpx_waypoint_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -322,23 +303,12 @@ static void gpx_route_function(int _type_,const char *type,const char *string)
   const char *string The contents of the 'string' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void gpx_waypoint_function(int _type_,const char *type,const char *string)
+static int gpx_waypoint_function(int _type_,const char *type,const char *string)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    if(!type || !*type)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'type' attribute must be specified in <waypoint> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
-
-    if(!string || !*string)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'string' attribute must be specified in <waypoint> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("waypoint",type);
+    XMLPARSE_ASSERT_STRING("waypoint",string);
 
     if(!strcmp(type,"start"))
        translate_gpx_start=strcpy(malloc(strlen(string)+1),string);
@@ -349,131 +319,136 @@ static void gpx_waypoint_function(int _type_,const char *type,const char *string
     else if(!strcmp(type,"finish"))
        translate_gpx_finish=strcpy(malloc(strlen(string)+1),string);
     else
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'type' attribute must be 'start', 'inter', 'trip' or 'finish' in <waypoint> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+       XMLPARSE_INVALID("waypoint",type);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXDescType XSD type is seen
 
+  int gpx_desc_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void gpx_desc_function(int _type_,const char *text)
+static int gpx_desc_function(int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    if(!text || !*text)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'text' attribute must be specified in <desc> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("desc",text);
 
     translate_gpx_desc=strcpy(malloc(strlen(text)+1),text);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXNameType XSD type is seen
 
+  int gpx_name_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void gpx_name_function(int _type_,const char *text)
+static int gpx_name_function(int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    if(!text || !*text)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'text' attribute must be specified in <name> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("name",text);
 
     translate_gpx_name=strcpy(malloc(strlen(text)+1),text);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXStepType XSD type is seen
 
+  int gpx_step_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void gpx_step_function(int _type_,const char *text)
+static int gpx_step_function(int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    if(!text || !*text)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'text' attribute must be specified in <step> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("step",text);
 
     translate_gpx_step=strcpy(malloc(strlen(text)+1),text);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXFinalType XSD type is seen
 
+  int gpx_final_function Returns 0 if no error occured or something else otherwise.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void gpx_final_function(int _type_,const char *text)
+static int gpx_final_function(int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    if(!text || !*text)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'text' attribute must be specified in <final> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("final",text);
 
     translate_gpx_final=strcpy(malloc(strlen(text)+1),text);
    }
+
+ return(0);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the GPXType XSD type is seen
+
+  int output_gpx_function Returns 0 if no error occured or something else otherwise.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int output_gpx_function(int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the languageType XSD type is seen
+
+  int language_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *lang The contents of the 'lang' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void language_function(int _type_,const char *lang)
+static int language_function(int _type_,const char *lang)
 {
  static int first=1;
 
  if(_type_&XMLPARSE_TAG_START)
    {
-    if(!lang || !*lang)
-      {
-       fprintf(stderr,"XML Parser: Error on line %d: 'lang' attribute must be specified in <language> tag.\n",ParseXML_LineNumber());
-       translations_parse_error=1;
-       return;
-      }
+    XMLPARSE_ASSERT_STRING("language",lang);
 
     if(!store_lang && first)
        store=1;
@@ -490,7 +465,41 @@ static void language_function(int _type_,const char *lang)
     store=0;
     stored=1;
    }
+
+ return(0);
 }
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the RoutinoTranslationsType XSD type is seen
+
+  int routino_translations_function Returns 0 if no error occured or something else otherwise.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int routino_translations_function(int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the xmlType XSD type is seen
+
+  int xml_function Returns 0 if no error occured or something else otherwise.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
+
+  const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int xml_function(int _type_,const char *version,const char *encoding)
+//{
+// return(0);
+//}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -523,13 +532,11 @@ int ParseXMLTranslations(const char *filename,const char *language)
     return(1);
    }
 
- translations_parse_error=0;
-
  retval=ParseXML(file,xml_toplevel_tags,2);
 
  fclose(file);
 
- if(retval || translations_parse_error)
+ if(retval)
     return(1);
 
  if(language && !stored)
