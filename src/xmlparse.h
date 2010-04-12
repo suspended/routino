@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.6 2010-04-11 13:01:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.7 2010-04-12 17:33:52 amb Exp $
 
  A simple XML parser
 
@@ -57,9 +57,18 @@ struct _xmltag
 };
 
 
+/* XML Parser options */
+
+#define XMLPARSE_UNKNOWN_ATTRIBUTES     0x0003
+#define XMLPARSE_UNKNOWN_ATTR_ERROR     0x0000 /* Flag an error and exit */
+#define XMLPARSE_UNKNOWN_ATTR_ERRNONAME 0x0001 /* Flag an error and exit unless a namespace is specified */
+#define XMLPARSE_UNKNOWN_ATTR_WARN      0x0002 /* Warn about the problem and continue */
+#define XMLPARSE_UNKNOWN_ATTR_IGNORE    0x0003 /* Ignore the potential problem */
+
+
 /* XML parser functions */
 
-int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes);
+int ParseXML(FILE *file,xmltag **tags,int options);
 
 int ParseXML_LineNumber(void);
 

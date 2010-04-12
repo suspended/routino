@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.4 2010-04-08 17:24:34 amb Exp $
+# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.5 2010-04-12 17:33:26 amb Exp $
 #
 # XML test programs Makefile
 #
@@ -96,7 +96,7 @@ test-skeleton : test-skeleton.o
 	$(LD) $< ../xmlparse.o -o $@ $(LDFLAGS)
 
 test-skeleton.c : test/test.xsd xsd-to-xmlparser
-	./xsd-to-xmlparser < $< | sed -e 's/1))$$/0))/' > $@
+	./xsd-to-xmlparser < $< | sed -e 's/XMLPARSE_UNKNOWN_ATTR_WARN/XMLPARSE_UNKNOWN_ATTR_ERROR/' > $@
 
 ########
 

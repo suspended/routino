@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.37 2010-04-11 13:01:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.38 2010-04-12 17:33:52 amb Exp $
 
  Load the profiles from a file and the functions for handling them.
 
@@ -564,7 +564,7 @@ int ParseXMLProfiles(const char *filename)
     return(1);
    }
 
- retval=ParseXML(file,xml_toplevel_tags,2);
+ retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
 
  fclose(file);
 
