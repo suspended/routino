@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.7 2010-04-11 13:01:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.8 2010-04-12 17:33:52 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -293,10 +293,10 @@ static inline int call_callback(const char *name,int (*callback)(),int type,int 
 
   xmltag **tags The array of pointers to tags for the top level.
 
-  int ignore_unknown_attributes If set to 0 then exit if unknown attribute is seen, if sete to 1 then warn, if set to 2 then ignore.
+  int options A list of XML Parser options OR-ed together.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
+int ParseXML(FILE *file,xmltag **tags,int options)
 {
  int yychar,i;
 
@@ -462,12 +462,13 @@ int ParseXML(FILE *file,xmltag **tags,int ignore_unknown_attributes)
 
        if(attribute==-1)
          {
-          if(ignore_unknown_attributes==0)
+          if((options&XMLPARSE_UNKNOWN_ATTRIBUTES)==XMLPARSE_UNKNOWN_ATTR_ERROR ||
+             ((options&XMLPARSE_UNKNOWN_ATTRIBUTES)==XMLPARSE_UNKNOWN_ATTR_ERRNONAME && !strchr(yylval,':')))
             {
              fprintf(stderr,"XML Parser: Error on line %d: unexpected attribute '%s' for tag '%s'.\n",yylineno,yylval,tag->name);
              yychar=LEX_ERROR_UNEXP_ATT;
             }
-          else if(ignore_unknown_attributes==1)
+          else if((options&XMLPARSE_UNKNOWN_ATTRIBUTES)==XMLPARSE_UNKNOWN_ATTR_WARN)
              fprintf(stderr,"XML Parser: Warning on line %d: unexpected attribute '%s' for tag '%s'.\n",yylineno,yylval,tag->name);
          }
 

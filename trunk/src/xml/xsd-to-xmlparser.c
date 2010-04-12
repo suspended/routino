@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xml/xsd-to-xmlparser.c,v 1.7 2010-04-11 13:01:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xml/xsd-to-xmlparser.c,v 1.8 2010-04-12 17:33:36 amb Exp $
 
  An XML parser for simplified XML Schema Definitions to create XML parser skeletons.
 
@@ -281,7 +281,7 @@ int main(int argc,char **argv)
 {
  int i,j,k;
 
- if(ParseXML(stdin,xml_toplevel_tags,0))
+ if(ParseXML(stdin,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE))
    {
     fprintf(stderr,"Cannot parse XML file - exiting.\n");
     exit(1);
@@ -458,7 +458,7 @@ int main(int argc,char **argv)
  printf("\n");
  printf("int main(int argc,char **argv)\n");
  printf("{\n");
- printf(" if(ParseXML(stdin,xml_toplevel_tags,1))\n");
+ printf(" if(ParseXML(stdin,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_WARN))\n");
  printf("    return(1);\n");
  printf(" else\n");
  printf("    return(0);\n");
