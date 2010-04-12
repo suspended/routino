@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.34 2009-11-25 15:00:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.35 2010-04-12 16:42:11 amb Exp $
 
  A header file for the ways.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -83,21 +83,6 @@ struct _Ways
 
 
 Ways *LoadWayList(const char *filename);
-
-Highway HighwayType(const char *highway);
-Transport TransportType(const char *transport);
-Property PropertyType(const char *property);
-
-const char *HighwayName(Highway highway);
-const char *TransportName(Transport transport);
-const char *PropertyName(Property property);
-
-const char *AllowedNameList(wayallow_t allowed);
-const char *PropertiesNameList(wayprop_t properties);
-
-const char *HighwayList(void);
-const char *TransportList(void);
-const char *PropertyList(void);
 
 int WaysCompare(Way *way1,Way *way2);
 
