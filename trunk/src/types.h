@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.38 2009-12-15 18:44:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.39 2010-04-12 16:42:11 amb Exp $
 
  Type definitions
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -325,6 +325,24 @@ typedef struct _Segments Segments;
 typedef struct _Way Way;
 
 typedef struct _Ways Ways;
+
+
+/* Functions */
+
+Highway HighwayType(const char *highway);
+Transport TransportType(const char *transport);
+Property PropertyType(const char *property);
+
+const char *HighwayName(Highway highway);
+const char *TransportName(Transport transport);
+const char *PropertyName(Property property);
+
+const char *AllowedNameList(wayallow_t allowed);
+const char *PropertiesNameList(wayprop_t properties);
+
+const char *HighwayList(void);
+const char *TransportList(void);
+const char *PropertyList(void);
 
 
 #endif /* TYPES_H */

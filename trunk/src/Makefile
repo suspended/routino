@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.30 2010-04-10 18:33:20 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.31 2010-04-12 16:42:23 amb Exp $
 #
 # Source code Makefile
 #
@@ -61,7 +61,7 @@ all : $(EXE)
 
 PLANETSPLITTER_OBJ=planetsplitter.o \
 	           nodesx.o segmentsx.o waysx.o superx.o \
-	           ways.o \
+	           ways.o types.o \
 	           files.o \
 	           results.o queue.o sorting.o \
 	           osmparser.o
@@ -72,7 +72,7 @@ planetsplitter : $(PLANETSPLITTER_OBJ)
 ########
 
 FILEDUMPER_OBJ=filedumper.o \
-	       nodes.o segments.o ways.o \
+	       nodes.o segments.o ways.o types.o \
 	       files.o \
                visualiser.o
 
@@ -82,7 +82,7 @@ filedumper : $(FILEDUMPER_OBJ)
 ########
 
 ROUTER_OBJ=router.o \
-	   nodes.o segments.o ways.o \
+	   nodes.o segments.o ways.o types.o \
 	   files.o profiles.o xmlparse.o \
 	   optimiser.o output.o results.o queue.o translations.o
 
