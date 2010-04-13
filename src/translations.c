@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.c,v 1.3 2010-04-12 17:33:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.c,v 1.4 2010-04-13 17:20:03 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -64,109 +64,109 @@ static int stored=0;
 
 /* The XML tag processing function prototypes */
 
-//static int xml_function(int _type_,const char *version,const char *encoding);
-//static int routino_translations_function(int _type_);
-static int language_function(int _type_,const char *lang);
-//static int output_gpx_function(int _type_);
-static int gpx_final_function(int _type_,const char *text);
-static int gpx_step_function(int _type_,const char *text);
-static int gpx_name_function(int _type_,const char *text);
-static int gpx_desc_function(int _type_,const char *text);
-static int gpx_waypoint_function(int _type_,const char *type,const char *string);
-static int gpx_route_function(int _type_,const char *type,const char *string);
-//static int output_html_function(int _type_);
-static int heading_function(int _type_,const char *direction,const char *string);
-static int turn_function(int _type_,const char *direction,const char *string);
+//static int xmlDeclaration_function(int _type_,const char *version,const char *encoding);
+//static int RoutinoTranslationsType_function(int _type_);
+static int languageType_function(int _type_,const char *lang);
+//static int GPXType_function(int _type_);
+static int GPXFinalType_function(int _type_,const char *text);
+static int GPXStepType_function(int _type_,const char *text);
+static int GPXNameType_function(int _type_,const char *text);
+static int GPXDescType_function(int _type_,const char *text);
+static int GPXWaypointType_function(int _type_,const char *type,const char *string);
+static int GPXRouteType_function(int _type_,const char *type,const char *string);
+//static int HTMLType_function(int _type_);
+static int HeadingType_function(int _type_,const char *direction,const char *string);
+static int TurnType_function(int _type_,const char *direction,const char *string);
 
 
 /* The XML tag definitions */
 
 /*+ The TurnType type tag. +*/
-static xmltag turn_tag=
+static xmltag TurnType_tag=
               {"turn",
                2, {"direction","string"},
-               turn_function,
+               TurnType_function,
                {NULL}};
 
 /*+ The HeadingType type tag. +*/
-static xmltag heading_tag=
+static xmltag HeadingType_tag=
               {"heading",
                2, {"direction","string"},
-               heading_function,
+               HeadingType_function,
                {NULL}};
 
 /*+ The HTMLType type tag. +*/
-static xmltag output_html_tag=
+static xmltag HTMLType_tag=
               {"output-html",
                0, {NULL},
                NULL,
                {NULL}};
 
 /*+ The GPXRouteType type tag. +*/
-static xmltag gpx_route_tag=
+static xmltag GPXRouteType_tag=
               {"route",
                2, {"type","string"},
-               gpx_route_function,
+               GPXRouteType_function,
                {NULL}};
 
 /*+ The GPXWaypointType type tag. +*/
-static xmltag gpx_waypoint_tag=
+static xmltag GPXWaypointType_tag=
               {"waypoint",
                2, {"type","string"},
-               gpx_waypoint_function,
+               GPXWaypointType_function,
                {NULL}};
 
 /*+ The GPXDescType type tag. +*/
-static xmltag gpx_desc_tag=
+static xmltag GPXDescType_tag=
               {"desc",
                1, {"text"},
-               gpx_desc_function,
+               GPXDescType_function,
                {NULL}};
 
 /*+ The GPXNameType type tag. +*/
-static xmltag gpx_name_tag=
+static xmltag GPXNameType_tag=
               {"name",
                1, {"text"},
-               gpx_name_function,
+               GPXNameType_function,
                {NULL}};
 
 /*+ The GPXStepType type tag. +*/
-static xmltag gpx_step_tag=
+static xmltag GPXStepType_tag=
               {"step",
                1, {"text"},
-               gpx_step_function,
+               GPXStepType_function,
                {NULL}};
 
 /*+ The GPXFinalType type tag. +*/
-static xmltag gpx_final_tag=
+static xmltag GPXFinalType_tag=
               {"final",
                1, {"text"},
-               gpx_final_function,
+               GPXFinalType_function,
                {NULL}};
 
 /*+ The GPXType type tag. +*/
-static xmltag output_gpx_tag=
+static xmltag GPXType_tag=
               {"output-gpx",
                0, {NULL},
                NULL,
-               {&gpx_route_tag,&gpx_waypoint_tag,&gpx_desc_tag,&gpx_name_tag,&gpx_step_tag,&gpx_final_tag,NULL}};
+               {&GPXRouteType_tag,&GPXWaypointType_tag,&GPXDescType_tag,&GPXNameType_tag,&GPXStepType_tag,&GPXFinalType_tag,NULL}};
 
 /*+ The languageType type tag. +*/
-static xmltag language_tag=
+static xmltag languageType_tag=
               {"language",
                1, {"lang"},
-               language_function,
-               {&turn_tag,&heading_tag,&output_html_tag,&output_gpx_tag,NULL}};
+               languageType_function,
+               {&TurnType_tag,&HeadingType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
 
 /*+ The RoutinoTranslationsType type tag. +*/
-static xmltag routino_translations_tag=
+static xmltag RoutinoTranslationsType_tag=
               {"routino-translations",
                0, {NULL},
                NULL,
-               {&language_tag,NULL}};
+               {&languageType_tag,NULL}};
 
-/*+ The xmlType type tag. +*/
-static xmltag xml_tag=
+/*+ The xmlDeclaration type tag. +*/
+static xmltag xmlDeclaration_tag=
               {"xml",
                2, {"version","encoding"},
                NULL,
@@ -174,7 +174,7 @@ static xmltag xml_tag=
 
 
 /*+ The complete set of tags at the top level. +*/
-static xmltag *xml_toplevel_tags[]={&xml_tag,&routino_translations_tag,NULL};
+static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoTranslationsType_tag,NULL};
 
 
 /* The XML tag processing functions */
@@ -183,7 +183,7 @@ static xmltag *xml_toplevel_tags[]={&xml_tag,&routino_translations_tag,NULL};
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the TurnType XSD type is seen
 
-  int turn_function Returns 0 if no error occured or something else otherwise.
+  int TurnType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -192,7 +192,7 @@ static xmltag *xml_toplevel_tags[]={&xml_tag,&routino_translations_tag,NULL};
   const char *string The contents of the 'string' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int turn_function(int _type_,const char *direction,const char *string)
+static int TurnType_function(int _type_,const char *direction,const char *string)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
@@ -216,7 +216,7 @@ static int turn_function(int _type_,const char *direction,const char *string)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the HeadingType XSD type is seen
 
-  int heading_function Returns 0 if no error occured or something else otherwise.
+  int HeadingType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -225,7 +225,7 @@ static int turn_function(int _type_,const char *direction,const char *string)
   const char *string The contents of the 'string' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int heading_function(int _type_,const char *direction,const char *string)
+static int HeadingType_function(int _type_,const char *direction,const char *string)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
@@ -249,12 +249,12 @@ static int heading_function(int _type_,const char *direction,const char *string)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the HTMLType XSD type is seen
 
-  int output_html_function Returns 0 if no error occured or something else otherwise.
+  int HTMLType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int output_html_function(int _type_)
+//static int HTMLType_function(int _type_)
 //{
 // return(0);
 //}
@@ -263,7 +263,7 @@ static int heading_function(int _type_,const char *direction,const char *string)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXRouteType XSD type is seen
 
-  int gpx_route_function Returns 0 if no error occured or something else otherwise.
+  int GPXRouteType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -272,7 +272,7 @@ static int heading_function(int _type_,const char *direction,const char *string)
   const char *string The contents of the 'string' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int gpx_route_function(int _type_,const char *type,const char *string)
+static int GPXRouteType_function(int _type_,const char *type,const char *string)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
@@ -294,7 +294,7 @@ static int gpx_route_function(int _type_,const char *type,const char *string)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXWaypointType XSD type is seen
 
-  int gpx_waypoint_function Returns 0 if no error occured or something else otherwise.
+  int GPXWaypointType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -303,7 +303,7 @@ static int gpx_route_function(int _type_,const char *type,const char *string)
   const char *string The contents of the 'string' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int gpx_waypoint_function(int _type_,const char *type,const char *string)
+static int GPXWaypointType_function(int _type_,const char *type,const char *string)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
@@ -329,14 +329,14 @@ static int gpx_waypoint_function(int _type_,const char *type,const char *string)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXDescType XSD type is seen
 
-  int gpx_desc_function Returns 0 if no error occured or something else otherwise.
+  int GPXDescType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int gpx_desc_function(int _type_,const char *text)
+static int GPXDescType_function(int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
@@ -352,14 +352,14 @@ static int gpx_desc_function(int _type_,const char *text)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXNameType XSD type is seen
 
-  int gpx_name_function Returns 0 if no error occured or something else otherwise.
+  int GPXNameType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int gpx_name_function(int _type_,const char *text)
+static int GPXNameType_function(int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
@@ -375,14 +375,14 @@ static int gpx_name_function(int _type_,const char *text)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXStepType XSD type is seen
 
-  int gpx_step_function Returns 0 if no error occured or something else otherwise.
+  int GPXStepType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int gpx_step_function(int _type_,const char *text)
+static int GPXStepType_function(int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
@@ -398,14 +398,14 @@ static int gpx_step_function(int _type_,const char *text)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXFinalType XSD type is seen
 
-  int gpx_final_function Returns 0 if no error occured or something else otherwise.
+  int GPXFinalType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int gpx_final_function(int _type_,const char *text)
+static int GPXFinalType_function(int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
@@ -421,12 +421,12 @@ static int gpx_final_function(int _type_,const char *text)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the GPXType XSD type is seen
 
-  int output_gpx_function Returns 0 if no error occured or something else otherwise.
+  int GPXType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int output_gpx_function(int _type_)
+//static int GPXType_function(int _type_)
 //{
 // return(0);
 //}
@@ -435,14 +435,14 @@ static int gpx_final_function(int _type_,const char *text)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the languageType XSD type is seen
 
-  int language_function Returns 0 if no error occured or something else otherwise.
+  int languageType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *lang The contents of the 'lang' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int language_function(int _type_,const char *lang)
+static int languageType_function(int _type_,const char *lang)
 {
  static int first=1;
 
@@ -473,21 +473,21 @@ static int language_function(int _type_,const char *lang)
 /*++++++++++++++++++++++++++++++++++++++
   The function that is called when the RoutinoTranslationsType XSD type is seen
 
-  int routino_translations_function Returns 0 if no error occured or something else otherwise.
+  int RoutinoTranslationsType_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int routino_translations_function(int _type_)
+//static int RoutinoTranslationsType_function(int _type_)
 //{
 // return(0);
 //}
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the xmlType XSD type is seen
+  The function that is called when the XML declaration is seen
 
-  int xml_function Returns 0 if no error occured or something else otherwise.
+  int xmlDeclaration_function Returns 0 if no error occured or something else otherwise.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
@@ -496,7 +496,7 @@ static int language_function(int _type_,const char *lang)
   const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int xml_function(int _type_,const char *version,const char *encoding)
+//static int xmlDeclaration_function(int _type_,const char *version,const char *encoding)
 //{
 // return(0);
 //}
