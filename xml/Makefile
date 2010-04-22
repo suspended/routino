@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.1 2010-04-07 17:22:45 amb Exp $
+# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.2 2010-04-22 18:44:20 amb Exp $
 #
 # XML directory Makefile
 #
@@ -20,16 +20,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-XML=routino-profiles.xml
+XML=profiles.xml \
+    translations.xml
 
 ########
 
-all : $(XML)
+all :
 	-@[ -d ../web/data ] && \
 	  for file in $(XML); do \
-	     if [ $$file -nt ../web/data/$file ]; then \
-	        echo $$file ../web/data ;\
-	        cp $$file ../web/data ;\
+	     if [ ! -f ../web/data/$$file -o routino-$$file -nt ../web/data/$$file ]; then \
+	        echo cp routino-$$file ../web/data/$$file ;\
+	        cp routino-$$file ../web/data/$$file ;\
 	     fi ;\
 	  done
 
