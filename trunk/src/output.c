@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.26 2010-04-10 18:33:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.27 2010-04-22 17:54:12 amb Exp $
 
  Routing output generator.
 
@@ -208,15 +208,20 @@ void PrintRouteHead(const char *copyright)
     fprintf(htmlfile,"<TITLE>Routino: %s Route</TITLE>\n",option_quickest?"Quickest":"Shortest");
     fprintf(htmlfile,"<STYLE type='text/css'>\n");
     fprintf(htmlfile,"<!--\n");
-    fprintf(htmlfile,"   table   {table-layout: fixed; border: none; border-collapse: collapse;}\n");
-    fprintf(htmlfile,"   tr      {border: 0px;}\n");
-    fprintf(htmlfile,"   td.l    {font-weight: bold;}\n");
-    fprintf(htmlfile,"   td.r    {}\n");
-    fprintf(htmlfile,"   span.w  {font-weight: bold;}\n");
-    fprintf(htmlfile,"   span.d  {}\n");
-    fprintf(htmlfile,"   span.dt {}\n");
-    fprintf(htmlfile,"   span.t  {font-variant: small-caps;}\n");
-    fprintf(htmlfile,"   span.b  {font-variant: small-caps;}\n");
+    fprintf(htmlfile,"   table  {table-layout: fixed; border: none; border-collapse: collapse;}\n");
+    fprintf(htmlfile,"   tr     {border: 0px;}\n");
+    fprintf(htmlfile,"   tr.c   {display: none;} /* coords */\n");
+    fprintf(htmlfile,"   tr.n   {} /* node */\n");
+    fprintf(htmlfile,"   tr.s   {} /* segment */\n");
+    fprintf(htmlfile,"   tr.t   {font-weight: bold;} /* total */\n");
+    fprintf(htmlfile,"   td.l   {font-weight: bold;}\n");
+    fprintf(htmlfile,"   td.r   {}\n");
+    fprintf(htmlfile,"   span.w {font-weight: bold;} /* waypoint */\n");
+    fprintf(htmlfile,"   span.h {text-decoration: underline;} /* highway */\n");
+    fprintf(htmlfile,"   span.d {} /* segment distance */\n");
+    fprintf(htmlfile,"   span.j {font-style: italic;} /* total journey distance */\n");
+    fprintf(htmlfile,"   span.t {font-variant: small-caps;} /* turn */\n");
+    fprintf(htmlfile,"   span.b {font-variant: small-caps;} /* bearing */\n");
     fprintf(htmlfile,"-->\n");
     fprintf(htmlfile,"</STYLE>\n");
     fprintf(htmlfile,"</HEAD>\n");
@@ -475,18 +480,25 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 else
                    type="Junction";
 
-                fprintf(htmlfile,"<tr><td class='l'>Follow:<td class='r'>'%s' for <span class='d'>%.3f km, %.1f min</span> <span='td'>[%.1f km, %.0f min]</span>\n",
+                fprintf(htmlfile,"<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>%s</span> for <span class='d'>%.3f km, %.1f min</span> [<span class='j'>%.1f km, %.0f min</span>]\n",
                         WayName(ways,resultway),
                         distance_to_km(junc_distance),duration_to_minutes(junc_duration),
                         distance_to_km(cum_distance),duration_to_minutes(cum_duration));
 
+                fprintf(htmlfile,"<tr class='c'><td class='l'>Coords:<td class='r'>%.6f %.6f\n",
+                        radians_to_degrees(latitude),radians_to_degrees(longitude));
+
                 if(nextresult)
-                   fprintf(htmlfile,"<tr><td class='l'>At:<td class='r'>%s, turn <span class='t'>%s</span> and head <span class='b'>%s</span>\n",
+                   fprintf(htmlfile,"<tr class='n'><td class='l'>At:<td class='r'>%s, go <span class='t'>%s</span> and head <span class='b'>%s</span>\n",
                            type,
                            translate_turn[(4+(22+junction_angle(nodes,result->segment,nextresult->segment,result->node))/45)%8],
                            translate_heading[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
                 else
-                   fprintf(htmlfile,"<tr><td class='l'>Stop:<td class='r'><span class='w'>Waypoint</span>\n");
+                  {
+                   fprintf(htmlfile,"<tr class='n'><td class='l'>Stop:<td class='r'><span class='w'>Waypoint</span>\n");
+                   fprintf(htmlfile,"<tr class='t'><td class='l'>Total:<td class='r'><span class='j'>%.1f km, %.0f minutes</span>\n",
+                           distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                  }
                }
 
              if(textfile)
@@ -551,8 +563,12 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           /* Print out the very first start point */
 
           if(htmlfile)
-             fprintf(htmlfile,"<tr><td class='l'>Start:<td class='r'><span class='w'>Waypoint</span>, head <span class='b'>%s</span>\n",
+            {
+             fprintf(htmlfile,"<tr class='c'><td class='l'>Coords:<td class='r'>%.6f %.6f\n",
+                     radians_to_degrees(latitude),radians_to_degrees(longitude));
+             fprintf(htmlfile,"<tr class='n'><td class='l'>Start:<td class='r'><span class='w'>Waypoint</span>, head <span class='b'>%s</span>\n",
                      translate_heading[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
+            }
 
           if(gpxroutefile)
              fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
