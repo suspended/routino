@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- ============================================================
+     $Header: /home/amb/CVS/routino/xml/routino-translations.xml,v 1.1 2010-04-22 17:56:15 amb Exp $
+
+     An XML format file containing Routino output translations.
+
+     Part of the Routino routing software.
+     ============================================================
+     This file Copyright 2010 Andrew M. Bishop
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU Affero General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or
+     (at your option) any later version.
+     ============================================================ -->
+
+<routino-translations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="routino-translations.xsd">
+
+  <language lang="en">
+
+    <turn direction="-4" string="Very sharp left" />
+    <turn direction="-3" string="Sharp left" />
+    <turn direction="-2" string="Left" />
+    <turn direction="-1" string="Slight left" />
+    <turn direction="0"  string="Straight on" />
+    <turn direction="1"  string="Slight right" />
+    <turn direction="2"  string="Right" />
+    <turn direction="3"  string="Sharp right" />
+    <turn direction="4"  string="Very sharp right" />
+
+    <heading direction="-4" string="South" />
+    <heading direction="-3" string="South-West" />
+    <heading direction="-2" string="West" />
+    <heading direction="-1" string="North-West" />
+    <heading direction="0"  string="North" />
+    <heading direction="1"  string="North-East" />
+    <heading direction="2"  string="East" />
+    <heading direction="3"  string="South-East" />
+    <heading direction="4"  string="South" />
+
+    <output-gpx>
+      <route type="shortest" string="Shortest" /> <!-- For the description and route name -->
+      <route type="quickest" string="Quickest" /> <!-- For the description and route name -->
+
+      <waypoint type="start"  string="START" /> <!-- For the first route waypoint -->
+      <waypoint type="inter"  string="INTER" /> <!-- For the intermediate route waypoints -->
+      <waypoint type="trip"   string="TRIP"  /> <!-- For the other route points -->
+      <waypoint type="finish" string="FINISH"/> <!-- For the last route waypoint -->
+
+      <desc  text="%s route between 'start' and 'finish' waypoints" />
+      <name  text="%s route" />
+      <step  text="%s on '%s' for %.3f km, %.1 min" />           <!-- 1st %s = [turn], 2nd %s = street name -->
+      <final text="Total Journey %.1f km, %d minutes" />
+    </output-gpx>
+
+  </language>
+
+</routino-translations>
