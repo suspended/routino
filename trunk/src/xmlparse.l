@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.8 2010-04-12 17:33:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.9 2010-04-22 17:53:42 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -234,7 +234,7 @@ charref         &#({digit}+|x{xdigit}+);
 
  /* End of file */
 
-<<EOF>>                     { free(string); string=NULL; BEGIN(INITIAL); return(LEX_EOF); }
+<<EOF>>                     { free(string); string=NULL; stringlen=stringused=0; BEGIN(INITIAL); return(LEX_EOF); }
 
 %%
 
@@ -308,18 +308,13 @@ int ParseXML(FILE *file,xmltag **tags,int options)
  xmltag **tag_stack=NULL;
  xmltag *tag=NULL;
 
- static int first=1;
-
- /* Parser (re)-initialisation */
+ /* The actual parser. */
 
  yyin=file;
 
- if(!first)
-    yyrestart(NULL);
+ yyrestart(yyin);
 
- first=0;
-
- /* The actual parser. */
+ BEGIN(INITIAL);
 
  do
    {
