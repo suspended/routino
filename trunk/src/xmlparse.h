@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.7 2010-04-12 17:33:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.8 2010-04-23 18:41:09 amb Exp $
 
  A simple XML parser
 
@@ -84,7 +84,7 @@ int ParseXML_GetFloating(const char *string,double *number);
 #define XMLPARSE_MESSAGE(tag,message) \
  do \
    { \
-    fprintf(stderr,"XML Parser: Error on line %d: " message " in <" tag "> tag.\n",ParseXML_LineNumber()); \
+    fprintf(stderr,"XML Parser: Error on line %d: " message " in <%s> tag.\n",ParseXML_LineNumber(),tag); \
     return(1); \
    } \
     while(0)
@@ -92,7 +92,7 @@ int ParseXML_GetFloating(const char *string,double *number);
 #define XMLPARSE_INVALID(tag,attribute) \
  do \
    { \
-    fprintf(stderr,"XML Parser: Error on line %d: Invalid value for '" #attribute "' attribute in <" tag "> tag.\n",ParseXML_LineNumber()); \
+    fprintf(stderr,"XML Parser: Error on line %d: Invalid value for '" #attribute "' attribute in <%s> tag.\n",ParseXML_LineNumber(),tag); \
     return(1); \
    } \
     while(0)
@@ -102,7 +102,7 @@ int ParseXML_GetFloating(const char *string,double *number);
    { \
     if(!attribute || !*attribute) \
       { \
-       fprintf(stderr,"XML Parser: Error on line %d: '" #attribute "' attribute must be specified in <" tag "> tag.\n",ParseXML_LineNumber()); \
+       fprintf(stderr,"XML Parser: Error on line %d: '" #attribute "' attribute must be specified in <%s> tag.\n",ParseXML_LineNumber(),tag); \
        return(1); \
       } \
    } \
@@ -113,7 +113,7 @@ int ParseXML_GetFloating(const char *string,double *number);
    { \
     if(!attribute || !*attribute || !ParseXML_GetInteger(attribute,&result)) \
       { \
-       fprintf(stderr,"XML Parser: Error on line %d: '" #attribute "' attribute must be a integer in <" tag "> tag.\n",ParseXML_LineNumber()); \
+       fprintf(stderr,"XML Parser: Error on line %d: '" #attribute "' attribute must be a integer in <%s> tag.\n",ParseXML_LineNumber(),tag); \
        return(1); \
       } \
    } \
@@ -124,7 +124,7 @@ int ParseXML_GetFloating(const char *string,double *number);
    { \
     if(!attribute || !*attribute || !ParseXML_GetFloating(attribute,&result)) \
       { \
-       fprintf(stderr,"XML Parser: Error on line %d: '" #attribute "' attribute must be a number in <" tag "> tag.\n",ParseXML_LineNumber()); \
+       fprintf(stderr,"XML Parser: Error on line %d: '" #attribute "' attribute must be a number in <%s> tag.\n",ParseXML_LineNumber(),tag); \
        return(1); \
       } \
    } \

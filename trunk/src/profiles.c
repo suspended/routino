@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.39 2010-04-13 17:20:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.40 2010-04-23 18:41:08 amb Exp $
 
  Load the profiles from a file and the functions for handling them.
 
@@ -42,21 +42,21 @@ static int nloaded_profiles=0;
 
 /* The XML tag processing function prototypes */
 
-//static int xmlDeclaration_function(int _type_,const char *version,const char *encoding);
-//static int RoutinoProfilesType_function(int _type_);
-static int profileType_function(int _type_,const char *name,const char *transport);
-//static int restrictionsType_function(int _type_);
-static int lengthType_function(int _type_,const char *limit);
-static int widthType_function(int _type_,const char *limit);
-static int heightType_function(int _type_,const char *limit);
-static int weightType_function(int _type_,const char *limit);
-//static int propertiesType_function(int _type_);
-static int onewayType_function(int _type_,const char *obey);
-static int propertyType_function(int _type_,const char *type,const char *percent);
-//static int preferencesType_function(int _type_);
-static int preferenceType_function(int _type_,const char *highway,const char *percent);
-//static int speedsType_function(int _type_);
-static int speedType_function(int _type_,const char *highway,const char *kph);
+//static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding);
+//static int RoutinoProfilesType_function(const char *_tag_,int _type_);
+static int profileType_function(const char *_tag_,int _type_,const char *name,const char *transport);
+//static int restrictionsType_function(const char *_tag_,int _type_);
+static int lengthType_function(const char *_tag_,int _type_,const char *limit);
+static int widthType_function(const char *_tag_,int _type_,const char *limit);
+static int heightType_function(const char *_tag_,int _type_,const char *limit);
+static int weightType_function(const char *_tag_,int _type_,const char *limit);
+//static int propertiesType_function(const char *_tag_,int _type_);
+static int onewayType_function(const char *_tag_,int _type_,const char *obey);
+static int propertyType_function(const char *_tag_,int _type_,const char *type,const char *percent);
+//static int preferencesType_function(const char *_tag_,int _type_);
+static int preferenceType_function(const char *_tag_,int _type_,const char *highway,const char *percent);
+//static int speedsType_function(const char *_tag_,int _type_);
+static int speedType_function(const char *_tag_,int _type_,const char *highway,const char *kph);
 
 
 /* The XML tag definitions */
@@ -179,6 +179,8 @@ static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoProfilesType_tag
 
   int speedType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *highway The contents of the 'highway' attribute (or NULL if not defined).
@@ -186,21 +188,21 @@ static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoProfilesType_tag
   const char *kph The contents of the 'kph' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int speedType_function(int _type_,const char *highway,const char *kph)
+static int speedType_function(const char *_tag_,int _type_,const char *highway,const char *kph)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     double speed;
     Highway highwaytype;
 
-    XMLPARSE_ASSERT_STRING("speed",highway);
+    XMLPARSE_ASSERT_STRING(_tag_,highway);
 
     highwaytype=HighwayType(highway);
 
     if(highwaytype==Way_Count)
-       XMLPARSE_INVALID("speed",highway);
+       XMLPARSE_INVALID(_tag_,highway);
 
-    XMLPARSE_ASSERT_FLOATING("speed",kph,speed);
+    XMLPARSE_ASSERT_FLOATING(_tag_,kph,speed);
 
     loaded_profiles[nloaded_profiles-1]->speed[highwaytype]=kph_to_speed(speed);
    }
@@ -214,10 +216,12 @@ static int speedType_function(int _type_,const char *highway,const char *kph)
 
   int speedsType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int speedsType_function(int _type_)
+//static int speedsType_function(const char *_tag_,int _type_)
 //{
 // return(0);
 //}
@@ -228,6 +232,8 @@ static int speedType_function(int _type_,const char *highway,const char *kph)
 
   int preferenceType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *highway The contents of the 'highway' attribute (or NULL if not defined).
@@ -235,21 +241,21 @@ static int speedType_function(int _type_,const char *highway,const char *kph)
   const char *percent The contents of the 'percent' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int preferenceType_function(int _type_,const char *highway,const char *percent)
+static int preferenceType_function(const char *_tag_,int _type_,const char *highway,const char *percent)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     Highway highwaytype;
     double p;
 
-    XMLPARSE_ASSERT_STRING("preference",highway);
+    XMLPARSE_ASSERT_STRING(_tag_,highway);
 
     highwaytype=HighwayType(highway);
 
     if(highwaytype==Way_Count)
-       XMLPARSE_INVALID("preference",highway);
+       XMLPARSE_INVALID(_tag_,highway);
 
-    XMLPARSE_ASSERT_FLOATING("preference",percent,p);
+    XMLPARSE_ASSERT_FLOATING(_tag_,percent,p);
 
     loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=p;
    }
@@ -263,10 +269,12 @@ static int preferenceType_function(int _type_,const char *highway,const char *pe
 
   int preferencesType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int preferencesType_function(int _type_)
+//static int preferencesType_function(const char *_tag_,int _type_)
 //{
 // return(0);
 //}
@@ -277,6 +285,8 @@ static int preferenceType_function(int _type_,const char *highway,const char *pe
 
   int propertyType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *type The contents of the 'type' attribute (or NULL if not defined).
@@ -284,21 +294,21 @@ static int preferenceType_function(int _type_,const char *highway,const char *pe
   const char *percent The contents of the 'percent' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int propertyType_function(int _type_,const char *type,const char *percent)
+static int propertyType_function(const char *_tag_,int _type_,const char *type,const char *percent)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     Property property;
     double p;
 
-    XMLPARSE_ASSERT_STRING("property",type);
+    XMLPARSE_ASSERT_STRING(_tag_,type);
 
     property=PropertyType(type);
 
     if(property==Property_Count)
-       XMLPARSE_INVALID("property",type);
+       XMLPARSE_INVALID(_tag_,type);
 
-    XMLPARSE_ASSERT_FLOATING("property",percent,p);
+    XMLPARSE_ASSERT_FLOATING(_tag_,percent,p);
 
     loaded_profiles[nloaded_profiles-1]->props_yes[property]=p;
    }
@@ -312,18 +322,20 @@ static int propertyType_function(int _type_,const char *type,const char *percent
 
   int onewayType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *obey The contents of the 'obey' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int onewayType_function(int _type_,const char *obey)
+static int onewayType_function(const char *_tag_,int _type_,const char *obey)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     int o;
 
-    XMLPARSE_ASSERT_INTEGER("oneway",obey,o);
+    XMLPARSE_ASSERT_INTEGER(_tag_,obey,o);
 
     loaded_profiles[nloaded_profiles-1]->oneway=!!o;
    }
@@ -337,10 +349,12 @@ static int onewayType_function(int _type_,const char *obey)
 
   int propertiesType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int propertiesType_function(int _type_)
+//static int propertiesType_function(const char *_tag_,int _type_)
 //{
 // return(0);
 //}
@@ -351,18 +365,20 @@ static int onewayType_function(int _type_,const char *obey)
 
   int weightType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int weightType_function(int _type_,const char *limit)
+static int weightType_function(const char *_tag_,int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     double l;
 
-    XMLPARSE_ASSERT_FLOATING("weight",limit,l);
+    XMLPARSE_ASSERT_FLOATING(_tag_,limit,l);
 
     loaded_profiles[nloaded_profiles-1]->weight=tonnes_to_weight(l);
    }
@@ -376,18 +392,20 @@ static int weightType_function(int _type_,const char *limit)
 
   int heightType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int heightType_function(int _type_,const char *limit)
+static int heightType_function(const char *_tag_,int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     double l;
 
-    XMLPARSE_ASSERT_FLOATING("height",limit,l);
+    XMLPARSE_ASSERT_FLOATING(_tag_,limit,l);
 
     loaded_profiles[nloaded_profiles-1]->height=metres_to_height(l);
    }
@@ -401,18 +419,20 @@ static int heightType_function(int _type_,const char *limit)
 
   int widthType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int widthType_function(int _type_,const char *limit)
+static int widthType_function(const char *_tag_,int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     double l;
 
-    XMLPARSE_ASSERT_FLOATING("width",limit,l);
+    XMLPARSE_ASSERT_FLOATING(_tag_,limit,l);
 
     loaded_profiles[nloaded_profiles-1]->width=metres_to_width(l);
    }
@@ -426,18 +446,20 @@ static int widthType_function(int _type_,const char *limit)
 
   int lengthType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *limit The contents of the 'limit' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int lengthType_function(int _type_,const char *limit)
+static int lengthType_function(const char *_tag_,int _type_,const char *limit)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     double l;
 
-    XMLPARSE_ASSERT_FLOATING("length",limit,l);
+    XMLPARSE_ASSERT_FLOATING(_tag_,limit,l);
 
     loaded_profiles[nloaded_profiles-1]->length=metres_to_length(l);
    }
@@ -451,10 +473,12 @@ static int lengthType_function(int _type_,const char *limit)
 
   int restrictionsType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int restrictionsType_function(int _type_)
+//static int restrictionsType_function(const char *_tag_,int _type_)
 //{
 // return(0);
 //}
@@ -465,6 +489,8 @@ static int lengthType_function(int _type_,const char *limit)
 
   int profileType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *name The contents of the 'name' attribute (or NULL if not defined).
@@ -472,24 +498,24 @@ static int lengthType_function(int _type_,const char *limit)
   const char *transport The contents of the 'transport' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int profileType_function(int _type_,const char *name,const char *transport)
+static int profileType_function(const char *_tag_,int _type_,const char *name,const char *transport)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     Transport transporttype;
     int i;
 
-    XMLPARSE_ASSERT_STRING("profile",name);
-    XMLPARSE_ASSERT_STRING("profile",transport);
+    XMLPARSE_ASSERT_STRING(_tag_,name);
+    XMLPARSE_ASSERT_STRING(_tag_,transport);
 
     for(i=0;i<nloaded_profiles;i++)
        if(!strcmp(name,loaded_profiles[i]->name))
-          XMLPARSE_MESSAGE("profile","profile name must be unique");
+          XMLPARSE_MESSAGE(_tag_,"profile name must be unique");
 
     transporttype=TransportType(transport);
 
     if(transporttype==Transport_None)
-       XMLPARSE_INVALID("profile",transport);
+       XMLPARSE_INVALID(_tag_,transport);
 
     if((nloaded_profiles%16)==0)
        loaded_profiles=(Profile**)realloc((void*)loaded_profiles,(nloaded_profiles+16)*sizeof(Profile*));
@@ -511,10 +537,12 @@ static int profileType_function(int _type_,const char *name,const char *transpor
 
   int RoutinoProfilesType_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int RoutinoProfilesType_function(int _type_)
+//static int RoutinoProfilesType_function(const char *_tag_,int _type_)
 //{
 // return(0);
 //}
@@ -525,6 +553,8 @@ static int profileType_function(int _type_,const char *name,const char *transpor
 
   int xmlDeclaration_function Returns 0 if no error occured or something else otherwise.
 
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *version The contents of the 'version' attribute (or NULL if not defined).
@@ -532,7 +562,7 @@ static int profileType_function(int _type_,const char *name,const char *transpor
   const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int xmlDeclaration_function(int _type_,const char *version,const char *encoding)
+//static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding)
 //{
 // return(0);
 //}

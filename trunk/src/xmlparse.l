@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.9 2010-04-22 17:53:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.10 2010-04-23 18:41:09 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -259,23 +259,23 @@ static inline int call_callback(const char *name,int (*callback)(),int type,int 
 {
  switch(nattributes)
    {
-   case  0: return (*callback)(type);
-   case  1: return (*callback)(type,attributes[0]);
-   case  2: return (*callback)(type,attributes[0],attributes[1]);
-   case  3: return (*callback)(type,attributes[0],attributes[1],attributes[2]);
-   case  4: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3]);
-   case  5: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4]);
-   case  6: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5]);
-   case  7: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6]);
-   case  8: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7]);
-   case  9: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8]);
-   case 10: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9]);
-   case 11: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10]);
-   case 12: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11]);
-   case 13: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12]);
-   case 14: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13]);
-   case 15: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14]);
-   case 16: return (*callback)(type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14],attributes[15]);
+   case  0: return (*callback)(name,type);
+   case  1: return (*callback)(name,type,attributes[0]);
+   case  2: return (*callback)(name,type,attributes[0],attributes[1]);
+   case  3: return (*callback)(name,type,attributes[0],attributes[1],attributes[2]);
+   case  4: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3]);
+   case  5: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4]);
+   case  6: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5]);
+   case  7: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6]);
+   case  8: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7]);
+   case  9: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8]);
+   case 10: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9]);
+   case 11: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10]);
+   case 12: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11]);
+   case 13: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12]);
+   case 14: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13]);
+   case 15: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14]);
+   case 16: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14],attributes[15]);
 
    default:
     fprintf(stderr,"XML Parser: Error on line %d: too many attributes for tag '%s' source code needs changing.\n",yylineno,name);
