@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.h,v 1.2 2010-04-24 12:42:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.h,v 1.3 2010-04-24 15:49:16 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -34,13 +34,23 @@ extern char *translate_copyright_license[2];
 extern char *translate_heading[9];
 extern char *translate_turn[9];
 
+extern char *translate_route_shortest;
+extern char *translate_route_quickest;
+
+extern char *translate_html_waypoint;
+extern char *translate_html_junction;
+
+extern char *translate_html_title;
+extern char *translate_html_start[2];
+extern char *translate_html_segment[2];
+extern char *translate_html_node[2];
+extern char *translate_html_stop[2];
+extern char *translate_html_total[2];
+
 extern char *translate_gpx_desc;
 extern char *translate_gpx_name;
 extern char *translate_gpx_step;
 extern char *translate_gpx_final;
-
-extern char *translate_gpx_shortest;
-extern char *translate_gpx_quickest;
 
 extern char *translate_gpx_start;
 extern char *translate_gpx_inter;

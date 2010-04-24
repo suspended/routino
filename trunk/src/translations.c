@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.c,v 1.6 2010-04-24 12:42:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.c,v 1.7 2010-04-24 15:49:16 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -45,8 +45,18 @@ char *translate_gpx_name ="%s Route";
 char *translate_gpx_step ="%s on '%s' for %.3f km, %.1 min";
 char *translate_gpx_final="Total Journey %.1f km, %d minutes";
 
-char *translate_gpx_shortest="Shortest";
-char *translate_gpx_quickest="Quickest";
+char *translate_route_shortest="Shortest";
+char *translate_route_quickest="Quickest";
+
+char *translate_html_waypoint="<span class='w'>Waypoint</span>";
+char *translate_html_junction="Junction";
+
+char *translate_html_title="%s Route";
+char *translate_html_start[2]={"Start","At %s, head %s"};
+char *translate_html_segment[2]={"Follow","%s for %.3f km, %.1f min"};
+char *translate_html_node[2]={"At","%s, go %s heading %s"};
+char *translate_html_stop[2]={"Stop","At %s"};
+char *translate_html_total[2]={"Total","%.1f km, %.0f minutes"};
 
 char *translate_gpx_start="START";
 char *translate_gpx_inter="INTER";
@@ -76,10 +86,17 @@ static int GPXFinalType_function(const char *_tag_,int _type_,const char *text);
 static int GPXStepType_function(const char *_tag_,int _type_,const char *text);
 static int GPXNameType_function(const char *_tag_,int _type_,const char *text);
 static int GPXDescType_function(const char *_tag_,int _type_,const char *text);
-static int GPXWaypointType_function(const char *_tag_,int _type_,const char *type,const char *string);
-//static int CopyrightType_function(const char *_tag_,int _type_);
-static int GPXRouteType_function(const char *_tag_,int _type_,const char *type,const char *string);
 //static int HTMLType_function(const char *_tag_,int _type_);
+static int HTMLTotalType_function(const char *_tag_,int _type_,const char *string,const char *text);
+static int HTMLStopType_function(const char *_tag_,int _type_,const char *string,const char *text);
+static int HTMLSegmentType_function(const char *_tag_,int _type_,const char *string,const char *text);
+static int HTMLNodeType_function(const char *_tag_,int _type_,const char *string,const char *text);
+static int HTMLStartType_function(const char *_tag_,int _type_,const char *string,const char *text);
+static int HTMLTitleType_function(const char *_tag_,int _type_,const char *text);
+//static int CopyrightType_function(const char *_tag_,int _type_);
+static int GPXWaypointType_function(const char *_tag_,int _type_,const char *type,const char *string);
+static int HTMLWaypointType_function(const char *_tag_,int _type_,const char *type,const char *string);
+static int RouteType_function(const char *_tag_,int _type_,const char *type,const char *string);
 static int HeadingType_function(const char *_tag_,int _type_,const char *direction,const char *string);
 static int TurnType_function(const char *_tag_,int _type_,const char *direction,const char *string);
 static int CopyrightLicenseType_function(const char *_tag_,int _type_,const char *string,const char *text);
@@ -124,18 +141,25 @@ static xmltag HeadingType_tag=
                HeadingType_function,
                {NULL}};
 
-/*+ The HTMLType type tag. +*/
-static xmltag HTMLType_tag=
-              {"output-html",
-               0, {NULL},
-               NULL,
-               {NULL}};
-
-/*+ The GPXRouteType type tag. +*/
-static xmltag GPXRouteType_tag=
+/*+ The RouteType type tag. +*/
+static xmltag RouteType_tag=
               {"route",
                2, {"type","string"},
-               GPXRouteType_function,
+               RouteType_function,
+               {NULL}};
+
+/*+ The HTMLWaypointType type tag. +*/
+static xmltag HTMLWaypointType_tag=
+              {"waypoint",
+               2, {"type","string"},
+               HTMLWaypointType_function,
+               {NULL}};
+
+/*+ The GPXWaypointType type tag. +*/
+static xmltag GPXWaypointType_tag=
+              {"waypoint",
+               2, {"type","string"},
+               GPXWaypointType_function,
                {NULL}};
 
 /*+ The CopyrightType type tag. +*/
@@ -145,12 +169,54 @@ static xmltag CopyrightType_tag=
                NULL,
                {&CopyrightCreatorType_tag,&CopyrightSourceType_tag,&CopyrightLicenseType_tag,NULL}};
 
-/*+ The GPXWaypointType type tag. +*/
-static xmltag GPXWaypointType_tag=
-              {"waypoint",
-               2, {"type","string"},
-               GPXWaypointType_function,
+/*+ The HTMLTitleType type tag. +*/
+static xmltag HTMLTitleType_tag=
+              {"title",
+               1, {"text"},
+               HTMLTitleType_function,
                {NULL}};
+
+/*+ The HTMLStartType type tag. +*/
+static xmltag HTMLStartType_tag=
+              {"start",
+               2, {"string","text"},
+               HTMLStartType_function,
+               {NULL}};
+
+/*+ The HTMLNodeType type tag. +*/
+static xmltag HTMLNodeType_tag=
+              {"node",
+               2, {"string","text"},
+               HTMLNodeType_function,
+               {NULL}};
+
+/*+ The HTMLSegmentType type tag. +*/
+static xmltag HTMLSegmentType_tag=
+              {"segment",
+               2, {"string","text"},
+               HTMLSegmentType_function,
+               {NULL}};
+
+/*+ The HTMLStopType type tag. +*/
+static xmltag HTMLStopType_tag=
+              {"stop",
+               2, {"string","text"},
+               HTMLStopType_function,
+               {NULL}};
+
+/*+ The HTMLTotalType type tag. +*/
+static xmltag HTMLTotalType_tag=
+              {"total",
+               2, {"string","text"},
+               HTMLTotalType_function,
+               {NULL}};
+
+/*+ The HTMLType type tag. +*/
+static xmltag HTMLType_tag=
+              {"output-html",
+               0, {NULL},
+               NULL,
+               {&HTMLWaypointType_tag,&HTMLTitleType_tag,&HTMLStartType_tag,&HTMLNodeType_tag,&HTMLSegmentType_tag,&HTMLStopType_tag,&HTMLTotalType_tag,NULL}};
 
 /*+ The GPXDescType type tag. +*/
 static xmltag GPXDescType_tag=
@@ -185,14 +251,14 @@ static xmltag GPXType_tag=
               {"output-gpx",
                0, {NULL},
                NULL,
-               {&GPXRouteType_tag,&GPXWaypointType_tag,&GPXDescType_tag,&GPXNameType_tag,&GPXStepType_tag,&GPXFinalType_tag,NULL}};
+               {&GPXWaypointType_tag,&GPXDescType_tag,&GPXNameType_tag,&GPXStepType_tag,&GPXFinalType_tag,NULL}};
 
 /*+ The languageType type tag. +*/
 static xmltag languageType_tag=
               {"language",
                1, {"lang"},
                languageType_function,
-               {&CopyrightType_tag,&TurnType_tag,&HeadingType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
+               {&CopyrightType_tag,&TurnType_tag,&HeadingType_tag,&RouteType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
 
 /*+ The RoutinoTranslationsType type tag. +*/
 static xmltag RoutinoTranslationsType_tag=
@@ -374,25 +440,9 @@ static int HeadingType_function(const char *_tag_,int _type_,const char *directi
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the HTMLType XSD type is seen
+  The function that is called when the RouteType XSD type is seen
 
-  int HTMLType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-//static int HTMLType_function(const char *_tag_,int _type_)
-//{
-// return(0);
-//}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the GPXRouteType XSD type is seen
-
-  int GPXRouteType_function Returns 0 if no error occured or something else otherwise.
+  int RouteType_function Returns 0 if no error occured or something else otherwise.
 
   const char *_tag_ Set to the name of the element tag that triggered this function call.
 
@@ -403,7 +453,7 @@ static int HeadingType_function(const char *_tag_,int _type_,const char *directi
   const char *string The contents of the 'string' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int GPXRouteType_function(const char *_tag_,int _type_,const char *type,const char *string)
+static int RouteType_function(const char *_tag_,int _type_,const char *type,const char *string)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
@@ -411,9 +461,9 @@ static int GPXRouteType_function(const char *_tag_,int _type_,const char *type,c
     XMLPARSE_ASSERT_STRING(_tag_,string);
 
     if(!strcmp(type,"shortest"))
-       translate_gpx_shortest=strcpy(malloc(strlen(string)+1),string);
+       translate_route_shortest=strcpy(malloc(strlen(string)+1),string);
     else if(!strcmp(type,"quickest"))
-       translate_gpx_quickest=strcpy(malloc(strlen(string)+1),string);
+       translate_route_quickest=strcpy(malloc(strlen(string)+1),string);
     else
        XMLPARSE_INVALID(_tag_,type);
    }
@@ -423,19 +473,39 @@ static int GPXRouteType_function(const char *_tag_,int _type_,const char *type,c
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the CopyrightType XSD type is seen
+  The function that is called when the HTMLWaypointType XSD type is seen
 
-  int CopyrightType_function Returns 0 if no error occured or something else otherwise.
+  int HTMLWaypointType_function Returns 0 if no error occured or something else otherwise.
 
   const char *_tag_ Set to the name of the element tag that triggered this function call.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *type The contents of the 'type' attribute (or NULL if not defined).
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int CopyrightType_function(const char *_tag_,int _type_)
-//{
-// return(0);
-//}
+static int HTMLWaypointType_function(const char *_tag_,int _type_,const char *type,const char *string)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,type);
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+
+    if(!strcmp(type,"waypoint"))
+      {
+       translate_html_waypoint=malloc(strlen(string)+1+sizeof("<span class='w'>")+sizeof("</span>"));
+       sprintf(translate_html_waypoint,"<span class='w'>%s</span>",string);
+      }
+    else if(!strcmp(type,"junction"))
+       translate_html_junction=strcpy(malloc(strlen(string)+1),string);
+    else
+       XMLPARSE_INVALID(_tag_,type);
+   }
+
+ return(0);
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -473,6 +543,230 @@ static int GPXWaypointType_function(const char *_tag_,int _type_,const char *typ
 
  return(0);
 }
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the CopyrightType XSD type is seen
+
+  int CopyrightType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int CopyrightType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HTMLTitleType XSD type is seen
+
+  int HTMLTitleType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int HTMLTitleType_function(const char *_tag_,int _type_,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    translate_html_title=strcpy(malloc(strlen(text)+1),text);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HTMLStartType XSD type is seen
+
+  int HTMLStartType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int HTMLStartType_function(const char *_tag_,int _type_,const char *string,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    translate_html_start[0]=strcpy(malloc(strlen(string)+1),string);
+    translate_html_start[1]=malloc(strlen(text)+1+sizeof("<span class='b'>")+sizeof("</span>"));
+    sprintf(translate_html_start[1],text,"%s","<span class='b'>%s</span>");
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HTMLNodeType XSD type is seen
+
+  int HTMLNodeType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int HTMLNodeType_function(const char *_tag_,int _type_,const char *string,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    translate_html_node[0]=strcpy(malloc(strlen(string)+1),string);
+    translate_html_node[1]=malloc(strlen(text)+1+2*sizeof("<span class='b'>")+2*sizeof("</span>"));
+    sprintf(translate_html_node[1],text,"%s","<span class='t'>%s</span>","<span class='b'>%s</span>");
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HTMLSegmentType XSD type is seen
+
+  int HTMLSegmentType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int HTMLSegmentType_function(const char *_tag_,int _type_,const char *string,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    const char *p;
+    char *q;
+
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    translate_html_segment[0]=strcpy(malloc(strlen(string)+1),string);
+    translate_html_segment[1]=malloc(strlen(text)+1+2*sizeof("<span class='b'>")+2*sizeof("</span>"));
+
+    p=text;
+    q=translate_html_segment[1];
+
+    while(*p!='%' && *(p+1)!='s')
+       *q++=*p++;
+
+    p+=2;
+    strcpy(q,"<span class='h'>%s</span>"); q+=sizeof("<span class='h'>%s</span>")-1;
+
+    while(*p!='%')
+       *q++=*p++;
+
+    strcpy(q,"<span class='d'>"); q+=sizeof("<span class='d'>")-1;
+
+    strcpy(q,p);
+    strcat(q,"</span>");
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HTMLStopType XSD type is seen
+
+  int HTMLStopType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int HTMLStopType_function(const char *_tag_,int _type_,const char *string,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    translate_html_stop[0]=strcpy(malloc(strlen(string)+1),string);
+    translate_html_stop[1]=strcpy(malloc(strlen(text)+1),text);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HTMLTotalType XSD type is seen
+
+  int HTMLTotalType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int HTMLTotalType_function(const char *_tag_,int _type_,const char *string,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    translate_html_total[0]=strcpy(malloc(strlen(string)+1),string);
+    translate_html_total[1]=strcpy(malloc(strlen(text)+1),text);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HTMLType XSD type is seen
+
+  int HTMLType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int HTMLType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
 
 
 /*++++++++++++++++++++++++++++++++++++++

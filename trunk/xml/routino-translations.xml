@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-translations.xml,v 1.1 2010-04-22 17:56:15 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-translations.xml,v 1.2 2010-04-24 15:49:37 amb Exp $
 
      An XML format file containing Routino output translations.
 
@@ -19,6 +19,14 @@
 
   <language lang="en">
 
+    <!-- Copyright of the data being routed, not of this file, the ':' is important.  -->
+    <copyright>
+      <creator string="Creator" text="Routino - http://www.gedanken.org.uk/mapping/routino/" />
+      <source  string="Source"  text="Based on OpenStreetMap data from http://www.openstreetmap.org/" />
+      <license string="License" text="http://creativecommons.org/licenses/by-sa/2.0/" />
+    </copyright>
+
+    <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
     <turn direction="-4" string="Very sharp left" />
     <turn direction="-3" string="Sharp left" />
     <turn direction="-2" string="Left" />
@@ -29,6 +37,7 @@
     <turn direction="3"  string="Sharp right" />
     <turn direction="4"  string="Very sharp right" />
 
+    <!-- Heading directions, 0 = North, -2 = West, +/-4 = South, +2 = East -->
     <heading direction="-4" string="South" />
     <heading direction="-3" string="South-West" />
     <heading direction="-2" string="West" />
@@ -39,19 +48,35 @@
     <heading direction="3"  string="South-East" />
     <heading direction="4"  string="South" />
 
-    <output-gpx>
-      <route type="shortest" string="Shortest" /> <!-- For the description and route name -->
-      <route type="quickest" string="Quickest" /> <!-- For the description and route name -->
+    <!-- The type of route -->
+    <route type="shortest" string="Shortest" /> <!-- For the description and route name -->
+    <route type="quickest" string="Quickest" /> <!-- For the description and route name -->
 
+    <!-- HTML output -->
+    <output-html>
+      <waypoint type="waypoint"  string="Waypoint" /> <!-- For the chosen waypoints -->
+      <waypoint type="junction"  string="Junction" /> <!-- For the interesting junctions -->
+
+      <title text="%s Route" /> <!-- %s = [shortest|quickest] -->
+
+      <start   string="Start"  text="At %s, head %s" />           <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
+      <node    string="At"     text="%s, go %s heading %s" />     <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <segment string="Follow" text="%s for %.3f km, %.1f min" /> <!-- 1st %s = street name -->
+      <stop    string="Stop"   text="At %s" />                    <!-- 1st %s = [waypoint|junction] -->
+      <total   string="Total"  text="%.1f km, %.0f minutes" />
+    </output-html>
+
+    <!-- GPX output -->
+    <output-gpx>
       <waypoint type="start"  string="START" /> <!-- For the first route waypoint -->
       <waypoint type="inter"  string="INTER" /> <!-- For the intermediate route waypoints -->
       <waypoint type="trip"   string="TRIP"  /> <!-- For the other route points -->
       <waypoint type="finish" string="FINISH"/> <!-- For the last route waypoint -->
 
-      <desc  text="%s route between 'start' and 'finish' waypoints" />
-      <name  text="%s route" />
-      <step  text="%s on '%s' for %.3f km, %.1 min" />           <!-- 1st %s = [turn], 2nd %s = street name -->
-      <final text="Total Journey %.1f km, %d minutes" />
+      <desc  text="%s route between 'start' and 'finish' waypoints" /> <!-- %s = [shortest|quickest] -->
+      <name  text="%s route" />                                        <!-- %s = [shortest|quickest] -->
+      <step  text="%s on '%s' for %.3f km, %.1f min" />                <!-- 1st %s = [turn], 2nd %s = street name -->
+      <final text="Total Journey %.1f km, %.0f minutes" />
     </output-gpx>
 
   </language>
