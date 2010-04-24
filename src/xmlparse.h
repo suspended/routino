@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.9 2010-04-24 12:42:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.10 2010-04-24 15:49:03 amb Exp $
 
  A simple XML parser
 
@@ -74,9 +74,9 @@ int ParseXML(FILE *file,xmltag **tags,int options);
 
 int ParseXML_LineNumber(void);
 
-const char *ParseXML_Decode_Entity_Ref(const char *string);
-const char *ParseXML_Decode_Char_Ref(const char *string);
-const char *ParseXML_Encode_Safe_XML(const char *string);
+char *ParseXML_Decode_Entity_Ref(const char *string);
+char *ParseXML_Decode_Char_Ref(const char *string);
+char *ParseXML_Encode_Safe_XML(const char *string);
 
 int ParseXML_GetInteger(const char *string,int *number);
 int ParseXML_GetFloating(const char *string,double *number);

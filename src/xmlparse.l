@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.11 2010-04-24 12:42:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.12 2010-04-24 15:49:03 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -573,12 +573,12 @@ int ParseXML_LineNumber(void)
 /*++++++++++++++++++++++++++++++++++++++
   Convert an XML entity reference into an ASCII string.
 
-  const char *ParseXML_Decode_Entity_Ref Returns a pointer to the replacement decoded string.
+  char *ParseXML_Decode_Entity_Ref Returns a pointer to the replacement decoded string.
 
   const char *string The entity reference string.
   ++++++++++++++++++++++++++++++++++++++*/
 
-const char *ParseXML_Decode_Entity_Ref(const char *string)
+char *ParseXML_Decode_Entity_Ref(const char *string)
 {
  if(!strcmp(string,"&amp;"))  return("&");
  if(!strcmp(string,"&lt;"))   return("<");
@@ -592,12 +592,12 @@ const char *ParseXML_Decode_Entity_Ref(const char *string)
 /*++++++++++++++++++++++++++++++++++++++
   Convert an XML character reference into an ASCII string.
 
-  const char *ParseXML_Decode_Char_Ref Returns a pointer to the replacement decoded string.
+  char *ParseXML_Decode_Char_Ref Returns a pointer to the replacement decoded string.
 
   const char *string The character reference string.
   ++++++++++++++++++++++++++++++++++++++*/
 
-const char *ParseXML_Decode_Char_Ref(const char *string)
+char *ParseXML_Decode_Char_Ref(const char *string)
 {
  static char result[2]=" ";
  long int val;
@@ -617,12 +617,12 @@ const char *ParseXML_Decode_Char_Ref(const char *string)
 /*++++++++++++++++++++++++++++++++++++++
   Convert a string into something that is safe to output in an XML file.
 
-  const char *ParseXML_Encode_Safe_XML Returns a pointer to the replacement encoded string (or the original if no change needed).
+  char *ParseXML_Encode_Safe_XML Returns a pointer to the replacement encoded string (or the original if no change needed).
 
   const char *string The string to convert.
   ++++++++++++++++++++++++++++++++++++++*/
 
-const char *ParseXML_Encode_Safe_XML(const char *string)
+char *ParseXML_Encode_Safe_XML(const char *string)
 {
  static const char hexstring[17]="0123456789ABCDEF";
  int i=0,j=0,len;
@@ -633,7 +633,7 @@ const char *ParseXML_Encode_Safe_XML(const char *string)
        break;
 
  if(!string[i])
-    return(string);
+    return((char*)string);
 
  len=i+256-6;
 
