@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.27 2010-04-22 17:54:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.28 2010-04-24 12:43:53 amb Exp $
 
  Routing output generator.
 
@@ -80,65 +80,10 @@ static int bearing_angle(Nodes *nodes,Segment *segment,index_t node);
 
 /*++++++++++++++++++++++++++++++++++++++
   Open the files and print the head.
-
-  const char *copyright The name of a file that might exist and contain copyright information.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRouteHead(const char *copyright)
+void PrintRouteHead(void)
 {
- char *source=NULL,*license=NULL;
-
- if(copyright)
-   {
-    FILE *file=fopen(copyright,"r");
-
-    if(file)
-      {
-       off_t size=SizeFile(copyright);
-       char *string=(char*)malloc(size+1);
-       char *p;
-
-       fread(string,size,1,file);
-       string[size]=0;
-
-       p=string;
-       while(*p)
-         {
-          if(!strncmp(p,"Source:",7))
-            {
-             p+=7;
-             while(*p==' ' || *p=='t')
-                p++;
-             source=p;
-             while(*p && *p!='\r' && *p!='\n')
-                p++;
-             while(*p=='\r' || *p=='\n')
-                *p++=0;
-            }
-          else if(!strncmp(p,"License:",8) || !strncmp(p,"Licence:",8))
-            {
-             p+=8;
-             while(*p==' ' || *p=='t')
-                p++;
-             license=p;
-             while(*p && *p!='\r' && *p!='\n')
-                p++;
-             while(*p=='\r' || *p=='\n')
-                *p++=0;
-            }
-          else
-            {
-             while(*p && *p!='\r' && *p!='\n')
-                p++;
-             while(*p=='\r' || *p=='\n')
-                *p++=0;
-            }
-         }
-
-       fclose(file);
-      }
-   }
-
  /* Open the files */
 
  if(option_quickest==0)
@@ -200,33 +145,36 @@ void PrintRouteHead(const char *copyright)
    {
     fprintf(htmlfile,"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n");
     fprintf(htmlfile,"<HTML>\n");
+    if(translate_copyright_creator[0] && translate_copyright_creator[1])
+       fprintf(htmlfile,"<!-- %s : %s -->\n",translate_copyright_creator[0],translate_copyright_creator[1]);
+    if(translate_copyright_source[0] && translate_copyright_source[1])
+       fprintf(htmlfile,"<!-- %s : %s -->\n",translate_copyright_source[0],translate_copyright_source[1]);
+    if(translate_copyright_license[0] && translate_copyright_license[1])
+       fprintf(htmlfile,"<!-- %s : %s -->\n",translate_copyright_license[0],translate_copyright_license[1]);
     fprintf(htmlfile,"<HEAD>\n");
-    if(source)
-       fprintf(htmlfile,"<!-- Source: %s -->\n",source);
-    if(license)
-       fprintf(htmlfile,"<!-- License: %s -->\n",license);
-    fprintf(htmlfile,"<TITLE>Routino: %s Route</TITLE>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(htmlfile,"<TITLE>%s Route</TITLE>\n",option_quickest?"Quickest":"Shortest");
     fprintf(htmlfile,"<STYLE type='text/css'>\n");
     fprintf(htmlfile,"<!--\n");
-    fprintf(htmlfile,"   table  {table-layout: fixed; border: none; border-collapse: collapse;}\n");
-    fprintf(htmlfile,"   tr     {border: 0px;}\n");
-    fprintf(htmlfile,"   tr.c   {display: none;} /* coords */\n");
-    fprintf(htmlfile,"   tr.n   {} /* node */\n");
-    fprintf(htmlfile,"   tr.s   {} /* segment */\n");
-    fprintf(htmlfile,"   tr.t   {font-weight: bold;} /* total */\n");
-    fprintf(htmlfile,"   td.l   {font-weight: bold;}\n");
-    fprintf(htmlfile,"   td.r   {}\n");
-    fprintf(htmlfile,"   span.w {font-weight: bold;} /* waypoint */\n");
-    fprintf(htmlfile,"   span.h {text-decoration: underline;} /* highway */\n");
-    fprintf(htmlfile,"   span.d {} /* segment distance */\n");
-    fprintf(htmlfile,"   span.j {font-style: italic;} /* total journey distance */\n");
-    fprintf(htmlfile,"   span.t {font-variant: small-caps;} /* turn */\n");
-    fprintf(htmlfile,"   span.b {font-variant: small-caps;} /* bearing */\n");
+    fprintf(htmlfile,"   table   {table-layout: fixed; border: none; border-collapse: collapse;}\n");
+    fprintf(htmlfile,"   table.c {color: grey; font-size: x-small;} /* copyright */\n");
+    fprintf(htmlfile,"   tr      {border: 0px;}\n");
+    fprintf(htmlfile,"   tr.c    {display: none;} /* coords */\n");
+    fprintf(htmlfile,"   tr.n    {} /* node */\n");
+    fprintf(htmlfile,"   tr.s    {} /* segment */\n");
+    fprintf(htmlfile,"   tr.t    {font-weight: bold;} /* total */\n");
+    fprintf(htmlfile,"   td.l    {font-weight: bold;}\n");
+    fprintf(htmlfile,"   td.r    {}\n");
+    fprintf(htmlfile,"   span.w  {font-weight: bold;} /* waypoint */\n");
+    fprintf(htmlfile,"   span.h  {text-decoration: underline;} /* highway */\n");
+    fprintf(htmlfile,"   span.d  {} /* segment distance */\n");
+    fprintf(htmlfile,"   span.j  {font-style: italic;} /* total journey distance */\n");
+    fprintf(htmlfile,"   span.t  {font-variant: small-caps;} /* turn */\n");
+    fprintf(htmlfile,"   span.b  {font-variant: small-caps;} /* bearing */\n");
     fprintf(htmlfile,"-->\n");
     fprintf(htmlfile,"</STYLE>\n");
     fprintf(htmlfile,"</HEAD>\n");
     fprintf(htmlfile,"<BODY>\n");
-    fprintf(htmlfile,"<H1>Routino: %s Route</H1>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(htmlfile,"<H1>%s Route</H1>\n",option_quickest?"Quickest":"Shortest");
     fprintf(htmlfile,"<table>\n");
    }
 
@@ -236,18 +184,25 @@ void PrintRouteHead(const char *copyright)
     fprintf(gpxtrackfile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
     fprintf(gpxtrackfile,"<metadata>\n");
-    fprintf(gpxtrackfile,"<desc><![CDATA[");
-    fprintf(gpxtrackfile,translate_gpx_desc,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
-    fprintf(gpxtrackfile,"]]></desc>\n");
-    if(source)
-       fprintf(gpxtrackfile,"<copyright author=\"%s\">\n",source);
-    if(license)
-       fprintf(gpxtrackfile,"<license>%s</license>\n",license);
-    if(source)
+    fprintf(gpxtrackfile,"<desc>%s : %s</desc>",translate_copyright_creator[0],translate_copyright_creator[1]);
+    if(translate_copyright_source[1])
+      {
+       fprintf(gpxtrackfile,"<copyright author=\"%s\">\n",translate_copyright_source[1]);
+
+       if(translate_copyright_license[1])
+          fprintf(gpxtrackfile,"<license>%s</license>\n",translate_copyright_license[1]);
+
        fprintf(gpxtrackfile,"</copyright>\n");
+      }
     fprintf(gpxtrackfile,"</metadata>\n");
 
     fprintf(gpxtrackfile,"<trk>\n");
+    fprintf(gpxtrackfile,"<name>");
+    fprintf(gpxtrackfile,translate_gpx_name,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
+    fprintf(gpxtrackfile,"</name>\n");
+    fprintf(gpxtrackfile,"<desc>");
+    fprintf(gpxtrackfile,translate_gpx_desc,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
+    fprintf(gpxtrackfile,"</desc>\n");
    }
 
  if(gpxroutefile)
@@ -256,31 +211,40 @@ void PrintRouteHead(const char *copyright)
     fprintf(gpxroutefile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
     fprintf(gpxroutefile,"<metadata>\n");
-    fprintf(gpxtrackfile,"<desc><![CDATA[");
-    fprintf(gpxtrackfile,translate_gpx_desc,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
-    fprintf(gpxtrackfile,"]]></desc>\n");
-    if(source)
-       fprintf(gpxroutefile,"<copyright author=\"%s\">\n",source);
-    if(license)
-       fprintf(gpxroutefile,"<license>%s</license>\n",license);
-    if(source)
+    fprintf(gpxtrackfile,"<desc>%s : %s</desc>",translate_copyright_creator[0],translate_copyright_creator[1]);
+    if(translate_copyright_source[1])
+      {
+       fprintf(gpxroutefile,"<copyright author=\"%s\">\n",translate_copyright_source[1]);
+
+       if(translate_copyright_license[1])
+          fprintf(gpxroutefile,"<license>%s</license>\n",translate_copyright_license[1]);
+
        fprintf(gpxroutefile,"</copyright>\n");
+      }
     fprintf(gpxroutefile,"</metadata>\n");
 
     fprintf(gpxroutefile,"<rte>\n");
     fprintf(gpxroutefile,"<name>");
     fprintf(gpxroutefile,translate_gpx_name,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
     fprintf(gpxroutefile,"</name>\n");
+    fprintf(gpxroutefile,"<desc>");
+    fprintf(gpxroutefile,translate_gpx_desc,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
+    fprintf(gpxroutefile,"</desc>\n");
    }
 
  if(textfile)
    {
-    if(source)
-       fprintf(textfile,"# Source: %s\n",source);
-    if(license)
-       fprintf(textfile,"# License: %s\n",license);
-    if(source || license)
+    if(translate_copyright_creator[0] && translate_copyright_creator[1])
+       fprintf(textfile,"# %s : %s\n",translate_copyright_creator[0],translate_copyright_creator[1]);
+    if(translate_copyright_source[0] && translate_copyright_source[1])
+       fprintf(textfile,"# %s : %s\n",translate_copyright_source[0],translate_copyright_source[1]);
+    if(translate_copyright_license[0] && translate_copyright_license[1])
+       fprintf(textfile,"# %s : %s\n",translate_copyright_license[0],translate_copyright_license[1]);
+    if((translate_copyright_creator[0] && translate_copyright_creator[1]) ||
+       (translate_copyright_source[0]  && translate_copyright_source[1]) ||
+       (translate_copyright_license[0] && translate_copyright_license[1]))
        fprintf(textfile,"#\n");
+
     fprintf(textfile,"#Latitude\tLongitude\tSection \tSection \tTotal   \tTotal   \tPoint\tTurn\tBearing\tHighway\n");
     fprintf(textfile,"#        \t         \tDistance\tDuration\tDistance\tDuration\tType \t    \t       \t       \n");
                      /* "%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t %+d\t %+d\t%s\n" */
@@ -288,12 +252,17 @@ void PrintRouteHead(const char *copyright)
 
  if(textallfile)
    {
-    if(source)
-       fprintf(textallfile,"# Source: %s\n",source);
-    if(license)
-       fprintf(textallfile,"# License: %s\n",license);
-    if(source || license)
+    if(translate_copyright_creator[0] && translate_copyright_creator[1])
+       fprintf(textallfile,"# %s : %s\n",translate_copyright_creator[0],translate_copyright_creator[1]);
+    if(translate_copyright_source[0] && translate_copyright_source[1])
+       fprintf(textallfile,"# %s : %s\n",translate_copyright_source[0],translate_copyright_source[1]);
+    if(translate_copyright_license[0] && translate_copyright_license[1])
+       fprintf(textallfile,"# %s : %s\n",translate_copyright_license[0],translate_copyright_license[1]);
+    if((translate_copyright_creator[0] && translate_copyright_creator[1]) ||
+       (translate_copyright_source[0]  && translate_copyright_source[1]) ||
+       (translate_copyright_license[0] && translate_copyright_license[1]))
        fprintf(textallfile,"#\n");
+
     fprintf(textallfile,"#Latitude\tLongitude\t    Node\tType\tSegment\tSegment\tTotal\tTotal  \tSpeed\tBearing\tHighway\n");
     fprintf(textallfile,"#        \t         \t        \t    \tDist   \tDurat'n\tDist \tDurat'n\t     \t       \t       \n");
                         /* "%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n" */
@@ -613,6 +582,22 @@ void PrintRouteTail(void)
  if(htmlfile)
    {
     fprintf(htmlfile,"</table>\n");
+
+    if((translate_copyright_creator[0] && translate_copyright_creator[1]) ||
+       (translate_copyright_source[0]  && translate_copyright_source[1]) ||
+       (translate_copyright_license[0] && translate_copyright_license[1]))
+      {
+       fprintf(htmlfile,"<p>\n");
+       fprintf(htmlfile,"<table class='c'>\n");
+       if(translate_copyright_creator[0] && translate_copyright_creator[1])
+          fprintf(htmlfile,"<tr><td class='l'>%s :<td class='r'>%s\n",translate_copyright_creator[0],translate_copyright_creator[1]);
+       if(translate_copyright_source[0] && translate_copyright_source[1])
+          fprintf(htmlfile,"<tr><td class='l'>%s :<td class='r'>%s\n",translate_copyright_source[0],translate_copyright_source[1]);
+       if(translate_copyright_license[0] && translate_copyright_license[1])
+          fprintf(htmlfile,"<tr><td class='l'>%s :<td class='r'>%s\n",translate_copyright_license[0],translate_copyright_license[1]);
+       fprintf(htmlfile,"</table>\n");
+      }
+
     fprintf(htmlfile,"</BODY>\n");
     fprintf(htmlfile,"</HTML>\n");
    }
