@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.76 2010-04-10 18:38:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.77 2010-04-24 12:42:57 amb Exp $
 
  OSM router.
 
@@ -533,7 +533,7 @@ int main(int argc,char** argv)
 
  /* Print out the combined route */
 
- PrintRouteHead(FileName(dirname,prefix,"copyright.txt"));
+ PrintRouteHead();
 
  PrintRoute(results,NWAYPOINTS,OSMNodes,OSMSegments,OSMWays,profile);
 

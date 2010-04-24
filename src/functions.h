@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.52 2010-04-09 15:15:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.53 2010-04-24 12:42:57 amb Exp $
 
  Header file for function prototypes
 
@@ -86,7 +86,7 @@ void FixForwardRoute(Results *results,index_t finish);
 
 /* In output.c */
 
-void PrintRouteHead(const char *copyright);
+void PrintRouteHead(void);
 void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile);
 void PrintRouteTail(void);
 

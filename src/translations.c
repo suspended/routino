@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.c,v 1.5 2010-04-23 18:41:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.c,v 1.6 2010-04-24 12:42:38 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -33,8 +33,12 @@
 
 /* Global variables - default English values */
 
-char *translate_heading[9] ={"South","South-West","West","North-West","North","North-East","East","South-East","South"};
-char *translate_turn[9]    ={"Very sharp left","Sharp left","Left","Slight left","Straight on","Slight right","Right","Sharp right","Very sharp right"};
+char *translate_copyright_creator[2]={"Creator","Routino - http://www.gedanken.org.uk/mapping/routino/"};
+char *translate_copyright_source[2] ={NULL,NULL};
+char *translate_copyright_license[2]={NULL,NULL};
+
+char *translate_heading[9]={"South","South-West","West","North-West","North","North-East","East","South-East","South"};
+char *translate_turn[9]   ={"Very sharp left","Sharp left","Left","Slight left","Straight on","Slight right","Right","Sharp right","Very sharp right"};
 
 char *translate_gpx_desc ="%s between 'start' and 'finish' waypoints";
 char *translate_gpx_name ="%s Route";
@@ -73,13 +77,38 @@ static int GPXStepType_function(const char *_tag_,int _type_,const char *text);
 static int GPXNameType_function(const char *_tag_,int _type_,const char *text);
 static int GPXDescType_function(const char *_tag_,int _type_,const char *text);
 static int GPXWaypointType_function(const char *_tag_,int _type_,const char *type,const char *string);
+//static int CopyrightType_function(const char *_tag_,int _type_);
 static int GPXRouteType_function(const char *_tag_,int _type_,const char *type,const char *string);
 //static int HTMLType_function(const char *_tag_,int _type_);
 static int HeadingType_function(const char *_tag_,int _type_,const char *direction,const char *string);
 static int TurnType_function(const char *_tag_,int _type_,const char *direction,const char *string);
+static int CopyrightLicenseType_function(const char *_tag_,int _type_,const char *string,const char *text);
+static int CopyrightSourceType_function(const char *_tag_,int _type_,const char *string,const char *text);
+static int CopyrightCreatorType_function(const char *_tag_,int _type_,const char *string,const char *text);
 
 
 /* The XML tag definitions */
+
+/*+ The CopyrightCreatorType type tag. +*/
+static xmltag CopyrightCreatorType_tag=
+              {"creator",
+               2, {"string","text"},
+               CopyrightCreatorType_function,
+               {NULL}};
+
+/*+ The CopyrightSourceType type tag. +*/
+static xmltag CopyrightSourceType_tag=
+              {"source",
+               2, {"string","text"},
+               CopyrightSourceType_function,
+               {NULL}};
+
+/*+ The CopyrightLicenseType type tag. +*/
+static xmltag CopyrightLicenseType_tag=
+              {"license",
+               2, {"string","text"},
+               CopyrightLicenseType_function,
+               {NULL}};
 
 /*+ The TurnType type tag. +*/
 static xmltag TurnType_tag=
@@ -108,6 +137,13 @@ static xmltag GPXRouteType_tag=
                2, {"type","string"},
                GPXRouteType_function,
                {NULL}};
+
+/*+ The CopyrightType type tag. +*/
+static xmltag CopyrightType_tag=
+              {"copyright",
+               0, {NULL},
+               NULL,
+               {&CopyrightCreatorType_tag,&CopyrightSourceType_tag,&CopyrightLicenseType_tag,NULL}};
 
 /*+ The GPXWaypointType type tag. +*/
 static xmltag GPXWaypointType_tag=
@@ -156,7 +192,7 @@ static xmltag languageType_tag=
               {"language",
                1, {"lang"},
                languageType_function,
-               {&TurnType_tag,&HeadingType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
+               {&CopyrightType_tag,&TurnType_tag,&HeadingType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
 
 /*+ The RoutinoTranslationsType type tag. +*/
 static xmltag RoutinoTranslationsType_tag=
@@ -178,6 +214,93 @@ static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoTranslationsType
 
 
 /* The XML tag processing functions */
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the CopyrightCreatorType XSD type is seen
+
+  int CopyrightCreatorType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int CopyrightCreatorType_function(const char *_tag_,int _type_,const char *string,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    translate_copyright_creator[0]=strcpy(malloc(strlen(string)+1),string);
+    translate_copyright_creator[1]=strcpy(malloc(strlen(text)+1),text);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the CopyrightSourceType XSD type is seen
+
+  int CopyrightSourceType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int CopyrightSourceType_function(const char *_tag_,int _type_,const char *string,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    translate_copyright_source[0]=strcpy(malloc(strlen(string)+1),string);
+    translate_copyright_source[1]=strcpy(malloc(strlen(text)+1),text);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the CopyrightLicenseType XSD type is seen
+
+  int CopyrightLicenseType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int CopyrightLicenseType_function(const char *_tag_,int _type_,const char *string,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    translate_copyright_license[0]=strcpy(malloc(strlen(string)+1),string);
+    translate_copyright_license[1]=strcpy(malloc(strlen(text)+1),text);
+   }
+
+ return(0);
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -262,6 +385,7 @@ static int HeadingType_function(const char *_tag_,int _type_,const char *directi
 
 //static int HTMLType_function(const char *_tag_,int _type_)
 //{
+// return(0);
 //}
 
 
@@ -296,6 +420,22 @@ static int GPXRouteType_function(const char *_tag_,int _type_,const char *type,c
 
  return(0);
 }
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the CopyrightType XSD type is seen
+
+  int CopyrightType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int CopyrightType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -447,6 +587,7 @@ static int GPXFinalType_function(const char *_tag_,int _type_,const char *text)
 
 //static int GPXType_function(const char *_tag_,int _type_)
 //{
+// return(0);
 //}
 
 
@@ -502,6 +643,7 @@ static int languageType_function(const char *_tag_,int _type_,const char *lang)
 
 //static int RoutinoTranslationsType_function(const char *_tag_,int _type_)
 //{
+// return(0);
 //}
 
 
@@ -521,6 +663,7 @@ static int languageType_function(const char *_tag_,int _type_,const char *lang)
 
 //static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding)
 //{
+// return(0);
 //}
 
 
@@ -554,7 +697,7 @@ int ParseXMLTranslations(const char *filename,const char *language)
     return(1);
    }
 
- retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
+ retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME|XMLPARSE_RETURN_ATTR_ENCODED);
 
  fclose(file);
 
