@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.8 2010-04-23 18:41:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.9 2010-04-24 12:42:03 amb Exp $
 
  A simple XML parser
 
@@ -60,10 +60,12 @@ struct _xmltag
 /* XML Parser options */
 
 #define XMLPARSE_UNKNOWN_ATTRIBUTES     0x0003
-#define XMLPARSE_UNKNOWN_ATTR_ERROR     0x0000 /* Flag an error and exit */
-#define XMLPARSE_UNKNOWN_ATTR_ERRNONAME 0x0001 /* Flag an error and exit unless a namespace is specified */
-#define XMLPARSE_UNKNOWN_ATTR_WARN      0x0002 /* Warn about the problem and continue */
-#define XMLPARSE_UNKNOWN_ATTR_IGNORE    0x0003 /* Ignore the potential problem */
+#define XMLPARSE_UNKNOWN_ATTR_ERROR     0x0000 /* Flag an error and exit. */
+#define XMLPARSE_UNKNOWN_ATTR_ERRNONAME 0x0001 /* Flag an error and exit unless a namespace is specified. */
+#define XMLPARSE_UNKNOWN_ATTR_WARN      0x0002 /* Warn about the problem and continue. */
+#define XMLPARSE_UNKNOWN_ATTR_IGNORE    0x0003 /* Ignore the potential problem. */
+
+#define XMLPARSE_RETURN_ATTR_ENCODED    0x0004 /* Return the XML attribute strings without decoding them. */
 
 
 /* XML parser functions */

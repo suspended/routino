@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.10 2010-04-23 18:41:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.11 2010-04-24 12:42:03 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -99,6 +99,8 @@
 extern int yylex(void);
 
 static char *yylval=NULL;
+
+static int xmlparse_options;
 
 %}
 
@@ -221,14 +223,18 @@ charref         &#({digit}+|x{xdigit}+);
  /* Quoted strings */
 
 <DQUOTED>\"                 { BEGIN(after_attr); yylval=string; return(LEX_ATTR_VAL); }
-<DQUOTED>{entityref}        { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} }
-<DQUOTED>{charref}          { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} }
+<DQUOTED>{entityref}        { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
+                              else { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} } }
+<DQUOTED>{charref}          { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
+                              else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
 <DQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 <DQUOTED>[^<>&\"]+          { append_string(yytext); }
 
 <SQUOTED>\'                 { BEGIN(after_attr); yylval=string; return(LEX_ATTR_VAL); }
-<SQUOTED>{entityref}        { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} }
-<SQUOTED>{charref}          { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} }
+<SQUOTED>{entityref}        { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
+                              else { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} } }
+<SQUOTED>{charref}          { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
+                              else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
 <SQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 <SQUOTED>[^<>&\']+          { append_string(yytext); }
 
@@ -309,6 +315,8 @@ int ParseXML(FILE *file,xmltag **tags,int options)
  xmltag *tag=NULL;
 
  /* The actual parser. */
+
+ xmlparse_options=options;
 
  yyin=file;
 
