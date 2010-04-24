@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.77 2010-04-24 12:42:57 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.78 2010-04-24 16:48:11 amb Exp $
 
  OSM router.
 
@@ -56,7 +56,7 @@ static double point_lon[NWAYPOINTS+1],point_lat[NWAYPOINTS+1];
 int option_quiet=0;
 
 /*+ The options to select the format of the output. +*/
-int option_html=0,option_gpx_track=0,option_gpx_route=0,option_text=0,option_text_all=0;
+int option_html=0,option_gpx_track=0,option_gpx_route=0,option_text=0,option_text_all=0,option_none=0;
 
 /*+ The option to calculate the quickest route insted of the shortest. +*/
 int option_quickest=0;
@@ -129,6 +129,8 @@ int main(int argc,char** argv)
        option_text=1;
     else if(!strcmp(argv[arg],"--output-text-all"))
        option_text_all=1;
+    else if(!strcmp(argv[arg],"--output-none"))
+       option_none=1;
     else if(!strncmp(argv[arg],"--profile=",10))
        profilename=&argv[arg][10];
     else if(!strncmp(argv[arg],"--language=",11))
@@ -356,21 +358,27 @@ int main(int argc,char** argv)
 
  /* Load in the translations */
 
- if(translations && ExistsFile(translations))
-    ;
- else if(!translations && ExistsFile(FileName(dirname,prefix,"translations.xml")))
-    translations=FileName(dirname,prefix,"translations.xml");
+ if(option_html==0 && option_gpx_track==0 && option_gpx_route==0 && option_text==0 && option_text_all==0 && option_none==0)
+    option_html=option_gpx_track=option_gpx_route=option_text=option_text_all=1;
 
- if(!translations && language)
+ if(option_html || option_gpx_route || option_gpx_track)
    {
-    fprintf(stderr,"Error: Cannot use '--language' option without reading some translations.\n");
-    return(1);
-   }
+    if(translations && ExistsFile(translations))
+       ;
+    else if(!translations && ExistsFile(FileName(dirname,prefix,"translations.xml")))
+       translations=FileName(dirname,prefix,"translations.xml");
 
- if(translations && ParseXMLTranslations(translations,language))
-   {
-    fprintf(stderr,"Error: Cannot read the translations in the file '%s'.\n",translations);
-    return(1);
+    if(!translations && language)
+      {
+       fprintf(stderr,"Error: Cannot use '--language' option without reading some translations.\n");
+       return(1);
+      }
+
+    if(translations && ParseXMLTranslations(translations,language))
+      {
+       fprintf(stderr,"Error: Cannot read the translations in the file '%s'.\n",translations);
+       return(1);
+      }
    }
 
  /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
@@ -386,9 +394,6 @@ int main(int argc,char** argv)
     fprintf(stderr,"Error: Database was not generated for selected transport.\n");
     return(1);
    }
-
- if(option_html==0 && option_gpx_track==0 && option_gpx_route==0 && option_text==0 && option_text_all==0)
-    option_html=option_gpx_track=option_gpx_route=option_text=option_text_all=1;
 
  /* Loop through all pairs of points */
 
@@ -533,11 +538,8 @@ int main(int argc,char** argv)
 
  /* Print out the combined route */
 
- PrintRouteHead();
-
- PrintRoute(results,NWAYPOINTS,OSMNodes,OSMSegments,OSMWays,profile);
-
- PrintRouteTail();
+ if(!option_none)
+    PrintRoute(results,NWAYPOINTS,OSMNodes,OSMSegments,OSMWays,profile);
 
  return(0);
 }
@@ -726,6 +728,7 @@ static void print_usage(int detail)
          "              [--output-html]\n"
          "              [--output-gpx-track] [--output-gpx-route]\n"
          "              [--output-text] [--output-text-all]\n"
+         "              [--output-none]\n"
          "              [--profile=<name>]\n"
          "              [--transport=<transport>]\n"
          "              [--shortest | --quickest]\n"
@@ -757,13 +760,14 @@ static void print_usage(int detail)
             "\n"
             "--exact-nodes-only      Only route between nodes (don't find closest segment).\n"
             "\n"
-            "--quiet                 Don't print any output when running.\n"
+            "--quiet                 Don't print any screen output when running.\n"
             "--language=<lang>       Use the translations for specified language.\n"
             "--output-html           Write an HTML description of the route.\n"
             "--output-gpx-track      Write a GPX track file with all route points.\n"
             "--output-gpx-route      Write a GPX route file with interesting junctions.\n"
             "--output-text           Write a plain text file with interesting junctions.\n"
             "--output-text-all       Write a plain test file with all route points.\n"
+            "--output-none           Don't write any output files or read any translations.\n"
             "                        (If no output option is given then all are written.)\n"
             "\n"
             "--profile=<name>        Select the loaded profile with this name.\n"
