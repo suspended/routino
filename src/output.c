@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.29 2010-04-24 15:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.30 2010-04-24 16:47:56 amb Exp $
 
  Routing output generator.
 
@@ -52,9 +52,6 @@ extern int option_html,option_gpx_track,option_gpx_route,option_text,option_text
 
 /* Local variables */
 
-/*+ The files to write to. +*/
-static FILE *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
-
 /*+ Heuristics for determining if a junction is important. +*/
 static char junction_other_way[Way_Count][Way_Count]=
  { /* M, T, P, S, T, U, R, S, T, C, P, S = Way type of route not taken */
@@ -80,11 +77,32 @@ static int bearing_angle(Nodes *nodes,Segment *segment,index_t node);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open the files and print the head.
+  Print the optimum route between two nodes.
+
+  Results **results The set of results to print (some may be NULL - ignore them).
+
+  int nresults The number of results in the list.
+
+  Nodes *nodes The list of nodes.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The list of ways.
+
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRouteHead(void)
+void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile)
 {
+ FILE *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
+
+ int point=1;
+ distance_t cum_distance=0;
+ duration_t cum_duration=0;
+ double finish_lat,finish_lon;
+ int segment_count=0;
+ int route_count=0;
+
  /* Open the files */
 
  if(option_quickest==0)
@@ -272,33 +290,8 @@ void PrintRouteHead(void)
     fprintf(textallfile,"#        \t         \t        \t    \tDist   \tDurat'n\tDist \tDurat'n\t     \t       \t       \n");
                         /* "%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n" */
    }
-}
 
-
-/*++++++++++++++++++++++++++++++++++++++
-  Print the optimum route between two nodes.
-
-  Results **results The set of results to print (some may be NULL - ignore them).
-
-  int nresults The number of results in the list.
-
-  Nodes *nodes The list of nodes.
-
-  Segments *segments The set of segments to use.
-
-  Ways *ways The list of ways.
-
-  Profile *profile The profile containing the transport type, speeds and allowed highways.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile)
-{
- int point=1;
- distance_t cum_distance=0;
- duration_t cum_duration=0;
- double finish_lat,finish_lon;
- int segment_count=0;
- int route_count=0;
+ /* Loop through the segments of the route and print it */
 
  while(!results[point])
     point++;
@@ -438,7 +431,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 fprintf(htmlfile,translate_html_segment[1],
                                   waynamexml,
                                   distance_to_km(junc_distance),duration_to_minutes(junc_duration));
-                fprintf(htmlfile,"[<span class='j'>");
+                fprintf(htmlfile," [<span class='j'>");
                 fprintf(htmlfile,translate_html_total[1],
                                   distance_to_km(cum_distance),duration_to_minutes(cum_duration));
                 fprintf(htmlfile,"</span>]\n");
@@ -651,15 +644,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
     point=nextpoint;
    }
-}
 
-
-/*++++++++++++++++++++++++++++++++++++++
-  Print the tail and close the files.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void PrintRouteTail(void)
-{
  /* Print the tail of the files */
 
  if(htmlfile)
