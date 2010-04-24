@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-translations.xsd,v 1.1 2010-04-22 17:55:37 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-translations.xsd,v 1.2 2010-04-24 15:49:37 amb Exp $
 
      An XML Schema Definition for the Routino translations XML format
 
@@ -29,47 +29,116 @@
 
   <xsd:complexType name="languageType">
     <xsd:sequence>
-      <xsd:element name="turn"        type="TurnType"    minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:element name="heading"     type="HeadingType" minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:element name="output-html" type="HTMLType"    minOccurs="0"/>
-      <xsd:element name="output-gpx"  type="GPXType"     minOccurs="0"/>
+      <xsd:element name="copyright"   type="CopyrightType" minOccurs="0"/>
+      <xsd:element name="turn"        type="TurnType"      minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="heading"     type="HeadingType"   minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="route"       type="RouteType"     minOccurs="0" maxOccurs="2"/>
+      <xsd:element name="output-html" type="HTMLType"      minOccurs="0"/>
+      <xsd:element name="output-gpx"  type="GPXType"       minOccurs="0"/>
     </xsd:sequence>
     <xsd:attribute name="lang"        type="xsd:string"/>
   </xsd:complexType>
 
-  <!-- The turn and heading strings -->
+  <!-- The copyright information (of the generated output, not of this file) -->
+
+  <xsd:complexType name="CopyrightType">
+    <xsd:sequence>
+      <xsd:element name="creator"   type="CopyrightCreatorType" minOccurs="0"/>
+      <xsd:element name="source"    type="CopyrightSourceType"  minOccurs="0"/>
+      <xsd:element name="license"   type="CopyrightLicenseType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="CopyrightCreatorType">
+    <xsd:attribute name="string"  type="xsd:string"/>
+    <xsd:attribute name="text"    type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="CopyrightSourceType">
+    <xsd:attribute name="string"  type="xsd:string"/>
+    <xsd:attribute name="text"    type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="CopyrightLicenseType">
+    <xsd:attribute name="string"  type="xsd:string"/>
+    <xsd:attribute name="text"    type="xsd:string"/>
+  </xsd:complexType>
+
+  <!-- The turn, heading and route strings -->
 
   <xsd:complexType name="TurnType">
-    <xsd:attribute name="direction"   type="xsd:string"/>
-    <xsd:attribute name="string"      type="xsd:string"/>
+    <xsd:attribute name="direction" type="xsd:string"/>
+    <xsd:attribute name="string"    type="xsd:string"/>
   </xsd:complexType>
 
   <xsd:complexType name="HeadingType">
-    <xsd:attribute name="direction"   type="xsd:string"/>
-    <xsd:attribute name="string"      type="xsd:string"/>
+    <xsd:attribute name="direction" type="xsd:string"/>
+    <xsd:attribute name="string"    type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="RouteType">
+    <xsd:attribute name="type"      type="xsd:string"/>
+    <xsd:attribute name="string"    type="xsd:string"/>
   </xsd:complexType>
 
   <!-- The HTML output strings -->
 
   <xsd:complexType name="HTMLType">
+    <xsd:sequence>
+      <xsd:element name="waypoint" type="HTMLWaypointType" maxOccurs="2"/>
+      <xsd:element name="title"    type="HTMLTitleType"/>
+      <xsd:element name="start"    type="HTMLStartType"/>
+      <xsd:element name="node"     type="HTMLNodeType"/>
+      <xsd:element name="segment"  type="HTMLSegmentType"/>
+      <xsd:element name="stop"     type="HTMLStopType"/>
+      <xsd:element name="total"    type="HTMLTotalType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="HTMLWaypointType">
+    <xsd:attribute name="type"   type="xsd:string"/>
+    <xsd:attribute name="string" type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="HTMLTitleType">
+    <xsd:attribute name="text"  type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="HTMLStartType">
+    <xsd:attribute name="string" type="xsd:string"/>
+    <xsd:attribute name="text"   type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="HTMLNodeType">
+    <xsd:attribute name="string" type="xsd:string"/>
+    <xsd:attribute name="text"   type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="HTMLSegmentType">
+    <xsd:attribute name="string" type="xsd:string"/>
+    <xsd:attribute name="text"   type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="HTMLStopType">
+    <xsd:attribute name="string" type="xsd:string"/>
+    <xsd:attribute name="text"   type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="HTMLTotalType">
+    <xsd:attribute name="string" type="xsd:string"/>
+    <xsd:attribute name="text"   type="xsd:string"/>
   </xsd:complexType>
 
   <!-- The GPX output strings -->
 
   <xsd:complexType name="GPXType">
     <xsd:sequence>
-      <xsd:element name="route"    type="GPXRouteType"    maxOccurs="unbounded"/>
-      <xsd:element name="waypoint" type="GPXWaypointType" maxOccurs="unbounded"/>
+      <xsd:element name="waypoint" type="GPXWaypointType" maxOccurs="4"/>
       <xsd:element name="desc"     type="GPXDescType"/>
       <xsd:element name="name"     type="GPXNameType"/>
       <xsd:element name="step"     type="GPXStepType"/>
       <xsd:element name="final"    type="GPXFinalType"/>
     </xsd:sequence>
-  </xsd:complexType>
-
-  <xsd:complexType name="GPXRouteType">
-    <xsd:attribute name="type"   type="xsd:string"/>
-    <xsd:attribute name="string" type="xsd:string"/>
   </xsd:complexType>
 
   <xsd:complexType name="GPXWaypointType">

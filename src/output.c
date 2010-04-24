@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.28 2010-04-24 12:43:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.29 2010-04-24 15:49:16 amb Exp $
 
  Routing output generator.
 
@@ -39,6 +39,7 @@
 #include "segments.h"
 #include "ways.h"
 #include "results.h"
+#include "xmlparse.h"
 
 
 /* Global variables */
@@ -74,7 +75,7 @@ static char junction_other_way[Way_Count][Way_Count]=
 
 /* Local functions */
 
-static int junction_angle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node);
+static int turn_angle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node);
 static int bearing_angle(Nodes *nodes,Segment *segment,index_t node);
 
 
@@ -152,7 +153,9 @@ void PrintRouteHead(void)
     if(translate_copyright_license[0] && translate_copyright_license[1])
        fprintf(htmlfile,"<!-- %s : %s -->\n",translate_copyright_license[0],translate_copyright_license[1]);
     fprintf(htmlfile,"<HEAD>\n");
-    fprintf(htmlfile,"<TITLE>%s Route</TITLE>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(htmlfile,"<TITLE>");
+    fprintf(htmlfile,translate_html_title,option_quickest?translate_route_quickest:translate_route_shortest);
+    fprintf(htmlfile,"</TITLE>\n");
     fprintf(htmlfile,"<STYLE type='text/css'>\n");
     fprintf(htmlfile,"<!--\n");
     fprintf(htmlfile,"   table   {table-layout: fixed; border: none; border-collapse: collapse;}\n");
@@ -174,7 +177,9 @@ void PrintRouteHead(void)
     fprintf(htmlfile,"</STYLE>\n");
     fprintf(htmlfile,"</HEAD>\n");
     fprintf(htmlfile,"<BODY>\n");
-    fprintf(htmlfile,"<H1>%s Route</H1>\n",option_quickest?"Quickest":"Shortest");
+    fprintf(htmlfile,"<H1>");
+    fprintf(htmlfile,translate_html_title,option_quickest?translate_route_quickest:translate_route_shortest);
+    fprintf(htmlfile,"</H1>\n");
     fprintf(htmlfile,"<table>\n");
    }
 
@@ -198,10 +203,10 @@ void PrintRouteHead(void)
 
     fprintf(gpxtrackfile,"<trk>\n");
     fprintf(gpxtrackfile,"<name>");
-    fprintf(gpxtrackfile,translate_gpx_name,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
+    fprintf(gpxtrackfile,translate_gpx_name,option_quickest?translate_route_quickest:translate_route_shortest);
     fprintf(gpxtrackfile,"</name>\n");
     fprintf(gpxtrackfile,"<desc>");
-    fprintf(gpxtrackfile,translate_gpx_desc,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
+    fprintf(gpxtrackfile,translate_gpx_desc,option_quickest?translate_route_quickest:translate_route_shortest);
     fprintf(gpxtrackfile,"</desc>\n");
    }
 
@@ -225,10 +230,10 @@ void PrintRouteHead(void)
 
     fprintf(gpxroutefile,"<rte>\n");
     fprintf(gpxroutefile,"<name>");
-    fprintf(gpxroutefile,translate_gpx_name,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
+    fprintf(gpxroutefile,translate_gpx_name,option_quickest?translate_route_quickest:translate_route_shortest);
     fprintf(gpxroutefile,"</name>\n");
     fprintf(gpxroutefile,"<desc>");
-    fprintf(gpxroutefile,translate_gpx_desc,option_quickest?translate_gpx_quickest:translate_gpx_shortest);
+    fprintf(gpxroutefile,translate_gpx_desc,option_quickest?translate_route_quickest:translate_route_shortest);
     fprintf(gpxroutefile,"</desc>\n");
    }
 
@@ -355,6 +360,12 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           Way *resultway;
           int important=0;
 
+          /* Cache the values to be printed rather than calculating them repeatedly for each output format */
+
+          char *wayname=NULL,*waynamexml=NULL;
+          int bearing_int,bearing_next_int,turn_int;
+          char *bearing_str=NULL,*bearing_next_str=NULL,*turn_str=NULL;
+
           /* Get the properties of this segment */
 
           resultway=LookupWay(ways,result->segment->way);
@@ -411,63 +422,100 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
             {
              /* Print the intermediate finish points (because they have correct junction distances) */
 
-             if(gpxroutefile)
-               {
-                fprintf(gpxroutefile,"<desc><![CDATA[");
-                fprintf(gpxroutefile,translate_gpx_step,
-                        translate_heading[(4+(22+bearing_angle(nodes,result->segment,result->node))/45)%8],
-                        WayName(ways,resultway),
-                        distance_to_km(junc_distance),duration_to_minutes(junc_duration));
-                fprintf(gpxroutefile,"]]></desc></rtept>\n");
-
-                if(!nextresult)
-                  {
-                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
-                           radians_to_degrees(finish_lat),radians_to_degrees(finish_lon),
-                           translate_gpx_finish);
-                   fprintf(gpxroutefile,"<desc><![CDATA[");
-                   fprintf(gpxroutefile,translate_gpx_final,
-                           distance_to_km(cum_distance),duration_to_minutes(cum_duration));
-                   fprintf(gpxroutefile,"]]></desc></rtept>\n");
-                  }
-                else if(important==10)
-                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s%d</name>\n",
-                           radians_to_degrees(latitude),radians_to_degrees(longitude),
-                           translate_gpx_inter,++segment_count);
-                else
-                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s%03d</name>\n",
-                           radians_to_degrees(latitude),radians_to_degrees(longitude),
-                           translate_gpx_trip,++route_count);
-               }
-
              if(htmlfile)
                {
                 char *type;
 
                 if(important==10)
-                   type="<span class='w'>Waypoint</span>";
+                   type=translate_html_waypoint;
                 else
-                   type="Junction";
+                   type=translate_html_junction;
 
-                fprintf(htmlfile,"<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>%s</span> for <span class='d'>%.3f km, %.1f min</span> [<span class='j'>%.1f km, %.0f min</span>]\n",
-                        WayName(ways,resultway),
-                        distance_to_km(junc_distance),duration_to_minutes(junc_duration),
-                        distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                if(!waynamexml)
+                   waynamexml=ParseXML_Encode_Safe_XML(wayname=WayName(ways,resultway));
 
-                fprintf(htmlfile,"<tr class='c'><td class='l'>Coords:<td class='r'>%.6f %.6f\n",
-                        radians_to_degrees(latitude),radians_to_degrees(longitude));
+                fprintf(htmlfile,"<tr class='s'><td class='l'>%s:<td class='r'>",translate_html_segment[0]);
+                fprintf(htmlfile,translate_html_segment[1],
+                                  waynamexml,
+                                  distance_to_km(junc_distance),duration_to_minutes(junc_duration));
+                fprintf(htmlfile,"[<span class='j'>");
+                fprintf(htmlfile,translate_html_total[1],
+                                  distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                fprintf(htmlfile,"</span>]\n");
+
+                fprintf(htmlfile,"<tr class='c'><td class='l'><td class='r'>%.6f %.6f\n",
+                                 radians_to_degrees(latitude),radians_to_degrees(longitude));
 
                 if(nextresult)
-                   fprintf(htmlfile,"<tr class='n'><td class='l'>At:<td class='r'>%s, go <span class='t'>%s</span> and head <span class='b'>%s</span>\n",
-                           type,
-                           translate_turn[(4+(22+junction_angle(nodes,result->segment,nextresult->segment,result->node))/45)%8],
-                           translate_heading[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
+                  {
+                   if(!turn_str)
+                     {
+                      turn_int=turn_angle(nodes,result->segment,nextresult->segment,result->node);
+                      turn_str=translate_turn[(4+(22+turn_int)/45)%8];
+                     }
+
+                   if(!bearing_next_str)
+                     {
+                      bearing_next_int=bearing_angle(nodes,nextresult->segment,nextresult->node);
+                      bearing_next_str=translate_heading[(4+(22+bearing_next_int)/45)%8];
+                     }
+
+                   fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_node[0]);
+                   fprintf(htmlfile,translate_html_node[1],
+                                    type,
+                                    turn_str,
+                                    bearing_next_str);
+                   fprintf(htmlfile,"\n");
+                  }
                 else
                   {
-                   fprintf(htmlfile,"<tr class='n'><td class='l'>Stop:<td class='r'><span class='w'>Waypoint</span>\n");
-                   fprintf(htmlfile,"<tr class='t'><td class='l'>Total:<td class='r'><span class='j'>%.1f km, %.0f minutes</span>\n",
-                           distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                   fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_stop[0]);
+                   fprintf(htmlfile,translate_html_stop[1],
+                                    translate_html_waypoint);
+                   fprintf(htmlfile,"\n");
+                   fprintf(htmlfile,"<tr class='t'><td class='l'>%s:<td class='r'><span class='j'>",translate_html_total[0]);
+                   fprintf(htmlfile,translate_html_total[1],
+                                    distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                   fprintf(htmlfile,"</span>\n");
                   }
+               }
+
+             if(gpxroutefile)
+               {
+                if(!waynamexml)
+                   waynamexml=ParseXML_Encode_Safe_XML(wayname=WayName(ways,resultway));
+
+                if(!bearing_str)
+                  {
+                   bearing_int=bearing_angle(nodes,result->segment,result->node);
+                   bearing_str=translate_heading[(4+(22+bearing_int)/45)%8];
+                  }
+
+                fprintf(gpxroutefile,"<desc>");
+                fprintf(gpxroutefile,translate_gpx_step,
+                                     bearing_str,
+                                     waynamexml,
+                                     distance_to_km(junc_distance),duration_to_minutes(junc_duration));
+                fprintf(gpxroutefile,"</desc></rtept>\n");
+
+                if(!nextresult)
+                  {
+                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
+                                        radians_to_degrees(finish_lat),radians_to_degrees(finish_lon),
+                                        translate_gpx_finish);
+                   fprintf(gpxroutefile,"<desc>");
+                   fprintf(gpxroutefile,translate_gpx_final,
+                                        distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                   fprintf(gpxroutefile,"</desc></rtept>\n");
+                  }
+                else if(important==10)
+                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s%d</name>\n",
+                                        radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                        translate_gpx_inter,++segment_count);
+                else
+                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s%03d</name>\n",
+                                        radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                        translate_gpx_trip,++route_count);
                }
 
              if(textfile)
@@ -479,22 +527,39 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 else
                    type="Junct";
 
+                if(!wayname)
+                   wayname=WayName(ways,resultway);
+
                 if(nextresult)
+                  {
+                   if(!turn_str)
+                     {
+                      turn_int=turn_angle(nodes,result->segment,nextresult->segment,result->node);
+                      turn_str=translate_turn[(4+(22+turn_int)/45)%8];
+                     }
+
+                   if(!bearing_next_str)
+                     {
+                      bearing_next_int=bearing_angle(nodes,nextresult->segment,nextresult->node);
+                      bearing_next_str=translate_heading[(4+(22+bearing_next_int)/45)%8];
+                     }
+
                    fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t %+d\t %+d\t%s\n",
-                           radians_to_degrees(latitude),radians_to_degrees(longitude),
-                           distance_to_km(junc_distance),duration_to_minutes(junc_duration),
-                           distance_to_km(cum_distance),duration_to_minutes(cum_duration),
-                           type,
-                           (22+junction_angle(nodes,result->segment,nextresult->segment,result->node))/45,
-                           ((22+bearing_angle(nodes,nextresult->segment,nextresult->node))/45+4)%8-4,
-                           WayName(ways,resultway));
+                                    radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                    distance_to_km(junc_distance),duration_to_minutes(junc_duration),
+                                    distance_to_km(cum_distance),duration_to_minutes(cum_duration),
+                                    type,
+                                    (22+turn_int)/45,
+                                    ((22+bearing_next_int)/45+4)%8-4,
+                                    wayname);
+                  }
                 else
                    fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t\t\t%s\n",
-                           radians_to_degrees(latitude),radians_to_degrees(longitude),
-                           distance_to_km(junc_distance),duration_to_minutes(junc_duration),
-                           distance_to_km(cum_distance),duration_to_minutes(cum_duration),
-                           type,
-                           WayName(ways,resultway));
+                                    radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                    distance_to_km(junc_distance),duration_to_minutes(junc_duration),
+                                    distance_to_km(cum_distance),duration_to_minutes(cum_duration),
+                                    type,
+                                    wayname);
                }
 
              junc_distance=0;
@@ -516,47 +581,65 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              else
                 type="Inter";
 
+             if(!wayname)
+                wayname=WayName(ways,resultway);
+
+             if(!bearing_str)
+               {
+                bearing_int=bearing_angle(nodes,result->segment,result->node);
+                bearing_str=translate_heading[(4+(22+bearing_int)/45)%8];
+               }
+
              fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n",
-                     radians_to_degrees(latitude),radians_to_degrees(longitude),
-                     IsFakeNode(result->node)?-(result->node&(~NODE_SUPER)):result->node,
-                     (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',type,
-                     distance_to_km(seg_distance),duration_to_minutes(seg_duration),
-                     distance_to_km(cum_distance),duration_to_minutes(cum_duration),
-                     profile->speed[HIGHWAY(resultway->type)],
-                     bearing_angle(nodes,result->segment,result->node),
-                     WayName(ways,resultway));
+                                 radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                 IsFakeNode(result->node)?-(result->node&(~NODE_SUPER)):result->node,
+                                 (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',type,
+                                 distance_to_km(seg_distance),duration_to_minutes(seg_duration),
+                                 distance_to_km(cum_distance),duration_to_minutes(cum_duration),
+                                 profile->speed[HIGHWAY(resultway->type)],
+                                 bearing_int,
+                                 wayname);
             }
+
+          if(waynamexml && waynamexml!=wayname)
+             free(waynamexml);
          }
        else if(!cum_distance)
          {
+          int   bearing_next_int=bearing_angle(nodes,nextresult->segment,nextresult->node);
+          char *bearing_next_str=translate_heading[(4+(22+bearing_next_int)/45)%8];
+
           /* Print out the very first start point */
 
           if(htmlfile)
             {
-             fprintf(htmlfile,"<tr class='c'><td class='l'>Coords:<td class='r'>%.6f %.6f\n",
-                     radians_to_degrees(latitude),radians_to_degrees(longitude));
-             fprintf(htmlfile,"<tr class='n'><td class='l'>Start:<td class='r'><span class='w'>Waypoint</span>, head <span class='b'>%s</span>\n",
-                     translate_heading[(4+(22+bearing_angle(nodes,nextresult->segment,result->next))/45)%8]);
+             fprintf(htmlfile,"<tr class='c'><td class='l'><td class='r'>%.6f %.6f\n",
+                              radians_to_degrees(latitude),radians_to_degrees(longitude));
+             fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_start[0]);
+             fprintf(htmlfile,translate_html_start[1],
+                              translate_html_waypoint,
+                              bearing_next_str);
+             fprintf(htmlfile,"\n");
             }
 
           if(gpxroutefile)
              fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
-                     radians_to_degrees(latitude),radians_to_degrees(longitude),
-                     translate_gpx_start);
+                                  radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                  translate_gpx_start);
 
           if(textfile)
              fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t\t +%d\t\n",
-                     radians_to_degrees(latitude),radians_to_degrees(longitude),
-                     0.0,0.0,0.0,0.0,
-                     "Waypt",
-                     (22+bearing_angle(nodes,nextresult->segment,result->next))/45);
+                              radians_to_degrees(latitude),radians_to_degrees(longitude),
+                              0.0,0.0,0.0,0.0,
+                              "Waypt",
+                              (22+bearing_next_int)/45);
 
           if(textallfile)
              fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t\t\t\n",
-                     radians_to_degrees(latitude),radians_to_degrees(longitude),
-                     IsFakeNode(result->node)?-(result->node&(~NODE_SUPER)):result->node,
-                     (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',"Waypt",
-                     0.0,0.0,0.0,0.0);
+                                 radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                 IsFakeNode(result->node)?-(result->node&(~NODE_SUPER)):result->node,
+                                 (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',"Waypt",
+                                 0.0,0.0,0.0,0.0);
          }
 
        result=nextresult;
@@ -590,11 +673,11 @@ void PrintRouteTail(void)
        fprintf(htmlfile,"<p>\n");
        fprintf(htmlfile,"<table class='c'>\n");
        if(translate_copyright_creator[0] && translate_copyright_creator[1])
-          fprintf(htmlfile,"<tr><td class='l'>%s :<td class='r'>%s\n",translate_copyright_creator[0],translate_copyright_creator[1]);
+          fprintf(htmlfile,"<tr><td class='l'>%s:<td class='r'>%s\n",translate_copyright_creator[0],translate_copyright_creator[1]);
        if(translate_copyright_source[0] && translate_copyright_source[1])
-          fprintf(htmlfile,"<tr><td class='l'>%s :<td class='r'>%s\n",translate_copyright_source[0],translate_copyright_source[1]);
+          fprintf(htmlfile,"<tr><td class='l'>%s:<td class='r'>%s\n",translate_copyright_source[0],translate_copyright_source[1]);
        if(translate_copyright_license[0] && translate_copyright_license[1])
-          fprintf(htmlfile,"<tr><td class='l'>%s :<td class='r'>%s\n",translate_copyright_license[0],translate_copyright_license[1]);
+          fprintf(htmlfile,"<tr><td class='l'>%s:<td class='r'>%s\n",translate_copyright_license[0],translate_copyright_license[1]);
        fprintf(htmlfile,"</table>\n");
       }
 
@@ -632,7 +715,7 @@ void PrintRouteTail(void)
 /*++++++++++++++++++++++++++++++++++++++
   Calculate the angle to turn at a junction from segment1 to segment2 at node.
 
-  int junction_angle Returns a value in the range -4 to +4 indicating the angle to turn.
+  int turn_angle Returns a value in the range -4 to +4 indicating the angle to turn.
 
   Nodes *nodes The set of nodes.
 
@@ -646,7 +729,7 @@ void PrintRouteTail(void)
   Angles are calculated using flat Cartesian lat/long grid approximation (after scaling longitude due to latitude).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int junction_angle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node)
+static int turn_angle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node)
 {
  double lat1,latm,lat2;
  double lon1,lonm,lon2;
