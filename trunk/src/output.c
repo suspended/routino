@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.30 2010-04-24 16:47:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.31 2010-04-27 16:28:19 amb Exp $
 
  Routing output generator.
 
@@ -207,7 +207,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     fprintf(gpxtrackfile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
     fprintf(gpxtrackfile,"<metadata>\n");
-    fprintf(gpxtrackfile,"<desc>%s : %s</desc>",translate_copyright_creator[0],translate_copyright_creator[1]);
+    fprintf(gpxtrackfile,"<desc>%s : %s</desc>\n",translate_copyright_creator[0],translate_copyright_creator[1]);
     if(translate_copyright_source[1])
       {
        fprintf(gpxtrackfile,"<copyright author=\"%s\">\n",translate_copyright_source[1]);
@@ -234,7 +234,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     fprintf(gpxroutefile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
     fprintf(gpxroutefile,"<metadata>\n");
-    fprintf(gpxtrackfile,"<desc>%s : %s</desc>",translate_copyright_creator[0],translate_copyright_creator[1]);
+    fprintf(gpxroutefile,"<desc>%s : %s</desc>\n",translate_copyright_creator[0],translate_copyright_creator[1]);
     if(translate_copyright_source[1])
       {
        fprintf(gpxroutefile,"<copyright author=\"%s\">\n",translate_copyright_source[1]);
