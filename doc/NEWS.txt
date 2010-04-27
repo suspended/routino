@@ -1,3 +1,44 @@
+Version 1.4 of Routino released : Xxx Xxx XX 2010
+-------------------------------------------------
+
+Bug fixes:
+  Speed up start/via/stop point search algorithm.
+  Improve the error messages by adding operating system error info to them.
+
+Outputs
+  Allow selection of the outputs to generate.
+  Added HTML route instructions output.
+  GPX route file contains instructions at each waypoint.
+  Read in XML file of translated words/phrases for outputs.
+
+planetsplitter
+  Add --parse-only and --process-only options (for incremental parsing).
+  Allow filenames to be specified on command line (default is still stdin).
+  Improved the '--help' information to describe all options.
+
+router
+  Removed compiled-in profiles and use profiles loaded from XML file.
+  Improved the '--help' information to describe all options.
+  Change the name of the --profile-json and --profile-perl options.
+  Added options to specify file of translations and language to use.
+
+filedumper
+  Improved the '--help' information to describe all options.
+
+Web Pages
+  Combined generic map CSS into one file (not copied in two).
+  Much better support for IE6/7/8 with browser detection but not perfect.
+  Re-organised and tidied up the Javascript.
+  Added button next to waypoints to centre it on map.
+  Added button next to waypoints to set as home location (uses browsser cookie).
+  Create shorter URLs for custom map (ignore default values).
+  Reduced and clarified the amount of editing to customise the Javascript.
+  Made it easier to translate by moving text out of Javascript (not visualiser).
+  Prepared for translated versions of web page (Apache Multiviews).
+  Added option to select language of output.
+  Use HTML output from router to get translated instructions.
+
+
 Version 1.3 of Routino released : Thu Jan 21 2010
 -------------------------------------------------
 
@@ -23,6 +64,13 @@ New Features
   Added "wheelchair" and "moped" to the list of possible transports.
   Added "paved", "multilane", "bridge", "tunnel" to list of highway properties.
 
+Web Pages
+  Updated for new features listed above.
+  Added popup to display instructions for each step in route on mouse-over.
+  Added buttons next to waypoints for: add / remove / move up / move down.
+  Highlight user selectable parts of form in yellow on mouse-over.
+  A few small changes, improved CSS, improved Javascript.
+
 router
   For each waypoint choose closest point on a segment and not just closest node.
   Added the ability to set preferences based on highway properties.
@@ -46,6 +94,10 @@ Routing
 Visualiser
   Don't display speed limits for tracks and paths unless a value is set.
   Draw all super-segments that cross the selected boundary.
+
+Web Pages
+  A few small changes, improved CSS, improved Javascript.
+  Changed marker colour when waypoint not selected.
 
 planetsplitter
   Optional slim mode uses minimal memory at the expense of temporary files.

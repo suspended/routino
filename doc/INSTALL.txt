@@ -1,7 +1,9 @@
                         Program Compilation / Installation
                         ==================================
 
+
 Compilation
+-----------
 
    This program has been written to run on Linux, no cross-platform
    compatibility has been specifically included but on the other hand nothing
@@ -15,7 +17,9 @@ Compilation
 
    To compile the programs just type 'make'.
 
+
 Installation - executables
+--------------------------
 
    After compilation the executable files are copied into the directory 'web/bin'.
 
@@ -23,17 +27,23 @@ Installation - executables
    'planetsplitter', 'router' and 'filedumper'.  They can be copied to any
    location and need no special installation environment.
 
+
 Installation - example web page
+-------------------------------
 
    The directory 'web' contains a set of files that can be used to create a
    working set of web pages with interfaces to the routing algorithm.
 
    The files in the 'web' directory will require copying to a location that is
-   accessible by a web server.  After copying the files some of them may need to
-   be edited; search through the files for lines that contain the words "EDIT
-   THIS" and make appropriate edits.
+   accessible by a web server.  After copying the files some of them need to be
+   edited; search through the files for lines that contain the words "EDIT THIS"
+   and make appropriate edits.  The files that need editing are "paths.pl" (to
+   set the directory paths) and "router.js" and "visualiser.js" to limit the
+   range of the visible map (latitude, longitude and zoom).
+
 
 Configuration of web files
+--------------------------
 
    The assumption in this description is that the whole of the directory called
    'web' is copied into a directory that is accessible by an Apache web server.
@@ -110,7 +120,9 @@ Configuration of web files
 
    visualiser.js - The same parameters as in router.js are in this file.
 
+
 Configuration of web server
+---------------------------
 
    The file 'www/routino/.htaccess' contains all of the Apache configuration
    options that are required to get the example web pages running.  The only
@@ -121,4 +133,4 @@ Configuration of web server
 
 --------
 
-Copyright 2008,2009,2010 Andrew M. Bishop.
+Copyright 2008-2010 Andrew M. Bishop.
