@@ -1,7 +1,6 @@
                   Routino - OpenStreetMap Routing Software
                   ========================================
 
-Routino Introduction
 
    Routino is an application for finding a route between two points using
    the dataset of topographical information collected by
@@ -39,7 +38,9 @@ Routino Introduction
    route should be very fast and most of the speed increases come from the
    carefully chosen and optimised data format.
 
+
 Disclaimer
+----------
 
    The route that is calculated by this software is only as good as the
    input data.
@@ -47,7 +48,9 @@ Disclaimer
    Routino comes with ABSOLUTELY NO WARRANTY for the software itself or
    the route that is calculated.
 
+
 Demonstration
+-------------
 
    A live demonstration of the router is available on the internet:
 
@@ -59,7 +62,9 @@ Demonstration
    The interactive map is made possible by use of the OpenLayers Javascript
    library from http://www.openlayers.org/.
 
+
 Documentation
+-------------
 
    The algorithm used and the way that the OpenStreetMap data tags
    are used are described in detail in their own files, USAGE.txt and
@@ -68,13 +73,18 @@ Documentation
    Detailed information about how to use the programs is available in the
    file USAGE.txt and how to install it is in INSTALL.txt.
 
+
 Status
+------
 
    Version 1.0 of Routino was released on 8th April 2009.
    Version 1.1 of Routino was released on 13th June 2009.
    Version 1.2 of Routino was released on 21st October 2009.
+   Version 1.3 of Routino was released on 21st January 2010.
+
 
 License
+-------
 
    This program is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as
@@ -86,19 +96,25 @@ License
    additional requirements to anybody who provides a networked service
    using this software.
 
-Copyright
 
-   Routino is copyright Andrew M. Bishop 2008,2009.
+Copyright
+---------
+
+   Routino is copyright Andrew M. Bishop 2008-2010.
 
    Contact amb@gedanken.demon.co.uk for any questions or queries.
 
+
 Homepage
+--------
 
    The latest information about the program can be found on the homepage:
 
    http://www.gedanken.org.uk/software/routino/
 
+
 Download
+--------
 
    The program can be downloaded from:
 
@@ -107,4 +123,4 @@ Download
 
 --------
 
-Copyright 2008,2009 Andrew M. Bishop.
+Copyright 2008-2010 Andrew M. Bishop.

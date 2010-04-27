@@ -1,5 +1,6 @@
-                                OpenStreetMap Tagging
-                                =====================
+                              Routino : Tagging
+                              =================
+
 
    The different tags that are used by the router software are described
    below.
@@ -22,6 +23,7 @@ Way Tags
 
 
 The highway Tag
+- - - - - - - -
 
    The most important tag that is used from a way is the highway tag. This
    defines the type of highway that the way represents. Any way that does
@@ -67,6 +69,7 @@ The highway Tag
 
 
 The access Tag
+- - - - - - -
 
    The access tag is used to specify the default access restrictions on
    the way.
@@ -115,12 +118,14 @@ The access Tag
 
 
 The bridge Tag
+- - - - - - -
 
    The bridge tag is used to identify whether a highway is a bridge and
    therefore set one of the available properties.
 
 
 The designation Tag
+- - - - - - - - - -
 
    The designation tag is used as an alternative method of identifying the
    legal right of way on a path. The values recognised are bridleway,
@@ -133,18 +138,21 @@ The designation Tag
 
 
 The name Tag
+- - - - - -
 
    The name tag is used to provide the label for the highway when printing
    the results.
 
 
 The ref Tag
+- - - - - -
 
    The ref tag is used to provide the label for the highway when printing
    the results.
 
 
 The junction Tag
+- - - - - - - -
 
    The junction tag is used to check if a highway is (part of) a
    roundabout. This tag is used for information to label the highway if no
@@ -155,6 +163,7 @@ The junction Tag
 
 
 The lanes Tag
+- - - - - - -
 
    The lanes tag is used to identify whether a highway has multiple lanes
    for traffic or not (the number of lanes is not important in this case,
@@ -166,6 +175,7 @@ The lanes Tag
 
 
 The surface Tag
+- - - - - - - -
 
    The surface tag is used to identify whether a highway is paved or not,
    this is one of the available highway properties.
@@ -183,6 +193,7 @@ The surface Tag
 
 
 The oneway Tag
+- - - - - - -
 
    The oneway tag is used to specify that traffic is only allowed to
    travel in one direction. When tagging it is important to make sure that
@@ -194,6 +205,7 @@ The oneway Tag
 
 
 The maxspeed Tag
+- - - - - - - -
 
    The maxspeed tag is used to specify the maximum speed limit on the
    highway; this is always measured in km/hr in OpenStreetMap data. If the
@@ -202,6 +214,7 @@ The maxspeed Tag
 
 
 The maxweight Tag
+- - - - - - - - -
 
    The maxweight tag is used to specify the maximum weight of any traffic
    on the way. In other words this must be set to the heaviest weight
@@ -209,6 +222,7 @@ The maxweight Tag
 
 
 The maxheight Tag
+- - - - - - - - -
 
    The maxheight tag is used to specify the maximum height of any traffic
    on the way. In other words this must be set to the lowest height of
@@ -218,6 +232,7 @@ The maxheight Tag
 
 
 The maxwidth Tag
+- - - - - - - -
 
    The maxwidth tag is used to specify the maximum width of any traffic on
    the way. This must be set to the minimum width of the contraints at the
@@ -226,6 +241,7 @@ The maxwidth Tag
 
 
 The maxlength Tag
+- - - - - - - - -
 
    The maxlength tag is used to specify the maximum length of any traffic
    on the way (usually from a traffic sign) in metres. If the tag value
@@ -234,16 +250,17 @@ The maxlength Tag
 
 
 The tunnel Tag
-
+- - - - - - -
    The tunnel tag is used to identify whether a highway is a tunnel and
    therefore set one of the available properties.
 
 
 Relation Tags
+-------------
 
    Currently no relation tags are used.
 
 
 --------
 
-Copyright 2008,2009,2010 Andrew M. Bishop.
+Copyright 2008-2010 Andrew M. Bishop.

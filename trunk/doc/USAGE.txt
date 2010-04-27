@@ -1,8 +1,6 @@
-                                Program Usage
-                                =============
+                               Routino : Usage
+                               ===============
 
-Program Usage
--------------
 
    There are three programs that make up this software. The first one
    takes the planet.osm datafile from OpenStreetMap (or other source of
@@ -15,19 +13,21 @@ Program Usage
 planetsplitter
 --------------
 
-   Usage: planetsplitter
-                         [--help]
-                         [--dir=<name>] [--prefix=<name>]
-                         [--slim] [--tmpdir=<name>]
-                         [--max-iterations=<number>]
-                         [--transport=<transport> ...]
-                         [--not-highway=<highway> ...]
-                         [--not-property=<property> ...]
+  Usage: planetsplitter [--help]
+                        [--dir=<dirname>] [--prefix=<name>]
+                        [--slim] [--sort-ram-size=<size>]
+                        [--tmpdir=<dirname>]
+                        [--parse-only | --process-only]
+                        [--max-iterations=<number>]
+                        [--transport=<transport> ...]
+                        [--not-highway=<highway> ...]
+                        [--not-property=<property> ...]
+                        [<filename.osm> ...]
 
    --help
           Prints out the help information.
 
-   --dir=<name>
+   --dir=<dirname>
           Sets the directory name in which to save the results. Defaults
           to the current directory.
 
@@ -43,24 +43,37 @@ planetsplitter
           option will still use disk files but only for sequential access
           and the files are memory mapped for random access.
 
-   --tmpdir=<name>
+   --sort-ram-size=<size>
+          Specifies the amount of RAM (in MB) to use for sorting the data.
+          If not specified then 64 MB will be used if the '--slim' option
+          is specified or 256 MB otherwise.
+
+   --tmpdir=<dirname>
           Specifies the name of the directory to store the temporary disk
           files. If not specified then it defaults to either the value of
           the --dir option or the current directory.
+
+   --parse-only
+          Parse the input files and store them in a temporary file but
+          don't process the data into a routing database.
+
+   --process-only
+          Don't read in any files but process the existing temporary file
+          into the routing database.
 
    --max-iterations=<number>
           The maximum number of iterations to use when generating
           super-nodes and super-segments. Defaults to 10 which is normally
           enough.
 
-   --transport=<transport>
+   --transport=<transport> ...
           Allows selection of only the routes that are possible for
           particular types of transport. Defaults to all transport types
           allowed (see the router for the list of possible transport
           types), this option may be repeated for additional transport
           types.
 
-   --not-highway=<highway>
+   --not-highway=<highway> ...
           Allows particular types of highways to be ignored to produce a
           smaller database or one that is more specific to a particular
           application (e.g. motorcar routing does not need footpaths).
@@ -68,14 +81,19 @@ planetsplitter
           list of possible highway types), this option may be repeated for
           additional highway types.
 
-   --not-property=<property>
+   --not-property=<property> ...
           Allows particular highway properties to be ignored to produce a
           smaller database or one that is more specific to a particular
           application. Defaults to all highway properties allowed (see the
           router for the list of possible highway properties), this option
           may be repeated for additional highway properties.
 
+   <filename.osm> ...
+          Specifies the filename(s) to read data from, by default data is
+          read from the standard input.
+
    Example usage:
+
 bunzip2 -c great_britain.osm.bz2 | ./planetsplitter --dir=data --prefix=gb
 
    This will generate the output files 'data/gb-nodes.mem',
@@ -85,31 +103,28 @@ bunzip2 -c great_britain.osm.bz2 | ./planetsplitter --dir=data --prefix=gb
 router
 ------
 
-   Usage: router [--lon1=]<longitude> [--lat1=]<latitude>
-                 [--lon2=]<longitude> [--lon2=]<latitude>
-                 [ ... [--lon99=]<longitude> [--lon99=]<latitude> ]
-                 [--help | --help-profile | --help-profile-js | --help-profile-pl]
-                 [--dir=<name>] [--prefix=<name>]
-                 [--shortest | --quickest]
-                 [--exact-nodes-only]
-                 [--quiet]
-                 [--transport=<transport>]
-                 [--highway-<highway>=<preference> ...]
-                 [--speed-<highway>=<speed> ...]
-                 [--property-<property>=<preference> ...]
-                 [--oneway=[0|1]]
-                 [--weight=<weight>]
-                 [--height=<height>] [--width=<width>] [--length=<length>]
-
-   --lon1=<longitude>, --lat1=<latitude>
-   --lon2=<longitude>, --lat2=<latitude>
-   ...
-   --lon99=<longitude>, --lat99=<latitude>
-          The location of the points that make up the start, middle and
-          end points of the route. Up to 99 points can be specified and
-          the route will pass through each of the specified ones in
-          sequence. The algorithm will find the closest node or point
-          within a segment that allows the specified traffic type.
+  Usage: router [--help | --help-profile | --help-profile-xml |
+                          --help-profile-json | --help-profile-perl ]
+                [--dir=<dirname>] [--prefix=<name>]
+                [--profiles=<filename>] [--translations=<filename>]
+                [--exact-nodes-only]
+                [--quiet]
+                [--output-html]
+                [--output-gpx-track] [--output-gpx-route]
+                [--output-text] [--output-text-all]
+                [--output-none]
+                [--profile=<name>]
+                [--transport=<transport>]
+                [--shortest | --quickest]
+                --lon1=<longitude> --lat1=<latitude>
+                --lon2=<longitude> --lon2=<latitude>
+                [ ... --lon99=<longitude> --lon99=<latitude>]
+                [--highway-<highway>=<preference> ...]
+                [--speed-<highway>=<speed> ...]
+                [--property-<property>=<preference> ...]
+                [--oneway=(0|1)]
+                [--weight=<weight>]
+                [--height=<height>] [--width=<width>] [--length=<length>]
 
    --help
           Prints out the help information.
@@ -118,15 +133,19 @@ router
           Prints out the selected transport profile (type, speed limits,
           highway preferences etc.)
 
-   --help-profile-js
-          Prints out all the compiled-in profiles as a set of Javascript
-          arrays for use in the interactive webpage.
+   --help-profile-xml
+          Prints out all the loaded profiles as an XML file in the same
+          format that can be loaded in.
 
-   --help-profile-pl
-          Prints out all the compiled-in profiles as a set of Perl arrays
-          for use in the router CGI.
+   --help-profile-json
+          Prints out all the loaded profiles in JavaScript Object Notation
+          (JSON) format for use in the interactive webpage.
 
-   --dir=<name>
+   --help-profile-perl
+          Prints out all the loaded profiles as a Perl object for use in
+          the router CGI.
+
+   --dir=<dirname>
           Sets the directory name in which to read the local database.
           Defaults to the current directory.
 
@@ -134,20 +153,52 @@ router
           Sets the filename prefix for the files in the local database.
           Defaults to no prefix.
 
-   --shortest
-          Find the shortest route.
+   --profiles=<filename>
+          Sets the filename containing the list of profiles in XML format.
+          If the file doesn't exist then dirname, prefix and
+          "profiles.xml" will be combined and used, if that doesn't exist
+          then the command line must contain all relevant profile
+          information.
 
-   --quickest
-          Find the quickest route.
+   --translations=<filename>
+          Sets the filename containing the list of translations in XML
+          format for the output files. If the file doesn't exist then
+          dirname, prefix and "translations.xml" will be combined and
+          used, if that doesn't exist then no file will be read and no
+          language can be selected.
 
    --exact-nodes-only
           When processing the specified latitude and longitude points only
           select the nearest node instead of finding the nearest point
-          within a segment.
+          within a segment (quicker but less accurate unless the points
+          are already near nodes).
 
    --quiet
           Don't generate any screen output while running (useful for
           running in a script).
+
+   --language=<lang>
+          Select the language specified from the file of translations. If
+          this option is not given and the file exists then the first
+          language in the file will be used. If this option is not given
+          and no file exists the compiled-in default language (English)
+          will be used.
+
+   --output-html
+   --output-gpx-track
+   --output-gpx-route
+   --output-text
+   --output-text-all
+          Generate the selected output file formats (HTML, GPX track file,
+          GPX route file, plain text route and/or plain text with all
+          nodes). If no output is specified then all are generated,
+          specifying any automatically disables those not specified.
+
+   --output-none
+          Do not generate any output or read in any translations files.
+
+   --profile=<name>
+          Specifies the name of the profile to use.
 
    --transport=<transport>
           Select the type of transport to use, <transport> can be set to:
@@ -164,7 +215,23 @@ router
           + psv = PSV (Public Service Vehicle - bus, coach)
 
           Defaults to 'motorcar', this option also selects the default
-          profile information.
+          profile information if the '--profile' option is not given and a
+          profile matching the transport name is found.
+
+   --shortest
+          Find the shortest route between the waypoints.
+
+   --quickest
+          Find the quickest route between the waypoints.
+
+   --lon1=<longitude>, --lat1=<latitude>
+   --lon2=<longitude>, --lat2=<latitude>
+   ... --lon99=<longitude>, --lat99=<latitude>
+          The location of the waypoints that make up the start, middle and
+          end points of the route. Up to 99 waypoints can be specified and
+          the route will pass through each of the specified ones in
+          sequence. The algorithm will use the closest node or point
+          within a segment that allows the specified traffic type.
 
    --highway-<highway>=<preference>
           Selects the percentage preference for using each particular type
@@ -250,37 +317,24 @@ router
    'data/gb-ways.mem' to find the quickest route by motorbike not using
    motorways or trunk roads and not exceeding 80 km/hr.
 
-   If there is a file in the specified directory with the specified prefix
-   and a basename of "copyright.txt" (i.e. 'data/gb-copyright.txt' in the
-   example) this file will be read in and the contents used in the
-   generated files. The file is read in and the two lines starting with
-   'Source:' and 'License:' are extracted and used in the output files.
-
-   An appropriate file for use with data derived from OpenStreetMap data
-   would be the following:
-
-   Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
-   License: http://creativecommons.org/licenses/by-sa/2.0/
-
 
 filedumper
 ----------
 
-   Usage: filedumper
-                     [--help]
-                     [--dir=<name>] [--prefix=<name>]
-                     [--statistics]
-                     [--visualiser --latmin=<latmin> --latmax=<latmax>
-                                   --lonmin=<lonmin> --lonmax=<lonmax>
-                                   --data=<data-type>]
-                     [--dump --node=<node> ...
-                             --segment=<segment> ...
-                             --way=<way> ...]
+  Usage: filedumper [--help]
+                    [--dir=<dirname>] [--prefix=<name>]
+                    [--statistics]
+                    [--visualiser --latmin=<latmin> --latmax=<latmax>
+                                  --lonmin=<lonmin> --lonmax=<lonmax>
+                                  --data=<data-type>]
+                    [--dump [--node=<node> ...]
+                            [--segment=<segment> ...]
+                            [--way=<way> ...]]
 
    --help
           Prints out the help information.
 
-   --dir=<name>
+   --dir=<dirname>
           Sets the directory name in which to read the local database.
           Defaults to the current directory.
 
@@ -303,6 +357,7 @@ filedumper
         --data=<data-type>
                 The type of data to output, <data-type> can be selected
                 from:
+
                o junctions = segment count at each junction.
                o super = super-node and super-segments.
                o oneway = oneway segments.
@@ -314,7 +369,8 @@ filedumper
 
    --dump
           Selects a data dumping mode which allows looking at individual
-          items in the databases.
+          items in the databases (specifying 'all' instead of a number
+          dumps all of them).
 
         --node=<node>
                 Prints the information about the selected node number
@@ -330,199 +386,6 @@ filedumper
                 source file).
 
 
-Router Output
--------------
-
-   There are two different formats of output from the router, plain text
-   and GPX (GPS eXchange) XML format. There are a total of four possible
-   outputs from the router program: a GPX track file, a GPX route file
-   with waypoints at junctions, a text description with the junctions and
-   a text file with every node.
-
-   The output files are written to the current directory and are named
-   depending on the selection of shortest or quickest route. For the
-   shortest route the file names are "shortest-track.gpx",
-   "shortest-route.gpx", "shortest.txt" and "shortest-all.txt", for the
-   quickest route the names are "quickest-track.gpx",
-   "quickest-route.gpx", "quickest.txt" and "quickest-all.txt".
-
-
-GPX Track File
---------------
-
-   The GPX track file contains a track with all of the individual nodes
-   that the route passes through.
-
-   An example GPX track file output is below:
-
-   <?xml version="1.0" encoding="UTF-8"?>
-   <gpx version="1.1" creator="Routino"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://www.topografix.com/GPX/1/1"
-           xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
-   <metadata>
-   <desc><![CDATA[Shortest route between 'start' and 'finish' waypoints]]></desc>
-   <copyright author="Based on OpenStreetMap data from http://www.openstreetmap.org/">
-   <license>http://creativecommons.org/licenses/by-sa/2.0/</license>
-   </copyright>
-   </metadata>
-   <trk>
-   <trkseg>
-   <trkpt lat="51.524676" lon="-0.127896"/>
-   <trkpt lat="51.523829" lon="-0.126993"/>
-   ...
-   <trkpt lat="51.478354" lon="-0.103561"/>
-   <trkpt lat="51.478244" lon="-0.103652"/>
-   </trkseg>
-   </trk>
-   </gpx>
-
-
-GPX Route File
---------------
-
-   The GPX route file contains a route (ordered set of waypoints) with all
-   of the junctions that the route passes through.
-
-   An example GPX route file output is below:
-
-   <?xml version="1.0" encoding="UTF-8"?>
-   <gpx version="1.1" creator="Routino"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://www.topografix.com/GPX/1/1"
-           xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
-   <metadata>
-   <desc><![CDATA[Shortest route between 'start' and 'finish' waypoints]]></desc>
-   <copyright author="Based on OpenStreetMap data from http://www.openstreetmap.org/">
-   <license>http://creativecommons.org/licenses/by-sa/2.0/</license>
-   </copyright>
-   </metadata>
-   <rte>
-   <name>Shortest route</name>
-   <rtept lat="51.524676" lon="-0.127896"><name>START</name></rtept>
-   <rtept lat="51.523829" lon="-0.126993"><name>TRIP001</name></rtept>
-   ...
-   <rtept lat="51.480314" lon="-0.108381"><name>TRIP015</name></rtept>
-   <rtept lat="51.478244" lon="-0.103652"><name>FINISH</name></rtept>
-   </rte>
-   </gpx>
-
-
-Text File
----------
-
-   The text file format contains one entry for all of the junctions in the
-   route and is intended to be easy to interpret.
-
-   An example text file output is below:
-
-# Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
-# License: http://creativecommons.org/licenses/by-sa/2.0/
-#
-#Latitude   Longitude  Section   Section   Total     Total   Point Turn Bearing Highway
-#                      Distance  Duration  Distance  Durat'n Type
-
- 51.524676  -0.127896  0.000 km   0.0 min  0.0 km    0 min   Waypt       +3
- 51.523829  -0.126993  0.113 km   0.1 min  0.1 km    0 min   Junct  +0   +3     Woburn Place
-...
- 51.480314  -0.108381  0.200 km   0.1 min  5.9 km    5 min   Junct  +0   +3     Camberwell New Road (A202)
- 51.478244  -0.103652  0.411 km   0.3 min  6.3 km    5 min   Waypt              Vassall Road
-
-   The text file output contains a header (indicated by the lines starting
-   with '#') and then one line for each junction. Each line contains the
-   information for the route up to that point and the direction to go
-   next. For each of the lines the individual fields contain the
-   following:
-
-   Latitude - Location of the point (degrees)
-
-   Longitude - Location of the point (degrees)
-
-   Section Distance - The distance travelled on the section of the journey
-   that ends at this point (defined on this line).
-
-   Section Duration - The duration of travel on the section of the journey
-   that ends at this point (defined on this line).
-
-   Total Distance - The total distance travelled up to this point.
-
-   Total Duration - The total duration of travel up to this point.
-
-   Point Type - The type of point; either a waypoint Waypt or junction
-   Junct.
-
-   Turn - The direction to turn at this point (missing for the first point
-   since the journey has not started yet and the last point because it has
-   finished). This can take one of nine values between -4 and +4 defined
-   by: 0 = Straight, +2 = Right, -2 = Left and +/-4 = Reverse.
-
-   Bearing - The direction to head at this point (missing for the last point
-   since the journey has finished). This can take one of nine values
-   between -4 and +4 defined by: 0 = North, +2 = East, -2 = West and +/-4
-   = South.
-
-   Highway - The name (or description) of the highway to follow (missing on
-   the first line).
-
-   The individual items are separated by tabs but some of the items
-   contain spaces as well.
-
-
-All Nodes Text File
--------------------
-
-   The all nodes text file format contains one entry for each of the nodes
-   on the route.
-
-   An example all nodes text file output is below:
-
-# Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
-# License: http://creativecommons.org/licenses/by-sa/2.0/
-#
-#Latitude  Longitude  Node    Type  Segment Segment Total  Total   Speed Bearing Highway
-#                                      Dist Durat'n Dist   Durat'n                
-
- 51.524676 -0.127896  483058* Waypt 0.000    0.00    0.00    0.0
- 51.523829 -0.126993  483056* Junct 0.113    0.14    0.11    0.1    96    135    Woburn Place
-...
- 51.478354 -0.103561  490481* Junct 0.104    0.07    6.30    5.1    96    180    Camberwell New Road (A202)
- 51.478244 -0.103652  490848  Waypt 0.013    0.01    6.31    5.1    64    90     Vassall Road
-
-   The all nodes text file output is similar to the text file output
-   except that a line is printed for each of the nodes rather than just
-   the junctions. For each of the lines the individual fields contain the
-   following:
-
-   Latitude - Location of the point in degrees.
-
-   Longitude - Location of the point in degrees.
-
-   Node - The internal node number and an indicator "*" if the node is a
-   super-node.
-
-   Type - The type of point; a waypoint Waypt, junction Junct, change of
-   highway Change or intermediate node Inter.
-
-   Segment Distance - The distance travelled on the segment defined on this
-   line.
-
-   Segment Duration - The duration of travel on the segment defined on this
-   line.
-
-   Total Distance - The total distance travelled up to this point.
-
-   Total Duration - The total duration of travel up to this point.
-
-   Speed - The speed of travel on the segment defined on this line (missing
-   on the first line).
-
-   Bearing - The direction that the segment defined on this line travels in
-   degrees (missing on the first line).
-
-   Highway - The name (or description) of the highway segment (missing on
-   the first line).
-
-
 --------
 
-Copyright 2008,2009,2010 Andrew M. Bishop.
+Copyright 2008-2010 Andrew M. Bishop.
