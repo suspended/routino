@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.36 2010-03-20 13:35:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.37 2010-04-28 17:27:02 amb Exp $
 
  Extended Way data type functions.
 
@@ -568,9 +568,8 @@ void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
        ways->props|=PROPERTIES(i);
 
  ways->data=NULL;
-
- ways->ways=(void*)sizeof(Ways);
- ways->names=(void*)(sizeof(Ways)+ways->number*sizeof(Way));
+ ways->ways=NULL;
+ ways->names=NULL;
 
  /* Write out the Ways structure and then the real data. */
 

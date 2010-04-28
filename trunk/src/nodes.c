@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.36 2010-03-20 12:23:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.37 2010-04-28 17:27:02 amb Exp $
 
  Node data type functions.
 
@@ -57,8 +57,8 @@ Nodes *LoadNodeList(const char *filename)
  /* Adjust the pointers in the Nodes structure. */
 
  nodes->data=data;
- nodes->offsets=(index_t*)(data+(off_t)nodes->offsets);
- nodes->nodes=(Node*)(data+(off_t)nodes->nodes);
+ nodes->offsets=(index_t*)(data+sizeof(Nodes));
+ nodes->nodes=(Node*)(data+(sizeof(Nodes)+(nodes->latbins*nodes->lonbins+1)*sizeof(index_t)));
 
  return(nodes);
 }

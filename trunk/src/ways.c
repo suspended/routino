@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.43 2010-04-12 16:42:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.44 2010-04-28 17:27:02 amb Exp $
 
  Way data type functions.
 
@@ -52,8 +52,8 @@ Ways *LoadWayList(const char *filename)
  /* Adjust the pointers in the Ways structure. */
 
  ways->data =data;
- ways->ways =(Way *)(data+(off_t)ways->ways);
- ways->names=(char*)(data+(off_t)ways->names);
+ ways->ways =(Way *)(data+sizeof(Ways));
+ ways->names=(char*)(data+(sizeof(Ways)+ways->number*sizeof(Way)));
 
  return(ways);
 }

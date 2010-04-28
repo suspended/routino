@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.50 2010-03-20 13:35:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.51 2010-04-28 17:27:02 amb Exp $
 
  Extended Segment data type functions.
 
@@ -985,8 +985,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  segments->nnumber=normal_number;
 
  segments->data=NULL;
-
- segments->segments=(void*)sizeof(Segments);
+ segments->segments=NULL;
 
  /* Write out the Segments structure and then the real data. */
 
