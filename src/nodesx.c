@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.55 2010-03-20 13:35:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.56 2010-04-28 17:27:02 amb Exp $
 
  Extented Node data type functions.
 
@@ -851,9 +851,8 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  nodes->lonzero=nodesx->lonzero;
 
  nodes->data=NULL;
-
- nodes->offsets=(void*)sizeof(Nodes);
- nodes->nodes=(void*)(sizeof(Nodes)+(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+ nodes->offsets=NULL;
+ nodes->nodes=NULL;
 
  /* Write out the Nodes structure and then the real data. */
 

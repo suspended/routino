@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.44 2010-03-20 12:23:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.45 2010-04-28 17:27:02 amb Exp $
 
  Segment data type functions.
 
@@ -57,7 +57,7 @@ Segments *LoadSegmentList(const char *filename)
  /* Adjust the pointers in the Segments structure. */
 
  segments->data=data;
- segments->segments=(Segment*)(data+(off_t)segments->segments);
+ segments->segments=(Segment*)(data+sizeof(Segments));
 
  return(segments);
 }
