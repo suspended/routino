@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.39 2010-03-30 17:58:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.40 2010-04-28 17:26:23 amb Exp $
 
  Memory file dumper.
 
@@ -165,19 +165,19 @@ int main(int argc,char** argv)
 
     stat(nodes_filename,&buf);
 
-    printf("'%s%snodes.mem'    - %9ld Bytes\n",prefix?prefix:"",prefix?"-":"",buf.st_size);
+    printf("'%s%snodes.mem'    - %9lld Bytes\n",prefix?prefix:"",prefix?"-":"",(long long)buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
 
     stat(segments_filename,&buf);
 
-    printf("'%s%ssegments.mem' - %9ld Bytes\n",prefix?prefix:"",prefix?"-":"",buf.st_size);
+    printf("'%s%ssegments.mem' - %9lld Bytes\n",prefix?prefix:"",prefix?"-":"",(long long)buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
 
     stat(ways_filename,&buf);
 
-    printf("'%s%sways.mem'     - %9ld Bytes\n",prefix?prefix:"",prefix?"-":"",buf.st_size);
+    printf("'%s%sways.mem'     - %9lld Bytes\n",prefix?prefix:"",prefix?"-":"",(long long)buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
 
@@ -223,7 +223,7 @@ int main(int argc,char** argv)
     printf("Number(original) =%9d\n",OSMWays->onumber);
     printf("\n");
 
-    printf("Total names =%9ld Bytes\n",buf.st_size-sizeof(Ways)-OSMWays->number*sizeof(Way));
+    printf("Total names =%9ld Bytes\n",(long)buf.st_size-sizeof(Ways)-OSMWays->number*sizeof(Way));
     printf("\n");
 
     printf("Included transports: %s\n",AllowedNameList(OSMWays->allow));

@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.5 2010-04-12 17:33:26 amb Exp $
+# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.6 2010-04-28 17:26:01 amb Exp $
 #
 # XML test programs Makefile
 #
@@ -29,6 +29,10 @@ LD=gcc
 
 CFLAGS=-Wall -Wmissing-prototypes -O0 -g
 LDFLAGS=-lm -lc
+
+# Required to use stdio with files > 2GiB on 32-bit system.
+
+FLAGS64=-D_FILE_OFFSET_BITS=64
 
 # Compilation targets
 
@@ -72,7 +76,7 @@ xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
 ########
 
 %.o : %.c
-	$(CC) -c $(CFLAGS) -I.. $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
+	$(CC) -c $(CFLAGS) $(FLAGS64) -I.. $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
 
 ########
 
