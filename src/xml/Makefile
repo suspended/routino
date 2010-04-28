@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.6 2010-04-28 17:26:01 amb Exp $
+# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.7 2010-04-28 17:33:18 amb Exp $
 #
 # XML test programs Makefile
 #
@@ -58,7 +58,8 @@ xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
 ########
 
 %-skeleton.c : $(XMLDIR)/%.xsd xsd-to-xmlparser
-	./xsd-to-xmlparser < $< > $@
+	-./xsd-to-xmlparser < $< > $@
+	@test -s $@ || rm $@
 
 %-skeleton : %-skeleton.o ../xmlparse.o
 	$(LD) $< ../xmlparse.o -o $@ $(LDFLAGS)
