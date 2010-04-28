@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.31 2010-04-12 16:42:23 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.32 2010-04-28 17:26:23 amb Exp $
 #
 # Source code Makefile
 #
@@ -43,6 +43,10 @@ LDFLAGS+=
 #LDFLAGS+= --coverage
 
 LEXFLAGS=
+
+# Required to use stdio with files > 2GiB on 32-bit system.
+
+FLAGS64=-D_FILE_OFFSET_BITS=64
 
 # Compilation targets
 
@@ -99,7 +103,7 @@ xmlparse.c : xmlparse.l
 ########
 
 %.o : %.c
-	$(CC) -c $(CFLAGS) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
+	$(CC) -c $(CFLAGS) $(FLAGS64) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
 
 ########
 
