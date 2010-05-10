@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.12 2010-04-24 15:49:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.13 2010-05-10 18:17:04 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -561,10 +561,10 @@ int ParseXML(FILE *file,xmltag **tags,int options)
 /*++++++++++++++++++++++++++++++++++++++
   Return the current parser line number.
 
-  int ParseXML_LineNumber Returns the line number.
+  unsigned long ParseXML_LineNumber Returns the line number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXML_LineNumber(void)
+unsigned long ParseXML_LineNumber(void)
 {
  return(yylineno);
 }
