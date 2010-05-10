@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.7 2010-04-28 17:33:18 amb Exp $
+# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.8 2010-05-10 18:16:37 amb Exp $
 #
 # XML test programs Makefile
 #
@@ -81,7 +81,7 @@ xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
 
 ########
 
-test : test-skeleton .FORCE
+test : all test-skeleton .FORCE
 	@status=true ;\
 	echo "" ;\
 	for good in test/good*.xml; do \
