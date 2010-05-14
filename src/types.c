@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.c,v 1.1 2010-04-12 16:41:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.c,v 1.2 2010-05-14 18:22:08 amb Exp $
 
  Functions for handling the data types.
 
@@ -39,60 +39,37 @@ Highway HighwayType(const char *highway)
 {
  switch(*highway)
    {
-   case 'b':
-    if(!strcmp(highway,"byway")) return(Way_Track);
-    if(!strcmp(highway,"bridleway")) return(Way_Path);
-    return(Way_Count);
-
    case 'c':
     if(!strcmp(highway,"cycleway")) return(Way_Cycleway);
     return(Way_Count);
 
-   case 'f':
-    if(!strcmp(highway,"footway")) return(Way_Path);
-    return(Way_Count);
-
-   case 'l':
-    if(!strcmp(highway,"living_street")) return(Way_Residential);
-    return(Way_Count);
-
    case 'm':
-    if(!strncmp(highway,"motorway",8)) return(Way_Motorway);
-    if(!strcmp(highway,"minor")) return(Way_Unclassified);
+    if(!strcmp(highway,"motorway")) return(Way_Motorway);
     return(Way_Count);
 
    case 'p':
-    if(!strncmp(highway,"primary",7)) return(Way_Primary);
+    if(!strcmp(highway,"primary")) return(Way_Primary);
     if(!strcmp(highway,"path")) return(Way_Path);
-    if(!strcmp(highway,"pedestrian")) return(Way_Path);
     return(Way_Count);
 
    case 'r':
-    if(!strcmp(highway,"road")) return(Way_Unclassified);
     if(!strcmp(highway,"residential")) return(Way_Residential);
     return(Way_Count);
 
    case 's':
-    if(!strncmp(highway,"secondary",9)) return(Way_Secondary);
+    if(!strcmp(highway,"secondary")) return(Way_Secondary);
     if(!strcmp(highway,"service")) return(Way_Service);
-    if(!strcmp(highway,"services")) return(Way_Service);
     if(!strcmp(highway,"steps")) return(Way_Steps);
     return(Way_Count);
 
    case 't':
-    if(!strncmp(highway,"trunk",5)) return(Way_Trunk);
+    if(!strcmp(highway,"trunk")) return(Way_Trunk);
     if(!strcmp(highway,"tertiary")) return(Way_Tertiary);
     if(!strcmp(highway,"track")) return(Way_Track);
     return(Way_Count);
 
    case 'u':
     if(!strcmp(highway,"unclassified")) return(Way_Unclassified);
-    if(!strcmp(highway,"unsurfaced")) return(Way_Track);
-    if(!strcmp(highway,"unpaved")) return(Way_Track);
-    return(Way_Count);
-
-   case 'w':
-    if(!strcmp(highway,"walkway")) return(Way_Path);
     return(Way_Count);
 
    default:
