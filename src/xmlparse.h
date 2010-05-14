@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.11 2010-05-10 18:17:04 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.12 2010-05-14 17:55:56 amb Exp $
 
  A simple XML parser
 
@@ -102,7 +102,7 @@ int ParseXML_GetFloating(const char *string,double *number);
 #define XMLPARSE_ASSERT_STRING(tag,attribute) \
  do \
    { \
-    if(!attribute || !*attribute) \
+    if(!attribute) \
       { \
        fprintf(stderr,"XML Parser: Error on line %ld: '" #attribute "' attribute must be specified in <%s> tag.\n",ParseXML_LineNumber(),tag); \
        return(1); \

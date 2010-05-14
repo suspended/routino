@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.13 2010-05-10 18:17:04 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.14 2010-05-14 17:55:56 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -80,7 +80,8 @@
 
 /*+ Reset the current string. +*/
 #define reset_string \
- if(string) *string=0; \
+ if(!string) string=(char*)malloc(16); \
+ *string=0; \
  stringused=0;
 
 /*+ append information to the current string. +*/
