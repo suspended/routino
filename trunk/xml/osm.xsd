@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/osm.xsd,v 1.1 2010-03-28 15:26:15 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/osm.xsd,v 1.2 2010-05-18 18:33:49 amb Exp $
 
      An XML Schema Definition for the OSM (JOSM?) XML format
 
@@ -48,13 +48,13 @@
       <xsd:element name="tag"       type="tagType" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
     <xsd:attribute name="id"        type="xsd:string"/>
+    <xsd:attribute name="lat"       type="xsd:string"/>
+    <xsd:attribute name="lon"       type="xsd:string"/>
     <xsd:attribute name="timestamp" type="xsd:string"/>
     <xsd:attribute name="uid"       type="xsd:string"/>
     <xsd:attribute name="user"      type="xsd:string"/>
     <xsd:attribute name="visible"   type="xsd:string"/>
     <xsd:attribute name="version"   type="xsd:string"/>
-    <xsd:attribute name="lat"       type="xsd:string"/>
-    <xsd:attribute name="lon"       type="xsd:string"/>
     <xsd:attribute name="action"    type="xsd:string"/>
   </xsd:complexType>
 
@@ -83,8 +83,6 @@
     <xsd:attribute name="user"      type="xsd:string"/>
     <xsd:attribute name="visible"   type="xsd:string"/>
     <xsd:attribute name="version"   type="xsd:string"/>
-    <xsd:attribute name="lat"       type="xsd:string"/>
-    <xsd:attribute name="lon"       type="xsd:string"/>
     <xsd:attribute name="action"    type="xsd:string"/>
   </xsd:complexType>
 
