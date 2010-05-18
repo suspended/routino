@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.32 2010-04-28 17:26:23 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.33 2010-05-18 18:39:37 amb Exp $
 #
 # Source code Makefile
 #
@@ -53,7 +53,7 @@ FLAGS64=-D_FILE_OFFSET_BITS=64
 C=$(wildcard *.c)
 D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
 
-EXE=planetsplitter filedumper router
+EXE=planetsplitter router filedumper tagmodifier
 
 ########
 
@@ -68,10 +68,20 @@ PLANETSPLITTER_OBJ=planetsplitter.o \
 	           ways.o types.o \
 	           files.o \
 	           results.o queue.o sorting.o \
-	           osmparser.o
+	           xmlparse.o tagging.o osmparser.o
 
 planetsplitter : $(PLANETSPLITTER_OBJ)
 	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
+
+########
+
+ROUTER_OBJ=router.o \
+	   nodes.o segments.o ways.o types.o \
+	   files.o profiles.o xmlparse.o \
+	   optimiser.o output.o results.o queue.o translations.o
+
+router : $(ROUTER_OBJ)
+	$(LD) $(ROUTER_OBJ) -o $@ $(LDFLAGS)
 
 ########
 
@@ -85,13 +95,12 @@ filedumper : $(FILEDUMPER_OBJ)
 
 ########
 
-ROUTER_OBJ=router.o \
-	   nodes.o segments.o ways.o types.o \
-	   files.o profiles.o xmlparse.o \
-	   optimiser.o output.o results.o queue.o translations.o
+TAGMODIFIER_OBJ=tagmodifier.o \
+	        files.o \
+                xmlparse.o tagging.o
 
-router : $(ROUTER_OBJ)
-	$(LD) $(ROUTER_OBJ) -o $@ $(LDFLAGS)
+tagmodifier : $(TAGMODIFIER_OBJ)
+	$(LD) $(TAGMODIFIER_OBJ) -o $@ $(LDFLAGS)
 
 ########
 
