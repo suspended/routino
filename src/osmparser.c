@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.64 2010-04-03 14:20:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.65 2010-05-18 18:38:15 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -32,20 +32,388 @@
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
-#include "ways.h"
+#include "xmlparse.h"
+#include "tagging.h"
 
 
-/*+ The length of the buffer and the size increment for reading lines from the file. +*/
-#define BUFFSIZE 256
+/* Macros */
 
-#define ISTRUE(xx)    (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1"))
+#define ISTRUE(xx) (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1"))
 
-#define ISALLOWED(xx) (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1") || \
-                       !strcmp(xx,"permissive") || !strcmp(xx,"designated") || !strcmp(xx,"destination"))
+
+/* Local variables */
+
+static long nnodes=0,nways=0,nrelations=0;
+static TagList current_tags={0,NULL,NULL};
+
+static node_t *way_nodes=NULL;
+static int     way_nnodes=0;
+
+static NodesX    *nodes;
+static SegmentsX *segments;
+static WaysX     *ways;
+static Profile   *profile;
+
 
 /* Local functions */
 
-static char *fgets_realloc(char *buffer,FILE *file);
+static void process_way_tags(TagList *tags,way_t id);
+
+
+/* The XML tag processing function prototypes */
+
+//static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding);
+//static int osmType_function(const char *_tag_,int _type_);
+static int relationType_function(const char *_tag_,int _type_,const char *id);
+static int wayType_function(const char *_tag_,int _type_,const char *id);
+//static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role);
+static int ndType_function(const char *_tag_,int _type_,const char *ref);
+static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon);
+static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v);
+//static int boundsType_function(const char *_tag_,int _type_);
+
+
+/* The XML tag definitions */
+
+/*+ The boundsType type tag. +*/
+static xmltag boundsType_tag=
+              {"bounds",
+               0, {NULL},
+               NULL,
+               {NULL}};
+
+/*+ The tagType type tag. +*/
+static xmltag tagType_tag=
+              {"tag",
+               2, {"k","v"},
+               tagType_function,
+               {NULL}};
+
+/*+ The nodeType type tag. +*/
+static xmltag nodeType_tag=
+              {"node",
+               3, {"id","lat","lon"},
+               nodeType_function,
+               {&tagType_tag,NULL}};
+
+/*+ The ndType type tag. +*/
+static xmltag ndType_tag=
+              {"nd",
+               1, {"ref"},
+               ndType_function,
+               {NULL}};
+
+/*+ The memberType type tag. +*/
+static xmltag memberType_tag=
+              {"member",
+               3, {"type","ref","role"},
+               NULL,
+               {NULL}};
+
+/*+ The wayType type tag. +*/
+static xmltag wayType_tag=
+              {"way",
+               1, {"id"},
+               wayType_function,
+               {&ndType_tag,&tagType_tag,NULL}};
+
+/*+ The relationType type tag. +*/
+static xmltag relationType_tag=
+              {"relation",
+               1, {"id"},
+               relationType_function,
+               {&memberType_tag,&tagType_tag,NULL}};
+
+/*+ The osmType type tag. +*/
+static xmltag osmType_tag=
+              {"osm",
+               0, {NULL},
+               NULL,
+               {&boundsType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+
+/*+ The xmlDeclaration type tag. +*/
+static xmltag xmlDeclaration_tag=
+              {"xml",
+               2, {"version","encoding"},
+               NULL,
+               {NULL}};
+
+
+/*+ The complete set of tags at the top level. +*/
+static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
+
+
+/* The XML tag processing functions */
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the boundsType XSD type is seen
+
+  int boundsType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int boundsType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the tagType XSD type is seen
+
+  int tagType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *k The contents of the 'k' attribute (or NULL if not defined).
+
+  const char *v The contents of the 'v' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,k);
+    XMLPARSE_ASSERT_STRING(_tag_,v);
+
+    AppendTag(&current_tags,k,v);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the nodeType XSD type is seen
+
+  int nodeType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *id The contents of the 'id' attribute (or NULL if not defined).
+
+  const char *lat The contents of the 'lat' attribute (or NULL if not defined).
+
+  const char *lon The contents of the 'lon' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    node_t node_id;
+    double latitude,longitude;
+
+    nnodes++;
+
+    if(!(nnodes%1000))
+      {
+       printf("\rReading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       fflush(stdout);
+      }
+
+    /* Handle the node information */
+
+    XMLPARSE_ASSERT_STRING(_tag_,id); node_id=atoll(id); /* need long long conversion */
+    XMLPARSE_ASSERT_FLOATING(_tag_,lat,latitude);
+    XMLPARSE_ASSERT_FLOATING(_tag_,lon,longitude);
+
+    AppendNode(nodes,node_id,degrees_to_radians(latitude),degrees_to_radians(longitude));
+
+    current_tags.ntags=0;
+   }
+
+// if(_type_&XMLPARSE_TAG_END)
+//   {
+//    TagList *result=ApplyTaggingRules(&NodeRules,&current_tags);
+//
+//    DeleteTagList(result);
+//   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the ndType XSD type is seen
+
+  int ndType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *ref The contents of the 'ref' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int ndType_function(const char *_tag_,int _type_,const char *ref)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    node_t node_id;
+
+    XMLPARSE_ASSERT_STRING(_tag_,ref); node_id=atoll(ref); /* need long long conversion */
+
+    if((way_nnodes%256)==0)
+       way_nodes=(node_t*)realloc((void*)way_nodes,(way_nnodes+256)*sizeof(node_t));
+
+    way_nodes[way_nnodes++]=node_id;
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the memberType XSD type is seen
+
+  int memberType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *type The contents of the 'type' attribute (or NULL if not defined).
+
+  const char *ref The contents of the 'ref' attribute (or NULL if not defined).
+
+  const char *role The contents of the 'role' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the wayType XSD type is seen
+
+  int wayType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *id The contents of the 'id' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int wayType_function(const char *_tag_,int _type_,const char *id)
+{
+ static way_t way_id;
+
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    nways++;
+
+    if(!(nways%1000))
+      {
+       printf("\rReading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       fflush(stdout);
+      }
+
+    current_tags.ntags=0;
+    way_nnodes=0;
+
+    /* Handle the way information */
+
+    XMLPARSE_ASSERT_STRING(_tag_,id); way_id=atoll(id); /* need long long conversion */
+   }
+
+ if(_type_&XMLPARSE_TAG_END)
+   {
+    TagList *result=ApplyTaggingRules(&WayRules,&current_tags);
+
+    process_way_tags(result,way_id);
+
+    DeleteTagList(result);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the relationType XSD type is seen
+
+  int relationType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *id The contents of the 'id' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int relationType_function(const char *_tag_,int _type_,const char *id)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    nrelations++;
+
+    if(!(nrelations%1000))
+      {
+       printf("\rReading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       fflush(stdout);
+      }
+
+    current_tags.ntags=0;
+   }
+
+ if(_type_&XMLPARSE_TAG_END)
+   {
+    TagList *result=ApplyTaggingRules(&RelationRules,&current_tags);
+
+    DeleteTagList(result);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the osmType XSD type is seen
+
+  int osmType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int osmType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the XML declaration is seen
+
+  int xmlDeclaration_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
+
+  const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding)
+//{
+// return(0);
+//}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -61,626 +429,320 @@ static char *fgets_realloc(char *buffer,FILE *file);
 
   WaysX *OSMWays The arrray of ways to fill in.
 
-  Profile *profile A profile of the allowed transport types and included/excluded highway types.
+  Profile *allowprofile A profile of the allowed transport types and included/excluded highway types.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *profile)
+int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *allowprofile)
 {
- char *line=NULL;
- long nlines=0;
- long nnodes=0,nways=0,nrelations=0;
- int isnode=0,isway=0,isrelation=0;
- way_t way_id=0;
- wayallow_t way_allow_no=0,way_allow_yes=0;
- int way_oneway=0,way_roundabout=0;
- int way_paved=0,way_multilane=0,way_bridge=0,way_tunnel=0;
- speed_t way_maxspeed=0;
- weight_t way_maxweight=0;
- height_t way_maxheight=0;
- width_t way_maxwidth=0;
- length_t way_maxlength=0;
- char *way_highway=NULL,*way_name=NULL,*way_ref=NULL;
- node_t *way_nodes=NULL;
- int way_nnodes=0,way_nalloc=0;
+ int retval;
+
+ /* Parse the file */
+
+ nodes=OSMNodes;
+ segments=OSMSegments;
+ ways=OSMWays;
+ profile=allowprofile;
+
+ nnodes=0,nways=0,nrelations=0;
 
  printf("\rReading: Lines=0 Nodes=0 Ways=0 Relations=0");
  fflush(stdout);
 
- /* Parse the file */
+ retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
- while((line=fgets_realloc(line,file)))
-   {
-    char *l=line,*m;
-
-    nlines++;
-
-    while(isspace(*l))
-       l++;
-
-    if(!strncmp(l,"<node",5)) /* The start of a node */
-      {
-       node_t id;
-       double latitude,longitude;
-
-       nnodes++;
-
-       isnode=1; isway=0; isrelation=0;
-
-       m=strstr(l,"id=");  m+=4; if(*m=='"' || *m=='\'') m++; id=atoll(m);
-       m=strstr(l,"lat="); m+=5; if(*m=='"' || *m=='\'') m++; latitude=degrees_to_radians(atof(m));
-       m=strstr(l,"lon="); m+=4; if(*m=='"' || *m=='\'') m++; longitude=degrees_to_radians(atof(m));
-
-       AppendNode(OSMNodes,id,latitude,longitude);
-
-       if(strstr(l,"/>")) /* The end of a node */
-         {
-          isnode=0; isway=0; isrelation=0;
-         }
-      }
-    else if(!strncmp(l,"</node",6)) /* The end of a node */
-      {
-       isnode=0; isway=0; isrelation=0;
-      }
-    else if(!strncmp(l,"<way",4)) /* The start of a way */
-      {
-       nways++;
-
-       isnode=0; isway=1; isrelation=0;
-
-       m=strstr(l,"id=");  m+=4; if(*m=='"' || *m=='\'') m++; way_id=atoll(m);
-
-       way_allow_no=0; way_allow_yes=0;
-       way_oneway=0; way_roundabout=0;
-       way_paved=0; way_multilane=0; way_bridge=0; way_tunnel=0;
-       way_maxspeed=0; way_maxweight=0; way_maxheight=0; way_maxwidth=0;
-       way_maxlength=0;
-       way_highway=NULL; way_name=NULL; way_ref=NULL;
-       way_nnodes=0;
-      }
-    else if(!strncmp(l,"</way",5)) /* The end of a way */
-      {
-       isnode=0; isway=0; isrelation=0;
-
-       if(way_highway)
-         {
-          Way way={0};
-
-          way.type=HighwayType(way_highway);
-
-          if(profile->highway[way.type])
-            {
-             switch(way.type)
-               {
-               case Way_Motorway:
-                way.type|=Way_OneWay;
-                way.allow=Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                way.props=Properties_Paved|Properties_Multilane;
-                break;
-               case Way_Trunk:
-                way.allow=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                way.props=Properties_Paved;
-                break;
-               case Way_Primary:
-                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                way.props=Properties_Paved;
-                break;
-               case Way_Secondary:
-                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                way.props=Properties_Paved;
-                break;
-               case Way_Tertiary:
-                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                way.props=Properties_Paved;
-                break;
-               case Way_Unclassified:
-                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                way.props=Properties_Paved;
-                break;
-               case Way_Residential:
-                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                way.props=Properties_Paved;
-                break;
-               case Way_Service:
-                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_PSV|Allow_Goods|Allow_HGV;
-                way.props=Properties_Paved;
-                break;
-               case Way_Track:
-                way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle;
-                way.props=0;
-                break;
-               case Way_Cycleway:
-                way.allow=Allow_Foot|Allow_Bicycle;
-                way.props=Properties_Paved;
-                break;
-               case Way_Path:
-                if(!strcmp(way_highway,"bridleway"))
-                   way.allow=Allow_Foot|Allow_Horse|Allow_Bicycle; /* Special case for "bridleway". */
-                else
-                   way.allow=Allow_Foot; /* Only allow bicycle and horse if so indicated. */
-                way.props=0;
-                break;
-               case Way_Steps:
-                way.allow=Allow_Foot;
-                way.props=0;
-                break;
-               default:
-                way.allow=0;
-                way.props=0;
-                break;
-               }
-
-             if(way_allow_yes&Allow_Foot && !(way_allow_no&Allow_Wheelchair)) /* Allow wheelchair if foot allowed and wheelchair not disallowed. */
-                way_allow_yes|=Allow_Wheelchair;
-
-             if(way_allow_no)      /* Remove the ones explicitly denied (e.g. private) */
-                way.allow&=~way_allow_no;
-
-             if(way_allow_yes)     /* Add the ones explicitly allowed (e.g. footpath along private) */
-                way.allow|=way_allow_yes;
-
-             if(way.allow & profile->allow)
-               {
-                char *refname;
-                int i;
-
-                if(way_oneway)
-                   way.type|=Way_OneWay;
-
-                if(way_roundabout)
-                   way.type|=Way_Roundabout;
-
-                if(profile->props_yes[Property_Paved])
-                  {
-                   if(way_paved>0)
-                      way.props|=Properties_Paved;
-                   else if(way_paved<0)
-                      way.props&=~Properties_Paved;
-                  }
-
-                if(profile->props_yes[Property_Multilane])
-                  {
-                   if(way_multilane>1)
-                      way.props|=Properties_Multilane;
-                   else if(way_paved==1)
-                      way.props&=~Properties_Multilane;
-                  }
-
-                if(profile->props_yes[Property_Bridge])
-                  {
-                   if(way_bridge)
-                      way.props|=Properties_Bridge;
-                  }
-
-                if(profile->props_yes[Property_Tunnel])
-                  {
-                   if(way_tunnel)
-                      way.props|=Properties_Tunnel;
-                  }
-
-                if(way_ref && way_name)
-                  {
-                   refname=(char*)malloc(strlen(way_ref)+strlen(way_name)+4);
-                   sprintf(refname,"%s (%s)",way_name,way_ref);
-                  }
-                else if(way_ref && !way_name && way_roundabout)
-                  {
-                   refname=(char*)malloc(strlen(way_ref)+14);
-                   sprintf(refname,"%s (roundabout)",way_ref);
-                  }
-                else if(way_ref && !way_name)
-                   refname=way_ref;
-                else if(!way_ref && way_name)
-                   refname=way_name;
-                else if(way_roundabout)
-                  {
-                   refname=(char*)malloc(strlen(way_highway)+14);
-                   sprintf(refname,"%s (roundabout)",way_highway);
-                  }
-                else /* if(!way_ref && !way_name && !way_roundabout) */
-                   refname=way_highway;
-
-                way.speed =way_maxspeed;
-                way.weight=way_maxweight;
-                way.height=way_maxheight;
-                way.width =way_maxwidth;
-                way.length=way_maxlength;
-
-                AppendWay(OSMWays,way_id,&way,refname);
-
-                if(refname!=way_ref && refname!=way_name && refname!=way_highway)
-                   free(refname);
-
-                for(i=1;i<way_nnodes;i++)
-                  {
-                   node_t from=way_nodes[i-1];
-                   node_t to  =way_nodes[i];
-
-                   if(way_oneway>0)
-                     {
-                      AppendSegment(OSMSegments,way_id,from,to,ONEWAY_1TO2);
-                      AppendSegment(OSMSegments,way_id,to,from,ONEWAY_2TO1);
-                     }
-                   else if(way_oneway<0)
-                     {
-                      AppendSegment(OSMSegments,way_id,from,to,ONEWAY_2TO1);
-                      AppendSegment(OSMSegments,way_id,to,from,ONEWAY_1TO2);
-                     }
-                   else
-                     {
-                      AppendSegment(OSMSegments,way_id,from,to,0);
-                      AppendSegment(OSMSegments,way_id,to,from,0);
-                     }
-                  }
-               }
-            }
-         }
-
-       if(way_highway) free(way_highway);
-       if(way_name)    free(way_name);
-       if(way_ref)     free(way_ref);
-      }
-    else if(!strncmp(l,"<relation",9)) /* The start of a relation */
-      {
-       nrelations++;
-
-       isnode=0; isway=0; isrelation=1;
-      }
-    else if(!strncmp(l,"</relation",10)) /* The end of a relation */
-      {
-       isnode=0; isway=0; isrelation=0;
-      }
-    else if(isnode) /* The middle of a node */
-      {
-      }
-    else if(isway) /* The middle of a way */
-      {
-       node_t id;
-
-       if(!strncmp(l,"<nd",3)) /* The start of a node specifier */
-         {
-          m=strstr(l,"ref="); m+=4; if(*m=='"' || *m=='\'') m++; id=atoll(m);
-
-          if(way_nnodes==way_nalloc)
-             way_nodes=(node_t*)realloc((void*)way_nodes,(way_nalloc+=256)*sizeof(node_t));
-
-          way_nodes[way_nnodes++]=id;
-         }
-
-       if(!strncmp(l,"<tag",4)) /* The start of a tag specifier */
-         {
-          char delimiter,*k="",*v="";
-
-          m=strstr(l,"k="); m+=2; delimiter=*m; m++; k=m;
-          while(*m!=delimiter) m++; *m=0; l=m+1;
-
-          m=strstr(l,"v="); m+=2; delimiter=*m; m++; v=m;
-          while(*m!=delimiter) m++; *m=0;
-
-          switch(*k)
-            {
-            case 'a':
-             if(!strcmp(k,"access"))
-               {
-                if(ISALLOWED(v))
-                   ;
-                else
-                   way_allow_no=Allow_ALL;
-               }
-             break;
-
-            case 'b':
-             if(!strcmp(k,"bicycle"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_Bicycle;
-                else
-                   way_allow_no |=Allow_Bicycle;
-               }
-
-             if(!strcmp(k,"bridge"))
-                way_bridge=ISTRUE(v);
-             break;
-
-            case 'd':
-             if(!strcmp(k,"designation"))
-               {
-                if(!strcmp(v,"bridleway"))
-                   way_allow_yes|=Allow_Foot|Allow_Horse|Allow_Bicycle;
-                else if(!strcmp(v,"byway"))
-                   way_allow_yes|=Allow_Foot|Allow_Horse|Allow_Bicycle;
-                else if(!strcmp(v,"footpath"))
-                   way_allow_yes|=Allow_Foot;
-               }
-             break;
-
-            case 'f':
-             if(!strcmp(k,"foot"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_Foot;
-                else
-                   way_allow_no |=Allow_Foot;
-               }
-             break;
-
-            case 'g':
-             if(!strcmp(k,"goods"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_Goods;
-                else
-                   way_allow_no |=Allow_Goods;
-               }
-             break;
-
-            case 'h':
-             if(!strcmp(k,"highway"))
-                way_highway=strcpy((char*)malloc(strlen(v)+1),v);
-
-             if(!strcmp(k,"horse"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_Horse;
-                else
-                   way_allow_no |=Allow_Horse;
-               }
-
-             if(!strcmp(k,"hgv"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_HGV;
-                else
-                   way_allow_no |=Allow_HGV;
-               }
-             break;
-
-            case 'j':
-             if(!strcmp(k,"junction"))
-                if(!strcmp(v,"roundabout"))
-                  {way_oneway=1; way_roundabout=1;}
-             break;
-
-            case 'l':
-             if(!strcmp(k,"lanes"))
-                way_multilane=atoi(v);
-
-            case 'm':
-             if(!strcmp(k,"maxspeed"))
-               {
-                if(strstr(v,"mph"))
-                   way_maxspeed=kph_to_speed(1.609*atof(v));
-                else
-                   way_maxspeed=kph_to_speed(atof(v));
-               }
-
-             if(!strcmp(k,"maxspeed:mph"))
-                way_maxspeed=kph_to_speed(1.609*atof(v));
-
-             if(!strcmp(k,"maxweight"))
-               {
-                if(strstr(v,"kg"))
-                   way_maxweight=tonnes_to_weight(atof(v)/1000);
-                else
-                   way_maxweight=tonnes_to_weight(atof(v));
-               }
-
-             if(!strcmp(k,"maxheight"))
-               {
-                if(strchr(v,'\''))
-                  {
-                   int feet,inches;
-
-                   if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
-                      way_maxheight=metres_to_height((feet+(double)inches/12.0)*0.254);
-                   else if(sscanf(v,"%d'",&feet)==1)
-                      way_maxheight=metres_to_height((feet+(double)inches/12.0)*0.254);
-                  }
-                else if(strstr(v,"ft") || strstr(v,"feet"))
-                   way_maxheight=metres_to_height(atof(v)*0.254);
-                else
-                   way_maxheight=metres_to_height(atof(v));
-               }
-
-             if(!strcmp(k,"maxwidth"))
-               {
-                if(strchr(v,'\''))
-                  {
-                   int feet,inches;
-
-                   if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
-                      way_maxwidth=metres_to_height((feet+(double)inches/12.0)*0.254);
-                   else if(sscanf(v,"%d'",&feet)==1)
-                      way_maxwidth=metres_to_height((feet+(double)inches/12.0)*0.254);
-                  }
-                else if(strstr(v,"ft") || strstr(v,"feet"))
-                   way_maxwidth=metres_to_width(atof(v)*0.254);
-                else
-                   way_maxwidth=metres_to_width(atof(v));
-               }
-
-             if(!strcmp(k,"maxlength"))
-               {
-                if(strchr(v,'\''))
-                  {
-                   int feet,inches;
-
-                   if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
-                      way_maxlength=metres_to_height((feet+(double)inches/12.0)*0.254);
-                   else if(sscanf(v,"%d'",&feet)==1)
-                      way_maxlength=metres_to_height((feet+(double)inches/12.0)*0.254);
-                  }
-                else if(strstr(v,"ft") || strstr(v,"feet"))
-                   way_maxlength=metres_to_length(atof(v)*0.254);
-                else
-                   way_maxlength=metres_to_length(atof(v));
-               }
-
-             if(!strcmp(k,"moped"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_Moped;
-                else
-                   way_allow_no |=Allow_Moped;
-               }
-
-             if(!strcmp(k,"motorbike"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_Motorbike;
-                else
-                   way_allow_no |=Allow_Motorbike;
-               }
-
-             if(!strcmp(k,"motorcar"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_Motorcar;
-                else
-                   way_allow_no |=Allow_Motorcar;
-               }
-
-             if(!strcmp(k,"motor_vehicle"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
-                else
-                   way_allow_no |=Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
-               }
-             break;
-
-            case 'n':
-             if(!strcmp(k,"name"))
-                way_name=strcpy((char*)malloc(strlen(v)+1),v);
-             break;
-
-            case 'o':
-             if(!strcmp(k,"oneway"))
-               {
-                if(ISTRUE(v))
-                   way_oneway=1;
-                else if(!strcmp(v,"-1"))
-                   way_oneway=-1;
-               }
-             break;
-
-            case 'p':
-             if(!strcmp(k,"paved"))
-               {
-                if(ISTRUE(v))
-                   way_paved=1;
-                else
-                   way_paved=-1;
-               }
-
-             if(!strcmp(k,"psv"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_PSV;
-                else
-                   way_allow_no |=Allow_PSV;
-               }
-             break;
-
-            case 'r':
-             if(!strcmp(k,"ref"))
-                way_ref=strcpy((char*)malloc(strlen(v)+1),v);
-             break;
-
-            case 's':
-             if(!strcmp(k,"surface"))
-               {
-                if(!strcmp(v,"paved") || !strcmp(v,"asphalt") || !strcmp(v,"concrete"))
-                   way_paved=1;
-                else
-                   way_paved=-1;
-               }
-             break;
-
-            case 't':
-             if(!strcmp(k,"tunnel"))
-                way_tunnel=ISTRUE(v);
-             break;
-
-            case 'v':
-             if(!strcmp(k,"vehicle"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
-                else
-                   way_allow_no |=Allow_Bicycle|Allow_Moped|Allow_Motorbike|Allow_Motorcar|Allow_Goods|Allow_HGV|Allow_PSV;
-               }
-             break;
-
-            case 'w':
-             if(!strcmp(k,"wheelchair"))
-               {
-                if(ISALLOWED(v))
-                   way_allow_yes|=Allow_Wheelchair;
-                else
-                   way_allow_no |=Allow_Wheelchair;
-               }
-             break;
-
-            default:
-             ;
-            }
-         }
-      }
-    else if(isrelation) /* The middle of a relation */
-      {
-      }
-
-    if(!(nlines%10000))
-      {
-       printf("\rReading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",nlines,nnodes,nways,nrelations);
-       fflush(stdout);
-      }
-   }
-
- printf("\rRead: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld   \n",nlines,nnodes,nways,nrelations);
+ printf("\rRead: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld   \n",ParseXML_LineNumber(),nnodes,nways,nrelations);
  fflush(stdout);
 
- if(line)
-    free(line);
-
- if(way_nalloc)
-    free(way_nodes);
-
- return(0);
+ return(retval);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Call fgets and realloc the buffer as needed to get a whole line.
+  Process the tags associated with a way.
 
-  char *fgets_realloc Returns the modified buffer (NULL at the end of the file).
+  TagList *tags The list of way tags.
 
-  char *buffer The current buffer.
-
-  FILE *file The file to read from.
+  way_t id The id of the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static char *fgets_realloc(char *buffer,FILE *file)
+static void process_way_tags(TagList *tags,way_t id)
 {
- int n=0;
- char *buf;
+ Way   way={0};
+ int   oneway=0,roundabout=0;
+ char *highway=NULL,*name=NULL,*ref=NULL;
 
- if(!buffer)
-    buffer=(char*)malloc(BUFFSIZE+1);
+ int i;
 
- while((buf=fgets(&buffer[n],BUFFSIZE,file)))
+ /* Parse the tags */
+
+ for(i=0;i<tags->ntags;i++)
    {
-    int s=strlen(buf);
-    n+=s;
+    char *k=tags->k[i];
+    char *v=tags->v[i];
 
-    if(buffer[n-1]=='\n')
+    switch(*k)
+      {
+      case 'b':
+       if(!strcmp(k,"bicycle"))
+          if(ISTRUE(v))
+             way.allow|= Allow_Bicycle;
+
+       if(!strcmp(k,"bridge"))
+          if(ISTRUE(v))
+             way.props|=Properties_Bridge;
+
        break;
-    else
-       buffer=(char*)realloc(buffer,n+BUFFSIZE+1);
+
+      case 'f':
+       if(!strcmp(k,"foot"))
+          if(ISTRUE(v))
+             way.allow|= Allow_Foot;
+
+       break;
+
+      case 'g':
+       if(!strcmp(k,"goods"))
+          if(ISTRUE(v))
+             way.allow|=Allow_Goods;
+
+       break;
+
+      case 'h':
+       if(!strcmp(k,"highway"))
+         {
+          highway=v;
+          way.type=HighwayType(v);
+         }
+
+       if(!strcmp(k,"horse"))
+          if(ISTRUE(v))
+             way.allow|=Allow_Horse;
+
+       if(!strcmp(k,"hgv"))
+          if(ISTRUE(v))
+             way.allow|=Allow_HGV;
+
+       break;
+
+      case 'j':
+       if(!strcmp(k,"junction") && !strcmp(v,"roundabout"))
+          roundabout=1;
+
+       break;
+
+      case 'm':
+       if(!strcmp(k,"maxspeed"))
+         {
+          if(strstr(v,"mph"))
+             way.speed=kph_to_speed(1.609*atof(v));
+          else
+             way.speed=kph_to_speed(atof(v));
+         }
+
+       if(!strcmp(k,"maxweight"))
+         {
+          if(strstr(v,"kg"))
+             way.weight=tonnes_to_weight(atof(v)/1000);
+          else
+             way.weight=tonnes_to_weight(atof(v));
+         }
+
+       if(!strcmp(k,"maxheight"))
+         {
+          if(strchr(v,'\''))
+            {
+             int feet,inches;
+
+             if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
+                way.height=metres_to_height((feet+(double)inches/12.0)*0.254);
+             else if(sscanf(v,"%d'",&feet)==1)
+                way.height=metres_to_height((feet+(double)inches/12.0)*0.254);
+            }
+          else if(strstr(v,"ft") || strstr(v,"feet"))
+             way.height=metres_to_height(atof(v)*0.254);
+          else
+             way.height=metres_to_height(atof(v));
+         }
+
+       if(!strcmp(k,"maxwidth"))
+         {
+          if(strchr(v,'\''))
+            {
+             int feet,inches;
+
+             if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
+                way.width=metres_to_height((feet+(double)inches/12.0)*0.254);
+             else if(sscanf(v,"%d'",&feet)==1)
+                way.width=metres_to_height((feet+(double)inches/12.0)*0.254);
+            }
+          else if(strstr(v,"ft") || strstr(v,"feet"))
+             way.width=metres_to_width(atof(v)*0.254);
+          else
+             way.width=metres_to_width(atof(v));
+         }
+
+       if(!strcmp(k,"maxlength"))
+         {
+          if(strchr(v,'\''))
+            {
+             int feet,inches;
+
+             if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
+                way.length=metres_to_height((feet+(double)inches/12.0)*0.254);
+             else if(sscanf(v,"%d'",&feet)==1)
+                way.length=metres_to_height((feet+(double)inches/12.0)*0.254);
+            }
+          else if(strstr(v,"ft") || strstr(v,"feet"))
+             way.length=metres_to_length(atof(v)*0.254);
+          else
+             way.length=metres_to_length(atof(v));
+         }
+
+       if(!strcmp(k,"moped"))
+          if(ISTRUE(v))
+             way.allow|=Allow_Moped;
+
+       if(!strcmp(k,"motorbike"))
+          if(ISTRUE(v))
+             way.allow|=Allow_Motorbike;
+
+       if(!strcmp(k,"motorcar"))
+          if(ISTRUE(v))
+             way.allow|=Allow_Motorcar;
+
+       if(!strcmp(k,"multilane"))
+          if(ISTRUE(v))
+             way.props|=Properties_Multilane;
+
+       break;
+
+      case 'n':
+       if(!strcmp(k,"name"))
+          name=v;
+
+       break;
+
+      case 'o':
+       if(!strcmp(k,"oneway"))
+         {
+          if(ISTRUE(v))
+             oneway=1;
+          else if(!strcmp(v,"-1"))
+             oneway=-1;
+         }
+
+       break;
+
+      case 'p':
+       if(!strcmp(k,"paved"))
+          if(ISTRUE(v))
+             way.props|=Properties_Paved;
+
+       if(!strcmp(k,"psv"))
+          if(ISTRUE(v))
+             way.allow|=Allow_PSV;
+
+       break;
+
+      case 'r':
+       if(!strcmp(k,"ref"))
+          ref=v;
+
+       break;
+
+      case 't':
+       if(!strcmp(k,"tunnel"))
+          if(ISTRUE(v))
+             way.props|=Properties_Tunnel;
+
+       break;
+
+      case 'w':
+       if(!strcmp(k,"wheelchair"))
+          if(ISTRUE(v))
+             way.allow|=Allow_Wheelchair;
+
+       break;
+
+      default:
+       ;
+      }
    }
 
- if(!buf)
-   {free(buffer);buffer=NULL;}
+ /* Create the way */
 
- return(buffer);
+ if(way.type>0 && way.type<Way_Count && profile->highway[way.type])
+   {
+    if(way.allow & profile->allow)
+      {
+       char *refname;
+
+       if(oneway)
+          way.type|=Way_OneWay;
+
+       if(roundabout)
+          way.type|=Way_Roundabout;
+
+       if(!profile->props_yes[Property_Paved])
+          way.props&=~Properties_Paved;
+
+       if(!profile->props_yes[Property_Multilane])
+          way.props&=~Properties_Multilane;
+
+       if(!profile->props_yes[Property_Bridge])
+          way.props&=~Properties_Bridge;
+
+       if(!profile->props_yes[Property_Tunnel])
+          way.props&=~Properties_Tunnel;
+
+       if(ref && name)
+         {
+          refname=(char*)malloc(strlen(ref)+strlen(name)+4);
+          sprintf(refname,"%s (%s)",name,ref);
+         }
+       else if(ref && !name && roundabout)
+         {
+          refname=(char*)malloc(strlen(ref)+14);
+          sprintf(refname,"%s (roundabout)",ref);
+         }
+       else if(ref && !name)
+          refname=ref;
+       else if(!ref && name)
+          refname=name;
+       else if(roundabout)
+         {
+          refname=(char*)malloc(strlen(highway)+14);
+          sprintf(refname,"%s (roundabout)",highway);
+         }
+       else /* if(!ref && !name && !roundabout) */
+          refname=highway;
+
+       AppendWay(ways,id,&way,refname);
+
+       if(refname!=ref && refname!=name && refname!=highway)
+          free(refname);
+
+       for(i=1;i<way_nnodes;i++)
+         {
+          node_t from=way_nodes[i-1];
+          node_t to  =way_nodes[i];
+
+          if(oneway>0)
+            {
+             AppendSegment(segments,id,from,to,ONEWAY_1TO2);
+             AppendSegment(segments,id,to,from,ONEWAY_2TO1);
+            }
+          else if(oneway<0)
+            {
+             AppendSegment(segments,id,from,to,ONEWAY_2TO1);
+             AppendSegment(segments,id,to,from,ONEWAY_1TO2);
+            }
+          else
+            {
+             AppendSegment(segments,id,from,to,0);
+             AppendSegment(segments,id,to,from,0);
+            }
+         }
+      }
+   }
 }
