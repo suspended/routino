@@ -1,10 +1,10 @@
-# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.2 2010-04-22 18:44:20 amb Exp $
+# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.3 2010-05-18 18:35:48 amb Exp $
 #
 # XML directory Makefile
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2010 Andrew M. Bishop
+# This file Copyright 2010 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,8 @@
 #
 
 XML=profiles.xml \
-    translations.xml
+    translations.xml \
+    tagging.xml
 
 ########
 
