@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.71 2010-04-09 15:15:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.72 2010-05-18 18:38:59 amb Exp $
 
  OSM planet file splitter.
 
@@ -37,9 +37,10 @@
 #include "superx.h"
 #include "profiles.h"
 #include "ways.h"
+#include "tagging.h"
 
 
-/* Variables */
+/* Global variables */
 
 /*+ The option to use a slim mode with file-backed read-only intermediate storage. +*/
 int option_slim=0;
@@ -57,7 +58,7 @@ static void print_usage(int detail);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The main program for the router.
+  The main program for the planetsplitter.
   ++++++++++++++++++++++++++++++++++++++*/
 
 int main(int argc,char** argv)
@@ -67,7 +68,7 @@ int main(int argc,char** argv)
  WaysX     *Ways;
  int        iteration=0,quit=0;
  int        max_iterations=10;
- char      *dirname=NULL,*prefix=NULL;
+ char      *dirname=NULL,*prefix=NULL,*tagging=NULL;
  int        option_parse_only=0,option_process_only=0;
  int        option_filenames=0;
  Profile    profile={0};
@@ -130,11 +131,15 @@ int main(int argc,char** argv)
           print_usage(0);
        profile.props_yes[property]=0;
       }
+    else if(!strncmp(argv[arg],"--tagging=",10))
+       tagging=&argv[arg][10];
     else if(argv[arg][0]=='-' && argv[arg][1]=='-')
        print_usage(0);
     else
        option_filenames++;
    }
+
+ /* Check the specified command line options */
 
  if(option_parse_only && option_process_only)
     print_usage(0);
@@ -162,6 +167,23 @@ int main(int argc,char** argv)
 
  if(!profile.allow)
     profile.allow=Allow_ALL;
+
+ if(tagging && ExistsFile(tagging))
+    ;
+ else if(!tagging && ExistsFile(FileName(dirname,prefix,"tagging.xml")))
+    tagging=FileName(dirname,prefix,"tagging.xml");
+
+ if(tagging && ParseXMLTaggingRules(tagging))
+   {
+    fprintf(stderr,"Error: Cannot read the tagging rules in the file '%s'.\n",tagging);
+    return(1);
+   }
+
+ if(!tagging)
+   {
+    fprintf(stderr,"Error: Cannot run without reading some tagging rules.\n");
+    return(1);
+   }
 
  /* Create new node, segment and way variables */
 
@@ -193,7 +215,8 @@ int main(int argc,char** argv)
        printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
        fflush(stdout);
 
-       ParseOSM(file,Nodes,Segments,Ways,&profile);
+       if(ParseOSM(file,Nodes,Segments,Ways,&profile))
+          exit(EXIT_FAILURE);
 
        fclose(file);
       }
@@ -203,7 +226,8 @@ int main(int argc,char** argv)
     printf("\nParse OSM Data\n==============\n\n");
     fflush(stdout);
 
-    ParseOSM(stdin,Nodes,Segments,Ways,&profile);
+    if(ParseOSM(stdin,Nodes,Segments,Ways,&profile))
+       exit(EXIT_FAILURE);
    }
 
  if(option_parse_only)
@@ -386,6 +410,7 @@ static void print_usage(int detail)
          "                      [--transport=<transport> ...]\n"
          "                      [--not-highway=<highway> ...]\n"
          "                      [--not-property=<property> ...]\n"
+         "                      [--tagging=<filename>]\n"
          "                      [<filename.osm> ...]\n");
 
  if(detail)
@@ -410,6 +435,10 @@ static void print_usage(int detail)
             "--transport=<transport>   Store only data usable by the selected transports.\n"
             "--not-highway=<highway>   Ignore highways of the selected types.\n"
             "--not-property=<property> Ignore highway properties of the selected types.\n"
+            "\n"
+            "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
+            "                          (defaults to 'tagging.xml' with '--dirname' and\n"
+            "                           '--prefix' options).\n"
             "\n"
             "<filename.osm> ...        The name(s) of the file(s) to process (by default\n"
             "                          data is read from standard input).\n"
