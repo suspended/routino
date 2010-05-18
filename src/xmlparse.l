@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.14 2010-05-14 17:55:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.15 2010-05-18 18:39:22 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -322,6 +322,8 @@ int ParseXML(FILE *file,xmltag **tags,int options)
  yyin=file;
 
  yyrestart(yyin);
+
+ yylineno=1;
 
  BEGIN(INITIAL);
 
@@ -758,6 +760,17 @@ int ParseXML_GetFloating(const char *string,double *number)
 
  while(isdigit(*p) || *p=='.')
     p++;
+
+ if(*p=='e' || *p=='E')
+   {
+    p++;
+
+    if(*p=='-' || *p=='+')
+       p++;
+
+    while(isdigit(*p))
+       p++;
+   }
 
  if(*p)
     return(0);
