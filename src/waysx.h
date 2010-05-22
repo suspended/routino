@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.20 2010-03-19 19:47:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.21 2010-05-22 18:40:47 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -30,7 +30,6 @@
 #include "typesx.h"
 #include "types.h"
 #include "ways.h"
-#include "profiles.h"
 
 
 /* Data structures */
@@ -76,7 +75,7 @@ struct _WaysX
 WaysX *NewWayList(int append);
 void FreeWayList(WaysX *waysx,int keep);
 
-void SaveWayList(WaysX *waysx,const char *filename,Profile *profile);
+void SaveWayList(WaysX *waysx,const char *filename);
 
 index_t IndexWayX(WaysX* waysx,way_t id);
 WayX *LookupWayX(WaysX* waysx,index_t index,int position);

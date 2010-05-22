@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.37 2010-04-28 17:27:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.38 2010-05-22 18:40:47 amb Exp $
 
  Extended Way data type functions.
 
@@ -533,11 +533,9 @@ WayX *LookupWayX(WaysX* waysx,index_t index,int position)
   WaysX* waysx The set of ways to save.
 
   const char *filename The name of the file to save.
-
-  Profile *profile The profile used during parsing.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
+void SaveWayList(WaysX* waysx,const char *filename)
 {
  index_t i;
  int fd,nfd;
@@ -560,12 +558,8 @@ void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
  ways->number=waysx->cnumber;
  ways->onumber=waysx->number;
 
- ways->allow=profile->allow;
-
+ ways->allow=0;
  ways->props=0;
- for(i=1;i<Property_Count;i++)
-    if(profile->props_yes[i])
-       ways->props|=PROPERTIES(i);
 
  ways->data=NULL;
  ways->ways=NULL;
@@ -575,11 +569,12 @@ void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
 
  fd=OpenFile(filename);
 
- WriteFile(fd,ways,sizeof(Ways));
-
  for(i=0;i<waysx->number;i++)
    {
     WayX *wayx=LookupWayX(waysx,i,1);
+
+    ways->allow|=wayx->way.allow;
+    ways->props|=wayx->way.props;
 
     SeekFile(fd,sizeof(Ways)+wayx->prop*sizeof(Way));
     WriteFile(fd,&wayx->way,sizeof(Way));
@@ -590,6 +585,9 @@ void SaveWayList(WaysX* waysx,const char *filename,Profile *profile)
        fflush(stdout);
       }
    }
+
+ SeekFile(fd,0);
+ WriteFile(fd,ways,sizeof(Ways));
 
  if(!option_slim)
     waysx->xdata=UnmapFile(waysx->filename);
