@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.65 2010-05-18 18:38:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.66 2010-05-22 18:40:47 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -52,7 +52,6 @@ static int     way_nnodes=0;
 static NodesX    *nodes;
 static SegmentsX *segments;
 static WaysX     *ways;
-static Profile   *profile;
 
 
 /* Local functions */
@@ -428,11 +427,9 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
   SegmentsX *OSMSegments The array of segments to fill in.
 
   WaysX *OSMWays The arrray of ways to fill in.
-
-  Profile *allowprofile A profile of the allowed transport types and included/excluded highway types.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,Profile *allowprofile)
+int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays)
 {
  int retval;
 
@@ -441,7 +438,6 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,P
  nodes=OSMNodes;
  segments=OSMSegments;
  ways=OSMWays;
- profile=allowprofile;
 
  nnodes=0,nways=0,nrelations=0;
 
@@ -671,9 +667,9 @@ static void process_way_tags(TagList *tags,way_t id)
 
  /* Create the way */
 
- if(way.type>0 && way.type<Way_Count && profile->highway[way.type])
+ if(way.type>0 && way.type<Way_Count)
    {
-    if(way.allow & profile->allow)
+    if(way.allow)
       {
        char *refname;
 
@@ -682,18 +678,6 @@ static void process_way_tags(TagList *tags,way_t id)
 
        if(roundabout)
           way.type|=Way_Roundabout;
-
-       if(!profile->props_yes[Property_Paved])
-          way.props&=~Properties_Paved;
-
-       if(!profile->props_yes[Property_Multilane])
-          way.props&=~Properties_Multilane;
-
-       if(!profile->props_yes[Property_Bridge])
-          way.props&=~Properties_Bridge;
-
-       if(!profile->props_yes[Property_Tunnel])
-          way.props&=~Properties_Tunnel;
 
        if(ref && name)
          {

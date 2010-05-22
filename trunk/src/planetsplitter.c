@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.72 2010-05-18 18:38:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.73 2010-05-22 18:40:47 amb Exp $
 
  OSM planet file splitter.
 
@@ -35,7 +35,6 @@
 #include "segmentsx.h"
 #include "waysx.h"
 #include "superx.h"
-#include "profiles.h"
 #include "ways.h"
 #include "tagging.h"
 
@@ -71,22 +70,7 @@ int main(int argc,char** argv)
  char      *dirname=NULL,*prefix=NULL,*tagging=NULL;
  int        option_parse_only=0,option_process_only=0;
  int        option_filenames=0;
- Profile    profile={0};
- int        arg,i;
-
- /* Fill in the default profile. */
-
- profile.transport=Transport_None; /* Not used by planetsplitter */
-
- profile.allow=0;
-
- for(i=1;i<Way_Count;i++)
-    profile.highway[i]=1;
-
- for(i=1;i<Property_Count;i++)
-    profile.props_yes[i]=1;
-
- profile.oneway=1; /* Not used by planetsplitter */
+ int        arg;
 
  /* Parse the command line arguments */
 
@@ -110,27 +94,6 @@ int main(int argc,char** argv)
        option_process_only=1;
     else if(!strncmp(argv[arg],"--max-iterations=",17))
        max_iterations=atoi(&argv[arg][17]);
-    else if(!strncmp(argv[arg],"--transport=",12))
-      {
-       Transport transport=TransportType(&argv[arg][12]);
-       if(transport==Transport_None)
-          print_usage(0);
-       profile.allow|=ALLOWED(transport);
-      }
-    else if(!strncmp(argv[arg],"--not-highway=",14))
-      {
-       Highway highway=HighwayType(&argv[arg][14]);
-       if(highway==Way_Count)
-          print_usage(0);
-       profile.highway[highway]=0;
-      }
-    else if(!strncmp(argv[arg],"--not-property=",15))
-      {
-       Property property=PropertyType(&argv[arg][15]);
-       if(property==Property_Count)
-          print_usage(0);
-       profile.props_yes[property]=0;
-      }
     else if(!strncmp(argv[arg],"--tagging=",10))
        tagging=&argv[arg][10];
     else if(argv[arg][0]=='-' && argv[arg][1]=='-')
@@ -164,9 +127,6 @@ int main(int argc,char** argv)
     else
        option_tmpdirname=dirname;
    }
-
- if(!profile.allow)
-    profile.allow=Allow_ALL;
 
  if(tagging && ExistsFile(tagging))
     ;
@@ -215,7 +175,7 @@ int main(int argc,char** argv)
        printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
        fflush(stdout);
 
-       if(ParseOSM(file,Nodes,Segments,Ways,&profile))
+       if(ParseOSM(file,Nodes,Segments,Ways))
           exit(EXIT_FAILURE);
 
        fclose(file);
@@ -226,7 +186,7 @@ int main(int argc,char** argv)
     printf("\nParse OSM Data\n==============\n\n");
     fflush(stdout);
 
-    if(ParseOSM(stdin,Nodes,Segments,Ways,&profile))
+    if(ParseOSM(stdin,Nodes,Segments,Ways))
        exit(EXIT_FAILURE);
    }
 
@@ -384,7 +344,7 @@ int main(int argc,char** argv)
 
  /* Write out the ways */
 
- SaveWayList(Ways,FileName(dirname,prefix,"ways.mem"),&profile);
+ SaveWayList(Ways,FileName(dirname,prefix,"ways.mem"));
 
  FreeWayList(Ways,0);
 
@@ -407,9 +367,6 @@ static void print_usage(int detail)
          "                      [--tmpdir=<dirname>]\n"
          "                      [--parse-only | --process-only]\n"
          "                      [--max-iterations=<number>]\n"
-         "                      [--transport=<transport> ...]\n"
-         "                      [--not-highway=<highway> ...]\n"
-         "                      [--not-property=<property> ...]\n"
          "                      [--tagging=<filename>]\n"
          "                      [<filename.osm> ...]\n");
 
@@ -431,10 +388,6 @@ static void print_usage(int detail)
             "--process-only            Process the stored results from previous option.\n"
             "\n"
             "--max-iterations=<number> The number of iterations for finding super-nodes.\n"
-            "\n"
-            "--transport=<transport>   Store only data usable by the selected transports.\n"
-            "--not-highway=<highway>   Ignore highways of the selected types.\n"
-            "--not-property=<property> Ignore highway properties of the selected types.\n"
             "\n"
             "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
             "                          (defaults to 'tagging.xml' with '--dirname' and\n"
