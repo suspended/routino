@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.66 2010-05-22 18:40:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.67 2010-05-23 08:24:10 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -69,6 +69,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id);
 static int ndType_function(const char *_tag_,int _type_,const char *ref);
 static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon);
 static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v);
+//static int boundType_function(const char *_tag_,int _type_);
 //static int boundsType_function(const char *_tag_,int _type_);
 
 
@@ -77,6 +78,13 @@ static int tagType_function(const char *_tag_,int _type_,const char *k,const cha
 /*+ The boundsType type tag. +*/
 static xmltag boundsType_tag=
               {"bounds",
+               0, {NULL},
+               NULL,
+               {NULL}};
+
+/*+ The boundType type tag. +*/
+static xmltag boundType_tag=
+              {"bound",
                0, {NULL},
                NULL,
                {NULL}};
@@ -128,7 +136,7 @@ static xmltag osmType_tag=
               {"osm",
                0, {NULL},
                NULL,
-               {&boundsType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+               {&boundsType_tag,&boundType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
 
 /*+ The xmlDeclaration type tag. +*/
 static xmltag xmlDeclaration_tag=
@@ -156,6 +164,22 @@ static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
   ++++++++++++++++++++++++++++++++++++++*/
 
 //static int boundsType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the boundType XSD type is seen
+
+  int boundType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int boundType_function(const char *_tag_,int _type_)
 //{
 // return(0);
 //}

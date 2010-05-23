@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-osm.xsd,v 1.1 2010-05-18 18:34:24 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-osm.xsd,v 1.2 2010-05-23 08:24:26 amb Exp $
 
      An XML Schema Definition for the part of the OSM XML format read by Routino.
 
@@ -24,6 +24,7 @@
   <xsd:complexType name="osmType">
     <xsd:sequence>
       <xsd:element name="bounds"    type="boundsType"   minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="bound"     type="boundType"    minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="node"      type="nodeType"     minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="way"       type="wayType"      minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="relation"  type="relationType" minOccurs="0" maxOccurs="unbounded"/>
@@ -42,6 +43,13 @@
     <xsd:attribute name="minlon"    type="xsd:string"/>
     <xsd:attribute name="maxlat"    type="xsd:string"/>
     <xsd:attribute name="maxlon"    type="xsd:string"/>
+    <xsd:attribute name="origin"    type="xsd:string"/>
+    -->
+  </xsd:complexType>
+
+  <xsd:complexType name="boundType">
+    <!--
+    <xsd:attribute name="box"       type="xsd:string"/>
     <xsd:attribute name="origin"    type="xsd:string"/>
     -->
   </xsd:complexType>
