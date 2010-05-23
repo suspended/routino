@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagging.h,v 1.1 2010-05-18 18:37:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/tagging.h,v 1.2 2010-05-23 10:18:59 amb Exp $
 
  The data types for the tagging rules.
 
@@ -84,6 +84,7 @@ int ParseXMLTaggingRules(const char *filename);
 TaggingRule *AppendTaggingRule(TaggingRuleList *rules,const char *k,const char *v);
 void AppendTaggingAction(TaggingRule *rule,const char *k,const char *v,int output);
 
+TagList *NewTagList(void);
 void AppendTag(TagList *tags,const char *k,const char *v);
 void ModifyTag(TagList *tags,const char *k,const char *v);
 void DeleteTagList(TagList *tags);

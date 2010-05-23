@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.2 2010-05-23 09:46:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.3 2010-05-23 10:18:59 amb Exp $
 
  Test application for OSM XML file parser / tagging rule testing.
 
@@ -36,7 +36,7 @@
 /* Local variables */
 
 static long nnodes=0,nways=0,nrelations=0;
-TagList current_tags={0,NULL,NULL};
+TagList *current_tags=NULL;
 
 
 /* Local functions */
@@ -216,7 +216,7 @@ static int tagType_function(const char *_tag_,int _type_,const char *k,const cha
     XMLPARSE_ASSERT_STRING(_tag_,k);
     XMLPARSE_ASSERT_STRING(_tag_,v);
 
-    AppendTag(&current_tags,k,v);
+    AppendTag(current_tags,k,v);
    }
 
  return(0);
@@ -260,12 +260,12 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
     if(!(nnodes%1000))
        fprintf(stderr,"\rReading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
-    current_tags.ntags=0;
+    current_tags=NewTagList();
    }
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyTaggingRules(&NodeRules,&current_tags);
+    TagList *result=ApplyTaggingRules(&NodeRules,current_tags);
     int i;
 
     for(i=0;i<result->ntags;i++)
@@ -276,6 +276,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
        printf(" />\n");
       }
 
+    DeleteTagList(current_tags);
     DeleteTagList(result);
    }
 
@@ -375,12 +376,12 @@ static int wayType_function(const char *_tag_,int _type_,const char *id,const ch
     if(!(nways%1000))
        fprintf(stderr,"\rReading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
-    current_tags.ntags=0;
+    current_tags=NewTagList();
    }
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyTaggingRules(&WayRules,&current_tags);
+    TagList *result=ApplyTaggingRules(&WayRules,current_tags);
     int i;
 
     for(i=0;i<result->ntags;i++)
@@ -391,6 +392,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id,const ch
        printf(" />\n");
       }
 
+    DeleteTagList(current_tags);
     DeleteTagList(result);
    }
 
@@ -440,12 +442,12 @@ static int relationType_function(const char *_tag_,int _type_,const char *id,con
     if(!(nrelations%1000))
        fprintf(stderr,"\rReading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
-    current_tags.ntags=0;
+    current_tags=NewTagList();
    }
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyTaggingRules(&RelationRules,&current_tags);
+    TagList *result=ApplyTaggingRules(&RelationRules,current_tags);
     int i;
 
     for(i=0;i<result->ntags;i++)
@@ -456,6 +458,7 @@ static int relationType_function(const char *_tag_,int _type_,const char *id,con
        printf(" />\n");
       }
 
+    DeleteTagList(current_tags);
     DeleteTagList(result);
    }
 

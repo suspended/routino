@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagging.c,v 1.1 2010-05-18 18:37:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/tagging.c,v 1.2 2010-05-23 10:18:59 amb Exp $
 
  Load the tagging rules from a file and the functions for handling them.
 
@@ -398,6 +398,18 @@ void AppendTaggingAction(TaggingRule *rule,const char *k,const char *v,int outpu
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Create a new TagList structure.
+
+  TagList *NewTagList Returns the new allocated TagList.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+TagList *NewTagList(void)
+{
+ return((TagList*)calloc(sizeof(TagList),1));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Append a tag to the list of tags.
 
   TagList *tags The list of tags to add to.
@@ -411,15 +423,19 @@ void AppendTag(TagList *tags,const char *k,const char *v)
 {
  if((tags->ntags%16)==0)
    {
-    tags->k=(char**)realloc((void*)tags->k,(tags->ntags+16)*sizeof(char *));
-    tags->v=(char**)realloc((void*)tags->v,(tags->ntags+16)*sizeof(char *));
+    int i;
+
+    tags->k=(char**)realloc((void*)tags->k,(tags->ntags+16)*sizeof(char*));
+    tags->v=(char**)realloc((void*)tags->v,(tags->ntags+16)*sizeof(char*));
+
+    for(i=tags->ntags;i<(tags->ntags+16);i++)
+       tags->k[i]=tags->v[i]=NULL;
    }
 
+ tags->k[tags->ntags]=strcpy(realloc(tags->k[tags->ntags],strlen(k)+1),k);
+ tags->v[tags->ntags]=strcpy(realloc(tags->v[tags->ntags],strlen(v)+1),v);
+
  tags->ntags++;
-
- tags->k[tags->ntags-1]=strcpy(malloc(strlen(k)+1),k);
-
- tags->v[tags->ntags-1]=strcpy(malloc(strlen(v)+1),v);
 }
 
 
@@ -440,8 +456,7 @@ void ModifyTag(TagList *tags,const char *k,const char *v)
  for(i=0;i<tags->ntags;i++)
     if(!strcmp(tags->k[i],k))
       {
-       free(tags->v[i]);
-       tags->v[i]=strcpy(malloc(strlen(v)+1),v);
+       tags->v[i]=strcpy(realloc(tags->v[i],strlen(v)+1),v);
        return;
       }
 
@@ -465,6 +480,12 @@ void DeleteTagList(TagList *tags)
     if(tags->v[i]) free(tags->v[i]);
    }
 
+ if(tags->ntags)
+   {
+    free(tags->k);
+    free(tags->v);
+   }
+
  free(tags);
 }
 
@@ -481,7 +502,7 @@ void DeleteTagList(TagList *tags)
 
 TagList *ApplyTaggingRules(TaggingRuleList *rules,TagList *tags)
 {
- TagList *result=(TagList*)calloc(sizeof(TagList),1);
+ TagList *result=NewTagList();
  int i,j;
 
  for(i=0;i<rules->nrules;i++)

@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.15 2010-05-18 18:39:22 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.16 2010-05-23 10:18:59 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -555,7 +555,10 @@ int ParseXML(FILE *file,xmltag **tags,int options)
        free(attributes[i]);
 
  if(stackdepth)
+   {
+    free(tag_stack);
     free(tags_stack);
+   }
 
  return(yychar);
 }
