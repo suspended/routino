@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.67 2010-05-23 08:24:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.68 2010-05-23 10:18:58 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -44,7 +44,7 @@
 /* Local variables */
 
 static long nnodes=0,nways=0,nrelations=0;
-static TagList current_tags={0,NULL,NULL};
+static TagList *current_tags=NULL;
 
 static node_t *way_nodes=NULL;
 static int     way_nnodes=0;
@@ -201,12 +201,12 @@ static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
 
 static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v)
 {
- if(_type_&XMLPARSE_TAG_START)
+ if(_type_&XMLPARSE_TAG_START && current_tags)
    {
     XMLPARSE_ASSERT_STRING(_tag_,k);
     XMLPARSE_ASSERT_STRING(_tag_,v);
 
-    AppendTag(&current_tags,k,v);
+    AppendTag(current_tags,k,v);
    }
 
  return(0);
@@ -252,13 +252,15 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
     AppendNode(nodes,node_id,degrees_to_radians(latitude),degrees_to_radians(longitude));
 
-    current_tags.ntags=0;
+//    current_tags=NewTagList();
+    current_tags=NULL;
    }
 
 // if(_type_&XMLPARSE_TAG_END)
 //   {
-//    TagList *result=ApplyTaggingRules(&NodeRules,&current_tags);
+//    TagList *result=ApplyTaggingRules(&NodeRules,current_tags);
 //
+//    DeleteTagList(current_tags);
 //    DeleteTagList(result);
 //   }
 
@@ -344,7 +346,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
        fflush(stdout);
       }
 
-    current_tags.ntags=0;
+    current_tags=NewTagList();
     way_nnodes=0;
 
     /* Handle the way information */
@@ -354,10 +356,11 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyTaggingRules(&WayRules,&current_tags);
+    TagList *result=ApplyTaggingRules(&WayRules,current_tags);
 
     process_way_tags(result,way_id);
 
+    DeleteTagList(current_tags);
     DeleteTagList(result);
    }
 
@@ -389,15 +392,17 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
        fflush(stdout);
       }
 
-    current_tags.ntags=0;
+//    current_tags=NewTagList();
+    current_tags=NULL;
    }
 
- if(_type_&XMLPARSE_TAG_END)
-   {
-    TagList *result=ApplyTaggingRules(&RelationRules,&current_tags);
-
-    DeleteTagList(result);
-   }
+// if(_type_&XMLPARSE_TAG_END)
+//   {
+//    TagList *result=ApplyTaggingRules(&RelationRules,current_tags);
+//
+//    DeleteTagList(current_tags);
+//    DeleteTagList(result);
+//   }
 
  return(0);
 }
