@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.1 2010-05-18 18:37:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.2 2010-05-23 09:46:23 amb Exp $
 
  Test application for OSM XML file parser / tagging rule testing.
 
@@ -54,6 +54,7 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
 static int ndType_function(const char *_tag_,int _type_,const char *ref);
 static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon,const char *timestamp,const char *uid,const char *user,const char *visible,const char *version,const char *action);
 static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v);
+static int boundType_function(const char *_tag_,int _type_,const char *box,const char *origin);
 static int boundsType_function(const char *_tag_,int _type_,const char *minlat,const char *minlon,const char *maxlat,const char *maxlon,const char *origin);
 
 
@@ -64,6 +65,13 @@ static xmltag boundsType_tag=
               {"bounds",
                5, {"minlat","minlon","maxlat","maxlon","origin"},
                boundsType_function,
+               {NULL}};
+
+/*+ The boundType type tag. +*/
+static xmltag boundType_tag=
+              {"bound",
+               2, {"box","origin"},
+               boundType_function,
                {NULL}};
 
 /*+ The tagType type tag. +*/
@@ -113,7 +121,7 @@ static xmltag osmType_tag=
               {"osm",
                2, {"version","generator"},
                osmType_function,
-               {&boundsType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+               {&boundsType_tag,&boundType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
 
 /*+ The xmlDeclaration type tag. +*/
 static xmltag xmlDeclaration_tag=
@@ -157,6 +165,30 @@ static int boundsType_function(const char *_tag_,int _type_,const char *minlat,c
  if(minlon) printf(" minlon=\"%s\"",ParseXML_Encode_Safe_XML(minlon));
  if(maxlat) printf(" maxlat=\"%s\"",ParseXML_Encode_Safe_XML(maxlat));
  if(maxlon) printf(" maxlon=\"%s\"",ParseXML_Encode_Safe_XML(maxlon));
+ if(origin) printf(" origin=\"%s\"",ParseXML_Encode_Safe_XML(origin));
+ printf("%s>\n",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?" /":"");
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the boundType XSD type is seen
+
+  int boundType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *box The contents of the 'box' attribute (or NULL if not defined).
+
+  const char *origin The contents of the 'origin' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int boundType_function(const char *_tag_,int _type_,const char *box,const char *origin)
+{
+ printf("  <%s%s",(_type_==XMLPARSE_TAG_END)?"/":"",_tag_);
+ if(box) printf(" box=\"%s\"",ParseXML_Encode_Safe_XML(box));
  if(origin) printf(" origin=\"%s\"",ParseXML_Encode_Safe_XML(origin));
  printf("%s>\n",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?" /":"");
  return(0);
