@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.3 2010-05-23 10:18:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.4 2010-05-23 10:20:21 amb Exp $
 
  Test application for OSM XML file parser / tagging rule testing.
 
@@ -573,7 +573,7 @@ int main(int argc,char **argv)
 
  if(filename)
    {
-    file=fopen(argv[arg],"rb");
+    file=fopen(filename,"rb");
 
     if(!file)
       {
