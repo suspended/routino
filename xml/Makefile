@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.3 2010-05-18 18:35:48 amb Exp $
+# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.4 2010-05-23 12:22:44 amb Exp $
 #
 # XML directory Makefile
 #
@@ -29,7 +29,7 @@ XML=profiles.xml \
 all :
 	-@[ -d ../web/data ] && \
 	  for file in $(XML); do \
-	     if [ ! -f ../web/data/$$file -o routino-$$file -nt ../web/data/$$file ]; then \
+	     if [ ! -f ../web/data/$$file ] || [ routino-$$file -nt ../web/data/$$file ]; then \
 	        echo cp routino-$$file ../web/data/$$file ;\
 	        cp routino-$$file ../web/data/$$file ;\
 	     fi ;\
