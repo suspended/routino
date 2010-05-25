@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.16 2010-05-23 10:18:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.17 2010-05-25 18:24:20 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -644,7 +644,7 @@ char *ParseXML_Encode_Safe_XML(const char *string)
  len=i+256-6;
 
  result=(char*)malloc(len+7);
- strncpy(result,string,i);
+ strncpy(result,string,j=i);
 
  do
    {
