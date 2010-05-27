@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.40 2010-04-23 18:41:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.41 2010-05-27 17:43:08 amb Exp $
 
  Load the profiles from a file and the functions for handling them.
 
@@ -689,7 +689,7 @@ void UpdateProfile(Profile *profile)
  for(i=1;i<Property_Count;i++)
     if(profile->props_yes[i]>profile->props_no[i])
        profile->max_pref*=profile->props_yes[i];
-    else if(profile->props_no[i]>profile->props_yes[i])
+    else
        profile->max_pref*=profile->props_no[i];
 }
 

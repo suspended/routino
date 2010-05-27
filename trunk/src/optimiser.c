@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.82 2009-11-25 15:00:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.83 2010-05-27 17:43:08 amb Exp $
 
  Routing optimiser.
 
@@ -144,9 +144,9 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(ways->props && PROPERTIES(i))
+          if(ways->props & PROPERTIES(i))
             {
-             if(way->props && PROPERTIES(i))
+             if(way->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
              else
                 segment_pref*=profile->props_no[i];
@@ -369,9 +369,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(ways->props && PROPERTIES(i))
+          if(ways->props & PROPERTIES(i))
             {
-             if(way->props && PROPERTIES(i))
+             if(way->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
              else
                 segment_pref*=profile->props_no[i];
@@ -605,9 +605,9 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(ways->props && PROPERTIES(i))
+          if(ways->props & PROPERTIES(i))
             {
-             if(way->props && PROPERTIES(i))
+             if(way->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
              else
                 segment_pref*=profile->props_no[i];
@@ -760,9 +760,9 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(ways->props && PROPERTIES(i))
+          if(ways->props & PROPERTIES(i))
             {
-             if(way->props && PROPERTIES(i))
+             if(way->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
              else
                 segment_pref*=profile->props_no[i];
