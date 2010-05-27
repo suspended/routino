@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.40 2010-04-28 17:26:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.41 2010-05-27 17:25:23 amb Exp $
 
  Memory file dumper.
 
@@ -35,20 +35,27 @@
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
+#include "xmlparse.h"
+
 
 /* Local functions */
-
-static char *RFC822Date(time_t t);
 
 static void print_node(Nodes* nodes,index_t item);
 static void print_segment(Segments *segments,index_t item);
 static void print_way(Ways *ways,index_t item);
 
+static void print_head_osm(void);
+static void print_node_osm(Nodes* nodes,index_t item);
+static void print_segment_osm(Segments *segments,index_t item,Ways *ways);
+static void print_tail_osm(void);
+
+static char *RFC822Date(time_t t);
+
 static void print_usage(int detail);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The main program for the router.
+  The main program for the file dumper.
   ++++++++++++++++++++++++++++++++++++++*/
 
 int main(int argc,char** argv)
@@ -56,14 +63,15 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
- int    arg;
- char  *dirname=NULL,*prefix=NULL;
- char  *nodes_filename,*segments_filename,*ways_filename;
- int    option_statistics=0;
- int    option_visualiser=0,coordcount=0;
- double latmin=0,latmax=0,lonmin=0,lonmax=0;
- char  *option_data=NULL;
- int    option_dump=0;
+ int       arg;
+ char     *dirname=NULL,*prefix=NULL;
+ char     *nodes_filename,*segments_filename,*ways_filename;
+ int       option_statistics=0;
+ int       option_visualiser=0,coordcount=0;
+ double    latmin=0,latmax=0,lonmin=0,lonmax=0;
+ char     *option_data=NULL;
+ int       option_dump=0;
+ int       option_dump_osm=0;
 
  /* Parse the command line arguments */
 
@@ -75,12 +83,14 @@ int main(int argc,char** argv)
        dirname=&argv[arg][6];
     else if(!strncmp(argv[arg],"--prefix=",9))
        prefix=&argv[arg][9];
-    else if(!strncmp(argv[arg],"--statistics",12))
+    else if(!strcmp(argv[arg],"--statistics"))
        option_statistics=1;
-    else if(!strncmp(argv[arg],"--visualiser",12))
+    else if(!strcmp(argv[arg],"--visualiser"))
        option_visualiser=1;
-    else if(!strncmp(argv[arg],"--dump",6))
+    else if(!strcmp(argv[arg],"--dump"))
        option_dump=1;
+    else if(!strcmp(argv[arg],"--dump-osm"))
+       option_dump_osm=1;
     else if(!strncmp(argv[arg],"--latmin",8) && argv[arg][8]=='=')
       {latmin=degrees_to_radians(atof(&argv[arg][9]));coordcount++;}
     else if(!strncmp(argv[arg],"--latmax",8) && argv[arg][8]=='=')
@@ -101,7 +111,7 @@ int main(int argc,char** argv)
        print_usage(0);
    }
 
- if(!option_statistics && !option_visualiser && !option_dump)
+ if(!option_statistics && !option_visualiser && !option_dump && !option_dump_osm)
     print_usage(0);
 
  /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
@@ -281,6 +291,23 @@ int main(int argc,char** argv)
          }
    }
 
+ /* Print out internal data in XML format */
+
+ if(option_dump_osm)
+   {
+    index_t item;
+
+    print_head_osm();
+
+    for(item=0;item<OSMNodes->number;item++)
+       print_node_osm(OSMNodes,item);
+
+    for(item=0;item<OSMSegments->number;item++)
+       print_segment_osm(OSMSegments,item,OSMWays);
+
+    print_tail_osm();
+   }
+
  return(0);
 }
 
@@ -367,10 +394,124 @@ static void print_way(Ways *ways,index_t item)
 }
 
 
-/*+ Conversion from time_t to date string and back (day of week). +*/
+/*++++++++++++++++++++++++++++++++++++++
+  Print out a header in OSM XML format.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_head_osm(void)
+{
+ printf("<?xml version='1.0' encoding='UTF-8'?>\n");
+ printf("<osm version='0.6' generator='JOSM'>\n");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of a node from the routing database in OSM XML format.
+
+  Nodes *nodes The set of nodes to use.
+
+  index_t item The node index to print.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_node_osm(Nodes* nodes,index_t item)
+{
+ double latitude,longitude;
+
+ GetLatLong(nodes,item,&latitude,&longitude);
+
+ if(IsSuperNode(nodes,item))
+   {
+    printf("  <node id='%lu' lat='%.7f' lon='%.7f' version='1'>\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+    printf("    <tag k='routino:super' v='yes' />\n");
+    printf("  </node>\n");
+   }
+ else
+    printf("  <node id='%lu' lat='%.7f' lon='%.7f' version='1' />\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of a segment from the routing database as a way in OSM XML format.
+
+  Segments *segments The set of segments to use.
+
+  index_t item The segment index to print.
+
+  Ways *ways The set of ways to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
+{
+ Segment *segment=LookupSegment(segments,item);
+ Way *way=LookupWay(ways,segment->way);
+ int i;
+
+ printf("  <way id='%lu' version='1'>\n",(unsigned long)item+1);
+
+ if(IsOnewayTo(segment,segment->node1))
+   {
+    printf("    <nd ref='%lu' />\n",(unsigned long)segment->node2+1);
+    printf("    <nd ref='%lu' />\n",(unsigned long)segment->node1+1);
+   }
+ else
+   {
+    printf("    <nd ref='%lu' />\n",(unsigned long)segment->node1+1);
+    printf("    <nd ref='%lu' />\n",(unsigned long)segment->node2+1);
+   }
+
+ if(IsSuperSegment(segment))
+    printf("    <tag k='routino:super' v='yes' />\n");
+ if(IsNormalSegment(segment))
+    printf("    <tag k='routino:normal' v='yes' />\n");
+
+ if(way->type & Way_OneWay)
+    printf("    <tag k='oneway' v='yes' />\n");
+ if(way->type & Way_Roundabout)
+    printf("    <tag k='junction' v='roundabout' />\n");
+
+ printf("    <tag k='highway' v='%s' />\n",HighwayName(HIGHWAY(way->type)));
+
+ if(IsNormalSegment(segment))
+    printf("    <tag k='name' v='%s' />\n",ParseXML_Encode_Safe_XML(WayName(ways,way)));
+
+ for(i=1;i<Transport_Count;i++)
+    if(way->allow & ALLOWED(i))
+       printf("    <tag k='%s' v='yes' />\n",TransportName(i));
+
+ for(i=1;i<Property_Count;i++)
+    if(way->props & PROPERTIES(i))
+       printf("    <tag k='%s' v='yes' />\n",PropertyName(i));
+
+ if(way->speed)
+    printf("    <tag k='maxspeed' v='%d' />\n",speed_to_kph(way->speed));
+
+ if(way->weight)
+    printf("    <tag k='maxweight' v='%.1f' />\n",weight_to_tonnes(way->weight));
+ if(way->height)
+    printf("    <tag k='maxheight' v='%.1f' />\n",height_to_metres(way->height));
+ if(way->width)
+    printf("    <tag k='maxwidth' v='%.1f' />\n",width_to_metres(way->width));
+ if(way->length)
+    printf("    <tag k='maxlength' v='%.1f' />\n",length_to_metres(way->length));
+
+ printf("  </way>\n");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out a tail in OSM XML format.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_tail_osm(void)
+{
+ printf("</osm>\n");
+}
+
+
+/*+ Conversion from time_t to date string (day of week). +*/
 static const char* const weekdays[7]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 
-/*+ Conversion from time_t to date string and back (month of year). +*/
+/*+ Conversion from time_t to date string (month of year). +*/
 static const char* const months[12]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 
 
@@ -428,7 +569,8 @@ static void print_usage(int detail)
          "                                --data=<data-type>]\n"
          "                  [--dump [--node=<node> ...]\n"
          "                          [--segment=<segment> ...]\n"
-         "                          [--way=<way> ...]]\n");
+         "                          [--way=<way> ...]]\n"
+         "                  [--dump-osm]\n");
 
  if(detail)
     fprintf(stderr,
@@ -460,7 +602,10 @@ static void print_usage(int detail)
             "--dump                    Dump selected contents of the database.\n"
             "  --node=<node>           * the node with the selected number.\n"
             "  --segment=<segment>     * the segment with the selected number.\n"
-            "  --way=<way>             * the way with the selected number.\n");
+            "  --way=<way>             * the way with the selected number.\n"
+            "                          Use 'all' instead of a number to get all of them.\n"
+            "\n"
+            "--dump-osm                Dump the whole database as an OSM format XML file.\n");
 
  exit(!detail);
 }

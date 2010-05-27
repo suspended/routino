@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.c,v 1.2 2010-05-14 18:22:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.c,v 1.3 2010-05-27 17:25:23 amb Exp $
 
  Functions for handling the data types.
 
@@ -265,6 +265,9 @@ const char *TransportName(Transport transport)
     return("hgv");
    case Transport_PSV:
     return("psv");
+
+   case Transport_Count:
+    ;
   }
 
  return(NULL);
