@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.39 2010-04-12 16:42:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.40 2010-05-27 17:25:23 amb Exp $
 
  Type definitions
 
@@ -179,7 +179,7 @@ typedef enum _Highway
   Way_Path        =11,
   Way_Steps       =12,
 
-  Way_Count       =13,       /* One more than the number of highways. */
+  Way_Count       =13,       /* One more than the number of highway types. */
 
   Way_OneWay      =32,
   Way_Roundabout  =64
@@ -203,7 +203,9 @@ typedef enum _Transport
   Transport_Motorcar   =  7,
   Transport_Goods      =  8,
   Transport_HGV        =  9,
-  Transport_PSV        = 10
+  Transport_PSV        = 10,
+
+  Transport_Count      = 11     /*+ One more than the number of transport types. +*/
  }
  Transport;
 
@@ -242,7 +244,7 @@ typedef enum _Property
   Property_Bridge    = 3,
   Property_Tunnel    = 4,
 
-  Property_Count     = 5       /* One more than the number of properties. */
+  Property_Count     = 5       /* One more than the number of property types. */
  }
  Property;
 

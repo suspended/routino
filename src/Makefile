@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.33 2010-05-18 18:39:37 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.34 2010-05-27 17:25:23 amb Exp $
 #
 # Source code Makefile
 #
@@ -87,7 +87,7 @@ router : $(ROUTER_OBJ)
 
 FILEDUMPER_OBJ=filedumper.o \
 	       nodes.o segments.o ways.o types.o \
-	       files.o \
+	       files.o xmlparse.o \
                visualiser.o
 
 filedumper : $(FILEDUMPER_OBJ)
@@ -119,6 +119,7 @@ xmlparse.c : xmlparse.l
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f xmlparse.c
 	cd xml && $(MAKE) clean
 
 ########
