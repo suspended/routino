@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.78 2010-04-24 16:48:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.79 2010-05-28 18:50:31 amb Exp $
 
  OSM router.
 
@@ -153,20 +153,28 @@ int main(int argc,char** argv)
  if(transport==Transport_None)
     transport=Transport_Motorcar;
 
- if(profiles && ExistsFile(profiles))
-    ;
- else if(!profiles && ExistsFile(FileName(dirname,prefix,"profiles.xml")))
-    profiles=FileName(dirname,prefix,"profiles.xml");
+ if(profiles)
+   {
+    if(!ExistsFile(profiles))
+      {
+       fprintf(stderr,"Error: The '--profiles' option specifies a file that does not exist.\n");
+       return(1);
+      }
+   }
+ else
+   {
+    if(ExistsFile(FileName(dirname,prefix,"profiles.xml")))
+       profiles=FileName(dirname,prefix,"profiles.xml");
+    else
+      {
+       fprintf(stderr,"Error: The '--profiles' option was not used and the default 'profiles.xml' does not exist.\n");
+       return(1);
+      }
+   }
 
  if(profiles && ParseXMLProfiles(profiles))
    {
     fprintf(stderr,"Error: Cannot read the profiles in the file '%s'.\n",profiles);
-    return(1);
-   }
-
- if(!profiles && profile)
-   {
-    fprintf(stderr,"Error: Cannot use '--profile' option without reading some profiles.\n");
     return(1);
    }
 
