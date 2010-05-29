@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.41 2010-05-27 17:25:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.42 2010-05-29 13:54:23 amb Exp $
 
  Memory file dumper.
 
@@ -376,7 +376,7 @@ static void print_way(Ways *ways,index_t item)
  Way *way=LookupWay(ways,item);
 
  printf("Way %d\n",item);
- printf("  name=%s\n",WayName(ways,way));
+ printf("  name=%s\n",WayNameHighway(ways,way));
  printf("  type=%02x (%s%s%s)\n",way->type,HighwayName(HIGHWAY(way->type)),way->type&Way_OneWay?",One-Way":"",way->type&Way_Roundabout?",Roundabout":"");
  printf("  allow=%02x (%s)\n",way->allow,AllowedNameList(way->allow));
  if(way->props)
@@ -471,8 +471,8 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 
  printf("    <tag k='highway' v='%s' />\n",HighwayName(HIGHWAY(way->type)));
 
- if(IsNormalSegment(segment))
-    printf("    <tag k='name' v='%s' />\n",ParseXML_Encode_Safe_XML(WayName(ways,way)));
+ if(IsNormalSegment(segment) && WayNamed(ways,way))
+    printf("    <tag k='name' v='%s' />\n",ParseXML_Encode_Safe_XML(WayNameHighway(ways,way)));
 
  for(i=1;i<Transport_Count;i++)
     if(way->allow & ALLOWED(i))

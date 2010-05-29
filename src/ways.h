@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.36 2010-05-22 18:40:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.37 2010-05-29 13:54:24 amb Exp $
 
  A header file for the ways.
 
@@ -75,8 +75,14 @@ struct _Ways
 /*+ Return a Way* pointer given a set of ways and an index. +*/
 #define LookupWay(xxx,yyy)     (&(xxx)->ways[yyy])
 
-/*+ Return the name of a way given the Way pointer and a set of ways. +*/
-#define WayName(xxx,yyy)       (&(xxx)->names[(yyy)->name])
+/*+ Return the raw name of a way given the Way pointer and a set of ways. +*/
+#define WayNameRaw(xxx,yyy)        (&(xxx)->names[(yyy)->name])
+
+/*+ Decide if a way has a name or not. +*/
+#define WayNamed(xxx,yyy)          ((xxx)->names[(yyy)->name])
+
+/*+ Return the name of a way if it has one or the name of the highway type otherwise. +*/
+#define WayNameHighway(xxx,yyy)    (WayNamed(xxx,yyy)?WayNameRaw(xxx,yyy):HighwayName(HIGHWAY(yyy->type)))
 
 
 /* Functions */

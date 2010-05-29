@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.31 2010-04-27 16:28:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.32 2010-05-29 13:54:23 amb Exp $
 
  Routing output generator.
 
@@ -355,7 +355,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           /* Cache the values to be printed rather than calculating them repeatedly for each output format */
 
-          char *wayname=NULL,*waynamexml=NULL;
+          char *waynameraw=NULL,*wayname=NULL,*waynamexml=NULL;
           int bearing_int,bearing_next_int,turn_int;
           char *bearing_str=NULL,*bearing_next_str=NULL,*turn_str=NULL;
 
@@ -424,8 +424,15 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 else
                    type=translate_html_junction;
 
+                if(!waynameraw)
+                  {
+                   waynameraw=WayNameRaw(ways,resultway);
+                   if(!*waynameraw)
+                      waynameraw=translate_highway[HIGHWAY(resultway->type)];
+                  }
+
                 if(!waynamexml)
-                   waynamexml=ParseXML_Encode_Safe_XML(wayname=WayName(ways,resultway));
+                   waynamexml=ParseXML_Encode_Safe_XML(waynameraw);
 
                 fprintf(htmlfile,"<tr class='s'><td class='l'>%s:<td class='r'>",translate_html_segment[0]);
                 fprintf(htmlfile,translate_html_segment[1],
@@ -475,8 +482,15 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
              if(gpxroutefile)
                {
+                if(!waynameraw)
+                  {
+                   waynameraw=WayNameRaw(ways,resultway);
+                   if(!*waynameraw)
+                      waynameraw=translate_highway[HIGHWAY(resultway->type)];
+                  }
+
                 if(!waynamexml)
-                   waynamexml=ParseXML_Encode_Safe_XML(wayname=WayName(ways,resultway));
+                   waynamexml=ParseXML_Encode_Safe_XML(waynameraw);
 
                 if(!bearing_str)
                   {
@@ -521,7 +535,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                    type="Junct";
 
                 if(!wayname)
-                   wayname=WayName(ways,resultway);
+                   wayname=(char*)WayNameHighway(ways,resultway);
 
                 if(nextresult)
                   {
@@ -575,7 +589,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 type="Inter";
 
              if(!wayname)
-                wayname=WayName(ways,resultway);
+                wayname=(char*)WayNameHighway(ways,resultway);
 
              if(!bearing_str)
                {
@@ -594,7 +608,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                                  wayname);
             }
 
-          if(waynamexml && waynamexml!=wayname)
+          if(waynamexml && waynamexml!=waynameraw)
              free(waynamexml);
          }
        else if(!cum_distance)
