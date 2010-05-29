@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.41 2010-05-27 17:43:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.42 2010-05-29 10:37:12 amb Exp $
 
  Load the profiles from a file and the functions for handling them.
 
@@ -638,15 +638,24 @@ Profile *GetProfile(const char *name)
 /*++++++++++++++++++++++++++++++++++++++
   Update a profile with highway preference scaling factor.
 
+  int UpdateProfile Returns 1 in case of a problem.
+
   Profile *profile The profile to be updated.
+
+  Ways *ways The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void UpdateProfile(Profile *profile)
+int UpdateProfile(Profile *profile,Ways *ways)
 {
  score_t hmax=0;
  int i;
 
+ /* Fix up the allowed transport types. */
+
  profile->allow=ALLOWED(profile->transport);
+
+ if(!(profile->allow & ways->allow))
+    return(1);
 
  /* Normalise the highway preferences into the range 0 -> 1 */
 
@@ -659,10 +668,13 @@ void UpdateProfile(Profile *profile)
        hmax=profile->highway[i];
    }
 
+ if(hmax==0)
+    return(1);
+
  for(i=1;i<Way_Count;i++)
     profile->highway[i]/=hmax;
 
- /* Normalise the attribute preferences into the range 0 -> 1 */
+ /* Normalise the property preferences into the range 0 -> 2 */
 
  for(i=1;i<Property_Count;i++)
    {
@@ -672,11 +684,11 @@ void UpdateProfile(Profile *profile)
     if(profile->props_yes[i]>100)
        profile->props_yes[i]=100;
 
-    profile->props_yes[i]/=100;
-    profile->props_no [i] =1-profile->props_yes[i];
+    profile->props_yes[i]/=50;
+    profile->props_no [i] =2-profile->props_yes[i];
    }
 
- /* Find the fastest and most preferred highway type */
+ /* Find the fastest preferred speed */
 
  profile->max_speed=0;
 
@@ -684,13 +696,23 @@ void UpdateProfile(Profile *profile)
     if(profile->speed[i]>profile->max_speed)
        profile->max_speed=profile->speed[i];
 
+ if(profile->max_speed==0)
+    return(1);
+
+ /* Find the most preferred property combination */
+
  profile->max_pref=1; /* since highway prefs were normalised to 1 */
 
  for(i=1;i<Property_Count;i++)
-    if(profile->props_yes[i]>profile->props_no[i])
-       profile->max_pref*=profile->props_yes[i];
-    else
-       profile->max_pref*=profile->props_no[i];
+    if(ways->props & PROPERTIES(i))
+      {
+       if(profile->props_yes[i]>profile->props_no[i])
+          profile->max_pref*=profile->props_yes[i];
+       else
+          profile->max_pref*=profile->props_no[i];
+      }
+
+ return(0);
 }
 
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.h,v 1.15 2010-03-30 17:58:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.h,v 1.16 2010-05-29 10:37:12 amb Exp $
 
  A header file for the profiles.
 
@@ -26,6 +26,7 @@
 #define PROFILES_H    /*+ To stop multiple inclusions. +*/
 
 #include "types.h"
+#include "ways.h"
 
 
 /* Data structures */
@@ -65,7 +66,7 @@ int ParseXMLProfiles(const char *filename);
 
 Profile *GetProfile(const char *name);
 
-void UpdateProfile(Profile *profile);
+int UpdateProfile(Profile *profile,Ways *ways);
 
 void PrintProfile(const Profile *profile);
 

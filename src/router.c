@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.80 2010-05-29 10:23:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.81 2010-05-29 10:37:12 amb Exp $
 
  OSM router.
 
@@ -362,8 +362,6 @@ int main(int argc,char** argv)
     return(0);
    }
 
- UpdateProfile(profile);
-
  /* Load in the translations */
 
  if(option_html==0 && option_gpx_track==0 && option_gpx_route==0 && option_text==0 && option_text_all==0 && option_none==0)
@@ -397,9 +395,9 @@ int main(int argc,char** argv)
 
  OSMWays=LoadWayList(FileName(dirname,prefix,"ways.mem"));
 
- if(!(profile->allow & OSMWays->allow))
+ if(UpdateProfile(profile,OSMWays))
    {
-    fprintf(stderr,"Error: Database was not generated for selected transport.\n");
+    fprintf(stderr,"Error: Profile is invalid or not compatible with database.\n");
     return(1);
    }
 
