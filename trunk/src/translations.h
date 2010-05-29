@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.h,v 1.3 2010-04-24 15:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.h,v 1.4 2010-05-29 13:54:23 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -25,6 +25,9 @@
 #ifndef TRANSLATIONS_H
 #define TRANSLATIONS_H    /*+ To stop multiple inclusions. +*/
 
+#include "types.h"
+
+
 /* Variable declations */
 
 extern char *translate_copyright_creator[2];
@@ -33,6 +36,8 @@ extern char *translate_copyright_license[2];
 
 extern char *translate_heading[9];
 extern char *translate_turn[9];
+
+extern char *translate_highway[Way_Count];
 
 extern char *translate_route_shortest;
 extern char *translate_route_quickest;

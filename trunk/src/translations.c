@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.c,v 1.7 2010-04-24 15:49:16 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.c,v 1.8 2010-05-29 13:54:23 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -40,10 +40,7 @@ char *translate_copyright_license[2]={NULL,NULL};
 char *translate_heading[9]={"South","South-West","West","North-West","North","North-East","East","South-East","South"};
 char *translate_turn[9]   ={"Very sharp left","Sharp left","Left","Slight left","Straight on","Slight right","Right","Sharp right","Very sharp right"};
 
-char *translate_gpx_desc ="%s between 'start' and 'finish' waypoints";
-char *translate_gpx_name ="%s Route";
-char *translate_gpx_step ="%s on '%s' for %.3f km, %.1 min";
-char *translate_gpx_final="Total Journey %.1f km, %d minutes";
+char *translate_highway[Way_Count]={"","motorway","trunk road","primary road","secondary road","tertiary road","unclassified road","residential road","service road","track","cycleway","path","steps"};
 
 char *translate_route_shortest="Shortest";
 char *translate_route_quickest="Quickest";
@@ -57,6 +54,11 @@ char *translate_html_segment[2]={"Follow","%s for %.3f km, %.1f min"};
 char *translate_html_node[2]={"At","%s, go %s heading %s"};
 char *translate_html_stop[2]={"Stop","At %s"};
 char *translate_html_total[2]={"Total","%.1f km, %.0f minutes"};
+
+char *translate_gpx_desc ="%s between 'start' and 'finish' waypoints";
+char *translate_gpx_name ="%s Route";
+char *translate_gpx_step ="%s on '%s' for %.3f km, %.1 min";
+char *translate_gpx_final="Total Journey %.1f km, %d minutes";
 
 char *translate_gpx_start="START";
 char *translate_gpx_inter="INTER";
@@ -97,6 +99,7 @@ static int HTMLTitleType_function(const char *_tag_,int _type_,const char *text)
 static int GPXWaypointType_function(const char *_tag_,int _type_,const char *type,const char *string);
 static int HTMLWaypointType_function(const char *_tag_,int _type_,const char *type,const char *string);
 static int RouteType_function(const char *_tag_,int _type_,const char *type,const char *string);
+static int HighwayType_function(const char *_tag_,int _type_,const char *type,const char *string);
 static int HeadingType_function(const char *_tag_,int _type_,const char *direction,const char *string);
 static int TurnType_function(const char *_tag_,int _type_,const char *direction,const char *string);
 static int CopyrightLicenseType_function(const char *_tag_,int _type_,const char *string,const char *text);
@@ -139,6 +142,13 @@ static xmltag HeadingType_tag=
               {"heading",
                2, {"direction","string"},
                HeadingType_function,
+               {NULL}};
+
+/*+ The HighwayType type tag. +*/
+static xmltag HighwayType_tag=
+              {"highway",
+               2, {"type","string"},
+               HighwayType_function,
                {NULL}};
 
 /*+ The RouteType type tag. +*/
@@ -258,7 +268,7 @@ static xmltag languageType_tag=
               {"language",
                1, {"lang"},
                languageType_function,
-               {&CopyrightType_tag,&TurnType_tag,&HeadingType_tag,&RouteType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
+               {&CopyrightType_tag,&TurnType_tag,&HeadingType_tag,&HighwayType_tag,&RouteType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
 
 /*+ The RoutinoTranslationsType type tag. +*/
 static xmltag RoutinoTranslationsType_tag=
@@ -433,6 +443,41 @@ static int HeadingType_function(const char *_tag_,int _type_,const char *directi
        XMLPARSE_INVALID(_tag_,direction);
 
     translate_heading[d]=strcpy(malloc(strlen(string)+1),string);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HighwayType XSD type is seen
+
+  int HighwayType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *type The contents of the 'type' attribute (or NULL if not defined).
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int HighwayType_function(const char *_tag_,int _type_,const char *type,const char *string)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    Highway highway;
+
+    XMLPARSE_ASSERT_STRING(_tag_,type);
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+
+    highway=HighwayType(type);
+
+    if(highway==Way_Count)
+       XMLPARSE_INVALID(_tag_,type);
+
+    translate_highway[highway]=strcpy(malloc(strlen(string)+1),string);
    }
 
  return(0);

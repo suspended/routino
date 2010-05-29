@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.68 2010-05-23 10:18:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.69 2010-05-29 13:54:23 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -494,7 +494,7 @@ static void process_way_tags(TagList *tags,way_t id)
 {
  Way   way={0};
  int   oneway=0,roundabout=0;
- char *highway=NULL,*name=NULL,*ref=NULL;
+ char *name=NULL,*ref=NULL;
 
  int i;
 
@@ -534,10 +534,7 @@ static void process_way_tags(TagList *tags,way_t id)
 
       case 'h':
        if(!strcmp(k,"highway"))
-         {
-          highway=v;
           way.type=HighwayType(v);
-         }
 
        if(!strcmp(k,"horse"))
           if(ISTRUE(v))
@@ -713,26 +710,16 @@ static void process_way_tags(TagList *tags,way_t id)
           refname=(char*)malloc(strlen(ref)+strlen(name)+4);
           sprintf(refname,"%s (%s)",name,ref);
          }
-       else if(ref && !name && roundabout)
-         {
-          refname=(char*)malloc(strlen(ref)+14);
-          sprintf(refname,"%s (roundabout)",ref);
-         }
        else if(ref && !name)
           refname=ref;
        else if(!ref && name)
           refname=name;
-       else if(roundabout)
-         {
-          refname=(char*)malloc(strlen(highway)+14);
-          sprintf(refname,"%s (roundabout)",highway);
-         }
-       else /* if(!ref && !name && !roundabout) */
-          refname=highway;
+       else /* if(!ref && !name) */
+          refname="";
 
        AppendWay(ways,id,&way,refname);
 
-       if(refname!=ref && refname!=name && refname!=highway)
+       if(ref && name)
           free(refname);
 
        for(i=1;i<way_nnodes;i++)
