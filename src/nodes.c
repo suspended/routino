@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.37 2010-04-28 17:27:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.38 2010-05-29 10:21:54 amb Exp $
 
  Node data type functions.
 
@@ -314,7 +314,7 @@ Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double la
             {
              double lat1=latlong_to_radians(bin_to_latlong(nodes->latzero+latb)+off_to_latlong(nodes->nodes[i].latoffset));
              double lon1=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb)+off_to_latlong(nodes->nodes[i].lonoffset));
-             double dist1;
+             distance_t dist1;
 
              dist1=Distance(lat1,lon1,latitude,longitude);
 
@@ -337,41 +337,34 @@ Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double la
 
                       if(!profile || way->allow&profile->allow)
                         {
-                         double lat2,lon2;
-                         double dist2;
+                         distance_t dist2,dist3;
+                         double lat2,lon2,dist3a,dist3b,distp;
 
                          GetLatLong(nodes,OtherNode(segment,i),&lat2,&lon2);
 
                          dist2=Distance(lat2,lon2,latitude,longitude);
 
-                         if(dist2<distance)
+                         dist3=Distance(lat1,lon1,lat2,lon2);
+
+                         /* Use law of cosines (assume flat Earth) */
+
+                         dist3a=((double)dist1*(double)dist1-(double)dist2*(double)dist2+(double)dist3*(double)dist3)/(2.0*(double)dist3);
+                         dist3b=(double)dist3-dist3a;
+
+                         if(dist3a>=0 && dist3b>=0)
                            {
-                            double dist3,dist3a,dist3b,distp;
+                            distp=sqrt((double)dist1*(double)dist1-dist3a*dist3a);
 
-                            dist3=Distance(lat1,lon1,lat2,lon2);
-
-                            /* Use law of cosines (assume flat Earth) */
-
-                            dist3a=(dist1*dist1-dist2*dist2+dist3*dist3)/(2*dist3);
-                            dist3b=dist3-dist3a;
-
-                            if(dist3a>=0 && dist3b>=0)
+                            if(distp<(double)bestd)
                               {
-                               distp=sqrt(dist1*dist1-dist3a*dist3a);
-
-                               if((distance_t)distp<bestd)
-                                 {
-                                  bests=segment;
-                                  bestn1=i;
-                                  bestn2=OtherNode(segment,i);
-                                  bestd1=(distance_t)dist3a;
-                                  bestd2=(distance_t)dist3b;
-                                  bestd=(distance_t)distp;
-                                 }
+                               bests=segment;
+                               bestn1=i;
+                               bestn2=OtherNode(segment,i);
+                               bestd1=(distance_t)dist3a;
+                               bestd2=(distance_t)dist3b;
+                               bestd=(distance_t)distp;
                               }
-
-                           } /* dist2 < distance */
-
+                           }
                         }
                      }
 
