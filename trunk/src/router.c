@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.79 2010-05-28 18:50:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.80 2010-05-29 10:23:34 amb Exp $
 
  OSM router.
 
@@ -428,9 +428,8 @@ int main(int argc,char** argv)
       {
        distance_t dist1,dist2;
 
-       segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2);
-
-       finish=CreateFakes(OSMNodes,point,segment,node1,node2,dist1,dist2);
+       if((segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2)))
+          finish=CreateFakes(OSMNodes,point,segment,node1,node2,dist1,dist2);
       }
 
     if(finish==NO_NODE)
