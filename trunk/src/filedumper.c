@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.42 2010-05-29 13:54:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.43 2010-05-30 12:52:16 amb Exp $
 
  Memory file dumper.
 
@@ -71,7 +71,7 @@ int main(int argc,char** argv)
  double    latmin=0,latmax=0,lonmin=0,lonmax=0;
  char     *option_data=NULL;
  int       option_dump=0;
- int       option_dump_osm=0;
+ int       option_dump_osm=0,option_no_super=0;
 
  /* Parse the command line arguments */
 
@@ -101,6 +101,8 @@ int main(int argc,char** argv)
       {lonmax=degrees_to_radians(atof(&argv[arg][9]));coordcount++;}
     else if(!strncmp(argv[arg],"--data",6) && argv[arg][6]=='=')
        option_data=&argv[arg][7];
+    else if(!strcmp(argv[arg],"--no-super"))
+       option_no_super=1;
     else if(!strncmp(argv[arg],"--node=",7))
        ;
     else if(!strncmp(argv[arg],"--segment=",10))
@@ -295,15 +297,69 @@ int main(int argc,char** argv)
 
  if(option_dump_osm)
    {
-    index_t item;
+    if(coordcount>0 && coordcount!=4)
+      {
+       fprintf(stderr,"The --dump-osm option must have all of --latmin, --latmax, --lonmin, --lonmax or none.\n");
+       exit(1);
+      }
 
     print_head_osm();
 
-    for(item=0;item<OSMNodes->number;item++)
-       print_node_osm(OSMNodes,item);
+    if(coordcount)
+      {
+       int32_t latminbin=latlong_to_bin(radians_to_latlong(latmin))-OSMNodes->latzero;
+       int32_t latmaxbin=latlong_to_bin(radians_to_latlong(latmax))-OSMNodes->latzero;
+       int32_t lonminbin=latlong_to_bin(radians_to_latlong(lonmin))-OSMNodes->lonzero;
+       int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(lonmax))-OSMNodes->lonzero;
+       int latb,lonb,llbin;
+       index_t node;
 
-    for(item=0;item<OSMSegments->number;item++)
-       print_segment_osm(OSMSegments,item,OSMWays);
+       /* Loop through all of the nodes. */
+
+       for(latb=latminbin;latb<=latmaxbin;latb++)
+          for(lonb=lonminbin;lonb<=lonmaxbin;lonb++)
+            {
+             llbin=lonb*OSMNodes->latbins+latb;
+
+             if(llbin<0 || llbin>(OSMNodes->latbins*OSMNodes->lonbins))
+                continue;
+
+             for(node=OSMNodes->offsets[llbin];node<OSMNodes->offsets[llbin+1];node++)
+               {
+                double lat=latlong_to_radians(bin_to_latlong(OSMNodes->latzero+latb)+off_to_latlong(OSMNodes->nodes[node].latoffset));
+                double lon=latlong_to_radians(bin_to_latlong(OSMNodes->lonzero+lonb)+off_to_latlong(OSMNodes->nodes[node].lonoffset));
+
+                if(lat>latmin && lat<latmax && lon>lonmin && lon<lonmax)
+                  {
+                   Segment *segment;
+
+                   print_node_osm(OSMNodes,node);
+
+                   segment=FirstSegment(OSMSegments,OSMNodes,node);
+
+                   while(segment)
+                     {
+                      if(node>OtherNode(segment,node))
+                         if(!option_no_super || IsNormalSegment(segment))
+                            print_segment_osm(OSMSegments,IndexSegment(OSMSegments,segment),OSMWays);
+
+                      segment=NextSegment(OSMSegments,segment,node);
+                     }
+                  }
+               }
+            }
+      }
+    else
+      {
+       index_t item;
+
+       for(item=0;item<OSMNodes->number;item++)
+          print_node_osm(OSMNodes,item);
+
+       for(item=0;item<OSMSegments->number;item++)
+          if(!option_no_super || IsNormalSegment(LookupSegment(OSMSegments,item)))
+             print_segment_osm(OSMSegments,item,OSMWays);
+      }
 
     print_tail_osm();
    }
@@ -570,7 +626,9 @@ static void print_usage(int detail)
          "                  [--dump [--node=<node> ...]\n"
          "                          [--segment=<segment> ...]\n"
          "                          [--way=<way> ...]]\n"
-         "                  [--dump-osm]\n");
+         "                  [--dump-osm [--no-super]\n"
+         "                              [--latmin=<latmin> --latmax=<latmax>\n"
+         "                               --lonmin=<lonmin> --lonmax=<lonmax>]]\n");
 
  if(detail)
     fprintf(stderr,
@@ -605,7 +663,12 @@ static void print_usage(int detail)
             "  --way=<way>             * the way with the selected number.\n"
             "                          Use 'all' instead of a number to get all of them.\n"
             "\n"
-            "--dump-osm                Dump the whole database as an OSM format XML file.\n");
+            "--dump-osm                Dump all or part of the database as an XML file.\n"
+            "  --no-super              * exclude the super-segments.\n"
+            "  --latmin=<latmin>       * the minimum latitude (degrees N).\n"
+            "  --latmax=<latmax>       * the maximum latitude (degrees N).\n"
+            "  --lonmin=<lonmin>       * the minimum longitude (degrees E).\n"
+            "  --lonmax=<lonmax>       * the maximum longitude (degrees E).\n");
 
  exit(!detail);
 }
