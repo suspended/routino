@@ -27,13 +27,51 @@ Tag Transformation Rules
    The tagging rules allow modifying the highway tags in the source file
    so that the routing can be performed on a simpler set of tags. This
    removes the special case tagging rules from the source code into the
-   configuration file where they can be easily modified.
+   configuration file where they can be easily modified. Part of the
+   provided tagging.xml file showing the rules for motorway_link and
+   motorway highway types.
 
 <?xml version="1.0" encoding="utf-8"?>
+<routino-tagging>
 
-<routino-tagging xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="routino-tagging.xsd">
+  <way>
+
+    <if k="highway" v="motorway_link">
+      <set v="motorway"/>
+    </if>
+
+    <if k="highway" v="motorway">
+      <output k="highway"/>
+
+      <output k="motorbike"  v="yes"/>
+      <output k="motorcar"   v="yes"/>
+      <output k="goods"      v="yes"/>
+      <output k="hgv"        v="yes"/>
+      <output k="psv"        v="yes"/>
+
+      <output k="paved"      v="yes"/>
+      <output k="multilane"  v="yes"/>
+      <output k="oneway"     v="yes"/>
+    </if>
+...
+  <way>
 
 </routino-tagging>
+
+   The rules all have the same format; an if element for matching the
+   input and some set or output elements to either change the input tags
+   or create an output tag. The k and v attributes have the same meaning
+   as the attributes with the same names in the OSM XML file - the tag key
+   and tag value.
+
+   An if rule that has both k and v specified is only applied if a tag
+   exists in the input that matches both. An if rule that has only the k
+   attribute is applied if a tag with that key exists and an if rule that
+   has only the v attribute is applied to all tags with that value.
+
+   For the set and output elements the tag that is created in the input or
+   output tag set uses the k and v attributes specified. If one or both
+   are not specified then the original ones are used.
 
 
 Routing Profiles
@@ -56,7 +94,8 @@ Routing Profiles
    transport on foot is shown below:
 
 <?xml version="1.0" encoding="UTF-8" ?>
-<routino-profiles xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="routino-profiles.xsd">
+<routino-profiles>
+
   <profile name="foot" transport="foot">
     <speeds>
 ...
@@ -109,8 +148,8 @@ Output Translations
    language (en) translations is shown below:
 
 <?xml version="1.0" encoding="utf-8"?>
+<routino-translations>
 
-<routino-translations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="routino-translations.xsd">
   <language lang="en">
 ...
     <turn direction="-4" string="Very sharp left" />
