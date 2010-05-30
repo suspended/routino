@@ -128,13 +128,13 @@ Practicalities
 --------------
 
    At the time of writing (April 2010) the OpenStreetMap data for Great
-   Britain contains:
+   Britain (taken fromGeoFabrik) contains:
      * 14,675,098 nodes
           + 8,767,521 are highway nodes
           + 1,120,297 are super-nodes
      * 1,876,822 ways
-          + 1,417,033 are highways
-               o 18,741,434 highway segments
+          + 1,412,898 are highways
+               o 9,316,328 highway segments
                o 1,641,009 are super-segments
      * 60,572 relations
 
