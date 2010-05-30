@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.4 2010-05-23 10:20:21 amb Exp $
+ $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.5 2010-05-30 18:18:54 amb Exp $
 
  Test application for OSM XML file parser / tagging rule testing.
 
@@ -551,7 +551,12 @@ int main(int argc,char **argv)
 
  /* Check the specified command line options */
 
- if(tagging && (!ExistsFile(tagging) || ParseXMLTaggingRules(tagging)))
+ if(tagging && ExistsFile(tagging))
+    ;
+ else if(!tagging && ExistsFile("tagging.xml"))
+    tagging="tagging.xml";
+
+ if(tagging && ParseXMLTaggingRules(tagging))
    {
     fprintf(stderr,"Error: Cannot read the tagging rules in the file '%s'.\n",tagging);
     return(1);
@@ -559,16 +564,8 @@ int main(int argc,char **argv)
 
  if(!tagging)
    {
-    /* Add a default "copy-all" rule if none specified */
-
-    if(!NodeRules.nrules)
-       AppendTaggingAction(AppendTaggingRule(&NodeRules,NULL,NULL),NULL,NULL,1);
-
-    if(!WayRules.nrules)
-       AppendTaggingAction(AppendTaggingRule(&WayRules,NULL,NULL),NULL,NULL,1);
-
-    if(!RelationRules.nrules)
-       AppendTaggingAction(AppendTaggingRule(&RelationRules,NULL,NULL),NULL,NULL,1);
+    fprintf(stderr,"Error: Cannot run without reading some tagging rules.\n");
+    return(1);
    }
 
  if(filename)
@@ -620,7 +617,7 @@ static void print_usage(int detail)
             "--help                    Prints this information.\n"
             "\n"
             "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
-            "                          (if not specified the input file is output unchanged).\n"
+            "                          (defaults to 'tagging.xml' in current directory).\n"
             "\n"
             "<filename.osm>            The name of the file to process (by default data is\n"
             "                          read from standard input).\n");
