@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.83 2010-05-27 17:43:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.84 2010-05-30 12:50:40 amb Exp $
 
  Routing optimiser.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -473,7 +473,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
  if(!option_quiet)
    {
-    printf("\rRouted: Super-Nodes checked = %d\n",results->number);
+    printf("\rRouted: Super-Nodes checked = %d \n",results->number);
     fflush(stdout);
    }
 
