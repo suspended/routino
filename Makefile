@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/Makefile,v 1.2 2010-04-22 18:44:41 amb Exp $
+# $Header: /home/amb/CVS/routino/Makefile,v 1.3 2010-05-31 12:44:43 amb Exp $
 #
 # Makefile
 #
@@ -27,19 +27,19 @@ DIRS=$(foreach f,$(FILES),$(dir $f))
 
 all:
 	for dir in $(DIRS); do \
-	   cd $$dir && $(MAKE) $@; \
+	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
 ########
 
 clean:
 	for dir in $(DIRS); do \
-	   cd $$dir && $(MAKE) $@; \
+	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
 ########
 
 distclean: clean
 	for dir in $(DIRS); do \
-	   cd $$dir && $(MAKE) $@; \
+	   ( cd $$dir && $(MAKE) $@ ); \
 	done
