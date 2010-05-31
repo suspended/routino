@@ -1,29 +1,36 @@
-Version 1.4 of Routino released : Xxx Xxx XX 2010
+Version 1.4 of Routino released : Mon May 31 2010
 -------------------------------------------------
 
 Bug fixes:
-  Speed up start/via/stop point search algorithm.
+  Speed up start/via/stop point within segment search algorithm.
+  If no segment is found don't try routing but exit with error.
   Improve the error messages by adding operating system error info to them.
-
-Outputs
-  Allow selection of the outputs to generate.
-  Added HTML route instructions output.
-  GPX route file contains instructions at each waypoint.
-  Read in XML file of translated words/phrases for outputs.
+  Rewrite of tagging rules fixes bug with wheelchair access allow/deny.
+  Files greater than 2GB can be read/written on 32-bit systems.
+  Fix bug with profile preferences when optimising a route.
+  Stricter check on profile validity before starting routing.
 
 planetsplitter
   Add --parse-only and --process-only options (for incremental parsing).
   Allow filenames to be specified on command line (default is still stdin).
   Improved the '--help' information to describe all options.
+  Remove --transport, --not-highway, --not-property options (use config file).
+  Use tag transformation rules in configuration file not hard-coded.
 
 router
   Removed compiled-in profiles and use profiles loaded from XML file.
   Improved the '--help' information to describe all options.
   Change the name of the --profile-json and --profile-perl options.
+  Allow selection of the outputs to generate (or none).
+  Added HTML route instructions output.
+  GPX route file contains instructions at each waypoint.
+  Read in XML file of translated words/phrases for outputs.
   Added options to specify file of translations and language to use.
+  Remove copyright.txt file and put information into translations file.
 
 filedumper
   Improved the '--help' information to describe all options.
+  Added the option to dump an OSM file containing database contents.
 
 Web Pages
   Combined generic map CSS into one file (not copied in two).
