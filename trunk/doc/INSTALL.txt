@@ -7,7 +7,7 @@ Compilation
 
    This program has been written to run on Linux, no cross-platform
    compatibility has been specifically included but on the other hand nothing
-   platform specific has been included.
+   platform specific has been knowingly included either.
 
    Any information on improving the compilation process on anything other than
    32-bit x86 Linux is welcome.
@@ -58,9 +58,10 @@ Configuration of web files
 
    web/
     |
-    + /bin/                    <- The Routino executable files.
+    + /bin/                    <- The Routino executable files (when compiled).
     |
-    + /data/                   <- The Routino database.
+    + /data/                   <- The Routino database and default configuration
+    |                             files.
     |
     + /results/                <- An empty directory to store the results.
     |
@@ -76,9 +77,10 @@ Configuration of web files
    secure installation the 'bin' directory should be outside of the web server,
    the file 'www/routino/paths.pl' contains the path to the 'bin' directory.
 
-   The directory 'data' must contain the Routino database.  This can be created
-   by downloading the OSM files for the region of interest and running the
-   planetsplitter program.  There is a script in the directory that will
+   The directory 'data' must contain the Routino database and is also the
+   default location for the configuration files.  The routing database is
+   created by downloading the OSM files for the region of interest and running
+   the planetsplitter program.  There is a script in the directory that will
    download the OSM files and create the required database.  The script should
    be edited to set the names of the files to be downloaded.  For a secure
    installation the 'data' directory should be outside of the web server, the

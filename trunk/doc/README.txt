@@ -6,22 +6,24 @@
    the dataset of topographical information collected by
    http://www.OpenStreetMap.org.
 
-   Starting from the raw OpenStreetMap data (in the form of the '.osm'
-   XML files available on the internet) a custom database is generated
-   that contains the information useful for routing. With this database
-   and two points specified by latitude and longitude an optimum route
-   (either shortest or quickest) is determined and output as a text
-   description and a track in GPX (GPS eXchange) XML format. The route
-   is calculated for OpenStreetMap highways (roads, paths etc) using one
-   of the common forms of transport defined in OpenStreetMap (foot,
-   bicycle, horse, motorcar, motorbike etc).
+   Starting from the raw OpenStreetMap data (in the form of the '.osm' XML
+   files available on the internet) a custom database is generated that
+   contains the information useful for routing. With this database and two
+   points specified by latitude and longitude an optimum route (either
+   shortest or quickest) is determined. The route is calculated for
+   OpenStreetMap highways (roads, paths etc) using one of the common forms
+   of transport defined in OpenStreetMap (foot, bicycle, horse, motorcar,
+   motorbike etc).
 
    When processing the OpenStreetMap data the types of highways are
    recorded and these set default limits on the types of traffic allowed.
    More specific information about permissions for different types of
    transport are also recorded as are maximum speed limits. Further
    restrictions like oneway streets, weight, height, width and length
-   limits are also included where specified.
+   limits are also included where specified. Additionally a set of
+   properties of each highway are also recorded. The processing of the
+   input file is controlled by a configuration file which determines the
+   information that is used.
 
    When calculating a route the type of transport to be used is taken into
    account to ensure that the known restrictions are followed. Each of the
@@ -30,7 +32,20 @@
    defined (although the actual speed used will be the lowest of the
    default and any specified in the original data). To make use of the
    information about restrictions the weight, height, width and length of
-   the transport can also be specified.
+   the transport can also be specified. Further preferences about road
+   properties (e.g. paved or not) can also be selected.
+
+   The result of calculating the route can be presented in several
+   different ways. An HTML file can be produced that contains a
+   description of the route to take with instructions for each of the
+   important junctions. The contents of the file are created based on a
+   set of translations specified in a configuration file. The route is
+   also available in a GPX (GPS eXchange) XML format. format file
+   containing either every point and highway segment (a track file) or
+   just a waypoint and translated instructions for the important junctions
+   (a route file). Additionally there are two plain text files that
+   contain all data points or just the important ones (intended for
+   debugging and further processing).
 
    One of the design aims of Routino was to make the software are flexible
    as possible in selecting routing preferences but also have a sensible
@@ -66,9 +81,12 @@ Demonstration
 Documentation
 -------------
 
-   The algorithm used and the way that the OpenStreetMap data tags
-   are used are described in detail in their own files, USAGE.txt and
-   TAGGING.txt.
+   The algorithm used is described in the file ALGORITHM.txt.
+
+   The configuration files and in particular the default set of rules for
+   processing the OpenStreetMap data tags are described in detail in
+   CONFIGURATION.txt and TAGGING.txt.  The format of the output files
+   generated are described in OUTPUT.txt.
 
    Detailed information about how to use the programs is available in the
    file USAGE.txt and how to install it is in INSTALL.txt.
@@ -81,6 +99,7 @@ Status
    Version 1.1 of Routino was released on 13th June 2009.
    Version 1.2 of Routino was released on 21st October 2009.
    Version 1.3 of Routino was released on 21st January 2010.
+   Version 1.4 of Routino was released on 31st May 2010.
 
 
 License
