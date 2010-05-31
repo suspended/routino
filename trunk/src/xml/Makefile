@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.8 2010-05-10 18:16:37 amb Exp $
+# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.9 2010-05-31 14:43:45 amb Exp $
 #
 # XML test programs Makefile
 #
@@ -113,9 +113,9 @@ clean:
 
 distclean: clean
 	-rm -f $(EXE)
-	-rm -f $(E)
-	-rm -f $(D)
-	-rm -f $(C)
+	-rm -f $(E) test-skeleton
+	-rm -f $(D) .deps/test-skeleton.d
+	-rm -f $(C) test-skeleton.c
 	-rm -fr .deps
 
 ########
