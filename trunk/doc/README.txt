@@ -69,7 +69,7 @@ Demonstration
 
    A live demonstration of the router is available on the internet:
 
-   http://www.gedanken.org.uk/mapping/routino/router.html
+   http://www.routino.org/uk/router.html
 
    The source code download available also includes a set of files that can
    be used to create your own interactive map.
@@ -129,7 +129,7 @@ Homepage
 
    The latest information about the program can be found on the homepage:
 
-   http://www.gedanken.org.uk/software/routino/
+   http://www.routino.org/
 
 
 Download
@@ -137,7 +137,7 @@ Download
 
    The program can be downloaded from:
 
-   http://www.gedanken.org.uk/software/routino/download/
+   http://www.routino.org/download/
 
 
 --------
