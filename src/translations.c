@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.c,v 1.8 2010-05-29 13:54:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.c,v 1.9 2010-06-26 19:26:27 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -33,7 +33,7 @@
 
 /* Global variables - default English values */
 
-char *translate_copyright_creator[2]={"Creator","Routino - http://www.gedanken.org.uk/mapping/routino/"};
+char *translate_copyright_creator[2]={"Creator","Routino - http://www.routino.org/"};
 char *translate_copyright_source[2] ={NULL,NULL};
 char *translate_copyright_license[2]={NULL,NULL};
 

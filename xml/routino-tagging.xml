@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.1 2010-05-18 18:35:21 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.2 2010-06-26 19:26:47 amb Exp $
 
      An XML format file containing Routino tagging rules
 
@@ -15,7 +15,8 @@
      (at your option) any later version.
      ============================================================ -->
 
-<routino-tagging xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="routino.xsd">
+<routino-tagging xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:noNamespaceSchemaLocation="http://www.routino.org/xml/routino-tagging.xsd">
 
   <!-- Node rules are not currently used -->
 
