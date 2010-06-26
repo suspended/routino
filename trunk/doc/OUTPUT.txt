@@ -41,7 +41,7 @@ HTML Route Instructions
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
-<!-- Creator : Routino - http://www.gedanken.org.uk/mapping/routino/ -->
+<!-- Creator : Routino - http://www.routino.org/ -->
 <!-- Source : Based on OpenStreetMap data from http://www.openstreetmap.org/ -->
 <!-- License : http://creativecommons.org/licenses/by-sa/2.0/ -->
 <HEAD>
@@ -79,7 +79,7 @@ GPX Track File
                                      xmlns="http://www.topografix.com/GPX/1/1"
                                      xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
 <metadata>
-<desc>Creator : Routino - http://www.gedanken.org.uk/mapping/routino/</desc>
+<desc>Creator : Routino - http://www.routino.org/</desc>
 <copyright author="Based on OpenStreetMap data from http://www.openstreetmap.org/">
 <license>http://creativecommons.org/licenses/by-sa/2.0/</license>
 </copyright>
@@ -110,7 +110,7 @@ GPX Route File
                                      xmlns="http://www.topografix.com/GPX/1/1"
                                      xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
 <metadata>
-<desc>Creator : Routino - http://www.gedanken.org.uk/mapping/routino/</desc>
+<desc>Creator : Routino - http://www.routino.org/</desc>
 <copyright author="Based on OpenStreetMap data from http://www.openstreetmap.org/">
 <license>http://creativecommons.org/licenses/by-sa/2.0/</license>
 </copyright>
@@ -137,7 +137,7 @@ Text File
 
    An example text file output is below:
 
-# Creator : Routino - http://www.gedanken.org.uk/mapping/routino/
+# Creator : Routino - http://www.routino.org/
 # Source : Based on OpenStreetMap data from http://www.openstreetmap.org/
 # License : http://creativecommons.org/licenses/by-sa/2.0/
 #
@@ -197,7 +197,7 @@ All Nodes Text File
 
    An example all nodes text file output is below:
 
-# Creator : Routino - http://www.gedanken.org.uk/mapping/routino/
+# Creator : Routino - http://www.routino.org/
 # Source : Based on OpenStreetMap data from http://www.openstreetmap.org/
 # License : http://creativecommons.org/licenses/by-sa/2.0/
 #
