@@ -2,7 +2,7 @@
                            =======================
 
 
-   New in version 1.4 of Routino are the use of configuration files to
+   New in version 1.4 of Routino is the use of configuration files to
    allow more information to be provided to the programs at run-time. The
    configuration files that are used are:
      * Tagging transformation rules for the planetsplitter program.

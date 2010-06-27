@@ -2,9 +2,9 @@
                               ================
 
 
-   There are three different formats of output from the router, HTML,
-   GPX (GPS eXchange) XML format and plain text with a total of five
-   possible output files:
+   There are three different formats of output from the router, HTML, GPX
+   (GPS eXchange) XML format and plain text with a total of five possible
+   output files:
      * HTML route instructions for each interesting junction.
      * GPX track file containing every node.
      * GPX route file with waypoints at interesting junctions.
@@ -28,6 +28,7 @@
    The HTML file and GPX files are written out according to the selected
    language using the translations contained in the translations.xml
    configuration file.
+
 
 HTML Route Instructions
 -----------------------

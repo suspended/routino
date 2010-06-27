@@ -1,4 +1,4 @@
-                  Routino - OpenStreetMap Routing Software
+                  Routino : OpenStreetMap Routing Software
                   ========================================
 
 
@@ -61,13 +61,14 @@ Disclaimer
    input data.
 
    Routino comes with ABSOLUTELY NO WARRANTY for the software itself or
-   the route that is calculated.
+   the route that is calculated by it.
 
 
 Demonstration
 -------------
 
-   A live demonstration of the router is available on the internet:
+   A live demonstration of the router for the UK is available on the
+   internet:
 
    http://www.routino.org/uk/router.html
 
@@ -81,7 +82,8 @@ Demonstration
 Documentation
 -------------
 
-   The algorithm used is described in the file ALGORITHM.txt.
+   The algorithm used is described in the file ALGORITHM.txt and some
+   notes about the limitations of the data is in DATA.txt.
 
    The configuration files and in particular the default set of rules for
    processing the OpenStreetMap data tags are described in detail in
@@ -106,9 +108,9 @@ License
 -------
 
    This program is free software: you can redistribute it and/or modify it
-   under the terms of the GNU Affero General Public License as
-   published by the Free Software Foundation, either version 3 of the
-   License, or (at your option) any later version.
+   under the terms of the GNU Affero General Public License as published
+   by the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
    It is important to note that for this program I have decided to use the
    Affero GPLv3 instead of just using the GPL. This license adds

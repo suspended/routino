@@ -1,9 +1,9 @@
-                              Routino : Tagging
-                              =================
+                           Routino : Tagging Rules
+                           =======================
 
 
-   The different tags and attributes in the OSM format XML that are
-   used by Routino are described below.
+   The different tags and attributes in the OSM format XML that are used
+   by Routino are described below.
 
    An important change for version 1.4 of Routino is that the tags in the
    input file are first processed according to a set of rules defined in a
