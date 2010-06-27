@@ -1,9 +1,9 @@
-                              Routino : Algorithm
-                              ===================
+                             Routino : Algorithm
+                             ===================
 
 
    This page describes the development of the algorithm that is used in
-   the software demonstrated here.
+   Routino for finding routes.
 
 
 Simplest Algorithm
@@ -128,7 +128,7 @@ Practicalities
 --------------
 
    At the time of writing (April 2010) the OpenStreetMap data for Great
-   Britain (taken fromGeoFabrik) contains:
+   Britain (taken from GeoFabrik) contains:
      * 14,675,098 nodes
           + 8,767,521 are highway nodes
           + 1,120,297 are super-nodes
