@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.82 2010-05-31 12:34:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.83 2010-06-28 17:56:26 amb Exp $
 
  OSM router.
 
@@ -456,6 +456,9 @@ int main(int argc,char** argv)
       }
 
     if(start==NO_NODE)
+       continue;
+
+    if(start==finish)
        continue;
 
     /* Calculate the beginning of the route */
