@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.c,v 1.9 2010-06-26 19:26:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.c,v 1.10 2010-07-03 10:58:37 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -952,7 +952,7 @@ static int languageType_function(const char *_tag_,int _type_,const char *lang)
 
     if(!store_lang && first)
        store=1;
-    else if(!strcmp(store_lang,lang))
+    else if(store_lang && !strcmp(store_lang,lang))
        store=1;
     else
        store=0;
