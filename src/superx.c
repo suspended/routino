@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.37 2010-03-19 19:47:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.38 2010-07-05 19:05:51 amb Exp $
 
  Super-Segment data type functions.
 
@@ -81,38 +81,47 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    int     difference=0;
-    index_t index;
+    int difference=0;
+    index_t index1,index2;
 
-    index=IndexFirstSegmentX(segmentsx,i);
+    index1=IndexFirstSegmentX(segmentsx,i);
 
-    if(index!=NO_SEGMENT)
+    while(index1!=NO_SEGMENT)
       {
-       SegmentX *segmentx1=LookupSegmentX(segmentsx,index,1);
+       SegmentX *segmentx1=LookupSegmentX(segmentsx,index1,1);
        WayX *wayx1=LookupWayX(waysx,segmentx1->way,1);
 
-       index=IndexNextSegmentX(segmentsx,index,i);
+       index1=IndexNextSegmentX(segmentsx,index1,i);
+       index2=index1;
 
-       if(index!=NO_SEGMENT)
+       while(index2!=NO_SEGMENT)
          {
-          SegmentX *segmentx2=LookupSegmentX(segmentsx,index,2);
+          SegmentX *segmentx2=LookupSegmentX(segmentsx,index2,2);
           WayX *wayx2=LookupWayX(waysx,segmentx2->way,2);
 
-          if(WaysCompare(&wayx2->way,&wayx1->way))
-             difference=1;
+          /* If the ways are different in any way and there is a type of traffic that can use both ... */
 
-          index=IndexNextSegmentX(segmentsx,index,i);
+          if(WaysCompare(&wayx1->way,&wayx2->way))
+             if(wayx1->way.allow & wayx2->way.allow)
+               {
+                difference=1;
+                break;
+               }
+
+          index2=IndexNextSegmentX(segmentsx,index2,i);
          }
 
-       /* Store the node if there is a difference in the first two ways that could affect routing.
-          Store the node if it has at least three segments. */
+       if(difference)
+          break;
+      }
 
-       if(difference || index!=NO_SEGMENT)
-         {
-          nodesx->super[i]++;
+    /* Store the node if there is a difference in the connected ways that could affect routing. */
 
-          nnodes++;
-         }
+    if(difference)
+      {
+       nodesx->super[i]++;
+
+       nnodes++;
       }
 
     if(!((i+1)%10000))
