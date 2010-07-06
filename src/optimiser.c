@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.84 2010-05-30 12:50:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.85 2010-07-06 19:28:27 amb Exp $
 
  Routing optimiser.
 
@@ -260,6 +260,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
  Results *results;
  Queue *queue;
  index_t node1,node2;
+ index_t end_prev;
  score_t finish_score;
  double  finish_lat,finish_lon;
  Result *result1,*result2,*result3;
@@ -275,6 +276,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
  /* Set up the finish conditions */
 
  finish_score=INF_DISTANCE;
+ end_prev=NO_NODE;
 
  if(IsFakeNode(end->finish))
     GetFakeLatLong(end->finish,&finish_lat,&finish_lon);
@@ -329,10 +331,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
     node1=result1->node;
 
-    if(IsFakeNode(node1))
-       segment=FirstFakeSegment(node1);
-    else
-       segment=FirstSegment(segments,nodes,node1);
+    segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
@@ -403,16 +402,14 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
           if((result3=FindResult(end,node2)))
             {
              finish_score=result2->score+result3->score;
+             end_prev=node2;
             }
           else
             {
              double lat,lon;
              distance_t direct;
 
-             if(IsFakeNode(node2))
-                GetFakeLatLong(node2,&lat,&lon);
-             else
-                GetLatLong(nodes,node2,&lat,&lon);
+             GetLatLong(nodes,node2,&lat,&lon);
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
@@ -434,6 +431,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
              if((result2->score+result3->score)<finish_score)
                {
                 finish_score=result2->score+result3->score;
+                end_prev=node2;
                }
             }
           else if(result2->score<finish_score)
@@ -441,10 +439,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
              double lat,lon;
              distance_t direct;
 
-             if(IsFakeNode(node2))
-                GetFakeLatLong(node2,&lat,&lon);
-             else
-                GetLatLong(nodes,node2,&lat,&lon);
+             GetLatLong(nodes,node2,&lat,&lon);
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
              if(option_quickest==0)
@@ -464,51 +459,34 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
           fflush(stdout);
          }
 
-       if(IsFakeNode(node1))
-          segment=NextFakeSegment(segment,node1);
-       else
-          segment=NextSegment(segments,segment,node1);
+       segment=NextSegment(segments,segment,node1);
       }
    }
 
  if(!option_quiet)
    {
-    printf("\rRouted: Super-Nodes checked = %d \n",results->number);
+    printf("\rRouting: Super-Nodes checked = %d\n",results->number);
     fflush(stdout);
    }
 
  /* Finish off the end part of the route. */
 
- if(!FindResult(results,end->finish))
+ if(!FindResult(results,end->finish) && end_prev!=NO_NODE)
    {
     result2=InsertResult(results,end->finish);
     result3=FindResult(end,end->finish);
 
     *result2=*result3;
 
-    result2->score=INF_DISTANCE;
-
-    result3=FirstResult(end);
-
-    while(result3)
-      {
-       if(!IsFakeNode(result3->node) && IsSuperNode(nodes,result3->node))
-          if((result1=FindResult(results,result3->node)))
-             if((result1->score+result3->score)<result2->score)
-               {
-                result2->score=result1->score+result3->score;
-                result2->prev=result1->node;
-               }
-
-       result3=NextResult(end,result3);
-      }
+    result2->prev=end_prev;
+    result2->score=finish_score;
    }
 
  FreeQueueList(queue);
 
  /* Check it worked */
 
- if(!FindResult(results,end->finish))
+ if(end_prev==NO_NODE)
    {
     FreeResultsList(results);
     return(NULL);
