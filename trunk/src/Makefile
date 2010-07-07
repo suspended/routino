@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.34 2010-05-27 17:25:23 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.35 2010-07-07 17:28:21 amb Exp $
 #
 # Source code Makefile
 #
@@ -55,11 +55,19 @@ D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
 
 EXE=planetsplitter router filedumper tagmodifier
 
+WEBDIR=../web/bin
+
 ########
 
 all : $(EXE)
-	-[ -d ../web/bin ] && cp $(EXE) ../web/bin
-	cd xml && $(MAKE) CC="$(CC)" LD="$(LD)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
+	-@[ -d $(WEBDIR) ] && \
+	  for file in $(EXE); do \
+	     if [ ! -f $(WEBDIR)/$$file ] || [ $$file -nt $(WEBDIR)/$$file ]; then \
+	        echo cp $$file $(WEBDIR) ;\
+	        cp -f $$file $(WEBDIR) ;\
+	     fi ;\
+	  done
+	@cd xml && $(MAKE) CC="$(CC)" LD="$(LD)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 ########
 
