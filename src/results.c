@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.20 2009-11-13 19:24:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.21 2010-07-07 19:04:18 amb Exp $
 
  Result data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@
 #include "results.h"
 
 /*+ The size of the increment for the Results data structure. +*/
-#define RESULTS_INCREMENT    16
+#define RESULTS_INCREMENT 64
 
 
 /*++++++++++++++++++++++++++++++++++++++
