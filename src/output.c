@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.32 2010-05-29 13:54:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.33 2010-07-07 17:31:06 amb Exp $
 
  Routing output generator.
 
@@ -356,7 +356,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           /* Cache the values to be printed rather than calculating them repeatedly for each output format */
 
           char *waynameraw=NULL,*wayname=NULL,*waynamexml=NULL;
-          int bearing_int,bearing_next_int,turn_int;
+          int bearing_int=0,bearing_next_int=0,turn_int=0;
           char *bearing_str=NULL,*bearing_next_str=NULL,*turn_str=NULL;
 
           /* Get the properties of this segment */
