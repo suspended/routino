@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.85 2010-07-06 19:28:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.86 2010-07-07 18:59:46 amb Exp $
 
  Routing optimiser.
 
@@ -285,7 +285,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
  /* Create the list of results and insert the first node into the queue */
 
- results=NewResultsList(65536);
+ results=NewResultsList(2048);
 
  results->start=begin->start;
  results->finish=end->finish;
