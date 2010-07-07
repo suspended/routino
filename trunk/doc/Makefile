@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/doc/Makefile,v 1.1 2010-06-27 07:43:42 amb Exp $
+# $Header: /home/amb/CVS/routino/doc/Makefile,v 1.2 2010-07-07 17:27:03 amb Exp $
 #
 # Documentation directory Makefile
 #
@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-WEBDIR=../web/www/documentation
+WEBDIR=../web/www/routino/documentation
 
 FILES=html/*
 
@@ -29,9 +29,9 @@ FILES=html/*
 all :
 	-@[ -d $(WEBDIR) ] && \
 	  for file in $(FILES); do \
-	     if [ ! -f $(WEBDIR)/$$file ] || [ $$file -nt $(WEBDIR)/$$file ]; then \
+	     if [ ! -f $(WEBDIR)/`basename $$file` ] || [ $$file -nt $(WEBDIR)/`basename $$file` ]; then \
 	        echo cp $$file $(WEBDIR) ;\
-	        cp $$file $(WEBDIR) ;\
+	        cp -f $$file $(WEBDIR) ;\
 	     fi ;\
 	  done
 
@@ -39,7 +39,10 @@ all :
 
 clean:
 	rm -f *~
+	rm -f html/*~
+	rm -f $(WEBDIR)/*~
 
 ########
 
 distclean: clean
+	rm -f $(WEBDIR)/*
