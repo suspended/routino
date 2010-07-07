@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.5 2010-06-27 07:42:36 amb Exp $
+# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.6 2010-07-07 17:25:51 amb Exp $
 #
 # XML directory Makefile
 #
@@ -22,7 +22,7 @@
 
 WEBDIR=../web/data
 
-FILEs=profiles.xml \
+FILES=profiles.xml \
       translations.xml \
       tagging.xml
 
@@ -33,7 +33,7 @@ all :
 	  for file in $(FILES); do \
 	     if [ ! -f $(WEBDIR)/$$file ] || [ routino-$$file -nt $(WEBDIR)/$$file ]; then \
 	        echo cp routino-$$file $(WEBDIR)/$$file ;\
-	        cp routino-$$file $(WEBDIR)/$$file ;\
+	        cp -f routino-$$file $(WEBDIR)/$$file ;\
 	     fi ;\
 	  done
 
@@ -45,3 +45,4 @@ clean:
 ########
 
 distclean: clean
+	rm -f $(WEBDIR)/*.xml
