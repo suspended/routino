@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.9 2010-05-31 14:43:45 amb Exp $
+# $Header: /home/amb/CVS/routino/src/xml/Makefile,v 1.10 2010-07-07 17:26:24 amb Exp $
 #
 # XML test programs Makefile
 #
@@ -49,6 +49,7 @@ EXE=xsd-to-xmlparser
 ########
 
 all : $(EXE) $(C) $(E)
+	@true
 
 ########
 
