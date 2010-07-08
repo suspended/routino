@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.38 2010-05-29 10:21:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.39 2010-07-08 17:54:54 amb Exp $
 
  Node data type functions.
 
@@ -352,18 +352,28 @@ Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double la
                          dist3b=(double)dist3-dist3a;
 
                          if(dist3a>=0 && dist3b>=0)
-                           {
                             distp=sqrt((double)dist1*(double)dist1-dist3a*dist3a);
+                         else if(dist3a>0)
+                           {
+                            distp=dist2;
+                            dist3a=dist3;
+                            dist3b=0;
+                           }
+                         else /* if(dist3b>0) */
+                           {
+                            distp=dist1;
+                            dist3a=0;
+                            dist3b=dist3;
+                           }
 
-                            if(distp<(double)bestd)
-                              {
-                               bests=segment;
-                               bestn1=i;
-                               bestn2=OtherNode(segment,i);
-                               bestd1=(distance_t)dist3a;
-                               bestd2=(distance_t)dist3b;
-                               bestd=(distance_t)distp;
-                              }
+                         if(distp<(double)bestd)
+                           {
+                            bests=segment;
+                            bestn1=i;
+                            bestn2=OtherNode(segment,i);
+                            bestd1=(distance_t)dist3a;
+                            bestd2=(distance_t)dist3b;
+                            bestd=(distance_t)distp;
                            }
                         }
                      }
