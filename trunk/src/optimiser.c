@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.86 2010-07-07 18:59:46 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.87 2010-07-08 17:33:09 amb Exp $
 
  Routing optimiser.
 
@@ -401,8 +401,11 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
           if((result3=FindResult(end,node2)))
             {
-             finish_score=result2->score+result3->score;
-             end_prev=node2;
+             if((result2->score+result3->score)<finish_score)
+               {
+                finish_score=result2->score+result3->score;
+                end_prev=node2;
+               }
             }
           else
             {
