@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.35 2010-07-07 17:28:21 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.36 2010-07-09 17:43:00 amb Exp $
 #
 # Source code Makefile
 #
@@ -34,7 +34,7 @@ CFLAGS=-Wall -Wmissing-prototypes
 LDFLAGS=-lm -lc
 
 CFLAGS+= -O3
-CFLAGS+= -O0 -g
+#CFLAGS+= -O0 -g
 #CFLAGS+= -pg
 #CFLAGS+= --coverage
 
