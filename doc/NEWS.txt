@@ -1,3 +1,30 @@
+Version 1.4.1 of Routino released : Sat Jul 10 2010
+---------------------------------------------------
+
+Bug fixes:
+  Don't crash if start and finish are the same point.
+  Don't crash if several translations but --language option not used.
+  Don't crash if middle part of route cannot be found.
+  Don't allocate so much memory for intermediate nodes; routes much faster.
+  Fix problem with finding closest segment to the specified point.
+
+Documentation:
+  Provide HTML versions of the documentation (copy to web directory at install).
+  Change URL for website to http://www.routino.org/.
+
+Configuration Files:
+  Added German translations.
+
+planetsplitter
+  Slight change to algorithm for finding super-nodes.
+
+Web pages:
+  Provide HTML versions of the documentation.
+  Change URL for website to http://www.routino.org/.
+  Provide updated HTML files, the same as on the website.
+  Change to OpenLayers v2.9.1 and build custom version if Python available.
+
+
 Version 1.4 of Routino released : Mon May 31 2010
 -------------------------------------------------
 
