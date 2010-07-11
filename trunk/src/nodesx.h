@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.23 2010-03-19 19:47:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.24 2010-07-11 10:56:50 amb Exp $
 
  A header file for the extended nodes.
 
@@ -26,6 +26,8 @@
 #define NODESX_H    /*+ To stop multiple inclusions. +*/
 
 #include <stdint.h>
+
+#include "nodes.h"
 
 #include "typesx.h"
 #include "types.h"
@@ -62,6 +64,11 @@ struct _NodesX
 
  Node     *ndata;               /*+ The actual nodes (same order as geographically sorted nodes). +*/
 
+ char     *nfilename;           /*+ The name of the temporary file for nodes in slim mode. +*/
+ int       nfd;                 /*+ The file descriptor of the temporary file. +*/
+
+ Node      ncached[2];          /*+ Two cached nodes read from the file in slim mode. +*/
+
  uint32_t  latbins;             /*+ The number of bins containing latitude. +*/
  uint32_t  lonbins;             /*+ The number of bins containing longitude. +*/
 
@@ -83,6 +90,9 @@ void SaveNodeList(NodesX *nodesx,const char *filename);
 
 index_t IndexNodeX(NodesX* nodesx,node_t id);
 NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position);
+
+Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position);
+void PutBackNodeXNode(NodesX* nodesx,index_t index,int position);
 
 void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude);
 
