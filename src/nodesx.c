@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.56 2010-04-28 17:27:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.57 2010-07-11 08:16:32 amb Exp $
 
  Extented Node data type functions.
 
@@ -76,9 +76,9 @@ NodesX *NewNodeList(int append)
  nodesx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
 
  if(append)
-    sprintf(nodesx->filename,"%s/nodes.input.tmp",option_tmpdirname);
+    sprintf(nodesx->filename,"%s/nodesx.input.tmp",option_tmpdirname);
  else
-    sprintf(nodesx->filename,"%s/nodes.%p.tmp",option_tmpdirname,nodesx);
+    sprintf(nodesx->filename,"%s/nodesx.%p.tmp",option_tmpdirname,nodesx);
 
  if(append)
    {

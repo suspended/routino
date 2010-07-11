@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.51 2010-04-28 17:27:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.52 2010-07-11 08:16:32 amb Exp $
 
  Extended Segment data type functions.
 
@@ -73,9 +73,9 @@ SegmentsX *NewSegmentList(int append)
  segmentsx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
 
  if(append)
-    sprintf(segmentsx->filename,"%s/segments.input.tmp",option_tmpdirname);
+    sprintf(segmentsx->filename,"%s/segmentsx.input.tmp",option_tmpdirname);
  else
-    sprintf(segmentsx->filename,"%s/segments.%p.tmp",option_tmpdirname,segmentsx);
+    sprintf(segmentsx->filename,"%s/segmentsx.%p.tmp",option_tmpdirname,segmentsx);
 
  if(append)
    {
