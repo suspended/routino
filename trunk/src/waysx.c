@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.38 2010-05-22 18:40:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.39 2010-07-11 08:16:32 amb Exp $
 
  Extended Way data type functions.
 
@@ -71,9 +71,9 @@ WaysX *NewWayList(int append)
  waysx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
 
  if(append)
-    sprintf(waysx->filename,"%s/ways.input.tmp",option_tmpdirname);
+    sprintf(waysx->filename,"%s/waysx.input.tmp",option_tmpdirname);
  else
-    sprintf(waysx->filename,"%s/ways.%p.tmp",option_tmpdirname,waysx);
+    sprintf(waysx->filename,"%s/waysx.%p.tmp",option_tmpdirname,waysx);
 
  if(append)
    {
