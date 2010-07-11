@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.18 2010-03-29 18:20:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.19 2010-07-11 10:56:50 amb Exp $
 
  Functions to handle files.
 
@@ -172,7 +172,7 @@ int OpenFile(const char *filename)
 
  /* Open the file */
 
- fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+ fd=open(filename,O_RDWR|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 
  if(fd<0)
    {

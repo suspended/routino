@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.52 2010-07-11 08:16:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.53 2010-07-11 10:56:51 amb Exp $
 
  Extended Segment data type functions.
 
@@ -77,6 +77,10 @@ SegmentsX *NewSegmentList(int append)
  else
     sprintf(segmentsx->filename,"%s/segmentsx.%p.tmp",option_tmpdirname,segmentsx);
 
+ segmentsx->sfilename=(char*)malloc(strlen(option_tmpdirname)+32);
+
+ sprintf(segmentsx->sfilename,"%s/segments.%p.tmp",option_tmpdirname,segmentsx);
+
  if(append)
    {
     off_t size;
@@ -117,6 +121,10 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
 
  if(segmentsx->sdata)
     free(segmentsx->sdata);
+
+ DeleteFile(segmentsx->sfilename);
+
+ free(segmentsx->sfilename);
 
  free(segmentsx);
 }
@@ -350,7 +358,7 @@ index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t segindex,index_t nodeinde
  
  
 /*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular segment.
+  Lookup a particular extended segment.
 
   SegmentX *LookupSegmentX Returns a pointer to the extended segment with the specified id.
 
@@ -376,6 +384,60 @@ SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position)
  else
    {
     return(&segmentsx->xdata[index]);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a particular extended segment's normal segment.
+
+  Segment *LookupSegmentXSegment Returns a pointer to the segment with the specified id.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  index_t index The segment index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,int position)
+{
+ assert(index!=NO_SEGMENT);     /* Must be a valid segment */
+
+ if(option_slim)
+   {
+    SeekFile(segmentsx->sfd,index*sizeof(Segment));
+
+    ReadFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
+
+    return(&segmentsx->scached[position-1]);
+   }
+ else
+   {
+    return(&segmentsx->sdata[index]);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Put back an extended segment's normal segment.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  index_t index The segment index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int position)
+{
+ assert(index!=NO_SEGMENT);     /* Must be a valid segment */
+
+ if(option_slim)
+   {
+    SeekFile(segmentsx->sfd,index*sizeof(Segment));
+
+    WriteFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
    }
 }
 
@@ -808,24 +870,33 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
  free(segmentsx->firstnode);
  segmentsx->firstnode=NULL;
 
- /* Allocate the memory */
+ /* Allocate the memory (or open the file) */
 
- segmentsx->sdata=(Segment*)malloc(segmentsx->number*sizeof(Segment));
+ if(!option_slim)
+   {
+    segmentsx->sdata=(Segment*)malloc(segmentsx->number*sizeof(Segment));
 
- assert(segmentsx->sdata); /* Check malloc() worked */
+    assert(segmentsx->sdata); /* Check malloc() worked */
+   }
+ else
+    segmentsx->sfd=OpenFile(segmentsx->sfilename);
 
  /* Loop through and fill */
 
  for(i=0;i<segmentsx->number;i++)
    {
     SegmentX *segmentx=LookupSegmentX(segmentsx,i,1);
-    WayX *wayx=LookupWayX(waysx,segmentx->way,1);
+    Segment  *segment =LookupSegmentXSegment(segmentsx,i,1);
+    WayX     *wayx=LookupWayX(waysx,segmentx->way,1);
 
-    segmentsx->sdata[i].node1=0;
-    segmentsx->sdata[i].node2=0;
-    segmentsx->sdata[i].next2=NO_NODE;
-    segmentsx->sdata[i].way=wayx->prop;
-    segmentsx->sdata[i].distance=segmentx->distance;
+    segment->node1=0;
+    segment->node2=0;
+    segment->next2=NO_NODE;
+    segment->way=wayx->prop;
+    segment->distance=segmentx->distance;
+
+    if(option_slim)
+       PutBackSegmentXSegment(segmentsx,i,1);
 
     if(!((i+1)%10000))
       {
@@ -863,8 +934,10 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  /* Check the start conditions */
 
- assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
- assert(segmentsx->sdata);      /* Must have sdata filled in => real segments exist */
+ if(!option_slim)
+    assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
+ if(!option_slim)
+    assert(segmentsx->sdata);   /* Must have sdata filled in => real segments exist */
 
  /* Print the start message */
 
@@ -884,16 +957,19 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
  for(i=0;i<nodesx->number;i++)
    {
     NodeX  *nodex=LookupNodeX(nodesx,i,1);
-    Node   *node =&nodesx->ndata[nodex->id];
+    Node   *node =LookupNodeXNode(nodesx,nodex->id,1);
     index_t index=SEGMENT(node->firstseg);
 
     do
       {
        SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
+       Segment  *segment =LookupSegmentXSegment(segmentsx,index,1);
 
        if(segmentx->node1==nodex->id)
          {
-          segmentsx->sdata[index].node1=i;
+          segment->node1=i;
+
+          PutBackSegmentXSegment(segmentsx,index,1);
 
           index++;
 
@@ -907,12 +983,14 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
          }
        else
          {
-          segmentsx->sdata[index].node2=i;
+          segment->node2=i;
 
-          if(segmentsx->sdata[index].next2==NO_NODE)
+          PutBackSegmentXSegment(segmentsx,index,1);
+
+          if(segment->next2==NO_NODE)
              break;
           else
-             index=segmentsx->sdata[index].next2;
+             index=segment->next2;
          }
       }
     while(1);
@@ -956,7 +1034,8 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  /* Check the start conditions */
 
- assert(segmentsx->sdata);      /* Must have sdata filled in => real segments */
+ if(!option_slim)
+    assert(segmentsx->sdata);   /* Must have sdata filled in => real segments */
 
  /* Print the start message */
 
@@ -967,9 +1046,11 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    if(IsSuperSegment(&segmentsx->sdata[i]))
+    Segment *segment=LookupSegmentXSegment(segmentsx,i,1);
+
+    if(IsSuperSegment(segment))
        super_number++;
-    if(IsNormalSegment(&segmentsx->sdata[i]))
+    if(IsNormalSegment(segment))
        normal_number++;
    }
 
@@ -995,7 +1076,9 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  for(i=0;i<segments->number;i++)
    {
-    WriteFile(fd,&segmentsx->sdata[i],sizeof(Segment));
+    Segment *segment=LookupSegmentXSegment(segmentsx,i,1);
+
+    WriteFile(fd,segment,sizeof(Segment));
 
     if(!((i+1)%10000))
       {

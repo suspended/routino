@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.20 2010-03-19 19:47:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.21 2010-07-11 10:56:51 amb Exp $
 
  A header file for the extended segments.
 
@@ -26,6 +26,8 @@
 #define SEGMENTSX_H    /*+ To stop multiple inclusions. +*/
 
 #include <stdint.h>
+
+#include "segments.h"
 
 #include "typesx.h"
 #include "types.h"
@@ -63,6 +65,11 @@ struct _SegmentsX
  index_t  *firstnode;           /*+ The first segment index for each node. +*/
 
  Segment   *sdata;              /*+ The segment data (same order as n1data). +*/
+
+ char     *sfilename;           /*+ The name of the temporary file for segments in slim mode. +*/
+ int       sfd;                 /*+ The file descriptor of the temporary file. +*/
+
+ Segment   scached[2];          /*+ Two cached segments read from the file in slim mode. +*/
 };
 
 
@@ -75,6 +82,9 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep);
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
 SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position);
+
+Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,int position);
+void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int position);
 
 index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node);
 

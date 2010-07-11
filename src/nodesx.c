@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.57 2010-07-11 08:16:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.58 2010-07-11 10:56:50 amb Exp $
 
  Extented Node data type functions.
 
@@ -80,6 +80,10 @@ NodesX *NewNodeList(int append)
  else
     sprintf(nodesx->filename,"%s/nodesx.%p.tmp",option_tmpdirname,nodesx);
 
+ nodesx->nfilename=(char*)malloc(strlen(option_tmpdirname)+32);
+
+ sprintf(nodesx->nfilename,"%s/nodes.%p.tmp",option_tmpdirname,nodesx);
+
  if(append)
    {
     off_t size;
@@ -117,6 +121,10 @@ void FreeNodeList(NodesX *nodesx,int keep)
 
  if(nodesx->ndata)
     free(nodesx->ndata);
+
+ DeleteFile(nodesx->nfilename);
+
+ free(nodesx->nfilename);
 
  if(nodesx->super)
     free(nodesx->super);
@@ -450,7 +458,7 @@ index_t IndexNodeX(NodesX* nodesx,node_t id)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular node.
+  Lookup a particular extended node.
 
   NodeX *LookupNodeX Returns a pointer to the extended node with the specified id.
 
@@ -476,6 +484,60 @@ NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
  else
    {
     return(&nodesx->xdata[index]);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a particular extended node's normal node.
+
+  Node *LookupNodeXNode Returns a pointer to the node with the specified id.
+
+  NodesX* nodesx The set of nodes to process.
+
+  index_t index The node index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position)
+{
+ assert(index!=NO_NODE);     /* Must be a valid node */
+
+ if(option_slim)
+   {
+    SeekFile(nodesx->nfd,index*sizeof(Node));
+
+    ReadFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
+
+    return(&nodesx->ncached[position-1]);
+   }
+ else
+   {
+    return(&nodesx->ndata[index]);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Put back an extended node's normal node.
+
+  NodesX* nodesx The set of nodes to process.
+
+  index_t index The node index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void PutBackNodeXNode(NodesX* nodesx,index_t index,int position)
+{
+ assert(index!=NO_NODE);     /* Must be a valid node */
+
+ if(option_slim)
+   {
+    SeekFile(nodesx->nfd,index*sizeof(Node));
+
+    WriteFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
    }
 }
 
@@ -612,24 +674,33 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
  if(!option_slim)
     nodesx->xdata=MapFile(nodesx->filename);
 
- /* Allocate the memory */
+ /* Allocate the memory (or open the file) */
 
- nodesx->ndata=(Node*)malloc(nodesx->number*sizeof(Node));
+ if(!option_slim)
+   {
+    nodesx->ndata=(Node*)malloc(nodesx->number*sizeof(Node));
 
- assert(nodesx->ndata); /* Check malloc() worked */
+    assert(nodesx->ndata); /* Check malloc() worked */
+   }
+ else
+    nodesx->nfd=OpenFile(nodesx->nfilename);
 
  /* Loop through and allocate. */
 
  for(i=0;i<nodesx->number;i++)
    {
     NodeX *nodex=LookupNodeX(nodesx,i,1);
+    Node  *node =LookupNodeXNode(nodesx,nodex->id,1);
 
-    nodesx->ndata[nodex->id].latoffset=latlong_to_off(nodex->latitude);
-    nodesx->ndata[nodex->id].lonoffset=latlong_to_off(nodex->longitude);
-    nodesx->ndata[nodex->id].firstseg=SEGMENT(NO_SEGMENT);
+    node->latoffset=latlong_to_off(nodex->latitude);
+    node->lonoffset=latlong_to_off(nodex->longitude);
+    node->firstseg=SEGMENT(NO_SEGMENT);
 
     if(nodesx->super[nodex->id]==iteration)
-       nodesx->ndata[nodex->id].firstseg|=NODE_SUPER;
+       node->firstseg|=NODE_SUPER;
+
+    if(option_slim)
+       PutBackNodeXNode(nodesx,nodex->id,1);
 
     if(!((i+1)%10000))
       {
@@ -669,8 +740,10 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Check the start conditions */
 
- assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
- assert(segmentsx->sdata);      /* Must have sdata filled in => real segments exist */
+ if(!option_slim)
+    assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
+ if(!option_slim)
+    assert(segmentsx->sdata);   /* Must have sdata filled in => real segments exist */
 
  /* Print the start message */
 
@@ -692,8 +765,8 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
     SegmentX *segmentx=LookupSegmentX(segmentsx,i,1);
     node_t id1=segmentx->node1;
     node_t id2=segmentx->node2;
-    Node *node1=&nodesx->ndata[id1];
-    Node *node2=&nodesx->ndata[id2];
+    Node *node1=LookupNodeXNode(nodesx,id1,1);
+    Node *node2=LookupNodeXNode(nodesx,id2,2);
 
     /* Check node1 */
 
@@ -701,6 +774,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
       {
        node1->firstseg^=SEGMENT(NO_SEGMENT);
        node1->firstseg|=i;
+
+       if(option_slim)
+          PutBackNodeXNode(nodesx,id1,1);
       }
     else
       {
@@ -724,13 +800,18 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
             }
           else
             {
-             if(segmentsx->sdata[index].next2==NO_NODE)
+             Segment *segment=LookupSegmentXSegment(segmentsx,index,1);
+
+             if(segment->next2==NO_NODE)
                {
-                segmentsx->sdata[index].next2=i;
+                segment->next2=i;
+
+                PutBackSegmentXSegment(segmentsx,index,1);
+
                 break;
                }
              else
-                index=segmentsx->sdata[index].next2;
+                index=segment->next2;
             }
          }
        while(1);
@@ -742,6 +823,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
       {
        node2->firstseg^=SEGMENT(NO_SEGMENT);
        node2->firstseg|=i;
+
+       if(option_slim)
+          PutBackNodeXNode(nodesx,id2,2);
       }
     else
       {
@@ -765,13 +849,18 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
             }
           else
             {
-             if(segmentsx->sdata[index].next2==NO_NODE)
+             Segment *segment=LookupSegmentXSegment(segmentsx,index,1);
+
+             if(segment->next2==NO_NODE)
                {
-                segmentsx->sdata[index].next2=i;
+                segment->next2=i;
+
+                PutBackSegmentXSegment(segmentsx,index,1);
+
                 break;
                }
              else
-                index=segmentsx->sdata[index].next2;
+                index=segment->next2;
             }
          }
        while(1);
@@ -816,7 +905,8 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Check the start conditions */
 
- assert(nodesx->ndata);         /* Must have ndata filled in => real nodes exist */
+ if(!option_slim)
+    assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
 
  /* Print the start message */
 
@@ -831,8 +921,12 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  /* Count the number of super-nodes */
 
  for(i=0;i<nodesx->number;i++)
-    if(nodesx->ndata[i].firstseg&NODE_SUPER)
+   {
+    Node *node=LookupNodeXNode(nodesx,i,1);
+
+    if(node->firstseg&NODE_SUPER)
        super_number++;
+   }
 
  /* Fill in a Nodes structure with the offset of the real data in the file after
     the Node structure itself. */
@@ -865,7 +959,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  for(i=0;i<nodes->number;i++)
    {
     NodeX *nodex=LookupNodeX(nodesx,i,1);
-    Node *node=&nodesx->ndata[nodex->id];
+    Node *node=LookupNodeXNode(nodesx,nodex->id,1);
 
     WriteFile(fd,node,sizeof(Node));
 
