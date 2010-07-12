@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.5 2010-05-30 18:18:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.6 2010-07-12 17:59:42 amb Exp $
 
  Test application for OSM XML file parser / tagging rule testing.
 
@@ -28,7 +28,7 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include "functions.h"
+#include "files.h"
 #include "xmlparse.h"
 #include "tagging.h"
 

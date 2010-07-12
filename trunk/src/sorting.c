@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.8 2010-04-09 15:15:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.9 2010-07-12 17:59:42 amb Exp $
 
  Merge sort functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2009 Andrew M. Bishop
+ This file Copyright 2009-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include "files.h"
 #include "functions.h"
 
 

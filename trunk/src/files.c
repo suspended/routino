@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.19 2010-07-11 10:56:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.20 2010-07-12 17:59:41 amb Exp $
 
  Functions to handle files.
 
@@ -24,6 +24,7 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -31,7 +32,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 
-#include "functions.h"
+#include "files.h"
 
 
 /*+ A structure to contain the list of memory mapped files. +*/
@@ -237,52 +238,6 @@ int ReOpenFile(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Write data to a file on disk.
-
-  int WriteFile Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor to write to.
-
-  const void *address The address of the data to be written from.
-
-  size_t length The length of data to write.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int WriteFile(int fd,const void *address,size_t length)
-{
- /* Write the data */
-
- if(write(fd,address,length)!=length)
-    return(-1);
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Read data from a file on disk.
-
-  int ReadFile Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor to read from.
-
-  void *address The address of the data to be read into.
-
-  size_t length The length of data to read.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int ReadFile(int fd,void *address,size_t length)
-{
- /* Read the data */
-
- if(read(fd,address,length)!=length)
-    return(-1);
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Get the size of a file.
 
   off_t SizeFile Returns the file size.
@@ -320,27 +275,6 @@ int ExistsFile(const char *filename)
     return(0);
  else
     return(1);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Seek to a position in a file on disk.
-
-  int SeekFile Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor to seek within.
-
-  off_t position The position to seek to.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int SeekFile(int fd,off_t position)
-{
- /* Seek the data */
-
- if(lseek(fd,position,SEEK_SET)!=position)
-    return(-1);
-
- return(0);
 }
 
 

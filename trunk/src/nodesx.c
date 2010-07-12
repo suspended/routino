@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.58 2010-07-11 10:56:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.59 2010-07-12 17:59:41 amb Exp $
 
  Extented Node data type functions.
 
@@ -29,12 +29,15 @@
 #include <sys/stat.h>
 
 #include "types.h"
-#include "functions.h"
+#include "nodes.h"
+#include "segments.h"
+
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
-#include "segments.h"
-#include "nodes.h"
+
+#include "files.h"
+#include "functions.h"
 
 
 /* Variables */

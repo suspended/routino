@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.38 2010-07-05 19:05:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.39 2010-07-12 17:59:42 amb Exp $
 
  Super-Segment data type functions.
 
@@ -26,13 +26,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "results.h"
-#include "functions.h"
+#include "ways.h"
+
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
 #include "superx.h"
-#include "ways.h"
+
+#include "files.h"
+#include "results.h"
 
 
 /* Variables */

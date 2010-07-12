@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.83 2010-06-28 17:56:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.84 2010-07-12 17:59:41 amb Exp $
 
  OSM router.
 
@@ -28,12 +28,14 @@
 #include <ctype.h>
 
 #include "types.h"
-#include "functions.h"
-#include "translations.h"
-#include "profiles.h"
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
+
+#include "files.h"
+#include "functions.h"
+#include "translations.h"
+#include "profiles.h"
 
 
 /*+ The number of waypoints allowed to be specified. +*/

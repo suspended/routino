@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.87 2010-07-08 17:33:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.88 2010-07-12 17:59:41 amb Exp $
 
  Routing optimiser.
 
@@ -25,10 +25,11 @@
 #include <stdio.h>
 
 #include "types.h"
-#include "functions.h"
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
+
+#include "functions.h"
 #include "results.h"
 
 
