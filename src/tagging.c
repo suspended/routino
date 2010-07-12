@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagging.c,v 1.2 2010-05-23 10:18:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/tagging.c,v 1.3 2010-07-12 17:59:42 amb Exp $
 
  Load the tagging rules from a file and the functions for handling them.
 
@@ -26,7 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "functions.h"
+#include "files.h"
 #include "tagging.h"
 #include "xmlparse.h"
 

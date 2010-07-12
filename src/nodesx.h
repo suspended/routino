@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.24 2010-07-11 10:56:50 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.25 2010-07-12 17:59:41 amb Exp $
 
  A header file for the extended nodes.
 
@@ -27,10 +27,10 @@
 
 #include <stdint.h>
 
+#include "types.h"
 #include "nodes.h"
 
 #include "typesx.h"
-#include "types.h"
 
 
 /* Data structures */

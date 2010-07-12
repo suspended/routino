@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.54 2010-04-24 16:47:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.55 2010-07-12 17:59:41 amb Exp $
 
  Header file for function prototypes
 
@@ -25,10 +25,8 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H    /*+ To stop multiple inclusions. +*/
 
-#include <sys/types.h>
-#include <stdio.h>
-
 #include "types.h"
+
 #include "profiles.h"
 #include "results.h"
 
@@ -45,30 +43,6 @@ void GetFakeLatLong(index_t node, double *latitude,double *longitude);
 Segment *FirstFakeSegment(index_t node);
 Segment *NextFakeSegment(Segment *segment,index_t node);
 Segment *ExtraFakeSegment(index_t node,index_t fakenode);
-
-
-/* In files.c */
-
-char *FileName(const char *dirname,const char *prefix, const char *name);
-
-void *MapFile(const char *filename);
-void *UnmapFile(const char *filename);
-
-int OpenFile(const char *filename);
-int AppendFile(const char *filename);
-int ReOpenFile(const char *filename);
-
-int WriteFile(int fd,const void *address,size_t length);
-int ReadFile(int fd,void *address,size_t length);
-
-off_t SizeFile(const char *filename);
-int ExistsFile(const char *filename);
-
-int SeekFile(int fd,off_t position);
-
-void CloseFile(int fd);
-
-int DeleteFile(char *filename);
 
 
 /* In optimiser.c */

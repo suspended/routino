@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.c,v 1.10 2010-07-03 10:58:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.c,v 1.11 2010-07-12 17:59:42 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -26,7 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "functions.h"
+#include "files.h"
 #include "translations.h"
 #include "xmlparse.h"
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.42 2010-05-29 10:37:12 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.43 2010-07-12 17:59:41 amb Exp $
 
  Load the profiles from a file and the functions for handling them.
 
@@ -26,11 +26,13 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "profiles.h"
 #include "types.h"
 #include "ways.h"
-#include "xmlparse.h"
+
+#include "files.h"
+#include "profiles.h"
 #include "functions.h"
+#include "xmlparse.h"
 
 
 /*+ The profiles that have been loaded from file. +*/

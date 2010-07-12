@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.39 2010-07-11 08:16:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.40 2010-07-12 17:59:42 amb Exp $
 
  Extended Way data type functions.
 
@@ -24,12 +24,16 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 
-#include "functions.h"
-#include "waysx.h"
 #include "ways.h"
+
+#include "waysx.h"
+
+#include "files.h"
+#include "functions.h"
 
 
 /* Variables */
