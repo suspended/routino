@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.54 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.55 2010-07-13 17:43:51 amb Exp $
 
  Extended Segment data type functions.
 
@@ -360,91 +360,6 @@ index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t segindex,index_t nodeinde
 }
  
  
-/*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular extended segment.
-
-  SegmentX *LookupSegmentX Returns a pointer to the extended segment with the specified id.
-
-  SegmentsX* segmentsx The set of segments to process.
-
-  index_t index The segment index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position)
-{
- assert(index!=NO_SEGMENT);     /* Must be a valid segment */
-
- if(option_slim)
-   {
-    SeekFile(segmentsx->fd,index*sizeof(SegmentX));
-
-    ReadFile(segmentsx->fd,&segmentsx->cached[position-1],sizeof(SegmentX));
-
-    return(&segmentsx->cached[position-1]);
-   }
- else
-   {
-    return(&segmentsx->xdata[index]);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular extended segment's normal segment.
-
-  Segment *LookupSegmentXSegment Returns a pointer to the segment with the specified id.
-
-  SegmentsX* segmentsx The set of segments to process.
-
-  index_t index The segment index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,int position)
-{
- assert(index!=NO_SEGMENT);     /* Must be a valid segment */
-
- if(option_slim)
-   {
-    SeekFile(segmentsx->sfd,index*sizeof(Segment));
-
-    ReadFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
-
-    return(&segmentsx->scached[position-1]);
-   }
- else
-   {
-    return(&segmentsx->sdata[index]);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Put back an extended segment's normal segment.
-
-  SegmentsX* segmentsx The set of segments to process.
-
-  index_t index The segment index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int position)
-{
- assert(index!=NO_SEGMENT);     /* Must be a valid segment */
-
- if(option_slim)
-   {
-    SeekFile(segmentsx->sfd,index*sizeof(Segment));
-
-    WriteFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
-   }
-}
-
-
 /*++++++++++++++++++++++++++++++++++++++
   Remove bad segments (duplicated, zero length or missing nodes).
 

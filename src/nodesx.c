@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.59 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.60 2010-07-13 17:43:51 amb Exp $
 
  Extented Node data type functions.
 
@@ -457,91 +457,6 @@ index_t IndexNodeX(NodesX* nodesx,node_t id)
    }
 
  return(NO_NODE);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular extended node.
-
-  NodeX *LookupNodeX Returns a pointer to the extended node with the specified id.
-
-  NodesX* nodesx The set of nodes to process.
-
-  index_t index The node index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
-{
- assert(index!=NO_NODE);     /* Must be a valid node */
-
- if(option_slim)
-   {
-    SeekFile(nodesx->fd,index*sizeof(NodeX));
-
-    ReadFile(nodesx->fd,&nodesx->cached[position-1],sizeof(NodeX));
-
-    return(&nodesx->cached[position-1]);
-   }
- else
-   {
-    return(&nodesx->xdata[index]);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular extended node's normal node.
-
-  Node *LookupNodeXNode Returns a pointer to the node with the specified id.
-
-  NodesX* nodesx The set of nodes to process.
-
-  index_t index The node index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position)
-{
- assert(index!=NO_NODE);     /* Must be a valid node */
-
- if(option_slim)
-   {
-    SeekFile(nodesx->nfd,index*sizeof(Node));
-
-    ReadFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
-
-    return(&nodesx->ncached[position-1]);
-   }
- else
-   {
-    return(&nodesx->ndata[index]);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Put back an extended node's normal node.
-
-  NodesX* nodesx The set of nodes to process.
-
-  index_t index The node index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void PutBackNodeXNode(NodesX* nodesx,index_t index,int position)
-{
- assert(index!=NO_NODE);     /* Must be a valid node */
-
- if(option_slim)
-   {
-    SeekFile(nodesx->nfd,index*sizeof(Node));
-
-    WriteFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
-   }
 }
 
 
