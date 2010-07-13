@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.40 2010-07-12 17:59:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.41 2010-07-13 17:43:51 amb Exp $
 
  Extended Way data type functions.
 
@@ -497,37 +497,6 @@ index_t IndexWayX(WaysX* waysx,way_t id)
    }
 
  return(NO_WAY);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular way.
-
-  WayX *LookupWayX Returns a pointer to the extended way with the specified id.
-
-  WaysX* waysx The set of ways to process.
-
-  index_t index The way index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-WayX *LookupWayX(WaysX* waysx,index_t index,int position)
-{
- assert(index!=NO_WAY);     /* Must be a valid way */
-
- if(option_slim)
-   {
-    SeekFile(waysx->fd,index*sizeof(WayX));
-
-    ReadFile(waysx->fd,&waysx->cached[position-1],sizeof(WayX));
-
-    return(&waysx->cached[position-1]);
-   }
- else
-   {
-    return(&waysx->xdata[index]);
-   }
 }
 
 

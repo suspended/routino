@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.22 2010-07-12 17:59:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.23 2010-07-13 17:43:51 amb Exp $
 
  A header file for the extended segments.
 
@@ -31,6 +31,8 @@
 #include "segments.h"
 
 #include "typesx.h"
+
+#include "files.h"
 
 
 /* Data structures */
@@ -81,10 +83,10 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
-SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position);
+static SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position);
 
-Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,int position);
-void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int position);
+static Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,int position);
+static void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int position);
 
 index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node);
 
@@ -105,6 +107,96 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx);
 void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 
 void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx);
+
+
+/* Inline the frequently called functions */
+
+/*+ The command line '--slim' option. +*/
+extern int option_slim;
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a particular extended segment.
+
+  SegmentX *LookupSegmentX Returns a pointer to the extended segment with the specified id.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  index_t index The segment index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position)
+{
+ assert(index!=NO_SEGMENT);     /* Must be a valid segment */
+
+ if(option_slim)
+   {
+    SeekFile(segmentsx->fd,index*sizeof(SegmentX));
+
+    ReadFile(segmentsx->fd,&segmentsx->cached[position-1],sizeof(SegmentX));
+
+    return(&segmentsx->cached[position-1]);
+   }
+ else
+   {
+    return(&segmentsx->xdata[index]);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a particular extended segment's normal segment.
+
+  Segment *LookupSegmentXSegment Returns a pointer to the segment with the specified id.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  index_t index The segment index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,int position)
+{
+ assert(index!=NO_SEGMENT);     /* Must be a valid segment */
+
+ if(option_slim)
+   {
+    SeekFile(segmentsx->sfd,index*sizeof(Segment));
+
+    ReadFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
+
+    return(&segmentsx->scached[position-1]);
+   }
+ else
+   {
+    return(&segmentsx->sdata[index]);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Put back an extended segment's normal segment.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  index_t index The segment index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int position)
+{
+ assert(index!=NO_SEGMENT);     /* Must be a valid segment */
+
+ if(option_slim)
+   {
+    SeekFile(segmentsx->sfd,index*sizeof(Segment));
+
+    WriteFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
+   }
+}
 
 
 #endif /* SEGMENTSX_H */

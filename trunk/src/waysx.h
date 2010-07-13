@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.22 2010-07-12 17:59:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.23 2010-07-13 17:43:51 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -25,12 +25,15 @@
 #ifndef WAYSX_H
 #define WAYSX_H    /*+ To stop multiple inclusions. +*/
 
+#include <assert.h>
 #include <stdint.h>
 
 #include "types.h"
 
 #include "typesx.h"
 #include "ways.h"
+
+#include "files.h"
 
 
 /* Data structures */
@@ -79,10 +82,47 @@ void FreeWayList(WaysX *waysx,int keep);
 void SaveWayList(WaysX *waysx,const char *filename);
 
 index_t IndexWayX(WaysX* waysx,way_t id);
-WayX *LookupWayX(WaysX* waysx,index_t index,int position);
+static WayX *LookupWayX(WaysX* waysx,index_t index,int position);
 
 void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name);
 
 void SortWayList(WaysX *waysx);
+
+
+/* Inline the frequently called functions */
+
+/*+ The command line '--slim' option. +*/
+extern int option_slim;
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a particular way.
+
+  WayX *LookupWayX Returns a pointer to the extended way with the specified id.
+
+  WaysX* waysx The set of ways to process.
+
+  index_t index The way index to look for.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline WayX *LookupWayX(WaysX* waysx,index_t index,int position)
+{
+ assert(index!=NO_WAY);     /* Must be a valid way */
+
+ if(option_slim)
+   {
+    SeekFile(waysx->fd,index*sizeof(WayX));
+
+    ReadFile(waysx->fd,&waysx->cached[position-1],sizeof(WayX));
+
+    return(&waysx->cached[position-1]);
+   }
+ else
+   {
+    return(&waysx->xdata[index]);
+   }
+}
+
 
 #endif /* WAYSX_H */
