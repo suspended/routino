@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.55 2010-07-13 17:43:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.56 2010-07-14 18:00:09 amb Exp $
 
  Extended Segment data type functions.
 
@@ -44,9 +44,6 @@
 
 /* Variables */
 
-/*+ The command line '--slim' option. +*/
-extern int option_slim;
-
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
@@ -80,9 +77,11 @@ SegmentsX *NewSegmentList(int append)
  else
     sprintf(segmentsx->filename,"%s/segmentsx.%p.tmp",option_tmpdirname,segmentsx);
 
+#if SLIM
  segmentsx->sfilename=(char*)malloc(strlen(option_tmpdirname)+32);
 
  sprintf(segmentsx->sfilename,"%s/segments.%p.tmp",option_tmpdirname,segmentsx);
+#endif
 
  if(append)
    {
@@ -122,12 +121,16 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
  if(segmentsx->firstnode)
     free(segmentsx->firstnode);
 
+#if !SLIM
  if(segmentsx->sdata)
     free(segmentsx->sdata);
+#endif
 
+#if SLIM
  DeleteFile(segmentsx->sfilename);
 
  free(segmentsx->sfilename);
+#endif
 
  free(segmentsx);
 }
@@ -461,8 +464,9 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Map into memory */
 
- if(!option_slim)
-    nodesx->xdata=MapFile(nodesx->filename);
+#if !SLIM
+ nodesx->xdata=MapFile(nodesx->filename);
+#endif
 
  /* Free the now-unneeded index */
 
@@ -541,8 +545,9 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Unmap from memory */
 
- if(!option_slim)
-    nodesx->xdata=UnmapFile(nodesx->filename);
+#if !SLIM
+ nodesx->xdata=UnmapFile(nodesx->filename);
+#endif
 
  /* Print the final message */
 
@@ -648,8 +653,9 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Map into memory */
 
- if(!option_slim)
-    waysx->xdata=MapFile(waysx->filename);
+#if !SLIM
+ waysx->xdata=MapFile(waysx->filename);
+#endif
 
  /* Allocate the array of indexes */
 
@@ -744,8 +750,9 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Unmap from memory */
 
- if(!option_slim)
-    waysx->xdata=UnmapFile(waysx->filename);
+#if !SLIM
+ waysx->xdata=UnmapFile(waysx->filename);
+#endif
 
  /* Print the final message */
 
@@ -768,7 +775,9 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Check the start conditions */
 
+#if !SLIM
  assert(!segmentsx->sdata);     /* Must not have sdata filled in => no real segments */
+#endif
 
  /* Print the start message */
 
@@ -777,11 +786,10 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Map into memory */
 
- if(!option_slim)
-   {
-    segmentsx->xdata=MapFile(segmentsx->filename);
-    waysx->xdata=MapFile(waysx->filename);
-   }
+#if !SLIM
+ segmentsx->xdata=MapFile(segmentsx->filename);
+ waysx->xdata=MapFile(waysx->filename);
+#endif
 
  /* Free the unneeded memory */
 
@@ -790,14 +798,13 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Allocate the memory (or open the file) */
 
- if(!option_slim)
-   {
-    segmentsx->sdata=(Segment*)malloc(segmentsx->number*sizeof(Segment));
+#if !SLIM
+ segmentsx->sdata=(Segment*)malloc(segmentsx->number*sizeof(Segment));
 
-    assert(segmentsx->sdata); /* Check malloc() worked */
-   }
- else
-    segmentsx->sfd=OpenFile(segmentsx->sfilename);
+ assert(segmentsx->sdata); /* Check malloc() worked */
+#else
+ segmentsx->sfd=OpenFile(segmentsx->sfilename);
+#endif
 
  /* Loop through and fill */
 
@@ -813,8 +820,9 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
     segment->way=wayx->prop;
     segment->distance=segmentx->distance;
 
-    if(option_slim)
-       PutBackSegmentXSegment(segmentsx,i,1);
+#if SLIM
+    PutBackSegmentXSegment(segmentsx,i,1);
+#endif
 
     if(!((i+1)%10000))
       {
@@ -825,11 +833,10 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Unmap from memory */
 
- if(!option_slim)
-   {
-    segmentsx->xdata=UnmapFile(segmentsx->filename);
-    waysx->xdata=UnmapFile(waysx->filename);
-   }
+#if !SLIM
+ segmentsx->xdata=UnmapFile(segmentsx->filename);
+ waysx->xdata=UnmapFile(waysx->filename);
+#endif
 
  /* Print the final message */
 
@@ -852,10 +859,12 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  /* Check the start conditions */
 
- if(!option_slim)
-    assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
- if(!option_slim)
-    assert(segmentsx->sdata);   /* Must have sdata filled in => real segments exist */
+#if !SLIM
+ assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
+#endif
+#if !SLIM
+ assert(segmentsx->sdata);   /* Must have sdata filled in => real segments exist */
+#endif
 
  /* Print the start message */
 
@@ -864,11 +873,10 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  /* Map into memory */
 
- if(!option_slim)
-   {
-    nodesx->xdata=MapFile(nodesx->filename);
-    segmentsx->xdata=MapFile(segmentsx->filename);
-   }
+#if !SLIM
+ nodesx->xdata=MapFile(nodesx->filename);
+ segmentsx->xdata=MapFile(segmentsx->filename);
+#endif
 
  /* Index the segments */
 
@@ -887,7 +895,9 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
          {
           segment->node1=i;
 
+#if SLIM
           PutBackSegmentXSegment(segmentsx,index,1);
+#endif
 
           index++;
 
@@ -903,7 +913,9 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
          {
           segment->node2=i;
 
+#if SLIM
           PutBackSegmentXSegment(segmentsx,index,1);
+#endif
 
           if(segment->next2==NO_NODE)
              break;
@@ -922,11 +934,10 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  /* Unmap from memory */
 
- if(!option_slim)
-   {
-    nodesx->xdata=UnmapFile(nodesx->filename);
-    segmentsx->xdata=UnmapFile(segmentsx->filename);
-   }
+#if !SLIM
+ nodesx->xdata=UnmapFile(nodesx->filename);
+ segmentsx->xdata=UnmapFile(segmentsx->filename);
+#endif
 
  /* Print the final message */
 
@@ -952,8 +963,9 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  /* Check the start conditions */
 
- if(!option_slim)
-    assert(segmentsx->sdata);   /* Must have sdata filled in => real segments */
+#if !SLIM
+ assert(segmentsx->sdata);   /* Must have sdata filled in => real segments */
+#endif
 
  /* Print the start message */
 

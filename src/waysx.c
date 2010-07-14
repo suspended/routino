@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.41 2010-07-13 17:43:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.42 2010-07-14 18:00:10 amb Exp $
 
  Extended Way data type functions.
 
@@ -37,9 +37,6 @@
 
 
 /* Variables */
-
-/*+ The command line '--slim' option. +*/
-extern int option_slim;
 
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
@@ -518,8 +515,9 @@ void SaveWayList(WaysX* waysx,const char *filename)
  printf("Writing Ways: Ways=0");
  fflush(stdout);
 
- if(!option_slim)
-    waysx->xdata=MapFile(waysx->filename);
+#if !SLIM
+ waysx->xdata=MapFile(waysx->filename);
+#endif
 
  /* Fill in a Ways structure with the offset of the real data in the file after
     the Way structure itself. */
@@ -562,8 +560,9 @@ void SaveWayList(WaysX* waysx,const char *filename)
  SeekFile(fd,0);
  WriteFile(fd,ways,sizeof(Ways));
 
- if(!option_slim)
-    waysx->xdata=UnmapFile(waysx->filename);
+#if !SLIM
+ waysx->xdata=UnmapFile(waysx->filename);
+#endif
 
  SeekFile(fd,sizeof(Ways)+ways->number*sizeof(Way));
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.74 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.75 2010-07-14 18:00:09 amb Exp $
 
  OSM planet file splitter.
 
@@ -44,9 +44,6 @@
 
 /* Global variables */
 
-/*+ The option to use a slim mode with file-backed read-only intermediate storage. +*/
-int option_slim=0;
-
 /*+ The name of the temporary directory. +*/
 char *option_tmpdirname=NULL;
 
@@ -81,8 +78,6 @@ int main(int argc,char** argv)
    {
     if(!strcmp(argv[arg],"--help"))
        print_usage(1);
-    else if(!strcmp(argv[arg],"--slim"))
-       option_slim=1;
     else if(!strncmp(argv[arg],"--sort-ram-size=",16))
        option_filesort_ramsize=atoi(&argv[arg][16]);
     else if(!strncmp(argv[arg],"--dir=",6))
@@ -115,10 +110,11 @@ int main(int argc,char** argv)
 
  if(!option_filesort_ramsize)
    {
-    if(option_slim)
+#if SLIM
        option_filesort_ramsize=64*1024*1024;
-    else
+#else
        option_filesort_ramsize=256*1024*1024;
+#endif
    }
  else
     option_filesort_ramsize*=1024*1024;
@@ -366,7 +362,7 @@ static void print_usage(int detail)
  fprintf(stderr,
          "Usage: planetsplitter [--help]\n"
          "                      [--dir=<dirname>] [--prefix=<name>]\n"
-         "                      [--slim] [--sort-ram-size=<size>]\n"
+         "                      [--sort-ram-size=<size>]\n"
          "                      [--tmpdir=<dirname>]\n"
          "                      [--parse-only | --process-only]\n"
          "                      [--max-iterations=<number>]\n"
@@ -381,9 +377,12 @@ static void print_usage(int detail)
             "--dir=<dirname>           The directory containing the routing database.\n"
             "--prefix=<name>           The filename prefix for the routing database.\n"
             "\n"
-            "--slim                    Use less RAM and more temporary files.\n"
             "--sort-ram-size=<size>    The amount of RAM (in MB) to use for data sorting\n"
-            "                          (defaults to 64MB with '--slim' or 256MB otherwise.)\n"
+#if SLIM
+            "                          (defaults to 64MB otherwise.)\n"
+#else
+            "                          (defaults to 256MB otherwise.)\n"
+#endif
             "--tmpdir=<dirname>        The directory name for temporary files.\n"
             "                          (defaults to the '--dir' option directory.)\n"
             "\n"

@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.36 2010-07-09 17:43:00 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.37 2010-07-14 18:00:09 amb Exp $
 #
 # Source code Makefile
 #
@@ -53,7 +53,7 @@ FLAGS64=-D_FILE_OFFSET_BITS=64
 C=$(wildcard *.c)
 D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
 
-EXE=planetsplitter router filedumper tagmodifier
+EXE=planetsplitter planetsplitter-slim router filedumper tagmodifier
 
 WEBDIR=../web/bin
 
@@ -80,6 +80,18 @@ PLANETSPLITTER_OBJ=planetsplitter.o \
 
 planetsplitter : $(PLANETSPLITTER_OBJ)
 	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
+
+########
+
+PLANETSPLITTER_SLIM_OBJ=planetsplitter-slim.o \
+	                nodesx-slim.o segmentsx-slim.o waysx-slim.o superx-slim.o \
+	                ways.o types.o \
+	                files.o \
+	                results.o queue.o sorting.o \
+	                xmlparse.o tagging.o osmparser.o
+
+planetsplitter-slim : $(PLANETSPLITTER_SLIM_OBJ)
+	$(LD) $(PLANETSPLITTER_SLIM_OBJ) -o $@ $(LDFLAGS)
 
 ########
 
@@ -120,7 +132,10 @@ xmlparse.c : xmlparse.l
 ########
 
 %.o : %.c
-	$(CC) -c $(CFLAGS) $(FLAGS64) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
+	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=0 $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
+
+%-slim.o : %.c
+	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=1 $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
 
 ########
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.26 2010-07-13 17:43:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.27 2010-07-14 18:00:09 amb Exp $
 
  A header file for the extended nodes.
 
@@ -25,7 +25,6 @@
 #ifndef NODESX_H
 #define NODESX_H    /*+ To stop multiple inclusions. +*/
 
-#include <assert.h>
 #include <stdint.h>
 
 #include "types.h"
@@ -56,8 +55,15 @@ struct _NodesX
 
  uint32_t  xnumber;             /*+ The number of unsorted extended nodes. +*/
 
+#if !SLIM
+
  NodeX    *xdata;               /*+ The extended node data (sorted). +*/
- NodeX     cached[2];           /*+ Two cached nodes read from the file in slim mode. +*/
+
+#else
+
+ NodeX     xcached[2];          /*+ Two cached nodes read from the file in slim mode. +*/
+
+#endif
 
  uint32_t  number;              /*+ How many entries are still useful? +*/
 
@@ -65,12 +71,18 @@ struct _NodesX
 
  uint8_t  *super;               /*+ A marker for super nodes (same order sorted nodes). +*/
 
+#if !SLIM
+
  Node     *ndata;               /*+ The actual nodes (same order as geographically sorted nodes). +*/
+
+#else
 
  char     *nfilename;           /*+ The name of the temporary file for nodes in slim mode. +*/
  int       nfd;                 /*+ The file descriptor of the temporary file. +*/
 
  Node      ncached[2];          /*+ Two cached nodes read from the file in slim mode. +*/
+
+#endif
 
  uint32_t  latbins;             /*+ The number of bins containing latitude. +*/
  uint32_t  lonbins;             /*+ The number of bins containing longitude. +*/
@@ -92,10 +104,6 @@ void FreeNodeList(NodesX *nodesx,int keep);
 void SaveNodeList(NodesX *nodesx,const char *filename);
 
 index_t IndexNodeX(NodesX* nodesx,node_t id);
-static NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position);
-
-static Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position);
-static void PutBackNodeXNode(NodesX* nodesx,index_t index,int position);
 
 void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude);
 
@@ -110,10 +118,22 @@ void CreateRealNodes(NodesX *nodesx,int iteration);
 void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 
-/* Inline the frequently called functions */
+/* Macros / inline functions */
 
-/*+ The command line '--slim' option. +*/
-extern int option_slim;
+#if !SLIM
+
+#define LookupNodeX(nodesx,index,position)      &(nodesx)->xdata[index]
+  
+#define LookupNodeXNode(nodesx,index,position)  &(nodesx)->ndata[index]
+
+#else
+
+static NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position);
+
+static Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position);
+
+static void PutBackNodeXNode(NodesX* nodesx,index_t index,int position);
+
 
 /*++++++++++++++++++++++++++++++++++++++
   Lookup a particular extended node.
@@ -129,20 +149,11 @@ extern int option_slim;
 
 static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
 {
- assert(index!=NO_NODE);     /* Must be a valid node */
+ SeekFile(nodesx->fd,index*sizeof(NodeX));
 
- if(option_slim)
-   {
-    SeekFile(nodesx->fd,index*sizeof(NodeX));
+ ReadFile(nodesx->fd,&nodesx->xcached[position-1],sizeof(NodeX));
 
-    ReadFile(nodesx->fd,&nodesx->cached[position-1],sizeof(NodeX));
-
-    return(&nodesx->cached[position-1]);
-   }
- else
-   {
-    return(&nodesx->xdata[index]);
-   }
+ return(&nodesx->xcached[position-1]);
 }
 
 
@@ -160,20 +171,11 @@ static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
 
 static inline Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position)
 {
- assert(index!=NO_NODE);     /* Must be a valid node */
+ SeekFile(nodesx->nfd,index*sizeof(Node));
 
- if(option_slim)
-   {
-    SeekFile(nodesx->nfd,index*sizeof(Node));
+ ReadFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
 
-    ReadFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
-
-    return(&nodesx->ncached[position-1]);
-   }
- else
-   {
-    return(&nodesx->ndata[index]);
-   }
+ return(&nodesx->ncached[position-1]);
 }
 
 
@@ -189,15 +191,12 @@ static inline Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position)
 
 static inline void PutBackNodeXNode(NodesX* nodesx,index_t index,int position)
 {
- assert(index!=NO_NODE);     /* Must be a valid node */
+ SeekFile(nodesx->nfd,index*sizeof(Node));
 
- if(option_slim)
-   {
-    SeekFile(nodesx->nfd,index*sizeof(Node));
-
-    WriteFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
-   }
+ WriteFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
 }
+
+#endif /* SLIM */
 
 
 #endif /* NODESX_H */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.23 2010-07-13 17:43:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.24 2010-07-14 18:00:10 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -25,7 +25,6 @@
 #ifndef WAYSX_H
 #define WAYSX_H    /*+ To stop multiple inclusions. +*/
 
-#include <assert.h>
 #include <stdint.h>
 
 #include "types.h"
@@ -58,8 +57,15 @@ struct _WaysX
 
  uint32_t xnumber;              /*+ The number of unsorted extended ways. +*/
 
+#if !SLIM
+
  WayX    *xdata;                /*+ The extended data for the Ways (sorted). +*/
- WayX     cached[2];            /*+ Two cached ways read from the file in slim mode. +*/
+
+#else
+
+ WayX     xcached[2];           /*+ Two cached ways read from the file in slim mode. +*/
+
+#endif
 
  uint32_t number;               /*+ How many entries are still useful? +*/
 
@@ -82,17 +88,22 @@ void FreeWayList(WaysX *waysx,int keep);
 void SaveWayList(WaysX *waysx,const char *filename);
 
 index_t IndexWayX(WaysX* waysx,way_t id);
-static WayX *LookupWayX(WaysX* waysx,index_t index,int position);
 
 void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name);
 
 void SortWayList(WaysX *waysx);
 
 
-/* Inline the frequently called functions */
+/* Macros / inline functions */
 
-/*+ The command line '--slim' option. +*/
-extern int option_slim;
+#if !SLIM
+
+#define LookupWayX(waysx,index,position)  &(waysx)->xdata[index]
+  
+#else
+
+static WayX *LookupWayX(WaysX* waysx,index_t index,int position);
+
 
 /*++++++++++++++++++++++++++++++++++++++
   Lookup a particular way.
@@ -108,21 +119,14 @@ extern int option_slim;
 
 static inline WayX *LookupWayX(WaysX* waysx,index_t index,int position)
 {
- assert(index!=NO_WAY);     /* Must be a valid way */
+ SeekFile(waysx->fd,index*sizeof(WayX));
 
- if(option_slim)
-   {
-    SeekFile(waysx->fd,index*sizeof(WayX));
+ ReadFile(waysx->fd,&waysx->xcached[position-1],sizeof(WayX));
 
-    ReadFile(waysx->fd,&waysx->cached[position-1],sizeof(WayX));
-
-    return(&waysx->cached[position-1]);
-   }
- else
-   {
-    return(&waysx->xdata[index]);
-   }
+ return(&waysx->xcached[position-1]);
 }
+
+#endif /* SLIM */
 
 
 #endif /* WAYSX_H */
