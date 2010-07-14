@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.23 2010-07-13 17:43:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.24 2010-07-14 18:00:10 amb Exp $
 
  A header file for the extended segments.
 
@@ -58,20 +58,33 @@ struct _SegmentsX
 
  uint32_t   xnumber;            /*+ The number of unsorted extended nodes. +*/
 
+#if !SLIM
+
  SegmentX  *xdata;              /*+ The extended segment data (unsorted). +*/
- SegmentX   cached[2];          /*+ Two cached segments read from the file in slim mode. +*/
+
+#else
+
+ SegmentX   xcached[2];         /*+ Two cached segments read from the file in slim mode. +*/
+
+#endif
 
  uint32_t   number;             /*+ How many entries are still useful? +*/
 
  node_t   *idata;               /*+ The extended segment data (sorted by node1 then node2). +*/
  index_t  *firstnode;           /*+ The first segment index for each node. +*/
 
+#if !SLIM
+
  Segment   *sdata;              /*+ The segment data (same order as n1data). +*/
+
+#else
 
  char     *sfilename;           /*+ The name of the temporary file for segments in slim mode. +*/
  int       sfd;                 /*+ The file descriptor of the temporary file. +*/
 
  Segment   scached[2];          /*+ Two cached segments read from the file in slim mode. +*/
+
+#endif
 };
 
 
@@ -82,11 +95,6 @@ SegmentsX *NewSegmentList(int append);
 void FreeSegmentList(SegmentsX *segmentsx,int keep);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
-
-static SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position);
-
-static Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,int position);
-static void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int position);
 
 index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node);
 
@@ -109,10 +117,23 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx);
 
 
-/* Inline the frequently called functions */
+/* Macros / inline functions */
 
-/*+ The command line '--slim' option. +*/
-extern int option_slim;
+
+#if !SLIM
+
+#define LookupSegmentX(segmentsx,index,position)         &(segmentsx)->xdata[index]
+  
+#define LookupSegmentXSegment(segmentsx,index,position)  &(segmentsx)->sdata[index]
+
+#else
+
+static SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position);
+
+static Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,int position);
+
+static void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int position);
+
 
 /*++++++++++++++++++++++++++++++++++++++
   Lookup a particular extended segment.
@@ -128,20 +149,11 @@ extern int option_slim;
 
 static inline SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position)
 {
- assert(index!=NO_SEGMENT);     /* Must be a valid segment */
+ SeekFile(segmentsx->fd,index*sizeof(SegmentX));
 
- if(option_slim)
-   {
-    SeekFile(segmentsx->fd,index*sizeof(SegmentX));
+ ReadFile(segmentsx->fd,&segmentsx->xcached[position-1],sizeof(SegmentX));
 
-    ReadFile(segmentsx->fd,&segmentsx->cached[position-1],sizeof(SegmentX));
-
-    return(&segmentsx->cached[position-1]);
-   }
- else
-   {
-    return(&segmentsx->xdata[index]);
-   }
+ return(&segmentsx->xcached[position-1]);
 }
 
 
@@ -159,20 +171,11 @@ static inline SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int po
 
 static inline Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,int position)
 {
- assert(index!=NO_SEGMENT);     /* Must be a valid segment */
+ SeekFile(segmentsx->sfd,index*sizeof(Segment));
 
- if(option_slim)
-   {
-    SeekFile(segmentsx->sfd,index*sizeof(Segment));
+ ReadFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
 
-    ReadFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
-
-    return(&segmentsx->scached[position-1]);
-   }
- else
-   {
-    return(&segmentsx->sdata[index]);
-   }
+ return(&segmentsx->scached[position-1]);
 }
 
 
@@ -188,15 +191,12 @@ static inline Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,
 
 static inline void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int position)
 {
- assert(index!=NO_SEGMENT);     /* Must be a valid segment */
+ SeekFile(segmentsx->sfd,index*sizeof(Segment));
 
- if(option_slim)
-   {
-    SeekFile(segmentsx->sfd,index*sizeof(Segment));
-
-    WriteFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
-   }
+ WriteFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
 }
+
+#endif /* SLIM */
 
 
 #endif /* SEGMENTSX_H */

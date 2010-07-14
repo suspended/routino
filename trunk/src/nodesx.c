@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.60 2010-07-13 17:43:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.61 2010-07-14 18:00:09 amb Exp $
 
  Extented Node data type functions.
 
@@ -42,9 +42,6 @@
 
 /* Variables */
 
-/*+ The command line '--slim' option. +*/
-extern int option_slim;
-
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
@@ -83,9 +80,11 @@ NodesX *NewNodeList(int append)
  else
     sprintf(nodesx->filename,"%s/nodesx.%p.tmp",option_tmpdirname,nodesx);
 
+#if SLIM
  nodesx->nfilename=(char*)malloc(strlen(option_tmpdirname)+32);
 
  sprintf(nodesx->nfilename,"%s/nodes.%p.tmp",option_tmpdirname,nodesx);
+#endif
 
  if(append)
    {
@@ -122,12 +121,16 @@ void FreeNodeList(NodesX *nodesx,int keep)
  if(nodesx->idata)
     free(nodesx->idata);
 
+#if !SLIM
  if(nodesx->ndata)
     free(nodesx->ndata);
+#endif
 
+#if SLIM
  DeleteFile(nodesx->nfilename);
 
  free(nodesx->nfilename);
+#endif
 
  if(nodesx->super)
     free(nodesx->super);
@@ -580,7 +583,9 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  /* Check the start conditions */
 
+#if !SLIM
  assert(!nodesx->ndata);        /* Must not have ndata filled in => no real nodes */
+#endif
 
  /* Print the start message */
 
@@ -589,19 +594,19 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  /* Map into memory */
 
- if(!option_slim)
-    nodesx->xdata=MapFile(nodesx->filename);
+#if !SLIM
+ nodesx->xdata=MapFile(nodesx->filename);
+#endif
 
  /* Allocate the memory (or open the file) */
 
- if(!option_slim)
-   {
-    nodesx->ndata=(Node*)malloc(nodesx->number*sizeof(Node));
+#if !SLIM
+ nodesx->ndata=(Node*)malloc(nodesx->number*sizeof(Node));
 
-    assert(nodesx->ndata); /* Check malloc() worked */
-   }
- else
-    nodesx->nfd=OpenFile(nodesx->nfilename);
+ assert(nodesx->ndata); /* Check malloc() worked */
+#else
+ nodesx->nfd=OpenFile(nodesx->nfilename);
+#endif
 
  /* Loop through and allocate. */
 
@@ -617,8 +622,9 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
     if(nodesx->super[nodex->id]==iteration)
        node->firstseg|=NODE_SUPER;
 
-    if(option_slim)
-       PutBackNodeXNode(nodesx,nodex->id,1);
+#if SLIM
+    PutBackNodeXNode(nodesx,nodex->id,1);
+#endif
 
     if(!((i+1)%10000))
       {
@@ -634,8 +640,9 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  /* Unmap from memory */
 
- if(!option_slim)
-    nodesx->xdata=UnmapFile(nodesx->filename);
+#if !SLIM
+ nodesx->xdata=UnmapFile(nodesx->filename);
+#endif
 
  /* Print the final message */
 
@@ -658,10 +665,12 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Check the start conditions */
 
- if(!option_slim)
-    assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
- if(!option_slim)
-    assert(segmentsx->sdata);   /* Must have sdata filled in => real segments exist */
+#if !SLIM
+ assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
+#endif
+#if !SLIM
+ assert(segmentsx->sdata);   /* Must have sdata filled in => real segments exist */
+#endif
 
  /* Print the start message */
 
@@ -670,11 +679,10 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Map into memory */
 
- if(!option_slim)
-   {
-    nodesx->xdata=MapFile(nodesx->filename);
-    segmentsx->xdata=MapFile(segmentsx->filename);
-   }
+#if !SLIM
+ nodesx->xdata=MapFile(nodesx->filename);
+ segmentsx->xdata=MapFile(segmentsx->filename);
+#endif
 
  /* Index the nodes */
 
@@ -693,8 +701,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
        node1->firstseg^=SEGMENT(NO_SEGMENT);
        node1->firstseg|=i;
 
-       if(option_slim)
-          PutBackNodeXNode(nodesx,id1,1);
+#if SLIM
+       PutBackNodeXNode(nodesx,id1,1);
+#endif
       }
     else
       {
@@ -724,7 +733,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
                {
                 segment->next2=i;
 
+#if SLIM
                 PutBackSegmentXSegment(segmentsx,index,1);
+#endif
 
                 break;
                }
@@ -742,8 +753,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
        node2->firstseg^=SEGMENT(NO_SEGMENT);
        node2->firstseg|=i;
 
-       if(option_slim)
-          PutBackNodeXNode(nodesx,id2,2);
+#if SLIM
+       PutBackNodeXNode(nodesx,id2,2);
+#endif
       }
     else
       {
@@ -773,7 +785,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
                {
                 segment->next2=i;
 
+#if SLIM
                 PutBackSegmentXSegment(segmentsx,index,1);
+#endif
 
                 break;
                }
@@ -793,11 +807,10 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Unmap from memory */
 
- if(!option_slim)
-   {
-    nodesx->xdata=UnmapFile(nodesx->filename);
-    segmentsx->xdata=UnmapFile(segmentsx->filename);
-   }
+#if !SLIM
+ nodesx->xdata=UnmapFile(nodesx->filename);
+ segmentsx->xdata=UnmapFile(segmentsx->filename);
+#endif
 
  /* Print the final message */
 
@@ -823,8 +836,9 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Check the start conditions */
 
- if(!option_slim)
-    assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
+#if !SLIM
+ assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
+#endif
 
  /* Print the start message */
 
@@ -833,8 +847,9 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Map into memory */
 
- if(!option_slim)
-    nodesx->xdata=MapFile(nodesx->filename);
+#if !SLIM
+ nodesx->xdata=MapFile(nodesx->filename);
+#endif
 
  /* Count the number of super-nodes */
 
@@ -892,8 +907,9 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Unmap from memory */
 
- if(!option_slim)
-    nodesx->xdata=UnmapFile(nodesx->filename);
+#if !SLIM
+ nodesx->xdata=UnmapFile(nodesx->filename);
+#endif
 
  /* Print the final message */
 
