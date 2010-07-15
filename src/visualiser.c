@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.7 2009-07-09 18:34:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.8 2010-07-15 18:04:29 amb Exp $
 
  Extract data from Routino.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -599,30 +599,32 @@ static void output_limits(index_t node,double latitude,double longitude)
 
 static void find_all_nodes(Nodes *nodes,callback_t callback)
 {
- int32_t latminbin=latlong_to_bin(radians_to_latlong(LatMin))-nodes->latzero;
- int32_t latmaxbin=latlong_to_bin(radians_to_latlong(LatMax))-nodes->latzero;
- int32_t lonminbin=latlong_to_bin(radians_to_latlong(LonMin))-nodes->lonzero;
- int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(LonMax))-nodes->lonzero;
+ int32_t latminbin=latlong_to_bin(radians_to_latlong(LatMin))-nodes->file.latzero;
+ int32_t latmaxbin=latlong_to_bin(radians_to_latlong(LatMax))-nodes->file.latzero;
+ int32_t lonminbin=latlong_to_bin(radians_to_latlong(LonMin))-nodes->file.lonzero;
+ int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(LonMax))-nodes->file.lonzero;
  int latb,lonb,llbin;
- index_t node;
+ index_t i;
 
  /* Loop through all of the nodes. */
 
  for(latb=latminbin;latb<=latmaxbin;latb++)
     for(lonb=lonminbin;lonb<=lonmaxbin;lonb++)
       {
-       llbin=lonb*nodes->latbins+latb;
+       llbin=lonb*nodes->file.latbins+latb;
 
-       if(llbin<0 || llbin>(nodes->latbins*nodes->lonbins))
+       if(llbin<0 || llbin>(nodes->file.latbins*nodes->file.lonbins))
           continue;
 
-       for(node=nodes->offsets[llbin];node<nodes->offsets[llbin+1];node++)
+       for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
          {
-          double lat=latlong_to_radians(bin_to_latlong(nodes->latzero+latb)+off_to_latlong(nodes->nodes[node].latoffset));
-          double lon=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb)+off_to_latlong(nodes->nodes[node].lonoffset));
+          Node *node=LookupNode(nodes,i,1);
+
+          double lat=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb)+off_to_latlong(node->latoffset));
+          double lon=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb)+off_to_latlong(node->lonoffset));
 
           if(lat>LatMin && lat<LatMax && lon>LonMin && lon<LonMax)
-             (*callback)(node,lat,lon);
+             (*callback)(i,lat,lon);
          }
       }
 }

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.61 2010-07-14 18:00:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.62 2010-07-15 18:04:29 amb Exp $
 
  Extented Node data type functions.
 
@@ -831,7 +831,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 {
  index_t i;
  int fd;
- Nodes *nodes;
+ NodesFile *nodesfile;
  int super_number=0;
 
  /* Check the start conditions */
@@ -864,32 +864,28 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  /* Fill in a Nodes structure with the offset of the real data in the file after
     the Node structure itself. */
 
- nodes=calloc(1,sizeof(Nodes));
+ nodesfile=calloc(1,sizeof(NodesFile));
 
- assert(nodes); /* Check calloc() worked */
+ assert(nodesfile); /* Check calloc() worked */
 
- nodes->number=nodesx->number;
- nodes->snumber=super_number;
+ nodesfile->number=nodesx->number;
+ nodesfile->snumber=super_number;
 
- nodes->latbins=nodesx->latbins;
- nodes->lonbins=nodesx->lonbins;
+ nodesfile->latbins=nodesx->latbins;
+ nodesfile->lonbins=nodesx->lonbins;
 
- nodes->latzero=nodesx->latzero;
- nodes->lonzero=nodesx->lonzero;
+ nodesfile->latzero=nodesx->latzero;
+ nodesfile->lonzero=nodesx->lonzero;
 
- nodes->data=NULL;
- nodes->offsets=NULL;
- nodes->nodes=NULL;
-
- /* Write out the Nodes structure and then the real data. */
+ /* Write out the NodesFile structure and then the real data. */
 
  fd=OpenFile(filename);
 
- WriteFile(fd,nodes,sizeof(Nodes));
+ WriteFile(fd,nodesfile,sizeof(NodesFile));
 
  WriteFile(fd,nodesx->offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
- for(i=0;i<nodes->number;i++)
+ for(i=0;i<nodesfile->number;i++)
    {
     NodeX *nodex=LookupNodeX(nodesx,i,1);
     Node *node=LookupNodeXNode(nodesx,nodex->id,1);
@@ -913,10 +909,10 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Print the final message */
 
- printf("\rWrote Nodes: Nodes=%d  \n",nodes->number);
+ printf("\rWrote Nodes: Nodes=%d  \n",nodesfile->number);
  fflush(stdout);
 
  /* Free the fake Nodes */
 
- free(nodes);
+ free(nodesfile);
 }
