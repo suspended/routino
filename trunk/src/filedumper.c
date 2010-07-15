@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.44 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.45 2010-07-15 18:04:29 amb Exp $
 
  Memory file dumper.
 
@@ -201,16 +201,16 @@ int main(int argc,char** argv)
     printf("\n");
 
     printf("sizeof(Node) =%9d Bytes\n",sizeof(Node));
-    printf("Number       =%9d\n",OSMNodes->number);
-    printf("Number(super)=%9d\n",OSMNodes->snumber);
+    printf("Number       =%9d\n",OSMNodes->file.number);
+    printf("Number(super)=%9d\n",OSMNodes->file.snumber);
     printf("\n");
 
-    printf("Lat bins= %4d\n",OSMNodes->latbins);
-    printf("Lon bins= %4d\n",OSMNodes->lonbins);
+    printf("Lat bins= %4d\n",OSMNodes->file.latbins);
+    printf("Lon bins= %4d\n",OSMNodes->file.lonbins);
     printf("\n");
 
-    printf("Lat zero=%5d (%8.4f deg)\n",OSMNodes->latzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->latzero))));
-    printf("Lon zero=%5d (%8.4f deg)\n",OSMNodes->lonzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->lonzero))));
+    printf("Lat zero=%5d (%8.4f deg)\n",OSMNodes->file.latzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->file.latzero))));
+    printf("Lon zero=%5d (%8.4f deg)\n",OSMNodes->file.lonzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->file.lonzero))));
 
     /* Examine the segments */
 
@@ -252,17 +252,17 @@ int main(int argc,char** argv)
     for(arg=1;arg<argc;arg++)
        if(!strcmp(argv[arg],"--node=all"))
          {
-          for(item=0;item<OSMNodes->number;item++)
+          for(item=0;item<OSMNodes->file.number;item++)
              print_node(OSMNodes,item);
          }
        else if(!strncmp(argv[arg],"--node=",7))
          {
           item=atoi(&argv[arg][7]);
 
-          if(item>=0 && item<OSMNodes->number)
+          if(item>=0 && item<OSMNodes->file.number)
              print_node(OSMNodes,item);
           else
-             printf("Invalid node number; minimum=0, maximum=%d.\n",OSMNodes->number-1);
+             printf("Invalid node number; minimum=0, maximum=%d.\n",OSMNodes->file.number-1);
          }
        else if(!strcmp(argv[arg],"--segment=all"))
          {
@@ -308,43 +308,44 @@ int main(int argc,char** argv)
 
     if(coordcount)
       {
-       int32_t latminbin=latlong_to_bin(radians_to_latlong(latmin))-OSMNodes->latzero;
-       int32_t latmaxbin=latlong_to_bin(radians_to_latlong(latmax))-OSMNodes->latzero;
-       int32_t lonminbin=latlong_to_bin(radians_to_latlong(lonmin))-OSMNodes->lonzero;
-       int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(lonmax))-OSMNodes->lonzero;
+       int32_t latminbin=latlong_to_bin(radians_to_latlong(latmin))-OSMNodes->file.latzero;
+       int32_t latmaxbin=latlong_to_bin(radians_to_latlong(latmax))-OSMNodes->file.latzero;
+       int32_t lonminbin=latlong_to_bin(radians_to_latlong(lonmin))-OSMNodes->file.lonzero;
+       int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(lonmax))-OSMNodes->file.lonzero;
        int latb,lonb,llbin;
-       index_t node;
+       index_t item;
 
        /* Loop through all of the nodes. */
 
        for(latb=latminbin;latb<=latmaxbin;latb++)
           for(lonb=lonminbin;lonb<=lonmaxbin;lonb++)
             {
-             llbin=lonb*OSMNodes->latbins+latb;
+             llbin=lonb*OSMNodes->file.latbins+latb;
 
-             if(llbin<0 || llbin>(OSMNodes->latbins*OSMNodes->lonbins))
+             if(llbin<0 || llbin>(OSMNodes->file.latbins*OSMNodes->file.lonbins))
                 continue;
 
-             for(node=OSMNodes->offsets[llbin];node<OSMNodes->offsets[llbin+1];node++)
+             for(item=OSMNodes->offsets[llbin];item<OSMNodes->offsets[llbin+1];item++)
                {
-                double lat=latlong_to_radians(bin_to_latlong(OSMNodes->latzero+latb)+off_to_latlong(OSMNodes->nodes[node].latoffset));
-                double lon=latlong_to_radians(bin_to_latlong(OSMNodes->lonzero+lonb)+off_to_latlong(OSMNodes->nodes[node].lonoffset));
+                Node *node=LookupNode(OSMNodes,item,1);
+                double lat=latlong_to_radians(bin_to_latlong(OSMNodes->file.latzero+latb)+off_to_latlong(node->latoffset));
+                double lon=latlong_to_radians(bin_to_latlong(OSMNodes->file.lonzero+lonb)+off_to_latlong(node->lonoffset));
 
                 if(lat>latmin && lat<latmax && lon>lonmin && lon<lonmax)
                   {
                    Segment *segment;
 
-                   print_node_osm(OSMNodes,node);
+                   print_node_osm(OSMNodes,item);
 
-                   segment=FirstSegment(OSMSegments,OSMNodes,node);
+                   segment=FirstSegment(OSMSegments,OSMNodes,item);
 
                    while(segment)
                      {
-                      if(node>OtherNode(segment,node))
+                      if(item>OtherNode(segment,item))
                          if(!option_no_super || IsNormalSegment(segment))
                             print_segment_osm(OSMSegments,IndexSegment(OSMSegments,segment),OSMWays);
 
-                      segment=NextSegment(OSMSegments,segment,node);
+                      segment=NextSegment(OSMSegments,segment,item);
                      }
                   }
                }
@@ -354,7 +355,7 @@ int main(int argc,char** argv)
       {
        index_t item;
 
-       for(item=0;item<OSMNodes->number;item++)
+       for(item=0;item<OSMNodes->file.number;item++)
           print_node_osm(OSMNodes,item);
 
        for(item=0;item<OSMSegments->number;item++)
@@ -379,7 +380,7 @@ int main(int argc,char** argv)
 
 static void print_node(Nodes* nodes,index_t item)
 {
- Node *node=LookupNode(nodes,item);
+ Node *node=LookupNode(nodes,item,1);
  double latitude,longitude;
 
  GetLatLong(nodes,item,&latitude,&longitude);

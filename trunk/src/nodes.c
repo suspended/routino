@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.40 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.41 2010-07-15 18:04:29 amb Exp $
 
  Node data type functions.
 
@@ -44,22 +44,44 @@
 
 Nodes *LoadNodeList(const char *filename)
 {
- void *data;
  Nodes *nodes;
 
  nodes=(Nodes*)malloc(sizeof(Nodes));
 
- data=MapFile(filename);
+#if !SLIM
 
- /* Copy the Nodes structure from the loaded data */
+ nodes->data=MapFile(filename);
 
- *nodes=*((Nodes*)data);
+ /* Copy the NodesFile header structure from the loaded data */
 
- /* Adjust the pointers in the Nodes structure. */
+ nodes->file=*((NodesFile*)nodes->data);
 
- nodes->data=data;
- nodes->offsets=(index_t*)(data+sizeof(Nodes));
- nodes->nodes=(Node*)(data+(sizeof(Nodes)+(nodes->latbins*nodes->lonbins+1)*sizeof(index_t)));
+ /* Set the pointers in the Nodes structure. */
+
+ nodes->offsets=(index_t*)(nodes->data+sizeof(NodesFile));
+ nodes->nodes=(Node*)(nodes->data+(sizeof(NodesFile)+(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t)));
+
+#else
+
+ nodes->fd=ReOpenFile(filename);
+
+ /* Copy the NodesFile header structure from the loaded data */
+
+ ReadFile(nodes->fd,&nodes->file,sizeof(NodesFile));
+
+ /* Copy the offsets into RAM */
+
+ nodes->offsets=(index_t*)malloc((nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t));
+
+ ReadFile(nodes->fd,nodes->offsets,(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t));
+
+ nodes->nodesoffset=sizeof(NodesFile)+(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t);
+
+ nodes->incache[0]=NO_NODE;
+ nodes->incache[1]=NO_NODE;
+ nodes->incache[2]=NO_NODE;
+
+#endif
 
  return(nodes);
 }
@@ -90,8 +112,8 @@ Nodes *LoadNodeList(const char *filename)
 index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
                         distance_t distance,Profile *profile,distance_t *bestdist)
 {
- ll_bin_t   latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->latzero;
- ll_bin_t   lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->lonzero;
+ ll_bin_t   latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->file.latzero;
+ ll_bin_t   lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->file.lonzero;
  int        delta=0,count;
  index_t    i,bestn=NO_NODE;
  distance_t bestd=INF_DISTANCE;
@@ -103,30 +125,30 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
     int latb,lonb,llbin;
 
     count=0;
-   
+
     for(latb=latbin-delta;latb<=latbin+delta;latb++)
       {
-       if(latb<0 || latb>=nodes->latbins)
+       if(latb<0 || latb>=nodes->file.latbins)
           continue;
 
        for(lonb=lonbin-delta;lonb<=lonbin+delta;lonb++)
          {
-          if(lonb<0 || lonb>=nodes->lonbins)
+          if(lonb<0 || lonb>=nodes->file.lonbins)
              continue;
 
           if(abs(latb-latbin)<delta && abs(lonb-lonbin)<delta)
              continue;
 
-          llbin=lonb*nodes->latbins+latb;
+          llbin=lonb*nodes->file.latbins+latb;
 
           /* Check if this grid square has any hope of being close enough */
 
           if(delta>0)
             {
-             double lat1=latlong_to_radians(bin_to_latlong(nodes->latzero+latb));
-             double lon1=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb));
-             double lat2=latlong_to_radians(bin_to_latlong(nodes->latzero+latb+1));
-             double lon2=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb+1));
+             double lat1=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb));
+             double lon1=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb));
+             double lat2=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb+1));
+             double lon2=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb+1));
 
              if(latb==latbin)
                {
@@ -160,8 +182,9 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
 
           for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
             {
-             double lat=latlong_to_radians(bin_to_latlong(nodes->latzero+latb)+off_to_latlong(nodes->nodes[i].latoffset));
-             double lon=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb)+off_to_latlong(nodes->nodes[i].lonoffset));
+             Node *node=LookupNode(nodes,i,1);
+             double lat=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb)+off_to_latlong(node->latoffset));
+             double lon=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb)+off_to_latlong(node->lonoffset));
 
              distance_t dist=Distance(lat,lon,latitude,longitude);
 
@@ -242,8 +265,8 @@ Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double la
                             distance_t distance,Profile *profile, distance_t *bestdist,
                             index_t *bestnode1,index_t *bestnode2,distance_t *bestdist1,distance_t *bestdist2)
 {
- ll_bin_t   latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->latzero;
- ll_bin_t   lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->lonzero;
+ ll_bin_t   latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->file.latzero;
+ ll_bin_t   lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->file.lonzero;
  int        delta=0,count;
  index_t    i,bestn1=NO_NODE,bestn2=NO_NODE;
  distance_t bestd=INF_DISTANCE,bestd1=INF_DISTANCE,bestd2=INF_DISTANCE;
@@ -256,30 +279,30 @@ Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double la
     int latb,lonb,llbin;
 
     count=0;
-   
+
     for(latb=latbin-delta;latb<=latbin+delta;latb++)
       {
-       if(latb<0 || latb>=nodes->latbins)
+       if(latb<0 || latb>=nodes->file.latbins)
           continue;
 
        for(lonb=lonbin-delta;lonb<=lonbin+delta;lonb++)
          {
-          if(lonb<0 || lonb>=nodes->lonbins)
+          if(lonb<0 || lonb>=nodes->file.lonbins)
              continue;
 
           if(abs(latb-latbin)<delta && abs(lonb-lonbin)<delta)
              continue;
 
-          llbin=lonb*nodes->latbins+latb;
+          llbin=lonb*nodes->file.latbins+latb;
 
           /* Check if this grid square has any hope of being close enough */
 
           if(delta>0)
             {
-             double lat1=latlong_to_radians(bin_to_latlong(nodes->latzero+latb));
-             double lon1=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb));
-             double lat2=latlong_to_radians(bin_to_latlong(nodes->latzero+latb+1));
-             double lon2=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb+1));
+             double lat1=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb));
+             double lon1=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb));
+             double lat2=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb+1));
+             double lon2=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb+1));
 
              if(latb==latbin)
                {
@@ -313,8 +336,9 @@ Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double la
 
           for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
             {
-             double lat1=latlong_to_radians(bin_to_latlong(nodes->latzero+latb)+off_to_latlong(nodes->nodes[i].latoffset));
-             double lon1=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonb)+off_to_latlong(nodes->nodes[i].lonoffset));
+             Node *node=LookupNode(nodes,i,1);
+             double lat1=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb)+off_to_latlong(node->latoffset));
+             double lon1=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb)+off_to_latlong(node->lonoffset));
              distance_t dist1;
 
              dist1=Distance(lat1,lon1,latitude,longitude);
@@ -419,7 +443,7 @@ Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double la
 
 void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
 {
- Node *node=&nodes->nodes[index];
+ Node *node=LookupNode(nodes,index,2);
  int latbin=-1,lonbin=-1;
  int start,end,mid;
 
@@ -437,63 +461,63 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
  /* Search for longitude */
 
  start=0;
- end=nodes->lonbins-1;
+ end=nodes->file.lonbins-1;
 
  do
    {
-    mid=(start+end)/2;                                 /* Choose mid point */
+    mid=(start+end)/2;                                      /* Choose mid point */
 
-    if(nodes->offsets[nodes->latbins*mid]<index)       /* Mid point is too low */
+    if(nodes->offsets[nodes->file.latbins*mid]<index)       /* Mid point is too low */
        start=mid;
-    else if(nodes->offsets[nodes->latbins*mid]>index)  /* Mid point is too high */
+    else if(nodes->offsets[nodes->file.latbins*mid]>index)  /* Mid point is too high */
        end=mid-1;
-    else                                               /* Mid point is correct */
+    else                                                    /* Mid point is correct */
       {lonbin=mid;break;}
    }
  while((end-start)>1);
 
  if(lonbin==-1)
    {
-    if(nodes->offsets[nodes->latbins*end]>index)
+    if(nodes->offsets[nodes->file.latbins*end]>index)
        lonbin=start;
     else
        lonbin=end;
    }
 
- while(lonbin<nodes->lonbins && nodes->offsets[lonbin*nodes->latbins]==nodes->offsets[(lonbin+1)*nodes->latbins])
+ while(lonbin<nodes->file.lonbins && nodes->offsets[lonbin*nodes->file.latbins]==nodes->offsets[(lonbin+1)*nodes->file.latbins])
     lonbin++;
 
  /* Search for latitude */
 
  start=0;
- end=nodes->latbins-1;
+ end=nodes->file.latbins-1;
 
  do
    {
-    mid=(start+end)/2;                                       /* Choose mid point */
+    mid=(start+end)/2;                                            /* Choose mid point */
 
-    if(nodes->offsets[lonbin*nodes->latbins+mid]<index)      /* Mid point is too low */
+    if(nodes->offsets[lonbin*nodes->file.latbins+mid]<index)      /* Mid point is too low */
        start=mid;
-    else if(nodes->offsets[lonbin*nodes->latbins+mid]>index) /* Mid point is too high */
+    else if(nodes->offsets[lonbin*nodes->file.latbins+mid]>index) /* Mid point is too high */
        end=mid-1;
-    else                                                     /* Mid point is correct */
+    else                                                          /* Mid point is correct */
       {latbin=mid;break;}
    }
  while((end-start)>1);
 
  if(latbin==-1)
    {
-    if(nodes->offsets[lonbin*nodes->latbins+end]>index)
+    if(nodes->offsets[lonbin*nodes->file.latbins+end]>index)
        latbin=start;
     else
        latbin=end;
    }
 
- while(latbin<nodes->latbins && nodes->offsets[lonbin*nodes->latbins+latbin]==nodes->offsets[lonbin*nodes->latbins+latbin+1])
+ while(latbin<nodes->file.latbins && nodes->offsets[lonbin*nodes->file.latbins+latbin]==nodes->offsets[lonbin*nodes->file.latbins+latbin+1])
     latbin++;
 
  /* Return the values */
 
- *latitude =latlong_to_radians(bin_to_latlong(nodes->latzero+latbin)+off_to_latlong(node->latoffset));
- *longitude=latlong_to_radians(bin_to_latlong(nodes->lonzero+lonbin)+off_to_latlong(node->lonoffset));
+ *latitude =latlong_to_radians(bin_to_latlong(nodes->file.latzero+latbin)+off_to_latlong(node->latoffset));
+ *longitude=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonbin)+off_to_latlong(node->lonoffset));
 }

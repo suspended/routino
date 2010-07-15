@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.37 2010-07-14 18:00:09 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.38 2010-07-15 18:04:29 amb Exp $
 #
 # Source code Makefile
 #
@@ -53,7 +53,7 @@ FLAGS64=-D_FILE_OFFSET_BITS=64
 C=$(wildcard *.c)
 D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
 
-EXE=planetsplitter planetsplitter-slim router filedumper tagmodifier
+EXE=planetsplitter planetsplitter-slim router router-slim filedumper filedumper-slim tagmodifier
 
 WEBDIR=../web/bin
 
@@ -97,21 +97,43 @@ planetsplitter-slim : $(PLANETSPLITTER_SLIM_OBJ)
 
 ROUTER_OBJ=router.o \
 	   nodes.o segments.o ways.o types.o \
+	   optimiser.o output.o \
 	   files.o profiles.o xmlparse.o \
-	   optimiser.o output.o results.o queue.o translations.o
+	   results.o queue.o translations.o
 
 router : $(ROUTER_OBJ)
 	$(LD) $(ROUTER_OBJ) -o $@ $(LDFLAGS)
 
 ########
 
+ROUTER_SLIM_OBJ=router-slim.o \
+	        nodes-slim.o segments-slim.o ways-slim.o types.o \
+	        optimiser-slim.o output-slim.o \
+	        files.o profiles.o xmlparse.o \
+	        results.o queue.o translations.o
+
+router-slim : $(ROUTER_SLIM_OBJ)
+	$(LD) $(ROUTER_SLIM_OBJ) -o $@ $(LDFLAGS)
+
+########
+
 FILEDUMPER_OBJ=filedumper.o \
 	       nodes.o segments.o ways.o types.o \
-	       files.o xmlparse.o \
-               visualiser.o
+               visualiser.o \
+	       files.o xmlparse.o
 
 filedumper : $(FILEDUMPER_OBJ)
 	$(LD) $(FILEDUMPER_OBJ) -o $@ $(LDFLAGS)
+
+########
+
+FILEDUMPER_SLIM_OBJ=filedumper-slim.o \
+	       nodes-slim.o segments-slim.o ways-slim.o types.o \
+               visualiser-slim.o \
+	       files.o xmlparse.o
+
+filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
+	$(LD) $(FILEDUMPER_SLIM_OBJ) -o $@ $(LDFLAGS)
 
 ########
 
