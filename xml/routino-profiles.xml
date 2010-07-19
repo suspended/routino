@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-profiles.xml,v 1.2 2010-06-26 19:26:47 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-profiles.xml,v 1.3 2010-07-19 16:27:21 amb Exp $
 
      An XML format file containing Routino routing profiles
 
@@ -225,7 +225,7 @@
     </preferences>
     <properties>
       <property type="paved"      percent="100" />
-      <property type="multilane"  percent="25" />
+      <property type="multilane"  percent="35" />
       <property type="bridge"     percent="50" />
       <property type="tunnel"     percent="50" />
     </properties>
@@ -269,7 +269,7 @@
     </preferences>
     <properties>
       <property type="paved"      percent="100" />
-      <property type="multilane"  percent="75" />
+      <property type="multilane"  percent="60" />
       <property type="bridge"     percent="50" />
       <property type="tunnel"     percent="50" />
     </properties>
@@ -313,7 +313,7 @@
     </preferences>
     <properties>
       <property type="paved"      percent="100" />
-      <property type="multilane"  percent="75" />
+      <property type="multilane"  percent="60" />
       <property type="bridge"     percent="50" />
       <property type="tunnel"     percent="50" />
     </properties>
@@ -357,7 +357,7 @@
     </preferences>
     <properties>
       <property type="paved"      percent="100" />
-      <property type="multilane"  percent="75" />
+      <property type="multilane"  percent="60" />
       <property type="bridge"     percent="50" />
       <property type="tunnel"     percent="50" />
     </properties>
@@ -401,7 +401,7 @@
     </preferences>
     <properties>
       <property type="paved"      percent="100" />
-      <property type="multilane"  percent="75" />
+      <property type="multilane"  percent="60" />
       <property type="bridge"     percent="50" />
       <property type="tunnel"     percent="50" />
     </properties>
@@ -445,7 +445,7 @@
     </preferences>
     <properties>
       <property type="paved"      percent="100" />
-      <property type="multilane"  percent="75" />
+      <property type="multilane"  percent="60" />
       <property type="bridge"     percent="50" />
       <property type="tunnel"     percent="50" />
     </properties>
