@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.40 2010-05-27 17:25:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.41 2010-07-23 14:31:53 amb Exp $
 
  Type definitions
 
@@ -49,6 +49,13 @@
 
 /*+ A segment index excluding the super-node flag. +*/
 #define SEGMENT(xxx)   (index_t)((xxx)&(~NODE_SUPER))
+
+
+/*+ A flag to mark a node as a fake node. +*/
+#define NODE_FAKE      ((index_t)0x80000000)
+
+/*+ A flag to mark a segment as a fake node. +*/
+#define SEGMENT_FAKE   ((index_t)0x80000000)
 
 
 /*+ An undefined node index. +*/
