@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.34 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.35 2010-07-23 14:35:27 amb Exp $
 
  Routing output generator.
 
@@ -325,6 +325,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
       {
        double latitude,longitude;
        Result *nextresult;
+       Segment *nextresultsegment;
 
        if(result->node==results[point]->start)
          {latitude=start_lat; longitude=start_lon;}
@@ -348,10 +349,21 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 break;
                }
 
+       if(nextresult)
+         {
+          if(IsFakeSegment(nextresult->segment))
+             nextresultsegment=LookupFakeSegment(nextresult->segment);
+          else
+             nextresultsegment=LookupSegment(segments,nextresult->segment,2);
+         }
+       else
+          nextresultsegment=NULL;
+
        if(result->node!=results[point]->start)
          {
           distance_t seg_distance=0;
           duration_t seg_duration=0;
+          Segment *resultsegment;
           Way *resultway;
           int important=0;
 
@@ -363,10 +375,14 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           /* Get the properties of this segment */
 
-          resultway=LookupWay(ways,result->segment->way);
+          if(IsFakeSegment(result->segment))
+             resultsegment=LookupFakeSegment(result->segment);
+          else
+             resultsegment=LookupSegment(segments,result->segment,3);
+          resultway=LookupWay(ways,resultsegment->way);
 
-          seg_distance+=DISTANCE(result->segment->distance);
-          seg_duration+=Duration(result->segment,resultway,profile);
+          seg_distance+=DISTANCE(resultsegment->distance);
+          seg_duration+=Duration(resultsegment,resultway,profile);
           junc_distance+=seg_distance;
           junc_duration+=seg_duration;
           cum_distance+=seg_distance;
@@ -384,7 +400,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                {
                 index_t othernode=OtherNode(segment,result->node);
 
-                if(othernode!=result->prev && segment!=result->segment)
+                if(othernode!=result->prev && segment!=resultsegment)
                    if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
                      {
                       Way *way=LookupWay(ways,segment->way);
@@ -452,13 +468,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                   {
                    if(!turn_str)
                      {
-                      turn_int=turn_angle(nodes,result->segment,nextresult->segment,result->node);
+                      turn_int=turn_angle(nodes,resultsegment,nextresultsegment,result->node);
                       turn_str=translate_turn[(4+(22+turn_int)/45)%8];
                      }
 
                    if(!bearing_next_str)
                      {
-                      bearing_next_int=bearing_angle(nodes,nextresult->segment,nextresult->node);
+                      bearing_next_int=bearing_angle(nodes,nextresultsegment,nextresult->node);
                       bearing_next_str=translate_heading[(4+(22+bearing_next_int)/45)%8];
                      }
 
@@ -496,7 +512,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
                 if(!bearing_str)
                   {
-                   bearing_int=bearing_angle(nodes,result->segment,result->node);
+                   bearing_int=bearing_angle(nodes,resultsegment,result->node);
                    bearing_str=translate_heading[(4+(22+bearing_int)/45)%8];
                   }
 
@@ -543,13 +559,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                   {
                    if(!turn_str)
                      {
-                      turn_int=turn_angle(nodes,result->segment,nextresult->segment,result->node);
+                      turn_int=turn_angle(nodes,resultsegment,nextresultsegment,result->node);
                       turn_str=translate_turn[(4+(22+turn_int)/45)%8];
                      }
 
                    if(!bearing_next_str)
                      {
-                      bearing_next_int=bearing_angle(nodes,nextresult->segment,nextresult->node);
+                      bearing_next_int=bearing_angle(nodes,nextresultsegment,nextresult->node);
                       bearing_next_str=translate_heading[(4+(22+bearing_next_int)/45)%8];
                      }
 
@@ -595,7 +611,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
              if(!bearing_str)
                {
-                bearing_int=bearing_angle(nodes,result->segment,result->node);
+                bearing_int=bearing_angle(nodes,resultsegment,result->node);
                 bearing_str=translate_heading[(4+(22+bearing_int)/45)%8];
                }
 
@@ -615,7 +631,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
          }
        else if(!cum_distance)
          {
-          int   bearing_next_int=bearing_angle(nodes,nextresult->segment,nextresult->node);
+          int   bearing_next_int=bearing_angle(nodes,nextresultsegment,nextresult->node);
           char *bearing_next_str=translate_heading[(4+(22+bearing_next_int)/45)%8];
 
           /* Print out the very first start point */

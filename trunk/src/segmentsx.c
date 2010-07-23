@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.56 2010-07-14 18:00:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.57 2010-07-23 14:35:27 amb Exp $
 
  Extended Segment data type functions.
 
@@ -958,7 +958,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 {
  index_t i;
  int fd;
- Segments *segments;
+ SegmentsFile *segments;
  int super_number=0,normal_number=0;
 
  /* Check the start conditions */
@@ -987,7 +987,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  /* Fill in a Segments structure with the offset of the real data in the file after
     the Segment structure itself. */
 
- segments=calloc(1,sizeof(Segments));
+ segments=calloc(1,sizeof(SegmentsFile));
 
  assert(segments); /* Check calloc() worked */
 
@@ -995,14 +995,11 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  segments->snumber=super_number;
  segments->nnumber=normal_number;
 
- segments->data=NULL;
- segments->segments=NULL;
-
  /* Write out the Segments structure and then the real data. */
 
  fd=OpenFile(filename);
 
- WriteFile(fd,segments,sizeof(Segments));
+ WriteFile(fd,segments,sizeof(SegmentsFile));
 
  for(i=0;i<segments->number;i++)
    {

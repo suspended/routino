@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.34 2009-11-14 19:39:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.35 2010-07-23 14:35:27 amb Exp $
 
  A header file for the segments.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,8 @@
 #include <stdint.h>
 
 #include "types.h"
+
+#include "files.h"
 #include "profiles.h"
 
 
@@ -48,27 +50,50 @@ struct _Segment
 };
 
 
-/*+ A structure containing a set of segments (mmap format). +*/
-struct _Segments
+/*+ A structure containing the header from the file. +*/
+typedef struct _SegmentsFile
 {
  uint32_t  number;              /*+ How many segments in total? +*/
  uint32_t  snumber;             /*+ How many super-segments? +*/
  uint32_t  nnumber;             /*+ How many normal segments? +*/
+}
+ SegmentsFile;
 
- Segment  *segments;            /*+ An array of segments. +*/
 
- void     *data;                /*+ The memory mapped data. +*/
+/*+ A structure containing a set of segments (and pointers to mmap file). +*/
+struct _Segments
+{
+ SegmentsFile file;             /*+ The header data from the file. +*/
+
+#if !SLIM
+
+ void        *data;             /*+ The memory mapped data. +*/
+
+ Segment     *segments;         /*+ An array of segments. +*/
+
+#else
+
+ int          fd;               /*+ The file descriptor for the file. +*/
+
+ Segment      cached[3];        /*+ The cached segments. +*/
+ index_t      incache[3];       /*+ The indexes of the cached segments. +*/
+
+#endif
 };
 
 
-/* Macros */
+/* Functions */
+
+Segments *LoadSegmentList(const char *filename);
+
+Segment *NextSegment(Segments* segments,Segment *segment,index_t node);
+
+distance_t Distance(double lat1,double lon1,double lat2,double lon2);
+
+duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
 
-/*+ Return a segment pointer given a set of segments and an index. +*/
-#define LookupSegment(xxx,yyy) (&(xxx)->segments[yyy])
-
-/*+ Return a segment index given a set of segments and a pointer. +*/
-#define IndexSegment(xxx,yyy)  ((yyy)-&(xxx)->segments[0])
+/* Macros and inline functions */
 
 /*+ Return true if this is a normal segment. +*/
 #define IsNormalSegment(xxx)   (((xxx)->distance)&SEGMENT_NORMAL)
@@ -86,16 +111,67 @@ struct _Segments
 #define OtherNode(xxx,yyy)     ((xxx)->node1==(yyy)?(xxx)->node2:(xxx)->node1)
 
 
-/* Functions */
+#if !SLIM
+
+/*+ Return a segment pointer given a set of segments and an index. +*/
+#define LookupSegment(xxx,yyy,zzz) (&(xxx)->segments[yyy])
+
+/*+ Return a segment index given a set of segments and a pointer. +*/
+#define IndexSegment(xxx,yyy)      ((yyy)-&(xxx)->segments[0])
+
+#else
+
+static Segment *LookupSegment(Segments *segments,index_t index,int position);
+
+static index_t IndexSegment(Segments *segments,Segment *segment);
 
 
-Segments *LoadSegmentList(const char *filename);
+/*++++++++++++++++++++++++++++++++++++++
+  Find the Segment information for a particular segment.
 
-Segment *NextSegment(Segments* segments,Segment *segment,index_t node);
+  Segment *LookupSegment Returns a pointer to the cached segment information.
 
-distance_t Distance(double lat1,double lon1,double lat2,double lon2);
+  Segments *segments The segments structure to use.
 
-duration_t Duration(Segment *segment,Way *way,Profile *profile);
+  index_t index The index of the segment.
+
+  int position The position in the cache to store the value.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline Segment *LookupSegment(Segments *segments,index_t index,int position)
+{
+ SeekFile(segments->fd,sizeof(SegmentsFile)+index*sizeof(Segment));
+
+ ReadFile(segments->fd,&segments->cached[position-1],sizeof(Segment));
+
+ segments->incache[position-1]=index;
+
+ return(&segments->cached[position-1]);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the segment index for a particular segment pointer.
+
+  index_t IndexSegment Returns the index of the segment in the list.
+
+  Segments *segments The segments structure to use.
+
+  Segment *segment The segment whose index is to be found.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline index_t IndexSegment(Segments *segments,Segment *segment)
+{
+ int i;
+
+ for(i=0;i<sizeof(segments->cached)/sizeof(segments->cached[0]);i++)
+    if(&segments->cached[i]==segment)
+       return(segments->incache[i]);
+
+ return(NO_SEGMENT);
+}
+
+#endif
 
 
 #endif /* SEGMENTS_H */
