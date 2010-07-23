@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.84 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.85 2010-07-23 14:30:38 amb Exp $
 
  OSM router.
 
@@ -38,20 +38,11 @@
 #include "profiles.h"
 
 
-/*+ The number of waypoints allowed to be specified. +*/
-#define NWAYPOINTS 99
-
 /*+ The maximum distance from the specified point to search for a node or segment (in km). +*/
 #define MAXSEARCH  1
 
-/*+ The minimum distance along a segment from a node to insert a fake node. (in km). +*/
-#define MINSEGMENT 0.005
 
-
-/*+ A set of fake segments to allow start/finish in the middle of a segment. +*/
-static Segment fake_segments[2*NWAYPOINTS];
-
-/*+ A set of fake node latitudes and longitudes. +*/
+/*+ A set of waypoint latitudes and longitudes. +*/
 static double point_lon[NWAYPOINTS+1],point_lat[NWAYPOINTS+1];
 
 /*+ The option not to print any progress information. +*/
@@ -410,7 +401,7 @@ int main(int argc,char** argv)
     Results *begin,*end;
     distance_t distmax=km_to_distance(MAXSEARCH);
     distance_t distmin;
-    Segment *segment=NULL;
+    index_t segment=NO_SEGMENT;
     index_t node1,node2;
 
     if(point_used[point]!=3)
@@ -428,8 +419,10 @@ int main(int argc,char** argv)
       {
        distance_t dist1,dist2;
 
-       if((segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2)))
-          finish=CreateFakes(OSMNodes,point,segment,node1,node2,dist1,dist2);
+       segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2);
+
+       if(segment!=NO_SEGMENT)
+          finish=CreateFakes(OSMNodes,point,LookupSegment(OSMSegments,segment,1),node1,node2,dist1,dist2);
        else
           finish=NO_NODE;
       }
@@ -450,7 +443,7 @@ int main(int argc,char** argv)
           GetLatLong(OSMNodes,finish,&lat,&lon);
 
        if(IsFakeNode(finish))
-          printf("Point %d is segment %d (node %d -> %d): %3.6f %4.6f = %2.3f km\n",point,IndexSegment(OSMSegments,segment),node1,node2,
+          printf("Point %d is segment %d (node %d -> %d): %3.6f %4.6f = %2.3f km\n",point,segment,node1,node2,
                  radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
        else
           printf("Point %d is node %d: %3.6f %4.6f = %2.3f km\n",point,finish,
@@ -554,170 +547,6 @@ int main(int argc,char** argv)
     PrintRoute(results,NWAYPOINTS,OSMNodes,OSMSegments,OSMWays,profile);
 
  return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Create a pair of fake segments corresponding to the given segment split in two.
-
-  index_t CreateFakes Returns the fake node index (or a real one in special cases).
-
-  Nodes *nodes The set of nodes to use.
-
-  int point Which of the waypoints is this.
-
-  Segment *segment The segment to split.
-
-  index_t node1 The first node at the end of this segment.
-
-  index_t node2 The second node at the end of this segment.
-
-  distance_t dist1 The distance to the first node.
-
-  distance_t dist2 The distance to the second node.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-index_t CreateFakes(Nodes *nodes,int point,Segment *segment,index_t node1,index_t node2,distance_t dist1,distance_t dist2)
-{
- index_t fakenode;
- double lat1,lon1,lat2,lon2;
-
- /* Check if we are actually close enough to an existing node */
-
- if(dist1<km_to_distance(MINSEGMENT) && dist2>km_to_distance(MINSEGMENT))
-    return(node1);
-
- if(dist2<km_to_distance(MINSEGMENT) && dist1>km_to_distance(MINSEGMENT))
-    return(node2);
-
- if(dist1<km_to_distance(MINSEGMENT) && dist2<km_to_distance(MINSEGMENT))
-   {
-    if(dist1<dist2)
-       return(node1);
-    else
-       return(node2);
-   }
-
- /* Create the fake node */
-
- fakenode=point|NODE_SUPER;
-
- GetLatLong(nodes,node1,&lat1,&lon1);
- GetLatLong(nodes,node2,&lat2,&lon2);
-
- if(lat1>3 && lat2<-3)
-    lat2+=2*M_PI;
- else if(lat1<-3 && lat2>3)
-    lat1+=2*M_PI;
-
- point_lat[point]=lat1+(lat2-lat1)*(double)dist1/(double)(dist1+dist2);
- point_lon[point]=lon1+(lon2-lon1)*(double)dist1/(double)(dist1+dist2);
-
- if(point_lat[point]>M_PI) point_lat[point]-=2*M_PI;
-
- /* Create the first fake segment */
-
- fake_segments[2*point-2]=*segment;
-
- if(segment->node1==node1)
-    fake_segments[2*point-2].node1=fakenode;
- else
-    fake_segments[2*point-2].node2=fakenode;
-
- fake_segments[2*point-2].distance=DISTANCE(dist1)|DISTFLAG(segment->distance);
-
- /* Create the second fake segment */
-
- fake_segments[2*point-1]=*segment;
-
- if(segment->node1==node2)
-    fake_segments[2*point-1].node1=fakenode;
- else
-    fake_segments[2*point-1].node2=fakenode;
-
- fake_segments[2*point-1].distance=DISTANCE(dist2)|DISTFLAG(segment->distance);
-
- return(fakenode);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Lookup the latitude and longitude of a fake node.
-
-  index_t fakenode The node to lookup.
-
-  double *latitude Returns the latitude
-
-  double *longitude Returns the longitude.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void GetFakeLatLong(index_t fakenode, double *latitude,double *longitude)
-{
- index_t realnode=fakenode&(~NODE_SUPER);
-
- *latitude =point_lat[realnode];
- *longitude=point_lon[realnode];
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Finds the first fake segment associated to a fake node.
-
-  Segment *FirstFakeSegment Returns the first fake segment.
-
-  index_t fakenode The node to lookup.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-Segment *FirstFakeSegment(index_t fakenode)
-{
- index_t realnode=fakenode&(~NODE_SUPER);
-
- return(&fake_segments[2*realnode-2]);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Finds the next (there can only be two) fake segment associated to a fake node.
-
-  Segment *NextFakeSegment Returns the second fake segment.
-
-  Segment *segment The first fake segment.
-
-  index_t fakenode The node to lookup.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-Segment *NextFakeSegment(Segment *segment,index_t fakenode)
-{
- index_t realnode=fakenode&(~NODE_SUPER);
-
- if(segment==&fake_segments[2*realnode-2])
-    return(&fake_segments[2*realnode-1]);
- else
-    return(NULL);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Finds the next (there can only be two) fake segment associated to a fake node.
-
-  Segment *ExtraFakeSegment Returns a segment between the two specified nodes if it exists.
-
-  index_t node The real node.
-
-  index_t fakenode The fake node to lookup.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-Segment *ExtraFakeSegment(index_t node,index_t fakenode)
-{
- index_t realnode=fakenode&(~NODE_SUPER);
-
- if(fake_segments[2*realnode-2].node1==node || fake_segments[2*realnode-2].node2==node)
-    return(&fake_segments[2*realnode-2]);
-
- if(fake_segments[2*realnode-1].node1==node || fake_segments[2*realnode-1].node2==node)
-    return(&fake_segments[2*realnode-1]);
-
- return(NULL);
 }
 
 
