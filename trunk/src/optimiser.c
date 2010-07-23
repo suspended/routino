@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.88 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.89 2010-07-23 14:32:48 amb Exp $
 
  Routing optimiser.
 
@@ -174,7 +174,10 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           result2->prev=node1;
           result2->next=NO_NODE;
           result2->score=cumulative_score;
-          result2->segment=segment;
+          if(IsFakeNode(node1) || IsFakeNode(node2))
+             result2->segment=IndexFakeSegment(segment);
+          else
+             result2->segment=IndexSegment(segments,segment);
 
           if(node2==finish)
             {
@@ -191,7 +194,10 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
          {
           result2->prev=node1;
           result2->score=cumulative_score;
-          result2->segment=segment;
+          if(IsFakeNode(node1) || IsFakeNode(node2))
+             result2->segment=IndexFakeSegment(segment);
+          else
+             result2->segment=IndexSegment(segments,segment);
 
           if(node2==finish)
             {
@@ -398,7 +404,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
           result2->prev=node1;
           result2->next=NO_NODE;
           result2->score=cumulative_score;
-          result2->segment=segment;
+          result2->segment=IndexSegment(segments,segment);
 
           if((result3=FindResult(end,node2)))
             {
@@ -428,7 +434,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
          {
           result2->prev=node1;
           result2->score=cumulative_score;
-          result2->segment=segment;
+          result2->segment=IndexSegment(segments,segment);
 
           if((result3=FindResult(end,node2)))
             {
@@ -613,7 +619,10 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
           result2->prev=node1;
           result2->next=NO_NODE;
           result2->score=cumulative_score;
-          result2->segment=segment;
+          if(IsFakeNode(node1) || IsFakeNode(node2))
+             result2->segment=IndexFakeSegment(segment);
+          else
+             result2->segment=IndexSegment(segments,segment);
 
           if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
             {
@@ -625,7 +634,10 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
          {
           result2->prev=node1;
           result2->score=cumulative_score;
-          result2->segment=segment;
+          if(IsFakeNode(node1) || IsFakeNode(node2))
+             result2->segment=IndexFakeSegment(segment);
+          else
+             result2->segment=IndexSegment(segments,segment);
 
           if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
             {
@@ -768,7 +780,10 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
           result2->prev=NO_NODE;
           result2->next=node1;
           result2->score=cumulative_score;
-          result2->segment=segment;
+          if(IsFakeNode(node1) || IsFakeNode(node2))
+             result2->segment=IndexFakeSegment(segment);
+          else
+             result2->segment=IndexSegment(segments,segment);
 
           if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
             {
@@ -780,7 +795,10 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
          {
           result2->next=node1;
           result2->score=cumulative_score;
-          result2->segment=segment;
+          if(IsFakeNode(node1) || IsFakeNode(node2))
+             result2->segment=IndexFakeSegment(segment);
+          else
+             result2->segment=IndexSegment(segments,segment);
 
           if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
             {

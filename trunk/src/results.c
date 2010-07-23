@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.21 2010-07-07 19:04:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.c,v 1.22 2010-07-23 14:32:16 amb Exp $
 
  Result data type functions.
 
@@ -163,13 +163,13 @@ Result *InsertResult(Results *results,index_t node)
 
 void ZeroResult(Result *result)
 {
+ result->segment=NO_SEGMENT;
+
  result->prev=NO_NODE;
  result->next=NO_NODE;
 
  result->score=0;
  result->sortby=0;
-
- result->segment=NULL;
 }
 
 
