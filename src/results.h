@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.h,v 1.17 2009-11-13 19:24:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/results.h,v 1.18 2010-07-23 14:32:16 amb Exp $
 
  A header file for the results.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -42,6 +42,7 @@
 typedef struct _Result
 {
  index_t   node;                /*+ The node for which this result applies. +*/
+ index_t   segment;             /*+ The segment for the path to here (from prev). +*/
 
  index_t   prev;                /*+ The previous node following the best path. +*/
  index_t   next;                /*+ The next node following the best path. +*/
@@ -50,8 +51,6 @@ typedef struct _Result
 
  score_t   sortby;              /*+ The best possible weighted distance or duration score from the start to the finish. +*/
  uint32_t  queued;              /*+ The position of this result in the queue. +*/
-
- Segment  *segment;             /*+ The segment for the path to here (from prev). +*/
 }
  Result;
 
