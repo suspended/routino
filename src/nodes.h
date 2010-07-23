@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.31 2010-07-15 18:04:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.32 2010-07-23 14:35:27 amb Exp $
 
  A header file for the nodes.
 
@@ -93,9 +93,9 @@ Nodes *LoadNodeList(const char *filename);
 index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
                         distance_t distance,Profile *profile,distance_t *bestdist);
 
-Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
-                            distance_t distance,Profile *profile, distance_t *bestdist,
-                            index_t *bestnode1,index_t *bestnode2,distance_t *bestdist1,distance_t *bestdist2);
+index_t FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
+                           distance_t distance,Profile *profile, distance_t *bestdist,
+                           index_t *bestnode1,index_t *bestnode2,distance_t *bestdist1,distance_t *bestdist2);
 
 void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 
@@ -108,7 +108,7 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 #define LookupNode(xxx,yyy,ppp)     (&(xxx)->nodes[yyy])
 
 /*+ Return a Segment points given a Node pointer and a set of segments. +*/
-#define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),SEGMENT((yyy)->nodes[zzz].firstseg))
+#define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),SEGMENT((yyy)->nodes[zzz].firstseg),1)
 
 /*+ Return true if this is a super-node. +*/
 #define IsSuperNode(xxx,yyy)        (((xxx)->nodes[yyy].firstseg)&NODE_SUPER)
@@ -117,7 +117,7 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 
 static Node *LookupNode(Nodes *nodes,index_t index,int position);
 
-#define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),FirstSegment_internal(yyy,zzz))
+#define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),FirstSegment_internal(yyy,zzz),1)
 
 static index_t FirstSegment_internal(Nodes *nodes,index_t index);
 

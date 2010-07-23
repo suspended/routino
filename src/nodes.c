@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.41 2010-07-15 18:04:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.42 2010-07-23 14:35:27 amb Exp $
 
  Node data type functions.
 
@@ -234,7 +234,7 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
 /*++++++++++++++++++++++++++++++++++++++
   Find the closest segment to a latitude, longitude and optionally profile.
 
-  Segment *FindClosestSegment Returns the closest segment.
+  index_t FindClosestSegment Returns the closest segment index.
 
   Nodes* nodes The set of nodes to search.
 
@@ -261,16 +261,16 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
   distance_t *bestdist2 Returns the distance to the best node at the other end.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
-                            distance_t distance,Profile *profile, distance_t *bestdist,
-                            index_t *bestnode1,index_t *bestnode2,distance_t *bestdist1,distance_t *bestdist2)
+index_t FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
+                           distance_t distance,Profile *profile, distance_t *bestdist,
+                           index_t *bestnode1,index_t *bestnode2,distance_t *bestdist1,distance_t *bestdist2)
 {
  ll_bin_t   latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->file.latzero;
  ll_bin_t   lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->file.lonzero;
  int        delta=0,count;
  index_t    i,bestn1=NO_NODE,bestn2=NO_NODE;
  distance_t bestd=INF_DISTANCE,bestd1=INF_DISTANCE,bestd2=INF_DISTANCE;
- Segment   *bests=NULL;
+ index_t    bests=NO_SEGMENT;
 
  /* Start with the bin containing the location, then spiral outwards. */
 
@@ -393,7 +393,7 @@ Segment *FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double la
 
                          if(distp<(double)bestd)
                            {
-                            bests=segment;
+                            bests=IndexSegment(segments,segment);
                             bestn1=i;
                             bestn2=OtherNode(segment,i);
                             bestd1=(distance_t)dist3a;

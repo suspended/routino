@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.45 2010-07-15 18:04:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.46 2010-07-23 14:35:27 amb Exp $
 
  Memory file dumper.
 
@@ -220,9 +220,9 @@ int main(int argc,char** argv)
     printf("\n");
 
     printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
-    printf("Number(total)  =%9d\n",OSMSegments->number);
-    printf("Number(super)  =%9d\n",OSMSegments->snumber);
-    printf("Number(normal) =%9d\n",OSMSegments->nnumber);
+    printf("Number(total)  =%9d\n",OSMSegments->file.number);
+    printf("Number(super)  =%9d\n",OSMSegments->file.snumber);
+    printf("Number(normal) =%9d\n",OSMSegments->file.nnumber);
 
     /* Examine the ways */
 
@@ -266,17 +266,17 @@ int main(int argc,char** argv)
          }
        else if(!strcmp(argv[arg],"--segment=all"))
          {
-          for(item=0;item<OSMSegments->number;item++)
+          for(item=0;item<OSMSegments->file.number;item++)
              print_segment(OSMSegments,item);
          }
        else if(!strncmp(argv[arg],"--segment=",10))
          {
           item=atoi(&argv[arg][10]);
 
-          if(item>=0 && item<OSMSegments->number)
+          if(item>=0 && item<OSMSegments->file.number)
              print_segment(OSMSegments,item);
           else
-             printf("Invalid segment number; minimum=0, maximum=%d.\n",OSMSegments->number-1);
+             printf("Invalid segment number; minimum=0, maximum=%d.\n",OSMSegments->file.number-1);
          }
        else if(!strcmp(argv[arg],"--way=all"))
          {
@@ -358,8 +358,8 @@ int main(int argc,char** argv)
        for(item=0;item<OSMNodes->file.number;item++)
           print_node_osm(OSMNodes,item);
 
-       for(item=0;item<OSMSegments->number;item++)
-          if(!option_no_super || IsNormalSegment(LookupSegment(OSMSegments,item)))
+       for(item=0;item<OSMSegments->file.number;item++)
+          if(!option_no_super || IsNormalSegment(LookupSegment(OSMSegments,item,1)))
              print_segment_osm(OSMSegments,item,OSMWays);
       }
 
@@ -403,7 +403,7 @@ static void print_node(Nodes* nodes,index_t item)
 
 static void print_segment(Segments *segments,index_t item)
 {
- Segment *segment=LookupSegment(segments,item);
+ Segment *segment=LookupSegment(segments,item,1);
 
  printf("Segment %d\n",item);
  printf("  node1=%d node2=%d\n",segment->node1,segment->node2);
@@ -500,7 +500,7 @@ static void print_node_osm(Nodes* nodes,index_t item)
 
 static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 {
- Segment *segment=LookupSegment(segments,item);
+ Segment *segment=LookupSegment(segments,item,1);
  Way *way=LookupWay(ways,segment->way);
  int i;
 

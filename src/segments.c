@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.46 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.c,v 1.47 2010-07-23 14:35:27 amb Exp $
 
  Segment data type functions.
 
@@ -44,21 +44,35 @@
 
 Segments *LoadSegmentList(const char *filename)
 {
- void *data;
  Segments *segments;
 
  segments=(Segments*)malloc(sizeof(Segments));
 
- data=MapFile(filename);
+#if !SLIM
 
- /* Copy the Segments structure from the loaded data */
+ segments->data=MapFile(filename);
 
- *segments=*((Segments*)data);
+ /* Copy the SegmentsFile structure from the loaded data */
 
- /* Adjust the pointers in the Segments structure. */
+ segments->file=*((SegmentsFile*)segments->data);
 
- segments->data=data;
- segments->segments=(Segment*)(data+sizeof(Segments));
+ /* Set the pointers in the Segments structure. */
+
+ segments->segments=(Segment*)(segments->data+sizeof(SegmentsFile));
+
+#else
+
+ segments->fd=ReOpenFile(filename);
+
+ /* Copy the SegmentsFile header structure from the loaded data */
+
+ ReadFile(segments->fd,&segments->file,sizeof(SegmentsFile));
+
+ segments->incache[0]=NO_SEGMENT;
+ segments->incache[1]=NO_SEGMENT;
+ segments->incache[2]=NO_SEGMENT;
+
+#endif
 
  return(segments);
 }
@@ -80,18 +94,31 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
 {
  if(segment->node1==node)
    {
-    segment++;
-    if((segment-segments->segments)>=segments->number || segment->node1!=node)
+#if SLIM
+    index_t index=IndexSegment(segments,segment);
+    index++;
+
+    if(index>=segments->file.number)
+       return(NULL);
+    segment=LookupSegment(segments,index,1);
+    if(segment->node1!=node)
        return(NULL);
     else
        return(segment);
+#else
+    segment++;
+    if(IndexSegment(segments,segment)>=segments->file.number || segment->node1!=node)
+       return(NULL);
+    else
+       return(segment);
+#endif
    }
  else
    {
     if(segment->next2==NO_NODE)
        return(NULL);
     else
-       return(LookupSegment(segments,segment->next2));
+       return(LookupSegment(segments,segment->next2,1));
    }
 }
  
