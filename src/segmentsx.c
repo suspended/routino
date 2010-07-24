@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.57 2010-07-23 14:35:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.58 2010-07-24 16:51:41 amb Exp $
 
  Extended Segment data type functions.
 
@@ -958,7 +958,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 {
  index_t i;
  int fd;
- SegmentsFile *segments;
+ SegmentsFile segmentsfile;
  int super_number=0,normal_number=0;
 
  /* Check the start conditions */
@@ -972,7 +972,11 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  printf("Writing Segments: Segments=0");
  fflush(stdout);
 
- /* Count the number of super-segments and normal segments */
+ /* Write out the segments data */
+
+ fd=OpenFile(filename);
+
+ SeekFile(fd,sizeof(SegmentsFile));
 
  for(i=0;i<segmentsx->number;i++)
    {
@@ -982,28 +986,6 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
        super_number++;
     if(IsNormalSegment(segment))
        normal_number++;
-   }
-
- /* Fill in a Segments structure with the offset of the real data in the file after
-    the Segment structure itself. */
-
- segments=calloc(1,sizeof(SegmentsFile));
-
- assert(segments); /* Check calloc() worked */
-
- segments->number=segmentsx->number;
- segments->snumber=super_number;
- segments->nnumber=normal_number;
-
- /* Write out the Segments structure and then the real data. */
-
- fd=OpenFile(filename);
-
- WriteFile(fd,segments,sizeof(SegmentsFile));
-
- for(i=0;i<segments->number;i++)
-   {
-    Segment *segment=LookupSegmentXSegment(segmentsx,i,1);
 
     WriteFile(fd,segment,sizeof(Segment));
 
@@ -1014,16 +996,21 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
       }
    }
 
+ /* Write out the header structure */
+
+ segmentsfile.number=segmentsx->number;
+ segmentsfile.snumber=super_number;
+ segmentsfile.nnumber=normal_number;
+
+ SeekFile(fd,0);
+ WriteFile(fd,&segmentsfile,sizeof(SegmentsFile));
+
  CloseFile(fd);
 
  /* Print the final message */
 
- printf("\rWrote Segments: Segments=%d  \n",segments->number);
+ printf("\rWrote Segments: Segments=%d  \n",segmentsx->number);
  fflush(stdout);
-
- /* Free the fake Segments */
-
- free(segments);
 }
 
 

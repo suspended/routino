@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.43 2010-07-24 10:09:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.44 2010-07-24 16:51:41 amb Exp $
 
  Extended Way data type functions.
 
@@ -510,38 +510,33 @@ void SaveWayList(WaysX* waysx,const char *filename)
  index_t i;
  int fd,nfd;
  int position=0;
- WaysFile *ways;
+ WaysFile waysfile;
+ wayallow_t allow=0;
+ wayprop_t  props=0;
+
+ /* Print the start message */
 
  printf("Writing Ways: Ways=0");
  fflush(stdout);
+
+ /* Map into memory */
 
 #if !SLIM
  waysx->xdata=MapFile(waysx->filename);
 #endif
 
- /* Fill in a Ways structure with the offset of the real data in the file after
-    the Way structure itself. */
-
- ways=calloc(1,sizeof(WaysFile));
-
- assert(ways); /* Check calloc() worked */
-
- ways->number=waysx->cnumber;
- ways->onumber=waysx->number;
-
- ways->allow=0;
- ways->props=0;
-
- /* Write out the Ways structure and then the real data. */
+ /* Write out the ways data */
 
  fd=OpenFile(filename);
+
+ SeekFile(fd,sizeof(WaysFile));
 
  for(i=0;i<waysx->number;i++)
    {
     WayX *wayx=LookupWayX(waysx,i,1);
 
-    ways->allow|=wayx->way.allow;
-    ways->props|=wayx->way.props;
+    allow|=wayx->way.allow;
+    props|=wayx->way.props;
 
     SeekFile(fd,sizeof(WaysFile)+wayx->prop*sizeof(Way));
     WriteFile(fd,&wayx->way,sizeof(Way));
@@ -553,14 +548,15 @@ void SaveWayList(WaysX* waysx,const char *filename)
       }
    }
 
- SeekFile(fd,0);
- WriteFile(fd,ways,sizeof(WaysFile));
+ /* Unmap from memory */
 
 #if !SLIM
  waysx->xdata=UnmapFile(waysx->filename);
 #endif
 
- SeekFile(fd,sizeof(WaysFile)+ways->number*sizeof(Way));
+ /* Write out the ways names */
+
+ SeekFile(fd,sizeof(WaysFile)+waysx->cnumber*sizeof(Way));
 
  nfd=ReOpenFile(waysx->nfilename);
 
@@ -580,12 +576,21 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  CloseFile(nfd);
 
+ /* Write out the header structure */
+
+ waysfile.number=waysx->cnumber;
+ waysfile.onumber=waysx->number;
+
+ waysfile.allow=allow;
+ waysfile.props=props;
+
+ SeekFile(fd,0);
+ WriteFile(fd,&waysfile,sizeof(WaysFile));
+
  CloseFile(fd);
+
+ /* Print the final message */
 
  printf("\rWrote Ways: Ways=%d  \n",waysx->number);
  fflush(stdout);
-
- /* Free the fake Ways */
-
- free(ways);
 }
