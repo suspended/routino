@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.62 2010-07-15 18:04:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.63 2010-07-24 16:51:41 amb Exp $
 
  Extented Node data type functions.
 
@@ -831,7 +831,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 {
  index_t i;
  int fd;
- NodesFile *nodesfile;
+ NodesFile nodesfile;
  int super_number=0;
 
  /* Check the start conditions */
@@ -851,44 +851,20 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  nodesx->xdata=MapFile(nodesx->filename);
 #endif
 
- /* Count the number of super-nodes */
-
- for(i=0;i<nodesx->number;i++)
-   {
-    Node *node=LookupNodeXNode(nodesx,i,1);
-
-    if(node->firstseg&NODE_SUPER)
-       super_number++;
-   }
-
- /* Fill in a Nodes structure with the offset of the real data in the file after
-    the Node structure itself. */
-
- nodesfile=calloc(1,sizeof(NodesFile));
-
- assert(nodesfile); /* Check calloc() worked */
-
- nodesfile->number=nodesx->number;
- nodesfile->snumber=super_number;
-
- nodesfile->latbins=nodesx->latbins;
- nodesfile->lonbins=nodesx->lonbins;
-
- nodesfile->latzero=nodesx->latzero;
- nodesfile->lonzero=nodesx->lonzero;
-
- /* Write out the NodesFile structure and then the real data. */
+ /* Write out the nodes data */
 
  fd=OpenFile(filename);
 
- WriteFile(fd,nodesfile,sizeof(NodesFile));
-
+ SeekFile(fd,sizeof(NodesFile));
  WriteFile(fd,nodesx->offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
- for(i=0;i<nodesfile->number;i++)
+ for(i=0;i<nodesx->number;i++)
    {
     NodeX *nodex=LookupNodeX(nodesx,i,1);
     Node *node=LookupNodeXNode(nodesx,nodex->id,1);
+
+    if(node->firstseg&NODE_SUPER)
+       super_number++;
 
     WriteFile(fd,node,sizeof(Node));
 
@@ -898,6 +874,20 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
        fflush(stdout);
       }
    }
+
+ /* Write out the header structure */
+
+ nodesfile.number=nodesx->number;
+ nodesfile.snumber=super_number;
+
+ nodesfile.latbins=nodesx->latbins;
+ nodesfile.lonbins=nodesx->lonbins;
+
+ nodesfile.latzero=nodesx->latzero;
+ nodesfile.lonzero=nodesx->lonzero;
+
+ SeekFile(fd,0);
+ WriteFile(fd,&nodesfile,sizeof(NodesFile));
 
  CloseFile(fd);
 
@@ -909,10 +899,6 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Print the final message */
 
- printf("\rWrote Nodes: Nodes=%d  \n",nodesfile->number);
+ printf("\rWrote Nodes: Nodes=%d  \n",nodesx->number);
  fflush(stdout);
-
- /* Free the fake Nodes */
-
- free(nodesfile);
 }
