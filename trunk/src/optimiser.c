@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.89 2010-07-23 14:32:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.90 2010-07-24 10:09:06 amb Exp $
 
  Routing optimiser.
 
@@ -126,7 +126,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        if(node2!=finish && !IsFakeNode(node2) && IsSuperNode(nodes,node2))
           goto endloop;
 
-       way=LookupWay(ways,segment->way);
+       way=LookupWay(ways,segment->way,1);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -145,7 +145,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(ways->props & PROPERTIES(i))
+          if(ways->file.props & PROPERTIES(i))
             {
              if(way->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
@@ -356,7 +356,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
        if(result1->prev==node2)
           goto endloop;
 
-       way=LookupWay(ways,segment->way);
+       way=LookupWay(ways,segment->way,1);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -375,7 +375,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(ways->props & PROPERTIES(i))
+          if(ways->file.props & PROPERTIES(i))
             {
              if(way->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
@@ -574,7 +574,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        if(result1->prev==node2)
           goto endloop;
 
-       way=LookupWay(ways,segment->way);
+       way=LookupWay(ways,segment->way,1);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -593,7 +593,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(ways->props & PROPERTIES(i))
+          if(ways->file.props & PROPERTIES(i))
             {
              if(way->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
@@ -735,7 +735,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
        if(result1->next==node2)
           goto endloop;
 
-       way=LookupWay(ways,segment->way);
+       way=LookupWay(ways,segment->way,1);
 
        if(!(way->allow&profile->allow))
           goto endloop;
@@ -754,7 +754,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
        segment_pref=profile->highway[HIGHWAY(way->type)];
 
        for(i=1;i<Property_Count;i++)
-          if(ways->props & PROPERTIES(i))
+          if(ways->file.props & PROPERTIES(i))
             {
              if(way->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];

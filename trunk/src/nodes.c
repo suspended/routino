@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.42 2010-07-23 14:35:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.43 2010-07-24 10:09:06 amb Exp $
 
  Node data type functions.
 
@@ -59,7 +59,7 @@ Nodes *LoadNodeList(const char *filename)
  /* Set the pointers in the Nodes structure. */
 
  nodes->offsets=(index_t*)(nodes->data+sizeof(NodesFile));
- nodes->nodes=(Node*)(nodes->data+(sizeof(NodesFile)+(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t)));
+ nodes->nodes  =(Node*   )(nodes->data+sizeof(NodesFile)+(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t));
 
 #else
 
@@ -200,7 +200,7 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
 
                    do
                      {
-                      Way *way=LookupWay(ways,segment->way);
+                      Way *way=LookupWay(ways,segment->way,1);
 
                       if(way->allow&profile->allow)
                          break;
@@ -358,7 +358,7 @@ index_t FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double lat
                       Way *way=NULL;
 
                       if(profile)
-                         way=LookupWay(ways,segment->way);
+                         way=LookupWay(ways,segment->way,1);
 
                       if(!profile || way->allow&profile->allow)
                         {
