@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.42 2010-07-14 18:00:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.43 2010-07-24 10:09:07 amb Exp $
 
  Extended Way data type functions.
 
@@ -510,7 +510,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
  index_t i;
  int fd,nfd;
  int position=0;
- Ways *ways;
+ WaysFile *ways;
 
  printf("Writing Ways: Ways=0");
  fflush(stdout);
@@ -522,7 +522,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
  /* Fill in a Ways structure with the offset of the real data in the file after
     the Way structure itself. */
 
- ways=calloc(1,sizeof(Ways));
+ ways=calloc(1,sizeof(WaysFile));
 
  assert(ways); /* Check calloc() worked */
 
@@ -531,10 +531,6 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  ways->allow=0;
  ways->props=0;
-
- ways->data=NULL;
- ways->ways=NULL;
- ways->names=NULL;
 
  /* Write out the Ways structure and then the real data. */
 
@@ -547,7 +543,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
     ways->allow|=wayx->way.allow;
     ways->props|=wayx->way.props;
 
-    SeekFile(fd,sizeof(Ways)+wayx->prop*sizeof(Way));
+    SeekFile(fd,sizeof(WaysFile)+wayx->prop*sizeof(Way));
     WriteFile(fd,&wayx->way,sizeof(Way));
 
     if(!((i+1)%10000))
@@ -558,13 +554,13 @@ void SaveWayList(WaysX* waysx,const char *filename)
    }
 
  SeekFile(fd,0);
- WriteFile(fd,ways,sizeof(Ways));
+ WriteFile(fd,ways,sizeof(WaysFile));
 
 #if !SLIM
  waysx->xdata=UnmapFile(waysx->filename);
 #endif
 
- SeekFile(fd,sizeof(Ways)+ways->number*sizeof(Way));
+ SeekFile(fd,sizeof(WaysFile)+ways->number*sizeof(Way));
 
  nfd=ReOpenFile(waysx->nfilename);
 

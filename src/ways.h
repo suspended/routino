@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.37 2010-05-29 13:54:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.38 2010-07-24 10:09:07 amb Exp $
 
  A header file for the ways.
 
@@ -26,8 +26,11 @@
 #define WAYS_H    /*+ To stop multiple inclusions. +*/
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "types.h"
+
+#include "files.h"
 
 
 /* Data structures */
@@ -53,27 +56,61 @@ struct _Way
 };
 
 
-/*+ A structure containing a set of ways (mmap format). +*/
-struct _Ways
+/*+ A structure containing the header from the file. +*/
+typedef struct _WaysFile
 {
  uint32_t   number;             /*+ How many ways are stored? +*/
  uint32_t   onumber;            /*+ How many ways were there originally? +*/
 
  wayallow_t allow;              /*+ The types of traffic that were seen when parsing. +*/
  wayprop_t  props;              /*+ The properties that were seen when parsing. +*/
+}
+ WaysFile;
+
+
+/*+ A structure containing a set of ways (and pointers to mmap file). +*/
+struct _Ways
+{
+ WaysFile file;                 /*+ The header data from the file. +*/
+
+#if !SLIM
+
+ void      *data;               /*+ The memory mapped data. +*/
 
  Way       *ways;               /*+ An array of ways. +*/
  char      *names;              /*+ An array of characters containing the names. +*/
 
- void      *data;               /*+ The memory mapped data. +*/
+#else
+
+ int        fd;                 /*+ The file descriptor for the file. +*/
+ off_t      namesoffset;        /*+ The offset of the names within the file. +*/
+
+ Way        wcached[2];         /*+ The cached ways. +*/
+
+ char      *ncached;            /*+ The cached way name. +*/
+ index_t    nincache;           /*+ The index of the cached way name. +*/
+ int        nalloc;             /*+ The amount of memory allocated for the way name. +*/
+
+#endif
 };
 
 
-/* Macros */
+/* Functions */
 
+Ways *LoadWayList(const char *filename);
+
+int WaysCompare(Way *way1,Way *way2);
+
+
+/* Macros and inline functions */
+
+/*+ Return the name of a way if it has one or the name of the highway type otherwise. +*/
+#define WayNameHighway(xxx,yyy)    (WayNamed(xxx,yyy)?WayNameRaw(xxx,yyy):HighwayName(HIGHWAY(yyy->type)))
+
+#if !SLIM
 
 /*+ Return a Way* pointer given a set of ways and an index. +*/
-#define LookupWay(xxx,yyy)     (&(xxx)->ways[yyy])
+#define LookupWay(xxx,yyy,zzz)     (&(xxx)->ways[yyy])
 
 /*+ Return the raw name of a way given the Way pointer and a set of ways. +*/
 #define WayNameRaw(xxx,yyy)        (&(xxx)->names[(yyy)->name])
@@ -81,16 +118,101 @@ struct _Ways
 /*+ Decide if a way has a name or not. +*/
 #define WayNamed(xxx,yyy)          ((xxx)->names[(yyy)->name])
 
-/*+ Return the name of a way if it has one or the name of the highway type otherwise. +*/
-#define WayNameHighway(xxx,yyy)    (WayNamed(xxx,yyy)?WayNameRaw(xxx,yyy):HighwayName(HIGHWAY(yyy->type)))
+#else
+
+static Way *LookupWay(Ways *ways,index_t index,int position);
+
+static char *WayNameRaw(Ways *ways,Way *way);
+
+static int WayNamed(Ways *ways,Way *way);
 
 
-/* Functions */
+/*++++++++++++++++++++++++++++++++++++++
+  Find the Way information for a particular way.
+
+  Way *LookupWay Returns a pointer to the cached way information.
+
+  Ways *ways The ways structure to use.
+
+  index_t index The index of the way.
+
+  int position The position in the cache to store the value.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline Way *LookupWay(Ways *ways,index_t index,int position)
+{
+ SeekFile(ways->fd,sizeof(WaysFile)+index*sizeof(Way));
+
+ ReadFile(ways->fd,&ways->wcached[position-1],sizeof(Way));
+
+ return(&ways->wcached[position-1]);
+}
 
 
-Ways *LoadWayList(const char *filename);
+/*++++++++++++++++++++++++++++++++++++++
+  Find the name of a way.
 
-int WaysCompare(Way *way1,Way *way2);
+  char *WayNameRaw Returns a pointer to the name of the way.
+
+  Ways *ways The ways structure to use.
+
+  Way *way The Way pointer.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline char *WayNameRaw(Ways *ways,Way *way)
+{
+ int n=0;
+
+ if(way->name==ways->nincache)
+    return(ways->ncached);
+
+ SeekFile(ways->fd,ways->namesoffset+way->name);
+
+ if(!ways->ncached)
+    ways->ncached=(char*)malloc(32);
+
+ while(1)
+   {
+    int i;
+    int m=ReadFile(ways->fd,ways->ncached+n,32);
+
+    if(m<0)
+       break;
+    
+    for(i=n;i<n+32;i++)
+       if(ways->ncached[i]==0)
+          goto exitloop;
+
+    n+=32;
+
+    ways->ncached=(char*)realloc((void*)ways->ncached,n+32);
+   }
+
+ exitloop:
+
+ return(ways->ncached);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Check if a way has a name.
+
+  int WayNamed Returns a pointer to the name of the way.
+
+  Ways *ways The ways structure to use.
+
+  Way *way The Way pointer.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline int WayNamed(Ways *ways,Way *way)
+{
+ if(way->name!=ways->nincache)
+    WayNameRaw(ways,way);
+
+ return(ways->ncached[0]);
+}
+
+#endif
 
 
 #endif /* WAYS_H */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.43 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.44 2010-07-24 10:09:06 amb Exp $
 
  Load the profiles from a file and the functions for handling them.
 
@@ -656,7 +656,7 @@ int UpdateProfile(Profile *profile,Ways *ways)
 
  profile->allow=ALLOWED(profile->transport);
 
- if(!(profile->allow & ways->allow))
+ if(!(profile->allow & ways->file.allow))
     return(1);
 
  /* Normalise the highway preferences into the range 0 -> 1 */
@@ -706,7 +706,7 @@ int UpdateProfile(Profile *profile,Ways *ways)
  profile->max_pref=1; /* since highway prefs were normalised to 1 */
 
  for(i=1;i<Property_Count;i++)
-    if(ways->props & PROPERTIES(i))
+    if(ways->file.props & PROPERTIES(i))
       {
        if(profile->props_yes[i]>profile->props_no[i])
           profile->max_pref*=profile->props_yes[i];

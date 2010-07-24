@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.8 2010-07-15 18:04:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.9 2010-07-24 10:09:06 amb Exp $
 
  Extract data from Routino.
 
@@ -119,11 +119,11 @@ static void output_junctions(index_t node,double latitude,double longitude)
  int count=0,difference=0;
 
  segment=FirstSegment(OSMSegments,OSMNodes,node);
- firstway=LookupWay(OSMWays,segment->way);
+ firstway=LookupWay(OSMWays,segment->way,1);
 
  do
    {
-    Way *way=LookupWay(OSMWays,segment->way);
+    Way *way=LookupWay(OSMWays,segment->way,2);
 
     if(IsNormalSegment(segment))
        count++;
@@ -514,7 +514,7 @@ static void output_limits(index_t node,double latitude,double longitude)
    {
     if(IsNormalSegment(segment) && count<16)
       {
-       ways    [count]=LookupWay(OSMWays,segment->way);
+       ways    [count]=LookupWay(OSMWays,segment->way,1);
        segments[count]=segment;
 
        switch(limit_type)

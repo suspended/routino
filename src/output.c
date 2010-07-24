@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.35 2010-07-23 14:35:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.36 2010-07-24 10:09:06 amb Exp $
 
  Routing output generator.
 
@@ -379,7 +379,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              resultsegment=LookupFakeSegment(result->segment);
           else
              resultsegment=LookupSegment(segments,result->segment,3);
-          resultway=LookupWay(ways,resultsegment->way);
+          resultway=LookupWay(ways,resultsegment->way,1);
 
           seg_distance+=DISTANCE(resultsegment->distance);
           seg_duration+=Duration(resultsegment,resultway,profile);
@@ -403,7 +403,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 if(othernode!=result->prev && segment!=resultsegment)
                    if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
                      {
-                      Way *way=LookupWay(ways,segment->way);
+                      Way *way=LookupWay(ways,segment->way,2);
 
                       if(othernode==result->next) /* the next segment that we follow */
                         {

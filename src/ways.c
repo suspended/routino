@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.45 2010-07-12 17:59:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.46 2010-07-24 10:09:07 amb Exp $
 
  Way data type functions.
 
@@ -39,22 +39,37 @@
 
 Ways *LoadWayList(const char *filename)
 {
- void *data;
  Ways *ways;
 
  ways=(Ways*)malloc(sizeof(Ways));
 
- data=MapFile(filename);
+#if !SLIM
 
- /* Copy the Ways structure from the loaded data */
+ ways->data=MapFile(filename);
 
- *ways=*((Ways*)data);
+ /* Copy the WaysFile structure from the loaded data */
 
- /* Adjust the pointers in the Ways structure. */
+ ways->file=*((WaysFile*)ways->data);
 
- ways->data =data;
- ways->ways =(Way *)(data+sizeof(Ways));
- ways->names=(char*)(data+(sizeof(Ways)+ways->number*sizeof(Way)));
+ /* Set the pointers in the Ways structure. */
+
+ ways->ways =(Way *)(ways->data+sizeof(WaysFile));
+ ways->names=(char*)(ways->data+sizeof(WaysFile)+ways->file.number*sizeof(Way));
+
+#else
+
+ ways->fd=ReOpenFile(filename);
+
+ /* Copy the WaysFile header structure from the loaded data */
+
+ ReadFile(ways->fd,&ways->file,sizeof(WaysFile));
+
+ ways->namesoffset=sizeof(WaysFile)+ways->file.number*sizeof(Way);
+
+ ways->nincache=~0;
+ ways->ncached=NULL;
+
+#endif
 
  return(ways);
 }

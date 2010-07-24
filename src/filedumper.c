@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.46 2010-07-23 14:35:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.47 2010-07-24 10:09:06 amb Exp $
 
  Memory file dumper.
 
@@ -232,15 +232,15 @@ int main(int argc,char** argv)
     printf("\n");
 
     printf("sizeof(Way)      =%9d Bytes\n",sizeof(Way));
-    printf("Number(compacted)=%9d\n",OSMWays->number);
-    printf("Number(original) =%9d\n",OSMWays->onumber);
+    printf("Number(compacted)=%9d\n",OSMWays->file.number);
+    printf("Number(original) =%9d\n",OSMWays->file.onumber);
     printf("\n");
 
-    printf("Total names =%9ld Bytes\n",(long)buf.st_size-sizeof(Ways)-OSMWays->number*sizeof(Way));
+    printf("Total names =%9ld Bytes\n",(long)buf.st_size-sizeof(Ways)-OSMWays->file.number*sizeof(Way));
     printf("\n");
 
-    printf("Included transports: %s\n",AllowedNameList(OSMWays->allow));
-    printf("Included properties: %s\n",PropertiesNameList(OSMWays->props));
+    printf("Included transports: %s\n",AllowedNameList(OSMWays->file.allow));
+    printf("Included properties: %s\n",PropertiesNameList(OSMWays->file.props));
    }
 
  /* Print out internal data */
@@ -280,17 +280,17 @@ int main(int argc,char** argv)
          }
        else if(!strcmp(argv[arg],"--way=all"))
          {
-          for(item=0;item<OSMWays->number;item++)
+          for(item=0;item<OSMWays->file.number;item++)
              print_way(OSMWays,item);
          }
        else if(!strncmp(argv[arg],"--way=",6))
          {
           item=atoi(&argv[arg][6]);
 
-          if(item>=0 && item<OSMWays->number)
+          if(item>=0 && item<OSMWays->file.number)
              print_way(OSMWays,item);
           else
-             printf("Invalid way number; minimum=0, maximum=%d.\n",OSMWays->number-1);
+             printf("Invalid way number; minimum=0, maximum=%d.\n",OSMWays->file.number-1);
          }
    }
 
@@ -431,7 +431,7 @@ static void print_segment(Segments *segments,index_t item)
 
 static void print_way(Ways *ways,index_t item)
 {
- Way *way=LookupWay(ways,item);
+ Way *way=LookupWay(ways,item,1);
 
  printf("Way %d\n",item);
  printf("  name=%s\n",WayNameHighway(ways,way));
@@ -501,7 +501,7 @@ static void print_node_osm(Nodes* nodes,index_t item)
 static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 {
  Segment *segment=LookupSegment(segments,item,1);
- Way *way=LookupWay(ways,segment->way);
+ Way *way=LookupWay(ways,segment->way,1);
  int i;
 
  printf("  <way id='%lu' version='1'>\n",(unsigned long)item+1);
