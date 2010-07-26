@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.32 2010-07-23 14:35:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.33 2010-07-26 18:17:20 amb Exp $
 
  A header file for the nodes.
 
@@ -66,11 +66,11 @@ struct _Nodes
 {
  NodesFile file;                /*+ The header data from the file. +*/
 
- index_t  *offsets;             /*+ An array of offsets to the first node in each bin. +*/
-
 #if !SLIM
 
  void     *data;                /*+ The memory mapped data. +*/
+
+ index_t  *offsets;             /*+ An array of offsets to the first node in each bin. +*/
 
  Node     *nodes;               /*+ An array of nodes. +*/
 
@@ -105,13 +105,16 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 #if !SLIM
 
 /*+ Return a Node pointer given a set of nodes and an index. +*/
-#define LookupNode(xxx,yyy,ppp)     (&(xxx)->nodes[yyy])
+#define LookupNode(xxx,yyy,zzz)     (&(xxx)->nodes[yyy])
 
 /*+ Return a Segment points given a Node pointer and a set of segments. +*/
 #define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),SEGMENT((yyy)->nodes[zzz].firstseg),1)
 
 /*+ Return true if this is a super-node. +*/
 #define IsSuperNode(xxx,yyy)        (((xxx)->nodes[yyy].firstseg)&NODE_SUPER)
+
+/*+ Return the offset of a geographical region given a set of nodes and an index. +*/
+#define LookupNodeOffset(xxx,yyy)   ((xxx)->offsets[yyy])
 
 #else
 
@@ -122,6 +125,8 @@ static Node *LookupNode(Nodes *nodes,index_t index,int position);
 static index_t FirstSegment_internal(Nodes *nodes,index_t index);
 
 static int IsSuperNode(Nodes *nodes,index_t index);
+
+static index_t LookupNodeOffset(Nodes *nodes,index_t index);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -199,6 +204,28 @@ static inline int IsSuperNode(Nodes *nodes,index_t index)
 
     return(node->firstseg&NODE_SUPER);
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the offset of nodes in a geographical region.
+
+  index_t LookupNodeOffset Returns the value of the index offset.
+
+  Nodes *nodes The nodes structure to use.
+
+  index_t index The index of the offset.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline index_t LookupNodeOffset(Nodes *nodes,index_t index)
+{
+ index_t offset;
+
+ SeekFile(nodes->fd,sizeof(NodesFile)+index*sizeof(index_t));
+
+ ReadFile(nodes->fd,&offset,sizeof(index_t));
+
+ return(offset);
 }
 
 #endif

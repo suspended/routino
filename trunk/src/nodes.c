@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.43 2010-07-24 10:09:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.c,v 1.44 2010-07-26 18:17:20 amb Exp $
 
  Node data type functions.
 
@@ -69,12 +69,6 @@ Nodes *LoadNodeList(const char *filename)
 
  ReadFile(nodes->fd,&nodes->file,sizeof(NodesFile));
 
- /* Copy the offsets into RAM */
-
- nodes->offsets=(index_t*)malloc((nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t));
-
- ReadFile(nodes->fd,nodes->offsets,(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t));
-
  nodes->nodesoffset=sizeof(NodesFile)+(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t);
 
  nodes->incache[0]=NO_NODE;
@@ -115,7 +109,8 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
  ll_bin_t   latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->file.latzero;
  ll_bin_t   lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->file.lonzero;
  int        delta=0,count;
- index_t    i,bestn=NO_NODE;
+ index_t    i,index1,index2;
+ index_t    bestn=NO_NODE;
  distance_t bestd=INF_DISTANCE;
 
  /* Start with the bin containing the location, then spiral outwards. */
@@ -180,7 +175,10 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
 
           /* Check every node in this grid square. */
 
-          for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
+          index1=LookupNodeOffset(nodes,llbin);
+          index2=LookupNodeOffset(nodes,llbin+1);
+
+          for(i=index1;i<index2;i++)
             {
              Node *node=LookupNode(nodes,i,1);
              double lat=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb)+off_to_latlong(node->latoffset));
@@ -268,7 +266,8 @@ index_t FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double lat
  ll_bin_t   latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->file.latzero;
  ll_bin_t   lonbin=latlong_to_bin(radians_to_latlong(longitude))-nodes->file.lonzero;
  int        delta=0,count;
- index_t    i,bestn1=NO_NODE,bestn2=NO_NODE;
+ index_t    i,index1,index2;
+ index_t    bestn1=NO_NODE,bestn2=NO_NODE;
  distance_t bestd=INF_DISTANCE,bestd1=INF_DISTANCE,bestd2=INF_DISTANCE;
  index_t    bests=NO_SEGMENT;
 
@@ -334,7 +333,10 @@ index_t FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double lat
 
           /* Check every node in this grid square. */
 
-          for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
+          index1=LookupNodeOffset(nodes,llbin);
+          index2=LookupNodeOffset(nodes,llbin+1);
+
+          for(i=index1;i<index2;i++)
             {
              Node *node=LookupNode(nodes,i,1);
              double lat1=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb)+off_to_latlong(node->latoffset));
@@ -446,6 +448,7 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
  Node *node=LookupNode(nodes,index,2);
  int latbin=-1,lonbin=-1;
  int start,end,mid;
+ index_t offset;
 
  /* Binary search - search key closest below is required.
   *
@@ -465,26 +468,31 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
 
  do
    {
-    mid=(start+end)/2;                                      /* Choose mid point */
+    mid=(start+end)/2;                  /* Choose mid point */
 
-    if(nodes->offsets[nodes->file.latbins*mid]<index)       /* Mid point is too low */
+    offset=LookupNodeOffset(nodes,nodes->file.latbins*mid);
+
+    if(offset<index)                    /* Mid point is too low */
        start=mid;
-    else if(nodes->offsets[nodes->file.latbins*mid]>index)  /* Mid point is too high */
+    else if(offset>index)               /* Mid point is too high */
        end=mid-1;
-    else                                                    /* Mid point is correct */
+    else                                /* Mid point is correct */
       {lonbin=mid;break;}
    }
  while((end-start)>1);
 
  if(lonbin==-1)
    {
-    if(nodes->offsets[nodes->file.latbins*end]>index)
+    offset=LookupNodeOffset(nodes,nodes->file.latbins*end);
+
+    if(offset>index)
        lonbin=start;
     else
        lonbin=end;
    }
 
- while(lonbin<nodes->file.lonbins && nodes->offsets[lonbin*nodes->file.latbins]==nodes->offsets[(lonbin+1)*nodes->file.latbins])
+ while(lonbin<nodes->file.lonbins && 
+       LookupNodeOffset(nodes,lonbin*nodes->file.latbins)==LookupNodeOffset(nodes,(lonbin+1)*nodes->file.latbins))
     lonbin++;
 
  /* Search for latitude */
@@ -494,26 +502,31 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
 
  do
    {
-    mid=(start+end)/2;                                            /* Choose mid point */
+    mid=(start+end)/2;                  /* Choose mid point */
 
-    if(nodes->offsets[lonbin*nodes->file.latbins+mid]<index)      /* Mid point is too low */
+    offset=LookupNodeOffset(nodes,lonbin*nodes->file.latbins+mid);
+
+    if(offset<index)                    /* Mid point is too low */
        start=mid;
-    else if(nodes->offsets[lonbin*nodes->file.latbins+mid]>index) /* Mid point is too high */
+    else if(offset>index)               /* Mid point is too high */
        end=mid-1;
-    else                                                          /* Mid point is correct */
+    else                                /* Mid point is correct */
       {latbin=mid;break;}
    }
  while((end-start)>1);
 
  if(latbin==-1)
    {
-    if(nodes->offsets[lonbin*nodes->file.latbins+end]>index)
+    offset=LookupNodeOffset(nodes,lonbin*nodes->file.latbins+end);
+
+    if(offset>index)
        latbin=start;
     else
        latbin=end;
    }
 
- while(latbin<nodes->file.latbins && nodes->offsets[lonbin*nodes->file.latbins+latbin]==nodes->offsets[lonbin*nodes->file.latbins+latbin+1])
+ while(latbin<nodes->file.latbins &&
+       LookupNodeOffset(nodes,lonbin*nodes->file.latbins+latbin)==LookupNodeOffset(nodes,lonbin*nodes->file.latbins+latbin+1))
     latbin++;
 
  /* Return the values */
