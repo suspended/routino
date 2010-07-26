@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.47 2010-07-24 10:09:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.48 2010-07-26 18:17:20 amb Exp $
 
  Memory file dumper.
 
@@ -313,7 +313,7 @@ int main(int argc,char** argv)
        int32_t lonminbin=latlong_to_bin(radians_to_latlong(lonmin))-OSMNodes->file.lonzero;
        int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(lonmax))-OSMNodes->file.lonzero;
        int latb,lonb,llbin;
-       index_t item;
+       index_t item,index1,index2;
 
        /* Loop through all of the nodes. */
 
@@ -325,7 +325,10 @@ int main(int argc,char** argv)
              if(llbin<0 || llbin>(OSMNodes->file.latbins*OSMNodes->file.lonbins))
                 continue;
 
-             for(item=OSMNodes->offsets[llbin];item<OSMNodes->offsets[llbin+1];item++)
+             index1=LookupNodeOffset(OSMNodes,llbin);
+             index2=LookupNodeOffset(OSMNodes,llbin+1);
+
+             for(item=index1;item<index2;item++)
                {
                 Node *node=LookupNode(OSMNodes,item,1);
                 double lat=latlong_to_radians(bin_to_latlong(OSMNodes->file.latzero+latb)+off_to_latlong(node->latoffset));

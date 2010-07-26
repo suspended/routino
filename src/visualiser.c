@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.9 2010-07-24 10:09:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.10 2010-07-26 18:17:20 amb Exp $
 
  Extract data from Routino.
 
@@ -604,7 +604,7 @@ static void find_all_nodes(Nodes *nodes,callback_t callback)
  int32_t lonminbin=latlong_to_bin(radians_to_latlong(LonMin))-nodes->file.lonzero;
  int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(LonMax))-nodes->file.lonzero;
  int latb,lonb,llbin;
- index_t i;
+ index_t i,index1,index2;
 
  /* Loop through all of the nodes. */
 
@@ -616,7 +616,10 @@ static void find_all_nodes(Nodes *nodes,callback_t callback)
        if(llbin<0 || llbin>(nodes->file.latbins*nodes->file.lonbins))
           continue;
 
-       for(i=nodes->offsets[llbin];i<nodes->offsets[llbin+1];i++)
+       index1=LookupNodeOffset(nodes,llbin);
+       index2=LookupNodeOffset(nodes,llbin+1);
+
+       for(i=index1;i<index2;i++)
          {
           Node *node=LookupNode(nodes,i,1);
 
