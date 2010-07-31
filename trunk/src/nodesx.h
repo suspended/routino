@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.27 2010-07-14 18:00:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.28 2010-07-31 14:06:56 amb Exp $
 
  A header file for the extended nodes.
 
@@ -149,7 +149,7 @@ static void PutBackNodeXNode(NodesX* nodesx,index_t index,int position);
 
 static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
 {
- SeekFile(nodesx->fd,index*sizeof(NodeX));
+ SeekFile(nodesx->fd,(off_t)index*sizeof(NodeX));
 
  ReadFile(nodesx->fd,&nodesx->xcached[position-1],sizeof(NodeX));
 
@@ -171,7 +171,7 @@ static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
 
 static inline Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position)
 {
- SeekFile(nodesx->nfd,index*sizeof(Node));
+ SeekFile(nodesx->nfd,(off_t)index*sizeof(Node));
 
  ReadFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
 
@@ -191,7 +191,7 @@ static inline Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position)
 
 static inline void PutBackNodeXNode(NodesX* nodesx,index_t index,int position)
 {
- SeekFile(nodesx->nfd,index*sizeof(Node));
+ SeekFile(nodesx->nfd,(off_t)index*sizeof(Node));
 
  WriteFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
 }

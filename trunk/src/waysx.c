@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.45 2010-07-31 10:28:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.46 2010-07-31 14:06:56 amb Exp $
 
  Extended Way data type functions.
 
@@ -530,7 +530,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
     allow|=wayx->way.allow;
     props|=wayx->way.props;
 
-    SeekFile(fd,sizeof(WaysFile)+wayx->prop*sizeof(Way));
+    SeekFile(fd,sizeof(WaysFile)+(off_t)wayx->prop*sizeof(Way));
     WriteFile(fd,&wayx->way,sizeof(Way));
 
     if(!((i+1)%10000))
@@ -548,7 +548,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  /* Write out the ways names */
 
- SeekFile(fd,sizeof(WaysFile)+waysx->cnumber*sizeof(Way));
+ SeekFile(fd,sizeof(WaysFile)+(off_t)waysx->cnumber*sizeof(Way));
 
  nfd=ReOpenFile(waysx->nfilename);
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.h,v 1.35 2010-07-23 14:35:27 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segments.h,v 1.36 2010-07-31 14:06:56 amb Exp $
 
  A header file for the segments.
 
@@ -140,7 +140,7 @@ static index_t IndexSegment(Segments *segments,Segment *segment);
 
 static inline Segment *LookupSegment(Segments *segments,index_t index,int position)
 {
- SeekFile(segments->fd,sizeof(SegmentsFile)+index*sizeof(Segment));
+ SeekFile(segments->fd,sizeof(SegmentsFile)+(off_t)index*sizeof(Segment));
 
  ReadFile(segments->fd,&segments->cached[position-1],sizeof(Segment));
 

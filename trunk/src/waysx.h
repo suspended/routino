@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.24 2010-07-14 18:00:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.25 2010-07-31 14:06:56 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -119,7 +119,7 @@ static WayX *LookupWayX(WaysX* waysx,index_t index,int position);
 
 static inline WayX *LookupWayX(WaysX* waysx,index_t index,int position)
 {
- SeekFile(waysx->fd,index*sizeof(WayX));
+ SeekFile(waysx->fd,(off_t)index*sizeof(WayX));
 
  ReadFile(waysx->fd,&waysx->xcached[position-1],sizeof(WayX));
 
