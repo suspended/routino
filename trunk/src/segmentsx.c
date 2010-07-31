@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.59 2010-07-31 10:28:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.60 2010-07-31 14:56:17 amb Exp $
 
  Extended Segment data type functions.
 
@@ -37,6 +37,8 @@
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
+
+#include "types.h"
 
 #include "files.h"
 #include "functions.h"
@@ -162,6 +164,8 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
  WriteFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
  segmentsx->xnumber++;
+
+ assert(!(segmentsx->xnumber==SEGMENT_FAKE)); /* SEGMENT_FAKE marks the high-water mark for real segments. */
 }
 
 

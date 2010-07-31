@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.46 2010-07-31 14:06:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.47 2010-07-31 14:56:17 amb Exp $
 
  Extended Way data type functions.
 
@@ -163,6 +163,8 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
  WriteFile(waysx->fd,name,strlen(name)+1);
 
  waysx->xnumber++;
+
+ assert(!(waysx->xnumber==0)); /* Zero marks the high-water mark for ways. */
 }
 
 
