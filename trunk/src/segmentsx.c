@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.58 2010-07-24 16:51:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.59 2010-07-31 10:28:52 amb Exp $
 
  Extended Segment data type functions.
 
@@ -154,8 +154,6 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
 {
  SegmentX segmentx;
 
- assert(!segmentsx->idata);    /* Must not have idata filled in => unsorted */
-
  segmentx.node1=node1;
  segmentx.node2=node2;
  segmentx.way=way;
@@ -176,10 +174,6 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
 void SortSegmentList(SegmentsX* segmentsx)
 {
  int fd;
-
- /* Check the start conditions */
-
- assert(!segmentsx->idata);    /* Must not have idata filled in => unsorted */
 
  /* Print the start message */
 
@@ -288,8 +282,6 @@ index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node)
     return(index);
    }
 
- assert(segmentsx->idata);      /* Must have idata filled in => sorted by node 1 */
-
  /* Binary search - search key exact match only is required.
   *
   *  # <- start  |  Check mid and move start or end if it doesn't match
@@ -354,8 +346,6 @@ index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node)
 
 index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t segindex,index_t nodeindex)
 {
- assert(segmentsx->firstnode);   /* Must have firstnode filled in => segments updated */
-
  if(++segindex==segmentsx->firstnode[nodeindex+1])
     return(NO_SEGMENT);
  else
@@ -568,10 +558,6 @@ void RotateSegments(SegmentsX* segmentsx)
  int fd;
  SegmentX segmentx;
 
- /* Check the start conditions */
-
- assert(!segmentsx->idata);    /* Must not have idata filled in => not sorted by node 1 */
-
  /* Print the start message */
 
  printf("Rotating Segments: Segments=0 Rotated=0");
@@ -773,12 +759,6 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 {
  index_t i;
 
- /* Check the start conditions */
-
-#if !SLIM
- assert(!segmentsx->sdata);     /* Must not have sdata filled in => no real segments */
-#endif
-
  /* Print the start message */
 
  printf("Creating Real Segments: Segments=0");
@@ -856,15 +836,6 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 {
  index_t i;
-
- /* Check the start conditions */
-
-#if !SLIM
- assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
-#endif
-#if !SLIM
- assert(segmentsx->sdata);   /* Must have sdata filled in => real segments exist */
-#endif
 
  /* Print the start message */
 
@@ -960,12 +931,6 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  int fd;
  SegmentsFile segmentsfile;
  int super_number=0,normal_number=0;
-
- /* Check the start conditions */
-
-#if !SLIM
- assert(segmentsx->sdata);   /* Must have sdata filled in => real segments */
-#endif
 
  /* Print the start message */
 
