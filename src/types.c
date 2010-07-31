@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.c,v 1.3 2010-05-27 17:25:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.c,v 1.4 2010-07-31 18:21:18 amb Exp $
 
  Functions for handling the data types.
 
@@ -314,10 +314,10 @@ const char *PropertyName(Property property)
 
   const char *AllowedNameList Returns the list of names.
 
-  wayallow_t allowed The allowed type.
+  allow_t allowed The allowed type.
   ++++++++++++++++++++++++++++++++++++++*/
 
-const char *AllowedNameList(wayallow_t allowed)
+const char *AllowedNameList(allow_t allowed)
 {
  static char string[256];
 

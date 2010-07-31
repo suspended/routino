@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.47 2010-07-31 14:56:17 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.48 2010-07-31 18:21:18 amb Exp $
 
  Extended Way data type functions.
 
@@ -505,7 +505,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
  int fd,nfd;
  int position=0;
  WaysFile waysfile;
- wayallow_t allow=0;
+ allow_t allow=0;
  wayprop_t  props=0;
 
  /* Print the start message */
