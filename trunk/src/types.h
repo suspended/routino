@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.42 2010-07-31 18:13:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.43 2010-07-31 18:21:18 amb Exp $
 
  Type definitions
 
@@ -215,7 +215,7 @@ typedef enum _Transport
 
 
 /*+ The allowed traffic on a way. +*/
-typedef uint16_t wayallow_t;
+typedef uint16_t allow_t;
 
 #define ALLOWED(xx)  (1<<((xx)-1))
 
@@ -343,7 +343,7 @@ const char *HighwayName(Highway highway);
 const char *TransportName(Transport transport);
 const char *PropertyName(Property property);
 
-const char *AllowedNameList(wayallow_t allowed);
+const char *AllowedNameList(allow_t allowed);
 const char *PropertiesNameList(wayprop_t properties);
 
 const char *HighwayList(void);
