@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.64 2010-07-31 10:28:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.65 2010-07-31 14:56:17 amb Exp $
 
  Extented Node data type functions.
 
@@ -35,6 +35,8 @@
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
+
+#include "types.h"
 
 #include "files.h"
 #include "functions.h"
@@ -165,6 +167,8 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
  WriteFile(nodesx->fd,&nodex,sizeof(NodeX));
 
  nodesx->xnumber++;
+
+ assert(!(nodesx->xnumber==NODE_FAKE)); /* NODE_FAKE marks the high-water mark for real nodes. */
 }
 
 
