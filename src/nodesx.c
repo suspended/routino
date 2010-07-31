@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.65 2010-07-31 14:56:17 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.66 2010-07-31 18:13:38 amb Exp $
 
  Extented Node data type functions.
 
@@ -603,10 +603,11 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
     node->latoffset=latlong_to_off(nodex->latitude);
     node->lonoffset=latlong_to_off(nodex->longitude);
-    node->firstseg=SEGMENT(NO_SEGMENT);
+    node->firstseg=NO_SEGMENT;
+    node->extrainfo=0;
 
     if(nodesx->super[nodex->id]==iteration)
-       node->firstseg|=NODE_SUPER;
+       node->extrainfo|=NODE_SUPER;
 
 #if SLIM
     PutBackNodeXNode(nodesx,nodex->id,1);
@@ -673,10 +674,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
     /* Check node1 */
 
-    if(SEGMENT(node1->firstseg)==SEGMENT(NO_SEGMENT))
+    if(node1->firstseg==NO_SEGMENT)
       {
-       node1->firstseg^=SEGMENT(NO_SEGMENT);
-       node1->firstseg|=i;
+       node1->firstseg=i;
 
 #if SLIM
        PutBackNodeXNode(nodesx,id1,1);
@@ -684,7 +684,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
       }
     else
       {
-       index_t index=SEGMENT(node1->firstseg);
+       index_t index=node1->firstseg;
 
        do
          {
@@ -725,10 +725,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
     /* Check node2 */
 
-    if(SEGMENT(node2->firstseg)==SEGMENT(NO_SEGMENT))
+    if(node2->firstseg==NO_SEGMENT)
       {
-       node2->firstseg^=SEGMENT(NO_SEGMENT);
-       node2->firstseg|=i;
+       node2->firstseg=i;
 
 #if SLIM
        PutBackNodeXNode(nodesx,id2,2);
@@ -736,7 +735,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
       }
     else
       {
-       index_t index=SEGMENT(node2->firstseg);
+       index_t index=node2->firstseg;
 
        do
          {
@@ -834,7 +833,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
     NodeX *nodex=LookupNodeX(nodesx,i,1);
     Node *node=LookupNodeXNode(nodesx,nodex->id,1);
 
-    if(node->firstseg&NODE_SUPER)
+    if(node->extrainfo&NODE_SUPER)
        super_number++;
 
     WriteFile(fd,node,sizeof(Node));

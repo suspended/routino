@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.60 2010-07-31 14:56:17 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.61 2010-07-31 18:13:38 amb Exp $
 
  Extended Segment data type functions.
 
@@ -859,7 +859,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
    {
     NodeX  *nodex=LookupNodeX(nodesx,i,1);
     Node   *node =LookupNodeXNode(nodesx,nodex->id,1);
-    index_t index=SEGMENT(node->firstseg);
+    index_t index=node->firstseg;
 
     do
       {

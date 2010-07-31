@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.35 2010-07-31 14:36:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.36 2010-07-31 18:13:38 amb Exp $
 
  A header file for the nodes.
 
@@ -43,6 +43,8 @@ struct _Node
 
  ll_off_t   latoffset;          /*+ The node latitude offset within its bin. +*/
  ll_off_t   lonoffset;          /*+ The node longitude offset within its bin. +*/
+
+ index_t    extrainfo;          /*+ Extra information (turn restrictions, properties). +*/
 };
 
 
@@ -108,10 +110,10 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 #define LookupNode(xxx,yyy,zzz)     (&(xxx)->nodes[yyy])
 
 /*+ Return a Segment points given a Node pointer and a set of segments. +*/
-#define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),SEGMENT((yyy)->nodes[zzz].firstseg),1)
+#define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),(yyy)->nodes[zzz].firstseg,1)
 
 /*+ Return true if this is a super-node. +*/
-#define IsSuperNode(xxx,yyy)        (((xxx)->nodes[yyy].firstseg)&NODE_SUPER)
+#define IsSuperNode(xxx,yyy)        (((xxx)->nodes[yyy].extrainfo)&NODE_SUPER)
 
 /*+ Return the offset of a geographical region given a set of nodes and an index. +*/
 #define LookupNodeOffset(xxx,yyy)   ((xxx)->offsets[yyy])
@@ -166,16 +168,16 @@ static inline Node *LookupNode(Nodes *nodes,index_t index,int position)
 static inline index_t FirstSegment_internal(Nodes *nodes,index_t index)
 {
  if(nodes->incache[0]==index)
-    return(SEGMENT(nodes->cached[0].firstseg));
+    return(nodes->cached[0].firstseg);
  else if(nodes->incache[1]==index)
-    return(SEGMENT(nodes->cached[1].firstseg));
+    return(nodes->cached[1].firstseg);
  else if(nodes->incache[2]==index)
-    return(SEGMENT(nodes->cached[2].firstseg));
+    return(nodes->cached[2].firstseg);
  else
    {
     Node *node=LookupNode(nodes,index,3);
 
-    return(SEGMENT(node->firstseg));
+    return(node->firstseg);
    }
 }
 
@@ -193,16 +195,16 @@ static inline index_t FirstSegment_internal(Nodes *nodes,index_t index)
 static inline int IsSuperNode(Nodes *nodes,index_t index)
 {
  if(nodes->incache[0]==index)
-    return(nodes->cached[0].firstseg&NODE_SUPER);
+    return(nodes->cached[0].extrainfo&NODE_SUPER);
  else if(nodes->incache[1]==index)
-    return(nodes->cached[1].firstseg&NODE_SUPER);
+    return(nodes->cached[1].extrainfo&NODE_SUPER);
  else if(nodes->incache[2]==index)
-    return(nodes->cached[2].firstseg&NODE_SUPER);
+    return(nodes->cached[2].extrainfo&NODE_SUPER);
  else
    {
     Node *node=LookupNode(nodes,index,3);
 
-    return(node->firstseg&NODE_SUPER);
+    return(node->extrainfo&NODE_SUPER);
    }
 }
 
