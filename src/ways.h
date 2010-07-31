@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.38 2010-07-24 10:09:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.39 2010-07-31 14:06:56 amb Exp $
 
  A header file for the ways.
 
@@ -141,7 +141,7 @@ static int WayNamed(Ways *ways,Way *way);
 
 static inline Way *LookupWay(Ways *ways,index_t index,int position)
 {
- SeekFile(ways->fd,sizeof(WaysFile)+index*sizeof(Way));
+ SeekFile(ways->fd,sizeof(WaysFile)+(off_t)index*sizeof(Way));
 
  ReadFile(ways->fd,&ways->wcached[position-1],sizeof(Way));
 

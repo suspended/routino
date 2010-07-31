@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.33 2010-07-26 18:17:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.34 2010-07-31 14:06:56 amb Exp $
 
  A header file for the nodes.
 
@@ -143,7 +143,7 @@ static index_t LookupNodeOffset(Nodes *nodes,index_t index);
 
 static inline Node *LookupNode(Nodes *nodes,index_t index,int position)
 {
- SeekFile(nodes->fd,nodes->nodesoffset+index*sizeof(Node));
+ SeekFile(nodes->fd,nodes->nodesoffset+(off_t)index*sizeof(Node));
 
  ReadFile(nodes->fd,&nodes->cached[position-1],sizeof(Node));
 
@@ -221,7 +221,7 @@ static inline index_t LookupNodeOffset(Nodes *nodes,index_t index)
 {
  index_t offset;
 
- SeekFile(nodes->fd,sizeof(NodesFile)+index*sizeof(index_t));
+ SeekFile(nodes->fd,sizeof(NodesFile)+(off_t)index*sizeof(index_t));
 
  ReadFile(nodes->fd,&offset,sizeof(index_t));
 

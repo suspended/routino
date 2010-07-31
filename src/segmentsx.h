@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.24 2010-07-14 18:00:10 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.25 2010-07-31 14:06:56 amb Exp $
 
  A header file for the extended segments.
 
@@ -149,7 +149,7 @@ static void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int positi
 
 static inline SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position)
 {
- SeekFile(segmentsx->fd,index*sizeof(SegmentX));
+ SeekFile(segmentsx->fd,(off_t)index*sizeof(SegmentX));
 
  ReadFile(segmentsx->fd,&segmentsx->xcached[position-1],sizeof(SegmentX));
 
@@ -171,7 +171,7 @@ static inline SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int po
 
 static inline Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,int position)
 {
- SeekFile(segmentsx->sfd,index*sizeof(Segment));
+ SeekFile(segmentsx->sfd,(off_t)index*sizeof(Segment));
 
  ReadFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
 
@@ -191,7 +191,7 @@ static inline Segment *LookupSegmentXSegment(SegmentsX* segmentsx,index_t index,
 
 static inline void PutBackSegmentXSegment(SegmentsX* segmentsx,index_t index,int position)
 {
- SeekFile(segmentsx->sfd,index*sizeof(Segment));
+ SeekFile(segmentsx->sfd,(off_t)index*sizeof(Segment));
 
  WriteFile(segmentsx->sfd,&segmentsx->scached[position-1],sizeof(Segment));
 }
