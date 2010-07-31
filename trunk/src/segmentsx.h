@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.25 2010-07-31 14:06:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.26 2010-07-31 14:36:15 amb Exp $
 
  A header file for the extended segments.
 
@@ -56,7 +56,7 @@ struct _SegmentsX
  char      *filename;           /*+ The name of the temporary file. +*/
  int        fd;                 /*+ The file descriptor of the temporary file. +*/
 
- uint32_t   xnumber;            /*+ The number of unsorted extended nodes. +*/
+ index_t    xnumber;            /*+ The number of unsorted extended nodes. +*/
 
 #if !SLIM
 
@@ -68,7 +68,7 @@ struct _SegmentsX
 
 #endif
 
- uint32_t   number;             /*+ How many entries are still useful? +*/
+ index_t    number;             /*+ How many entries are still useful? +*/
 
  node_t   *idata;               /*+ The extended segment data (sorted by node1 then node2). +*/
  index_t  *firstnode;           /*+ The first segment index for each node. +*/
