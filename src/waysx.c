@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.44 2010-07-24 16:51:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.45 2010-07-31 10:28:52 amb Exp $
 
  Extended Way data type functions.
 
@@ -152,8 +152,6 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
  WayX wayx;
  FILESORT_VARINT size;
 
- assert(!waysx->idata);       /* Must not have idata filled in => unsorted */
-
  wayx.id=id;
  wayx.prop=0;
  wayx.way=*way;
@@ -183,10 +181,6 @@ void SortWayList(WaysX* waysx)
  int nnames=0,nprops=0;
  uint32_t lastlength=0;
  Way lastway;
-
- /* Check the start conditions */
-
- assert(!waysx->idata);         /* Must not have idata filled in => unsorted */
 
  /* Print the start message */
 
@@ -451,8 +445,6 @@ index_t IndexWayX(WaysX* waysx,way_t id)
  int start=0;
  int end=waysx->number-1;
  int mid;
-
- assert(waysx->idata);         /* Must have idata filled in => sorted */
 
  /* Binary search - search key exact match only is required.
   *

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.63 2010-07-24 16:51:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.64 2010-07-31 10:28:52 amb Exp $
 
  Extented Node data type functions.
 
@@ -158,8 +158,6 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 {
  NodeX nodex;
 
- assert(!nodesx->idata);        /* Must not have idata filled in => unsorted */
-
  nodex.id=id;
  nodex.latitude =radians_to_latlong(latitude);
  nodex.longitude=radians_to_latlong(longitude);
@@ -179,10 +177,6 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
 void SortNodeList(NodesX* nodesx)
 {
  int fd;
-
- /* Check the start conditions */
-
- assert(!nodesx->idata);        /* Must not have idata filled in => unsorted */
 
  /* Print the start message */
 
@@ -418,8 +412,6 @@ index_t IndexNodeX(NodesX* nodesx,node_t id)
  int end=nodesx->number-1;
  int mid;
 
- assert(nodesx->idata);         /* Must have idata filled in => sorted by id */
-
  /* Binary search - search key exact match only is required.
   *
   *  # <- start  |  Check mid and move start or end if it doesn't match
@@ -478,10 +470,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
  latlong_t lat_min,lat_max,lon_min,lon_max;
  int fd;
-
- /* Check the start conditions */
-
- assert(nodesx->idata);         /* Must have idata filled in => data sorted */
 
  /* Print the start message */
 
@@ -581,12 +569,6 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 {
  index_t i;
 
- /* Check the start conditions */
-
-#if !SLIM
- assert(!nodesx->ndata);        /* Must not have ndata filled in => no real nodes */
-#endif
-
  /* Print the start message */
 
  printf("Creating Real Nodes: Nodes=0");
@@ -662,15 +644,6 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  index_t i;
-
- /* Check the start conditions */
-
-#if !SLIM
- assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
-#endif
-#if !SLIM
- assert(segmentsx->sdata);   /* Must have sdata filled in => real segments exist */
-#endif
 
  /* Print the start message */
 
@@ -833,12 +806,6 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  int fd;
  NodesFile nodesfile;
  int super_number=0;
-
- /* Check the start conditions */
-
-#if !SLIM
- assert(nodesx->ndata);      /* Must have ndata filled in => real nodes exist */
-#endif
 
  /* Print the start message */
 
