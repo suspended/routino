@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.25 2010-07-31 14:06:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.26 2010-07-31 14:36:15 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -55,7 +55,7 @@ struct _WaysX
  char    *filename;             /*+ The name of the temporary file (for the WaysX). +*/
  int      fd;                   /*+ The file descriptor of the temporary file (for the WaysX). +*/
 
- uint32_t xnumber;              /*+ The number of unsorted extended ways. +*/
+ index_t  xnumber;              /*+ The number of unsorted extended ways. +*/
 
 #if !SLIM
 
@@ -67,9 +67,9 @@ struct _WaysX
 
 #endif
 
- uint32_t number;               /*+ How many entries are still useful? +*/
+ index_t  number;               /*+ How many entries are still useful? +*/
 
- uint32_t cnumber;              /*+ How many entries are there after compacting? +*/
+ index_t  cnumber;              /*+ How many entries are there after compacting? +*/
 
  index_t *idata;                /*+ The index of the extended data for the Ways (sorted by ID). +*/
 

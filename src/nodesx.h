@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.28 2010-07-31 14:06:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.29 2010-07-31 14:36:15 amb Exp $
 
  A header file for the extended nodes.
 
@@ -53,7 +53,7 @@ struct _NodesX
  char     *filename;            /*+ The name of the temporary file. +*/
  int       fd;                  /*+ The file descriptor of the temporary file. +*/
 
- uint32_t  xnumber;             /*+ The number of unsorted extended nodes. +*/
+ index_t   xnumber;             /*+ The number of unsorted extended nodes. +*/
 
 #if !SLIM
 
@@ -65,7 +65,7 @@ struct _NodesX
 
 #endif
 
- uint32_t  number;              /*+ How many entries are still useful? +*/
+ index_t   number;              /*+ How many entries are still useful? +*/
 
  node_t   *idata;               /*+ The extended node IDs (sorted by ID). +*/
 
@@ -84,13 +84,13 @@ struct _NodesX
 
 #endif
 
- uint32_t  latbins;             /*+ The number of bins containing latitude. +*/
- uint32_t  lonbins;             /*+ The number of bins containing longitude. +*/
+ index_t   latbins;             /*+ The number of bins containing latitude. +*/
+ index_t   lonbins;             /*+ The number of bins containing longitude. +*/
 
  ll_bin_t  latzero;             /*+ The bin number of the furthest south bin. +*/
  ll_bin_t  lonzero;             /*+ The bin number of the furthest west bin. +*/
 
- uint32_t  latlonbin;           /*+ A temporary index into the offsets array. +*/
+ index_t   latlonbin;           /*+ A temporary index into the offsets array. +*/
 
  index_t  *offsets;             /*+ An array of offset to the first node in each bin. +*/
 };

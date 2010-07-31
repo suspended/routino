@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.34 2010-07-31 14:06:56 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.35 2010-07-31 14:36:15 amb Exp $
 
  A header file for the nodes.
 
@@ -49,11 +49,11 @@ struct _Node
 /*+ A structure containing the header from the file. +*/
 typedef struct _NodesFile
 {
- uint32_t number;               /*+ How many nodes in total? +*/
- uint32_t snumber;              /*+ How many super-nodes? +*/
+ index_t  number;               /*+ How many nodes in total? +*/
+ index_t  snumber;              /*+ How many super-nodes? +*/
 
- uint32_t latbins;              /*+ The number of bins containing latitude. +*/
- uint32_t lonbins;              /*+ The number of bins containing longitude. +*/
+ index_t  latbins;              /*+ The number of bins containing latitude. +*/
+ index_t  lonbins;              /*+ The number of bins containing longitude. +*/
 
  ll_bin_t latzero;              /*+ The bin number of the furthest south bin. +*/
  ll_bin_t lonzero;              /*+ The bin number of the furthest west bin. +*/
