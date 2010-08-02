@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.41 2010-07-31 10:28:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.42 2010-08-02 18:44:54 amb Exp $
 
  Super-Segment data type functions.
 
@@ -64,6 +64,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Map into memory */
 
 #if !SLIM
+ nodesx->xdata=MapFile(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
  waysx->xdata=MapFile(waysx->filename);
 #endif
@@ -72,6 +73,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  for(i=0;i<nodesx->number;i++)
    {
+    NodeX *nodex=LookupNodeX(nodesx,i,1);
     int difference=0;
     index_t index1,index2;
 
@@ -85,12 +87,20 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
        index1=IndexNextSegmentX(segmentsx,index1,i);
        index2=index1;
 
+       /* If the node allows less traffic types than any connecting way ... */
+
+       if((wayx1->way.allow&nodex->allow)!=wayx1->way.allow)
+         {
+          difference=1;
+          break;
+         }
+
        while(index2!=NO_SEGMENT)
          {
           SegmentX *segmentx2=LookupSegmentX(segmentsx,index2,2);
           WayX *wayx2=LookupWayX(waysx,segmentx2->way,2);
 
-          /* If the ways are different in any way and there is a type of traffic that can use both ... */
+          /* If the ways are different in any attribute and there is a type of traffic that can use both ... */
 
           if(WaysCompare(&wayx1->way,&wayx2->way))
              if(wayx1->way.allow & wayx2->way.allow)
@@ -125,6 +135,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Unmap from memory */
 
 #if !SLIM
+ nodesx->xdata=UnmapFile(nodesx->filename);
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  waysx->xdata=UnmapFile(waysx->filename);
 #endif

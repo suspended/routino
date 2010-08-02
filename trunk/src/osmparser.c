@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.69 2010-05-29 13:54:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.70 2010-08-02 18:44:54 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -56,6 +56,7 @@ static WaysX     *ways;
 
 /* Local functions */
 
+static void process_node_tags(TagList *tags,node_t id,double latitude,double longitude);
 static void process_way_tags(TagList *tags,way_t id);
 
 
@@ -231,11 +232,11 @@ static int tagType_function(const char *_tag_,int _type_,const char *k,const cha
 
 static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon)
 {
+ static node_t node_id;
+ static double latitude,longitude;
+
  if(_type_&XMLPARSE_TAG_START)
    {
-    node_t node_id;
-    double latitude,longitude;
-
     nnodes++;
 
     if(!(nnodes%1000))
@@ -244,25 +245,24 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
        fflush(stdout);
       }
 
+    current_tags=NewTagList();
+
     /* Handle the node information */
 
     XMLPARSE_ASSERT_STRING(_tag_,id); node_id=atoll(id); /* need long long conversion */
     XMLPARSE_ASSERT_FLOATING(_tag_,lat,latitude);
     XMLPARSE_ASSERT_FLOATING(_tag_,lon,longitude);
-
-    AppendNode(nodes,node_id,degrees_to_radians(latitude),degrees_to_radians(longitude));
-
-//    current_tags=NewTagList();
-    current_tags=NULL;
    }
 
-// if(_type_&XMLPARSE_TAG_END)
-//   {
-//    TagList *result=ApplyTaggingRules(&NodeRules,current_tags);
-//
-//    DeleteTagList(current_tags);
-//    DeleteTagList(result);
-//   }
+ if(_type_&XMLPARSE_TAG_END)
+   {
+    TagList *result=ApplyTaggingRules(&NodeRules,current_tags);
+
+    process_node_tags(result,node_id,latitude,longitude);
+
+    DeleteTagList(current_tags);
+    DeleteTagList(result);
+   }
 
  return(0);
 }
@@ -479,6 +479,105 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays)
  fflush(stdout);
 
  return(retval);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Process the tags associated with a node.
+
+  TagList *tags The list of node tags.
+
+  node_t id The id of the node.
+
+  double latitude The latitude of the node.
+
+  double longitude The longitude of the node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void process_node_tags(TagList *tags,node_t id,double latitude,double longitude)
+{
+ allow_t allow=Allow_ALL;
+
+ int i;
+
+ /* Parse the tags */
+
+ for(i=0;i<tags->ntags;i++)
+   {
+    char *k=tags->k[i];
+    char *v=tags->v[i];
+
+    switch(*k)
+      {
+      case 'b':
+       if(!strcmp(k,"bicycle"))
+          if(!ISTRUE(v))
+             allow&=~Allow_Bicycle;
+
+       break;
+
+      case 'f':
+       if(!strcmp(k,"foot"))
+          if(!ISTRUE(v))
+             allow&=~Allow_Foot;
+
+       break;
+
+      case 'g':
+       if(!strcmp(k,"goods"))
+          if(!ISTRUE(v))
+             allow&=~Allow_Goods;
+
+       break;
+
+      case 'h':
+       if(!strcmp(k,"horse"))
+          if(!ISTRUE(v))
+             allow&=~Allow_Horse;
+
+       if(!strcmp(k,"hgv"))
+          if(!ISTRUE(v))
+             allow&=~Allow_HGV;
+
+       break;
+
+      case 'm':
+       if(!strcmp(k,"moped"))
+          if(!ISTRUE(v))
+             allow&=~Allow_Moped;
+
+       if(!strcmp(k,"motorbike"))
+          if(!ISTRUE(v))
+             allow&=~Allow_Motorbike;
+
+       if(!strcmp(k,"motorcar"))
+          if(!ISTRUE(v))
+             allow&=~Allow_Motorcar;
+
+       break;
+
+      case 'p':
+       if(!strcmp(k,"psv"))
+          if(!ISTRUE(v))
+             allow&=~Allow_PSV;
+
+       break;
+
+      case 'w':
+       if(!strcmp(k,"wheelchair"))
+          if(!ISTRUE(v))
+             allow&=~Allow_Wheelchair;
+
+       break;
+
+      default:
+       ;
+      }
+   }
+
+ /* Create the node */
+
+ AppendNode(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow);
 }
 
 
