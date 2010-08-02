@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.43 2010-07-31 18:21:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.44 2010-08-02 18:44:54 amb Exp $
 
  Type definitions
 
@@ -44,8 +44,14 @@
 #define LAT_LONG_BIN   65536
 
 
-/*+ A flag to mark a node as a super-node. +*/
-#define NODE_SUPER     ((index_t)0x80000000)
+/*+ An undefined node index. +*/
+#define NO_NODE        (~(index_t)0)
+
+/*+ An undefined segment index. +*/
+#define NO_SEGMENT     (~(index_t)0)
+
+/*+ An undefined way index. +*/
+#define NO_WAY         (~(index_t)0)
 
 
 /*+ A flag to mark a node as a fake node. +*/
@@ -55,14 +61,11 @@
 #define SEGMENT_FAKE   ((index_t)0x80000000)
 
 
-/*+ An undefined node index. +*/
-#define NO_NODE        (~(index_t)0)
+/*+ A flag to mark a node as a super-node. +*/
+#define NODE_SUPER     ((index_t)0x80000000)
 
-/*+ An undefined segment index. +*/
-#define NO_SEGMENT     (~(index_t)0)
-
-/*+ An undefined way index. +*/
-#define NO_WAY         (~(index_t)0)
+/*+ The set of allowed transports through a node. +*/
+#define NODEALLOW(xx)  ((allow_t)((xx)&Allow_ALL))
 
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/
@@ -78,10 +81,10 @@
 #define SEGMENT_NORMAL ((distance_t)0x10000000)
 
 /*+ The real distance ignoring the ONEWAY_* and SEGMENT_* flags. +*/
-#define DISTANCE(xx)   ((distance_t)(xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
+#define DISTANCE(xx)   ((distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL))))
 
 /*+ The distance flags selecting only the ONEWAY_* and SEGMENT_* flags. +*/
-#define DISTFLAG(xx)   ((distance_t)(xx)&(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL))
+#define DISTFLAG(xx)   ((distance_t)((xx)&(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
 
 
 /*+ A very large almost infinite distance. +*/

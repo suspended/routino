@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.66 2010-07-31 18:13:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.67 2010-08-02 18:44:54 amb Exp $
 
  Extented Node data type functions.
 
@@ -154,15 +154,18 @@ void FreeNodeList(NodesX *nodesx,int keep)
   double latitude The latitude of the node.
 
   double longitude The longitude of the node.
+
+  allow_t allow The allowed traffic types through the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude)
+void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,allow_t allow)
 {
  NodeX nodex;
 
  nodex.id=id;
  nodex.latitude =radians_to_latlong(latitude);
  nodex.longitude=radians_to_latlong(longitude);
+ nodex.allow=allow;
 
  WriteFile(nodesx->fd,&nodex,sizeof(NodeX));
 
@@ -604,7 +607,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
     node->latoffset=latlong_to_off(nodex->latitude);
     node->lonoffset=latlong_to_off(nodex->longitude);
     node->firstseg=NO_SEGMENT;
-    node->extrainfo=0;
+    node->extrainfo=nodex->allow;
 
     if(nodesx->super[nodex->id]==iteration)
        node->extrainfo|=NODE_SUPER;

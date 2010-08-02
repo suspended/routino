@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.90 2010-07-24 10:09:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.91 2010-08-02 18:44:54 amb Exp $
 
  Routing optimiser.
 
@@ -61,13 +61,14 @@ extern int option_quickest;
 Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile)
 {
  Results *results;
- Queue *queue;
+ Queue   *queue;
  index_t node1,node2;
  score_t finish_score;
  double  finish_lat,finish_lon;
- Result *result1,*result2;
+ Result  *result1,*result2;
+ Node    *node;
  Segment *segment;
- Way *way;
+ Way     *way;
 
  /* Set up the finish conditions */
 
@@ -154,6 +155,11 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
             }
 
        if(segment_pref==0)
+          goto endloop;
+
+       node=LookupNode(nodes,node2,1);
+
+       if(!(NODEALLOW(node->extrainfo)&profile->allow))
           goto endloop;
 
        if(option_quickest==0)
@@ -265,14 +271,15 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Results *end,Profile *profile)
 {
  Results *results;
- Queue *queue;
+ Queue   *queue;
  index_t node1,node2;
  index_t end_prev;
  score_t finish_score;
  double  finish_lat,finish_lon;
- Result *result1,*result2,*result3;
+ Result  *result1,*result2,*result3;
+ Node    *node;
  Segment *segment;
- Way *way;
+ Way     *way;
 
  if(!option_quiet)
    {
@@ -384,6 +391,11 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
             }
 
        if(segment_pref==0)
+          goto endloop;
+
+       node=LookupNode(nodes,node2,1);
+
+       if(!(NODEALLOW(node->extrainfo)&profile->allow))
           goto endloop;
 
        if(option_quickest==0)
@@ -527,11 +539,12 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Profile *profile)
 {
  Results *results;
- Queue *queue;
+ Queue   *queue;
  index_t node1,node2;
- Result *result1,*result2;
+ Result  *result1,*result2;
+ Node    *node;
  Segment *segment;
- Way *way;
+ Way     *way;
 
  /* Insert the first node into the queue */
 
@@ -602,6 +615,11 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
             }
 
        if(segment_pref==0)
+          goto endloop;
+
+       node=LookupNode(nodes,node2,1);
+
+       if(!(NODEALLOW(node->extrainfo)&profile->allow))
           goto endloop;
 
        if(option_quickest==0)
@@ -688,11 +706,12 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t finish,Profile *profile)
 {
  Results *results;
- Queue *queue;
+ Queue   *queue;
  index_t node1,node2;
- Result *result1,*result2;
+ Result  *result1,*result2;
+ Node    *node;
  Segment *segment;
- Way *way;
+ Way     *way;
 
  /* Insert the first node into the queue */
 
@@ -763,6 +782,11 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
             }
 
        if(segment_pref==0)
+          goto endloop;
+
+       node=LookupNode(nodes,node2,1);
+
+       if(!(NODEALLOW(node->extrainfo)&profile->allow))
           goto endloop;
 
        if(option_quickest==0)
