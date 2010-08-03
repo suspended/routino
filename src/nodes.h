@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.36 2010-07-31 18:13:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.37 2010-08-03 18:28:30 amb Exp $
 
  A header file for the nodes.
 
@@ -44,7 +44,8 @@ struct _Node
  ll_off_t   latoffset;          /*+ The node latitude offset within its bin. +*/
  ll_off_t   lonoffset;          /*+ The node longitude offset within its bin. +*/
 
- index_t    extrainfo;          /*+ Extra information (turn restrictions, properties). +*/
+ allow_t    allow;              /*+ The types of transport that are allowed through the node. +*/
+ uint16_t   flags;              /*+ Flags containing extra information (super-node, turn restriction). +*/
 };
 
 
@@ -113,7 +114,7 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 #define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),(yyy)->nodes[zzz].firstseg,1)
 
 /*+ Return true if this is a super-node. +*/
-#define IsSuperNode(xxx,yyy)        (((xxx)->nodes[yyy].extrainfo)&NODE_SUPER)
+#define IsSuperNode(xxx,yyy)        (((xxx)->nodes[yyy].flags)&NODE_SUPER)
 
 /*+ Return the offset of a geographical region given a set of nodes and an index. +*/
 #define LookupNodeOffset(xxx,yyy)   ((xxx)->offsets[yyy])
@@ -195,16 +196,16 @@ static inline index_t FirstSegment_internal(Nodes *nodes,index_t index)
 static inline int IsSuperNode(Nodes *nodes,index_t index)
 {
  if(nodes->incache[0]==index)
-    return(nodes->cached[0].extrainfo&NODE_SUPER);
+    return(nodes->cached[0].flags&NODE_SUPER);
  else if(nodes->incache[1]==index)
-    return(nodes->cached[1].extrainfo&NODE_SUPER);
+    return(nodes->cached[1].flags&NODE_SUPER);
  else if(nodes->incache[2]==index)
-    return(nodes->cached[2].extrainfo&NODE_SUPER);
+    return(nodes->cached[2].flags&NODE_SUPER);
  else
    {
     Node *node=LookupNode(nodes,index,3);
 
-    return(node->extrainfo&NODE_SUPER);
+    return(node->flags&NODE_SUPER);
    }
 }
 
