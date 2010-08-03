@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.67 2010-08-02 18:44:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.68 2010-08-03 18:28:30 amb Exp $
 
  Extented Node data type functions.
 
@@ -607,10 +607,11 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
     node->latoffset=latlong_to_off(nodex->latitude);
     node->lonoffset=latlong_to_off(nodex->longitude);
     node->firstseg=NO_SEGMENT;
-    node->extrainfo=nodex->allow;
+    node->allow=nodex->allow;
+    node->flags=0;
 
     if(nodesx->super[nodex->id]==iteration)
-       node->extrainfo|=NODE_SUPER;
+       node->flags|=NODE_SUPER;
 
 #if SLIM
     PutBackNodeXNode(nodesx,nodex->id,1);
@@ -836,7 +837,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
     NodeX *nodex=LookupNodeX(nodesx,i,1);
     Node *node=LookupNodeXNode(nodesx,nodex->id,1);
 
-    if(node->extrainfo&NODE_SUPER)
+    if(node->flags&NODE_SUPER)
        super_number++;
 
     WriteFile(fd,node,sizeof(Node));

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.50 2010-08-02 18:44:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.51 2010-08-03 18:28:30 amb Exp $
 
  Memory file dumper.
 
@@ -391,7 +391,7 @@ static void print_node(Nodes* nodes,index_t item)
  printf("Node %d\n",item);
  printf("  firstseg=%d\n",node->firstseg);
  printf("  latoffset=%d lonoffset=%d (latitude=%.6f longitude=%.6f)\n",node->latoffset,node->lonoffset,radians_to_degrees(latitude),radians_to_degrees(longitude));
- printf("  allow=%02x (%s)\n",NODEALLOW(node->extrainfo),AllowedNameList(NODEALLOW(node->extrainfo)));
+ printf("  allow=%02x (%s)\n",node->allow,AllowedNameList(node->allow));
  if(IsSuperNode(nodes,item))
     printf("  Super-Node\n");
 }
@@ -490,8 +490,8 @@ static void print_node_osm(Nodes* nodes,index_t item)
     printf("    <tag k='routino:super' v='yes' />\n");
 
     for(i=1;i<Transport_Count;i++)
-       if(NODEALLOW(node->extrainfo) & ALLOWED(i))
-          printf("    <tag k='%s' v='yes' />\n",TransportName(i));
+       if(!(node->allow & ALLOWED(i)))
+          printf("    <tag k='%s' v='no' />\n",TransportName(i));
 
     printf("  </node>\n");
    }

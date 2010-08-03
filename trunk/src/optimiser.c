@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.91 2010-08-02 18:44:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.92 2010-08-03 18:28:30 amb Exp $
 
  Routing optimiser.
 
@@ -159,7 +159,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
        node=LookupNode(nodes,node2,1);
 
-       if(!(NODEALLOW(node->extrainfo)&profile->allow))
+       if(!(node->allow&profile->allow))
           goto endloop;
 
        if(option_quickest==0)
@@ -395,7 +395,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
        node=LookupNode(nodes,node2,1);
 
-       if(!(NODEALLOW(node->extrainfo)&profile->allow))
+       if(!(node->allow&profile->allow))
           goto endloop;
 
        if(option_quickest==0)
@@ -619,7 +619,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
        node=LookupNode(nodes,node2,1);
 
-       if(!(NODEALLOW(node->extrainfo)&profile->allow))
+       if(!(node->allow&profile->allow))
           goto endloop;
 
        if(option_quickest==0)
@@ -786,7 +786,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
 
        node=LookupNode(nodes,node2,1);
 
-       if(!(NODEALLOW(node->extrainfo)&profile->allow))
+       if(!(node->allow&profile->allow))
           goto endloop;
 
        if(option_quickest==0)

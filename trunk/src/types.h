@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.44 2010-08-02 18:44:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.45 2010-08-03 18:28:30 amb Exp $
 
  Type definitions
 
@@ -36,14 +36,6 @@
 
 /* Constants and macros for handling them */
 
-
-/*+ The latitude and longitude conversion factor from floating point (radians) to integer. +*/
-#define LAT_LONG_SCALE (1024*65536)
-
-/*+ The latitude and longitude integer range within each bin. +*/
-#define LAT_LONG_BIN   65536
-
-
 /*+ An undefined node index. +*/
 #define NO_NODE        (~(index_t)0)
 
@@ -61,11 +53,14 @@
 #define SEGMENT_FAKE   ((index_t)0x80000000)
 
 
-/*+ A flag to mark a node as a super-node. +*/
-#define NODE_SUPER     ((index_t)0x80000000)
+/*+ The latitude and longitude conversion factor from floating point (radians) to integer. +*/
+#define LAT_LONG_SCALE (1024*65536)
 
-/*+ The set of allowed transports through a node. +*/
-#define NODEALLOW(xx)  ((allow_t)((xx)&Allow_ALL))
+/*+ The latitude and longitude integer range within each bin. +*/
+#define LAT_LONG_BIN   65536
+
+/*+ A flag to mark a node as a super-node. +*/
+#define NODE_SUPER     ((uint16_t)0x8000)
 
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/
