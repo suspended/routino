@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.68 2010-08-03 18:28:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.69 2010-08-04 16:44:51 amb Exp $
 
  Extented Node data type functions.
 
@@ -171,7 +171,7 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,allow_
 
  nodesx->xnumber++;
 
- assert(!(nodesx->xnumber==NODE_FAKE)); /* NODE_FAKE marks the high-water mark for real nodes. */
+ assert(nodesx->xnumber<NODE_FAKE); /* NODE_FAKE marks the high-water mark for real nodes. */
 }
 
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.92 2010-08-03 18:28:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.93 2010-08-04 16:44:51 amb Exp $
 
  Routing optimiser.
 
@@ -157,10 +157,13 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        if(segment_pref==0)
           goto endloop;
 
-       node=LookupNode(nodes,node2,1);
+       if(!IsFakeNode(node2))
+         {
+          node=LookupNode(nodes,node2,1);
 
-       if(!(node->allow&profile->allow))
-          goto endloop;
+          if(!(node->allow&profile->allow))
+             goto endloop;
+         }
 
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
@@ -617,10 +620,13 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
        if(segment_pref==0)
           goto endloop;
 
-       node=LookupNode(nodes,node2,1);
+       if(!IsFakeNode(node2))
+         {
+          node=LookupNode(nodes,node2,1);
 
-       if(!(node->allow&profile->allow))
-          goto endloop;
+          if(!(node->allow&profile->allow))
+             goto endloop;
+         }
 
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
@@ -784,10 +790,13 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
        if(segment_pref==0)
           goto endloop;
 
-       node=LookupNode(nodes,node2,1);
+       if(!IsFakeNode(node2))
+         {
+          node=LookupNode(nodes,node2,1);
 
-       if(!(node->allow&profile->allow))
-          goto endloop;
+          if(!(node->allow&profile->allow))
+             goto endloop;
+         }
 
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;

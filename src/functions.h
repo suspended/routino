@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.56 2010-07-23 14:30:14 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.57 2010-08-04 16:44:51 amb Exp $
 
  Header file for function prototypes
 
@@ -38,10 +38,10 @@
 /* In fakes.c */
 
 /*+ Return true if this is a fake node. +*/
-#define IsFakeNode(xxx)    ((xxx)&NODE_FAKE)
+#define IsFakeNode(xxx)    ((xxx)>=NODE_FAKE)
 
 /*+ Return true if this is a fake segment. +*/
-#define IsFakeSegment(xxx) ((xxx)&SEGMENT_FAKE)
+#define IsFakeSegment(xxx) ((xxx)>=SEGMENT_FAKE)
 
 index_t CreateFakes(Nodes *nodes,int point,Segment *segment,index_t node1,index_t node2,distance_t dist1,distance_t dist2);
 

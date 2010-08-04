@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/fakes.c,v 1.1 2010-07-23 14:29:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/fakes.c,v 1.2 2010-08-04 16:44:51 amb Exp $
 
  Fake node and segment generation.
 
@@ -83,7 +83,7 @@ index_t CreateFakes(Nodes *nodes,int point,Segment *segment,index_t node1,index_
 
  /* Create the fake node */
 
- fakenode=point|NODE_FAKE;
+ fakenode=NODE_FAKE+point;
 
  GetLatLong(nodes,node1,&lat1,&lon1);
  GetLatLong(nodes,node2,&lat2,&lon2);
@@ -136,7 +136,7 @@ index_t CreateFakes(Nodes *nodes,int point,Segment *segment,index_t node1,index_
 
 void GetFakeLatLong(index_t fakenode, double *latitude,double *longitude)
 {
- index_t realnode=fakenode&(~NODE_FAKE);
+ index_t realnode=fakenode-NODE_FAKE;
 
  *latitude =fake_lat[realnode];
  *longitude=fake_lon[realnode];
@@ -153,7 +153,7 @@ void GetFakeLatLong(index_t fakenode, double *latitude,double *longitude)
 
 Segment *FirstFakeSegment(index_t fakenode)
 {
- index_t realnode=fakenode&(~NODE_FAKE);
+ index_t realnode=fakenode-NODE_FAKE;
 
  return(&fake_segments[2*realnode-2]);
 }
@@ -171,7 +171,7 @@ Segment *FirstFakeSegment(index_t fakenode)
 
 Segment *NextFakeSegment(Segment *segment,index_t fakenode)
 {
- index_t realnode=fakenode&(~NODE_FAKE);
+ index_t realnode=fakenode-NODE_FAKE;
 
  if(segment==&fake_segments[2*realnode-2])
     return(&fake_segments[2*realnode-1]);
@@ -192,7 +192,7 @@ Segment *NextFakeSegment(Segment *segment,index_t fakenode)
 
 Segment *ExtraFakeSegment(index_t node,index_t fakenode)
 {
- index_t realnode=fakenode&(~NODE_FAKE);
+ index_t realnode=fakenode-NODE_FAKE;
 
  if(fake_segments[2*realnode-2].node1==node || fake_segments[2*realnode-2].node2==node)
     return(&fake_segments[2*realnode-2]);
@@ -214,7 +214,7 @@ Segment *ExtraFakeSegment(index_t node,index_t fakenode)
 
 Segment *LookupFakeSegment(index_t fakesegment)
 {
- index_t realsegment=fakesegment&(~SEGMENT_FAKE);
+ index_t realsegment=fakesegment-SEGMENT_FAKE;
 
  return(&fake_segments[realsegment]);
 }
@@ -232,5 +232,5 @@ index_t IndexFakeSegment(Segment *segment)
 {
  index_t realsegment=segment-&fake_segments[0];
 
- return(realsegment|SEGMENT_FAKE);
+ return(realsegment+SEGMENT_FAKE);
 }

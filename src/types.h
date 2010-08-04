@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.45 2010-08-03 18:28:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.46 2010-08-04 16:44:52 amb Exp $
 
  Type definitions
 
@@ -46,11 +46,11 @@
 #define NO_WAY         (~(index_t)0)
 
 
-/*+ A flag to mark a node as a fake node. +*/
-#define NODE_FAKE      ((index_t)0x80000000)
+/*+ The lowest number allowed for a fake node. +*/
+#define NODE_FAKE      ((index_t)0xffff0000)
 
-/*+ A flag to mark a segment as a fake node. +*/
-#define SEGMENT_FAKE   ((index_t)0x80000000)
+/*+ The lowest number allowed for a fake segment. +*/
+#define SEGMENT_FAKE   ((index_t)0xffff0000)
 
 
 /*+ The latitude and longitude conversion factor from floating point (radians) to integer. +*/
