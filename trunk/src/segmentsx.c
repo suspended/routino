@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.61 2010-07-31 18:13:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.62 2010-08-04 16:44:52 amb Exp $
 
  Extended Segment data type functions.
 
@@ -165,7 +165,7 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
 
  segmentsx->xnumber++;
 
- assert(!(segmentsx->xnumber==SEGMENT_FAKE)); /* SEGMENT_FAKE marks the high-water mark for real segments. */
+ assert(segmentsx->xnumber<SEGMENT_FAKE); /* SEGMENT_FAKE marks the high-water mark for real segments. */
 }
 
 

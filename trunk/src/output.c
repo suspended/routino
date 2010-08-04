@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.36 2010-07-24 10:09:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.37 2010-08-04 16:44:52 amb Exp $
 
  Routing output generator.
 
@@ -617,7 +617,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
              fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n",
                                  radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                 IsFakeNode(result->node)?-(result->node&(~NODE_SUPER)):result->node,
+                                 IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
                                  (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',type,
                                  distance_to_km(seg_distance),duration_to_minutes(seg_duration),
                                  distance_to_km(cum_distance),duration_to_minutes(cum_duration),
@@ -662,7 +662,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           if(textallfile)
              fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t\t\t\n",
                                  radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                 IsFakeNode(result->node)?-(result->node&(~NODE_SUPER)):result->node,
+                                 IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
                                  (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',"Waypt",
                                  0.0,0.0,0.0,0.0);
          }
