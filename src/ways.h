@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.41 2010-07-31 18:21:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.42 2010-08-30 12:32:07 amb Exp $
 
  A header file for the ways.
 
@@ -104,27 +104,19 @@ int WaysCompare(Way *way1,Way *way2);
 
 /* Macros and inline functions */
 
-/*+ Return the name of a way if it has one or the name of the highway type otherwise. +*/
-#define WayNameHighway(xxx,yyy)    (WayNamed(xxx,yyy)?WayNameRaw(xxx,yyy):HighwayName(HIGHWAY(yyy->type)))
-
 #if !SLIM
 
 /*+ Return a Way* pointer given a set of ways and an index. +*/
 #define LookupWay(xxx,yyy,zzz)     (&(xxx)->ways[yyy])
 
-/*+ Return the raw name of a way given the Way pointer and a set of ways. +*/
-#define WayNameRaw(xxx,yyy)        (&(xxx)->names[(yyy)->name])
-
-/*+ Decide if a way has a name or not. +*/
-#define WayNamed(xxx,yyy)          ((xxx)->names[(yyy)->name])
+/*+ Return the name of a way given the Way pointer and a set of ways. +*/
+#define WayName(xxx,yyy)           (&(xxx)->names[(yyy)->name])
 
 #else
 
 static Way *LookupWay(Ways *ways,index_t index,int position);
 
-static char *WayNameRaw(Ways *ways,Way *way);
-
-static int WayNamed(Ways *ways,Way *way);
+static char *WayName(Ways *ways,Way *way);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -152,14 +144,14 @@ static inline Way *LookupWay(Ways *ways,index_t index,int position)
 /*++++++++++++++++++++++++++++++++++++++
   Find the name of a way.
 
-  char *WayNameRaw Returns a pointer to the name of the way.
+  char *WayName Returns a pointer to the name of the way.
 
   Ways *ways The ways structure to use.
 
   Way *way The Way pointer.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline char *WayNameRaw(Ways *ways,Way *way)
+static inline char *WayName(Ways *ways,Way *way)
 {
  int n=0;
 
@@ -191,25 +183,6 @@ static inline char *WayNameRaw(Ways *ways,Way *way)
  exitloop:
 
  return(ways->ncached);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Check if a way has a name.
-
-  int WayNamed Returns a pointer to the name of the way.
-
-  Ways *ways The ways structure to use.
-
-  Way *way The Way pointer.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static inline int WayNamed(Ways *ways,Way *way)
-{
- if(way->name!=ways->nincache)
-    WayNameRaw(ways,way);
-
- return(ways->ncached[0]);
 }
 
 #endif
