@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/doc/Makefile,v 1.2 2010-07-07 17:27:03 amb Exp $
+# $Header: /home/amb/CVS/routino/doc/Makefile,v 1.3 2010-08-30 13:37:39 amb Exp $
 #
 # Documentation directory Makefile
 #
@@ -20,19 +20,45 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# Installation paths
+
+prefix=/usr/local
+docdir=$(DESTDIR)$(prefix)/doc/routino
+
+# Web file paths
+
 WEBDIR=../web/www/routino/documentation
 
-FILES=html/*
+# Files to install
+
+HTML_FILES=html/*
+TXT_FILES=*.txt
 
 ########
 
 all :
 	-@[ -d $(WEBDIR) ] && \
-	  for file in $(FILES); do \
+	  for file in $(HTML_FILES); do \
 	     if [ ! -f $(WEBDIR)/`basename $$file` ] || [ $$file -nt $(WEBDIR)/`basename $$file` ]; then \
 	        echo cp $$file $(WEBDIR) ;\
 	        cp -f $$file $(WEBDIR) ;\
 	     fi ;\
+	  done
+
+########
+
+install: all
+	-[ -d $(docdir) ] || mkdir -p $(docdir)
+	@[ -d $(docdir) ] && \
+	  for file in $(TXT_FILES); do \
+	     echo cp $$file $(docdir) ;\
+	     cp -f $$file $(docdir) ;\
+	  done
+	-[ -d $(docdir)/html ] || mkdir -p $(docdir)/html
+	@[ -d $(docdir)/html ] && \
+	  for file in $(HTML_FILES); do \
+	     echo cp $$file $(docdir)/html ;\
+	     cp -f $$file $(docdir)/html ;\
 	  done
 
 ########

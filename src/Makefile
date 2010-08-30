@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.39 2010-07-23 14:35:03 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.40 2010-08-30 13:38:32 amb Exp $
 #
 # Source code Makefile
 #
@@ -20,14 +20,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Programs
+# Installation paths
+
+prefix=/usr/local
+bindir=$(DESTDIR)$(prefix)/bin
+
+# Web file paths
+
+WEBDIR=../web/bin
+
+# Compilation programs
 
 CC=gcc
 LD=gcc
 
 LEX=flex
 
-# Program options
+# Compilation program options
 
 CFLAGS=-Wall -Wmissing-prototypes
 #CFLAGS+= -Wextra -pedantic -std=c99
@@ -54,8 +63,6 @@ C=$(wildcard *.c)
 D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
 
 EXE=planetsplitter planetsplitter-slim router router-slim filedumper filedumper-slim tagmodifier
-
-WEBDIR=../web/bin
 
 ########
 
@@ -158,6 +165,16 @@ xmlparse.c : xmlparse.l
 
 %-slim.o : %.c
 	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=1 $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
+
+########
+
+install: all
+	-[ -d $(bindir) ] || mkdir -p $(bindir)
+	@[ -d $(bindir) ] && \
+	  for file in $(EXE); do \
+	     echo cp $$file $(bindir) ;\
+	     cp -f $$file $(bindir) ;\
+	  done
 
 ########
 

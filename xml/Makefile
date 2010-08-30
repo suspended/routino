@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.6 2010-07-07 17:25:51 amb Exp $
+# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.7 2010-08-30 13:39:12 amb Exp $
 #
 # XML directory Makefile
 #
@@ -20,7 +20,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# Installation paths
+
+prefix=/usr/local
+sharedir=$(DESTDIR)$(prefix)/share/routino
+
+# Web file paths
+
 WEBDIR=../web/data
+
+# Files to install
 
 FILES=profiles.xml \
       translations.xml \
@@ -35,6 +44,16 @@ all :
 	        echo cp routino-$$file $(WEBDIR)/$$file ;\
 	        cp -f routino-$$file $(WEBDIR)/$$file ;\
 	     fi ;\
+	  done
+
+########
+
+install: all
+	-[ -d $(sharedir) ] || mkdir -p $(sharedir)
+	@[ -d $(sharedir) ] && \
+	  for file in $(FILES); do \
+	     echo cp routino-$$file $(sharedir)/$$file ;\
+	     cp -f routino-$$file $(sharedir)/$$file ;\
 	  done
 
 ########
