@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.37 2010-08-04 16:44:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.38 2010-08-30 12:32:06 amb Exp $
 
  Routing output generator.
 
@@ -369,7 +369,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           /* Cache the values to be printed rather than calculating them repeatedly for each output format */
 
-          char *waynameraw=NULL,*wayname=NULL,*waynamexml=NULL;
+          char *waynameraw=NULL,*waynamexml=NULL;
+          const char *wayname=NULL;
           int bearing_int=0,bearing_next_int=0,turn_int=0;
           char *bearing_str=NULL,*bearing_next_str=NULL,*turn_str=NULL;
 
@@ -444,7 +445,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
                 if(!waynameraw)
                   {
-                   waynameraw=WayNameRaw(ways,resultway);
+                   waynameraw=WayName(ways,resultway);
                    if(!*waynameraw)
                       waynameraw=translate_highway[HIGHWAY(resultway->type)];
                   }
@@ -502,7 +503,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                {
                 if(!waynameraw)
                   {
-                   waynameraw=WayNameRaw(ways,resultway);
+                   waynameraw=WayName(ways,resultway);
                    if(!*waynameraw)
                       waynameraw=translate_highway[HIGHWAY(resultway->type)];
                   }
@@ -553,7 +554,11 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                    type="Junct";
 
                 if(!wayname)
-                   wayname=(char*)WayNameHighway(ways,resultway);
+                  {
+                   wayname=WayName(ways,resultway);
+                   if(!*wayname)
+                      wayname=HighwayName(HIGHWAY(resultway->type));
+                  }
 
                 if(nextresult)
                   {
@@ -607,7 +612,11 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 type="Inter";
 
              if(!wayname)
-                wayname=(char*)WayNameHighway(ways,resultway);
+               {
+                wayname=WayName(ways,resultway);
+                if(!*wayname)
+                   wayname=HighwayName(HIGHWAY(resultway->type));
+               }
 
              if(!bearing_str)
                {
