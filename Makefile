@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/Makefile,v 1.3 2010-05-31 12:44:43 amb Exp $
+# $Header: /home/amb/CVS/routino/Makefile,v 1.4 2010-08-30 13:32:08 amb Exp $
 #
 # Makefile
 #
@@ -29,6 +29,14 @@ all:
 	for dir in $(DIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
+
+########
+
+install: all
+	for dir in $(DIRS); do \
+	   ( cd $$dir && $(MAKE) $@ ); \
+	done
+	@echo "Note: web directory is not installed automatically"
 
 ########
 
