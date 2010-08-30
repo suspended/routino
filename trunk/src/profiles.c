@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.44 2010-07-24 10:09:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.45 2010-08-30 12:13:29 amb Exp $
 
  Load the profiles from a file and the functions for handling them.
 
@@ -828,7 +828,7 @@ void PrintProfilesJSON(void)
  printf("  // Transport types\n");
  printf("  transports: {");
  for(j=0;j<nloaded_profiles;j++)
-    printf("%s%s: %d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),j);
+    printf("%s%s: %d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),j+1);
  printf("},\n");
  printf("\n");
 
@@ -856,7 +856,7 @@ void PrintProfilesJSON(void)
    {
     printf("    %12s: {",HighwayName(i));
     for(j=0;j<nloaded_profiles;j++)
-       printf("%s%s: %3d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->highway[i]);
+       printf("%s%s: %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->highway[i]);
     printf("}%s\n",i==(Way_Count-1)?"":",");
    }
  printf("     },\n");
@@ -868,7 +868,7 @@ void PrintProfilesJSON(void)
    {
     printf("    %12s: {",HighwayName(i));
     for(j=0;j<nloaded_profiles;j++)
-       printf("%s%s: %3d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),loaded_profiles[j]->speed[i]);
+       printf("%s%s: %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),loaded_profiles[j]->speed[i]);
     printf("}%s\n",i==(Way_Count-1)?"":",");
    }
  printf("     },\n");
@@ -880,7 +880,7 @@ void PrintProfilesJSON(void)
    {
     printf("    %12s: {",PropertyName(i));
     for(j=0;j<nloaded_profiles;j++)
-       printf("%s%s: %3d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->props_yes[i]);
+       printf("%s%s: %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->props_yes[i]);
     printf("}%s\n",i==(Property_Count-1)?"":",");
    }
  printf("     },\n");
@@ -890,23 +890,23 @@ void PrintProfilesJSON(void)
  printf("  profile_restrictions: {\n");
  printf("    %12s: {","oneway");
  for(j=0;j<nloaded_profiles;j++)
-    printf("%s%s: %4d",j==1?"":", ",TransportName(loaded_profiles[j]->transport),loaded_profiles[j]->oneway);
+    printf("%s%s: %4d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),loaded_profiles[j]->oneway);
  printf("},\n");
  printf("    %12s: {","weight");
  for(j=0;j<nloaded_profiles;j++)
-    printf("%s%s: %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),weight_to_tonnes(loaded_profiles[j]->weight));
+    printf("%s%s: %4.1f",j==0?"":", ",TransportName(loaded_profiles[j]->transport),weight_to_tonnes(loaded_profiles[j]->weight));
  printf("},\n");
  printf("    %12s: {","height");
  for(j=0;j<nloaded_profiles;j++)
-    printf("%s%s: %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),height_to_metres(loaded_profiles[j]->height));
+    printf("%s%s: %4.1f",j==0?"":", ",TransportName(loaded_profiles[j]->transport),height_to_metres(loaded_profiles[j]->height));
  printf("},\n");
  printf("    %12s: {","width");
  for(j=0;j<nloaded_profiles;j++)
-    printf("%s%s: %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),width_to_metres(loaded_profiles[j]->width));
+    printf("%s%s: %4.1f",j==0?"":", ",TransportName(loaded_profiles[j]->transport),width_to_metres(loaded_profiles[j]->width));
  printf("},\n");
  printf("    %12s: {","length");
  for(j=0;j<nloaded_profiles;j++)
-    printf("%s%s: %4.1f",j==1?"":", ",TransportName(loaded_profiles[j]->transport),length_to_metres(loaded_profiles[j]->length));
+    printf("%s%s: %4.1f",j==0?"":", ",TransportName(loaded_profiles[j]->transport),length_to_metres(loaded_profiles[j]->length));
  printf("}\n");
  printf("     }\n");
  printf("\n");
