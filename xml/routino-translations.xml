@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-translations.xml,v 1.6 2010-08-30 15:37:01 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-translations.xml,v 1.7 2010-09-04 13:58:03 amb Exp $
 
      An XML format file containing Routino output translations.
 
@@ -174,6 +174,86 @@
       <name  text="%s Strecke" />                                       <!-- %s = [shortest|quickest] -->
       <step  text="%s auf '%s' f&uuml;r %.3f km, %.1f min" />           <!-- 1st %s = [turn], 2nd %s = street name -->
       <final text="Gesamtstrecke %.1f km, %.0f minuten" />
+    </output-gpx>
+
+  </language>
+
+  <!-- Dutch translation by Jan Jansen (August 2010) -->
+
+  <language lang="nl">
+
+    <!-- Copyright of the data being routed, not of this file  -->
+    <copyright>
+      <creator string="Creator" text="Routino - http://www.routino.org/" />
+      <source  string="Source"  text="Basierend auf OpenStreetMap-Daten, erhältlich via http://www.openstreetmap.org/" />
+      <license string="License" text="http://creativecommons.org/licenses/by-sa/2.0/" />
+    </copyright>
+
+    <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
+    <turn direction="-4" string="Haarspeld naar links" />
+    <turn direction="-3" string="Scherp links" />
+    <turn direction="-2" string="Links" />
+    <turn direction="-1" string="Half links" />
+    <turn direction="0"  string="Rechtdoor" />
+    <turn direction="1"  string="Half rechts" />
+    <turn direction="2"  string="Rechts" />
+    <turn direction="3"  string="Scherp rechts" />
+    <turn direction="4"  string="Haarspeld naar rechts" />
+
+    <!-- Heading directions, 0 = North, -2 = West, +/-4 = South, +2 = East -->
+    <heading direction="-4" string="Zuid" />
+    <heading direction="-3" string="Zuid-West" />
+    <heading direction="-2" string="West" />
+    <heading direction="-1" string="Noord-West" />
+    <heading direction="0"  string="Noord" />
+    <heading direction="1"  string="Noord-Oost" />
+    <heading direction="2"  string="Oost" />
+    <heading direction="3"  string="Zuid-Oost" />
+    <heading direction="4"  string="Zuid" />
+
+    <!-- Highway names -->
+    <highway type="motorway"     string="Autostrade" />
+    <highway type="trunk"        string="Autoweg" />
+    <highway type="primary"      string="Provinciale weg" />
+    <highway type="secondary"    string="Nationale weg" />
+    <highway type="tertiary"     string="Doorgangsweg" />
+    <highway type="unclassified" string="Niet geclassificeerd" />
+    <highway type="residential"  string="Woongebiet" />
+    <highway type="service"      string="Toegangsweg" />
+    <highway type="track"        string="Veldweg" />
+    <highway type="cycleway"     string="Fietspad" />
+    <highway type="path"         string="Pad" />
+    <highway type="steps"        string="Trap" />
+
+    <!-- The type of route -->
+    <route type="shortest" string="Kortste" /> <!-- For the description and route name -->
+    <route type="quickest" string="Snelste" /> <!-- For the description and route name -->
+
+    <!-- HTML output -->
+    <output-html>
+      <waypoint type="waypoint"  string="Punt" />         <!-- For the chosen waypoints -->
+      <waypoint type="junction"  string="de splitsing" /> <!-- For the interesting junctions -->
+
+      <title text="%s Route" /> <!-- %s = [shortest|quickest] -->
+
+      <start   string="Start"  text="Bij %s neemt u de richting %s" />       <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
+      <node    string="Bij"    text="Bij %s gaat u %s richting %s" />        <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <segment string="Volg"   text="Volgt u de %s voor %.3f km %.1f min" /> <!-- 1st %s = street name -->
+      <stop    string="Stop"   text="U bent bij  %s aangekomen" />           <!-- 1st %s = [waypoint|junction] -->
+      <total   string="Totaal" text="%.1f km, %.0f minuten" />
+    </output-html>
+
+    <!-- GPX output -->
+    <output-gpx>
+      <waypoint type="start"  string="START" /> <!-- For the first route waypoint -->
+      <waypoint type="inter"  string="INTER" /> <!-- For the intermediate route waypoints -->
+      <waypoint type="trip"   string="TRIP"  /> <!-- For the other route points -->
+      <waypoint type="finish" string="FINISH"/> <!-- For the last route waypoint -->
+
+      <desc  text="%s Route tussen 'Start' und 'Finish'" />           <!-- %s = [shortest|quickest] -->
+      <name  text="%s Route  " />                                     <!-- %s = [shortest|quickest] -->
+      <step  text="%s op '%s' voor %.3f km, %.1f min" />              <!-- 1st %s = [turn], 2nd %s = street name -->
+      <final text="Totaal trip  %.1f km, %.0f minuten" />
     </output-gpx>
 
   </language>
