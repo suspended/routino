@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.40 2010-08-30 13:38:32 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.41 2010-09-05 18:27:13 amb Exp $
 #
 # Source code Makefile
 #
@@ -19,11 +19,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-# Installation paths
-
-prefix=/usr/local
-bindir=$(DESTDIR)$(prefix)/bin
 
 # Web file paths
 
@@ -161,19 +156,19 @@ xmlparse.c : xmlparse.l
 ########
 
 %.o : %.c
-	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=0 $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
+	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=0 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
 
 %-slim.o : %.c
-	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=1 $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
+	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=1 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
 
 ########
 
 install: all
-	-[ -d $(bindir) ] || mkdir -p $(bindir)
-	@[ -d $(bindir) ] && \
+	-[ -d $(DESTDIR)$(bindir) ] || mkdir -p $(DESTDIR)$(bindir)
+	@[ -d $(DESTDIR)$(bindir) ] && \
 	  for file in $(EXE); do \
-	     echo cp $$file $(bindir) ;\
-	     cp -f $$file $(bindir) ;\
+	     echo cp $$file $(DESTDIR)$(bindir) ;\
+	     cp -f $$file $(DESTDIR)$(bindir) ;\
 	  done
 
 ########
@@ -206,3 +201,8 @@ include $(D)
 ########
 
 .FORCE :
+
+########
+
+top=-top
+include ../Makefile

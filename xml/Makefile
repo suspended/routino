@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.7 2010-08-30 13:39:12 amb Exp $
+# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.8 2010-09-05 18:27:17 amb Exp $
 #
 # XML directory Makefile
 #
@@ -19,11 +19,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-# Installation paths
-
-prefix=/usr/local
-sharedir=$(DESTDIR)$(prefix)/share/routino
 
 # Web file paths
 
@@ -49,11 +44,11 @@ all :
 ########
 
 install: all
-	-[ -d $(sharedir) ] || mkdir -p $(sharedir)
-	@[ -d $(sharedir) ] && \
+	-[ -d $(DESTDIR)$(datadir) ] || mkdir -p $(DESTDIR)$(datadir)
+	@[ -d $(DESTDIR)$(datadir) ] && \
 	  for file in $(FILES); do \
-	     echo cp routino-$$file $(sharedir)/$$file ;\
-	     cp -f routino-$$file $(sharedir)/$$file ;\
+	     echo cp routino-$$file $(DESTDIR)$(datadir)/$$file ;\
+	     cp -f routino-$$file $(DESTDIR)$(datadir)/$$file ;\
 	  done
 
 ########
@@ -65,3 +60,8 @@ clean:
 
 distclean: clean
 	rm -f $(WEBDIR)/*.xml
+
+########
+
+top=-top
+include ../Makefile

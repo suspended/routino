@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/Makefile,v 1.4 2010-08-30 13:32:08 amb Exp $
+# $Header: /home/amb/CVS/routino/Makefile,v 1.5 2010-09-05 18:26:57 amb Exp $
 #
 # Makefile
 #
@@ -20,34 +20,43 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-FILES=$(wildcard */Makefile)
-DIRS=$(foreach f,$(FILES),$(dir $f))
+# Installation locations
+
+prefix=/usr/local
+bindir=$(prefix)/bin
+docdir=$(prefix)/doc/routino
+datadir=$(prefix)/share/routino
+
+# Sub-directories and sub-makefiles
+
+TOPFILES=$(wildcard */Makefile)
+TOPDIRS=$(foreach f,$(TOPFILES),$(dir $f))
 
 ########
 
-all:
-	for dir in $(DIRS); do \
+all$(top):
+	for dir in $(TOPDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
 ########
 
-install: all
-	for dir in $(DIRS); do \
+install$(top): all$(top)
+	for dir in $(TOPDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 	@echo "Note: web directory is not installed automatically"
 
 ########
 
-clean:
-	for dir in $(DIRS); do \
+clean$(top):
+	for dir in $(TOPDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
 ########
 
-distclean: clean
-	for dir in $(DIRS); do \
+distclean$(top): clean$(top)
+	for dir in $(TOPDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
