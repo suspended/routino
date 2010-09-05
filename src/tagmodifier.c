@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.6 2010-07-12 17:59:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.7 2010-09-05 18:26:01 amb Exp $
 
  Test application for OSM XML file parser / tagging rule testing.
 
@@ -551,22 +551,32 @@ int main(int argc,char **argv)
 
  /* Check the specified command line options */
 
- if(tagging && ExistsFile(tagging))
-    ;
- else if(!tagging && ExistsFile("tagging.xml"))
-    tagging="tagging.xml";
+ if(tagging)
+   {
+    if(!ExistsFile(tagging))
+      {
+       fprintf(stderr,"Error: The '--tagging' option specifies a file that does not exist.\n");
+       return(1);
+      }
+   }
+ else
+   {
+    if(ExistsFile("tagging.xml"))
+       tagging="tagging.xml";
+    else
+      {
+       fprintf(stderr,"Error: The '--tagging' option was not used and the default 'tagging.xml' does not exist.\n");
+       return(1);
+      }
+   }
 
- if(tagging && ParseXMLTaggingRules(tagging))
+ if(ParseXMLTaggingRules(tagging))
    {
     fprintf(stderr,"Error: Cannot read the tagging rules in the file '%s'.\n",tagging);
     return(1);
    }
 
- if(!tagging)
-   {
-    fprintf(stderr,"Error: Cannot run without reading some tagging rules.\n");
-    return(1);
-   }
+ /* Open the input file */
 
  if(filename)
    {

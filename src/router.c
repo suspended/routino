@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.85 2010-07-23 14:30:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.86 2010-09-05 18:26:01 amb Exp $
 
  OSM router.
 
@@ -158,6 +158,8 @@ int main(int argc,char** argv)
    {
     if(ExistsFile(FileName(dirname,prefix,"profiles.xml")))
        profiles=FileName(dirname,prefix,"profiles.xml");
+    else if(ExistsFile(FileName(DATADIR,NULL,"tagging.xml")))
+       profiles=FileName(DATADIR,NULL,"profiles.xml");
     else
       {
        fprintf(stderr,"Error: The '--profiles' option was not used and the default 'profiles.xml' does not exist.\n");
@@ -165,7 +167,7 @@ int main(int argc,char** argv)
       }
    }
 
- if(profiles && ParseXMLProfiles(profiles))
+ if(ParseXMLProfiles(profiles))
    {
     fprintf(stderr,"Error: Cannot read the profiles in the file '%s'.\n",profiles);
     return(1);
@@ -362,18 +364,28 @@ int main(int argc,char** argv)
 
  if(option_html || option_gpx_route || option_gpx_track)
    {
-    if(translations && ExistsFile(translations))
-       ;
-    else if(!translations && ExistsFile(FileName(dirname,prefix,"translations.xml")))
-       translations=FileName(dirname,prefix,"translations.xml");
-
-    if(!translations && language)
+    if(translations)
       {
-       fprintf(stderr,"Error: Cannot use '--language' option without reading some translations.\n");
-       return(1);
+       if(!ExistsFile(translations))
+         {
+          fprintf(stderr,"Error: The '--translations' option specifies a file that does not exist.\n");
+          return(1);
+         }
+      }
+    else
+      {
+       if(ExistsFile(FileName(dirname,prefix,"translations.xml")))
+          translations=FileName(dirname,prefix,"translations.xml");
+       else if(ExistsFile(FileName(DATADIR,NULL,"translations.xml")))
+          translations=FileName(DATADIR,NULL,"translations.xml");
+       else
+         {
+          fprintf(stderr,"Error: The '--translations' option was not used and the default 'translations.xml' does not exist.\n");
+          return(1);
+         }
       }
 
-    if(translations && ParseXMLTranslations(translations,language))
+    if(ParseXMLTranslations(translations,language))
       {
        fprintf(stderr,"Error: Cannot read the translations in the file '%s'.\n",translations);
        return(1);
@@ -594,10 +606,14 @@ static void print_usage(int detail)
             "\n"
             "--dir=<dirname>         The directory containing the routing database.\n"
             "--prefix=<name>         The filename prefix for the routing database.\n"
-            "--profiles=<filename>   The name of the profiles (defaults to 'profiles.xml'\n"
-            "                        with '--dirname' and '--prefix' options).\n"
-            "--translations=<fname>  The filename of the translations (defaults to\n"
-            "                         'translations.xml' with '--dirname' and '--prefix').\n"
+            "--profiles=<filename>   The name of the XML file containing the profiles\n"
+            "                        (defaults to 'profiles.xml' with '--dirname' and\n"
+            "                         '--prefix' options or the file installed in\n"
+            "                         '" DATADIR "').\n"
+            "--translations=<fname>  The name of the XML file containing the translations\n"
+            "                        (defaults to 'translations.xml' with '--dirname' and\n"
+            "                         '--prefix' options or the file installed in\n"
+            "                         '" DATADIR "').\n"
             "\n"
             "--exact-nodes-only      Only route between nodes (don't find closest segment).\n"
             "\n"
