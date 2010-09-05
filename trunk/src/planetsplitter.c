@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.75 2010-07-14 18:00:09 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.76 2010-09-05 18:26:01 amb Exp $
 
  OSM planet file splitter.
 
@@ -127,20 +127,30 @@ int main(int argc,char** argv)
        option_tmpdirname=dirname;
    }
 
- if(tagging && ExistsFile(tagging))
-    ;
- else if(!tagging && ExistsFile(FileName(dirname,prefix,"tagging.xml")))
-    tagging=FileName(dirname,prefix,"tagging.xml");
-
- if(tagging && ParseXMLTaggingRules(tagging))
+ if(tagging)
    {
-    fprintf(stderr,"Error: Cannot read the tagging rules in the file '%s'.\n",tagging);
-    return(1);
+    if(!ExistsFile(tagging))
+      {
+       fprintf(stderr,"Error: The '--tagging' option specifies a file that does not exist.\n");
+       return(1);
+      }
+   }
+ else
+   {
+    if(ExistsFile(FileName(dirname,prefix,"tagging.xml")))
+       tagging=FileName(dirname,prefix,"tagging.xml");
+    else if(ExistsFile(FileName(DATADIR,NULL,"tagging.xml")))
+       tagging=FileName(DATADIR,NULL,"tagging.xml");
+    else
+      {
+       fprintf(stderr,"Error: The '--tagging' option was not used and the default 'tagging.xml' does not exist.\n");
+       return(1);
+      }
    }
 
- if(!tagging)
+ if(ParseXMLTaggingRules(tagging))
    {
-    fprintf(stderr,"Error: Cannot run without reading some tagging rules.\n");
+    fprintf(stderr,"Error: Cannot read the tagging rules in the file '%s'.\n",tagging);
     return(1);
    }
 
@@ -393,7 +403,8 @@ static void print_usage(int detail)
             "\n"
             "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
             "                          (defaults to 'tagging.xml' with '--dirname' and\n"
-            "                           '--prefix' options).\n"
+            "                           '--prefix' options or the file installed in\n"
+            "                           '" DATADIR "').\n"
             "\n"
             "<filename.osm> ...        The name(s) of the file(s) to process (by default\n"
             "                          data is read from standard input).\n"
