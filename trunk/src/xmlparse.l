@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.17 2010-05-25 18:24:20 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.18 2010-09-14 17:50:23 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -120,6 +120,16 @@ static int xmlparse_options;
 
 S               [ \t\r\n]
 
+U1              [\x20-\x7F]
+U2              [\xC2-\xDF][\x80-\xBF]
+U3              [\xE0-\xEF][\x80-\xBF][\x80-\xBF]
+U4              [\xF0-\xF4][\x80-\xBF][\x80-\xBF][\x80-\xBF]
+
+U               ({U1}|{U2}|{U3}|{U4})
+Uattrval        ([\x20-\x21\x23-\x25\x28-\x3B\x3D\x3F-\x7F]|{U2}|{U3}|{U4})
+
+N               (\n|\r\n)
+
 letter          [a-zA-Z]
 digit           [0-9]
 xdigit          [a-fA-F0-9]
@@ -181,28 +191,28 @@ charref         &#({digit}+|x{xdigit}+);
 
  /* XML Declaration start */
 
-<XML_DECL_START>{name}      { BEGIN(XML_DECL); yylval=yytext; return(LEX_XML_DECL_BEGIN); }
-<XML_DECL_START>.|\n        { return(LEX_ERROR_XML_DECL_START); }
+<XML_DECL_START>xml         { BEGIN(XML_DECL); yylval=yytext; return(LEX_XML_DECL_BEGIN); }
+<XML_DECL_START>.|{N}       { return(LEX_ERROR_XML_DECL_START); }
 
  /* Tag middle */
 
 <XML_DECL>"?>"              { BEGIN(INITIAL); return(LEX_XML_DECL_FINISH); }
 <XML_DECL>{S}+              { }
 <XML_DECL>{name}            { after_attr=XML_DECL; BEGIN(ATTR_KEY); yylval=yytext; return(LEX_ATTR_KEY); }
-<XML_DECL>.|\n              { return(LEX_ERROR_XML_DECL); }
+<XML_DECL>.|{N}             { return(LEX_ERROR_XML_DECL); }
 
  /* Any tag start */
 
 <TAG_START>{name}           { BEGIN(TAG); yylval=yytext; return(LEX_TAG_BEGIN); }
-<TAG_START>.|\n             { return(LEX_ERROR_TAG_START); }
+<TAG_START>.|{N}            { return(LEX_ERROR_TAG_START); }
 
  /* End-tag start */
 
 <END_TAG1>{name}            { BEGIN(END_TAG2); yylval=yytext; return(LEX_TAG_POP); }
-<END_TAG1>.|\n              { return(LEX_ERROR_END_TAG); }
+<END_TAG1>.|{N}             { return(LEX_ERROR_END_TAG); }
 
 <END_TAG2>">"               { BEGIN(INITIAL); }
-<END_TAG2>.|\n              { return(LEX_ERROR_END_TAG); }
+<END_TAG2>.|{N}             { return(LEX_ERROR_END_TAG); }
 
  /* Any tag middle */
 
@@ -210,16 +220,16 @@ charref         &#({digit}+|x{xdigit}+);
 <TAG>">"                    { BEGIN(INITIAL); return(LEX_TAG_PUSH); }
 <TAG>{S}+                   { }
 <TAG>{name}                 { after_attr=TAG; BEGIN(ATTR_KEY); yylval=yytext; return(LEX_ATTR_KEY); }
-<TAG>.|\n                   { return(LEX_ERROR_TAG); }
+<TAG>.|{N}                  { return(LEX_ERROR_TAG); }
 
  /* Attributes */
 
 <ATTR_KEY>=                 { BEGIN(ATTR_VAL); }
-<ATTR_KEY>.|\n              { return(LEX_ERROR_ATTR); }
+<ATTR_KEY>.|{N}             { return(LEX_ERROR_ATTR); }
 
 <ATTR_VAL>\"                { BEGIN(DQUOTED); reset_string; }
 <ATTR_VAL>\'                { BEGIN(SQUOTED); reset_string; }
-<ATTR_VAL>.|\n              { return(LEX_ERROR_ATTR); }
+<ATTR_VAL>.|{N}             { return(LEX_ERROR_ATTR); }
 
  /* Quoted strings */
 
@@ -229,7 +239,8 @@ charref         &#({digit}+|x{xdigit}+);
 <DQUOTED>{charref}          { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
                               else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
 <DQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
-<DQUOTED>[^<>&\"]+          { append_string(yytext); }
+<DQUOTED>{Uattrval}+        { append_string(yytext); }
+<DQUOTED>.|{N}              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 
 <SQUOTED>\'                 { BEGIN(after_attr); yylval=string; return(LEX_ATTR_VAL); }
 <SQUOTED>{entityref}        { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
@@ -237,7 +248,8 @@ charref         &#({digit}+|x{xdigit}+);
 <SQUOTED>{charref}          { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
                               else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
 <SQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
-<SQUOTED>[^<>&\']+          { append_string(yytext); }
+<SQUOTED>{Uattrval}+        { append_string(yytext); }
+<SQUOTED>.|{N}              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 
  /* End of file */
 
