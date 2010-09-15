@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.87 2010-09-15 17:41:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.88 2010-09-15 18:15:37 amb Exp $
 
  OSM router.
 
@@ -57,7 +57,7 @@ int option_quickest=0;
 
 /* Local functions */
 
-static void print_usage(int detail);
+static void print_usage(int detail,const char *argerr,const char *err);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -84,14 +84,14 @@ int main(int argc,char** argv)
  /* Parse the command line arguments */
 
  if(argc<2)
-    print_usage(0);
+    print_usage(0,NULL,NULL);
 
  /* Get the non-routing, general program options */
 
  for(arg=1;arg<argc;arg++)
    {
     if(!strcmp(argv[arg],"--help"))
-       print_usage(1);
+       print_usage(1,NULL,NULL);
     else if(!strcmp(argv[arg],"--help-profile"))
        help_profile=1;
     else if(!strcmp(argv[arg],"--help-profile-xml"))
@@ -133,7 +133,7 @@ int main(int argc,char** argv)
        transport=TransportType(&argv[arg][12]);
 
        if(transport==Transport_None)
-         print_usage(0);
+          print_usage(0,argv[arg],NULL);
       }
     else
        continue;
@@ -226,11 +226,11 @@ int main(int argc,char** argv)
         char *p=&argv[arg][6];
         while(isdigit(*p)) p++;
         if(*p++!='=')
-           print_usage(0);
+           print_usage(0,argv[arg],NULL);
  
         point=atoi(&argv[arg][5]);
         if(point>NWAYPOINTS || point_used[point]&1)
-           print_usage(0);
+           print_usage(0,argv[arg],NULL);
  
        point_lon[point]=degrees_to_radians(atof(p));
        point_used[point]+=1;
@@ -240,11 +240,11 @@ int main(int argc,char** argv)
         char *p=&argv[arg][6];
         while(isdigit(*p)) p++;
         if(*p++!='=')
-           print_usage(0);
+           print_usage(0,argv[arg],NULL);
  
         point=atoi(&argv[arg][5]);
         if(point>NWAYPOINTS || point_used[point]&2)
-           print_usage(0);
+           print_usage(0,argv[arg],NULL);
  
        point_lat[point]=degrees_to_radians(atof(p));
        point_used[point]+=2;
@@ -258,7 +258,7 @@ int main(int argc,char** argv)
        char *string;
 
        if(!equal)
-           print_usage(0);
+           print_usage(0,argv[arg],NULL);
 
        string=strcpy((char*)malloc(strlen(argv[arg])),argv[arg]+10);
        string[equal-argv[arg]-10]=0;
@@ -266,7 +266,7 @@ int main(int argc,char** argv)
        highway=HighwayType(string);
 
        if(highway==Way_Count)
-          print_usage(0);
+          print_usage(0,argv[arg],NULL);
 
        profile->highway[highway]=atof(equal+1);
 
@@ -279,7 +279,7 @@ int main(int argc,char** argv)
        char *string;
 
        if(!equal)
-          print_usage(0);
+          print_usage(0,argv[arg],NULL);
 
        string=strcpy((char*)malloc(strlen(argv[arg])),argv[arg]+8);
        string[equal-argv[arg]-8]=0;
@@ -287,7 +287,7 @@ int main(int argc,char** argv)
        highway=HighwayType(string);
 
        if(highway==Way_Count)
-          print_usage(0);
+          print_usage(0,argv[arg],NULL);
 
        profile->speed[highway]=kph_to_speed(atof(equal+1));
 
@@ -300,7 +300,7 @@ int main(int argc,char** argv)
        char *string;
 
        if(!equal)
-          print_usage(0);
+          print_usage(0,argv[arg],NULL);
 
        string=strcpy((char*)malloc(strlen(argv[arg])),argv[arg]+11);
        string[equal-argv[arg]-11]=0;
@@ -308,7 +308,7 @@ int main(int argc,char** argv)
        property=PropertyType(string);
 
        if(property==Way_Count)
-          print_usage(0);
+          print_usage(0,argv[arg],NULL);
 
        profile->props_yes[property]=atof(equal+1);
 
@@ -325,12 +325,12 @@ int main(int argc,char** argv)
     else if(!strncmp(argv[arg],"--length=",9))
        profile->length=metres_to_length(atof(&argv[arg][9]));
     else
-       print_usage(0);
+       print_usage(0,argv[arg],NULL);
    }
 
  for(point=1;point<=NWAYPOINTS;point++)
     if(point_used[point]==1 || point_used[point]==2)
-       print_usage(0);
+       print_usage(0,NULL,"All waypoints must have latitude and longitude.");
 
  if(help_profile)
    {
@@ -566,9 +566,13 @@ int main(int argc,char** argv)
   Print out the usage information.
 
   int detail The level of detail to use - 0 = low, 1 = high.
+
+  const char *argerr The argument that gave the error (if there is one).
+
+  const char *err Other error message (if there is one).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_usage(int detail)
+static void print_usage(int detail,const char *argerr,const char *err)
 {
  fprintf(stderr,
          "Usage: router [--help | --help-profile | --help-profile-xml |\n"
@@ -594,6 +598,16 @@ static void print_usage(int detail)
          "              [--oneway=(0|1)]\n"
          "              [--weight=<weight>]\n"
          "              [--height=<height>] [--width=<width>] [--length=<length>]\n");
+
+ if(argerr)
+    fprintf(stderr,
+            "\n"
+            "Error with command line parameter: %s\n",argerr);
+
+ if(argerr)
+    fprintf(stderr,
+            "\n"
+            "Error: %s\n",err);
 
  if(detail)
     fprintf(stderr,

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.77 2010-09-15 17:41:22 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.78 2010-09-15 18:15:37 amb Exp $
 
  OSM planet file splitter.
 
@@ -53,7 +53,7 @@ size_t option_filesort_ramsize=0;
 
 /* Local functions */
 
-static void print_usage(int detail);
+static void print_usage(int detail,const char *argerr,const char *err);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -77,7 +77,7 @@ int main(int argc,char** argv)
  for(arg=1;arg<argc;arg++)
    {
     if(!strcmp(argv[arg],"--help"))
-       print_usage(1);
+       print_usage(1,NULL,NULL);
     else if(!strncmp(argv[arg],"--sort-ram-size=",16))
        option_filesort_ramsize=atoi(&argv[arg][16]);
     else if(!strncmp(argv[arg],"--dir=",6))
@@ -95,7 +95,7 @@ int main(int argc,char** argv)
     else if(!strncmp(argv[arg],"--tagging=",10))
        tagging=&argv[arg][10];
     else if(argv[arg][0]=='-' && argv[arg][1]=='-')
-       print_usage(0);
+       print_usage(0,argv[arg],NULL);
     else
        option_filenames++;
    }
@@ -103,10 +103,10 @@ int main(int argc,char** argv)
  /* Check the specified command line options */
 
  if(option_parse_only && option_process_only)
-    print_usage(0);
+    print_usage(0,NULL,"Cannot use '--parse-only' and '--process-only' at the same time.");
 
  if(option_filenames && option_process_only)
-    print_usage(0);
+    print_usage(0,NULL,"Cannot use '--process-only' and filenames at the same time.");
 
  if(!option_filesort_ramsize)
    {
@@ -365,9 +365,13 @@ int main(int argc,char** argv)
   Print out the usage information.
 
   int detail The level of detail to use - 0 = low, 1 = high.
+
+  const char *argerr The argument that gave the error (if there is one).
+
+  const char *err Other error message (if there is one).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_usage(int detail)
+static void print_usage(int detail,const char *argerr,const char *err)
 {
  fprintf(stderr,
          "Usage: planetsplitter [--help]\n"
@@ -378,6 +382,16 @@ static void print_usage(int detail)
          "                      [--max-iterations=<number>]\n"
          "                      [--tagging=<filename>]\n"
          "                      [<filename.osm> ...]\n");
+
+ if(argerr)
+    fprintf(stderr,
+            "\n"
+            "Error with command line parameter: %s\n",argerr);
+
+ if(argerr)
+    fprintf(stderr,
+            "\n"
+            "Error: %s\n",err);
 
  if(detail)
     fprintf(stderr,
