@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.c,v 1.4 2010-07-31 18:21:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.c,v 1.5 2010-09-15 18:30:08 amb Exp $
 
  Functions for handling the data types.
 
@@ -41,6 +41,10 @@ Highway HighwayType(const char *highway)
    {
    case 'c':
     if(!strcmp(highway,"cycleway")) return(Way_Cycleway);
+    return(Way_Count);
+
+   case 'f':
+    if(!strcmp(highway,"ferry")) return(Way_Ferry);
     return(Way_Count);
 
    case 'm':
@@ -217,6 +221,8 @@ const char *HighwayName(Highway highway)
     return("path");
    case Way_Steps:
     return("steps");
+   case Way_Ferry:
+    return("ferry");
 
    case Way_Count:
     ;
@@ -446,6 +452,7 @@ const char *HighwayList(void)
         "    cycleway     = Cycleway\n"
         "    path         = Path\n"
         "    steps        = Steps\n"
+        "    ferry        = Ferry\n"
         ;
 }
 
