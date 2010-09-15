@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.78 2010-09-15 18:15:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.79 2010-09-15 18:19:36 amb Exp $
 
  OSM planet file splitter.
 
@@ -388,7 +388,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "Error with command line parameter: %s\n",argerr);
 
- if(argerr)
+ if(err)
     fprintf(stderr,
             "\n"
             "Error: %s\n",err);

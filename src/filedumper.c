@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.53 2010-09-15 18:15:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.54 2010-09-15 18:19:36 amb Exp $
 
  Memory file dumper.
 
@@ -642,7 +642,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "Error with command line parameter: %s\n",argerr);
 
- if(argerr)
+ if(err)
     fprintf(stderr,
             "\n"
             "Error: %s\n",err);
