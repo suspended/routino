@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.39 2010-09-15 10:11:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.40 2010-09-15 18:30:08 amb Exp $
 
  Routing output generator.
 
@@ -56,19 +56,20 @@ extern int option_html,option_gpx_track,option_gpx_route,option_text,option_text
 
 /*+ Heuristics for determining if a junction is important. +*/
 static char junction_other_way[Way_Count][Way_Count]=
- { /* M, T, P, S, T, U, R, S, T, C, P, S = Way type of route not taken */
-  {   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Motorway     */
-  {   1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Trunk        */
-  {   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Primary      */
-  {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 }, /* Secondary    */
-  {   1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 }, /* Tertiary     */
-  {   1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 }, /* Unclassified */
-  {   1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 }, /* Residential  */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 }, /* Service      */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 }, /* Track        */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 }, /* Cycleway     */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Path         */
-  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Steps        */
+ { /* M, T, P, S, T, U, R, S, T, C, P, S, F = Way type of route not taken */
+  {   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, /* Motorway     */
+  {   1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, /* Trunk        */
+  {   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, /* Primary      */
+  {   1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, /* Secondary    */
+  {   1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1 }, /* Tertiary     */
+  {   1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1 }, /* Unclassified */
+  {   1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 }, /* Residential  */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1 }, /* Service      */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1 }, /* Track        */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1 }, /* Cycleway     */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Path         */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Steps        */
+  {   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, /* Ferry        */
  };
 
 

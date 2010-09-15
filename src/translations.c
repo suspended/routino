@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.c,v 1.12 2010-09-15 10:11:58 amb Exp $
+ $Header: /home/amb/CVS/routino/src/translations.c,v 1.13 2010-09-15 18:30:08 amb Exp $
 
  Load the translations from a file and the functions for handling them.
 
@@ -40,7 +40,7 @@ char *translate_copyright_license[2]={NULL,NULL};
 char *translate_heading[9]={"South","South-West","West","North-West","North","North-East","East","South-East","South"};
 char *translate_turn[9]   ={"Very sharp left","Sharp left","Left","Slight left","Straight on","Slight right","Right","Sharp right","Very sharp right"};
 
-char *translate_highway[Way_Count]={"","motorway","trunk road","primary road","secondary road","tertiary road","unclassified road","residential road","service road","track","cycleway","path","steps"};
+char *translate_highway[Way_Count]={"","motorway","trunk road","primary road","secondary road","tertiary road","unclassified road","residential road","service road","track","cycleway","path","steps","ferry"};
 
 char *translate_route_shortest="Shortest";
 char *translate_route_quickest="Quickest";
