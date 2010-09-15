@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.38 2010-08-30 12:32:06 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.39 2010-09-15 10:11:28 amb Exp $
 
  Routing output generator.
 
@@ -176,7 +176,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     fprintf(htmlfile,"<TITLE>");
     fprintf(htmlfile,translate_html_title,option_quickest?translate_route_quickest:translate_route_shortest);
     fprintf(htmlfile,"</TITLE>\n");
-    fprintf(htmlfile,"<STYLE type='text/css'>\n");
+    fprintf(htmlfile,"<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
+    fprintf(htmlfile,"<STYLE type=\"text/css\">\n");
     fprintf(htmlfile,"<!--\n");
     fprintf(htmlfile,"   table   {table-layout: fixed; border: none; border-collapse: collapse;}\n");
     fprintf(htmlfile,"   table.c {color: grey; font-size: x-small;} /* copyright */\n");
