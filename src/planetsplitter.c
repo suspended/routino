@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.76 2010-09-05 18:26:01 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.77 2010-09-15 17:41:22 amb Exp $
 
  OSM planet file splitter.
 
@@ -402,7 +402,7 @@ static void print_usage(int detail)
             "--max-iterations=<number> The number of iterations for finding super-nodes.\n"
             "\n"
             "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
-            "                          (defaults to 'tagging.xml' with '--dirname' and\n"
+            "                          (defaults to 'tagging.xml' with '--dir' and\n"
             "                           '--prefix' options or the file installed in\n"
             "                           '" DATADIR "').\n"
             "\n"

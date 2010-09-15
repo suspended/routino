@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.86 2010-09-05 18:26:01 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.87 2010-09-15 17:41:28 amb Exp $
 
  OSM router.
 
@@ -607,11 +607,11 @@ static void print_usage(int detail)
             "--dir=<dirname>         The directory containing the routing database.\n"
             "--prefix=<name>         The filename prefix for the routing database.\n"
             "--profiles=<filename>   The name of the XML file containing the profiles\n"
-            "                        (defaults to 'profiles.xml' with '--dirname' and\n"
+            "                        (defaults to 'profiles.xml' with '--dir' and\n"
             "                         '--prefix' options or the file installed in\n"
             "                         '" DATADIR "').\n"
             "--translations=<fname>  The name of the XML file containing the translations\n"
-            "                        (defaults to 'translations.xml' with '--dirname' and\n"
+            "                        (defaults to 'translations.xml' with '--dir' and\n"
             "                         '--prefix' options or the file installed in\n"
             "                         '" DATADIR "').\n"
             "\n"
