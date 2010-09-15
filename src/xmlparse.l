@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.18 2010-09-14 17:50:23 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.19 2010-09-15 10:14:59 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -116,17 +116,25 @@ static int xmlparse_options;
 %option nounput
 
 
- /* Grammar based on http://www.w3.org/TR/2004/REC-xml-20040204/ but for ASCII not Unicode. */
+ /* Grammar based on http://www.w3.org/TR/2004/REC-xml-20040204/ but for ASCII tags not Unicode. */
 
 S               [ \t\r\n]
 
-U1              [\x20-\x7F]
+U1              [\x09\x0A\x0D\x20-\x7F]
 U2              [\xC2-\xDF][\x80-\xBF]
-U3              [\xE0-\xEF][\x80-\xBF][\x80-\xBF]
-U4              [\xF0-\xF4][\x80-\xBF][\x80-\xBF][\x80-\xBF]
+U3a             \xE0[\xA0-\xBF][\x80-\xBF]
+U3b             [\xE1-\xEC][\x80-\xBF][\x80-\xBF]
+U3c             \xED[\x80-\x9F][\x80-\xBF]
+U3d             [\xEE-\xEF][\x80-\xBF][\x80-\xBF]
+U3              {U3a}|{U3b}|{U3c}|{U3d}
+U4a             \xF0[\x90-\xBF][\x80-\xBF][\x80-\xBF]
+U4b             [\xF1-\xF3][\x80-\xBF][\x80-\xBF][\x80-\xBF]
+U4c             \xF4[\x80-\x8F][\x80-\xBF][\x80-\xBF]
+U4              {U4a}|{U4b}|{U4c}
 
 U               ({U1}|{U2}|{U3}|{U4})
-Uattrval        ([\x20-\x21\x23-\x25\x28-\x3B\x3D\x3F-\x7F]|{U2}|{U3}|{U4})
+UquotedS        ([\x09\x0A\x0D\x20-\x25\x28-\x3B\x3D\x3F-\x7F]|{U2}|{U3}|{U4})
+UquotedD        ([\x09\x0A\x0D\x20-\x21\x23-\x25\x27-\x3B\x3D\x3F-\x7F]|{U2}|{U3}|{U4})
 
 N               (\n|\r\n)
 
@@ -238,9 +246,9 @@ charref         &#({digit}+|x{xdigit}+);
                               else { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} } }
 <DQUOTED>{charref}          { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
                               else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
-<DQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
-<DQUOTED>{Uattrval}+        { append_string(yytext); }
-<DQUOTED>.|{N}              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
+<DQUOTED>[<>&\"]            { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
+<DQUOTED>{UquotedD}+        { append_string(yytext); }
+<DQUOTED>.                  { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 
 <SQUOTED>\'                 { BEGIN(after_attr); yylval=string; return(LEX_ATTR_VAL); }
 <SQUOTED>{entityref}        { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
@@ -248,8 +256,8 @@ charref         &#({digit}+|x{xdigit}+);
 <SQUOTED>{charref}          { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
                               else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
 <SQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
-<SQUOTED>{Uattrval}+        { append_string(yytext); }
-<SQUOTED>.|{N}              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
+<SQUOTED>{UquotedS}+        { append_string(yytext); }
+<SQUOTED>.                  { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 
  /* End of file */
 
@@ -647,7 +655,7 @@ char *ParseXML_Encode_Safe_XML(const char *string)
  char *result;
 
  for(i=0;string[i];i++)
-    if(string[i]=='<' || string[i]=='>' || string[i]=='&' || string[i]=='\'' || string[i]=='"' || string[i]<32 || string[i]>126)
+    if(string[i]=='<' || string[i]=='>' || string[i]=='&' || string[i]=='\'' || string[i]=='"' || string[i]<32 || string[i]>127)
        break;
 
  if(!string[i])
@@ -701,17 +709,59 @@ char *ParseXML_Encode_Safe_XML(const char *string)
           result[j++]='t';
           result[j++]=';';
          }
-       else if(string[i]<32 || string[i]>126)
+       else if(string[i]>=32 && string[i]<=127)
+          result[j++]=string[i];
+       else
          {
+          unsigned int unicode;
+
+          /* Decode the UTF-8 */
+
+          if((string[i]&0xE0)==0xC0 && (string[i]&0x1F)>=2 && (string[i+1]&0xC0)==0x80)
+            {
+             /*   0000 0080-0000 07FF   110xxxxx 10xxxxxx */
+             unicode =(string[i++]&0x1F)<<6;
+             unicode|= string[i  ]&0x3F;
+            }
+          else if((string[i]&0xF0)==0xE0 && (string[i+1]&0xC0)==0x80 && (string[i+2]&0xC0)==0x80)
+            {
+             /*   0000 0800-0000 FFFF   1110xxxx 10xxxxxx 10xxxxxx */
+             unicode =(string[i++]&0x0F)<<12;
+             unicode|=(string[i++]&0x3F)<<6;
+             unicode|= string[i  ]&0x3F;
+            }
+          else if((string[i]&0xF8)==0xF0 && (string[i+1]&0xC0)==0x80 && (string[i+2]&0xC0)==0x80 && (string[i+3]&0xC0)==0x80)
+            {
+             /*   0001 0000-001F FFFF   11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
+             unicode =(string[i++]&0x07)<<18;
+             unicode|=(string[i++]&0x3F)<<12;
+             unicode|=(string[i++]&0x3F)<<6;
+             unicode|= string[i  ]&0x3F;
+            }
+          else
+             unicode=0xFFFD;
+
+          /* Output the character entity */
+
           result[j++]='&';
           result[j++]='#';
           result[j++]='x';
-          result[j++]=hexstring[(string[i]&0xf0)>>4];
-          result[j++]=hexstring[ string[i]&0x0f    ];
+
+          if(unicode&0x00FF0000)
+            {
+             result[j++]=hexstring[((unicode>>16)&0xf0)>>4];
+             result[j++]=hexstring[((unicode>>16)&0x0f)   ];
+            }
+          if(unicode&0x00FFFF00)
+            {
+             result[j++]=hexstring[((unicode>>8)&0xf0)>>4];
+             result[j++]=hexstring[((unicode>>8)&0x0f)   ];
+            }
+          result[j++]=hexstring[(unicode&0xf0)>>4];
+          result[j++]=hexstring[(unicode&0x0f)   ];
+
           result[j++]=';';
          }
-       else
-          result[j++]=string[i];
 
     if(string[i])                  /* Not finished */
       {
