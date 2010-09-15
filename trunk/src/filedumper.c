@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.52 2010-08-30 12:32:00 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.53 2010-09-15 18:15:37 amb Exp $
 
  Memory file dumper.
 
@@ -52,7 +52,7 @@ static void print_tail_osm(void);
 
 static char *RFC822Date(time_t t);
 
-static void print_usage(int detail);
+static void print_usage(int detail,const char *argerr,const char *err);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -79,7 +79,7 @@ int main(int argc,char** argv)
  for(arg=1;arg<argc;arg++)
    {
     if(!strcmp(argv[arg],"--help"))
-       print_usage(1);
+       print_usage(1,NULL,NULL);
     else if(!strncmp(argv[arg],"--dir=",6))
        dirname=&argv[arg][6];
     else if(!strncmp(argv[arg],"--prefix=",9))
@@ -111,11 +111,11 @@ int main(int argc,char** argv)
     else if(!strncmp(argv[arg],"--way=",6))
        ;
     else
-       print_usage(0);
+       print_usage(0,argv[arg],NULL);
    }
 
- if(!option_statistics && !option_visualiser && !option_dump && !option_dump_osm)
-    print_usage(0);
+ if((option_statistics + option_visualiser + option_dump + option_dump_osm)!=1)
+    print_usage(0,NULL,"Must choose --visualiser, --statistics, --dump or --dump-osm.");
 
  /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
 
@@ -130,16 +130,10 @@ int main(int argc,char** argv)
  if(option_visualiser)
    {
     if(coordcount!=4)
-      {
-       fprintf(stderr,"The --visualiser option must have --latmin, --latmax, --lonmin, --lonmax.\n");
-       exit(1);
-      }
+       print_usage(0,NULL,"The --visualiser option must have --latmin, --latmax, --lonmin, --lonmax.\n");
 
     if(!option_data)
-      {
-       fprintf(stderr,"The --visualiser option must have --data.\n");
-       exit(1);
-      }
+       print_usage(0,NULL,"The --visualiser option must have --data.\n");
 
     if(!strcmp(option_data,"junctions"))
        OutputJunctions(OSMNodes,OSMSegments,OSMWays,latmin,latmax,lonmin,lonmax);
@@ -158,10 +152,7 @@ int main(int argc,char** argv)
     else if(!strcmp(option_data,"length"))
        OutputLengthLimits(OSMNodes,OSMSegments,OSMWays,latmin,latmax,lonmin,lonmax);
     else
-      {
-       fprintf(stderr,"Unrecognised data option '%s' with --visualiser.\n",option_data);
-       exit(1);
-      }
+       print_usage(0,option_data,NULL);
    }
 
  /* Print out statistics */
@@ -299,10 +290,7 @@ int main(int argc,char** argv)
  if(option_dump_osm)
    {
     if(coordcount>0 && coordcount!=4)
-      {
-       fprintf(stderr,"The --dump-osm option must have all of --latmin, --latmax, --lonmin, --lonmax or none.\n");
-       exit(1);
-      }
+       print_usage(0,NULL,"The --dump-osm option must have all of --latmin, --latmax, --lonmin, --lonmax or none.\n");
 
     print_head_osm();
 
@@ -627,9 +615,13 @@ static char *RFC822Date(time_t t)
   Print out the usage information.
 
   int detail The level of detail to use - 0 = low, 1 = high.
+
+  const char *argerr The argument that gave the error (if there is one).
+
+  const char *err Other error message (if there is one).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_usage(int detail)
+static void print_usage(int detail,const char *argerr,const char *err)
 {
  fprintf(stderr,
          "Usage: filedumper [--help]\n"
@@ -644,6 +636,16 @@ static void print_usage(int detail)
          "                  [--dump-osm [--no-super]\n"
          "                              [--latmin=<latmin> --latmax=<latmax>\n"
          "                               --lonmin=<lonmin> --lonmax=<lonmax>]]\n");
+
+ if(argerr)
+    fprintf(stderr,
+            "\n"
+            "Error with command line parameter: %s\n",argerr);
+
+ if(argerr)
+    fprintf(stderr,
+            "\n"
+            "Error: %s\n",err);
 
  if(detail)
     fprintf(stderr,
