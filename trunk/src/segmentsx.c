@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.62 2010-08-04 16:44:52 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.63 2010-09-16 18:20:41 amb Exp $
 
  Extended Segment data type functions.
 
@@ -139,7 +139,7 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Append a single segment to a segment list.
+  Append a single segment to an unsorted segment list.
 
   SegmentsX* segmentsx The set of segments to process.
 

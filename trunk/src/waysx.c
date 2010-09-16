@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.48 2010-07-31 18:21:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.49 2010-09-16 18:20:44 amb Exp $
 
  Extended Way data type functions.
 
@@ -134,9 +134,7 @@ void FreeWayList(WaysX *waysx,int keep)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Append a way to a way list.
-
-  void AppendWay Returns the newly appended way.
+  Append a single way to an unsorted way list.
 
   WaysX* waysx The set of ways to process.
 

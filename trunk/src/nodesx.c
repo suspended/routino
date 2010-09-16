@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.69 2010-08-04 16:44:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.70 2010-09-16 18:20:37 amb Exp $
 
  Extented Node data type functions.
 
@@ -145,7 +145,7 @@ void FreeNodeList(NodesX *nodesx,int keep)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Append a node to a newly created node list (unsorted).
+  Append a single node to an unsorted node list.
 
   NodesX* nodesx The set of nodes to process.
 
