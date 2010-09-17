@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.c,v 1.5 2010-09-15 18:30:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.c,v 1.6 2010-09-17 17:43:41 amb Exp $
 
  Functions for handling the data types.
 
@@ -158,8 +158,16 @@ Property PropertyType(const char *property)
  switch(*property)
    {
    case 'b':
+    if(!strcmp(property,"bicycleroute"))
+       return(Property_BicycleRoute);
+
     if(!strcmp(property,"bridge"))
        return(Property_Bridge);
+    break;
+
+   case 'f':
+    if(!strcmp(property,"footroute"))
+       return(Property_FootRoute);
     break;
 
    case 'm':
@@ -307,6 +315,12 @@ const char *PropertyName(Property property)
    case Property_Tunnel:
     return("tunnel");
 
+   case Property_FootRoute:
+    return("footroute");
+
+   case Property_BicycleRoute:
+    return("bicycleroute");
+
    case Property_Count:
     ;
   }
@@ -428,6 +442,18 @@ const char *PropertiesNameList(wayprop_t properties)
     strcat(string,"tunnel");
    }
 
+ if(properties & Properties_FootRoute)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"footroute");
+   }
+
+ if(properties & Properties_BicycleRoute)
+   {
+    if(*string) strcat(string,", ");
+    strcat(string,"bicycleroute");
+   }
+
  return(string);
 }
 
@@ -487,9 +513,11 @@ const char *TransportList(void)
 
 const char *PropertyList(void)
 {
- return "    paved     = Paved (suitable for normal wheels)\n"
-        "    multilane = Multiple lanes\n"
-        "    bridge    = Bridge\n"
-        "    Tunnel    = Tunnel\n"
+ return "    paved        = Paved (suitable for normal wheels)\n"
+        "    multilane    = Multiple lanes\n"
+        "    bridge       = Bridge\n"
+        "    tunnel       = Tunnel\n"
+        "    footroute    = A route marked for foot travel\n"
+        "    bicycleroute = A route marked for bicycle travel\n"
         ;
 }
