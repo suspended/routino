@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.80 2010-09-17 17:44:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.81 2010-09-17 18:38:39 amb Exp $
 
  OSM planet file splitter.
 
@@ -228,11 +228,15 @@ int main(int argc,char** argv)
 
  SortRelationList(Relations);
 
- /* Process the route relations */
+ /* Process the route relations (must be before compacting the ways) */
 
  ProcessRouteRelations(Relations,Ways);
 
  FreeRelationList(Relations,0);
+
+ /* Compact the ways (must be before measuring the segments) */
+
+ CompactWayList(Ways);
 
  /* Remove bad segments (must be after sorting the nodes and segments) */
 
