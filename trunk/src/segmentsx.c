@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.63 2010-09-16 18:20:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.64 2010-09-17 18:39:28 amb Exp $
 
  Extended Segment data type functions.
 
@@ -933,7 +933,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 {
  index_t i;
  int fd;
- SegmentsFile segmentsfile;
+ SegmentsFile segmentsfile={0};
  int super_number=0,normal_number=0;
 
  /* Print the start message */
