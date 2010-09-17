@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.41 2010-09-05 18:27:13 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.42 2010-09-17 17:42:20 amb Exp $
 #
 # Source code Makefile
 #
@@ -74,7 +74,7 @@ all : $(EXE)
 ########
 
 PLANETSPLITTER_OBJ=planetsplitter.o \
-	           nodesx.o segmentsx.o waysx.o superx.o \
+	           nodesx.o segmentsx.o waysx.o relationsx.o superx.o \
 	           ways.o types.o \
 	           files.o \
 	           results.o queue.o sorting.o \
@@ -86,7 +86,7 @@ planetsplitter : $(PLANETSPLITTER_OBJ)
 ########
 
 PLANETSPLITTER_SLIM_OBJ=planetsplitter-slim.o \
-	                nodesx-slim.o segmentsx-slim.o waysx-slim.o superx-slim.o \
+	                nodesx-slim.o segmentsx-slim.o waysx-slim.o relationsx-slim.o superx-slim.o \
 	                ways.o types.o \
 	                files.o \
 	                results.o queue.o sorting.o \

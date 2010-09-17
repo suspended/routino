@@ -1,11 +1,11 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/typesx.h,v 1.3 2009-10-09 18:47:40 amb Exp $
+ $Header: /home/amb/CVS/routino/src/typesx.h,v 1.4 2010-09-17 17:42:21 amb Exp $
 
  Type definitions for eXtended types.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -37,6 +37,9 @@ typedef uint32_t node_t;
 /*+ A way identifier - must be at least as large as index_t. +*/
 typedef uint32_t way_t;
 
+/*+ A relation identifier - must be at least as large as index_t. +*/
+typedef uint32_t relation_t;
+
 
 /* Data structures */
 
@@ -51,6 +54,10 @@ typedef struct _SegmentsX SegmentsX;
 typedef struct _WayX WayX;
 
 typedef struct _WaysX WaysX;
+
+typedef struct _RouteRelX RouteRelX;
+
+typedef struct _RelationsX RelationsX;
 
 
 #endif /* TYPESX_H */
