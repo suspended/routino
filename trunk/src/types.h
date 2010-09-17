@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.47 2010-09-15 18:30:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.48 2010-09-17 17:43:41 amb Exp $
 
  Type definitions
 
@@ -221,6 +221,8 @@ typedef uint16_t allow_t;
 /*+ The different allowed traffic on a way. +*/
 typedef enum _Allowed
  {
+  Allow_None       = 0,
+
   Allow_Foot       = ALLOWED(Transport_Foot      ),
   Allow_Horse      = ALLOWED(Transport_Horse     ),
   Allow_Wheelchair = ALLOWED(Transport_Wheelchair),
@@ -240,14 +242,16 @@ typedef enum _Allowed
 /*+ The individual properties of a highway. +*/
 typedef enum _Property
  {
-  Property_None      = 0,
+  Property_None         = 0,
 
-  Property_Paved     = 1,
-  Property_Multilane = 2,
-  Property_Bridge    = 3,
-  Property_Tunnel    = 4,
+  Property_Paved        = 1,
+  Property_Multilane    = 2,
+  Property_Bridge       = 3,
+  Property_Tunnel       = 4,
+  Property_FootRoute    = 5,
+  Property_BicycleRoute = 6,
 
-  Property_Count     = 5       /* One more than the number of property types. */
+  Property_Count        = 7       /* One more than the number of property types. */
  }
  Property;
 
@@ -260,12 +264,16 @@ typedef uint8_t wayprop_t;
 /*+ The different properties of a way. +*/
 typedef enum _Properties
  {
-  Properties_Paved     = PROPERTIES(Property_Paved),
-  Properties_Multilane = PROPERTIES(Property_Multilane),
-  Properties_Bridge    = PROPERTIES(Property_Bridge),
-  Properties_Tunnel    = PROPERTIES(Property_Tunnel),
+  Properties_None         = 0,
 
-  Properties_ALL       = 255
+  Properties_Paved        = PROPERTIES(Property_Paved),
+  Properties_Multilane    = PROPERTIES(Property_Multilane),
+  Properties_Bridge       = PROPERTIES(Property_Bridge),
+  Properties_Tunnel       = PROPERTIES(Property_Tunnel),
+  Properties_FootRoute    = PROPERTIES(Property_FootRoute),
+  Properties_BicycleRoute = PROPERTIES(Property_BicycleRoute),
+
+  Properties_ALL          = 255
  }
  Properties;
 
