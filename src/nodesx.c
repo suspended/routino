@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.70 2010-09-16 18:20:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.71 2010-09-17 18:39:28 amb Exp $
 
  Extented Node data type functions.
 
@@ -811,7 +811,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 {
  index_t i;
  int fd;
- NodesFile nodesfile;
+ NodesFile nodesfile={0};
  int super_number=0;
 
  /* Print the start message */
