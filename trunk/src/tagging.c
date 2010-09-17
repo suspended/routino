@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagging.c,v 1.4 2010-08-02 18:44:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/tagging.c,v 1.5 2010-09-17 17:40:41 amb Exp $
 
  Load the tagging rules from a file and the functions for handling them.
 
@@ -89,7 +89,7 @@ static xmltag RelationType_tag=
               {"relation",
                0, {NULL},
                RelationType_function,
-               {NULL}};
+               {&IfType_tag,NULL}};
 
 /*+ The NodeType type tag. +*/
 static xmltag NodeType_tag=
