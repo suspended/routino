@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.4 2010-09-15 18:30:37 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.5 2010-09-17 17:44:25 amb Exp $
 
      An XML format file containing Routino tagging rules
 
@@ -528,6 +528,9 @@
     <if k="bridge"   ><output/></if>
     <if k="tunnel"   ><output/></if>
 
+    <!-- The "footroute" and "bicycleroute" properties can be set here,
+         but normally they are set by the relation rules. -->
+
     <!-- Output the restriction tags -->
 
     <if k="oneway"><output/></if>
@@ -549,6 +552,35 @@
   <!-- Relation rules are not currently used -->
 
   <relation>
+
+    <!-- Copy route relations -->
+
+    <if k="route" v="foot">
+      <output k="footroute" v="yes"/>
+    </if>
+
+    <if k="route" v="walking">
+      <output k="footroute" v="yes"/>
+    </if>
+
+    <if k="route" v="hiking">
+      <output k="footroute" v="yes"/>
+    </if>
+
+    <if k="route" v="foot;bicycle">
+      <output k="footroute"    v="yes"/>
+      <output k="bicycleroute" v="yes"/>
+    </if>
+
+    <if k="route" v="bicycle;foot">
+      <output k="footroute"    v="yes"/>
+      <output k="bicycleroute" v="yes"/>
+    </if>
+
+    <if k="route" v="bicycle">
+      <output k="bicycleroute" v="yes"/>
+    </if>
+
   </relation>
 
 </routino-tagging>

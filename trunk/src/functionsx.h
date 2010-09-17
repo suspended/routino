@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functionsx.h,v 1.5 2010-05-22 18:40:47 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functionsx.h,v 1.6 2010-09-17 17:44:15 amb Exp $
 
  Header file for function prototypes for extended data types.
 
@@ -33,7 +33,7 @@
 
 /* In osmparser.c */
 
-int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays);
+int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
 
 
 #endif /* FUNCTIONSX_H */

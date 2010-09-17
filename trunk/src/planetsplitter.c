@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.79 2010-09-15 18:19:36 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.80 2010-09-17 17:44:15 amb Exp $
 
  OSM planet file splitter.
 
@@ -34,6 +34,7 @@
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
+#include "relationsx.h"
 #include "superx.h"
 
 #include "files.h"
@@ -62,15 +63,16 @@ static void print_usage(int detail,const char *argerr,const char *err);
 
 int main(int argc,char** argv)
 {
- NodesX    *Nodes;
- SegmentsX *Segments,*SuperSegments=NULL,*MergedSegments=NULL;
- WaysX     *Ways;
- int        iteration=0,quit=0;
- int        max_iterations=10;
- char      *dirname=NULL,*prefix=NULL,*tagging=NULL;
- int        option_parse_only=0,option_process_only=0;
- int        option_filenames=0;
- int        arg;
+ NodesX     *Nodes;
+ SegmentsX  *Segments,*SuperSegments=NULL,*MergedSegments=NULL;
+ WaysX      *Ways;
+ RelationsX *Relations;
+ int         iteration=0,quit=0;
+ int         max_iterations=10;
+ char       *dirname=NULL,*prefix=NULL,*tagging=NULL;
+ int         option_parse_only=0,option_process_only=0;
+ int         option_filenames=0;
+ int         arg;
 
  /* Parse the command line arguments */
 
@@ -154,13 +156,15 @@ int main(int argc,char** argv)
     return(1);
    }
 
- /* Create new node, segment and way variables */
+ /* Create new node, segment, way and relation variables */
 
  Nodes=NewNodeList(option_parse_only||option_process_only);
 
  Segments=NewSegmentList(option_parse_only||option_process_only);
 
  Ways=NewWayList(option_parse_only||option_process_only);
+
+ Relations=NewRelationList(option_parse_only||option_process_only);
 
  /* Parse the file */
 
@@ -184,7 +188,7 @@ int main(int argc,char** argv)
        printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
        fflush(stdout);
 
-       if(ParseOSM(file,Nodes,Segments,Ways))
+       if(ParseOSM(file,Nodes,Segments,Ways,Relations))
           exit(EXIT_FAILURE);
 
        fclose(file);
@@ -195,7 +199,7 @@ int main(int argc,char** argv)
     printf("\nParse OSM Data\n==============\n\n");
     fflush(stdout);
 
-    if(ParseOSM(stdin,Nodes,Segments,Ways))
+    if(ParseOSM(stdin,Nodes,Segments,Ways,Relations))
        exit(EXIT_FAILURE);
    }
 
@@ -204,6 +208,7 @@ int main(int argc,char** argv)
     FreeNodeList(Nodes,1);
     FreeSegmentList(Segments,1);
     FreeWayList(Ways,1);
+    FreeRelationList(Relations,1);
 
     return(0);
    }
@@ -213,13 +218,21 @@ int main(int argc,char** argv)
  printf("\nProcess OSM Data\n================\n\n");
  fflush(stdout);
 
- /* Sort the nodes, segments and ways */
+ /* Sort the nodes, segments, ways and relations */
 
  SortNodeList(Nodes);
 
  SortSegmentList(Segments);
 
  SortWayList(Ways);
+
+ SortRelationList(Relations);
+
+ /* Process the route relations */
+
+ ProcessRouteRelations(Relations,Ways);
+
+ FreeRelationList(Relations,0);
 
  /* Remove bad segments (must be after sorting the nodes and segments) */
 

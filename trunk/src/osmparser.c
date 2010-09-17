@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.70 2010-08-02 18:44:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.71 2010-09-17 17:44:15 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -29,9 +29,12 @@
 
 #include "typesx.h"
 #include "functionsx.h"
+
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
+#include "relationsx.h"
+
 #include "xmlparse.h"
 #include "tagging.h"
 
@@ -49,15 +52,24 @@ static TagList *current_tags=NULL;
 static node_t *way_nodes=NULL;
 static int     way_nnodes=0;
 
-static NodesX    *nodes;
-static SegmentsX *segments;
-static WaysX     *ways;
+static node_t     *relation_nodes=NULL;
+static int         relation_nnodes=0;
+static way_t      *relation_ways=NULL;
+static int         relation_nways=0;
+static relation_t *relation_relations=NULL;
+static int         relation_nrelations=0;
+
+static NodesX     *nodes;
+static SegmentsX  *segments;
+static WaysX      *ways;
+static RelationsX *relations;
 
 
 /* Local functions */
 
 static void process_node_tags(TagList *tags,node_t id,double latitude,double longitude);
 static void process_way_tags(TagList *tags,way_t id);
+static void process_relation_tags(TagList *tags,relation_t id);
 
 
 /* The XML tag processing function prototypes */
@@ -66,7 +78,7 @@ static void process_way_tags(TagList *tags,way_t id);
 //static int osmType_function(const char *_tag_,int _type_);
 static int relationType_function(const char *_tag_,int _type_,const char *id);
 static int wayType_function(const char *_tag_,int _type_,const char *id);
-//static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role);
+static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role);
 static int ndType_function(const char *_tag_,int _type_,const char *ref);
 static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon);
 static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v);
@@ -115,7 +127,7 @@ static xmltag ndType_tag=
 static xmltag memberType_tag=
               {"member",
                3, {"type","ref","role"},
-               NULL,
+               memberType_function,
                {NULL}};
 
 /*+ The wayType type tag. +*/
@@ -288,7 +300,7 @@ static int ndType_function(const char *_tag_,int _type_,const char *ref)
 
     XMLPARSE_ASSERT_STRING(_tag_,ref); node_id=atoll(ref); /* need long long conversion */
 
-    if((way_nnodes%256)==0)
+    if(way_nnodes && (way_nnodes%256)==0)
        way_nodes=(node_t*)realloc((void*)way_nodes,(way_nnodes+256)*sizeof(node_t));
 
     way_nodes[way_nnodes++]=node_id;
@@ -314,10 +326,44 @@ static int ndType_function(const char *_tag_,int _type_,const char *ref)
   const char *role The contents of the 'role' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role)
-//{
-// return(0);
-//}
+static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,type);
+    XMLPARSE_ASSERT_STRING(_tag_,ref);
+
+    if(!strcmp(type,"node"))
+      {
+       node_t node_id=atoll(ref); /* need long long conversion */
+
+       if(relation_nnodes && (relation_nnodes%256)==0)
+          relation_nodes=(node_t*)realloc((void*)relation_nodes,(relation_nnodes+256)*sizeof(node_t));
+
+       relation_nodes[relation_nnodes++]=node_id;
+      }
+    else if(!strcmp(type,"way"))
+      {
+       way_t way_id=atoll(ref); /* need long long conversion */
+
+       if(relation_nways && (relation_nways%256)==0)
+          relation_ways=(way_t*)realloc((void*)relation_ways,(relation_nways+256)*sizeof(way_t));
+
+       relation_ways[relation_nways++]=way_id;
+      }
+    else if(!strcmp(type,"relation"))
+      {
+       relation_t relation_id=atoll(ref); /* need long long conversion */
+
+       if(relation_nrelations && (relation_nrelations%256)==0)
+          relation_relations=(relation_t*)realloc((void*)relation_relations,(relation_nrelations+256)*sizeof(relation_t));
+
+       relation_relations[relation_nrelations++]=relation_id;
+      }
+   }
+
+ return(0);
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -347,6 +393,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
       }
 
     current_tags=NewTagList();
+
     way_nnodes=0;
 
     /* Handle the way information */
@@ -382,6 +429,8 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
 
 static int relationType_function(const char *_tag_,int _type_,const char *id)
 {
+ static relation_t relation_id;
+
  if(_type_&XMLPARSE_TAG_START)
    {
     nrelations++;
@@ -392,17 +441,24 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
        fflush(stdout);
       }
 
-//    current_tags=NewTagList();
-    current_tags=NULL;
+    current_tags=NewTagList();
+
+    relation_nnodes=relation_nways=relation_nrelations=0;
+
+    /* Handle the relation information */
+
+    XMLPARSE_ASSERT_STRING(_tag_,id); relation_id=atoll(id); /* need long long conversion */
    }
 
-// if(_type_&XMLPARSE_TAG_END)
-//   {
-//    TagList *result=ApplyTaggingRules(&RelationRules,current_tags);
-//
-//    DeleteTagList(current_tags);
-//    DeleteTagList(result);
-//   }
+ if(_type_&XMLPARSE_TAG_END)
+   {
+    TagList *result=ApplyTaggingRules(&RelationRules,current_tags);
+
+    process_relation_tags(result,relation_id);
+
+    DeleteTagList(current_tags);
+    DeleteTagList(result);
+   }
 
  return(0);
 }
@@ -451,22 +507,33 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
 
   FILE *file The file to read from.
 
-  NodesX *OSMNodes The array of nodes to fill in.
+  NodesX *OSMNodes The data structure of nodes to fill in.
 
-  SegmentsX *OSMSegments The array of segments to fill in.
+  SegmentsX *OSMSegments The data structure of segments to fill in.
 
-  WaysX *OSMWays The arrray of ways to fill in.
+  WaysX *OSMWays The data structure of ways to fill in.
+
+  RelationsX *OSMRelations The data structure of relations to fill in.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays)
+int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
 {
  int retval;
 
- /* Parse the file */
+ /* Copy the function parameters and initialise the variables. */
 
  nodes=OSMNodes;
  segments=OSMSegments;
  ways=OSMWays;
+ relations=OSMRelations;
+
+ way_nodes=(node_t*)malloc(256*sizeof(node_t));
+
+ relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
+ relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
+ relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
+
+ /* Parse the file */
 
  nnodes=0,nways=0,nrelations=0;
 
@@ -611,6 +678,10 @@ static void process_way_tags(TagList *tags,way_t id)
           if(ISTRUE(v))
              way.allow|= Allow_Bicycle;
 
+       if(!strcmp(k,"bicycleroute"))
+          if(ISTRUE(v))
+             way.props|=Properties_BicycleRoute;
+
        if(!strcmp(k,"bridge"))
           if(ISTRUE(v))
              way.props|=Properties_Bridge;
@@ -621,6 +692,10 @@ static void process_way_tags(TagList *tags,way_t id)
        if(!strcmp(k,"foot"))
           if(ISTRUE(v))
              way.allow|= Allow_Foot;
+
+       if(!strcmp(k,"footroute"))
+          if(ISTRUE(v))
+             way.props|=Properties_FootRoute;
 
        break;
 
@@ -844,4 +919,54 @@ static void process_way_tags(TagList *tags,way_t id)
          }
       }
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Process the tags associated with a relation.
+
+  TagList *tags The list of relation tags.
+
+  relation_t id The id of the relation.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void process_relation_tags(TagList *tags,relation_t id)
+{
+ allow_t routes=Allow_None;
+ int i;
+
+ /* Parse the tags */
+
+ for(i=0;i<tags->ntags;i++)
+   {
+    char *k=tags->k[i];
+    char *v=tags->v[i];
+
+    switch(*k)
+      {
+      case 'b':
+       if(!strcmp(k,"bicycleroute"))
+          if(ISTRUE(v))
+             routes|=Allow_Bicycle;
+
+       break;
+
+      case 'f':
+       if(!strcmp(k,"footroute"))
+          if(ISTRUE(v))
+             routes|=Allow_Foot;
+
+       break;
+
+      default:
+       ;
+      }
+   }
+
+ /* Create the way */
+
+ if(routes)
+    AppendRouteRelation(relations,id,routes,
+                        relation_ways,relation_nways,
+                        relation_relations,relation_nrelations);
 }
