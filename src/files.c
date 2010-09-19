@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.20 2010-07-12 17:59:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.21 2010-09-19 16:17:45 amb Exp $
 
  Functions to handle files.
 
@@ -167,7 +167,7 @@ void *UnmapFile(const char *filename)
   const char *filename The name of the file to create.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int OpenFile(const char *filename)
+int OpenFileNew(const char *filename)
 {
  int fd;
 
@@ -186,14 +186,14 @@ int OpenFile(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a new file on disk for reading and appending.
+  Open a new file on disk for reading from and appending.
 
-  int AppendFile Returns the file descriptor if OK or exits in case of an error.
+  int OpenFileAppend Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to create.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int AppendFile(const char *filename)
+int OpenFileAppend(const char *filename)
 {
  int fd;
 
@@ -212,7 +212,7 @@ int AppendFile(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open an existing file on disk for reading from.
+  Open an existing file on disk for reading from or writing to.
 
   int ReOpenFile Returns the file descriptor if OK or exits in case of an error.
 
@@ -225,7 +225,7 @@ int ReOpenFile(const char *filename)
 
  /* Open the file */
 
- fd=open(filename,O_RDONLY);
+ fd=open(filename,O_RDWR);
 
  if(fd<0)
    {

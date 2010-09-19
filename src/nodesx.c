@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.71 2010-09-17 18:39:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.72 2010-09-19 16:17:45 amb Exp $
 
  Extented Node data type functions.
 
@@ -92,14 +92,14 @@ NodesX *NewNodeList(int append)
    {
     off_t size;
 
-    nodesx->fd=AppendFile(nodesx->filename);
+    nodesx->fd=OpenFileAppend(nodesx->filename);
 
     size=SizeFile(nodesx->filename);
 
     nodesx->xnumber=size/sizeof(NodeX);
    }
  else
-    nodesx->fd=OpenFile(nodesx->filename);
+    nodesx->fd=OpenFileNew(nodesx->filename);
 
  return(nodesx);
 }
@@ -197,7 +197,7 @@ void SortNodeList(NodesX* nodesx)
 
  DeleteFile(nodesx->filename);
 
- fd=OpenFile(nodesx->filename);
+ fd=OpenFileNew(nodesx->filename);
 
  /* Allocate the array of indexes */
 
@@ -302,7 +302,7 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  DeleteFile(nodesx->filename);
 
- fd=OpenFile(nodesx->filename);
+ fd=OpenFileNew(nodesx->filename);
 
  /* Sort geographically */
 
@@ -494,7 +494,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  DeleteFile(nodesx->filename);
 
- fd=OpenFile(nodesx->filename);
+ fd=OpenFileNew(nodesx->filename);
  SeekFile(nodesx->fd,0);
 
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
@@ -594,7 +594,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  assert(nodesx->ndata); /* Check malloc() worked */
 #else
- nodesx->nfd=OpenFile(nodesx->nfilename);
+ nodesx->nfd=OpenFileNew(nodesx->nfilename);
 #endif
 
  /* Loop through and allocate. */
@@ -827,7 +827,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Write out the nodes data */
 
- fd=OpenFile(filename);
+ fd=OpenFileNew(filename);
 
  SeekFile(fd,sizeof(NodesFile));
  WriteFile(fd,nodesx->offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));

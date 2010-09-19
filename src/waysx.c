@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.50 2010-09-17 18:38:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.51 2010-09-19 16:17:45 amb Exp $
 
  Extended Way data type functions.
 
@@ -80,7 +80,7 @@ WaysX *NewWayList(int append)
    {
     off_t size,position=0;
 
-    waysx->fd=AppendFile(waysx->filename);
+    waysx->fd=OpenFileAppend(waysx->filename);
 
     size=SizeFile(waysx->filename);
 
@@ -98,7 +98,7 @@ WaysX *NewWayList(int append)
     SeekFile(waysx->fd,size);
    }
  else
-    waysx->fd=OpenFile(waysx->filename);
+    waysx->fd=OpenFileNew(waysx->filename);
 
  waysx->nfilename=(char*)malloc(strlen(option_tmpdirname)+32);
  sprintf(waysx->nfilename,"%s/waynames.%p.tmp",option_tmpdirname,waysx);
@@ -193,7 +193,7 @@ void SortWayList(WaysX* waysx)
 
  DeleteFile(waysx->filename);
 
- fd=OpenFile(waysx->filename);
+ fd=OpenFileNew(waysx->filename);
 
  /* Sort the ways to allow separating the names */
 
@@ -221,8 +221,8 @@ void SortWayList(WaysX* waysx)
 
  DeleteFile(waysx->filename);
 
- fd=OpenFile(waysx->filename);
- nfd=OpenFile(waysx->nfilename);
+ fd=OpenFileNew(waysx->filename);
+ nfd=OpenFileNew(waysx->nfilename);
 
  /* Copy from the single file into two files */
 
@@ -289,7 +289,7 @@ void SortWayList(WaysX* waysx)
 
  DeleteFile(waysx->filename);
 
- fd=OpenFile(waysx->filename);
+ fd=OpenFileNew(waysx->filename);
 
  /* Allocate the array of indexes */
 
@@ -343,7 +343,7 @@ void CompactWayList(WaysX* waysx)
 
  DeleteFile(waysx->filename);
 
- fd=OpenFile(waysx->filename);
+ fd=OpenFileNew(waysx->filename);
 
  /* Sort the ways to allow compacting according to he properties */
 
@@ -371,7 +371,7 @@ void CompactWayList(WaysX* waysx)
 
  DeleteFile(waysx->filename);
 
- fd=OpenFile(waysx->filename);
+ fd=OpenFileNew(waysx->filename);
 
  /* Update the way as we go using the sorted index */
 
@@ -423,7 +423,7 @@ void CompactWayList(WaysX* waysx)
 
  DeleteFile(waysx->filename);
 
- fd=OpenFile(waysx->filename);
+ fd=OpenFileNew(waysx->filename);
 
  /* Sort the ways by index */
 
@@ -640,7 +640,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  /* Write out the ways data */
 
- fd=OpenFile(filename);
+ fd=OpenFileNew(filename);
 
  SeekFile(fd,sizeof(WaysFile));
 
