@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.1 2010-09-17 17:42:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.2 2010-09-19 14:06:54 amb Exp $
 
  Extended Relation data type functions.
 
@@ -39,14 +39,6 @@
 
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
-
-/*+ A temporary file-local variable for use by the sort functions. +*/
-static RelationsX *sortrelationsx;
-
-/* Functions */
-
-static int sort_by_id(RouteRelX *a,RouteRelX *b);
-static int deduplicate_by_id(RouteRelX *relationx,index_t index);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -178,88 +170,7 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,allow_t routes,
 
 void SortRelationList(RelationsX* relationsx)
 {
- int rfd;
-
- /* Print the start message */
-
- printf("Sorting Relations");
- fflush(stdout);
-
- /* Close the file and re-open it (finished appending) */
-
- CloseFile(relationsx->rfd);
- relationsx->rfd=ReOpenFile(relationsx->rfilename);
-
- DeleteFile(relationsx->rfilename);
-
- rfd=OpenFile(relationsx->rfilename);
-
- /* Sort the relations to allow removing duplicates */
-
- sortrelationsx=relationsx;
-
- filesort_vary(relationsx->rfd,rfd,(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_by_id);
-
- /* Close the files */
-
- CloseFile(relationsx->rfd);
- CloseFile(rfd);
-
- /* Print the final message */
-
- printf("\rSorted Relations: Relations=%d Duplicates=%d\n",relationsx->rxnumber,relationsx->rxnumber-relationsx->rnumber);
- fflush(stdout);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the relations into id order.
-
-  int sort_by_id Returns the comparison of the id fields.
-
-  RouteRelX *a The first extended relation.
-
-  RouteRelX *b The second extended relation.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int sort_by_id(RouteRelX *a,RouteRelX *b)
-{
- relation_t a_id=a->id;
- relation_t b_id=b->id;
-
- if(a_id<b_id)
-    return(-1);
- else if(a_id>b_id)
-    return(1);
- else
-    return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Deduplicate the extended relations using the id after sorting.
-
-  int deduplicate_by_id Return 1 if the value is to be kept, otherwise zero.
-
-  RouteRelX *relationx The extended relation.
-
-  index_t index The index of this relation in the total.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int deduplicate_by_id(RouteRelX *relationx,index_t index)
-{
- static relation_t previd;
-
- if(index==0 || relationx->id!=previd)
-   {
-    previd=relationx->id;
-
-    sortrelationsx->rnumber++;
-
-    return(1);
-   }
-
- return(0);
+ /* Don't need to sort route relations */
 }
 
 
