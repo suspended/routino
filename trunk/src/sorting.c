@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.9 2010-07-12 17:59:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.10 2010-09-19 16:17:45 amb Exp $
 
  Merge sort functions.
 
@@ -130,7 +130,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
 
     sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,nfiles);
 
-    fd=OpenFile(filename);
+    fd=OpenFileNew(filename);
 
     for(i=0;i<n;i++)
        WriteFile(fd,datap[i],itemsize);
@@ -399,7 +399,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
     sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,nfiles);
 
-    fd=OpenFile(filename);
+    fd=OpenFileNew(filename);
 
     for(i=0;i<n;i++)
       {

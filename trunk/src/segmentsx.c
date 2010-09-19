@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.64 2010-09-17 18:39:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.65 2010-09-19 16:17:45 amb Exp $
 
  Extended Segment data type functions.
 
@@ -89,14 +89,14 @@ SegmentsX *NewSegmentList(int append)
    {
     off_t size;
 
-    segmentsx->fd=AppendFile(segmentsx->filename);
+    segmentsx->fd=OpenFileAppend(segmentsx->filename);
 
     size=SizeFile(segmentsx->filename);
 
     segmentsx->xnumber=size/sizeof(SegmentX);
    }
  else
-    segmentsx->fd=OpenFile(segmentsx->filename);
+    segmentsx->fd=OpenFileNew(segmentsx->filename);
 
  return(segmentsx);
 }
@@ -191,7 +191,7 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  DeleteFile(segmentsx->filename);
 
- fd=OpenFile(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename);
 
  /* Sort by node indexes */
 
@@ -387,7 +387,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  DeleteFile(segmentsx->filename);
 
- fd=OpenFile(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename);
  SeekFile(segmentsx->fd,0);
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
@@ -482,7 +482,7 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  DeleteFile(segmentsx->filename);
 
- fd=OpenFile(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename);
  SeekFile(segmentsx->fd,0);
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
@@ -574,7 +574,7 @@ void RotateSegments(SegmentsX* segmentsx)
 
  DeleteFile(segmentsx->filename);
 
- fd=OpenFile(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename);
 
  /* Modify the file contents */
 
@@ -662,7 +662,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  DeleteFile(segmentsx->filename);
 
- fd=OpenFile(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename);
  SeekFile(segmentsx->fd,0);
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
@@ -787,7 +787,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  assert(segmentsx->sdata); /* Check malloc() worked */
 #else
- segmentsx->sfd=OpenFile(segmentsx->sfilename);
+ segmentsx->sfd=OpenFileNew(segmentsx->sfilename);
 #endif
 
  /* Loop through and fill */
@@ -943,7 +943,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  /* Write out the segments data */
 
- fd=OpenFile(filename);
+ fd=OpenFileNew(filename);
 
  SeekFile(fd,sizeof(SegmentsFile));
 
