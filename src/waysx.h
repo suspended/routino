@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.27 2010-09-17 18:38:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.28 2010-09-25 18:47:32 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -108,7 +108,7 @@ static WayX *LookupWayX(WaysX* waysx,index_t index,int position);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular way.
+  Lookup a particular extended way.
 
   WayX *LookupWayX Returns a pointer to the extended way with the specified id.
 
@@ -126,6 +126,24 @@ static inline WayX *LookupWayX(WaysX* waysx,index_t index,int position)
  ReadFile(waysx->fd,&waysx->xcached[position-1],sizeof(WayX));
 
  return(&waysx->xcached[position-1]);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Put back an extended way.
+
+  WaysX* waysx The set of ways to process.
+
+  index_t index The way index to put back.
+
+  int position The position in the cache to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline void PutBackWayX(WaysX* waysx,index_t index,int position)
+{
+ SeekFile(waysx->fd,(off_t)index*sizeof(WayX));
+
+ WriteFile(waysx->fd,&waysx->xcached[position-1],sizeof(WayX));
 }
 
 #endif /* SLIM */
