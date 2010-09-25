@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.57 2010-08-04 16:44:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.58 2010-09-25 13:54:18 amb Exp $
 
  Header file for function prototypes
 
@@ -84,7 +84,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
 
 void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),int (*buildindex)(void*,index_t));
 
-void heapsort(void **datap,size_t nitems,int(*compare)(const void*, const void*));
+void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, const void*));
 
 
 #endif /* FUNCTIONS_H */

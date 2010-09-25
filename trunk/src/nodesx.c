@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.72 2010-09-19 16:17:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.73 2010-09-25 13:54:35 amb Exp $
 
  Extented Node data type functions.
 
@@ -360,7 +360,7 @@ static int sort_by_lat_long(NodeX *a,NodeX *b)
     else
       {
 #ifdef REGRESSION_TESTING
-       // Need this for regression testing because heapsort() is not order
+       // Need this for regression testing because filesort_heapsort() is not order
        // preserving like qsort() is (or was when tested).
 
        index_t a_id=a->id;
