@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.65 2010-09-19 16:17:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.66 2010-09-25 18:44:16 amb Exp $
 
  Extended Segment data type functions.
 
@@ -178,6 +178,9 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
 void SortSegmentList(SegmentsX* segmentsx)
 {
  int fd;
+
+ if(segmentsx->xnumber==0)
+    return;
 
  /* Print the start message */
 
