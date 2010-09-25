@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.10 2010-09-19 16:17:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.11 2010-09-25 13:54:18 amb Exp $
 
  Merge sort functions.
 
@@ -108,7 +108,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
 
     /* Sort the data pointers using a heap sort */
 
-    heapsort(datap,n,compare);
+    filesort_heapsort(datap,n,compare);
 
     /* Shortcut if all read in and sorted at once */
 
@@ -375,7 +375,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
     /* Sort the data pointers using a heap sort */
 
-    heapsort(datap,n,compare);
+    filesort_heapsort(datap,n,compare);
 
     /* Shortcut if all read in and sorted at once */
 
@@ -575,7 +575,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
                                             data to be sorted was an array of things not pointers).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void heapsort(void **datap,size_t nitems,int(*compare)(const void*, const void*))
+void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, const void*))
 {
  int i;
 
