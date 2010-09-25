@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.h,v 1.1 2010-09-17 17:42:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.h,v 1.2 2010-09-25 18:47:32 amb Exp $
 
  A header file for the extended Relations structure.
 
@@ -53,20 +53,6 @@ struct _RelationsX
  int        rfd;               /*+ The file descriptor of the temporary file (for the RouteRelX). +*/
 
  index_t    rxnumber;          /*+ The number of unsorted extended route relations. +*/
-
-#if !SLIM
-
- RouteRelX *rxdata;             /*+ The extended data for the route relations (sorted). +*/
-
-#else
-
- RouteRelX  rxcached[2];        /*+ Two cached route relations read from the file in slim mode. +*/
-
-#endif
-
- index_t    rnumber;            /*+ How many route relation entries are still useful? +*/
-
- size_t    *ridata;             /*+ The index of the extended data for the route relations (sorted by ID). +*/
 };
 
 

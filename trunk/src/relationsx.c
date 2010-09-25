@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.2 2010-09-19 14:06:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.3 2010-09-25 18:47:32 amb Exp $
 
  Extended Relation data type functions.
 
@@ -68,7 +68,7 @@ RelationsX *NewRelationList(int append)
    {
     off_t size,position=0;
 
-    relationsx->rfd=AppendFile(relationsx->rfilename);
+    relationsx->rfd=OpenFileAppend(relationsx->rfilename);
 
     size=SizeFile(relationsx->rfilename);
 
@@ -86,7 +86,7 @@ RelationsX *NewRelationList(int append)
     SeekFile(relationsx->rfd,size);
    }
  else
-    relationsx->rfd=OpenFile(relationsx->rfilename);
+    relationsx->rfd=OpenFileNew(relationsx->rfilename);
 
  return(relationsx);
 }
@@ -134,18 +134,16 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,allow_t routes,
                          relation_t *relations,int nrelations)
 {
  RouteRelX relationx;
- FILESORT_VARINT size,padsize;
+ FILESORT_VARINT size;
  way_t zeroway=0;
  relation_t zerorelation=0;
- void *zeropointer=NULL;
 
  relationx.id=id;
  relationx.routes=routes;
 
  size=sizeof(RouteRelX)+(nways+1)*sizeof(way_t)+(nrelations+1)*sizeof(relation_t);
- padsize=sizeof(RouteRelX*)*((size+sizeof(RouteRelX*)-1)/sizeof(RouteRelX*));
 
- WriteFile(relationsx->rfd,&padsize,FILESORT_VARSIZE);
+ WriteFile(relationsx->rfd,&size,FILESORT_VARSIZE);
  WriteFile(relationsx->rfd,&relationx,sizeof(RouteRelX));
 
  WriteFile(relationsx->rfd,ways    ,nways*sizeof(way_t));
@@ -153,8 +151,6 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,allow_t routes,
 
  WriteFile(relationsx->rfd,relations    ,nrelations*sizeof(relation_t));
  WriteFile(relationsx->rfd,&zerorelation,           sizeof(relation_t));
-
- WriteFile(relationsx->rfd,&zeropointer,padsize-size);
 
  relationsx->rxnumber++;
 
@@ -184,59 +180,138 @@ void SortRelationList(RelationsX* relationsx)
 
 void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 {
- int i;
+ RouteRelX *unmatched=NULL,*lastunmatched=NULL;
+ int nunmatched=0,lastnunmatched=0,iteration=0;
+ int i,j;
 
- /* Print the start message */
+ /* Map into memory */
 
- printf("Processing Route Relations: Relations=0");
- fflush(stdout);
+#if !SLIM
+ waysx->xdata=MapFile(waysx->filename);
+#endif
 
  /* Open the file and read through it */
 
  relationsx->rfd=ReOpenFile(relationsx->rfilename);
 
- for(i=0;i<relationsx->rnumber;i++)
+ do
    {
-    FILESORT_VARINT padsize,size;
-    RouteRelX relationx;
-    way_t way;
-    relation_t relation;
-    void *pointer;
+    SeekFile(relationsx->rfd,0);
 
-    ReadFile(relationsx->rfd,&padsize,FILESORT_VARSIZE);
-    ReadFile(relationsx->rfd,&relationx,sizeof(RouteRelX));
+    /* Print the start message */
 
-    size=FILESORT_VARSIZE+sizeof(RouteRelX);
+    printf("Processing Route Relations: Iteration=%d Relations=0",iteration);
+    fflush(stdout);
 
-    do
+    for(i=0;i<relationsx->rxnumber;i++)
       {
-       ReadFile(relationsx->rfd,&way,sizeof(way_t));
+       FILESORT_VARINT size;
+       RouteRelX relationx;
+       way_t wayid;
+       relation_t relationid;
+       allow_t routes=Allow_None;
 
-//       if(way)
-//          printf("Relation %d includes way %d\n",relationx.id,way);
+       /* Read each route relation */
 
-       size+=sizeof(way_t);
+       ReadFile(relationsx->rfd,&size,FILESORT_VARSIZE);
+       ReadFile(relationsx->rfd,&relationx,sizeof(RouteRelX));
+
+       /* Decide what type of route it is */
+
+       if(iteration==0)
+          routes=relationx.routes;
+       else
+          for(j=0;j<lastnunmatched;j++)
+             if(lastunmatched[j].id==relationx.id)
+               {
+                routes=lastunmatched[j].routes;
+                break;
+               }
+
+       /* Loop through the ways */
+
+       do
+         {
+          index_t way;
+
+          ReadFile(relationsx->rfd,&wayid,sizeof(way_t));
+
+          /* Update the ways that are listed for the relation */
+
+          if(wayid && routes)
+            {
+             way=IndexWayX(waysx,wayid);
+
+             if(way!=NO_WAY)
+               {
+                WayX *wayx=LookupWayX(waysx,way,1);
+
+                if(routes&Allow_Foot)
+                   wayx->way.props|=Properties_FootRoute;
+
+                if(routes&Allow_Bicycle)
+                   wayx->way.props|=Properties_BicycleRoute;
+
+#if SLIM
+                PutBackWayX(waysx,way,1);
+#endif
+               }
+            }
+         }
+       while(wayid);
+
+       /* Loop through the relations */
+
+       do
+         {
+          ReadFile(relationsx->rfd,&relationid,sizeof(relation_t));
+
+          /* Add the relations that are listed for this relation to the list for next time */
+
+          if(relationid && routes)
+            {
+             if(nunmatched%256==0)
+                unmatched=(RouteRelX*)realloc((void*)unmatched,(nunmatched+256)*sizeof(RouteRelX));
+
+             unmatched[nunmatched].id=relationid;
+             unmatched[nunmatched].routes=routes;
+
+             nunmatched++;
+            }
+         }
+       while(relationid);
+
+       if(!((i+1)%10000))
+         {
+          printf("\rProcessing Route Relations: Iteration=%d Relations=%d",iteration,i+1);
+          fflush(stdout);
+         }
       }
-    while(way);
 
-    do
-      {
-       ReadFile(relationsx->rfd,&relation,sizeof(relation_t));
+    if(lastunmatched)
+       free(lastunmatched);
 
-//       if(relation)
-//          printf("Relation %d includes relation %d\n",relationx.id,relation);
+    lastunmatched=unmatched;
+    lastnunmatched=nunmatched;
 
-       size+=sizeof(relation_t);
-      }
-    while(relation);
+    unmatched=NULL;
+    nunmatched=0;
 
-    ReadFile(relationsx->rfd,&pointer,padsize-size);
+    /* Print the final message */
+
+    printf("\rProcessed Route Relations: Iteration=%d Relations=%d  \n",iteration,relationsx->rxnumber);
+    fflush(stdout);
    }
+ while(lastnunmatched && ++iteration<5);
+
+ if(lastunmatched)
+    free(lastunmatched);
 
  CloseFile(relationsx->rfd);
 
- /* Print the final message */
+ /* Unmap from memory */
 
- printf("\rProcessed Route Relations: Relations=%d  \n",relationsx->rnumber);
- fflush(stdout);
+#if !SLIM
+ waysx->xdata=UnmapFile(waysx->filename);
+#endif
 }

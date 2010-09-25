@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.71 2010-09-17 17:44:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.72 2010-09-25 18:47:32 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -963,9 +963,11 @@ static void process_relation_tags(TagList *tags,relation_t id)
       }
    }
 
- /* Create the way */
+ /* Create the route relation (must store all relations that have ways or
+    relations even if they are not routes because they might be referenced by
+    other relations that are routes) */
 
- if(routes)
+ if(relation_nways || relation_nrelations)
     AppendRouteRelation(relations,id,routes,
                         relation_ways,relation_nways,
                         relation_relations,relation_nrelations);
