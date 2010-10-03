@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.5 2010-10-03 15:01:04 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.6 2010-10-03 15:02:11 amb Exp $
 
  Extended Relation data type functions.
 
@@ -183,6 +183,9 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  RouteRelX *unmatched=NULL,*lastunmatched=NULL;
  int nunmatched=0,lastnunmatched=0,iteration=0;
  int i,j;
+
+ if(waysx->xnumber==0)
+    return;
 
  /* Map into memory */
 

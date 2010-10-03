@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.42 2010-08-02 18:44:54 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.43 2010-10-03 15:02:11 amb Exp $
 
  Super-Segment data type functions.
 
@@ -55,6 +55,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
  index_t i;
  int nnodes=0;
+
+ if(segmentsx->xnumber==0 || nodesx->xnumber==0 || waysx->xnumber)
+    return;
 
  /* Print the start message */
 
@@ -167,6 +170,11 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  SegmentsX *supersegmentsx;
  int sn=0,ss=0;
 
+ supersegmentsx=NewSegmentList(0);
+
+ if(segmentsx->xnumber==0 || waysx->xnumber)
+    return(supersegmentsx);
+
  /* Print the start message */
 
  printf("Creating Super-Segments: Super-Nodes=0 Super-Segments=0");
@@ -180,8 +188,6 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 #endif
 
  /* Create super-segments for each super-node. */
-
- supersegmentsx=NewSegmentList(0);
 
  for(i=0;i<nodesx->number;i++)
    {
@@ -290,6 +296,11 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
  int m=0,a=0;
  SegmentsX* mergedsegmentsx;
 
+ mergedsegmentsx=NewSegmentList(0);
+
+ if(segmentsx->xnumber==0 || supersegmentsx->xnumber==0)
+    return(mergedsegmentsx);
+
  /* Print the start message */
 
  printf("Merging: Segments=0 Super-Segments=0 Merged=0 Added=0");
@@ -303,8 +314,6 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 #endif
 
  /* Loop through and create a new list of combined segments */
-
- mergedsegmentsx=NewSegmentList(0);
 
  for(i=0,j=0;i<segmentsx->number;i++)
    {
