@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.73 2010-09-25 13:54:35 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.74 2010-10-03 15:02:11 amb Exp $
 
  Extented Node data type functions.
 
@@ -653,6 +653,9 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  index_t i;
+
+ if(nodesx->number==0 || segmentsx->xnumber==0)
+    return;
 
  /* Print the start message */
 
