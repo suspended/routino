@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.21 2010-09-19 16:17:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.22 2010-10-03 15:01:04 amb Exp $
 
  Functions to handle files.
 
@@ -21,6 +21,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***************************************/
 
+#include <assert.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -96,6 +97,53 @@ void *MapFile(const char *filename)
  /* Map the file */
 
  address=mmap(NULL,size,PROT_READ,MAP_SHARED,fd,0);
+
+ if(address==MAP_FAILED)
+   {
+    close(fd);
+
+    assert(0);
+
+    fprintf(stderr,"Cannot mmap file '%s' [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ mappedfiles=(struct mmapinfo*)realloc((void*)mappedfiles,(nmappedfiles+1)*sizeof(struct mmapinfo));
+
+ mappedfiles[nmappedfiles].filename=filename;
+ mappedfiles[nmappedfiles].fd=fd;
+ mappedfiles[nmappedfiles].address=address;
+ mappedfiles[nmappedfiles].length=size;
+
+ nmappedfiles++;
+
+ return(address);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open a file and map it into memory.
+
+  void *MapFile Returns the address of the file or exits in case of an error.
+
+  const char *filename The name of the file to open.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void *MapFileWriteable(const char *filename)
+{
+ int fd;
+ off_t size;
+ void *address;
+
+ /* Open the file and get its size */
+
+ fd=ReOpenFile(filename);
+
+ size=SizeFile(filename);
+
+ /* Map the file */
+
+ address=mmap(NULL,size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
 
  if(address==MAP_FAILED)
    {

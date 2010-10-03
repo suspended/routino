@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.4 2010-10-03 14:21:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.5 2010-10-03 15:01:04 amb Exp $
 
  Extended Relation data type functions.
 
@@ -187,7 +187,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  /* Map into memory */
 
 #if !SLIM
- waysx->xdata=MapFile(waysx->filename);
+ waysx->xdata=MapFileWriteable(waysx->filename);
 #endif
 
  /* Open the file and read through it */
