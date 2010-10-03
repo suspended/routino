@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.3 2010-09-25 18:47:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.4 2010-10-03 14:21:18 amb Exp $
 
  Extended Relation data type functions.
 
@@ -221,26 +221,29 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
        if(iteration==0)
           routes=relationx.routes;
        else
-          for(j=0;j<lastnunmatched;j++)
-             if(lastunmatched[j].id==relationx.id)
-               {
-                routes=lastunmatched[j].routes;
-                break;
-               }
+         {
+          if((lastunmatched[j].routes|relationx.routes)==relationx.routes)
+             routes=0; /* Nothing new to add */
+          else
+             for(j=0;j<lastnunmatched;j++)
+                if(lastunmatched[j].id==relationx.id)
+                  {
+                   routes=lastunmatched[j].routes;
+                   break;
+                  }
+         }
 
        /* Loop through the ways */
 
        do
          {
-          index_t way;
-
           ReadFile(relationsx->rfd,&wayid,sizeof(way_t));
 
           /* Update the ways that are listed for the relation */
 
           if(wayid && routes)
             {
-             way=IndexWayX(waysx,wayid);
+             index_t way=IndexWayX(waysx,wayid);
 
              if(way!=NO_WAY)
                {
@@ -268,7 +271,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
           /* Add the relations that are listed for this relation to the list for next time */
 
-          if(relationid && routes)
+          if(relationid && routes && relationid!=relationx.id)
             {
              if(nunmatched%256==0)
                 unmatched=(RouteRelX*)realloc((void*)unmatched,(nunmatched+256)*sizeof(RouteRelX));
