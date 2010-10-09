@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.74 2010-10-03 15:02:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.75 2010-10-09 14:14:42 amb Exp $
 
  Extented Node data type functions.
 
@@ -654,7 +654,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  index_t i;
 
- if(nodesx->number==0 || segmentsx->xnumber==0)
+ if(nodesx->number==0 || segmentsx->number==0)
     return;
 
  /* Print the start message */

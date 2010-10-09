@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.67 2010-10-03 15:02:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.68 2010-10-09 14:14:42 amb Exp $
 
  Extended Segment data type functions.
 
@@ -766,7 +766,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 {
  index_t i;
 
- if(segmentsx->xnumber==0 || waysx->xnumber)
+ if(segmentsx->number==0 || waysx->number==0)
     return;
 
  /* Print the start message */
@@ -847,7 +847,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 {
  index_t i;
 
- if(nodesx->number==0 || segmentsx->xnumber==0)
+ if(nodesx->number==0 || segmentsx->number==0)
     return;
 
  /* Print the start message */

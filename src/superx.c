@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.43 2010-10-03 15:02:11 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.44 2010-10-09 14:14:42 amb Exp $
 
  Super-Segment data type functions.
 
@@ -56,7 +56,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  index_t i;
  int nnodes=0;
 
- if(segmentsx->xnumber==0 || nodesx->xnumber==0 || waysx->xnumber)
+ if(nodesx->number==0 || segmentsx->number==0 || waysx->number==0)
     return;
 
  /* Print the start message */
@@ -172,7 +172,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  supersegmentsx=NewSegmentList(0);
 
- if(segmentsx->xnumber==0 || waysx->xnumber)
+ if(segmentsx->number==0 || waysx->number==0)
     return(supersegmentsx);
 
  /* Print the start message */
@@ -298,7 +298,7 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
  mergedsegmentsx=NewSegmentList(0);
 
- if(segmentsx->xnumber==0 || supersegmentsx->xnumber==0)
+ if(segmentsx->number==0 || supersegmentsx->number==0)
     return(mergedsegmentsx);
 
  /* Print the start message */
