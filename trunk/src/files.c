@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.22 2010-10-03 15:01:04 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.23 2010-10-09 18:20:18 amb Exp $
 
  Functions to handle files.
 
@@ -104,7 +104,7 @@ void *MapFile(const char *filename)
 
     assert(0);
 
-    fprintf(stderr,"Cannot mmap file '%s' [%s].\n",filename,strerror(errno));
+    fprintf(stderr,"Cannot mmap file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
 
@@ -137,7 +137,7 @@ void *MapFileWriteable(const char *filename)
 
  /* Open the file and get its size */
 
- fd=ReOpenFile(filename);
+ fd=ReOpenFileWriteable(filename);
 
  size=SizeFile(filename);
 
@@ -149,7 +149,7 @@ void *MapFileWriteable(const char *filename)
    {
     close(fd);
 
-    fprintf(stderr,"Cannot mmap file '%s' [%s].\n",filename,strerror(errno));
+    fprintf(stderr,"Cannot mmap file '%s' for reading and writing [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
 
@@ -260,7 +260,7 @@ int OpenFileAppend(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open an existing file on disk for reading from or writing to.
+  Open an existing file on disk for reading.
 
   int ReOpenFile Returns the file descriptor if OK or exits in case of an error.
 
@@ -273,11 +273,37 @@ int ReOpenFile(const char *filename)
 
  /* Open the file */
 
- fd=open(filename,O_RDWR);
+ fd=open(filename,O_RDONLY);
 
  if(fd<0)
    {
     fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open an existing file on disk for reading from or writing to.
+
+  int ReOpenFileWriteable Returns the file descriptor if OK or exits in case of an error.
+
+  const char *filename The name of the file to open.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ReOpenFileWriteable(const char *filename)
+{
+ int fd;
+
+ /* Open the file */
+
+ fd=open(filename,O_RDWR);
+
+ if(fd<0)
+   {
+    fprintf(stderr,"Cannot open file '%s' for reading and writing [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
 
