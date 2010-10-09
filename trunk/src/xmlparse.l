@@ -1,6 +1,6 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.19 2010-09-15 10:14:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.20 2010-10-09 11:05:28 amb Exp $
 
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
@@ -655,7 +655,7 @@ char *ParseXML_Encode_Safe_XML(const char *string)
  char *result;
 
  for(i=0;string[i];i++)
-    if(string[i]=='<' || string[i]=='>' || string[i]=='&' || string[i]=='\'' || string[i]=='"' || string[i]<32 || string[i]>127)
+    if(string[i]=='<' || string[i]=='>' || string[i]=='&' || string[i]=='\'' || string[i]=='"' || string[i]<32 || (unsigned char)string[i]>127)
        break;
 
  if(!string[i])
@@ -709,7 +709,7 @@ char *ParseXML_Encode_Safe_XML(const char *string)
           result[j++]='t';
           result[j++]=';';
          }
-       else if(string[i]>=32 && string[i]<=127)
+       else if(string[i]>=32 && (unsigned char)string[i]<=127)
           result[j++]=string[i];
        else
          {
