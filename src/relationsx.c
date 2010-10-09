@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.7 2010-10-09 14:14:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.8 2010-10-09 18:20:18 amb Exp $
 
  Extended Relation data type functions.
 
@@ -193,6 +193,13 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  waysx->xdata=MapFileWriteable(waysx->filename);
 #endif
 
+ /* Re-open the ways file read/write */
+
+#if SLIM
+ CloseFile(waysx->fd);
+ waysx->fd=ReOpenFileWriteable(waysx->filename);
+#endif
+
  /* Open the file and read through it */
 
  relationsx->rfd=ReOpenFile(relationsx->rfilename);
@@ -319,5 +326,12 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
 #if !SLIM
  waysx->xdata=UnmapFile(waysx->filename);
+#endif
+
+ /* Re-open the ways file read only */
+
+#if SLIM
+ CloseFile(waysx->fd);
+ waysx->fd=ReOpenFile(waysx->filename);
 #endif
 }
