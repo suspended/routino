@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.23 2010-10-09 18:20:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.24 2010-10-16 10:59:18 amb Exp $
 
  Functions to handle files.
 
@@ -124,7 +124,7 @@ void *MapFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Open a file and map it into memory.
 
-  void *MapFile Returns the address of the file or exits in case of an error.
+  void *MapFileWriteable Returns the address of the file or exits in case of an error.
 
   const char *filename The name of the file to open.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -210,7 +210,7 @@ void *UnmapFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Open a new file on disk for writing to.
 
-  int OpenFile Returns the file descriptor if OK or exits in case of an error.
+  int OpenFileNew Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to create.
   ++++++++++++++++++++++++++++++++++++++*/
