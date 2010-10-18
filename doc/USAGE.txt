@@ -19,7 +19,7 @@ planetsplitter
 
   Usage: planetsplitter [--help]
                         [--dir=<dirname>] [--prefix=<name>]
-                        [--slim] [--sort-ram-size=<size>]
+                        [--sort-ram-size=<size>]
                         [--tmpdir=<dirname>]
                         [--parse-only | --process-only]
                         [--max-iterations=<number>]
@@ -37,18 +37,10 @@ planetsplitter
           Sets the filename prefix for the files that are created.
           Defaults to no prefix.
 
-   --slim
-          Selects a mode of operation that uses less memory and will
-          therefore work where virtual memory is very limited or
-          unavailable. Selecting this option will cause raw data to be
-          held in disk files with only indexes in RAM. Not using this
-          option will still use disk files but only for sequential access
-          and the files are memory mapped for random access.
-
    --sort-ram-size=<size>
           Specifies the amount of RAM (in MB) to use for sorting the data.
-          If not specified then 64 MB will be used if the '--slim' option
-          is specified or 256 MB otherwise.
+          If not specified then 64 MB will be used in slim mode or 256 MB
+          otherwise.
 
    --tmpdir=<dirname>
           Specifies the name of the directory to store the temporary disk
@@ -69,8 +61,12 @@ planetsplitter
           enough.
 
    --tagging=<filename>
-          The name of the XML file containing the tagging rules (defaults
-          to 'tagging.xml' with '--dirname' and '--prefix' options).
+          Sets the filename containing the list of tagging rules in XML
+          format for the parsing the input files. If the file doesn't
+          exist then dirname, prefix and "profiles.xml" will be combined
+          and used, if that doesn't exist then the file
+          '/usr/local/share/routino/profiles.xml' (or custom installation
+          location) will be used.
 
    <filename.osm> ...
           Specifies the filename(s) to read data from, by default data is
@@ -80,6 +76,15 @@ planetsplitter
    --not-property options have been removed. The same functionality can be
    achieved by editing the tagging rules file to not output unwwanted
    data.
+
+   Note: In version 1.5 of Routino the --slim option has been removed but
+   at compilation time a separate program called planetsplitter-slim is
+   created that operates in slim mode. In slim mode the temporary files
+   and database files are read as needed rather than being mapped into
+   memory. This allows a database size greater than 2 GB on 32-bit
+   machines or usage with little or no virtual memory (e.g. some virtual
+   machines). The penalty for this is that the program takes about four
+   times as long to run.
 
    Example usage:
 
@@ -146,18 +151,19 @@ router
           Defaults to no prefix.
 
    --profiles=<filename>
-          Sets the filename containing the list of profiles in XML format.
-          If the file doesn't exist then dirname, prefix and
+          Sets the filename containing the list of routing profiles in XML
+          format. If the file doesn't exist then dirname, prefix and
           "profiles.xml" will be combined and used, if that doesn't exist
-          then the command line must contain all relevant profile
-          information.
+          then the file '/usr/local/share/routino/profiles.xml' (or custom
+          installation location) will be used.
 
    --translations=<filename>
           Sets the filename containing the list of translations in XML
           format for the output files. If the file doesn't exist then
           dirname, prefix and "translations.xml" will be combined and
-          used, if that doesn't exist then no file will be read and no
-          language can be selected.
+          used, if that doesn't exist then the file
+          '/usr/local/share/routino/translations.xml' (or custom
+          installation location) will be used.
 
    --exact-nodes-only
           When processing the specified latitude and longitude points only
@@ -241,6 +247,7 @@ router
           + cycleway = Cycleway
           + path = Path
           + steps = Steps
+          + ferry = Ferry
 
           Default value depends on the profile selected by the --transport
           option.
@@ -258,6 +265,8 @@ router
           + multilane = Multiple lanes
           + bridge = Bridge
           + tunnel = Tunnel
+          + footroute = A route marked for foot travel
+          + bicycleroute = A route marked for bicycle travel
 
           Default value depends on the profile selected by the --transport
           option.
@@ -287,6 +296,11 @@ router
           that the length limit on the highway is not exceeded. Default
           value depends on the profile selected by the --transport option.
 
+   Note: In version 1.5 of Routino a slim option has been added and at
+   compilation time a separate program called router-slim is created that
+   operates in slim mode. In slim mode the database files are read as
+   needed rather than being mapped into memory.
+
    The meaning of the <preference> parameter in the command line options
    is slightly different for the highway preferences and the property
    preferences. For the highway preference consider the choice between two
@@ -294,11 +308,14 @@ router
    shortest route. If highway A has a preference of 100% and highway B has
    a preference of 90% then highway A will be chosen even if it is up to
    11% longer (100/90 = 111%). For the highway properties each highway
-   either has a particular property or not. If the preference for highways
-   with the property is 60% then the preference for highways without the
-   property is 40%. The overall preference for the highway is the product
-   of the highway preference and the preference for highways with (or
-   without) each property that the highway has (or doesn't have).
+   either has a particular property or not. If the preference for the
+   property is 60% then a highway with the property has a preference of
+   77% (sqrt(60%)) and one without has a preference of 63%
+   (sqrt(100-60%)). A highway with the property will be chosen even if it
+   is up to 22% longer than one without the property (77/63 = 122%). The
+   overall preference for each highway segment is the product of the
+   preference for the highway type and all of the preferences for the
+   highway properties.
 
    Example usage (motorbike journey, scenic route, not very fast):
 
@@ -397,6 +414,11 @@ filedumper
 
         --lonmin=<lonmin> --lonmax=<lonmax>
                 The range of longitudes to dump the data for.
+
+   Note: In version 1.5 of Routino a slim option has been added and at
+   compilation time a separate program called filedumper-slim is created
+   that operates in slim mode. In slim mode the database files are read as
+   needed rather than being mapped into memory.
 
 tagmodifier
 -----------
