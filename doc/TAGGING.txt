@@ -28,11 +28,21 @@ Tags Recognised After Processing
 Node Tags And Attributes
 ------------------------
 
-   None of the node tags are used but the node attributes id, latitude and
-   longitude of the node. The id atribute is required to associate the
-   node with the ways and the position attributes are required to locate
-   the node.
+   The node attributes id, latitude and longitude are used. The id
+   atribute is required to associate the node with the ways and the
+   position attributes are required to locate the node.
 
+Transport Specific Tags
+- - - - - - - - - - - -
+
+   One tag is recognised for each of the different modes of transport:
+   foot, horse, bicycle, wheelchair, moped, motorbike, motorcar, goods,
+   hgv and psv. These indicate whether the specific type of transport is
+   allowed to pass through the node or not.
+
+   By default for nodes all types of transport are allowed to pass through
+   a node and specific tags must be used to remove the permissions for the
+   transport.
 
 Way Tags And Attributes
 -----------------------
@@ -76,6 +86,10 @@ Transport Specific Tags
    foot, horse, bicycle, wheelchair, moped, motorbike, motorcar, goods,
    hgv and psv. These indicate whether the specific type of transport is
    allowed on the highway or not.
+
+   By default for ways no types of transport are allowed to pass along a
+   highway and specific tags must be used to add the permissions for the
+   transport.
 
 The name Tag
 - - - - - -
@@ -124,6 +138,24 @@ The tunnel Tag
    The tunnel tag is used to identify whether a highway is a tunnel and
    therefore set one of the available properties.
 
+The footroute Tag
+- - - - - - - - -
+
+   The footroute tag is used to identify whether a highway is part of a
+   walking route and therefore set one of the available properties. This
+   is not a standard OSM tag and is normally added to the individual
+   highways by looking for route relations that are designated for foot
+   access.
+
+The bicycleroute Tag
+- - - - - - - - - -
+
+   The bicycleroute tag is used to identify whether a highway is part of a
+   bicycle route and therefore set one of the available properties. This
+   is not a standard OSM tag and is normally added to the individual
+   highways by looking for route relations that are designated for bicycle
+   access.
+
 The oneway Tag
 - - - - - - -
 
@@ -142,17 +174,17 @@ The maxweight Tag
 - - - - - - - - -
 
    The maxweight tag is used to specify the maximum weight of any traffic
-   on the way. In other words this must be set to the heaviest weight
-   allowed on the way (for example a bridge) in tonnes. If the tag value
-   contains "kg" then it is assumed that the value is in these units and
-   converted to tonnes.
+   on the highway. In other words this must be set to the heaviest weight
+   allowed on the highway (for example a bridge) in tonnes. If the tag
+   value contains "kg" then it is assumed that the value is in these units
+   and converted to tonnes.
 
 The maxheight Tag
 - - - - - - - - -
 
    The maxheight tag is used to specify the maximum height of any traffic
-   on the way. In other words this must be set to the lowest height of
-   anything above the way (like a bridge) in metres. If the tag value
+   on the highway. In other words this must be set to the lowest height of
+   anything above the highway (like a bridge) in metres. If the tag value
    contains a measurement in feet or feet and inches then attempts are
    made to convert this to metres.
 
@@ -160,23 +192,39 @@ The maxwidth Tag
 - - - - - - - -
 
    The maxwidth tag is used to specify the maximum width of any traffic on
-   the way. This must be set to the minimum width of the contraints at the
-   wayside in metres. If the tag value contains a measurement in feet or
-   feet and inches then attempts are made to convert this to metres.
+   the highway. This must be set to the minimum width of the contraints at
+   the wayside in metres. If the tag value contains a measurement in feet
+   or feet and inches then attempts are made to convert this to metres.
 
 The maxlength Tag
 - - - - - - - - -
 
    The maxlength tag is used to specify the maximum length of any traffic
-   on the way (usually from a traffic sign) in metres. If the tag value
-   contains a measurement in feet or feet and inches then attempts are
-   made to convert this to metres.
-
+   on the highway (usually from a traffic sign) in metres. If the tag
+   value contains a measurement in feet or feet and inches then attempts
+   are made to convert this to metres.
 
 Relation Tags And Attributes
 ----------------------------
 
-   Currently no relation tags or attributes are used.
+   The tags from the relations are used to associate more properties with
+   the highways that are part of that relation. The id attribute is used
+   so that relations that are members of other relations can be
+   identified.
+
+The footroute Tag
+- - - - - - - - -
+
+   The footroute tag is used to identify whether a relation defines a
+   walking route and therefore should be applied to the individual member
+   highways.
+
+The bicycleroute Tag
+- - - - - - - - - -
+
+   The bicycleroute tag is used to identify whether a relation defines a
+   bicycle route and therefore should be applied to the individual member
+   highways.
 
 
 Tag Transformations
@@ -191,8 +239,45 @@ Tag Transformations
 Node Tag Transformations
 ------------------------
 
-   No transformations are applicable since no node tags are recognised.
+Barrier Defaults
+- - - - - - - -
 
+   The first part of the tag transformations is to decide on defaults for
+   each type of node. This uses the barrier tag in the OSM file and
+   converts it into a default set of disallowed transport types.
+
+   Barrier      foot horse wheelchair bicycle moped motorbike motorcar goods hgv psv
+   -------      ---- ----- ---------- ------- ----- --------- -------- ----- --- ---
+   bollard      yes   yes   yes        yes     yes   yes       no        no   no  no
+   kissing_gate yes    no    no         no      no    no       no        no   no  no
+   stile        yes    no    no         no      no    no       no        no   no  no
+   turnstile    yes    no    no         no      no    no       no        no   no  no
+
+Generic Access Permissions
+- - - - - - - - - - - - -
+
+   The access tag is used to specify the default access restrictions
+   through the node. If the tag value is no or private then all transport
+   types are denied access (later tag transformation rules may add
+   specific transport types back again).
+
+Other Access Permissions
+- - - - - - - - - - - -
+
+   A tag named vehicle means any of the bicycle, moped, motorbike,
+   motorcar, goods, hgv and psv transport types. A tag named motor_vehicle
+   is transformed to mean any vehicle except a bicycle.
+
+Specific Access Permissions
+- - - - - - - - - - - - - -
+
+   The final part of the access permissions is to use the specific
+   transport type tags.
+
+   One tag is recognised for each of the different modes of transport:
+   foot, horse, bicycle, wheelchair, moped, motorbike, motorcar, goods,
+   hgv and psv. These indicate whether the specific type of transport is
+   allowed through the node or not.
 
 Way Tag Transformations
 -----------------------
@@ -272,9 +357,9 @@ Generic Access Permissions
 - - - - - - - - - - - - -
 
    The access tag is used to specify the default access restrictions on
-   the way. If the tag value is "no" or "private" then all transport types
-   are denied access (later tag transformation rules may add specific
-   transport types back again).
+   the highway. If the tag value is "no" or "private" then all transport
+   types are denied access (later tag transformation rules may add
+   specific transport types back again).
 
 Other Access Permissions
 - - - - - - - - - - - -
@@ -344,7 +429,22 @@ Highway Names and References
 Relation Tag Transformations
 ----------------------------
 
-   No transformations are applicable since no relation tags are recognised.
+Routes
+- - -
+
+   The route tag can be used to determine whether a relation is part of a
+   walking of bicycle route so that the footroute and bicycleroute
+   properties can be applied to the highways that make up that relation.
+
+   The tag transformations that are applied for route relations are
+   defined in the table below.
+
+           Relation Tag         footroute Property bicycleroute Property
+   foot                         yes                no
+   walking                      yes                no
+   hiking                       yes                no
+   bicycle                      no                 yes
+   bicycle;foot or foot;bicycle yes                yes
 
 
 --------
