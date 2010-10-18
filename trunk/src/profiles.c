@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.46 2010-09-15 17:59:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.47 2010-10-18 17:40:34 amb Exp $
 
  Load the profiles from a file and the functions for handling them.
 
@@ -659,7 +659,7 @@ int UpdateProfile(Profile *profile,Ways *ways)
  if(!(profile->allow & ways->file.allow))
     return(1);
 
- /* Normalise the highway preferences into the range 0 -> 1 */
+ /* Normalise the highway preferences into the range ~0 -> 1 */
 
  for(i=1;i<Way_Count;i++)
    {
@@ -674,9 +674,14 @@ int UpdateProfile(Profile *profile,Ways *ways)
     return(1);
 
  for(i=1;i<Way_Count;i++)
+   {
     profile->highway[i]/=hmax;
 
- /* Normalise the property preferences into the range 0 -> 2 */
+    if(profile->highway[i]<0.0001)
+       profile->highway[i]=0.0001;
+   }
+
+ /* Normalise the property preferences into the range ~0 -> 1 */
 
  for(i=1;i<Property_Count;i++)
    {
@@ -686,8 +691,21 @@ int UpdateProfile(Profile *profile,Ways *ways)
     if(profile->props_yes[i]>100)
        profile->props_yes[i]=100;
 
-    profile->props_yes[i]/=50;
-    profile->props_no [i] =2-profile->props_yes[i];
+    profile->props_yes[i]/=100;
+    profile->props_no [i] =1-profile->props_yes[i];
+
+    /* Squash the properties; selecting 60% preference without the sqrt() allows
+       routes 50% longer on highways with the property compared to ones without.
+       With the sqrt() function the ratio is only 22% allowing finer control. */
+
+    profile->props_yes[i] =sqrt(profile->props_yes[i]);
+    profile->props_no [i] =sqrt(profile->props_no[i] );
+
+    if(profile->props_yes[i]<0.0001)
+       profile->props_yes[i]=0.0001;
+
+    if(profile->props_no[i]<0.0001)
+       profile->props_no[i]=0.0001;
    }
 
  /* Find the fastest preferred speed */
