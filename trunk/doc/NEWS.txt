@@ -1,3 +1,48 @@
+Version 1.5 of Routino released : Sat Oct 30 2010
+-------------------------------------------------
+
+Bug fixes:
+  Check that number of nodes/segments/ways doesn't exceed numerical limits.
+  Allow 32-bit systems to seek within files larger than 4GB.
+  Allow nearly 4G nodes to be stored instead of 2G before.
+  Added rules to makefile for installation (paths specified in top-level).
+  Stricter checking of UTF-8 in XML files and better UTF-8 output.
+  Improve error message if parsing of command line options fail.
+  Fix bugs in router's --help-profile-json and --help-profile-perl options.
+  Rename heapsort function to allow compilation on Mac OS with no change.
+  Reduce impact of property preferences close to 50% by using sqrt().
+
+Documentation:
+  Update documentation to reflect changes in program usage and function.
+
+OSM tagging
+  Traffic restrictions on nodes are now included in default tagging file.
+  Added processing for ferry routes (as pseudo-highway type 'ferry').
+  Process foot and bicycle route relations to create new properties.
+
+Configuration Files:
+  Added Dutch output translations.
+  Added ferry information to profiles.
+  Added foot and bicycle route relation processing.
+
+planetsplitter
+  The slim mode now includes the output data as well as the temporary data.
+  The slim mode is now a separate executable and not a command line option.
+  Traffic restrictions on nodes are now understood when parsing OSM files.
+  Falls back to installed tagging.xml configuration file as last resort.
+
+router:
+  Added a slim mode (as a separate executable and not a command line option).
+  Traffic will not be routed through a node that does not allow it.
+  Falls back to installed profiles.xml & translations.xml files as last resort.
+
+filedumper:
+  Added a slim mode (as a separate executable and not a command line option).
+
+Web pages:
+  Added Dutch translation of router.html.
+
+
 Version 1.4.1 of Routino released : Sat Jul 10 2010
 ---------------------------------------------------
 
@@ -13,7 +58,7 @@ Documentation:
   Change URL for website to http://www.routino.org/.
 
 Configuration Files:
-  Added German translations.
+  Added German output translations.
 
 planetsplitter
   Slight change to algorithm for finding super-nodes.
