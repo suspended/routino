@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.24 2010-10-16 10:59:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/files.c,v 1.25 2010-10-31 17:52:40 amb Exp $
 
  Functions to handle files.
 
@@ -66,7 +66,7 @@ static int nmappedfiles=0;
 
 char *FileName(const char *dirname,const char *prefix, const char *name)
 {
- char *filename=(char*)malloc((dirname?strlen(dirname):0)+1+(prefix?strlen(prefix):0)+1+strlen(name));
+ char *filename=(char*)malloc((dirname?strlen(dirname):0)+1+(prefix?strlen(prefix):0)+1+strlen(name)+1);
 
  sprintf(filename,"%s%s%s%s%s",dirname?dirname:"",dirname?"/":"",prefix?prefix:"",prefix?"-":"",name);
 
