@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-translations.xml,v 1.10 2010-09-15 18:30:37 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-translations.xml,v 1.11 2010-11-13 14:59:55 amb Exp $
 
      An XML format file containing Routino output translations.
 
@@ -226,7 +226,7 @@
     <highway type="cycleway"     string="Fietspad" />
     <highway type="path"         string="Pad" />
     <highway type="steps"        string="Trap" />
-    <highway type="ferry"        string="ferry" /> <!-- FIXME - needs translation -->
+    <highway type="ferry"        string="Fähre" />
 
     <!-- The type of route -->
     <route type="shortest" string="Kortste" /> <!-- For the description and route name -->
