@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.9 2010-11-13 14:22:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.10 2010-11-13 14:57:30 amb Exp $
 
  Extended Relation data type functions.
 
@@ -183,7 +183,6 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 {
  RouteRelX *unmatched=NULL,*lastunmatched=NULL;
  int nunmatched=0,lastnunmatched=0,iteration=0;
- int i,j;
 
  if(waysx->number==0)
     return;
@@ -207,11 +206,14 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
  do
    {
+    int ways=0,relations=0;
+    int i;
+
     SeekFile(relationsx->rfd,0);
 
     /* Print the start message */
 
-    printf_first("Processing Route Relations: Iteration=%d Relations=0",iteration);
+    printf_first("Processing Route Relations: Iteration=%d Relations=0 Modified Ways=0",iteration);
 
     for(i=0;i<relationsx->rxnumber;i++)
       {
@@ -229,18 +231,25 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
        /* Decide what type of route it is */
 
        if(iteration==0)
+         {
+          relations++;
           routes=relationx.routes;
+         }
        else
          {
-          if((lastunmatched[j].routes|relationx.routes)==relationx.routes)
-             routes=0; /* Nothing new to add */
-          else
-             for(j=0;j<lastnunmatched;j++)
-                if(lastunmatched[j].id==relationx.id)
-                  {
+          int j;
+
+          for(j=0;j<lastnunmatched;j++)
+             if(lastunmatched[j].id==relationx.id)
+               {
+                relations++;
+
+                if((lastunmatched[j].routes|relationx.routes)==relationx.routes)
+                   routes=0; /* Nothing new to add */
+                else
                    routes=lastunmatched[j].routes;
-                   break;
-                  }
+                break;
+               }
          }
 
        /* Loop through the ways */
@@ -268,6 +277,8 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 #if SLIM
                 PutBackWayX(waysx,way,1);
 #endif
+
+                ways++;
                }
             }
          }
@@ -295,7 +306,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
        while(relationid);
 
        if(!((i+1)%10000))
-          printf_middle("Processing Route Relations: Iteration=%d Relations=%d",iteration,i+1);
+          printf_middle("Processing Route Relations: Iteration=%d Relations=%d Modified Ways=%d",iteration,relations,ways);
       }
 
     if(lastunmatched)
@@ -309,7 +320,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
     /* Print the final message */
 
-    printf_last("Processed Route Relations: Iteration=%d Relations=%d",iteration,relationsx->rxnumber);
+    printf_last("Processed Route Relations: Iteration=%d Relations=%d Modified Ways=%d",iteration,relations,ways);
    }
  while(lastnunmatched && ++iteration<5);
 
