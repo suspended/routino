@@ -1,3 +1,20 @@
+Version 1.5.1 of Routino released : Sat Nov 13 2010
+---------------------------------------------------
+
+Bug fixes:
+  Ensure that enough memory is allocated for filenames.
+  Fix bug that sometimes causes crash when processing route relations.
+
+Documentation:
+  Update documentation to reflect changes in program usage and function.
+
+Programs:
+  Add an option to make the output more suitable for a log file.
+
+Documentation:
+  Update documentation to reflect changes in program usage.
+
+
 Version 1.5 of Routino released : Sat Oct 30 2010
 -------------------------------------------------
 
