@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.75 2010-10-09 14:14:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.76 2010-11-13 14:22:28 amb Exp $
 
  Extented Node data type functions.
 
@@ -39,6 +39,7 @@
 #include "types.h"
 
 #include "files.h"
+#include "logging.h"
 #include "functions.h"
 
 
@@ -187,8 +188,7 @@ void SortNodeList(NodesX* nodesx)
 
  /* Print the start message */
 
- printf("Sorting Nodes");
- fflush(stdout);
+ printf_first("Sorting Nodes");
 
  /* Close the files and re-open them (finished appending) */
 
@@ -220,8 +220,7 @@ void SortNodeList(NodesX* nodesx)
 
  /* Print the final message */
 
- printf("\rSorted Nodes: Nodes=%d Duplicates=%d\n",nodesx->xnumber,nodesx->xnumber-nodesx->number);
- fflush(stdout);
+ printf_last("Sorted Nodes: Nodes=%d Duplicates=%d",nodesx->xnumber,nodesx->xnumber-nodesx->number);
 }
 
 
@@ -286,8 +285,7 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  /* Print the start message */
 
- printf("Sorting Nodes Geographically");
- fflush(stdout);
+ printf_first("Sorting Nodes Geographically");
 
  /* Allocate the memory for the geographical offsets array */
 
@@ -324,8 +322,7 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  /* Print the final message */
 
- printf("\rSorted Nodes Geographically \n");
- fflush(stdout);
+ printf_last("Sorted Nodes Geographically");
 }
 
 
@@ -480,8 +477,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the start message */
 
- printf("Checking: Nodes=0");
- fflush(stdout);
+ printf_first("Checking: Nodes=0");
 
  /* While we are here we can work out the range of data */
 
@@ -523,10 +519,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
     total++;
 
     if(!(total%10000))
-      {
-       printf("\rChecking: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
-       fflush(stdout);
-      }
+       printf_middle("Checking: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
    }
 
  /* Close the files and re-open them */
@@ -559,8 +552,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf("\rChecked: Nodes=%d Highway=%d not-Highway=%d  \n",total,highway,nothighway);
- fflush(stdout);
+ printf_last("Checked: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
 }
 
 
@@ -578,8 +570,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  /* Print the start message */
 
- printf("Creating Real Nodes: Nodes=0");
- fflush(stdout);
+ printf_first("Creating Real Nodes: Nodes=0");
 
  /* Map into memory */
 
@@ -618,10 +609,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 #endif
 
     if(!((i+1)%10000))
-      {
-       printf("\rCreating Real Nodes: Nodes=%d",i+1);
-       fflush(stdout);
-      }
+       printf_middle("Creating Real Nodes: Nodes=%d",i+1);
    }
 
  /* Free the unneeded memory */
@@ -637,8 +625,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  /* Print the final message */
 
- printf("\rCreating Real Nodes: Nodes=%d \n",nodesx->number);
- fflush(stdout);
+ printf_last("Creating Real Nodes: Nodes=%d",nodesx->number);
 }
 
 
@@ -659,8 +646,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the start message */
 
- printf("Indexing Segments: Segments=0");
- fflush(stdout);
+ printf_first("Indexing Segments: Segments=0");
 
  /* Map into memory */
 
@@ -782,10 +768,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
       }
 
     if(!((i+1)%10000))
-      {
-       printf("\rIndexing Segments: Segments=%d",i+1);
-       fflush(stdout);
-      }
+       printf_middle("Indexing Segments: Segments=%d",i+1);
    }
 
  /* Unmap from memory */
@@ -797,8 +780,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf("\rIndexed Segments: Segments=%d \n",segmentsx->number);
- fflush(stdout);
+ printf_last("Indexed Segments: Segments=%d ",segmentsx->number);
 }
 
 
@@ -819,8 +801,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Print the start message */
 
- printf("Writing Nodes: Nodes=0");
- fflush(stdout);
+ printf_first("Writing Nodes: Nodes=0");
 
  /* Map into memory */
 
@@ -846,10 +827,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
     WriteFile(fd,node,sizeof(Node));
 
     if(!((i+1)%10000))
-      {
-       printf("\rWriting Nodes: Nodes=%d",i+1);
-       fflush(stdout);
-      }
+       printf_middle("Writing Nodes: Nodes=%d",i+1);
    }
 
  /* Write out the header structure */
@@ -876,6 +854,5 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Print the final message */
 
- printf("\rWrote Nodes: Nodes=%d  \n",nodesx->number);
- fflush(stdout);
+ printf_last("Wrote Nodes: Nodes=%d",nodesx->number);
 }

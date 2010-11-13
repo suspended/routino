@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.8 2010-10-09 18:20:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.9 2010-11-13 14:22:28 amb Exp $
 
  Extended Relation data type functions.
 
@@ -32,6 +32,7 @@
 #include "relationsx.h"
 
 #include "files.h"
+#include "logging.h"
 #include "functions.h"
 
 
@@ -210,8 +211,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
     /* Print the start message */
 
-    printf("Processing Route Relations: Iteration=%d Relations=0",iteration);
-    fflush(stdout);
+    printf_first("Processing Route Relations: Iteration=%d Relations=0",iteration);
 
     for(i=0;i<relationsx->rxnumber;i++)
       {
@@ -295,10 +295,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
        while(relationid);
 
        if(!((i+1)%10000))
-         {
-          printf("\rProcessing Route Relations: Iteration=%d Relations=%d",iteration,i+1);
-          fflush(stdout);
-         }
+          printf_middle("Processing Route Relations: Iteration=%d Relations=%d",iteration,i+1);
       }
 
     if(lastunmatched)
@@ -312,8 +309,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
     /* Print the final message */
 
-    printf("\rProcessed Route Relations: Iteration=%d Relations=%d  \n",iteration,relationsx->rxnumber);
-    fflush(stdout);
+    printf_last("Processed Route Relations: Iteration=%d Relations=%d",iteration,relationsx->rxnumber);
    }
  while(lastnunmatched && ++iteration<5);
 

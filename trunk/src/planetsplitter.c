@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.81 2010-09-17 18:38:39 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.82 2010-11-13 14:22:28 amb Exp $
 
  OSM planet file splitter.
 
@@ -38,6 +38,7 @@
 #include "superx.h"
 
 #include "files.h"
+#include "logging.h"
 #include "functions.h"
 #include "functionsx.h"
 #include "tagging.h"
@@ -92,6 +93,8 @@ int main(int argc,char** argv)
        option_parse_only=1;
     else if(!strcmp(argv[arg],"--process-only"))
        option_process_only=1;
+    else if(!strcmp(argv[arg],"--loggable"))
+       option_loggable=1;
     else if(!strncmp(argv[arg],"--max-iterations=",17))
        max_iterations=atoi(&argv[arg][17]);
     else if(!strncmp(argv[arg],"--tagging=",10))
@@ -396,6 +399,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--sort-ram-size=<size>]\n"
          "                      [--tmpdir=<dirname>]\n"
          "                      [--parse-only | --process-only]\n"
+         "                      [--loggable]\n"
          "                      [--max-iterations=<number>]\n"
          "                      [--tagging=<filename>]\n"
          "                      [<filename.osm> ...]\n");
@@ -429,6 +433,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "--parse-only              Parse the input OSM files and store the results.\n"
             "--process-only            Process the stored results from previous option.\n"
+            "\n"
+            "--loggable                Print progress messages suitable for logging to file.\n"
             "\n"
             "--max-iterations=<number> The number of iterations for finding super-nodes.\n"
             "\n"

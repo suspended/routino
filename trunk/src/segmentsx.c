@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.68 2010-10-09 14:14:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.69 2010-11-13 14:22:28 amb Exp $
 
  Extended Segment data type functions.
 
@@ -41,6 +41,7 @@
 #include "types.h"
 
 #include "files.h"
+#include "logging.h"
 #include "functions.h"
 
 
@@ -184,8 +185,7 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  /* Print the start message */
 
- printf("Sorting Segments");
- fflush(stdout);
+ printf_first("Sorting Segments");
 
  /* Close the files and re-open them (finished appending) */
 
@@ -211,8 +211,7 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  /* Print the final message */
 
- printf("\rSorted Segments: Segments=%d\n",segmentsx->xnumber);
- fflush(stdout);
+ printf_last("Sorted Segments: Segments=%d",segmentsx->xnumber);
 }
 
 
@@ -377,8 +376,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the start message */
 
- printf("Checking: Segments=0 Duplicate=0 Loop=0 Missing-Node=0");
- fflush(stdout);
+ printf_first("Checking: Segments=0 Duplicate=0 Loop=0 Missing-Node=0");
 
  /* Allocate the array of indexes */
 
@@ -416,10 +414,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
     total++;
 
     if(!(total%10000))
-      {
-       printf("\rChecking: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",total,duplicate,loop,missing);
-       fflush(stdout);
-      }
+       printf_middle("Checking: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",total,duplicate,loop,missing);
    }
 
  /* Close the files and re-open them */
@@ -433,8 +428,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf("\rChecked: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d  \n",total,duplicate,loop,missing);
- fflush(stdout);
+ printf_last("Checked: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",total,duplicate,loop,missing);
 }
 
 
@@ -456,8 +450,7 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the start message */
 
- printf("Measuring Segments: Segments=0");
- fflush(stdout);
+ printf_first("Measuring Segments: Segments=0");
 
  /* Map into memory */
 
@@ -519,10 +512,7 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
     index++;
 
     if(!(index%10000))
-      {
-       printf("\rMeasuring Segments: Segments=%d",index);
-       fflush(stdout);
-      }
+       printf_middle("Measuring Segments: Segments=%d",index);
    }
 
  /* Close the files and re-open them */
@@ -548,8 +538,7 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf("\rMeasured Segments: Segments=%d \n",segmentsx->number);
- fflush(stdout);
+ printf_last("Measured Segments: Segments=%d",segmentsx->number);
 }
 
 
@@ -567,8 +556,7 @@ void RotateSegments(SegmentsX* segmentsx)
 
  /* Print the start message */
 
- printf("Rotating Segments: Segments=0 Rotated=0");
- fflush(stdout);
+ printf_first("Rotating Segments: Segments=0 Rotated=0");
 
  /* Close the files and re-open them (finished appending) */
 
@@ -602,10 +590,7 @@ void RotateSegments(SegmentsX* segmentsx)
     index++;
 
     if(!(index%10000))
-      {
-       printf("\rRotating Segments: Segments=%d Rotated=%d",index,rotated);
-       fflush(stdout);
-      }
+       printf_middle("Rotating Segments: Segments=%d Rotated=%d",index,rotated);
    }
 
  /* Close the files and re-open them */
@@ -617,8 +602,7 @@ void RotateSegments(SegmentsX* segmentsx)
 
  /* Print the final message */
 
- printf("\rRotated Segments: Segments=%d Rotated=%d \n",index,rotated);
- fflush(stdout);
+ printf_last("Rotated Segments: Segments=%d Rotated=%d",index,rotated);
 }
 
 
@@ -641,8 +625,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the start message */
 
- printf("Deduplicating Segments: Segments=0 Duplicate=0");
- fflush(stdout);
+ printf_first("Deduplicating Segments: Segments=0 Duplicate=0");
 
  /* Map into memory */
 
@@ -720,10 +703,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
     index++;
 
     if(!(index%10000))
-      {
-       printf("\rDeduplicating Segments: Segments=%d Duplicate=%d",index,duplicate);
-       fflush(stdout);
-      }
+       printf_middle("Deduplicating Segments: Segments=%d Duplicate=%d",index,duplicate);
    }
 
  /* Close the files and re-open them */
@@ -749,8 +729,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf("\rDeduplicated Segments: Segments=%d Duplicate=%d Unique=%d\n",index,duplicate,index-duplicate);
- fflush(stdout);
+ printf_last("Deduplicated Segments: Segments=%d Duplicate=%d Unique=%d",index,duplicate,index-duplicate);
 }
 
 
@@ -771,8 +750,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Print the start message */
 
- printf("Creating Real Segments: Segments=0");
- fflush(stdout);
+ printf_first("Creating Real Segments: Segments=0");
 
  /* Map into memory */
 
@@ -815,10 +793,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 #endif
 
     if(!((i+1)%10000))
-      {
-       printf("\rCreating Real Segments: Segments=%d",i+1);
-       fflush(stdout);
-      }
+       printf_middle("Creating Real Segments: Segments=%d",i+1);
    }
 
  /* Unmap from memory */
@@ -830,8 +805,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Print the final message */
 
- printf("\rCreating Real Segments: Segments=%d \n",segmentsx->number);
- fflush(stdout);
+ printf_last("Creating Real Segments: Segments=%d",segmentsx->number);
 }
 
 
@@ -852,8 +826,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  /* Print the start message */
 
- printf("Indexing Nodes: Nodes=0");
- fflush(stdout);
+ printf_first("Indexing Nodes: Nodes=0");
 
  /* Map into memory */
 
@@ -910,10 +883,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
     while(1);
 
     if(!((i+1)%10000))
-      {
-       printf("\rIndexing Nodes: Nodes=%d",i+1);
-       fflush(stdout);
-      }
+       printf_middle("Indexing Nodes: Nodes=%d",i+1);
    }
 
  /* Unmap from memory */
@@ -925,8 +895,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  /* Print the final message */
 
- printf("\rIndexed Nodes: Nodes=%d \n",nodesx->number);
- fflush(stdout);
+ printf_last("Indexed Nodes: Nodes=%d",nodesx->number);
 }
 
 
@@ -947,8 +916,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  /* Print the start message */
 
- printf("Writing Segments: Segments=0");
- fflush(stdout);
+ printf_first("Writing Segments: Segments=0");
 
  /* Write out the segments data */
 
@@ -968,10 +936,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
     WriteFile(fd,segment,sizeof(Segment));
 
     if(!((i+1)%10000))
-      {
-       printf("\rWriting Segments: Segments=%d",i+1);
-       fflush(stdout);
-      }
+       printf_middle("Writing Segments: Segments=%d",i+1);
    }
 
  /* Write out the header structure */
@@ -987,8 +952,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  /* Print the final message */
 
- printf("\rWrote Segments: Segments=%d  \n",segmentsx->number);
- fflush(stdout);
+ printf_last("Wrote Segments: Segments=%d",segmentsx->number);
 }
 
 

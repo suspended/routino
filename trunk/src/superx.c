@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.44 2010-10-09 14:14:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.45 2010-11-13 14:22:28 amb Exp $
 
  Super-Segment data type functions.
 
@@ -33,6 +33,7 @@
 #include "superx.h"
 
 #include "files.h"
+#include "logging.h"
 #include "results.h"
 
 
@@ -61,8 +62,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  /* Print the start message */
 
- printf("Finding Super-Nodes: Nodes=0 Super-Nodes=0");
- fflush(stdout);
+ printf_first("Finding Super-Nodes: Nodes=0 Super-Nodes=0");
 
  /* Map into memory */
 
@@ -129,10 +129,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
       }
 
     if(!((i+1)%10000))
-      {
-       printf("\rFinding Super-Nodes: Nodes=%d Super-Nodes=%d",i+1,nnodes);
-       fflush(stdout);
-      }
+       printf_middle("Finding Super-Nodes: Nodes=%d Super-Nodes=%d",i+1,nnodes);
    }
 
  /* Unmap from memory */
@@ -145,8 +142,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  /* Print the final message */
 
- printf("\rFound Super-Nodes: Nodes=%d Super-Nodes=%d  \n",nodesx->number,nnodes);
- fflush(stdout);
+ printf_last("Found Super-Nodes: Nodes=%d Super-Nodes=%d",nodesx->number,nnodes);
 }
 
 
@@ -177,8 +173,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  /* Print the start message */
 
- printf("Creating Super-Segments: Super-Nodes=0 Super-Segments=0");
- fflush(stdout);
+ printf_first("Creating Super-Segments: Super-Nodes=0 Super-Segments=0");
 
  /* Map into memory */
 
@@ -257,10 +252,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
        sn++;
 
        if(!(sn%10000))
-         {
-          printf("\rCreating Super-Segments: Super-Nodes=%d Super-Segments=%d",sn,ss);
-          fflush(stdout);
-         }
+          printf_middle("Creating Super-Segments: Super-Nodes=%d Super-Segments=%d",sn,ss);
       }
    }
 
@@ -273,8 +265,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  /* Print the final message */
 
- printf("\rCreated Super-Segments: Super-Nodes=%d Super-Segments=%d \n",sn,ss);
- fflush(stdout);
+ printf_last("Created Super-Segments: Super-Nodes=%d Super-Segments=%d",sn,ss);
 
  return(supersegmentsx);
 }
@@ -303,8 +294,7 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
  /* Print the start message */
 
- printf("Merging: Segments=0 Super-Segments=0 Merged=0 Added=0");
- fflush(stdout);
+ printf_first("Merging: Segments=0 Super-Segments=0 Merged=0 Added=0");
 
  /* Map into memory */
 
@@ -358,10 +348,7 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
        AppendSegment(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_NORMAL);
 
     if(!((i+1)%10000))
-      {
-       printf("\rMerging: Segments=%d Super-Segments=%d Merged=%d Added=%d",i+1,j,m,a);
-       fflush(stdout);
-      }
+       printf_middle("Merging: Segments=%d Super-Segments=%d Merged=%d Added=%d",i+1,j,m,a);
    }
 
  /* Unmap from memory */
@@ -373,8 +360,7 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
  /* Print the final message */
 
- printf("\rMerged: Segments=%d Super-Segments=%d Merged=%d Added=%d \n",segmentsx->number,supersegmentsx->number,m,a);
- fflush(stdout);
+ printf_last("Merged: Segments=%d Super-Segments=%d Merged=%d Added=%d",segmentsx->number,supersegmentsx->number,m,a);
 
  return(mergedsegmentsx);
 }
