@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/logging.h,v 1.1 2010-11-13 14:22:49 amb Exp $
+ $Header: /home/amb/CVS/routino/src/logging.h,v 1.2 2010-11-13 14:50:33 amb Exp $
 
  Header file for logging function prototypes
 
@@ -35,6 +35,18 @@ extern int option_loggable;
 
 /* In logging.c */
 
+#ifdef __GNUC__
+
+void printf_first(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
+void printf_middle(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
+void printf_last(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
+
+void fprintf_first(FILE *file,const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+void fprintf_middle(FILE *file,const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+void fprintf_last(FILE *file,const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+
+#else
+
 void printf_first(const char *format, ...);
 void printf_middle(const char *format, ...);
 void printf_last(const char *format, ...);
@@ -42,6 +54,8 @@ void printf_last(const char *format, ...);
 void fprintf_first(FILE *file,const char *format, ...);
 void fprintf_middle(FILE *file,const char *format, ...);
 void fprintf_last(FILE *file,const char *format, ...);
+
+#endif
 
 
 #endif /* LOGGING_H */
