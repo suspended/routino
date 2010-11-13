@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.89 2010-09-15 18:19:36 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.90 2010-11-13 14:22:28 amb Exp $
 
  OSM router.
 
@@ -33,6 +33,7 @@
 #include "ways.h"
 
 #include "files.h"
+#include "logging.h"
 #include "functions.h"
 #include "translations.h"
 #include "profiles.h"
@@ -112,6 +113,8 @@ int main(int argc,char** argv)
        exactnodes=1;
     else if(!strcmp(argv[arg],"--quiet"))
        option_quiet=1;
+    else if(!strcmp(argv[arg],"--loggable"))
+       option_loggable=1;
     else if(!strcmp(argv[arg],"--output-html"))
        option_html=1;
     else if(!strcmp(argv[arg],"--output-gpx-track"))
@@ -501,7 +504,7 @@ int main(int argc,char** argv)
 
        if(!option_quiet)
          {
-          printf("\rRouted: Super-Nodes Checked = %d\n",begin->number);
+          printf("Routed: Super-Nodes Checked = %d\n",begin->number);
           fflush(stdout);
          }
       }
@@ -580,7 +583,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "              [--dir=<dirname>] [--prefix=<name>]\n"
          "              [--profiles=<filename>] [--translations=<filename>]\n"
          "              [--exact-nodes-only]\n"
-         "              [--quiet]\n"
+         "              [--loggable | --quiet]\n"
          "              [--language=<lang>]\n"
          "              [--output-html]\n"
          "              [--output-gpx-track] [--output-gpx-route]\n"
@@ -631,7 +634,9 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "--exact-nodes-only      Only route between nodes (don't find closest segment).\n"
             "\n"
+            "--loggable              Print progress messages suitable for logging to file.\n"
             "--quiet                 Don't print any screen output when running.\n"
+            "\n"
             "--language=<lang>       Use the translations for specified language.\n"
             "--output-html           Write an HTML description of the route.\n"
             "--output-gpx-track      Write a GPX track file with all route points.\n"

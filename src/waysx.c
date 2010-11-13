@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.51 2010-09-19 16:17:45 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.52 2010-11-13 14:22:28 amb Exp $
 
  Extended Way data type functions.
 
@@ -33,6 +33,7 @@
 #include "waysx.h"
 
 #include "files.h"
+#include "logging.h"
 #include "functions.h"
 
 
@@ -183,8 +184,7 @@ void SortWayList(WaysX* waysx)
 
  /* Print the start message */
 
- printf("Sorting Ways by Name");
- fflush(stdout);
+ printf_first("Sorting Ways by Name");
 
  /* Close the file and re-open it (finished appending) */
 
@@ -206,14 +206,12 @@ void SortWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf("\rSorted Ways by Name: Ways=%d\n",waysx->xnumber);
- fflush(stdout);
+ printf_last("Sorted Ways by Name: Ways=%d",waysx->xnumber);
 
 
  /* Print the start message */
 
- printf("Separating Way Names: Ways=0 Names=0");
- fflush(stdout);
+ printf_first("Separating Way Names: Ways=0 Names=0");
 
  /* Open the files */
 
@@ -254,10 +252,7 @@ void SortWayList(WaysX* waysx)
     WriteFile(fd,&wayx,sizeof(WayX));
 
     if(!((i+1)%10000))
-      {
-       printf("\rSeparating Way Names: Ways=%d Names=%d",i+1,nnames);
-       fflush(stdout);
-      }
+       printf_middle("Separating Way Names: Ways=%d Names=%d",i+1,nnames);
    }
 
  if(names[0]) free(names[0]);
@@ -274,14 +269,12 @@ void SortWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf("\rSeparated Way Names: Ways=%d Names=%d \n",waysx->xnumber,nnames);
- fflush(stdout);
+ printf_last("Separated Way Names: Ways=%d Names=%d ",waysx->xnumber,nnames);
 
 
  /* Print the start message */
 
- printf("Sorting Ways");
- fflush(stdout);
+ printf_first("Sorting Ways");
 
  /* Open the files */
 
@@ -314,8 +307,7 @@ void SortWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf("\rSorted Ways: Ways=%d Duplicates=%d\n",waysx->number,waysx->xnumber-waysx->number);
- fflush(stdout);
+ printf_last("Sorted Ways: Ways=%d Duplicates=%d",waysx->number,waysx->xnumber-waysx->number);
 }
 
 
@@ -333,8 +325,7 @@ void CompactWayList(WaysX* waysx)
 
  /* Print the start message */
 
- printf("Sorting Ways by Properties");
- fflush(stdout);
+ printf_first("Sorting Ways by Properties");
 
  /* Close the file and re-open it */
 
@@ -356,14 +347,12 @@ void CompactWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf("\rSorted Ways by Properties: Ways=%d\n",waysx->number);
- fflush(stdout);
+ printf_last("Sorted Ways by Properties: Ways=%d",waysx->number);
 
 
  /* Print the start message */
 
- printf("Compacting Ways: Ways=0 Properties=0");
- fflush(stdout);
+ printf_first("Compacting Ways: Ways=0 Properties=0");
 
  /* Open the files */
 
@@ -395,10 +384,7 @@ void CompactWayList(WaysX* waysx)
     WriteFile(fd,&wayx,sizeof(WayX));
 
     if(!((i+1)%10000))
-      {
-       printf("\rCompacting Ways: Ways=%d Properties=%d",i+1,waysx->cnumber);
-       fflush(stdout);
-      }
+       printf_middle("Compacting Ways: Ways=%d Properties=%d",i+1,waysx->cnumber);
    }
 
  /* Close the files */
@@ -408,14 +394,12 @@ void CompactWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf("\rCompacted Ways: Ways=%d Properties=%d \n",waysx->number,waysx->cnumber);
- fflush(stdout);
+ printf_last("Compacted Ways: Ways=%d Properties=%d ",waysx->number,waysx->cnumber);
 
 
  /* Print the start message */
 
- printf("Sorting Ways");
- fflush(stdout);
+ printf_first("Sorting Ways");
 
  /* Open the files */
 
@@ -438,8 +422,7 @@ void CompactWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf("\rSorted Ways: Ways=%d\n",waysx->number);
- fflush(stdout);
+ printf_last("Sorted Ways: Ways=%d",waysx->number);
 }
 
 
@@ -629,8 +612,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  /* Print the start message */
 
- printf("Writing Ways: Ways=0");
- fflush(stdout);
+ printf_first("Writing Ways: Ways=0");
 
  /* Map into memory */
 
@@ -655,10 +637,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
     WriteFile(fd,&wayx->way,sizeof(Way));
 
     if(!((i+1)%10000))
-      {
-       printf("\rWriting Ways: Ways=%d",i+1);
-       fflush(stdout);
-      }
+       printf_middle("Writing Ways: Ways=%d",i+1);
    }
 
  /* Unmap from memory */
@@ -704,6 +683,5 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  /* Print the final message */
 
- printf("\rWrote Ways: Ways=%d  \n",waysx->number);
- fflush(stdout);
+ printf_last("Wrote Ways: Ways=%d",waysx->number);
 }

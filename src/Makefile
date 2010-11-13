@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.42 2010-09-17 17:42:20 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.43 2010-11-13 14:22:28 amb Exp $
 #
 # Source code Makefile
 #
@@ -76,7 +76,7 @@ all : $(EXE)
 PLANETSPLITTER_OBJ=planetsplitter.o \
 	           nodesx.o segmentsx.o waysx.o relationsx.o superx.o \
 	           ways.o types.o \
-	           files.o \
+	           files.o logging.o \
 	           results.o queue.o sorting.o \
 	           xmlparse.o tagging.o osmparser.o
 
@@ -88,7 +88,7 @@ planetsplitter : $(PLANETSPLITTER_OBJ)
 PLANETSPLITTER_SLIM_OBJ=planetsplitter-slim.o \
 	                nodesx-slim.o segmentsx-slim.o waysx-slim.o relationsx-slim.o superx-slim.o \
 	                ways.o types.o \
-	                files.o \
+	                files.o logging.o \
 	                results.o queue.o sorting.o \
 	                xmlparse.o tagging.o osmparser.o
 
@@ -100,7 +100,7 @@ planetsplitter-slim : $(PLANETSPLITTER_SLIM_OBJ)
 ROUTER_OBJ=router.o \
 	   nodes.o segments.o ways.o types.o fakes.o \
 	   optimiser.o output.o \
-	   files.o profiles.o xmlparse.o \
+	   files.o logging.o profiles.o xmlparse.o \
 	   results.o queue.o translations.o
 
 router : $(ROUTER_OBJ)
@@ -111,7 +111,7 @@ router : $(ROUTER_OBJ)
 ROUTER_SLIM_OBJ=router-slim.o \
 	        nodes-slim.o segments-slim.o ways-slim.o types.o fakes.o \
 	        optimiser-slim.o output-slim.o \
-	        files.o profiles.o xmlparse.o \
+	        files.o logging.o profiles.o xmlparse.o \
 	        results.o queue.o translations.o
 
 router-slim : $(ROUTER_SLIM_OBJ)
@@ -122,7 +122,7 @@ router-slim : $(ROUTER_SLIM_OBJ)
 FILEDUMPER_OBJ=filedumper.o \
 	       nodes.o segments.o ways.o types.o \
                visualiser.o \
-	       files.o xmlparse.o
+	       files.o logging.o xmlparse.o
 
 filedumper : $(FILEDUMPER_OBJ)
 	$(LD) $(FILEDUMPER_OBJ) -o $@ $(LDFLAGS)
@@ -132,7 +132,7 @@ filedumper : $(FILEDUMPER_OBJ)
 FILEDUMPER_SLIM_OBJ=filedumper-slim.o \
 	       nodes-slim.o segments-slim.o ways-slim.o types.o \
                visualiser-slim.o \
-	       files.o xmlparse.o
+	       files.o logging.o xmlparse.o
 
 filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
 	$(LD) $(FILEDUMPER_SLIM_OBJ) -o $@ $(LDFLAGS)
@@ -140,7 +140,7 @@ filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
 ########
 
 TAGMODIFIER_OBJ=tagmodifier.o \
-	        files.o \
+	        files.o logging.o \
                 xmlparse.o tagging.o
 
 tagmodifier : $(TAGMODIFIER_OBJ)

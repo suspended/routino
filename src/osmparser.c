@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.72 2010-09-25 18:47:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.73 2010-11-13 14:22:28 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -37,6 +37,8 @@
 
 #include "xmlparse.h"
 #include "tagging.h"
+
+#include "logging.h"
 
 
 /* Macros */
@@ -252,10 +254,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
     nnodes++;
 
     if(!(nnodes%1000))
-      {
-       printf("\rReading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
-       fflush(stdout);
-      }
+       printf_middle("Reading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
@@ -387,10 +386,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
     nways++;
 
     if(!(nways%1000))
-      {
-       printf("\rReading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
-       fflush(stdout);
-      }
+       printf_middle("Reading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
@@ -436,10 +432,7 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
     nrelations++;
 
     if(!(nrelations%1000))
-      {
-       printf("\rReading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
-       fflush(stdout);
-      }
+       printf_middle("Reading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
@@ -537,13 +530,11 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  nnodes=0,nways=0,nrelations=0;
 
- printf("\rReading: Lines=0 Nodes=0 Ways=0 Relations=0");
- fflush(stdout);
+ printf_first("Reading: Lines=0 Nodes=0 Ways=0 Relations=0");
 
  retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
- printf("\rRead: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld   \n",ParseXML_LineNumber(),nnodes,nways,nrelations);
- fflush(stdout);
+ printf_last("Read: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  return(retval);
 }
