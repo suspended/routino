@@ -22,6 +22,7 @@ planetsplitter
                         [--sort-ram-size=<size>]
                         [--tmpdir=<dirname>]
                         [--parse-only | --process-only]
+                        [--loggable]
                         [--max-iterations=<number>]
                         [--tagging=<filename>]
                         [<filename.osm> ...]
@@ -54,6 +55,11 @@ planetsplitter
    --process-only
           Don't read in any files but process the existing temporary file
           into the routing database.
+
+   --loggable
+          Print progress messages that are suitable for logging to a file;
+          normally an incrementing counter is printed which is more
+          suitable for realtime display than logging.
 
    --max-iterations=<number>
           The maximum number of iterations to use when generating
@@ -105,7 +111,7 @@ router
                 [--dir=<dirname>] [--prefix=<name>]
                 [--profiles=<filename>] [--translations=<filename>]
                 [--exact-nodes-only]
-                [--quiet]
+                [--loggable | --quiet]
                 [--output-html]
                 [--output-gpx-track] [--output-gpx-route]
                 [--output-text] [--output-text-all]
@@ -170,6 +176,11 @@ router
           select the nearest node instead of finding the nearest point
           within a segment (quicker but less accurate unless the points
           are already near nodes).
+
+   --loggable
+          Print progress messages that are suitable for logging to a file;
+          normally an incrementing counter is printed which is more
+          suitable for realtime display than logging.
 
    --quiet
           Don't generate any screen output while running (useful for
@@ -427,11 +438,17 @@ tagmodifier
    XML file for test purposes.
 
    Usage: tagmodifier [--help]
+                      [--loggable]
                       [--tagging=<filename>]
                       [<filename.osm>]
 
    --help
           Prints out the help information.
+
+   --loggable
+          Print progress messages that are suitable for logging to a file;
+          normally an incrementing counter is printed which is more
+          suitable for realtime display than logging.
 
    --tagging=<filename>
           The name of the XML file containing the tagging rules (defaults
