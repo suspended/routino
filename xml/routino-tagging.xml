@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.5 2010-09-17 17:44:25 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.6 2010-11-14 17:00:45 amb Exp $
 
      An XML format file containing Routino tagging rules
 
@@ -507,7 +507,7 @@
       <set k="paved" v="yes"/>
     </if>
 
-    <if k="surface" v="ashphalt">
+    <if k="surface" v="asphalt">
       <set k="paved" v="yes"/>
     </if>
 
