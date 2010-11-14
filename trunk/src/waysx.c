@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.52 2010-11-13 14:22:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.53 2010-11-14 16:32:19 amb Exp $
 
  Extended Way data type functions.
 
@@ -607,7 +607,8 @@ void SaveWayList(WaysX* waysx,const char *filename)
  int fd,nfd;
  int position=0;
  WaysFile waysfile={0};
- allow_t allow=0;
+ highways_t highways=0;
+ allow_t    allow=0;
  wayprop_t  props=0;
 
  /* Print the start message */
@@ -630,8 +631,9 @@ void SaveWayList(WaysX* waysx,const char *filename)
    {
     WayX *wayx=LookupWayX(waysx,i,1);
 
-    allow|=wayx->way.allow;
-    props|=wayx->way.props;
+    highways|=HIGHWAYS(wayx->way.type);
+    allow   |=wayx->way.allow;
+    props   |=wayx->way.props;
 
     SeekFile(fd,sizeof(WaysFile)+(off_t)wayx->prop*sizeof(Way));
     WriteFile(fd,&wayx->way,sizeof(Way));
@@ -670,11 +672,12 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  /* Write out the header structure */
 
- waysfile.number=waysx->cnumber;
+ waysfile.number =waysx->cnumber;
  waysfile.onumber=waysx->number;
 
- waysfile.allow=allow;
- waysfile.props=props;
+ waysfile.highways=highways;
+ waysfile.allow   =allow;
+ waysfile.props   =props;
 
  SeekFile(fd,0);
  WriteFile(fd,&waysfile,sizeof(WaysFile));
