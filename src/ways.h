@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.42 2010-08-30 12:32:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.43 2010-11-14 16:32:19 amb Exp $
 
  A header file for the ways.
 
@@ -62,6 +62,7 @@ typedef struct _WaysFile
  index_t    number;             /*+ How many ways are stored? +*/
  index_t    onumber;            /*+ How many ways were there originally? +*/
 
+ highways_t highways;           /*+ The types of highways that were seen when parsing. +*/
  allow_t    allow;              /*+ The types of traffic that were seen when parsing. +*/
  wayprop_t  props;              /*+ The properties that were seen when parsing. +*/
 }

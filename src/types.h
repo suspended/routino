@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.48 2010-09-17 17:43:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.49 2010-11-14 16:32:19 amb Exp $
 
  Type definitions
 
@@ -192,6 +192,33 @@ typedef enum _Highway
 #define HIGHWAY(xx) ((xx)&0x1f)
 
 
+/*+ The type of a way. +*/
+typedef uint16_t highways_t;
+
+#define HIGHWAYS(xx)  (1<<(HIGHWAY(xx)-1))
+
+/*+ The different types of a way. +*/
+typedef enum _Highways
+ {
+  Highways_None         = 0,
+
+  Highways_Motorway     = HIGHWAYS(Way_Motorway    ),
+  Highways_Trunk        = HIGHWAYS(Way_Trunk       ),
+  Highways_Primary      = HIGHWAYS(Way_Primary     ),
+  Highways_Secondary    = HIGHWAYS(Way_Secondary   ),
+  Highways_Tertiary     = HIGHWAYS(Way_Tertiary    ),
+  Highways_Unclassified = HIGHWAYS(Way_Unclassified),
+  Highways_Residential  = HIGHWAYS(Way_Residential ),
+  Highways_Service      = HIGHWAYS(Way_Service     ),
+  Highways_Track        = HIGHWAYS(Way_Track       ),
+  Highways_Cycleway     = HIGHWAYS(Way_Cycleway    ),
+  Highways_Path         = HIGHWAYS(Way_Path        ),
+  Highways_Steps        = HIGHWAYS(Way_Steps       ),
+  Highways_Ferry        = HIGHWAYS(Way_Ferry       )
+ }
+ Highways;
+
+
 /*+ The different methods of transport. +*/
 typedef enum _Transport
  {
@@ -350,6 +377,7 @@ const char *HighwayName(Highway highway);
 const char *TransportName(Transport transport);
 const char *PropertyName(Property property);
 
+const char *HighwaysNameList(highways_t highways);
 const char *AllowedNameList(allow_t allowed);
 const char *PropertiesNameList(wayprop_t properties);
 
