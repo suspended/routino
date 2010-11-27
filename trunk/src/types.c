@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.c,v 1.7 2010-11-14 16:32:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.c,v 1.8 2010-11-27 11:41:25 amb Exp $
 
  Functions for handling the data types.
 
@@ -421,67 +421,67 @@ const char *HighwaysNameList(highways_t highways)
 
   const char *AllowedNameList Returns the list of names.
 
-  allow_t allowed The allowed type.
+  transports_t allowed The allowed type.
   ++++++++++++++++++++++++++++++++++++++*/
 
-const char *AllowedNameList(allow_t allowed)
+const char *AllowedNameList(transports_t allowed)
 {
  static char string[256];
 
  string[0]=0;
 
- if(allowed & Allow_Foot)
+ if(allowed & Transports_Foot)
     strcat(string,"foot");
 
- if(allowed & Allow_Horse)
+ if(allowed & Transports_Horse)
    {
     if(*string) strcat(string,", ");
     strcat(string,"horse");
    }
 
- if(allowed & Allow_Wheelchair)
+ if(allowed & Transports_Wheelchair)
    {
     if(*string) strcat(string,", ");
     strcat(string,"wheelchair");
    }
 
- if(allowed & Allow_Bicycle)
+ if(allowed & Transports_Bicycle)
    {
     if(*string) strcat(string,", ");
     strcat(string,"bicycle");
    }
 
- if(allowed & Allow_Moped)
+ if(allowed & Transports_Moped)
    {
     if(*string) strcat(string,", ");
     strcat(string,"moped");
    }
 
- if(allowed & Allow_Motorbike)
+ if(allowed & Transports_Motorbike)
    {
     if(*string) strcat(string,", ");
     strcat(string,"motorbike");
    }
 
- if(allowed & Allow_Motorcar)
+ if(allowed & Transports_Motorcar)
    {
     if(*string) strcat(string,", ");
     strcat(string,"motorcar");
    }
 
- if(allowed & Allow_Goods)
+ if(allowed & Transports_Goods)
    {
     if(*string) strcat(string,", ");
     strcat(string,"goods");
    }
 
- if(allowed & Allow_HGV)
+ if(allowed & Transports_HGV)
    {
     if(*string) strcat(string,", ");
     strcat(string,"hgv");
    }
 
- if(allowed & Allow_PSV)
+ if(allowed & Transports_PSV)
    {
     if(*string) strcat(string,", ");
     strcat(string,"psv");

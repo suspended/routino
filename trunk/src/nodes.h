@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.37 2010-08-03 18:28:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodes.h,v 1.38 2010-11-27 11:41:24 amb Exp $
 
  A header file for the nodes.
 
@@ -39,13 +39,13 @@
 /*+ A structure containing a single node. +*/
 struct _Node
 {
- index_t    firstseg;           /*+ The index of the first segment. +*/
+ index_t      firstseg;         /*+ The index of the first segment. +*/
 
- ll_off_t   latoffset;          /*+ The node latitude offset within its bin. +*/
- ll_off_t   lonoffset;          /*+ The node longitude offset within its bin. +*/
+ ll_off_t     latoffset;        /*+ The node latitude offset within its bin. +*/
+ ll_off_t     lonoffset;        /*+ The node longitude offset within its bin. +*/
 
- allow_t    allow;              /*+ The types of transport that are allowed through the node. +*/
- uint16_t   flags;              /*+ Flags containing extra information (super-node, turn restriction). +*/
+ transports_t allow;            /*+ The types of transport that are allowed through the node. +*/
+ uint16_t     flags;            /*+ Flags containing extra information (super-node, turn restriction). +*/
 };
 
 

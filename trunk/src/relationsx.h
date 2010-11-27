@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.h,v 1.2 2010-09-25 18:47:32 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.h,v 1.3 2010-11-27 11:41:25 amb Exp $
 
  A header file for the extended Relations structure.
 
@@ -38,9 +38,9 @@
 /*+ An extended structure containing a single route relation. +*/
 struct _RouteRelX
 {
- relation_t id;                 /*+ The relation identifier. +*/
+ relation_t   id;              /*+ The relation identifier. +*/
 
- allow_t    routes;             /*+ The types of route that this relation belongs to. +*/
+ transports_t routes;          /*+ The types of transports that that this relation is for. +*/
 };
 
 
@@ -62,7 +62,7 @@ struct _RelationsX
 RelationsX *NewRelationList(int append);
 void FreeRelationList(RelationsX *relationsx,int keep);
 
-void AppendRouteRelation(RelationsX* relationsx,relation_t id,allow_t routes,
+void AppendRouteRelation(RelationsX* relationsx,relation_t id,transports_t routes,
                          way_t *ways,int nways,
                          relation_t *relations,int nrelations);
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.44 2010-11-27 11:27:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.45 2010-11-27 11:41:25 amb Exp $
 
  A header file for the ways.
 
@@ -39,32 +39,32 @@
 /*+ A structure containing a single way (members ordered to minimise overall size). +*/
 struct _Way
 {
- index_t    name;               /*+ The offset of the name of the way in the names array. +*/
+ index_t      name;             /*+ The offset of the name of the way in the names array. +*/
 
- allow_t    allow;              /*+ The type of traffic allowed on the way. +*/
+ transports_t allow;            /*+ The type of traffic allowed on the way. +*/
 
- highway_t  type;               /*+ The highway type of the way. +*/
+ highway_t    type;             /*+ The highway type of the way. +*/
 
- wayprop_t  props;              /*+ The properties of the way. +*/
+ wayprop_t    props;            /*+ The properties of the way. +*/
 
- speed_t    speed;              /*+ The defined maximum speed limit of the way. +*/
+ speed_t      speed;            /*+ The defined maximum speed limit of the way. +*/
 
- weight_t   weight;             /*+ The defined maximum weight of traffic on the way. +*/
- height_t   height;             /*+ The defined maximum height of traffic on the way. +*/
- width_t    width;              /*+ The defined maximum width of traffic on the way. +*/
- length_t   length;             /*+ The defined maximum length of traffic on the way. +*/
+ weight_t     weight;           /*+ The defined maximum weight of traffic on the way. +*/
+ height_t     height;           /*+ The defined maximum height of traffic on the way. +*/
+ width_t      width;            /*+ The defined maximum width of traffic on the way. +*/
+ length_t     length;           /*+ The defined maximum length of traffic on the way. +*/
 };
 
 
 /*+ A structure containing the header from the file. +*/
 typedef struct _WaysFile
 {
- index_t    number;             /*+ How many ways are stored? +*/
- index_t    onumber;            /*+ How many ways were there originally? +*/
+ index_t      number;           /*+ How many ways are stored? +*/
+ index_t      onumber;          /*+ How many ways were there originally? +*/
 
- highways_t highways;           /*+ The types of highways that were seen when parsing. +*/
- allow_t    allow;              /*+ The types of traffic that were seen when parsing. +*/
- wayprop_t  props;              /*+ The properties that were seen when parsing. +*/
+ highways_t   highways;         /*+ The types of highways that were seen when parsing. +*/
+ transports_t allow;            /*+ The types of traffic that were seen when parsing. +*/
+ wayprop_t    props;            /*+ The properties that were seen when parsing. +*/
 }
  WaysFile;
 

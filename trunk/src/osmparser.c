@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.73 2010-11-13 14:22:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.74 2010-11-27 11:41:25 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -554,7 +554,7 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
 static void process_node_tags(TagList *tags,node_t id,double latitude,double longitude)
 {
- allow_t allow=Allow_ALL;
+ transports_t allow=Transports_ALL;
 
  int i;
 
@@ -570,61 +570,61 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
       case 'b':
        if(!strcmp(k,"bicycle"))
           if(!ISTRUE(v))
-             allow&=~Allow_Bicycle;
+             allow&=~Transports_Bicycle;
 
        break;
 
       case 'f':
        if(!strcmp(k,"foot"))
           if(!ISTRUE(v))
-             allow&=~Allow_Foot;
+             allow&=~Transports_Foot;
 
        break;
 
       case 'g':
        if(!strcmp(k,"goods"))
           if(!ISTRUE(v))
-             allow&=~Allow_Goods;
+             allow&=~Transports_Goods;
 
        break;
 
       case 'h':
        if(!strcmp(k,"horse"))
           if(!ISTRUE(v))
-             allow&=~Allow_Horse;
+             allow&=~Transports_Horse;
 
        if(!strcmp(k,"hgv"))
           if(!ISTRUE(v))
-             allow&=~Allow_HGV;
+             allow&=~Transports_HGV;
 
        break;
 
       case 'm':
        if(!strcmp(k,"moped"))
           if(!ISTRUE(v))
-             allow&=~Allow_Moped;
+             allow&=~Transports_Moped;
 
        if(!strcmp(k,"motorbike"))
           if(!ISTRUE(v))
-             allow&=~Allow_Motorbike;
+             allow&=~Transports_Motorbike;
 
        if(!strcmp(k,"motorcar"))
           if(!ISTRUE(v))
-             allow&=~Allow_Motorcar;
+             allow&=~Transports_Motorcar;
 
        break;
 
       case 'p':
        if(!strcmp(k,"psv"))
           if(!ISTRUE(v))
-             allow&=~Allow_PSV;
+             allow&=~Transports_PSV;
 
        break;
 
       case 'w':
        if(!strcmp(k,"wheelchair"))
           if(!ISTRUE(v))
-             allow&=~Allow_Wheelchair;
+             allow&=~Transports_Wheelchair;
 
        break;
 
@@ -667,7 +667,7 @@ static void process_way_tags(TagList *tags,way_t id)
       case 'b':
        if(!strcmp(k,"bicycle"))
           if(ISTRUE(v))
-             way.allow|= Allow_Bicycle;
+             way.allow|= Transports_Bicycle;
 
        if(!strcmp(k,"bicycleroute"))
           if(ISTRUE(v))
@@ -682,7 +682,7 @@ static void process_way_tags(TagList *tags,way_t id)
       case 'f':
        if(!strcmp(k,"foot"))
           if(ISTRUE(v))
-             way.allow|= Allow_Foot;
+             way.allow|= Transports_Foot;
 
        if(!strcmp(k,"footroute"))
           if(ISTRUE(v))
@@ -693,7 +693,7 @@ static void process_way_tags(TagList *tags,way_t id)
       case 'g':
        if(!strcmp(k,"goods"))
           if(ISTRUE(v))
-             way.allow|=Allow_Goods;
+             way.allow|=Transports_Goods;
 
        break;
 
@@ -703,11 +703,11 @@ static void process_way_tags(TagList *tags,way_t id)
 
        if(!strcmp(k,"horse"))
           if(ISTRUE(v))
-             way.allow|=Allow_Horse;
+             way.allow|=Transports_Horse;
 
        if(!strcmp(k,"hgv"))
           if(ISTRUE(v))
-             way.allow|=Allow_HGV;
+             way.allow|=Transports_HGV;
 
        break;
 
@@ -787,15 +787,15 @@ static void process_way_tags(TagList *tags,way_t id)
 
        if(!strcmp(k,"moped"))
           if(ISTRUE(v))
-             way.allow|=Allow_Moped;
+             way.allow|=Transports_Moped;
 
        if(!strcmp(k,"motorbike"))
           if(ISTRUE(v))
-             way.allow|=Allow_Motorbike;
+             way.allow|=Transports_Motorbike;
 
        if(!strcmp(k,"motorcar"))
           if(ISTRUE(v))
-             way.allow|=Allow_Motorcar;
+             way.allow|=Transports_Motorcar;
 
        if(!strcmp(k,"multilane"))
           if(ISTRUE(v))
@@ -827,7 +827,7 @@ static void process_way_tags(TagList *tags,way_t id)
 
        if(!strcmp(k,"psv"))
           if(ISTRUE(v))
-             way.allow|=Allow_PSV;
+             way.allow|=Transports_PSV;
 
        break;
 
@@ -847,7 +847,7 @@ static void process_way_tags(TagList *tags,way_t id)
       case 'w':
        if(!strcmp(k,"wheelchair"))
           if(ISTRUE(v))
-             way.allow|=Allow_Wheelchair;
+             way.allow|=Transports_Wheelchair;
 
        break;
 
@@ -923,7 +923,7 @@ static void process_way_tags(TagList *tags,way_t id)
 
 static void process_relation_tags(TagList *tags,relation_t id)
 {
- allow_t routes=Allow_None;
+ transports_t routes=Transports_None;
  int i;
 
  /* Parse the tags */
@@ -938,14 +938,14 @@ static void process_relation_tags(TagList *tags,relation_t id)
       case 'b':
        if(!strcmp(k,"bicycleroute"))
           if(ISTRUE(v))
-             routes|=Allow_Bicycle;
+             routes|=Transports_Bicycle;
 
        break;
 
       case 'f':
        if(!strcmp(k,"footroute"))
           if(ISTRUE(v))
-             routes|=Allow_Foot;
+             routes|=Transports_Foot;
 
        break;
 
