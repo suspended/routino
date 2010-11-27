@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.90 2010-11-13 14:22:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.91 2010-11-27 14:43:55 amb Exp $
 
  OSM router.
 
@@ -473,27 +473,12 @@ int main(int argc,char** argv)
 
     /* Calculate the beginning of the route */
 
-    if(!IsFakeNode(start) && IsSuperNode(OSMNodes,start))
+    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,start,profile);
+
+    if(!begin)
       {
-       Result *result;
-
-       begin=NewResultsList(1);
-
-       begin->start=start;
-
-       result=InsertResult(begin,start);
-
-       ZeroResult(result);
-      }
-    else
-      {
-       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,start,profile);
-
-       if(!begin)
-         {
-          fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
-          return(1);
-         }
+       fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
+       return(1);
       }
 
     if(FindResult(begin,finish))
@@ -514,27 +499,12 @@ int main(int argc,char** argv)
 
        /* Calculate the end of the route */
 
-       if(!IsFakeNode(finish) && IsSuperNode(OSMNodes,finish))
+       end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,finish,profile);
+
+       if(!end)
          {
-          Result *result;
-
-          end=NewResultsList(1);
-
-          end->finish=finish;
-
-          result=InsertResult(end,finish);
-
-          ZeroResult(result);
-         }
-       else
-         {
-          end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,finish,profile);
-
-          if(!end)
-            {
-             fprintf(stderr,"Error: Cannot find final section of route compatible with profile.\n");
-             return(1);
-            }
+          fprintf(stderr,"Error: Cannot find final section of route compatible with profile.\n");
+          return(1);
          }
 
        /* Calculate the middle of the route */

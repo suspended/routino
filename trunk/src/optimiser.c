@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.94 2010-11-13 14:22:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.95 2010-11-27 14:43:55 amb Exp $
 
  Routing optimiser.
 
@@ -541,7 +541,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
  Segment *segment;
  Way     *way;
 
- /* Insert the first node into the queue */
+ /* Create the results and insert the start node */
 
  results=NewResultsList(8);
 
@@ -550,6 +550,13 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
  result1=InsertResult(results,start);
 
  ZeroResult(result1);
+
+ /* Take a shortcut if the first node is a super-node. */
+
+ if(!IsFakeNode(start) && IsSuperNode(nodes,start))
+    return(results);
+
+ /* Insert the first node into the queue */
 
  queue=NewQueueList();
 
@@ -711,7 +718,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
  Segment *segment;
  Way     *way;
 
- /* Insert the first node into the queue */
+ /* Create the results and insert the finish node */
 
  results=NewResultsList(8);
 
@@ -720,6 +727,13 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
  result1=InsertResult(results,finish);
 
  ZeroResult(result1);
+
+ /* Take a shortcut if the first node is a super-node. */
+
+ if(!IsFakeNode(finish) && IsSuperNode(nodes,finish))
+    return(results);
+
+ /* Insert the first node into the queue */
 
  queue=NewQueueList();
 
