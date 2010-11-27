@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.69 2010-11-13 14:22:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.70 2010-11-27 14:56:37 amb Exp $
 
  Extended Segment data type functions.
 
@@ -42,7 +42,7 @@
 
 #include "files.h"
 #include "logging.h"
-#include "functions.h"
+#include "sorting.h"
 
 
 /* Variables */

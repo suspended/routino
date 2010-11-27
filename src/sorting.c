@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.11 2010-09-25 13:54:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.12 2010-11-27 14:56:37 amb Exp $
 
  Merge sort functions.
 
@@ -27,8 +27,10 @@
 #include <string.h>
 #include <assert.h>
 
+#include "types.h"
+
 #include "files.h"
-#include "functions.h"
+#include "sorting.h"
 
 
 /* Variables */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.11 2010-11-27 11:41:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.12 2010-11-27 14:56:37 amb Exp $
 
  Extended Relation data type functions.
 
@@ -33,7 +33,7 @@
 
 #include "files.h"
 #include "logging.h"
-#include "functions.h"
+#include "sorting.h"
 
 
 /* Variables */

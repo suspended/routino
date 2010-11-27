@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.55 2010-11-27 11:47:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.c,v 1.56 2010-11-27 14:56:37 amb Exp $
 
  Extended Way data type functions.
 
@@ -34,7 +34,7 @@
 
 #include "files.h"
 #include "logging.h"
-#include "functions.h"
+#include "sorting.h"
 
 
 /* Variables */

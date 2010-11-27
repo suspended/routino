@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.52 2010-11-27 11:47:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.53 2010-11-27 14:56:37 amb Exp $
 
  Type definitions
 
@@ -35,6 +35,10 @@
 
 
 /* Constants and macros for handling them */
+
+/*+ The number of waypoints allowed to be specified. +*/
+#define NWAYPOINTS 99
+
 
 /*+ An undefined node index. +*/
 #define NO_NODE        (~(index_t)0)

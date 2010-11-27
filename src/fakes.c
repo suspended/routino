@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/fakes.c,v 1.2 2010-08-04 16:44:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/fakes.c,v 1.3 2010-11-27 14:56:37 amb Exp $
 
  Fake node and segment generation.
 
@@ -26,7 +26,7 @@
 #include "nodes.h"
 #include "segments.h"
 
-#include "functions.h"
+#include "fakes.h"
 
 
 /*+ The minimum distance along a segment from a node to insert a fake node. (in km). +*/

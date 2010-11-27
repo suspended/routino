@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.40 2010-09-15 18:30:08 amb Exp $
+ $Header: /home/amb/CVS/routino/src/output.c,v 1.41 2010-11-27 14:56:37 amb Exp $
 
  Routing output generator.
 
@@ -39,6 +39,7 @@
 
 #include "files.h"
 #include "functions.h"
+#include "fakes.h"
 #include "translations.h"
 #include "results.h"
 #include "xmlparse.h"
