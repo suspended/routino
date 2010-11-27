@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.51 2010-11-27 11:41:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.52 2010-11-27 11:47:51 amb Exp $
 
  Type definitions
 
@@ -191,8 +191,7 @@ typedef enum _Highway
 
 #define HIGHWAY(xx) ((xx)&0x1f)
 
-
-/*+ A bitmask of combined highway types. +*/
+/*+ A bitmask of multiple highway types. +*/
 typedef uint16_t highways_t;
 
 #define HIGHWAYS(xx)  (1<<(HIGHWAY(xx)-1))
@@ -219,7 +218,10 @@ typedef enum _Highways
  Highways;
 
 
-/*+ The different methods of transport. +*/
+/*+ The type of a transport. +*/
+typedef uint8_t transport_t;
+
+/*+ The different types of transport. +*/
 typedef enum _Transport
  {
   Transport_None       =  0,
@@ -245,7 +247,7 @@ typedef uint16_t transports_t;
 
 #define TRANSPORTS(xx)  (1<<((xx)-1))
 
-/*+ The different allowed traffic on a way. +*/
+/*+ The different types of transport as a bitmask. +*/
 typedef enum _Transports
  {
   Transports_None       = 0,
@@ -266,7 +268,10 @@ typedef enum _Transports
  Transports;
 
 
-/*+ The individual properties of a highway. +*/
+/*+ The type of a property. +*/
+typedef uint8_t property_t;
+
+/*+ The different types of property. +*/
 typedef enum _Property
  {
   Property_None         = 0,
@@ -283,12 +288,12 @@ typedef enum _Property
  Property;
 
 
-/*+ The combined set of properties of a way. +*/
-typedef uint8_t wayprop_t;
+/*+ A bitmask of multiple properties. +*/
+typedef uint8_t properties_t;
 
 #define PROPERTIES(xx)  (1<<((xx)-1))
 
-/*+ The different properties of a way. +*/
+/*+ The different properties as a bitmask. +*/
 typedef enum _Properties
  {
   Properties_None         = 0,
@@ -379,7 +384,7 @@ const char *PropertyName(Property property);
 
 const char *HighwaysNameList(highways_t highways);
 const char *AllowedNameList(transports_t allowed);
-const char *PropertiesNameList(wayprop_t properties);
+const char *PropertiesNameList(properties_t properties);
 
 const char *HighwayList(void);
 const char *TransportList(void);
