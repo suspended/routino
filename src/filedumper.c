@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.55 2010-11-14 16:32:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.56 2010-11-27 11:41:24 amb Exp $
 
  Memory file dumper.
 
@@ -480,7 +480,7 @@ static void print_node_osm(Nodes* nodes,index_t item)
     printf("    <tag k='routino:super' v='yes' />\n");
 
     for(i=1;i<Transport_Count;i++)
-       if(!(node->allow & ALLOWED(i)))
+       if(!(node->allow & TRANSPORTS(i)))
           printf("    <tag k='%s' v='no' />\n",TransportName(i));
 
     printf("  </node>\n");
@@ -535,7 +535,7 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
     printf("    <tag k='name' v='%s' />\n",ParseXML_Encode_Safe_XML(WayName(ways,way)));
 
  for(i=1;i<Transport_Count;i++)
-    if(way->allow & ALLOWED(i))
+    if(way->allow & TRANSPORTS(i))
        printf("    <tag k='%s' v='yes' />\n",TransportName(i));
 
  for(i=1;i<Property_Count;i++)

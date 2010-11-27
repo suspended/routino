@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.10 2010-11-13 14:57:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.11 2010-11-27 11:41:25 amb Exp $
 
  Extended Relation data type functions.
 
@@ -119,7 +119,7 @@ void FreeRelationList(RelationsX *relationsx,int keep)
 
   relation_t id The ID of the relation.
 
-  allow_t routes The types of routes that this relation is for.
+  transports_t routes The types of routes that this relation is for.
 
   way_t *ways The array of ways that are members of the relation.
 
@@ -130,7 +130,7 @@ void FreeRelationList(RelationsX *relationsx,int keep)
   int nrelations The number of relations that are members of the relation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendRouteRelation(RelationsX* relationsx,relation_t id,allow_t routes,
+void AppendRouteRelation(RelationsX* relationsx,relation_t id,transports_t routes,
                          way_t *ways,int nways,
                          relation_t *relations,int nrelations)
 {
@@ -221,7 +221,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
        RouteRelX relationx;
        way_t wayid;
        relation_t relationid;
-       allow_t routes=Allow_None;
+       transports_t routes=Transports_None;
 
        /* Read each route relation */
 
@@ -268,10 +268,10 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
                {
                 WayX *wayx=LookupWayX(waysx,way,1);
 
-                if(routes&Allow_Foot)
+                if(routes&Transports_Foot)
                    wayx->way.props|=Properties_FootRoute;
 
-                if(routes&Allow_Bicycle)
+                if(routes&Transports_Bicycle)
                    wayx->way.props|=Properties_BicycleRoute;
 
 #if SLIM

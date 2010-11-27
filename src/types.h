@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.50 2010-11-27 11:27:44 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.51 2010-11-27 11:41:25 amb Exp $
 
  Type definitions
 
@@ -192,12 +192,12 @@ typedef enum _Highway
 #define HIGHWAY(xx) ((xx)&0x1f)
 
 
-/*+ The type of a bitmask of highway types. +*/
+/*+ A bitmask of combined highway types. +*/
 typedef uint16_t highways_t;
 
 #define HIGHWAYS(xx)  (1<<(HIGHWAY(xx)-1))
 
-/*+ The different types of a way. +*/
+/*+ The different types of a highway as a bitmask. +*/
 typedef enum _Highways
  {
   Highways_None         = 0,
@@ -240,30 +240,30 @@ typedef enum _Transport
  Transport;
 
 
-/*+ The allowed traffic on a way. +*/
-typedef uint16_t allow_t;
+/*+ A bitmask of multiple transport types. +*/
+typedef uint16_t transports_t;
 
-#define ALLOWED(xx)  (1<<((xx)-1))
+#define TRANSPORTS(xx)  (1<<((xx)-1))
 
 /*+ The different allowed traffic on a way. +*/
-typedef enum _Allowed
+typedef enum _Transports
  {
-  Allow_None       = 0,
+  Transports_None       = 0,
 
-  Allow_Foot       = ALLOWED(Transport_Foot      ),
-  Allow_Horse      = ALLOWED(Transport_Horse     ),
-  Allow_Wheelchair = ALLOWED(Transport_Wheelchair),
-  Allow_Bicycle    = ALLOWED(Transport_Bicycle   ),
-  Allow_Moped      = ALLOWED(Transport_Moped     ),
-  Allow_Motorbike  = ALLOWED(Transport_Motorbike ),
-  Allow_Motorcar   = ALLOWED(Transport_Motorcar  ),
-  Allow_Goods      = ALLOWED(Transport_Goods     ),
-  Allow_HGV        = ALLOWED(Transport_HGV       ),
-  Allow_PSV        = ALLOWED(Transport_PSV       ),
+  Transports_Foot       = TRANSPORTS(Transport_Foot      ),
+  Transports_Horse      = TRANSPORTS(Transport_Horse     ),
+  Transports_Wheelchair = TRANSPORTS(Transport_Wheelchair),
+  Transports_Bicycle    = TRANSPORTS(Transport_Bicycle   ),
+  Transports_Moped      = TRANSPORTS(Transport_Moped     ),
+  Transports_Motorbike  = TRANSPORTS(Transport_Motorbike ),
+  Transports_Motorcar   = TRANSPORTS(Transport_Motorcar  ),
+  Transports_Goods      = TRANSPORTS(Transport_Goods     ),
+  Transports_HGV        = TRANSPORTS(Transport_HGV       ),
+  Transports_PSV        = TRANSPORTS(Transport_PSV       ),
 
-  Allow_ALL        = 65535
+  Transports_ALL        = 65535
  }
- Allowed;
+ Transports;
 
 
 /*+ The individual properties of a highway. +*/
@@ -378,7 +378,7 @@ const char *TransportName(Transport transport);
 const char *PropertyName(Property property);
 
 const char *HighwaysNameList(highways_t highways);
-const char *AllowedNameList(allow_t allowed);
+const char *AllowedNameList(transports_t allowed);
 const char *PropertiesNameList(wayprop_t properties);
 
 const char *HighwayList(void);

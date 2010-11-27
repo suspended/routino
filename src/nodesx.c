@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.76 2010-11-13 14:22:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.77 2010-11-27 11:41:24 amb Exp $
 
  Extented Node data type functions.
 
@@ -156,10 +156,10 @@ void FreeNodeList(NodesX *nodesx,int keep)
 
   double longitude The longitude of the node.
 
-  allow_t allow The allowed traffic types through the node.
+  transports_t allow The allowed traffic types through the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,allow_t allow)
+void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transports_t allow)
 {
  NodeX nodex;
 

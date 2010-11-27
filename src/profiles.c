@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.c,v 1.47 2010-10-18 17:40:34 amb Exp $
+ $Header: /home/amb/CVS/routino/src/profiles.c,v 1.48 2010-11-27 11:41:25 amb Exp $
 
  Load the profiles from a file and the functions for handling them.
 
@@ -654,7 +654,7 @@ int UpdateProfile(Profile *profile,Ways *ways)
 
  /* Fix up the allowed transport types. */
 
- profile->allow=ALLOWED(profile->transport);
+ profile->allow=TRANSPORTS(profile->transport);
 
  if(!(profile->allow & ways->file.allow))
     return(1);
