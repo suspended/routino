@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.43 2010-11-14 16:32:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.44 2010-11-27 11:27:44 amb Exp $
 
  A header file for the ways.
 
@@ -43,7 +43,7 @@ struct _Way
 
  allow_t    allow;              /*+ The type of traffic allowed on the way. +*/
 
- waytype_t  type;               /*+ The highway type of the way. +*/
+ highway_t  type;               /*+ The highway type of the way. +*/
 
  wayprop_t  props;              /*+ The properties of the way. +*/
 
