@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.c,v 1.8 2010-11-27 11:41:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.c,v 1.9 2010-11-27 11:47:51 amb Exp $
 
  Functions for handling the data types.
 
@@ -496,10 +496,10 @@ const char *AllowedNameList(transports_t allowed)
 
   const char *PropertiesNameList Returns the list of names.
 
-  wayprop_t properties The properties of the way.
+  properties_t properties The properties of the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-const char *PropertiesNameList(wayprop_t properties)
+const char *PropertiesNameList(properties_t properties)
 {
  static char string[256];
 
