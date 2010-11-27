@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.77 2010-11-27 11:41:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.78 2010-11-27 14:56:37 amb Exp $
 
  Extented Node data type functions.
 
@@ -40,7 +40,7 @@
 
 #include "files.h"
 #include "logging.h"
-#include "functions.h"
+#include "sorting.h"
 
 
 /* Variables */
