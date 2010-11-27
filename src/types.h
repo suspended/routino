@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.49 2010-11-14 16:32:19 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.50 2010-11-27 11:27:44 amb Exp $
 
  Type definitions
 
@@ -162,10 +162,10 @@ typedef float score_t;
 #define distance_speed_to_duration(xx,yy) ((duration_t)(((double)(xx)/(double)(yy))*(36000.0/1000.0)))
 
 
-/*+ The type of a way. +*/
-typedef uint8_t waytype_t;
+/*+ The type of a highway. +*/
+typedef uint8_t highway_t;
 
-/*+ The different types of a way. +*/
+/*+ The different types of a highway. +*/
 typedef enum _Highway
  {
   Way_Motorway    = 1,
@@ -192,7 +192,7 @@ typedef enum _Highway
 #define HIGHWAY(xx) ((xx)&0x1f)
 
 
-/*+ The type of a way. +*/
+/*+ The type of a bitmask of highway types. +*/
 typedef uint16_t highways_t;
 
 #define HIGHWAYS(xx)  (1<<(HIGHWAY(xx)-1))
