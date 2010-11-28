@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.56 2010-11-27 11:41:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.57 2010-11-28 15:12:41 amb Exp $
 
  Memory file dumper.
 
@@ -429,7 +429,7 @@ static void print_way(Ways *ways,index_t item)
  printf("Way %d\n",item);
  if(*WayName(ways,way))
     printf("  name=%s\n",WayName(ways,way));
- printf("  type=%02x (%s%s%s)\n",way->type,HighwayName(HIGHWAY(way->type)),way->type&Way_OneWay?",One-Way":"",way->type&Way_Roundabout?",Roundabout":"");
+ printf("  type=%02x (%s%s)\n",way->type,HighwayName(HIGHWAY(way->type)),way->type&Way_OneWay?",One-Way":"");
  printf("  allow=%02x (%s)\n",way->allow,AllowedNameList(way->allow));
  if(way->props)
     printf("  props=%02x (%s)\n",way->props,PropertiesNameList(way->props));
@@ -526,8 +526,6 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 
  if(way->type & Way_OneWay)
     printf("    <tag k='oneway' v='yes' />\n");
- if(way->type & Way_Roundabout)
-    printf("    <tag k='junction' v='roundabout' />\n");
 
  printf("    <tag k='highway' v='%s' />\n",HighwayName(HIGHWAY(way->type)));
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.74 2010-11-27 11:41:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.75 2010-11-28 15:12:41 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -650,7 +650,7 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
 static void process_way_tags(TagList *tags,way_t id)
 {
  Way   way={0};
- int   oneway=0,roundabout=0;
+ int   oneway=0;
  char *name=NULL,*ref=NULL;
 
  int i;
@@ -708,12 +708,6 @@ static void process_way_tags(TagList *tags,way_t id)
        if(!strcmp(k,"hgv"))
           if(ISTRUE(v))
              way.allow|=Transports_HGV;
-
-       break;
-
-      case 'j':
-       if(!strcmp(k,"junction") && !strcmp(v,"roundabout"))
-          roundabout=1;
 
        break;
 
@@ -866,9 +860,6 @@ static void process_way_tags(TagList *tags,way_t id)
 
        if(oneway)
           way.type|=Way_OneWay;
-
-       if(roundabout)
-          way.type|=Way_Roundabout;
 
        if(ref && name)
          {
