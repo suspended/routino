@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.78 2010-11-27 14:56:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.79 2010-11-28 15:42:48 amb Exp $
 
  Extented Node data type functions.
 
@@ -157,9 +157,11 @@ void FreeNodeList(NodesX *nodesx,int keep)
   double longitude The longitude of the node.
 
   transports_t allow The allowed traffic types through the node.
+
+  int uturn Set to true if this is suitable for a U-turn.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transports_t allow)
+void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transports_t allow,int uturn)
 {
  NodeX nodex;
 
@@ -167,6 +169,10 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transp
  nodex.latitude =radians_to_latlong(latitude);
  nodex.longitude=radians_to_latlong(longitude);
  nodex.allow=allow;
+ nodex.flags=0;
+
+ if(uturn)
+    nodex.flags|=NODE_UTURN;
 
  WriteFile(nodesx->fd,&nodex,sizeof(NodeX));
 
@@ -599,7 +605,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
     node->lonoffset=latlong_to_off(nodex->longitude);
     node->firstseg=NO_SEGMENT;
     node->allow=nodex->allow;
-    node->flags=0;
+    node->flags=nodex->flags;
 
     if(nodesx->super[nodex->id]==iteration)
        node->flags|=NODE_SUPER;

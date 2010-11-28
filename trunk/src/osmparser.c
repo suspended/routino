@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.75 2010-11-28 15:12:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.76 2010-11-28 15:42:48 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -555,7 +555,7 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 static void process_node_tags(TagList *tags,node_t id,double latitude,double longitude)
 {
  transports_t allow=Transports_ALL;
-
+ int mini_roundabout=0;
  int i;
 
  /* Parse the tags */
@@ -589,6 +589,10 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
        break;
 
       case 'h':
+       if(!strcmp(k,"highway"))
+          if(!strcmp(v,"mini_roundabout"))
+             mini_roundabout=1;
+
        if(!strcmp(k,"horse"))
           if(!ISTRUE(v))
              allow&=~Transports_Horse;
@@ -635,7 +639,7 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
 
  /* Create the node */
 
- AppendNode(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow);
+ AppendNode(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow,mini_roundabout);
 }
 
 
@@ -652,7 +656,6 @@ static void process_way_tags(TagList *tags,way_t id)
  Way   way={0};
  int   oneway=0;
  char *name=NULL,*ref=NULL;
-
  int i;
 
  /* Parse the tags */
