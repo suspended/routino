@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.c,v 1.9 2010-11-27 11:47:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.c,v 1.10 2010-11-28 15:12:41 amb Exp $
 
  Functions for handling the data types.
 
@@ -236,7 +236,6 @@ const char *HighwayName(Highway highway)
     ;
 
    case Way_OneWay:
-   case Way_Roundabout:
     ;
    }
 

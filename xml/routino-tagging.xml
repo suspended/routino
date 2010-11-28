@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.6 2010-11-14 17:00:45 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.7 2010-11-28 15:12:52 amb Exp $
 
      An XML format file containing Routino tagging rules
 
@@ -377,11 +377,6 @@
       <output k="highway"/>
 
       <output k="foot"       v="yes"/>
-    </if>
-
-    <if k="junction" v="roundabout">
-      <output k="junction" v="roundabout"/>
-      <output k="oneway"   v="yes"/>
     </if>
 
     <if k="route" v="ferry">
