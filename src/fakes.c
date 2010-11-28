@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/fakes.c,v 1.3 2010-11-27 14:56:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/fakes.c,v 1.4 2010-11-28 14:29:26 amb Exp $
 
  Fake node and segment generation.
 
@@ -34,10 +34,13 @@
 
 
 /*+ A set of fake segments to allow start/finish in the middle of a segment. +*/
-static Segment fake_segments[2*NWAYPOINTS];
+static Segment fake_segments[4*NWAYPOINTS+1];
 
 /*+ A set of fake node latitudes and longitudes. +*/
 static double fake_lon[NWAYPOINTS+1],fake_lat[NWAYPOINTS+1];
+
+/*+ The previous waypoint. +*/
+static int prevpoint=0;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -65,16 +68,38 @@ index_t CreateFakes(Nodes *nodes,int point,Segment *segment,index_t node1,index_
  index_t fakenode;
  double lat1,lon1,lat2,lon2;
 
+ /* Initialise the segments to fake values */
+
+ fake_segments[4*point-4].node1=NO_NODE;
+ fake_segments[4*point-4].node2=NO_NODE;
+
+ fake_segments[4*point-3].node1=NO_NODE;
+ fake_segments[4*point-3].node2=NO_NODE;
+
+ fake_segments[4*point-2].node1=NO_NODE;
+ fake_segments[4*point-2].node2=NO_NODE;
+
+ fake_segments[4*point-1].node1=NO_NODE;
+ fake_segments[4*point-1].node2=NO_NODE;
+
  /* Check if we are actually close enough to an existing node */
 
  if(dist1<km_to_distance(MINSEGMENT) && dist2>km_to_distance(MINSEGMENT))
+   {
+    prevpoint=point;
     return(node1);
+   }
 
  if(dist2<km_to_distance(MINSEGMENT) && dist1>km_to_distance(MINSEGMENT))
+   {
+    prevpoint=point;
     return(node2);
+   }
 
  if(dist1<km_to_distance(MINSEGMENT) && dist2<km_to_distance(MINSEGMENT))
    {
+    prevpoint=point;
+
     if(dist1<dist2)
        return(node1);
     else
@@ -100,25 +125,47 @@ index_t CreateFakes(Nodes *nodes,int point,Segment *segment,index_t node1,index_
 
  /* Create the first fake segment */
 
- fake_segments[2*point-2]=*segment;
+ fake_segments[4*point-4]=*segment;
 
- if(segment->node1==node1)
-    fake_segments[2*point-2].node1=fakenode;
- else
-    fake_segments[2*point-2].node2=fakenode;
+ fake_segments[4*point-4].node2=fakenode;
 
- fake_segments[2*point-2].distance=DISTANCE(dist1)|DISTFLAG(segment->distance);
+ fake_segments[4*point-4].distance=DISTANCE(dist1)|DISTFLAG(segment->distance);
 
  /* Create the second fake segment */
 
- fake_segments[2*point-1]=*segment;
+ fake_segments[4*point-3]=*segment;
 
- if(segment->node1==node2)
-    fake_segments[2*point-1].node1=fakenode;
- else
-    fake_segments[2*point-1].node2=fakenode;
+ fake_segments[4*point-3].node1=fakenode;
 
- fake_segments[2*point-1].distance=DISTANCE(dist2)|DISTFLAG(segment->distance);
+ fake_segments[4*point-3].distance=DISTANCE(dist2)|DISTFLAG(segment->distance);
+
+ /* Create a third fake segment to join adjacent points if both are fake and on the same real segment */
+
+ if(prevpoint>0 && fake_segments[4*prevpoint-4].node1==node1 && fake_segments[4*prevpoint-3].node2==node2)
+   {
+    if(DISTANCE(dist1)>DISTANCE(fake_segments[4*prevpoint-4].distance)) /* closer to node2 */
+      {
+       fake_segments[4*point-2]=fake_segments[4*point-4];
+
+       fake_segments[4*point-2].node1=fakenode;
+
+       fake_segments[4*point-2].distance=(DISTANCE(dist1)-DISTANCE(fake_segments[4*prevpoint-4].distance))|DISTFLAG(segment->distance);
+      }
+    else
+      {
+       fake_segments[4*point-2]=fake_segments[4*point-2];
+
+       fake_segments[4*point-2].node2=fakenode;
+
+       fake_segments[4*point-2].distance=(DISTANCE(fake_segments[4*prevpoint-4].distance)-DISTANCE(dist1))|DISTFLAG(segment->distance);
+      }
+
+    fake_segments[4*prevpoint-1]=fake_segments[4*point-2];
+   }
+
+ /* Return the fake node */
+
+ prevpoint=point;
 
  return(fakenode);
 }
@@ -155,7 +202,7 @@ Segment *FirstFakeSegment(index_t fakenode)
 {
  index_t realnode=fakenode-NODE_FAKE;
 
- return(&fake_segments[2*realnode-2]);
+ return(&fake_segments[4*realnode-4]);
 }
 
 
@@ -173,10 +220,19 @@ Segment *NextFakeSegment(Segment *segment,index_t fakenode)
 {
  index_t realnode=fakenode-NODE_FAKE;
 
- if(segment==&fake_segments[2*realnode-2])
-    return(&fake_segments[2*realnode-1]);
- else
-    return(NULL);
+ if(segment==&fake_segments[4*realnode-4])
+    return(&fake_segments[4*realnode-3]);
+
+ if(segment==&fake_segments[4*realnode-3] && fake_segments[4*realnode-2].node1!=NO_NODE)
+    return(&fake_segments[4*realnode-2]);
+
+ if(segment==&fake_segments[4*realnode-3] && fake_segments[4*realnode-1].node1!=NO_NODE)
+    return(&fake_segments[4*realnode-1]);
+
+ if(segment==&fake_segments[4*realnode-2] && fake_segments[4*realnode-1].node1!=NO_NODE)
+    return(&fake_segments[4*realnode-1]);
+
+ return(NULL);
 }
 
 
@@ -194,11 +250,17 @@ Segment *ExtraFakeSegment(index_t node,index_t fakenode)
 {
  index_t realnode=fakenode-NODE_FAKE;
 
- if(fake_segments[2*realnode-2].node1==node || fake_segments[2*realnode-2].node2==node)
-    return(&fake_segments[2*realnode-2]);
+ if(fake_segments[4*realnode-4].node1==node || fake_segments[4*realnode-4].node2==node)
+    return(&fake_segments[4*realnode-4]);
 
- if(fake_segments[2*realnode-1].node1==node || fake_segments[2*realnode-1].node2==node)
-    return(&fake_segments[2*realnode-1]);
+ if(fake_segments[4*realnode-3].node1==node || fake_segments[4*realnode-3].node2==node)
+    return(&fake_segments[4*realnode-3]);
+
+ if(fake_segments[4*realnode-2].node1==node || fake_segments[4*realnode-2].node2==node)
+    return(&fake_segments[4*realnode-2]);
+
+ if(fake_segments[4*realnode-1].node1==node || fake_segments[4*realnode-1].node2==node)
+    return(&fake_segments[4*realnode-1]);
 
  return(NULL);
 }
