@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.54 2010-11-28 15:12:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.55 2010-11-28 15:42:48 amb Exp $
 
  Type definitions
 
@@ -65,6 +65,9 @@
 
 /*+ A flag to mark a node as a super-node. +*/
 #define NODE_SUPER     ((uint16_t)0x8000)
+
+/*+ A flag to mark a node as suitable for a U-turn. +*/
+#define NODE_UTURN     ((uint16_t)0x4000)
 
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/

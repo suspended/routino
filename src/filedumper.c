@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.57 2010-11-28 15:12:41 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.58 2010-11-28 15:42:48 amb Exp $
 
  Memory file dumper.
 
@@ -469,15 +469,21 @@ static void print_node_osm(Nodes* nodes,index_t item)
 {
  Node *node=LookupNode(nodes,item,1);
  double latitude,longitude;
+ int i;
 
  GetLatLong(nodes,item,&latitude,&longitude);
 
- if(IsSuperNode(nodes,item))
+ if(node->allow==Transports_ALL && node->flags==0)
+    printf("  <node id='%lu' lat='%.7f' lon='%.7f' version='1' />\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+ else
    {
-    int i;
-
     printf("  <node id='%lu' lat='%.7f' lon='%.7f' version='1'>\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
-    printf("    <tag k='routino:super' v='yes' />\n");
+
+    if(node->flags & NODE_SUPER)
+       printf("    <tag k='routino:super' v='yes' />\n");
+
+    if(node->flags & NODE_UTURN)
+       printf("    <tag k='highway' v='mini_roundabout' />\n");
 
     for(i=1;i<Transport_Count;i++)
        if(!(node->allow & TRANSPORTS(i)))
@@ -485,8 +491,6 @@ static void print_node_osm(Nodes* nodes,index_t item)
 
     printf("  </node>\n");
    }
- else
-    printf("  <node id='%lu' lat='%.7f' lon='%.7f' version='1' />\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
 }
 
 
