@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.58 2010-11-28 15:42:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.59 2010-12-04 14:54:53 amb Exp $
 
  Memory file dumper.
 
@@ -482,7 +482,7 @@ static void print_node_osm(Nodes* nodes,index_t item)
     if(node->flags & NODE_SUPER)
        printf("    <tag k='routino:super' v='yes' />\n");
 
-    if(node->flags & NODE_UTURN)
+    if(node->flags & NODE_MINIRNDBT)
        printf("    <tag k='highway' v='mini_roundabout' />\n");
 
     for(i=1;i<Transport_Count;i++)

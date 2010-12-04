@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.76 2010-11-28 15:42:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.77 2010-12-04 14:54:53 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -555,7 +555,7 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 static void process_node_tags(TagList *tags,node_t id,double latitude,double longitude)
 {
  transports_t allow=Transports_ALL;
- int mini_roundabout=0;
+ uint16_t flags=0;
  int i;
 
  /* Parse the tags */
@@ -591,7 +591,7 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
       case 'h':
        if(!strcmp(k,"highway"))
           if(!strcmp(v,"mini_roundabout"))
-             mini_roundabout=1;
+             flags|=NODE_MINIRNDBT;
 
        if(!strcmp(k,"horse"))
           if(!ISTRUE(v))
@@ -639,7 +639,7 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
 
  /* Create the node */
 
- AppendNode(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow,mini_roundabout);
+ AppendNode(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow,flags);
 }
 
 

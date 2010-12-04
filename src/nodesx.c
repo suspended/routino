@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.79 2010-11-28 15:42:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.80 2010-12-04 14:54:53 amb Exp $
 
  Extented Node data type functions.
 
@@ -158,10 +158,10 @@ void FreeNodeList(NodesX *nodesx,int keep)
 
   transports_t allow The allowed traffic types through the node.
 
-  int uturn Set to true if this is suitable for a U-turn.
+  uint16_t flags The flags to set for this node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transports_t allow,int uturn)
+void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags)
 {
  NodeX nodex;
 
@@ -169,10 +169,7 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transp
  nodex.latitude =radians_to_latlong(latitude);
  nodex.longitude=radians_to_latlong(longitude);
  nodex.allow=allow;
- nodex.flags=0;
-
- if(uturn)
-    nodex.flags|=NODE_UTURN;
+ nodex.flags=flags;
 
  WriteFile(nodesx->fd,&nodex,sizeof(NodeX));
 
