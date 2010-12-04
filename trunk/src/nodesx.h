@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.32 2010-11-28 15:42:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.33 2010-12-04 14:54:53 amb Exp $
 
  A header file for the extended nodes.
 
@@ -109,7 +109,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename);
 
 index_t IndexNodeX(NodesX* nodesx,node_t id);
 
-void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transports_t allow,int uturn);
+void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags);
 
 void SortNodeList(NodesX *nodesx);
 
