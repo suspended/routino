@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.33 2010-12-04 14:54:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.34 2010-12-05 14:43:37 amb Exp $
 
  A header file for the extended nodes.
 
@@ -41,7 +41,7 @@
 /*+ An extended structure used for processing. +*/
 struct _NodeX
 {
- node_t       id;               /*+ The node identifier. +*/
+ node_t       id;               /*+ The node identifier; initially the OSM value, later the Node index. +*/
 
  latlong_t    latitude;         /*+ The node latitude. +*/
  latlong_t    longitude;        /*+ The node longitude. +*/

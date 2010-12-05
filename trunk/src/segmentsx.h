@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.26 2010-07-31 14:36:15 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.27 2010-12-05 14:43:37 amb Exp $
 
  A header file for the extended segments.
 
@@ -41,10 +41,10 @@
 /*+ An extended structure used for processing. +*/
 struct _SegmentX
 {
- node_t     node1;              /*+ The id of the starting node. +*/
- node_t     node2;              /*+ The id of the finishing node. +*/
+ node_t     node1;              /*+ The id of the starting node; initially the OSM value, later the NodeX index. +*/
+ node_t     node2;              /*+ The id of the finishing node; initially the OSM value, later the NodeX index. +*/
 
- way_t      way;                /*+ The id of the way. +*/
+ way_t      way;                /*+ The id of the way; initially the OSM value, later the WayX index. +*/
 
  distance_t distance;           /*+ The distance between the nodes. +*/
 };
