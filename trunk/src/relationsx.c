@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.12 2010-11-27 14:56:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.13 2010-12-05 16:19:24 amb Exp $
 
  Extended Relation data type functions.
 
@@ -36,10 +36,18 @@
 #include "sorting.h"
 
 
+/* Functions */
+
+static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b);
+static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index);
+
+
 /* Variables */
 
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
+
+static RelationsX* sortrelationsx;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -57,6 +65,8 @@ RelationsX *NewRelationList(int append)
  relationsx=(RelationsX*)calloc(1,sizeof(RelationsX));
 
  assert(relationsx); /* Check calloc() worked */
+
+ /* Route relations */
 
  relationsx->rfilename=(char*)malloc(strlen(option_tmpdirname)+32);
 
@@ -89,6 +99,28 @@ RelationsX *NewRelationList(int append)
  else
     relationsx->rfd=OpenFileNew(relationsx->rfilename);
 
+ /* Turn Restriction relations */
+
+ relationsx->trfilename=(char*)malloc(strlen(option_tmpdirname)+32);
+
+ if(append)
+    sprintf(relationsx->trfilename,"%s/relationsx.turn.input.tmp",option_tmpdirname);
+ else
+    sprintf(relationsx->trfilename,"%s/relationsx.turn.%p.tmp",option_tmpdirname,relationsx);
+
+ if(append)
+   {
+    off_t size;
+
+    relationsx->trfd=OpenFileAppend(relationsx->trfilename);
+
+    size=SizeFile(relationsx->trfilename);
+
+    relationsx->trxnumber=size/sizeof(TurnRestrictRelX);
+   }
+ else
+    relationsx->trfd=OpenFileNew(relationsx->trfilename);
+
  return(relationsx);
 }
 
@@ -103,10 +135,19 @@ RelationsX *NewRelationList(int append)
 
 void FreeRelationList(RelationsX *relationsx,int keep)
 {
+ /* Route relations */
+
  if(!keep)
     DeleteFile(relationsx->rfilename);
 
  free(relationsx->rfilename);
+
+ /* Turn Restriction relations */
+
+ if(!keep)
+    DeleteFile(relationsx->trfilename);
+
+ free(relationsx->trfilename);
 
  free(relationsx);
 }
@@ -130,7 +171,8 @@ void FreeRelationList(RelationsX *relationsx,int keep)
   int nrelations The number of relations that are members of the relation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendRouteRelation(RelationsX* relationsx,relation_t id,transports_t routes,
+void AppendRouteRelation(RelationsX* relationsx,relation_t id,
+                         transports_t routes,
                          way_t *ways,int nways,
                          relation_t *relations,int nrelations)
 {
@@ -160,6 +202,45 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,transports_t route
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Append a single relation to an unsorted turn restriction relation list.
+
+  RelationsX* relationsx The set of relations to process.
+
+  relation_t id The ID of the relation.
+
+  way_t from The way that the turn restriction starts from.
+
+  way_t to The way that the restriction finished on.
+
+  node_t via The node that the turn restriction passes through.
+
+  TurnRestriction restriction The type of restriction.
+
+  transports_t except The set of transports allowed to bypass the restriction.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
+                                way_t from,way_t to,node_t via,
+                                TurnRestriction restriction,transports_t except)
+{
+ TurnRestrictRelX relationx;
+
+ relationx.id=id;
+ relationx.from=from;
+ relationx.to=to;
+ relationx.via=via;
+ relationx.restrict=restriction;
+ relationx.except=except;
+
+ WriteFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
+
+ relationsx->trxnumber++;
+
+ assert(!(relationsx->trxnumber==0)); /* Zero marks the high-water mark for relations. */
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Sort the list of relations.
 
   RelationsX* relationsx The set of relations to process.
@@ -168,6 +249,99 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,transports_t route
 void SortRelationList(RelationsX* relationsx)
 {
  /* Don't need to sort route relations */
+
+ /* Sort the turn restriction relations by node. */
+
+ int trfd;
+
+ /* Print the start message */
+
+ printf_first("Sorting Turn Restriction Relations");
+
+ /* Close the file and re-open it (finished appending) */
+
+ CloseFile(relationsx->trfd);
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
+
+ DeleteFile(relationsx->trfilename);
+
+ trfd=OpenFileNew(relationsx->trfilename);
+
+ /* Sort the relations */
+
+ sortrelationsx=relationsx;
+
+ filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_via,(int (*)(void*,index_t))deduplicate_by_id);
+
+ /* Close the files */
+
+ CloseFile(relationsx->trfd);
+ CloseFile(trfd);
+
+ /* Print the final message */
+
+ printf_last("Sorted Relations: Relations=%d Duplicates=%d",relationsx->trxnumber,relationsx->trxnumber-relationsx->trnumber);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the turn restriction relations into via node order.
+
+  int sort_by_via Returns the comparison of the via fields.
+
+  TurnRestrictRelX *a The first extended relation.
+
+  TurnRestrictRelX *b The second extended relation.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
+{
+ node_t a_id=a->via;
+ node_t b_id=b->via;
+
+ if(a_id<b_id)
+    return(-1);
+ else if(a_id>b_id)
+    return(1);
+ else
+   {
+    relation_t a_id=a->id;
+    relation_t b_id=b->id;
+
+    if(a_id<b_id)
+       return(-1);
+    else if(a_id>b_id)
+       return(1);
+    else
+       return(0);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Deduplicate the extended relations using the id after sorting.
+
+  int deduplicate_by_id Return 1 if the value is to be kept, otherwise zero.
+
+  TurnRestrictRelX *relationx The extended relation.
+
+  index_t index The index of this relation in the total.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index)
+{
+ static relation_t previd;
+
+ if(index==0 || relationx->id!=previd)
+   {
+    previd=relationx->id;
+
+    sortrelationsx->trnumber++;
+
+    return(1);
+   }
+
+ return(0);
 }
 
 
