@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.77 2010-12-04 14:54:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.78 2010-12-05 16:19:24 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -60,6 +60,9 @@ static way_t      *relation_ways=NULL;
 static int         relation_nways=0;
 static relation_t *relation_relations=NULL;
 static int         relation_nrelations=0;
+static way_t       relation_from=NO_WAY;
+static way_t       relation_to=NO_WAY;
+static node_t      relation_via=NO_NODE;
 
 static NodesX     *nodes;
 static SegmentsX  *segments;
@@ -340,6 +343,12 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
           relation_nodes=(node_t*)realloc((void*)relation_nodes,(relation_nnodes+256)*sizeof(node_t));
 
        relation_nodes[relation_nnodes++]=node_id;
+
+       if(role)
+         {
+          if(!strcmp(role,"via"))
+             relation_via=node_id;
+         }
       }
     else if(!strcmp(type,"way"))
       {
@@ -349,6 +358,14 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
           relation_ways=(way_t*)realloc((void*)relation_ways,(relation_nways+256)*sizeof(way_t));
 
        relation_ways[relation_nways++]=way_id;
+
+       if(role)
+         {
+          if(!strcmp(role,"from"))
+             relation_from=way_id;
+          if(!strcmp(role,"to"))
+             relation_to=way_id;
+         }
       }
     else if(!strcmp(type,"relation"))
       {
@@ -437,6 +454,10 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
     current_tags=NewTagList();
 
     relation_nnodes=relation_nways=relation_nrelations=0;
+
+    relation_from=NO_WAY;
+    relation_to=NO_WAY;
+    relation_via=NO_NODE;
 
     /* Handle the relation information */
 
@@ -918,6 +939,9 @@ static void process_way_tags(TagList *tags,way_t id)
 static void process_relation_tags(TagList *tags,relation_t id)
 {
  transports_t routes=Transports_None;
+ transports_t except=Transports_None;
+ int relation_turn_restriction=0;
+ TurnRestriction restriction=Restrict_None;
  int i;
 
  /* Parse the tags */
@@ -936,11 +960,39 @@ static void process_relation_tags(TagList *tags,relation_t id)
 
        break;
 
+      case 'e':
+       if(!strcmp(k,"except"))
+          for(i=1;i<Transport_Count;i++)
+             if(!strstr(v,TransportName(i)))
+                except|=TRANSPORTS(i);
+
+       break;
+
       case 'f':
        if(!strcmp(k,"footroute"))
           if(ISTRUE(v))
              routes|=Transports_Foot;
 
+       break;
+
+      case 'r':
+       if(!strcmp(k,"restriction"))
+         {
+          if(!strcmp(v,"no_right_turn"   )) restriction=Restrict_no_right_turn;
+          if(!strcmp(v,"no_left_turn"    )) restriction=Restrict_no_left_turn;
+          if(!strcmp(v,"no_u_turn"       )) restriction=Restrict_no_u_turn;
+          if(!strcmp(v,"no_straight_on"  )) restriction=Restrict_no_straight_on;
+          if(!strcmp(v,"only_right_turn" )) restriction=Restrict_only_right_turn;
+          if(!strcmp(v,"only_left_turn"  )) restriction=Restrict_only_left_turn;
+          if(!strcmp(v,"only_straight_on")) restriction=Restrict_only_straight_on;
+         }
+
+       break;
+
+      case 't':
+       if(!strcmp(k,"type"))
+          if(!strcmp(v,"restriction"))
+             relation_turn_restriction=1;
        break;
 
       default:
@@ -952,8 +1004,16 @@ static void process_relation_tags(TagList *tags,relation_t id)
     relations even if they are not routes because they might be referenced by
     other relations that are routes) */
 
- if(relation_nways || relation_nrelations)
+ if((relation_nways || relation_nrelations) && !relation_turn_restriction)
     AppendRouteRelation(relations,id,routes,
                         relation_ways,relation_nways,
                         relation_relations,relation_nrelations);
+
+ /* Create the turn restriction relation. */
+
+ if(relation_turn_restriction && restriction!=Restrict_None &&
+    relation_from!=NO_WAY && relation_to!=NO_WAY && relation_via!=NO_NODE)
+    AppendTurnRestrictRelation(relations,id,
+                               relation_from,relation_to,relation_via,
+                               restriction,except);
 }

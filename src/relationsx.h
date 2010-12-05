@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.h,v 1.3 2010-11-27 11:41:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.h,v 1.4 2010-12-05 16:19:24 amb Exp $
 
  A header file for the extended Relations structure.
 
@@ -44,6 +44,20 @@ struct _RouteRelX
 };
 
 
+/*+ An extended structure containing a single turn restriction relation. +*/
+struct _TurnRestrictRelX
+{
+ relation_t      id;           /*+ The relation identifier. +*/
+
+ way_t           from;         /*+ The id of the starting way; initially the OSM value, later the WayX index. +*/
+ way_t           to;           /*+ The id of the ending way; initially the OSM value, later the WayX index. +*/
+ node_t          via;          /*+ The id of the via node; initially the OSM value, later the NodeX index. +*/
+
+ TurnRestriction restrict;     /*+ The type of restriction. +*/
+ transports_t    except;       /*+ The types of transports that that this relation does not apply to. +*/
+};
+
+
 /*+ A structure containing a set of relations. +*/
 struct _RelationsX
 {
@@ -53,6 +67,14 @@ struct _RelationsX
  int        rfd;               /*+ The file descriptor of the temporary file (for the RouteRelX). +*/
 
  index_t    rxnumber;          /*+ The number of unsorted extended route relations. +*/
+
+ /* Turn restriction relations */
+
+ char      *trfilename;        /*+ The name of the temporary file (for the TurnRestrictRelX). +*/
+ int        trfd;              /*+ The file descriptor of the temporary file (for the TurnRestrictRelX). +*/
+
+ index_t    trxnumber;         /*+ The number of unsorted extended turn restriction relations. +*/
+ index_t    trnumber;          /*+ The number of sorted extended turn restriction relations. +*/
 };
 
 
@@ -62,9 +84,14 @@ struct _RelationsX
 RelationsX *NewRelationList(int append);
 void FreeRelationList(RelationsX *relationsx,int keep);
 
-void AppendRouteRelation(RelationsX* relationsx,relation_t id,transports_t routes,
+void AppendRouteRelation(RelationsX* relationsx,relation_t id,
+                         transports_t routes,
                          way_t *ways,int nways,
                          relation_t *relations,int nrelations);
+
+void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
+                                way_t from,way_t to,node_t via,
+                                TurnRestriction restriction,transports_t except);
 
 void SortRelationList(RelationsX *relationsx);
 
