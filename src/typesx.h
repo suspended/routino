@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/typesx.h,v 1.5 2010-12-05 16:19:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/typesx.h,v 1.6 2010-12-12 16:35:55 amb Exp $
 
  Type definitions for eXtended types.
 
@@ -46,15 +46,14 @@ typedef uint32_t relation_t;
 /*+ Turn restrictions. +*/
 typedef enum _TurnRestriction
  {
-  Restrict_None              =0,
-
-  Restrict_no_right_turn,
-  Restrict_no_left_turn,
-  Restrict_no_u_turn,
-  Restrict_no_straight_on,
-  Restrict_only_right_turn,
-  Restrict_only_left_turn,
-  Restrict_only_straight_on
+  TurnRestrict_None              =0,
+  TurnRestrict_no_right_turn,
+  TurnRestrict_no_left_turn,
+  TurnRestrict_no_u_turn,
+  TurnRestrict_no_straight_on,
+  TurnRestrict_only_right_turn,
+  TurnRestrict_only_left_turn,
+  TurnRestrict_only_straight_on
  }
  TurnRestriction;
 
