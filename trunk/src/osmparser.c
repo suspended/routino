@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.78 2010-12-05 16:19:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.79 2010-12-12 16:35:55 amb Exp $
 
  OSM XML file parser (either JOSM or planet)
 
@@ -941,7 +941,7 @@ static void process_relation_tags(TagList *tags,relation_t id)
  transports_t routes=Transports_None;
  transports_t except=Transports_None;
  int relation_turn_restriction=0;
- TurnRestriction restriction=Restrict_None;
+ TurnRestriction restriction=TurnRestrict_None;
  int i;
 
  /* Parse the tags */
@@ -978,13 +978,13 @@ static void process_relation_tags(TagList *tags,relation_t id)
       case 'r':
        if(!strcmp(k,"restriction"))
          {
-          if(!strcmp(v,"no_right_turn"   )) restriction=Restrict_no_right_turn;
-          if(!strcmp(v,"no_left_turn"    )) restriction=Restrict_no_left_turn;
-          if(!strcmp(v,"no_u_turn"       )) restriction=Restrict_no_u_turn;
-          if(!strcmp(v,"no_straight_on"  )) restriction=Restrict_no_straight_on;
-          if(!strcmp(v,"only_right_turn" )) restriction=Restrict_only_right_turn;
-          if(!strcmp(v,"only_left_turn"  )) restriction=Restrict_only_left_turn;
-          if(!strcmp(v,"only_straight_on")) restriction=Restrict_only_straight_on;
+          if(!strcmp(v,"no_right_turn"   )) restriction=TurnRestrict_no_right_turn;
+          if(!strcmp(v,"no_left_turn"    )) restriction=TurnRestrict_no_left_turn;
+          if(!strcmp(v,"no_u_turn"       )) restriction=TurnRestrict_no_u_turn;
+          if(!strcmp(v,"no_straight_on"  )) restriction=TurnRestrict_no_straight_on;
+          if(!strcmp(v,"only_right_turn" )) restriction=TurnRestrict_only_right_turn;
+          if(!strcmp(v,"only_left_turn"  )) restriction=TurnRestrict_only_left_turn;
+          if(!strcmp(v,"only_straight_on")) restriction=TurnRestrict_only_straight_on;
          }
 
        break;
@@ -1011,7 +1011,7 @@ static void process_relation_tags(TagList *tags,relation_t id)
 
  /* Create the turn restriction relation. */
 
- if(relation_turn_restriction && restriction!=Restrict_None &&
+ if(relation_turn_restriction && restriction!=TurnRestrict_None &&
     relation_from!=NO_WAY && relation_to!=NO_WAY && relation_via!=NO_NODE)
     AppendTurnRestrictRelation(relations,id,
                                relation_from,relation_to,relation_via,
