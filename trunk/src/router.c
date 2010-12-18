@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.92 2010-11-27 14:56:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/router.c,v 1.93 2010-12-18 15:19:33 amb Exp $
 
  OSM router.
 
@@ -31,6 +31,7 @@
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
+#include "relations.h"
 
 #include "files.h"
 #include "logging.h"
@@ -71,6 +72,7 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
+ Relations*OSMRelations;
  Results  *results[NWAYPOINTS+1]={NULL};
  int       point_used[NWAYPOINTS+1]={0};
  int       help_profile=0,help_profile_xml=0,help_profile_json=0,help_profile_pl=0;
@@ -404,6 +406,8 @@ int main(int argc,char** argv)
 
  OSMWays=LoadWayList(FileName(dirname,prefix,"ways.mem"));
 
+ OSMRelations=LoadRelationList(FileName(dirname,prefix,"relations.mem"));
+
  if(UpdateProfile(profile,OSMWays))
    {
     fprintf(stderr,"Error: Profile is invalid or not compatible with database.\n");
@@ -474,7 +478,7 @@ int main(int argc,char** argv)
 
     /* Calculate the beginning of the route */
 
-    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,start,profile);
+    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start,profile);
 
     if(!begin)
       {
@@ -500,7 +504,7 @@ int main(int argc,char** argv)
 
        /* Calculate the end of the route */
 
-       end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,finish,profile);
+       end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,finish,profile);
 
        if(!end)
          {
@@ -510,7 +514,7 @@ int main(int argc,char** argv)
 
        /* Calculate the middle of the route */
 
-       superresults=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,begin,end,profile);
+       superresults=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,begin,end,profile);
 
        FreeResultsList(begin);
        FreeResultsList(end);
@@ -521,7 +525,7 @@ int main(int argc,char** argv)
           return(1);
          }
 
-       results[point]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,profile);
+       results[point]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,OSMRelations,profile);
 
        FreeResultsList(superresults);
       }

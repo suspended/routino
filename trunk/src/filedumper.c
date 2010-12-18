@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.59 2010-12-04 14:54:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.60 2010-12-18 15:19:33 amb Exp $
 
  Memory file dumper.
 
@@ -33,6 +33,7 @@
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
+#include "relations.h"
 
 #include "files.h"
 #include "visualiser.h"
@@ -64,9 +65,10 @@ int main(int argc,char** argv)
  Nodes    *OSMNodes;
  Segments *OSMSegments;
  Ways     *OSMWays;
+ Relations*OSMRelations;
  int       arg;
  char     *dirname=NULL,*prefix=NULL;
- char     *nodes_filename,*segments_filename,*ways_filename;
+ char     *nodes_filename,*segments_filename,*ways_filename,*relations_filename;
  int       option_statistics=0;
  int       option_visualiser=0,coordcount=0;
  double    latmin=0,latmax=0,lonmin=0,lonmax=0;
@@ -124,6 +126,8 @@ int main(int argc,char** argv)
  OSMSegments=LoadSegmentList(segments_filename=FileName(dirname,prefix,"segments.mem"));
 
  OSMWays=LoadWayList(ways_filename=FileName(dirname,prefix,"ways.mem"));
+
+ OSMRelations=LoadRelationList(relations_filename=FileName(dirname,prefix,"relations.mem"));
 
  /* Write out the visualiser data */
 
