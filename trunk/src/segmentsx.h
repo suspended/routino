@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.27 2010-12-05 14:43:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.28 2010-12-18 19:17:26 amb Exp $
 
  A header file for the extended segments.
 
@@ -96,9 +96,11 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
-index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node);
+index_t IndexFirstSegmentX1(SegmentsX* segmentsx,node_t node);
+index_t IndexNextSegmentX1(SegmentsX* segmentsx,index_t segindex,node_t node);
 
-index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t segindex,index_t nodeindex);
+index_t IndexFirstSegmentX2(SegmentsX* segmentsx,index_t node);
+index_t IndexNextSegmentX2(SegmentsX* segmentsx,index_t segindex,index_t node);
 
 void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 

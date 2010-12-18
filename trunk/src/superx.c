@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.45 2010-11-13 14:22:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.46 2010-12-18 19:17:26 amb Exp $
 
  Super-Segment data type functions.
 
@@ -80,14 +80,14 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
     int difference=0;
     index_t index1,index2;
 
-    index1=IndexFirstSegmentX(segmentsx,i);
+    index1=IndexFirstSegmentX2(segmentsx,i);
 
     while(index1!=NO_SEGMENT)
       {
        SegmentX *segmentx1=LookupSegmentX(segmentsx,index1,1);
        WayX *wayx1=LookupWayX(waysx,segmentx1->way,1);
 
-       index1=IndexNextSegmentX(segmentsx,index1,i);
+       index1=IndexNextSegmentX2(segmentsx,index1,i);
        index2=index1;
 
        /* If the node allows less traffic types than any connecting way ... */
@@ -112,7 +112,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
                 break;
                }
 
-          index2=IndexNextSegmentX(segmentsx,index2,i);
+          index2=IndexNextSegmentX2(segmentsx,index2,i);
          }
 
        if(difference)
@@ -190,7 +190,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
       {
        index_t index,first;
 
-       index=first=IndexFirstSegmentX(segmentsx,i);
+       index=first=IndexFirstSegmentX2(segmentsx,i);
 
        while(index!=NO_SEGMENT)
          {
@@ -214,7 +214,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                    break;
                   }
 
-                otherindex=IndexNextSegmentX(segmentsx,otherindex,i);
+                otherindex=IndexNextSegmentX2(segmentsx,otherindex,i);
                }
             }
 
@@ -246,7 +246,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
              FreeResultsList(results);
             }
 
-          index=IndexNextSegmentX(segmentsx,index,i);
+          index=IndexNextSegmentX2(segmentsx,index,i);
          }
 
        sn++;
@@ -411,7 +411,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
    {
     node1=result1->node;
 
-    index=IndexFirstSegmentX(segmentsx,node1);
+    index=IndexFirstSegmentX2(segmentsx,node1);
 
     while(index!=NO_SEGMENT)
       {
@@ -458,7 +458,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
       endloop:
 
-       index=IndexNextSegmentX(segmentsx,index,node1);
+       index=IndexNextSegmentX2(segmentsx,index,node1);
       }
    }
 

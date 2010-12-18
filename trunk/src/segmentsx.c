@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.70 2010-11-27 14:56:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.71 2010-12-18 19:17:25 amb Exp $
 
  Extended Segment data type functions.
 
@@ -262,31 +262,19 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
 /*++++++++++++++++++++++++++++++++++++++
   Find the first segment index with a particular starting node.
  
-  index_t IndexFirstSegmentX Returns a pointer to the index of the first extended segment with the specified id.
+  index_t IndexFirstSegmentX1 Returns a pointer to the index of the first extended segment with the specified id.
 
   SegmentsX* segmentsx The set of segments to process.
 
   node_t node The node to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node)
+index_t IndexFirstSegmentX1(SegmentsX* segmentsx,node_t node)
 {
  int start=0;
  int end=segmentsx->number-1;
  int mid;
  int found;
-
- /* Check if the first node index exists */
-
- if(segmentsx->firstnode)
-   {
-    index_t index=segmentsx->firstnode[node];
-
-    if(segmentsx->firstnode[node+1]==index)
-       return(NO_SEGMENT);
-
-    return(index);
-   }
 
  /* Binary search - search key exact match only is required.
   *
@@ -339,9 +327,55 @@ index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Find the first segment index with a particular starting node index.
+ 
+  index_t IndexFirstSegmentX2 Returns a pointer to the index of the first extended segment with the specified id.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  index_t nodeindex The node index to look for.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexFirstSegmentX2(SegmentsX* segmentsx,index_t nodeindex)
+{
+ index_t index=segmentsx->firstnode[nodeindex];
+
+ if(segmentsx->firstnode[nodeindex+1]==index)
+    return(NO_SEGMENT);
+
+ return(index);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Find the next segment index with a particular starting node.
 
-  index_t IndexNextSegmentX Returns the index of the next segment with the same id.
+  index_t IndexNextSegmentX1 Returns the index of the next segment with the same id.
+
+  SegmentsX* segmentsx The set of segments to process.
+
+  index_t segindex The current segment index.
+
+  node_t node The node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexNextSegmentX1(SegmentsX* segmentsx,index_t segindex,node_t node)
+{
+ segindex++;
+
+ if(segindex==segmentsx->xnumber)
+    return(NO_SEGMENT);
+ else if(segmentsx->idata[segindex]==node)
+    return(segindex);
+ else
+    return(NO_SEGMENT);
+}
+ 
+ 
+/*++++++++++++++++++++++++++++++++++++++
+  Find the next segment index with a particular starting node index.
+
+  index_t IndexNextSegmentX2 Returns the index of the next segment with the same id.
 
   SegmentsX* segmentsx The set of segments to process.
 
@@ -350,9 +384,11 @@ index_t IndexFirstSegmentX(SegmentsX* segmentsx,node_t node)
   index_t nodeindex The node index.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t IndexNextSegmentX(SegmentsX* segmentsx,index_t segindex,index_t nodeindex)
+index_t IndexNextSegmentX2(SegmentsX* segmentsx,index_t segindex,index_t nodeindex)
 {
- if(++segindex==segmentsx->firstnode[nodeindex+1])
+ segindex++;
+
+ if(segindex==segmentsx->firstnode[nodeindex+1])
     return(NO_SEGMENT);
  else
     return(segindex);
