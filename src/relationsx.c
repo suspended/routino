@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.13 2010-12-05 16:19:24 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.14 2010-12-18 15:19:33 amb Exp $
 
  Extended Relation data type functions.
 
@@ -28,6 +28,11 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "types.h"
+#include "relations.h"
+
+#include "nodesx.h"
+#include "segmentsx.h"
 #include "waysx.h"
 #include "relationsx.h"
 
@@ -250,6 +255,12 @@ void SortRelationList(RelationsX* relationsx)
 {
  /* Don't need to sort route relations */
 
+ /* Close the file and re-open it (finished appending) */
+
+ CloseFile(relationsx->rfd);
+ relationsx->rfd=ReOpenFile(relationsx->rfilename);
+
+
  /* Sort the turn restriction relations by node. */
 
  int trfd;
@@ -273,10 +284,12 @@ void SortRelationList(RelationsX* relationsx)
 
  filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_via,(int (*)(void*,index_t))deduplicate_by_id);
 
- /* Close the files */
+ /* Close the files and re-open read-only */
 
  CloseFile(relationsx->trfd);
  CloseFile(trfd);
+
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
  /* Print the final message */
 
@@ -374,9 +387,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  waysx->fd=ReOpenFileWriteable(waysx->filename);
 #endif
 
- /* Open the file and read through it */
-
- relationsx->rfd=ReOpenFile(relationsx->rfilename);
+ /* Read through the file. */
 
  do
    {
@@ -515,4 +526,186 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  CloseFile(waysx->fd);
  waysx->fd=ReOpenFile(waysx->filename);
 #endif
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Process the turn relations (first part) to update them with the node information.
+
+  RelationsX *relationsx The set of relations to process.
+
+  NodesX *nodesx The set of nodes to process.
+
+  SegmentsX *segmentsx The set of segments to process.
+
+  WaysX *waysx The set of ways to process.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
+{
+ int trfd;
+ index_t i;
+
+ /* Print the start message */
+
+ printf_first("Processing Turn Restriction Relations (1): Turn Relations=0");
+
+ /* Open the new file */
+
+ DeleteFile(relationsx->trfilename);
+
+ trfd=OpenFileNew(relationsx->trfilename);
+
+ /* Process all of the relations */
+
+ for(i=0;i<relationsx->trnumber;i++)
+   {
+    TurnRestrictRelX relationx;
+
+    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
+
+
+    WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+
+    if(!((i+1)%10000))
+       printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d",i+1);
+   }
+
+ /* Close the files and re-open read-only */
+
+ CloseFile(relationsx->trfd);
+ CloseFile(trfd);
+
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
+
+ /* Print the final message */
+
+ printf_last("Processing Turn Restriction Relations (1): Turn Relations=%d",relationsx->trnumber);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Process the turn relations (second part) to update them with the re-ordered node information.
+
+  RelationsX *relationsx The set of relations to process.
+
+  NodesX *nodesx The set of nodes to process.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx)
+{
+ int trfd;
+ index_t i;
+
+ /* Print the start message */
+
+ printf_first("Processing Turn Restriction Relations (2): Turn Relations=0");
+
+ /* Map into memory */
+
+#if !SLIM
+ nodesx->xdata=MapFile(nodesx->filename);
+#endif
+
+ /* Open the new file */
+
+ DeleteFile(relationsx->trfilename);
+
+ trfd=OpenFileNew(relationsx->trfilename);
+
+ /* Process all of the relations */
+
+ for(i=0;i<relationsx->trnumber;i++)
+   {
+    TurnRestrictRelX relationx;
+    NodeX *nodex;
+
+    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
+
+    nodex=LookupNodeX(nodesx,relationx.from,1);
+    relationx.from=nodex->id;
+
+    nodex=LookupNodeX(nodesx,relationx.via,1);
+    relationx.via=nodex->id;
+
+    nodex=LookupNodeX(nodesx,relationx.to,1);
+    relationx.to=nodex->id;
+
+    WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+
+    if(!((i+1)%10000))
+       printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d",i+1);
+   }
+
+ /* Close the files and re-open read-only */
+
+ CloseFile(relationsx->trfd);
+ CloseFile(trfd);
+
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
+
+ /* Unmap from memory */
+
+#if !SLIM
+ nodesx->xdata=UnmapFile(nodesx->filename);
+#endif
+
+ /* Print the final message */
+
+ printf_last("Processing Turn Restriction Relations (2): Turn Relations=%d",relationsx->trnumber);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Save the relation list to a file.
+
+  RelationsX* relationsx The set of relations to save.
+
+  const char *filename The name of the file to save.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void SaveRelationList(RelationsX* relationsx,const char *filename)
+{
+ index_t i;
+ int fd;
+ RelationsFile relationsfile={0};
+
+ /* Print the start message */
+
+ printf_first("Writing Relations: Turn Relations=0");
+
+ /* Write out the relations data */
+
+ fd=OpenFileNew(filename);
+
+ SeekFile(fd,sizeof(RelationsFile));
+
+ for(i=0;i<relationsx->trnumber;i++)
+   {
+    TurnRestrictRelX relationx;
+
+    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
+
+    WriteFile(fd,&relationx,sizeof(TurnRelation));
+
+    if(!((i+1)%10000))
+       printf_middle("Writing Relations: Turn Relations=%d",i+1);
+   }
+
+ /* Write out the header structure */
+
+ relationsfile.trnumber=relationsx->trnumber;
+
+ SeekFile(fd,0);
+ WriteFile(fd,&relationsfile,sizeof(RelationsFile));
+
+ CloseFile(fd);
+
+ /* Close the file */
+
+ CloseFile(relationsx->trfd);
+
+ /* Print the final message */
+
+ printf_last("Wrote Relations: Turn Relations=%d",relationsx->trnumber);
 }

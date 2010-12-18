@@ -1,4 +1,4 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.43 2010-11-13 14:22:28 amb Exp $
+# $Header: /home/amb/CVS/routino/src/Makefile,v 1.44 2010-12-18 15:19:33 amb Exp $
 #
 # Source code Makefile
 #
@@ -98,7 +98,7 @@ planetsplitter-slim : $(PLANETSPLITTER_SLIM_OBJ)
 ########
 
 ROUTER_OBJ=router.o \
-	   nodes.o segments.o ways.o types.o fakes.o \
+	   nodes.o segments.o ways.o relations.o types.o fakes.o \
 	   optimiser.o output.o \
 	   files.o logging.o profiles.o xmlparse.o \
 	   results.o queue.o translations.o
@@ -109,7 +109,7 @@ router : $(ROUTER_OBJ)
 ########
 
 ROUTER_SLIM_OBJ=router-slim.o \
-	        nodes-slim.o segments-slim.o ways-slim.o types.o fakes.o \
+	        nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes.o \
 	        optimiser-slim.o output-slim.o \
 	        files.o logging.o profiles.o xmlparse.o \
 	        results.o queue.o translations.o
@@ -120,7 +120,7 @@ router-slim : $(ROUTER_SLIM_OBJ)
 ########
 
 FILEDUMPER_OBJ=filedumper.o \
-	       nodes.o segments.o ways.o types.o \
+	       nodes.o segments.o ways.o relations.o types.o \
                visualiser.o \
 	       files.o logging.o xmlparse.o
 
@@ -130,7 +130,7 @@ filedumper : $(FILEDUMPER_OBJ)
 ########
 
 FILEDUMPER_SLIM_OBJ=filedumper-slim.o \
-	       nodes-slim.o segments-slim.o ways-slim.o types.o \
+	       nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o \
                visualiser-slim.o \
 	       files.o logging.o xmlparse.o
 

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.56 2010-12-04 14:54:53 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.57 2010-12-18 15:19:33 amb Exp $
 
  Type definitions
 
@@ -48,6 +48,9 @@
 
 /*+ An undefined way index. +*/
 #define NO_WAY         (~(index_t)0)
+
+/*+ An undefined relation index. +*/
+#define NO_RELATION    (~(index_t)0)
 
 
 /*+ The lowest number allowed for a fake node. +*/
@@ -379,6 +382,10 @@ typedef struct _Segments Segments;
 typedef struct _Way Way;
 
 typedef struct _Ways Ways;
+
+typedef struct _TurnRelation TurnRelation;
+
+typedef struct _Relations Relations;
 
 
 /* Functions */

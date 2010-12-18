@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.82 2010-11-13 14:22:28 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.83 2010-12-18 15:19:33 amb Exp $
 
  OSM planet file splitter.
 
@@ -231,11 +231,11 @@ int main(int argc,char** argv)
 
  SortRelationList(Relations);
 
- /* Process the route relations (must be before compacting the ways) */
+ /* Process the route and first part of turn relations (must be before compacting the ways) */
 
  ProcessRouteRelations(Relations,Ways);
 
- FreeRelationList(Relations,0);
+ ProcessTurnRelations1(Relations,Nodes,Segments,Ways);
 
  /* Compact the ways (must be before measuring the segments) */
 
@@ -249,9 +249,19 @@ int main(int argc,char** argv)
 
  RemoveNonHighwayNodes(Nodes,Segments);
 
+ /* Process the second part of turn relations (must be after removing non-highway nodes and renumbering them) */
+
+ ProcessTurnRelations2(Relations,Nodes);
+
  /* Measure the segments and replace node/way id with index (must be after removing non-highway nodes) */
 
  UpdateSegments(Segments,Nodes,Ways);
+
+ /* Write out the relations */
+
+ SaveRelationList(Relations,FileName(dirname,prefix,"relations.mem"));
+
+ FreeRelationList(Relations,0);
 
 
  /* Repeated iteration on Super-Nodes and Super-Segments */

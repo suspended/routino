@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.96 2010-11-27 14:56:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.97 2010-12-18 15:19:33 amb Exp $
 
  Routing optimiser.
 
@@ -53,6 +53,8 @@ extern int option_quickest;
 
   Ways *ways The set of ways to use.
 
+  Relations *relations The set of relations to use.
+
   index_t start The start node.
 
   index_t finish The finish node.
@@ -60,7 +62,7 @@ extern int option_quickest;
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile)
+Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start,index_t finish,Profile *profile)
 {
  Results *results;
  Queue   *queue;
@@ -266,6 +268,8 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
   Ways *ways The set of ways to use.
 
+  Relations *relations The set of relations to use.
+
   Results *begin The initial portion of the route.
 
   Results *end The final portion of the route.
@@ -273,7 +277,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t star
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *begin,Results *end,Profile *profile)
+Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Results *begin,Results *end,Profile *profile)
 {
  Results *results;
  Queue   *queue;
@@ -527,12 +531,14 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Results *beg
 
   Ways *ways The set of ways to use.
 
+  Relations *relations The set of relations to use.
+
   index_t start The start node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Profile *profile)
+Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start,Profile *profile)
 {
  Results *results;
  Queue   *queue;
@@ -704,12 +710,14 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t star
 
   Ways *ways The set of ways to use.
 
+  Relations *relations The set of relations to use.
+
   index_t finish The finishing node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t finish,Profile *profile)
+Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish,Profile *profile)
 {
  Results *results;
  Queue   *queue;
@@ -883,10 +891,12 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t fin
 
   Ways *ways The list of ways.
 
+  Relations *relations The set of relations to use.
+
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile)
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile)
 {
  Result *result1,*result2,*result3,*result4;
  Results *combined;
@@ -908,7 +918,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
    {
     if(result1->next!=NO_NODE)
       {
-       Results *results2=FindNormalRoute(nodes,segments,ways,result1->node,result1->next,profile);
+       Results *results2=FindNormalRoute(nodes,segments,ways,relations,result1->node,result1->next,profile);
 
        result2=FindResult(results2,result1->node);
 

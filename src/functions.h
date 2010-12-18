@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.59 2010-11-27 14:56:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/functions.h,v 1.60 2010-12-18 15:19:33 amb Exp $
 
  Header file for function prototypes
 
@@ -33,13 +33,13 @@
 
 /* In optimiser.c */
 
-Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,index_t start,index_t finish,Profile *profile);
-Results *FindMiddleRoute(Nodes *supernodes,Segments *supersegments,Ways *superways,Results *begin,Results *end,Profile *profile);
+Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start,index_t finish,Profile *profile);
+Results *FindMiddleRoute(Nodes *supernodes,Segments *supersegments,Ways *superways,Relations *relations,Results *begin,Results *end,Profile *profile);
 
-Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t start,Profile *profile);
-Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,index_t finish,Profile *profile);
+Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start,Profile *profile);
+Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish,Profile *profile);
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile);
+Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile);
 
 void FixForwardRoute(Results *results,index_t finish);
 
