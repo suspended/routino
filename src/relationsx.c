@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.14 2010-12-18 15:19:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.15 2010-12-19 11:34:02 amb Exp $
 
  Extended Relation data type functions.
 
@@ -45,6 +45,8 @@
 
 static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b);
 static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index);
+
+static int bearing_angle(NodesX *nodesx,index_t via,node_t node);
 
 
 /* Variables */
@@ -255,11 +257,6 @@ void SortRelationList(RelationsX* relationsx)
 {
  /* Don't need to sort route relations */
 
- /* Close the file and re-open it (finished appending) */
-
- CloseFile(relationsx->rfd);
- relationsx->rfd=ReOpenFile(relationsx->rfilename);
-
 
  /* Sort the turn restriction relations by node. */
 
@@ -269,10 +266,7 @@ void SortRelationList(RelationsX* relationsx)
 
  printf_first("Sorting Turn Restriction Relations");
 
- /* Close the file and re-open it (finished appending) */
-
- CloseFile(relationsx->trfd);
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
+ /* Open the new file */
 
  DeleteFile(relationsx->trfilename);
 
@@ -386,6 +380,11 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  CloseFile(waysx->fd);
  waysx->fd=ReOpenFileWriteable(waysx->filename);
 #endif
+
+ /* Close the file and re-open it (finished appending) */
+
+ CloseFile(relationsx->rfd);
+ relationsx->rfd=ReOpenFile(relationsx->rfilename);
 
  /* Read through the file. */
 
@@ -543,12 +542,27 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
 void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
+ TurnRestrictRelX relationx;
  int trfd;
- index_t i;
+
+ if(nodesx->number==0 || segmentsx->number==0)
+    return;
 
  /* Print the start message */
 
  printf_first("Processing Turn Restriction Relations (1): Turn Relations=0");
+
+ /* Map into memory */
+
+#if !SLIM
+ nodesx->xdata   =MapFile(nodesx->filename);
+ segmentsx->xdata=MapFile(segmentsx->filename);
+#endif
+
+ /* Close the file and re-open it (finished appending) */
+
+ CloseFile(relationsx->trfd);
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
  /* Open the new file */
 
@@ -558,17 +572,124 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Process all of the relations */
 
- for(i=0;i<relationsx->trnumber;i++)
+ relationsx->trnumber=0;
+
+ while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX)))
    {
-    TurnRestrictRelX relationx;
+    if(relationx.restrict==TurnRestrict_no_right_turn ||
+       relationx.restrict==TurnRestrict_no_left_turn ||
+       relationx.restrict==TurnRestrict_no_u_turn ||
+       relationx.restrict==TurnRestrict_no_straight_on)
+      {
+       index_t seg,via;
+       node_t node_from[4],node_to[4];
+       int nodes_from=0,nodes_to=0;
+       node_t best_from=NO_NODE,best_to=NO_NODE;
+       int best_angle=180;
+       int i,j;
 
-    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
+       /* Find the segments that join the node 'via' */
 
+       seg=IndexFirstSegmentX1(segmentsx,relationx.via);
 
-    WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+       do
+         {
+          SegmentX *segx=LookupSegmentX(segmentsx,seg,1);
 
-    if(!((i+1)%10000))
-       printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d",i+1);
+          if(segx->way==relationx.from && segx->distance!=ONEWAY_1TO2)
+            {
+             node_from[nodes_from]=segx->node2;
+
+             if(++nodes_from==4)
+                break;
+            }
+
+          if(segx->way==relationx.to && segx->distance!=ONEWAY_2TO1)
+            {
+             node_to[nodes_to]=segx->node2;
+
+             if(++nodes_to==4)
+                break;
+            }
+
+          seg=IndexNextSegmentX1(segmentsx,seg,relationx.via);
+         }
+       while(seg!=NO_SEGMENT);
+
+       if(nodes_to==4 || nodes_from==4) /* Too many segments for the same way */
+          goto endloop;
+
+       if(nodes_to==0 || nodes_from==0) /* Not enough segments for the selected ways */
+          goto endloop;
+
+       /* Work out which combination of nodes match the restriction */
+
+       via=IndexNodeX(nodesx,relationx.via);
+
+       for(i=0;i<nodes_from;i++)
+         {
+          int angle_from=bearing_angle(nodesx,via,node_from[i]);
+
+          for(j=0;j<nodes_to;j++)
+            {
+             int angle_to=bearing_angle(nodesx,via,node_to[j]);
+             int turn_angle=angle_from-angle_to;
+
+             if(relationx.restrict==TurnRestrict_no_right_turn)
+                turn_angle-=90;
+             else if(relationx.restrict==TurnRestrict_no_left_turn)
+                turn_angle+=90;
+             else if(relationx.restrict==TurnRestrict_no_u_turn)
+                turn_angle-=0;
+             else /* if(relationx.restrict==TurnRestrict_no_straight_on) */
+                turn_angle-=180;
+
+             while(turn_angle> 180) turn_angle-=360;
+             while(turn_angle<-180) turn_angle+=360;
+
+             if(turn_angle<0) turn_angle=-turn_angle;
+
+             if(turn_angle<90 && best_angle<90) /* Too many ways at "good" angles */
+                goto endloop;
+
+             if(turn_angle<best_angle)
+               {
+                best_from=node_from[i];
+                best_to=node_to[j];
+                best_angle=turn_angle;
+               }
+            }
+         }
+
+       if(best_angle>90) /* Not a good enough match */
+          goto endloop;
+
+       /* Write the results */
+
+       relationx.from=IndexNodeX(nodesx,best_from);
+       relationx.to  =IndexNodeX(nodesx,best_to);
+       relationx.via =via;
+
+       WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+
+       relationsx->trnumber++;
+
+       if(!(relationsx->trnumber%10000))
+          printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d",relationsx->trnumber);
+      }
+    else
+      {
+       /* Write the results */
+
+       WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+
+       relationsx->trnumber++;
+
+       if(!(relationsx->trnumber%10000))
+          printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d",relationsx->trnumber);
+      }
+
+   endloop: ;
    }
 
  /* Close the files and re-open read-only */
@@ -578,9 +699,62 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
+ /* Unmap from memory */
+
+#if !SLIM
+ nodesx->xdata   =UnmapFile(nodesx->filename);
+ segmentsx->xdata=UnmapFile(segmentsx->filename);
+#endif
+
  /* Print the final message */
 
  printf_last("Processing Turn Restriction Relations (1): Turn Relations=%d",relationsx->trnumber);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Calculate the bearing of the segment between a pair of nodes.
+
+  int bearing_angle Returns a value in the range 0 to 359 indicating the bearing.
+
+  NodesX *nodesx The set of nodes to process.
+
+  index_t via The via node (the reference point around which the bearing is calculated).
+
+  node_t node The second node (the bearing of which is calculated from the via node).
+
+  Angles are calculated using flat Cartesian lat/long grid approximation (after scaling longitude due to latitude).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int bearing_angle(NodesX *nodesx,index_t via,node_t node)
+{
+ double lat1,lat2;
+ double lon1,lon2;
+ double angle;
+ index_t index;
+ NodeX *nodex1,*nodex2;
+
+ index=IndexNodeX(nodesx,node);
+
+ nodex1=LookupNodeX(nodesx,via,1);
+ nodex2=LookupNodeX(nodesx,index,2);
+
+ lat1=nodex1->latitude;
+ lon1=nodex1->longitude;
+
+ lat2=nodex2->latitude;
+ lon2=nodex2->longitude;
+
+ angle=atan2((lat2-lat1),(lon2-lon1)*cos(lat1));
+
+ angle=radians_to_degrees(angle);
+
+ angle=round(270-angle);
+
+ if(angle<  0) angle+=360;
+ if(angle>360) angle-=360;
+
+ return((int)angle);
 }
 
 
