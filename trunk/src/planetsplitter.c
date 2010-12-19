@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.83 2010-12-18 15:19:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.84 2010-12-19 11:38:48 amb Exp $
 
  OSM planet file splitter.
 
@@ -229,7 +229,13 @@ int main(int argc,char** argv)
 
  SortWayList(Ways);
 
- SortRelationList(Relations);
+ /* Remove bad segments (must be after sorting the nodes and segments) */
+
+ RemoveBadSegments(Nodes,Segments);
+
+ /* Remove non-highway nodes (must be after removing the bad segments) */
+
+ RemoveNonHighwayNodes(Nodes,Segments);
 
  /* Process the route and first part of turn relations (must be before compacting the ways) */
 
@@ -241,27 +247,15 @@ int main(int argc,char** argv)
 
  CompactWayList(Ways);
 
- /* Remove bad segments (must be after sorting the nodes and segments) */
-
- RemoveBadSegments(Nodes,Segments);
-
- /* Remove non-highway nodes (must be after removing the bad segments) */
-
- RemoveNonHighwayNodes(Nodes,Segments);
-
  /* Process the second part of turn relations (must be after removing non-highway nodes and renumbering them) */
 
  ProcessTurnRelations2(Relations,Nodes);
 
+ SortRelationList(Relations);
+
  /* Measure the segments and replace node/way id with index (must be after removing non-highway nodes) */
 
  UpdateSegments(Segments,Nodes,Ways);
-
- /* Write out the relations */
-
- SaveRelationList(Relations,FileName(dirname,prefix,"relations.mem"));
-
- FreeRelationList(Relations,0);
 
 
  /* Repeated iteration on Super-Nodes and Super-Segments */
@@ -386,6 +380,12 @@ int main(int argc,char** argv)
  SaveWayList(Ways,FileName(dirname,prefix,"ways.mem"));
 
  FreeWayList(Ways,0);
+
+ /* Write out the relations */
+
+ SaveRelationList(Relations,FileName(dirname,prefix,"relations.mem"));
+
+ FreeRelationList(Relations,0);
 
  return(0);
 }
