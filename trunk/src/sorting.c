@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.c,v 1.13 2010-12-18 19:12:03 amb Exp $
+ $Header: /home/amb/CVS/routino/src/sorting.c,v 1.14 2010-12-19 10:10:19 amb Exp $
 
  Merge sort functions.
 
@@ -105,15 +105,15 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
 
     n=i;
 
+    /* Shortcut if there is no data and no previous files (i.e. no data at all) */
+
+    if(nfiles==0 && n==0)
+       goto tidy_and_exit;
+
     /* No new data read in this time round */
 
     if(n==0)
        break;
-
-    /* Shortcut if there are no files (i.e. no data at all) */
-
-    if(nfiles==0 && n==0)
-       goto tidy_and_exit;
 
     /* Sort the data pointers using a heap sort */
 
