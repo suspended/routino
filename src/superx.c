@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.46 2010-12-18 19:17:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.47 2010-12-19 14:18:38 amb Exp $
 
  Super-Segment data type functions.
 
@@ -289,7 +289,7 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
  mergedsegmentsx=NewSegmentList(0);
 
- if(segmentsx->number==0 || supersegmentsx->number==0)
+ if(segmentsx->number==0)
     return(mergedsegmentsx);
 
  /* Print the start message */
@@ -300,7 +300,8 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
 #if !SLIM
  segmentsx->xdata=MapFile(segmentsx->filename);
- supersegmentsx->xdata=MapFile(supersegmentsx->filename);
+ if(supersegmentsx->number>0)
+    supersegmentsx->xdata=MapFile(supersegmentsx->filename);
 #endif
 
  /* Loop through and create a new list of combined segments */
@@ -355,7 +356,8 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
 #if !SLIM
  segmentsx->xdata=UnmapFile(segmentsx->filename);
- supersegmentsx->xdata=UnmapFile(supersegmentsx->filename);
+ if(supersegmentsx->number>0)
+    supersegmentsx->xdata=UnmapFile(supersegmentsx->filename);
 #endif
 
  /* Print the final message */
