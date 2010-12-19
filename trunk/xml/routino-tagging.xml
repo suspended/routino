@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.7 2010-11-28 15:12:52 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.8 2010-12-19 10:13:06 amb Exp $
 
      An XML format file containing Routino tagging rules
 
@@ -135,6 +135,13 @@
     <if k="goods"     ><output/></if>
     <if k="hgv"       ><output/></if>
     <if k="psv"       ><output/></if>
+
+
+    <!-- Mini-roundabouts  -->
+
+    <if k="highway" v="mini_roundabout">
+      <output k="highway"/>
+    </if>
 
   </node>
 
