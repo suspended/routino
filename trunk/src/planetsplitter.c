@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.84 2010-12-19 11:38:48 amb Exp $
+ $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.85 2010-12-19 19:03:02 amb Exp $
 
  OSM planet file splitter.
 
@@ -247,12 +247,6 @@ int main(int argc,char** argv)
 
  CompactWayList(Ways);
 
- /* Process the second part of turn relations (must be after removing non-highway nodes and renumbering them) */
-
- ProcessTurnRelations2(Relations,Nodes);
-
- SortRelationList(Relations);
-
  /* Measure the segments and replace node/way id with index (must be after removing non-highway nodes) */
 
  UpdateSegments(Segments,Nodes,Ways);
@@ -357,6 +351,12 @@ int main(int argc,char** argv)
  IndexNodes(Nodes,Segments);
 
  IndexSegments(Segments,Nodes);
+
+ /* Process the second part of turn relations (must be after removing sorting the nodes geographically). */
+
+ ProcessTurnRelations2(Relations,Nodes);
+
+ SortRelationList(Relations);
 
  /* Output the results */
 
