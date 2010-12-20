@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.30 2010-12-20 19:11:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.31 2010-12-20 19:25:03 amb Exp $
 
  A header file for the extended segments.
 
@@ -73,14 +73,14 @@ struct _SegmentsX
  node_t   *idata;               /*+ The extended segment data (sorted by node1 then node2). +*/
  index_t  *firstnode;           /*+ The first segment index for each node. +*/
 
+ char     *sfilename;           /*+ The name of the temporary file for segments in slim mode. +*/
+ int       sfd;                 /*+ The file descriptor of the temporary file. +*/
+
 #if !SLIM
 
  Segment   *sdata;              /*+ The segment data (same order as sorted xdata). +*/
 
 #else
-
- char     *sfilename;           /*+ The name of the temporary file for segments in slim mode. +*/
- int       sfd;                 /*+ The file descriptor of the temporary file. +*/
 
  Segment   scached[2];          /*+ Two cached segments read from the file in slim mode. +*/
 

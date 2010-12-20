@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.76 2010-12-20 19:11:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.77 2010-12-20 19:25:03 amb Exp $
 
  Extended Segment data type functions.
 
@@ -80,11 +80,9 @@ SegmentsX *NewSegmentList(int append)
  else
     sprintf(segmentsx->filename,"%s/segmentsx.%p.tmp",option_tmpdirname,segmentsx);
 
-#if SLIM
  segmentsx->sfilename=(char*)malloc(strlen(option_tmpdirname)+32);
 
  sprintf(segmentsx->sfilename,"%s/segments.%p.tmp",option_tmpdirname,segmentsx);
-#endif
 
  if(append)
    {
@@ -124,16 +122,9 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
  if(segmentsx->firstnode)
     free(segmentsx->firstnode);
 
-#if !SLIM
- if(segmentsx->sdata)
-    free(segmentsx->sdata);
-#endif
-
-#if SLIM
  DeleteFile(segmentsx->sfilename);
 
  free(segmentsx->sfilename);
-#endif
 
  free(segmentsx);
 }
@@ -801,10 +792,8 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
  /* Map into memory / open the files */
 
 #if !SLIM
- segmentsx->xdata=MapFile(segmentsx->filename);
  waysx->xdata=MapFile(waysx->filename);
 #else
- segmentsx->fd=ReOpenFile(segmentsx->filename);
  waysx->fd=ReOpenFile(waysx->filename);
 #endif
 
@@ -813,31 +802,35 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
  free(segmentsx->firstnode);
  segmentsx->firstnode=NULL;
 
- /* Allocate the memory (or open the file) */
+ /* Re-open the file */
 
-#if !SLIM
- segmentsx->sdata=(Segment*)malloc(segmentsx->number*sizeof(Segment));
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
 
- assert(segmentsx->sdata); /* Check malloc() worked */
-#else
+ /* Open the file for the segments */
+
  segmentsx->sfd=OpenFileNew(segmentsx->sfilename);
-#endif
 
  /* Loop through and fill */
 
  for(i=0;i<segmentsx->number;i++)
    {
-    SegmentX *segmentx=LookupSegmentX(segmentsx,i,1);
-    Segment  *segment =LookupSegmentXSegment(segmentsx,i,1);
-    WayX     *wayx=LookupWayX(waysx,segmentx->way,1);
+    SegmentX segmentx;
+    Segment  segment;
+    WayX     *wayx;
 
-    segment->node1=0;
-    segment->node2=0;
-    segment->next2=NO_NODE;
-    segment->way=wayx->prop;
-    segment->distance=segmentx->distance;
+    ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
-    PutBackSegmentXSegment(segmentsx,i,1);
+    wayx=LookupWayX(waysx,segmentx.way,1);
+
+    segment.node1=NO_NODE;
+    segment.node2=NO_NODE;
+    segment.next2=NO_NODE;
+    segment.way=wayx->prop;
+    segment.distance=segmentx.distance;
+
+    /* Write the data */
+
+    WriteFile(segmentsx->sfd,&segment,sizeof(Segment));
 
     if(!((i+1)%10000))
        printf_middle("Creating Real Segments: Segments=%d",i+1);
@@ -846,20 +839,15 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- segmentsx->xdata=UnmapFile(segmentsx->filename);
  waysx->xdata=UnmapFile(waysx->filename);
 #else
- CloseFile(segmentsx->fd);
  CloseFile(waysx->fd);
 #endif
 
- /* Close the file and re-open it read-write */
+ /* Close the files */
 
-#if SLIM
+ CloseFile(segmentsx->fd);
  CloseFile(segmentsx->sfd);
-
- segmentsx->sfd=ReOpenFileWriteable(segmentsx->sfilename);
-#endif
 
  /* Print the final message */
 
@@ -891,9 +879,11 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 #if !SLIM
  nodesx->xdata=MapFile(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
+ segmentsx->sdata=MapFileWriteable(segmentsx->sfilename);
 #else
  nodesx->fd=ReOpenFile(nodesx->filename);
  segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->sfd=ReOpenFileWriteable(segmentsx->sfilename);
 #endif
 
  /* Index the segments */
@@ -947,9 +937,11 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
  segmentsx->xdata=UnmapFile(segmentsx->filename);
+ segmentsx->sdata=UnmapFile(segmentsx->sfilename);
 #else
  CloseFile(nodesx->fd);
  CloseFile(segmentsx->fd);
+ CloseFile(segmentsx->sfd);
 #endif
 
  /* Print the final message */
@@ -977,6 +969,10 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  printf_first("Writing Segments: Segments=0");
 
+ /* Re-open the file */
+
+ segmentsx->sfd=ReOpenFile(segmentsx->sfilename);
+
  /* Write out the segments data */
 
  fd=OpenFileNew(filename);
@@ -985,14 +981,16 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    Segment *segment=LookupSegmentXSegment(segmentsx,i,1);
+    Segment segment;
 
-    if(IsSuperSegment(segment))
+    ReadFile(segmentsx->sfd,&segment,sizeof(Segment));
+
+    if(IsSuperSegment(&segment))
        super_number++;
-    if(IsNormalSegment(segment))
+    if(IsNormalSegment(&segment))
        normal_number++;
 
-    WriteFile(fd,segment,sizeof(Segment));
+    WriteFile(fd,&segment,sizeof(Segment));
 
     if(!((i+1)%10000))
        printf_middle("Writing Segments: Segments=%d",i+1);
@@ -1008,6 +1006,10 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
  WriteFile(fd,&segmentsfile,sizeof(SegmentsFile));
 
  CloseFile(fd);
+
+ /* Close the file */
+
+ CloseFile(segmentsx->sfd);
 
  /* Print the final message */
 
