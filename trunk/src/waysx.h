@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.29 2010-12-05 14:43:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.30 2010-12-20 19:02:31 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -74,6 +74,7 @@ struct _WaysX
  index_t *idata;                /*+ The index of the extended data for the Ways (sorted by ID). +*/
 
  char    *nfilename;            /*+ The name of the temporary file (for the names). +*/
+ int      nfd;                  /*+ The file descriptor of the temporary file (for the names). +*/
 
  uint32_t nlength;              /*+ How long is the string of name entries? +*/
 };

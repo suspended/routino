@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.74 2010-12-20 17:54:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.75 2010-12-20 19:02:30 amb Exp $
 
  Extended Segment data type functions.
 
@@ -184,9 +184,12 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  printf_first("Sorting Segments");
 
- /* Close the files and re-open them (finished appending) */
+ /* Close the file (finished appending) */
 
  CloseFile(segmentsx->fd);
+
+ /* Re-open the file read-only and a new file writeable */
+
  segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  DeleteFile(segmentsx->filename);
@@ -199,12 +202,10 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  segmentsx->number=segmentsx->xnumber;
 
- /* Close the files and re-open them */
+ /* Close the files */
 
  CloseFile(segmentsx->fd);
  CloseFile(fd);
-
- segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  /* Print the final message */
 
@@ -417,12 +418,15 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  assert(segmentsx->idata); /* Check malloc() worked */
 
- /* Modify the on-disk image */
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  DeleteFile(segmentsx->filename);
 
  fd=OpenFileNew(segmentsx->filename);
- SeekFile(segmentsx->fd,0);
+
+ /* Modify the on-disk image */
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
@@ -450,14 +454,12 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
        printf_middle("Checking: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",total,duplicate,loop,missing);
    }
 
- /* Close the files and re-open them */
+ segmentsx->number=good;
+
+ /* Close the files */
 
  CloseFile(segmentsx->fd);
  CloseFile(fd);
-
- segmentsx->fd=ReOpenFile(segmentsx->filename);
-
- segmentsx->number=good;
 
  /* Print the final message */
 
@@ -485,10 +487,12 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  printf_first("Measuring Segments: Segments=0");
 
- /* Map into memory */
+ /* Map into memory /  open the file */
 
 #if !SLIM
  nodesx->xdata=MapFile(nodesx->filename);
+#else
+ nodesx->fd=ReOpenFile(nodesx->filename);
 #endif
 
  /* Free the now-unneeded index */
@@ -507,12 +511,15 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  segmentsx->firstnode[nodesx->number]=segmentsx->number;
 
- /* Modify the on-disk image */
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  DeleteFile(segmentsx->filename);
 
  fd=OpenFileNew(segmentsx->filename);
- SeekFile(segmentsx->fd,0);
+
+ /* Modify the on-disk image */
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
@@ -548,12 +555,10 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
        printf_middle("Measuring Segments: Segments=%d",index);
    }
 
- /* Close the files and re-open them */
+ /* Close the files */
 
  CloseFile(segmentsx->fd);
  CloseFile(fd);
-
- segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  /* Free the other now-unneeded indexes */
 
@@ -563,10 +568,12 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
  free(waysx->idata);
  waysx->idata=NULL;
 
- /* Unmap from memory */
+ /* Unmap from memory / close the file */
 
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
+#else
+ CloseFile(nodesx->fd);
 #endif
 
  /* Print the final message */
@@ -591,16 +598,19 @@ void RotateSegments(SegmentsX* segmentsx)
 
  printf_first("Rotating Segments: Segments=0 Rotated=0");
 
- /* Close the files and re-open them (finished appending) */
+ /* Close the file (finished appending) */
 
  CloseFile(segmentsx->fd);
+
+ /* Re-open the file read-only and a new file writeable */
+
  segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  DeleteFile(segmentsx->filename);
 
  fd=OpenFileNew(segmentsx->filename);
 
- /* Modify the file contents */
+ /* Modify the on-disk image */
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
@@ -626,12 +636,10 @@ void RotateSegments(SegmentsX* segmentsx)
        printf_middle("Rotating Segments: Segments=%d Rotated=%d",index,rotated);
    }
 
- /* Close the files and re-open them */
+ /* Close the files */
 
  CloseFile(segmentsx->fd);
  CloseFile(fd);
-
- segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  /* Print the final message */
 
@@ -660,10 +668,12 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  printf_first("Deduplicating Segments: Segments=0 Duplicate=0");
 
- /* Map into memory */
+ /* Map into memory / open the file */
 
 #if !SLIM
  waysx->xdata=MapFile(waysx->filename);
+#else
+ waysx->fd=ReOpenFile(waysx->filename);
 #endif
 
  /* Allocate the array of indexes */
@@ -677,12 +687,15 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  segmentsx->firstnode[nodesx->number]=segmentsx->number;
 
- /* Modify the on-disk image */
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  DeleteFile(segmentsx->filename);
 
  fd=OpenFileNew(segmentsx->filename);
- SeekFile(segmentsx->fd,0);
+
+ /* Modify the on-disk image */
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
@@ -739,14 +752,12 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
        printf_middle("Deduplicating Segments: Segments=%d Duplicate=%d",index,duplicate);
    }
 
- /* Close the files and re-open them */
+ segmentsx->number=good;
+
+ /* Close the files */
 
  CloseFile(segmentsx->fd);
  CloseFile(fd);
-
- segmentsx->fd=ReOpenFile(segmentsx->filename);
-
- segmentsx->number=good;
 
  /* Fix-up the firstnode index for the missing nodes */
 
@@ -754,10 +765,12 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
     if(segmentsx->firstnode[i]==NO_SEGMENT)
        segmentsx->firstnode[i]=segmentsx->firstnode[i+1];
 
- /* Unmap from memory */
+ /* Unmap from memory / close the file */
 
 #if !SLIM
  waysx->xdata=UnmapFile(waysx->filename);
+#else
+ CloseFile(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -785,11 +798,14 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  printf_first("Creating Real Segments: Segments=0");
 
- /* Map into memory */
+ /* Map into memory / open the files */
 
 #if !SLIM
  segmentsx->xdata=MapFile(segmentsx->filename);
  waysx->xdata=MapFile(waysx->filename);
+#else
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
+ waysx->fd=ReOpenFile(waysx->filename);
 #endif
 
  /* Free the unneeded memory */
@@ -829,11 +845,14 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
        printf_middle("Creating Real Segments: Segments=%d",i+1);
    }
 
- /* Unmap from memory */
+ /* Unmap from memory / close the files */
 
 #if !SLIM
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  waysx->xdata=UnmapFile(waysx->filename);
+#else
+ CloseFile(segmentsx->fd);
+ CloseFile(waysx->fd);
 #endif
 
  /* Close the file and re-open it read-write */
@@ -869,11 +888,14 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  printf_first("Indexing Nodes: Nodes=0");
 
- /* Map into memory */
+ /* Map into memory / open the files */
 
 #if !SLIM
  nodesx->xdata=MapFile(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
+#else
+ nodesx->fd=ReOpenFile(nodesx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
 #endif
 
  /* Index the segments */
@@ -926,11 +948,14 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
        printf_middle("Indexing Nodes: Nodes=%d",i+1);
    }
 
- /* Unmap from memory */
+ /* Unmap from memory / close the files */
 
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
  segmentsx->xdata=UnmapFile(segmentsx->filename);
+#else
+ CloseFile(nodesx->fd);
+ CloseFile(segmentsx->fd);
 #endif
 
  /* Print the final message */
