@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.29 2010-12-20 17:38:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.30 2010-12-20 19:11:02 amb Exp $
 
  A header file for the extended segments.
 
@@ -127,6 +127,8 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx);
 #define LookupSegmentX(segmentsx,index,position)         &(segmentsx)->xdata[index]
   
 #define LookupSegmentXSegment(segmentsx,index,position)  &(segmentsx)->sdata[index]
+
+#define PutBackSegmentXSegment(segmentsx,index,position) /* nop */
 
 #else
 

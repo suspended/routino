@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.17 2010-12-20 19:02:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.18 2010-12-20 19:11:02 amb Exp $
 
  Extended Relation data type functions.
 
@@ -461,9 +461,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
                 if(routes&Transports_Bicycle)
                    wayx->way.props|=Properties_BicycleRoute;
 
-#if SLIM
                 PutBackWayX(waysx,way,1);
-#endif
 
                 ways++;
                }
