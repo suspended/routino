@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.83 2010-12-20 17:48:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.84 2010-12-20 17:54:31 amb Exp $
 
  Extented Node data type functions.
 
@@ -552,6 +552,14 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
 #if !SLIM
  nodesx->xdata=MapFileWriteable(nodesx->filename);
+#endif
+
+ /* Close the file and re-open it read-write */
+
+#if SLIM
+ CloseFile(nodesx->fd);
+
+ nodesx->fd=ReOpenFileWriteable(nodesx->filename);
 #endif
 
  /* Loop through and allocate. */
