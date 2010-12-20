@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.81 2010-12-18 19:17:25 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.82 2010-12-20 17:38:29 amb Exp $
 
  Extented Node data type functions.
 
@@ -83,12 +83,6 @@ NodesX *NewNodeList(int append)
  else
     sprintf(nodesx->filename,"%s/nodesx.%p.tmp",option_tmpdirname,nodesx);
 
-#if SLIM
- nodesx->nfilename=(char*)malloc(strlen(option_tmpdirname)+32);
-
- sprintf(nodesx->nfilename,"%s/nodes.%p.tmp",option_tmpdirname,nodesx);
-#endif
-
  if(append)
    {
     off_t size;
@@ -124,16 +118,8 @@ void FreeNodeList(NodesX *nodesx,int keep)
  if(nodesx->idata)
     free(nodesx->idata);
 
-#if !SLIM
- if(nodesx->ndata)
-    free(nodesx->ndata);
-#endif
-
-#if SLIM
- DeleteFile(nodesx->nfilename);
-
- free(nodesx->nfilename);
-#endif
+ if(nodesx->gdata)
+    free(nodesx->gdata);
 
  if(nodesx->super)
     free(nodesx->super);
@@ -294,7 +280,15 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  nodesx->offsets=(index_t*)malloc((nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
+ assert(nodesx->offsets); /* Check malloc() worked */
+
  nodesx->latlonbin=0;
+
+ /* Allocate the memory for the geographical index array */
+
+ nodesx->gdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
+
+ assert(nodesx->gdata); /* Check malloc() worked */
 
  /* Close the files and re-open them */
 
@@ -398,6 +392,10 @@ static int index_by_lat_long(NodeX *nodex,index_t index)
 
  for(;sortnodesx->latlonbin<=llbin;sortnodesx->latlonbin++)
     sortnodesx->offsets[sortnodesx->latlonbin]=index;
+
+ /* Create the index from the previous sort to the current one */
+
+ sortnodesx->gdata[nodex->id]=index;
 
  return(1);
 }
@@ -578,37 +576,22 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
  /* Map into memory */
 
 #if !SLIM
- nodesx->xdata=MapFile(nodesx->filename);
-#endif
-
- /* Allocate the memory (or open the file) */
-
-#if !SLIM
- nodesx->ndata=(Node*)malloc(nodesx->number*sizeof(Node));
-
- assert(nodesx->ndata); /* Check malloc() worked */
-#else
- nodesx->nfd=OpenFileNew(nodesx->nfilename);
+ nodesx->xdata=MapFileWriteable(nodesx->filename);
 #endif
 
  /* Loop through and allocate. */
 
  for(i=0;i<nodesx->number;i++)
    {
-    NodeX *nodex=LookupNodeX(nodesx,i,1);
-    Node  *node =LookupNodeXNode(nodesx,nodex->id,1);
+    NodeX *nodex=LookupNodeX(nodesx,nodesx->gdata[i],1);
 
-    node->latoffset=latlong_to_off(nodex->latitude);
-    node->lonoffset=latlong_to_off(nodex->longitude);
-    node->firstseg=NO_SEGMENT;
-    node->allow=nodex->allow;
-    node->flags=nodex->flags;
+    nodex->id=NO_SEGMENT;
 
-    if(nodesx->super[nodex->id]==iteration)
-       node->flags|=NODE_SUPER;
+    if(nodesx->super[i]==iteration)
+       nodex->flags|=NODE_SUPER;
 
 #if SLIM
-    PutBackNodeXNode(nodesx,nodex->id,1);
+    PutBackNodeX(nodesx,nodesx->gdata[i],1);
 #endif
 
     if(!((i+1)%10000))
@@ -654,7 +637,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
  /* Map into memory */
 
 #if !SLIM
- nodesx->xdata=MapFile(nodesx->filename);
+ nodesx->xdata=MapFileWriteable(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
 #endif
 
@@ -665,22 +648,22 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
     SegmentX *segmentx=LookupSegmentX(segmentsx,i,1);
     node_t id1=segmentx->node1;
     node_t id2=segmentx->node2;
-    Node *node1=LookupNodeXNode(nodesx,id1,1);
-    Node *node2=LookupNodeXNode(nodesx,id2,2);
+    NodeX *nodex1=LookupNodeX(nodesx,nodesx->gdata[id1],1);
+    NodeX *nodex2=LookupNodeX(nodesx,nodesx->gdata[id2],2);
 
     /* Check node1 */
 
-    if(node1->firstseg==NO_SEGMENT)
+    if(nodex1->id==NO_SEGMENT)
       {
-       node1->firstseg=i;
+       nodex1->id=i;
 
 #if SLIM
-       PutBackNodeXNode(nodesx,id1,1);
+       PutBackNodeX(nodesx,nodesx->gdata[id1],1);
 #endif
       }
     else
       {
-       index_t index=node1->firstseg;
+       index_t index=nodex1->id;
 
        do
          {
@@ -721,17 +704,17 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
     /* Check node2 */
 
-    if(node2->firstseg==NO_SEGMENT)
+    if(nodex2->id==NO_SEGMENT)
       {
-       node2->firstseg=i;
+       nodex2->id=i;
 
 #if SLIM
-       PutBackNodeXNode(nodesx,id2,2);
+       PutBackNodeX(nodesx,nodesx->gdata[id2],2);
 #endif
       }
     else
       {
-       index_t index=node2->firstseg;
+       index_t index=nodex2->id;
 
        do
          {
@@ -822,12 +805,18 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  for(i=0;i<nodesx->number;i++)
    {
     NodeX *nodex=LookupNodeX(nodesx,i,1);
-    Node *node=LookupNodeXNode(nodesx,nodex->id,1);
+    Node node;
 
-    if(node->flags&NODE_SUPER)
+    node.latoffset=latlong_to_off(nodex->latitude);
+    node.lonoffset=latlong_to_off(nodex->longitude);
+    node.firstseg=nodex->id;
+    node.allow=nodex->allow;
+    node.flags=nodex->flags;
+
+    if(node.flags&NODE_SUPER)
        super_number++;
 
-    WriteFile(fd,node,sizeof(Node));
+    WriteFile(fd,&node,sizeof(Node));
 
     if(!((i+1)%10000))
        printf_middle("Writing Nodes: Nodes=%d",i+1);

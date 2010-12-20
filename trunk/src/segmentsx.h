@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.28 2010-12-18 19:17:26 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.h,v 1.29 2010-12-20 17:38:29 amb Exp $
 
  A header file for the extended segments.
 
@@ -75,7 +75,7 @@ struct _SegmentsX
 
 #if !SLIM
 
- Segment   *sdata;              /*+ The segment data (same order as n1data). +*/
+ Segment   *sdata;              /*+ The segment data (same order as sorted xdata). +*/
 
 #else
 
