@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.35 2010-12-20 17:38:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.36 2010-12-20 17:48:42 amb Exp $
 
  A header file for the extended nodes.
 
@@ -82,10 +82,6 @@ struct _NodesX
 
  ll_bin_t  latzero;             /*+ The bin number of the furthest south bin. +*/
  ll_bin_t  lonzero;             /*+ The bin number of the furthest west bin. +*/
-
- index_t   latlonbin;           /*+ A temporary index into the offsets array. +*/
-
- index_t  *offsets;             /*+ An array of offset to the first node in each bin. +*/
 };
 
 

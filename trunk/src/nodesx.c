@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.82 2010-12-20 17:38:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.83 2010-12-20 17:48:42 amb Exp $
 
  Extented Node data type functions.
 
@@ -123,9 +123,6 @@ void FreeNodeList(NodesX *nodesx,int keep)
 
  if(nodesx->super)
     free(nodesx->super);
-
- if(nodesx->offsets)
-    free(nodesx->offsets);
 
  free(nodesx);
 }
@@ -276,14 +273,6 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  printf_first("Sorting Nodes Geographically");
 
- /* Allocate the memory for the geographical offsets array */
-
- nodesx->offsets=(index_t*)malloc((nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
-
- assert(nodesx->offsets); /* Check malloc() worked */
-
- nodesx->latlonbin=0;
-
  /* Allocate the memory for the geographical index array */
 
  nodesx->gdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
@@ -311,11 +300,6 @@ void SortNodeListGeographically(NodesX* nodesx)
  CloseFile(fd);
 
  nodesx->fd=ReOpenFile(nodesx->filename);
-
- /* Finish off the indexing */
-
- for(;nodesx->latlonbin<=(nodesx->latbins*nodesx->lonbins);nodesx->latlonbin++)
-    nodesx->offsets[nodesx->latlonbin]=nodesx->number;
 
  /* Print the final message */
 
@@ -384,15 +368,6 @@ static int sort_by_lat_long(NodeX *a,NodeX *b)
 
 static int index_by_lat_long(NodeX *nodex,index_t index)
 {
- /* Work out the offsets */
-
- ll_bin_t latbin=latlong_to_bin(nodex->latitude )-sortnodesx->latzero;
- ll_bin_t lonbin=latlong_to_bin(nodex->longitude)-sortnodesx->lonzero;
- int llbin=lonbin*sortnodesx->latbins+latbin;
-
- for(;sortnodesx->latlonbin<=llbin;sortnodesx->latlonbin++)
-    sortnodesx->offsets[sortnodesx->latlonbin]=index;
-
  /* Create the index from the previous sort to the current one */
 
  sortnodesx->gdata[nodex->id]=index;
@@ -784,10 +759,19 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  int fd;
  NodesFile nodesfile={0};
  int super_number=0;
+ index_t latlonbin=0,*offsets;
 
  /* Print the start message */
 
  printf_first("Writing Nodes: Nodes=0");
+
+ /* Allocate the memory for the geographical offsets array */
+
+ offsets=(index_t*)malloc((nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+
+ assert(offsets); /* Check malloc() worked */
+
+ latlonbin=0;
 
  /* Map into memory */
 
@@ -799,13 +783,16 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  fd=OpenFileNew(filename);
 
- SeekFile(fd,sizeof(NodesFile));
- WriteFile(fd,nodesx->offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+ SeekFile(fd,sizeof(NodesFile)+(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
  for(i=0;i<nodesx->number;i++)
    {
     NodeX *nodex=LookupNodeX(nodesx,i,1);
     Node node;
+    ll_bin_t latbin,lonbin;
+    int llbin;
+
+    /* Create the Node */
 
     node.latoffset=latlong_to_off(nodex->latitude);
     node.lonoffset=latlong_to_off(nodex->longitude);
@@ -816,11 +803,30 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
     if(node.flags&NODE_SUPER)
        super_number++;
 
+    /* Work out the offsets */
+
+    latbin=latlong_to_bin(nodex->latitude )-nodesx->latzero;
+    lonbin=latlong_to_bin(nodex->longitude)-nodesx->lonzero;
+    llbin=lonbin*nodesx->latbins+latbin;
+
+    for(;latlonbin<=llbin;latlonbin++)
+       offsets[latlonbin]=i;
+
+    /* Write the data */
+
     WriteFile(fd,&node,sizeof(Node));
 
     if(!((i+1)%10000))
        printf_middle("Writing Nodes: Nodes=%d",i+1);
    }
+
+ /* Finish off the offset indexing and write them out */
+
+ for(;latlonbin<=(nodesx->latbins*nodesx->lonbins);latlonbin++)
+    offsets[latlonbin]=nodesx->number;
+
+ SeekFile(fd,sizeof(NodesFile));
+ WriteFile(fd,offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
  /* Write out the header structure */
 
