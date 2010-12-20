@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.85 2010-12-20 19:02:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.86 2010-12-20 19:05:59 amb Exp $
 
  Extented Node data type functions.
 
@@ -782,13 +782,9 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  latlonbin=0;
 
- /* Map into memory / open the file */
+ /* Re-open the file */
 
-#if !SLIM
- nodesx->xdata=MapFile(nodesx->filename);
-#else
  nodesx->fd=ReOpenFile(nodesx->filename);
-#endif
 
  /* Write out the nodes data */
 
@@ -798,26 +794,28 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  for(i=0;i<nodesx->number;i++)
    {
-    NodeX *nodex=LookupNodeX(nodesx,i,1);
+    NodeX nodex;
     Node node;
     ll_bin_t latbin,lonbin;
     int llbin;
 
+    ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
+
     /* Create the Node */
 
-    node.latoffset=latlong_to_off(nodex->latitude);
-    node.lonoffset=latlong_to_off(nodex->longitude);
-    node.firstseg=nodex->id;
-    node.allow=nodex->allow;
-    node.flags=nodex->flags;
+    node.latoffset=latlong_to_off(nodex.latitude);
+    node.lonoffset=latlong_to_off(nodex.longitude);
+    node.firstseg=nodex.id;
+    node.allow=nodex.allow;
+    node.flags=nodex.flags;
 
     if(node.flags&NODE_SUPER)
        super_number++;
 
     /* Work out the offsets */
 
-    latbin=latlong_to_bin(nodex->latitude )-nodesx->latzero;
-    lonbin=latlong_to_bin(nodex->longitude)-nodesx->lonzero;
+    latbin=latlong_to_bin(nodex.latitude )-nodesx->latzero;
+    lonbin=latlong_to_bin(nodex.longitude)-nodesx->lonzero;
     llbin=lonbin*nodesx->latbins+latbin;
 
     for(;latlonbin<=llbin;latlonbin++)
@@ -830,6 +828,10 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
     if(!((i+1)%10000))
        printf_middle("Writing Nodes: Nodes=%d",i+1);
    }
+
+ /* Close the file */
+
+ CloseFile(nodesx->fd);
 
  /* Finish off the offset indexing and write them out */
 
@@ -854,14 +856,6 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
  WriteFile(fd,&nodesfile,sizeof(NodesFile));
 
  CloseFile(fd);
-
- /* Unmap from memory / close the file */
-
-#if !SLIM
- nodesx->xdata=UnmapFile(nodesx->filename);
-#else
- CloseFile(nodesx->fd);
-#endif
 
  /* Print the final message */
 
