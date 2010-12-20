@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.30 2010-12-20 19:02:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/waysx.h,v 1.31 2010-12-20 19:11:02 amb Exp $
 
  A header file for the extended Ways structure.
 
@@ -103,9 +103,13 @@ void CompactWayList(WaysX *waysx);
 
 #define LookupWayX(waysx,index,position)  &(waysx)->xdata[index]
   
+#define PutBackWayX(waysx,index,position) /* nop */
+
 #else
 
 static WayX *LookupWayX(WaysX* waysx,index_t index,int position);
+
+static void PutBackWayX(WaysX* waysx,index_t index,int position);
 
 
 /*++++++++++++++++++++++++++++++++++++++

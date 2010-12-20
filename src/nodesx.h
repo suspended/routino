@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.36 2010-12-20 17:48:42 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.37 2010-12-20 19:11:02 amb Exp $
 
  A header file for the extended nodes.
 
@@ -113,6 +113,8 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 #define LookupNodeX(nodesx,index,position)      &(nodesx)->xdata[index]
   
+#define PutBackNodeX(nodesx,index,position)     /* nop */
+
 #else
 
 static NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position);

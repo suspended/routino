@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.86 2010-12-20 19:05:59 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.87 2010-12-20 19:11:02 amb Exp $
 
  Extented Node data type functions.
 
@@ -566,9 +566,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
     if(nodesx->super[i]==iteration)
        nodex->flags|=NODE_SUPER;
 
-#if SLIM
     PutBackNodeX(nodesx,nodesx->gdata[i],1);
-#endif
 
     if(!((i+1)%10000))
        printf_middle("Creating Real Nodes: Nodes=%d",i+1);
@@ -638,9 +636,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
       {
        nodex1->id=i;
 
-#if SLIM
        PutBackNodeX(nodesx,nodesx->gdata[id1],1);
-#endif
       }
     else
       {
@@ -670,9 +666,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
                {
                 segment->next2=i;
 
-#if SLIM
                 PutBackSegmentXSegment(segmentsx,index,1);
-#endif
 
                 break;
                }
@@ -689,9 +683,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
       {
        nodex2->id=i;
 
-#if SLIM
        PutBackNodeX(nodesx,nodesx->gdata[id2],2);
-#endif
       }
     else
       {
@@ -721,9 +713,7 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
                {
                 segment->next2=i;
 
-#if SLIM
                 PutBackSegmentXSegment(segmentsx,index,1);
-#endif
 
                 break;
                }

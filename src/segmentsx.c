@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.75 2010-12-20 19:02:30 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.76 2010-12-20 19:11:02 amb Exp $
 
  Extended Segment data type functions.
 
@@ -837,9 +837,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
     segment->way=wayx->prop;
     segment->distance=segmentx->distance;
 
-#if SLIM
     PutBackSegmentXSegment(segmentsx,i,1);
-#endif
 
     if(!((i+1)%10000))
        printf_middle("Creating Real Segments: Segments=%d",i+1);
@@ -914,9 +912,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
          {
           segment->node1=nodesx->gdata[i];
 
-#if SLIM
           PutBackSegmentXSegment(segmentsx,index,1);
-#endif
 
           index++;
 
@@ -932,9 +928,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
          {
           segment->node2=nodesx->gdata[i];
 
-#if SLIM
           PutBackSegmentXSegment(segmentsx,index,1);
-#endif
 
           if(segment->next2==NO_NODE)
              break;
