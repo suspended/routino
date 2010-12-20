@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.34 2010-12-05 14:43:37 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.35 2010-12-20 17:38:29 amb Exp $
 
  A header file for the extended nodes.
 
@@ -73,20 +73,9 @@ struct _NodesX
 
  node_t   *idata;               /*+ The extended node IDs (sorted by ID). +*/
 
- uint8_t  *super;               /*+ A marker for super nodes (same order sorted nodes). +*/
+ node_t   *gdata;               /*+ The final node indexes (sorted by ID). +*/
 
-#if !SLIM
-
- Node     *ndata;               /*+ The actual nodes (same order as geographically sorted nodes). +*/
-
-#else
-
- char     *nfilename;           /*+ The name of the temporary file for nodes in slim mode. +*/
- int       nfd;                 /*+ The file descriptor of the temporary file. +*/
-
- Node      ncached[2];          /*+ Two cached nodes read from the file in slim mode. +*/
-
-#endif
+ uint8_t  *super;               /*+ A marker for super nodes (same order as sorted nodes). +*/
 
  index_t   latbins;             /*+ The number of bins containing latitude. +*/
  index_t   lonbins;             /*+ The number of bins containing longitude. +*/
@@ -128,15 +117,11 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 #define LookupNodeX(nodesx,index,position)      &(nodesx)->xdata[index]
   
-#define LookupNodeXNode(nodesx,index,position)  &(nodesx)->ndata[index]
-
 #else
 
 static NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position);
 
-static Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position);
-
-static void PutBackNodeXNode(NodesX* nodesx,index_t index,int position);
+static void PutBackNodeX(NodesX* nodesx,index_t index,int position);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -162,9 +147,7 @@ static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular extended node's normal node.
-
-  Node *LookupNodeXNode Returns a pointer to the node with the specified id.
+  Put back an extended node's data.
 
   NodesX* nodesx The set of nodes to process.
 
@@ -173,31 +156,11 @@ static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
   int position The position in the cache to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline Node *LookupNodeXNode(NodesX* nodesx,index_t index,int position)
+static inline void PutBackNodeX(NodesX* nodesx,index_t index,int position)
 {
- SeekFile(nodesx->nfd,(off_t)index*sizeof(Node));
+ SeekFile(nodesx->fd,(off_t)index*sizeof(NodeX));
 
- ReadFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
-
- return(&nodesx->ncached[position-1]);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Put back an extended node's normal node.
-
-  NodesX* nodesx The set of nodes to process.
-
-  index_t index The node index to look for.
-
-  int position The position in the cache to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static inline void PutBackNodeXNode(NodesX* nodesx,index_t index,int position)
-{
- SeekFile(nodesx->nfd,(off_t)index*sizeof(Node));
-
- WriteFile(nodesx->nfd,&nodesx->ncached[position-1],sizeof(Node));
+ WriteFile(nodesx->fd,&nodesx->xcached[position-1],sizeof(NodeX));
 }
 
 #endif /* SLIM */

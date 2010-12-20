@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.72 2010-12-18 19:18:01 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.73 2010-12-20 17:38:29 amb Exp $
 
  Extended Segment data type functions.
 
@@ -872,18 +872,17 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    NodeX  *nodex=LookupNodeX(nodesx,i,1);
-    Node   *node =LookupNodeXNode(nodesx,nodex->id,1);
-    index_t index=node->firstseg;
+    NodeX  *nodex=LookupNodeX(nodesx,nodesx->gdata[i],1);
+    index_t index=nodex->id;
 
     do
       {
        SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
        Segment  *segment =LookupSegmentXSegment(segmentsx,index,1);
 
-       if(segmentx->node1==nodex->id)
+       if(segmentx->node1==i)
          {
-          segment->node1=i;
+          segment->node1=nodesx->gdata[i];
 
 #if SLIM
           PutBackSegmentXSegment(segmentsx,index,1);
@@ -896,12 +895,12 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
           segmentx=LookupSegmentX(segmentsx,index,1);
 
-          if(segmentx->node1!=nodex->id)
+          if(segmentx->node1!=i)
              break;
          }
        else
          {
-          segment->node2=i;
+          segment->node2=nodesx->gdata[i];
 
 #if SLIM
           PutBackSegmentXSegment(segmentsx,index,1);
