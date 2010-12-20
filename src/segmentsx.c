@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.73 2010-12-20 17:38:29 amb Exp $
+ $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.74 2010-12-20 17:54:31 amb Exp $
 
  Extended Segment data type functions.
 
@@ -834,6 +834,14 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 #if !SLIM
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  waysx->xdata=UnmapFile(waysx->filename);
+#endif
+
+ /* Close the file and re-open it read-write */
+
+#if SLIM
+ CloseFile(segmentsx->sfd);
+
+ segmentsx->sfd=ReOpenFileWriteable(segmentsx->sfilename);
 #endif
 
  /* Print the final message */
