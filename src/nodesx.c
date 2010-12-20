@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.87 2010-12-20 19:11:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.88 2010-12-20 19:25:03 amb Exp $
 
  Extented Node data type functions.
 
@@ -615,9 +615,11 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 #if !SLIM
  nodesx->xdata=MapFileWriteable(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
+ segmentsx->sdata=MapFileWriteable(segmentsx->sfilename);
 #else
  nodesx->fd=ReOpenFileWriteable(nodesx->filename);
  segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->sfd=ReOpenFileWriteable(segmentsx->sfilename);
 #endif
 
  /* Index the nodes */
@@ -733,9 +735,11 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
  segmentsx->xdata=UnmapFile(segmentsx->filename);
+ segmentsx->sdata=UnmapFile(segmentsx->sfilename);
 #else
  CloseFile(nodesx->fd);
  CloseFile(segmentsx->fd);
+ CloseFile(segmentsx->sfd);
 #endif
 
  /* Print the final message */
