@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.84 2010-12-20 17:54:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.85 2010-12-20 19:02:30 amb Exp $
 
  Extented Node data type functions.
 
@@ -176,9 +176,12 @@ void SortNodeList(NodesX* nodesx)
 
  printf_first("Sorting Nodes");
 
- /* Close the files and re-open them (finished appending) */
+ /* Close the file (finished appending) */
 
  CloseFile(nodesx->fd);
+
+ /* Re-open the file read-only and a new file writeable */
+
  nodesx->fd=ReOpenFile(nodesx->filename);
 
  DeleteFile(nodesx->filename);
@@ -197,12 +200,10 @@ void SortNodeList(NodesX* nodesx)
 
  filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
 
- /* Close the files and re-open them */
+ /* Close the files */
 
  CloseFile(nodesx->fd);
  CloseFile(fd);
-
- nodesx->fd=ReOpenFile(nodesx->filename);
 
  /* Print the final message */
 
@@ -279,9 +280,8 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  assert(nodesx->gdata); /* Check malloc() worked */
 
- /* Close the files and re-open them */
+ /* Re-open the file read-only and a new file writeable */
 
- CloseFile(nodesx->fd);
  nodesx->fd=ReOpenFile(nodesx->filename);
 
  DeleteFile(nodesx->filename);
@@ -294,12 +294,10 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
 
- /* Close the files and re-open them */
+ /* Close the files */
 
  CloseFile(nodesx->fd);
  CloseFile(fd);
-
- nodesx->fd=ReOpenFile(nodesx->filename);
 
  /* Print the final message */
 
@@ -462,12 +460,15 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  lon_min=radians_to_latlong( 4);
  lon_max=radians_to_latlong(-4);
 
- /* Modify the on-disk image */
+ /* Re-open the file read-only and a new file writeable */
+
+ nodesx->fd=ReOpenFile(nodesx->filename);
 
  DeleteFile(nodesx->filename);
 
  fd=OpenFileNew(nodesx->filename);
- SeekFile(nodesx->fd,0);
+
+ /* Modify the on-disk image */
 
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
@@ -498,14 +499,12 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
        printf_middle("Checking: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
    }
 
- /* Close the files and re-open them */
+ nodesx->number=highway;
+
+ /* Close the files */
 
  CloseFile(nodesx->fd);
  CloseFile(fd);
-
- nodesx->fd=ReOpenFile(nodesx->filename);
-
- nodesx->number=highway;
 
  /* Work out the number of bins */
 
@@ -548,17 +547,11 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 
  printf_first("Creating Real Nodes: Nodes=0");
 
- /* Map into memory */
+ /* Map into memory /  open the file */
 
 #if !SLIM
  nodesx->xdata=MapFileWriteable(nodesx->filename);
-#endif
-
- /* Close the file and re-open it read-write */
-
-#if SLIM
- CloseFile(nodesx->fd);
-
+#else
  nodesx->fd=ReOpenFileWriteable(nodesx->filename);
 #endif
 
@@ -586,10 +579,12 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
  free(nodesx->super);
  nodesx->super=NULL;
 
- /* Unmap from memory */
+ /* Unmap from memory / close the file */
 
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
+#else
+ CloseFile(nodesx->fd);
 #endif
 
  /* Print the final message */
@@ -617,11 +612,14 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  printf_first("Indexing Segments: Segments=0");
 
- /* Map into memory */
+ /* Map into memory /  open the files */
 
 #if !SLIM
  nodesx->xdata=MapFileWriteable(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
+#else
+ nodesx->fd=ReOpenFileWriteable(nodesx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
 #endif
 
  /* Index the nodes */
@@ -740,11 +738,14 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
        printf_middle("Indexing Segments: Segments=%d",i+1);
    }
 
- /* Unmap from memory */
+ /* Unmap from memory / close the files */
 
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
  segmentsx->xdata=UnmapFile(segmentsx->filename);
+#else
+ CloseFile(nodesx->fd);
+ CloseFile(segmentsx->fd);
 #endif
 
  /* Print the final message */
@@ -781,10 +782,12 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  latlonbin=0;
 
- /* Map into memory */
+ /* Map into memory / open the file */
 
 #if !SLIM
  nodesx->xdata=MapFile(nodesx->filename);
+#else
+ nodesx->fd=ReOpenFile(nodesx->filename);
 #endif
 
  /* Write out the nodes data */
@@ -852,10 +855,12 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  CloseFile(fd);
 
- /* Unmap from memory */
+ /* Unmap from memory / close the file */
 
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
+#else
+ CloseFile(nodesx->fd);
 #endif
 
  /* Print the final message */

@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.47 2010-12-19 14:18:38 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.48 2010-12-20 19:02:31 amb Exp $
 
  Super-Segment data type functions.
 
@@ -64,12 +64,16 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  printf_first("Finding Super-Nodes: Nodes=0 Super-Nodes=0");
 
- /* Map into memory */
+ /* Map into memory / open the files */
 
 #if !SLIM
  nodesx->xdata=MapFile(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
  waysx->xdata=MapFile(waysx->filename);
+#else
+ nodesx->fd=ReOpenFile(nodesx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
+ waysx->fd=ReOpenFile(waysx->filename);
 #endif
 
  /* Find super-nodes */
@@ -132,12 +136,16 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
        printf_middle("Finding Super-Nodes: Nodes=%d Super-Nodes=%d",i+1,nnodes);
    }
 
- /* Unmap from memory */
+ /* Unmap from memory / close the files */
 
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  waysx->xdata=UnmapFile(waysx->filename);
+#else
+ CloseFile(nodesx->fd);
+ CloseFile(segmentsx->fd);
+ CloseFile(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -175,11 +183,14 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  printf_first("Creating Super-Segments: Super-Nodes=0 Super-Segments=0");
 
- /* Map into memory */
+ /* Map into memory / open the files */
 
 #if !SLIM
  segmentsx->xdata=MapFile(segmentsx->filename);
  waysx->xdata=MapFile(waysx->filename);
+#else
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
+ waysx->fd=ReOpenFile(waysx->filename);
 #endif
 
  /* Create super-segments for each super-node. */
@@ -256,11 +267,14 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
       }
    }
 
- /* Unmap from memory */
+ /* Unmap from memory / close the files */
 
 #if !SLIM
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  waysx->xdata=UnmapFile(waysx->filename);
+#else
+ CloseFile(segmentsx->fd);
+ CloseFile(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -296,12 +310,16 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
  printf_first("Merging: Segments=0 Super-Segments=0 Merged=0 Added=0");
 
- /* Map into memory */
+ /* Map into memory / open the files */
 
 #if !SLIM
  segmentsx->xdata=MapFile(segmentsx->filename);
  if(supersegmentsx->number>0)
     supersegmentsx->xdata=MapFile(supersegmentsx->filename);
+#else
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
+ if(supersegmentsx->number>0)
+    supersegmentsx->fd=ReOpenFile(supersegmentsx->filename);
 #endif
 
  /* Loop through and create a new list of combined segments */
@@ -352,12 +370,16 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
        printf_middle("Merging: Segments=%d Super-Segments=%d Merged=%d Added=%d",i+1,j,m,a);
    }
 
- /* Unmap from memory */
+ /* Unmap from memory / close the files */
 
 #if !SLIM
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  if(supersegmentsx->number>0)
     supersegmentsx->xdata=UnmapFile(supersegmentsx->filename);
+#else
+ CloseFile(segmentsx->fd);
+ if(supersegmentsx->number>0)
+    CloseFile(supersegmentsx->fd);
 #endif
 
  /* Print the final message */

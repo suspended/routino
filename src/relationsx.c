@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.16 2010-12-19 19:01:46 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.17 2010-12-20 19:02:30 amb Exp $
 
  Extended Relation data type functions.
 
@@ -266,7 +266,13 @@ void SortRelationList(RelationsX* relationsx)
 
     printf_first("Sorting Turn Restriction Relations");
 
-    /* Open the new file */
+    /* Close the file (finished appending) */
+
+    CloseFile(relationsx->trfd);
+
+    /* Re-open the file read-only and a new file writeable */
+
+    relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
     DeleteFile(relationsx->trfilename);
 
@@ -278,12 +284,10 @@ void SortRelationList(RelationsX* relationsx)
 
     filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_via,(int (*)(void*,index_t))deduplicate_by_id);
 
-    /* Close the files and re-open read-only */
+    /* Close the files */
 
     CloseFile(relationsx->trfd);
     CloseFile(trfd);
-
-    relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
     /* Print the final message */
 
@@ -369,22 +373,20 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  if(waysx->number==0)
     return;
 
- /* Map into memory */
+ /* Map into memory / open the files */
 
 #if !SLIM
  waysx->xdata=MapFileWriteable(waysx->filename);
-#endif
-
- /* Re-open the ways file read/write */
-
-#if SLIM
- CloseFile(waysx->fd);
+#else
  waysx->fd=ReOpenFileWriteable(waysx->filename);
 #endif
 
- /* Close the file and re-open it (finished appending) */
+ /* Close the file (finished appending) */
 
  CloseFile(relationsx->rfd);
+
+ /* Re-open the file read-only */
+
  relationsx->rfd=ReOpenFile(relationsx->rfilename);
 
  /* Read through the file. */
@@ -512,19 +514,16 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  if(lastunmatched)
     free(lastunmatched);
 
+ /* Close the file */
+
  CloseFile(relationsx->rfd);
 
- /* Unmap from memory */
+ /* Unmap from memory / close the files */
 
 #if !SLIM
  waysx->xdata=UnmapFile(waysx->filename);
-#endif
-
- /* Re-open the ways file read only */
-
-#if SLIM
+#else
  CloseFile(waysx->fd);
- waysx->fd=ReOpenFile(waysx->filename);
 #endif
 }
 
@@ -553,19 +552,23 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  printf_first("Processing Turn Restriction Relations (1): Turn Relations=0");
 
- /* Map into memory */
+ /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->xdata   =MapFile(nodesx->filename);
+ nodesx->xdata=MapFile(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
+#else
+ nodesx->fd=ReOpenFile(nodesx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
 #endif
 
- /* Close the file and re-open it (finished appending) */
+ /* Close the file (finished appending) */
 
  CloseFile(relationsx->trfd);
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
- /* Open the new file */
+ /* Re-open the file read-only and a new file writeable */
+
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
  DeleteFile(relationsx->trfilename);
 
@@ -690,18 +693,19 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
    endloop: ;
    }
 
- /* Close the files and re-open read-only */
+ /* Close the files */
 
  CloseFile(relationsx->trfd);
  CloseFile(trfd);
 
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
-
- /* Unmap from memory */
+ /* Unmap from memory / close the files */
 
 #if !SLIM
- nodesx->xdata   =UnmapFile(nodesx->filename);
+ nodesx->xdata=UnmapFile(nodesx->filename);
  segmentsx->xdata=UnmapFile(segmentsx->filename);
+#else
+ CloseFile(nodesx->fd);
+ CloseFile(segmentsx->fd);
 #endif
 
  /* Print the final message */
@@ -732,13 +736,17 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx)
 
  printf_first("Processing Turn Restriction Relations (2): Turn Relations=0");
 
- /* Map into memory */
+ /* Map into memory /  open the files */
 
 #if !SLIM
  nodesx->xdata=MapFile(nodesx->filename);
+#else
+ nodesx->fd=ReOpenFile(nodesx->filename);
 #endif
 
- /* Open the new file */
+ /* Re-open the file read-only and a new file writeable */
+
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
  DeleteFile(relationsx->trfilename);
 
@@ -765,17 +773,17 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx)
        printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d",relationsx->trxnumber);
    }
 
- /* Close the files and re-open read-only */
+ /* Close the files */
 
  CloseFile(relationsx->trfd);
  CloseFile(trfd);
-
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
  /* Unmap from memory */
 
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
+#else
+ CloseFile(nodesx->fd);
 #endif
 
  /* Print the final message */
@@ -801,6 +809,10 @@ void SaveRelationList(RelationsX* relationsx,const char *filename)
  /* Print the start message */
 
  printf_first("Writing Relations: Turn Relations=0");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
  /* Write out the relations data */
 
