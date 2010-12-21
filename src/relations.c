@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relations.c,v 1.2 2010-12-21 17:01:46 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relations.c,v 1.3 2010-12-21 17:17:57 amb Exp $
 
  Relation data type functions.
 
@@ -68,9 +68,23 @@ Relations *LoadRelationList(const char *filename)
 
  relations->incache[0]=NO_RELATION;
  relations->incache[1]=NO_RELATION;
- relations->incache[2]=NO_RELATION;
 
 #endif
+
+ if(relations->file.trnumber>0)
+   {
+    TurnRelation *relation;
+
+    relation=LookupTurnRelation(relations,0,1);
+
+    relations->via_start =relation->via;
+    relations->from_start=relation->from;
+
+    relation=LookupTurnRelation(relations,relations->file.trnumber-1,1);
+
+    relations->via_end =relation->via;
+    relations->from_end=relation->from;
+   }
 
  return(relations);
 }
@@ -108,21 +122,17 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
  if(end<start)                      /* There are no relations */
     return(NO_RELATION);
 
- relation=LookupTurnRelation(relations,start,1);
-
- if(via<relation->via)              /* Check key is not before start */
+ if(via<relations->via_start)       /* Check key is not before start */
     return(NO_RELATION);
 
- relation=LookupTurnRelation(relations,end,2);
-
- if(via>relation->via)              /* Check key is not after end */
+ if(via>relations->via_end)         /* Check key is not after end */
     return(NO_RELATION);
 
  do
    {
     mid=(start+end)/2;              /* Choose mid point */
 
-    relation=LookupTurnRelation(relations,mid,3);
+    relation=LookupTurnRelation(relations,mid,1);
 
     if(relation->via<via)           /* Mid point is too low for 'via' */
        start=mid+1;
@@ -138,7 +148,7 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
 
  if(match==-1)                      /* Check if start matches */
    {
-    relation=LookupTurnRelation(relations,start,3);
+    relation=LookupTurnRelation(relations,start,1);
 
     if(relation->via==via)
        match=start;
@@ -146,7 +156,7 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
 
  if(match==-1)                      /* Check if end matches */
    {
-    relation=LookupTurnRelation(relations,end,3);
+    relation=LookupTurnRelation(relations,end,1);
 
     if(relation->via==via)
        match=end;
@@ -157,7 +167,7 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
 
  while(match>0)                     /* Search backwards for the first match */
    {
-    relation=LookupTurnRelation(relations,match-1,3);
+    relation=LookupTurnRelation(relations,match-1,1);
 
     if(relation->via==via)
        match--;
@@ -184,13 +194,13 @@ index_t FindNextTurnRelation1(Relations *relations,index_t current)
  TurnRelation *relation;
  index_t via;
 
- relation=LookupTurnRelation(relations,current,3);
+ relation=LookupTurnRelation(relations,current,1);
 
  via=relation->via;
 
  current++;
 
- relation=LookupTurnRelation(relations,current,3);
+ relation=LookupTurnRelation(relations,current,1);
 
  if(relation->via==via)
     return(current);
@@ -230,36 +240,34 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
   *  # <- end    |  start or end is the wanted one.
   */
 
- if(end<start)                                /* There are no relations */
+ if(end<start)                      /* There are no relations */
     return(NO_RELATION);
 
- relation=LookupTurnRelation(relations,start,1);
-
- if(via<relation->via || from<relation->from) /* Check keys are not before start */
+ if(via<relations->via_start ||
+    from<relations->from_start)     /* Check key is not before start */
     return(NO_RELATION);
 
- relation=LookupTurnRelation(relations,end,2);
-
- if(via>relation->via || from>relation->from) /* Check key is not after end */
+ if(via>relations->via_end ||
+    from>relations->from_end)       /* Check key is not after end */
     return(NO_RELATION);
 
  do
    {
-    mid=(start+end)/2;                        /* Choose mid point */
+    mid=(start+end)/2;              /* Choose mid point */
 
-    relation=LookupTurnRelation(relations,mid,3);
+    relation=LookupTurnRelation(relations,mid,1);
 
-    if(relation->via<via)                     /* Mid point is too low for 'via' */
+    if(relation->via<via)           /* Mid point is too low for 'via' */
        start=mid+1;
-    else if(relation->via>via)                /* Mid point is too high for 'via' */
+    else if(relation->via>via)      /* Mid point is too high for 'via' */
        end=mid-1;
-    else                                      /* Mid point is correct for 'via' */
+    else                            /* Mid point is correct for 'via' */
       {
-       if(relation->from<from)                /* Mid point is too low for 'from' */
+       if(relation->from<from)      /* Mid point is too low for 'from' */
           start=mid+1;
-       else if(relation->from>from)           /* Mid point is too high for 'from' */
+       else if(relation->from>from) /* Mid point is too high for 'from' */
           end=mid-1;
-       else                                   /* Mid point is correct for 'from' */
+       else                         /* Mid point is correct for 'from' */
          {
           match=mid;
           break;
@@ -268,17 +276,17 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
    }
  while((end-start)>1);
 
- if(match==-1)                                /* Check if start matches */
+ if(match==-1)                      /* Check if start matches */
    {
-    relation=LookupTurnRelation(relations,start,3);
+    relation=LookupTurnRelation(relations,start,1);
 
     if(relation->via==via && relation->from==from)
        match=start;
    }
 
- if(match==-1)                                /* Check if end matches */
+ if(match==-1)                      /* Check if end matches */
    {
-    relation=LookupTurnRelation(relations,end,3);
+    relation=LookupTurnRelation(relations,end,1);
 
     if(relation->via==via && relation->from==from)
        match=end;
@@ -287,9 +295,9 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
  if(match==-1)
     return(NO_RELATION);
 
- while(match>0)                               /* Search backwards for the first match */
+ while(match>0)                     /* Search backwards for the first match */
    {
-    relation=LookupTurnRelation(relations,match-1,3);
+    relation=LookupTurnRelation(relations,match-1,1);
 
     if(relation->via==via && relation->from==from)
        match--;
@@ -316,14 +324,14 @@ index_t FindNextTurnRelation2(Relations *relations,index_t current)
  TurnRelation *relation;
  index_t via,from;
 
- relation=LookupTurnRelation(relations,current,3);
+ relation=LookupTurnRelation(relations,current,1);
 
  via=relation->via;
  from=relation->from;
 
  current++;
 
- relation=LookupTurnRelation(relations,current,3);
+ relation=LookupTurnRelation(relations,current,1);
 
  if(relation->via==via && relation->from==from)
     return(current);

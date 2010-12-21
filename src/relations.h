@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relations.h,v 1.2 2010-12-21 17:01:46 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relations.h,v 1.3 2010-12-21 17:17:57 amb Exp $
 
  A header file for the relations.
 
@@ -72,10 +72,16 @@ struct _Relations
 
  off_t         troffset;        /*+ The offset of the turn relations in the file. +*/
 
- TurnRelation  cached[3];       /*+ The cached relations. +*/
- index_t       incache[3];      /*+ The indexes of the cached relations. +*/
+ TurnRelation  cached[2];       /*+ The cached relations. +*/
+ index_t       incache[2];      /*+ The indexes of the cached relations. +*/
 
 #endif
+
+ index_t       via_start;       /*+ The first via node in the file. +*/
+ index_t       via_end;         /*+ The last via node in the file. +*/
+
+ index_t       from_start;      /*+ The first from node in the file. +*/
+ index_t       from_end;        /*+ The last from node in the file. +*/
 };
 
 
