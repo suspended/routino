@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.57 2010-12-18 15:19:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/types.h,v 1.58 2010-12-21 14:54:27 amb Exp $
 
  Type definitions
 
@@ -74,6 +74,9 @@
 
 /*+ A flag to mark a node as a mini-roundabout. +*/
 #define NODE_MINIRNDBT ((uint16_t)0x2000)
+
+/*+ A flag to mark a node as a turn relation via node. +*/
+#define NODE_TURNRSTRCT ((uint16_t)0x1000)
 
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/

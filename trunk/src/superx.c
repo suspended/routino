@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.48 2010-12-20 19:02:31 amb Exp $
+ $Header: /home/amb/CVS/routino/src/superx.c,v 1.49 2010-12-21 14:54:27 amb Exp $
 
  Super-Segment data type functions.
 
@@ -125,7 +125,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
     /* Store the node if there is a difference in the connected ways that could affect routing. */
 
-    if(difference)
+    if(difference || nodex->flags&NODE_TURNRSTRCT)
       {
        nodesx->super[i]++;
 
