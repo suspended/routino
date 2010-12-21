@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.60 2010-12-18 15:19:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.61 2010-12-21 18:26:28 amb Exp $
 
  Memory file dumper.
 
@@ -45,10 +45,12 @@
 static void print_node(Nodes* nodes,index_t item);
 static void print_segment(Segments *segments,index_t item);
 static void print_way(Ways *ways,index_t item);
+static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes* nodes);
 
 static void print_head_osm(void);
 static void print_node_osm(Nodes* nodes,index_t item);
 static void print_segment_osm(Segments *segments,index_t item,Ways *ways);
+static void print_turnrelation_osm(Relations* relations,index_t item,Segments *segments,Nodes* nodes);
 static void print_tail_osm(void);
 
 static char *RFC822Date(time_t t);
@@ -111,6 +113,8 @@ int main(int argc,char** argv)
     else if(!strncmp(argv[arg],"--segment=",10))
        ;
     else if(!strncmp(argv[arg],"--way=",6))
+       ;
+    else if(!strncmp(argv[arg],"--turn-relation=",16))
        ;
     else
        print_usage(0,argv[arg],NULL);
@@ -237,6 +241,16 @@ int main(int argc,char** argv)
     printf("Included highways  : %s\n",HighwaysNameList(OSMWays->file.highways));
     printf("Included transports: %s\n",AllowedNameList(OSMWays->file.allow));
     printf("Included properties: %s\n",PropertiesNameList(OSMWays->file.props));
+
+    /* Examine the relations */
+
+    printf("\n");
+    printf("Relations\n");
+    printf("---------\n");
+    printf("\n");
+
+    printf("sizeof(TurnRelation)=%9d Bytes\n",sizeof(TurnRelation));
+    printf("Number              =%9d\n",OSMRelations->file.trnumber);
    }
 
  /* Print out internal data */
@@ -288,6 +302,20 @@ int main(int argc,char** argv)
           else
              printf("Invalid way number; minimum=0, maximum=%d.\n",OSMWays->file.number-1);
          }
+       else if(!strcmp(argv[arg],"--turn-relation=all"))
+         {
+          for(item=0;item<OSMRelations->file.trnumber;item++)
+             print_turnrelation(OSMRelations,item,OSMSegments,OSMNodes);
+         }
+       else if(!strncmp(argv[arg],"--turn-relation=",16))
+         {
+          item=atoi(&argv[arg][6]);
+
+          if(item>=0 && item<OSMRelations->file.trnumber)
+             print_turnrelation(OSMRelations,item,OSMSegments,OSMNodes);
+          else
+             printf("Invalid relation number; minimum=0, maximum=%d.\n",OSMRelations->file.trnumber-1);
+         }
    }
 
  /* Print out internal data in XML format */
@@ -307,6 +335,11 @@ int main(int argc,char** argv)
        int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(lonmax))-OSMNodes->file.lonzero;
        int latb,lonb,llbin;
        index_t item,index1,index2;
+
+       if(latminbin<0)                      latminbin=0;
+       if(latmaxbin>OSMNodes->file.latbins) latmaxbin=OSMNodes->file.latbins-1;
+       if(lonminbin<0)                      lonminbin=0;
+       if(lonmaxbin>OSMNodes->file.lonbins) lonmaxbin=OSMNodes->file.lonbins-1;
 
        /* Loop through all of the nodes. */
 
@@ -343,6 +376,18 @@ int main(int argc,char** argv)
 
                       segment=NextSegment(OSMSegments,segment,item);
                      }
+
+                   if(node->flags&NODE_TURNRSTRCT)
+                     {
+                      index_t relindex=FindFirstTurnRelation1(OSMRelations,item);
+
+                      while(relindex!=NO_RELATION)
+                        {
+                         print_turnrelation_osm(OSMRelations,relindex,OSMSegments,OSMNodes);
+
+                         relindex=FindNextTurnRelation1(OSMRelations,relindex);
+                        }
+                     }
                   }
                }
             }
@@ -357,6 +402,9 @@ int main(int argc,char** argv)
        for(item=0;item<OSMSegments->file.number;item++)
           if(!option_no_super || IsNormalSegment(LookupSegment(OSMSegments,item,1)))
              print_segment_osm(OSMSegments,item,OSMWays);
+
+       for(item=0;item<OSMRelations->file.trnumber;item++)
+          print_turnrelation_osm(OSMRelations,item,OSMSegments,OSMNodes);
       }
 
     print_tail_osm();
@@ -447,6 +495,47 @@ static void print_way(Ways *ways,index_t item)
     printf("  width=%d (%.1f m)\n",way->width,width_to_metres(way->width));
  if(way->length)
     printf("  length=%d (%.1f m)\n",way->length,length_to_metres(way->length));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of a turn relation from the routing database.
+
+  Relations *relations The set of relations to use.
+
+  index_t item The turn relation index to print.
+
+  Segments *segments The set of segments to use.
+
+  Nodes *nodes The set of nodes to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes* nodes)
+{
+ TurnRelation *relation=LookupTurnRelation(relations,item,3);
+ Segment *segment;
+ index_t from_way=NO_WAY,to_way=NO_WAY;
+
+ segment=FirstSegment(segments,nodes,relation->via);
+
+ do
+   {
+    if(OtherNode(segment,relation->via)==relation->from)
+       from_way=IndexSegment(segments,segment);
+
+    if(OtherNode(segment,relation->via)==relation->to)
+       to_way=IndexSegment(segments,segment);
+
+    segment=NextSegment(segments,segment,relation->via);
+   }
+ while(segment);
+
+ printf("Relation %d\n",item);
+ printf("  from=%d (node) = %d (way)\n",relation->from,from_way);
+ printf("  via=%d (node)\n",relation->via);
+ printf("  to=%d (node) = %d (way)\n",relation->to,to_way);
+ if(relation->except)
+    printf("  except=%02x (%s)\n",relation->except,AllowedNameList(relation->except));
 }
 
 
@@ -561,6 +650,52 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
     printf("    <tag k='maxlength' v='%.1f' />\n",length_to_metres(way->length));
 
  printf("  </way>\n");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of a turn relation from the routing database in OSM XML format.
+
+  Relations *relations The set of relations to use.
+
+  index_t item The relation index to print.
+
+  Segments *segments The set of segments to use.
+
+  Nodes *nodes The set of nodes to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_turnrelation_osm(Relations* relations,index_t item,Segments *segments,Nodes* nodes)
+{
+ TurnRelation *relation=LookupTurnRelation(relations,item,3);
+ Segment *segment;
+ index_t from_way=NO_WAY,to_way=NO_WAY;
+
+ segment=FirstSegment(segments,nodes,relation->via);
+
+ do
+   {
+    if(OtherNode(segment,relation->via)==relation->from)
+       from_way=IndexSegment(segments,segment);
+
+    if(OtherNode(segment,relation->via)==relation->to)
+       to_way=IndexSegment(segments,segment);
+
+    segment=NextSegment(segments,segment,relation->via);
+   }
+ while(segment);
+
+ printf("  <relation id='%lu' version='1'>\n",(unsigned long)item+1);
+ printf("    <tag k='type' v='restriction' />\n");
+
+ if(relation->except)
+    printf("    <tag k='except' v='%s' />\n",AllowedNameList(relation->except));
+
+ printf("    <member type='way' ref='%lu' role='from' />\n",(unsigned long)from_way+1);
+ printf("    <member type='node' ref='%lu' role='via' />\n",(unsigned long)relation->via+1);
+ printf("    <member type='way' ref='%lu' role='to' />\n",(unsigned long)to_way+1);
+
+ printf("  </relation>\n");
 }
 
 
