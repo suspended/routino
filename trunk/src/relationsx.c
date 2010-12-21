@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.18 2010-12-20 19:11:02 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.19 2010-12-21 12:23:04 amb Exp $
 
  Extended Relation data type functions.
 
@@ -43,8 +43,10 @@
 
 /* Functions */
 
-static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b);
+static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b);
 static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index);
+
+static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b);
 
 
 /* Variables */
@@ -71,7 +73,8 @@ RelationsX *NewRelationList(int append)
 
  assert(relationsx); /* Check calloc() worked */
 
- /* Route relations */
+
+ /* Route Relations */
 
  relationsx->rfilename=(char*)malloc(strlen(option_tmpdirname)+32);
 
@@ -104,7 +107,8 @@ RelationsX *NewRelationList(int append)
  else
     relationsx->rfd=OpenFileNew(relationsx->rfilename);
 
- /* Turn Restriction relations */
+
+ /* Turn Restriction Relations */
 
  relationsx->trfilename=(char*)malloc(strlen(option_tmpdirname)+32);
 
@@ -146,6 +150,7 @@ void FreeRelationList(RelationsX *relationsx,int keep)
     DeleteFile(relationsx->rfilename);
 
  free(relationsx->rfilename);
+
 
  /* Turn Restriction relations */
 
@@ -253,10 +258,17 @@ void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
 
 void SortRelationList(RelationsX* relationsx)
 {
- /* Don't need to sort route relations */
+ /* Close the files (finished appending) */
+
+ CloseFile(relationsx->rfd);
+
+ CloseFile(relationsx->trfd);
 
 
- /* Sort the turn restriction relations by via node. */
+ /* Route Relations */
+
+
+ /* Turn Restriction Relations. */
 
  if(relationsx->trxnumber)
    {
@@ -265,10 +277,6 @@ void SortRelationList(RelationsX* relationsx)
     /* Print the start message */
 
     printf_first("Sorting Turn Restriction Relations");
-
-    /* Close the file (finished appending) */
-
-    CloseFile(relationsx->trfd);
 
     /* Re-open the file read-only and a new file writeable */
 
@@ -282,7 +290,7 @@ void SortRelationList(RelationsX* relationsx)
 
     sortrelationsx=relationsx;
 
-    filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_via,(int (*)(void*,index_t))deduplicate_by_id);
+    filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_by_id);
 
     /* Close the files */
 
@@ -297,36 +305,26 @@ void SortRelationList(RelationsX* relationsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the turn restriction relations into via node order.
+  Sort the turn restriction relations into id order.
 
-  int sort_by_via Returns the comparison of the via fields.
+  int sort_by_id Returns the comparison of the id fields.
 
   TurnRestrictRelX *a The first extended relation.
 
   TurnRestrictRelX *b The second extended relation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
+static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
 {
- node_t a_id=a->via;
- node_t b_id=b->via;
+ relation_t a_id=a->id;
+ relation_t b_id=b->id;
 
  if(a_id<b_id)
     return(-1);
  else if(a_id>b_id)
     return(1);
  else
-   {
-    relation_t a_id=a->id;
-    relation_t b_id=b->id;
-
-    if(a_id<b_id)
-       return(-1);
-    else if(a_id>b_id)
-       return(1);
-    else
-       return(0);
-   }
+    return(0);
 }
 
 
@@ -358,6 +356,90 @@ static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Sort the list of turn relations.
+
+  RelationsX* relationsx The set of relations to process.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void SortTurnRelationList(RelationsX* relationsx)
+{
+ int trfd;
+
+ if(relationsx->trnumber==0)
+    return;
+
+ /* Print the start message */
+
+ printf_first("Sorting Turn Restriction Relations");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
+
+ DeleteFile(relationsx->trfilename);
+
+ trfd=OpenFileNew(relationsx->trfilename);
+
+ /* Sort the relations */
+
+ filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_via,NULL);
+
+ /* Close the files */
+
+ CloseFile(relationsx->trfd);
+ CloseFile(trfd);
+
+ /* Print the final message */
+
+ printf_last("Sorted Relations: Relations=%d",relationsx->trnumber);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the turn restriction relations into via node order.
+
+  int sort_by_via Returns the comparison of the via fields.
+
+  TurnRestrictRelX *a The first extended relation.
+
+  TurnRestrictRelX *b The second extended relation.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
+{
+ node_t a_id=a->via;
+ node_t b_id=b->via;
+
+ if(a_id<b_id)
+    return(-1);
+ else if(a_id>b_id)
+    return(1);
+ else
+   {
+    node_t a_id=a->from;
+    node_t b_id=b->from;
+
+    if(a_id<b_id)
+       return(-1);
+    else if(a_id>b_id)
+       return(1);
+    else
+      {
+       node_t a_id=a->to;
+       node_t b_id=b->to;
+
+       if(a_id<b_id)
+          return(-1);
+       else if(a_id>b_id)
+          return(1);
+       else
+          return(0);
+      }
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Process the route relations and apply the information to the ways.
 
   RelationsX *relationsx The set of relations to process.
@@ -380,10 +462,6 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 #else
  waysx->fd=ReOpenFileWriteable(waysx->filename);
 #endif
-
- /* Close the file (finished appending) */
-
- CloseFile(relationsx->rfd);
 
  /* Re-open the file read-only */
 
@@ -542,6 +620,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 {
  TurnRestrictRelX relationx;
  int trfd;
+ int total=0;
 
  if(nodesx->number==0 || segmentsx->number==0)
     return;
@@ -560,10 +639,6 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  segmentsx->fd=ReOpenFile(segmentsx->filename);
 #endif
 
- /* Close the file (finished appending) */
-
- CloseFile(relationsx->trfd);
-
  /* Re-open the file read-only and a new file writeable */
 
  relationsx->trfd=ReOpenFile(relationsx->trfilename);
@@ -573,8 +648,6 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  trfd=OpenFileNew(relationsx->trfilename);
 
  /* Process all of the relations */
-
- relationsx->trxnumber=0;
 
  while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX)))
    {
@@ -625,10 +698,10 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
-       relationsx->trxnumber++;
+       total++;
 
-       if(!(relationsx->trxnumber%10000))
-          printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d",relationsx->trxnumber);
+       if(!(total%10000))
+          printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
       }
     else
       {
@@ -681,10 +754,10 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
           WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
-          relationsx->trxnumber++;
+          total++;
 
-          if(!(relationsx->trxnumber%10000))
-             printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d",relationsx->trxnumber);
+          if(!(total%10000))
+             printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
          }
       }
 
@@ -708,7 +781,9 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Print the final message */
 
- printf_last("Processing Turn Restriction Relations (1): Turn Relations=%d",relationsx->trxnumber);
+ printf_last("Processing Turn Restriction Relations (1): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
+
+ relationsx->trnumber=total;
 }
 
 
@@ -722,25 +797,12 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
 void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx)
 {
- return;
-
- TurnRestrictRelX relationx;
  int trfd;
-
- if(nodesx->number==0)
-    return;
+ int i;
 
  /* Print the start message */
 
  printf_first("Processing Turn Restriction Relations (2): Turn Relations=0");
-
- /* Map into memory /  open the files */
-
-#if !SLIM
- nodesx->xdata=MapFile(nodesx->filename);
-#else
- nodesx->fd=ReOpenFile(nodesx->filename);
-#endif
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -752,23 +814,22 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx)
 
  /* Process all of the relations */
 
- while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX)))
+ for(i=0;i<relationsx->trnumber;i++)
    {
-    NodeX *nodex;
+    TurnRestrictRelX relationx;
 
-    nodex=LookupNodeX(nodesx,relationx.from,1);
-    relationx.from=nodex->id;
+    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
 
-    nodex=LookupNodeX(nodesx,relationx.via,1);
-    relationx.via=nodex->id;
+    relationx.from=nodesx->gdata[relationx.from];
 
-    nodex=LookupNodeX(nodesx,relationx.to,1);
-    relationx.to=nodex->id;
+    relationx.via=nodesx->gdata[relationx.via];
+
+    relationx.to=nodesx->gdata[relationx.to];
 
     WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
-    if(!(relationsx->trxnumber%10000))
-       printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d",relationsx->trxnumber);
+    if(!(relationsx->trnumber%10000))
+       printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d",relationsx->trnumber);
    }
 
  /* Close the files */
@@ -776,17 +837,9 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx)
  CloseFile(relationsx->trfd);
  CloseFile(trfd);
 
- /* Unmap from memory */
-
-#if !SLIM
- nodesx->xdata=UnmapFile(nodesx->filename);
-#else
- CloseFile(nodesx->fd);
-#endif
-
  /* Print the final message */
 
- printf_last("Processing Turn Restriction Relations (2): Turn Relations=%d",relationsx->trxnumber);
+ printf_last("Processing Turn Restriction Relations (2): Turn Relations=%d",relationsx->trnumber);
 }
 
 
@@ -808,7 +861,7 @@ void SaveRelationList(RelationsX* relationsx,const char *filename)
 
  printf_first("Writing Relations: Turn Relations=0");
 
- /* Re-open the file read-only and a new file writeable */
+ /* Re-open the file read-only */
 
  relationsx->trfd=ReOpenFile(relationsx->trfilename);
 

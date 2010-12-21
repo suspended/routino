@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.h,v 1.5 2010-12-18 15:19:33 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.h,v 1.6 2010-12-21 12:23:04 amb Exp $
 
  A header file for the extended Relations structure.
 
@@ -94,6 +94,8 @@ void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
                                 TurnRestriction restriction,transports_t except);
 
 void SortRelationList(RelationsX *relationsx);
+
+void SortTurnRelationList(RelationsX* relationsx);
 
 void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx);
 
