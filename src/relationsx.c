@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.19 2010-12-21 12:23:04 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.20 2010-12-21 14:54:27 amb Exp $
 
  Extended Relation data type functions.
 
@@ -632,10 +632,10 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->xdata=MapFile(nodesx->filename);
+ nodesx->xdata=MapFileWriteable(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename);
+ nodesx->fd=ReOpenFileWriteable(nodesx->filename);
  segmentsx->fd=ReOpenFile(segmentsx->filename);
 #endif
 
@@ -656,6 +656,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        relationx.restrict==TurnRestrict_no_u_turn ||
        relationx.restrict==TurnRestrict_no_straight_on)
       {
+       NodeX *nodex;
        index_t seg;
        node_t node_from=NO_NODE,node_to=NO_NODE;
 
@@ -698,6 +699,12 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
+       nodex=LookupNodeX(nodesx,relationx.via,1);
+
+       nodex->flags|=NODE_TURNRSTRCT;
+
+       PutBackNodeX(nodesx,relationx.via,1);
+
        total++;
 
        if(!(total%10000))
@@ -705,6 +712,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
       }
     else
       {
+       NodeX *nodex;
        index_t seg;
        node_t node_from=NO_NODE,node_to[8];
        int nnodes_to=0,i;
@@ -759,6 +767,12 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           if(!(total%10000))
              printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
          }
+
+       nodex=LookupNodeX(nodesx,relationx.via,1);
+
+       nodex->flags|=NODE_TURNRSTRCT;
+
+       PutBackNodeX(nodesx,relationx.via,1);
       }
 
    endloop: ;
