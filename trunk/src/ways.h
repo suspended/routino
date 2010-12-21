@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.46 2010-11-27 11:47:51 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.h,v 1.47 2010-12-21 17:18:41 amb Exp $
 
  A header file for the ways.
 
@@ -86,7 +86,8 @@ struct _Ways
  int        fd;                 /*+ The file descriptor for the file. +*/
  off_t      namesoffset;        /*+ The offset of the names within the file. +*/
 
- Way        wcached[2];         /*+ The cached ways. +*/
+ Way        cached[2];          /*+ The cached ways. +*/
+ index_t    incache[2];         /*+ The indexes of the cached ways. +*/
 
  char      *ncached;            /*+ The cached way name. +*/
  index_t    nincache;           /*+ The index of the cached way name. +*/
@@ -134,11 +135,16 @@ static char *WayName(Ways *ways,Way *way);
 
 static inline Way *LookupWay(Ways *ways,index_t index,int position)
 {
- SeekFile(ways->fd,sizeof(WaysFile)+(off_t)index*sizeof(Way));
+ if(ways->incache[position-1]!=index)
+   {
+    SeekFile(ways->fd,sizeof(WaysFile)+(off_t)index*sizeof(Way));
 
- ReadFile(ways->fd,&ways->wcached[position-1],sizeof(Way));
+    ReadFile(ways->fd,&ways->cached[position-1],sizeof(Way));
 
- return(&ways->wcached[position-1]);
+    ways->incache[position-1]=index;
+   }
+
+ return(&ways->cached[position-1]);
 }
 
 

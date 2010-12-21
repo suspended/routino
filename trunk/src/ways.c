@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.46 2010-07-24 10:09:07 amb Exp $
+ $Header: /home/amb/CVS/routino/src/ways.c,v 1.47 2010-12-21 17:18:41 amb Exp $
 
  Way data type functions.
 
@@ -63,6 +63,9 @@ Ways *LoadWayList(const char *filename)
  /* Copy the WaysFile header structure from the loaded data */
 
  ReadFile(ways->fd,&ways->file,sizeof(WaysFile));
+
+ ways->incache[0]=NO_WAY;
+ ways->incache[1]=NO_WAY;
 
  ways->namesoffset=sizeof(WaysFile)+ways->file.number*sizeof(Way);
 
