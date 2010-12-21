@@ -1,5 +1,5 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relations.h,v 1.1 2010-12-21 14:55:18 amb Exp $
+ $Header: /home/amb/CVS/routino/src/relations.h,v 1.2 2010-12-21 17:01:46 amb Exp $
 
  A header file for the relations.
 
@@ -72,7 +72,8 @@ struct _Relations
 
  off_t         troffset;        /*+ The offset of the turn relations in the file. +*/
 
- TurnRelation  cached;          /*+ The cached relations. +*/
+ TurnRelation  cached[3];       /*+ The cached relations. +*/
+ index_t       incache[3];      /*+ The indexes of the cached relations. +*/
 
 #endif
 };
@@ -82,17 +83,23 @@ struct _Relations
 
 Relations *LoadRelationList(const char *filename);
 
+index_t FindFirstTurnRelation1(Relations *relations,index_t via);
+index_t FindNextTurnRelation1(Relations *relations,index_t current);
+
+index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from);
+index_t FindNextTurnRelation2(Relations *relations,index_t current);
+
 
 /* Macros and inline functions */
 
 #if !SLIM
 
 /*+ Return a Relation pointer given a set of relations and an index. +*/
-#define LookupTurnRelation(xxx,yyy)   (&(xxx)->turnrelations[yyy])
+#define LookupTurnRelation(xxx,yyy,ppp)   (&(xxx)->turnrelations[yyy])
 
 #else
 
-static TurnRelation *LookupTurnRelation(Relations *relations,index_t index);
+static TurnRelation *LookupTurnRelation(Relations *relations,index_t index,int position);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -103,15 +110,22 @@ static TurnRelation *LookupTurnRelation(Relations *relations,index_t index);
   Relations *relations The relations structure to use.
 
   index_t index The index of the relation.
+
+  int position The position in the cache to store this result.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline TurnRelation *LookupTurnRelation(Relations *relations,index_t index)
+static inline TurnRelation *LookupTurnRelation(Relations *relations,index_t index,int position)
 {
- SeekFile(relations->fd,relations->troffset+(off_t)index*sizeof(TurnRelation));
+ if(relations->incache[position-1]!=index)
+   {
+    SeekFile(relations->fd,relations->troffset+(off_t)index*sizeof(TurnRelation));
 
- ReadFile(relations->fd,&relations->cached,sizeof(TurnRelation));
+    ReadFile(relations->fd,&relations->cached[position-1],sizeof(TurnRelation));
 
- return(&relations->cached);
+    relations->incache[position-1]=index;
+   }
+
+ return(&relations->cached[position-1]);
 }
 
 #endif
