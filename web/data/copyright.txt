@@ -1,2 +1,0 @@
-Source: Based on OpenStreetMap data from http://www.openstreetmap.org/
-License: http://creativecommons.org/licenses/by-sa/2.0/
