@@ -76,7 +76,7 @@ var hex={0: "00", 1: "11",  2: "22",  3: "33",  4: "44",  5: "55",  6: "66",  7:
 //
 
 var map;
-var layerMapnik, layerVectors, layerBoxes;
+var layerMapOSM, layerVectors, layerBoxes;
 var epsg4326, epsg900913;
 
 var box;
@@ -135,20 +135,18 @@ function map_init(lat,lon,zoom)
 
  map.events.register("moveend", map, mapMoved);
 
- // Add a Mapnik layer
+ // Add a map tile layer (OpenStreetMap tiles, direct access)
 
- layerMapnik = new OpenLayers.Layer.TMS("OSM (Mapnik)",
-                                        // EDIT THIS to set the source of map tiles
+ layerMapOSM = new OpenLayers.Layer.TMS("Original OSM map",
                                         "http://tile.openstreetmap.org/",
                                         {
-                                         // EDIT THIS if you change the source of map tiles above
                                          emptyUrl: "http://openstreetmap.org/openlayers/img/404.png",
                                          type: 'png',
                                          getURL: limitedUrl,
                                          displayOutsideMaxExtent: true,
                                          buffer: 1
                                         });
- map.addLayer(layerMapnik);
+ map.addLayer(layerMapOSM);
 
  // Get a URL for the tile; limited to mapbounds.
 
@@ -175,9 +173,6 @@ function map_init(lat,lon,zoom)
   return this.url + z + "/" + x + "/" + y + "." + this.type;
  }
 
- map.setCenter(mapbounds.getCenterLonLat(), map.getZoomForExtent(mapbounds,true));
- map.maxResolution = map.getResolution();
-
  // Add a vectors layer
  
  layerVectors = new OpenLayers.Layer.Vector("Markers");
@@ -192,10 +187,15 @@ function map_init(lat,lon,zoom)
 
  // Add a boxes layer
 
- layerBoxes = new OpenLayers.Layer.Boxes("Boxes");
+ layerBoxes = new OpenLayers.Layer.Boxes("Boundary");
  map.addLayer(layerBoxes);
 
  box=null;
+
+ // Set the map centre to the limited range specified
+
+ map.setCenter(mapbounds.getCenterLonLat(), map.getZoomForExtent(mapbounds,true));
+ map.maxResolution = map.getResolution();
 
  // Move the map
 
@@ -241,8 +241,6 @@ function displayStatistics()
  // Use AJAX to get the statistics
 
  OpenLayers.loadURL("statistics.cgi",null,null,runStatisticsSuccess);
-
- return(false);
 }
 
 
@@ -349,7 +347,7 @@ function runJunctionsSuccess(response)
 
  for(line in lines)
    {
-    var words=lines[line].split(/ /g);
+    var words=lines[line].split(' ');
 
     if(line == 0)
       {
@@ -402,7 +400,7 @@ function runSuperSuccess(response)
 
  for(line in lines)
    {
-    var words=lines[line].split(/ /g);
+    var words=lines[line].split(' ');
 
     if(line == 0)
       {
@@ -463,7 +461,7 @@ function runOnewaySuccess(response)
 
  for(line in lines)
    {
-    var words=lines[line].split(/ /g);
+    var words=lines[line].split(' ');
 
     if(line == 0)
       {
@@ -535,7 +533,7 @@ function runLimitSuccess(response)
 
  for(line in lines)
    {
-    var words=lines[line].split(/ /g);
+    var words=lines[line].split(' ');
 
     if(line == 0)
       {

@@ -46,14 +46,14 @@
 <div class="left_panel">
 
    <div class="tab_box">
-      <span id="tab_visualiser" onclick="tab_select('visualiser');" class="tab_selected"  >Visualiser</span>
-      <span id="tab_router"     onclick="tab_select('router');"     class="tab_unselected">Router</span>
-      <span id="tab_data"       onclick="tab_select('data');"       class="tab_unselected">Data</span>
+      <span id="tab_visualiser" onclick="tab_select('visualiser');" class="tab_selected"   title="Select data options">Visualiser</span>
+      <span id="tab_router"     onclick="tab_select('router');"     class="tab_unselected" title="Plan a route">Router</span>
+      <span id="tab_data"       onclick="tab_select('data');"       class="tab_unselected" title="View database information">Data</span>
    </div>
 
    <div class="visualiser" id="tab_visualiser_div">
       <div class="hideshow_box">
-         <u><b>Routino Data Visualiser</b></u>
+         <span class="subtitle">Routino Data Visualiser</span>
          <br>
          This web page allows visualisation of the data that Routino uses for routing.
          Only data relevant for routing is displayed and some will therefore be excluded
@@ -68,14 +68,14 @@
       </div>
 
       <div class="hideshow_box">
-         <u><b>Instructions</b></u>
+         <span class="subtitle">Instructions</span>
          <br>
          Zoom in and then use the buttons below to download the data.  The
          server will only return data if the selected area is small enough.
       </div>
 
       <div class="hideshow_box">
-         <u><b>Status</b></u>
+         <span class="subtitle">Status</span>
          <br>
          <div id="result_status">
             No data displayed
@@ -88,8 +88,8 @@
          <input type="button" id="junctions" onclick="displayData('junctions');" value="Display Junctions">
          <div id="hideshow_junctions_div" style="display: none;">
             Each node that is a dead-end, a junction of two highways of different
-            types (or different properties) or a junction of more than two segments
-            join.
+            types (or different properties) or a junction where more than two segments
+            join are shown colour-coded:
             <br>
             <table>
               <tr><td><img src="icons/ball-1.png" alt="Red"   <td>only one highway - a dead-end.
@@ -144,7 +144,7 @@
          <input type="button" id="weight" onclick="displayData('weight');" value="Display Weight Limits">
          <div id="hideshow_weight_div" style="display: none;">
             Each node that joins segments with different weight limits is shown
-            along with the weight limit on relevant segments.
+            along with the weight limit on relevant segments.  For example:
             <br>
             <table>
                <tr><td><img src="icons/ball-1.png"    alt="Red dot"><td>Change of limit
@@ -160,7 +160,7 @@
          <input type="button" id="height" onclick="displayData('height');" value="Display Height Limits">
          <div id="hideshow_height_div" style="display: none;">
             Each node that joins segments with different height limits is shown
-            along with the height limit on relevant segments.
+            along with the height limit on relevant segments.  For example:
             <br>
             <table>
                <tr><td><img src="icons/ball-1.png"    alt="Red dot"><td>Change of limit
@@ -176,7 +176,7 @@
          <input type="button" id="width" onclick="displayData('width');" value="Display Width Limits">
          <div id="hideshow_width_div" style="display: none;">
             Each node that joins segments with different width limits is shown
-            along with the width limit on relevant segments.
+            along with the width limit on relevant segments.  For example:
             <br>
             <table>
                <tr><td><img src="icons/ball-1.png"    alt="Red dot"><td>Change of limit
@@ -192,7 +192,7 @@
          <input type="button" id="length" onclick="displayData('length');" value="Display Length Limits">
          <div id="hideshow_length_div" style="display: none;">
             Each node that joins segments with different length limits is shown
-            along with the length limit on relevant segments.
+            along with the length limit on relevant segments.  For example:
             <br>
             <table>
                <tr><td><img src="icons/ball-1.png"    alt="Red dot"><td>Change of limit
@@ -207,7 +207,7 @@
       </div>
 
       <div class="hideshow_box">
-         <u><b>Links</b></u>
+         <span class="subtitle">Links</span>
          <br>
          <a id="link_url" href="visualiser.html">Permanent link to this view</a>
          <br>
@@ -217,7 +217,7 @@
 
    <div class="router" id="tab_router_div" style="display: none;">
       <div class="hideshow_box">
-         <u><b>Router</b></u>
+         <span class="subtitle">Router</span>
          <br>
          To perform routing on the map use the link below.
          <br>
@@ -227,7 +227,7 @@
 
    <div class="data" id="tab_data_div" style="display: none;">
       <div class="hideshow_box">
-         <u><b>Statistics</b></u>
+         <span class="subtitle">Statistics</span>
          <br>
          <div id="statistics_data"></div>
          <a id="statistics_link" href="statistics.cgi" onclick="displayStatistics();return(false);">Display data statistics</a>

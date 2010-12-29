@@ -264,7 +264,7 @@ function discardReturnKey(ev)
 //
 
 var map;
-var layerMapnik, layerVectors, layerGPX;
+var layerMapOSM, layerVectors, layerGPX;
 var epsg4326, epsg900913;
 
 var markers, markersmoved, paramschanged;
@@ -320,20 +320,18 @@ function map_init(lat,lon,zoom)
 
  map.events.register("moveend", map, mapMoved);
 
- // Add a Mapnik layer
+ // Add a map tile layer (OpenStreetMap tiles, direct access)
 
- layerMapnik = new OpenLayers.Layer.TMS("OSM (Mapnik)",
-                                        // EDIT THIS to set the source of map tiles
+ layerMapOSM = new OpenLayers.Layer.TMS("Original OSM map",
                                         "http://tile.openstreetmap.org/",
                                         {
-                                         // EDIT THIS if you change the source of map tiles above
                                          emptyUrl: "http://openstreetmap.org/openlayers/img/404.png",
                                          type: 'png',
                                          getURL: limitedUrl,
                                          displayOutsideMaxExtent: true,
                                          buffer: 1
                                         });
- map.addLayer(layerMapnik);
+ map.addLayer(layerMapOSM);
 
  // Get a URL for the tile; limited to mapbounds.
 
@@ -360,9 +358,6 @@ function map_init(lat,lon,zoom)
   return this.url + z + "/" + x + "/" + y + "." + this.type;
  }
 
- map.setCenter(mapbounds.getCenterLonLat(), map.getZoomForExtent(mapbounds,true));
- map.maxResolution = map.getResolution();
-
  // Define a GPX layer but don't add it yet
 
  layerGPX={shortest: null, quickest: null};
@@ -377,7 +372,7 @@ function map_init(lat,lon,zoom)
 
  // A set of markers
 
- markers={1: null, 2: null, 3: null};
+ markers={1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null, 9: null};
  markersmoved=false;
  paramschanged=false;
 
@@ -385,14 +380,17 @@ function map_init(lat,lon,zoom)
 
  for(marker in markers)
    {
-    markers[marker] = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(0,0),{},
-                                                    new OpenLayers.Style({},{externalGraphic: 'icons/marker-' + marker + '.png',
-                                                                             graphicYOffset: -25,
-                                                                             graphicWidth: 21,
-                                                                             graphicHeight: 25,
-                                                                             display: "none"}));
+    if(document.forms["form"].elements["lon" + marker] != undefined)
+      {
+       markers[marker] = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(0,0),{},
+                                                       new OpenLayers.Style({},{externalGraphic: 'icons/marker-' + marker + '-red.png',
+                                                                                graphicYOffset: -25,
+                                                                                graphicWidth: 21,
+                                                                                graphicHeight: 25,
+                                                                                display: "none"}));
 
-    layerVectors.addFeatures([markers[marker]]);
+       layerVectors.addFeatures([markers[marker]]);
+      }
    }
 
  // A function to drag the markers
@@ -420,6 +418,11 @@ function map_init(lat,lon,zoom)
 
     layerVectors.addFeatures([highlights[highlight]]);
    }
+
+ // Set the map centre to the limited range specified
+
+ map.setCenter(mapbounds.getCenterLonLat(), map.getZoomForExtent(mapbounds,true));
+ map.maxResolution = map.getResolution();
 
  // Move the map
 
@@ -495,6 +498,7 @@ function markerAddRemove(marker)
  if(feature.style.display == "")
    {
     feature.style.display = "none";
+    document.images["waypoint" + marker].src="icons/marker-" + marker + "-grey.png";
    }
  else
    {
@@ -503,6 +507,7 @@ function markerAddRemove(marker)
     feature.move(lonlat);
 
     feature.style.display = "";
+    document.images["waypoint" + marker].src="icons/marker-" + marker + "-red.png";
 
     formSetCoords(marker);
    }
@@ -642,7 +647,8 @@ function buildURLArguments(all)
  url=url + "transport=" + router_transport;
 
  for(marker in markers)
-    if(markers[marker].style.display == "" || (all && document.forms["form"].elements["lon" + marker] != undefined))
+    if((markers[marker] != null && markers[marker].style.display == "") ||
+       (all && document.forms["form"].elements["lon" + marker] != undefined))
       {
        url=url + ";lon" + marker + "=" + document.forms["form"].elements["lon" + marker].value;
        url=url + ";lat" + marker + "=" + document.forms["form"].elements["lat" + marker].value;
@@ -675,8 +681,6 @@ function displayStatistics()
  // Use AJAX to get the statistics
 
  OpenLayers.loadURL("statistics.cgi",null,null,runStatisticsSuccess);
-
- return(false);
 }
 
 
@@ -703,7 +707,7 @@ function findRoute(type)
 {
  tab_select("results");
 
- hideshow_hide('help1');
+ hideshow_hide('help_options');
  hideshow_hide('shortest');
  hideshow_hide('quickest');
 
@@ -777,13 +781,13 @@ function runRouterSuccess(response)
  if(message!="")
    {
     div_status.innerHTML = message.bold() + "<br>" + cpuinfo.small();
-    hideshow_show('help2');
+    hideshow_show('help_route');
     return;
    }
  else
    {
     div_status.innerHTML = "Routing Completed".bold() + "<br>" + cpuinfo.small();
-    hideshow_hide('help2');
+    hideshow_hide('help_route');
    }
 
  // Update the routing result message
@@ -871,7 +875,7 @@ function getRouteSuccess(response)
 
  for(line in lines)
    {
-    var words=lines[line].split(/\t/g);
+    var words=lines[line].split('\t');
 
     if(lines[line].match(/^#/))
        text=null;

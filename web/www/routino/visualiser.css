@@ -44,7 +44,7 @@ BODY
 
 DIV.left_panel
 {
- width:    21em;
+ width:    23em;
 
  position: absolute;
  top:      0;
@@ -53,6 +53,12 @@ DIV.left_panel
  left:     0;
 
  padding: 3px;
+}
+
+DIV.left_panel SPAN.subtitle
+{
+ font-weight: bold;
+ text-decoration: underline;
 }
 
 DIV.left_panel INPUT
@@ -105,7 +111,7 @@ DIV.right_panel
  top:      0;
  bottom:   0;
  right:    0;
- left:     21.5em;
+ left:     23.5em;
 }
 
 DIV.map
