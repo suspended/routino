@@ -62,7 +62,7 @@ database that is used for routing.
 <pre class="boxed">
 Usage: planetsplitter [--help]
                       [--dir=&lt;dirname&gt;] [--prefix=&lt;name&gt;]
-                      [--slim] [--sort-ram-size=&lt;size&gt;]
+                      [--sort-ram-size=&lt;size&gt;]
                       [--tmpdir=&lt;dirname&gt;]
                       [--parse-only | --process-only]
                       [--max-iterations=&lt;number&gt;]
@@ -79,16 +79,9 @@ Usage: planetsplitter [--help]
   <dt>--prefix=&lt;name&gt;
   <dd>Sets the filename prefix for the files that are created.
     Defaults to no prefix.
-  <dt>--slim
-  <dd>Selects a mode of operation that uses less memory and will therefore work
-    where virtual memory is very limited or unavailable.  Selecting this option
-    will cause raw data to be held in disk files with only indexes in RAM.  Not
-    using this option will still use disk files but only for sequential access
-    and the files are memory mapped for random access.
   <dt>--sort-ram-size=&lt;size&gt;
   <dd>Specifies the amount of RAM (in MB) to use for sorting the data.  If not
-    specified then 64 MB will be used if the '--slim' option is specified or 256
-    MB otherwise.
+    specified then 64 MB will be used in slim mode or 256 MB otherwise.
   <dt>--tmpdir=&lt;dirname&gt;
   <dd>Specifies the name of the directory to store the temporary disk files.  If
     not specified then it defaults to either the value of the --dir option or the
@@ -103,8 +96,11 @@ Usage: planetsplitter [--help]
   <dd>The maximum number of iterations to use when generating super-nodes and
     super-segments.  Defaults to 10 which is normally enough.
   <dt>--tagging=&lt;filename&gt;
-  <dd>The name of the XML file containing the tagging rules (defaults to
-    'tagging.xml' with '--dirname' and '--prefix' options).
+  <dd>Sets the filename containing the list of tagging rules in XML format for
+    the parsing the input files.  If the file doesn't exist then dirname, prefix
+    and "profiles.xml" will be combined and used, if that doesn't exist then the
+    file '/usr/local/share/routino/profiles.xml' (or custom installation
+    location) will be used.
   <dt>&lt;filename.osm&gt; ...
   <dd>Specifies the filename(s) to read data from, by default data is read from
     the standard input.
@@ -114,6 +110,15 @@ Usage: planetsplitter [--help]
 <i>Note: In version 1.4 of Routino the --transport, --not-highway and
 --not-property options have been removed.  The same functionality can be
 achieved by editing the tagging rules file to not output unwwanted data.</i>
+
+<p>
+<i>Note: In version 1.5 of Routino the --slim option has been removed but at
+compilation time a separate program called <em>planetsplitter-slim</em> is
+created that operates in slim mode.  In slim mode the temporary files and
+database files are read as needed rather than being mapped into memory.  This
+allows a database size greater than 2 GB on 32-bit machines or usage with little
+or no virtual memory (e.g. some virtual machines).  The penalty for this is that
+the program takes about four times as long to run.</i>
 
 <p>
 Example usage:
@@ -178,15 +183,17 @@ Usage: router [--help | --help-profile | --help-profile-xml |
   <dd>Sets the filename prefix for the files in the local database.
     Defaults to no prefix.
   <dt>--profiles=&lt;filename&gt;
-  <dd>Sets the filename containing the list of profiles in XML format.  If the
-    file doesn't exist then dirname, prefix and "profiles.xml" will be combined
-    and used, if that doesn't exist then the command line must contain all
-    relevant profile information.
+  <dd>Sets the filename containing the list of routing profiles in XML format.
+    If the file doesn't exist then dirname, prefix and "profiles.xml" will be
+    combined and used, if that doesn't exist then the file
+    '/usr/local/share/routino/profiles.xml' (or custom installation location)
+    will be used.
   <dt>--translations=&lt;filename&gt;
   <dd>Sets the filename containing the list of translations in XML format for
     the output files.  If the file doesn't exist then dirname, prefix and
-    "translations.xml" will be combined and used, if that doesn't exist then no
-    file will be read and no language can be selected.
+    "translations.xml" will be combined and used, if that doesn't exist then the
+    file '/usr/local/share/routino/translations.xml' (or custom installation
+    location) will be used.
   <dt>--exact-nodes-only
   <dd>When processing the specified latitude and longitude points only select
     the nearest node instead of finding the nearest point within a segment
@@ -266,10 +273,12 @@ Usage: router [--help | --help-profile | --help-profile-xml |
       property
     The value of &lt;property&gt; can be selected from:
     <ul>
-      <li>paved     = Paved (suitable for normal wheels)
-      <li>multilane = Multiple lanes
-      <li>bridge    = Bridge
-      <li>tunnel    = Tunnel
+      <li>paved        = Paved (suitable for normal wheels)
+      <li>multilane    = Multiple lanes
+      <li>bridge       = Bridge
+      <li>tunnel       = Tunnel
+      <li>footroute    = A route marked for foot travel
+      <li>bicycleroute = A route marked for bicycle travel
     </ul>
     Default value depends on the profile selected by the --transport option.
   <dt>--oneway=[0|1]
@@ -295,6 +304,12 @@ Usage: router [--help | --help-profile | --help-profile-xml |
 </dl>
 
 <p>
+<i>Note: In version 1.5 of Routino a slim option has been added and at
+compilation time a separate program called <em>router-slim</em> is created that
+operates in slim mode.  In slim mode the database files are read as needed
+rather than being mapped into memory.</i>
+
+<p>
 The meaning of the &lt;preference&gt; parameter in the command line options is
 slightly different for the highway preferences and the property preferences.
 For the highway preference consider the choice between two possible highways
@@ -302,10 +317,12 @@ between the start and finish when looking for the shortest route.  If highway A
 has a preference of 100% and highway B has a preference of 90% then highway A
 will be chosen even if it is up to 11% longer (100/90 = 111%).  For the highway
 properties each highway either has a particular property or not.  If the
-preference for highways with the property is 60% then the preference for
-highways without the property is 40%.  The overall preference for the highway is
-the product of the highway preference and the preference for highways with (or
-without) each property that the highway has (or doesn't have).
+preference for the property is 60% then a highway with the property has a
+preference of 77% (sqrt(60%)) and one without has a preference of 63%
+(sqrt(100-60%)).  A highway with the property will be chosen even if it is up to
+22% longer than one without the property (77/63 = 122%).  The overall preference
+for each highway segment is the product of the preference for the highway type
+and all of the preferences for the highway properties.
 
 <p>
 Example usage (motorbike journey, scenic route, not very fast):
@@ -397,6 +414,12 @@ Usage: filedumper [--help]
       <dd>The range of longitudes to dump the data for.
     </dl>
 </dl>
+
+<p>
+<i>Note: In version 1.5 of Routino a slim option has been added and at
+compilation time a separate program called <em>filedumper-slim</em> is created
+that operates in slim mode.  In slim mode the database files are read as needed
+rather than being mapped into memory.</i>
 
 
 <h3><a name="H_1_1_4"></a>tagmodifier</h3>

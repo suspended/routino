@@ -24,9 +24,13 @@
 # EDIT THIS to set the root directory for the non-web data files.
 $root_dir="../..";
 
-# EDIT THIS if you want to change the location of the individual directories.
+# EDIT THIS to change the location of the individual directories.
 $bin_dir="$root_dir/bin";
 $data_dir="$root_dir/data";
 $results_dir="$root_dir/results";
+
+# EDIT THIS to change the names of the executables (enables easy selection of slim mode).
+$router_exe="router";
+$filedumper_exe="filedumper";
 
 1;
