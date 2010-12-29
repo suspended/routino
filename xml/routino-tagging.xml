@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.8 2010-12-19 10:13:06 amb Exp $
+     $Header: /home/amb/CVS/routino/xml/routino-tagging.xml,v 1.9 2010-12-29 09:29:36 amb Exp $
 
      An XML format file containing Routino tagging rules
 
@@ -551,9 +551,13 @@
 
   </way>
 
-  <!-- Relation rules are not currently used -->
+  <!-- -------------------- Relation rules -------------------- -->
 
   <relation>
+
+    <if k="type">
+      <output/>
+    </if>
 
     <!-- Copy route relations -->
 
@@ -581,6 +585,12 @@
 
     <if k="route" v="bicycle">
       <output k="bicycleroute" v="yes"/>
+    </if>
+
+    <!-- Pass through turn relations -->
+
+    <if k="restriction">
+      <output/>
     </if>
 
   </relation>
