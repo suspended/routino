@@ -1,0 +1,313 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+
+<!--
+ Routino router web page.
+
+ Part of the Routino routing software.
+
+ This file Copyright 2008,2009 Andrew M. Bishop
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see http://www.gnu.org/licenses/.
+-->
+
+<HEAD>
+<TITLE>UK Route Planner for OpenStreetMap Data</TITLE>
+<META name="keywords" content="openstreetmap routing route planner">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<!-- OpenLayers Javascript library -->
+<script src="../openlayers/OpenLayers.js" type="text/javascript"></script>
+
+<!-- Page elements -->
+<script src="page-elements.js" type="text/javascript"></script>
+<link href="page-elements.css" type="text/css" rel="stylesheet">
+
+<!-- Router specific features -->
+<script src="router.js" type="text/javascript"></script>
+<link href="router.css" type="text/css" rel="stylesheet">
+
+</HEAD>
+<BODY onload="map_init('lat','lon','zoom');form_init();block_return_key();">
+
+<!-- Left hand side of window - data panel -->
+
+<div class="left_panel">
+
+   <div class="tab_box">
+      <span id="tab_options" onclick="tab_select('options');" class="tab_selected"  >Options</span>
+      <span id="tab_results" onclick="tab_select('results');" class="tab_unselected">Results</span>
+      <span id="tab_data"    onclick="tab_select('data');"    class="tab_unselected">Data</span>
+   </div>
+
+   <div class="options" id="tab_options_div">
+      <form name="form" id="form" action="router.cgi" method="get">
+      <div class="hideshow_box">
+         <u><b>Routino OpenStreetMap Router</b></u>
+         <br>
+         This web page allows routing within the data collected by OpenStreetMap.
+         Select start and end points (click on the marker icons below), select routing preferences then find a route.
+         <div align="center">
+         <a href="index.html">Information</a>
+         |
+         <a href="../../software/routino/algorithm.html">Algorithm</a>
+         |
+         <a href="../../software/routino/tagging.html">OSM Tagging</a>
+         </div>
+      </div>
+
+      <div class="hideshow_box">
+         <div class="location">
+            <u><b>Locations</b></u>
+            <br>
+            <table border=0>
+               <tr><td>Start:
+                   <td><input name="lon1" type="text" size=8 title="Start Longitude" onchange="formSetCoords(1);"><!-- lon1 --> E
+                   <td><input name="lat1" type="text" size=8 title="Start Latitude"  onchange="formSetCoords(1);"><!-- lat1 --> N
+                   <td><img src="icons/marker-1.png" title="Start Position - (click to add/remove on map)" alt="Start" onmousedown="markerAddRemove(1)">
+               <tr><td>Middle:
+                   <td><input name="lon2" type="text" size=8 title="Middle Longitude" onchange="formSetCoords(2);"><!-- lon2 --> E
+                   <td><input name="lat2" type="text" size=8 title="Middle Latitude"  onchange="formSetCoords(2);"><!-- lat2 --> N
+                   <td><img src="icons/marker-2.png" title="Middle Position - (click to add/remove on map)" alt="Middle" onmousedown="markerAddRemove(2)">
+               <tr><td>Finish:
+                   <td><input name="lon3" type="text" size=8 title="Finish Longitude" onchange="formSetCoords(3);"><!-- lon3 --> E
+                   <td><input name="lat3" type="text" size=8 title="Finish Latitude"  onchange="formSetCoords(3);"><!-- lat3 --> N
+                   <td><img src="icons/marker-3.png" title="Finish Position - (click to add/remove on map)" alt="Finish" onmousedown="markerAddRemove(3)">
+            </table>
+         </div>
+      </div>
+
+      <div class="hideshow_box">
+         <span id="hideshow_transport_show" onclick="hideshow_show('transport');" class="hideshow_hide">Show</span>
+         <span id="hideshow_transport_hide" onclick="hideshow_hide('transport');" class="hideshow_show">Hide</span>
+         <u><b>Transport Type</b></u>
+         <br>
+         <div id="hideshow_transport_div">
+            <table border=0>
+               <tr><td>Foot     <td><input name="transport" type="radio" value="foot"      onchange="formSetTransport('foot'     )"><!-- transport -->
+               <tr><td>Bicycle  <td><input name="transport" type="radio" value="bicycle"   onchange="formSetTransport('bicycle'  )"><!-- transport -->
+               <tr><td>Horse    <td><input name="transport" type="radio" value="horse"     onchange="formSetTransport('horse'    )"><!-- transport -->
+               <tr><td>Motorbike<td><input name="transport" type="radio" value="motorbike" onchange="formSetTransport('motorbike')"><!-- transport -->
+               <tr><td>Motorcar <td><input name="transport" type="radio" value="motorcar"  onchange="formSetTransport('motorcar' )"><!-- transport -->
+               <tr><td>Goods    <td><input name="transport" type="radio" value="goods"     onchange="formSetTransport('goods'    )"><!-- transport -->
+               <tr><td>HGV      <td><input name="transport" type="radio" value="hgv"       onchange="formSetTransport('hgv'      )"><!-- transport -->
+               <tr><td>PSV      <td><input name="transport" type="radio" value="psv"       onchange="formSetTransport('psv'      )"><!-- transport -->
+            </table>
+         </div>
+      </div>
+
+      <div class="hideshow_box">
+         <span id="hideshow_highway_show" onclick="hideshow_show('highway');" class="hideshow_show">Show</span>
+         <span id="hideshow_highway_hide" onclick="hideshow_hide('highway');" class="hideshow_hide">Hide</span>
+         <u><b>Highway Preferences</b></u>
+         <br>
+         <div id="hideshow_highway_div" style="display: none;">
+            <table border=0>
+               <tr><td>Motorway:    <td><input name="highway-motorway"     type="text" size=3 onchange="formSetHighway('motorway'    )"><!-- highway-motorway     --><td>%
+               <tr><td>Trunk:       <td><input name="highway-trunk"        type="text" size=3 onchange="formSetHighway('trunk'       )"><!-- highway-trunk        --><td>%
+               <tr><td>Primary:     <td><input name="highway-primary"      type="text" size=3 onchange="formSetHighway('primary'     )"><!-- highway-primary      --><td>%
+               <tr><td>Secondary:   <td><input name="highway-secondary"    type="text" size=3 onchange="formSetHighway('secondary'   )"><!-- highway-secondary    --><td>%
+               <tr><td>Tertiary:    <td><input name="highway-tertiary"     type="text" size=3 onchange="formSetHighway('tertiary'    )"><!-- highway-tertiary     --><td>%
+               <tr><td>Unclassified:<td><input name="highway-unclassified" type="text" size=3 onchange="formSetHighway('unclassified')"><!-- highway-unclassified --><td>%
+               <tr><td>Residential: <td><input name="highway-residential"  type="text" size=3 onchange="formSetHighway('residential' )"><!-- highway-residential  --><td>%
+               <tr><td>Service:     <td><input name="highway-service"      type="text" size=3 onchange="formSetHighway('service'     )"><!-- highway-service      --><td>%
+               <tr><td>Track:       <td><input name="highway-track"        type="text" size=3 onchange="formSetHighway('track'       )"><!-- highway-track        --><td>%
+               <tr><td>Path:        <td><input name="highway-path"         type="text" size=3 onchange="formSetHighway('path'        )"><!-- highway-path         --><td>%
+               <tr><td>Bridleway:   <td><input name="highway-bridleway"    type="text" size=3 onchange="formSetHighway('bridleway'   )"><!-- highway-bridleway    --><td>%
+               <tr><td>Cycleway:    <td><input name="highway-cycleway"     type="text" size=3 onchange="formSetHighway('cycleway'    )"><!-- highway-cycleway     --><td>%
+               <tr><td>Footway:     <td><input name="highway-footway"      type="text" size=3 onchange="formSetHighway('footway'     )"><!-- highway-footway      --><td>%
+            </table>
+         </div>
+      </div>
+
+      <div class="hideshow_box">
+         <span id="hideshow_speed_show" onclick="hideshow_show('speed');" class="hideshow_show">Show</span>
+         <span id="hideshow_speed_hide" onclick="hideshow_hide('speed');" class="hideshow_hide">Hide</span>
+         <u><b>Speed Limits</b></u>
+         <br>
+         <div id="hideshow_speed_div" style="display: none;">
+            <table border=0>
+               <tr><td>Motorway:    <td><input name="speed-motorway"     type="text" size=3 onchange="formSetSpeed('motorway'    )"><!-- speed-motorway     --><td>km/hr
+               <tr><td>Trunk:       <td><input name="speed-trunk"        type="text" size=3 onchange="formSetSpeed('trunk'       )"><!-- speed-trunk        --><td>km/hr
+               <tr><td>Primary:     <td><input name="speed-primary"      type="text" size=3 onchange="formSetSpeed('primary'     )"><!-- speed-primary      --><td>km/hr
+               <tr><td>Secondary:   <td><input name="speed-secondary"    type="text" size=3 onchange="formSetSpeed('secondary'   )"><!-- speed-secondary    --><td>km/hr
+               <tr><td>Tertiary:    <td><input name="speed-tertiary"     type="text" size=3 onchange="formSetSpeed('tertiary'    )"><!-- speed-tertiary     --><td>km/hr
+               <tr><td>Unclassified:<td><input name="speed-unclassified" type="text" size=3 onchange="formSetSpeed('unclassified')"><!-- speed-unclassified --><td>km/hr
+               <tr><td>Residential: <td><input name="speed-residential"  type="text" size=3 onchange="formSetSpeed('residential' )"><!-- speed-residential  --><td>km/hr
+               <tr><td>Service:     <td><input name="speed-service"      type="text" size=3 onchange="formSetSpeed('service'     )"><!-- speed-service      --><td>km/hr
+               <tr><td>Track:       <td><input name="speed-track"        type="text" size=3 onchange="formSetSpeed('track'       )"><!-- speed-track        --><td>km/hr
+               <tr><td>Path:        <td><input name="speed-path"         type="text" size=3 onchange="formSetSpeed('path'        )"><!-- speed-path         --><td>km/hr
+               <tr><td>Bridleway:   <td><input name="speed-bridleway"    type="text" size=3 onchange="formSetSpeed('bridleway'   )"><!-- speed-bridleway    --><td>km/hr
+               <tr><td>Cycleway:    <td><input name="speed-cycleway"     type="text" size=3 onchange="formSetSpeed('cycleway'    )"><!-- speed-cycleway     --><td>km/hr
+               <tr><td>Footway:     <td><input name="speed-footway"      type="text" size=3 onchange="formSetSpeed('footway'     )"><!-- speed-footway      --><td>km/hr
+            </table>
+         </div>
+      </div>
+
+      <div class="hideshow_box">
+         <span id="hideshow_restriction_show" onclick="hideshow_show('restriction');" class="hideshow_show">Show</span>
+         <span id="hideshow_restriction_hide" onclick="hideshow_hide('restriction');" class="hideshow_hide">Hide</span>
+         <u><b>Other Restrictions</b></u>
+         <br>
+         <div id="hideshow_restriction_div" style="display: none;">
+            <table border=0>
+               <tr><td>Obey oneway:<td><input name="restrict-oneway" type="checkbox"    onchange="formSetRestriction('oneway')"><!-- oneway --><td>
+               <tr><td>Weight:     <td><input name="restrict-weight" type="text" size=3 onchange="formSetRestriction('weight')"><!-- weight --><td>tonnes
+               <tr><td>Height:     <td><input name="restrict-height" type="text" size=3 onchange="formSetRestriction('height')"><!-- height --><td>metres
+               <tr><td>Width:      <td><input name="restrict-width"  type="text" size=3 onchange="formSetRestriction('width' )"><!-- width  --><td>metres
+               <tr><td>Length:     <td><input name="restrict-length" type="text" size=3 onchange="formSetRestriction('length')"><!-- length --><td>metres
+            </table>
+         </div>
+      </div>
+
+      <div class="hideshow_box">
+         <u><b>Find</b></u>
+         <br>
+         <input type="button" id="shortest" value="Shortest" onclick="findRoute('shortest');">
+         <input type="button" id="quickest" value="Quickest" onclick="findRoute('quickest');">
+      </div>
+
+      <div class="hideshow_box">
+         <u><b>Links</b></u>
+         <br>
+         <a id="custom_url" href="router.html">Permanent link to these parameters</a>
+      </div>
+
+      <div class="hideshow_box">
+         <span id="hideshow_help1_show" onclick="hideshow_show('help1');" class="hideshow_hide">Show</span>
+         <span id="hideshow_help1_hide" onclick="hideshow_hide('help1');" class="hideshow_show">Hide</span>
+         <u><b>Help</b></u>
+         <br>
+         <div id="hideshow_help1_div">
+            Click on marker icons (above) to place them on the map (right).  Then
+            drag them to the correct position.  Zooming the map before placing the
+            markers is probably easiest.  Alternatively type the latitude and
+            longitude into the boxes above.
+            <p>
+            Select the transport type, allowed highway types, speed limits and
+            other restrictions from the options above.
+            Select "Shortest" or "Quickest" to calculate the route and display it
+            on the map.
+         </div>
+      </div>
+   </form>
+   </div>
+
+
+   <div class="route" id="tab_results_div" style="display: none;">
+      <div class="hideshow_box">
+         <u><b>Status</b></u>
+         <div id="result_status">
+           <i>Router not run</i>
+         </div>
+      </div>
+
+      <div class="hideshow_box">
+         <span id="hideshow_shortest_show" onclick="hideshow_show('shortest');" class="hideshow_show">Show</span>
+         <span id="hideshow_shortest_hide" onclick="hideshow_hide('shortest');" class="hideshow_hide">Hide</span>
+         <u><b>Shortest Route</b></u>
+         <br>
+         <b><span id="shortest_status"><i>No Information</i></span></b>
+         <br>
+         <div id="hideshow_shortest_div" style="display: none;">
+            <div id="shortest_data">
+            </div>
+            <div id="shortest_text">
+            </div>
+         </div>
+      </div>
+
+      <div class="hideshow_box">
+         <span id="hideshow_quickest_show" onclick="hideshow_show('quickest');" class="hideshow_show">Show</span>
+         <span id="hideshow_quickest_hide" onclick="hideshow_hide('quickest');" class="hideshow_hide">Hide</span>
+         <u><b>Quickest Route</b></u>
+         <br>
+         <b><span id="quickest_status"><i>No Information</i></span></b>
+         <br>
+         <div id="hideshow_quickest_div" style="display: none;">
+            <div id="quickest_data">
+            </div>
+            <div id="quickest_text">
+            </div>
+         </div>
+      </div>
+
+      <div class="hideshow_box">
+         <span id="hideshow_help2_show" onclick="hideshow_show('help2');" class="hideshow_hide">Show</span>
+         <span id="hideshow_help2_hide" onclick="hideshow_hide('help2');" class="hideshow_show">Hide</span>
+         <u><b>Help</b></u>
+         <br>
+         <div id="hideshow_help2_div">
+            After calculating a route you can download the GPX file or plain
+            text route description (summary or detailed version). Also you can
+            view the route description and zoom in to selected parts.
+            <p>
+            Error Messages:
+            <ul>
+              <li>"Cannot find node close to specified point." - There is no
+                  highway near to one of the markers.
+              <li>"Cannot find route compatible with profile." - There is no
+                   route between one of the pairs of markers that is possible
+                   with the selected highway types and other restrictions.
+            </ul>
+            In all cases moving one or more markers or changing the routing
+            options should find a route.
+         </div>
+      </div>
+   </div>
+
+
+   <div class="data" id="tab_data_div" style="display: none;">
+      <div class="hideshow_box">
+         <u><b>Statistics</b></u>
+         <br>
+         <div id="statistics_data"></div>
+         <a id="statistics_link" href="statistics.cgi" onclick="displayStatistics();return(false);">Display data statistics</a>
+      </div>
+
+      <div class="hideshow_box">
+         <u><b>Visualiser</b></u>
+         <br>
+         To see Routino's view of the data there is a data visualiser that allows
+         displaying of the underlying data in various ways.
+         <br>
+         <a id="visualiser_url" href="visualiser.html">Custom link to this map view</a>
+      </div>
+   </div>
+
+</div>
+
+<!-- Right hand side of window - map -->
+
+<!--[if IE 6]> <style type="text/css"> DIV.map { width: 99%; height: 95%; } </style> <![endif]-->
+<!--[if IE 7]> <style type="text/css"> DIV.map { width: 99%; height: 95%; } </style> <![endif]-->
+
+<div class="right_panel">
+   <div class="map" id="map">
+      <noscript>
+         Javascript is <em>required</em> to use this web page because of the
+         interactive map.
+      </noscript>
+   </div>
+   <div class="attribution">
+       <a href="http://www.gedanken.org.uk/software/routino/" title="Routino">Router: Routino</a>
+       |
+       <a href="http://www.openstreetmap.org" title="OpenStreetMap">Geographical Data: OpenStreetMap</a>
+       |
+       <a href="http://www.openlayers.org" title="OpenLayers">Javascript Library: OpenLayers</a>
+   </div>
+</div>
+
+</BODY>
+</HTML>

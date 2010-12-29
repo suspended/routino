@@ -1,0 +1,238 @@
+/*
+// Routino router web page style sheet.
+//
+// Part of the Routino routing software.
+//
+// This file Copyright 2008,2009 Andrew M. Bishop
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+/*----------------------------------*/
+/* Body HTML formatting             */
+/*----------------------------------*/
+
+BODY
+{
+ /* fonts and text styles */
+
+ font-family: sans-serif;
+ font-size:   medium;
+
+ /* colours */
+
+ background-color: white;
+ color:            black;
+}
+
+/*------------*/
+/* Left panel */
+/*------------*/
+
+
+DIV.left_panel
+{
+ width:    21em;
+
+ position: absolute;
+ top:      0;
+ bottom:   0;
+ right:    auto;
+ left:     0;
+
+ padding: 3px;
+}
+
+DIV.options
+{
+ width:  auto;
+
+ padding: 3px;
+ border: thin solid;
+}
+
+DIV.location IMG
+{
+ cursor: pointer;
+ vertical-align: bottom;
+}
+
+DIV.options TABLE
+{
+ padding: 0;
+ border:  0 hidden;
+ margin:  0;
+}
+
+DIV.options TABLE TD
+{
+ padding: 0;
+ border:  0;
+ margin:  0;
+}
+
+DIV.options INPUT
+{
+ padding: 0;
+ border:  1px solid;
+ margin:  0;
+
+ text-align: right;
+}
+
+DIV.options INPUT#shortest
+{
+ margin: 3px;
+ border: 3px solid;
+
+ border-color: #00FF00;
+
+ background: #C0F0C0;
+
+ text-align: center;
+}
+
+DIV.options INPUT#quickest
+{
+ margin: 3px;
+ border: 3px solid;
+
+ border-color: #0000FF;
+
+ background: #C0C0F0;
+
+ text-align: center;
+}
+
+DIV.route
+{
+ width:  auto;
+
+ padding: 3px;
+ border: thin solid;
+}
+
+DIV.route TD.right
+{
+ min-width: 5em;
+ text-align: right;
+}
+
+DIV.route TD.left
+{
+ text-align: left;
+ min-width: 15em;
+}
+
+DIV#shortest_data SPAN
+{
+ padding-left: 2px;
+ padding-right: 2px;
+}
+
+DIV#shortest_data SPAN:hover
+{
+ cursor: pointer;
+
+ background: #C0F0C0;
+}
+
+DIV#shortest_text
+{
+ overflow: hidden;
+}
+
+DIV#shortest_text TR:hover
+{
+ cursor: pointer;
+
+ background: #C0F0C0;
+}
+
+DIV#quickest_data SPAN
+{
+ padding-left: 2px;
+ padding-right: 2px;
+}
+
+DIV#quickest_data SPAN:hover
+{
+ cursor: pointer;
+
+ background: #C0C0F0;
+}
+
+DIV#quickest_text
+{
+ overflow: hidden;
+}
+
+DIV#quickest_text TR:hover
+{
+ cursor: pointer;
+
+ background: #C0C0F0;
+}
+
+DIV.data
+{
+ width:  auto;
+
+ padding: 3px;
+ border: thin solid;
+}
+
+
+/*-------------*/
+/* Right panel */
+/*-------------*/
+
+
+DIV.right_panel
+{
+ position: fixed;
+ top:      0;
+ bottom:   0;
+ right:    0;
+ left:     21.5em;
+}
+
+DIV.map
+{
+ position: absolute;
+ top:      0;
+ bottom:   1.5em;
+ right:    0;
+ left:     0;
+
+ border:  3px solid;
+
+ text-align:  center;
+}
+
+DIV.attribution
+{
+ position: absolute;
+ top:      auto;
+ bottom:   0;
+ right:    0;
+ left:     0;
+
+ margin:  0px;
+ border:  0px;
+ padding: 0px;
+
+ text-align: center;
+}
