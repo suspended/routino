@@ -1,3 +1,32 @@
+2010-11-13  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	Version 1.5.1 released
+
+2010-11-13  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/NEWS.txt, doc/README.txt: Updated for version 1.5.1.
+
+	* doc/USAGE.txt: Update program usage for new logging option.
+
+	* xml/routino-translations.xml:
+	Add translation for ferry into German (patch from Michael Günnewig).
+
+	* src/relationsx.c: Fix bug with relation processing.
+
+	* src/logging.h: Add GCC attributes for the logging functions.
+
+	* src/logging.h, src/logging.c: New file.
+
+	* src/Makefile, src/nodesx.c, src/optimiser.c, src/osmparser.c, src/planetsplitter.c,
+	src/relationsx.c, src/router.c, src/segmentsx.c, src/superx.c, src/tagmodifier.c,
+	src/waysx.c:
+	Add an option to make the output more suitable for a log file.
+
+2010-10-31  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/files.c:
+	Ensure that enough memory gets allocated in FileName() function.
+
 2010-10-30  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
 
 	Version 1.5 released

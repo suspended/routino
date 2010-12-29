@@ -65,6 +65,7 @@ Usage: planetsplitter [--help]
                       [--sort-ram-size=&lt;size&gt;]
                       [--tmpdir=&lt;dirname&gt;]
                       [--parse-only | --process-only]
+                      [--loggable]
                       [--max-iterations=&lt;number&gt;]
                       [--tagging=&lt;filename&gt;]
                       [&lt;filename.osm&gt; ...]
@@ -92,6 +93,10 @@ Usage: planetsplitter [--help]
   <dt>--process-only
   <dd>Don't read in any files but process the existing temporary file into the
     routing database.
+  <dt>--loggable
+  <dd>Print progress messages that are suitable for logging to a file; normally
+    an incrementing counter is printed which is more suitable for realtime
+    display than logging.
   <dt>--max-iterations=&lt;number&gt;
   <dd>The maximum number of iterations to use when generating super-nodes and
     super-segments.  Defaults to 10 which is normally enough.
@@ -142,7 +147,7 @@ Usage: router [--help | --help-profile | --help-profile-xml |
               [--dir=&lt;dirname&gt;] [--prefix=&lt;name&gt;]
               [--profiles=&lt;filename&gt;] [--translations=&lt;filename&gt;]
               [--exact-nodes-only]
-              [--quiet]
+              [--loggable | --quiet]
               [--output-html]
               [--output-gpx-track] [--output-gpx-route]
               [--output-text] [--output-text-all]
@@ -198,6 +203,10 @@ Usage: router [--help | --help-profile | --help-profile-xml |
   <dd>When processing the specified latitude and longitude points only select
     the nearest node instead of finding the nearest point within a segment
     (quicker but less accurate unless the points are already near nodes).
+  <dt>--loggable
+  <dd>Print progress messages that are suitable for logging to a file; normally
+    an incrementing counter is printed which is more suitable for realtime
+    display than logging.
   <dt>--quiet
   <dd>Don't generate any screen output while running (useful for running in a script).
   <dt>--language=&lt;lang&gt;
@@ -263,6 +272,7 @@ Usage: router [--help | --help-profile | --help-profile-xml |
       <li>cycleway     = Cycleway
       <li>path         = Path
       <li>steps        = Steps
+      <li>ferry        = Ferry
     </ul>
     Default value depends on the profile selected by the --transport option.
   <dt>--speed-&lt;highway&gt;=&lt;speed&gt;
@@ -429,6 +439,7 @@ for test purposes.
 
 <pre class="boxed">
 Usage: tagmodifier [--help]
+                   [--loggable]
                    [--tagging=&lt;filename&gt;]
                    [&lt;filename.osm&gt;]
 </pre>
@@ -436,6 +447,10 @@ Usage: tagmodifier [--help]
 <dl>
   <dt>--help
   <dd>Prints out the help information.
+  <dt>--loggable
+  <dd>Print progress messages that are suitable for logging to a file; normally
+    an incrementing counter is printed which is more suitable for realtime
+    display than logging.
   <dt>--tagging=&lt;filename&gt;
   <dd>The name of the XML file containing the tagging rules (defaults to
     'tagging.xml' in the current directory).
