@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008,2009 Andrew M. Bishop
+// This file Copyright 2008,2009,2010 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -316,6 +316,16 @@ DIV.content TABLE.noborder
  border:  0;
 }
 
+DIV.content TABLE.noborder-left
+{
+ /* margins, borders, padding and sizes */
+
+ margin-left: 0;
+ margin-right: auto;
+
+ border:  0;
+}
+
 DIV.content CAPTION
 {
  /* position */
@@ -339,6 +349,13 @@ DIV.content TD, DIV.content TH
 }
 
 DIV.content TABLE.noborder TD, DIV.content TABLE.noborder TH
+{
+ /* margins, borders, padding and sizes */
+
+ border:  0;
+}
+
+DIV.content TABLE.noborder-left TD, DIV.content TABLE.noborder-left TH
 {
  /* margins, borders, padding and sizes */
 

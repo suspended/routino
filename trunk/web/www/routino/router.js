@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008,2009 Andrew M. Bishop
+// This file Copyright 2008,2009,2010 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -23,57 +23,70 @@
 // Parameters for the router (generated using "--help-profile-js").
 //
 
+////////////////////////////////////////////////////////////////////////////////
+
 // Transport types
-var router_transports={foot: 0, bicycle: 1, horse: 2, motorbike: 3, motorcar: 4, goods: 5, hgv: 6, psv: 7};
+var router_transports={foot: 1, horse: 2, wheelchair: 3, bicycle: 4, moped: 5, motorbike: 6, motorcar: 7, goods: 8, hgv: 9, psv: 10};
 
 // Highway types
-var router_highways={motorway: 0, trunk: 1, primary: 2, secondary: 3, tertiary: 4, unclassified: 5, residential: 6, service: 7, track: 8, path: 9, bridleway: 10, cycleway: 11, footway: 12};
+var router_highways={motorway: 1, trunk: 2, primary: 3, secondary: 4, tertiary: 5, unclassified: 6, residential: 7, service: 8, track: 9, cycleway: 10, path: 11, steps: 12};
+
+// Property types
+var router_properties={paved: 1, multilane: 2, bridge: 3, tunnel: 4};
 
 // Restriction types
 var router_restrictions={oneway: 1, weight: 2, height: 3, width: 4, length: 5};
 
 // Allowed highways
 var router_profile_highway={
-      motorway: {foot:   0, bicycle:   0, horse:   0, motorbike: 100, motorcar: 100, goods: 100, hgv: 100, psv: 100}, 
-         trunk: {foot:  40, bicycle:  30, horse:  25, motorbike: 100, motorcar: 100, goods: 100, hgv: 100, psv: 100}, 
-       primary: {foot:  50, bicycle:  70, horse:  50, motorbike:  90, motorcar:  90, goods:  90, hgv:  90, psv:  90}, 
-     secondary: {foot:  60, bicycle:  80, horse:  50, motorbike:  80, motorcar:  80, goods:  80, hgv:  80, psv:  80}, 
-      tertiary: {foot:  70, bicycle:  90, horse:  75, motorbike:  70, motorcar:  70, goods:  70, hgv:  70, psv:  70}, 
-  unclassified: {foot:  80, bicycle:  90, horse:  75, motorbike:  60, motorcar:  60, goods:  60, hgv:  60, psv:  60}, 
-   residential: {foot:  90, bicycle:  90, horse:  75, motorbike:  50, motorcar:  50, goods:  50, hgv:  50, psv:  50}, 
-       service: {foot:  90, bicycle:  90, horse:  75, motorbike:  80, motorcar:  80, goods:  80, hgv:  80, psv:  80}, 
-         track: {foot:  95, bicycle:  90, horse: 100, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}, 
-          path: {foot: 100, bicycle:  90, horse: 100, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}, 
-     bridleway: {foot: 100, bicycle:  90, horse: 100, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}, 
-      cycleway: {foot:  95, bicycle: 100, horse:  90, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}, 
-       footway: {foot: 100, bicycle:  90, horse:  90, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}
+      motorway: {foot:   0, horse:   0, wheelchair:   0, bicycle:   0, moped:   0, motorbike: 100, motorcar: 100, goods: 100, hgv: 100, psv: 100},
+         trunk: {foot:  40, horse:  25, wheelchair:  40, bicycle:  30, moped:  90, motorbike: 100, motorcar: 100, goods: 100, hgv: 100, psv: 100},
+       primary: {foot:  50, horse:  50, wheelchair:  50, bicycle:  70, moped: 100, motorbike:  90, motorcar:  90, goods:  90, hgv:  90, psv:  90},
+     secondary: {foot:  60, horse:  50, wheelchair:  60, bicycle:  80, moped:  90, motorbike:  80, motorcar:  80, goods:  80, hgv:  80, psv:  80},
+      tertiary: {foot:  70, horse:  75, wheelchair:  70, bicycle:  90, moped:  80, motorbike:  70, motorcar:  70, goods:  70, hgv:  70, psv:  70},
+  unclassified: {foot:  80, horse:  75, wheelchair:  80, bicycle:  90, moped:  70, motorbike:  60, motorcar:  60, goods:  60, hgv:  60, psv:  60},
+   residential: {foot:  90, horse:  75, wheelchair:  90, bicycle:  90, moped:  60, motorbike:  50, motorcar:  50, goods:  50, hgv:  50, psv:  50},
+       service: {foot:  90, horse:  75, wheelchair:  90, bicycle:  90, moped:  80, motorbike:  80, motorcar:  80, goods:  80, hgv:  80, psv:  80},
+         track: {foot:  95, horse: 100, wheelchair:  95, bicycle:  90, moped:   0, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0},
+      cycleway: {foot:  95, horse:  90, wheelchair:  95, bicycle: 100, moped:   0, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0},
+          path: {foot: 100, horse: 100, wheelchair: 100, bicycle:  90, moped:   0, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0},
+         steps: {foot:  80, horse:   0, wheelchair:   0, bicycle:   0, moped:   0, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}
    };
 
 // Speed limits
 var router_profile_speed={
-      motorway: {foot:   0, bicycle:   0, horse:   0, motorbike: 112, motorcar: 112, goods:  96, hgv:  89, psv:  89}, 
-         trunk: {foot:   4, bicycle:   0, horse:   0, motorbike:  96, motorcar:  96, goods:  96, hgv:  80, psv:  80}, 
-       primary: {foot:   4, bicycle:  20, horse:   8, motorbike:  96, motorcar:  96, goods:  96, hgv:  80, psv:  80}, 
-     secondary: {foot:   4, bicycle:  20, horse:   8, motorbike:  88, motorcar:  88, goods:  88, hgv:  80, psv:  80}, 
-      tertiary: {foot:   4, bicycle:  20, horse:   8, motorbike:  80, motorcar:  80, goods:  80, hgv:  80, psv:  80}, 
-  unclassified: {foot:   4, bicycle:  20, horse:   8, motorbike:  64, motorcar:  64, goods:  64, hgv:  64, psv:  64}, 
-   residential: {foot:   4, bicycle:  20, horse:   8, motorbike:  48, motorcar:  48, goods:  48, hgv:  48, psv:  48}, 
-       service: {foot:   4, bicycle:  20, horse:   8, motorbike:  32, motorcar:  32, goods:  32, hgv:  32, psv:  32}, 
-         track: {foot:   4, bicycle:  20, horse:   8, motorbike:  16, motorcar:  16, goods:  16, hgv:  16, psv:  16}, 
-          path: {foot:   4, bicycle:  20, horse:   8, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}, 
-     bridleway: {foot:   4, bicycle:  20, horse:   8, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}, 
-      cycleway: {foot:   4, bicycle:  20, horse:   8, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}, 
-       footway: {foot:   4, bicycle:  20, horse:   8, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}
+      motorway: {foot:   0, horse:   0, wheelchair:   0, bicycle:   0, moped:  48, motorbike: 112, motorcar: 112, goods:  96, hgv:  89, psv:  89},
+         trunk: {foot:   4, horse:   8, wheelchair:   4, bicycle:  20, moped:  48, motorbike:  96, motorcar:  96, goods:  96, hgv:  80, psv:  80},
+       primary: {foot:   4, horse:   8, wheelchair:   4, bicycle:  20, moped:  48, motorbike:  96, motorcar:  96, goods:  96, hgv:  80, psv:  80},
+     secondary: {foot:   4, horse:   8, wheelchair:   4, bicycle:  20, moped:  48, motorbike:  88, motorcar:  88, goods:  88, hgv:  80, psv:  80},
+      tertiary: {foot:   4, horse:   8, wheelchair:   4, bicycle:  20, moped:  48, motorbike:  80, motorcar:  80, goods:  80, hgv:  80, psv:  80},
+  unclassified: {foot:   4, horse:   8, wheelchair:   4, bicycle:  20, moped:  48, motorbike:  64, motorcar:  64, goods:  64, hgv:  64, psv:  64},
+   residential: {foot:   4, horse:   8, wheelchair:   4, bicycle:  20, moped:  48, motorbike:  48, motorcar:  48, goods:  48, hgv:  48, psv:  48},
+       service: {foot:   4, horse:   8, wheelchair:   4, bicycle:  20, moped:  32, motorbike:  32, motorcar:  32, goods:  32, hgv:  32, psv:  32},
+         track: {foot:   4, horse:   8, wheelchair:   4, bicycle:  20, moped:  16, motorbike:  16, motorcar:  16, goods:  16, hgv:  16, psv:  16},
+      cycleway: {foot:   4, horse:   8, wheelchair:   4, bicycle:  20, moped:   0, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0},
+          path: {foot:   4, horse:   8, wheelchair:   4, bicycle:  20, moped:   0, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0},
+         steps: {foot:   4, horse:   0, wheelchair:   4, bicycle:   0, moped:   0, motorbike:   0, motorcar:   0, goods:   0, hgv:   0, psv:   0}
+   };
+
+// Highway properties
+var router_profile_property={
+         paved: {foot:  50, horse:  20, wheelchair:  90, bicycle:  50, moped: 100, motorbike: 100, motorcar: 100, goods: 100, hgv: 100, psv: 100},
+     multilane: {foot:  25, horse:  25, wheelchair:  25, bicycle:  25, moped:  25, motorbike:  75, motorcar:  75, goods:  75, hgv:  75, psv:  75},
+        bridge: {foot:  50, horse:  50, wheelchair:  50, bicycle:  50, moped:  50, motorbike:  50, motorcar:  50, goods:  50, hgv:  50, psv:  50},
+        tunnel: {foot:  50, horse:  50, wheelchair:  50, bicycle:  50, moped:  50, motorbike:  50, motorcar:  50, goods:  50, hgv:  50, psv:  50}
    };
 
 // Restrictions
 var router_profile_restrictions={
-        oneway: {foot:    0, bicycle:    1, horse:    1, motorbike:    1, motorcar:    1, goods:    1, hgv:    1, psv:    1},
-        weight: {foot:  0.0, bicycle:  0.0, horse:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  5.0, hgv: 10.0, psv: 15.0},
-        height: {foot:  0.0, bicycle:  0.0, horse:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  2.5, hgv:  3.0, psv:  3.0},
-         width: {foot:  0.0, bicycle:  0.0, horse:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  2.0, hgv:  2.5, psv:  2.5},
-        length: {foot:  0.0, bicycle:  0.0, horse:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  5.0, hgv:  6.0, psv:  6.0}
+        oneway: {foot:    0, horse:    1, wheelchair:    0, bicycle:    1, moped:    1, motorbike:    1, motorcar:    1, goods:    1, hgv:    1, psv:    1},
+        weight: {foot:  0.0, horse:  0.0, wheelchair:  0.0, bicycle:  0.0, moped:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  5.0, hgv: 10.0, psv: 15.0},
+        height: {foot:  0.0, horse:  0.0, wheelchair:  0.0, bicycle:  0.0, moped:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  2.5, hgv:  3.0, psv:  3.0},
+         width: {foot:  0.0, horse:  0.0, wheelchair:  0.0, bicycle:  0.0, moped:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  2.0, hgv:  2.5, psv:  2.5},
+        length: {foot:  0.0, horse:  0.0, wheelchair:  0.0, bicycle:  0.0, moped:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  5.0, hgv:  6.0, psv:  6.0}
    };
+
+////////////////////////////////////////////////////////////////////////////////
 
 // Currently selected transport
 var router_transport=false;
@@ -91,7 +104,7 @@ function form_init()
  var key;
 
  for(key in router_transports)
-    if(document.forms["form"].elements["transport"][router_transports[key]].checked)
+    if(document.forms["form"].elements["transport"][router_transports[key]-1].checked)
        router_transport=key;
 
  if(!router_transport)
@@ -114,13 +127,21 @@ function form_init()
           formSetSpeed(key);
       }
 
+    for(key in router_profile_property)
+      {
+       if(document.forms["form"].elements["property-" + key].value=="")
+          document.forms["form"].elements["property-" + key].value=router_profile_property[key][router_transport];
+       else
+          formSetProperty(key);
+      }
+
     for(key in router_restrictions)
       {
        if(key=="oneway")
           formSetRestriction(key);
        else
          {
-          if(document.forms["form"].elements["restrict-" + key].value="")
+          if(document.forms["form"].elements["restrict-" + key].value=="")
              document.forms["form"].elements["restrict-" + key].value=router_profile_restrictions[key][router_transport];
           else
              formSetRestriction(key);
@@ -128,15 +149,16 @@ function form_init()
       }
    }
 
- for(marker in markers)
-    if(document.forms["form"].elements["lon" + marker] != undefined)
-      {
-       var lon=document.forms["form"].elements["lon" + marker].value;
-       var lat=document.forms["form"].elements["lat" + marker].value;
+ for(var marker=nmarkers;marker>=1;marker--)
+   {
+    var lon=document.forms["form"].elements["lon" + marker].value;
+    var lat=document.forms["form"].elements["lat" + marker].value;
 
-       if(lon != "" && lat != "")
-          markerAddRemove(marker);
-      }
+    if(lon != "" && lat != "")
+       markerAddMap(marker);
+    else
+       markerRemove(marker);
+   }
 
  updateCustomURL();
 }
@@ -153,13 +175,16 @@ function formSetTransport(type)
  router_transport=type;
 
  for(key in router_transports)
-    document.forms["form"].elements["transport"][router_transports[key]].checked=(key==router_transport);
+    document.forms["form"].elements["transport"][router_transports[key]-1].checked=(key==router_transport);
 
  for(key in router_profile_highway)
     document.forms["form"].elements["highway-" + key].value=router_profile_highway[key][router_transport];
 
  for(key in router_profile_speed)
     document.forms["form"].elements["speed-" + key].value=router_profile_speed[key][router_transport];
+
+ for(key in router_profile_property)
+    document.forms["form"].elements["property-" + key].value=router_profile_property[key][router_transport];
 
  for(key in router_restrictions)
    {
@@ -204,6 +229,20 @@ function formSetSpeed(type)
 
 
 //
+// Change of Property in the form
+//
+
+function formSetProperty(type)
+{
+ router_profile_property[type][router_transport]=document.forms["form"].elements["property-" + type].value;
+
+ paramschanged=true;
+
+ updateCustomURL();
+}
+
+
+//
 // Change of oneway rule in the form
 //
 
@@ -227,8 +266,11 @@ function formSetRestriction(type)
 function updateCustomURL()
 {
  var custom_url=document.getElementById("custom_url");
+ var visualiser_url=document.getElementById("visualiser_url");
 
- custom_url.href="customrouter.cgi" + buildURLArguments(1);
+ custom_url.href="customrouter.cgi" + buildURLArguments(1) + ";" + map_args;
+
+ visualiser_url.href="customvisualiser.cgi?" + map_args;
 }
 
 
@@ -266,9 +308,11 @@ function discardReturnKey(ev)
 var map;
 var layerMapOSM, layerVectors, layerGPX;
 var epsg4326, epsg900913;
+var map_args;
 
-var markers, markersmoved, paramschanged;
-var highlights;
+var nmarkers, vismarkers, markers, markersmoved, paramschanged;
+var highlights={shortest: null, quickest: null};
+var popups={shortest: null, quickest: null};
 var gpx_style;
 
 
@@ -339,10 +383,10 @@ function map_init(lat,lon,zoom)
  {
   var z = map.getZoom() + map.minZoomLevel;
 
-  if (z>7 && (bounds.right  < mapbounds.left ||
-              bounds.left   > mapbounds.right ||
-              bounds.top    < mapbounds.bottom ||
-              bounds.bottom > mapbounds.top))
+  if (z>=7 && (bounds.right  < mapbounds.left ||
+               bounds.left   > mapbounds.right ||
+               bounds.top    < mapbounds.bottom ||
+               bounds.bottom > mapbounds.top))
      return this.emptyUrl;
 
   var res = map.getResolution();
@@ -372,24 +416,31 @@ function map_init(lat,lon,zoom)
 
  // A set of markers
 
- markers={1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null, 8: null, 9: null};
+ nmarkers=99;
+ vismarkers=0;
+ markers={};
  markersmoved=false;
  paramschanged=false;
 
- var marker;
-
- for(marker in markers)
+ for(var marker=1;marker<=nmarkers;marker++)
    {
     if(document.forms["form"].elements["lon" + marker] != undefined)
       {
        markers[marker] = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(0,0),{},
                                                        new OpenLayers.Style({},{externalGraphic: 'icons/marker-' + marker + '-red.png',
+                                                                                fillColor: "white",
                                                                                 graphicYOffset: -25,
                                                                                 graphicWidth: 21,
                                                                                 graphicHeight: 25,
                                                                                 display: "none"}));
 
        layerVectors.addFeatures([markers[marker]]);
+      }
+    else
+      {
+       nmarkers=marker-1;
+       vismarkers=marker-1;
+       break;
       }
    }
 
@@ -401,22 +452,44 @@ function map_init(lat,lon,zoom)
  map.addControl(drag);
  drag.activate();
 
- // Markers to highlight a selected point
+ // Colours for the route highlights and popups
 
- highlights={shortest: "#408040", quickest: "#404080"};
+ route_colours={shortest: "#60C060", quickest: "#6060C0"};
+
+ // Markers to highlight a selected point
 
  var highlight;
 
  for(highlight in highlights)
    {
     highlights[highlight] = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(0,0),{},
-                                                          new OpenLayers.Style({},{strokeColor: highlights[highlight],
+                                                          new OpenLayers.Style({},{strokeColor: route_colours[highlight],
+                                                                                   fillColor: "white",
                                                                                    pointRadius: 10,
                                                                                    strokeWidth: 4,
                                                                                    fillOpacity: 0,
                                                                                    display: "none"}));
 
     layerVectors.addFeatures([highlights[highlight]]);
+   }
+
+ // A popup for routing results
+
+ var popup;
+
+ for(popup in popups)
+   {
+    popups[popup] = new OpenLayers.Popup(popup,
+                                         new OpenLayers.LonLat(mapbounds.left,mapbounds.bottom),
+                                         new OpenLayers.Size(map.getSize().w-100,60),
+                                         popup,
+                                         false);
+
+    popups[popup].keepInMap=true;
+    popups[popup].panMapIfOutOfView=false;
+    popups[popup].setOpacity(0.75);
+    popups[popup].setBackgroundColor(route_colours[popup]);
+    popups[popup].setBorder("2px");
    }
 
  // Set the map centre to the limited range specified
@@ -447,11 +520,9 @@ function mapMoved()
 
  var zoom = this.getZoom() + map.minZoomLevel;
 
- var visualiser_url=document.getElementById("visualiser_url");
+ map_args="lat=" + lonlat.lat + ";lon=" + lonlat.lon + ";zoom=" + zoom;
 
- var args="lat=" + lonlat.lat + ";lon=" + lonlat.lon + ";zoom=" + zoom;
-
- visualiser_url.href="customvisualiser.cgi?" + args;
+ updateCustomURL();
 }
 
 
@@ -461,7 +532,7 @@ function mapMoved()
 
 function dragMove(feature,pixel)
 {
- for(marker in markers)
+ for(var marker in markers)
     if(feature==markers[marker])
       {
        markersmoved=true;
@@ -477,7 +548,7 @@ function dragMove(feature,pixel)
 
 function dragComplete(feature,pixel)
 {
- for(marker in markers)
+ for(var marker in markers)
     if(feature==markers[marker])
       {
        markersmoved=true;
@@ -488,33 +559,224 @@ function dragComplete(feature,pixel)
 
 
 //
-// Add or remove a marker on the map.
+// Toggle a marker on the map.
 //
 
-function markerAddRemove(marker)
+function markerToggleMap(marker)
 {
  var feature=markers[marker];
 
  if(feature.style.display == "")
-   {
-    feature.style.display = "none";
-    document.images["waypoint" + marker].src="icons/marker-" + marker + "-grey.png";
-   }
+    markerRemoveMap(marker);
  else
-   {
-    var lonlat=map.getCenter();
+    markerAddMap(marker);
+}
 
-    feature.move(lonlat);
 
-    feature.style.display = "";
-    document.images["waypoint" + marker].src="icons/marker-" + marker + "-red.png";
+//
+// Show a marker on the map.
+//
 
-    formSetCoords(marker);
-   }
+function markerAddMap(marker)
+{
+ var feature=markers[marker];
+
+ feature.style.display = "";
+ document.images["waypoint" + marker].src="icons/marker-" + marker + "-red.png";
+
+ formSetCoords(marker);
 
  layerVectors.drawFeature(feature);
 
  markersmoved=true;
+}
+
+
+//
+// Remove a marker from the map.
+//
+
+function markerRemoveMap(marker)
+{
+ var feature=markers[marker];
+
+ feature.style.display = "none";
+ document.images["waypoint" + marker].src="icons/marker-" + marker + "-grey.png";
+
+ layerVectors.drawFeature(feature);
+
+ markersmoved=true;
+}
+
+
+//
+// Clear the current marker.
+//
+
+function markerRemove(marker)
+{
+ for(var marker2=marker;marker2<vismarkers;marker2++)
+   {
+    document.forms["form"].elements["lon" + marker2].value=document.forms["form"].elements["lon" + (marker2+1)].value;
+    document.forms["form"].elements["lat" + marker2].value=document.forms["form"].elements["lat" + (marker2+1)].value;
+
+    if(markers[marker2+1].style.display=="")
+       markerAddMap(marker2);
+    else
+       markerRemoveMap(marker2);
+   }
+
+ markerRemoveMap(vismarkers);
+
+ var marker_tr=document.getElementById("point" + vismarkers);
+
+ marker_tr.style.display="none";
+
+ vismarkers--;
+
+ if(vismarkers==1)
+    markerAddAfter(1);
+
+ updateCustomURL();
+}
+
+
+//
+// Add a marker before the current one.
+//
+
+function markerAddBefore(marker)
+{
+ if(vismarkers==nmarkers || marker==1)
+    return false;
+
+ vismarkers++;
+
+ var marker_tr=document.getElementById("point" + vismarkers);
+
+ marker_tr.style.display="";
+
+ for(var marker2=vismarkers;marker2>marker;marker2--)
+   {
+    document.forms["form"].elements["lon" + marker2].value=document.forms["form"].elements["lon" + (marker2-1)].value;
+    document.forms["form"].elements["lat" + marker2].value=document.forms["form"].elements["lat" + (marker2-1)].value;
+
+    if(markers[marker2-1].style.display=="")
+       markerAddMap(marker2);
+    else
+       markerRemoveMap(marker2);
+   }
+
+ document.forms["form"].elements["lon" + marker].value="";
+ document.forms["form"].elements["lat" + marker].value="";
+ markers[marker].style.display="none";
+
+ markerRemoveMap(marker);
+
+ updateCustomURL();
+}
+
+
+//
+// Add a marker after the current one.
+//
+
+function markerAddAfter(marker)
+{
+ if(vismarkers==nmarkers)
+    return false;
+
+ vismarkers++;
+
+ var marker_tr=document.getElementById("point" + vismarkers);
+
+ marker_tr.style.display="";
+
+ for(var marker2=vismarkers;marker2>(marker+1);marker2--)
+   {
+    document.forms["form"].elements["lon" + marker2].value=document.forms["form"].elements["lon" + (marker2-1)].value;
+    document.forms["form"].elements["lat" + marker2].value=document.forms["form"].elements["lat" + (marker2-1)].value;
+
+    if(markers[marker2-1].style.display=="")
+       markerAddMap(marker2);
+    else
+       markerRemoveMap(marker2);
+   }
+
+ document.forms["form"].elements["lon" + (marker+1)].value="";
+ document.forms["form"].elements["lat" + (marker+1)].value="";
+ markers[marker+1].style.display="none";
+
+ markerRemoveMap(marker+1);
+
+ updateCustomURL();
+}
+
+
+//
+// Move this marker up.
+//
+
+function markerMoveUp(marker)
+{
+ if(marker==1)
+    return false;
+
+ markerSwap(marker,marker-1);
+}
+
+
+//
+// Move this marker down.
+//
+
+function markerMoveDown(marker)
+{
+ if(marker==vismarkers)
+    return false;
+
+ markerSwap(marker,marker+1);
+}
+
+
+//
+// Swap a pair of markers.
+//
+
+function markerSwap(marker1,marker2)
+{
+ var lon=document.forms["form"].elements["lon" + marker1].value;
+ var lat=document.forms["form"].elements["lat" + marker1].value;
+ var display=markers[marker1].style.display;
+
+ document.forms["form"].elements["lon" + marker1].value=document.forms["form"].elements["lon" + marker2].value;
+ document.forms["form"].elements["lat" + marker1].value=document.forms["form"].elements["lat" + marker2].value;
+ if(markers[marker2].style.display=="")
+    markerAddMap(marker1);
+ else
+    markerRemoveMap(marker1);
+
+ document.forms["form"].elements["lon" + marker2].value=lon;
+ document.forms["form"].elements["lat" + marker2].value=lat;
+ if(display=="")
+    markerAddMap(marker2);
+ else
+    markerRemoveMap(marker2);
+
+ updateCustomURL();
+}
+
+
+//
+// Reverse the markers.
+//
+
+function markersReverse()
+{
+ for(var marker=1;marker<=vismarkers/2;marker++)
+    markerSwap(marker,vismarkers+1-marker);
+
+ updateCustomURL();
 }
 
 
@@ -622,14 +884,62 @@ function highlight(type,line)
  if(line==-1)
    {
     highlights[type].style.display = "none";
+
+    map.removePopup(popups[type]);
    }
  else
    {
     var lonlat = new OpenLayers.LonLat(routepoints[type][line].lon,routepoints[type][line].lat).transform(epsg4326,map.getProjectionObject());
 
+    var popupstr="";
+
+    if(routepoints[type][line].text=="")
+       popupstr += "From: ".bold() + "Start Point".italics();
+    else
+       popupstr += "After: ".bold() + routepoints[type][line].text + " [ " + routepoints[type][line].segdist + " , " + routepoints[type][line].segdura + " ] ";
+
+    popupstr += "<br>";
+
+    if(routepoints[type][line].bearing==undefined)
+       popupstr += "Stop: ".bold();
+    else if(routepoints[type][line].turn==undefined)
+       popupstr += "Go:&nbsp;&nbsp;&nbsp; ".bold() + routepoints[type][line].bearing;
+    else
+       popupstr += "Go:&nbsp;&nbsp;&nbsp; ".bold() + routepoints[type][line].turn + " (" + routepoints[type][line].bearing + ")";
+
+    if(routepoints[type][line].type=="Waypt")
+       popupstr += " [Waypoint]";
+
+    popupstr += "<br>";
+
+    if(routepoints[type][line+1]==undefined)
+       popupstr += "At:&nbsp;&nbsp;&nbsp; ".bold() + "Finish Point".italics();
+    else
+       popupstr += "Onto: ".bold() + routepoints[type][line+1].text;
+
+    popupstr += "<br>";
+
+    popupstr += "Total: ".bold() + routepoints[type][line].totdist + " , " + routepoints[type][line].totdura;
+
+    popups[type].setContentHTML(popupstr);
+
     highlights[type].move(lonlat);
 
-    highlights[type].style.display = "";
+    if(highlights[type].style.display = "none")
+      {
+       highlights[type].style.display = "";
+
+       map.addPopup(popups[type]);
+
+       var lonlat=new OpenLayers.LonLat(map.getCenter().lon,map.getExtent().top);
+       var position=map.getPixelFromLonLat(lonlat);
+
+       position.x=position.x-popups[type].size.w/2;
+       position.y=position.y+50;
+
+       popups[type].lonlat=map.getLonLatFromPixel(position);
+       popups[type].updatePosition();
+      }
    }
 
  layerVectors.drawFeature(highlights[type]);
@@ -646,9 +956,8 @@ function buildURLArguments(all)
 
  url=url + "transport=" + router_transport;
 
- for(marker in markers)
-    if((markers[marker] != null && markers[marker].style.display == "") ||
-       (all && document.forms["form"].elements["lon" + marker] != undefined))
+ for(var marker=1;marker<=vismarkers;marker++)
+    if(markers[marker].style.display == "" || all)
       {
        url=url + ";lon" + marker + "=" + document.forms["form"].elements["lon" + marker].value;
        url=url + ";lat" + marker + "=" + document.forms["form"].elements["lat" + marker].value;
@@ -659,6 +968,9 @@ function buildURLArguments(all)
 
  for(key in router_profile_speed)
     url=url + ";speed-" + key + "=" + document.forms["form"].elements["speed-" + key].value;
+
+ for(key in router_profile_property)
+    url=url + ";property-" + key + "=" + document.forms["form"].elements["property-" + key].value;
 
  for(key in router_restrictions)
    {
@@ -862,6 +1174,14 @@ function displayResult(type,uuid)
 // Success in getting route.
 //
 
+var turn_instruct={"-4": "Very sharp left", "-3": "Sharp left", "-2": "Left", "-1": "Slight left",
+                   "0": "Straight on",
+                   "4": "Very sharp right", "3": "Sharp right", "2": "Right", "1": "Slight right"};
+
+var bearing_instruct={"-4": "South", "-3": "South-West", "-2": "West", "-1": "North-West",
+                      "0": "North",
+                      "4": "South", "3": "South-East", "2": "East", "1": "North-East"};
+
 function getRouteSuccess(response)
 {
  var lines=response.responseText.split('\n');
@@ -871,39 +1191,40 @@ function getRouteSuccess(response)
 
  var result="<hr><table onmouseout='highlight(\"" + routing_type + "\",-1)'>";
 
- var dist,dura,text,lat,lon;
+ var lat,lon,segdist,segdura,totdist,totdura,turn,text;
 
  for(line in lines)
    {
     var words=lines[line].split('\t');
 
+//    fprintf(textfile,"#Latitude\tLongitude\tSection \tSection \tTotal   \tTotal   \tPoint\tTurn\tBearing\tHighway\n");
+//    fprintf(textfile,"#        \t         \tDistance\tDuration\tDistance\tDuration\tType \t    \t       \t       \n");
+
     if(lines[line].match(/^#/))
-       text=null;
-    else if(words[6]=="")
-      {
-       lon=words[1];
-       lat=words[0];
-       dist=words[4];
-       dura=words[5];
-       text="Start Point".italics();
-      }
+       ;
     else if(words[1]==undefined)
-      {
-       text="Finish Point".italics();
-      }
+       ;
     else
       {
-       lon=words[1];
-       lat=words[0];
-       dist=words[4];
-       dura=words[5];
-       text=words[6];
-      }
+       routepoints[routing_type][line]={lat: Number(words[0]), lon: Number(words[1]),
+                                        segdist: words[2], segdura: words[3],
+                                        totdist: words[4], totdura: words[5],
+                                        type: words[6], text: words[9]};
 
-    if(text != null)
-      {
-       routepoints[routing_type][line]={lat: Number(lat), lon: Number(lon), dist: dist, dura: dura};
-       result=result + "<tr onclick='zoomTo(\"" + routing_type + "\"," + line + ")' onmouseover='highlight(\"" + routing_type + "\"," + line + ")'><td class='right'>" + dist + "<td class='right'>" + dura + "<td class='left'>" + text;
+       if(words[7] != "")
+          routepoints[routing_type][line].turn=turn_instruct[Number(words[7])];
+
+       if(words[8] != "")
+          routepoints[routing_type][line].bearing=bearing_instruct[Number(words[8])];
+
+       if(words[9]=="")
+          words[9]="Start Point".italics();
+
+       result=result + "<tr onclick='zoomTo(\"" + routing_type + "\"," + line + ")'" +
+                          " onmouseover='highlight(\"" + routing_type + "\"," + line + ")'>" +
+                          "<td class='right'>" + words[4] +
+                          "<td class='right'>" + words[5] +
+                          "<td class='left'>" + "&nbsp;" + words[9];
       }
    }
 

@@ -35,20 +35,21 @@ $query=new CGI;
 # Legal CGI parameters with regexp validity check
 
 %legalparams=(
-              "lon"            => "[-0-9.]+",
-              "lat"            => "[-0-9.]+",
-              "zoom"           => "[0-9]+",
+              "lon"             => "[-0-9.]+",
+              "lat"             => "[-0-9.]+",
+              "zoom"            => "[0-9]+",
 
-              "lon[1-9]"       => "[-0-9.]+",
-              "lat[1-9]"       => "[-0-9.]+",
-              "transport"      => "[a-z]+",
-              "highway-[a-z]+" => "[0-9.]+",
-              "speed-[a-z]+"   => "[0-9.]+",
-              "oneway"         => "(1|0|true|false|on|off)",
-              "weight"         => "[0-9.]+",
-              "height"         => "[0-9.]+",
-              "width"          => "[0-9.]+",
-              "length"         => "[0-9.]+"
+              "lon[1-9]"        => "[-0-9.]+",
+              "lat[1-9]"        => "[-0-9.]+",
+              "transport"       => "[a-z]+",
+              "highway-[a-z]+"  => "[0-9.]+",
+              "speed-[a-z]+"    => "[0-9.]+",
+              "property-[a-z]+" => "[0-9.]+",
+              "oneway"          => "(1|0|true|false|on|off)",
+              "weight"          => "[0-9.]+",
+              "height"          => "[0-9.]+",
+              "width"           => "[0-9.]+",
+              "length"          => "[0-9.]+"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -109,9 +110,9 @@ while(<TEMPLATE>)
   {
    if(m%^<BODY.+>%)
      {
-      s/'lat'/$cgiparams{'lat'}/   if($cgiparams{'lat'});
-      s/'lon'/$cgiparams{'lon'}/   if($cgiparams{'lon'});
-      s/'zoom'/$cgiparams{'zoom'}/ if($cgiparams{'zoom'});
+      s/'lat'/$cgiparams{'lat'}/   if(defined $cgiparams{'lat'});
+      s/'lon'/$cgiparams{'lon'}/   if(defined $cgiparams{'lon'});
+      s/'zoom'/$cgiparams{'zoom'}/ if(defined $cgiparams{'zoom'});
       print;
      }
    elsif(m%<input% && m%<!-- ([^ ]+) *-->%)

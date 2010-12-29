@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008,2009 Andrew M. Bishop
+// This file Copyright 2008,2009,2010 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -75,6 +75,11 @@ DIV.options IMG
  vertical-align: bottom;
 }
 
+DIV.options IMG:hover
+{
+ background: #F0F000;
+}
+
 DIV.options TABLE
 {
  padding: 0;
@@ -96,6 +101,11 @@ DIV.options INPUT
  margin:  0;
 
  text-align: right;
+}
+
+DIV.options INPUT:hover
+{
+ background: #F0F0C0;
 }
 
 DIV.options INPUT#shortest
@@ -140,6 +150,12 @@ DIV.route TD.right
 {
  min-width: 5em;
  text-align: right;
+}
+
+DIV.route TD.center
+{
+ text-align: center;
+ min-width: 3em;
 }
 
 DIV.route TD.left

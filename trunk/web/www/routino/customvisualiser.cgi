@@ -68,9 +68,9 @@ while(<TEMPLATE>)
   {
    if(m%^<BODY.+>%)
      {
-      s/'lat'/$cgiparams{'lat'}/   if($cgiparams{'lat'});
-      s/'lon'/$cgiparams{'lon'}/   if($cgiparams{'lon'});
-      s/'zoom'/$cgiparams{'zoom'}/ if($cgiparams{'zoom'});
+      s/'lat'/$cgiparams{'lat'}/   if(defined $cgiparams{'lat'});
+      s/'lon'/$cgiparams{'lon'}/   if(defined $cgiparams{'lon'});
+      s/'zoom'/$cgiparams{'zoom'}/ if(defined $cgiparams{'zoom'});
       print;
      }
    else

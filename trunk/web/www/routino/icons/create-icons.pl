@@ -39,18 +39,19 @@ foreach $character ('0'..'9')
 
       $image->Draw(primitive => polygon, points => '1,32 32,73 61,32 32,10',
                    stroke => $borders[$colour], fill => 'white', strokewidth => 6,
-                   antialias => false);
+                   antialias => 'false');
 
       $image->Draw(primitive => arc,     points => '1,1 61,61 -180,0',
                    stroke => $borders[$colour], fill => 'white', strokewidth => 6,
-                   antialias => false);
+                   antialias => 'false');
 
-      ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) = $image->QueryFontMetrics(text => $character);
+      ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) = 
+        $image->QueryFontMetrics(text => $character, font => 'Helvetica', pointsize => '36');
 
       $image->Annotate(text => $character, font => 'Helvetica', pointsize => '36',
-                       fill => $letters[$colour],
-                       x => 32, y => 34+$y_ppem/2, align => Center,
-                       antialias => false);
+                       stroke => $letters[$colour], fill => $letters[$colour],
+                       x => 32, y => 32-$descender, align => Center,
+                       antialias => 'false');
 
       $image->Resize(width => 21, height => 25);
 
@@ -82,7 +83,7 @@ foreach $colour (0..9)
 
    $image->Draw(primitive => circle, points => '4,4 4,8',
                 fill => $colours[$colour], stroke => $colours[$colour],
-                antialias => false);
+                antialias => 'false');
 
    $image->Write("ball-$colour.png");
 
@@ -116,14 +117,15 @@ sub draw_limit
 
    $image->Draw(primitive => circle, points => '28,28 28,55',
                 stroke => 'red', fill => 'white', strokewidth => 3,
-                antialias => false);
+                antialias => 'false');
 
-   ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) = $image->QueryFontMetrics(text => "$limit");
+   ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) =
+     $image->QueryFontMetrics(text => "$limit", font => 'Helvetica', pointsize => '22');
 
    $image->Annotate(text => "$limit", font => 'Helvetica', pointsize => '22',
-                    fill => 'black',
-                    x => 28, y => 28+$y_ppem/2, align => Center,
-                    antialias => false);
+                    stroke => 'black', fill => 'black',
+                    x => 28, y => 28-$descender, align => Center,
+                    antialias => 'false');
 
    $image->Resize(width => 19, height => 19);
 

@@ -35,18 +35,19 @@ $query=new CGI;
 # Legal CGI parameters with regexp validity check
 
 %legalparams=(
-              "lon[1-9]"       => "[-0-9.]+",
-              "lat[1-9]"       => "[-0-9.]+",
-              "transport"      => "[a-z]+",
-              "highway-[a-z]+" => "[0-9.]+",
-              "speed-[a-z]+"   => "[0-9.]+",
-              "oneway"         => "(1|0|true|false|on|off)",
-              "weight"         => "[0-9.]+",
-              "height"         => "[0-9.]+",
-              "width"          => "[0-9.]+",
-              "length"         => "[0-9.]+",
-              "length"         => "[0-9.]+",
-              "type"           => "(shortest|quickest)"
+              "lon[1-9]"        => "[-0-9.]+",
+              "lat[1-9]"        => "[-0-9.]+",
+              "transport"       => "[a-z]+",
+              "highway-[a-z]+"  => "[0-9.]+",
+              "speed-[a-z]+"    => "[0-9.]+",
+              "property-[a-z]+" => "[0-9.]+",
+              "oneway"          => "(1|0|true|false|on|off)",
+              "weight"          => "[0-9.]+",
+              "height"          => "[0-9.]+",
+              "width"           => "[0-9.]+",
+              "length"          => "[0-9.]+",
+              "length"          => "[0-9.]+",
+              "type"            => "(shortest|quickest)"
              );
 
 # Validate the CGI parameters, ignore invalid ones
