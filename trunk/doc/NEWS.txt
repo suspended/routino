@@ -1,3 +1,13 @@
+Version 1.6 of Routino released : Xxx Xxx XX 2011
+-------------------------------------------------
+
+Bug fixes:
+  Routes between two waypoints on the same segment now work.
+
+filedumper:
+  Print out statistics about what highways are included in the database.
+
+
 Version 1.5.1 of Routino released : Sat Nov 13 2010
 ---------------------------------------------------
 
