@@ -1,3 +1,170 @@
+2010-01-21  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	Version 1.3 released
+
+2010-01-21  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/NEWS.txt: Update to latest news.
+
+2010-01-18  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/USAGE.txt, doc/TAGGING.txt, doc/INSTALL.txt:
+	Updated documentation.
+
+2010-01-15  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c, src/functions.h:
+	Change the test output formats to add turn, node type and bearing information.
+
+2010-01-13  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c:
+	Change the test output formats to add turn, node type and bearing information.
+
+2009-12-16  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c:
+	Added an option to use only nodes and not interpolate a point into a segment.
+
+2009-12-15  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c, src/profiles.c, src/types.h, src/ways.c:
+	Added wheelchair as type of transport.
+
+2009-12-13  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c, src/profiles.c, src/types.h, src/ways.c:
+	Add bridge and tunnel to highway properties.
+
+2009-12-12  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/Makefile:
+	Ignore the error if executables cannot be copied after compiling.
+
+	* src/functions.h, src/nodesx.c, src/segmentsx.c, src/sorting.c, src/waysx.c:
+	Add some FILESORT_* #defines and use them.
+
+2009-12-11  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/nodesx.c, src/planetsplitter.c, src/segmentsx.c, src/sorting.c,
+	src/waysx.c, src/waysx.h:
+	Added a new function to sort variable length data - simplifies the compacting of
+	ways, reduces memory usage potentially required for it and simplifies the code.
+
+2009-12-10  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/waysx.c:
+	Write out the list of ways without memory mapping anything.
+
+2009-11-27  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c, src/profiles.c, src/types.h, src/ways.c:
+	Add in "multilane" as a new highway property.
+
+2009-11-25  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/filedumper.c, src/optimiser.c, src/osmparser.c, src/planetsplitter.c, src/profiles.h,
+	src/router.c, src/ways.h, src/waysx.c, src/waysx.h:
+	Store the selected options when parsing (planetsplitter) and display them in the
+	statistics (filedumper) and check them when routing (router).
+
+2009-11-23  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c, src/output.c, src/profiles.c, src/types.h, src/ways.c:
+	Add in "steps" as a new highway type.
+
+2009-11-19  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c, src/router.c:
+	Made the verbose output consistent between different places.
+
+2009-11-18  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c: Fix bug with previous segment-splitting routing.
+
+2009-11-14  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c, src/output.c, src/router.c, src/segments.h, src/functions.h, src/nodes.c,
+	src/nodes.h:
+	If a selected waypoint is not very close to an existing node then insert a fake
+	node in the segment that comes closest and use that instead.
+
+2009-11-13  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c, src/osmparser.c, src/queue.c, src/results.c, src/results.h, src/types.h:
+	Added in some more constants with the value ~0.
+
+2009-11-06  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/filedumper.c:
+	Check the values for the --node=, --segment= and --way= options.
+
+2009-11-03  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c, src/planetsplitter.c, src/profiles.c, src/profiles.h, src/router.c,
+	src/types.h, src/ways.c:
+	Rename Way_Unknown to Way_Count to make more sense and match the properties.
+
+2009-11-02  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c: Allow the tag "paved" as well as "surface=paved".
+
+	* src/filedumper.c, src/optimiser.c, src/osmparser.c, src/planetsplitter.c, src/profiles.c,
+	src/profiles.h, src/router.c, src/types.h, src/ways.c, src/ways.h:
+	Added the ability to set routing preferences using highway properties.
+	Initially the only choice is either paved or unpaved but the code has been
+	updated to allow any number of properties to be added.
+
+2009-10-27  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c:
+	Handle the "designation=..." tag for bridleway, byway and footpath.  (Also
+	change to using a macro for testing if access is allowed and now allow
+	"destination").
+
+	* src/osmparser.c, src/profiles.c, src/types.h, src/ways.c, src/ways.h:
+	Added Moped to the list of transports (and incidentally increased the transport
+	data type to 16 bits and re-ordered the Way data-type in response).
+
+2009-10-26  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/profiles.c:
+	Ensure that horses and bicycles have a default speed on trunk even though they
+	have a default preference not to use it.
+
+	* src/osmparser.c, src/profiles.c, src/types.h, src/ways.c:
+	Re-ordered the types so that Horse comes before Bicycle.
+
+	* src/osmparser.c, src/output.c, src/profiles.c, src/types.h, src/ways.c:
+	Remove the Bridleway and Footway highway types and use the Path type instead
+	(also re-ordered the types so that Cycleway comes before Path).
+
+	* src/profiles.c: Remove unneeded spaces at the end of the output.
+
+2009-10-25  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c:
+	Fix bug in code that determines waypoints for abbreviated output.
+
+2009-10-24  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/optimiser.c, src/router.c:
+	Fix missing segments in output if start and finish points are found by the start
+	search.
+
+2009-10-22  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/files.c, src/nodesx.c, src/segmentsx.c, src/sorting.c, src/superx.c, src/waysx.c:
+	Added some missing comments and corrected some existing ones.
+
+2009-10-21  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	Version 1.2 released
+
+2009-10-21  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/README.txt, doc/USAGE.txt, doc/NEWS.txt: Updated for version 1.2.
+
 2009-10-20  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
 
 	* src/Makefile: Add sorting.o to the Makefile.

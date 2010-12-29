@@ -35,20 +35,21 @@ $query=new CGI;
 # Legal CGI parameters with regexp validity check
 
 %legalparams=(
-              "lon[1-9]"       => "[-0-9.]+",
-              "lat[1-9]"       => "[-0-9.]+",
-              "transport"      => "[a-z]+",
-              "highway-[a-z]+" => "[0-9.]+",
-              "speed-[a-z]+"   => "[0-9.]+",
-              "oneway"         => "(1|0|true|false|on|off)",
-              "weight"         => "[0-9.]+",
-              "height"         => "[0-9.]+",
-              "width"          => "[0-9.]+",
-              "length"         => "[0-9.]+",
-              "length"         => "[0-9.]+",
+              "lon[1-9]"        => "[-0-9.]+",
+              "lat[1-9]"        => "[-0-9.]+",
+              "transport"       => "[a-z]+",
+              "highway-[a-z]+"  => "[0-9.]+",
+              "speed-[a-z]+"    => "[0-9.]+",
+              "property-[a-z]+" => "[0-9.]+",
+              "oneway"          => "(1|0|true|false|on|off)",
+              "weight"          => "[0-9.]+",
+              "height"          => "[0-9.]+",
+              "width"           => "[0-9.]+",
+              "length"          => "[0-9.]+",
+              "length"          => "[0-9.]+",
 
-              "submit"         => "(shortest|quickest|link)",
-              "output"         => "(gpx-route|gpx-track|txt|txt-all|html)"
+              "submit"          => "(shortest|quickest|link)",
+              "output"          => "(gpx-route|gpx-track|txt|txt-all|html)"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -129,6 +130,13 @@ foreach $highway (@router_highways)
 
    $key="speed-$highway";
    $value=$router_profile_speed{$highway}->{$transport};
+   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
+  }
+
+foreach $property (@router_properties)
+  {
+   $key="property-$property";
+   $value=$router_profile_property{$property}->{$transport};
    $cgiparams{$key}=$value if(!defined $cgiparams{$key});
   }
 
