@@ -1,0 +1,117 @@
+/*
+// Style sheet for page elements.
+//
+// Part of the Routino routing software.
+//
+// This file Copyright 2008,2009 Andrew M. Bishop
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+/*-------------*/
+/* Tabbed DIVs */
+/*-------------*/
+
+
+DIV.tab_box
+{
+ padding:    3px;
+ margin-top: 3px;
+
+ width: 100%;
+}
+
+DIV.tab_box > SPAN
+{
+ padding: 3px;
+
+ cursor: pointer;
+}
+
+DIV.tab_box > SPAN.tab_selected
+{
+ border-top:   2px solid;
+ border-left:  2px solid;
+ border-right: 2px solid;
+
+ font-weight: bold;
+
+ background: #FFF;
+}
+
+DIV.tab_box > SPAN.tab_unselected
+{
+ border-top:   1px solid;
+ border-left:  1px solid;
+ border-right: 1px solid;
+
+ background: #DDD;
+}
+
+DIV.tab_box > SPAN.tab_unselected:hover
+{
+ background: #EEE;
+}
+
+
+/*----------------*/
+/* Show/Hide DIVs */
+/*----------------*/
+
+
+DIV.hideshow_box
+{
+ min-height: 1em;
+
+ border-top: thin solid;
+ border-bottom: thin solid;
+ border-color: #AAA;
+}
+
+DIV.hideshow_box + DIV.hideshow_box
+{
+ border-top: none;
+}
+
+DIV.hideshow_box > SPAN
+{
+ margin: 0px;
+ padding: 0px;
+ padding-right: 2px;
+ padding-left: 1px;
+
+ cursor: pointer;
+}
+
+DIV.hideshow_box > SPAN.hideshow_show
+{
+ float: right;
+ display: block;
+
+ font-style: italic;
+ font-variant: small-caps;
+
+ background: #DDD;
+}
+
+DIV.hideshow_box > SPAN.hideshow_show:hover
+{
+ background: #EEE;
+}
+
+DIV.hideshow_box > SPAN.hideshow_hide
+{
+ display: none;
+}

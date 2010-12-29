@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+
+<!--
+ Routino non-Javascript web page.
+
+ Part of the Routino routing software.
+
+ This file Copyright 2008,2009 Andrew M. Bishop
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see http://www.gnu.org/licenses/.
+-->
+
+<HEAD>
+<TITLE>Route Planner for OpenStreetMap Data (non-JavaScript)</TITLE>
+<META name="keywords" content="openstreetmap routing route planner">
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<LINK href="style.css" type="text/css" rel="stylesheet">
+</HEAD>
+
+<BODY>
+
+<!-- Header Start -->
+
+<div class="header" align="center">
+
+<h1>Route Planner for OpenStreetMap Data (non-JavaScript)</h1>
+
+<hr>
+</div>
+
+<!-- Header End -->
+
+<!-- Content Start -->
+
+<div class="content">
+
+<form name="form" action="noscript.cgi" method="get">
+
+  <table class="noborder">
+    <tr>
+      <th class="left" colspan=3><u><b>Locations</b></u>
+    <tr>
+      <td><b>Start:</b>
+      <td><input name="lon1" type="text" size=8 title="Start Longitude" class="right"><!-- lon1 --> E
+      <td><input name="lat1" type="text" size=8 title="Start Latitude"  class="right"><!-- lat1 --> N
+    <tr>
+      <td><b>Middle:</b>
+      <td><input name="lon2" type="text" size=8 title="Middle Longitude" class="right"><!-- lon2 --> E
+      <td><input name="lat2" type="text" size=8 title="Middle Latitude"  class="right"><!-- lat2 --> N
+    <tr>
+      <td><b>Finish:</b>
+      <td><input name="lon3" type="text" size=8 title="Finish Longitude" class="right"><!-- lon3 --> E
+      <td><input name="lat3" type="text" size=8 title="Finish Latitude"  class="right"><!-- lat3 --> N
+  </table>
+
+  <table class="noborder">
+    <tr>
+      <th class="left" colspan=2><u><b>Transport Type</b></u>
+    <tr>
+      <td><a href="noscript.cgi?transport=foot"     title="Foot profile"     >Foot     </a>
+      <td><input name="transport" type="radio" value="foot"      ><!-- transport -->
+    <tr>
+      <td><a href="noscript.cgi?transport=bicycle"  title="Bicycle profile"  >Bicycle  </a>
+      <td><input name="transport" type="radio" value="bicycle"   ><!-- transport -->
+    <tr>
+      <td><a href="noscript.cgi?transport=horse"    title="Horse profile"    >Horse    </a>
+      <td><input name="transport" type="radio" value="horse"     ><!-- transport -->
+    <tr>
+      <td><a href="noscript.cgi?transport=motorbike"title="Motorbike profile">Motorbike</a>
+      <td><input name="transport" type="radio" value="motorbike" ><!-- transport -->
+    <tr>
+      <td><a href="noscript.cgi?transport=motorcar" title="Motorcar profile" >Motorcar </a>
+      <td><input name="transport" type="radio" value="motorcar"  ><!-- transport -->
+    <tr>
+      <td><a href="noscript.cgi?transport=goods"    title="Goods profile"    >Goods    </a>
+      <td><input name="transport" type="radio" value="goods"     ><!-- transport -->
+    <tr>
+      <td><a href="noscript.cgi?transport=hgv"      title="HGV profile"      >HGV      </a>
+      <td><input name="transport" type="radio" value="hgv"       ><!-- transport -->
+    <tr>
+      <td><a href="noscript.cgi?transport=psv"      title="PSV profile"      >PSV      </a>
+      <td><input name="transport" type="radio" value="psv"       ><!-- transport -->
+  </table>
+
+  <table class="noborder">
+    <tr>
+      <th class="left"><u><b>Highways</b></u>
+      <th class="left" colspan=2><b>Preference</b><br>
+      <th class="left" colspan=2><b>Speed Limit</b><br>
+    <tr>
+      <td class="left"  >Motorway:
+      <td class="center"><input name="highway-motorway"     type="text" size=3 class="right"><!-- highway-motorway     -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-motorway"       type="text" size=3 class="right"><!-- speed-motorway       -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Trunk:
+      <td class="center"><input name="highway-trunk"        type="text" size=3 class="right"><!-- highway-trunk        -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-trunk"          type="text" size=3 class="right"><!-- speed-trunk          -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Primary:
+      <td class="center"><input name="highway-primary"      type="text" size=3 class="right"><!-- highway-primary      -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-primary"        type="text" size=3 class="right"><!-- speed-primary        -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Secondary:
+      <td class="center"><input name="highway-secondary"    type="text" size=3 class="right"><!-- highway-secondary    -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-secondary"      type="text" size=3 class="right"><!-- speed-secondary      -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Tertiary:
+      <td class="center"><input name="highway-tertiary"     type="text" size=3 class="right"><!-- highway-tertiary     -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-tertiary"       type="text" size=3 class="right"><!-- speed-tertiary       -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Unclassified:
+      <td class="center"><input name="highway-unclassified" type="text" size=3 class="right"><!-- highway-unclassified -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-unclassified"   type="text" size=3 class="right"><!-- speed-unclassified   -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Residential:
+      <td class="center"><input name="highway-residential"  type="text" size=3 class="right"><!-- highway-residential  -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-residential"    type="text" size=3 class="right"><!-- speed-residential    -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Service:
+      <td class="center"><input name="highway-service"      type="text" size=3 class="right"><!-- highway-service      -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-service"        type="text" size=3 class="right"><!-- speed-service        -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Track:
+      <td class="center"><input name="highway-track"        type="text" size=3 class="right"><!-- highway-track        -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-track"          type="text" size=3 class="right"><!-- speed-track          -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Path:
+      <td class="center"><input name="highway-path"         type="text" size=3 class="right"><!-- highway-path         -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-path"           type="text" size=3 class="right"><!-- speed-path           -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Bridleway:
+      <td class="center"><input name="highway-bridleway"    type="text" size=3 class="right"><!-- highway-bridleway    -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-bridleway"      type="text" size=3 class="right"><!-- speed-bridleway      -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Cycleway:
+      <td class="center"><input name="highway-cycleway"     type="text" size=3 class="right"><!-- highway-cycleway     -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-cycleway"       type="text" size=3 class="right"><!-- speed-cycleway       -->
+      <td class="left"  >km/hr
+    <tr>
+      <td class="left"  >Footway:
+      <td class="center"><input name="highway-footway"      type="text" size=3 class="right"><!-- highway-footway      -->
+      <td class="left"  >%
+      <td class="left"  ><input name="speed-footway"        type="text" size=3 class="right"><!-- speed-footway        -->
+      <td class="left"  >km/hr
+  </table>
+
+  <table class="noborder">
+    <tr>
+      <th class="left" colspan=3><u><b>Other Restrictions</b></u>
+    <tr>
+      <td class="left"  >Obey oneway:
+      <td class="center"><input name="oneway" type="checkbox"><!-- oneway -->
+      <td class="left"  >
+    <tr>
+      <td class="left"  >Weight:
+      <td class="center"><input name="weight" type="text" size=3 class="right"><!-- weight -->
+      <td class="left"  >tonnes
+    <tr>
+      <td class="left"  >Height:
+      <td class="center"><input name="height" type="text" size=3 class="right"><!-- height -->
+      <td class="left"  >metres
+    <tr>
+      <td class="left"  >Width:
+      <td class="center"><input name="width"  type="text" size=3 class="right"><!-- width  -->
+      <td class="left"  >metres
+    <tr>
+      <td class="left"  >Length:
+      <td class="center"><input name="length" type="text" size=3 class="right"><!-- length -->
+      <td class="left"  >metres
+  </table>
+
+  <table class="noborder">
+    <tr>
+      <th class="left"><u><b>Output</b></u>
+    <tr>
+      <td class="left"><input name="output" type="radio" value="html" checked> This HTML format
+    <tr>
+      <td class="left"><input name="output" type="radio" value="gpx-track">GPX track file
+    <tr>
+      <td class="left"><input name="output" type="radio" value="gpx-route">GPX route file
+    <tr>
+      <td class="left"><input name="output" type="radio" value="txt">Text file
+    <tr>
+      <td class="left"><input name="output" type="radio" value="txt-all">Full text file
+  </table>
+
+  <p>
+
+  <u><b>Find</b></u><br>
+  <button type="submit" name="submit" value="shortest">Shortest</button>
+  <button type="submit" name="submit" value="quickest">Quickest</button>
+
+  <!-- result-start -->
+
+  <hr>
+
+  <table class="noborder">
+    <tr>
+      <th class="left" colspan=2><u><b><!-- result-Type --> Result</b></u>
+    <tr>
+      <td class="left" colspan=2><b><!-- result-message --></b>
+    <tr>
+      <td class="left" colspan=2><b><!-- result-result --></b>
+    <tr>
+      <td class="left">GPX track file:
+      <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=gpx-track">Open</a>
+    <tr>
+      <td class="left">GPX route file:
+      <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=gpx-route">Open</a>
+    <tr>
+      <td class="left">Text file:
+      <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=txt">Open</a>
+    <tr>
+      <td class="left">Full text file:
+      <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=txt-all">Open</a>
+    <tr>
+      <td class="left" colspan=2><i><!-- result-time --></i>
+  </table>
+
+  <!-- result-finish -->
+
+  <hr>
+
+  <p>
+  <u><b>Create Link</b></u><br>
+  <button type="submit" name="submit" value="link">Create Link</button>
+  <a title="" href="<!-- custom-url -->">Bookmarkable link with customised parameters</a>
+
+</form>
+
+</div>
+
+<!-- Content End -->
+
+<!-- Footer Start -->
+
+<div class="footer" align="center">
+<hr>
+
+<address>
+&copy; Andrew M. Bishop = &lt;amb "at" gedanken.demon.co.uk&gt;
+</address>
+
+</div>
+
+<!-- Footer End -->
+
+</BODY>
+
+</HTML>

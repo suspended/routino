@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+
+<!--
+ Routino router algorithm web page.
+
+ Part of the Routino routing software.
+
+ This file Copyright 2008,2009 Andrew M. Bishop
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see http://www.gnu.org/licenses/.
+-->
+
+<HEAD>
+<TITLE>Routino Router Algorithm</TITLE>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<LINK href="style.css" type="text/css" rel="stylesheet">
+</HEAD>
+
+<BODY>
+
+<!-- Header Start -->
+
+<div class="header" align="center">
+
+<h1>Routino Router Algorithm</h1>
+
+<hr>
+</div>
+
+<!-- Header End -->
+
+<!-- Content Start -->
+
+<div class="content">
+
+<h2><a name="Algorithms"></a>Algorithms</h2>
+
+This page describes the development of the algorithm that is used in the
+software demonstrated here.
+
+<h3><a name="Simplest Algorithm"></a>Simplest Algorithm</h3>
+
+The algorithm to find a route is fundamentally simple: Start at the beginning,
+follow all possible routes and keep going until you reach the end.
+<p>
+While this method does work, it isn't fast.  To be able to find a route quickly
+needs a different algorithm, one that can find the correct answer without
+wasting time on routes that lead nowhere.
+
+<h3><a name="Improved Algorithm"></a>Improved Algorithm</h3>
+
+The simplest way to do this is to follow all possible segments from the starting
+node to the next nearest node (an intermediate node in the complete journey).
+For each node that is reached store the shortest route from the starting node
+and the length of that route.  The list of intermediate nodes needs to be
+maintained in order of shortest overall route on the assumption that there is a
+straight line route from here to the end node.
+<br>
+At each point the intermediate node that has the shortest potential overall
+journey time is processed before any other node.  From the first node in the
+list follow all possible segments and place the newly discovered nodes into the
+same list ordered in the same way.  This will tend to constrain the list of
+nodes examined to be the ones that are between the start and end nodes.  If at
+any point you reach a node that has already been reached by a longer route then
+you can discard that route since the newly discovered route is shorter.
+Conversely if the previously discovered route is shorter then discard the new
+route.
+<br>
+At some point the end node will be reached and then any routes with potential
+lengths longer than this actual route can be immediately discarded.  The few
+remaining potential routes must be continued until they are found to be shorter
+or have no possibility of being shorter.  The shortest possible route is then
+found.
+<p>
+At all times when looking at a node only those segments that are possible by the
+chosen means of transport are followed.  This allows the type of transport to be
+handled easily.  When finding the quickest route the same rules apply except
+that criterion for sorting is the shortest potential route (assuming that from
+each node to the end is the fastest possible type of highway).
+<p>
+This method also works, but again it isn't very fast.  The problem is that the
+complexity is proportional to the number of nodes or segments in all routes
+examined between the start and end nodes.  Maintaining the list of intermediate
+nodes in order is the most complex part.
+
+<h3><a name="Final Algorithm"></a>Final Algorithm</h3>
+
+The final algorithm that is implemented in the router is basically the one above
+but with an important difference.  Instead of finding a long route among a data
+set of 5,000,000 nodes (number of highway nodes in UK at beginning of 2009) it
+finds one long route in a data set of 500,000 nodes and a few hundred very short
+routes in the full data set.  Since the time taken to find a route is
+proportional to the number of nodes the main route takes 1/10th of the time and
+the very short routes take almost no time at all.
+<p>
+The solution to making the algorithm fast is therefore to discard most of the
+nodes and only keep the interesting ones.  In this case a node is deemed to be
+interesting if it is the junction of three or more segments or the junction of
+two segments with different properties.  In the algorithm these are classed as
+<em>super-nodes</em>.  Between each super-node and a neighbouring super-node a
+<em>super-segment</em> is generated that contains the shortest path along
+segments with identical properties.  This decision making process can be
+repeated until the only the most important and interesting nodes remain.
+<p>
+<img alt="Original data" src="images/example0.png"><br>
+<img alt="Iteration 1" src="images/example1.png"><br>
+<img alt="Iteration 2" src="images/example2.png"><br>
+<img alt="Iteration 3" src="images/example3.png"><br>
+<img alt="Iteration 4" src="images/example4.png"><br>
+<p>
+To find a route now comprises finding a route along super-segments between the
+start node and the end node followed by finding a route between each adjacent
+pair of super-nodes in that route.  (The routes between the start and end nodes
+and all adjacent super-nodes need to be found before the route using only
+super-nodes can be found.)  This is considerably quicker than using all nodes but
+gives a result that still contains the full list of nodes that are visited.
+
+<h3><a name="Implementation"></a>Implementation</h3>
+
+The hardest part of implementing this router is the data organisation.  The
+arrangement of the data to minimise the number of operations required to follow
+a route from one node to another is much harder than designing the algorithm
+itself.
+<p>
+The final implementation uses a separate table for nodes, segments and ways.
+Each table individually is implemented as a C-language data structure that is
+written to disk by a program which parses the OpenStreetMap XML data file.  In
+the router these data structures are memory mapped so that the operating system
+handles the problems of loading the needed data blocks from disk.
+<p>
+Each node contains a latitude and longitude and they are sorted geographically
+so that converting a latitude and longitude coordinate to a node is fast as well
+as looking up the coordinate of a node.  The node also contains the location in
+the array of segments for the first segment that uses that node.
+<br>
+Each segment contains the location of the two nodes as well as the way that the
+segment came from.  The location of the next segment that uses one of the two
+nodes is also stored; the next segment for the other node is the following one
+in the array.  The length of the segment is also pre-computed and stored.
+<br>
+Each way has a name, a highway type, a list of allowed types of traffic, a speed
+limit and any weight, height, width or length restrictions.
+<p>
+The super-nodes are mixed in with the nodes and the super-segments are mixed in
+with the segments.  For the nodes they are the same as the normal nodes, so just
+a flag is needed to indicate that they are super.  The super-segments are in
+addition to the normal segments so they increase the database size (by about
+10%) and are also marked with a flag.
+
+<h3><a name="Practicalities"></a>Practicalities</h3>
+
+At the time of writing (March 2009) the OpenStreetMap data for Great Britain
+(taken from
+<a class="ext" href="http://download.geofabrik.de/osm/europe/" title="GeoFabrik Mirror of OpenStreetMap Data">GeoFabrik</a>
+) contains:
+<ul>
+  <li>7,913,917 nodes
+  <ul>
+    <li>5,167,257 are highway nodes
+    <li>634,923 are super-nodes
+  </ul>
+  <li>1,072,786 ways
+  <ul>
+    <li>848,897 are highways
+    <ul>
+      <li>11,040,212 highway segments
+      <li>1,905,030 are super-segments
+    </ul>
+  </ul>
+  <li>2685 relations
+</ul>
+
+The database files when generated are 41.5 MB for nodes, 121.6 MB for segments
+and 12.6 MB for ways and are stored uncompressed.  By having at least 200 MB or
+RAM available the routing can be performed with no disk accesses (once the data
+has been read once).
+
+
+</div>
+
+<!-- Content End -->
+
+<!-- Footer Start -->
+
+<div class="footer" align="center">
+<hr>
+
+<address>
+&copy; Andrew M. Bishop = &lt;amb "at" gedanken.demon.co.uk&gt;
+</address>
+
+</div>
+
+<!-- Footer End -->
+
+</BODY>
+
+</HTML>

@@ -1,0 +1,26 @@
+##
+## Options for Apache web server to run Routino CGI scripts
+##
+
+# The Routino CGI scripts are stored in this directory and use the filename
+# extension ".cgi".  This filename extension needs to be registered with Apache
+# for the scripts to be executed.
+
+AddHandler cgi-script .cgi
+
+# The ExecCGI option must be set for the CGIs in this directory to be executed
+# by Apache.  If the line below is used in a .htaccess file like this one and
+# the "AllowOverride none" option is set in the main Apache configuration file
+# then no CGIs will be run, they will all return an error even if CGIs are
+# allowed in this directory already.
+
+#Options +ExecCGI
+
+# The CGI scripts that are used by Routino also call some other Perl scripts, to
+# stop these scripts from being seen by web users they can be denied by the
+# following entry.
+
+<FilesMatch .*\.pl$>
+   Order deny,allow
+   Deny from all
+</FilesMatch>
