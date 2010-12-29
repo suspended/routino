@@ -1,0 +1,575 @@
+2009-04-08  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	Version 1.0 released
+
+2009-04-08  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* Makefile: New file.
+
+	* src/Makefile: Fix dependency file generation.
+
+	* doc/USAGE.txt, doc/TAGGING.txt, doc/README.txt, doc/INSTALL.txt, doc/ALGORITHM.txt:
+	New file.
+
+	* src/Makefile, src/filedumper.c, src/files.c, src/functions.h, src/nodes.c, src/nodes.h,
+	src/nodesx.c, src/nodesx.h, src/optimiser.c, src/osmparser.c, src/planetsplitter.c,
+	src/profiles.c, src/profiles.h, src/results.c, src/results.h, src/router.c, src/segments.c,
+	src/segments.h, src/segmentsx.c, src/segmentsx.h, src/superx.c, src/superx.h, src/types.h,
+	src/ways.h, src/waysx.c, src/waysx.h:
+	Changed the license to Affero GPLv3.
+
+2009-04-07  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/planetsplitter.c: Remove the --help-profile command line option.
+
+2009-03-28  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c:
+	Fix file headers (again) and fix segment distance/duration for abbreviated text
+	output.
+
+2009-03-24  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c, src/profiles.c, src/types.h, src/ways.c:
+	Added highway=path; defaults to foot=yes but also is defaulted for bicycle and
+	horse transport.
+
+2009-03-23  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c: Fixed the header in the output text files.
+
+	* src/osmparser.c:
+	Add parsing for *=designated allowing passage along a highway.
+
+	* src/profiles.h, src/router.c, src/profiles.c:
+	Add a function to output default profiles as perl data structures.
+
+2009-03-21  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c:
+	Handle duplicated nodes (e.g. from concatenated input files).
+
+	* src/optimiser.c: Add a header to the output text files.
+
+2009-03-07  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c:
+	Renamed the *.txt output to *-all.txt and added a new shorted *.txt output.
+
+	* src/router.c: Renamed the --no-print option to --no-output.
+
+2009-03-04  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodes.c: Fix bug with finding nearest node.
+
+2009-03-03  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/superx.c: Fix the merging of super-segments.
+
+2009-03-01  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/profiles.c, src/profiles.h:
+	Added more limits (weight, height, width, length).
+
+	* src/segments.c: Use the lower speed from the profile and the way.
+
+	* src/osmparser.c: Added more limits (weight, height, width, length).
+	Added highway=living_street and highway=services.
+
+	* src/ways.c, src/ways.h, src/optimiser.c, src/router.c, src/segmentsx.c, src/superx.c,
+	src/types.h:
+	Added more limits (weight, height, width, length).
+
+	* src/waysx.c, src/waysx.h:
+	Added a function to test if two ways are the same.
+
+2009-02-28  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c:
+	Round the node location to avoid if falling into the wrong bin.
+
+	* src/nodesx.c, src/planetsplitter.c, src/segmentsx.c, src/waysx.c:
+	Move print statements from planetsplitter into individual functions.
+
+	* src/Makefile: Compile with optimisation and no profiling.
+
+	* src/profiles.c, src/router.c:
+	Add new command line options to make it more CGI friendly.
+
+2009-02-27  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/profiles.c, src/profiles.h, src/router.c:
+	Print out Javascript code containing the profiles.
+
+2009-02-24  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/segmentsx.h, src/superx.c, src/nodesx.c, src/segments.c, src/segments.h,
+	src/segmentsx.c:
+	Remove segment->next1 since it always points at the next segment or nowhere.
+
+	* src/profiles.c: Remove track from valid types for most transports.
+
+2009-02-15  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/optimiser.c, src/router.c:
+	Change some function names.
+
+	* src/osmparser.c: Add in tests for motorcar=1 etc.
+
+	* src/nodes.c, src/nodes.h, src/router.c:
+	The search to find a node given the lat/long now searches harder.
+
+	* src/optimiser.c: Better test for failing to find a route.
+
+	* src/router.c: Change --only-super to --super.
+
+	* src/nodesx.c, src/optimiser.c, src/osmparser.c, src/router.c, src/segments.c,
+	src/segmentsx.c, src/types.h, src/nodes.c:
+	Store radians rather than degrees.
+
+	* src/segments.c, src/segmentsx.c:
+	Change to sinf(), cosf(), sqrtf(), asinf() functions.
+
+	* src/optimiser.c:
+	Set the sortby parameter to the minimum distance/duration consistent with the
+	travelled distance/duration and the remaining straight line distance with the
+	fastest possible speed.
+
+	* src/filedumper.c, src/nodes.c, src/nodes.h, src/nodesx.c, src/types.h:
+	Add macros for handling lat/long to bin conversions.
+
+	* src/osmparser.c: Handle oneway=1 and oneway=-1.
+
+2009-02-10  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/results.c, src/results.h:
+	Added a new 'sortby' entry to the Result.
+	Changed node_t to index_t.
+
+	* src/router.c: Changed node_t to index_t.
+
+	* src/nodes.c, src/segments.c, src/segments.h:
+	Change the Distance() function to return distance_t.
+
+2009-02-08  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c, src/results.c, src/results.h, src/router.c, src/superx.c:
+	Calculate quickest or shortest, not both.
+
+	* src/optimiser.c, src/profiles.c, src/router.c:
+	Give appropriate error messages if start or end of route are not possible.
+
+2009-02-07  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/results.c:
+	Slight speedup by doing a linear search when looking up results and not storing
+	in sorted order.
+
+	* src/superx.h, src/superx.c, src/waysx.h, src/waysx.c, src/segmentsx.h, src/segmentsx.c,
+	src/nodesx.h, src/nodesx.c:
+	New file.
+
+	* src/ways.h, src/Makefile, src/filedumper.c, src/functions.h, src/nodes.c, src/nodes.h,
+	src/optimiser.c, src/osmparser.c, src/planetsplitter.c, src/router.c, src/segments.c,
+	src/segments.h, src/types.h, src/ways.c:
+	Split the extended data types from the normal data types.
+
+	* src/nodes.c: Return NULL if the node cannot be found.
+
+	* src/Makefile, src/filedumper.c, src/optimiser.c, src/router.c:
+	Add new command line options.
+
+	* src/supersegments.c: Fix some status messages.
+
+	* src/optimiser.c, src/types.h: Routing works with super-nodes now.
+
+2009-02-06  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/ways.c, src/segments.c, src/segments.h, src/supersegments.c, src/types.h, src/nodes.c,
+	src/nodes.h, src/optimiser.c, src/osmparser.c, src/planetsplitter.c, src/functions.h:
+	Segments now not duplicated in database.
+	Routing with all nodes works, not with super-nodes.
+
+2009-02-04  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c: Fix usage output.
+
+	* src/ways.c, src/ways.h: Only sort once, don't store the index.
+
+	* src/planetsplitter.c, src/router.c:
+	Use '--*' command line arguments, not '-*'.
+
+	* src/nodes.c, src/router.c, src/segments.c, src/ways.c:
+	Make sure that nodes, segments and ways could be loaded.
+
+	* src/nodes.h, src/optimiser.c, src/router.c, src/segments.c, src/segments.h,
+	src/supersegments.c, src/types.h, src/filedumper.c, src/nodes.c:
+	Sort the nodes geographically and take coordinates as command line arguments.
+
+2009-02-02  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/ways.c, src/ways.h, src/nodes.c, src/nodes.h, src/osmparser.c, src/segments.c,
+	src/segments.h, src/supersegments.c, src/types.h:
+	More variable and function name changes.
+
+2009-02-01  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/profiles.c, src/router.c, src/segments.c, src/segments.h, src/supersegments.c,
+	src/ways.c, src/ways.h, src/files.c, src/functions.h, src/nodes.c, src/nodes.h,
+	src/optimiser.c, src/osmparser.c, src/planetsplitter.c, src/filedumper.c:
+	Rename some variable types.
+
+2009-01-31  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/segments.c, src/segments.h, src/supersegments.c, src/types.h, src/ways.c, src/ways.h,
+	src/functions.h, src/nodes.c, src/nodes.h, src/optimiser.c, src/planetsplitter.c,
+	src/profiles.h, src/router.c:
+	Intermediate version during code cleanup.
+
+	* src/optimiser.c, src/planetsplitter.c, src/router.c, src/segments.c, src/segments.h,
+	src/functions.h, src/nodes.h:
+	Intermediate checkin, routing now working.
+
+	* src/Makefile:
+	Don't print out anything when creating the dependencies directory.
+
+	* src/planetsplitter.c, src/router.c:
+	Add command line options to specify the directory and filename prefix.
+
+2009-01-30  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/results.c, src/planetsplitter.c: Remove gcc warning.
+
+	* src/Makefile: Move dependencies to subdir.
+
+	* src/osmparser.c: Remove gcc warning.
+
+2009-01-29  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/nodes.c, src/nodes.h, src/optimiser.c, src/planetsplitter.c,
+	src/router.c, src/segments.c, src/segments.h, src/supersegments.c:
+	Intermediate version while transitioning data format for nodes and segments.
+
+2009-01-28  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/Makefile, src/functions.h, src/nodes.c, src/nodes.h, src/optimiser.c, src/osmparser.c,
+	src/planetsplitter.c, src/segments.c, src/segments.h, src/supersegments.c, src/ways.c,
+	src/ways.h:
+	Intermediate version while transitioning data format for nodes and segments.
+
+2009-01-27  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/Makefile, src/functions.h, src/nodes.c, src/nodes.h, src/optimiser.c,
+	src/planetsplitter.c, src/router.c, src/segments.c, src/segments.h, src/supersegments.c,
+	src/ways.c, src/ways.h:
+	Intermediate version while transitioning data format for nodes and segments.
+
+2009-01-26  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c, src/planetsplitter.c, src/segments.c, src/segments.h,
+	src/supersegments.c, src/ways.c, src/ways.h, src/filedumper.c, src/files.c, src/functions.h,
+	src/optimiser.c:
+	Change Segment to contain index of way not its real ID.
+	Don't store the real way ID to save space.
+
+2009-01-25  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/segments.c, src/segments.h:
+	Slightly speed up the Duration calculation by changing the macro.
+
+	* src/osmparser.c, src/profiles.c, src/ways.c, src/ways.h:
+	Fix misspelling of Unclassified.
+
+	* src/planetsplitter.c, src/segments.c, src/segments.h, src/supersegments.c, src/ways.h,
+	src/optimiser.c:
+	Change the segment->way so that it contains the index of the way, not the id.
+
+	* src/profiles.c, src/profiles.h: New file.
+
+	* src/ways.c, src/ways.h, src/Makefile, src/functions.h, src/optimiser.c, src/osmparser.c,
+	src/planetsplitter.c, src/router.c, src/segments.c, src/segments.h:
+	Added profiles to define speed and allowed highways.
+	Added new options to planetsplitter and router to use the profiles.
+
+2009-01-24  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c: Changed some variable names for clarity.
+
+	* src/planetsplitter.c: Print more information about progress.
+	Don't quit until 99.9% unchanged.
+
+	* src/optimiser.c, src/results.c, src/results.h, src/supersegments.c:
+	Change the Results structure so that the real data doesn't need to be realloc().
+	Add functions to access the first and subsequent elements of the Results structure.
+
+2009-01-23  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c, src/planetsplitter.c:
+	Fix bug with not specifying a method of transport.
+
+	* src/optimiser.c, src/router.c: Proper check that it was unroutable.
+
+	* src/functions.h, src/optimiser.c, src/planetsplitter.c, src/supersegments.c:
+	Remove "iteration" as function argument.
+
+	* src/functions.h, src/optimiser.c, src/osmparser.c, src/planetsplitter.c, src/router.c,
+	src/ways.c, src/ways.h:
+	Add command line options to planetsplitter and router.
+	Select transport type (must be allowed on way for parsing).
+	Select highway types (ignore when parsing or routing).
+
+	* src/ways.h, src/functions.h, src/optimiser.c, src/osmparser.c, src/router.c,
+	src/segments.c, src/segments.h, src/ways.c:
+	Add enumerated type Transport.
+	Replace variables of AllowType with Transport where more appropriate.
+	Replace AllowType with Allowed.
+	Replace WayType with Highway.
+
+	* src/osmparser.c: Only include ways that are not Way_Unknown type.
+
+	* src/osmparser.c: Include permissive access.
+
+	* src/functions.h, src/optimiser.c, src/results.c, src/results.h, src/router.c:
+	Create a large or small results structure depending on how many nodes are
+	expected.
+
+2009-01-22  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/results.h: Increase the number of bins to 64k.
+
+	* src/optimiser.c, src/osmparser.c, src/segments.c, src/segments.h, src/supersegments.c:
+	Remove INVALID_DISTANCE and INVALID_DURATION.
+
+	* src/optimiser.c, src/osmparser.c, src/supersegments.c, src/ways.c, src/ways.h:
+	Removed the Way_TYPE() macro.
+
+	* src/results.c, src/results.h, src/optimiser.c:
+	Move queue functions into results.c.
+
+	* src/filedumper.c, src/nodes.c, src/nodes.h, src/planetsplitter.c, src/router.c:
+	Nodes, Segments, Ways - Nodes, Segments, Ways.
+
+	* src/filedumper.c, src/nodes.c, src/nodes.h, src/segments.c, src/segments.h, src/ways.c,
+	src/ways.h:
+	Remove the choice of indexed or non-indexed data structures.
+
+2009-01-21  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c:
+	Various small speed-ups including not-reversing direction.
+
+	* src/functions.h, src/optimiser.c, src/osmparser.c, src/router.c, src/segments.c,
+	src/segments.h, src/supersegments.c, src/ways.c, src/ways.h:
+	Calculate way speeds at routing time.
+
+	* src/supersegments.c:
+	Add reverse-oneway segments when creating supernodes.
+	Check incoming oneway streets as well as outgoing ones.
+
+	* src/osmparser.c: Don't change speed on roundabouts.
+
+2009-01-20  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/planetsplitter.c:
+	Add command line options for skipping parsing and iteration limit.
+
+	* src/optimiser.c, src/osmparser.c, src/segments.c, src/segments.h, src/supersegments.c:
+	Remove duration from segment, calculate duration depending on speed.
+
+2009-01-19  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/optimiser.c, src/planetsplitter.c, src/supersegments.c:
+	Iteratively calculate the super-segments.
+
+	* src/ways.h: Redefine Way_TYPE() to include one-way status.
+
+2009-01-18  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c, src/supersegments.c:
+	Fix problems with way-type matching and duplicated/missing super-segments.
+
+	* src/functions.h, src/optimiser.c, src/router.c: Print out a GPX file.
+
+	* src/optimiser.c, src/filedumper.c, src/functions.h, src/planetsplitter.c, src/router.c,
+	src/segments.c, src/segments.h, src/supersegments.c, src/ways.c, src/ways.h:
+	Added Super-Ways and allow user to select method of transport.
+
+	* src/segments.c: Fix for changes made to ways.
+
+	* src/supersegments.c:
+	Ensure that supernodes are inserted wherever the way type changes.
+
+	* src/osmparser.c: Fill in the extra way information.
+
+	* src/ways.h:
+	Store more information about a way (allowed modes of transport).
+
+	* src/filedumper.c: Fix output printing.
+
+	* src/router.c: Print an error if no route can be found.
+
+	* src/optimiser.c:
+	Fix bugs when start and/or finish nodes are supernodes.
+
+2009-01-17  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/Makefile: Add the option to create assembler output files.
+
+	* src/optimiser.c, src/results.c, src/results.h, src/supersegments.c:
+	Change the contents of the results data structure.
+
+	* src/router.c: Added an option to not print the result.
+
+2009-01-16  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c, src/results.h, src/router.c:
+	Speed optimisation by changing the contents of the Results structure.
+
+	* src/optimiser.c:
+	Don't bother calculating the distance to go, it takes too long.
+
+2009-01-14  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/planetsplitter.c: Remove bad segments and non-way nodes.
+
+	* src/nodes.c, src/nodes.h: Remove nodes which are not in highways.
+	Fix the sorting and create indexes after sorting, not before saving.
+
+	* src/segments.c, src/segments.h:
+	Remove bad segments (repeated consecutive nodes and duplicate segments).
+	Fix the sorting and create indexes after sorting, not before saving.
+
+	* src/supersegments.c: Use invalid distances properly.
+
+	* src/ways.c:
+	Fix the sort algorithm and update the indexes after sorting, not before saving.
+
+	* src/optimiser.c: Fix the bug with merging the results.
+	Fix the bug with not clearing the results structure properly.
+
+	* src/osmparser.c:
+	Add segments that correspond to the wrong way along one-way routes with an
+	invalid distance.
+
+2009-01-11  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/optimiser.c, src/router.c:
+	Routes correctly using super-nodes (not Lands End to John O'Groats though).
+
+	* src/filedumper.c, src/functions.h, src/optimiser.c, src/planetsplitter.c, src/router.c,
+	src/segments.h, src/supersegments.c:
+	Replace Junction with SuperNode.
+
+	* src/nodes.c, src/nodes.h, src/segments.h, src/ways.c, src/ways.h:
+	Some small changes to the nodes, segments and ways functions.
+
+	* src/Makefile, src/filedumper.c, src/functions.h, src/optimiser.c, src/planetsplitter.c,
+	src/results.h, src/router.c, src/segments.c, src/segments.h, src/supersegments.c:
+	Working version with supersegments and junctions.
+
+2009-01-10  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/ways.c, src/ways.h, src/osmparser.c, src/segments.c:
+	Store more information about ways.
+
+	* src/results.h, src/results.c: New file.
+
+	* src/Makefile, src/optimiser.c:
+	Move the results data type into new files.
+
+	* src/nodes.h, src/segments.h, src/ways.h:
+	Increase the increment for the indexed array case.
+
+	* src/ways.h, src/Makefile, src/filedumper.c, src/functions.h, src/nodes.c, src/nodes.h,
+	src/optimiser.c, src/osmparser.c, src/planetsplitter.c, src/router.c, src/segments.c,
+	src/segments.h, src/supersegments.c, src/ways.c:
+	About to add the super-segment functionality using Segments data type to hold
+	them.
+
+	* src/functions.h, src/types.h:
+	Changed after nodes, ways and segment changes.
+
+2009-01-09  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/segments.h: New file.
+
+	* src/segments.c:
+	Changed the format of the segments data type to match the nodes.
+
+	* src/nodes.h: Enable indexed arrays.
+
+	* src/ways.h: New file.
+
+	* src/ways.c:
+	Changed the format of the ways data type to match the nodes.
+
+	* src/nodes.c, src/nodes.h:
+	Changed the format of the nodes data type again.
+
+2009-01-07  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodes.h: New file.
+
+	* src/nodes.c: Lots of modifications:
+	Two data structures - in memory (pointers) and in file (array).
+	Data is hashed into multiple bins.
+	Each function takes a nodes structure as an argument.
+
+2009-01-06  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/supersegments.c: New file.
+
+	* src/Makefile, src/filedumper.c, src/functions.h, src/planetsplitter.c, src/types.h:
+	Added SuperSegments data type, but it does nothing yet.
+
+	* src/optimiser.c:
+	Tried to optimise the Queue data type.  It was slower than the original.
+
+2009-01-05  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/filedumper.c: Print out the longest segment.
+
+	* src/optimiser.c:
+	Some optimisations.  Increase the number of result bins and change
+	find_insert_result() into insert_result().
+
+2009-01-04  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c: Introduced some new data types to simplify the code.
+
+	* src/filedumper.c: Print more useful information.
+
+	* src/segments.c, src/types.h, src/ways.c, src/filedumper.c, src/functions.h, src/nodes.c,
+	src/optimiser.c, src/osmparser.c, src/planetsplitter.c:
+	Changed the node, way and segment functions and data types.
+	Removed 'alloced', shortened the prototype array.
+	Remove the automatic sorting of the data.
+	Added assert statements.
+
+2009-01-03  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/ways.c: New file.
+
+	* src/router.c, src/types.h, src/Makefile, src/filedumper.c, src/functions.h,
+	src/optimiser.c, src/osmparser.c, src/planetsplitter.c:
+	Added the ways to the output.
+
+2009-01-02  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c, src/osmparser.c, src/segments.c, src/types.h:
+	Added macros to convert between distance/km and duration/hours/minutes.
+	Shortened the Segment data type with shorter distances and durations.
+
+2009-01-01  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/nodes.c, src/planetsplitter.c, src/segments.c, src/types.h:
+	Remove the functions to initialise the node and segment arrays.
+
+	* src/optimiser.c, src/router.c, src/Makefile: Print out the results.
+
+2008-12-31  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/types.h, src/segments.c, src/router.c, src/planetsplitter.c, src/osmparser.c,
+	src/optimiser.c, src/nodes.c, src/functions.h, src/files.c, src/filedumper.c, src/Makefile:
+	New file.
+
