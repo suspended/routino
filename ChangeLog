@@ -1,3 +1,385 @@
+2010-05-31  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	Version 1.4 released
+
+2010-05-31  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/INSTALL.txt, doc/NEWS.txt, doc/README.txt:
+	Update for version 1.4.
+
+	* src/xml/Makefile: Make sure that distclean really cleans up.
+
+	* Makefile: Make sure that xml sub-directory is made.
+
+	* src/router.c:
+	Fix the code that should stop routing if no segment is found.
+
+2010-05-30  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/USAGE.txt:
+	Add the planetsplitter tagging rules option (and remove the unnecessary options
+	that it replaces), add the filedumper OSM dump option and add the tagmodifier
+	program.
+
+	* doc/TAGGING.txt: Describe the new tagging rules.
+
+	* doc/OUTPUT.txt: Note that the HTML and GPX outputs are translated.
+
+	* doc/CONFIGURATION.txt: Add the tagging rules configuration file.
+
+	* doc/ALGORITHM.txt: An update to the current size of the UK database.
+
+	* xml/routino-tagging-nomodify.xml: New file.
+
+	* src/tagmodifier.c:
+	A tagging XML file must be read (just like planetsplitter).
+
+	* src/filedumper.c:
+	Add the option to dump a region rather than all and to not output super
+	segments.
+
+	* src/optimiser.c: Fix printing the number of super-segments tried.
+
+2010-05-29  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* xml/routino-translations.xml, xml/routino-translations.xsd, src/ways.h, src/filedumper.c,
+	src/osmparser.c, src/output.c, src/translations.c, src/translations.h:
+	Translate the names given to unnamed roads (the highway type).
+
+	* src/profiles.c, src/profiles.h, src/router.c:
+	Stricter check on specified profile before routing.
+
+	* src/router.c: Ensure that if no segment is found the routing stops.
+
+	* src/nodes.c:
+	When finding a closest segment one of the nodes must be within the search
+	distance.
+
+2010-05-28  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c: Make sure that some profiles are loaded.
+
+2010-05-27  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c, src/profiles.c:
+	Fix bug with profile preferences (used incorrectly in route optimisation).
+
+	* src/Makefile, src/filedumper.c, src/types.c, src/types.h:
+	Add an option to filedumper to dump an OSM format file.
+
+2010-05-25  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/xmlparse.l: Fix bug with encoding XML strings.
+
+2010-05-23  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* xml/Makefile:
+	Make sure that modified files are copied to web directory.
+
+	* src/tagmodifier.c:
+	Fix bug when filename is specified on command line.
+
+	* src/tagging.c, src/tagging.h, src/tagmodifier.c, src/xmlparse.l, src/osmparser.c:
+	Fix some memory leaks.
+
+	* src/tagmodifier.c, xml/osm.xsd, xml/routino-osm.xsd, src/osmparser.c:
+	Add the 'bound' element to the XML parser.
+
+2010-05-22  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functionsx.h, src/osmparser.c, src/planetsplitter.c, src/ways.h, src/waysx.c,
+	src/waysx.h:
+	Remove the --transport=<transport>, --not-highway=<highway> and
+	--not-property=<property> options from planetsplitter because they can be done
+	by the tagging.xml file now.
+
+2010-05-18  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/Makefile: Add tagmodifier program.
+
+	* src/xmlparse.l: Handle floating point numbers in scientific notation.
+
+	* src/planetsplitter.c:
+	Read in the tag transformation rules before calling the OSM parser.
+
+	* src/functionsx.h, src/osmparser.c:
+	Almost completely re-written OSM parser using tagging transformations.
+
+	* src/tagmodifier.c, src/tagging.h, src/tagging.c: New file.
+
+	* xml/Makefile: Copy the tagging rules to the web directory.
+
+	* xml/routino-tagging.xml, xml/routino-tagging.xsd, xml/routino-osm.xsd:
+	New file.
+
+	* xml/osm.xsd: Small fix for OSM schema.
+
+2010-05-14  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/types.c: Remove highway type aliases from HighwayType() function.
+
+	* src/xmlparse.h, src/xmlparse.l: Allow empty strings to be returned.
+
+2010-05-10  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/xmlparse.h, src/xmlparse.l:
+	The line number is now a long integer.
+
+	* src/xml/Makefile: Running 'make test' now compiles everything first.
+
+2010-04-28  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/xml/Makefile: Delete zero length file if xsd-to-xmlparser fails.
+
+	* src/nodes.c, src/nodesx.c, src/segments.c, src/segmentsx.c, src/ways.c, src/waysx.c:
+	Change file format to allow 64-bit off_t type with 32 bit void* type.
+
+	* src/Makefile, src/filedumper.c, src/xml/Makefile:
+	Compile with _FILE_OFFSET_BITS=64 to get 64-bit fopen() and stat().
+
+2010-04-27  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c: Fix mistake of writing GPX information to wrong file.
+
+	* doc/OUTPUT.txt, doc/CONFIGURATION.txt: New file.
+
+	* doc/TAGGING.txt, doc/USAGE.txt, doc/ALGORITHM.txt, doc/INSTALL.txt, doc/NEWS.txt,
+	doc/README.txt:
+	Interim checkin of updated documentation.
+
+2010-04-24  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c:
+	Merged the three functions to output the head/body/tail of the results back into
+	a single function.  Added the '--output-none' option.
+
+	* src/functions.h, src/output.c:
+	Merged the three functions to output the head/body/tail of the results back into
+	a single function.
+
+	* xml/routino-translations.xml, xml/routino-translations.xsd, src/output.c,
+	src/translations.c, src/translations.h:
+	Added translations for the HTML output.
+
+	* src/xmlparse.h, src/xmlparse.l: Changed functions from const.
+
+	* src/output.c:
+	Add the copyright information into the translations.xml file instead of the
+	separate copyright.txt file.  Add the translated copyright strings into the
+	outputs.
+
+	* src/functions.h, src/router.c, src/translations.c, src/translations.h:
+	Add the copyright information into the translations.xml file instead of the
+	separate copyright.txt file.
+
+	* src/xmlparse.h, src/xmlparse.l:
+	Add an option to not convert the XML strings into decoded representations (saves
+	converting them back later for the translated strings).
+
+2010-04-23  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/xml/xsd-to-xmlparser.c, src/translations.c, src/xmlparse.h, src/xmlparse.l,
+	src/profiles.c:
+	Pass the tag name to the tag function.
+
+2010-04-22  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* Makefile: Fix bug in makefile.
+
+	* xml/Makefile: Move the translations into the web directory.
+
+	* xml/routino-translations.xml, xml/routino-translations.xsd: New file.
+
+	* src/output.c: Changed HTML output to be useful in web pages.
+
+	* src/xmlparse.l:
+	Restart properly so that a different file can be read.
+
+2010-04-13  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/xml/xsd-to-xmlparser.c, src/profiles.c, src/translations.c:
+	Name the tag variables and functions after the XSD data type and not the tag
+	name that uses it.
+
+2010-04-12  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/profiles.c, src/translations.c, src/xmlparse.h, src/xmlparse.l,
+	src/xml/xsd-to-xmlparser.c, src/xml/Makefile:
+	Change the last parameter to the ParseXML function to be general options.
+
+	* src/Makefile, src/types.h, src/ways.c, src/ways.h:
+	Move the type checking/printing functions from way.c to type.c.
+
+	* src/types.c: New file.
+
+2010-04-11  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/xml/xsd-to-xmlparser.c, src/profiles.c, src/translations.c, src/xmlparse.h,
+	src/xmlparse.l:
+	Added helper functions for parsing strings into numbers.
+	Added macros to perform common error checking.
+	Change XML parser callback functions to return an error status.
+
+2010-04-10  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c: Fix usage information.
+
+	* src/translations.h, src/translations.c: New file.
+
+	* src/output.c: Added translations for GPX and turn/heading.
+
+	* src/Makefile, src/router.c:
+	Added file of translations and language selection.
+
+2010-04-09  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/planetsplitter.c, src/sorting.c:
+	Add an option '--sort-ram-size' to specify the RAM to use for sorting - defaults
+	to 256MB if not using slim mode.
+
+2010-04-08  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/xml/Makefile: Fix test program generation and running.
+
+	* src/xmlparse.h, src/xmlparse.l:
+	Make the strings const and add the number of attributes to the xmltag structure.
+	Add functions to convert character entities and character references.
+
+	* src/profiles.c, src/xml/xsd-to-xmlparser.c:
+	Make the strings const and add the number of attributes to the xmltag structure.
+
+2010-04-07  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* xml/Makefile: New file.
+
+2010-04-06  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/Makefile:
+	Remove special lex/flex flags.  Remove profiles.o from planetsplitter.
+
+	* src/xml/xsd-to-xmlparser.c:
+	Don't print anything for attributes that are not set.
+
+	* src/xmlparse.l:
+	Change error message for bad character in a quoted string.
+	Make sure attribute values are cleared before calling tag function (for
+	end-tags).
+
+2010-04-04  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/xml/Makefile: Add some XML parsing test cases.
+
+	* src/xml/xsd-to-xmlparser.c: Rename the XML handling function.
+
+	* src/xmlparse.h, src/xmlparse.l, src/profiles.c: Added error checking.
+
+2010-04-03  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functionsx.h, src/osmparser.c, src/planetsplitter.c:
+	Rename the old ParseXML() function as ParseOSM().
+
+2010-04-01  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c: Wrap GPX descriptions in CDATA.
+
+2010-03-31  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* xml/routino-profiles.xml: New file.
+
+	* src/xml/xsd-to-xmlparser.c, src/profiles.c, src/xmlparse.h, src/xmlparse.l:
+	Call the XML tag functions for the end tags as well as the start tags.
+
+2010-03-30  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/profiles.c, src/profiles.h:
+	Change the name of the --profile-json and --profile-perl options.
+
+	* src/filedumper.c, src/planetsplitter.c, src/router.c:
+	Improve the program help messages.
+
+2010-03-29  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/files.c, src/functions.h, src/profiles.c, src/profiles.h, src/router.c:
+	Added command line option to specify a file containing profiles.
+	Added command line option to select profile by name from loaded set.
+	Use XML parser to read in the profiles.
+
+	* src/Makefile: Better handling of the xml sub-directory.
+
+	* src/xml/xsd-to-xmlparser.c:
+	Add the option to ignore unknown attributes.
+	Print out the skeleton file using static functions and variables.
+
+	* src/xml/Makefile: Keep the intermediate files.
+
+	* src/xmlparse.h, src/xmlparse.l:
+	Add the option to ignore unknown attributes.
+
+2010-03-28  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/profiles.h, src/router.c, src/profiles.c:
+	Add an option to print out the profiles as XML format.
+
+	* src/xmlparse.h, xml/xsd.xsd, xml/osm.xsd, src/xml/xsd-to-xmlparser.c:
+	New file.
+
+	* src/Makefile: Added the XML subdirectory and xmlparser.c.
+
+	* src/xmlparse.l, src/xml/Makefile: New file.
+
+2010-03-20  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c: Add descriptions to each point in the GPX route file.
+
+	* src/files.c, src/functions.h, src/nodesx.c, src/output.c, src/segmentsx.c, src/waysx.c:
+	Move the stat() calls to find a file size into a helper function in files.c.
+
+	* src/files.c, src/output.c, src/planetsplitter.c:
+	Improve the error messages by adding strerror() to them.
+
+	* src/filedumper.c, src/router.c:
+	Don't check the return value of the functions to load the nodes, segments and
+	ways because those functions will exit in case of an error.
+
+	* src/nodes.c, src/segments.c, src/ways.c:
+	Don't check the return value of MapFile() because it will exit in case of an
+	error.
+
+	* src/planetsplitter.c:
+	Allow filenames on the planetsplitter command line.
+
+2010-03-19  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/waysx.h, src/filedumper.c, src/files.c, src/functions.h, src/nodesx.c, src/nodesx.h,
+	src/planetsplitter.c, src/segmentsx.c, src/segmentsx.h, src/superx.c, src/waysx.c:
+	Allow planetsplitter to be run with a --parse-only or --process-only option and
+	append to existing file or read from existing file.
+
+2010-03-18  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c: Fix usage message error and shuffle order.
+
+	* src/output.c, src/router.c:
+	Allow selection of which outputs are to be created.
+
+2010-03-17  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c: Re-order the code for HTML.
+
+2010-03-15  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c: Create a simple HTML output.
+
+2010-03-06  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c, src/nodes.c:
+	Speed up start/via/stop point search algorithm.
+
+2010-03-05  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/profiles.c:
+	Change the format of the output for the --help-profile-{pl|js} options.
+
 2010-01-21  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
 
 	Version 1.3 released

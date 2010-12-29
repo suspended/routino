@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008,2009,2010 Andrew M. Bishop
+// This file Copyright 2008-2010 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -20,81 +20,58 @@
 */
 
 
-/*----------------------------------*/
-/* Body HTML formatting             */
-/*----------------------------------*/
+/*--------------------------------*/
+/* Left panel - override defaults */
+/*--------------------------------*/
 
-BODY
+DIV.hideshow_box
 {
- /* fonts and text styles */
-
- font-family: sans-serif;
- font-size:   medium;
-
- /* colours */
-
- background-color: white;
- color:            black;
+ overflow-x: auto;
 }
 
-/*------------*/
-/* Left panel */
-/*------------*/
 
+/*------------------------------*/
+/* Left panel - generic options */
+/*------------------------------*/
 
-DIV.left_panel
+DIV.scrollable
 {
- width:    23em;
+ overflow: auto;
 
- position: absolute;
- top:      0;
- bottom:   0;
- right:    auto;
- left:     0;
-
- padding: 3px;
+ height: 20em;
 }
 
-DIV.left_panel SPAN.subtitle
-{
- font-weight: bold;
- text-decoration: underline;
-}
 
-DIV.options
-{
- width:  auto;
+/*-----------------------------------*/
+/* Left panel - specific tab options */
+/*-----------------------------------*/
 
- padding: 3px;
- border: thin solid;
-}
-
-DIV.options IMG
+DIV#tab_options_div IMG
 {
  cursor: pointer;
  vertical-align: bottom;
 }
 
-DIV.options IMG:hover
+DIV#tab_options_div IMG:hover
 {
  background: #F0F000;
 }
 
-DIV.options TABLE
+DIV#tab_options_div TABLE
 {
  padding: 0;
  border:  0 hidden;
  margin:  0;
 }
 
-DIV.options TABLE TD
+DIV#tab_options_div TABLE TD
 {
  padding: 0;
  border:  0;
  margin:  0;
 }
 
-DIV.options INPUT
+DIV#tab_options_div INPUT
 {
  padding: 0;
  border:  1px solid;
@@ -103,12 +80,12 @@ DIV.options INPUT
  text-align: right;
 }
 
-DIV.options INPUT:hover
+DIV#tab_options_div INPUT:hover
 {
  background: #F0F0C0;
 }
 
-DIV.options INPUT#shortest
+DIV#tab_options_div INPUT#shortest
 {
  margin: 3px;
  border: 3px solid;
@@ -120,7 +97,7 @@ DIV.options INPUT#shortest
  text-align: center;
 }
 
-DIV.options INPUT#quickest
+DIV#tab_options_div INPUT#quickest
 {
  margin: 3px;
  border: 3px solid;
@@ -132,142 +109,63 @@ DIV.options INPUT#quickest
  text-align: center;
 }
 
-DIV.route
-{
- width:  auto;
-
- padding: 3px;
- border: thin solid;
-}
-
-DIV.route TABLE
+DIV#tab_results_div TABLE
 {
  border-collapse: collapse;
  border: hidden;
 }
 
-DIV.route TD.right
-{
- min-width: 5em;
- text-align: right;
-}
-
-DIV.route TD.center
-{
- text-align: center;
- min-width: 3em;
-}
-
-DIV.route TD.left
+DIV#tab_results_div TD.distance
 {
  text-align: left;
- min-width: 15em;
 }
 
-DIV#shortest_data SPAN
+DIV#tab_results_div TD.highway
 {
- padding-left: 2px;
- padding-right: 2px;
+ text-align: left;
+ padding-left: 10px;
 }
 
-DIV#shortest_data SPAN:hover
+DIV#tab_results_div DIV#shortest_links A:hover
+{
+ background: #C0F0C0;
+}
+
+DIV#tab_results_div DIV#shortest_route TR:hover
 {
  cursor: pointer;
 
  background: #C0F0C0;
 }
 
-DIV#shortest_text
+DIV#tab_results_div DIV#quickest_links A:hover
 {
- overflow: hidden;
+ background: #C0C0F0;
 }
 
-DIV#shortest_text TR:hover
-{
- cursor: pointer;
-
- background: #C0F0C0;
-}
-
-DIV#quickest_data SPAN
-{
- padding-left: 2px;
- padding-right: 2px;
-}
-
-DIV#quickest_data SPAN:hover
+DIV#tab_results_div DIV#quickest_route TR:hover
 {
  cursor: pointer;
 
  background: #C0C0F0;
 }
 
-DIV#quickest_text
-{
- overflow: hidden;
-}
 
-DIV#quickest_text TR:hover
-{
- cursor: pointer;
+/*-------------------------------------------------*/
+/* Popup - using the styles defined in HTML output */
+/*-------------------------------------------------*/
 
- background: #C0C0F0;
-}
-
-DIV.data
-{
- width:  auto;
-
- padding: 3px;
- border: thin solid;
-}
-
-DIV.scrollable
-{
- overflow: auto;
-
- height: 20em;
-}
-
-
-/*-------------*/
-/* Right panel */
-/*-------------*/
-
-
-DIV.right_panel
-{
- position: fixed;
- top:      0;
- bottom:   0;
- right:    0;
- left:     23.5em;
-}
-
-DIV.map
-{
- position: absolute;
- top:      0;
- bottom:   1.5em;
- right:    0;
- left:     0;
-
- border:  3px solid;
-
- text-align:  center;
-}
-
-DIV.attribution
-{
- position: absolute;
- top:      auto;
- bottom:   0;
- right:    0;
- left:     0;
-
- margin:  0px;
- border:  0px;
- padding: 0px;
-
- text-align: center;
-}
+DIV.popup table  {table-layout: fixed; border: none; border-collapse: collapse;}
+DIV.popup tr     {border: 0px;}
+DIV.popup tr.c   {display: none;} /* coords */
+DIV.popup tr.n   {} /* node */
+DIV.popup tr.s   {} /* segment */
+DIV.popup tr.t   {font-weight: bold;} /* total */
+DIV.popup td.l   {font-weight: bold;}
+DIV.popup td.r   {}
+DIV.popup span.w {font-weight: bold;} /* waypoint */
+DIV.popup span.h {text-decoration: underline;} /* highway */
+DIV.popup span.d {} /* segment distance */
+DIV.popup span.j {font-style: italic;} /* total journey distance */
+DIV.popup span.t {font-variant: small-caps;} /* turn */
+DIV.popup span.b {font-variant: small-caps;} /* bearing */

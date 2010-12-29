@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008,2009 Andrew M. Bishop
+// This file Copyright 2008-2010 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,16 +24,16 @@
 // Data types
 //
 
-var data_types={
-                junctions: true,
-                super: true,
-                oneway: true,
-                speed: true,
-                weight: true,
-                height: true,
-                width: true,
-                length: true
-               };
+var data_types=[
+                "junctions",
+                "super",
+                "oneway",
+                "speed",
+                "weight",
+                "height",
+                "width",
+                "length"
+               ];
 
 
 //
@@ -71,16 +71,16 @@ var hex={0: "00", 1: "11",  2: "22",  3: "33",  4: "44",  5: "55",  6: "66",  7:
          8: "88", 9: "99", 10: "AA", 11: "BB", 12: "CC", 13: "DD", 14: "EE", 15: "FF"};
 
 
-//
-// Map configuration
-//
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////// Map handling /////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 var map;
 var layerMapOSM, layerVectors, layerBoxes;
 var epsg4326, epsg900913;
+var map_args;
 
 var box;
-
 
 // 
 // Initialise the 'map' object
@@ -88,10 +88,21 @@ var box;
 
 function map_init(lat,lon,zoom)
 {
- var data;
+ // Default configuration:
+ // UK coordinate range
+ // West -11.0, South 49.5, East 2.0, North 61.0
+ // Zoom level 4 to 15
 
- for(data in data_types)
-    hideshow_hide(data);
+ // EDIT THIS below to change the visible map limits
+
+ var westedge  = -11.0;          // Minimum longitude (degrees)
+ var eastedge  =   2.0;          // Maximum longitude (degrees)
+ var southedge =  49.5;          // Minimum latitude (degrees)
+ var northedge =  61.0;          // Maximum latitude (degrees)
+ var zoomout   =     4;          // Minimum zoom
+ var zoomin    =    15;          // Maximum zoom
+
+ // EDIT THIS above to change the visible map limits
 
  //
  // Create the map
@@ -99,11 +110,6 @@ function map_init(lat,lon,zoom)
 
  epsg4326=new OpenLayers.Projection("EPSG:4326");
  epsg900913=new OpenLayers.Projection("EPSG:900913");
-
- // UK coordinate range: West -11.0, South 49.5, East 2.0, North 61.0
-
- // EDIT THIS to change the visible map boundary.
- var mapbounds=new OpenLayers.Bounds(-11.0,49.5,2.0,61.0).transform(epsg4326,epsg900913);
 
  map = new OpenLayers.Map ("map",
                            {
@@ -117,18 +123,12 @@ function map_init(lat,lon,zoom)
                             projection: epsg900913,
                             displayProjection: epsg4326,
 
-                            // EDIT THIS to set the minimum zoom level
-                            minZoomLevel: 4,
+                            minZoomLevel: zoomout,
+                            numZoomLevels: zoomin-zoomout+1,
+                            maxResolution: 156543.0339 / Math.pow(2,zoomout),
 
-                            // EDIT THIS to set the number of zoom levels
-                            numZoomLevels: 12, // zoom levels 4-15 inclusive
-
-                            // EDIT THIS if you change the minimum zoom level above
-                            maxResolution: 156543.0339 / Math.pow(2,4), // Math.pow(2,minZoomLevel)
-
-                            maxExtent: new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34),
-
-                            restrictedExtent: mapbounds,
+                            maxExtent:        new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34),
+                            restrictedExtent: new OpenLayers.Bounds(westedge,southedge,eastedge,northedge).transform(epsg4326,epsg900913),
 
                             units: "m"
                            });
@@ -148,16 +148,16 @@ function map_init(lat,lon,zoom)
                                         });
  map.addLayer(layerMapOSM);
 
- // Get a URL for the tile; limited to mapbounds.
+ // Get a URL for the tile; limited to map restricted extent.
 
  function limitedUrl(bounds)
  {
   var z = map.getZoom() + map.minZoomLevel;
 
-  if (z>7 && (bounds.right  < mapbounds.left ||
-              bounds.left   > mapbounds.right ||
-              bounds.top    < mapbounds.bottom ||
-              bounds.bottom > mapbounds.top))
+  if (z>=7 && (bounds.right  < map.restrictedExtent.left ||
+               bounds.left   > map.restrictedExtent.right ||
+               bounds.top    < map.restrictedExtent.bottom ||
+               bounds.bottom > map.restrictedExtent.top))
      return this.emptyUrl;
 
   var res = map.getResolution();
@@ -178,8 +178,7 @@ function map_init(lat,lon,zoom)
  layerVectors = new OpenLayers.Layer.Vector("Markers");
  map.addLayer(layerVectors);
 
- var colour;
- for(colour in junction_colours)
+ for(var colour in junction_colours)
     junction_styles[colour]=new OpenLayers.Style({},{stroke: false, pointRadius: 2,fillColor: junction_colours[colour]});
 
  super_node_style   =new OpenLayers.Style({},{stroke: false, pointRadius: 3,fillColor  : "#FF0000"});
@@ -194,7 +193,7 @@ function map_init(lat,lon,zoom)
 
  // Set the map centre to the limited range specified
 
- map.setCenter(mapbounds.getCenterLonLat(), map.getZoomForExtent(mapbounds,true));
+ map.setCenter(map.restrictedExtent.getCenterLonLat(), map.getZoomForExtent(map.restrictedExtent,true));
  map.maxResolution = map.getResolution();
 
  // Move the map
@@ -220,17 +219,31 @@ function mapMoved()
 
  var zoom = this.getZoom() + map.minZoomLevel;
 
+ map_args="lat=" + lonlat.lat + ";lon=" + lonlat.lon + ";zoom=" + zoom;
+
+ updateCustomURL();
+}
+
+
+//
+// Update custom URL
+//
+
+function updateCustomURL()
+{
  var router_url=document.getElementById("router_url");
  var link_url  =document.getElementById("link_url");
  var edit_url  =document.getElementById("edit_url");
 
- var args="lat=" + lonlat.lat + ";lon=" + lonlat.lon + ";zoom=" + zoom;
-
- router_url.href="customrouter.cgi?" + args;
- link_url.href="customvisualiser.cgi?" + args;
- edit_url.href="http://www.openstreetmap.org/edit?" + args;
+ router_url.href="customrouter.cgi?" + map_args;
+ link_url.href="customvisualiser.cgi?" + map_args;
+ edit_url.href="http://www.openstreetmap.org/edit?" + map_args;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////// Server handling ////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 //
 // Display data statistics
@@ -245,7 +258,7 @@ function displayStatistics()
 
 
 //
-// Success in running router.
+// Success in running data statistics generation.
 //
 
 function runStatisticsSuccess(response)
@@ -265,10 +278,8 @@ function runStatisticsSuccess(response)
 
 function displayData(datatype)
 {
- var data;
-
- for(data in data_types)
-    hideshow_hide(data);
+ for(var data in data_types)
+    hideshow_hide(data_types[data]);
 
  if(datatype != "")
     hideshow_show(datatype);
@@ -340,12 +351,13 @@ function runJunctionsSuccess(response)
 {
  var lines=response.responseText.split('\n');
 
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "Processing " + (lines.length-2) + " junctions ...";
+// This won't update the browser window
+// var div_status=document.getElementById("result_status");
+// div_status.innerHTML = "Processing " + (lines.length-2) + " junctions ...";
 
  var features=[];
 
- for(line in lines)
+ for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(' ');
 
@@ -373,12 +385,12 @@ function runJunctionsSuccess(response)
        var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
 
        features.push(new OpenLayers.Feature.Vector(point,{},junction_styles[count]));
-
       }
    }
 
  layerVectors.addFeatures(features);
 
+ var div_status=document.getElementById("result_status");
  div_status.innerHTML = "Processed " + (lines.length-2) + " junctions";
 }
 
@@ -391,14 +403,15 @@ function runSuperSuccess(response)
 {
  var lines=response.responseText.split('\n');
 
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "Processing " + (lines.length-2) + " super-nodes/segments ...";
+// This won't update the browser window
+// var div_status=document.getElementById("result_status");
+// div_status.innerHTML = "Processing " + (lines.length-2) + " super-nodes/segments ...";
 
  var features=[];
 
  var nodepoint;
 
- for(line in lines)
+ for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(' ');
 
@@ -433,15 +446,16 @@ function runSuperSuccess(response)
          }
        else
          {
-          var line = new OpenLayers.Geometry.LineString([nodepoint,point]);
+          var segment = new OpenLayers.Geometry.LineString([nodepoint,point]);
 
-          features.push(new OpenLayers.Feature.Vector(line,{},super_segment_style));
+          features.push(new OpenLayers.Feature.Vector(segment,{},super_segment_style));
          }
       }
    }
 
  layerVectors.addFeatures(features);
 
+ var div_status=document.getElementById("result_status");
  div_status.innerHTML = "Processed " + (lines.length-2) + " super-nodes/segments";
 }
 
@@ -454,12 +468,13 @@ function runOnewaySuccess(response)
 {
  var lines=response.responseText.split('\n');
 
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "Processing " + (lines.length-2) + " oneway segments ...";
+// This won't update the browser window
+// var div_status=document.getElementById("result_status");
+// div_status.innerHTML = "Processing " + (lines.length-2) + " oneway segments ...";
 
  var features=[];
 
- for(line in lines)
+ for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(' ');
 
@@ -497,7 +512,7 @@ function runOnewaySuccess(response)
        var point3 = new OpenLayers.Geometry.Point(lonlat1.lon+dlat/dist,lonlat1.lat-dlon/dist);
        var point4 = new OpenLayers.Geometry.Point(lonlat1.lon-dlat/dist,lonlat1.lat+dlon/dist);
 
-       var line = new OpenLayers.Geometry.LineString([point2,point3,point4,point2]);
+       var segment = new OpenLayers.Geometry.LineString([point2,point3,point4,point2]);
 
        var r=Math.round(7.5+7.9*Math.cos(ang));
        var g=Math.round(7.5+7.9*Math.cos(ang+2.0943951));
@@ -506,12 +521,13 @@ function runOnewaySuccess(response)
 
        var style=new OpenLayers.Style({},{strokeWidth: 2,strokeColor: colour});
 
-       features.push(new OpenLayers.Feature.Vector(line,{},style));
+       features.push(new OpenLayers.Feature.Vector(segment,{},style));
       }
    }
 
  layerVectors.addFeatures(features);
 
+ var div_status=document.getElementById("result_status");
  div_status.innerHTML = "Processed " + (lines.length-2) + " oneway segments";
 }
 
@@ -524,14 +540,15 @@ function runLimitSuccess(response)
 {
  var lines=response.responseText.split('\n');
 
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "Processing " + (lines.length-2) + " limits ...";
+// This won't update the browser window
+// var div_status=document.getElementById("result_status");
+// div_status.innerHTML = "Processing " + (lines.length-2) + " limits ...";
 
  var features=[];
 
  var nodelonlat;
 
- for(line in lines)
+ for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(' ');
 
@@ -583,6 +600,7 @@ function runLimitSuccess(response)
 
  layerVectors.addFeatures(features);
 
+ var div_status=document.getElementById("result_status");
  div_status.innerHTML = "Processed " + (lines.length-2) + " limits";
 }
 

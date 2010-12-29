@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008,2009 Andrew M. Bishop
+# This file Copyright 2008-2010 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -28,14 +28,15 @@ use Graphics::Magick;
 @borders=("black","grey");
 @letters=("red","grey");
 
-foreach $character ('0'..'9')
+foreach $character ('0'..'9','home')
   {
    foreach $colour (0..$#names)
      {
       $image=Graphics::Magick->new;
       $image->Set(size => "63x75");
 
-      $image->ReadImage('xc:transparent');
+      $image->ReadImage('xc:white');
+      $image->Transparent('white');
 
       $image->Draw(primitive => polygon, points => '1,32 32,73 61,32 32,10',
                    stroke => $borders[$colour], fill => 'white', strokewidth => 6,
@@ -45,13 +46,27 @@ foreach $character ('0'..'9')
                    stroke => $borders[$colour], fill => 'white', strokewidth => 6,
                    antialias => 'false');
 
-      ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) = 
-        $image->QueryFontMetrics(text => $character, font => 'Helvetica', pointsize => '36');
+      if($character eq 'home')
+        {
+         $home=Graphics::Magick->new;
 
-      $image->Annotate(text => $character, font => 'Helvetica', pointsize => '36',
-                       stroke => $letters[$colour], fill => $letters[$colour],
-                       x => 32, y => 32-$descender, align => Center,
-                       antialias => 'false');
+         $home->ReadImage("home.png");
+
+         $home->Opaque(fill => $names[$colour], color => 'black');
+
+         $image->Composite(image => $home, compose => Over,
+                           x => 32-$home->Get('width')/2, y => 26-$home->Get('height')/2);
+        }
+      else
+        {
+         ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) = 
+           $image->QueryFontMetrics(text => $character, font => 'Helvetica', pointsize => '36');
+
+         $image->Annotate(text => $character, font => 'Helvetica', pointsize => '36',
+                          stroke => $letters[$colour], fill => $letters[$colour],
+                          x => 32, y => 32-$descender, align => Center,
+                          antialias => 'false');
+        }
 
       $image->Resize(width => 21, height => 25);
 
@@ -79,7 +94,8 @@ foreach $colour (0..9)
    $image=Graphics::Magick->new;
    $image->Set(size => "9x9");
 
-   $image->ReadImage('xc:transparent');
+   $image->ReadImage('xc:white');
+   $image->Transparent('white');
 
    $image->Draw(primitive => circle, points => '4,4 4,8',
                 fill => $colours[$colour], stroke => $colours[$colour],
@@ -104,7 +120,11 @@ foreach $limit (10..200)
 
 &draw_limit("no");
 
+unlink "limit-0.png";
 link "limit-no.png","limit-0.png";
+
+unlink "limit-0.0.png";
+link "limit-no.png","limit-0.0.png";
 
 sub draw_limit
   {
@@ -113,7 +133,8 @@ sub draw_limit
    $image=Graphics::Magick->new;
    $image->Set(size => "57x57");
 
-   $image->ReadImage('xc:transparent');
+   $image->ReadImage('xc:white');
+   $image->Transparent('white');
 
    $image->Draw(primitive => circle, points => '28,28 28,55',
                 stroke => 'red', fill => 'white', strokewidth => 3,

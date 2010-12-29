@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008,2009 Andrew M. Bishop
+# This file Copyright 2008-2010 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -48,8 +48,9 @@ $query=new CGI;
               "length"          => "[0-9.]+",
               "length"          => "[0-9.]+",
 
+              "language"        => "[-a-zA-Z]+"
               "submit"          => "(shortest|quickest|link)",
-              "output"          => "(gpx-route|gpx-track|txt|txt-all|html)"
+              "format"          => "(html|gpx-route|gpx-track|text|text-all|form)"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -71,34 +72,15 @@ foreach $key (@rawparams)
      }
   }
 
-# Possible file formats
-
-%formats=(
-          "gpx-route" => "-route.gpx",
-          "gpx-track" => "-track.gpx",
-          "txt"       => ".txt",
-          "txt-all"   => "-all.txt"
-         );
-
-# Possible MIME types
-
-%mimetypes=(
-            "gpx-route" => "text/xml",
-            "gpx-track" => "text/xml",
-            "txt"       => "text/plain",
-            "txt-all"   => "text/plain"
-           );
-
 # Get the important parameters
 
 $submit=$cgiparams{submit};
 delete $cgiparams{submit};
 
-$output=$cgiparams{output};
-delete $cgiparams{output};
+$format=$cgiparams{format};
+delete $cgiparams{format};
 
-$output="html" if(!$output || !$formats{$output} ||
-                  ($submit ne "shortest" && $submit ne "quickest"));
+$format="form" if(!$format || ($submit ne "shortest" && $submit ne "quickest"));
 
 # Generate a custom URL
 
@@ -116,39 +98,9 @@ if($submit)
    $customurl.="submit=custom";
   }
 
-# Fill in the default parameters using the ones in router.pl (don't use compiled in defaults)
+# Fill in the default parameters
 
-$cgiparams{transport}='motorcar' if(!defined $cgiparams{transport});
-
-$transport=$cgiparams{transport};
-
-foreach $highway (@router_highways)
-  {
-   $key="highway-$highway";
-   $value=$router_profile_highway{$highway}->{$transport};
-   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
-
-   $key="speed-$highway";
-   $value=$router_profile_speed{$highway}->{$transport};
-   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
-  }
-
-foreach $property (@router_properties)
-  {
-   $key="property-$property";
-   $value=$router_profile_property{$property}->{$transport};
-   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
-  }
-
-$cgiparams{oneway} =~ s/(true|on)/1/;
-$cgiparams{oneway} =~ s/(false|off)/0/;
-
-foreach $restriction (@router_restrictions)
-  {
-   $key="$restriction";
-   $value=$router_profile_restrictions{$restriction}->{$transport};
-   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
-  }
+%fullparams=FillInDefaults(%cgiparams);
 
 # Open template file before running the router (including changing directory)
 
@@ -158,90 +110,87 @@ open(TEMPLATE,"<noscript.template.html");
 
 if($submit eq "shortest" || $submit eq "quickest")
   {
-   ($router_uuid,$router_time,$router_result,$router_message)=&RunRouter($submit,%cgiparams);
+   ($router_uuid,$router_time,$router_result,$router_message)=RunRouter($submit,%fullparams);
 
    $router_type=$submit;
    $router_Type="Shortest" if($submit eq "shortest");
    $router_Type="Quickest" if($submit eq "quickest");
-  }
 
-# Generate the output
-
-if($output eq "html" || $router_message)
-  {
-   # Parse the template and fill in the parameters
-
-   print header('text/html');
-
-   while(<TEMPLATE>)
+   if($format ne "form")
      {
-      if(m%<input% && m%<!-- ([^ ]+) *-->%)
-        {
-         $key=$1;
-
-         m%type="([a-z]+)"%;
-         $type=$1;
-
-         m%value="([a-z]+)"%;
-         $value=$1;
-
-         if($type eq "radio")
-           {
-            $checked="";
-            $checked="checked" if($cgiparams{$key} eq $value);
-
-            s%><!-- .+? *-->% $checked>%;
-           }
-         elsif($type eq "checkbox")
-           {
-            $checked="";
-            $checked="checked" if($cgiparams{$key});
-
-            s%><!-- .+? *-->% $checked>%;
-           }
-         elsif($type eq "text")
-           {
-            s%><!-- .+? *-->% value="$cgiparams{$key}">%;
-           }
-
-         print;
-        }
-      elsif(m%<!-- custom-url -->%)
-        {
-         s%<!-- custom-url -->%$customurl%;
-
-         print if($submit);
-        }
-      elsif(m%<!-- result-start -->%)
-        {
-         $results_section=1;
-        }
-      elsif(m%<!-- result-finish -->%)
-        {
-         $results_section=0;
-        }
-      elsif($results_section)
-        {
-         s%<!-- result-Type -->%$router_Type%;
-         s%<!-- result-type -->%$router_type%;
-         s%<!-- result-uuid -->%$router_uuid%;
-         s%<!-- result-time -->%$router_time%;
-         s%<!-- result-result -->%$router_result%;
-         s%<!-- result-message -->%$router_message%;
-
-         print if($router_uuid);
-        }
-      else
-        {
-         print;
-        }
+      ReturnOutput($router_uuid,$submit,$format);
+      exit;
      }
-
-   close(TEMPLATE);
   }
-else
+
+# Generate the form output
+
+print header('text/html');
+
+# Parse the template and fill in the parameters
+
+while(<TEMPLATE>)
   {
-   print header($mimetypes{$output});
+   if (m%<input% && m%<!-- ([^ ]+) *-->%)
+     {
+      $key=$1;
 
-   system "cat $submit$formats{$output}";
+      m%type="([a-z]+)"%;
+      $type=$1;
+
+      m%value="([a-z]+)"%;
+      $value=$1;
+
+      if ($type eq "radio")
+        {
+         $checked="";
+         $checked="checked" if($fullparams{$key} eq $value);
+
+         s%><!-- .+? *-->% $checked>%;
+        }
+      elsif ($type eq "checkbox")
+        {
+         $checked="";
+         $checked="checked" if($fullparams{$key});
+
+         s%><!-- .+? *-->% $checked>%;
+        }
+      elsif ($type eq "text")
+        {
+         s%><!-- .+? *-->% value="$fullparams{$key}">%;
+        }
+
+      print;
+     }
+   elsif (m%<!-- custom-url -->%)
+     {
+      s%<!-- custom-url -->%$customurl%;
+
+      print if($submit);
+     }
+   elsif (m%<!-- result-start -->%)
+     {
+      $results_section=1;
+     }
+   elsif (m%<!-- result-finish -->%)
+     {
+      $results_section=0;
+     }
+   elsif ($results_section)
+     {
+      s%<!-- result-Type -->%$router_Type%;
+      s%<!-- result-type -->%$router_type%;
+      s%<!-- result-uuid -->%$router_uuid%;
+      s%<!-- result-time -->%$router_time%;
+      s%<!-- result-result -->%$router_result%;
+      s%<!-- result-message -->%$router_message%;
+
+      print if($router_uuid);
+     }
+   else
+     {
+      print;
+     }
   }
+
+close(TEMPLATE);

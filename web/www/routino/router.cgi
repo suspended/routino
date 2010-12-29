@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008,2009 Andrew M. Bishop
+# This file Copyright 2008-2010 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -47,7 +47,10 @@ $query=new CGI;
               "width"           => "[0-9.]+",
               "length"          => "[0-9.]+",
               "length"          => "[0-9.]+",
-              "type"            => "(shortest|quickest)"
+
+              "language"        => "[-a-zA-Z]+",
+              "type"            => "(shortest|quickest)",
+              "format"          => "(html|gpx-route|gpx-track|text|text-all)"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -74,42 +77,29 @@ foreach $key (@rawparams)
 $type=$cgiparams{type};
 delete $cgiparams{type};
 
-# Fill in the default parameters using the ones in router.pl (don't use compiled in defaults)
+$format=$cgiparams{format};
+delete $cgiparams{format};
 
-$cgiparams{transport}='motorcar' if(!defined $cgiparams{transport});
+# Fill in the default parameters
 
-$transport=$cgiparams{transport};
-
-foreach $highway (@router_highways)
-  {
-   $key="highway-$highway";
-   $value=$router_profile_highway{$highway}->{$transport};
-   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
-
-   $key="speed-$highway";
-   $value=$router_profile_speed{$highway}->{$transport};
-   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
-  }
-
-$cgiparams{oneway} =~ s/(true|on)/1/;
-$cgiparams{oneway} =~ s/(false|off)/0/;
-
-foreach $restriction (@router_restrictions)
-  {
-   $key="$restriction";
-   $value=$router_profile_restrictions{$restriction}->{$transport};
-   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
-  }
+%fullparams=FillInDefaults(%cgiparams);
 
 # Run the router
 
-($router_uuid,$router_time,$router_result,$router_message)=&RunRouter($type,%cgiparams);
+($router_uuid,$router_time,$router_result,$router_message)=RunRouter($type,%fullparams);
 
 # Return the output
 
-print header('text/plain');
+if($format)
+  {
+   ReturnOutput($router_uuid,$type,$format);
+  }
+else
+  {
+   print header('text/plain');
 
-print "$router_uuid\n";
-print "$router_time\n";
-print "$router_result\n";
-print "$router_message\n";
+   print "$router_uuid\n";
+   print "$router_time\n";
+   print "$router_result\n";
+   print "$router_message\n";
+  }

@@ -1,9 +1,9 @@
 /*
-// Routino data visualiser web page style sheet.
+// Routino visualiser web page style sheet.
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008,2009 Andrew M. Bishop
+// This file Copyright 2008-2010 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -20,48 +20,21 @@
 */
 
 
-/*----------------------------------*/
-/* Body HTML formatting             */
-/*----------------------------------*/
+/*--------------------------------*/
+/* Left panel - override defaults */
+/*--------------------------------*/
 
-BODY
+DIV.hideshow_box
 {
- /* fonts and text styles */
-
- font-family: sans-serif;
- font-size:   medium;
-
- /* colours */
-
- background-color: white;
- color:            black;
+ overflow-x: auto;
 }
 
-/*------------*/
-/* Left panel */
-/*------------*/
 
+/*-----------------------------------*/
+/* Left panel - specific tab options */
+/*-----------------------------------*/
 
-DIV.left_panel
-{
- width:    23em;
-
- position: absolute;
- top:      0;
- bottom:   0;
- right:    auto;
- left:     0;
-
- padding: 3px;
-}
-
-DIV.left_panel SPAN.subtitle
-{
- font-weight: bold;
- text-decoration: underline;
-}
-
-DIV.left_panel INPUT
+DIV#tab_visualiser_div INPUT
 {
  padding: 0;
  border:  1px solid;
@@ -70,74 +43,7 @@ DIV.left_panel INPUT
  text-align: center;
 }
 
-DIV.visualiser
+DIV#tab_visualiser_div INPUT:hover
 {
- width:  auto;
-
- padding: 3px;
- border: thin solid;
-}
-
-DIV.router
-{
- width:  auto;
-
- padding: 3px;
- border: thin solid;
-}
-
-DIV #result_status
-{
- font-style: italic;
-}
-
-DIV.data
-{
- width:  auto;
-
- padding: 3px;
- border: thin solid;
-}
-
-
-/*-------------*/
-/* Right panel */
-/*-------------*/
-
-
-DIV.right_panel
-{
- position: fixed;
- top:      0;
- bottom:   0;
- right:    0;
- left:     23.5em;
-}
-
-DIV.map
-{
- position: absolute;
- top:      0;
- bottom:   1.5em;
- right:    0;
- left:     0;
-
- border:  3px solid;
-
- text-align:  center;
-}
-
-DIV.attribution
-{
- position: absolute;
- top:      auto;
- bottom:   0;
- right:    0;
- left:     0;
-
- margin:  0px;
- border:  0px;
- padding: 0px;
-
- text-align: center;
+ background: #F0F0C0;
 }
