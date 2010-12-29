@@ -25,4 +25,6 @@ done
 
 # Process the data
 
-bunzip2 -c *.bz2 | ../bin/planetsplitter
+bunzip2 *.bz2
+
+../bin/planetsplitter *.osm

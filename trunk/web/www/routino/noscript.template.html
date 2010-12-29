@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -46,11 +46,11 @@
 
 <div class="content">
 
-<h2><a name="Introduction"></a>Non Javascript Route Finder</h2>
+<h2>Non Javascript Route Finder</h2>
 
 <form name="form" action="noscript.cgi" method="get">
 
-  <h3><a name="Locations"></a>Locations</h3>
+  <h3>Locations</h3>
 
   When a route is calculated it will visit (as close as possible
   for the selected transport type) each of the locations that have
@@ -99,7 +99,7 @@
 
   <p>
 
-  <h3><a name="Transport Type"></a>Transport Type</h3>
+  <h3>Transport Type</h3>
 
   Selecting a transport type will restrict the chosen route to
   those on which it is allowed.  Selecting one of the links here
@@ -142,7 +142,7 @@
 
   <p>
 
-  <h3><a name="Highway Preferences"></a>Highway Preferences</h3>
+  <h3>Highway Preferences</h3>
 
   The highway preference is selected as a percentage and routes are chosen that
   try to follow the preferred highways.
@@ -150,7 +150,7 @@
   road is given a "100%" preference then it means that a route on a Primary road
   can be up to 10% longer than on a secondary road and still be selected.
 
-  <h3><a name="Speed Limits"></a>Speed Limits</h3>
+  <h3>Speed Limits</h3>
 
   The speed limits chosen here for the different types of highway apply if the
   highway has no other speed limit marked or it is higher than the chosen one.
@@ -238,7 +238,7 @@
 
   <p>
 
-  <h3><a name="Property Preferences"></a>Property Preferences</h3>
+  <h3>Property Preferences</h3>
 
   The property preference is selected as a percentage and routes are chosen that
   try to follow highways with the preferred property.
@@ -273,7 +273,7 @@
 
   <p>
 
-  <h3><a name="Other Restrictions"></a>Other Restrictions</h3>
+  <h3>Other Restrictions</h3>
 
   These allow a route to be found that avoids marked limits on
   weight, height, width or length.  It is also possible to ignore
@@ -306,28 +306,45 @@
 
   <p>
 
-  <h3><a name="Output Type"></a>Output Type</h3>
+<h3>Output Format</h3>
 
-  This allows for selection of the type of output to be generated.
+  This allows for selection of the language of the generated output.
 
   <p>
 
   <table class="noborder-left">
     <tr>
-      <td class="left"><input name="output" type="radio" value="html" checked> This HTML format
+      <td class="left">English (en)
+      <td class="left"><input name="language" type="radio" value="en" checked><!-- language -->
     <tr>
-      <td class="left"><input name="output" type="radio" value="gpx-track">GPX track file
-    <tr>
-      <td class="left"><input name="output" type="radio" value="gpx-route">GPX route file
-    <tr>
-      <td class="left"><input name="output" type="radio" value="txt">Text file
-    <tr>
-      <td class="left"><input name="output" type="radio" value="txt-all">Full text file
+      <td class="left">German (de) 
+      <td class="left"><input name="language" type="radio" value="de"><!-- language -->
   </table>
 
   <p>
 
-  <h3><a name="Calculate Route"></a>Calculate Route</h3>
+  This allows for selection of the format of the generated output.
+
+  <p>
+
+  <table class="noborder-left">
+    <tr>
+      <td class="left"><input name="format" type="radio" value="form" checked>This HTML format
+    <tr>
+      <td class="left"><input name="format" type="radio" value="html">HTML route instructions
+    <tr>
+      <td class="left"><input name="format" type="radio" value="gpx-track">GPX track file
+    <tr>
+      <td class="left"><input name="format" type="radio" value="gpx-route">GPX route file
+    <tr>
+      <td class="left"><input name="format" type="radio" value="text">Text file
+    <tr>
+      <td class="left"><input name="format" type="radio" value="text-all">Full text file
+  </table>
+
+  <p>
+
+  <h3>Calculate Route</h3>
 
   <button type="submit" name="submit" value="shortest">Shortest</button>
   <button type="submit" name="submit" value="quickest">Quickest</button>
@@ -348,6 +365,9 @@
     <tr>
       <td class="left" colspan=2><b><!-- result-result --></b>
     <tr>
+      <td class="left">HTML file:
+      <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=html">Open</a>
+    <tr>
       <td class="left">GPX track file:
       <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=gpx-track">Open</a>
     <tr>
@@ -355,10 +375,10 @@
       <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=gpx-route">Open</a>
     <tr>
       <td class="left">Text file:
-      <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=txt">Open</a>
+      <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=text">Open</a>
     <tr>
       <td class="left">Full text file:
-      <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=txt-all">Open</a>
+      <td class="left"><a title="" target="new" href="results.cgi?uuid=<!-- result-uuid -->;type=<!-- result-type -->;format=text-all">Open</a>
     <tr>
       <td class="left" colspan=2><i><!-- result-time --></i>
   </table>
@@ -371,7 +391,7 @@
 
   <p>
 
-  <h3><a name="Create Link"></a>Create Link</h3>
+  <h3>Create Link</h3>
 
   <button type="submit" name="submit" value="link">Create Link</button>
   <a title="" href="<!-- custom-url -->">Bookmarkable link with customised parameters</a>

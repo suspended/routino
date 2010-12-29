@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008,2009 Andrew M. Bishop
+# This file Copyright 2008-2010 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,9 @@
 # Use the directory paths script
 require "paths.pl";
 
+# Use the generic router script
+require "router.pl";
+
 # Use the perl CGI module
 use CGI ':cgi';
 
@@ -36,8 +39,9 @@ $query=new CGI;
 
 %legalparams=(
               "type"   => "(shortest|quickest)",
-              "uuid"   => "[0-9a-f]{32}",
-              "format" => "(gpx-route|gpx-track|txt|txt-all)"
+              "format" => "(html|gpx-route|gpx-track|text|text-all)",
+
+              "uuid"   => "[0-9a-f]{32}"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -59,43 +63,12 @@ foreach $key (@rawparams)
      }
   }
 
-# Possible file formats
-
-%formats=(
-          "gpx-route" => "-route.gpx",
-          "gpx-track" => "-track.gpx",
-          "txt"       => ".txt",
-          "txt-all"   => "-all.txt"
-         );
-
-# Possible MIME types
-
-%mimetypes=(
-            "gpx-route" => "text/xml",
-            "gpx-track" => "text/xml",
-            "txt"       => "text/plain",
-            "txt-all"   => "text/plain"
-           );
-
 # Parse the parameters
 
-$type  =$cgiparams{"type"};
 $uuid  =$cgiparams{"uuid"};
-$format=$formats{$cgiparams{"format"}};
-$mime  =$mimetypes{$cgiparams{"format"}};
+$type  =$cgiparams{"type"};
+$format=$cgiparams{"format"};
 
-$file="$results_dir/$uuid/$type$format";
+# Return the file
 
-if(!$type || !$uuid || !$format || ! -f $file)
-  {
-   print header('text/plain','404 Not found');
-   print "Not Found!\n";
-
-   exit;
-  }
-
-# Return the output
-
-print header($mime);
-
-system "cat $file";
+ReturnOutput($uuid,$type,$format);

@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008-2010 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@
 -->
 
 <HEAD>
-<TITLE>Routino: Router for OpenStreetMap Data</TITLE>
+<TITLE>Routino : Router for OpenStreetMap Data</TITLE>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <LINK href="style.css" type="text/css" rel="stylesheet">
 </HEAD>
@@ -34,7 +34,7 @@
 
 <div class="header" align="center">
 
-<h1>Routino: Router for OpenStreetMap Data</h1>
+<h1>Routino : Router for OpenStreetMap Data</h1>
 
 <hr>
 </div>
@@ -45,7 +45,7 @@
 
 <div class="content">
 
-<h2><a name="Overview"></a>Router for OpenStreetMap Data</h2>
+<h2><a name="H_1_1" title="Overview"></a>Router for OpenStreetMap Data</h2>
 
 This
 <a title="Map and Router" href="router.html">interactive map and router</a>
@@ -60,11 +60,11 @@ and the Javascript library from
 A <a title="Non-Javascript" href="noscript.html">non-Javascript</a> version of
 the router is also available.
 
-<h2><a name="Data"></a>Data</h2>
+<h2><a name="H_1_2"></a>Data</h2>
 
 A router relies on data to be able to find a route.
 
-<h3><a name="OpenStreetMap Data"></a>OpenStreetMap Data</h3>
+<h3><a name="H_1_2_1"></a>OpenStreetMap Data</h3>
 
 The data that is collected by the OpenStreetMap project consists of
 <em>nodes</em>, <em>ways</em> and <em>relations</em>.
@@ -87,7 +87,7 @@ The
 <a class="ext" title="OpenStreetMap Wiki" href="http://wiki.openstreetmap.org/wiki/Main_Page">OpenStreetMap Wiki</a>
 explains the data much better than I can.
 
-<h3><a name="Router Data"></a>Router Data</h3>
+<h3><a name="H_1_2_2"></a>Router Data</h3>
 
 The information that is needed by a routing algorithm is only a subset of the
 information that is collected by the OpenStreetMap project.  For routing what is
@@ -123,7 +123,7 @@ connections between the highways and the properties of those highways.
 The information that is extracted from the OpenStreetMap data is stored in an
 optimised way that allows the routing to be performed quickly.
 
-<h3><a name="Data Tags"></a>Interpreting Data Tags</h3>
+<h3><a name="H_1_2_3" title="Data Tags"></a>Interpreting Data Tags</h3>
 
 The <em>tags</em> are the information that is attached to the nodes and ways in
 OpenStreetMap.  The router needs to interpret these tags and use them when
@@ -142,7 +142,7 @@ that the router uses are very important in controlling how the router works and
 described in detail on a page in the Routino software section.
 
 
-<h3><a name="Problems With Data"></a>Problems With OpenStreetMap Data</h3>
+<h3><a name="H_1_2_4" title="Problems With Data"></a>Problems With OpenStreetMap Data</h3>
 
 The route that can be found is only as good as the data that is available.  This
 is not intended as a criticism of the OpenStreetMap data; it is generally good.
@@ -158,14 +158,38 @@ A lot of these problems can be found using the
 that uses the same Routino rouing database.
 
 
-<h2><a name="Algorithm"></a>Router Algorithm</h2>
+<h2><a name="H_1_3" title="Algorithm"></a>Router Algorithm</h2>
 
 The <a title="Algorithm" href="algorithm.html">algorithm</a> that is used by
 Routino takes the OpenStreetMap data and creates a local database of the
 important information.  This allows for rapid routing.
 
 
-<h2><a name="Source Code"></a>Source Code</h2>
+<h2><a name="H_1_4"></a>Router Programs</h2>
+
+There are three programs that make up the Routino software, one that takes the
+OSM input data and processes it into a form that is easy to find routes in, one
+to find routes and one for raw access to the data.
+
+<a href="usage.html" title="Program Usage">Full instructions</a>
+for using the program are provided.
+
+<p>
+
+When the programs are run they read in 
+<a href="configuration.html" title="Configuration Files">configuration files</a>
+that contain information about the routing preferences (types of highways,
+prefered speeds etc), translation information for the outputs and rules for
+using the OSM data tags.
+
+<p>
+
+The final result of running the router is one or more
+<a href="output.html" title="Output Files">output files</a>
+that contain the calculated route.
+
+
+<h3><a name="H_1_4_1"></a>Source Code</h3>
 
 The Routino <a title="Source Code" href="http://www.gedanken.org.uk/software/routino/">source code</a>
 is available under the GNU Affero General Public License version 3.

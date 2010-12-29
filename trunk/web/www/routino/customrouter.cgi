@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008,2009 Andrew M. Bishop
+# This file Copyright 2008-2010 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -49,7 +49,9 @@ $query=new CGI;
               "weight"          => "[0-9.]+",
               "height"          => "[0-9.]+",
               "width"           => "[0-9.]+",
-              "length"          => "[0-9.]+"
+              "length"          => "[0-9.]+",
+
+              "language"        => "[-a-zA-Z]+"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -71,36 +73,22 @@ foreach $key (@rawparams)
      }
   }
 
-# Fill in the default parameters using the ones in router.pl (don't use compiled in defaults)
+# Fill in the default parameters
 
-$cgiparams{transport}='motorcar' if(!defined $cgiparams{transport});
-
-$transport=$cgiparams{transport};
-
-foreach $highway (@router_highways)
-  {
-   $key="highway-$highway";
-   $value=$router_profile_highway{$highway}->{$transport};
-   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
-
-   $key="speed-$highway";
-   $value=$router_profile_speed{$highway}->{$transport};
-   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
-  }
-
-$cgiparams{oneway} =~ s/(true|on)/1/;
-$cgiparams{oneway} =~ s/(false|off)/0/;
-
-foreach $restriction (@router_restrictions)
-  {
-   $key="$restriction";
-   $value=$router_profile_restrictions{$restriction}->{$transport};
-   $cgiparams{$key}=$value if(!defined $cgiparams{$key});
-  }
+%fullparams=FillInDefaults(%cgiparams);
 
 # Open template file and output it
 
-open(TEMPLATE,"<router.html");
+$lang=$cgiparams{'language'};
+
+if( -f "router.html.$lang")
+  {
+   open(TEMPLATE,"<router.html.$lang");
+  }
+else
+  {
+   open(TEMPLATE,"<router.html");
+  }
 
 # Parse the template and fill in the parameters
 
@@ -128,20 +116,20 @@ while(<TEMPLATE>)
       if($type eq "radio")
         {
          $checked="";
-         $checked="checked" if($cgiparams{$key} eq $value);
+         $checked="checked" if($fullparams{$key} eq $value);
 
          s%><!-- .+? *-->% $checked>%;
         }
       elsif($type eq "checkbox")
         {
          $checked="";
-         $checked="checked" if($cgiparams{$key});
+         $checked="checked" if($fullparams{$key});
 
          s%><!-- .+? *-->% $checked>%;
         }
       elsif($type eq "text")
         {
-         s%><!-- .+? *-->% value="$cgiparams{$key}">%;
+         s%><!-- .+? *-->% value="$fullparams{$key}">%;
         }
 
       print;
