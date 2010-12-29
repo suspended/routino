@@ -93,7 +93,7 @@ The other highway types are assumed to be equivalent to one of the types listed
 above according to the table below.
 <p>
 
-<table class="center">
+<table>
   <caption>Aliasing of equivalent highway types</caption>
   <tr>
     <th class="left">Highway type
@@ -136,7 +136,7 @@ tansport that is allowed to use the highway.  The list can be modified depending
 on other tags, but the default assumptions are as shown in the table below.
 <p>
 
-<table class="center">
+<table>
   <caption>Default assumption about allowed transport on different highway types</caption>
   <tr>
     <th class="left">Highway
@@ -308,10 +308,12 @@ In addition to the access tag there is also one tag for each of the different
 modes of transport: <em>foot</em>, <em>bicycle</em>, <em>horse</em>,
 <em>motorbike</em>, <em>motorcar</em>, <em>goods</em>, <em>hgv</em> and
 <em>psv</em>.  If one of these tags is present and the value is set to one of
-true, yes, 1, permissive or designated then that particular transport type is
-allowed (even if the generic access tag says that it is not).  If the tag is
-present but not one of the values above then it is assumed that the particular
-form of transport is forbidden.
+<em>true</em>, <em>yes</em>, <em>1</em>, <em>permissive</em> or
+<em>designated</em> then that particular transport type is allowed (even if the
+generic access tag says that it is not).  If the tag is present but not one of
+the values above then it is assumed that the particular form of transport is
+forbidden.  A tag named <em>vehicle</em> means any of the above transport types
+that have wheels and <em>motor_vehicle</em> is any vehicle except a bicycle.
 
 <p>
 

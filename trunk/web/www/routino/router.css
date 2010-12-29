@@ -44,7 +44,7 @@ BODY
 
 DIV.left_panel
 {
- width:    21em;
+ width:    23em;
 
  position: absolute;
  top:      0;
@@ -55,6 +55,12 @@ DIV.left_panel
  padding: 3px;
 }
 
+DIV.left_panel SPAN.subtitle
+{
+ font-weight: bold;
+ text-decoration: underline;
+}
+
 DIV.options
 {
  width:  auto;
@@ -63,7 +69,7 @@ DIV.options
  border: thin solid;
 }
 
-DIV.location IMG
+DIV.options IMG
 {
  cursor: pointer;
  vertical-align: bottom;
@@ -122,6 +128,12 @@ DIV.route
 
  padding: 3px;
  border: thin solid;
+}
+
+DIV.route TABLE
+{
+ border-collapse: collapse;
+ border: hidden;
 }
 
 DIV.route TD.right
@@ -194,6 +206,13 @@ DIV.data
  border: thin solid;
 }
 
+DIV.scrollable
+{
+ overflow: auto;
+
+ height: 20em;
+}
+
 
 /*-------------*/
 /* Right panel */
@@ -206,7 +225,7 @@ DIV.right_panel
  top:      0;
  bottom:   0;
  right:    0;
- left:     21.5em;
+ left:     23.5em;
 }
 
 DIV.map

@@ -110,7 +110,8 @@ sub RunRouter
 
    chomp($uuid=`echo '$params' $$ | md5sum | cut -f1 '-d '`);
 
-   mkdir $uuid,0755;
+   mkdir $uuid;
+   chmod 0775, $uuid;
    chdir $uuid;
 
    # Run the router

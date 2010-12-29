@@ -9,7 +9,7 @@
 ## Download the files
 #
 #for file in $files; do
-#   wget http://download.geofabrik.de/osm/$file
+#   wget -N http://download.geofabrik.de/osm/$file
 #done
 
 
@@ -19,7 +19,7 @@ files="europe/united_kingdom/united_kingdom.osm.bz2 europe/ireland/ireland.osm.b
 # Download the files
 
 for file in $files; do
-   wget http://downloads.cloudmade.com/$file
+   wget -N http://downloads.cloudmade.com/$file
 done
 
 

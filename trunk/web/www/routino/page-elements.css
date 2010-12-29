@@ -33,20 +33,16 @@ DIV.tab_box
  width: 100%;
 }
 
-DIV.tab_box > SPAN
-{
- padding: 3px;
-
- cursor: pointer;
-}
-
 DIV.tab_box > SPAN.tab_selected
 {
  border-top:   2px solid;
  border-left:  2px solid;
  border-right: 2px solid;
 
+ padding: 3px;
+
  font-weight: bold;
+ font-variant: small-caps;
 
  background: #FFF;
 }
@@ -56,6 +52,12 @@ DIV.tab_box > SPAN.tab_unselected
  border-top:   1px solid;
  border-left:  1px solid;
  border-right: 1px solid;
+
+ padding: 3px;
+
+ cursor: pointer;
+
+ font-variant: small-caps;
 
  background: #DDD;
 }
@@ -85,16 +87,6 @@ DIV.hideshow_box + DIV.hideshow_box
  border-top: none;
 }
 
-DIV.hideshow_box > SPAN
-{
- margin: 0px;
- padding: 0px;
- padding-right: 2px;
- padding-left: 1px;
-
- cursor: pointer;
-}
-
 DIV.hideshow_box > SPAN.hideshow_show
 {
  float: right;
@@ -102,6 +94,13 @@ DIV.hideshow_box > SPAN.hideshow_show
 
  font-style: italic;
  font-variant: small-caps;
+
+ margin: 0px;
+ padding: 0px;
+ padding-right: 2px;
+ padding-left: 1px;
+
+ cursor: pointer;
 
  background: #DDD;
 }

@@ -1,36 +1,63 @@
 #!/usr/bin/perl
+#
+# Routino icons Perl script
+#
+# Part of the Routino routing software.
+#
+# This file Copyright 2008,2009 Andrew M. Bishop
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 use Graphics::Magick;
 
 # Markers for routing
 
+@names=("red","grey");
+@borders=("black","grey");
+@letters=("red","grey");
+
 foreach $character ('0'..'9')
   {
-   $image=Graphics::Magick->new;
-   $image->Set(size => "63x75");
+   foreach $colour (0..$#names)
+     {
+      $image=Graphics::Magick->new;
+      $image->Set(size => "63x75");
 
-   $image->ReadImage('xc:transparent');
+      $image->ReadImage('xc:transparent');
 
-   $image->Draw(primitive => polygon, points => '1,32 32,73 61,32 32,10',
-                stroke => 'black', fill => 'white', strokewidth => 6,
-                antialias => false);
+      $image->Draw(primitive => polygon, points => '1,32 32,73 61,32 32,10',
+                   stroke => $borders[$colour], fill => 'white', strokewidth => 6,
+                   antialias => false);
 
-   $image->Draw(primitive => arc,     points => '1,1 61,61 -180,0',
-                stroke => 'black', fill => 'white', strokewidth => 6,
-                antialias => false);
+      $image->Draw(primitive => arc,     points => '1,1 61,61 -180,0',
+                   stroke => $borders[$colour], fill => 'white', strokewidth => 6,
+                   antialias => false);
 
-   ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) = $image->QueryFontMetrics(text => $character);
+      ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) = $image->QueryFontMetrics(text => $character);
 
-   $image->Annotate(text => $character, font => 'Helvetica', pointsize => '36',
-                    fill => 'red',
-                    x => 32, y => 34+$y_ppem/2, align => Center,
-                    antialias => false);
+      $image->Annotate(text => $character, font => 'Helvetica', pointsize => '36',
+                       fill => $letters[$colour],
+                       x => 32, y => 34+$y_ppem/2, align => Center,
+                       antialias => false);
 
-   $image->Resize(width => 21, height => 25);
+      $image->Resize(width => 21, height => 25);
 
-   $image->Write("marker-$character.png");
+      $image->Write("marker-$character-$names[$colour].png");
 
-   undef $image;
+      undef $image;
+     }
   }
 
 # Balls for visualiser descriptions

@@ -46,15 +46,15 @@
 <div class="left_panel">
 
    <div class="tab_box">
-      <span id="tab_options" onclick="tab_select('options');" class="tab_selected"  >Options</span>
-      <span id="tab_results" onclick="tab_select('results');" class="tab_unselected">Results</span>
-      <span id="tab_data"    onclick="tab_select('data');"    class="tab_unselected">Data</span>
+      <span id="tab_options" onclick="tab_select('options');" class="tab_selected"   title="Set routing options">Options</span>
+      <span id="tab_results" onclick="tab_select('results');" class="tab_unselected" title="See routing results">Results</span>
+      <span id="tab_data"    onclick="tab_select('data');"    class="tab_unselected" title="View database information">Data</span>
    </div>
 
    <div class="options" id="tab_options_div">
       <form name="form" id="form" action="router.cgi" method="get">
       <div class="hideshow_box">
-         <u><b>Routino OpenStreetMap Router</b></u>
+         <span class="subtitle">Routino OpenStreetMap Router</span>
          <br>
          This web page allows routing within the data collected by OpenStreetMap.
          Select start and end points (click on the marker icons below), select routing preferences then find a route.
@@ -68,33 +68,32 @@
       </div>
 
       <div class="hideshow_box">
-         <div class="location">
-            <u><b>Locations</b></u>
-            <br>
-            <table border=0>
-               <tr><td>Start:
-                   <td><input name="lon1" type="text" size=8 title="Start Longitude" onchange="formSetCoords(1);"><!-- lon1 --> E
-                   <td><input name="lat1" type="text" size=8 title="Start Latitude"  onchange="formSetCoords(1);"><!-- lat1 --> N
-                   <td><img src="icons/marker-1.png" title="Start Position - (click to add/remove on map)" alt="Start" onmousedown="markerAddRemove(1)">
-               <tr><td>Middle:
-                   <td><input name="lon2" type="text" size=8 title="Middle Longitude" onchange="formSetCoords(2);"><!-- lon2 --> E
-                   <td><input name="lat2" type="text" size=8 title="Middle Latitude"  onchange="formSetCoords(2);"><!-- lat2 --> N
-                   <td><img src="icons/marker-2.png" title="Middle Position - (click to add/remove on map)" alt="Middle" onmousedown="markerAddRemove(2)">
-               <tr><td>Finish:
-                   <td><input name="lon3" type="text" size=8 title="Finish Longitude" onchange="formSetCoords(3);"><!-- lon3 --> E
-                   <td><input name="lat3" type="text" size=8 title="Finish Latitude"  onchange="formSetCoords(3);"><!-- lat3 --> N
-                   <td><img src="icons/marker-3.png" title="Finish Position - (click to add/remove on map)" alt="Finish" onmousedown="markerAddRemove(3)">
-            </table>
-         </div>
+         <span class="subtitle">Locations</span>
+         <br>
+         <table>
+            <tr><td>1:
+                <td><input name="lon1" type="text" size=8 title="Waypoint 1 Longitude" onchange="formSetCoords(1);"><!-- lon1 --> E
+                <td><input name="lat1" type="text" size=8 title="Waypoint 1 Latitude"  onchange="formSetCoords(1);"><!-- lat1 --> N
+                <td><img name="waypoint1" src="icons/marker-1-grey.png" title="Waypoint 1 Position - (click to add/remove on map)" alt="Waypoint 1" onmousedown="markerAddRemove(1)">
+            <tr><td>2:
+                <td><input name="lon2" type="text" size=8 title="Waypoint 2 Longitude" onchange="formSetCoords(2);"><!-- lon2 --> E
+                <td><input name="lat2" type="text" size=8 title="Waypoint 2 Latitude"  onchange="formSetCoords(2);"><!-- lat2 --> N
+                <td><img name="waypoint2" src="icons/marker-2-grey.png" title="Waypoint 2 Position - (click to add/remove on map)" alt="Waypoint 2" onmousedown="markerAddRemove(2)">
+            <tr><td>3:
+                <td><input name="lon3" type="text" size=8 title="Waypoint 3 Longitude" onchange="formSetCoords(3);"><!-- lon3 --> E
+                <td><input name="lat3" type="text" size=8 title="Waypoint 3 Latitude"  onchange="formSetCoords(3);"><!-- lat3 --> N
+                <td><img name="waypoint3" src="icons/marker-3-grey.png" title="Waypoint 3 Position - (click to add/remove on map)" alt="Waypoint 3" onmousedown="markerAddRemove(3)">
+            <!-- Up to 9 points can be used, only 3 are available by default, copy and paste the above if needed. -->
+         </table>
       </div>
 
       <div class="hideshow_box">
          <span id="hideshow_transport_show" onclick="hideshow_show('transport');" class="hideshow_hide">Show</span>
          <span id="hideshow_transport_hide" onclick="hideshow_hide('transport');" class="hideshow_show">Hide</span>
-         <u><b>Transport Type</b></u>
+         <span class="subtitle">Transport Type</span>
          <br>
          <div id="hideshow_transport_div">
-            <table border=0>
+            <table>
                <tr><td>Foot     <td><input name="transport" type="radio" value="foot"      onchange="formSetTransport('foot'     )"><!-- transport -->
                <tr><td>Bicycle  <td><input name="transport" type="radio" value="bicycle"   onchange="formSetTransport('bicycle'  )"><!-- transport -->
                <tr><td>Horse    <td><input name="transport" type="radio" value="horse"     onchange="formSetTransport('horse'    )"><!-- transport -->
@@ -110,10 +109,10 @@
       <div class="hideshow_box">
          <span id="hideshow_highway_show" onclick="hideshow_show('highway');" class="hideshow_show">Show</span>
          <span id="hideshow_highway_hide" onclick="hideshow_hide('highway');" class="hideshow_hide">Hide</span>
-         <u><b>Highway Preferences</b></u>
+         <span class="subtitle">Highway Preferences</span>
          <br>
          <div id="hideshow_highway_div" style="display: none;">
-            <table border=0>
+            <table>
                <tr><td>Motorway:    <td><input name="highway-motorway"     type="text" size=3 onchange="formSetHighway('motorway'    )"><!-- highway-motorway     --><td>%
                <tr><td>Trunk:       <td><input name="highway-trunk"        type="text" size=3 onchange="formSetHighway('trunk'       )"><!-- highway-trunk        --><td>%
                <tr><td>Primary:     <td><input name="highway-primary"      type="text" size=3 onchange="formSetHighway('primary'     )"><!-- highway-primary      --><td>%
@@ -134,10 +133,10 @@
       <div class="hideshow_box">
          <span id="hideshow_speed_show" onclick="hideshow_show('speed');" class="hideshow_show">Show</span>
          <span id="hideshow_speed_hide" onclick="hideshow_hide('speed');" class="hideshow_hide">Hide</span>
-         <u><b>Speed Limits</b></u>
+         <span class="subtitle">Speed Limits</span>
          <br>
          <div id="hideshow_speed_div" style="display: none;">
-            <table border=0>
+            <table>
                <tr><td>Motorway:    <td><input name="speed-motorway"     type="text" size=3 onchange="formSetSpeed('motorway'    )"><!-- speed-motorway     --><td>km/hr
                <tr><td>Trunk:       <td><input name="speed-trunk"        type="text" size=3 onchange="formSetSpeed('trunk'       )"><!-- speed-trunk        --><td>km/hr
                <tr><td>Primary:     <td><input name="speed-primary"      type="text" size=3 onchange="formSetSpeed('primary'     )"><!-- speed-primary      --><td>km/hr
@@ -158,10 +157,10 @@
       <div class="hideshow_box">
          <span id="hideshow_restriction_show" onclick="hideshow_show('restriction');" class="hideshow_show">Show</span>
          <span id="hideshow_restriction_hide" onclick="hideshow_hide('restriction');" class="hideshow_hide">Hide</span>
-         <u><b>Other Restrictions</b></u>
+         <span class="subtitle">Other Restrictions</span>
          <br>
          <div id="hideshow_restriction_div" style="display: none;">
-            <table border=0>
+            <table>
                <tr><td>Obey oneway:<td><input name="restrict-oneway" type="checkbox"    onchange="formSetRestriction('oneway')"><!-- oneway --><td>
                <tr><td>Weight:     <td><input name="restrict-weight" type="text" size=3 onchange="formSetRestriction('weight')"><!-- weight --><td>tonnes
                <tr><td>Height:     <td><input name="restrict-height" type="text" size=3 onchange="formSetRestriction('height')"><!-- height --><td>metres
@@ -172,33 +171,65 @@
       </div>
 
       <div class="hideshow_box">
-         <u><b>Find</b></u>
+         <span class="subtitle">Find</span>
          <br>
          <input type="button" id="shortest" value="Shortest" onclick="findRoute('shortest');">
          <input type="button" id="quickest" value="Quickest" onclick="findRoute('quickest');">
       </div>
 
       <div class="hideshow_box">
-         <u><b>Links</b></u>
+         <span class="subtitle">Links</span>
          <br>
          <a id="custom_url" href="router.html">Permanent link to these parameters</a>
       </div>
 
       <div class="hideshow_box">
-         <span id="hideshow_help1_show" onclick="hideshow_show('help1');" class="hideshow_hide">Show</span>
-         <span id="hideshow_help1_hide" onclick="hideshow_hide('help1');" class="hideshow_show">Hide</span>
-         <u><b>Help</b></u>
+         <span id="hideshow_help_options_show" onclick="hideshow_show('help_options');" class="hideshow_hide">Show</span>
+         <span id="hideshow_help_options_hide" onclick="hideshow_hide('help_options');" class="hideshow_show">Hide</span>
+         <span class="subtitle">Help</span>
          <br>
-         <div id="hideshow_help1_div">
-            Click on marker icons (above) to place them on the map (right).  Then
-            drag them to the correct position.  Zooming the map before placing the
-            markers is probably easiest.  Alternatively type the latitude and
-            longitude into the boxes above.
-            <p>
-            Select the transport type, allowed highway types, speed limits and
-            other restrictions from the options above.
-            Select "Shortest" or "Quickest" to calculate the route and display it
-            on the map.
+         <div id="hideshow_help_options_div">
+            <div class="scrollable">
+               <p>
+               <b>Quick Start</b>
+               <br>
+               Click on marker icons (above) to place them on the map (right).  Then
+               drag them to the correct position.  Zooming the map before placing the
+               markers is probably easiest.  Alternatively type the latitude and
+               longitude into the boxes above.
+               <p>
+               Select the transport type, allowed highway types, speed limits and
+               other restrictions from the options above.
+               Select "Shortest" or "Quickest" to calculate the route and display it
+               on the map.
+               <p>
+               <b>Locations</b>
+               <br>
+               Clicking on the marker icons will toggle the display of them on the map.
+               When a route is calculated it will visit each of the locations that have markers on the map in order.
+               <p>
+               <b>Transport Type</b>
+               <br>
+               Selecting a transport type will restrict the chosen route to those on which it is allowed.
+               <p>
+               <b>Highway Preferences</b>
+               <br>
+               The highway preference is selected as a percentage and routes are chosen that
+               try to follow the preferred highways.
+               For example if a "Primary" road is given a "110%" preference and a "Secondary"
+               road is given a "100%" preference then it means that a route on a Primary road
+               can be up to 10% longer than on a secondary road and still selected.
+               <p>
+               <b>Speed Limits</b>
+               <br>
+               The speed limits chosen here for the different types of highway apply if the
+               highway has no other speed limit marked or it is higher than the chosen one.
+               <p>
+               <b>Other Restrictions</b>
+               <br>
+               These allow a route to be found that avoids marked limits on weight, height, width or length.
+               It is also possible to ignore one-way restrictions (e.g. if walking).
+            </div>
          </div>
       </div>
    </form>
@@ -207,7 +238,7 @@
 
    <div class="route" id="tab_results_div" style="display: none;">
       <div class="hideshow_box">
-         <u><b>Status</b></u>
+         <span class="subtitle">Status</span>
          <div id="result_status">
            <i>Router not run</i>
          </div>
@@ -216,7 +247,7 @@
       <div class="hideshow_box">
          <span id="hideshow_shortest_show" onclick="hideshow_show('shortest');" class="hideshow_show">Show</span>
          <span id="hideshow_shortest_hide" onclick="hideshow_hide('shortest');" class="hideshow_hide">Hide</span>
-         <u><b>Shortest Route</b></u>
+         <span class="subtitle">Shortest Route</span>
          <br>
          <b><span id="shortest_status"><i>No Information</i></span></b>
          <br>
@@ -231,7 +262,7 @@
       <div class="hideshow_box">
          <span id="hideshow_quickest_show" onclick="hideshow_show('quickest');" class="hideshow_show">Show</span>
          <span id="hideshow_quickest_hide" onclick="hideshow_hide('quickest');" class="hideshow_hide">Hide</span>
-         <u><b>Quickest Route</b></u>
+         <span class="subtitle">Quickest Route</span>
          <br>
          <b><span id="quickest_status"><i>No Information</i></span></b>
          <br>
@@ -244,25 +275,47 @@
       </div>
 
       <div class="hideshow_box">
-         <span id="hideshow_help2_show" onclick="hideshow_show('help2');" class="hideshow_hide">Show</span>
-         <span id="hideshow_help2_hide" onclick="hideshow_hide('help2');" class="hideshow_show">Hide</span>
-         <u><b>Help</b></u>
+         <span id="hideshow_help_route_show" onclick="hideshow_show('help_route');" class="hideshow_hide">Show</span>
+         <span id="hideshow_help_route_hide" onclick="hideshow_hide('help_route');" class="hideshow_show">Hide</span>
+         <span class="subtitle">Help</span>
          <br>
-         <div id="hideshow_help2_div">
-            After calculating a route you can download the GPX file or plain
-            text route description (summary or detailed version). Also you can
-            view the route description and zoom in to selected parts.
-            <p>
-            Error Messages:
-            <ul>
-              <li>"Cannot find node close to specified point." - There is no
-                  highway near to one of the markers.
-              <li>"Cannot find route compatible with profile." - There is no
-                   route between one of the pairs of markers that is possible
-                   with the selected highway types and other restrictions.
-            </ul>
-            In all cases moving one or more markers or changing the routing
-            options should find a route.
+         <div id="hideshow_help_route_div">
+            <div class="scrollable">
+               <p>
+               <b>Quick Start</b>
+               <br>
+               After calculating a route you can download the GPX file or plain
+               text route description (summary or detailed version). Also you can
+               view the route description and zoom in to selected parts.
+               <p>
+               <b>Error Messages</b>
+               <br>
+               <dl>
+                 <dt>Cannot find node close to specified point.
+                 <dd>There is no highway near to one of the markers.
+                 <dt>Cannot find route compatible with profile.
+                 <dd>There is no route between one of the pairs of markers that is possible
+                 with the selected highway types and other restrictions.
+               </dl>
+               In all cases moving one or more markers or changing the routing
+               options should find a route.
+               <p>
+               <b>Output Formats</b>
+               <br>
+               <dl>
+                 <dt>GPX track file
+                 <dd>The same information that is displayed on the map with points for every
+                 node and lines for every segment.
+                 <dt>GPX route file
+                 <dd>The same information that is displayed in text for the route with a
+                 waypoint for each important junction in the route.
+                 <dt>Full text file
+                 <dd>A list of all of the nodes visited as well as the distance between them
+                 and the cumulative distance for each step of the route.
+                 <dt>Text file
+                 <dd>The same information that is displayed in text for the route.
+               </dl>
+            </div>
          </div>
       </div>
    </div>
@@ -270,14 +323,14 @@
 
    <div class="data" id="tab_data_div" style="display: none;">
       <div class="hideshow_box">
-         <u><b>Statistics</b></u>
+         <span class="subtitle">Statistics</span>
          <br>
          <div id="statistics_data"></div>
          <a id="statistics_link" href="statistics.cgi" onclick="displayStatistics();return(false);">Display data statistics</a>
       </div>
 
       <div class="hideshow_box">
-         <u><b>Visualiser</b></u>
+         <span class="subtitle">Visualiser</span>
          <br>
          To see Routino's view of the data there is a data visualiser that allows
          displaying of the underlying data in various ways.

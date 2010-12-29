@@ -300,6 +300,8 @@ DIV.content TABLE
  border:  2px solid;
 
  margin:  0;
+ margin-left: auto;
+ margin-right: auto;
 
  border-collapse: collapse;
 }
@@ -308,19 +310,10 @@ DIV.content TABLE.noborder
 {
  /* margins, borders, padding and sizes */
 
- border:  0;
-}
-
-DIV.content TABLE.center
-{
- /* margins, borders, padding and sizes */
-
  margin-left: auto;
  margin-right: auto;
-}
 
-DIV.content TABLE.left
-{
+ border:  0;
 }
 
 DIV.content CAPTION
@@ -352,21 +345,21 @@ DIV.content TABLE.noborder TD, DIV.content TABLE.noborder TH
  border:  0;
 }
 
-DIV.content TD.left, DIV.content TH.left
+DIV.content TD.left, DIV.content TH.left, DIV.content TR.left
 {
  /* text alignment */
 
  text-align: left;
 }
 
-DIV.content TD.center, DIV.content TH.center
+DIV.content TD.center, DIV.content TH.center, DIV.content TR.center
 {
  /* text alignment */
 
  text-align: center;
 }
 
-DIV.content TD.right, DIV.content TD.right
+DIV.content TD.right, DIV.content TH.right, DIV.content TR.right
 {
  /* text alignment */
 

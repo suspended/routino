@@ -1,3 +1,360 @@
+2009-10-20  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/Makefile: Add sorting.o to the Makefile.
+
+2009-10-12  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/waysx.c: When sorting we cannot have NULL pointers now.
+
+	* src/nodesx.c, src/segmentsx.c, src/waysx.c:
+	Re-order the functions in the file into a more logical order.
+	No functional changes.
+
+	* src/nodesx.c, src/planetsplitter.c, src/segmentsx.c, src/sorting.c, src/waysx.c:
+	Rename the tmpdirname variable.
+
+2009-10-10  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/osmparser.c, src/segmentsx.c, src/sorting.c, src/waysx.c:
+	Corrections after running with valgrind.
+
+	* src/planetsplitter.c: Fix early termination test.
+
+	* src/nodesx.c, src/nodesx.h, src/segmentsx.c:
+	Remove the nodesx->gdata index.
+
+2009-10-09  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/segmentsx.c, src/typesx.h, src/waysx.c, src/waysx.h:
+	Free the nodesx->super array and the segmentsx->firstnode array when finished
+	with them.  Remove wayx->cid and overwrite wayx->id instead.  Overwrite
+	nodex[i]->id=i for later geographically sorted use.
+
+2009-10-08  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/planetsplitter.c, src/segmentsx.c, src/segmentsx.h, src/superx.c:
+	Replace node, segment and way indexes with a single index for a set of segments
+	containing the location of the first segment for each node.
+
+	* src/nodesx.h: Fix comment.
+
+2009-10-07  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c, src/segmentsx.c, src/superx.c:
+	AppendSegment adds a single segment and not a pair.
+
+	* src/waysx.c: Use heapsort() instead of qsort().
+
+	* src/nodesx.c, src/nodesx.h, src/planetsplitter.c, src/segmentsx.c, src/segmentsx.h,
+	src/superx.c, src/waysx.c:
+	Go back to the version 1.1 method of having each segment listed twice.  This
+	simplifies the lookup of first/next segments at no in-RAM index cost and now
+	that slim mode has sorting of file contents the balance has tipped back.
+
+2009-10-04  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/sorting.c:
+	Change the sort function to allow the indexing callback to veto the write.
+
+	* src/nodesx.c: Remove the duplicates when sorting.
+
+	* src/waysx.c:
+	Sort the ways using the same method as the nodes.  Also remove the duplicates.
+
+	* src/nodesx.c:
+	Use the new sort functions to allow sorting the data in the file without needing
+	to read (or mmap) the whole file into RAM at the same time.
+
+	* src/functions.h: Add some functions to perform sorting.
+
+	* src/sorting.c: New file.
+
+	* src/queue.c: Fix bug with binary heap sort.
+
+2009-09-25  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/queue.c: Add comments describing the algorithm used.
+
+2009-09-23  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/waysx.c:
+	Simplify the de-duplication when sorting and update some comments.
+
+2009-09-22  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/nodesx.h:
+	Remove a leftover from the last change on these files.
+
+	* src/segmentsx.c: Improve the super-segment de-duplication.
+
+2009-09-21  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/nodesx.h, src/planetsplitter.c:
+	Remove the non-highway nodes without re-sorting the whole list again.
+
+2009-09-17  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c, src/planetsplitter.c, src/segmentsx.c, src/superx.c, src/waysx.c,
+	src/waysx.h:
+	Added the slim mode to Ways as well.
+
+	* src/ways.h: Add padding to Ways structure to allow it to be zeroed.
+
+	* src/nodesx.c: Add some comments when closing and re-opening files.
+
+	* src/files.c, src/functions.h:
+	The WriteFile function now has a const parameter.
+
+2009-09-15  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/nodesx.h, src/planetsplitter.c, src/segmentsx.c:
+	Some bug fixes and some missing unmap function calls.
+
+2009-09-07  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/segmentsx.h, src/superx.c, src/nodesx.c, src/nodesx.h, src/segmentsx.c:
+	Fixed slim mode for segments and nodes (slim now means mapping only one file
+	into RAM at a time and none when creating the final output).
+
+2009-09-06  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.h, src/planetsplitter.c, src/segmentsx.c, src/segmentsx.h, src/superx.c,
+	src/superx.h, src/nodesx.c:
+	Slim version of segments code (still very slow and only works on simple cases).
+
+	* src/files.c, src/functions.h:
+	Remove the delete option from UnmapFile() and make it return NULL.
+
+	* src/filedumper.c: Allow dumping all nodes, segments or ways.
+
+2009-09-05  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c: Don't re-sort unnecessarily.
+
+	* src/nodesx.c, src/nodesx.h, src/planetsplitter.c, src/segmentsx.c, src/superx.c:
+	Improve slim mode for nodes so that no data is not loaded into RAM at all.
+
+	* src/files.c, src/functions.h: Add some more file functions.
+
+2009-09-03  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/files.c, src/functions.h:
+	Remove extra argument from MapFile function.
+
+	* src/nodesx.c, src/nodesx.h, src/planetsplitter.c, src/segmentsx.c, src/superx.c:
+	Added slim mode (--slim) to planetsplitter for nodes only.
+
+	* src/files.c, src/functions.h:
+	Changes to mapping and unmapping files for slim mode.
+
+2009-08-25  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/planetsplitter.c: Revert the order that the functions are called.
+
+	* src/nodesx.c: Fix for assert statement.
+
+	* src/files.c: Bug fix for mmap().
+
+2009-08-20  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c: Fix bug with memory allocation.
+
+2009-08-19  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/nodesx.h, src/planetsplitter.c, src/segmentsx.c, src/segmentsx.h,
+	src/superx.c, src/waysx.c, src/waysx.h:
+	Remove "sorted" parameter in data structure and change assert statements.
+
+2009-08-17  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c:
+	Increase to 99 the number of waypoints that can be specified.
+
+2009-08-15  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/queue.c: Fix comment.
+
+	* src/Makefile:
+	Tidy the compilation options to make it easier to turn them on and off.
+
+	* src/router.c:
+	Remove the --all, --super and --no-output command line options.
+	Handle the renamed routing functions.
+
+	* src/functions.h, src/optimiser.c:
+	Rename the routing functions and make FindRoute only find routes with no
+	super-nodes in them.
+
+	* src/queue.c:
+	When popping from queue make sure that place in queue is cleared.
+
+	* src/optimiser.c, src/queue.c, src/results.c, src/results.h, src/superx.c:
+	Optimise the priority queue used for routing.
+
+	* src/filedumper.c: Fix dumping nodes when they are super-nodes.
+
+2009-07-23  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/Makefile, src/optimiser.c, src/results.c, src/results.h, src/superx.c:
+	Split off queue functions into a separate file.
+
+	* src/queue.c: New file.
+
+2009-07-19  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/segments.h, src/segmentsx.c, src/ways.h, src/waysx.c, src/filedumper.c,
+	src/nodes.h:
+	Include the number of super-nodes, super-segments etc in the database as useful
+	information to put in the statistics output.
+
+	* src/superx.c: Fix incorrect progress indicator message.
+
+	* src/waysx.c: Fix problem with memory reallocation.
+
+	* src/nodesx.c, src/osmparser.c, src/planetsplitter.c, src/segmentsx.c, src/segmentsx.h,
+	src/superx.c:
+	Store only one copy of each segment but index once for each direction.
+
+2009-07-12  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functionsx.h, src/nodesx.c, src/nodesx.h, src/osmparser.c, src/output.c,
+	src/planetsplitter.c, src/profiles.c, src/results.c, src/segments.c, src/segmentsx.c,
+	src/segmentsx.h, src/superx.c, src/superx.h, src/ways.h, src/waysx.c, src/waysx.h:
+	Tidy up and fix comments and include files.
+
+	* src/osmparser.c, src/planetsplitter.c, src/router.c, src/segmentsx.c, src/superx.c,
+	src/waysx.c, src/filedumper.c, src/nodesx.c, src/optimiser.c:
+	Check all print statements and made them more consistent and/or accurate.
+
+2009-07-11  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/nodesx.h, src/planetsplitter.c, src/segmentsx.c, src/waysx.c,
+	src/waysx.h:
+	Free memory at the end of planetsplitter (to aid finding potential leaks
+	earlier).
+
+2009-07-09  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/segmentsx.c: Free memory correctly (really).
+
+	* src/planetsplitter.c, src/waysx.c, src/waysx.h:
+	Separate the sorting of Ways from compacting of Ways.
+
+	* src/nodes.h, src/nodesx.c, src/nodesx.h, src/segmentsx.c, src/visualiser.c,
+	src/filedumper.c, src/nodes.c:
+	Rename structure members after recent changes.
+
+	* src/segmentsx.c: Free memory correctly.
+
+	* src/types.h, src/segmentsx.c: Fix duplicate checking.
+
+	* src/planetsplitter.c: Ensure that variable is reset before using it.
+
+	* src/types.h, src/visualiser.c, src/visualiser.h, src/filedumper.c, src/nodes.c,
+	src/nodes.h, src/nodesx.c, src/nodesx.h, src/optimiser.c, src/osmparser.c, src/output.c,
+	src/router.c, src/segments.c, src/segments.h, src/segmentsx.c:
+	Change from float to double for latitude and longitude.
+	Store latitude and longitude as an integer type rather than float (higher precision).
+
+2009-07-08  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/superx.c: Ensure that variable is reset before using it.
+
+2009-07-06  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/visualiser.c:
+	Print all super-segments within and crossing the border.
+	Don't display speed limits for tracks and paths unless set.
+
+2009-07-04  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/segmentsx.h, src/superx.c, src/waysx.c, src/waysx.h:
+	Change data structure to avoid calling realloc() each time to allocate more
+	memory.
+
+2009-07-02  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/types.h, src/waysx.c, src/waysx.h:
+	Handle duplicate ways.
+
+	* src/nodes.c, src/nodesx.c, src/planetsplitter.c, src/profiles.c, src/results.c,
+	src/segments.c, src/segmentsx.c, src/superx.c, src/superx.h, src/types.h, src/ways.c,
+	src/waysx.c:
+	Fix some gcc pedantic warnings.
+
+	* src/files.c, src/nodesx.c, src/osmparser.c, src/results.c, src/router.c, src/segments.c,
+	src/segmentsx.c, src/superx.c, src/ways.c, src/waysx.c:
+	Removed unused header files, change assert statements, tidy some code.
+
+2009-07-01  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/nodesx.h, src/planetsplitter.c, src/segmentsx.c, src/segmentsx.h, src/superx.c:
+	Remove the Node structure from the NodeX structure to save memory.
+
+	* src/filedumper.c:
+	Print latitude and longitude in degrees.
+
+2009-06-30  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/segmentsx.h:
+	Re-order the data in the structure.
+
+	* src/nodesx.c, src/nodesx.h, src/osmparser.c, src/planetsplitter.c, src/segmentsx.c,
+	src/segmentsx.h, src/superx.c, src/waysx.h:
+	Remove the Segment structure from the SegmentX structure to save memory.
+
+2009-06-29  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/filedumper.c, src/nodes.h, src/nodesx.c, src/segments.c, src/segments.h,
+	src/segmentsx.c, src/superx.c, src/types.h:
+	Move the super-segment and normal-segment flags from the nodes to the distance.
+	Remove the NODE() macro and rename SUPER_FLAG to NODE_SUPER.
+
+	* src/waysx.c: Replace memmove with structure copy.
+
+	* src/nodesx.c, src/segmentsx.c, src/segmentsx.h, src/superx.c:
+	Rename SegmentsX sdata to ndata.
+
+2009-06-25  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/waysx.c, src/waysx.h: Rename part of the structure.
+
+	* src/nodesx.c, src/nodesx.h, src/planetsplitter.c, src/segmentsx.c, src/segmentsx.h,
+	src/superx.c, src/waysx.h:
+	Undo part of the previous change - only update the Segment way index at the end.
+
+	* src/waysx.h, src/nodesx.c, src/osmparser.c, src/planetsplitter.c, src/segmentsx.c,
+	src/segmentsx.h, src/superx.c, src/superx.h, src/typesx.h, src/waysx.c:
+	Reduce the number of ways in the output by compacting them (sharing the same
+	information between identical ways).
+
+2009-06-24  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/filedumper.c, src/nodes.h:
+	Allow dumping out of nodes, segments and ways.
+
+2009-06-15  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/segmentsx.c, src/superx.c, src/visualiser.c, src/ways.c, src/ways.h:
+	Rename WaysSame() with WaysCompare() and reverse the sense of the output.
+
+	* src/functionsx.h, src/typesx.h: New file.
+
+	* src/functions.h, src/nodesx.h, src/osmparser.c, src/planetsplitter.c, src/segmentsx.h,
+	src/superx.h, src/types.h, src/waysx.h:
+	Put some of types.h into typesx.h (for extended data types).
+	Put some of functions.h into functionsx.h (for OSM parser).
+	Change included files to match.
+
+	* src/filedumper.c, src/osmparser.c, src/output.c, src/router.c, src/types.h, src/visualiser.c:
+	Add a macro for converting degrees to radians and radians to degrees.
+
+	* src/optimiser.c:
+	Fix weight, height, width, length restriction routing.
+
+	* doc/TAGGING.txt, src/osmparser.c:
+	Recognise tags "vehicle" and "motor_vehicle".
+
 2009-06-13  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
 
 	Version 1.1 released
