@@ -1,19 +1,25 @@
 #!/bin/sh -x
 
+version=2.9.1
+
 # Download the file.
 
-wget http://openlayers.org/download/OpenLayers-2.8.tar.gz
+wget http://openlayers.org/download/OpenLayers-$version.tar.gz
 
 # Uncompress it.
 
-tar -xzf OpenLayers-2.8.tar.gz
+tar -xzf OpenLayers-$version.tar.gz
+
+# Create a custom OpenLayers file
+
+(cd OpenLayers-$version/build && python build.py ../../routino.cfg && cp OpenLayers.js ..)
 
 # Copy the files.
 
-cp -p  OpenLayers-2.8/OpenLayers.js .
-cp -pr OpenLayers-2.8/img .
-cp -pr OpenLayers-2.8/theme .
+cp -p  OpenLayers-$version/OpenLayers.js .
+cp -pr OpenLayers-$version/img .
+cp -pr OpenLayers-$version/theme .
 
 # Delete the remainder
 
-rm -rf OpenLayers-2.8
+rm -rf OpenLayers-$version

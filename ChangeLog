@@ -1,3 +1,91 @@
+2010-07-10  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	Version 1.4.1 released
+
+2010-07-10  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/NEWS.txt: Update NEWS for release.
+
+	* doc/ALGORITHM.txt:
+	Update documentation for slight modification to algorithm, also add more
+	information about how preferences etc are handled.
+
+2010-07-09  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/Makefile:
+	Default compilation flags include optimisation and not debugging symbols.
+
+2010-07-08  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodes.c:
+	Fix error with finding closest segment to the specified point.
+
+	* src/optimiser.c:
+	Bug fix for not crashing when finding the middle part of the route.
+
+2010-07-07  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/results.c, src/optimiser.c:
+	Changed the amount of memory allocated for intermediate results => routes much
+	faster.
+
+	* src/output.c: Remove compilation warning.
+
+	* src/Makefile:
+	Copy files to web directory like done in other Makefiles.
+
+	* doc/Makefile:
+	Change location of HTML files in web directory and clean up web directory on distclean.
+
+	* src/xml/Makefile: Stop message being printed when make runs.
+
+	* xml/Makefile:
+	Fix error from last checkin and clean up web directory on distclean.
+
+2010-07-06  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c:
+	Don't crash if the middle part of the route can't be found but exit cleanly.
+
+2010-07-05  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/superx.c: Change the algorithm used to determine supernodes.
+
+2010-07-03  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* xml/routino-translations.xml:
+	Added German translation [patch from Christoph Eckert].
+
+	* src/translations.c:
+	Don't crash if more than one language is in translations.xml but --language
+	option is not used.
+
+2010-06-28  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/router.c: Don't crash if start and finish are the same point.
+
+2010-06-27  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/DATA.txt: New file.
+
+	* doc/ALGORITHM.txt, doc/CONFIGURATION.txt, doc/INSTALL.txt, doc/OUTPUT.txt, doc/README.txt,
+	doc/TAGGING.txt, doc/USAGE.txt:
+	Updated documentation to match new web site.
+
+	* doc/Makefile: New file.
+
+	* xml/Makefile: Add some new variables.
+
+2010-06-26  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* xml/routino-profiles.xml, xml/routino-tagging-nomodify.xml, xml/routino-tagging.xml,
+	xml/routino-translations.xml, src/translations.c:
+	Changed URLs to http://www.routino.org/
+
+	* doc/README.txt: *** empty log message ***
+
+	* doc/OUTPUT.txt: Changed URLs to http://www.routino.org/
+
 2010-05-31  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
 
 	Version 1.4 released
