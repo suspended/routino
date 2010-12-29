@@ -1,3 +1,166 @@
+2009-06-13  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	Version 1.1 released
+
+2009-06-13  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c, src/planetsplitter.c, src/segmentsx.c, src/segmentsx.h:
+	Handle nodes that are missing from the .osm file (ignore the segment).
+
+	* src/nodesx.c:
+	Revert the last change (Print an error message and exit if a node cannot be found).
+
+	* doc/NEWS.txt: New file.
+
+	* src/Makefile:
+	Delete the executables from the web directory for 'distclean'.
+
+2009-06-12  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/USAGE.txt, doc/INSTALL.txt, doc/README.txt:
+	Update the documentation.
+
+	* src/Makefile: Copy the executables into the web directory.
+
+2009-06-08  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/filedumper.c: Change help text.
+
+	* src/visualiser.c:
+	Change format of super-node/segment visualiser output.
+
+2009-06-07  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/TAGGING.txt: Updated with imperial to metric conversions.
+
+	* src/Makefile: Added visualiser.c.
+
+	* src/filedumper.c: Now used for data visualisation and statistics.
+
+	* src/visualiser.h, src/visualiser.c: New file.
+
+2009-06-05  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c:
+	Improve parsing of imperial units (mph, feet & inches).
+
+2009-06-03  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/nodesx.c:
+	Print an error message and exit if a node cannot be found.
+
+2009-05-31  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/ways.c, src/ways.h, src/waysx.c, src/waysx.h:
+	Move function from waysx.c to ways.c.
+
+2009-05-29  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/USAGE.txt:
+	Update usage information with new options and copyright.txt usage.
+
+	* src/nodes.c, src/nodes.h, src/router.c:
+	Make sure that the chosen "nearest point" is a highway that the profile allows.
+
+2009-05-23  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/profiles.c:
+	Change the default profile; horses are slower, bicycles may be allowed on
+	footways (and similar).
+
+2009-05-15  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/files.c, src/output.c:
+	Error checking on opening files (to read/write data and to write output).
+
+2009-05-14  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c, src/results.c, src/router.c, src/segments.c, src/segmentsx.c, src/superx.c,
+	src/types.h, src/nodes.c, src/nodesx.c, src/optimiser.c:
+	Replace ~0 or 0 with NO_NODE value for "no node" condition.
+
+2009-05-13  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c:
+	Remove one more NODE macro and fix an output formatting error.
+
+	* src/nodes.c, src/nodes.h, src/optimiser.c, src/output.c, src/router.c:
+	Remove some node macros, change some node function arguments.
+
+	* src/optimiser.c, src/profiles.c, src/profiles.h:
+	Move some common code into the profile.
+
+	* src/superx.c: Remove distance and duration from Result structure.
+
+	* src/output.c: Better junction detection.
+
+	* src/optimiser.c, src/results.c, src/results.h:
+	Remove distance and duration from Result structure.
+
+2009-05-09  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/output.c:
+	Add better junction detection for deciding on route waypoints.
+
+2009-05-06  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c, src/profiles.c, src/profiles.h, src/types.h:
+	Route using preferences for each highway.
+
+	* src/router.c: Print out longitude then latitude.
+
+2009-04-30  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/results.h, src/router.c, src/superx.c, src/types.h, src/optimiser.c, src/osmparser.c,
+	src/planetsplitter.c, src/profiles.c, src/profiles.h, src/results.c:
+	First attempt at preferences for highways - uses integer arithmetic and doesn't
+	work well.
+
+2009-04-27  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/optimiser.c, src/output.c, src/results.c, src/results.h, src/router.c:
+	Allow generating a route with intermediate waypoints.
+
+2009-04-24  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/functions.h, src/output.c, src/router.c:
+	Split the output functions into separate head/body/tail.
+	Read in an optional copyright.txt file and include contents in output.
+
+2009-04-23  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/profiles.c: Improve Javascript and perl print out.
+
+	* src/filedumper.c, src/files.c, src/functions.h, src/planetsplitter.c, src/router.c:
+	Move the filename generation to a new function.
+
+2009-04-22  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/Makefile, src/functions.h, src/optimiser.c:
+	Split the function to print the output into a new file.
+
+	* src/output.c: New file.
+
+2009-04-15  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/osmparser.c:
+	Fix for parsing nodes from XML (no effect on results).
+
+2009-04-12  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* doc/USAGE.txt, src/optimiser.c:
+	Create a GPX route as well as a track.
+
+	* src/ways.c: Changed the license to Affero GPLv3.
+
+2009-04-10  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
+
+	* src/optimiser.c:
+	Add a waypoint to the GPX file for the start and finish points.
+
+	* doc/USAGE.txt:
+	Include more information about the output file formats.
+
 2009-04-08  Andrew M. Bishop  <amb@gedanken.demon.co.uk>
 
 	Version 1.0 released
