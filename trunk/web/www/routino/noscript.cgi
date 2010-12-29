@@ -48,7 +48,7 @@ $query=new CGI;
               "length"          => "[0-9.]+",
               "length"          => "[0-9.]+",
 
-              "language"        => "[-a-zA-Z]+"
+              "language"        => "[-a-zA-Z]+",
               "submit"          => "(shortest|quickest|link)",
               "format"          => "(html|gpx-route|gpx-track|text|text-all|form)"
              );

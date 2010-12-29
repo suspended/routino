@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008,2009 Andrew M. Bishop
+# This file Copyright 2008-2010 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -107,4 +107,4 @@ $params.=" --prefix=$data_prefix" if($data_prefix);
 $params.=" --visualiser --data=$data";
 $params.=" --latmin=$latmin --latmax=$latmax --lonmin=$lonmin --lonmax=$lonmax";
 
-system "$bin_dir/filedumper $params 2>&1";
+system "$bin_dir/$filedumper_exe $params 2>&1";
