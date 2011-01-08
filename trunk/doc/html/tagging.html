@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -282,7 +282,14 @@ The <em>bicycleroute</em> tag is used to identify whether a relation defines a
 bicycle route and therefore should be applied to the individual member highways.
 
 
-FIXME - turn relations
+<h4><a name="H_1_2_3_3" title="type, restriction, except"></a>The type, restriction & except Tags</h4>
+
+For turn relations the information about the allowed or disallowed turns are
+stored in the <em>type</em>, <em>restriction</em> and <em>except</em> tags.  For
+a turn restriction the <em>type</em> must be equal to "restriction",
+the <em>restriction</em> must define the type of turn relation
+and <em>except</em> defines transport types which are exempt from the
+restriction.
 
 
 <h2><a name="H_1_3" title="Tag Transformations"></a>Tag Transformations</h2>
@@ -828,8 +835,9 @@ table below.
 
 <h4><a name="H_1_3_3_2" title="Turn Restrictions"></a>Turn Restrictions</h4>
 
-
-FIXME - turn relations
+No tag transformations are defined for turn restriction relations but
+the <em>type</em>, <em>restriction</em> and <em>except</em> tags are passed
+through without change.
 
 
 </div>
