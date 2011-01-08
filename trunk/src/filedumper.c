@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/filedumper.c,v 1.61 2010-12-21 18:26:28 amb Exp $
-
  Memory file dumper.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -433,7 +431,7 @@ static void print_node(Nodes* nodes,index_t item)
  printf("  firstseg=%d\n",node->firstseg);
  printf("  latoffset=%d lonoffset=%d (latitude=%.6f longitude=%.6f)\n",node->latoffset,node->lonoffset,radians_to_degrees(latitude),radians_to_degrees(longitude));
  printf("  allow=%02x (%s)\n",node->allow,AllowedNameList(node->allow));
- if(IsSuperNode(nodes,item))
+ if(IsSuperNode(node))
     printf("  Super-Node\n");
 }
 
