@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/optimiser.c,v 1.97 2010-12-18 15:19:33 amb Exp $
-
  Routing optimiser.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -66,13 +64,9 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 {
  Results *results;
  Queue   *queue;
- index_t node1,node2;
  score_t finish_score;
  double  finish_lat,finish_lon;
  Result  *result1,*result2;
- Node    *node;
- Segment *segment;
- Way     *way;
 
  /* Set up the finish conditions */
 
@@ -102,6 +96,9 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  while((result1=PopFromQueue(queue)))
    {
+    Segment *segment;
+    index_t node1;
+
     if(result1->score>finish_score)
        continue;
 
@@ -114,6 +111,8 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
     while(segment)
       {
+       Way *way;
+       index_t node2;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
@@ -163,7 +162,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        if(!IsFakeNode(node2))
          {
-          node=LookupNode(nodes,node2,1);
+          Node *node=LookupNode(nodes,node2,1);
 
           if(!(node->allow&profile->allow))
              goto endloop;
@@ -281,14 +280,10 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 {
  Results *results;
  Queue   *queue;
- index_t node1,node2;
  index_t end_prev;
  score_t finish_score;
  double  finish_lat,finish_lon;
  Result  *result1,*result2,*result3;
- Node    *node;
- Segment *segment;
- Way     *way;
 
  if(!option_quiet)
     printf_first("Routing: Super-Nodes checked = 0");
@@ -346,6 +341,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  while((result1=PopFromQueue(queue)))
    {
+    index_t node1;
+    Segment *segment;
+
     if(result1->score>finish_score)
        continue;
 
@@ -355,6 +353,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
     while(segment)
       {
+       index_t node2;
+       Node *node;
+       Way *way;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
@@ -542,11 +543,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 {
  Results *results;
  Queue   *queue;
- index_t node1,node2;
  Result  *result1,*result2;
- Node    *node;
- Segment *segment;
- Way     *way;
 
  /* Create the results and insert the start node */
 
@@ -573,6 +570,9 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  while((result1=PopFromQueue(queue)))
    {
+    index_t node1;
+    Segment *segment;
+
     node1=result1->node;
 
     if(IsFakeNode(node1))
@@ -582,6 +582,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
     while(segment)
       {
+       index_t node2;
+       Way *way;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
@@ -628,7 +630,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        if(!IsFakeNode(node2))
          {
-          node=LookupNode(nodes,node2,1);
+          Node *node=LookupNode(nodes,node2,1);
 
           if(!(node->allow&profile->allow))
              goto endloop;
@@ -721,11 +723,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 {
  Results *results;
  Queue   *queue;
- index_t node1,node2;
  Result  *result1,*result2;
- Node    *node;
- Segment *segment;
- Way     *way;
 
  /* Create the results and insert the finish node */
 
@@ -752,6 +750,9 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
  while((result1=PopFromQueue(queue)))
    {
+    index_t node1;
+    Segment *segment;
+
     node1=result1->node;
 
     if(IsFakeNode(node1))
@@ -761,6 +762,8 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
     while(segment)
       {
+       index_t node2;
+       Way *way;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
@@ -807,7 +810,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
        if(!IsFakeNode(node2))
          {
-          node=LookupNode(nodes,node2,1);
+          Node *node=LookupNode(nodes,node2,1);
 
           if(!(node->allow&profile->allow))
              goto endloop;
@@ -898,7 +901,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
 Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile)
 {
- Result *result1,*result2,*result3,*result4;
+ Result *result1,*result3;
  Results *combined;
 
  combined=NewResultsList(64);
@@ -916,6 +919,8 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 
  do
    {
+    Result *result2,*result4;
+
     if(result1->next!=NO_NODE)
       {
        Results *results2=FindNormalRoute(nodes,segments,ways,relations,result1->node,result1->next,profile);
@@ -966,12 +971,13 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 void FixForwardRoute(Results *results,index_t finish)
 {
  Result *result2=FindResult(results,finish);
- Result *result1;
 
  /* Create the forward links for the optimum path */
 
  do
    {
+    Result *result1;
+
     if(result2->prev!=NO_NODE)
       {
        index_t node1=result2->prev;
