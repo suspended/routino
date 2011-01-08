@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.h,v 1.39 2010-12-21 17:18:41 amb Exp $
-
  A header file for the nodes.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -82,8 +80,8 @@ struct _Nodes
  int       fd;                  /*+ The file descriptor for the file. +*/
  off_t     nodesoffset;         /*+ The offset of the nodes within the file. +*/
 
- Node      cached[3];           /*+ The cached nodes. +*/
- index_t   incache[3];          /*+ The indexes of the cached nodes. +*/
+ Node      cached[2];           /*+ The cached nodes. +*/
+ index_t   incache[2];          /*+ The indexes of the cached nodes. +*/
 
 #endif
 };
@@ -105,6 +103,10 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 
 /* Macros and inline functions */
 
+/*+ Return true if this is a super-node. +*/
+#define IsSuperNode(xxx)            (((xxx)->flags)&NODE_SUPER)
+
+
 #if !SLIM
 
 /*+ Return a Node pointer given a set of nodes and an index. +*/
@@ -112,9 +114,6 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 
 /*+ Return a Segment points given a Node pointer and a set of segments. +*/
 #define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),(yyy)->nodes[zzz].firstseg,1)
-
-/*+ Return true if this is a super-node. +*/
-#define IsSuperNode(xxx,yyy)        (((xxx)->nodes[yyy].flags)&NODE_SUPER)
 
 /*+ Return the offset of a geographical region given a set of nodes and an index. +*/
 #define LookupNodeOffset(xxx,yyy)   ((xxx)->offsets[yyy])
@@ -126,8 +125,6 @@ static Node *LookupNode(Nodes *nodes,index_t index,int position);
 #define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),FirstSegment_internal(yyy,zzz),1)
 
 static index_t FirstSegment_internal(Nodes *nodes,index_t index);
-
-static int IsSuperNode(Nodes *nodes,index_t index);
 
 static index_t LookupNodeOffset(Nodes *nodes,index_t index);
 
@@ -175,40 +172,11 @@ static inline index_t FirstSegment_internal(Nodes *nodes,index_t index)
     return(nodes->cached[0].firstseg);
  else if(nodes->incache[1]==index)
     return(nodes->cached[1].firstseg);
- else if(nodes->incache[2]==index)
-    return(nodes->cached[2].firstseg);
  else
    {
     Node *node=LookupNode(nodes,index,3);
 
     return(node->firstseg);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Decide if a node is a super-node.
-
-  int IsSuperNode Return true if it is a supernode.
-
-  Nodes *nodes The nodes structure to use.
-
-  index_t index The index of the node.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static inline int IsSuperNode(Nodes *nodes,index_t index)
-{
- if(nodes->incache[0]==index)
-    return(nodes->cached[0].flags&NODE_SUPER);
- else if(nodes->incache[1]==index)
-    return(nodes->cached[1].flags&NODE_SUPER);
- else if(nodes->incache[2]==index)
-    return(nodes->cached[2].flags&NODE_SUPER);
- else
-   {
-    Node *node=LookupNode(nodes,index,3);
-
-    return(node->flags&NODE_SUPER);
    }
 }
 

@@ -127,7 +127,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(result1->prev==node2)
           goto endloop;
 
-       if(node2!=finish && !IsFakeNode(node2) && IsSuperNode(nodes,node2))
+       if(node2!=finish && !IsFakeNode(node2) && IsSuperNode(LookupNode(nodes,node2,2)))
           goto endloop;
 
        way=LookupWay(ways,segment->way,1);
@@ -162,7 +162,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        if(!IsFakeNode(node2))
          {
-          Node *node=LookupNode(nodes,node2,1);
+          Node *node=LookupNode(nodes,node2,2);
 
           if(!(node->allow&profile->allow))
              goto endloop;
@@ -318,7 +318,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  while(result3)
    {
-    if(result3->node!=begin->start && !IsFakeNode(result3->node) && IsSuperNode(nodes,result3->node))
+    if(result3->node!=begin->start && !IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,1)))
       {
        result2=InsertResult(results,result3->node);
 
@@ -400,7 +400,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(segment_pref==0)
           goto endloop;
 
-       node=LookupNode(nodes,node2,1);
+       node=LookupNode(nodes,node2,2);
 
        if(!(node->allow&profile->allow))
           goto endloop;
@@ -557,7 +557,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Take a shortcut if the first node is a super-node. */
 
- if(!IsFakeNode(start) && IsSuperNode(nodes,start))
+ if(!IsFakeNode(start) && IsSuperNode(LookupNode(nodes,start,1)))
     return(results);
 
  /* Insert the first node into the queue */
@@ -630,7 +630,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        if(!IsFakeNode(node2))
          {
-          Node *node=LookupNode(nodes,node2,1);
+          Node *node=LookupNode(nodes,node2,2);
 
           if(!(node->allow&profile->allow))
              goto endloop;
@@ -656,7 +656,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           else
              result2->segment=IndexSegment(segments,segment);
 
-          if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
+          if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
@@ -671,7 +671,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           else
              result2->segment=IndexSegment(segments,segment);
 
-          if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
+          if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
@@ -737,7 +737,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
  /* Take a shortcut if the first node is a super-node. */
 
- if(!IsFakeNode(finish) && IsSuperNode(nodes,finish))
+ if(!IsFakeNode(finish) && IsSuperNode(LookupNode(nodes,finish,1)))
     return(results);
 
  /* Insert the first node into the queue */
@@ -810,7 +810,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
        if(!IsFakeNode(node2))
          {
-          Node *node=LookupNode(nodes,node2,1);
+          Node *node=LookupNode(nodes,node2,2);
 
           if(!(node->allow&profile->allow))
              goto endloop;
@@ -836,7 +836,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           else
              result2->segment=IndexSegment(segments,segment);
 
-          if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
+          if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
@@ -851,7 +851,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           else
              result2->segment=IndexSegment(segments,segment);
 
-          if(!IsFakeNode(node2) && !IsSuperNode(nodes,node2))
+          if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
