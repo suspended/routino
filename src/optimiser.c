@@ -26,6 +26,7 @@
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
+#include "relations.h"
 
 #include "logging.h"
 #include "functions.h"
@@ -98,11 +99,15 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    {
     Segment *segment;
     index_t node1;
+    index_t turnrelation=NO_RELATION;
 
     if(result1->score>finish_score)
        continue;
 
     node1=result1->node;
+
+    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
+       turnrelation=FindFirstTurnRelation2(relations,node1,result1->prev);
 
     if(IsFakeNode(node1))
        segment=FirstFakeSegment(node1);
@@ -116,7 +121,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
-       node2=OtherNode(segment,node1);  /* need this here because we use node2 later */
+       node2=OtherNode(segment,node1);  /* need this here because we use node2 at the end of the loop */
 
        if(!IsNormalSegment(segment))
           goto endloop;
@@ -125,6 +130,9 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        if(result1->prev==node2)
+          goto endloop;
+
+       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,result1->prev,node2,profile->allow))
           goto endloop;
 
        if(node2!=finish && !IsFakeNode(node2) && IsSuperNode(LookupNode(nodes,node2,2)))
@@ -343,11 +351,15 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    {
     index_t node1;
     Segment *segment;
+    index_t turnrelation=NO_RELATION;
 
     if(result1->score>finish_score)
        continue;
 
     node1=result1->node;
+
+    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
+       turnrelation=FindFirstTurnRelation2(relations,node1,result1->prev);
 
     segment=FirstSegment(segments,nodes,node1);
 
@@ -368,6 +380,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        node2=OtherNode(segment,node1);
 
        if(result1->prev==node2)
+          goto endloop;
+
+       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,result1->prev,node2,profile->allow))
           goto endloop;
 
        way=LookupWay(ways,segment->way,1);
@@ -572,8 +587,12 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    {
     index_t node1;
     Segment *segment;
+    index_t turnrelation=NO_RELATION;
 
     node1=result1->node;
+
+    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
+       turnrelation=FindFirstTurnRelation2(relations,node1,result1->prev);
 
     if(IsFakeNode(node1))
        segment=FirstFakeSegment(node1);
@@ -596,6 +615,9 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        node2=OtherNode(segment,node1);
 
        if(result1->prev==node2)
+          goto endloop;
+
+       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,result1->prev,node2,profile->allow))
           goto endloop;
 
        way=LookupWay(ways,segment->way,1);
@@ -752,8 +774,12 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
    {
     index_t node1;
     Segment *segment;
+    index_t turnrelation=NO_RELATION;
 
     node1=result1->node;
+
+    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
+       turnrelation=FindFirstTurnRelation1(relations,node1); /* working backwards => turn relation sort order doesn't help */
 
     if(IsFakeNode(node1))
        segment=FirstFakeSegment(node1);
@@ -770,13 +796,21 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        if(!IsNormalSegment(segment))
           goto endloop;
 
-       if(profile->oneway && IsOnewayFrom(segment,node1))
+       if(profile->oneway && IsOnewayFrom(segment,node1)) /* Disallow oneway from node2 *to* node1 */
           goto endloop;
 
        node2=OtherNode(segment,node1);
 
        if(result1->next==node2)
           goto endloop;
+
+       if(turnrelation!=NO_RELATION)
+         {
+          index_t turnrelation2=FindFirstTurnRelation2(relations,node1,node2); /* node2 -> node1 -> result1->next */
+
+          if(turnrelation2!=NO_RELATION && !IsTurnAllowed(relations,turnrelation2,node1,node2,result1->next,profile->allow))
+             goto endloop;
+         }
 
        way=LookupWay(ways,segment->way,1);
 
@@ -828,8 +862,8 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        if(!result2)                         /* New end node */
          {
           result2=InsertResult(results,node2);
-          result2->prev=NO_NODE;
-          result2->next=node1;
+          result2->prev=NO_NODE; /* working backwards */
+          result2->next=node1;   /* working backwards */
           result2->score=cumulative_score;
           if(IsFakeNode(node1) || IsFakeNode(node2))
              result2->segment=IndexFakeSegment(segment);
@@ -844,7 +878,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
          }
        else if(cumulative_score<result2->score) /* New end node is better */
          {
-          result2->next=node1;
+          result2->next=node1; /* working backwards */
           result2->score=cumulative_score;
           if(IsFakeNode(node1) || IsFakeNode(node2))
              result2->segment=IndexFakeSegment(segment);

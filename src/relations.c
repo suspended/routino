@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relations.c,v 1.3 2010-12-21 17:17:57 amb Exp $
-
  Relation data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -200,6 +198,9 @@ index_t FindNextTurnRelation1(Relations *relations,index_t current)
 
  current++;
 
+ if(current==relations->file.trnumber)
+    return(NO_RELATION);
+
  relation=LookupTurnRelation(relations,current,1);
 
  if(relation->via==via)
@@ -331,10 +332,57 @@ index_t FindNextTurnRelation2(Relations *relations,index_t current)
 
  current++;
 
+ if(current==relations->file.trnumber)
+    return(NO_RELATION);
+
  relation=LookupTurnRelation(relations,current,1);
 
  if(relation->via==via && relation->from==from)
     return(current);
  else
     return(NO_RELATION);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Determine if a turn is allowed between the nodes from, via and to for a particular transport type.
+
+  int IsTurnAllowed Return 1 if the turn is allowed.
+
+  Relations *relations The set of relations to process.
+
+  index_t index The index of the first turn relation containing via and from.
+
+  index_t via The via node.
+
+  index_t from The from node.
+
+  index_t to The to node.
+
+  transports_t transport The type of transport that is being routed.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int IsTurnAllowed(Relations *relations,index_t index,index_t via,index_t from,index_t to,transports_t transport)
+{
+ while(index<relations->file.trnumber)
+   {
+    TurnRelation *relation=LookupTurnRelation(relations,index,1);
+
+    if(relation->via!=via)
+       return(1);
+
+    if(relation->from!=from)
+       return(1);
+
+    if(relation->to>to)
+       return(1);
+
+    if(relation->to==to)
+       if(!(relation->except & transport))
+          return(0);
+
+    index++;
+   }
+
+ return(1);
 }
