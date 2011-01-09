@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.c,v 1.49 2010-12-21 14:54:27 amb Exp $
-
  Super-Segment data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -125,7 +123,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
     /* Store the node if there is a difference in the connected ways that could affect routing. */
 
-    if(difference || nodex->flags&NODE_TURNRSTRCT)
+    if(difference || nodex->flags&(NODE_TURNRSTRCT|NODE_TURNRSTRCT2))
       {
        nodesx->super[i]++;
 
