@@ -106,6 +106,9 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 /*+ Return true if this is a super-node. +*/
 #define IsSuperNode(xxx)            (((xxx)->flags)&NODE_SUPER)
 
+/*+ Return true if this is a turn restricted node. +*/
+#define IsTurnRestrictedNode(xxx)   (((xxx)->flags)&NODE_TURNRSTRCT)
+
 
 #if !SLIM
 

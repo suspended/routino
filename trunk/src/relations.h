@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relations.h,v 1.3 2010-12-21 17:17:57 amb Exp $
-
  A header file for the relations.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -94,6 +92,8 @@ index_t FindNextTurnRelation1(Relations *relations,index_t current);
 
 index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from);
 index_t FindNextTurnRelation2(Relations *relations,index_t current);
+
+int IsTurnAllowed(Relations *relations,index_t index,index_t via,index_t from,index_t to,transports_t transport);
 
 
 /* Macros and inline functions */
