@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.c,v 1.20 2010-12-21 14:54:27 amb Exp $
-
  Extended Relation data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010 Andrew M. Bishop
+ This file Copyright 2010-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -699,11 +697,17 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
+       nodex=LookupNodeX(nodesx,relationx.from,1);
+       nodex->flags|=NODE_TURNRSTRCT2;
+       PutBackNodeX(nodesx,relationx.from,1);
+
        nodex=LookupNodeX(nodesx,relationx.via,1);
-
        nodex->flags|=NODE_TURNRSTRCT;
-
        PutBackNodeX(nodesx,relationx.via,1);
+
+       nodex=LookupNodeX(nodesx,relationx.to,1);
+       nodex->flags|=NODE_TURNRSTRCT2;
+       PutBackNodeX(nodesx,relationx.to,1);
 
        total++;
 
@@ -762,16 +766,22 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
           WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
+          nodex=LookupNodeX(nodesx,relationx.to,1);
+          nodex->flags|=NODE_TURNRSTRCT2;
+          PutBackNodeX(nodesx,relationx.to,1);
+
           total++;
 
           if(!(total%10000))
              printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
          }
 
+       nodex=LookupNodeX(nodesx,relationx.from,1);
+       nodex->flags|=NODE_TURNRSTRCT2;
+       PutBackNodeX(nodesx,relationx.from,1);
+
        nodex=LookupNodeX(nodesx,relationx.via,1);
-
        nodex->flags|=NODE_TURNRSTRCT;
-
        PutBackNodeX(nodesx,relationx.via,1);
       }
 

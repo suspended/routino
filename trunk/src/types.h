@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.h,v 1.58 2010-12-21 14:54:27 amb Exp $
-
  Type definitions
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -77,6 +75,9 @@
 
 /*+ A flag to mark a node as a turn relation via node. +*/
 #define NODE_TURNRSTRCT ((uint16_t)0x1000)
+
+/*+ A flag to mark a node as a turn relation via node. +*/
+#define NODE_TURNRSTRCT2 ((uint16_t)0x0800)
 
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/
