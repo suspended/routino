@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/visualiser.c,v 1.10 2010-07-26 18:17:20 amb Exp $
-
  Extract data from Routino.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -191,7 +189,7 @@ static void output_super(index_t node,double latitude,double longitude)
 {
  Segment *segment;
 
- if(!IsSuperNode(OSMNodes,node))
+ if(!IsSuperNode(LookupNode(OSMNodes,node,1)))
     return;
 
  printf("%.6f %.6f n\n",radians_to_degrees(latitude),radians_to_degrees(longitude));
