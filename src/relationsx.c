@@ -817,9 +817,11 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
   RelationsX *relationsx The set of relations to process.
 
   NodesX *nodesx The set of nodes to process.
+
+  SegmentsX *segmentsx The set of segments to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx)
+void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
 {
  int trfd;
  int i;
@@ -827,6 +829,18 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx)
  /* Print the start message */
 
  printf_first("Processing Turn Restriction Relations (2): Turn Relations=0");
+
+ /* Map into memory / open the files */
+
+#if !SLIM
+ nodesx->xdata=MapFile(nodesx->filename);
+ segmentsx->xdata=MapFile(segmentsx->filename);
+ segmentsx->sdata=MapFile(segmentsx->sfilename);
+#else
+ nodesx->fd=ReOpenFile(nodesx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->sfd=ReOpenFile(segmentsx->sfilename);
+#endif
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -840,15 +854,46 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx)
 
  for(i=0;i<relationsx->trnumber;i++)
    {
+    NodeX *nodex;
     TurnRestrictRelX relationx;
+    index_t from_node,via_node,to_node;
+    index_t seg;
 
     ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
 
-    relationx.from=nodesx->gdata[relationx.from];
+    from_node=relationx.from;
+    via_node=relationx.via;
+    to_node=relationx.to;
 
-    relationx.via=nodesx->gdata[relationx.via];
+    relationx.via=nodesx->gdata[via_node];
 
-    relationx.to=nodesx->gdata[relationx.to];
+    nodex=LookupNodeX(nodesx,relationx.via,1);
+    seg=nodex->id;
+
+    do
+      {
+       SegmentX *segmentx=LookupSegmentX(segmentsx,seg,1);
+
+       if((segmentx->node1==from_node && segmentx->node2==via_node) ||
+          (segmentx->node2==from_node && segmentx->node1==via_node))
+          relationx.from=seg;
+
+       if((segmentx->node1==to_node && segmentx->node2==via_node) ||
+          (segmentx->node2==to_node && segmentx->node1==via_node))
+          relationx.to=seg;
+
+       if(segmentx->node1==via_node)
+          seg++;
+       else if(segmentx->node2==via_node)
+         {
+          Segment *segment=LookupSegmentXSegment(segmentsx,seg,1);
+
+          seg=segment->next2;
+         }
+       else
+          seg=NO_SEGMENT;
+      }
+    while(seg!=NO_SEGMENT);
 
     WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
@@ -860,6 +905,18 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx)
 
  CloseFile(relationsx->trfd);
  CloseFile(trfd);
+
+ /* Unmap from memory / close the files */
+
+#if !SLIM
+ nodesx->xdata=UnmapFile(nodesx->filename);
+ segmentsx->xdata=UnmapFile(segmentsx->filename);
+ segmentsx->sdata=UnmapFile(segmentsx->sfilename);
+#else
+ CloseFile(nodesx->fd);
+ CloseFile(segmentsx->fd);
+ CloseFile(segmentsx->sfd);
+#endif
 
  /* Print the final message */
 

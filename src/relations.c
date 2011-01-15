@@ -219,7 +219,7 @@ index_t FindNextTurnRelation1(Relations *relations,index_t current)
 
   index_t via The node that the route is going via.
 
-  index_t from The node that the route is coming from.
+  index_t from The segment that the route is coming from.
   ++++++++++++++++++++++++++++++++++++++*/
 
 index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
@@ -355,9 +355,9 @@ index_t FindNextTurnRelation2(Relations *relations,index_t current)
 
   index_t via The via node.
 
-  index_t from The from node.
+  index_t from The from segment.
 
-  index_t to The to node.
+  index_t to The to segment.
 
   transports_t transport The type of transport that is being routed.
   ++++++++++++++++++++++++++++++++++++++*/

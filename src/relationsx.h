@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/relationsx.h,v 1.6 2010-12-21 12:23:04 amb Exp $
-
  A header file for the extended Relations structure.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010 Andrew M. Bishop
+ This file Copyright 2010-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -49,9 +47,9 @@ struct _TurnRestrictRelX
 {
  relation_t      id;           /*+ The relation identifier. +*/
 
- way_t           from;         /*+ The id of the starting way; initially the OSM value, later the WayX index. +*/
- way_t           to;           /*+ The id of the ending way; initially the OSM value, later the WayX index. +*/
+ way_t           from;         /*+ The id of the starting way; initially the OSM value, later the NodeX index then the SegmentX index. +*/
  node_t          via;          /*+ The id of the via node; initially the OSM value, later the NodeX index. +*/
+ way_t           to;           /*+ The id of the ending way; initially the OSM value, later the NodeX index then the SegmentX index. +*/
 
  TurnRestriction restrict;     /*+ The type of restriction. +*/
  transports_t    except;       /*+ The types of transports that that this relation does not apply to. +*/
@@ -101,7 +99,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx);
 
 void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 
-void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx);
+void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx);
 
 void SaveRelationList(RelationsX* relationsx,const char *filename);
 
