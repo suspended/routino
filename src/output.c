@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/output.c,v 1.41 2010-11-27 14:56:37 amb Exp $
-
  Routing output generator.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -630,7 +628,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n",
                                  radians_to_degrees(latitude),radians_to_degrees(longitude),
                                  IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
-                                 (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',type,
+                                 (!IsFakeNode(result->node) && IsSuperNode(LookupNode(nodes,result->node,1)))?'*':' ',type,
                                  distance_to_km(seg_distance),duration_to_minutes(seg_duration),
                                  distance_to_km(cum_distance),duration_to_minutes(cum_duration),
                                  profile->speed[HIGHWAY(resultway->type)],
@@ -675,7 +673,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t\t\t\n",
                                  radians_to_degrees(latitude),radians_to_degrees(longitude),
                                  IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
-                                 (!IsFakeNode(result->node) && IsSuperNode(nodes,result->node))?'*':' ',"Waypt",
+                                 (!IsFakeNode(result->node) && IsSuperNode(LookupNode(nodes,result->node,1)))?'*':' ',"Waypt",
                                  0.0,0.0,0.0,0.0);
          }
 
