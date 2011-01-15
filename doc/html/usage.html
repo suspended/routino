@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -362,7 +362,7 @@ Usage: filedumper [--help]
                   [--dump [--node=&lt;node&gt; ...]
                           [--segment=&lt;segment&gt; ...]
                           [--way=&lt;way&gt; ...]
-                          [--relation=&lt;relation&gt; ...]]
+                          [--turn-relation=&lt;relation&gt; ...]]
                   [--dump-osm [--no-super]
                               [--latmin=&lt;latmin&gt; --latmax=&lt;latmax&gt;
                                --lonmin=&lt;lonmin&gt; --lonmax=&lt;lonmax&gt;]]
@@ -402,6 +402,8 @@ Usage: filedumper [--help]
   <dt>--dump
   <dd>Selects a data dumping mode which allows looking at individual items in
     the databases (specifying 'all' instead of a number dumps all of them).
+    More than one of the following parameters can be specified on the command
+    line.
     <dl>
       <dt>--node=&lt;node&gt;
       <dd>Prints the information about the selected node number (internal
@@ -411,9 +413,10 @@ Usage: filedumper [--help]
       <dt>--way=&lt;way&gt;
       <dd>Prints the information about the selected way number (internal
         number, not the way id number in the original source file).
-      <dt>--relation=&lt;relation&gt;
-      <dd>Prints the information about the selected relation number (internal
-        number, not the relation id number in the original source file).
+      <dt>--turn-relation=&lt;relation&gt;
+      <dd>Prints the information about the selected turn relation number
+        (internal number, not the relation id number in the original source
+        file).
     </dl>
   <dt>--osm-dump
   <dd>Dumps the contents of the database as an OSM format XML file, the whole
