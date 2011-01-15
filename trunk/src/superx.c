@@ -445,7 +445,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
        node2=segmentx->node2;
 
-       if(result1->prev==node2)
+       if(result1->prev_node==node2)
           goto endloop;
 
        wayx=LookupWayX(waysx,segmentx->way,2);
@@ -460,8 +460,8 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
        if(!result2)                         /* New end node */
          {
           result2=InsertResult(results,node2);
-          result2->prev=node1;
-          result2->next=NO_NODE;
+          result2->prev_node=node1;
+          result2->next_node=NO_NODE;
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
@@ -470,7 +470,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
          }
        else if(cumulative_distance<result2->score)
          {
-          result2->prev=node1;
+          result2->prev_node=node1;
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 

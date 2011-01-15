@@ -339,23 +339,23 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           fprintf(gpxtrackfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"/>\n",
                   radians_to_degrees(latitude),radians_to_degrees(longitude));
 
-       nextresult=FindResult(results[point],result->next);
+       nextresult=FindResult(results[point],result->next_node);
 
        if(!nextresult)
           for(nextpoint=point+1;nextpoint<=nresults;nextpoint++)
              if(results[nextpoint])
                {
                 nextresult=FindResult(results[nextpoint],results[nextpoint]->start);
-                nextresult=FindResult(results[nextpoint],nextresult->next);
+                nextresult=FindResult(results[nextpoint],nextresult->next_node);
                 break;
                }
 
        if(nextresult)
          {
-          if(IsFakeSegment(nextresult->segment))
-             nextresultsegment=LookupFakeSegment(nextresult->segment);
+          if(IsFakeSegment(nextresult->prev_seg))
+             nextresultsegment=LookupFakeSegment(nextresult->prev_seg);
           else
-             nextresultsegment=LookupSegment(segments,nextresult->segment,2);
+             nextresultsegment=LookupSegment(segments,nextresult->prev_seg,2);
          }
        else
           nextresultsegment=NULL;
@@ -377,10 +377,10 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           /* Get the properties of this segment */
 
-          if(IsFakeSegment(result->segment))
-             resultsegment=LookupFakeSegment(result->segment);
+          if(IsFakeSegment(result->prev_seg))
+             resultsegment=LookupFakeSegment(result->prev_seg);
           else
-             resultsegment=LookupSegment(segments,result->segment,3);
+             resultsegment=LookupSegment(segments,result->prev_seg,3);
           resultway=LookupWay(ways,resultsegment->way,1);
 
           seg_distance+=DISTANCE(resultsegment->distance);
@@ -402,12 +402,12 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                {
                 index_t othernode=OtherNode(segment,result->node);
 
-                if(othernode!=result->prev && segment!=resultsegment)
+                if(othernode!=result->prev_node && segment!=resultsegment)
                    if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
                      {
                       Way *way=LookupWay(ways,segment->way,2);
 
-                      if(othernode==result->next) /* the next segment that we follow */
+                      if(othernode==result->next_node) /* the next segment that we follow */
                         {
                          if(HIGHWAY(way->type)!=HIGHWAY(resultway->type))
                             if(important<2)

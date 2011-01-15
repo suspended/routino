@@ -107,7 +107,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     node1=result1->node;
 
     if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
-       turnrelation=FindFirstTurnRelation2(relations,node1,result1->prev);
+       turnrelation=FindFirstTurnRelation2(relations,node1,result1->prev_seg);
 
     if(IsFakeNode(node1))
        segment=FirstFakeSegment(node1);
@@ -117,7 +117,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     while(segment)
       {
        Way *way;
-       index_t node2;
+       index_t node2,seg2;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
@@ -129,10 +129,12 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(profile->oneway && IsOnewayTo(segment,node1))
           goto endloop;
 
-       if(result1->prev==node2)
+       if(result1->prev_node==node2)
           goto endloop;
 
-       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,result1->prev,node2,profile->allow))
+       seg2=IndexSegment(segments,segment);
+
+       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,result1->prev_seg,seg2,profile->allow))
           goto endloop;
 
        if(node2!=finish && !IsFakeNode(node2) && IsSuperNode(LookupNode(nodes,node2,2)))
@@ -191,13 +193,13 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(!result2)                         /* New end node */
          {
           result2=InsertResult(results,node2);
-          result2->prev=node1;
-          result2->next=NO_NODE;
+          result2->prev_node=node1;
+          result2->next_node=NO_NODE;
           result2->score=cumulative_score;
           if(IsFakeNode(node1) || IsFakeNode(node2))
-             result2->segment=IndexFakeSegment(segment);
+             result2->prev_seg=IndexFakeSegment(segment);
           else
-             result2->segment=IndexSegment(segments,segment);
+             result2->prev_seg=IndexSegment(segments,segment);
 
           if(node2==finish)
             {
@@ -212,12 +214,12 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          }
        else if(cumulative_score<result2->score) /* New end node is better */
          {
-          result2->prev=node1;
+          result2->prev_node=node1;
           result2->score=cumulative_score;
           if(IsFakeNode(node1) || IsFakeNode(node2))
-             result2->segment=IndexFakeSegment(segment);
+             result2->prev_seg=IndexFakeSegment(segment);
           else
-             result2->segment=IndexSegment(segments,segment);
+             result2->prev_seg=IndexSegment(segments,segment);
 
           if(node2==finish)
             {
@@ -332,7 +334,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        *result2=*result3;
 
-       result2->prev=begin->start;
+       result2->prev_node=begin->start;
 
        result2->sortby=result2->score;
 
@@ -359,13 +361,13 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     node1=result1->node;
 
     if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
-       turnrelation=FindFirstTurnRelation2(relations,node1,result1->prev);
+       turnrelation=FindFirstTurnRelation2(relations,node1,result1->prev_seg);
 
     segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
-       index_t node2;
+       index_t node2,seg2;
        Node *node;
        Way *way;
        score_t segment_pref,segment_score,cumulative_score;
@@ -379,10 +381,12 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        node2=OtherNode(segment,node1);
 
-       if(result1->prev==node2)
+       if(result1->prev_node==node2)
           goto endloop;
 
-       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,result1->prev,node2,profile->allow))
+       seg2=IndexSegment(segments,segment);
+
+       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,result1->prev_seg,seg2,profile->allow))
           goto endloop;
 
        way=LookupWay(ways,segment->way,1);
@@ -435,10 +439,10 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(!result2)                         /* New end node */
          {
           result2=InsertResult(results,node2);
-          result2->prev=node1;
-          result2->next=NO_NODE;
+          result2->prev_node=node1;
+          result2->next_node=NO_NODE;
           result2->score=cumulative_score;
-          result2->segment=IndexSegment(segments,segment);
+          result2->prev_seg=IndexSegment(segments,segment);
 
           if((result3=FindResult(end,node2)))
             {
@@ -466,9 +470,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          }
        else if(cumulative_score<result2->score) /* New end node is better */
          {
-          result2->prev=node1;
+          result2->prev_node=node1;
           result2->score=cumulative_score;
-          result2->segment=IndexSegment(segments,segment);
+          result2->prev_seg=IndexSegment(segments,segment);
 
           if((result3=FindResult(end,node2)))
             {
@@ -516,7 +520,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
     *result2=*result3;
 
-    result2->prev=end_prev;
+    result2->prev_node=end_prev;
     result2->score=finish_score;
    }
 
@@ -592,7 +596,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     node1=result1->node;
 
     if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
-       turnrelation=FindFirstTurnRelation2(relations,node1,result1->prev);
+       turnrelation=FindFirstTurnRelation2(relations,node1,result1->prev_seg);
 
     if(IsFakeNode(node1))
        segment=FirstFakeSegment(node1);
@@ -601,7 +605,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
     while(segment)
       {
-       index_t node2;
+       index_t node2,seg2;
        Way *way;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
@@ -614,10 +618,12 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        node2=OtherNode(segment,node1);
 
-       if(result1->prev==node2)
+       if(result1->prev_node==node2)
           goto endloop;
 
-       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,result1->prev,node2,profile->allow))
+       seg2=IndexSegment(segments,segment);
+
+       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,result1->prev_seg,seg2,profile->allow))
           goto endloop;
 
        way=LookupWay(ways,segment->way,1);
@@ -670,13 +676,13 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(!result2)                         /* New end node */
          {
           result2=InsertResult(results,node2);
-          result2->prev=node1;
-          result2->next=NO_NODE;
+          result2->prev_node=node1;
+          result2->next_node=NO_NODE;
           result2->score=cumulative_score;
           if(IsFakeNode(node1) || IsFakeNode(node2))
-             result2->segment=IndexFakeSegment(segment);
+             result2->prev_seg=IndexFakeSegment(segment);
           else
-             result2->segment=IndexSegment(segments,segment);
+             result2->prev_seg=IndexSegment(segments,segment);
 
           if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
             {
@@ -686,12 +692,12 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          }
        else if(cumulative_score<result2->score) /* New end node is better */
          {
-          result2->prev=node1;
+          result2->prev_node=node1;
           result2->score=cumulative_score;
           if(IsFakeNode(node1) || IsFakeNode(node2))
-             result2->segment=IndexFakeSegment(segment);
+             result2->prev_seg=IndexFakeSegment(segment);
           else
-             result2->segment=IndexSegment(segments,segment);
+             result2->prev_seg=IndexSegment(segments,segment);
 
           if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
             {
@@ -788,7 +794,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
     while(segment)
       {
-       index_t node2;
+       index_t node2,seg2;
        Way *way;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
@@ -801,14 +807,16 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
        node2=OtherNode(segment,node1);
 
-       if(result1->next==node2)
+       if(result1->next_node==node2)
           goto endloop;
 
        if(turnrelation!=NO_RELATION)
          {
-          index_t turnrelation2=FindFirstTurnRelation2(relations,node1,node2); /* node2 -> node1 -> result1->next */
+          index_t turnrelation2=FindFirstTurnRelation2(relations,node1,node2); /* node2 -> node1 -> result1->next_node */
 
-          if(turnrelation2!=NO_RELATION && !IsTurnAllowed(relations,turnrelation2,node1,node2,result1->next,profile->allow))
+          seg2=IndexSegment(segments,segment);
+
+          if(turnrelation2!=NO_RELATION && !IsTurnAllowed(relations,turnrelation2,node1,seg2,result1->next_seg,profile->allow))
              goto endloop;
          }
 
@@ -862,13 +870,13 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        if(!result2)                         /* New end node */
          {
           result2=InsertResult(results,node2);
-          result2->prev=NO_NODE; /* working backwards */
-          result2->next=node1;   /* working backwards */
+          result2->prev_node=NO_NODE; /* working backwards */
+          result2->next_node=node1;   /* working backwards */
           result2->score=cumulative_score;
           if(IsFakeNode(node1) || IsFakeNode(node2))
-             result2->segment=IndexFakeSegment(segment);
+             result2->prev_seg=IndexFakeSegment(segment);
           else
-             result2->segment=IndexSegment(segments,segment);
+             result2->prev_seg=IndexSegment(segments,segment);
 
           if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
             {
@@ -878,12 +886,12 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
          }
        else if(cumulative_score<result2->score) /* New end node is better */
          {
-          result2->next=node1; /* working backwards */
+          result2->next_node=node1; /* working backwards */
           result2->score=cumulative_score;
           if(IsFakeNode(node1) || IsFakeNode(node2))
-             result2->segment=IndexFakeSegment(segment);
+             result2->prev_seg=IndexFakeSegment(segment);
           else
-             result2->segment=IndexSegment(segments,segment);
+             result2->prev_seg=IndexSegment(segments,segment);
 
           if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
             {
@@ -955,15 +963,15 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
    {
     Result *result2,*result4;
 
-    if(result1->next!=NO_NODE)
+    if(result1->next_node!=NO_NODE)
       {
-       Results *results2=FindNormalRoute(nodes,segments,ways,relations,result1->node,result1->next,profile);
+       Results *results2=FindNormalRoute(nodes,segments,ways,relations,result1->node,result1->next_node,profile);
 
        result2=FindResult(results2,result1->node);
 
-       result3->next=result2->next;
+       result3->next_node=result2->next_node;
 
-       result2=FindResult(results2,result2->next);
+       result2=FindResult(results2,result2->next_node);
 
        do
          {
@@ -972,8 +980,8 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
           *result4=*result2;
           result4->score+=result3->score;
 
-          if(result2->next!=NO_NODE)
-             result2=FindResult(results2,result2->next);
+          if(result2->next_node!=NO_NODE)
+             result2=FindResult(results2,result2->next_node);
           else
              result2=NULL;
          }
@@ -981,7 +989,7 @@ Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *wa
 
        FreeResultsList(results2);
 
-       result1=FindResult(results,result1->next);
+       result1=FindResult(results,result1->next_node);
 
        result3=result4;
       }
@@ -1012,13 +1020,13 @@ void FixForwardRoute(Results *results,index_t finish)
    {
     Result *result1;
 
-    if(result2->prev!=NO_NODE)
+    if(result2->prev_node!=NO_NODE)
       {
-       index_t node1=result2->prev;
+       index_t node1=result2->prev_node;
 
        result1=FindResult(results,node1);
 
-       result1->next=result2->node;
+       result1->next_node=result2->node;
 
        result2=result1;
       }

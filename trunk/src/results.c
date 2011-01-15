@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/results.c,v 1.22 2010-07-23 14:32:16 amb Exp $
-
  Result data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -163,10 +161,11 @@ Result *InsertResult(Results *results,index_t node)
 
 void ZeroResult(Result *result)
 {
- result->segment=NO_SEGMENT;
+ result->prev_node=NO_NODE;
+ result->next_node=NO_NODE;
 
- result->prev=NO_NODE;
- result->next=NO_NODE;
+ result->prev_seg=NO_SEGMENT;
+ result->next_seg=NO_SEGMENT;
 
  result->score=0;
  result->sortby=0;
