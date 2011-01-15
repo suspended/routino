@@ -37,9 +37,9 @@
 /*+ A structure containing a single relation. +*/
 struct _TurnRelation
 {
- index_t      from;             /*+ The node that the path comes from. +*/
+ index_t      from;             /*+ The segment that the path comes from. +*/
  index_t      via;              /*+ The node that the path goes via. +*/
- index_t      to;               /*+ The node that the path goes to. +*/
+ index_t      to;               /*+ The segment that the path goes to. +*/
 
  transports_t except;           /*+ The types of transports that that this relation does not apply to. +*/
 };

@@ -513,25 +513,34 @@ static void print_turnrelation(Relations *relations,index_t item,Segments *segme
  TurnRelation *relation=LookupTurnRelation(relations,item,3);
  Segment *segment;
  index_t from_way=NO_WAY,to_way=NO_WAY;
+ index_t from_node=NO_NODE,to_node=NO_NODE;
 
  segment=FirstSegment(segments,nodes,relation->via);
 
  do
    {
-    if(OtherNode(segment,relation->via)==relation->from)
-       from_way=IndexSegment(segments,segment);
+    index_t seg=IndexSegment(segments,segment);
 
-    if(OtherNode(segment,relation->via)==relation->to)
-       to_way=IndexSegment(segments,segment);
+    if(seg==relation->from)
+      {
+       from_node=OtherNode(segment,relation->from);
+       from_way=segment->way;
+      }
+
+    if(seg==relation->to)
+      {
+       to_node=OtherNode(segment,relation->to);
+       to_way=segment->way;
+      }
 
     segment=NextSegment(segments,segment,relation->via);
    }
  while(segment);
 
  printf("Relation %d\n",item);
- printf("  from=%d (node) = %d (way)\n",relation->from,from_way);
+ printf("  from=%d (segment) = %d (way) = %d (node)\n",relation->from,from_way,from_node);
  printf("  via=%d (node)\n",relation->via);
- printf("  to=%d (node) = %d (way)\n",relation->to,to_way);
+ printf("  to=%d (segment) = %d (way) = %d (node)\n",relation->to,to_way,to_node);
  if(relation->except)
     printf("  except=%02x (%s)\n",relation->except,AllowedNameList(relation->except));
 }
@@ -666,22 +675,6 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 static void print_turnrelation_osm(Relations* relations,index_t item,Segments *segments,Nodes* nodes)
 {
  TurnRelation *relation=LookupTurnRelation(relations,item,3);
- Segment *segment;
- index_t from_way=NO_WAY,to_way=NO_WAY;
-
- segment=FirstSegment(segments,nodes,relation->via);
-
- do
-   {
-    if(OtherNode(segment,relation->via)==relation->from)
-       from_way=IndexSegment(segments,segment);
-
-    if(OtherNode(segment,relation->via)==relation->to)
-       to_way=IndexSegment(segments,segment);
-
-    segment=NextSegment(segments,segment,relation->via);
-   }
- while(segment);
 
  printf("  <relation id='%lu' version='1'>\n",(unsigned long)item+1);
  printf("    <tag k='type' v='restriction' />\n");
@@ -689,9 +682,9 @@ static void print_turnrelation_osm(Relations* relations,index_t item,Segments *s
  if(relation->except)
     printf("    <tag k='except' v='%s' />\n",AllowedNameList(relation->except));
 
- printf("    <member type='way' ref='%lu' role='from' />\n",(unsigned long)from_way+1);
+ printf("    <member type='way' ref='%lu' role='from' />\n",(unsigned long)relation->from+1);
  printf("    <member type='node' ref='%lu' role='via' />\n",(unsigned long)relation->via+1);
- printf("    <member type='way' ref='%lu' role='to' />\n",(unsigned long)to_way+1);
+ printf("    <member type='way' ref='%lu' role='to' />\n",(unsigned long)relation->to+1);
 
  printf("  </relation>\n");
 }
@@ -773,6 +766,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                  [--dump [--node=<node> ...]\n"
          "                          [--segment=<segment> ...]\n"
          "                          [--way=<way> ...]]\n"
+         "                          [--turn-relation=<rel> ...]]\n"
          "                  [--dump-osm [--no-super]\n"
          "                              [--latmin=<latmin> --latmax=<latmax>\n"
          "                               --lonmin=<lonmin> --lonmax=<lonmax>]]\n");
@@ -815,9 +809,10 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "      length    = length limits.\n"
             "\n"
             "--dump                    Dump selected contents of the database.\n"
-            "  --node=<node>           * the node with the selected number.\n"
-            "  --segment=<segment>     * the segment with the selected number.\n"
-            "  --way=<way>             * the way with the selected number.\n"
+            "  --node=<node>           * the node with the selected index.\n"
+            "  --segment=<segment>     * the segment with the selected index.\n"
+            "  --way=<way>             * the way with the selected index.\n"
+            "  --turn-relation=<rel>   * the turn relation with the selected index.\n"
             "                          Use 'all' instead of a number to get all of them.\n"
             "\n"
             "--dump-osm                Dump all or part of the database as an XML file.\n"

@@ -1,6 +1,4 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/planetsplitter.c,v 1.86 2010-12-21 12:23:04 amb Exp $
-
  OSM planet file splitter.
 
  Part of the Routino routing software.
@@ -356,7 +354,7 @@ int main(int argc,char** argv)
 
  /* Process the second part of turn relations (must be after sorting the nodes geographically). */
 
- ProcessTurnRelations2(Relations,Nodes);
+ ProcessTurnRelations2(Relations,Nodes,Segments);
 
  SortTurnRelationList(Relations);
 
