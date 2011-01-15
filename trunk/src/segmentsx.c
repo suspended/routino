@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segmentsx.c,v 1.77 2010-12-20 19:25:03 amb Exp $
-
  Extended Segment data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -251,7 +249,7 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
 /*++++++++++++++++++++++++++++++++++++++
   Find the first segment index with a particular starting node.
  
-  index_t IndexFirstSegmentX1 Returns a pointer to the index of the first extended segment with the specified id.
+  index_t IndexFirstSegmentX1 Returns the index of the first extended segment with the specified id.
 
   SegmentsX* segmentsx The set of segments to process.
 
@@ -318,7 +316,7 @@ index_t IndexFirstSegmentX1(SegmentsX* segmentsx,node_t node)
 /*++++++++++++++++++++++++++++++++++++++
   Find the first segment index with a particular starting node index.
  
-  index_t IndexFirstSegmentX2 Returns a pointer to the index of the first extended segment with the specified id.
+  index_t IndexFirstSegmentX2 Returns the index of the first extended segment with the specified id.
 
   SegmentsX* segmentsx The set of segments to process.
 
