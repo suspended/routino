@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.h,v 1.37 2010-12-20 19:11:02 amb Exp $
-
  A header file for the extended nodes.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +39,7 @@
 /*+ An extended structure used for processing. +*/
 struct _NodeX
 {
- node_t       id;               /*+ The node identifier; initially the OSM value, later the Node index. +*/
+ node_t       id;               /*+ The node identifier; initially the OSM value, later the Node index, finally the first segment. +*/
 
  latlong_t    latitude;         /*+ The node latitude. +*/
  latlong_t    longitude;        /*+ The node longitude. +*/
