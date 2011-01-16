@@ -77,9 +77,6 @@ struct _Relations
 
  index_t       via_start;       /*+ The first via node in the file. +*/
  index_t       via_end;         /*+ The last via node in the file. +*/
-
- index_t       from_start;      /*+ The first from node in the file. +*/
- index_t       from_end;        /*+ The last from node in the file. +*/
 };
 
 
