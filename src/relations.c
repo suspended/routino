@@ -76,12 +76,10 @@ Relations *LoadRelationList(const char *filename)
     relation=LookupTurnRelation(relations,0,1);
 
     relations->via_start =relation->via;
-    relations->from_start=relation->from;
 
     relation=LookupTurnRelation(relations,relations->file.trnumber-1,1);
 
     relations->via_end =relation->via;
-    relations->from_end=relation->from;
    }
 
  return(relations);
@@ -244,12 +242,10 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
  if(end<start)                      /* There are no relations */
     return(NO_RELATION);
 
- if(via<relations->via_start ||
-    from<relations->from_start)     /* Check key is not before start */
+ if(via<relations->via_start)       /* Check key is not before start */
     return(NO_RELATION);
 
- if(via>relations->via_end ||
-    from>relations->from_end)       /* Check key is not after end */
+ if(via>relations->via_end)         /* Check key is not after end */
     return(NO_RELATION);
 
  do
