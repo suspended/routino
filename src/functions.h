@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/functions.h,v 1.60 2010-12-18 15:19:33 amb Exp $
-
  Header file for function prototypes
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -33,15 +31,15 @@
 
 /* In optimiser.c */
 
-Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start,index_t finish,Profile *profile);
+Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t prev_segment,index_t finish_node,Profile *profile);
 Results *FindMiddleRoute(Nodes *supernodes,Segments *supersegments,Ways *superways,Relations *relations,Results *begin,Results *end,Profile *profile);
 
-Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start,Profile *profile);
-Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish,Profile *profile);
+Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t prev_segment,Profile *profile);
+Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish_node,Profile *profile);
 
-Results *CombineRoutes(Results *results,Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile);
+Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Results *results,index_t prev_segment,Profile *profile);
 
-void FixForwardRoute(Results *results,index_t finish);
+void FixForwardRoute(Results *results,Result *finish_result);
 
 
 /* In output.c */
