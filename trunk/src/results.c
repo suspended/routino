@@ -72,8 +72,11 @@ Results *NewResultsList(int nbins)
  results->data=(Result**)malloc(1*sizeof(Result*));
  results->data[0]=(Result*)malloc(results->nbins*RESULTS_INCREMENT*sizeof(Result));
 
- results->start=NO_NODE;
- results->finish=NO_NODE;
+ results->start_node=NO_NODE;
+ results->prev_segment=NO_SEGMENT;
+
+ results->finish_node=NO_NODE;
+ results->last_segment=NO_SEGMENT;
 
  return(results);
 }
@@ -113,10 +116,13 @@ void FreeResultsList(Results *results)
   Results *results The results structure to insert into.
 
   index_t node The node that is to be inserted into the results.
+
+  index_t segment The segment that is to be inserted into the results.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Result *InsertResult(Results *results,index_t node)
+Result *InsertResult(Results *results,index_t node,index_t segment)
 {
+ Result *result;
  int bin=node&results->mask;
  uint32_t i;
 
@@ -146,34 +152,27 @@ Result *InsertResult(Results *results,index_t node)
 
  results->count[bin]++;
 
- results->point[bin][results->count[bin]-1]->node=node;
- results->point[bin][results->count[bin]-1]->queued=NOT_QUEUED;
+ /* Initialise the result */
 
- return(results->point[bin][results->count[bin]-1]);
-}
+ result=results->point[bin][results->count[bin]-1];
 
+ result->node=node;
+ result->segment=segment;
 
-/*++++++++++++++++++++++++++++++++++++++
-  Zero the values in a result structure.
-
-  Result *result The result to modify.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void ZeroResult(Result *result)
-{
- result->prev_node=NO_NODE;
- result->next_node=NO_NODE;
-
- result->prev_seg=NO_SEGMENT;
- result->next_seg=NO_SEGMENT;
+ result->prev=NULL;
+ result->next=NULL;
 
  result->score=0;
  result->sortby=0;
+
+ result->queued=NOT_QUEUED;
+
+ return(result);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find a result; search by node.
+  Find a result; search by node only (don't care about the segment but find the shortest).
 
   Result *FindResult Returns the result that has been found.
 
@@ -182,13 +181,43 @@ void ZeroResult(Result *result)
   index_t node The node that is to be found.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Result *FindResult(Results *results,index_t node)
+Result *FindResult1(Results *results,index_t node)
+{
+ int bin=node&results->mask;
+ score_t best_score=INF_SCORE;
+ Result *best_result=NULL;
+ int i;
+
+ for(i=results->count[bin]-1;i>=0;i--)
+    if(results->point[bin][i]->node==node && results->point[bin][i]->score<best_score)
+      {
+       best_score=results->point[bin][i]->score;
+       best_result=results->point[bin][i];
+      }
+
+ return(best_result);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find a result; search by node and segment.
+
+  Result *FindResult Returns the result that has been found.
+
+  Results *results The results structure to search.
+
+  index_t node The node that is to be found.
+
+  index_t segment The segment that was used to reach this node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Result *FindResult(Results *results,index_t node,index_t segment)
 {
  int bin=node&results->mask;
  int i;
 
  for(i=results->count[bin]-1;i>=0;i--)
-    if(results->point[bin][i]->node==node)
+    if(results->point[bin][i]->node==node && results->point[bin][i]->segment==segment)
        return(results->point[bin][i]);
 
  return(NULL);

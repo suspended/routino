@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/router.c,v 1.93 2010-12-18 15:19:33 amb Exp $
-
  OSM router.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -82,7 +80,8 @@ int main(int argc,char** argv)
  int       exactnodes=0;
  Transport transport=Transport_None;
  Profile  *profile=NULL;
- index_t   start=NO_NODE,finish=NO_NODE;
+ index_t   start_node=NO_NODE,finish_node=NO_NODE;
+ index_t   join_segment=NO_SEGMENT;
  int       arg,point;
 
  /* Parse the command line arguments */
@@ -419,6 +418,7 @@ int main(int argc,char** argv)
  for(point=1;point<=NWAYPOINTS;point++)
    {
     Results *begin,*end;
+    Result *finish_result;
     distance_t distmax=km_to_distance(MAXSEARCH);
     distance_t distmin;
     index_t segment=NO_SEGMENT;
@@ -429,11 +429,11 @@ int main(int argc,char** argv)
 
     /* Find the closest point */
 
-    start=finish;
+    start_node=finish_node;
 
     if(exactnodes)
       {
-       finish=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin);
+       finish_node=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin);
       }
     else
       {
@@ -442,12 +442,12 @@ int main(int argc,char** argv)
        segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2);
 
        if(segment!=NO_SEGMENT)
-          finish=CreateFakes(OSMNodes,point,LookupSegment(OSMSegments,segment,1),node1,node2,dist1,dist2);
+          finish_node=CreateFakes(OSMNodes,point,LookupSegment(OSMSegments,segment,1),node1,node2,dist1,dist2);
        else
-          finish=NO_NODE;
+          finish_node=NO_NODE;
       }
 
-    if(finish==NO_NODE)
+    if(finish_node==NO_NODE)
       {
        fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",point);
        return(1);
@@ -457,28 +457,28 @@ int main(int argc,char** argv)
       {
        double lat,lon;
 
-       if(IsFakeNode(finish))
-          GetFakeLatLong(finish,&lat,&lon);
+       if(IsFakeNode(finish_node))
+          GetFakeLatLong(finish_node,&lat,&lon);
        else
-          GetLatLong(OSMNodes,finish,&lat,&lon);
+          GetLatLong(OSMNodes,finish_node,&lat,&lon);
 
-       if(IsFakeNode(finish))
+       if(IsFakeNode(finish_node))
           printf("Point %d is segment %d (node %d -> %d): %3.6f %4.6f = %2.3f km\n",point,segment,node1,node2,
                  radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
        else
-          printf("Point %d is node %d: %3.6f %4.6f = %2.3f km\n",point,finish,
+          printf("Point %d is node %d: %3.6f %4.6f = %2.3f km\n",point,finish_node,
                  radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
       }
 
-    if(start==NO_NODE)
+    if(start_node==NO_NODE)
        continue;
 
-    if(start==finish)
+    if(start_node==finish_node)
        continue;
 
     /* Calculate the beginning of the route */
 
-    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start,profile);
+    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start_node,join_segment,profile);
 
     if(!begin)
       {
@@ -486,9 +486,9 @@ int main(int argc,char** argv)
        return(1);
       }
 
-    if(FindResult(begin,finish))
+    if((finish_result=FindResult1(begin,finish_node)))
       {
-       FixForwardRoute(begin,finish);
+       FixForwardRoute(begin,finish_result);
 
        results[point]=begin;
 
@@ -504,7 +504,7 @@ int main(int argc,char** argv)
 
        /* Calculate the end of the route */
 
-       end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,finish,profile);
+       end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,finish_node,profile);
 
        if(!end)
          {
@@ -525,10 +525,12 @@ int main(int argc,char** argv)
           return(1);
          }
 
-       results[point]=CombineRoutes(superresults,OSMNodes,OSMSegments,OSMWays,OSMRelations,profile);
+       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,superresults,join_segment,profile);
 
        FreeResultsList(superresults);
       }
+
+    join_segment=results[point]->last_segment;
    }
 
  /* Print out the combined route */
