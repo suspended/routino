@@ -649,13 +649,15 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX)))
    {
+    NodeX *nodex;
+    node_t node_via=relationx.via;
+    index_t seg;
+
     if(relationx.restrict==TurnRestrict_no_right_turn ||
        relationx.restrict==TurnRestrict_no_left_turn ||
        relationx.restrict==TurnRestrict_no_u_turn ||
        relationx.restrict==TurnRestrict_no_straight_on)
       {
-       NodeX *nodex;
-       index_t seg;
        node_t node_from=NO_NODE,node_to=NO_NODE;
 
        /* Find the segments that join the node 'via' */
@@ -697,18 +699,6 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
-       nodex=LookupNodeX(nodesx,relationx.from,1);
-       nodex->flags|=NODE_TURNRSTRCT2;
-       PutBackNodeX(nodesx,relationx.from,1);
-
-       nodex=LookupNodeX(nodesx,relationx.via,1);
-       nodex->flags|=NODE_TURNRSTRCT;
-       PutBackNodeX(nodesx,relationx.via,1);
-
-       nodex=LookupNodeX(nodesx,relationx.to,1);
-       nodex->flags|=NODE_TURNRSTRCT2;
-       PutBackNodeX(nodesx,relationx.to,1);
-
        total++;
 
        if(!(total%10000))
@@ -716,8 +706,6 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
       }
     else
       {
-       NodeX *nodex;
-       index_t seg;
        node_t node_from=NO_NODE,node_to[8];
        int nnodes_to=0,i;
 
@@ -766,24 +754,33 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
           WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
-          nodex=LookupNodeX(nodesx,relationx.to,1);
-          nodex->flags|=NODE_TURNRSTRCT2;
-          PutBackNodeX(nodesx,relationx.to,1);
-
           total++;
 
           if(!(total%10000))
              printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
          }
-
-       nodex=LookupNodeX(nodesx,relationx.from,1);
-       nodex->flags|=NODE_TURNRSTRCT2;
-       PutBackNodeX(nodesx,relationx.from,1);
-
-       nodex=LookupNodeX(nodesx,relationx.via,1);
-       nodex->flags|=NODE_TURNRSTRCT;
-       PutBackNodeX(nodesx,relationx.via,1);
       }
+
+    /* Force super nodes on via node and adjacent nodes */
+
+    nodex=LookupNodeX(nodesx,relationx.via,1);
+    nodex->flags|=NODE_TURNRSTRCT;
+    PutBackNodeX(nodesx,relationx.via,1);
+
+    seg=IndexFirstSegmentX1(segmentsx,node_via);
+
+    do
+      {
+       SegmentX *segx=LookupSegmentX(segmentsx,seg,1);
+       index_t othernode=IndexNodeX(nodesx,segx->node2);
+
+       nodex=LookupNodeX(nodesx,othernode,1);
+       nodex->flags|=NODE_TURNRSTRCT2;
+       PutBackNodeX(nodesx,othernode,1);
+
+       seg=IndexNextSegmentX1(segmentsx,seg,node_via);
+      }
+    while(seg!=NO_SEGMENT);
 
    endloop: ;
    }
