@@ -443,7 +443,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
        node2=segmentx->node2;
 
-       if(result1->prev->node==node2)
+       if(result1->prev && result1->prev->node==node2)
           goto endloop;
 
        wayx=LookupWayX(waysx,segmentx->way,2);
