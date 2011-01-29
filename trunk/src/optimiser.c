@@ -596,7 +596,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    {
     index_t node1,seg1;
     Segment *segment;
-//    index_t turnrelation=NO_RELATION;
 
     node1=result1->node;
     seg1=result1->segment;
@@ -606,8 +605,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     else
        segment=FirstSegment(segments,nodes,node1);
 
-//    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
-//       turnrelation=FindFirstTurnRelation2(relations,node1,seg1);
+    /* node1 cannot have a turn restriction because it is not a super-node */
 
     while(segment)
       {
@@ -632,8 +630,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        else
           seg2=IndexSegment(segments,segment);
 
-//       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1,seg2,profile->allow))
-//          goto endloop;
+       /* node1 cannot have a turn restriction because it is not a super-node */
 
        way=LookupWay(ways,segment->way,1);
 
