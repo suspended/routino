@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include "relations.h"
+#include "fakes.h"
 
 #include "files.h"
 
@@ -228,6 +229,9 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
  int mid;
  int match=-1;
 
+ if(IsFakeSegment(from))
+    from=IndexRealSegment(from);
+
  /* Binary search - search key first match is required.
   *
   *  # <- start  |  Check mid and move start or end if it doesn't match
@@ -360,6 +364,12 @@ index_t FindNextTurnRelation2(Relations *relations,index_t current)
 
 int IsTurnAllowed(Relations *relations,index_t index,index_t via,index_t from,index_t to,transports_t transport)
 {
+ if(IsFakeSegment(from))
+    from=IndexRealSegment(from);
+
+ if(IsFakeSegment(to))
+    to=IndexRealSegment(to);
+
  while(index<relations->file.trnumber)
    {
     TurnRelation *relation=LookupTurnRelation(relations,index,1);

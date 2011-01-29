@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/fakes.h,v 1.1 2010-11-27 14:56:49 amb Exp $
-
  Header file for fake node and segment function prototypes
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -36,16 +34,17 @@
 /*+ Return true if this is a fake segment. +*/
 #define IsFakeSegment(xxx) ((xxx)>=SEGMENT_FAKE)
 
-index_t CreateFakes(Nodes *nodes,int point,Segment *segment,index_t node1,index_t node2,distance_t dist1,distance_t dist2);
+index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,index_t node1,index_t node2,distance_t dist1,distance_t dist2);
 
-void GetFakeLatLong(index_t node, double *latitude,double *longitude);
+void GetFakeLatLong(index_t fakenode, double *latitude,double *longitude);
 
-Segment *FirstFakeSegment(index_t node);
-Segment *NextFakeSegment(Segment *segment,index_t node);
-Segment *ExtraFakeSegment(index_t node,index_t fakenode);
+Segment *FirstFakeSegment(index_t fakenode);
+Segment *NextFakeSegment(Segment *fakesegment,index_t fakenode);
+Segment *ExtraFakeSegment(index_t realnode,index_t fakenode);
 
 Segment *LookupFakeSegment(index_t index);
-index_t IndexFakeSegment(Segment *segment);
+index_t IndexFakeSegment(Segment *fakesegment);
+index_t IndexRealSegment(index_t fakesegment);
 
 
 #endif /* FAKES_H */

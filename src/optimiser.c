@@ -103,7 +103,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    {
     Segment *segment;
     index_t node1,seg1;
-//    index_t turnrelation=NO_RELATION;
+    index_t turnrelation=NO_RELATION;
 
     if(result1->score>finish_score)
        continue;
@@ -111,8 +111,8 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     node1=result1->node;
     seg1=result1->segment;
 
-//    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
-//       turnrelation=FindFirstTurnRelation2(relations,node1,seg1);
+    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
+       turnrelation=FindFirstTurnRelation2(relations,node1,seg1);
 
     if(IsFakeNode(node1))
        segment=FirstFakeSegment(node1);
@@ -142,8 +142,8 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        else
           seg2=IndexSegment(segments,segment);
 
-//       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1,seg2,profile->allow))
-//          goto endloop;
+       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1,seg2,profile->allow))
+          goto endloop;
 
        if(node2!=finish_node && !IsFakeNode(node2) && IsSuperNode(LookupNode(nodes,node2,2)))
           goto endloop;
