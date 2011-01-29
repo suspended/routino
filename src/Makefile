@@ -154,10 +154,10 @@ xmlparse.c : xmlparse.l
 ########
 
 %.o : %.c
-	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=0 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
+	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=0 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 %-slim.o : %.c
-	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=1 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $<)))
+	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=1 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
 
