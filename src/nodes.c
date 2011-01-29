@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodes.c,v 1.45 2010-11-28 14:28:33 amb Exp $
-
  Node data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -378,7 +376,11 @@ index_t FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double lat
                          dist3a=((double)dist1*(double)dist1-(double)dist2*(double)dist2+(double)dist3*(double)dist3)/(2.0*(double)dist3);
                          dist3b=(double)dist3-dist3a;
 
-                         if(dist3a>=0 && dist3b>=0)
+                         if((dist1+dist2)<dist3)
+                           {
+                            distp=0;
+                           }
+                         else if(dist3a>=0 && dist3b>=0)
                             distp=sqrt((double)dist1*(double)dist1-dist3a*dist3a);
                          else if(dist3a>0)
                            {
