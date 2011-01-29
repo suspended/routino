@@ -869,7 +869,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           result2->next=result1;   /* working backwards */
           result2->score=cumulative_score;
 
-          if(!IsFakeNode(node1) && !IsSuperNode(LookupNode(nodes,node1,1))) /* Overshoot by one segment */
+          if(IsFakeNode(node1) || (!IsFakeNode(node1) && !IsSuperNode(LookupNode(nodes,node1,1)))) /* Overshoot by one segment */
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
@@ -880,7 +880,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           result2->next=result1; /* working backwards */
           result2->score=cumulative_score;
 
-          if(!IsFakeNode(node1) && !IsSuperNode(LookupNode(nodes,node1,1))) /* Overshoot by one segment */
+          if(IsFakeNode(node1) || (!IsFakeNode(node1) && !IsSuperNode(LookupNode(nodes,node1,1)))) /* Overshoot by one segment */
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
