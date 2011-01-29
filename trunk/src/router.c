@@ -442,7 +442,7 @@ int main(int argc,char** argv)
        segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2);
 
        if(segment!=NO_SEGMENT)
-          finish_node=CreateFakes(OSMNodes,point,LookupSegment(OSMSegments,segment,1),node1,node2,dist1,dist2);
+          finish_node=CreateFakes(OSMNodes,OSMSegments,point,LookupSegment(OSMSegments,segment,1),node1,node2,dist1,dist2);
        else
           finish_node=NO_NODE;
       }

@@ -1,10 +1,8 @@
-# $Header: /home/amb/CVS/routino/src/Makefile,v 1.44 2010-12-18 15:19:33 amb Exp $
-#
 # Source code Makefile
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2010 Andrew M. Bishop
+# This file Copyright 2008-2011 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -120,7 +118,7 @@ router-slim : $(ROUTER_SLIM_OBJ)
 ########
 
 FILEDUMPER_OBJ=filedumper.o \
-	       nodes.o segments.o ways.o relations.o types.o \
+	       nodes.o segments.o ways.o relations.o types.o fakes.o \
                visualiser.o \
 	       files.o logging.o xmlparse.o
 
@@ -130,7 +128,7 @@ filedumper : $(FILEDUMPER_OBJ)
 ########
 
 FILEDUMPER_SLIM_OBJ=filedumper-slim.o \
-	       nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o \
+	       nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes.o \
                visualiser-slim.o \
 	       files.o logging.o xmlparse.o
 
