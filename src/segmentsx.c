@@ -175,7 +175,7 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  /* Close the file (finished appending) */
 
- CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -193,7 +193,7 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  /* Close the files */
 
- CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
  CloseFile(fd);
 
  /* Print the final message */
@@ -447,7 +447,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Close the files */
 
- CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
  CloseFile(fd);
 
  /* Print the final message */
@@ -546,7 +546,7 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Close the files */
 
- CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
  CloseFile(fd);
 
  /* Free the other now-unneeded indexes */
@@ -562,7 +562,7 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
 #else
- CloseFile(nodesx->fd);
+ nodesx->fd=CloseFile(nodesx->fd);
 #endif
 
  /* Print the final message */
@@ -589,7 +589,7 @@ void RotateSegments(SegmentsX* segmentsx)
 
  /* Close the file (finished appending) */
 
- CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -627,7 +627,7 @@ void RotateSegments(SegmentsX* segmentsx)
 
  /* Close the files */
 
- CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
  CloseFile(fd);
 
  /* Print the final message */
@@ -745,7 +745,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Close the files */
 
- CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
  CloseFile(fd);
 
  /* Fix-up the firstnode index for the missing nodes */
@@ -759,7 +759,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 #if !SLIM
  waysx->xdata=UnmapFile(waysx->filename);
 #else
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -839,13 +839,13 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
 #if !SLIM
  waysx->xdata=UnmapFile(waysx->filename);
 #else
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
 #endif
 
  /* Close the files */
 
- CloseFile(segmentsx->fd);
- CloseFile(segmentsx->sfd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ segmentsx->sfd=CloseFile(segmentsx->sfd);
 
  /* Print the final message */
 
@@ -937,9 +937,9 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  segmentsx->sdata=UnmapFile(segmentsx->sfilename);
 #else
- CloseFile(nodesx->fd);
- CloseFile(segmentsx->fd);
- CloseFile(segmentsx->sfd);
+ nodesx->fd=CloseFile(nodesx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ segmentsx->sfd=CloseFile(segmentsx->sfd);
 #endif
 
  /* Print the final message */
@@ -1007,7 +1007,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  /* Close the file */
 
- CloseFile(segmentsx->sfd);
+ segmentsx->sfd=CloseFile(segmentsx->sfd);
 
  /* Print the final message */
 

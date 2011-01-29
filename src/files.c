@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.c,v 1.25 2010-10-31 17:52:40 amb Exp $
-
  Functions to handle files.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -355,12 +353,16 @@ int ExistsFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Close a file on disk.
 
+  int CloseFile returns -1 (to be used like UnmapFile function).
+
   int fd The file descriptor to close.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void CloseFile(int fd)
+int CloseFile(int fd)
 {
  close(fd);
+
+ return(-1);
 }
 
 

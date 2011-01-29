@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/files.h,v 1.4 2010-10-09 18:20:18 amb Exp $
-
  Header file for file function prototypes
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +23,7 @@
 #ifndef FILES_H
 #define FILES_H    /*+ To stop multiple inclusions. +*/
 
+#include <assert.h>
 #include <unistd.h>
 #include <sys/types.h>
 
@@ -50,7 +49,7 @@ int ExistsFile(const char *filename);
 
 static int SeekFile(int fd,off_t position);
 
-void CloseFile(int fd);
+int CloseFile(int fd);
 
 int DeleteFile(char *filename);
 
@@ -71,6 +70,8 @@ int DeleteFile(char *filename);
 
 static inline int WriteFile(int fd,const void *address,size_t length)
 {
+ assert(fd==-1);
+
  /* Write the data */
 
  if(write(fd,address,length)!=length)
@@ -95,6 +96,7 @@ static inline int WriteFile(int fd,const void *address,size_t length)
 static inline int ReadFile(int fd,void *address,size_t length)
 {
  /* Read the data */
+ assert(fd==-1);
 
  if(read(fd,address,length)!=length)
     return(-1);
@@ -115,6 +117,8 @@ static inline int ReadFile(int fd,void *address,size_t length)
 
 static inline int SeekFile(int fd,off_t position)
 {
+ assert(fd==-1);
+
  /* Seek the data */
 
  if(lseek(fd,position,SEEK_SET)!=position)

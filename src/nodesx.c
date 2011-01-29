@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/nodesx.c,v 1.88 2010-12-20 19:25:03 amb Exp $
-
  Extented Node data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -178,7 +176,7 @@ void SortNodeList(NodesX* nodesx)
 
  /* Close the file (finished appending) */
 
- CloseFile(nodesx->fd);
+ nodesx->fd=CloseFile(nodesx->fd);
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -202,7 +200,7 @@ void SortNodeList(NodesX* nodesx)
 
  /* Close the files */
 
- CloseFile(nodesx->fd);
+ nodesx->fd=CloseFile(nodesx->fd);
  CloseFile(fd);
 
  /* Print the final message */
@@ -296,7 +294,7 @@ void SortNodeListGeographically(NodesX* nodesx)
 
  /* Close the files */
 
- CloseFile(nodesx->fd);
+ nodesx->fd=CloseFile(nodesx->fd);
  CloseFile(fd);
 
  /* Print the final message */
@@ -503,7 +501,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Close the files */
 
- CloseFile(nodesx->fd);
+ nodesx->fd=CloseFile(nodesx->fd);
  CloseFile(fd);
 
  /* Work out the number of bins */
@@ -582,7 +580,7 @@ void CreateRealNodes(NodesX *nodesx,int iteration)
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
 #else
- CloseFile(nodesx->fd);
+ nodesx->fd=CloseFile(nodesx->fd);
 #endif
 
  /* Print the final message */
@@ -737,9 +735,9 @@ void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  segmentsx->sdata=UnmapFile(segmentsx->sfilename);
 #else
- CloseFile(nodesx->fd);
- CloseFile(segmentsx->fd);
- CloseFile(segmentsx->sfd);
+ nodesx->fd=CloseFile(nodesx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ segmentsx->sfd=CloseFile(segmentsx->sfd);
 #endif
 
  /* Print the final message */
@@ -825,7 +823,7 @@ void SaveNodeList(NodesX* nodesx,const char *filename)
 
  /* Close the file */
 
- CloseFile(nodesx->fd);
+ nodesx->fd=CloseFile(nodesx->fd);
 
  /* Finish off the offset indexing and write them out */
 

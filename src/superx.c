@@ -141,9 +141,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  waysx->xdata=UnmapFile(waysx->filename);
 #else
- CloseFile(nodesx->fd);
- CloseFile(segmentsx->fd);
- CloseFile(waysx->fd);
+ nodesx->fd=CloseFile(nodesx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ waysx->fd=CloseFile(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -271,8 +271,8 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  waysx->xdata=UnmapFile(waysx->filename);
 #else
- CloseFile(segmentsx->fd);
- CloseFile(waysx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ waysx->fd=CloseFile(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -375,9 +375,9 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
  if(supersegmentsx->number>0)
     supersegmentsx->xdata=UnmapFile(supersegmentsx->filename);
 #else
- CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
  if(supersegmentsx->number>0)
-    CloseFile(supersegmentsx->fd);
+    supersegmentsx->fd=CloseFile(supersegmentsx->fd);
 #endif
 
  /* Print the final message */
