@@ -70,7 +70,7 @@ int DeleteFile(char *filename);
 
 static inline int WriteFile(int fd,const void *address,size_t length)
 {
- assert(fd==-1);
+ assert(fd!=-1);
 
  /* Write the data */
 
@@ -96,7 +96,7 @@ static inline int WriteFile(int fd,const void *address,size_t length)
 static inline int ReadFile(int fd,void *address,size_t length)
 {
  /* Read the data */
- assert(fd==-1);
+ assert(fd!=-1);
 
  if(read(fd,address,length)!=length)
     return(-1);
@@ -117,7 +117,7 @@ static inline int ReadFile(int fd,void *address,size_t length)
 
 static inline int SeekFile(int fd,off_t position)
 {
- assert(fd==-1);
+ assert(fd!=-1);
 
  /* Seek the data */
 
