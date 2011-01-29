@@ -258,9 +258,9 @@ void SortRelationList(RelationsX* relationsx)
 {
  /* Close the files (finished appending) */
 
- CloseFile(relationsx->rfd);
+ relationsx->rfd=CloseFile(relationsx->rfd);
 
- CloseFile(relationsx->trfd);
+ relationsx->trfd=CloseFile(relationsx->trfd);
 
 
  /* Route Relations */
@@ -292,7 +292,7 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Close the files */
 
-    CloseFile(relationsx->trfd);
+    relationsx->trfd=CloseFile(relationsx->trfd);
     CloseFile(trfd);
 
     /* Print the final message */
@@ -384,7 +384,7 @@ void SortTurnRelationList(RelationsX* relationsx)
 
  /* Close the files */
 
- CloseFile(relationsx->trfd);
+ relationsx->trfd=CloseFile(relationsx->trfd);
  CloseFile(trfd);
 
  /* Print the final message */
@@ -590,14 +590,14 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
  /* Close the file */
 
- CloseFile(relationsx->rfd);
+ relationsx->rfd=CloseFile(relationsx->rfd);
 
  /* Unmap from memory / close the files */
 
 #if !SLIM
  waysx->xdata=UnmapFile(waysx->filename);
 #else
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
 #endif
 }
 
@@ -790,7 +790,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Close the files */
 
- CloseFile(relationsx->trfd);
+ relationsx->trfd=CloseFile(relationsx->trfd);
  CloseFile(trfd);
 
  /* Unmap from memory / close the files */
@@ -799,8 +799,8 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  nodesx->xdata=UnmapFile(nodesx->filename);
  segmentsx->xdata=UnmapFile(segmentsx->filename);
 #else
- CloseFile(nodesx->fd);
- CloseFile(segmentsx->fd);
+ nodesx->fd=CloseFile(nodesx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
 #endif
 
  /* Print the final message */
@@ -903,7 +903,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Close the files */
 
- CloseFile(relationsx->trfd);
+ relationsx->trfd=CloseFile(relationsx->trfd);
  CloseFile(trfd);
 
  /* Unmap from memory / close the files */
@@ -913,9 +913,9 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  segmentsx->xdata=UnmapFile(segmentsx->filename);
  segmentsx->sdata=UnmapFile(segmentsx->sfilename);
 #else
- CloseFile(nodesx->fd);
- CloseFile(segmentsx->fd);
- CloseFile(segmentsx->sfd);
+ nodesx->fd=CloseFile(nodesx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ segmentsx->sfd=CloseFile(segmentsx->sfd);
 #endif
 
  /* Print the final message */
@@ -981,7 +981,7 @@ void SaveRelationList(RelationsX* relationsx,const char *filename)
 
  /* Close the file */
 
- CloseFile(relationsx->trfd);
+ relationsx->trfd=CloseFile(relationsx->trfd);
 
  /* Print the final message */
 

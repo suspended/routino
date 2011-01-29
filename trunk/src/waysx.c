@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.c,v 1.57 2010-12-20 19:02:31 amb Exp $
-
  Extended Way data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -188,7 +186,7 @@ void SortWayList(WaysX* waysx)
 
  /* Close the file (finished appending) */
 
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -204,7 +202,7 @@ void SortWayList(WaysX* waysx)
 
  /* Close the files */
 
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
  CloseFile(fd);
 
  /* Print the final message */
@@ -264,10 +262,10 @@ void SortWayList(WaysX* waysx)
 
  /* Close the files */
 
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
  CloseFile(fd);
 
- CloseFile(waysx->nfd);
+ waysx->nfd=CloseFile(waysx->nfd);
 
  /* Print the final message */
 
@@ -302,7 +300,7 @@ void SortWayList(WaysX* waysx)
 
  /* Close the files */
 
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
  CloseFile(fd);
 
  /* Print the final message */
@@ -341,7 +339,7 @@ void CompactWayList(WaysX* waysx)
 
  /* Close the files */
 
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
  CloseFile(fd);
 
  /* Print the final message */
@@ -388,7 +386,7 @@ void CompactWayList(WaysX* waysx)
 
  /* Close the files */
 
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
  CloseFile(fd);
 
  /* Print the final message */
@@ -414,7 +412,7 @@ void CompactWayList(WaysX* waysx)
 
  /* Close the files */
 
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
  CloseFile(fd);
 
  /* Print the final message */
@@ -646,7 +644,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
 #if !SLIM
  waysx->xdata=UnmapFile(waysx->filename);
 #else
- CloseFile(waysx->fd);
+ waysx->fd=CloseFile(waysx->fd);
 #endif
 
  /* Write out the ways names */
@@ -671,7 +669,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
 
  /* Close the file */
 
- CloseFile(waysx->nfd);
+ waysx->nfd=CloseFile(waysx->nfd);
 
  /* Write out the header structure */
 
