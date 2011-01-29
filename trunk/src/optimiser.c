@@ -370,13 +370,14 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
        turnrelation=FindFirstTurnRelation2(relations,node1,seg1);
 
+    /* node1 cannot be a fake node (must be a super-node) */
     segment=FirstSegment(segments,nodes,node1);
 
     while(segment)
       {
-       index_t node2,seg2;
-       Node *node;
        Way *way;
+       Node *node;
+       index_t node2,seg2;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
@@ -391,6 +392,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(result1->prev && result1->prev->node==node2)
           goto endloop;
 
+       /* node2 cannot be a fake node (must be a super-node) */
        seg2=IndexSegment(segments,segment);
 
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1,seg2,profile->allow))
@@ -426,6 +428,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(segment_pref==0)
           goto endloop;
 
+       /* node2 cannot be a fake node (must be a super-node) */
        node=LookupNode(nodes,node2,2);
 
        if(!(node->allow&profile->allow))
@@ -462,6 +465,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
              double lat,lon;
              distance_t direct;
 
+             /* node2 cannot be a fake node (must be a super-node) */
              GetLatLong(nodes,node2,&lat,&lon);
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
@@ -491,6 +495,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
              double lat,lon;
              distance_t direct;
 
+             /* node2 cannot be a fake node (must be a super-node) */
              GetLatLong(nodes,node2,&lat,&lon);
              direct=Distance(lat,lon,finish_lat,finish_lon);
 
@@ -508,6 +513,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(!option_quiet && !(results->number%10000))
           printf_middle("Routing: Super-Nodes checked = %d",results->number);
 
+       /* node1 cannot be a fake node (must be a super-node) */
        segment=NextSegment(segments,segment,node1);
       }
    }
@@ -595,18 +601,18 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     node1=result1->node;
     seg1=result1->segment;
 
-//    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
-//       turnrelation=FindFirstTurnRelation2(relations,node1,seg1);
-
     if(IsFakeNode(node1))
        segment=FirstFakeSegment(node1);
     else
        segment=FirstSegment(segments,nodes,node1);
 
+//    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
+//       turnrelation=FindFirstTurnRelation2(relations,node1,seg1);
+
     while(segment)
       {
-       index_t node2,seg2;
        Way *way;
+       index_t node2,seg2;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
@@ -787,8 +793,8 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
     while(segment)
       {
-       index_t node2,seg2;
        Way *way;
+       index_t node2,seg2;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
