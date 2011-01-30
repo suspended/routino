@@ -353,7 +353,8 @@ filedumper
                                   --data=<data-type>]
                     [--dump [--node=<node> ...]
                             [--segment=<segment> ...]
-                            [--way=<way> ...]]
+                            [--way=<way> ...]
+                            [--turn-relation=<relation> ...]]
                     [--dump-osm [--no-super]
                                 [--latmin=<latmin> --latmax=<latmax>
                                  --lonmin=<lonmin> --lonmax=<lonmax>]]
@@ -397,7 +398,8 @@ filedumper
    --dump
           Selects a data dumping mode which allows looking at individual
           items in the databases (specifying 'all' instead of a number
-          dumps all of them).
+          dumps all of them). More than one of the following parameters
+          can be specified on the command line.
 
         --node=<node>
                 Prints the information about the selected node number
@@ -411,6 +413,11 @@ filedumper
                 Prints the information about the selected way number
                 (internal number, not the way id number in the original
                 source file).
+
+        --turn-relation=<relation>
+                Prints the information about the selected turn relation
+                number (internal number, not the relation id number in the
+                original source file).
 
    --osm-dump
           Dumps the contents of the database as an OSM format XML file,
@@ -430,6 +437,7 @@ filedumper
    compilation time a separate program called filedumper-slim is created
    that operates in slim mode. In slim mode the database files are read as
    needed rather than being mapped into memory.
+
 
 tagmodifier
 -----------
@@ -461,4 +469,4 @@ tagmodifier
 
 --------
 
-Copyright 2008-2010 Andrew M. Bishop.
+Copyright 2008-2011 Andrew M. Bishop.
