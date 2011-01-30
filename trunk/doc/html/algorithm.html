@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -87,8 +87,8 @@ found.
 At all times when looking at a node only those segments that are possible by the
 chosen means of transport are followed.  This allows the type of transport to be
 handled easily.  When finding the quickest route the same rules apply except
-that criterion for sorting is the shortest potential route (assuming that from
-each node to the end is the fastest possible type of highway).
+that the criterion for sorting is the shortest potential route (assuming that
+from each node to the end is the fastest possible type of highway).
 <p>
 This method also works, but again it isn't very fast.  The problem is that the
 complexity is proportional to the number of nodes or segments in all routes
@@ -140,6 +140,19 @@ result that still contains the full list of nodes that are visited.  There are
 some special cases though, for example very short routes that do not pass
 through any super-nodes, or routes that start or finish on a super-node.  In
 these cases one or more of the steps listed can be removed or simplified.
+<p>
+When the first route reaches the final node the length of that route is retained
+as a benchmark.  Any shorter complete route that is calculated later would
+replace this benchmark.  As routes are tested any partial routes that are longer
+than the benchmark can be immediately discarded.  Other partial routes have the
+length of a perfect straight highway to the final node added to them and if the
+total exceeds the benchmark they can also be discarded.  Very quickly the number
+of possible routes is reduced until the absolute shortest is found.
+<p>
+For routes that do not start or finish on a node in the original data set a fake
+node is added to an existing segment.  This requires special handling in the
+algorithm but it gives mode flexibility for the start, finish and intermediate
+points in a route.
 
 <h3><a name="H_1_1_4"></a>Routing Preferences</h3>
 
@@ -185,7 +198,37 @@ minimising the length.
   preference.
 </dl>
 
-<h3><a name="H_1_1_5"></a>Implementation</h3>
+<h3><a name="H_1_1_5"></a>Turn Restrictions</h3>
+
+The addition of turn restrictions adds a further complication because it
+introduces a set of constraints that are more complex than one-way streets.
+<p>
+A turn restriction in the simplest case is a combination of a segment, node and
+segment such that routes are not allowed to go from the first segment to the
+second one through the specified node.  Exceptions for certain types of traffic
+can also be specified.  Currently only this simplest type of turn restriction is
+handled by the algorithm.
+<p>
+The first complication of a turn restriction is that the optimum route may
+require passing through the same node more than once.  This can happen where the
+route needs to work around a turn restriction by driving past it, turning round
+(on a roundabout perhaps) and coming back along the same highway.  Without turn
+restrictions a route could be defined purely by the set of nodes that were
+passed; no node would be exist more than once within a route between two points.
+With turn restrictions the route is defined by a node and the segment used to
+get there; no route between two points will ever need to follow the same segment
+in the same direction more than once.
+<p>
+The second complication of turn restrictions is that the pre-computed
+super-segments must be composed of segments with identical properties.  The turn
+restriction is not the same in both directions so a super-segment cannot include
+any route through the turn restriction.  The node at the centre of the turn
+restriction must therefore be a super-node to avoid this.  In addition to this
+all nodes connected to the turn restriction node by a single segment must also
+be super-nodes to avoid any long-distance super-segments starting at the
+restricted node.
+
+<h3><a name="H_1_1_4"></a>Data Implementation</h3>
 
 The hardest part of implementing this router is the data organisation.  The
 arrangement of the data to minimise the number of operations required to follow
@@ -217,6 +260,12 @@ with the segments.  For the nodes they are the same as the normal nodes, so just
 a flag is needed to indicate that they are super.  The super-segments are in
 addition to the normal segments so they increase the database size (by about
 10%) and are also marked with a flag.
+<p>
+The relations are stored separately from the nodes, segments and ways.  For the
+turn restriction relations the initial and final segments are stored along with
+the restricted node itself.  Each node that has a turn restriction is marked in
+the main node storage with a flag to indicate this information.
+
 
 <h3><a name="H_1_1_6"></a>Practicalities</h3>
 
