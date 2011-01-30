@@ -72,8 +72,6 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  Result  *finish_result;
  Result  *result1,*result2;
 
-// printf("FindNormalRoute(start_node=%ld prev_segment=%ld finish_node=%ld)\n",start_node,prev_segment,finish_node);
-
  /* Set up the finish conditions */
 
  finish_score=INF_SCORE;
@@ -533,12 +531,17 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Finish off the end part of the route. */
 
- result3=InsertResult(results,end->finish_node,NO_SEGMENT);
+ if(finish_result->node!=end->finish_node)
+   {
+    result3=InsertResult(results,end->finish_node,NO_SEGMENT);
 
- result3->prev=finish_result;
- result3->score=finish_score;
+    result3->prev=finish_result;
+    result3->score=finish_score;
 
- FixForwardRoute(results,result3);
+    finish_result=result3;
+   }
+
+ FixForwardRoute(results,finish_result);
 
  return(results);
 }
@@ -758,11 +761,6 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
  result1=InsertResult(results,finish_node,NO_SEGMENT);
 
- /* Take a shortcut if the first node is a super-node. */
-
- if(!IsFakeNode(finish_node) && IsSuperNode(LookupNode(nodes,finish_node,1)))
-    return(results);
-
  /* Insert the first node into the queue */
 
  queue=NewQueueList();
@@ -923,7 +921,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
       {
        result2=InsertResult(results2,result3->next->node,result3->segment);
 
-       result2->score=result3->score;
+       result2->score=result3->next->score;
       }
 
     result3=NextResult(results,result3);
@@ -1000,8 +998,6 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
        result2=FindResult(results2,result1->node,result3->segment);
 
-//       printf("CombineRoutes(result2->node=%ld result2->segment=%ld)\n",result2->node,result2->segment);
-
        result2=result2->next;
 
        /*
@@ -1020,8 +1016,6 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
        do
          {
-//          printf("CombineRoutes(result2->node=%ld result2->segment=%ld)\n",result2->node,result2->segment);
-
           result4=InsertResult(combined,result2->node,result2->segment);
 
           result4->score=result2->score+result3->score;
