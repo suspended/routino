@@ -742,7 +742,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 /*++++++++++++++++++++++++++++++++++++++
   Calculate the angle to turn at a junction from segment1 to segment2 at node.
 
-  int turn_angle Returns a value in the range -4 to +4 indicating the angle to turn.
+  int turn_angle Returns a value in the range -180 to +180 indicating the angle to turn.
 
   Nodes *nodes The set of nodes.
 
@@ -752,7 +752,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
   index_t node The node at which they join.
 
-  Straight ahead is zero, turning to the right is positive (90 degrees) and turning to the left is negative.
+  Straight ahead is zero, turning to the right is positive (e.g. +90 degrees) and turning to the left is negative (e.g. -90 degrees).
   Angles are calculated using flat Cartesian lat/long grid approximation (after scaling longitude due to latitude).
   ++++++++++++++++++++++++++++++++++++++*/
 
