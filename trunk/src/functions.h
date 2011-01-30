@@ -37,7 +37,7 @@ Results *FindMiddleRoute(Nodes *supernodes,Segments *supersegments,Ways *superwa
 Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t prev_segment,Profile *profile);
 Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish_node,Profile *profile);
 
-Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Results *results,index_t prev_segment,Profile *profile);
+Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Results *results,Profile *profile);
 
 void FixForwardRoute(Results *results,Result *finish_result);
 

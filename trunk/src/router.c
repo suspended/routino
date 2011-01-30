@@ -525,7 +525,7 @@ int main(int argc,char** argv)
           return(1);
          }
 
-       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,superresults,join_segment,profile);
+       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,superresults,profile);
 
        FreeResultsList(superresults);
       }

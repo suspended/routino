@@ -87,7 +87,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  results=NewResultsList(8);
 
  results->start_node=start_node;
- results->finish_node=finish_node;
+ results->prev_segment=prev_segment;
 
  result1=InsertResult(results,start_node,prev_segment);
 
@@ -320,8 +320,6 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  results->start_node=begin->start_node;
  results->prev_segment=begin->prev_segment;
-
- results->finish_node=end->finish_node;
 
  result1=InsertResult(results,begin->start_node,begin->prev_segment);
 
@@ -965,12 +963,10 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
   Results *results The set of results from the super-nodes.
 
-  index_t prev_segment The previous segment before the start node.
-
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Results *results,index_t prev_segment,Profile *profile)
+Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Results *results,Profile *profile)
 {
  Result *result1,*result3;
  Results *combined;
@@ -978,15 +974,13 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
  combined=NewResultsList(64);
 
  combined->start_node=results->start_node;
- combined->finish_node=results->finish_node;
-
- combined->last_segment=results->last_segment;
+ combined->prev_segment=results->prev_segment;
 
  /* Sort out the combined route */
 
- result1=FindResult(results,results->start_node,prev_segment);
+ result1=FindResult(results,results->start_node,results->prev_segment);
 
- result3=InsertResult(combined,results->start_node,prev_segment);
+ result3=InsertResult(combined,results->start_node,results->prev_segment);
 
  do
    {
