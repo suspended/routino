@@ -241,6 +241,7 @@ int main(int argc,char** argv)
     printf("Number(original) =%9d\n",OSMWays->file.onumber);
     printf("\n");
 
+    stat(ways_filename,&buf);
     printf("Total names =%9ld Bytes\n",(long)buf.st_size-sizeof(Ways)-OSMWays->file.number*sizeof(Way));
     printf("\n");
 
