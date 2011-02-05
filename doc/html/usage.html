@@ -161,7 +161,7 @@ Usage: router [--help | --help-profile | --help-profile-xml |
               [--highway-&lt;highway&gt;=&lt;preference&gt; ...]
               [--speed-&lt;highway&gt;=&lt;speed&gt; ...]
               [--property-&lt;property&gt;=&lt;preference&gt; ...]
-              [--oneway=(0|1)]
+              [--oneway=(0|1)] [--turns=(0|1)]
               [--weight=&lt;weight&gt;]
               [--height=&lt;height&gt;] [--width=&lt;width&gt;] [--length=&lt;length&gt;]
 </pre>
@@ -295,6 +295,10 @@ Usage: router [--help | --help-profile | --help-profile-xml |
   <dd>Selects if the direction of oneway streets are to be obeyed (useful to not
       obey them when walking).  Default value depends on the profile selected by
       the --transport option.
+  <dt>--turns=[0|1]
+  <dd>Selects if turn restrictions are to be obeyed (useful to not obey them
+      when walking).  Default value depends on the profile selected by the
+      --transport option.
   <dt>--weight=&lt;weight&gt;
   <dd>Specifies the weight of the mode of transport in tonnes; ensures that the
       weight limit on the highway is not exceeded.  Default value depends on the
