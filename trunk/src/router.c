@@ -321,6 +321,8 @@ int main(int argc,char** argv)
       }
     else if(!strncmp(argv[arg],"--oneway=",9))
        profile->oneway=!!atoi(&argv[arg][9]);
+    else if(!strncmp(argv[arg],"--turns=",8))
+       profile->turns=!!atoi(&argv[arg][8]);
     else if(!strncmp(argv[arg],"--weight=",9))
        profile->weight=tonnes_to_weight(atof(&argv[arg][9]));
     else if(!strncmp(argv[arg],"--height=",9))
@@ -575,7 +577,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "              [--highway-<highway>=<preference> ...]\n"
          "              [--speed-<highway>=<speed> ...]\n"
          "              [--property-<property>=<preference> ...]\n"
-         "              [--oneway=(0|1)]\n"
+         "              [--oneway=(0|1)] [--turns=(0|1)]\n"
          "              [--weight=<weight>]\n"
          "              [--height=<height>] [--width=<width>] [--length=<length>]\n");
 
@@ -637,7 +639,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--highway-<highway>=<preference>   * preference for highway type (%%).\n"
             "--speed-<highway>=<speed>          * speed for highway type (km/h).\n"
             "--property-<property>=<preference> * preference for proprty type (%%).\n"
-            "--oneway=(0|1)                     * oneway streets are to be obeyed.\n"
+            "--oneway=(0|1)                     * oneway restrictions are to be obeyed.\n"
+            "--turns=(0|1)                      * turn restrictions are to be obeyed.\n"
             "--weight=<weight>                  * maximum weight limit (tonnes).\n"
             "--height=<height>                  * maximum height limit (metres).\n"
             "--width=<width>                    * maximum width limit (metres).\n"

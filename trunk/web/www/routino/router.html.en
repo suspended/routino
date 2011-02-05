@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -332,6 +332,7 @@
         <div id="hideshow_restriction_div" style="display: none;">
           <table>
             <tr><td>Obey oneway:<td><input name="restrict-oneway" type="checkbox"    onchange="formSetRestriction('oneway')"><!-- oneway --><td>
+            <tr><td>Obey turns: <td><input name="restrict-turns"  type="checkbox"    onchange="formSetRestriction('turns' )"><!-- turns  --><td>
             <tr><td>Weight:     <td><input name="restrict-weight" type="text" size=3 onchange="formSetRestriction('weight')"><!-- weight --><td>tonnes
             <tr><td>Height:     <td><input name="restrict-height" type="text" size=3 onchange="formSetRestriction('height')"><!-- height --><td>metres
             <tr><td>Width:      <td><input name="restrict-width"  type="text" size=3 onchange="formSetRestriction('width' )"><!-- width  --><td>metres

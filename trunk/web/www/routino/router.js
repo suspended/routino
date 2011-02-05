@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2010 Andrew M. Bishop
+// This file Copyright 2008-2011 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ var routino={ // contains all default Routino options (generated using "--help-p
   properties: { paved: 1, multilane: 2, bridge: 3, tunnel: 4, footroute: 5, bicycleroute: 6 },
 
   // Restriction types
-  restrictions: { oneway: 1, weight: 2, height: 3, width: 4, length: 5 },
+  restrictions: { oneway: 1, turns: 2, weight: 3, height: 4, width: 5, length: 6 },
 
   // Allowed highways
   profile_highway: {
@@ -87,6 +87,7 @@ var routino={ // contains all default Routino options (generated using "--help-p
   // Restrictions
   profile_restrictions: {
           oneway: { foot:    0, horse:    1, wheelchair:    0, bicycle:    1, moped:    1, motorbike:    1, motorcar:    1, goods:    1, hgv:    1, psv:    1 },
+           turns: { foot:    0, horse:    1, wheelchair:    1, bicycle:    1, moped:    1, motorbike:    1, motorcar:    1, goods:    1, hgv:    1, psv:    1 },
           weight: { foot:  0.0, horse:  0.0, wheelchair:  0.0, bicycle:  0.0, moped:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  5.0, hgv: 10.0, psv: 15.0 },
           height: { foot:  0.0, horse:  0.0, wheelchair:  0.0, bicycle:  0.0, moped:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  2.5, hgv:  3.0, psv:  3.0 },
            width: { foot:  0.0, horse:  0.0, wheelchair:  0.0, bicycle:  0.0, moped:  0.0, motorbike:  0.0, motorcar:  0.0, goods:  2.0, hgv:  2.5, psv:  2.5 },
@@ -170,7 +171,7 @@ function form_init()
 
     for(var key in routino.restrictions)
       {
-       if(key=="oneway")
+       if(key=="oneway" || key=="turns")
           formSetRestriction(key);
        else
          {
@@ -273,7 +274,7 @@ function formSetTransport(type)
 
  for(var key in routino.restrictions)
    {
-    if(key=="oneway")
+    if(key=="oneway" || key=="turns")
        document.forms["form"].elements["restrict-" + key].checked=routino.profile_restrictions[key][routino.transport];
     else
        document.forms["form"].elements["restrict-" + key].value=routino.profile_restrictions[key][routino.transport];
@@ -328,12 +329,12 @@ function formSetProperty(type)
 
 
 //
-// Change of oneway rule in the form
+// Change of Restriction rule in the form
 //
 
 function formSetRestriction(type)
 {
- if(type=="oneway")
+ if(type=="oneway" || type=="turns")
     routino.profile_restrictions[type][routino.transport]=document.forms["form"].elements["restrict-" + type].checked;
  else
     routino.profile_restrictions[type][routino.transport]=document.forms["form"].elements["restrict-" + type].value;

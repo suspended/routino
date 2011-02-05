@@ -109,7 +109,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     node1=result1->node;
     seg1=result1->segment;
 
-    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
+    if(profile->turns && IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
        turnrelation=FindFirstTurnRelation2(relations,node1,seg1);
 
     if(IsFakeNode(node1))
@@ -363,7 +363,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     node1=result1->node;
     seg1=result1->segment;
 
-    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
+    if(profile->turns && IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
        turnrelation=FindFirstTurnRelation2(relations,node1,seg1);
 
     /* node1 cannot be a fake node (must be a super-node) */
@@ -776,7 +776,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
     node1=result1->node;
     seg1=result1->segment;
 
-    if(IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
+    if(profile->turns && IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
        turnrelation=FindFirstTurnRelation1(relations,node1); /* working backwards => turn relation sort order doesn't help */
 
     if(IsFakeNode(node1))
@@ -809,7 +809,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
        if(turnrelation!=NO_RELATION)
          {
-          index_t turnrelation2=FindFirstTurnRelation2(relations,node1,node2); /* node2 -> node1 -> result1->next->node */
+          index_t turnrelation2=FindFirstTurnRelation2(relations,node1,seg2); /* node2 -> node1 -> result1->next->node */
 
           if(turnrelation2!=NO_RELATION && !IsTurnAllowed(relations,turnrelation2,node1,seg2,seg1,profile->allow))
              goto endloop;

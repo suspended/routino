@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/profiles.h,v 1.18 2010-11-27 11:41:25 amb Exp $
-
  A header file for the profiles.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -50,6 +48,7 @@ typedef struct _Profile
  score_t      props_no [Property_Count]; /*+ A floating point preference for ways without this attribute. +*/
 
  int          oneway;                    /*+ A flag to indicate if one-way restrictions apply. +*/
+ int          turns;                     /*+ A flag to indicate if turn restrictions apply. +*/
 
  weight_t     weight;                    /*+ The minimum weight of the route. +*/
 
