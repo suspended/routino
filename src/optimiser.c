@@ -504,10 +504,10 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
             }
          }
 
-      endloop:
-
        if(!option_quiet && !(results->number%10000))
           printf_middle("Routing: Super-Nodes checked = %d",results->number);
+
+      endloop:
 
        /* node1 cannot be a fake node (must be a super-node) */
        segment=NextSegment(segments,segment,node1);

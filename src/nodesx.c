@@ -449,7 +449,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the start message */
 
- printf_first("Checking: Nodes=0");
+ printf_first("Checking Nodes: Nodes=0");
 
  /* While we are here we can work out the range of data */
 
@@ -494,7 +494,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
+       printf_middle("Checking Nodes: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
    }
 
  nodesx->number=highway;
@@ -525,7 +525,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Checked: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
+ printf_last("Checked Nodes: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
 }
 
 
