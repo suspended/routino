@@ -315,12 +315,12 @@ int main(int argc,char** argv)
          }
        else if(!strncmp(argv[arg],"--turn-relation=",16))
          {
-          item=atoi(&argv[arg][6]);
+          item=atoi(&argv[arg][16]);
 
           if(item>=0 && item<OSMRelations->file.trnumber)
              print_turnrelation(OSMRelations,item,OSMSegments,OSMNodes);
           else
-             printf("Invalid relation number; minimum=0, maximum=%d.\n",OSMRelations->file.trnumber-1);
+             printf("Invalid turn relation number; minimum=0, maximum=%d.\n",OSMRelations->file.trnumber-1);
          }
    }
 
@@ -518,7 +518,7 @@ static void print_way(Ways *ways,index_t item)
 
 static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes* nodes)
 {
- TurnRelation *relation=LookupTurnRelation(relations,item,3);
+ TurnRelation *relation=LookupTurnRelation(relations,item,1);
  Segment *segment;
  index_t from_way=NO_WAY,to_way=NO_WAY;
  index_t from_node=NO_NODE,to_node=NO_NODE;
@@ -682,7 +682,7 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 
 static void print_turnrelation_osm(Relations* relations,index_t item,Segments *segments,Nodes* nodes)
 {
- TurnRelation *relation=LookupTurnRelation(relations,item,3);
+ TurnRelation *relation=LookupTurnRelation(relations,item,1);
 
  Segment *from_segment=LookupSegment(segments,relation->from,1);
  Segment *to_segment  =LookupSegment(segments,relation->to  ,1);
