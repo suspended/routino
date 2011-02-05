@@ -142,21 +142,23 @@ int main(int argc,char** argv)
        print_usage(0,NULL,"The --visualiser option must have --data.\n");
 
     if(!strcmp(option_data,"junctions"))
-       OutputJunctions(OSMNodes,OSMSegments,OSMWays,latmin,latmax,lonmin,lonmax);
+       OutputJunctions(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"super"))
-       OutputSuper(OSMNodes,OSMSegments,OSMWays,latmin,latmax,lonmin,lonmax);
+       OutputSuper(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"oneway"))
-       OutputOneway(OSMNodes,OSMSegments,OSMWays,latmin,latmax,lonmin,lonmax);
+       OutputOneway(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
+    else if(!strcmp(option_data,"turns"))
+       OutputTurnRestrictions(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"speed"))
-       OutputSpeedLimits(OSMNodes,OSMSegments,OSMWays,latmin,latmax,lonmin,lonmax);
+       OutputSpeedLimits(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"weight"))
-       OutputWeightLimits(OSMNodes,OSMSegments,OSMWays,latmin,latmax,lonmin,lonmax);
+       OutputWeightLimits(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"height"))
-       OutputHeightLimits(OSMNodes,OSMSegments,OSMWays,latmin,latmax,lonmin,lonmax);
+       OutputHeightLimits(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"width"))
-       OutputWidthLimits(OSMNodes,OSMSegments,OSMWays,latmin,latmax,lonmin,lonmax);
+       OutputWidthLimits(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"length"))
-       OutputLengthLimits(OSMNodes,OSMSegments,OSMWays,latmin,latmax,lonmin,lonmax);
+       OutputLengthLimits(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else
        print_usage(0,option_data,NULL);
    }
@@ -837,6 +839,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "      junctions = segment count at each junction.\n"
             "      super     = super-node and super-segments.\n"
             "      oneway    = oneway segments.\n"
+            "      turns     = turn restrictions.\n"
             "      speed     = speed limits.\n"
             "      weight    = weight limits.\n"
             "      height    = height limits.\n"

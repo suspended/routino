@@ -394,6 +394,7 @@ filedumper
                o junctions = segment count at each junction.
                o super = super-node and super-segments.
                o oneway = oneway segments.
+               o turns = turn restrictions.
                o speed = speed limits.
                o weight = weight limits.
                o height = height limits.
