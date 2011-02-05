@@ -399,7 +399,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the start message */
 
- printf_first("Checking: Segments=0 Duplicate=0 Loop=0 Missing-Node=0");
+ printf_first("Checking Segments: Segments=0 Duplicate=0 Loop=0 Missing-Node=0");
 
  /* Allocate the array of indexes */
 
@@ -440,7 +440,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",total,duplicate,loop,missing);
+       printf_middle("Checking Segments: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",total,duplicate,loop,missing);
    }
 
  segmentsx->number=good;
@@ -452,7 +452,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Checked: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",total,duplicate,loop,missing);
+ printf_last("Checked Segments: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",total,duplicate,loop,missing);
 }
 
 
