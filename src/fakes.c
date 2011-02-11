@@ -126,6 +126,25 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,i
 
  if(fake_lat[point]>M_PI) fake_lat[point]-=2*M_PI;
 
+ /*
+  *    node1  fakenode                         node2
+  *      #----------*----------------------------#     real_segments[4*point-{4,3}]
+  *   
+  *      #----------*                                  fake_segments[4*point-4]
+  *                 *----------------------------#     fake_segments[4*point-3]
+  *   
+  *   
+  *    node1  fakenode[prevpoint]              node2
+  *      #----------*------------------%---------#     real_segments[4*prevpoint-{4,3,1}], real_segments[4*point-{4,3,2}]
+  *                              fakenode[point]
+  *      #----------*                                  fake_segments[4*prevpoint-4]
+  *                 *----------------------------#     fake_segments[4*prevpoint-3]
+  *                 *------------------%               fake_segments[4*prevpoint-1]
+  *      #-----------------------------%               fake_segments[4*point-4]
+  *                                    %---------#     fake_segments[4*point-3]
+  *                 *------------------%               fake_segments[4*point-2]
+  */
+
  /* Create the first fake segment */
 
  fake_segments[4*point-4]=*segment;
@@ -152,19 +171,19 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,i
    {
     if(DISTANCE(dist1)>DISTANCE(fake_segments[4*prevpoint-4].distance)) /* closer to node2 */
       {
-       fake_segments[4*point-2]=fake_segments[4*point-4];
+       fake_segments[4*point-2]=fake_segments[4*prevpoint-4];
 
-       fake_segments[4*point-2].node1=fakenode;
+       fake_segments[4*point-2].node2=fakenode;
 
        fake_segments[4*point-2].distance=(DISTANCE(dist1)-DISTANCE(fake_segments[4*prevpoint-4].distance))|DISTFLAG(segment->distance);
       }
     else
       {
-       fake_segments[4*point-2]=fake_segments[4*point-2];
+       fake_segments[4*point-2]=fake_segments[4*prevpoint-3];
 
-       fake_segments[4*point-2].node2=fakenode;
+       fake_segments[4*point-2].node1=fakenode;
 
-       fake_segments[4*point-2].distance=(DISTANCE(fake_segments[4*prevpoint-4].distance)-DISTANCE(dist1))|DISTFLAG(segment->distance);
+       fake_segments[4*point-2].distance=(DISTANCE(fake_segments[4*prevpoint-3].distance)-DISTANCE(dist2))|DISTFLAG(segment->distance);
       }
 
     real_segments[4*point-2]=IndexSegment(segments,segment);
