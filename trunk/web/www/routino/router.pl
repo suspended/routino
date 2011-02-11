@@ -190,12 +190,21 @@ sub RunRouter
 
    $params.=" --dir=$data_dir" if($data_dir);
    $params.=" --prefix=$data_prefix" if($data_prefix);
-   $params.=" --quiet";
+   $params.=" --loggable";
 
-   $message=`$bin_dir/$router_exe $params 2>&1`;
+   system "$bin_dir/$router_exe $params > router.log 2>&1";
 
    (undef,undef,$cuser,$csystem) = times;
    $time=sprintf "time: %.3f CPU / %.3f elapsed",$cuser+$csystem,tv_interval($t0);
+
+   $message="";
+
+   if($? != 0)
+     {
+      $message=`tail -1 router.log`;
+     }
+
+   $result="";
 
    if(-f "$optimise.txt")
      {
@@ -221,7 +230,8 @@ sub RunRouter
            "gpx-route" => "-route.gpx",
            "gpx-track" => "-track.gpx",
            "text"      => ".txt",
-           "text-all"  => "-all.txt"
+           "text-all"  => "-all.txt",
+           "log"       => ".log"
           );
 
 # Possible MIME types
@@ -231,12 +241,15 @@ sub RunRouter
             "gpx-route" => "text/xml",
             "gpx-track" => "text/xml",
             "text"      => "text/plain",
-            "text-all"  => "text/plain"
+            "text-all"  => "text/plain",
+            "log"       => "text/plain"
            );
 
 sub ReturnOutput
   {
    my($uuid,$type,$format)=@_;
+
+   if($type eq "router") { $format="log" }
 
    $suffix=$suffixes{$format};
    $mime  =$mimetypes{$format};

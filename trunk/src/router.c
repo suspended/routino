@@ -535,6 +535,12 @@ int main(int argc,char** argv)
     join_segment=results[point]->last_segment;
    }
 
+ if(!option_quiet)
+   {
+    printf("Routed OK\n");
+    fflush(stdout);
+   }
+
  /* Print out the combined route */
 
  if(!option_none)
