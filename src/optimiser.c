@@ -299,7 +299,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  Result  *finish_result;
  score_t finish_score;
  double  finish_lat,finish_lon;
- Result  *result1,*result2,*result3;
+ Result  *result1,*result2,*result3,*result4;
 
  if(!option_quiet)
     printf_first("Routing: Super-Nodes checked = 0");
@@ -341,6 +341,15 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        result2->sortby=result3->score;
 
        InsertInQueue(queue,result2);
+
+       if((result4=FindResult(end,result2->node,result2->segment)))
+         {
+          if((result2->score+result4->score)<finish_score)
+            {
+             finish_score=result2->score+result4->score;
+             finish_result=result2;
+            }
+         }
       }
 
     result3=NextResult(begin,result3);
@@ -791,7 +800,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
-       if(!IsNormalSegment(segment))
+       if((IsFakeNode(node1) || !IsSuperNode(LookupNode(nodes,node1,1))) && !IsNormalSegment(segment))
           goto endloop;
 
        if(profile->oneway && IsOnewayFrom(segment,node1)) /* Disallow oneway from node2 *to* node1 */
