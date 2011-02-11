@@ -430,11 +430,25 @@
     <div class="hideshow_box">
       <span class="hideshow_title">Status</span>
       <div id="result_status">
-        <span id="result_status_not_run"                        ><b><i>Router niet in gebruik</i></b></span>
-        <span id="result_status_running"  style="display: none;"><b>Router werkt...</b></span>
-        <span id="result_status_complete" style="display: none;"><b>Routing voltooid</b></span>
-        <span id="result_status_error"    style="display: none;"><b>Router error</b></span>
-        <span id="result_status_failed"   style="display: none;"><b>Router werkt niet</b></span>
+        <div id="result_status_not_run">
+          <b><i>Router niet in gebruik</i></b>
+        </div>
+        <div id="result_status_running"  style="display: none;">
+          <b>Router werkt...</b>
+        </div>
+        <div id="result_status_complete" style="display: none;">
+          <b>Routing voltooid</b>
+          <br>
+          <a id="router_log_complete" target="router_log" href="#">View Details</a>
+        </div>
+        <div id="result_status_error"    style="display: none;">
+          <b>Router error</b>
+          <br>
+          <a id="router_log_error" target="router_log" href="#">View Details</a>
+        </div>
+        <div id="result_status_failed"   style="display: none;">
+          <b>Router werkt niet</b>
+        </div>
       </div>
     </div>
 

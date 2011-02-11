@@ -1288,25 +1288,32 @@ function runRouterSuccess(response)
  var distinfo=lines[2];
  var message=lines[3];
 
+ var link;
+
  // Update the status message
 
  if(message!="")
    {
     displayStatus("result","error");
     hideshow_show('help_route');
+
+    link=document.getElementById("router_log_error");
+    link.href="results.cgi?uuid=" + uuid + ";type=router;format=log";
+
     return;
    }
  else
    {
     displayStatus("result","complete");
     hideshow_hide('help_route');
+
+    link=document.getElementById("router_log_complete");
+    link.href="results.cgi?uuid=" + uuid + ";type=router;format=log";
    }
 
  // Update the routing result message
 
  displayStatus(routing_type,"info",distinfo.bold());
-
- var link;
 
  link=document.getElementById(routing_type + "_html");
  link.href="results.cgi?uuid=" + uuid + ";type=" + routing_type + ";format=html";
