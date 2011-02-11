@@ -1,10 +1,8 @@
-# $Header: /home/amb/CVS/routino/xml/Makefile,v 1.8 2010-09-05 18:27:17 amb Exp $
-#
 # XML directory Makefile
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2010 Andrew M. Bishop
+# This file Copyright 2010-2011 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +20,8 @@
 
 # Web file paths
 
-WEBDIR=../web/data
+WEBDATADIR=../web/data
+WEBWWWDIR=../web/www/routino
 
 # Files to install
 
@@ -33,13 +32,19 @@ FILES=profiles.xml \
 ########
 
 all :
-	-@[ -d $(WEBDIR) ] && \
+	-@[ -d $(WEBDATADIR) ] && \
 	  for file in $(FILES); do \
-	     if [ ! -f $(WEBDIR)/$$file ] || [ routino-$$file -nt $(WEBDIR)/$$file ]; then \
-	        echo cp routino-$$file $(WEBDIR)/$$file ;\
-	        cp -f routino-$$file $(WEBDIR)/$$file ;\
+	     if [ ! -f $(WEBDATADIR)/$$file ] || [ routino-$$file -nt $(WEBDATADIR)/$$file ]; then \
+	        echo cp routino-$$file $(WEBDATADIR)/$$file ;\
+	        cp -f routino-$$file $(WEBDATADIR)/$$file ;\
 	     fi ;\
-	  done
+	  done ;\
+	  if [ ! -f $(WEBWWWDIR)/profiles.js ] || [ ! -f $(WEBWWWDIR)/profiles.pl ] || \
+	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.pl ] || \
+	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.js ]; then \
+	     echo perl update-profiles.pl
+	     ( cd $(WEBWWWDIR) ; perl update-profiles.pl ) \
+	  fi
 
 ########
 
@@ -59,7 +64,7 @@ clean:
 ########
 
 distclean: clean
-	rm -f $(WEBDIR)/*.xml
+	rm -f $(WEBDATADIR)/*.xml
 
 ########
 
