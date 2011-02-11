@@ -46,6 +46,7 @@
 <![endif]-->
 
 <!-- Router specific features -->
+<script src="profiles.js" type="text/javascript"></script>
 <script src="router.js" type="text/javascript"></script>
 <link href="router.css" type="text/css" rel="stylesheet">
 
