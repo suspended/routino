@@ -155,7 +155,7 @@
     </properties>
     <restrictions>
       <oneway obey="0" /> 
-      <turns  obey="1" /> 
+      <turns  obey="0" /> 
       <weight limit="0.0" />
       <height limit="0.0" />
       <width  limit="0.0" />
