@@ -364,7 +364,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
          {
           distance_t seg_distance=0;
           duration_t seg_duration=0;
-          Segment *resultsegment;
+          Segment *resultsegment,*comparesegment;
           Way *resultway;
           int important=0;
 
@@ -378,9 +378,15 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           /* Get the properties of this segment */
 
           if(IsFakeSegment(result->segment))
+            {
              resultsegment=LookupFakeSegment(result->segment);
+             comparesegment=LookupSegment(segments,IndexRealSegment(result->segment),1);
+            }
           else
+            {
              resultsegment=LookupSegment(segments,result->segment,3);
+             comparesegment=resultsegment;
+            }
           resultway=LookupWay(ways,resultsegment->way,1);
 
           seg_distance+=DISTANCE(resultsegment->distance);
@@ -402,7 +408,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                {
                 index_t othernode=OtherNode(segment,result->node);
 
-                if(othernode!=result->prev->node && segment!=resultsegment)
+                if(othernode!=result->prev->node && segment!=comparesegment)
                    if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
                      {
                       Way *way=LookupWay(ways,segment->way,2);
@@ -413,6 +419,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                             if(important<2)
                                important=2;
                         }
+                      else if(IsFakeNode(result->next->node))
+                         ;
                       else /* a segment that we don't follow */
                         {
                          if(junction_other_way[HIGHWAY(resultway->type)-1][HIGHWAY(way->type)-1])
