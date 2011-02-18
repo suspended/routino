@@ -132,13 +132,13 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(profile->oneway && IsOnewayTo(segment,node1))
           goto endloop;
 
-       if(result1->prev && result1->prev->node==node2)
-          goto endloop;
-
        if(IsFakeNode(node1) || IsFakeNode(node2))
           seg2=IndexFakeSegment(segment);
        else
           seg2=IndexSegment(segments,segment);
+
+       if(seg1==seg2)
+          goto endloop;
 
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1,seg2,profile->allow))
           goto endloop;
@@ -394,11 +394,11 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        node2=OtherNode(segment,node1);
 
-       if(result1->prev && result1->prev->node==node2)
-          goto endloop;
-
        /* node2 cannot be a fake node (must be a super-node) */
        seg2=IndexSegment(segments,segment);
+
+       if(seg1==seg2)
+          goto endloop;
 
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1,seg2,profile->allow))
           goto endloop;
@@ -632,13 +632,13 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        node2=OtherNode(segment,node1);
 
-       if(result1->prev && result1->prev->node==node2)
-          goto endloop;
-
        if(IsFakeNode(node1) || IsFakeNode(node2))
           seg2=IndexFakeSegment(segment);
        else
           seg2=IndexSegment(segments,segment);
+
+       if(seg1==seg2)
+          goto endloop;
 
        /* node1 cannot have a turn restriction because it is not a super-node */
 
@@ -808,13 +808,13 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
        node2=OtherNode(segment,node1);
 
-       if(result1->next && result1->next->node==node2)
-          goto endloop;
-
        if(IsFakeNode(node1) || IsFakeNode(node2))
           seg2=IndexFakeSegment(segment);
        else
           seg2=IndexSegment(segments,segment);
+
+       if(seg1==seg2)
+          goto endloop;
 
        if(turnrelation!=NO_RELATION)
          {
