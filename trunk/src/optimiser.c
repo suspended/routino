@@ -150,7 +150,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           seg2r=seg2;
          }
 
-       if(seg1==seg2 || seg1==seg2r || seg1r==seg2)
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2))
           goto endloop;
 
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1r,seg2r,profile->allow))
@@ -661,7 +661,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           seg2r=seg2;
          }
 
-       if(seg1==seg2 || seg1==seg2r || seg1r==seg2)
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2))
           goto endloop;
 
        /* node1 cannot have a turn restriction because it is not a super-node */
@@ -848,7 +848,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           seg2r=seg2;
          }
 
-       if(seg1==seg2 || seg1==seg2r || seg1r==seg2)
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2))
           goto endloop;
 
        if(turnrelation!=NO_RELATION)
