@@ -42,8 +42,8 @@ all :
 	  if [ ! -f $(WEBWWWDIR)/profiles.js ] || [ ! -f $(WEBWWWDIR)/profiles.pl ] || \
 	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.pl ] || \
 	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.js ]; then \
-	     echo perl update-profiles.pl
-	     ( cd $(WEBWWWDIR) ; perl update-profiles.pl ) \
+	     echo perl update-profiles.pl ;\
+	     ( cd $(WEBWWWDIR) ; perl update-profiles.pl ) ;\
 	  fi
 
 ########
