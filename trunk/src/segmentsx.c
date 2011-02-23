@@ -674,8 +674,6 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
  for(i=0;i<nodesx->number;i++)
     segmentsx->firstnode[i]=NO_SEGMENT;
 
- segmentsx->firstnode[nodesx->number]=segmentsx->number;
-
  /* Re-open the file read-only and a new file writeable */
 
  segmentsx->fd=ReOpenFile(segmentsx->filename);
@@ -707,7 +705,6 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
              if(!WaysCompare(&wayx1->way,&wayx2->way))
                {
                 isduplicate=1;
-                duplicate++;
                 break;
                }
             }
@@ -725,7 +722,9 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
        prevsegmentx[0]=segmentx;
       }
 
-    if(!isduplicate)
+    if(isduplicate)
+       duplicate++;
+    else
       {
        WriteFile(fd,&segmentx,sizeof(SegmentX));
 
@@ -750,6 +749,8 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Fix-up the firstnode index for the missing nodes */
 
+ segmentsx->firstnode[nodesx->number]=segmentsx->number;
+
  for(i=nodesx->number-1;i>=0;i--)
     if(segmentsx->firstnode[i]==NO_SEGMENT)
        segmentsx->firstnode[i]=segmentsx->firstnode[i+1];
@@ -764,7 +765,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Deduplicated Segments: Segments=%d Duplicate=%d Unique=%d",index,duplicate,index-duplicate);
+ printf_last("Deduplicated Segments: Segments=%d Duplicate=%d Unique=%d",index,duplicate,good);
 }
 
 
