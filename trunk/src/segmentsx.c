@@ -901,6 +901,9 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
          {
           segment->node1=nodesx->gdata[i];
 
+          if(segmentx->node1==segmentx->node2)
+             segment->node2=nodesx->gdata[i];
+
           PutBackSegmentXSegment(segmentsx,index,1);
 
           index++;
