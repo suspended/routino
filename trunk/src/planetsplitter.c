@@ -249,7 +249,7 @@ int main(int argc,char** argv)
 
  /* Measure the segments and replace node/way id with index (must be after removing non-highway nodes) */
 
- UpdateSegments(Segments,Nodes,Ways);
+ MeasureSegments(Segments,Nodes,Ways);
 
  /* Index the segments */
 
@@ -349,7 +349,7 @@ int main(int argc,char** argv)
  /* Fix the node and segment indexes after sorting */
 
  UpdateNodes(Nodes,Segments,iteration);
- UpdateSegmentIndexes(Segments,Nodes,Ways);
+ UpdateSegments(Segments,Nodes,Ways);
 
  /* Process the second part of turn relations (must be after sorting the nodes geographically). */
 
