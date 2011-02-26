@@ -241,7 +241,7 @@ int main(int argc,char** argv)
 
  ProcessRouteRelations(Relations,Ways);
 
- ProcessTurnRelations1(Relations,Nodes,Segments,Ways);
+ ProcessTurnRelations1(Relations,Nodes,Ways);
 
  /* Compact the ways (must be before measuring the segments) */
 
@@ -254,6 +254,10 @@ int main(int argc,char** argv)
  /* Index the segments */
 
  IndexSegments(Segments,Nodes);
+
+ /* Convert the turn relations from ways into nodes */
+
+ ProcessTurnRelations2(Relations,Nodes,Segments,Ways);
 
 
  /* Repeated iteration on Super-Nodes and Super-Segments */
@@ -342,6 +346,10 @@ int main(int argc,char** argv)
  printf("\nCross-Reference Nodes and Segments\n==================================\n\n");
  fflush(stdout);
 
+ /* Fix the node indexes and convert nodes to segments */
+
+ ProcessTurnRelations3(Relations,Segments);
+
  /* Sort the node list geographically */
 
  SortNodeListGeographically(Nodes);
@@ -349,11 +357,10 @@ int main(int argc,char** argv)
  /* Fix the node and segment indexes after sorting */
 
  UpdateNodes(Nodes,Segments,iteration);
+
  UpdateSegments(Segments,Nodes,Ways);
 
- /* Process the second part of turn relations (must be after sorting the nodes geographically). */
-
- ProcessTurnRelations2(Relations,Nodes,Segments);
+ UpdateTurnRelations(Relations,Nodes);
 
  SortTurnRelationList(Relations);
 
