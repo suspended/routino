@@ -87,11 +87,8 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
-index_t IndexFirstSegmentX1(SegmentsX* segmentsx,node_t node);
-index_t IndexNextSegmentX1(SegmentsX* segmentsx,index_t segindex,node_t node);
-
-SegmentX *FirstSegmentX2(SegmentsX* segmentsx,index_t node,int position);
-SegmentX *NextSegmentX2(SegmentsX* segmentsx,SegmentX *segmentx,index_t node,int position);
+SegmentX *FirstSegmentX(SegmentsX* segmentsx,index_t node,int position);
+SegmentX *NextSegmentX(SegmentsX* segmentsx,SegmentX *segmentx,index_t node,int position);
 
 void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 

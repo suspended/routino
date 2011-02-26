@@ -716,7 +716,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        /* Find the segments that join the node 'via' */
 
-       segmentx=FirstSegmentX2(segmentsx,relationx.via,1);
+       segmentx=FirstSegmentX(segmentsx,relationx.via,1);
 
        do
          {
@@ -736,7 +736,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
              node_to=OtherNode(segmentx,relationx.via);
             }
 
-          segmentx=NextSegmentX2(segmentsx,segmentx,relationx.via,1);
+          segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
          }
        while(segmentx);
 
@@ -762,7 +762,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        /* Find the segments that join the node 'via' */
 
-       segmentx=FirstSegmentX2(segmentsx,relationx.via,1);
+       segmentx=FirstSegmentX(segmentsx,relationx.via,1);
 
        do
          {
@@ -782,7 +782,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
              node_to[nnodes_to++]=OtherNode(segmentx,relationx.via);
             }
 
-          segmentx=NextSegmentX2(segmentsx,segmentx,relationx.via,1);
+          segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
          }
        while(segmentx);
 
@@ -814,7 +814,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
     nodex->flags|=NODE_TURNRSTRCT;
     PutBackNodeX(nodesx,relationx.via,1);
 
-    segmentx=FirstSegmentX2(segmentsx,relationx.via,1);
+    segmentx=FirstSegmentX(segmentsx,relationx.via,1);
 
     do
       {
@@ -824,7 +824,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        nodex->flags|=NODE_TURNRSTRCT2;
        PutBackNodeX(nodesx,othernode,1);
 
-       segmentx=NextSegmentX2(segmentsx,segmentx,relationx.via,1);
+       segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
       }
     while(segmentx);
 
@@ -904,7 +904,7 @@ void ProcessTurnRelations3(RelationsX *relationsx,SegmentsX *segmentsx)
     via_node =relationx.via;
     to_node  =relationx.to;
 
-    segmentx=FirstSegmentX2(segmentsx,relationx.via,1);
+    segmentx=FirstSegmentX(segmentsx,relationx.via,1);
 
     do
       {
@@ -914,7 +914,7 @@ void ProcessTurnRelations3(RelationsX *relationsx,SegmentsX *segmentsx)
        if(OtherNode(segmentx,relationx.via)==to_node)
           relationx.to=IndexSegmentX(segmentsx,segmentx);
 
-       segmentx=NextSegmentX2(segmentsx,segmentx,relationx.via,1);
+       segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
       }
     while(segmentx);
 
