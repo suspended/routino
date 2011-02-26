@@ -443,20 +443,10 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
        index_t node2,seg2;
        distance_t cumulative_distance;
 
-       if(segmentx->node1==node1)
-         {
-          if(segmentx->distance&ONEWAY_2TO1)
-             goto endloop;
+       if(IsOnewayTo(segmentx,node1))
+          goto endloop;
 
-          node2=segmentx->node2;
-         }
-       else /* if(segmentx->node2==node1) */
-         {
-          if(segmentx->distance&ONEWAY_1TO2)
-             goto endloop;
-
-          node2=segmentx->node1;
-         }
+       node2=OtherNode(segmentx,node1);
 
        seg2=IndexSegmentX(segmentsx,segmentx);
 
