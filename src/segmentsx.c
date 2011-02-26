@@ -78,10 +78,6 @@ SegmentsX *NewSegmentList(int append)
  else
     sprintf(segmentsx->filename,"%s/segmentsx.%p.tmp",option_tmpdirname,segmentsx);
 
- segmentsx->sfilename=(char*)malloc(strlen(option_tmpdirname)+32);
-
- sprintf(segmentsx->sfilename,"%s/segments.%p.tmp",option_tmpdirname,segmentsx);
-
  if(append)
    {
     off_t size;
@@ -117,12 +113,11 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
  if(segmentsx->idata)
     free(segmentsx->idata);
 
+ if(segmentsx->usednode)
+    free(segmentsx->usednode);
+
  if(segmentsx->firstnode)
     free(segmentsx->firstnode);
-
- DeleteFile(segmentsx->sfilename);
-
- free(segmentsx->sfilename);
 
  free(segmentsx);
 }
@@ -146,8 +141,21 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
 {
  SegmentX segmentx;
 
+ if(node1>node2)
+   {
+    node_t temp;
+
+    temp=node1;
+    node1=node2;
+    node2=temp;
+
+    if(distance&(ONEWAY_2TO1|ONEWAY_1TO2))
+       distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+   }
+
  segmentx.node1=node1;
  segmentx.node2=node2;
+ segmentx.next2=NO_SEGMENT;
  segmentx.way=way;
  segmentx.distance=distance;
 
@@ -314,27 +322,6 @@ index_t IndexFirstSegmentX1(SegmentsX* segmentsx,node_t node)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the first segment index with a particular starting node index.
- 
-  index_t IndexFirstSegmentX2 Returns the index of the first extended segment with the specified id.
-
-  SegmentsX* segmentsx The set of segments to process.
-
-  index_t nodeindex The node index to look for.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-index_t IndexFirstSegmentX2(SegmentsX* segmentsx,index_t nodeindex)
-{
- index_t index=segmentsx->firstnode[nodeindex];
-
- if(segmentsx->firstnode[nodeindex+1]==index)
-    return(NO_SEGMENT);
-
- return(index);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Find the next segment index with a particular starting node.
 
   index_t IndexNextSegmentX1 Returns the index of the next segment with the same id.
@@ -360,25 +347,75 @@ index_t IndexNextSegmentX1(SegmentsX* segmentsx,index_t segindex,node_t node)
  
  
 /*++++++++++++++++++++++++++++++++++++++
-  Find the next segment index with a particular starting node index.
+  Find the first extended segment with a particular starting node index.
+ 
+  SegmentX *FirstSegmentX2 Returns a pointer to the first extended segment with the specified id.
 
-  index_t IndexNextSegmentX2 Returns the index of the next segment with the same id.
+  SegmentsX* segmentsx The set of extended segments to process.
+
+  index_t nodeindex The node index to look for.
+
+  int position A flag to pass through.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+SegmentX *FirstSegmentX2(SegmentsX* segmentsx,index_t nodeindex,int position)
+{
+ index_t index=segmentsx->firstnode[nodeindex];
+ SegmentX *segmentx;
+
+ segmentx=LookupSegmentX(segmentsx,index,position);
+
+ if(segmentx->node1!=nodeindex && segmentx->node2!=nodeindex)
+    return(NULL);
+
+ return(segmentx);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the next segment with a particular starting node index.
+
+  SegmentX *NextSegmentX2 Returns a pointer to the next segment with the same id.
 
   SegmentsX* segmentsx The set of segments to process.
 
-  index_t segindex The current segment index.
+  SegmentX *segmentx The current segment.
 
-  index_t nodeindex The node index.
+  index_t node The node index.
+
+  int position A flag to pass through.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t IndexNextSegmentX2(SegmentsX* segmentsx,index_t segindex,index_t nodeindex)
+SegmentX *NextSegmentX2(SegmentsX* segmentsx,SegmentX *segmentx,index_t node,int position)
 {
- segindex++;
+ if(segmentx->node1==node)
+   {
+#if SLIM
+    index_t index=IndexSegmentX(segmentsx,segmentx);
+    index++;
 
- if(segindex==segmentsx->firstnode[nodeindex+1])
-    return(NO_SEGMENT);
+    if(index>=segmentsx->number)
+       return(NULL);
+    segmentx=LookupSegmentX(segmentsx,index,position);
+    if(segmentx->node1!=node)
+       return(NULL);
+    else
+       return(segmentx);
+#else
+    segmentx++;
+    if(IndexSegmentX(segmentsx,segmentx)>=segmentsx->number || segmentx->node1!=node)
+       return(NULL);
+    else
+       return(segmentx);
+#endif
+   }
  else
-    return(segindex);
+   {
+    if(segmentx->next2==NO_SEGMENT)
+       return(NULL);
+    else
+       return(LookupSegmentX(segmentsx,segmentx->next2,position));
+   }
 }
  
  
@@ -407,6 +444,12 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  assert(segmentsx->idata); /* Check malloc() worked */
 
+ /* Allocate the array of node flags */
+
+ segmentsx->usednode=(char*)calloc(nodesx->xnumber,sizeof(char));
+
+ assert(segmentsx->usednode); /* Check malloc() worked */
+
  /* Re-open the file read-only and a new file writeable */
 
  segmentsx->fd=ReOpenFile(segmentsx->filename);
@@ -419,16 +462,21 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
+    index_t index1=IndexNodeX(nodesx,segmentx.node1);
+    index_t index2=IndexNodeX(nodesx,segmentx.node2);
+
     if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
        duplicate++;
     else if(segmentx.node1==segmentx.node2)
        loop++;
-    else if(IndexNodeX(nodesx,segmentx.node1)==NO_NODE ||
-            IndexNodeX(nodesx,segmentx.node2)==NO_NODE)
+    else if(index1==NO_NODE || index2==NO_NODE)
        missing++;
     else
       {
        WriteFile(fd,&segmentx,sizeof(SegmentX));
+
+       segmentsx->usednode[index1]=1;
+       segmentsx->usednode[index2]=1;
 
        segmentsx->idata[good]=segmentx.node1;
        good++;
@@ -469,7 +517,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  index_t index=0;
- int i,fd;
+ int fd;
  SegmentX segmentx;
 
  /* Print the start message */
@@ -488,17 +536,6 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  free(segmentsx->idata);
  segmentsx->idata=NULL;
-
- /* Allocate the array of indexes */
-
- segmentsx->firstnode=(index_t*)malloc((nodesx->number+1)*sizeof(index_t));
-
- assert(segmentsx->firstnode); /* Check malloc() worked */
-
- for(i=0;i<nodesx->number;i++)
-    segmentsx->firstnode[i]=NO_SEGMENT;
-
- segmentsx->firstnode[nodesx->number]=segmentsx->number;
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -528,11 +565,6 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
     /* Set the distance but preserve the ONEWAY_* flags */
 
     segmentx.distance|=DISTANCE(DistanceX(nodex1,nodex2));
-
-    /* Set the first segment index in the nodes */
-
-    if(index<segmentsx->firstnode[node1])
-       segmentsx->firstnode[node1]=index;
 
     /* Write the modified segment */
 
@@ -572,71 +604,6 @@ void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Make the segments all point the same way (node1<node2).
-
-  SegmentsX* segmentsx The set of segments to process.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void RotateSegments(SegmentsX* segmentsx)
-{
- int index=0,rotated=0;
- int fd;
- SegmentX segmentx;
-
- /* Print the start message */
-
- printf_first("Rotating Segments: Segments=0 Rotated=0");
-
- /* Close the file (finished appending) */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
-
- /* Re-open the file read-only and a new file writeable */
-
- segmentsx->fd=ReOpenFile(segmentsx->filename);
-
- DeleteFile(segmentsx->filename);
-
- fd=OpenFileNew(segmentsx->filename);
-
- /* Modify the on-disk image */
-
- while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
-   {
-    if(segmentx.node1>segmentx.node2)
-      {
-       node_t temp;
-
-       temp=segmentx.node1;
-       segmentx.node1=segmentx.node2;
-       segmentx.node2=temp;
-
-       if(segmentx.distance&(ONEWAY_2TO1|ONEWAY_1TO2))
-          segmentx.distance^=ONEWAY_2TO1|ONEWAY_1TO2;
-
-       rotated++;
-      }
-
-    WriteFile(fd,&segmentx,sizeof(SegmentX));
-
-    index++;
-
-    if(!(index%10000))
-       printf_middle("Rotating Segments: Segments=%d Rotated=%d",index,rotated);
-   }
-
- /* Close the files */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Rotated Segments: Segments=%d Rotated=%d",index,rotated);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Remove the duplicate segments.
 
   SegmentsX* segmentsx The set of segments to process.
@@ -650,7 +617,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  int duplicate=0,good=0;
  index_t firstindex=0,index=0;
- int i,fd;
+ int fd;
  SegmentX prevsegmentx[16],segmentx;
 
  /* Print the start message */
@@ -664,15 +631,6 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 #else
  waysx->fd=ReOpenFile(waysx->filename);
 #endif
-
- /* Allocate the array of indexes */
-
- segmentsx->firstnode=(index_t*)malloc((nodesx->number+1)*sizeof(index_t));
-
- assert(segmentsx->firstnode); /* Check malloc() worked */
-
- for(i=0;i<nodesx->number;i++)
-    segmentsx->firstnode[i]=NO_SEGMENT;
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -728,9 +686,6 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
       {
        WriteFile(fd,&segmentx,sizeof(SegmentX));
 
-       if(good<segmentsx->firstnode[segmentx.node1])
-          segmentsx->firstnode[segmentx.node1]=good;
-
        good++;
       }
 
@@ -747,14 +702,6 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
  segmentsx->fd=CloseFile(segmentsx->fd);
  CloseFile(fd);
 
- /* Fix-up the firstnode index for the missing nodes */
-
- segmentsx->firstnode[nodesx->number]=segmentsx->number;
-
- for(i=nodesx->number-1;i>=0;i--)
-    if(segmentsx->firstnode[i]==NO_SEGMENT)
-       segmentsx->firstnode[i]=segmentsx->firstnode[i+1];
-
  /* Unmap from memory / close the file */
 
 #if !SLIM
@@ -770,23 +717,102 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Create the real segments data.
+  Index the segments by creating the firstnode index and the segment next2 indexes.
 
-  SegmentsX* segmentsx The set of segments to use.
+  SegmentsX* segmentsx The set of segments to process.
+
+  NodesX *nodesx The list of nodes to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
+{
+ index_t index;
+ int i;
+
+ /* Print the start message */
+
+ printf_first("Indexing Segments: Segments=0");
+
+ /* Allocate the array of indexes */
+
+ if(!segmentsx->firstnode)
+   {
+    segmentsx->firstnode=(index_t*)malloc((nodesx->number+1)*sizeof(index_t));
+
+    assert(segmentsx->firstnode); /* Check malloc() worked */
+   }
+
+ for(i=0;i<nodesx->number;i++)
+    segmentsx->firstnode[i]=NO_SEGMENT;
+
+ /* Map into memory / open the files */
+
+#if !SLIM
+ segmentsx->xdata=MapFileWriteable(segmentsx->filename);
+#else
+ segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
+#endif
+
+ /* Read through the segments in reverse order */
+
+ for(index=segmentsx->number-1;index!=NO_SEGMENT;index--)
+   {
+    SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
+
+    if(segmentsx->firstnode[segmentx->node2]!=NO_SEGMENT)
+      {
+       segmentx->next2=segmentsx->firstnode[segmentx->node2];
+
+       PutBackSegmentX(segmentsx,index,1);
+      }
+
+    segmentsx->firstnode[segmentx->node1]=index;
+    segmentsx->firstnode[segmentx->node2]=index;
+
+    if(!(index%10000))
+       printf_middle("Indexing Segments: Segments=%d",segmentsx->number-index);
+   }
+
+ /* Unmap from memory / close the files */
+
+#if !SLIM
+ segmentsx->xdata=UnmapFile(segmentsx->filename);
+#else
+ segmentsx->fd=CloseFile(segmentsx->fd);
+#endif
+
+ /* Fix-up the firstnode index for the missing nodes */
+
+ segmentsx->firstnode[nodesx->number]=segmentsx->number;
+
+ for(i=nodesx->number-1;i>=0;i--)
+    if(segmentsx->firstnode[i]==NO_SEGMENT)
+       segmentsx->firstnode[i]=segmentsx->firstnode[i+1];
+
+ /* Print the final message */
+
+ printf_last("Indexed Segments: Segments=%d",segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Update the segment indexes after geographical sorting.
+
+  SegmentsX *segmentsx The list of segments to update.
+
+  NodesX *nodesx The set of nodes to use.
 
   WaysX* waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
+void UpdateSegmentIndexes(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  index_t i;
-
- if(segmentsx->number==0 || waysx->number==0)
-    return;
+ int fd;
 
  /* Print the start message */
 
- printf_first("Creating Real Segments: Segments=0");
+ printf_first("Updating Super Segments: Segments=0");
 
  /* Map into memory / open the files */
 
@@ -796,44 +822,40 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
  waysx->fd=ReOpenFile(waysx->filename);
 #endif
 
- /* Free the unneeded memory */
-
- free(segmentsx->firstnode);
- segmentsx->firstnode=NULL;
-
- /* Re-open the file */
+ /* Re-open the file read-only and a new file writeable */
 
  segmentsx->fd=ReOpenFile(segmentsx->filename);
 
- /* Open the file for the segments */
+ DeleteFile(segmentsx->filename);
 
- segmentsx->sfd=OpenFileNew(segmentsx->sfilename);
+ fd=OpenFileNew(segmentsx->filename);
 
- /* Loop through and fill */
+ /* Modify the on-disk image */
 
  for(i=0;i<segmentsx->number;i++)
    {
     SegmentX segmentx;
-    Segment  segment;
-    WayX     *wayx;
+    WayX *wayx;
 
     ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
+    segmentx.node1=nodesx->gdata[segmentx.node1];
+    segmentx.node2=nodesx->gdata[segmentx.node2];
+
     wayx=LookupWayX(waysx,segmentx.way,1);
 
-    segment.node1=NO_NODE;
-    segment.node2=NO_NODE;
-    segment.next2=NO_NODE;
-    segment.way=wayx->prop;
-    segment.distance=segmentx.distance;
+    segmentx.way=wayx->prop;
 
-    /* Write the data */
-
-    WriteFile(segmentsx->sfd,&segment,sizeof(Segment));
+    WriteFile(fd,&segmentx,sizeof(SegmentX));
 
     if(!((i+1)%10000))
-       printf_middle("Creating Real Segments: Segments=%d",i+1);
+       printf_middle("Updating Super Segments: Segments=%d",i+1);
    }
+
+ /* Close the files */
+
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ CloseFile(fd);
 
  /* Unmap from memory / close the files */
 
@@ -843,112 +865,9 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx)
  waysx->fd=CloseFile(waysx->fd);
 #endif
 
- /* Close the files */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
- segmentsx->sfd=CloseFile(segmentsx->sfd);
-
  /* Print the final message */
 
- printf_last("Creating Real Segments: Segments=%d",segmentsx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Assign the nodes indexes to the segments.
-
-  SegmentsX* segmentsx The set of segments to process.
-
-  NodesX *nodesx The list of nodes to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
-{
- index_t i;
-
- if(nodesx->number==0 || segmentsx->number==0)
-    return;
-
- /* Print the start message */
-
- printf_first("Indexing Nodes: Nodes=0");
-
- /* Map into memory / open the files */
-
-#if !SLIM
- nodesx->xdata=MapFile(nodesx->filename);
- segmentsx->xdata=MapFile(segmentsx->filename);
- segmentsx->sdata=MapFileWriteable(segmentsx->sfilename);
-#else
- nodesx->fd=ReOpenFile(nodesx->filename);
- segmentsx->fd=ReOpenFile(segmentsx->filename);
- segmentsx->sfd=ReOpenFileWriteable(segmentsx->sfilename);
-#endif
-
- /* Index the segments */
-
- for(i=0;i<nodesx->number;i++)
-   {
-    NodeX  *nodex=LookupNodeX(nodesx,nodesx->gdata[i],1);
-    index_t index=nodex->id;
-
-    do
-      {
-       SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
-       Segment  *segment =LookupSegmentXSegment(segmentsx,index,1);
-
-       if(segmentx->node1==i)
-         {
-          segment->node1=nodesx->gdata[i];
-
-          if(segmentx->node1==segmentx->node2)
-             segment->node2=nodesx->gdata[i];
-
-          PutBackSegmentXSegment(segmentsx,index,1);
-
-          index++;
-
-          if(index>=segmentsx->number)
-             break;
-
-          segmentx=LookupSegmentX(segmentsx,index,1);
-
-          if(segmentx->node1!=i)
-             break;
-         }
-       else
-         {
-          segment->node2=nodesx->gdata[i];
-
-          PutBackSegmentXSegment(segmentsx,index,1);
-
-          if(segment->next2==NO_NODE)
-             break;
-          else
-             index=segment->next2;
-         }
-      }
-    while(1);
-
-    if(!((i+1)%10000))
-       printf_middle("Indexing Nodes: Nodes=%d",i+1);
-   }
-
- /* Unmap from memory / close the files */
-
-#if !SLIM
- nodesx->xdata=UnmapFile(nodesx->filename);
- segmentsx->xdata=UnmapFile(segmentsx->filename);
- segmentsx->sdata=UnmapFile(segmentsx->sfilename);
-#else
- nodesx->fd=CloseFile(nodesx->fd);
- segmentsx->fd=CloseFile(segmentsx->fd);
- segmentsx->sfd=CloseFile(segmentsx->sfd);
-#endif
-
- /* Print the final message */
-
- printf_last("Indexed Nodes: Nodes=%d",nodesx->number);
+ printf_last("Updated Super Segments: Segments=%d",segmentsx->number);
 }
 
 
@@ -973,7 +892,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  /* Re-open the file */
 
- segmentsx->sfd=ReOpenFile(segmentsx->sfilename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
 
  /* Write out the segments data */
 
@@ -983,9 +902,16 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  for(i=0;i<segmentsx->number;i++)
    {
-    Segment segment;
+    SegmentX segmentx;
+    Segment  segment;
 
-    ReadFile(segmentsx->sfd,&segment,sizeof(Segment));
+    ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
+
+    segment.node1   =segmentx.node1;
+    segment.node2   =segmentx.node2;
+    segment.next2   =segmentx.next2;
+    segment.way     =segmentx.way;
+    segment.distance=segmentx.distance;
 
     if(IsSuperSegment(&segment))
        super_number++;
@@ -1011,7 +937,7 @@ void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
 
  /* Close the file */
 
- segmentsx->sfd=CloseFile(segmentsx->sfd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
 
  /* Print the final message */
 

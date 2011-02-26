@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/osmparser.c,v 1.79 2010-12-12 16:35:55 amb Exp $
-
  OSM XML file parser (either JOSM or planet)
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -908,20 +906,11 @@ static void process_way_tags(TagList *tags,way_t id)
           node_t to  =way_nodes[i];
 
           if(oneway>0)
-            {
              AppendSegment(segments,id,from,to,ONEWAY_1TO2);
-             AppendSegment(segments,id,to,from,ONEWAY_2TO1);
-            }
           else if(oneway<0)
-            {
              AppendSegment(segments,id,from,to,ONEWAY_2TO1);
-             AppendSegment(segments,id,to,from,ONEWAY_1TO2);
-            }
           else
-            {
              AppendSegment(segments,id,from,to,0);
-             AppendSegment(segments,id,to,from,0);
-            }
          }
       }
    }

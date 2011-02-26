@@ -772,7 +772,12 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
     do
       {
        SegmentX *segx=LookupSegmentX(segmentsx,seg,1);
-       index_t othernode=IndexNodeX(nodesx,segx->node2);
+       index_t othernode;
+
+       if(segx->node1==node_via)
+          othernode=IndexNodeX(nodesx,segx->node2);
+       else
+          othernode=IndexNodeX(nodesx,segx->node1);
 
        nodex=LookupNodeX(nodesx,othernode,1);
        nodex->flags|=NODE_TURNRSTRCT2;
@@ -832,11 +837,9 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 #if !SLIM
  nodesx->xdata=MapFile(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
- segmentsx->sdata=MapFile(segmentsx->sfilename);
 #else
  nodesx->fd=ReOpenFile(nodesx->filename);
  segmentsx->fd=ReOpenFile(segmentsx->filename);
- segmentsx->sfd=ReOpenFile(segmentsx->sfilename);
 #endif
 
  /* Re-open the file read-only and a new file writeable */
@@ -883,9 +886,9 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           seg++;
        else if(segmentx->node2==via_node)
          {
-          Segment *segment=LookupSegmentXSegment(segmentsx,seg,1);
+          SegmentX *segmentx=LookupSegmentX(segmentsx,seg,1);
 
-          seg=segment->next2;
+          seg=segmentx->next2;
          }
        else
           seg=NO_SEGMENT;
@@ -908,11 +911,9 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 #if !SLIM
  nodesx->xdata=UnmapFile(nodesx->filename);
  segmentsx->xdata=UnmapFile(segmentsx->filename);
- segmentsx->sdata=UnmapFile(segmentsx->sfilename);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
- segmentsx->sfd=CloseFile(segmentsx->sfd);
 #endif
 
  /* Print the final message */
