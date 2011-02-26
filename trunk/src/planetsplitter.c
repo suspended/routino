@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -251,6 +251,10 @@ int main(int argc,char** argv)
 
  UpdateSegments(Segments,Nodes,Ways);
 
+ /* Index the segments */
+
+ IndexSegments(Segments,Nodes);
+
 
  /* Repeated iteration on Super-Nodes and Super-Segments */
 
@@ -297,6 +301,12 @@ int main(int argc,char** argv)
 
     DeduplicateSegments(SuperSegments,Nodes,Ways);
 
+    /* Index the segments */
+
+    IndexSegments(SuperSegments,Nodes);
+
+    /* Check for end condition */
+
     iteration++;
 
     if(iteration>max_iterations)
@@ -319,17 +329,13 @@ int main(int argc,char** argv)
 
  Segments=MergedSegments;
 
- /* Rotate segments so that node1<node2 */
-
- RotateSegments(Segments);
-
  /* Sort the segments */
 
  SortSegmentList(Segments);
 
- /* Remove duplicated segments */
+ /* Index the segments */
 
- DeduplicateSegments(Segments,Nodes,Ways);
+ IndexSegments(Segments,Nodes);
 
  /* Cross reference the nodes and segments */
 
@@ -340,17 +346,10 @@ int main(int argc,char** argv)
 
  SortNodeListGeographically(Nodes);
 
- /* Create the real segments and nodes */
+ /* Fix the node and segment indexes after sorting */
 
- CreateRealNodes(Nodes,iteration);
-
- CreateRealSegments(Segments,Ways);
-
- /* Fix the segment and node indexes */
-
- IndexNodes(Nodes,Segments);
-
- IndexSegments(Segments,Nodes);
+ UpdateNodes(Nodes,Segments,iteration);
+ UpdateSegmentIndexes(Segments,Nodes,Ways);
 
  /* Process the second part of turn relations (must be after sorting the nodes geographically). */
 

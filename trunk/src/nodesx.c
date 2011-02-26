@@ -470,7 +470,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
-    if(IndexFirstSegmentX1(segmentsx,nodex.id)==NO_SEGMENT)
+    if(!segmentsx->usednode[total])
        nothighway++;
     else
       {
@@ -517,6 +517,11 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
  nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
 
+ /* Free the now-unneeded index */
+
+ free(segmentsx->usednode);
+ segmentsx->usednode=NULL;
+
  /* Allocate and clear the super-node markers */
 
  nodesx->super=(uint8_t*)calloc(nodesx->number,sizeof(uint8_t));
@@ -530,219 +535,67 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Create the real node data.
+  Insert the super-node flag and the first segment indexes after geographical sorting.
 
-  NodesX *nodesx The set of nodes to use.
+  NodesX *nodesx The list of nodes to update.
+
+  SegmentsX *segmentsx The set of segments to use.
 
   int iteration The final super-node iteration.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void CreateRealNodes(NodesX *nodesx,int iteration)
+void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx,int iteration)
 {
  index_t i;
+ int fd;
 
  /* Print the start message */
 
- printf_first("Creating Real Nodes: Nodes=0");
+ printf_first("Updating Super Nodes: Nodes=0");
 
- /* Map into memory /  open the file */
+ /* Re-open the file read-only and a new file writeable */
 
-#if !SLIM
- nodesx->xdata=MapFileWriteable(nodesx->filename);
-#else
- nodesx->fd=ReOpenFileWriteable(nodesx->filename);
-#endif
+ nodesx->fd=ReOpenFile(nodesx->filename);
 
- /* Loop through and allocate. */
+ DeleteFile(nodesx->filename);
+
+ fd=OpenFileNew(nodesx->filename);
+
+ /* Modify the on-disk image */
 
  for(i=0;i<nodesx->number;i++)
    {
-    NodeX *nodex=LookupNodeX(nodesx,nodesx->gdata[i],1);
+    NodeX nodex;
 
-    nodex->id=NO_SEGMENT;
+    ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
 
-    if(nodesx->super[i]==iteration)
-       nodex->flags|=NODE_SUPER;
+    if(nodesx->super[nodex.id]==iteration)
+       nodex.flags|=NODE_SUPER;
 
-    PutBackNodeX(nodesx,nodesx->gdata[i],1);
+    nodex.id=segmentsx->firstnode[nodex.id];
+
+    WriteFile(fd,&nodex,sizeof(NodeX));
 
     if(!((i+1)%10000))
-       printf_middle("Creating Real Nodes: Nodes=%d",i+1);
+       printf_middle("Updating Super Nodes: Nodes=%d",i+1);
    }
+
+ /* Close the files */
+
+ nodesx->fd=CloseFile(nodesx->fd);
+ CloseFile(fd);
 
  /* Free the unneeded memory */
 
  free(nodesx->super);
  nodesx->super=NULL;
 
- /* Unmap from memory / close the file */
-
-#if !SLIM
- nodesx->xdata=UnmapFile(nodesx->filename);
-#else
- nodesx->fd=CloseFile(nodesx->fd);
-#endif
+ free(segmentsx->firstnode);
+ segmentsx->firstnode=NULL;
 
  /* Print the final message */
 
- printf_last("Creating Real Nodes: Nodes=%d",nodesx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Assign the segment indexes to the nodes.
-
-  NodesX *nodesx The list of nodes to process.
-
-  SegmentsX* segmentsx The set of segments to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx)
-{
- index_t i;
-
- if(nodesx->number==0 || segmentsx->number==0)
-    return;
-
- /* Print the start message */
-
- printf_first("Indexing Segments: Segments=0");
-
- /* Map into memory /  open the files */
-
-#if !SLIM
- nodesx->xdata=MapFileWriteable(nodesx->filename);
- segmentsx->xdata=MapFile(segmentsx->filename);
- segmentsx->sdata=MapFileWriteable(segmentsx->sfilename);
-#else
- nodesx->fd=ReOpenFileWriteable(nodesx->filename);
- segmentsx->fd=ReOpenFile(segmentsx->filename);
- segmentsx->sfd=ReOpenFileWriteable(segmentsx->sfilename);
-#endif
-
- /* Index the nodes */
-
- for(i=0;i<segmentsx->number;i++)
-   {
-    SegmentX *segmentx=LookupSegmentX(segmentsx,i,1);
-    node_t id1=segmentx->node1;
-    node_t id2=segmentx->node2;
-    NodeX *nodex1=LookupNodeX(nodesx,nodesx->gdata[id1],1);
-    NodeX *nodex2=LookupNodeX(nodesx,nodesx->gdata[id2],2);
-
-    /* Check node1 */
-
-    if(nodex1->id==NO_SEGMENT)
-      {
-       nodex1->id=i;
-
-       PutBackNodeX(nodesx,nodesx->gdata[id1],1);
-      }
-    else
-      {
-       index_t index=nodex1->id;
-
-       do
-         {
-          segmentx=LookupSegmentX(segmentsx,index,1);
-
-          if(segmentx->node1==id1)
-            {
-             index++;
-
-             if(index>=segmentsx->number)
-                break;
-
-             segmentx=LookupSegmentX(segmentsx,index,1);
-
-             if(segmentx->node1!=id1)
-                break;
-            }
-          else
-            {
-             Segment *segment=LookupSegmentXSegment(segmentsx,index,1);
-
-             if(segment->next2==NO_NODE)
-               {
-                segment->next2=i;
-
-                PutBackSegmentXSegment(segmentsx,index,1);
-
-                break;
-               }
-             else
-                index=segment->next2;
-            }
-         }
-       while(1);
-      }
-
-    /* Check node2 */
-
-    if(nodex2->id==NO_SEGMENT)
-      {
-       nodex2->id=i;
-
-       PutBackNodeX(nodesx,nodesx->gdata[id2],2);
-      }
-    else
-      {
-       index_t index=nodex2->id;
-
-       do
-         {
-          segmentx=LookupSegmentX(segmentsx,index,1);
-
-          if(segmentx->node1==id2)
-            {
-             index++;
-
-             if(index>=segmentsx->number)
-                break;
-
-             segmentx=LookupSegmentX(segmentsx,index,1);
-
-             if(segmentx->node1!=id2)
-                break;
-            }
-          else
-            {
-             Segment *segment=LookupSegmentXSegment(segmentsx,index,1);
-
-             if(segment->next2==NO_NODE)
-               {
-                segment->next2=i;
-
-                PutBackSegmentXSegment(segmentsx,index,1);
-
-                break;
-               }
-             else
-                index=segment->next2;
-            }
-         }
-       while(1);
-      }
-
-    if(!((i+1)%10000))
-       printf_middle("Indexing Segments: Segments=%d",i+1);
-   }
-
- /* Unmap from memory / close the files */
-
-#if !SLIM
- nodesx->xdata=UnmapFile(nodesx->filename);
- segmentsx->xdata=UnmapFile(segmentsx->filename);
- segmentsx->sdata=UnmapFile(segmentsx->sfilename);
-#else
- nodesx->fd=CloseFile(nodesx->fd);
- segmentsx->fd=CloseFile(segmentsx->fd);
- segmentsx->sfd=CloseFile(segmentsx->sfd);
-#endif
-
- /* Print the final message */
-
- printf_last("Indexed Segments: Segments=%d ",segmentsx->number);
+ printf_last("Updated Super Nodes: Nodes=%d",nodesx->number);
 }
 
 

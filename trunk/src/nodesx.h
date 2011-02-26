@@ -100,9 +100,7 @@ void SortNodeListGeographically(NodesX* nodesx);
 
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
-void CreateRealNodes(NodesX *nodesx,int iteration);
-
-void IndexNodes(NodesX *nodesx,SegmentsX *segmentsx);
+void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx,int iteration);
 
 
 /* Macros / inline functions */
@@ -147,7 +145,7 @@ static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
 
   NodesX* nodesx The set of nodes to process.
 
-  index_t index The node index to look for.
+  index_t index The node index to put back.
 
   int position The position in the cache to use.
   ++++++++++++++++++++++++++++++++++++++*/
