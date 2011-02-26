@@ -603,7 +603,62 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process the turn relations (first part) to update them with the node information.
+  Process the turn relations (first part) to update them with the node/way information.
+
+  RelationsX *relationsx The set of relations to process.
+
+  NodesX *nodesx The set of nodes to process.
+
+  WaysX *waysx The set of ways to process.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
+{
+ int i,trfd;
+
+ /* Print the start message */
+
+ printf_first("Processing Turn Restriction Relations (1): Turn Relations=0");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
+
+ DeleteFile(relationsx->trfilename);
+
+ trfd=OpenFileNew(relationsx->trfilename);
+
+ /* Process all of the relations */
+
+ for(i=0;i<relationsx->trnumber;i++)
+   {
+    TurnRestrictRelX relationx;
+
+    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
+
+    relationx.via =IndexNodeX(nodesx,relationx.via);
+    relationx.from=IndexWayX(waysx,relationx.from);
+    relationx.to  =IndexWayX(waysx,relationx.to);
+
+    WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+
+    if(!((i+1)%10000))
+       printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d",i+1);
+   }
+
+ /* Close the files */
+
+ relationsx->trfd=CloseFile(relationsx->trfd);
+ CloseFile(trfd);
+
+ /* Print the final message */
+
+ printf_last("Processed Turn Restriction Relations (1): Turn Relations=%d",relationsx->trnumber);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Process the turn relations (second part) to convert them to nodes.
 
   RelationsX *relationsx The set of relations to process.
 
@@ -614,7 +669,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
   WaysX *waysx The set of ways to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
+void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
  TurnRestrictRelX relationx;
  int trfd;
@@ -625,7 +680,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Print the start message */
 
- printf_first("Processing Turn Restriction Relations (1): Turn Relations=0");
+ printf_first("Processing Turn Restriction Relations (2): Turn Relations=0");
 
  /* Map into memory / open the files */
 
@@ -650,8 +705,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX)))
    {
     NodeX *nodex;
-    node_t node_via=relationx.via;
-    index_t seg;
+    SegmentX *segmentx;
 
     if(relationx.restrict==TurnRestrict_no_right_turn ||
        relationx.restrict==TurnRestrict_no_left_turn ||
@@ -662,47 +716,44 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        /* Find the segments that join the node 'via' */
 
-       seg=IndexFirstSegmentX1(segmentsx,relationx.via);
+       segmentx=FirstSegmentX2(segmentsx,relationx.via,1);
 
        do
          {
-          SegmentX *segx=LookupSegmentX(segmentsx,seg,1);
-
-          if(segx->way==relationx.from)
+          if(segmentx->way==relationx.from)
             {
              if(node_from!=NO_NODE) /* Only one segment can be on the 'from' way */
                 goto endloop;
 
-             node_from=segx->node2;
+             node_from=OtherNode(segmentx,relationx.via);
             }
 
-          if(segx->way==relationx.to)
+          if(segmentx->way==relationx.to)
             {
              if(node_to!=NO_NODE) /* Only one segment can be on the 'to' way */
                 goto endloop;
 
-             node_to=segx->node2;
+             node_to=OtherNode(segmentx,relationx.via);
             }
 
-          seg=IndexNextSegmentX1(segmentsx,seg,relationx.via);
+          segmentx=NextSegmentX2(segmentsx,segmentx,relationx.via,1);
          }
-       while(seg!=NO_SEGMENT);
+       while(segmentx);
 
        if(node_to==NO_NODE || node_from==NO_NODE) /* Not enough segments for the selected ways */
           goto endloop;
 
        /* Write the results */
 
-       relationx.from=IndexNodeX(nodesx,node_from);
-       relationx.to  =IndexNodeX(nodesx,node_to);
-       relationx.via =IndexNodeX(nodesx,relationx.via);
+       relationx.from=node_from;
+       relationx.to  =node_to;
 
        WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
        total++;
 
        if(!(total%10000))
-          printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
+          printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
       }
     else
       {
@@ -711,53 +762,49 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        /* Find the segments that join the node 'via' */
 
-       seg=IndexFirstSegmentX1(segmentsx,relationx.via);
+       segmentx=FirstSegmentX2(segmentsx,relationx.via,1);
 
        do
          {
-          SegmentX *segx=LookupSegmentX(segmentsx,seg,1);
-
-          if(segx->way==relationx.from)
+          if(segmentx->way==relationx.from)
             {
              if(node_from!=NO_NODE) /* Only one segment can be on the 'from' way */
                 goto endloop;
 
-             node_from=segx->node2;
+             node_from=OtherNode(segmentx,relationx.via);
             }
 
-          if(segx->way!=relationx.to)
+          if(segmentx->way!=relationx.to)
             {
              if(nnodes_to==8)   /* Too many segments (arbitrary choice) */
                 goto endloop;
 
-             node_to[nnodes_to++]=segx->node2;
+             node_to[nnodes_to++]=OtherNode(segmentx,relationx.via);
             }
 
-          seg=IndexNextSegmentX1(segmentsx,seg,relationx.via);
+          segmentx=NextSegmentX2(segmentsx,segmentx,relationx.via,1);
          }
-       while(seg!=NO_SEGMENT);
+       while(segmentx);
 
        if(nnodes_to==0 || node_from==NO_NODE) /* Not enough segments for the selected ways */
           goto endloop;
 
        /* Write the results */
 
-       relationx.via=IndexNodeX(nodesx,relationx.via);
-
        for(i=0;i<nnodes_to;i++)
          {
           if(node_to[i]==node_from)
              continue;
 
-          relationx.from=IndexNodeX(nodesx,node_from);
-          relationx.to  =IndexNodeX(nodesx,node_to[i]);
+          relationx.from=node_from;
+          relationx.to  =node_to[i];
 
           WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
           total++;
 
           if(!(total%10000))
-             printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
+             printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
          }
       }
 
@@ -767,25 +814,19 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
     nodex->flags|=NODE_TURNRSTRCT;
     PutBackNodeX(nodesx,relationx.via,1);
 
-    seg=IndexFirstSegmentX1(segmentsx,node_via);
+    segmentx=FirstSegmentX2(segmentsx,relationx.via,1);
 
     do
       {
-       SegmentX *segx=LookupSegmentX(segmentsx,seg,1);
-       index_t othernode;
-
-       if(segx->node1==node_via)
-          othernode=IndexNodeX(nodesx,segx->node2);
-       else
-          othernode=IndexNodeX(nodesx,segx->node1);
+       index_t othernode=OtherNode(segmentx,relationx.via);
 
        nodex=LookupNodeX(nodesx,othernode,1);
        nodex->flags|=NODE_TURNRSTRCT2;
        PutBackNodeX(nodesx,othernode,1);
 
-       seg=IndexNextSegmentX1(segmentsx,seg,node_via);
+       segmentx=NextSegmentX2(segmentsx,segmentx,relationx.via,1);
       }
-    while(seg!=NO_SEGMENT);
+    while(segmentx);
 
    endloop: ;
    }
@@ -807,38 +848,37 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Print the final message */
 
- printf_last("Processing Turn Restriction Relations (1): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
+ printf_last("Processed Turn Restriction Relations (2): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
 
  relationsx->trnumber=total;
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process the turn relations (second part) to update them with the re-ordered node information.
+  Process the turn relations (third part) to update them with the re-ordered node information.
 
   RelationsX *relationsx The set of relations to process.
-
-  NodesX *nodesx The set of nodes to process.
 
   SegmentsX *segmentsx The set of segments to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
+void ProcessTurnRelations3(RelationsX *relationsx,SegmentsX *segmentsx)
 {
  int trfd;
  int i;
 
+ if(segmentsx->number==0)
+    return;
+
  /* Print the start message */
 
- printf_first("Processing Turn Restriction Relations (2): Turn Relations=0");
+ printf_first("Processing Turn Restriction Relations (3): Turn Relations=0");
 
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->xdata=MapFile(nodesx->filename);
  segmentsx->xdata=MapFile(segmentsx->filename);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename);
  segmentsx->fd=ReOpenFile(segmentsx->filename);
 #endif
 
@@ -854,51 +894,34 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  for(i=0;i<relationsx->trnumber;i++)
    {
-    NodeX *nodex;
     TurnRestrictRelX relationx;
+    SegmentX *segmentx;
     index_t from_node,via_node,to_node;
-    index_t seg;
 
     ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
 
     from_node=relationx.from;
-    via_node=relationx.via;
-    to_node=relationx.to;
+    via_node =relationx.via;
+    to_node  =relationx.to;
 
-    relationx.via=nodesx->gdata[via_node];
-
-    nodex=LookupNodeX(nodesx,relationx.via,1);
-    seg=nodex->id;
+    segmentx=FirstSegmentX2(segmentsx,relationx.via,1);
 
     do
       {
-       SegmentX *segmentx=LookupSegmentX(segmentsx,seg,1);
+       if(OtherNode(segmentx,relationx.via)==from_node)
+          relationx.from=IndexSegmentX(segmentsx,segmentx);
 
-       if((segmentx->node1==from_node && segmentx->node2==via_node) ||
-          (segmentx->node2==from_node && segmentx->node1==via_node))
-          relationx.from=seg;
+       if(OtherNode(segmentx,relationx.via)==to_node)
+          relationx.to=IndexSegmentX(segmentsx,segmentx);
 
-       if((segmentx->node1==to_node && segmentx->node2==via_node) ||
-          (segmentx->node2==to_node && segmentx->node1==via_node))
-          relationx.to=seg;
-
-       if(segmentx->node1==via_node)
-          seg++;
-       else if(segmentx->node2==via_node)
-         {
-          SegmentX *segmentx=LookupSegmentX(segmentsx,seg,1);
-
-          seg=segmentx->next2;
-         }
-       else
-          seg=NO_SEGMENT;
+       segmentx=NextSegmentX2(segmentsx,segmentx,relationx.via,1);
       }
-    while(seg!=NO_SEGMENT);
+    while(segmentx);
 
     WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
     if(!(relationsx->trnumber%10000))
-       printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d",relationsx->trnumber);
+       printf_middle("Processing Turn Restriction Relations (3): Turn Relations=%d",relationsx->trnumber);
    }
 
  /* Close the files */
@@ -909,16 +932,66 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  /* Unmap from memory / close the files */
 
 #if !SLIM
- nodesx->xdata=UnmapFile(nodesx->filename);
  segmentsx->xdata=UnmapFile(segmentsx->filename);
 #else
- nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
 #endif
 
  /* Print the final message */
 
- printf_last("Processing Turn Restriction Relations (2): Turn Relations=%d",relationsx->trnumber);
+ printf_last("Processed Turn Restriction Relations (3): Turn Relations=%d",relationsx->trnumber);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Update the node indexes after geographical sorting.
+
+  RelationsX *relationsx The set of relations to process.
+
+  NodesX *nodesx The set of nodes to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx)
+{
+ int trfd;
+ int i;
+
+ /* Print the start message */
+
+ printf_first("Updating Turn Restriction Relations: Turn Relations=0");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
+
+ DeleteFile(relationsx->trfilename);
+
+ trfd=OpenFileNew(relationsx->trfilename);
+
+ /* Process all of the relations */
+
+ for(i=0;i<relationsx->trnumber;i++)
+   {
+    TurnRestrictRelX relationx;
+
+    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
+
+    relationx.via=nodesx->gdata[relationx.via];
+
+    WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+
+    if(!(relationsx->trnumber%10000))
+       printf_middle("Updating Turn Restriction Relations: Turn Relations=%d",relationsx->trnumber);
+   }
+
+ /* Close the files */
+
+ relationsx->trfd=CloseFile(relationsx->trfd);
+ CloseFile(trfd);
+
+ /* Print the final message */
+
+ printf_last("Updated Turn Restriction Relations: Turn Relations=%d",relationsx->trnumber);
 }
 
 
