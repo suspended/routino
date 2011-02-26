@@ -255,101 +255,9 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the first segment index with a particular starting node.
- 
-  index_t IndexFirstSegmentX1 Returns the index of the first extended segment with the specified id.
-
-  SegmentsX* segmentsx The set of segments to process.
-
-  node_t node The node to look for.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-index_t IndexFirstSegmentX1(SegmentsX* segmentsx,node_t node)
-{
- int start=0;
- int end=segmentsx->number-1;
- int mid;
- int found;
-
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- if(end<start)                         /* There are no nodes */
-    return(NO_SEGMENT);
- else if(node<segmentsx->idata[start]) /* Check key is not before start */
-    return(NO_SEGMENT);
- else if(node>segmentsx->idata[end])   /* Check key is not after end */
-    return(NO_SEGMENT);
- else
-   {
-    do
-      {
-       mid=(start+end)/2;                  /* Choose mid point */
-
-       if(segmentsx->idata[mid]<node)      /* Mid point is too low */
-          start=mid;
-       else if(segmentsx->idata[mid]>node) /* Mid point is too high */
-          end=mid;
-       else                                /* Mid point is correct */
-         {found=mid; goto found;}
-      }
-    while((end-start)>1);
-
-    if(segmentsx->idata[start]==node)      /* Start is correct */
-      {found=start; goto found;}
-
-    if(segmentsx->idata[end]==node)        /* End is correct */
-      {found=end; goto found;}
-   }
-
- return(NO_SEGMENT);
-
- found:
-
- while(found>0 && segmentsx->idata[found-1]==node)
-    found--;
-
- return(found);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find the next segment index with a particular starting node.
-
-  index_t IndexNextSegmentX1 Returns the index of the next segment with the same id.
-
-  SegmentsX* segmentsx The set of segments to process.
-
-  index_t segindex The current segment index.
-
-  node_t node The node.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-index_t IndexNextSegmentX1(SegmentsX* segmentsx,index_t segindex,node_t node)
-{
- segindex++;
-
- if(segindex==segmentsx->xnumber)
-    return(NO_SEGMENT);
- else if(segmentsx->idata[segindex]==node)
-    return(segindex);
- else
-    return(NO_SEGMENT);
-}
- 
- 
-/*++++++++++++++++++++++++++++++++++++++
   Find the first extended segment with a particular starting node index.
  
-  SegmentX *FirstSegmentX2 Returns a pointer to the first extended segment with the specified id.
+  SegmentX *FirstSegmentX Returns a pointer to the first extended segment with the specified id.
 
   SegmentsX* segmentsx The set of extended segments to process.
 
@@ -358,7 +266,7 @@ index_t IndexNextSegmentX1(SegmentsX* segmentsx,index_t segindex,node_t node)
   int position A flag to pass through.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *FirstSegmentX2(SegmentsX* segmentsx,index_t nodeindex,int position)
+SegmentX *FirstSegmentX(SegmentsX* segmentsx,index_t nodeindex,int position)
 {
  index_t index=segmentsx->firstnode[nodeindex];
  SegmentX *segmentx;
@@ -375,7 +283,7 @@ SegmentX *FirstSegmentX2(SegmentsX* segmentsx,index_t nodeindex,int position)
 /*++++++++++++++++++++++++++++++++++++++
   Find the next segment with a particular starting node index.
 
-  SegmentX *NextSegmentX2 Returns a pointer to the next segment with the same id.
+  SegmentX *NextSegmentX Returns a pointer to the next segment with the same id.
 
   SegmentsX* segmentsx The set of segments to process.
 
@@ -386,7 +294,7 @@ SegmentX *FirstSegmentX2(SegmentsX* segmentsx,index_t nodeindex,int position)
   int position A flag to pass through.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *NextSegmentX2(SegmentsX* segmentsx,SegmentX *segmentx,index_t node,int position)
+SegmentX *NextSegmentX(SegmentsX* segmentsx,SegmentX *segmentx,index_t node,int position)
 {
  if(segmentx->node1==node)
    {

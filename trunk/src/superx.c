@@ -84,7 +84,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
     int waycount=0;
     Way prevway[16];
 
-    segmentx=FirstSegmentX2(segmentsx,i,1);
+    segmentx=FirstSegmentX(segmentsx,i,1);
 
     while(segmentx)
       {
@@ -124,7 +124,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
        if(difference)
           break;
 
-       segmentx=NextSegmentX2(segmentsx,segmentx,i,1);
+       segmentx=NextSegmentX(segmentsx,segmentx,i,1);
       }
 
     /* Store the node if there is a difference in the connected ways that could affect routing. */
@@ -207,7 +207,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
        int waycount=0,match;
        Way prevway[16];
 
-       segmentx=FirstSegmentX2(segmentsx,i,1);
+       segmentx=FirstSegmentX(segmentsx,i,1);
 
        while(segmentx)
          {
@@ -258,7 +258,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
              FreeResultsList(results);
             }
 
-          segmentx=NextSegmentX2(segmentsx,segmentx,i,1);
+          segmentx=NextSegmentX(segmentsx,segmentx,i,1);
          }
 
        sn++;
@@ -436,7 +436,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
     node1=result1->node;
     seg1=result1->segment;
 
-    segmentx=FirstSegmentX2(segmentsx,node1,2); /* position 1 is already used */
+    segmentx=FirstSegmentX(segmentsx,node1,2); /* position 1 is already used */
 
     while(segmentx)
       {
@@ -494,7 +494,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
       endloop:
 
-       segmentx=NextSegmentX2(segmentsx,segmentx,node1,2);
+       segmentx=NextSegmentX(segmentsx,segmentx,node1,2);
       }
    }
 
