@@ -99,7 +99,7 @@ void SortSegmentList(SegmentsX* segmentsx);
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
 
-void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
+void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx);
 
@@ -107,7 +107,7 @@ void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 
 void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx);
 
-void UpdateSegmentIndexes(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
+void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 
 /* Macros / inline functions */

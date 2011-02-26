@@ -514,7 +514,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
   WaysX *waysx The list of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void UpdateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
+void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  index_t index=0;
  int fd;
@@ -805,7 +805,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
   WaysX* waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void UpdateSegmentIndexes(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
+void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  index_t i;
  int fd;
