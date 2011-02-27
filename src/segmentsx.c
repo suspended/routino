@@ -110,9 +110,6 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
 
  free(segmentsx->filename);
 
- if(segmentsx->idata)
-    free(segmentsx->idata);
-
  if(segmentsx->usednode)
     free(segmentsx->usednode);
 
@@ -346,12 +343,6 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  printf_first("Checking Segments: Segments=0 Duplicate=0 Loop=0 Missing-Node=0");
 
- /* Allocate the array of indexes */
-
- segmentsx->idata=(node_t*)malloc(segmentsx->xnumber*sizeof(node_t));
-
- assert(segmentsx->idata); /* Check malloc() worked */
-
  /* Allocate the array of node flags */
 
  segmentsx->usednode=(char*)calloc(nodesx->xnumber,sizeof(char));
@@ -386,7 +377,6 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
        segmentsx->usednode[index1]=1;
        segmentsx->usednode[index2]=1;
 
-       segmentsx->idata[good]=segmentx.node1;
        good++;
 
        prevnode1=segmentx.node1;
@@ -439,11 +429,6 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 #else
  nodesx->fd=ReOpenFile(nodesx->filename);
 #endif
-
- /* Free the now-unneeded index */
-
- free(segmentsx->idata);
- segmentsx->idata=NULL;
 
  /* Re-open the file read-only and a new file writeable */
 
