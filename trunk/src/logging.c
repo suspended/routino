@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/logging.c,v 1.1 2010-11-13 14:22:40 amb Exp $
-
  Functions to handle logging functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -40,6 +38,7 @@ static void vfprintf_last(FILE *file,const char *format,va_list ap);
 
 /* Local variables */
 
+/*+ The length of the string printed out last time. +*/
 static int printed_length=0;
 
 
@@ -222,7 +221,14 @@ static void vfprintf_middle(FILE *file,const char *format,va_list ap)
  fflush(file);
 
  if(retval>0)
-    printed_length=retval;
+   {
+    int new_printed_length=retval;
+
+    while(retval++<printed_length)
+       putchar(' ');
+
+    printed_length=new_printed_length;
+   }
 }
 
 
