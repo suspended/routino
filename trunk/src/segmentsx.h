@@ -71,8 +71,6 @@ struct _SegmentsX
 
  index_t    number;             /*+ How many entries are still useful? +*/
 
- node_t    *idata;              /*+ An index to the real node number of the segment. +*/
-
  index_t   *firstnode;          /*+ The first segment index for each node. +*/
 
  char      *usednode;           /*+ A flag to indicte if a node is used. +*/
