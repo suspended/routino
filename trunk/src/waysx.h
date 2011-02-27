@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/waysx.h,v 1.31 2010-12-20 19:11:02 amb Exp $
-
  A header file for the extended Ways structure.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -55,7 +53,7 @@ struct _WaysX
  char    *filename;             /*+ The name of the temporary file (for the WaysX). +*/
  int      fd;                   /*+ The file descriptor of the temporary file (for the WaysX). +*/
 
- index_t  xnumber;              /*+ The number of unsorted extended ways. +*/
+ index_t  number;               /*+ The number of extended ways still being considered. +*/
 
 #if !SLIM
 
@@ -66,8 +64,6 @@ struct _WaysX
  WayX     xcached[2];           /*+ Two cached ways read from the file in slim mode. +*/
 
 #endif
-
- index_t  number;               /*+ How many entries are still useful? +*/
 
  index_t  cnumber;              /*+ How many entries are there after compacting? +*/
 

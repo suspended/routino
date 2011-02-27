@@ -86,7 +86,7 @@ SegmentsX *NewSegmentList(int append)
 
     size=SizeFile(segmentsx->filename);
 
-    segmentsx->xnumber=size/sizeof(SegmentX);
+    segmentsx->number=size/sizeof(SegmentX);
    }
  else
     segmentsx->fd=OpenFileNew(segmentsx->filename);
@@ -158,9 +158,9 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
 
  WriteFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
- segmentsx->xnumber++;
+ segmentsx->number++;
 
- assert(segmentsx->xnumber<SEGMENT_FAKE); /* SEGMENT_FAKE marks the high-water mark for real segments. */
+ assert(segmentsx->number<SEGMENT_FAKE); /* SEGMENT_FAKE marks the high-water mark for real segments. */
 }
 
 
@@ -194,8 +194,6 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,NULL);
 
- segmentsx->number=segmentsx->xnumber;
-
  /* Close the files */
 
  segmentsx->fd=CloseFile(segmentsx->fd);
@@ -203,7 +201,7 @@ void SortSegmentList(SegmentsX* segmentsx)
 
  /* Print the final message */
 
- printf_last("Sorted Segments: Segments=%d",segmentsx->xnumber);
+ printf_last("Sorted Segments: Segments=%d",segmentsx->number);
 }
 
 
@@ -345,7 +343,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Allocate the array of node flags */
 
- segmentsx->usednode=(char*)calloc(nodesx->xnumber,sizeof(char));
+ segmentsx->usednode=(char*)calloc(nodesx->number,sizeof(char));
 
  assert(segmentsx->usednode); /* Check malloc() worked */
 

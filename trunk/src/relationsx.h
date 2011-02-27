@@ -64,15 +64,14 @@ struct _RelationsX
  char      *rfilename;         /*+ The name of the temporary file (for the RouteRelX). +*/
  int        rfd;               /*+ The file descriptor of the temporary file (for the RouteRelX). +*/
 
- index_t    rxnumber;          /*+ The number of unsorted extended route relations. +*/
+ index_t    rnumber;           /*+ The number of extended route relations. +*/
 
  /* Turn restriction relations */
 
  char      *trfilename;        /*+ The name of the temporary file (for the TurnRestrictRelX). +*/
  int        trfd;              /*+ The file descriptor of the temporary file (for the TurnRestrictRelX). +*/
 
- index_t    trxnumber;         /*+ The number of unsorted extended turn restriction relations. +*/
- index_t    trnumber;          /*+ The number of sorted extended turn restriction relations. +*/
+ index_t    trnumber;          /*+ The number of extended turn restriction relations. +*/
 };
 
 

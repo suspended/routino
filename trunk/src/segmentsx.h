@@ -56,7 +56,7 @@ struct _SegmentsX
  char      *filename;           /*+ The name of the temporary file. +*/
  int        fd;                 /*+ The file descriptor of the temporary file. +*/
 
- index_t    xnumber;            /*+ The number of unsorted extended nodes. +*/
+ index_t    number;              /*+ The number of extended segments still being considered. +*/
 
 #if !SLIM
 
@@ -68,8 +68,6 @@ struct _SegmentsX
  index_t    incache[2];         /*+ The indexes of the cached extended segments. +*/
 
 #endif
-
- index_t    number;             /*+ How many entries are still useful? +*/
 
  index_t   *firstnode;          /*+ The first segment index for each node. +*/
 

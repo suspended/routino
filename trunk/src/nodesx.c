@@ -89,7 +89,7 @@ NodesX *NewNodeList(int append)
 
     size=SizeFile(nodesx->filename);
 
-    nodesx->xnumber=size/sizeof(NodeX);
+    nodesx->number=size/sizeof(NodeX);
    }
  else
     nodesx->fd=OpenFileNew(nodesx->filename);
@@ -154,9 +154,9 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transp
 
  WriteFile(nodesx->fd,&nodex,sizeof(NodeX));
 
- nodesx->xnumber++;
+ nodesx->number++;
 
- assert(nodesx->xnumber<NODE_FAKE); /* NODE_FAKE marks the high-water mark for real nodes. */
+ assert(nodesx->number<NODE_FAKE); /* NODE_FAKE marks the high-water mark for real nodes. */
 }
 
 
@@ -169,6 +169,7 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transp
 void SortNodeList(NodesX* nodesx)
 {
  int fd;
+ index_t xnumber;
 
  /* Print the start message */
 
@@ -188,11 +189,14 @@ void SortNodeList(NodesX* nodesx)
 
  /* Allocate the array of indexes */
 
- nodesx->idata=(node_t*)malloc(nodesx->xnumber*sizeof(node_t));
+ nodesx->idata=(node_t*)malloc(nodesx->number*sizeof(node_t));
 
  assert(nodesx->idata); /* Check malloc() worked */
 
  /* Sort by node indexes */
+
+ xnumber=nodesx->number;
+ nodesx->number=0;
 
  sortnodesx=nodesx;
 
@@ -205,7 +209,7 @@ void SortNodeList(NodesX* nodesx)
 
  /* Print the final message */
 
- printf_last("Sorted Nodes: Nodes=%d Duplicates=%d",nodesx->xnumber,nodesx->xnumber-nodesx->number);
+ printf_last("Sorted Nodes: Nodes=%d Duplicates=%d",xnumber,xnumber-nodesx->number);
 }
 
 
