@@ -614,7 +614,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
  /* Map into memory /  open the file */
 
 #if !SLIM
- waysx->xdata=MapFile(waysx->filename);
+ waysx->data=MapFile(waysx->filename);
 #else
  waysx->fd=ReOpenFile(waysx->filename);
 #endif
@@ -643,7 +643,7 @@ void SaveWayList(WaysX* waysx,const char *filename)
  /* Unmap from memory / close the file */
 
 #if !SLIM
- waysx->xdata=UnmapFile(waysx->filename);
+ waysx->data=UnmapFile(waysx->filename);
 #else
  waysx->fd=CloseFile(waysx->fd);
 #endif

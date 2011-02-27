@@ -423,7 +423,7 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Map into memory /  open the file */
 
 #if !SLIM
- nodesx->xdata=MapFile(nodesx->filename);
+ nodesx->data=MapFile(nodesx->filename);
 #else
  nodesx->fd=ReOpenFile(nodesx->filename);
 #endif
@@ -483,7 +483,7 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Unmap from memory / close the file */
 
 #if !SLIM
- nodesx->xdata=UnmapFile(nodesx->filename);
+ nodesx->data=UnmapFile(nodesx->filename);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
 #endif
@@ -518,7 +518,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Map into memory / open the file */
 
 #if !SLIM
- waysx->xdata=MapFile(waysx->filename);
+ waysx->data=MapFile(waysx->filename);
 #else
  waysx->fd=ReOpenFile(waysx->filename);
 #endif
@@ -596,7 +596,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Unmap from memory / close the file */
 
 #if !SLIM
- waysx->xdata=UnmapFile(waysx->filename);
+ waysx->data=UnmapFile(waysx->filename);
 #else
  waysx->fd=CloseFile(waysx->fd);
 #endif
@@ -639,7 +639,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
  /* Map into memory / open the files */
 
 #if !SLIM
- segmentsx->xdata=MapFileWriteable(segmentsx->filename);
+ segmentsx->data=MapFileWriteable(segmentsx->filename);
 #else
  segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
 #endif
@@ -667,7 +667,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- segmentsx->xdata=UnmapFile(segmentsx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename);
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
 #endif
@@ -708,7 +708,7 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Map into memory / open the files */
 
 #if !SLIM
- waysx->xdata=MapFile(waysx->filename);
+ waysx->data=MapFile(waysx->filename);
 #else
  waysx->fd=ReOpenFile(waysx->filename);
 #endif
@@ -751,7 +751,7 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- waysx->xdata=UnmapFile(waysx->filename);
+ waysx->data=UnmapFile(waysx->filename);
 #else
  waysx->fd=CloseFile(waysx->fd);
 #endif
