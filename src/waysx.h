@@ -57,11 +57,11 @@ struct _WaysX
 
 #if !SLIM
 
- WayX    *xdata;                /*+ The extended data for the Ways (sorted). +*/
+ WayX    *data;                 /*+ The extended ways data (when mapped into memory). +*/
 
 #else
 
- WayX     xcached[2];           /*+ Two cached ways read from the file in slim mode. +*/
+ WayX     cached[2];            /*+ Two cached ways read from the file in slim mode. +*/
 
 #endif
 
@@ -97,7 +97,7 @@ void CompactWayList(WaysX *waysx);
 
 #if !SLIM
 
-#define LookupWayX(waysx,index,position)  &(waysx)->xdata[index]
+#define LookupWayX(waysx,index,position)  &(waysx)->data[index]
   
 #define PutBackWayX(waysx,index,position) /* nop */
 
@@ -124,9 +124,9 @@ static inline WayX *LookupWayX(WaysX* waysx,index_t index,int position)
 {
  SeekFile(waysx->fd,(off_t)index*sizeof(WayX));
 
- ReadFile(waysx->fd,&waysx->xcached[position-1],sizeof(WayX));
+ ReadFile(waysx->fd,&waysx->cached[position-1],sizeof(WayX));
 
- return(&waysx->xcached[position-1]);
+ return(&waysx->cached[position-1]);
 }
 
 
@@ -144,7 +144,7 @@ static inline void PutBackWayX(WaysX* waysx,index_t index,int position)
 {
  SeekFile(waysx->fd,(off_t)index*sizeof(WayX));
 
- WriteFile(waysx->fd,&waysx->xcached[position-1],sizeof(WayX));
+ WriteFile(waysx->fd,&waysx->cached[position-1],sizeof(WayX));
 }
 
 #endif /* SLIM */

@@ -460,7 +460,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  /* Map into memory / open the files */
 
 #if !SLIM
- waysx->xdata=MapFileWriteable(waysx->filename);
+ waysx->data=MapFileWriteable(waysx->filename);
 #else
  waysx->fd=ReOpenFileWriteable(waysx->filename);
 #endif
@@ -599,7 +599,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- waysx->xdata=UnmapFile(waysx->filename);
+ waysx->data=UnmapFile(waysx->filename);
 #else
  waysx->fd=CloseFile(waysx->fd);
 #endif
@@ -689,8 +689,8 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->xdata=MapFileWriteable(nodesx->filename);
- segmentsx->xdata=MapFile(segmentsx->filename);
+ nodesx->data=MapFileWriteable(nodesx->filename);
+ segmentsx->data=MapFile(segmentsx->filename);
 #else
  nodesx->fd=ReOpenFileWriteable(nodesx->filename);
  segmentsx->fd=ReOpenFile(segmentsx->filename);
@@ -843,8 +843,8 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  /* Unmap from memory / close the files */
 
 #if !SLIM
- nodesx->xdata=UnmapFile(nodesx->filename);
- segmentsx->xdata=UnmapFile(segmentsx->filename);
+ nodesx->data=UnmapFile(nodesx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
@@ -881,7 +881,7 @@ void ProcessTurnRelations3(RelationsX *relationsx,SegmentsX *segmentsx)
  /* Map into memory / open the files */
 
 #if !SLIM
- segmentsx->xdata=MapFile(segmentsx->filename);
+ segmentsx->data=MapFile(segmentsx->filename);
 #else
  segmentsx->fd=ReOpenFile(segmentsx->filename);
 #endif
@@ -936,7 +936,7 @@ void ProcessTurnRelations3(RelationsX *relationsx,SegmentsX *segmentsx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- segmentsx->xdata=UnmapFile(segmentsx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename);
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
 #endif

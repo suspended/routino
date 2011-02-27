@@ -65,9 +65,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->xdata=MapFile(nodesx->filename);
- segmentsx->xdata=MapFile(segmentsx->filename);
- waysx->xdata=MapFile(waysx->filename);
+ nodesx->data=MapFile(nodesx->filename);
+ segmentsx->data=MapFile(segmentsx->filename);
+ waysx->data=MapFile(waysx->filename);
 #else
  nodesx->fd=ReOpenFile(nodesx->filename);
  segmentsx->fd=ReOpenFile(segmentsx->filename);
@@ -143,9 +143,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- nodesx->xdata=UnmapFile(nodesx->filename);
- segmentsx->xdata=UnmapFile(segmentsx->filename);
- waysx->xdata=UnmapFile(waysx->filename);
+ nodesx->data=UnmapFile(nodesx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename);
+ waysx->data=UnmapFile(waysx->filename);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
@@ -190,8 +190,8 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  /* Map into memory / open the files */
 
 #if !SLIM
- segmentsx->xdata=MapFile(segmentsx->filename);
- waysx->xdata=MapFile(waysx->filename);
+ segmentsx->data=MapFile(segmentsx->filename);
+ waysx->data=MapFile(waysx->filename);
 #else
  segmentsx->fd=ReOpenFile(segmentsx->filename);
  waysx->fd=ReOpenFile(waysx->filename);
@@ -271,8 +271,8 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  /* Unmap from memory / close the files */
 
 #if !SLIM
- segmentsx->xdata=UnmapFile(segmentsx->filename);
- waysx->xdata=UnmapFile(waysx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename);
+ waysx->data=UnmapFile(waysx->filename);
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
  waysx->fd=CloseFile(waysx->fd);
@@ -314,9 +314,9 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
  /* Map into memory / open the files */
 
 #if !SLIM
- segmentsx->xdata=MapFile(segmentsx->filename);
+ segmentsx->data=MapFile(segmentsx->filename);
  if(supersegmentsx->number>0)
-    supersegmentsx->xdata=MapFile(supersegmentsx->filename);
+    supersegmentsx->data=MapFile(supersegmentsx->filename);
 #else
  segmentsx->fd=ReOpenFile(segmentsx->filename);
  if(supersegmentsx->number>0)
@@ -374,9 +374,9 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- segmentsx->xdata=UnmapFile(segmentsx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename);
  if(supersegmentsx->number>0)
-    supersegmentsx->xdata=UnmapFile(supersegmentsx->filename);
+    supersegmentsx->data=UnmapFile(supersegmentsx->filename);
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
  if(supersegmentsx->number>0)

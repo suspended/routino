@@ -59,11 +59,11 @@ struct _NodesX
 
 #if !SLIM
 
- NodeX    *xdata;               /*+ The extended node data (sorted). +*/
+ NodeX    *data;                /*+ The extended node data (when mapped into memory). +*/
 
 #else
 
- NodeX     xcached[2];          /*+ Two cached nodes read from the file in slim mode. +*/
+ NodeX     cached[2];           /*+ Two cached nodes read from the file in slim mode. +*/
 
 #endif
 
@@ -105,7 +105,7 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx,int iteration);
 
 #if !SLIM
 
-#define LookupNodeX(nodesx,index,position)      &(nodesx)->xdata[index]
+#define LookupNodeX(nodesx,index,position)      &(nodesx)->data[index]
   
 #define PutBackNodeX(nodesx,index,position)     /* nop */
 
@@ -132,9 +132,9 @@ static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
 {
  SeekFile(nodesx->fd,(off_t)index*sizeof(NodeX));
 
- ReadFile(nodesx->fd,&nodesx->xcached[position-1],sizeof(NodeX));
+ ReadFile(nodesx->fd,&nodesx->cached[position-1],sizeof(NodeX));
 
- return(&nodesx->xcached[position-1]);
+ return(&nodesx->cached[position-1]);
 }
 
 
@@ -152,7 +152,7 @@ static inline void PutBackNodeX(NodesX* nodesx,index_t index,int position)
 {
  SeekFile(nodesx->fd,(off_t)index*sizeof(NodeX));
 
- WriteFile(nodesx->fd,&nodesx->xcached[position-1],sizeof(NodeX));
+ WriteFile(nodesx->fd,&nodesx->cached[position-1],sizeof(NodeX));
 }
 
 #endif /* SLIM */

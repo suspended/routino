@@ -56,11 +56,11 @@ struct _SegmentsX
  char      *filename;           /*+ The name of the temporary file. +*/
  int        fd;                 /*+ The file descriptor of the temporary file. +*/
 
- index_t    number;              /*+ The number of extended segments still being considered. +*/
+ index_t    number;             /*+ The number of extended segments still being considered. +*/
 
 #if !SLIM
 
- SegmentX  *xdata;              /*+ The extended segment data (when mapped into memory). +*/
+ SegmentX  *data;               /*+ The extended segment data (when mapped into memory). +*/
 
 #else
 
@@ -108,9 +108,9 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 #if !SLIM
 
-#define LookupSegmentX(segmentsx,index,position)         &(segmentsx)->xdata[index]
+#define LookupSegmentX(segmentsx,index,position)         &(segmentsx)->data[index]
 
-#define IndexSegmentX(segmentsx,segmentx)                ((segmentx)-&(segmentsx)->xdata[0])
+#define IndexSegmentX(segmentsx,segmentx)                ((segmentx)-&(segmentsx)->data[0])
 
 #define PutBackSegmentX(segmentsx,index,position)        /* nop */
   
