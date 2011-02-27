@@ -264,6 +264,8 @@ int main(int argc,char** argv)
 
  do
    {
+    int nsuper;
+
     printf("\nProcess Super-Data (iteration %d)\n================================%s\n\n",iteration,iteration>9?"=":"");
     fflush(stdout);
 
@@ -276,6 +278,8 @@ int main(int argc,char** argv)
        /* Select the super-segments */
 
        SuperSegments=CreateSuperSegments(Nodes,Segments,Ways,iteration);
+
+       nsuper=Segments->number;
       }
     else
       {
@@ -289,8 +293,7 @@ int main(int argc,char** argv)
 
        SuperSegments2=CreateSuperSegments(Nodes,SuperSegments,Ways,iteration);
 
-       if(SuperSegments->xnumber==SuperSegments2->xnumber)
-          quit=1;
+       nsuper=SuperSegments->number;
 
        FreeSegmentList(SuperSegments,0);
 
@@ -310,6 +313,9 @@ int main(int argc,char** argv)
     IndexSegments(SuperSegments,Nodes);
 
     /* Check for end condition */
+
+    if(SuperSegments->number==nsuper)
+       quit=1;
 
     iteration++;
 

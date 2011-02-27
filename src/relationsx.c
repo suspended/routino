@@ -96,7 +96,7 @@ RelationsX *NewRelationList(int append)
        SeekFile(relationsx->rfd,position);
        ReadFile(relationsx->rfd,&relationsize,FILESORT_VARSIZE);
 
-       relationsx->rxnumber++;
+       relationsx->rnumber++;
        position+=relationsize+FILESORT_VARSIZE;
       }
 
@@ -123,7 +123,7 @@ RelationsX *NewRelationList(int append)
 
     size=SizeFile(relationsx->trfilename);
 
-    relationsx->trxnumber=size/sizeof(TurnRestrictRelX);
+    relationsx->trnumber=size/sizeof(TurnRestrictRelX);
    }
  else
     relationsx->trfd=OpenFileNew(relationsx->trfilename);
@@ -203,9 +203,9 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,
  WriteFile(relationsx->rfd,relations    ,nrelations*sizeof(relation_t));
  WriteFile(relationsx->rfd,&zerorelation,           sizeof(relation_t));
 
- relationsx->rxnumber++;
+ relationsx->rnumber++;
 
- assert(!(relationsx->rxnumber==0)); /* Zero marks the high-water mark for relations. */
+ assert(!(relationsx->rnumber==0)); /* Zero marks the high-water mark for relations. */
 }
 
 
@@ -242,9 +242,9 @@ void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
 
  WriteFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
 
- relationsx->trxnumber++;
+ relationsx->trnumber++;
 
- assert(!(relationsx->trxnumber==0)); /* Zero marks the high-water mark for relations. */
+ assert(!(relationsx->trnumber==0)); /* Zero marks the high-water mark for relations. */
 }
 
 
@@ -268,8 +268,9 @@ void SortRelationList(RelationsX* relationsx)
 
  /* Turn Restriction Relations. */
 
- if(relationsx->trxnumber)
+ if(relationsx->trnumber)
    {
+    index_t trxnumber;
     int trfd;
 
     /* Print the start message */
@@ -286,6 +287,9 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Sort the relations */
 
+    trxnumber=relationsx->trnumber;
+    relationsx->trnumber=0;
+
     sortrelationsx=relationsx;
 
     filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_by_id);
@@ -297,7 +301,7 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Print the final message */
 
-    printf_last("Sorted Relations: Relations=%d Duplicates=%d",relationsx->trxnumber,relationsx->trxnumber-relationsx->trnumber);
+    printf_last("Sorted Relations: Relations=%d Duplicates=%d",trxnumber,trxnumber-relationsx->trnumber);
    }
 }
 
@@ -478,7 +482,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
     printf_first("Processing Route Relations: Iteration=%d Relations=0 Modified Ways=0",iteration);
 
-    for(i=0;i<relationsx->rxnumber;i++)
+    for(i=0;i<relationsx->rnumber;i++)
       {
        FILESORT_VARINT size;
        RouteRelX relationx;

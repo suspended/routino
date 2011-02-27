@@ -55,7 +55,7 @@ struct _NodesX
  char     *filename;            /*+ The name of the temporary file. +*/
  int       fd;                  /*+ The file descriptor of the temporary file. +*/
 
- index_t   xnumber;             /*+ The number of unsorted extended nodes. +*/
+ index_t   number;              /*+ The number of extended nodes still being considered. +*/
 
 #if !SLIM
 
@@ -66,8 +66,6 @@ struct _NodesX
  NodeX     xcached[2];          /*+ Two cached nodes read from the file in slim mode. +*/
 
 #endif
-
- index_t   number;              /*+ How many entries are still useful? +*/
 
  node_t   *idata;               /*+ The extended node IDs (sorted by ID). +*/
 

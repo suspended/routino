@@ -90,7 +90,7 @@ WaysX *NewWayList(int append)
        SeekFile(waysx->fd,position);
        ReadFile(waysx->fd,&waysize,FILESORT_VARSIZE);
 
-       waysx->xnumber++;
+       waysx->number++;
        position+=waysize+FILESORT_VARSIZE;
       }
 
@@ -159,9 +159,9 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
  WriteFile(waysx->fd,&wayx,sizeof(WayX));
  WriteFile(waysx->fd,name,strlen(name)+1);
 
- waysx->xnumber++;
+ waysx->number++;
 
- assert(!(waysx->xnumber==0)); /* Zero marks the high-water mark for ways. */
+ assert(!(waysx->number==0)); /* Zero marks the high-water mark for ways. */
 }
 
 
@@ -173,7 +173,7 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
 
 void SortWayList(WaysX* waysx)
 {
- index_t i;
+ index_t i,xnumber;
  int fd;
  char *names[2]={NULL,NULL};
  int namelen[2]={0,0};
@@ -207,7 +207,7 @@ void SortWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf_last("Sorted Ways by Name: Ways=%d",waysx->xnumber);
+ printf_last("Sorted Ways by Name: Ways=%d",waysx->number);
 
 
  /* Print the start message */
@@ -226,7 +226,7 @@ void SortWayList(WaysX* waysx)
 
  /* Copy from the single file into two files */
 
- for(i=0;i<waysx->xnumber;i++)
+ for(i=0;i<waysx->number;i++)
    {
     WayX wayx;
     FILESORT_VARINT size;
@@ -269,7 +269,7 @@ void SortWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf_last("Separated Way Names: Ways=%d Names=%d ",waysx->xnumber,nnames);
+ printf_last("Separated Way Names: Ways=%d Names=%d ",waysx->number,nnames);
 
 
  /* Print the start message */
@@ -286,12 +286,13 @@ void SortWayList(WaysX* waysx)
 
  /* Allocate the array of indexes */
 
- waysx->idata=(way_t*)malloc(waysx->xnumber*sizeof(way_t));
+ waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
 
  assert(waysx->idata); /* Check malloc() worked */
 
  /* Sort the ways by index and index them */
 
+ xnumber=waysx->number;
  waysx->number=0;
 
  sortwaysx=waysx;
@@ -305,7 +306,7 @@ void SortWayList(WaysX* waysx)
 
  /* Print the final message */
 
- printf_last("Sorted Ways: Ways=%d Duplicates=%d",waysx->number,waysx->xnumber-waysx->number);
+ printf_last("Sorted Ways: Ways=%d Duplicates=%d",xnumber,xnumber-waysx->number);
 }
 
 
