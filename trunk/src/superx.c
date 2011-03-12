@@ -48,9 +48,11 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
   SegmentsX *segmentsx The segments.
 
   WaysX *waysx The ways.
+
+  int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
+void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration)
 {
  index_t i;
  int nnodes=0;
@@ -78,62 +80,85 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    NodeX *nodex=LookupNodeX(nodesx,i,1);
-    int difference=0,nsegments=0;
-    SegmentX *segmentx=NULL;
-    int waycount=0;
-    Way prevway[16];
-
-    segmentx=FirstSegmentX(segmentsx,i,1);
-
-    while(segmentx)
+    if(nodesx->super[i]==iteration)
       {
-       WayX *wayx=LookupWayX(waysx,segmentx->way,1);
+       int issuper=0;
+       NodeX *nodex=LookupNodeX(nodesx,i,1);
 
-       nsegments++;
-       if(segmentx->node1==segmentx->node2)
-          nsegments+=1;         /* The segment is stored once but goes both ways */
-
-       /* If the node allows less traffic types than any connecting way ... */
-
-       if((wayx->way.allow&nodex->allow)!=wayx->way.allow)
+       if(nodex->flags&(NODE_TURNRSTRCT|NODE_TURNRSTRCT2))
          {
-          difference=1;
-          break;
+          issuper=1;
          }
-
-       /* If the ways are different in any attribute and there is a type of traffic that can use both ... */
-
-       if(waycount>0)
+       else
          {
-          int j;
+          int count=0,j;
+          Way segmentway[16];
+          int segmentweight[16];
+          SegmentX *segmentx=FirstSegmentX(segmentsx,i,1);
 
-          for(j=0;j<waycount;j++)
-             if(WaysCompare(&prevway[j],&wayx->way))
-                if(wayx->way.allow & prevway[j].allow)
+          while(segmentx)
+            {
+             WayX *wayx=LookupWayX(waysx,segmentx->way,1);
+             int nsegments;
+
+             /* Segments that are loops count twice */
+
+             assert(count<(sizeof(segmentway)/sizeof(segmentway[0])));
+
+             if(segmentx->node1==segmentx->node2)
+                segmentweight[count]=2;
+             else
+                segmentweight[count]=1;
+
+             segmentway[count]=wayx->way;
+
+             /* If the node allows less traffic types than any connecting way then it is super */
+
+             if((wayx->way.allow&nodex->allow)!=wayx->way.allow)
+               {
+                issuper=1;
+                break;
+               }
+
+             nsegments=segmentweight[count];
+
+             for(j=0;j<count;j++)
+                if(wayx->way.allow & segmentway[j].allow)
                   {
-                   difference=1;
-                   break;
+                   /* If two ways are different in any attribute and there is a type of traffic that can use both then it is super */
+
+                   if(WaysCompare(&segmentway[j],&wayx->way))
+                     {
+                      issuper=1;
+                      break;
+                     }
+
+                   /* If there are two other segments that can be used by the same types of traffic as this one then it is super */
+
+                   nsegments+=segmentweight[j];
+                   if(nsegments>2)
+                     {
+                      issuper=1;
+                      break;
+                     }
                   }
+
+             if(issuper)
+                break;
+
+             segmentx=NextSegmentX(segmentsx,segmentx,i,1);
+
+             count++;
+            }
          }
 
-       assert(waycount<(sizeof(prevway)/sizeof(prevway[0])));
+       /* Mark the node as super if it is. */
 
-       prevway[waycount++]=wayx->way;
-
-       if(difference)
-          break;
-
-       segmentx=NextSegmentX(segmentsx,segmentx,i,1);
-      }
-
-    /* Store the node if there is a difference in the connected ways that could affect routing. */
-
-    if(difference || nsegments>2 || nodex->flags&(NODE_TURNRSTRCT|NODE_TURNRSTRCT2))
-      {
-       nodesx->super[i]++;
-
-       nnodes++;
+       if(issuper)
+         {
+          nodesx->super[i]++;
+          nnodes++;
+         }
       }
 
     if(!((i+1)%10000))
@@ -204,7 +229,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
     if(nodesx->super[i]>iteration)
       {
        SegmentX *segmentx;
-       int waycount=0,match;
+       int count=0,match;
        Way prevway[16];
 
        segmentx=FirstSegmentX(segmentsx,i,1);
@@ -217,11 +242,11 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           match=0;
 
-          if(waycount>0)
+          if(count>0)
             {
              int j;
 
-             for(j=0;j<waycount;j++)
+             for(j=0;j<count;j++)
                 if(!WaysCompare(&prevway[j],&wayx->way))
                   {
                    match=1;
@@ -229,9 +254,9 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                   }
             }
 
-          assert(waycount<(sizeof(prevway)/sizeof(prevway[0])));
+          assert(count<(sizeof(prevway)/sizeof(prevway[0])));
 
-          prevway[waycount++]=wayx->way;
+          prevway[count++]=wayx->way;
 
           /* Route the way and store the super-segments. */
 
