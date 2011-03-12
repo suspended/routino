@@ -273,7 +273,7 @@ int main(int argc,char** argv)
       {
        /* Select the super-nodes */
 
-       ChooseSuperNodes(Nodes,Segments,Ways);
+       ChooseSuperNodes(Nodes,Segments,Ways,iteration);
 
        /* Select the super-segments */
 
@@ -287,7 +287,7 @@ int main(int argc,char** argv)
 
        /* Select the super-nodes */
 
-       ChooseSuperNodes(Nodes,SuperSegments,Ways);
+       ChooseSuperNodes(Nodes,SuperSegments,Ways,iteration);
 
        /* Select the super-segments */
 

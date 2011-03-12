@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/superx.h,v 1.7 2009-09-06 15:51:09 amb Exp $
-
  Header for super-node and super-segment functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008,2009 Andrew M. Bishop
+ This file Copyright 2008,2009,2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +26,7 @@
 #include "typesx.h"
 
 
-void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
+void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration);
 
 SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration);
 
