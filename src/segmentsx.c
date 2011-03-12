@@ -343,7 +343,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Allocate the array of node flags */
 
- segmentsx->usednode=(char*)calloc(nodesx->number,sizeof(char));
+ segmentsx->usednode=(char*)calloc((1+nodesx->number/8),sizeof(char));
 
  assert(segmentsx->usednode); /* Check malloc() worked */
 
@@ -372,8 +372,8 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
       {
        WriteFile(fd,&segmentx,sizeof(SegmentX));
 
-       segmentsx->usednode[index1]=1;
-       segmentsx->usednode[index2]=1;
+       SetBit(segmentsx->usednode,index1);
+       SetBit(segmentsx->usednode,index2);
 
        good++;
 
