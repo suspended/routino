@@ -474,7 +474,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
-    if(!segmentsx->usednode[total])
+    if(!IsBitSet(segmentsx->usednode,total))
        nothighway++;
     else
       {
