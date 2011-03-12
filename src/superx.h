@@ -26,9 +26,9 @@
 #include "typesx.h"
 
 
-void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration);
+void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 
-SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration);
+SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 
 SegmentsX* MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx);
 

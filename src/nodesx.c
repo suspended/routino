@@ -526,11 +526,13 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  free(segmentsx->usednode);
  segmentsx->usednode=NULL;
 
- /* Allocate and clear the super-node markers */
+ /* Allocate and set the super-node markers */
 
- nodesx->super=(uint8_t*)calloc(nodesx->number,sizeof(uint8_t));
+ nodesx->super=(uint8_t*)malloc(nodesx->number*sizeof(uint8_t));
 
  assert(nodesx->super); /* Check calloc() worked */
+
+ memset(nodesx->super,~0,nodesx->number);
 
  /* Print the final message */
 
@@ -544,11 +546,9 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
   NodesX *nodesx The list of nodes to update.
 
   SegmentsX *segmentsx The set of segments to use.
-
-  int iteration The final super-node iteration.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx,int iteration)
+void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  index_t i;
  int fd;
@@ -573,7 +573,7 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx,int iteration)
 
     ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
 
-    if(nodesx->super[nodex.id]==iteration)
+    if(nodesx->super[nodex.id])
        nodex.flags|=NODE_SUPER;
 
     nodex.id=segmentsx->firstnode[nodex.id];
