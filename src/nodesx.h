@@ -71,7 +71,7 @@ struct _NodesX
 
  node_t   *gdata;               /*+ The final node indexes (sorted by ID). +*/
 
- uint8_t  *super;               /*+ A marker for super nodes (same order as sorted nodes). +*/
+ uint8_t  *super;               /*+ A bit-mask marker for super nodes (same order as sorted nodes). +*/
 
  index_t   latbins;             /*+ The number of bins containing latitude. +*/
  index_t   lonbins;             /*+ The number of bins containing longitude. +*/
@@ -102,6 +102,11 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 
 /* Macros / inline functions */
+
+#define ClearBit(xx,yy)    (xx)[(yy)/8]&=~(1<<((yy)%8))
+#define SetBit(xx,yy)      (xx)[(yy)/8]|= (1<<((yy)%8))
+#define IsBitSet(xx,yy)   ((xx)[(yy)/8]&  (1<<((yy)%8)))
+
 
 #if !SLIM
 
