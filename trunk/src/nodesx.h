@@ -98,7 +98,7 @@ void SortNodeListGeographically(NodesX* nodesx);
 
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
-void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx,int iteration);
+void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 
 /* Macros / inline functions */

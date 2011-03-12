@@ -37,7 +37,7 @@
 
 /* Local Functions */
 
-static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match,int iteration);
+static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -48,11 +48,9 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
   SegmentsX *segmentsx The segments.
 
   WaysX *waysx The ways.
-
-  int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration)
+void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
  index_t i;
  int nnodes=0;
@@ -80,7 +78,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
 
  for(i=0;i<nodesx->number;i++)
    {
-    if(nodesx->super[i]==iteration)
+    if(nodesx->super[i])
       {
        int issuper=0;
        NodeX *nodex=LookupNodeX(nodesx,i,1);
@@ -155,10 +153,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
        /* Mark the node as super if it is. */
 
        if(issuper)
-         {
-          nodesx->super[i]++;
           nnodes++;
-         }
+       else
+          nodesx->super[i]=0;
       }
 
     if(!((i+1)%10000))
@@ -193,11 +190,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int itera
   SegmentsX *segmentsx The segments.
 
   WaysX *waysx The ways.
-
-  int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int iteration)
+SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
  index_t i;
  SegmentsX *supersegmentsx;
@@ -226,7 +221,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  for(i=0;i<nodesx->number;i++)
    {
-    if(nodesx->super[i]>iteration)
+    if(nodesx->super[i])
       {
        SegmentX *segmentx;
        int count=0,match;
@@ -262,12 +257,12 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           if(!match)
             {
-             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,i,&wayx->way,iteration);
+             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,i,&wayx->way);
              Result *result=FirstResult(results);
 
              while(result)
                {
-                if(nodesx->super[result->node]>iteration && result->segment!=NO_SEGMENT)
+                if(nodesx->super[result->node] && result->segment!=NO_SEGMENT)
                   {
                    if(wayx->way.type&Way_OneWay && result->node!=i)
                       AppendSegment(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
@@ -430,11 +425,9 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
   node_t start The start node.
 
   Way *match The way that the route must match.
-
-  int iteration The current super-node / super-segment iteration number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match,int iteration)
+static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match)
 {
  Results *results;
  Queue *queue;
@@ -494,7 +487,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
-          if(nodesx->super[node2]<=iteration)
+          if(!nodesx->super[node2])
              InsertInQueue(queue,result2);
          }
        else if(cumulative_distance<result2->score)
@@ -503,7 +496,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
-          if(nodesx->super[node2]<=iteration)
+          if(!nodesx->super[node2])
              InsertInQueue(queue,result2);
          }
 

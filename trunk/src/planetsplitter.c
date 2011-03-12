@@ -273,11 +273,11 @@ int main(int argc,char** argv)
       {
        /* Select the super-nodes */
 
-       ChooseSuperNodes(Nodes,Segments,Ways,iteration);
+       ChooseSuperNodes(Nodes,Segments,Ways);
 
        /* Select the super-segments */
 
-       SuperSegments=CreateSuperSegments(Nodes,Segments,Ways,iteration);
+       SuperSegments=CreateSuperSegments(Nodes,Segments,Ways);
 
        nsuper=Segments->number;
       }
@@ -287,11 +287,11 @@ int main(int argc,char** argv)
 
        /* Select the super-nodes */
 
-       ChooseSuperNodes(Nodes,SuperSegments,Ways,iteration);
+       ChooseSuperNodes(Nodes,SuperSegments,Ways);
 
        /* Select the super-segments */
 
-       SuperSegments2=CreateSuperSegments(Nodes,SuperSegments,Ways,iteration);
+       SuperSegments2=CreateSuperSegments(Nodes,SuperSegments,Ways);
 
        nsuper=SuperSegments->number;
 
@@ -362,7 +362,7 @@ int main(int argc,char** argv)
 
  /* Fix the node and segment indexes after sorting */
 
- UpdateNodes(Nodes,Segments,iteration);
+ UpdateNodes(Nodes,Segments);
 
  UpdateSegments(Segments,Nodes,Ways);
 
