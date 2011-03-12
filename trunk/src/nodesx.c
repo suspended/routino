@@ -528,11 +528,11 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Allocate and set the super-node markers */
 
- nodesx->super=(uint8_t*)malloc(nodesx->number*sizeof(uint8_t));
+ nodesx->super=(uint8_t*)malloc((1+nodesx->number/8)*sizeof(uint8_t));
 
  assert(nodesx->super); /* Check calloc() worked */
 
- memset(nodesx->super,~0,nodesx->number);
+ memset(nodesx->super,~0,(1+nodesx->number/8));
 
  /* Print the final message */
 
@@ -573,7 +573,7 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
     ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
 
-    if(nodesx->super[nodex.id])
+    if(IsBitSet(nodesx->super,nodex.id))
        nodex.flags|=NODE_SUPER;
 
     nodex.id=segmentsx->firstnode[nodex.id];

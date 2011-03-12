@@ -78,7 +78,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    if(nodesx->super[i])
+    if(IsBitSet(nodesx->super,i))
       {
        int issuper=0;
        NodeX *nodex=LookupNodeX(nodesx,i,1);
@@ -155,7 +155,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
        if(issuper)
           nnodes++;
        else
-          nodesx->super[i]=0;
+          ClearBit(nodesx->super,i);
       }
 
     if(!((i+1)%10000))
@@ -221,7 +221,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  for(i=0;i<nodesx->number;i++)
    {
-    if(nodesx->super[i])
+    if(IsBitSet(nodesx->super,i))
       {
        SegmentX *segmentx;
        int count=0,match;
@@ -262,7 +262,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
              while(result)
                {
-                if(nodesx->super[result->node] && result->segment!=NO_SEGMENT)
+                if(IsBitSet(nodesx->super,result->node) && result->segment!=NO_SEGMENT)
                   {
                    if(wayx->way.type&Way_OneWay && result->node!=i)
                       AppendSegment(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
@@ -487,7 +487,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
-          if(!nodesx->super[node2])
+          if(!IsBitSet(nodesx->super,node2))
              InsertInQueue(queue,result2);
          }
        else if(cumulative_distance<result2->score)
@@ -496,7 +496,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
-          if(!nodesx->super[node2])
+          if(!IsBitSet(nodesx->super,node2))
              InsertInQueue(queue,result2);
          }
 
