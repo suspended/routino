@@ -507,9 +507,10 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  int duplicate=0,good=0;
- index_t firstindex=0,index=0;
- int fd;
- SegmentX prevsegmentx[16],segmentx;
+ index_t index=0;
+ int fd,nprev=0;
+ node_t prevnode1=NO_NODE,prevnode2=NO_NODE;
+ SegmentX prevsegx[16],segmentx;
  Way prevway[16];
 
  /* Print the start message */
@@ -539,35 +540,47 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
     WayX *wayx=LookupWayX(waysx,segmentx.way,1);
     int isduplicate=0;
 
-    if(index && segmentx.node1==prevsegmentx[0].node1 &&
-                segmentx.node2==prevsegmentx[0].node2)
+    if(segmentx.node1==prevnode1 && segmentx.node2==prevnode2)
       {
-       index_t previndex=firstindex;
+       int offset;
 
-       while(previndex<index)
+       for(offset=0;offset<nprev;offset++)
          {
-          int offset=previndex-firstindex;
-
-          if(DISTFLAG(segmentx.distance)==DISTFLAG(prevsegmentx[offset].distance))
+          if(DISTFLAG(segmentx.distance)==DISTFLAG(prevsegx[offset].distance))
              if(!WaysCompare(&prevway[offset],&wayx->way))
                {
                 isduplicate=1;
                 break;
                }
-
-          previndex++;
          }
 
-       assert((index-firstindex)<(sizeof(prevsegmentx)/sizeof(prevsegmentx[0])));
+       if(isduplicate)
+         {
+          nprev--;
 
-       prevsegmentx[index-firstindex]=segmentx;
-       prevway[index-firstindex]=wayx->way;
+          for(;offset<nprev;offset++)
+            {
+             prevsegx[offset]=prevsegx[offset+1];
+             prevway[offset] =prevway[offset+1];
+            }
+         }
+       else
+         {
+          nprev++;
+
+          assert(nprev<(sizeof(prevsegx)/sizeof(prevsegx[0])));
+
+          prevsegx[nprev]=segmentx;
+          prevway[nprev] =wayx->way;
+         }
       }
     else
       {
-       firstindex=index;
-       prevsegmentx[0]=segmentx;
-       prevway[0]=wayx->way;
+       nprev=1;
+       prevnode1=segmentx.node1;
+       prevnode2=segmentx.node2;
+       prevsegx[0]=segmentx;
+       prevway[0] =wayx->way;
       }
 
     if(isduplicate)
