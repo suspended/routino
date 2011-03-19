@@ -468,7 +468,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
        seg2=IndexSegmentX(segmentsx,segmentx);
 
-       if(result1->prev && result1->prev->node==node2 && node1!=node2)
+       if(result1->segment==seg2)
           goto endloop;
 
        wayx=LookupWayX(waysx,segmentx->way,2);
