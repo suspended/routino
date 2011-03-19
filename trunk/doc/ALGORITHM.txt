@@ -65,13 +65,15 @@ Final Algorithm
    UK at beginning of 2010) it finds one long route in a data set of
    1,000,000 nodes and a few hundred very short routes in the full data
    set. Since the time taken to find a route is proportional to the number
-   of nodes the main route takes 1/10th of the time and the very short
-   routes take almost no time at all.
+   of nodes that need to be considered the main route takes 1/10th of the
+   time and the very short routes take almost no time at all.
 
    The solution to making the algorithm fast is therefore to discard most
    of the nodes and only keep the interesting ones. In this case a node is
-   deemed to be interesting if it is the junction of two segments with
-   different properties. In the algorithm these are classed as
+   deemed to be interesting if it is the junction of three or more
+   segments or the junction of two segments with different properties or
+   has a routing restriction different from the connecting segments. In
+   the algorithm and following description these are classed as
    super-nodes. Starting at each super-node a super-segment is generated
    that finishes on another super-node and contains the shortest path
    along segments with identical properties (and these properties are
@@ -115,6 +117,20 @@ Final Algorithm
    set a fake node is added to an existing segment. This requires special
    handling in the algorithm but it gives mode flexibility for the start,
    finish and intermediate points in a route.
+
+
+Algorithm Evolution
+-------------------
+
+   In Routino versions 1.0 to 1.4 the algorithm used to select a
+   super-node was the same as above except that node properties were not
+   included. Routino versions 1.4.1 to 1.5.1 used a slightly different
+   algorithm which only chose nodes that were junctions between segments
+   with different properties (or has a routing restriction that is
+   different from connecting segments in versions 1.5 and 1.5.1). The
+   addition of turn restrictions (described in more detail below) requires
+   the original algorithm since the super-segments more accurately reflect
+   the underlying topology.
 
 
 Routing Preferences
@@ -174,9 +190,9 @@ Routing Preferences
 Turn Restrictions
 -----------------
 
-   The addition of turn restrictions adds a further complication because
-   it introduces a set of constraints that are more complex than one-way
-   streets.
+   The addition of turn restrictions adds a set of further complications
+   because it introduces a set of constraints that are far more complex
+   than one-way streets.
 
    A turn restriction in the simplest case is a combination of a segment,
    node and segment such that routes are not allowed to go from the first
@@ -184,26 +200,56 @@ Turn Restrictions
    certain types of traffic can also be specified. Currently only this
    simplest type of turn restriction is handled by the algorithm.
 
-   The first complication of a turn restriction is that the optimum route
-   may require passing through the same node more than once. This can
-   happen where the route needs to work around a turn restriction by
-   driving past it, turning round (on a roundabout perhaps) and coming
-   back along the same highway. Without turn restrictions a route could be
-   defined purely by the set of nodes that were passed; no node would be
-   exist more than once within a route between two points. With turn
-   restrictions the route is defined by a node and the segment used to get
-   there; no route between two points will ever need to follow the same
-   segment in the same direction more than once.
-
-   The second complication of turn restrictions is that the pre-computed
-   super-segments must be composed of segments with identical properties.
-   The turn restriction is not the same in both directions so a
-   super-segment cannot include any route through the turn restriction.
+   The first complication of turn restrictions is that the algorithm above
+   requires that super-segments are composed of segments with identical
+   properties. A turn restriction is not the same in both directions so a
+   super-segment cannot include any route through that turn restriction.
    The node at the centre of the turn restriction must therefore be a
    super-node to avoid this. In addition to this all nodes connected to
    the turn restriction node by a single segment must also be super-nodes
    to avoid any long-distance super-segments starting at the restricted
    node.
+
+   The second complication of a turn restriction is that the optimum route
+   may require passing through the same node more than once. This can
+   happen where the route needs to work around a turn restriction by
+   driving past it, turning round (on a roundabout perhaps) and coming
+   back along the same highway. Without turn restrictions a route could be
+   defined purely by the set of nodes that were passed; no node would
+   exist more than once along a route between two points. With turn
+   restrictions the route is defined by a node and the segment used to get
+   there; no route between two points will ever need to follow the same
+   segment in the same direction more than once.
+
+   A side-effect of this is that a route that works around a turn
+   restriction must be calculable using the super-segments that are stored
+   in the database. This puts a limit on the amount of database
+   optimisation that can be performed because if too many super-segments
+   are removed the optimum work-around may also be removed. The solution
+   to this is to ensure that the database preserves all loops that can be
+   used to turn around and reverse direction, previously super-segments
+   that started and finished on the same super-node were disallowed.
+
+   Another side-effect of having the route composed of a set of locations
+   (nodes) as well as the direction of travel (segments used to reach
+   them) is that via points in the route can be forced to continue in the
+   original direction. If the chosen method of transport obeys turn
+   restrictions then it will not reverse direction at a via point but will
+   find an optimum route continuing in the same direction.
+
+   A side-effect of having the starting direction at a via point defined
+   by the previous part of the route is that overall non-optimal routes
+   may be found even though each section between via points is optimal.
+   For a route with a start, middle and end point defined it can be the
+   case that the shortest route from the start to the middle arrives in
+   the opposite direction to that required for the optimal route from the
+   middle to the end. The calculation of the route in separate sections
+   therefore may give a non-optimum result even though each section is
+   itself optimum based on the start conditions.
+
+   Overall the presence of turn restrictions in the database makes the
+   routing slower even for regions of the map that have no turn
+   restrictions.
 
 
 Data Implementation
