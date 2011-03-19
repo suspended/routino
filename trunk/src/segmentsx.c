@@ -510,6 +510,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
  index_t firstindex=0,index=0;
  int fd;
  SegmentX prevsegmentx[16],segmentx;
+ Way prevway[16];
 
  /* Print the start message */
 
@@ -535,6 +536,7 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
+    WayX *wayx=LookupWayX(waysx,segmentx.way,1);
     int isduplicate=0;
 
     if(index && segmentx.node1==prevsegmentx[0].node1 &&
@@ -547,16 +549,11 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
           int offset=previndex-firstindex;
 
           if(DISTFLAG(segmentx.distance)==DISTFLAG(prevsegmentx[offset].distance))
-            {
-             WayX *wayx1=LookupWayX(waysx,prevsegmentx[offset].way,1);
-             WayX *wayx2=LookupWayX(waysx,    segmentx        .way,2);
-
-             if(!WaysCompare(&wayx1->way,&wayx2->way))
+             if(!WaysCompare(&prevway[offset],&wayx->way))
                {
                 isduplicate=1;
                 break;
                }
-            }
 
           previndex++;
          }
@@ -564,11 +561,13 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
        assert((index-firstindex)<(sizeof(prevsegmentx)/sizeof(prevsegmentx[0])));
 
        prevsegmentx[index-firstindex]=segmentx;
+       prevway[index-firstindex]=wayx->way;
       }
     else
       {
        firstindex=index;
        prevsegmentx[0]=segmentx;
+       prevway[0]=wayx->way;
       }
 
     if(isduplicate)
