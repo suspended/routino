@@ -632,6 +632,9 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
  index_t index;
  int i;
 
+ if(segmentsx->number==0)
+    return;
+
  /* Print the start message */
 
  printf_first("Indexing Segments: Segments=0");
