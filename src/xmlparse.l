@@ -625,16 +625,48 @@ char *ParseXML_Decode_Entity_Ref(const char *string)
 
 char *ParseXML_Decode_Char_Ref(const char *string)
 {
- static char result[2]=" ";
- long int val;
+ static char result[5]="";
+ long int unicode;
 
- if(string[2]=='x') val=strtol(string+3,NULL,16);
- else               val=strtol(string+2,NULL,10);
+ if(string[2]=='x') unicode=strtol(string+3,NULL,16);
+ else               unicode=strtol(string+2,NULL,10);
 
- if(val<0 || val>255)
-    return(NULL);
-
- result[0]=val&0xff;
+ if(unicode<0x80)
+   {
+    /* 0000 0000-0000 007F  =>  0xxxxxxx */
+    result[0]=unicode;
+    result[1]=0;
+   }
+ else if(unicode<0x07FF)
+   {
+    /* 0000 0080-0000 07FF  =>  110xxxxx 10xxxxxx */
+    result[0]=0xC0+((unicode&0x07C0)>>6);
+    result[1]=0x80+ (unicode&0x003F);
+    result[2]=0;
+   }
+ else if(unicode<0xFFFF)
+   {
+    /* 0000 0800-0000 FFFF  =>  1110xxxx 10xxxxxx 10xxxxxx */
+    result[0]=0xE0+((unicode&0xF000)>>12);
+    result[1]=0x80+((unicode&0x0FC0)>>6);
+    result[2]=0x80+ (unicode&0x003F);
+    result[3]=0;
+   }
+ else if(unicode<0x1FFFFF)
+   {
+    /* 0001 0000-001F FFFF  =>  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
+    result[0]=0xF0+((unicode&0x1C0000)>>18);
+    result[1]=0x80+((unicode&0x03F000)>>12);
+    result[2]=0x80+((unicode&0x000FC0)>>6);
+    result[3]=0x80+ (unicode&0x00003F);
+    result[4]=0;
+   }
+ else
+   {
+    result[0]=0xFF;
+    result[1]=0xFD;
+    result[2]=0;
+   }
 
  return(result);
 }
@@ -717,22 +749,27 @@ char *ParseXML_Encode_Safe_XML(const char *string)
 
           /* Decode the UTF-8 */
 
-          if((string[i]&0xE0)==0xC0 && (string[i]&0x1F)>=2 && (string[i+1]&0xC0)==0x80)
+          if((string[i]&0x80)==0)
             {
-             /*   0000 0080-0000 07FF   110xxxxx 10xxxxxx */
+             /* 0000 0000-0000 007F  =>  0xxxxxxx */
+             unicode=string[i];
+            }
+          else if((string[i]&0xE0)==0xC0 && (string[i]&0x1F)>=2 && (string[i+1]&0xC0)==0x80)
+            {
+             /* 0000 0080-0000 07FF  =>  110xxxxx 10xxxxxx */
              unicode =(string[i++]&0x1F)<<6;
              unicode|= string[i  ]&0x3F;
             }
           else if((string[i]&0xF0)==0xE0 && (string[i+1]&0xC0)==0x80 && (string[i+2]&0xC0)==0x80)
             {
-             /*   0000 0800-0000 FFFF   1110xxxx 10xxxxxx 10xxxxxx */
+             /* 0000 0800-0000 FFFF  =>  1110xxxx 10xxxxxx 10xxxxxx */
              unicode =(string[i++]&0x0F)<<12;
              unicode|=(string[i++]&0x3F)<<6;
              unicode|= string[i  ]&0x3F;
             }
           else if((string[i]&0xF8)==0xF0 && (string[i+1]&0xC0)==0x80 && (string[i+2]&0xC0)==0x80 && (string[i+3]&0xC0)==0x80)
             {
-             /*   0001 0000-001F FFFF   11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
+             /* 0001 0000-001F FFFF  =>  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
              unicode =(string[i++]&0x07)<<18;
              unicode|=(string[i++]&0x3F)<<12;
              unicode|=(string[i++]&0x3F)<<6;
