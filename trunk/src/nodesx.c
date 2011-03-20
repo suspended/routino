@@ -337,20 +337,19 @@ static int sort_by_lat_long(NodeX *a,NodeX *b)
        return(1);
     else
       {
-#ifdef REGRESSION_TESTING
-       // Need this for regression testing because filesort_heapsort() is not order
-       // preserving like qsort() is (or was when tested).
-
-       index_t a_id=a->id;
-       index_t b_id=b->id;
-
-       if(a_id<b_id)
+       if(a->longitude<b->longitude)
           return(-1);
-       else if(a_id>b_id)
+       else if(a->longitude>b->longitude)
           return(1);
        else
-#endif
-          return(0);
+         {
+          if(a->latitude<b->latitude)
+             return(-1);
+          else if(a->latitude>b->latitude)
+             return(1);
+         }
+
+       return(0);
       }
    }
 }
