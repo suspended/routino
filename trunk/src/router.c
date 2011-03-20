@@ -312,7 +312,7 @@ int main(int argc,char** argv)
 
        property=PropertyType(string);
 
-       if(property==Way_Count)
+       if(property==Property_Count)
           print_usage(0,argv[arg],NULL);
 
        profile->props_yes[property]=atof(equal+1);
