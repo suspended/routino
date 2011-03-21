@@ -737,7 +737,10 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
              if(node_to!=NO_NODE) /* Only one segment can be on the 'to' way */
                 goto endloop;
 
-             node_to=OtherNode(segmentx,relationx.via);
+             /* Don't bother with restrictions banning going the wrong way down a one-way road */
+
+             if(!IsOnewayTo(segmentx,relationx.via))
+                node_to=OtherNode(segmentx,relationx.via);
             }
 
           segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
@@ -761,7 +764,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
       }
     else
       {
-       node_t node_from=NO_NODE,node_to[8];
+       node_t node_from=NO_NODE,node_to[16];
        int nnodes_to=0,i;
 
        /* Find the segments that join the node 'via' */
@@ -780,10 +783,13 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
           if(segmentx->way!=relationx.to)
             {
-             if(nnodes_to==8)   /* Too many segments (arbitrary choice) */
+             if(nnodes_to==16)
                 goto endloop;
 
-             node_to[nnodes_to++]=OtherNode(segmentx,relationx.via);
+             /* Don't bother with restrictions banning going the wrong way down a one-way road */
+
+             if(!IsOnewayTo(segmentx,relationx.via))
+                node_to[nnodes_to++]=OtherNode(segmentx,relationx.via);
             }
 
           segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
