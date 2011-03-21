@@ -566,12 +566,12 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
          }
        else
          {
-          nprev++;
-
           assert(nprev<(sizeof(prevsegx)/sizeof(prevsegx[0])));
 
           prevsegx[nprev]=segmentx;
           prevway[nprev] =wayx->way;
+
+          nprev++;
          }
       }
     else
