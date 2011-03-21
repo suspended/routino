@@ -98,9 +98,8 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx);
 
 void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx);
 void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
-void ProcessTurnRelations3(RelationsX *relationsx,SegmentsX *segmentsx);
 
-void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx);
+void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx);
 
 void SaveRelationList(RelationsX* relationsx,const char *filename);
 

@@ -339,11 +339,9 @@ int main(int argc,char** argv)
 
  Segments=MergedSegments;
 
- /* Sort the segments */
+ /* Sort and re-index the segments */
 
  SortSegmentList(Segments);
-
- /* Index the segments */
 
  IndexSegments(Segments,Nodes);
 
@@ -352,21 +350,25 @@ int main(int argc,char** argv)
  printf("\nCross-Reference Nodes and Segments\n==================================\n\n");
  fflush(stdout);
 
- /* Fix the node indexes and convert nodes to segments */
-
- ProcessTurnRelations3(Relations,Segments);
-
- /* Sort the node list geographically */
+ /* Sort the nodes geographically and update the segment indexes */
 
  SortNodeListGeographically(Nodes);
 
- /* Fix the node and segment indexes after sorting */
+ UpdateSegments(Segments,Nodes,Ways);
+
+ /* Sort the segments geographically and re-index them */
+
+ SortSegmentList(Segments);
+
+ IndexSegments(Segments,Nodes);
+
+ /* Update the nodes */
 
  UpdateNodes(Nodes,Segments);
 
- UpdateSegments(Segments,Nodes,Ways);
+ /* Fix the turn relations after sorting nodes geographically */
 
- UpdateTurnRelations(Relations,Nodes);
+ UpdateTurnRelations(Relations,Nodes,Segments);
 
  SortTurnRelationList(Relations);
 

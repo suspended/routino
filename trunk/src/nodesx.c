@@ -588,14 +588,6 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
  nodesx->fd=CloseFile(nodesx->fd);
  CloseFile(fd);
 
- /* Free the unneeded memory */
-
- free(nodesx->super);
- nodesx->super=NULL;
-
- free(segmentsx->firstnode);
- segmentsx->firstnode=NULL;
-
  /* Print the final message */
 
  printf_last("Updated Super Nodes: Nodes=%d",nodesx->number);
