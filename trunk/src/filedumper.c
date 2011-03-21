@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
+#include <math.h>
 
 #include "types.h"
 #include "nodes.h"
