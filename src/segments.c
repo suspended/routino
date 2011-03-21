@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/segments.c,v 1.47 2010-07-23 14:35:27 amb Exp $
-
  Segment data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +22,7 @@
 
 #include <sys/types.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "types.h"
 #include "nodes.h"
