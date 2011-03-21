@@ -591,8 +591,14 @@ static void print_node_osm(Nodes* nodes,index_t item)
     if(node->flags & NODE_SUPER)
        printf("    <tag k='routino:super' v='yes' />\n");
 
+    if(node->flags & NODE_UTURN)
+       printf("    <tag k='routino:uturn' v='yes' />\n");
+
     if(node->flags & NODE_MINIRNDBT)
        printf("    <tag k='highway' v='mini_roundabout' />\n");
+
+    if(node->flags & NODE_TURNRSTRCT)
+       printf("    <tag k='routino:turnrestriction' v='yes' />\n");
 
     for(i=1;i<Transport_Count;i++)
        if(!(node->allow & TRANSPORTS(i)))
@@ -636,6 +642,8 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
     printf("    <tag k='routino:super' v='yes' />\n");
  if(IsNormalSegment(segment))
     printf("    <tag k='routino:normal' v='yes' />\n");
+
+ printf("     <tag k='routino:distance' v='%.3f' />\n",distance_to_km(DISTANCE(segment->distance)));
 
  if(way->type & Way_OneWay)
     printf("    <tag k='oneway' v='yes' />\n");
