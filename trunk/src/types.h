@@ -137,7 +137,7 @@ typedef uint16_t ll_off_t;
 
 
 /*+ Conversion from a latitude or longitude in radians to a latlong (integer latitude or longitude). +*/
-#define radians_to_latlong(xxx) ((latlong_t)floor((xxx)*LAT_LONG_SCALE))
+#define radians_to_latlong(xxx) ((latlong_t)floor((xxx)*LAT_LONG_SCALE+0.5))
 
 /*+ Conversion from a latlong (integer latitude or longitude) to a latitude or longitude in radians. +*/
 #define latlong_to_radians(xxx) ((double)(xxx)/LAT_LONG_SCALE)
