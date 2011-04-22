@@ -68,6 +68,7 @@ foreach $key (@rawparams)
          "speed"     => 0.2,
          "super"     => 0.2,
          "oneway"    => 0.2,
+         "turns"     => 0.3,
          "weight"    => 0.3,
          "height"    => 0.3,
          "width"     => 0.3,
