@@ -575,7 +575,7 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
     if(IsBitSet(nodesx->super,nodex.id))
        nodex.flags|=NODE_SUPER;
 
-    nodex.id=segmentsx->firstnode[nodex.id];
+    nodex.id=segmentsx->firstnode[nodesx->gdata[nodex.id]];
 
     WriteFile(fd,&nodex,sizeof(NodeX));
 

@@ -643,7 +643,7 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 
  if(!segmentsx->firstnode)
    {
-    segmentsx->firstnode=(index_t*)malloc((nodesx->number+1)*sizeof(index_t));
+    segmentsx->firstnode=(index_t*)malloc(nodesx->number*sizeof(index_t));
 
     assert(segmentsx->firstnode); /* Check malloc() worked */
    }
@@ -665,12 +665,9 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
    {
     SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
 
-    if(segmentsx->firstnode[segmentx->node2]!=NO_SEGMENT)
-      {
-       segmentx->next2=segmentsx->firstnode[segmentx->node2];
+    segmentx->next2=segmentsx->firstnode[segmentx->node2];
 
-       PutBackSegmentX(segmentsx,index,1);
-      }
+    PutBackSegmentX(segmentsx,index,1);
 
     segmentsx->firstnode[segmentx->node1]=index;
     segmentsx->firstnode[segmentx->node2]=index;
@@ -686,14 +683,6 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
 #endif
-
- /* Fix-up the firstnode index for the missing nodes */
-
- segmentsx->firstnode[nodesx->number]=segmentsx->number;
-
- for(i=nodesx->number-1;i>=0;i--)
-    if(segmentsx->firstnode[i]==NO_SEGMENT)
-       segmentsx->firstnode[i]=segmentsx->firstnode[i+1];
 
  /* Print the final message */
 
@@ -718,7 +707,7 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the start message */
 
- printf_first("Updating Super Segments: Segments=0");
+ printf_first("Updating Segments: Segments=0");
 
  /* Map into memory / open the files */
 
@@ -748,6 +737,18 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     segmentx.node1=nodesx->gdata[segmentx.node1];
     segmentx.node2=nodesx->gdata[segmentx.node2];
 
+    if(segmentx.node1>segmentx.node2)
+      {
+       index_t temp;
+
+       temp=segmentx.node1;
+       segmentx.node1=segmentx.node2;
+       segmentx.node2=temp;
+
+       if(segmentx.distance&(ONEWAY_2TO1|ONEWAY_1TO2))
+          segmentx.distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+      }
+
     wayx=LookupWayX(waysx,segmentx.way,1);
 
     segmentx.way=wayx->prop;
@@ -755,7 +756,7 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     WriteFile(fd,&segmentx,sizeof(SegmentX));
 
     if(!((i+1)%10000))
-       printf_middle("Updating Super Segments: Segments=%d",i+1);
+       printf_middle("Updating Segments: Segments=%d",i+1);
    }
 
  /* Close the files */
@@ -773,7 +774,7 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Updated Super Segments: Segments=%d",segmentsx->number);
+ printf_last("Updated Segments: Segments=%d",segmentsx->number);
 }
 
 
