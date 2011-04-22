@@ -542,6 +542,12 @@ int main(int argc,char** argv)
 
        results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,superresults,profile);
 
+       if(!results[point])
+         {
+          fprintf(stderr,"Error: Cannot find route compatible with profile.\n");
+          return(1);
+         }
+
        FreeResultsList(superresults);
       }
 

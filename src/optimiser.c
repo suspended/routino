@@ -1037,6 +1037,9 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
        if(!results2)
           results2=FindNormalRoute(nodes,segments,ways,relations,result1->node,result3->segment,result1->next->node,profile,1);
 
+       if(!results2)
+          return(NULL);
+
        result2=FindResult(results2,result1->node,result3->segment);
 
        result2=result2->next;
