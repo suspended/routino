@@ -220,11 +220,9 @@ minimising the length.
   preference, a second "non-property" weighted preference is calcuated in the
   same way after subtracting the user's preference from 100%.  If a segment has
   a particular property then the calculated score is divided by the weighted
-  preference for that property, if the segment does not have this property then
-  it is divided by the non-property weighted preference.  To ensure that setting
-  property preferences near 50% do not cause large variations in routes the
-  highway's preference is found by taking the square root of the property
-  preference.
+  preference for that property, if not then it is divided by the non-property
+  weighted preference.  A non-linear transformation is applied so that changing
+  property preferences close to 50% do not cause large variations in routes.
 </dl>
 
 <h3><a name="H_1_1_5"></a>Turn Restrictions</h3>
