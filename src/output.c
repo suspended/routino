@@ -72,12 +72,6 @@ static char junction_other_way[Way_Count][Way_Count]=
  };
 
 
-/* Local functions */
-
-static int turn_angle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node);
-static int bearing_angle(Nodes *nodes,Segment *segment,index_t node);
-
-
 /*++++++++++++++++++++++++++++++++++++++
   Print the optimum route between two nodes.
 
@@ -478,13 +472,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                   {
                    if(!turn_str)
                      {
-                      turn_int=turn_angle(nodes,resultsegment,nextresultsegment,result->node);
+                      turn_int=(int)TurnAngle(nodes,resultsegment,nextresultsegment,result->node);
                       turn_str=translate_turn[(4+(22+turn_int)/45)%8];
                      }
 
                    if(!bearing_next_str)
                      {
-                      bearing_next_int=bearing_angle(nodes,nextresultsegment,nextresult->node);
+                      bearing_next_int=(int)BearingAngle(nodes,nextresultsegment,nextresult->node);
                       bearing_next_str=translate_heading[(4+(22+bearing_next_int)/45)%8];
                      }
 
@@ -522,7 +516,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
                 if(!bearing_str)
                   {
-                   bearing_int=bearing_angle(nodes,resultsegment,result->node);
+                   bearing_int=(int)BearingAngle(nodes,resultsegment,result->node);
                    bearing_str=translate_heading[(4+(22+bearing_int)/45)%8];
                   }
 
@@ -573,13 +567,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                   {
                    if(!turn_str)
                      {
-                      turn_int=turn_angle(nodes,resultsegment,nextresultsegment,result->node);
+                      turn_int=(int)TurnAngle(nodes,resultsegment,nextresultsegment,result->node);
                       turn_str=translate_turn[(4+(22+turn_int)/45)%8];
                      }
 
                    if(!bearing_next_str)
                      {
-                      bearing_next_int=bearing_angle(nodes,nextresultsegment,nextresult->node);
+                      bearing_next_int=(int)BearingAngle(nodes,nextresultsegment,nextresult->node);
                       bearing_next_str=translate_heading[(4+(22+bearing_next_int)/45)%8];
                      }
 
@@ -629,7 +623,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
              if(!bearing_str)
                {
-                bearing_int=bearing_angle(nodes,resultsegment,result->node);
+                bearing_int=(int)BearingAngle(nodes,resultsegment,result->node);
                 bearing_str=translate_heading[(4+(22+bearing_int)/45)%8];
                }
 
@@ -649,7 +643,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
          }
        else if(!cum_distance)
          {
-          int   bearing_next_int=bearing_angle(nodes,nextresultsegment,nextresult->node);
+          int   bearing_next_int=(int)BearingAngle(nodes,nextresultsegment,nextresult->node);
           char *bearing_next_str=translate_heading[(4+(22+bearing_next_int)/45)%8];
 
           /* Print out the very first start point */
@@ -744,109 +738,4 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     fclose(textfile);
  if(textallfile)
     fclose(textallfile);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Calculate the angle to turn at a junction from segment1 to segment2 at node.
-
-  int turn_angle Returns a value in the range -180 to +180 indicating the angle to turn.
-
-  Nodes *nodes The set of nodes.
-
-  Segment *segment1 The current segment.
-
-  Segment *segment2 The next segment.
-
-  index_t node The node at which they join.
-
-  Straight ahead is zero, turning to the right is positive (e.g. +90 degrees) and turning to the left is negative (e.g. -90 degrees).
-  Angles are calculated using flat Cartesian lat/long grid approximation (after scaling longitude due to latitude).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int turn_angle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node)
-{
- double lat1,latm,lat2;
- double lon1,lonm,lon2;
- double angle1,angle2,angle;
- index_t node1,node2;
-
- node1=OtherNode(segment1,node);
- node2=OtherNode(segment2,node);
-
- if(IsFakeNode(node1))
-    GetFakeLatLong(node1,&lat1,&lon1);
- else
-    GetLatLong(nodes,node1,&lat1,&lon1);
-
- if(IsFakeNode(node))
-    GetFakeLatLong(node,&latm,&lonm);
- else
-    GetLatLong(nodes,node,&latm,&lonm);
-
- if(IsFakeNode(node2))
-    GetFakeLatLong(node2,&lat2,&lon2);
- else
-    GetLatLong(nodes,node2,&lat2,&lon2);
-
- angle1=atan2((lonm-lon1)*cos(latm),(latm-lat1));
- angle2=atan2((lon2-lonm)*cos(latm),(lat2-latm));
-
- angle=angle2-angle1;
-
- angle=radians_to_degrees(angle);
-
- angle=round(angle);
-
- if(angle<-180) angle+=360;
- if(angle> 180) angle-=360;
-
- return((int)angle);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Calculate the bearing of a segment from the given node.
-
-  int bearing_angle Returns a value in the range 0 to 359 indicating the bearing.
-
-  Nodes *nodes The set of nodes.
-
-  Segment *segment The segment.
-
-  index_t node The node to start.
-
-  Angles are calculated using flat Cartesian lat/long grid approximation (after scaling longitude due to latitude).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int bearing_angle(Nodes *nodes,Segment *segment,index_t node)
-{
- double lat1,lat2;
- double lon1,lon2;
- double angle;
- index_t node1,node2;
-
- node1=node;
- node2=OtherNode(segment,node);
-
- if(IsFakeNode(node1))
-    GetFakeLatLong(node1,&lat1,&lon1);
- else
-    GetLatLong(nodes,node1,&lat1,&lon1);
-
- if(IsFakeNode(node2))
-    GetFakeLatLong(node2,&lat2,&lon2);
- else
-    GetLatLong(nodes,node2,&lat2,&lon2);
-
- angle=atan2((lat2-lat1),(lon2-lon1)*cos(lat1));
-
- angle=radians_to_degrees(angle);
-
- angle=round(270-angle);
-
- if(angle<  0) angle+=360;
- if(angle>360) angle-=360;
-
- return((int)angle);
 }
