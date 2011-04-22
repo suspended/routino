@@ -43,9 +43,6 @@
 #define MAXSEARCH  1
 
 
-/*+ A set of waypoint latitudes and longitudes. +*/
-static double point_lon[NWAYPOINTS+1],point_lat[NWAYPOINTS+1];
-
 /*+ The option not to print any progress information. +*/
 int option_quiet=0;
 
@@ -73,6 +70,8 @@ int main(int argc,char** argv)
  Relations*OSMRelations;
  Results  *results[NWAYPOINTS+1]={NULL};
  int       point_used[NWAYPOINTS+1]={0};
+ double    point_lon[NWAYPOINTS+1],point_lat[NWAYPOINTS+1];
+ double    heading=-999;
  int       help_profile=0,help_profile_xml=0,help_profile_json=0,help_profile_pl=0;
  char     *dirname=NULL,*prefix=NULL;
  char     *profiles=NULL,*profilename=NULL;
@@ -253,6 +252,17 @@ int main(int argc,char** argv)
  
        point_lat[point]=degrees_to_radians(atof(p));
        point_used[point]+=2;
+      }
+    else if(!strncmp(argv[arg],"--heading=",10))
+      {
+       double h=atof(&argv[arg][10]);
+
+       if(h>=-360 && h<=360)
+         {
+          heading=h;
+
+          if(heading<0) heading+=360;
+         }
       }
     else if(!strncmp(argv[arg],"--transport=",12))
        ; /* Done this already */
@@ -478,6 +488,9 @@ int main(int argc,char** argv)
     if(start_node==finish_node)
        continue;
 
+    if(heading!=-999 && join_segment==NO_SEGMENT)
+       join_segment=FindClosestSegmentHeading(OSMNodes,OSMSegments,OSMWays,start_node,heading,profile);
+
     /* Calculate the beginning of the route */
 
     begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start_node,join_segment,profile);
@@ -640,6 +653,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "--lon<n>=<longitude>    Specify the longitude of the n'th waypoint.\n"
             "--lat<n>=<latitude>     Specify the latitude of the n'th waypoint.\n"
+            "\n"
+            "--heading=<bearing>     Initial compass bearing at lowest numbered waypoint.\n"
             "\n"
             "                                   Routing preference options\n"
             "--highway-<highway>=<preference>   * preference for highway type (%%).\n"

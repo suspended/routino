@@ -88,6 +88,8 @@ Segments *LoadSegmentList(const char *filename);
 
 Segment *NextSegment(Segments* segments,Segment *segment,index_t node);
 
+index_t FindClosestSegmentHeading(Nodes* nodes,Segments *segments,Ways *ways,index_t node1,double heading,Profile *profile);
+
 distance_t Distance(double lat1,double lon1,double lat2,double lon2);
 
 duration_t Duration(Segment *segment,Way *way,Profile *profile);
