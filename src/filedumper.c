@@ -694,30 +694,12 @@ static void print_turnrelation_osm(Relations* relations,index_t item,Segments *s
 {
  TurnRelation *relation=LookupTurnRelation(relations,item,1);
 
- Segment *from_segment=LookupSegment(segments,relation->from,1);
- Segment *to_segment  =LookupSegment(segments,relation->to  ,1);
+ Segment *segment_from=LookupSegment(segments,relation->from,1);
+ Segment *segment_to  =LookupSegment(segments,relation->to  ,1);
 
- index_t from_node=OtherNode(from_segment,relation->via);
- index_t to_node  =OtherNode(to_segment  ,relation->via);
+ double angle=TurnAngle(nodes,segment_from,segment_to,relation->via);
 
- double lat_from,lat_via,lat_to;
- double lon_from,lon_via,lon_to;
- double angle_from,angle_to,angle;
  char *restriction;
-
- GetLatLong(nodes,from_node,&lat_from,&lon_from);
- GetLatLong(nodes,relation->via,&lat_via,&lon_via);
- GetLatLong(nodes,to_node,&lat_to,&lon_to);
-
- angle_from=atan2((lon_via-lon_from)*cos(lat_via),(lat_via-lat_from));
- angle_to  =atan2((lon_to -lon_via )*cos(lat_via),(lat_to -lat_via ));
-
- angle=angle_from-angle_to;
-
- angle=radians_to_degrees(angle);
-
- if(angle<-180) angle+=360;
- if(angle> 180) angle-=360;
 
  if(angle>150 || angle<-150)
     restriction="no_u_turn";
