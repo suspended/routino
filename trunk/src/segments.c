@@ -28,6 +28,7 @@
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
+#include "fakes.h"
 
 #include "files.h"
 #include "profiles.h"
@@ -194,4 +195,107 @@ duration_t Duration(Segment *segment,Way *way,Profile *profile)
     else
        return distance_speed_to_duration(distance,speed2);
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Calculate the angle to turn at a junction from segment1 to segment2 at node.
+
+  double TurnAngle Returns a value in the range -180 to +180 indicating the angle to turn.
+
+  Nodes *nodes The set of nodes.
+
+  Segment *segment1 The current segment.
+
+  Segment *segment2 The next segment.
+
+  index_t node The node at which they join.
+
+  Straight ahead is zero, turning to the right is positive (e.g. +90 degrees) and turning to the left is negative (e.g. -90 degrees).
+  Angles are calculated using flat Cartesian lat/long grid approximation (after scaling longitude due to latitude).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+double TurnAngle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node)
+{
+ double lat1,latm,lat2;
+ double lon1,lonm,lon2;
+ double angle1,angle2,angle;
+ index_t node1,node2;
+
+ node1=OtherNode(segment1,node);
+ node2=OtherNode(segment2,node);
+
+ if(IsFakeNode(node1))
+    GetFakeLatLong(node1,&lat1,&lon1);
+ else
+    GetLatLong(nodes,node1,&lat1,&lon1);
+
+ if(IsFakeNode(node))
+    GetFakeLatLong(node,&latm,&lonm);
+ else
+    GetLatLong(nodes,node,&latm,&lonm);
+
+ if(IsFakeNode(node2))
+    GetFakeLatLong(node2,&lat2,&lon2);
+ else
+    GetLatLong(nodes,node2,&lat2,&lon2);
+
+ angle1=atan2((lonm-lon1)*cos(latm),(latm-lat1));
+ angle2=atan2((lon2-lonm)*cos(latm),(lat2-latm));
+
+ angle=angle2-angle1;
+
+ angle=radians_to_degrees(angle);
+
+ if(angle<-180) angle+=360;
+ if(angle> 180) angle-=360;
+
+ return(angle);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Calculate the bearing of a segment from the given node.
+
+  double BearingAngle Returns a value in the range 0 to 359 indicating the bearing.
+
+  Nodes *nodes The set of nodes.
+
+  Segment *segment The segment.
+
+  index_t node The node to start.
+
+  Angles are calculated using flat Cartesian lat/long grid approximation (after scaling longitude due to latitude).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+double BearingAngle(Nodes *nodes,Segment *segment,index_t node)
+{
+ double lat1,lat2;
+ double lon1,lon2;
+ double angle;
+ index_t node1,node2;
+
+ node1=node;
+ node2=OtherNode(segment,node);
+
+ if(IsFakeNode(node1))
+    GetFakeLatLong(node1,&lat1,&lon1);
+ else
+    GetLatLong(nodes,node1,&lat1,&lon1);
+
+ if(IsFakeNode(node2))
+    GetFakeLatLong(node2,&lat2,&lon2);
+ else
+    GetLatLong(nodes,node2,&lat2,&lon2);
+
+ angle=atan2((lat2-lat1),(lon2-lon1)*cos(lat1));
+
+ angle=radians_to_degrees(angle);
+
+ angle=270-angle;
+
+ if(angle<  0) angle+=360;
+ if(angle>360) angle-=360;
+
+ return(angle);
 }

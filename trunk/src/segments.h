@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -91,6 +91,9 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node);
 distance_t Distance(double lat1,double lon1,double lat2,double lon2);
 
 duration_t Duration(Segment *segment,Way *way,Profile *profile);
+
+double TurnAngle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node);
+double BearingAngle(Nodes *nodes,Segment *segment,index_t node);
 
 
 /* Macros and inline functions */
