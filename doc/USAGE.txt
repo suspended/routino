@@ -122,6 +122,7 @@ router
                 --lon1=<longitude> --lat1=<latitude>
                 --lon2=<longitude> --lon2=<latitude>
                 [ ... --lon99=<longitude> --lon99=<latitude>]
+                [--heading=<bearing>]
                 [--highway-<highway>=<preference> ...]
                 [--speed-<highway>=<speed> ...]
                 [--property-<property>=<preference> ...]
@@ -241,6 +242,11 @@ router
           the route will pass through each of the specified ones in
           sequence. The algorithm will use the closest node or point
           within a segment that allows the specified traffic type.
+
+   --heading=<bearing>
+          Specifies the initial direction of travel at the start of the
+          route (from the lowest numbered waypoint) as a compass bearing
+          fmrom 0 to 360 degrees.
 
    --highway-<highway>=<preference>
           Selects the percentage preference for using each particular type

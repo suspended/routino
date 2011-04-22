@@ -121,8 +121,90 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
        return(LookupSegment(segments,segment->next2,1));
    }
 }
- 
- 
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the closest segment from a specified node heading in a particular direction and optionally profile.
+
+  index_t FindClosestSegmentHeading Returns the closest heading segment index.
+
+  Nodes* nodes The set of nodes to search.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  index_t node1 The node to start from.
+
+  double heading The desired heading from the node.
+
+  Profile *profile The profile of the mode of transport (or NULL).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t FindClosestSegmentHeading(Nodes* nodes,Segments *segments,Ways *ways,index_t node1,double heading,Profile *profile)
+{
+ Segment *segment;
+ index_t best_seg=NO_SEGMENT;
+ double best_difference=360;
+
+ if(IsFakeNode(node1))
+    segment=FirstFakeSegment(node1);
+ else
+    segment=FirstSegment(segments,nodes,node1);
+
+ while(segment)
+   {
+    Way *way;
+    index_t node2,seg2;
+    double bearing,difference;
+
+    node2=OtherNode(segment,node1);  /* need this here because we use node2 at the end of the loop */
+
+    if(!IsNormalSegment(segment))
+       goto endloop;
+
+    if(profile->oneway && IsOnewayFrom(segment,node1))
+       goto endloop;
+
+    if(IsFakeNode(node1) || IsFakeNode(node2))
+       seg2=IndexFakeSegment(segment);
+    else
+       seg2=IndexSegment(segments,segment);
+
+    way=LookupWay(ways,segment->way,1);
+
+    if(!(way->allow&profile->allow))
+       goto endloop;
+
+    bearing=BearingAngle(nodes,segment,node1);
+
+    difference=(heading-bearing);
+
+    if(difference<-180) difference+=360;
+    if(difference> 180) difference-=360;
+
+    if(difference<0) difference=-difference;
+
+    if(difference<best_difference)
+      {
+       best_difference=difference;
+       best_seg=seg2;
+      }
+
+   endloop:
+
+    if(IsFakeNode(node1))
+       segment=NextFakeSegment(segment,node1);
+    else if(IsFakeNode(node2))
+       segment=NULL; /* cannot call NextSegment() with a fake segment */
+    else
+       segment=NextSegment(segments,segment,node1);
+   }
+
+ return(best_seg);
+}
+
+
 /*++++++++++++++++++++++++++++++++++++++
   Calculate the distance between two locations.
 
@@ -255,7 +337,7 @@ double TurnAngle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Calculate the bearing of a segment from the given node.
+  Calculate the bearing of a segment when heading to the given node.
 
   double BearingAngle Returns a value in the range 0 to 359 indicating the bearing.
 
@@ -263,7 +345,7 @@ double TurnAngle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node)
 
   Segment *segment The segment.
 
-  index_t node The node to start.
+  index_t node The node to finish.
 
   Angles are calculated using flat Cartesian lat/long grid approximation (after scaling longitude due to latitude).
   ++++++++++++++++++++++++++++++++++++++*/

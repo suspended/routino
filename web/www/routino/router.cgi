@@ -37,6 +37,7 @@ $query=new CGI;
 %legalparams=(
               "lon[1-9]"        => "[-0-9.]+",
               "lat[1-9]"        => "[-0-9.]+",
+              "heading"         => "[-0-9.]+",
               "transport"       => "[a-z]+",
               "highway-[a-z]+"  => "[0-9.]+",
               "speed-[a-z]+"    => "[0-9.]+",
