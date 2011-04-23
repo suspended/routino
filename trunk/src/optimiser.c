@@ -62,10 +62,10 @@ extern int option_quickest;
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
 
-  int allow_past_supernodes A flag to indicate if the search is allowed to go past supernodes.
+  int override A flag to indicate if U-turns and passing over super-nodes are allowed (to get out of dead-ends).
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t prev_segment,index_t finish_node,Profile *profile,int allow_past_supernodes)
+Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t prev_segment,index_t finish_node,Profile *profile,int override)
 {
  Results *results;
  Queue   *queue;
@@ -104,6 +104,8 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     Segment *segment;
     index_t node1,seg1,seg1r;
     index_t turnrelation=NO_RELATION;
+    int     routes_out=0;
+    Segment *uturn_segment=NULL;
 
     if(result1->score>finish_score)
        continue;
@@ -150,13 +152,17 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           seg2r=seg2;
          }
 
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2))
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && segment!=uturn_segment)
+         {
+          if(override)
+             uturn_segment=segment;
           goto endloop;
+         }
 
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1r,seg2r,profile->allow))
           goto endloop;
 
-       if(node2!=finish_node && !allow_past_supernodes && !IsFakeNode(node2) && IsSuperNode(LookupNode(nodes,node2,2)))
+       if(node2!=finish_node && !IsFakeNode(node2) && IsSuperNode(LookupNode(nodes,node2,2)) && !override)
           goto endloop;
 
        way=LookupWay(ways,segment->way,1);
@@ -196,6 +202,8 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           if(!(node->allow&profile->allow))
              goto endloop;
          }
+
+       routes_out++;
 
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
@@ -266,6 +274,9 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           if(!segment && IsFakeNode(finish_node))
              segment=ExtraFakeSegment(node1,finish_node);
          }
+
+       if(!segment && routes_out==0 && uturn_segment)
+          segment=uturn_segment;
       }
    }
 
@@ -585,9 +596,11 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
   index_t prev_segment The previous segment before the start node.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
+
+  int override A flag to indicate if U-turns and passing over super-nodes are allowed (to get out of dead-ends).
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t prev_segment,Profile *profile)
+Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t prev_segment,Profile *profile,int override)
 {
  Results *results;
  Queue   *queue;
@@ -619,6 +632,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    {
     index_t node1,seg1,seg1r;
     Segment *segment;
+    int     routes_out=0;
+    Segment *uturn_segment=NULL;
 
     node1=result1->node;
     seg1=result1->segment;
@@ -661,8 +676,12 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           seg2r=seg2;
          }
 
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2))
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && segment!=uturn_segment)
+         {
+          if(override)
+             uturn_segment=segment;
           goto endloop;
+         }
 
        /* node1 cannot have a turn restriction because it is not a super-node */
 
@@ -704,6 +723,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
              goto endloop;
          }
 
+       routes_out++;
+
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
        else
@@ -743,6 +764,9 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           segment=NextFakeSegment(segment,node1);
        else
           segment=NextSegment(segments,segment,node1);
+
+       if(!segment && routes_out==0 && uturn_segment)
+          segment=uturn_segment;
       }
    }
 
@@ -1035,7 +1059,11 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
        Results *results2=FindNormalRoute(nodes,segments,ways,relations,result1->node,result3->segment,result1->next->node,profile,0);
 
        if(!results2)
+         {
+          /* Try again but override the turn restriction and U-turn constraints */
+
           results2=FindNormalRoute(nodes,segments,ways,relations,result1->node,result3->segment,result1->next->node,profile,1);
+         }
 
        if(!results2)
           return(NULL);

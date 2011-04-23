@@ -394,6 +394,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           if(result->node==results[point]->finish_node)
              important=10;
+          else if(result->segment==result->next->segment)
+             important=5;
           else
             {
              Segment *segment=FirstSegment(segments,nodes,result->node);
