@@ -37,7 +37,7 @@
 /*++++++++++++++++++++++++++++++++++++++
   Load in a segment list from a file.
 
-  Segments* LoadSegmentList Returns the segment list that has just been loaded.
+  Segments *LoadSegmentList Returns the segment list that has just been loaded.
 
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -83,14 +83,14 @@ Segments *LoadSegmentList(const char *filename)
 
   Segment *NextSegment Returns a pointer to the next segment.
 
-  Segments* segments The set of segments to process.
+  Segments *segments The set of segments to use.
 
   Segment *segment The current segment.
 
   index_t node The wanted node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
+Segment *NextSegment(Segments *segments,Segment *segment,index_t node)
 {
  if(segment->node1==node)
    {
@@ -128,7 +128,7 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
 
   index_t FindClosestSegmentHeading Returns the closest heading segment index.
 
-  Nodes* nodes The set of nodes to use.
+  Nodes *nodes The set of nodes to use.
 
   Segments *segments The set of segments to use.
 
@@ -141,7 +141,7 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
   Profile *profile The profile of the mode of transport (or NULL).
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t FindClosestSegmentHeading(Nodes* nodes,Segments *segments,Ways *ways,index_t node1,double heading,Profile *profile)
+index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,index_t node1,double heading,Profile *profile)
 {
  Segment *segment;
  index_t best_seg=NO_SEGMENT;
@@ -285,7 +285,7 @@ duration_t Duration(Segment *segment,Way *way,Profile *profile)
 
   double TurnAngle Returns a value in the range -180 to +180 indicating the angle to turn.
 
-  Nodes *nodes The set of nodes.
+  Nodes *nodes The set of nodes to use.
 
   Segment *segment1 The current segment.
 
@@ -341,7 +341,7 @@ double TurnAngle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node)
 
   double BearingAngle Returns a value in the range 0 to 359 indicating the bearing.
 
-  Nodes *nodes The set of nodes.
+  Nodes *nodes The set of nodes to use.
 
   Segment *segment The segment.
 

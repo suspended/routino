@@ -110,7 +110,7 @@ static TurnRelation *LookupTurnRelation(Relations *relations,index_t index,int p
 
   TurnRelation *LookupTurnRelation Returns a pointer to the cached relation information.
 
-  Relations *relations The relations structure to use.
+  Relations *relations The set of relations to use.
 
   index_t index The index of the relation.
 

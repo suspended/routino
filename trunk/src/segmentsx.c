@@ -98,7 +98,7 @@ SegmentsX *NewSegmentList(int append)
 /*++++++++++++++++++++++++++++++++++++++
   Free a segment list.
 
-  SegmentsX *segmentsx The list to be freed.
+  SegmentsX *segmentsx The set of segments to be freed.
 
   int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
@@ -123,7 +123,7 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
 /*++++++++++++++++++++++++++++++++++++++
   Append a single segment to an unsorted segment list.
 
-  SegmentsX* segmentsx The set of segments to process.
+  SegmentsX *segmentsx The set of segments to modify.
 
   way_t way The way that the segment belongs to.
 
@@ -134,7 +134,7 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
   distance_t distance The distance between the nodes (or just the flags).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance)
+void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance)
 {
  SegmentX segmentx;
 
@@ -167,10 +167,10 @@ void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,dist
 /*++++++++++++++++++++++++++++++++++++++
   Sort the segment list.
 
-  SegmentsX* segmentsx The set of segments to process.
+  SegmentsX *segmentsx The set of segments to modify.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortSegmentList(SegmentsX* segmentsx)
+void SortSegmentList(SegmentsX *segmentsx)
 {
  int fd;
 
@@ -254,14 +254,14 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
  
   SegmentX *FirstSegmentX Returns a pointer to the first extended segment with the specified id.
 
-  SegmentsX* segmentsx The set of extended segments to process.
+  SegmentsX *segmentsx The set of segments to use.
 
   index_t nodeindex The node index to look for.
 
   int position A flag to pass through.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *FirstSegmentX(SegmentsX* segmentsx,index_t nodeindex,int position)
+SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t nodeindex,int position)
 {
  index_t index=segmentsx->firstnode[nodeindex];
  SegmentX *segmentx;
@@ -280,7 +280,7 @@ SegmentX *FirstSegmentX(SegmentsX* segmentsx,index_t nodeindex,int position)
 
   SegmentX *NextSegmentX Returns a pointer to the next segment with the same id.
 
-  SegmentsX* segmentsx The set of segments to process.
+  SegmentsX *segmentsx The set of segments to use.
 
   SegmentX *segmentx The current segment.
 
@@ -289,7 +289,7 @@ SegmentX *FirstSegmentX(SegmentsX* segmentsx,index_t nodeindex,int position)
   int position A flag to pass through.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *NextSegmentX(SegmentsX* segmentsx,SegmentX *segmentx,index_t node,int position)
+SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t node,int position)
 {
  if(segmentx->node1==node)
    {
@@ -325,9 +325,9 @@ SegmentX *NextSegmentX(SegmentsX* segmentsx,SegmentX *segmentx,index_t node,int 
 /*++++++++++++++++++++++++++++++++++++++
   Remove bad segments (duplicated, zero length or with missing nodes).
 
-  NodesX *nodesx The nodes to check.
+  NodesX *nodesx The set of nodes to use.
 
-  SegmentsX *segmentsx The segments to modify.
+  SegmentsX *segmentsx The set of segments to modify.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
@@ -403,14 +403,14 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 /*++++++++++++++++++++++++++++++++++++++
   Measure the segments and replace node/way ids with indexes.
 
-  SegmentsX* segmentsx The set of segments to process.
+  SegmentsX *segmentsx The set of segments to process.
 
   NodesX *nodesx The set of nodes to use.
 
   WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
+void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  index_t index=0;
  int fd;
@@ -497,14 +497,14 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 /*++++++++++++++++++++++++++++++++++++++
   Remove the duplicate segments.
 
-  SegmentsX* segmentsx The set of segments to process.
+  SegmentsX *segmentsx The set of segments to modify.
 
   NodesX *nodesx The set of nodes to use.
 
   WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
+void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  int duplicate=0,good=0;
  index_t index=0;
@@ -622,12 +622,12 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 /*++++++++++++++++++++++++++++++++++++++
   Index the segments by creating the firstnode index and filling in the segment next2 parameter.
 
-  SegmentsX* segmentsx The set of segments to process.
+  SegmentsX *segmentsx The set of segments to modify.
 
   NodesX *nodesx The sset of nodes to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
+void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx)
 {
  index_t index;
  int i;
@@ -693,11 +693,11 @@ void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)
 /*++++++++++++++++++++++++++++++++++++++
   Update the segment indexes after geographical sorting.
 
-  SegmentsX *segmentsx The list of segments to update.
+  SegmentsX *segmentsx The set of segments to modify.
 
   NodesX *nodesx The set of nodes to use.
 
-  WaysX* waysx The set of ways to use.
+  Waysx *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
@@ -781,12 +781,12 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 /*++++++++++++++++++++++++++++++++++++++
   Save the segment list to a file.
 
-  SegmentsX* segmentsx The set of segments to save.
+  SegmentsX *segmentsx The set of segments to save.
 
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SaveSegmentList(SegmentsX* segmentsx,const char *filename)
+void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
 {
  index_t i;
  int fd;

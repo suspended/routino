@@ -32,7 +32,7 @@
 /*++++++++++++++++++++++++++++++++++++++
   Load in a relation list from a file.
 
-  Relations* LoadRelationList Returns the relation list.
+  Relations *LoadRelationList Returns the relation list.
 
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -92,7 +92,7 @@ Relations *LoadRelationList(const char *filename)
 
   index_t FindFirstTurnRelation1 Returns the index of the first turn relation matching.
 
-  Relations *relations The set of relations to process.
+  Relations *relations The set of relations to use.
 
   index_t via The node that the route is going via.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -181,7 +181,7 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
 
   index_t FindNextTurnRelation1 Returns the index of the next turn relation matching.
 
-  Relations *relations The set of relations to process.
+  Relations *relations The set of relations to use.
 
   index_t current The current index of a relation that matches.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -214,7 +214,7 @@ index_t FindNextTurnRelation1(Relations *relations,index_t current)
 
   index_t FindFirstTurnRelation2 Returns the index of the first turn relation matching.
 
-  Relations *relations The set of relations to process.
+  Relations *relations The set of relations to use.
 
   index_t via The node that the route is going via.
 
@@ -315,7 +315,7 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
 
   index_t FindNextTurnRelation2 Returns the index of the next turn relation matching.
 
-  Relations *relations The set of relations to process.
+  Relations *relations The set of relations to use.
 
   index_t current The current index of a relation that matches.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -349,7 +349,7 @@ index_t FindNextTurnRelation2(Relations *relations,index_t current)
 
   int IsTurnAllowed Return 1 if the turn is allowed or 0 if not.
 
-  Relations *relations The set of relations to process.
+  Relations *relations The set of relations to use.
 
   index_t index The index of the first turn relation containing 'via' and 'from'.
 

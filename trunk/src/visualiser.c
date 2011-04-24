@@ -704,7 +704,7 @@ static void output_limits(index_t node,double latitude,double longitude)
 /*++++++++++++++++++++++++++++++++++++++
   A function to iterate through all nodes and call a callback function for each one.
 
-  Nodes *nodes The list of nodes to process.
+  Nodes *nodes The set of nodes to use.
 
   callback_t callback The callback function for each node.
   ++++++++++++++++++++++++++++++++++++++*/

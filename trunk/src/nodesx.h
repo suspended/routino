@@ -88,13 +88,13 @@ void FreeNodeList(NodesX *nodesx,int keep);
 
 void SaveNodeList(NodesX *nodesx,const char *filename);
 
-index_t IndexNodeX(NodesX* nodesx,node_t id);
+index_t IndexNodeX(NodesX *nodesx,node_t id);
 
-void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags);
+void AppendNode(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags);
 
 void SortNodeList(NodesX *nodesx);
 
-void SortNodeListGeographically(NodesX* nodesx);
+void SortNodeListGeographically(NodesX *nodesx);
 
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
@@ -116,9 +116,9 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 #else
 
-static NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position);
+static NodeX *LookupNodeX(NodesX *nodesx,index_t index,int position);
 
-static void PutBackNodeX(NodesX* nodesx,index_t index,int position);
+static void PutBackNodeX(NodesX *nodesx,index_t index,int position);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -126,14 +126,14 @@ static void PutBackNodeX(NodesX* nodesx,index_t index,int position);
 
   NodeX *LookupNodeX Returns a pointer to a cached copy of the extended node.
 
-  NodesX* nodesx The set of nodes to process.
+  NodesX *nodesx The set of nodes to use.
 
   index_t index The node index to look for.
 
   int position The position in the cache to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
+static inline NodeX *LookupNodeX(NodesX *nodesx,index_t index,int position)
 {
  SeekFile(nodesx->fd,(off_t)index*sizeof(NodeX));
 
@@ -146,14 +146,14 @@ static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
 /*++++++++++++++++++++++++++++++++++++++
   Put back an extended node's data into the file on disk.
 
-  NodesX* nodesx The set of nodes to process.
+  NodesX *nodesx The set of nodes to modify.
 
   index_t index The node index to put back.
 
   int position The position in the cache to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline void PutBackNodeX(NodesX* nodesx,index_t index,int position)
+static inline void PutBackNodeX(NodesX *nodesx,index_t index,int position)
 {
  SeekFile(nodesx->fd,(off_t)index*sizeof(NodeX));
 

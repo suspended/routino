@@ -41,15 +41,15 @@
 
 /* Local functions */
 
-static void print_node(Nodes* nodes,index_t item);
+static void print_node(Nodes *nodes,index_t item);
 static void print_segment(Segments *segments,index_t item);
 static void print_way(Ways *ways,index_t item);
-static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes* nodes);
+static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
 
 static void print_head_osm(void);
-static void print_node_osm(Nodes* nodes,index_t item);
+static void print_node_osm(Nodes *nodes,index_t item);
 static void print_segment_osm(Segments *segments,index_t item,Ways *ways);
-static void print_turnrelation_osm(Relations* relations,index_t item,Segments *segments,Nodes* nodes);
+static void print_turnrelation_osm(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
 static void print_tail_osm(void);
 
 static char *RFC822Date(time_t t);
@@ -430,7 +430,7 @@ int main(int argc,char** argv)
   index_t item The node index to print.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_node(Nodes* nodes,index_t item)
+static void print_node(Nodes *nodes,index_t item)
 {
  Node *node=LookupNode(nodes,item,1);
  double latitude,longitude;
@@ -518,7 +518,7 @@ static void print_way(Ways *ways,index_t item)
   Nodes *nodes The set of nodes to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes* nodes)
+static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes *nodes)
 {
  TurnRelation *relation=LookupTurnRelation(relations,item,1);
  Segment *segment;
@@ -575,7 +575,7 @@ static void print_head_osm(void)
   index_t item The node index to print.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_node_osm(Nodes* nodes,index_t item)
+static void print_node_osm(Nodes *nodes,index_t item)
 {
  Node *node=LookupNode(nodes,item,1);
  double latitude,longitude;
@@ -690,7 +690,7 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
   Nodes *nodes The set of nodes to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_turnrelation_osm(Relations* relations,index_t item,Segments *segments,Nodes* nodes)
+static void print_turnrelation_osm(Relations *relations,index_t item,Segments *segments,Nodes *nodes)
 {
  TurnRelation *relation=LookupTurnRelation(relations,item,1);
 
