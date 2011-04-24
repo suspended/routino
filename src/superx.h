@@ -32,7 +32,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 
 SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 
-SegmentsX* MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx);
+SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx);
 
 
 #endif /* SUPERX_H */

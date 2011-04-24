@@ -35,7 +35,7 @@
 /*++++++++++++++++++++++++++++++++++++++
   Load in a node list from a file.
 
-  Nodes* LoadNodeList Returns the node list.
+  Nodes *LoadNodeList Returns the node list.
 
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -85,7 +85,7 @@ Nodes *LoadNodeList(const char *filename)
 
   index_t FindClosestNode Returns the closest node.
 
-  Nodes* nodes The set of nodes to search.
+  Nodes *nodes The set of nodes to search.
 
   Segments *segments The set of segments to use.
 
@@ -102,7 +102,7 @@ Nodes *LoadNodeList(const char *filename)
   distance_t *bestdist Returns the distance to the best node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
+index_t FindClosestNode(Nodes *nodes,Segments *segments,Ways *ways,double latitude,double longitude,
                         distance_t distance,Profile *profile,distance_t *bestdist)
 {
  ll_bin_t   latbin=latlong_to_bin(radians_to_latlong(latitude ))-nodes->file.latzero;
@@ -235,7 +235,7 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
 
   index_t FindClosestSegment Returns the closest segment index.
 
-  Nodes* nodes The set of nodes to use.
+  Nodes *nodes The set of nodes to use.
 
   Segments *segments The set of segments to search.
 
@@ -260,7 +260,7 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
   distance_t *bestdist2 Returns the distance along the segment to the node at the other end.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
+index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double latitude,double longitude,
                            distance_t distance,Profile *profile, distance_t *bestdist,
                            index_t *bestnode1,index_t *bestnode2,distance_t *bestdist1,distance_t *bestdist2)
 {

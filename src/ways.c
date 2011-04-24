@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.c,v 1.47 2010-12-21 17:18:41 amb Exp $
-
  Way data type functions.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +30,7 @@
 /*++++++++++++++++++++++++++++++++++++++
   Load in a way list from a file.
 
-  Ways* LoadWayList Returns the way list.
+  Ways *LoadWayList Returns the way list.
 
   const char *filename The name of the file to load.
   ++++++++++++++++++++++++++++++++++++++*/

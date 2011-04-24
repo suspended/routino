@@ -91,10 +91,10 @@ struct _Nodes
 
 Nodes *LoadNodeList(const char *filename);
 
-index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
+index_t FindClosestNode(Nodes *nodes,Segments *segments,Ways *ways,double latitude,double longitude,
                         distance_t distance,Profile *profile,distance_t *bestdist);
 
-index_t FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
+index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double latitude,double longitude,
                            distance_t distance,Profile *profile, distance_t *bestdist,
                            index_t *bestnode1,index_t *bestnode2,distance_t *bestdist1,distance_t *bestdist2);
 
@@ -138,7 +138,7 @@ static index_t LookupNodeOffset(Nodes *nodes,index_t index);
 
   Node *LookupNode Returns a pointer to the cached node information.
 
-  Nodes *nodes The nodes structure to use.
+  Nodes *nodes The set of nodes to use.
 
   index_t index The index of the node.
 
@@ -165,7 +165,7 @@ static inline Node *LookupNode(Nodes *nodes,index_t index,int position)
 
   index_t FirstSegment_internal Returns the index of the first segment.
 
-  Nodes *nodes The nodes structure to use.
+  Nodes *nodes The set of nodes to use.
 
   index_t index The index of the node.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -190,7 +190,7 @@ static inline index_t FirstSegment_internal(Nodes *nodes,index_t index)
 
   index_t LookupNodeOffset Returns the index offset.
 
-  Nodes *nodes The nodes structure to use.
+  Nodes *nodes The set of nodes to use.
 
   index_t index The index of the offset.
   ++++++++++++++++++++++++++++++++++++++*/

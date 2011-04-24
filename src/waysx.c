@@ -113,7 +113,7 @@ WaysX *NewWayList(int append)
 /*++++++++++++++++++++++++++++++++++++++
   Free a way list.
 
-  WaysX *waysx The list to be freed.
+  WaysX *waysx The set of ways to be freed.
 
   int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
@@ -139,7 +139,7 @@ void FreeWayList(WaysX *waysx,int keep)
 /*++++++++++++++++++++++++++++++++++++++
   Append a single way to an unsorted way list.
 
-  WaysX* waysx The set of ways to process.
+  Waysx *waysx The set of ways to process.
 
   way_t id The ID of the way.
 
@@ -148,7 +148,7 @@ void FreeWayList(WaysX *waysx,int keep)
   const char *name The name or reference of the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
+void AppendWay(Waysx *waysx,way_t id,Way *way,const char *name)
 {
  WayX wayx;
  FILESORT_VARINT size;
@@ -172,10 +172,10 @@ void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name)
 /*++++++++++++++++++++++++++++++++++++++
   Sort the list of ways.
 
-  WaysX* waysx The set of ways to process.
+  Waysx *waysx The set of ways to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortWayList(WaysX* waysx)
+void SortWayList(Waysx *waysx)
 {
  index_t i,xnumber;
  int fd;
@@ -317,10 +317,10 @@ void SortWayList(WaysX* waysx)
 /*++++++++++++++++++++++++++++++++++++++
   Compact the list of ways.
 
-  WaysX* waysx The set of ways to process.
+  Waysx *waysx The set of ways to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void CompactWayList(WaysX* waysx)
+void CompactWayList(Waysx *waysx)
 {
  index_t i;
  int fd;
@@ -539,12 +539,12 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
   index_t IndexWayX Returns the index of the extended way with the specified id.
 
-  WaysX* waysx The set of ways to process.
+  Waysx *waysx The set of ways to process.
 
   way_t id The way id to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t IndexWayX(WaysX* waysx,way_t id)
+index_t IndexWayX(Waysx *waysx,way_t id)
 {
  int start=0;
  int end=waysx->number-1;
@@ -596,12 +596,12 @@ index_t IndexWayX(WaysX* waysx,way_t id)
 /*++++++++++++++++++++++++++++++++++++++
   Save the way list to a file.
 
-  WaysX* waysx The set of ways to save.
+  Waysx *waysx The set of ways to save.
 
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SaveWayList(WaysX* waysx,const char *filename)
+void SaveWayList(Waysx *waysx,const char *filename)
 {
  index_t i;
  int fd;

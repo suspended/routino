@@ -84,9 +84,9 @@ void FreeWayList(WaysX *waysx,int keep);
 
 void SaveWayList(WaysX *waysx,const char *filename);
 
-index_t IndexWayX(WaysX* waysx,way_t id);
+index_t IndexWayX(Waysx *waysx,way_t id);
 
-void AppendWay(WaysX* waysx,way_t id,Way *way,const char *name);
+void AppendWay(Waysx *waysx,way_t id,Way *way,const char *name);
 
 void SortWayList(WaysX *waysx);
 
@@ -103,9 +103,9 @@ void CompactWayList(WaysX *waysx);
 
 #else
 
-static WayX *LookupWayX(WaysX* waysx,index_t index,int position);
+static WayX *LookupWayX(Waysx *waysx,index_t index,int position);
 
-static void PutBackWayX(WaysX* waysx,index_t index,int position);
+static void PutBackWayX(Waysx *waysx,index_t index,int position);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -113,14 +113,14 @@ static void PutBackWayX(WaysX* waysx,index_t index,int position);
 
   WayX *LookupWayX Returns a pointer to a cached copy of the extended way.
 
-  WaysX* waysx The set of ways to use.
+  Waysx *waysx The set of ways to use.
 
   index_t index The way index to look for.
 
   int position The position in the cache to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline WayX *LookupWayX(WaysX* waysx,index_t index,int position)
+static inline WayX *LookupWayX(Waysx *waysx,index_t index,int position)
 {
  SeekFile(waysx->fd,(off_t)index*sizeof(WayX));
 
@@ -133,14 +133,14 @@ static inline WayX *LookupWayX(WaysX* waysx,index_t index,int position)
 /*++++++++++++++++++++++++++++++++++++++
   Put back an extended way's data into the file on disk.
 
-  WaysX* waysx The set of ways to use.
+  Waysx *waysx The set of ways to use.
 
   index_t index The way index to put back.
 
   int position The position in the cache to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline void PutBackWayX(WaysX* waysx,index_t index,int position)
+static inline void PutBackWayX(Waysx *waysx,index_t index,int position)
 {
  SeekFile(waysx->fd,(off_t)index*sizeof(WayX));
 

@@ -135,7 +135,7 @@ RelationsX *NewRelationList(int append)
 /*++++++++++++++++++++++++++++++++++++++
   Free a relation list.
 
-  RelationsX *relationsx The list to be freed.
+  RelationsX *relationsx The set of relations to be freed.
 
   int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
@@ -444,9 +444,9 @@ static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
 /*++++++++++++++++++++++++++++++++++++++
   Process the route relations and apply the information to the ways.
 
-  RelationsX *relationsx The set of relations to process.
+  RelationsX *relationsx The set of relations to use.
 
-  WaysX *waysx The set of ways to update.
+  WaysX *waysx The set of ways to modify.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
@@ -609,7 +609,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 /*++++++++++++++++++++++++++++++++++++++
   Process the turn relations (first part) to update them with the node/way information.
 
-  RelationsX *relationsx The set of relations to process.
+  RelationsX *relationsx The set of relations to modify.
 
   NodesX *nodesx The set of nodes to use.
 
@@ -664,7 +664,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
 /*++++++++++++++++++++++++++++++++++++++
   Process the turn relations (second part) to convert them to nodes.
 
-  RelationsX *relationsx The set of relations to process.
+  RelationsX *relationsx The set of relations to modify.
 
   NodesX *nodesx The set of nodes to use.
 
@@ -867,7 +867,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 /*++++++++++++++++++++++++++++++++++++++
   Update the node indexes after geographical sorting.
 
-  RelationsX *relationsx The set of relations to process.
+  RelationsX *relationsx The set of relations to modify.
 
   NodesX *nodesx The set of nodes to use.
 

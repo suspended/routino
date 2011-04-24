@@ -309,18 +309,18 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 /*++++++++++++++++++++++++++++++++++++++
   Merge the segments and super-segments into a new segment list.
 
-  SegmentsX* MergeSuperSegments Returns a new set of merged segments.
+  SegmentsX *MergeSuperSegments Returns a new set of merged segments.
 
-  SegmentsX* segmentsx The set of segments to merge.
+  SegmentsX *segmentsx The set of segments to use.
 
-  SegmentsX* supersegmentsx The set of super-segments to merge.
+  SegmentsX *supersegmentsx The set of super-segments to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
+SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 {
  index_t i,j;
  int m=0,a=0;
- SegmentsX* mergedsegmentsx;
+ SegmentsX *mergedsegmentsx;
 
  mergedsegmentsx=NewSegmentList(0);
 

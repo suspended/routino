@@ -83,22 +83,22 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
-SegmentX *FirstSegmentX(SegmentsX* segmentsx,index_t node,int position);
-SegmentX *NextSegmentX(SegmentsX* segmentsx,SegmentX *segmentx,index_t node,int position);
+SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t node,int position);
+SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t node,int position);
 
-void AppendSegment(SegmentsX* segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
+void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 
-void SortSegmentList(SegmentsX* segmentsx);
+void SortSegmentList(SegmentsX *segmentsx);
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
 
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
-void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx);
+void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 
-void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx);
+void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx);
 
 void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
@@ -116,11 +116,11 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
   
 #else
 
-static SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position);
+static SegmentX *LookupSegmentX(SegmentsX *segmentsx,index_t index,int position);
 
 static index_t IndexSegmentX(SegmentsX *segmentsx,SegmentX *segmentx);
 
-static void PutBackSegmentX(SegmentsX* segmentsx,index_t index,int position);
+static void PutBackSegmentX(SegmentsX *segmentsx,index_t index,int position);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -128,14 +128,14 @@ static void PutBackSegmentX(SegmentsX* segmentsx,index_t index,int position);
 
   SegmentX *LookupSegmentX Returns a pointer to a cached copy of the extended segment.
 
-  SegmentsX* segmentsx The set of segments to process.
+  SegmentsX *segmentsx The set of segments to use.
 
   index_t index The segment index to look for.
 
   int position The position in the cache to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int position)
+static inline SegmentX *LookupSegmentX(SegmentsX *segmentsx,index_t index,int position)
 {
  SeekFile(segmentsx->fd,(off_t)index*sizeof(SegmentX));
 
@@ -152,7 +152,7 @@ static inline SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int po
 
   index_t IndexSegmentX Returns the index of the extended segment.
 
-  SegmentsX *segmentsx The extended segments structure to use.
+  SegmentsX *segmentsx The set of segments to use.
 
   SegmentX *segmentx The extended segment whose index is to be found.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -172,14 +172,14 @@ static inline index_t IndexSegmentX(SegmentsX *segmentsx,SegmentX *segmentx)
 /*++++++++++++++++++++++++++++++++++++++
   Put back an extended segment's data into the file on disk.
 
-  SegmentsX* segmentsx The set of segments to process.
+  SegmentsX *segmentsx The set of segments to use.
 
   index_t index The segment index to put back.
 
   int position The position in the cache to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline void PutBackSegmentX(SegmentsX* segmentsx,index_t index,int position)
+static inline void PutBackSegmentX(SegmentsX *segmentsx,index_t index,int position)
 {
  SeekFile(segmentsx->fd,(off_t)index*sizeof(SegmentX));
 

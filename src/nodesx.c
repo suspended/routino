@@ -101,7 +101,7 @@ NodesX *NewNodeList(int append)
 /*++++++++++++++++++++++++++++++++++++++
   Free a node list.
 
-  NodesX *nodesx The list to be freed.
+  NodesX *nodesx The set of nodes to be freed.
 
   int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
@@ -129,7 +129,7 @@ void FreeNodeList(NodesX *nodesx,int keep)
 /*++++++++++++++++++++++++++++++++++++++
   Append a single node to an unsorted node list.
 
-  NodesX* nodesx The set of nodes to process.
+  NodesX *nodesx The set of nodes to modify.
 
   node_t id The node identifier from the original OSM data.
 
@@ -142,7 +142,7 @@ void FreeNodeList(NodesX *nodesx,int keep)
   uint16_t flags The flags to set for this node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags)
+void AppendNode(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags)
 {
  NodeX nodex;
 
@@ -163,10 +163,10 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transp
 /*++++++++++++++++++++++++++++++++++++++
   Sort the node list.
 
-  NodesX* nodesx The set of nodes to process.
+  NodesX *nodesx The set of nodes to modify.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortNodeList(NodesX* nodesx)
+void SortNodeList(NodesX *nodesx)
 {
  int fd;
  index_t xnumber;
@@ -265,10 +265,10 @@ static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
 /*++++++++++++++++++++++++++++++++++++++
   Sort the node list geographically.
 
-  NodesX* nodesx The set of nodes to process.
+  NodesX *nodesx The set of nodes to modify.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortNodeListGeographically(NodesX* nodesx)
+void SortNodeListGeographically(NodesX *nodesx)
 {
  int fd;
 
@@ -382,12 +382,12 @@ static int index_by_lat_long(NodeX *nodex,index_t index)
 
   index_t IndexNodeX Returns the index of the extended node with the specified id.
 
-  NodesX* nodesx The set of nodes to process.
+  NodesX *nodesx The set of nodes to use.
 
   node_t id The node id to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t IndexNodeX(NodesX* nodesx,node_t id)
+index_t IndexNodeX(NodesX *nodesx,node_t id)
 {
  int start=0;
  int end=nodesx->number-1;
@@ -439,7 +439,7 @@ index_t IndexNodeX(NodesX* nodesx,node_t id)
 /*++++++++++++++++++++++++++++++++++++++
   Remove any nodes that are not part of a highway.
 
-  NodesX* nodesx The set of nodes to process.
+  NodesX *nodesx The set of nodes to modify.
 
   SegmentsX *segmentsx The set of segments to use.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -544,7 +544,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 /*++++++++++++++++++++++++++++++++++++++
   Insert the super-node flag and the first segment indexes after geographical sorting.
 
-  NodesX* nodesx The set of nodes to process.
+  NodesX *nodesx The set of nodes to modify.
 
   SegmentsX *segmentsx The set of segments to use.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -599,12 +599,12 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
 /*++++++++++++++++++++++++++++++++++++++
   Save the final node list database to a file.
 
-  NodesX* nodesx The set of nodes to save.
+  NodesX *nodesx The set of nodes to save.
 
   const char *filename The name of the file to save.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SaveNodeList(NodesX* nodesx,const char *filename)
+void SaveNodeList(NodesX *nodesx,const char *filename)
 {
  index_t i;
  int fd;
