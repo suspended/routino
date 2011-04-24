@@ -19,6 +19,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***************************************/
 
+
 #include <assert.h>
 
 #include <unistd.h>
@@ -51,15 +52,15 @@ static int nmappedfiles=0;
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Return a filename composed of the dirname, prefix and filename.
+  Return a filename composed of the dirname, prefix and name.
 
-  char *FileName Returns an allocated filename.
+  char *FileName Returns a pointer to memory allocated to the filename.
 
   const char *dirname The directory name.
 
   const char *prefix The file prefix.
 
-  const char *name The filename.
+  const char *name The main part of the name.
   ++++++++++++++++++++++++++++++++++++++*/
 
 char *FileName(const char *dirname,const char *prefix, const char *name)
@@ -73,7 +74,7 @@ char *FileName(const char *dirname,const char *prefix, const char *name)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a file and map it into memory.
+  Open a file read-only and map it into memory.
 
   void *MapFile Returns the address of the file or exits in case of an error.
 
@@ -106,6 +107,8 @@ void *MapFile(const char *filename)
     exit(EXIT_FAILURE);
    }
 
+ /* Store the information about the mapped file */
+
  mappedfiles=(struct mmapinfo*)realloc((void*)mappedfiles,(nmappedfiles+1)*sizeof(struct mmapinfo));
 
  mappedfiles[nmappedfiles].filename=filename;
@@ -120,7 +123,7 @@ void *MapFile(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a file and map it into memory.
+  Open a file read-write and map it into memory.
 
   void *MapFileWriteable Returns the address of the file or exits in case of an error.
 
@@ -151,6 +154,8 @@ void *MapFileWriteable(const char *filename)
     exit(EXIT_FAILURE);
    }
 
+ /* Store the information about the mapped file */
+
  mappedfiles=(struct mmapinfo*)realloc((void*)mappedfiles,(nmappedfiles+1)*sizeof(struct mmapinfo));
 
  mappedfiles[nmappedfiles].filename=filename;
@@ -165,7 +170,7 @@ void *MapFileWriteable(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Unmap a file.
+  Unmap a file and close it.
 
   void *UnmapFile Returns NULL (for similarity to the MapFile function).
 
@@ -206,7 +211,7 @@ void *UnmapFile(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a new file on disk for writing to.
+  Open a new file on disk for writing.
 
   int OpenFileNew Returns the file descriptor if OK or exits in case of an error.
 
@@ -232,11 +237,11 @@ int OpenFileNew(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a new file on disk for reading from and appending.
+  Open a new or existing file on disk for reading and appending.
 
   int OpenFileAppend Returns the file descriptor if OK or exits in case of an error.
 
-  const char *filename The name of the file to create.
+  const char *filename The name of the file to create or open.
   ++++++++++++++++++++++++++++++++++++++*/
 
 int OpenFileAppend(const char *filename)
@@ -284,7 +289,7 @@ int ReOpenFile(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open an existing file on disk for reading from or writing to.
+  Open an existing file on disk for reading or writing.
 
   int ReOpenFileWriteable Returns the file descriptor if OK or exits in case of an error.
 
@@ -312,7 +317,7 @@ int ReOpenFileWriteable(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Get the size of a file.
 
-  off_t SizeFile Returns the file size.
+  off_t SizeFile Returns the file size if OK or exits in case of an error.
 
   const char *filename The name of the file to check.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -353,7 +358,7 @@ int ExistsFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Close a file on disk.
 
-  int CloseFile returns -1 (to be used like UnmapFile function).
+  int CloseFile returns -1 (for similarity to the *OpenFile* functions).
 
   int fd The file descriptor to close.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -369,7 +374,7 @@ int CloseFile(int fd)
 /*++++++++++++++++++++++++++++++++++++++
   Delete a file from disk.
 
-  int DeleteFile Returns 0 if OK or something else in case of an error.
+  int DeleteFile Returns 0 if OK.
 
   char *filename The name of the file to delete.
   ++++++++++++++++++++++++++++++++++++++*/

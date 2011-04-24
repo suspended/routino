@@ -52,7 +52,7 @@ static NodesX *sortnodesx;
 /* Functions */
 
 static int sort_by_id(NodeX *a,NodeX *b);
-static int index_by_id(NodeX *nodex,index_t index);
+static int deduplicate_and_index_by_id(NodeX *nodex,index_t index);
 
 static int sort_by_lat_long(NodeX *a,NodeX *b);
 static int index_by_lat_long(NodeX *nodex,index_t index);
@@ -61,7 +61,7 @@ static int index_by_lat_long(NodeX *nodex,index_t index);
 /*++++++++++++++++++++++++++++++++++++++
   Allocate a new node list (create a new file or open an existing one).
 
-  NodesX *NewNodeList Returns the node list.
+  NodesX *NewNodeList Returns a pointer to the node list.
 
   int append Set to 1 if the file is to be opened for appending (now or later).
   ++++++++++++++++++++++++++++++++++++++*/
@@ -103,7 +103,7 @@ NodesX *NewNodeList(int append)
 
   NodesX *nodesx The list to be freed.
 
-  int keep Set to 1 if the file is to be kept.
+  int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
 
 void FreeNodeList(NodesX *nodesx,int keep)
@@ -131,7 +131,7 @@ void FreeNodeList(NodesX *nodesx,int keep)
 
   NodesX* nodesx The set of nodes to process.
 
-  node_t id The node identification.
+  node_t id The node identifier from the original OSM data.
 
   double latitude The latitude of the node.
 
@@ -161,7 +161,7 @@ void AppendNode(NodesX* nodesx,node_t id,double latitude,double longitude,transp
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the node list (i.e. create the sortable indexes).
+  Sort the node list.
 
   NodesX* nodesx The set of nodes to process.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -200,7 +200,7 @@ void SortNodeList(NodesX* nodesx)
 
  sortnodesx=nodesx;
 
- filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))index_by_id);
+ filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_and_index_by_id);
 
  /* Close the files */
 
@@ -238,16 +238,16 @@ static int sort_by_id(NodeX *a,NodeX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Index the nodes after sorting.
+  Create the index of identifiers and discard duplicate nodes.
 
-  int index_by_id Return 1 if the value is to be kept, otherwise zero.
+  int deduplicate_and_index_by_id Return 1 if the value is to be kept, otherwise 0.
 
   NodeX *nodex The extended node.
 
   index_t index The index of this node in the total.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int index_by_id(NodeX *nodex,index_t index)
+static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
 {
  if(index==0 || sortnodesx->idata[index-1]!=nodex->id)
    {
@@ -308,7 +308,9 @@ void SortNodeListGeographically(NodesX* nodesx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the nodes into latitude and longitude order.
+  Sort the nodes into latitude and longitude order (first by longitude bin
+  number, then by latitude bin number and then by exact longitude and then by
+  exact latitude).
 
   int sort_by_lat_long Returns the comparison of the latitude and longitude fields.
 
@@ -356,9 +358,9 @@ static int sort_by_lat_long(NodeX *a,NodeX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Index the nodes after sorting.
+  Create the index between the sorted and unsorted nodes.
 
-  int index_by_lat_long Return 1 if the value is to be kept, otherwise zero.
+  int index_by_lat_long Return 1 if the value is to be kept, otherwise 0.
 
   NodeX *nodex The extended node.
 
@@ -437,9 +439,9 @@ index_t IndexNodeX(NodesX* nodesx,node_t id)
 /*++++++++++++++++++++++++++++++++++++++
   Remove any nodes that are not part of a highway.
 
-  NodesX *nodesx The complete node list.
+  NodesX* nodesx The set of nodes to process.
 
-  SegmentsX *segmentsx The list of segments.
+  SegmentsX *segmentsx The set of segments to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
@@ -542,7 +544,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 /*++++++++++++++++++++++++++++++++++++++
   Insert the super-node flag and the first segment indexes after geographical sorting.
 
-  NodesX *nodesx The list of nodes to update.
+  NodesX* nodesx The set of nodes to process.
 
   SegmentsX *segmentsx The set of segments to use.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -595,7 +597,7 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Save the node list to a file.
+  Save the final node list database to a file.
 
   NodesX* nodesx The set of nodes to save.
 

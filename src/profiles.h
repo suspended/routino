@@ -36,7 +36,7 @@ typedef struct _Profile
 
  Transport    transport;                 /*+ The type of transport. +*/
 
- transports_t allow;                     /*+ The type of transport expressed as what must be allowed. +*/
+ transports_t allow;                     /*+ The type of transport expressed as a bitmask. +*/
 
  score_t      highway[Way_Count];        /*+ A floating point preference for travel on the highway. +*/
  score_t      max_pref;                  /*+ The maximum preference for any highway type. +*/
@@ -59,7 +59,7 @@ typedef struct _Profile
  Profile;
 
 
-/* Functions */
+/* Functions in profiles.c */
 
 int ParseXMLProfiles(const char *filename);
 
@@ -74,5 +74,6 @@ void PrintProfilesXML(void);
 void PrintProfilesJSON(void);
 
 void PrintProfilesPerl(void);
+
 
 #endif /* PROFILES_H */

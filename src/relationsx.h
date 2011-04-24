@@ -75,8 +75,7 @@ struct _RelationsX
 };
 
 
-/* Functions */
-
+/* Functions in relationsx.c */
 
 RelationsX *NewRelationList(int append);
 void FreeRelationList(RelationsX *relationsx,int keep);

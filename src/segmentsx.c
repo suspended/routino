@@ -43,12 +43,12 @@
 #include "sorting.h"
 
 
-/* Variables */
+/* Global variables */
 
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
-/* Local Functions */
+/* Local functions */
 
 static int sort_by_id(SegmentX *a,SegmentX *b);
 
@@ -100,7 +100,7 @@ SegmentsX *NewSegmentList(int append)
 
   SegmentsX *segmentsx The list to be freed.
 
-  int keep Set to 1 if the file is to be kept.
+  int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
 
 void FreeSegmentList(SegmentsX *segmentsx,int keep)
@@ -206,7 +206,7 @@ void SortSegmentList(SegmentsX* segmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the segments into id order (node1 then node2).
+  Sort the segments into id order, first by node1 then by node2, finally by distance.
 
   int sort_by_id Returns the comparison of the node fields.
 
@@ -323,7 +323,7 @@ SegmentX *NextSegmentX(SegmentsX* segmentsx,SegmentX *segmentx,index_t node,int 
  
  
 /*++++++++++++++++++++++++++++++++++++++
-  Remove bad segments (duplicated, zero length or missing nodes).
+  Remove bad segments (duplicated, zero length or with missing nodes).
 
   NodesX *nodesx The nodes to check.
 
@@ -405,9 +405,9 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
   SegmentsX* segmentsx The set of segments to process.
 
-  NodesX *nodesx The list of nodes to use.
+  NodesX *nodesx The set of nodes to use.
 
-  WaysX *waysx The list of ways to use.
+  WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
@@ -499,9 +499,9 @@ void MeasureSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
   SegmentsX* segmentsx The set of segments to process.
 
-  NodesX *nodesx The list of nodes to use.
+  NodesX *nodesx The set of nodes to use.
 
-  WaysX *waysx The list of ways to use.
+  WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
@@ -620,11 +620,11 @@ void DeduplicateSegments(SegmentsX* segmentsx,NodesX *nodesx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Index the segments by creating the firstnode index and the segment next2 indexes.
+  Index the segments by creating the firstnode index and filling in the segment next2 parameter.
 
   SegmentsX* segmentsx The set of segments to process.
 
-  NodesX *nodesx The list of nodes to use.
+  NodesX *nodesx The sset of nodes to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void IndexSegments(SegmentsX* segmentsx,NodesX *nodesx)

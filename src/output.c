@@ -79,11 +79,11 @@ static char junction_other_way[Way_Count][Way_Count]=
 
   int nresults The number of results in the list.
 
-  Nodes *nodes The list of nodes.
+  Nodes *nodes The set of nodes to use.
 
   Segments *segments The set of segments to use.
 
-  Ways *ways The list of ways.
+  Ways *ways The set of ways to use.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -392,9 +392,9 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           /* Decide if this is an important junction */
 
-          if(result->node==results[point]->finish_node)
+          if(result->node==results[point]->finish_node) /* Waypoint */
              important=10;
-          else if(result->segment==result->next->segment)
+          else if(result->segment==result->next->segment) /* U-turn */
              important=5;
           else
             {

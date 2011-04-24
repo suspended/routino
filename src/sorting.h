@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/sorting.h,v 1.1 2010-11-27 14:56:44 amb Exp $
-
  Header file for sorting function prototypes
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -25,10 +23,12 @@
 #ifndef SORTING_H
 #define SORTING_H    /*+ To stop multiple inclusions. +*/
 
+#include <stdlib.h>
+
 #include "types.h"
 
 
-/* In sorting.c */
+/* Functions in sorting.c */
 
 /*+ The type, size and alignment of variable to store the variable length +*/
 #define FILESORT_VARINT   unsigned short

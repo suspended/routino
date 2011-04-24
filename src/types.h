@@ -83,7 +83,7 @@
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/
 #define ONEWAY_1TO2    ((distance_t)0x80000000)
 
-/*+ A flag to mark a segment as one-way node2 to node1. +*/
+/*+ A flag to mark a segment as one-way from node2 to node1. +*/
 #define ONEWAY_2TO1    ((distance_t)0x40000000)
 
 /*+ A flag to mark a segment as a super-segment. +*/
@@ -109,7 +109,7 @@
 /* Simple Types */
 
 
-/*+ A node, segment or way index. +*/
+/*+ A node, segment, way or relation index. +*/
 typedef uint32_t index_t;
 
 
@@ -128,6 +128,7 @@ typedef uint16_t ll_off_t;
 
 /*+ Conversion from a bin number to a latlong (integer latitude or longitude). +*/
 #define bin_to_latlong(xxx) ((latlong_t)(xxx)*LAT_LONG_BIN)
+
 
 /*+ Conversion from a latlong (integer latitude or longitude) to a bin offset. +*/
 #define latlong_to_off(xxx) (ll_off_t)((latlong_t)(xxx)&(LAT_LONG_BIN-1))
@@ -163,7 +164,7 @@ typedef float score_t;
 /*+ Conversion from distance_t to kilometres. +*/
 #define distance_to_km(xx) ((double)(xx)/1000.0)
 
-/*+ Conversion from metres to distance_t. +*/
+/*+ Conversion from kilometres to distance_t. +*/
 #define km_to_distance(xx) ((distance_t)((double)(xx)*1000.0))
 
 /*+ Conversion from duration_t to minutes. +*/
@@ -329,16 +330,16 @@ typedef enum _Properties
 /*+ The speed limit of a way, measured in km/hour. +*/
 typedef uint8_t speed_t;
 
-/*+ The maximum weight of a way, measured in 0.2 tonnes. +*/
+/*+ The maximum weight of a way, measured in multiples of 0.2 tonnes. +*/
 typedef uint8_t weight_t;
 
-/*+ The maximum height of a way, measured in 0.1 metres. +*/
+/*+ The maximum height of a way, measured in multiples of 0.1 metres. +*/
 typedef uint8_t height_t;
 
-/*+ The maximum width of a way, measured in 0.1 metres. +*/
+/*+ The maximum width of a way, measured in multiples of 0.1 metres. +*/
 typedef uint8_t width_t;
 
-/*+ The maximum length of a way, measured in 0.1 metres. +*/
+/*+ The maximum length of a way, measured in multiples of 0.1 metres. +*/
 typedef uint8_t length_t;
 
 
@@ -392,7 +393,7 @@ typedef struct _TurnRelation TurnRelation;
 typedef struct _Relations Relations;
 
 
-/* Functions */
+/* Functions in types.c */
 
 Highway HighwayType(const char *highway);
 Transport TransportType(const char *transport);

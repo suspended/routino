@@ -1,5 +1,5 @@
 /***************************************
- Header file for function prototypes
+ Header file for miscellaneous function prototypes
 
  Part of the Routino routing software.
  ******************/ /******************
@@ -29,7 +29,7 @@
 #include "results.h"
 
 
-/* In optimiser.c */
+/* Functions in optimiser.c */
 
 Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t prev_segment,index_t finish_node,Profile *profile,int override);
 
@@ -43,7 +43,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 void FixForwardRoute(Results *results,Result *finish_result);
 
 
-/* In output.c */
+/* Functions in output.c */
 
 void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile);
 

@@ -261,7 +261,7 @@ int main(int argc,char** argv)
     printf("Number              =%9d\n",OSMRelations->file.trnumber);
    }
 
- /* Print out internal data */
+ /* Print out internal data (in plain text format) */
 
  if(option_dump)
    {
@@ -326,7 +326,7 @@ int main(int argc,char** argv)
          }
    }
 
- /* Print out internal data in XML format */
+ /* Print out internal data (in OSM XML format) */
 
  if(option_dump_osm)
    {
@@ -423,7 +423,7 @@ int main(int argc,char** argv)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the contents of a node from the routing database.
+  Print out the contents of a node from the routing database (as plain text).
 
   Nodes *nodes The set of nodes to use.
 
@@ -447,7 +447,7 @@ static void print_node(Nodes* nodes,index_t item)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the contents of a segment from the routing database.
+  Print out the contents of a segment from the routing database (as plain text).
 
   Segments *segments The set of segments to use.
 
@@ -475,7 +475,7 @@ static void print_segment(Segments *segments,index_t item)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the contents of a way from the routing database.
+  Print out the contents of a way from the routing database (as plain text).
 
   Ways *ways The set of ways to use.
 
@@ -507,7 +507,7 @@ static void print_way(Ways *ways,index_t item)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the contents of a turn relation from the routing database.
+  Print out the contents of a turn relation from the routing database (as plain text).
 
   Relations *relations The set of relations to use.
 
@@ -568,7 +568,7 @@ static void print_head_osm(void)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the contents of a node from the routing database in OSM XML format.
+  Print out the contents of a node from the routing database (in OSM XML format).
 
   Nodes *nodes The set of nodes to use.
 
@@ -611,7 +611,7 @@ static void print_node_osm(Nodes* nodes,index_t item)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the contents of a segment from the routing database as a way in OSM XML format.
+  Print out the contents of a segment from the routing database (as a way in OSM XML format).
 
   Segments *segments The set of segments to use.
 
@@ -679,7 +679,7 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the contents of a turn relation from the routing database in OSM XML format.
+  Print out the contents of a turn relation from the routing database (in OSM XML format).
 
   Relations *relations The set of relations to use.
 

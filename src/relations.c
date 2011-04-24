@@ -88,9 +88,9 @@ Relations *LoadRelationList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find a particular turn relation in the file.
+  Find the first turn relation in the file whose 'via' matches a specific node.
 
-  index_t FindFirstTurnRelation1 Returns the index of the first turn relation matching via.
+  index_t FindFirstTurnRelation1 Returns the index of the first turn relation matching.
 
   Relations *relations The set of relations to process.
 
@@ -113,7 +113,7 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
   *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
   *  #           |
   *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
+  *  # <- end    |  start or end matches (but may not be the first).
   */
 
  if(end<start)                      /* There are no relations */
@@ -177,9 +177,9 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the next matching turn relation in the file.
+  Find the next turn relation in the file whose 'via' matches a specific node.
 
-  index_t FindNextTurnRelation1 Returns the index of the next turn relation matching via.
+  index_t FindNextTurnRelation1 Returns the index of the next turn relation matching.
 
   Relations *relations The set of relations to process.
 
@@ -210,9 +210,9 @@ index_t FindNextTurnRelation1(Relations *relations,index_t current)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find a particular turn relation in the file.
+  Find the first turn relation in the file whose 'via' and 'from' match a specific node and segment.
 
-  index_t FindFirstTurnRelation2 Returns the index of the first turn relation matching via and from.
+  index_t FindFirstTurnRelation2 Returns the index of the first turn relation matching.
 
   Relations *relations The set of relations to process.
 
@@ -240,7 +240,7 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
   *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
   *  #           |
   *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
+  *  # <- end    |  start or end matches (but may not be the first).
   */
 
  if(end<start)                      /* There are no relations */
@@ -311,9 +311,9 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the next matching turn relation in the file.
+  Find the next turn relation in the file whose 'via' and 'from' match a specific node and segment.
 
-  index_t FindNextTurnRelation2 Returns the index of the next turn relation matching via and from.
+  index_t FindNextTurnRelation2 Returns the index of the next turn relation matching.
 
   Relations *relations The set of relations to process.
 
@@ -345,13 +345,13 @@ index_t FindNextTurnRelation2(Relations *relations,index_t current)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Determine if a turn is allowed between the nodes from, via and to for a particular transport type.
+  Determine if a turn is allowed between the nodes 'from', 'via' and 'to' for a particular transport type.
 
-  int IsTurnAllowed Return 1 if the turn is allowed.
+  int IsTurnAllowed Return 1 if the turn is allowed or 0 if not.
 
   Relations *relations The set of relations to process.
 
-  index_t index The index of the first turn relation containing via and from.
+  index_t index The index of the first turn relation containing 'via' and 'from'.
 
   index_t via The via node.
 

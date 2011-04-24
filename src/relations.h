@@ -48,7 +48,7 @@ struct _TurnRelation
 /*+ A structure containing the header from the file. +*/
 typedef struct _RelationsFile
 {
- index_t       trnumber;        /*+ How many turn relations in total? +*/
+ index_t       trnumber;        /*+ The number of turn relations in total. +*/
 }
  RelationsFile;
 
@@ -70,7 +70,7 @@ struct _Relations
 
  off_t         troffset;        /*+ The offset of the turn relations in the file. +*/
 
- TurnRelation  cached[2];       /*+ The cached relations. +*/
+ TurnRelation  cached[2];       /*+ Two cached relations read from the file in slim mode. +*/
  index_t       incache[2];      /*+ The indexes of the cached relations. +*/
 
 #endif
@@ -80,7 +80,7 @@ struct _Relations
 };
 
 
-/* Functions */
+/* Functions in relations.c */
 
 Relations *LoadRelationList(const char *filename);
 

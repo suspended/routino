@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/tagmodifier.c,v 1.8 2010-11-13 14:22:28 amb Exp $
-
  Test application for OSM XML file parser / tagging rule testing.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010 Andrew M. Bishop
+ This file Copyright 2010-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -525,7 +523,7 @@ static int xmlDeclaration_function(const char *_tag_,int _type_,const char *vers
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The main program for the planetsplitter.
+  The main program for the tagmodifier.
   ++++++++++++++++++++++++++++++++++++++*/
 
 int main(int argc,char **argv)

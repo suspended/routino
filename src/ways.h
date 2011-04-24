@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/ways.h,v 1.47 2010-12-21 17:18:41 amb Exp $
-
  A header file for the ways.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -59,8 +57,8 @@ struct _Way
 /*+ A structure containing the header from the file. +*/
 typedef struct _WaysFile
 {
- index_t      number;           /*+ How many ways are stored? +*/
- index_t      onumber;          /*+ How many ways were there originally? +*/
+ index_t      number;           /*+ The number of ways stored. +*/
+ index_t      onumber;          /*+ The number of ways originally. +*/
 
  highways_t   highways;         /*+ The types of highways that were seen when parsing. +*/
  transports_t allow;            /*+ The types of traffic that were seen when parsing. +*/
@@ -86,7 +84,7 @@ struct _Ways
  int        fd;                 /*+ The file descriptor for the file. +*/
  off_t      namesoffset;        /*+ The offset of the names within the file. +*/
 
- Way        cached[2];          /*+ The cached ways. +*/
+ Way        cached[2];          /*+ Two cached nodes read from the file in slim mode. +*/
  index_t    incache[2];         /*+ The indexes of the cached ways. +*/
 
  char      *ncached;            /*+ The cached way name. +*/
@@ -97,7 +95,7 @@ struct _Ways
 };
 
 
-/* Functions */
+/* Functions in ways.c */
 
 Ways *LoadWayList(const char *filename);
 
@@ -126,7 +124,7 @@ static char *WayName(Ways *ways,Way *way);
 
   Way *LookupWay Returns a pointer to the cached way information.
 
-  Ways *ways The ways structure to use.
+  Ways *ways The set of ways to use.
 
   index_t index The index of the way.
 
@@ -153,7 +151,7 @@ static inline Way *LookupWay(Ways *ways,index_t index,int position)
 
   char *WayName Returns a pointer to the name of the way.
 
-  Ways *ways The ways structure to use.
+  Ways *ways The set of ways to use.
 
   Way *way The Way pointer.
   ++++++++++++++++++++++++++++++++++++++*/

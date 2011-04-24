@@ -65,18 +65,18 @@ struct _WaysX
 
 #endif
 
- index_t  cnumber;              /*+ How many entries are there after compacting? +*/
+ index_t  cnumber;              /*+ The number of entries after compacting. +*/
 
  index_t *idata;                /*+ The index of the extended data for the Ways (sorted by ID). +*/
 
  char    *nfilename;            /*+ The name of the temporary file (for the names). +*/
  int      nfd;                  /*+ The file descriptor of the temporary file (for the names). +*/
 
- uint32_t nlength;              /*+ How long is the string of name entries? +*/
+ uint32_t nlength;              /*+ The length of the string of name entries. +*/
 };
 
 
-/* Functions */
+/* Functions in waysx.c */
 
 
 WaysX *NewWayList(int append);
@@ -109,11 +109,11 @@ static void PutBackWayX(WaysX* waysx,index_t index,int position);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular extended way.
+  Lookup a particular extended way with the specified id from the file on disk.
 
-  WayX *LookupWayX Returns a pointer to the extended way with the specified id.
+  WayX *LookupWayX Returns a pointer to a cached copy of the extended way.
 
-  WaysX* waysx The set of ways to process.
+  WaysX* waysx The set of ways to use.
 
   index_t index The way index to look for.
 
@@ -131,9 +131,9 @@ static inline WayX *LookupWayX(WaysX* waysx,index_t index,int position)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Put back an extended way.
+  Put back an extended way's data into the file on disk.
 
-  WaysX* waysx The set of ways to process.
+  WaysX* waysx The set of ways to use.
 
   index_t index The way index to put back.
 

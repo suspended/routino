@@ -126,7 +126,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
  int bin=node&results->mask;
  uint32_t i;
 
- /* Check that the arrays have enough space. */
+ /* Check that the arrays have enough space or allocate more. */
 
  if(results->count[bin]==results->alloced)
    {
@@ -174,7 +174,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 /*++++++++++++++++++++++++++++++++++++++
   Find a result; search by node only (don't care about the segment but find the shortest).
 
-  Result *FindResult Returns the result that has been found.
+  Result *FindResult1 Returns the result that has been found.
 
   Results *results The results structure to search.
 
@@ -225,9 +225,9 @@ Result *FindResult(Results *results,index_t node,index_t segment)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find a result from a set of results.
+  Find the first result from a set of results.
 
-  Result *FirstResult Returns the first results from a set of results.
+  Result *FirstResult Returns the first result.
 
   Results *results The set of results.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -239,9 +239,9 @@ Result *FirstResult(Results *results)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find a result from a set of results.
+  Find the next result from a set of results.
 
-  Result *NextResult Returns the next result from a set of results.
+  Result *NextResult Returns the next result.
 
   Results *results The set of results.
 

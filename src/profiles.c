@@ -34,6 +34,8 @@
 #include "xmlparse.h"
 
 
+/* Local variables */
+
 /*+ The profiles that have been loaded from file. +*/
 static Profile **loaded_profiles=NULL;
 
@@ -652,7 +654,7 @@ int ParseXMLProfiles(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Get the profile for a type of transport.
+  Get a named profile.
 
   Profile *GetProfile Returns a pointer to the profile.
 
@@ -672,7 +674,7 @@ Profile *GetProfile(const char *name)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Update a profile with highway preference scaling factor.
+  Update a profile with the highway preference scaling factors.
 
   int UpdateProfile Returns 1 in case of a problem.
 
@@ -814,7 +816,7 @@ void PrintProfile(const Profile *profile)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the profiles as XML for use as program input.
+  Print out all of the loaded profiles as XML for use as program input.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void PrintProfilesXML(void)
@@ -865,7 +867,7 @@ void PrintProfilesXML(void)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the profiles as JavaScript Object Notation for use in a web form.
+  Print out all of the loaded profiles as JavaScript Object Notation for use in a web page.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void PrintProfilesJSON(void)
@@ -974,7 +976,7 @@ void PrintProfilesJSON(void)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print out the profiles as Perl for use in a web CGI.
+  Print out all of the loaded profiles as Perl for use in a web CGI.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void PrintProfilesPerl(void)

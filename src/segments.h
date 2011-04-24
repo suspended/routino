@@ -53,9 +53,9 @@ struct _Segment
 /*+ A structure containing the header from the file. +*/
 typedef struct _SegmentsFile
 {
- index_t   number;              /*+ How many segments in total? +*/
- index_t   snumber;             /*+ How many super-segments? +*/
- index_t   nnumber;             /*+ How many normal segments? +*/
+ index_t   number;              /*+ The number of segments in total. +*/
+ index_t   snumber;             /*+ The number of super-segments. +*/
+ index_t   nnumber;             /*+ The number of normal segments. +*/
 }
  SegmentsFile;
 
@@ -75,14 +75,14 @@ struct _Segments
 
  int          fd;               /*+ The file descriptor for the file. +*/
 
- Segment      cached[3];        /*+ The cached segments. +*/
+ Segment      cached[3];        /*+ Three cached segments read from the file in slim mode. +*/
  index_t      incache[3];       /*+ The indexes of the cached segments. +*/
 
 #endif
 };
 
 
-/* Functions */
+/* Functions in segments.c */
 
 Segments *LoadSegmentList(const char *filename);
 
@@ -136,7 +136,7 @@ static index_t IndexSegment(Segments *segments,Segment *segment);
 
   Segment *LookupSegment Returns a pointer to the cached segment information.
 
-  Segments *segments The segments structure to use.
+  Segments *segments The set of segments to use.
 
   index_t index The index of the segment.
 
@@ -163,7 +163,7 @@ static inline Segment *LookupSegment(Segments *segments,index_t index,int positi
 
   index_t IndexSegment Returns the index of the segment in the list.
 
-  Segments *segments The segments structure to use.
+  Segments *segments The set of segments to use.
 
   Segment *segment The segment whose index is to be found.
   ++++++++++++++++++++++++++++++++++++++*/

@@ -82,12 +82,12 @@ typedef struct _Results
  Results;
 
 
-/* Forward definitions for opaque type */
+/* Forward definition for opaque type */
 
 typedef struct _Queue Queue;
 
 
-/* Results Functions */
+/* Results functions in results.c */
 
 Results *NewResultsList(int nbins);
 void FreeResultsList(Results *results);
@@ -101,7 +101,7 @@ Result *FirstResult(Results *results);
 Result *NextResult(Results *results,Result *result);
 
 
-/* Queue Functions */
+/* Queue functions in queue.c */
 
 Queue *NewQueueList(void);
 void FreeQueueList(Queue *queue);

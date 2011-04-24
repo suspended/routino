@@ -45,7 +45,9 @@ static int prevpoint=0;
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Create a pair of fake segments corresponding to the given segment split in two.
+  Create a pair of fake segments corresponding to the given segment split in two
+  (and will create an extra two fake segments if adjacent waypoints are on the
+  same segment).
 
   index_t CreateFakes Returns the fake node index (or a real one in special cases).
 
@@ -53,7 +55,7 @@ static int prevpoint=0;
 
   Segments *segments The set of segments to use.
 
-  int point Which of the waypoints is this.
+  int point Which of the waypoints this is.
 
   Segment *segment The segment to split.
 
@@ -204,7 +206,7 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,i
 /*++++++++++++++++++++++++++++++++++++++
   Lookup the latitude and longitude of a fake node.
 
-  index_t fakenode The node to lookup.
+  index_t fakenode The fake node to lookup.
 
   double *latitude Returns the latitude
 
@@ -223,9 +225,9 @@ void GetFakeLatLong(index_t fakenode, double *latitude,double *longitude)
 /*++++++++++++++++++++++++++++++++++++++
   Finds the first fake segment associated to a fake node.
 
-  Segment *FirstFakeSegment Returns the first fake segment.
+  Segment *FirstFakeSegment Returns a pointer to the first fake segment.
 
-  index_t fakenode The node to lookup.
+  index_t fakenode The fake node to lookup.
   ++++++++++++++++++++++++++++++++++++++*/
 
 Segment *FirstFakeSegment(index_t fakenode)
@@ -237,11 +239,11 @@ Segment *FirstFakeSegment(index_t fakenode)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Finds the next (there can only be two) fake segment associated to a fake node.
+  Finds the next fake segment associated to a fake node.
 
-  Segment *NextFakeSegment Returns the second fake segment.
+  Segment *NextFakeSegment Returns a pointer to the next fake segment.
 
-  Segment *segment The first fake segment.
+  Segment *fakesegment The first fake segment.
 
   index_t fakenode The node to lookup.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -267,7 +269,7 @@ Segment *NextFakeSegment(Segment *fakesegment,index_t fakenode)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Finds the fake segment between a node and a fake node.
+  Finds the fake segment between a real node and a fake node.
 
   Segment *ExtraFakeSegment Returns a segment between the two specified nodes if it exists.
 
@@ -299,7 +301,7 @@ Segment *ExtraFakeSegment(index_t realnode,index_t fakenode)
 /*++++++++++++++++++++++++++++++++++++++
   Lookup a fake segment given its index.
 
-  Segment *LookupFakeSegment Returns a pointer to the segment.
+  Segment *LookupFakeSegment Returns a pointer to the fake segment.
 
   index_t fakesegment The index of the fake segment.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -331,9 +333,9 @@ index_t IndexFakeSegment(Segment *fakesegment)
 /*++++++++++++++++++++++++++++++++++++++
   Find the real segment underlying a fake segment.
 
-  index_t IndexRealSegment Returns the real segment.
+  index_t IndexRealSegment Returns the index of the real segment.
 
-  index_t fakesegment The fake segment index to look for.
+  index_t fakesegment The index of the fake segment.
   ++++++++++++++++++++++++++++++++++++++*/
 
 index_t IndexRealSegment(index_t fakesegment)

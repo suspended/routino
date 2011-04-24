@@ -39,7 +39,7 @@
 #include "sorting.h"
 
 
-/* Functions */
+/* Local functions */
 
 static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b);
 static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index);
@@ -137,7 +137,7 @@ RelationsX *NewRelationList(int append)
 
   RelationsX *relationsx The list to be freed.
 
-  int keep Set to 1 if the file is to be kept.
+  int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
 
 void FreeRelationList(RelationsX *relationsx,int keep)
@@ -333,7 +333,7 @@ static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
 /*++++++++++++++++++++++++++++++++++++++
   Deduplicate the extended relations using the id after sorting.
 
-  int deduplicate_by_id Return 1 if the value is to be kept, otherwise zero.
+  int deduplicate_by_id Return 1 if the value is to be kept, otherwise 0.
 
   TurnRestrictRelX *relationx The extended relation.
 
@@ -398,9 +398,9 @@ void SortTurnRelationList(RelationsX* relationsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the turn restriction relations into via node order.
+  Sort the turn restriction relations into via node order (then by from and to segments).
 
-  int sort_by_via Returns the comparison of the via fields.
+  int sort_by_via Returns the comparison of the via, from and to fields.
 
   TurnRestrictRelX *a The first extended relation.
 
@@ -611,9 +611,9 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
   RelationsX *relationsx The set of relations to process.
 
-  NodesX *nodesx The set of nodes to process.
+  NodesX *nodesx The set of nodes to use.
 
-  WaysX *waysx The set of ways to process.
+  WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
@@ -666,11 +666,11 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
 
   RelationsX *relationsx The set of relations to process.
 
-  NodesX *nodesx The set of nodes to process.
+  NodesX *nodesx The set of nodes to use.
 
-  SegmentsX *segmentsx The set of segments to process.
+  SegmentsX *segmentsx The set of segments to use.
 
-  WaysX *waysx The set of ways to process.
+  WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
@@ -871,7 +871,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
   NodesX *nodesx The set of nodes to use.
 
-  SegmentsX *segmentsx The set of segments to process.
+  SegmentsX *segmentsx The set of segments to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
