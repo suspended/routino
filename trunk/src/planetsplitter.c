@@ -237,7 +237,7 @@ int main(int argc,char** argv)
 
  RemoveNonHighwayNodes(Nodes,Segments);
 
- /* Process the route and first part of turn relations (must be before compacting the ways) */
+ /* Process the route relations and first part of turn relations (must be before compacting the ways) */
 
  ProcessRouteRelations(Relations,Ways);
 
@@ -350,7 +350,7 @@ int main(int argc,char** argv)
  printf("\nCross-Reference Nodes and Segments\n==================================\n\n");
  fflush(stdout);
 
- /* Sort the nodes geographically and update the segment indexes */
+ /* Sort the nodes geographically and update the segment indexes accordingly */
 
  SortNodeListGeographically(Nodes);
 

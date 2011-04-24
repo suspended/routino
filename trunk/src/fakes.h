@@ -26,13 +26,16 @@
 #include "types.h"
 
 
-/* In fakes.c */
+/* Macros */
 
 /*+ Return true if this is a fake node. +*/
 #define IsFakeNode(xxx)    ((xxx)>=NODE_FAKE && (xxx)!=NO_NODE)
 
 /*+ Return true if this is a fake segment. +*/
 #define IsFakeSegment(xxx) ((xxx)>=SEGMENT_FAKE && (xxx)!=NO_SEGMENT)
+
+
+/* Functions in files.c */
 
 index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,index_t node1,index_t node2,distance_t dist1,distance_t dist2);
 

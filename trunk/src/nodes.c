@@ -80,7 +80,8 @@ Nodes *LoadNodeList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the closest node given its latitude, longitude and optionally profile.
+  Find the closest node given its latitude, longitude and optionally the profile
+  of the mode of transport that must be able to move to/from this node.
 
   index_t FindClosestNode Returns the closest node.
 
@@ -94,7 +95,7 @@ Nodes *LoadNodeList(const char *filename)
 
   double longitude The longitude to look for.
 
-  distance_t distance The maximum distance to look.
+  distance_t distance The maximum distance to look from the specified coordinates.
 
   Profile *profile The profile of the mode of transport (or NULL).
 
@@ -228,13 +229,15 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the closest segment to a latitude, longitude and optionally profile.
+  Find the closest point on the closest segment given its latitude, longitude
+  and optionally the profile of the mode of transport that must be able to move
+  along this segment.
 
   index_t FindClosestSegment Returns the closest segment index.
 
-  Nodes* nodes The set of nodes to search.
+  Nodes* nodes The set of nodes to use.
 
-  Segments *segments The set of segments to use.
+  Segments *segments The set of segments to search.
 
   Ways *ways The set of ways to use.
 
@@ -242,19 +245,19 @@ index_t FindClosestNode(Nodes* nodes,Segments *segments,Ways *ways,double latitu
 
   double longitude The longitude to look for.
 
-  distance_t distance The maximum distance to look.
+  distance_t distance The maximum distance to look from the specified coordinates.
 
   Profile *profile The profile of the mode of transport (or NULL).
 
-  distance_t *bestdist Returns the distance to the best segment.
+  distance_t *bestdist Returns the distance to the closest point on the best segment.
 
-  index_t *bestnode1 Returns the best node at one end.
+  index_t *bestnode1 Returns the index of the node at one end of the closest segment.
 
-  index_t *bestnode2 Returns the best node at the other end.
+  index_t *bestnode2 Returns the index of the node at the other end of the closest segment.
 
-  distance_t *bestdist1 Returns the distance to the best node at one end.
+  distance_t *bestdist1 Returns the distance along the segment to the node at one end.
 
-  distance_t *bestdist2 Returns the distance to the best node at the other end.
+  distance_t *bestdist2 Returns the distance along the segment to the node at the other end.
   ++++++++++++++++++++++++++++++++++++++*/
 
 index_t FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double latitude,double longitude,
@@ -448,7 +451,7 @@ index_t FindClosestSegment(Nodes* nodes,Segments *segments,Ways *ways,double lat
 /*++++++++++++++++++++++++++++++++++++++
   Get the latitude and longitude associated with a node.
 
-  Nodes *nodes The set of nodes.
+  Nodes *nodes The set of nodes to use.
 
   index_t index The node index.
 
@@ -464,12 +467,12 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
  int start,end,mid;
  index_t offset;
 
- /* Binary search - search key closest below is required.
+ /* Binary search - search key exact match only is required.
   *
   *  # <- start  |  Check mid and move start or end if it doesn't match
   *  #           |
-  *  #           |  Since an inexact match is wanted we must set end=mid-1
-  *  # <- mid    |  or start=mid because we know that mid doesn't match.
+  *  #           |  Since an exact match is wanted we can set end=mid-1
+  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
   *  #           |
   *  #           |  Eventually either end=start or end=start+1 and one of
   *  # <- end    |  start or end is the wanted one.

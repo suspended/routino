@@ -75,7 +75,7 @@ struct _SegmentsX
 };
 
 
-/* Functions */
+/* Functions in segmentsx.c */
 
 
 SegmentsX *NewSegmentList(int append);
@@ -124,9 +124,9 @@ static void PutBackSegmentX(SegmentsX* segmentsx,index_t index,int position);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular extended segment.
+  Lookup a particular extended segment with the specified id from the file on disk.
 
-  SegmentX *LookupSegmentX Returns a pointer to the extended segment with the specified id.
+  SegmentX *LookupSegmentX Returns a pointer to a cached copy of the extended segment.
 
   SegmentsX* segmentsx The set of segments to process.
 
@@ -150,7 +150,7 @@ static inline SegmentX *LookupSegmentX(SegmentsX* segmentsx,index_t index,int po
 /*++++++++++++++++++++++++++++++++++++++
   Find the extended segment index for a particular extended segment pointer.
 
-  index_t IndexSegmentX Returns the index of the extended segment in the list.
+  index_t IndexSegmentX Returns the index of the extended segment.
 
   SegmentsX *segmentsx The extended segments structure to use.
 
@@ -170,7 +170,7 @@ static inline index_t IndexSegmentX(SegmentsX *segmentsx,SegmentX *segmentx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Put back an extended segment's data.
+  Put back an extended segment's data into the file on disk.
 
   SegmentsX* segmentsx The set of segments to process.
 

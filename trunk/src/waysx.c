@@ -35,13 +35,17 @@
 #include "sorting.h"
 
 
-/* Variables */
+/* Global variables */
 
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
+
+/* Local variables */
+
 /*+ A temporary file-local variable for use by the sort functions. +*/
 static WaysX *sortwaysx;
+
 
 /* Functions */
 
@@ -111,7 +115,7 @@ WaysX *NewWayList(int append)
 
   WaysX *waysx The list to be freed.
 
-  int keep Set to 1 if the file is to be kept.
+  int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
 
 void FreeWayList(WaysX *waysx,int keep)
@@ -447,7 +451,7 @@ static int sort_by_id(WayX *a,WayX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the ways into name and id order.
+  Sort the ways into name order and then id order.
 
   int sort_by_name_and_id Returns the comparison of the name and id fields.
 
@@ -502,9 +506,9 @@ static int sort_by_name_and_prop_and_id(WayX *a,WayX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Deduplicate the extended ways using the id after sorting and create the index.
+  Create the index of identifiers and discard duplicate ways.
 
-  int deduplicate_and_index_by_id Return 1 if the value is to be kept, otherwise zero.
+  int deduplicate_and_index_by_id Return 1 if the value is to be kept, otherwise 0.
 
   WayX *wayx The extended way.
 

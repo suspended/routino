@@ -35,19 +35,19 @@
 #include "results.h"
 
 
-/* Local Functions */
+/* Local functions */
 
 static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Select the super-segments from the list of segments.
+  Select the super-nodes from the list of nodes.
 
-  NodesX *nodesx The nodes.
+  NodesX *nodesx The set of nodes to use.
 
-  SegmentsX *segmentsx The segments.
+  SegmentsX *segmentsx The set of segments to use.
 
-  WaysX *waysx The ways.
+  WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
@@ -181,15 +181,15 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Create the super-segments.
+  Create the super-segments from the existing segments.
 
-  SegmentsX *CreateSuperSegments Creates the super segments.
+  SegmentsX *CreateSuperSegments Returns the new super segments.
 
-  NodesX *nodesx The nodes.
+  NodesX *nodesx The set of nodes to use.
 
-  SegmentsX *segmentsx The segments.
+  SegmentsX *segmentsx The set of segments to use.
 
-  WaysX *waysx The ways.
+  WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
@@ -311,7 +311,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
   SegmentsX* MergeSuperSegments Returns a new set of merged segments.
 
-  SegmentsX* segmentsx The set of segments to process.
+  SegmentsX* segmentsx The set of segments to merge.
 
   SegmentsX* supersegmentsx The set of super-segments to merge.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -412,7 +412,7 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find all routes from a specified node to any node in the specified list that follows a certain type of way.
+  Find all routes from a specified super-node to any other super-node that follows a certain type of way.
 
   Results *FindRoutesWay Returns a set of results.
 
@@ -424,7 +424,7 @@ SegmentsX *MergeSuperSegments(SegmentsX* segmentsx,SegmentsX* supersegmentsx)
 
   node_t start The start node.
 
-  Way *match The way that the route must match.
+  Way *match A template for the type of way that the route must follow.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match)
@@ -461,6 +461,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
        index_t node2,seg2;
        distance_t cumulative_distance;
 
+       /* must not be one-way against the direction of travel */
        if(IsOnewayTo(segmentx,node1))
           goto endloop;
 
@@ -468,11 +469,13 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
        seg2=IndexSegmentX(segmentsx,segmentx);
 
+       /* must not be a u-turn */
        if(result1->segment==seg2)
           goto endloop;
 
        wayx=LookupWayX(waysx,segmentx->way,2);
 
+       /* must be the right type of way */
        if(WaysCompare(&wayx->way,match))
           goto endloop;
 
@@ -487,6 +490,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
+          /* don't route beyond a super-node. */
           if(!IsBitSet(nodesx->super,node2))
              InsertInQueue(queue,result2);
          }
@@ -496,6 +500,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           result2->score=cumulative_distance;
           result2->sortby=cumulative_distance;
 
+          /* don't route beyond a super-node. */
           if(!IsBitSet(nodesx->super,node2))
              InsertInQueue(queue,result2);
          }

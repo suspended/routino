@@ -26,9 +26,10 @@
 #include "logging.h"
 
 
+/* Global variables */
+
 /*+ The option to print the output in a way that allows logging to a file. +*/
 int option_loggable=0;
-
 
 /* Local functions */
 
@@ -43,7 +44,7 @@ static int printed_length=0;
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print the first message in an overwriting sequence.
+  Print the first message in an overwriting sequence (to stdout).
 
   const char *format The format string.
 
@@ -66,7 +67,7 @@ void printf_first(const char *format, ...)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print the middle message in an overwriting sequence.
+  Print the middle message in an overwriting sequence (to stdout).
 
   const char *format The format string.
 
@@ -89,7 +90,7 @@ void printf_middle(const char *format, ...)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print the last message in an overwriting sequence.
+  Print the last message in an overwriting sequence (to stdout).
 
   const char *format The format string.
 
@@ -109,7 +110,7 @@ void printf_last(const char *format, ...)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print the first message in an overwriting sequence.
+  Print the first message in an overwriting sequence to a specified file.
 
   FILE *file The file to write to.
 
@@ -134,7 +135,7 @@ void fprintf_first(FILE *file,const char *format, ...)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print the middle message in an overwriting sequence.
+  Print the middle message in an overwriting sequence to a specified file.
 
   FILE *file The file to write to.
 
@@ -159,7 +160,7 @@ void fprintf_middle(FILE *file,const char *format, ...)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print the last message in an overwriting sequence.
+  Print the last message in an overwriting sequence to a specified file.
 
   FILE *file The file to write to.
 
@@ -181,7 +182,7 @@ void fprintf_last(FILE *file,const char *format, ...)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print the first message in an overwriting sequence.
+  Do the work to print the first message in an overwriting sequence.
 
   FILE *file The file to write to.
 
@@ -203,7 +204,7 @@ static void vfprintf_first(FILE *file,const char *format,va_list ap)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print the middle message in an overwriting sequence.
+  Do the work to print the middle message in an overwriting sequence.
 
   FILE *file The file to write to.
 
@@ -233,7 +234,7 @@ static void vfprintf_middle(FILE *file,const char *format,va_list ap)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Print the last message in an overwriting sequence.
+  Do the work to print the last message in an overwriting sequence.
 
   FILE *file The file to write to.
 

@@ -75,7 +75,7 @@ static void output_limits(index_t node,double latitude,double longitude);
 
   Ways *ways The set of ways to use.
 
-  Relations *relations The set of relations.
+  Relations *relations The set of relations to use.
 
   double latmin The minimum latitude.
 
@@ -107,7 +107,7 @@ void OutputJunctions(Nodes *nodes,Segments *segments,Ways *ways,Relations *relat
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node (called as a callback).
+  Process a single node as a junction (called as a callback).
 
   index_t node The node to output.
 
@@ -153,7 +153,7 @@ static void output_junctions(index_t node,double latitude,double longitude)
 
   Ways *ways The set of ways to use.
 
-  Relations *relations The set of relations.
+  Relations *relations The set of relations to use.
 
   double latmin The minimum latitude.
 
@@ -185,7 +185,7 @@ void OutputSuper(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node (called as a callback).
+  Process a single node as a super-node (called as a callback).
 
   index_t node The node to output.
 
@@ -233,7 +233,7 @@ static void output_super(index_t node,double latitude,double longitude)
 
   Ways *ways The set of ways to use.
 
-  Relations *relations The set of relations.
+  Relations *relations The set of relations to use.
 
   double latmin The minimum latitude.
 
@@ -265,7 +265,7 @@ void OutputOneway(Nodes *nodes,Segments *segments,Ways *ways,Relations *relation
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node (called as a callback).
+  Process a single node and all connected one-way segments (called as a callback).
 
   index_t node The node to output.
 
@@ -314,7 +314,7 @@ static void output_oneway(index_t node,double latitude,double longitude)
 
   Ways *ways The set of ways to use.
 
-  Relations *relations The set of relations.
+  Relations *relations The set of relations to use.
 
   double latmin The minimum latitude.
 
@@ -346,7 +346,7 @@ void OutputTurnRestrictions(Nodes *nodes,Segments *segments,Ways *ways,Relations
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node (called as a callback).
+  Process a single node as the 'via' node for a turn restriction (called as a callback).
 
   index_t node The node to output.
 
@@ -401,7 +401,7 @@ static void output_turnrestriction(index_t node,double latitude,double longitude
 
   Ways *ways The set of ways to use.
 
-  Relations *relations The set of relations.
+  Relations *relations The set of relations to use.
 
   double latmin The minimum latitude.
 
@@ -443,7 +443,7 @@ void OutputSpeedLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
   Ways *ways The set of ways to use.
 
-  Relations *relations The set of relations.
+  Relations *relations The set of relations to use.
 
   double latmin The minimum latitude.
 
@@ -485,7 +485,7 @@ void OutputWeightLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *re
 
   Ways *ways The set of ways to use.
 
-  Relations *relations The set of relations.
+  Relations *relations The set of relations to use.
 
   double latmin The minimum latitude.
 
@@ -527,7 +527,7 @@ void OutputHeightLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *re
 
   Ways *ways The set of ways to use.
 
-  Relations *relations The set of relations.
+  Relations *relations The set of relations to use.
 
   double latmin The minimum latitude.
 
@@ -569,7 +569,7 @@ void OutputWidthLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
   Ways *ways The set of ways to use.
 
-  Relations *relations The set of relations.
+  Relations *relations The set of relations to use.
 
   double latmin The minimum latitude.
 
@@ -603,7 +603,7 @@ void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *re
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node (called as a callback).
+  Process a single node as a speed, weight, height, length, width limit (called as a callback).
 
   index_t node The node to output.
 

@@ -41,6 +41,7 @@
 
 /* Macros */
 
+/*+ Checks if a value in the XML is one of the allowed values for true. +*/
 #define ISTRUE(xx) (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1"))
 
 

@@ -43,6 +43,8 @@
 #define MAXSEARCH  1
 
 
+/* Global variables */
+
 /*+ The option not to print any progress information. +*/
 int option_quiet=0;
 
@@ -176,6 +178,8 @@ int main(int argc,char** argv)
     fprintf(stderr,"Error: Cannot read the profiles in the file '%s'.\n",profiles);
     return(1);
    }
+
+ /* Choose the selected profile. */
 
  if(profilename)
    {
@@ -348,6 +352,8 @@ int main(int argc,char** argv)
  for(point=1;point<=NWAYPOINTS;point++)
     if(point_used[point]==1 || point_used[point]==2)
        print_usage(0,NULL,"All waypoints must have latitude and longitude.");
+
+ /* Print one of the profiles if requested */
 
  if(help_profile)
    {

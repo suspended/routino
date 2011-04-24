@@ -81,13 +81,13 @@ Segments *LoadSegmentList(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Find the next segment with a particular starting node.
 
-  Segment *NextSegment Returns a pointer to the next segment with the same id.
+  Segment *NextSegment Returns a pointer to the next segment.
 
   Segments* segments The set of segments to process.
 
   Segment *segment The current segment.
 
-  index_t node The current node.
+  index_t node The wanted node.
   ++++++++++++++++++++++++++++++++++++++*/
 
 Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
@@ -115,7 +115,7 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
    }
  else
    {
-    if(segment->next2==NO_NODE)
+    if(segment->next2==NO_SEGMENT)
        return(NULL);
     else
        return(LookupSegment(segments,segment->next2,1));
@@ -128,7 +128,7 @@ Segment *NextSegment(Segments* segments,Segment *segment,index_t node)
 
   index_t FindClosestSegmentHeading Returns the closest heading segment index.
 
-  Nodes* nodes The set of nodes to search.
+  Nodes* nodes The set of nodes to use.
 
   Segments *segments The set of segments to use.
 
@@ -244,9 +244,9 @@ distance_t Distance(double lat1,double lon1,double lat2,double lon2)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Calculate the duration of segment.
+  Calculate the duration of travel on a segment.
 
-  duration_t Duration Returns the duration of travel between the nodes.
+  duration_t Duration Returns the duration of travel.
 
   Segment *segment The segment to traverse.
 

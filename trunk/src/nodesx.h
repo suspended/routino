@@ -69,7 +69,7 @@ struct _NodesX
 
  node_t   *idata;               /*+ The extended node IDs (sorted by ID). +*/
 
- node_t   *gdata;               /*+ The final node indexes (sorted by ID). +*/
+ node_t   *gdata;               /*+ The final node indexes (sorted geographically). +*/
 
  uint8_t  *super;               /*+ A bit-mask marker for super nodes (same order as sorted nodes). +*/
 
@@ -81,7 +81,7 @@ struct _NodesX
 };
 
 
-/* Functions */
+/* Functions in nodesx.c */
 
 NodesX *NewNodeList(int append);
 void FreeNodeList(NodesX *nodesx,int keep);
@@ -101,7 +101,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx);
 void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 
-/* Macros / inline functions */
+/* Macros and inline functions */
 
 #define ClearBit(xx,yy)    (xx)[(yy)/8]&=~(1<<((yy)%8))
 #define SetBit(xx,yy)      (xx)[(yy)/8]|= (1<<((yy)%8))
@@ -122,9 +122,9 @@ static void PutBackNodeX(NodesX* nodesx,index_t index,int position);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Lookup a particular extended node.
+  Lookup a particular extended node with the specified id from the file on disk.
 
-  NodeX *LookupNodeX Returns a pointer to the extended node with the specified id.
+  NodeX *LookupNodeX Returns a pointer to a cached copy of the extended node.
 
   NodesX* nodesx The set of nodes to process.
 
@@ -144,7 +144,7 @@ static inline NodeX *LookupNodeX(NodesX* nodesx,index_t index,int position)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Put back an extended node's data.
+  Put back an extended node's data into the file on disk.
 
   NodesX* nodesx The set of nodes to process.
 

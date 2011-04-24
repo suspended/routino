@@ -26,7 +26,7 @@
 #include "types.h"
 
 
-/* In visualiser.c */
+/* Functions in visualiser.c */
 
 void OutputJunctions(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,double latmin,double latmax,double lonmin,double lonmax);
 
