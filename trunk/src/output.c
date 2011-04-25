@@ -96,8 +96,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
  distance_t cum_distance=0;
  duration_t cum_duration=0;
  double finish_lat,finish_lon;
- int segment_count=0;
- int route_count=0;
+ int segment_count=0,route_count=0;
+ int point_count=0;
 
  /* Open the files */
 
@@ -467,7 +467,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                                   distance_to_km(cum_distance),duration_to_minutes(cum_duration));
                 fprintf(htmlfile,"</span>]\n");
 
-                fprintf(htmlfile,"<tr class='c'><td class='l'><td class='r'>%.6f %.6f\n",
+                fprintf(htmlfile,"<tr class='c'><td class='l'>%d:<td class='r'>%.6f %.6f\n",
+                                 ++point_count,
                                  radians_to_degrees(latitude),radians_to_degrees(longitude));
 
                 if(nextresult)
@@ -652,7 +653,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           if(htmlfile)
             {
-             fprintf(htmlfile,"<tr class='c'><td class='l'><td class='r'>%.6f %.6f\n",
+             fprintf(htmlfile,"<tr class='c'><td class='l'>%d:<td class='r'>%.6f %.6f\n",
+                              ++point_count,
                               radians_to_degrees(latitude),radians_to_degrees(longitude));
              fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_start[0]);
              fprintf(htmlfile,translate_html_start[1],
