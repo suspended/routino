@@ -476,7 +476,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                    if(!turn_str)
                      {
                       turn_int=(int)TurnAngle(nodes,resultsegment,nextresultsegment,result->node);
-                      turn_str=translate_turn[(4+(22+turn_int)/45)%8];
+                      turn_str=translate_turn[((202+turn_int)/45)%8];
                      }
 
                    if(!bearing_next_str)
@@ -571,7 +571,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                    if(!turn_str)
                      {
                       turn_int=(int)TurnAngle(nodes,resultsegment,nextresultsegment,result->node);
-                      turn_str=translate_turn[(4+(22+turn_int)/45)%8];
+                      turn_str=translate_turn[((202+turn_int)/45)%8];
                      }
 
                    if(!bearing_next_str)
