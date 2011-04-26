@@ -34,11 +34,18 @@
 #include "results.h"
 
 
+/* Global variables */
+
 /*+ The option not to print any progress information. +*/
 extern int option_quiet;
 
 /*+ The option to calculate the quickest route insted of the shortest. +*/
 extern int option_quickest;
+
+
+/* Local functions */
+
+static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t endnode,index_t endsegment,Profile *profile);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -362,7 +369,8 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  queue=NewQueueList();
 
- /* Insert the finish points of the beginning part of the path into the queue */
+ /* Insert the finish points of the beginning part of the path into the queue,
+    translating the segments into super-segments. */
 
  result3=FirstResult(begin);
 
@@ -370,7 +378,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    {
     if(result3->node!=begin->start_node && !IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,1)))
       {
-       result2=InsertResult(results,result3->node,result3->segment);
+       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,result3->node,result3->segment,profile);
+
+       result2=InsertResult(results,result3->node,superseg);
 
        result2->prev=result1;
 
@@ -595,6 +605,56 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  FixForwardRoute(results,finish_result);
 
  return(results);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the super-segment that represents the route that contains a particular segment.
+
+  index_t FindSuperSegment Returns the index of the super-segment.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  Relations *relations The set of relations to use.
+
+  index_t endnode The super-node that the route ends at.
+
+  index_t endsegment The segment that the route ends with.
+
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t endnode,index_t endsegment,Profile *profile)
+{
+ Segment *segment;
+
+ /* Loop across all segments */
+
+ segment=FirstSegment(segments,nodes,endnode); /* endnode cannot be a fake node (must be a super-node) */
+
+ while(segment)
+   {
+    if(IsSuperSegment(segment))
+      {
+       Results *results;
+       index_t startnode;
+
+       startnode=OtherNode(segment,endnode);
+
+       results=FindNormalRoute(nodes,segments,ways,relations,startnode,NO_SEGMENT,endnode,profile,0);
+
+       if(results && results->last_segment==endsegment)
+          return(IndexSegment(segments,segment));
+      }
+
+    segment=NextSegment(segments,segment,endnode); /* endnode cannot be a fake node (must be a super-node) */
+   }
+
+ return(NO_SEGMENT);
 }
 
 
