@@ -521,7 +521,7 @@ int main(int argc,char** argv)
       }
     else
       {
-       Results *superresults;
+       Results *middle;
 
        /* Calculate the end of the route */
 
@@ -535,9 +535,9 @@ int main(int argc,char** argv)
 
        /* Calculate the middle of the route */
 
-       superresults=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,begin,end,profile);
+       middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,begin,end,profile);
        
-       if(!superresults)
+       if(!middle)
          {
           /* Try again but allow any direction from the starting node */
 
@@ -545,19 +545,19 @@ int main(int argc,char** argv)
 
           begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start_node,join_segment,profile,1);
 
-          superresults=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,begin,end,profile);
+          middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,begin,end,profile);
          }
 
        FreeResultsList(begin);
        FreeResultsList(end);
 
-       if(!superresults)
+       if(!middle)
          {
           fprintf(stderr,"Error: Cannot find super-route compatible with profile.\n");
           return(1);
          }
 
-       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,superresults,profile);
+       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,middle,profile);
 
        if(!results[point])
          {
@@ -565,7 +565,7 @@ int main(int argc,char** argv)
           return(1);
          }
 
-       FreeResultsList(superresults);
+       FreeResultsList(middle);
       }
 
     join_segment=results[point]->last_segment;

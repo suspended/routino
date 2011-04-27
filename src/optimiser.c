@@ -1126,84 +1126,86 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
   Relations *relations The set of relations to use.
 
-  Results *results The set of results from the super-node route.
+  Results *middle The set of results from the super-node route.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Results *results,Profile *profile)
+Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Results *middle,Profile *profile)
 {
- Result *result1,*result3;
+ Result *midres,*comres1;
  Results *combined;
 
  combined=NewResultsList(64);
 
- combined->start_node=results->start_node;
- combined->prev_segment=results->prev_segment;
+ combined->start_node=middle->start_node;
+ combined->prev_segment=middle->prev_segment;
 
  /* Sort out the combined route */
 
- result1=FindResult(results,results->start_node,results->prev_segment);
+ midres=FindResult(middle,middle->start_node,middle->prev_segment);
 
- result3=InsertResult(combined,results->start_node,results->prev_segment);
+ comres1=InsertResult(combined,middle->start_node,middle->prev_segment);
 
  do
    {
-    Result *result2,*result4;
+    Result *result;
 
-    if(result1->next)
+    if(midres->next)
       {
-       Results *results2=FindNormalRoute(nodes,segments,ways,relations,result1->node,result3->segment,result1->next->node,profile,0);
+       Results *results=FindNormalRoute(nodes,segments,ways,relations,comres1->node,comres1->segment,midres->next->node,profile,0);
 
-       if(!results2)
+       if(!results)
          {
           /* Try again but override the turn restriction and U-turn constraints */
 
-          results2=FindNormalRoute(nodes,segments,ways,relations,result1->node,result3->segment,result1->next->node,profile,1);
+          results=FindNormalRoute(nodes,segments,ways,relations,comres1->node,comres1->segment,midres->next->node,profile,1);
          }
 
-       if(!results2)
+       if(!results)
           return(NULL);
 
-       result2=FindResult(results2,result1->node,result3->segment);
+       result=FindResult(results,midres->node,comres1->segment);
 
-       result2=result2->next;
+       result=result->next;
 
        /*
-        *      result1                          result1->next
+        *      midres                          midres->next
         *         =                                  =
-        *      ---*----------------------------------*  = results
+        *      ---*----------------------------------*  = middle
         *
-        *      ---*----.----.----.----.----.----.----*  = results2
+        *      ---*----.----.----.----.----.----.----*  = results
         *              =
-        *              result2
+        *             result
         *
         *      ---*----.----.----.----.----.----.----*  = combined
         *         =    =
-        *   result3    result4
+        *   comres1  comres2
         */
 
        do
          {
-          result4=InsertResult(combined,result2->node,result2->segment);
+          Result *comres2;
 
-          result4->score=result2->score+result3->score;
-          result4->prev=result3;
+          comres2=InsertResult(combined,result->node,result->segment);
 
-          result2=result2->next;
+          comres2->score=result->score+comres1->score;
+          comres2->prev=comres1;
 
-          result3=result4;
+          result=result->next;
+
+          comres1=comres2;
          }
-       while(result2);
+       while(result);
 
-       FreeResultsList(results2);
+       FreeResultsList(results);
       }
 
-    result1=result1->next;
+    midres=midres->next;
    }
- while(result1);
+ while(midres);
 
- FixForwardRoute(combined,result3);
+ FixForwardRoute(combined,comres1);
 
  return(combined);
 }
