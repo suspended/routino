@@ -632,6 +632,11 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 {
  Segment *segment;
 
+ segment=LookupSegment(segments,endsegment,1);
+
+ if(IsSuperSegment(segment))
+    return(endsegment);
+
  /* Loop across all segments */
 
  segment=FirstSegment(segments,nodes,endnode); /* endnode cannot be a fake node (must be a super-node) */
@@ -654,7 +659,7 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
     segment=NextSegment(segments,segment,endnode); /* endnode cannot be a fake node (must be a super-node) */
    }
 
- return(NO_SEGMENT);
+ return(endsegment);
 }
 
 
