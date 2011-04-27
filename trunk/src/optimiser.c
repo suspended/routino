@@ -365,7 +365,14 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  results->start_node=begin->start_node;
  results->prev_segment=begin->prev_segment;
 
- result1=InsertResult(results,begin->start_node,begin->prev_segment);
+ if(begin->number==1)
+   {
+    index_t superseg=FindSuperSegment(nodes,segments,ways,relations,begin->start_node,begin->prev_segment,profile);
+
+    results->prev_segment=superseg;
+   }
+
+ result1=InsertResult(results,results->start_node,results->prev_segment);
 
  queue=NewQueueList();
 
