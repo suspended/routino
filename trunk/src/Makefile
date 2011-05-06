@@ -67,7 +67,8 @@ all : $(EXE)
 	        cp -f $$file $(WEBDIR) ;\
 	     fi ;\
 	  done
-	@cd xml && $(MAKE) CC="$(CC)" LD="$(LD)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
+	@cd xml  && $(MAKE) CC="$(CC)" LD="$(LD)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
+	@cd test && $(MAKE) CC="$(CC)" LD="$(LD)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 ########
 
@@ -171,11 +172,18 @@ install: all
 
 ########
 
+test: .FORCE
+	cd xml  && $(MAKE) test
+	cd test && $(MAKE) test
+
+########
+
 clean:
 	rm -f *.o
 	rm -f *~
 	rm -f xmlparse.c
-	cd xml && $(MAKE) clean
+	cd xml  && $(MAKE) clean
+	cd test && $(MAKE) clean
 
 ########
 
@@ -184,7 +192,8 @@ distclean: clean
 	-rm -f $(EXE)
 	-rm -f $(D)
 	-rm -fr .deps
-	cd xml && $(MAKE) distclean
+	cd xml  && $(MAKE) distclean
+	cd test && $(MAKE) distclean
 
 ########
 
