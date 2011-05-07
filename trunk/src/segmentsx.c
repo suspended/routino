@@ -180,7 +180,8 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Close the file (finished appending) */
 
- segmentsx->fd=CloseFile(segmentsx->fd);
+ if(segmentsx->fd!=-1)
+    segmentsx->fd=CloseFile(segmentsx->fd);
 
  /* Re-open the file read-only and a new file writeable */
 

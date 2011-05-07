@@ -80,8 +80,8 @@ struct _Nodes
  int       fd;                  /*+ The file descriptor for the file. +*/
  off_t     nodesoffset;         /*+ The offset of the nodes within the file. +*/
 
- Node      cached[2];           /*+ Two cached nodes read from the file in slim mode. +*/
- index_t   incache[2];          /*+ The indexes of the cached nodes. +*/
+ Node      cached[3];           /*+ Three cached nodes read from the file in slim mode. +*/
+ index_t   incache[3];          /*+ The indexes of the cached nodes. +*/
 
 #endif
 };
