@@ -503,6 +503,14 @@ int main(int argc,char** argv)
 
     if(!begin)
       {
+       /* Try again but override the U-turn constraints at the start of the route -
+          this solves the problem of facing a dead-end that contains no super-nodes. */
+
+       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start_node,join_segment,profile,1);
+      }
+
+    if(!begin)
+      {
        fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
        return(1);
       }
@@ -539,7 +547,8 @@ int main(int argc,char** argv)
        
        if(!middle)
          {
-          /* Try again but allow any direction from the starting node */
+          /* Try again but override the U-turn constraints at the start of the route -
+             this solves the problem of facing a dead-end that contains some super-nodes. */
 
           FreeResultsList(begin);
 
