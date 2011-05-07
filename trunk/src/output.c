@@ -320,6 +320,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
       {
        double latitude,longitude;
        Result *nextresult;
+       index_t nextrealsegment;
        Segment *nextresultsegment;
 
        if(result->node==results[point]->start_node)
@@ -347,18 +348,28 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        if(nextresult)
          {
           if(IsFakeSegment(nextresult->segment))
+            {
              nextresultsegment=LookupFakeSegment(nextresult->segment);
+             nextrealsegment=IndexRealSegment(nextresult->segment);
+            }
           else
+            {
              nextresultsegment=LookupSegment(segments,nextresult->segment,2);
+             nextrealsegment=nextresult->segment;
+            }
          }
        else
+         {
           nextresultsegment=NULL;
+          nextrealsegment=NO_SEGMENT;
+         }
 
        if(result->node!=results[point]->start_node)
          {
           distance_t seg_distance=0;
           duration_t seg_duration=0;
-          Segment *resultsegment,*comparesegment;
+          index_t realsegment;
+          Segment *resultsegment;
           Way *resultway;
           int important=0;
 
@@ -374,12 +385,12 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           if(IsFakeSegment(result->segment))
             {
              resultsegment=LookupFakeSegment(result->segment);
-             comparesegment=LookupSegment(segments,IndexRealSegment(result->segment),1);
+             realsegment=IndexRealSegment(result->segment);
             }
           else
             {
              resultsegment=LookupSegment(segments,result->segment,3);
-             comparesegment=resultsegment;
+             realsegment=result->segment;
             }
           resultway=LookupWay(ways,resultsegment->way,1);
 
@@ -394,7 +405,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           if(result->node==results[point]->finish_node) /* Waypoint */
              important=10;
-          else if(result->segment==result->next->segment) /* U-turn */
+          else if(realsegment==nextrealsegment) /* U-turn */
              important=5;
           else
             {
@@ -404,18 +415,18 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                {
                 index_t othernode=OtherNode(segment,result->node);
 
-                if(othernode!=result->prev->node && segment!=comparesegment)
+                if(othernode!=result->prev->node && IndexSegment(segments,segment)!=realsegment)
                    if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
                      {
                       Way *way=LookupWay(ways,segment->way,2);
 
-                      if(othernode==result->next->node) /* the next segment that we follow */
+                      if(othernode==nextresult->node) /* the next segment that we follow */
                         {
                          if(HIGHWAY(way->type)!=HIGHWAY(resultway->type))
                             if(important<2)
                                important=2;
                         }
-                      else if(IsFakeNode(result->next->node))
+                      else if(IsFakeNode(nextresult->node))
                          ;
                       else /* a segment that we don't follow */
                         {
