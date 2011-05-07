@@ -383,25 +383,30 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  while(result3)
    {
-    if(result3->node!=begin->start_node && !IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,1)))
+    printf("result3 %d %d\n",result3->node,result3->segment);
+
+    if(!IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,1)))
       {
        index_t superseg=FindSuperSegment(nodes,segments,ways,relations,result3->node,result3->segment,profile);
 
-       result2=InsertResult(results,result3->node,superseg);
-
-       result2->prev=result1;
-
-       result2->score=result3->score;
-       result2->sortby=result3->score;
-
-       InsertInQueue(queue,result2);
-
-       if((result4=FindResult(end,result2->node,result2->segment)))
+       if(!FindResult(results,result3->node,superseg))
          {
-          if((result2->score+result4->score)<finish_score)
+          result2=InsertResult(results,result3->node,superseg);
+
+          result2->prev=result1;
+
+          result2->score=result3->score;
+          result2->sortby=result3->score;
+
+          InsertInQueue(queue,result2);
+
+          if((result4=FindResult(end,result2->node,result2->segment)))
             {
-             finish_score=result2->score+result4->score;
-             finish_result=result2;
+             if((result2->score+result4->score)<finish_score)
+               {
+                finish_score=result2->score+result4->score;
+                finish_result=result2;
+               }
             }
          }
       }
@@ -710,9 +715,9 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  result1=InsertResult(results,start_node,prev_segment);
 
- /* Take a shortcut if the first node is a super-node. */
+ /* Take a shortcut if the first node is a super-node except in the override case. */
 
- if(!IsFakeNode(start_node) && IsSuperNode(LookupNode(nodes,start_node,1)))
+ if(!IsFakeNode(start_node) && IsSuperNode(LookupNode(nodes,start_node,1)) && !override)
     return(results);
 
  /* Insert the first node into the queue */
