@@ -108,7 +108,7 @@ router : $(ROUTER_OBJ)
 ########
 
 ROUTER_SLIM_OBJ=router-slim.o \
-	        nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes.o \
+	        nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes-slim.o \
 	        optimiser-slim.o output-slim.o \
 	        files.o logging.o profiles.o xmlparse.o \
 	        results.o queue.o translations.o
@@ -129,7 +129,7 @@ filedumper : $(FILEDUMPER_OBJ)
 ########
 
 FILEDUMPER_SLIM_OBJ=filedumper-slim.o \
-	       nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes.o \
+	       nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes-slim.o \
                visualiser-slim.o \
 	       files.o logging.o xmlparse.o
 
