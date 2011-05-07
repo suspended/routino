@@ -20,8 +20,6 @@
  ***************************************/
 
 
-#include <assert.h>
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -100,8 +98,6 @@ void *MapFile(const char *filename)
  if(address==MAP_FAILED)
    {
     close(fd);
-
-    assert(0);
 
     fprintf(stderr,"Cannot mmap file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
