@@ -165,7 +165,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           seg2r=seg2;
          }
 
-       /* must not perform u-turn (unless profile allows) */
+       /* must not perform U-turn (unless profile allows) */
        if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && segment!=uturn_segment)
          {
           if(override)
@@ -294,7 +294,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
              segment=ExtraFakeSegment(node1,finish_node);
          }
 
-       /* allow u-turn at dead-ends if override is enabled */
+       /* allow U-turn at dead-ends if override is enabled */
        if(!segment && routes_out==0 && uturn_segment)
           segment=uturn_segment;
       }
@@ -455,7 +455,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        seg2=IndexSegment(segments,segment); /* node2 cannot be a fake node (must be a super-node) */
 
-       /* must not perform u-turn */
+       /* must not perform U-turn */
        if(seg1==seg2) /* No fake segments, applies to all profiles */
           goto endloop;
 
@@ -639,6 +639,9 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 {
  Segment *segment;
 
+ if(IsFakeSegment(endsegment))
+    endsegment=IndexRealSegment(endsegment);
+
  segment=LookupSegment(segments,endsegment,1);
 
  if(IsSuperSegment(segment))
@@ -772,7 +775,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           seg2r=seg2;
          }
 
-       /* must not perform u-turn (unless profile allows) */
+       /* must not perform U-turn (unless profile allows) */
        if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && segment!=uturn_segment)
          {
           if(override)
@@ -864,7 +867,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        else
           segment=NextSegment(segments,segment,node1);
 
-       /* allow u-turn at dead-ends if override is enabled */
+       /* allow U-turn at dead-ends if override is enabled */
        if(!segment && routes_out==0 && uturn_segment)
           segment=uturn_segment;
       }
@@ -977,7 +980,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           seg2r=seg2;
          }
 
-       /* must not perform u-turn (unless profile allows) */
+       /* must not perform U-turn (unless profile allows) */
        if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2))
           goto endloop;
 
@@ -1169,7 +1172,8 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
        if(!results)
          {
-          /* Try again but override the turn restriction and U-turn constraints */
+          /* Try again but override the U-turn constraints -
+             this solves any of the problems that require an override for the start or middle of a route. */
 
           results=FindNormalRoute(nodes,segments,ways,relations,comres1->node,comres1->segment,midres->next->node,profile,1);
          }
