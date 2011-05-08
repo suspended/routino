@@ -122,7 +122,7 @@ static void output_junctions(index_t node,double latitude,double longitude)
  Way *firstway;
  int count=0,difference=0;
 
- segment=FirstSegment(OSMSegments,OSMNodes,node);
+ segment=FirstSegment(OSMSegments,OSMNodes,node,1);
  firstway=LookupWay(OSMWays,segment->way,1);
 
  do
@@ -203,7 +203,7 @@ static void output_super(index_t node,double latitude,double longitude)
 
  printf("%.6f %.6f n\n",radians_to_degrees(latitude),radians_to_degrees(longitude));
 
- segment=FirstSegment(OSMSegments,OSMNodes,node);
+ segment=FirstSegment(OSMSegments,OSMNodes,node,1);
 
  do
    {
@@ -278,7 +278,7 @@ static void output_oneway(index_t node,double latitude,double longitude)
 {
  Segment *segment;
 
- segment=FirstSegment(OSMSegments,OSMNodes,node);
+ segment=FirstSegment(OSMSegments,OSMNodes,node,1);
 
  do
    {
@@ -374,7 +374,7 @@ static void output_turnrestriction(index_t node,double latitude,double longitude
     relation=LookupTurnRelation(OSMRelations,turnrelation,1);
 
     from_segment=LookupSegment(OSMSegments,relation->from,1);
-    to_segment=LookupSegment(OSMSegments,relation->to,2);
+    to_segment  =LookupSegment(OSMSegments,relation->to  ,2);
 
     from_node=OtherNode(from_segment,node);
     to_node=OtherNode(to_segment,node);
@@ -620,7 +620,7 @@ static void output_limits(index_t node,double latitude,double longitude)
  int count=0;
  int i,j,same=0;
 
- segment=FirstSegment(OSMSegments,OSMNodes,node);
+ segment=FirstSegment(OSMSegments,OSMNodes,node,1);
 
  do
    {

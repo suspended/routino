@@ -374,7 +374,7 @@ int main(int argc,char** argv)
 
                    print_node_osm(OSMNodes,item);
 
-                   segment=FirstSegment(OSMSegments,OSMNodes,item);
+                   segment=FirstSegment(OSMSegments,OSMNodes,item,1);
 
                    while(segment)
                      {
@@ -526,7 +526,7 @@ static void print_turnrelation(Relations *relations,index_t item,Segments *segme
  index_t from_way=NO_WAY,to_way=NO_WAY;
  index_t from_node=NO_NODE,to_node=NO_NODE;
 
- segment=FirstSegment(segments,nodes,relation->via);
+ segment=FirstSegment(segments,nodes,relation->via,1);
 
  do
    {
@@ -697,7 +697,7 @@ static void print_turnrelation_osm(Relations *relations,index_t item,Segments *s
  TurnRelation *relation=LookupTurnRelation(relations,item,1);
 
  Segment *segment_from=LookupSegment(segments,relation->from,1);
- Segment *segment_to  =LookupSegment(segments,relation->to  ,1);
+ Segment *segment_to  =LookupSegment(segments,relation->to  ,2);
 
  double angle=TurnAngle(nodes,segment_from,segment_to,relation->via);
 
