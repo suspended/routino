@@ -86,8 +86,6 @@ struct _Segments
 
 Segments *LoadSegmentList(const char *filename);
 
-Segment *NextSegment(Segments *segments,Segment *segment,index_t node);
-
 index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,index_t node1,double heading,Profile *profile);
 
 distance_t Distance(double lat1,double lon1,double lat2,double lon2);
@@ -96,6 +94,9 @@ duration_t Duration(Segment *segment,Way *way,Profile *profile);
 
 double TurnAngle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node);
 double BearingAngle(Nodes *nodes,Segment *segment,index_t node);
+
+
+static inline Segment *NextSegment(Segments *segments,Segment *segment,index_t node);
 
 
 /* Macros and inline functions */
@@ -115,14 +116,46 @@ double BearingAngle(Nodes *nodes,Segment *segment,index_t node);
 /*+ Return the other node in the segment that is not the specified node. +*/
 #define OtherNode(xxx,yyy)     ((xxx)->node1==(yyy)?(xxx)->node2:(xxx)->node1)
 
-
 #if !SLIM
 
 /*+ Return a segment pointer given a set of segments and an index. +*/
-#define LookupSegment(xxx,yyy,zzz) (&(xxx)->segments[yyy])
+#define LookupSegment(xxx,yyy,ppp) (&(xxx)->segments[yyy])
 
 /*+ Return a segment index given a set of segments and a pointer. +*/
 #define IndexSegment(xxx,yyy)      ((yyy)-&(xxx)->segments[0])
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the next segment with a particular starting node.
+
+  Segment *NextSegment Returns a pointer to the next segment.
+
+  Segments *segments The set of segments to use.
+
+  Segment *segment The current segment.
+
+  index_t node The wanted node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline Segment *NextSegment(Segments *segments,Segment *segment,index_t node)
+{
+ if(segment->node1==node)
+   {
+    segment++;
+
+    if(IndexSegment(segments,segment)>=segments->file.number || segment->node1!=node)
+       return(NULL);
+    else
+       return(segment);
+   }
+ else
+   {
+    if(segment->next2==NO_SEGMENT)
+       return(NULL);
+    else
+       return(LookupSegment(segments,segment->next2,1));
+   }
+}
 
 #else
 
@@ -173,6 +206,48 @@ static inline index_t IndexSegment(Segments *segments,Segment *segment)
  int position1=segment-&segments->cached[0];
 
  return(segments->incache[position1]);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the next segment with a particular starting node.
+
+  Segment *NextSegment Returns a pointer to the next segment.
+
+  Segments *segments The set of segments to use.
+
+  Segment *segment The current segment.
+
+  index_t node The wanted node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline Segment *NextSegment(Segments *segments,Segment *segment,index_t node)
+{
+ int position=segment-&segments->cached[-1];
+
+ if(segment->node1==node)
+   {
+    index_t index=IndexSegment(segments,segment);
+
+    index++;
+
+    if(index>=segments->file.number)
+       return(NULL);
+
+    segment=LookupSegment(segments,index,position);
+
+    if(segment->node1!=node)
+       return(NULL);
+    else
+       return(segment);
+   }
+ else
+   {
+    if(segment->next2==NO_SEGMENT)
+       return(NULL);
+    else
+       return(LookupSegment(segments,segment->next2,position));
+   }
 }
 
 #endif
