@@ -81,51 +81,6 @@ Segments *LoadSegmentList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the next segment with a particular starting node.
-
-  Segment *NextSegment Returns a pointer to the next segment.
-
-  Segments *segments The set of segments to use.
-
-  Segment *segment The current segment.
-
-  index_t node The wanted node.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-Segment *NextSegment(Segments *segments,Segment *segment,index_t node)
-{
- if(segment->node1==node)
-   {
-#if SLIM
-    index_t index=IndexSegment(segments,segment);
-    index++;
-
-    if(index>=segments->file.number)
-       return(NULL);
-    segment=LookupSegment(segments,index,1);
-    if(segment->node1!=node)
-       return(NULL);
-    else
-       return(segment);
-#else
-    segment++;
-    if(IndexSegment(segments,segment)>=segments->file.number || segment->node1!=node)
-       return(NULL);
-    else
-       return(segment);
-#endif
-   }
- else
-   {
-    if(segment->next2==NO_SEGMENT)
-       return(NULL);
-    else
-       return(LookupSegment(segments,segment->next2,1));
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Find the closest segment from a specified node heading in a particular direction and optionally profile.
 
   index_t FindClosestSegmentHeading Returns the closest heading segment index.
