@@ -20,6 +20,11 @@ fi
 
 [ -d $dir ] || mkdir $dir
 
+# Run the programs under a run-time debugger
+
+debugger=valgrind
+debugger=
+
 # Name related options
 
 osm=$name.osm
@@ -31,13 +36,20 @@ option_dir="--dir=$dir"
 # Generic program options
 
 option_planetsplitter="--loggable --tagging=../../xml/routino-tagging.xml"
+option_filedumper="--dump-osm"
 option_router="--loggable --transport=motorcar --profiles=../../xml/routino-profiles.xml --translations=../../xml/routino-translations.xml"
 
 # Run planetsplitter
 
 echo ../planetsplitter$slim $option_dir $option_prefix $option_planetsplitter $osm
 echo ../planetsplitter$slim $option_dir $option_prefix $option_planetsplitter $osm > $log
-../planetsplitter$slim $option_dir $option_prefix $option_planetsplitter $osm >> $log
+$debugger ../planetsplitter$slim $option_dir $option_prefix $option_planetsplitter $osm >> $log
+
+# Run filedumper
+
+echo ../filedumper$slim $option_dir $option_prefix $option_filedumper
+echo ../filedumper$slim $option_dir $option_prefix $option_filedumper > $log
+$debugger ../filedumper$slim $option_dir $option_prefix $option_filedumper > $dir/$osm
 
 # Waypoints
 
@@ -61,7 +73,7 @@ for waypoint in $waypoints; do
 
     echo ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_start $waypoint_test $waypoint_finish
     echo ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_start $waypoint_test $waypoint_finish >> $log
-    ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_start $waypoint_test $waypoint_finish >> $log
+    $debugger ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_start $waypoint_test $waypoint_finish >> $log
 
     mv shortest* $dir/$name-$waypoint
 
