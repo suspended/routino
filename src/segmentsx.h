@@ -159,13 +159,9 @@ static inline SegmentX *LookupSegmentX(SegmentsX *segmentsx,index_t index,int po
 
 static inline index_t IndexSegmentX(SegmentsX *segmentsx,SegmentX *segmentx)
 {
- int i;
+ int position1=segmentx-&segmentsx->cached[0];
 
- for(i=0;i<sizeof(segmentsx->cached)/sizeof(segmentsx->cached[0]);i++)
-    if(&segmentsx->cached[i]==segmentx)
-       return(segmentsx->incache[i]);
-
- return(NO_SEGMENT);
+ return(segmentsx->incache[position1]);
 }
 
 
