@@ -354,7 +354,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
             }
           else
             {
-             nextresultsegment=LookupSegment(segments,nextresult->segment,2);
+             nextresultsegment=LookupSegment(segments,nextresult->segment,1);
              nextrealsegment=nextresult->segment;
             }
          }
@@ -389,7 +389,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
             }
           else
             {
-             resultsegment=LookupSegment(segments,result->segment,3);
+             resultsegment=LookupSegment(segments,result->segment,2);
              realsegment=result->segment;
             }
           resultway=LookupWay(ways,resultsegment->way,1);
@@ -409,7 +409,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              important=5;
           else
             {
-             Segment *segment=FirstSegment(segments,nodes,result->node);
+             Segment *segment=FirstSegment(segments,nodes,result->node,3);
 
              do
                {

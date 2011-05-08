@@ -135,7 +135,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     if(IsFakeNode(node1))
        segment=FirstFakeSegment(node1);
     else
-       segment=FirstSegment(segments,nodes,node1);
+       segment=FirstSegment(segments,nodes,node1,1);
 
     while(segment)
       {
@@ -438,7 +438,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
     /* Loop across all segments */
 
-    segment=FirstSegment(segments,nodes,node1); /* node1 cannot be a fake node (must be a super-node) */
+    segment=FirstSegment(segments,nodes,node1,1); /* node1 cannot be a fake node (must be a super-node) */
 
     while(segment)
       {
@@ -647,14 +647,14 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
  if(IsFakeSegment(endsegment))
     endsegment=IndexRealSegment(endsegment);
 
- segment=LookupSegment(segments,endsegment,1);
+ segment=LookupSegment(segments,endsegment,2);
 
  if(IsSuperSegment(segment))
     return(endsegment);
 
  /* Loop across all segments */
 
- segment=FirstSegment(segments,nodes,endnode); /* endnode cannot be a fake node (must be a super-node) */
+ segment=FirstSegment(segments,nodes,endnode,1); /* endnode cannot be a fake node (must be a super-node) */
 
  while(segment)
    {
@@ -750,7 +750,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     if(IsFakeNode(node1))
        segment=FirstFakeSegment(node1);
     else
-       segment=FirstSegment(segments,nodes,node1);
+       segment=FirstSegment(segments,nodes,node1,1);
 
     while(segment)
       {
@@ -955,7 +955,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
     if(IsFakeNode(node1))
        segment=FirstFakeSegment(node1);
     else
-       segment=FirstSegment(segments,nodes,node1);
+       segment=FirstSegment(segments,nodes,node1,1);
 
     while(segment)
       {

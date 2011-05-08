@@ -80,8 +80,8 @@ struct _Nodes
  int       fd;                  /*+ The file descriptor for the file. +*/
  off_t     nodesoffset;         /*+ The offset of the nodes within the file. +*/
 
- Node      cached[3];           /*+ Three cached nodes read from the file in slim mode. +*/
- index_t   incache[3];          /*+ The indexes of the cached nodes. +*/
+ Node      cached[4];           /*+ Four cached nodes read from the file in slim mode. +*/
+ index_t   incache[4];          /*+ The indexes of the cached nodes. +*/
 
 #endif
 };
@@ -113,20 +113,20 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 #if !SLIM
 
 /*+ Return a Node pointer given a set of nodes and an index. +*/
-#define LookupNode(xxx,yyy,zzz)     (&(xxx)->nodes[yyy])
+#define LookupNode(xxx,yyy,ppp)       (&(xxx)->nodes[yyy])
 
 /*+ Return a Segment index given a Node pointer and a set of segments. +*/
-#define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),(yyy)->nodes[zzz].firstseg,1)
+#define FirstSegment(xxx,yyy,zzz,ppp) LookupSegment((xxx),(yyy)->nodes[zzz].firstseg,1)
 
 /*+ Return the offset of a geographical region given a set of nodes. +*/
-#define LookupNodeOffset(xxx,yyy)   ((xxx)->offsets[yyy])
+#define LookupNodeOffset(xxx,yyy)     ((xxx)->offsets[yyy])
 
 #else
 
 static Node *LookupNode(Nodes *nodes,index_t index,int position);
 
 /*+ Return a Segment index given a Node pointer and a set of segments. +*/
-#define FirstSegment(xxx,yyy,zzz)   LookupSegment((xxx),FirstSegment_internal(yyy,zzz),1)
+#define FirstSegment(xxx,yyy,zzz,ppp) LookupSegment((xxx),FirstSegment_internal(yyy,zzz),ppp)
 
 static index_t FirstSegment_internal(Nodes *nodes,index_t index);
 
@@ -172,16 +172,11 @@ static inline Node *LookupNode(Nodes *nodes,index_t index,int position)
 
 static inline index_t FirstSegment_internal(Nodes *nodes,index_t index)
 {
- if(nodes->incache[0]==index)
-    return(nodes->cached[0].firstseg);
- else if(nodes->incache[1]==index)
-    return(nodes->cached[1].firstseg);
- else
-   {
-    Node *node=LookupNode(nodes,index,3);
+ Node *node;
 
-    return(node->firstseg);
-   }
+ node=LookupNode(nodes,index,4);
+
+ return(node->firstseg);
 }
 
 

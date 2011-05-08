@@ -195,7 +195,7 @@ index_t FindClosestNode(Nodes *nodes,Segments *segments,Ways *ways,double latitu
 
                    /* Decide if this is node is valid for the profile */
 
-                   segment=FirstSegment(segments,nodes,i);
+                   segment=FirstSegment(segments,nodes,i,1);
 
                    do
                      {
@@ -354,7 +354,7 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
 
                 /* Check each segment for closeness and if valid for the profile */
 
-                segment=FirstSegment(segments,nodes,i);
+                segment=FirstSegment(segments,nodes,i,1);
 
                 do
                   {
