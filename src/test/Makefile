@@ -61,6 +61,8 @@ test : exe
 	echo "" ;\
 	echo "Comparing: slim and non-slim results ... " ;\
 	if diff -q -r slim fat; then echo "... matched"; else echo "... match FAILED"; status=false; fi ;\
+	echo "" ;\
+	if $$status; then echo "Success: slim and non-slim results match"; else echo "Warning: slim and non-slim results are different - FAILED"; fi ;\
 	$$status
 
 ########
