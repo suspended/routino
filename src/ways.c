@@ -38,6 +38,9 @@
 Ways *LoadWayList(const char *filename)
 {
  Ways *ways;
+#if SLIM
+ int i;
+#endif
 
  ways=(Ways*)malloc(sizeof(Ways));
 
@@ -62,8 +65,8 @@ Ways *LoadWayList(const char *filename)
 
  ReadFile(ways->fd,&ways->file,sizeof(WaysFile));
 
- ways->incache[0]=NO_WAY;
- ways->incache[1]=NO_WAY;
+ for(i=0;i<sizeof(ways->cached)/sizeof(ways->cached[0]);i++)
+    ways->incache[i]=NO_WAY;
 
  ways->namesoffset=sizeof(WaysFile)+ways->file.number*sizeof(Way);
 

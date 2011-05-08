@@ -40,6 +40,9 @@
 Relations *LoadRelationList(const char *filename)
 {
  Relations *relations;
+#if SLIM
+ int i;
+#endif
 
  relations=(Relations*)malloc(sizeof(Relations));
 
@@ -65,8 +68,8 @@ Relations *LoadRelationList(const char *filename)
 
  relations->troffset=sizeof(RelationsFile);
 
- relations->incache[0]=NO_RELATION;
- relations->incache[1]=NO_RELATION;
+ for(i=0;i<sizeof(relations->cached)/sizeof(relations->cached[0]);i++)
+    relations->incache[i]=NO_RELATION;
 
 #endif
 
