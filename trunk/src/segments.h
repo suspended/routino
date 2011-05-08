@@ -170,13 +170,9 @@ static inline Segment *LookupSegment(Segments *segments,index_t index,int positi
 
 static inline index_t IndexSegment(Segments *segments,Segment *segment)
 {
- int i;
+ int position1=segment-&segments->cached[0];
 
- for(i=0;i<sizeof(segments->cached)/sizeof(segments->cached[0]);i++)
-    if(&segments->cached[i]==segment)
-       return(segments->incache[i]);
-
- return(NO_SEGMENT);
+ return(segments->incache[position1]);
 }
 
 #endif
