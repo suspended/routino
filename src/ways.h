@@ -88,7 +88,6 @@ struct _Ways
  index_t    incache[2];         /*+ The indexes of the cached ways. +*/
 
  char      *ncached;            /*+ The cached way name. +*/
- index_t    nincache;           /*+ The index of the cached way name. +*/
  int        nalloc;             /*+ The amount of memory allocated for the way name. +*/
 
 #endif
@@ -159,9 +158,6 @@ static inline Way *LookupWay(Ways *ways,index_t index,int position)
 static inline char *WayName(Ways *ways,Way *way)
 {
  int n=0;
-
- if(way->name==ways->nincache)
-    return(ways->ncached);
 
  SeekFile(ways->fd,ways->namesoffset+way->name);
 

@@ -485,10 +485,11 @@ static void print_segment(Segments *segments,index_t item)
 static void print_way(Ways *ways,index_t item)
 {
  Way *way=LookupWay(ways,item,1);
+ char *name=WayName(ways,way);
 
  printf("Way %d\n",item);
- if(*WayName(ways,way))
-    printf("  name=%s\n",WayName(ways,way));
+ if(*name)
+    printf("  name=%s\n",name);
  printf("  type=%02x (%s%s)\n",way->type,HighwayName(HIGHWAY(way->type)),way->type&Way_OneWay?",One-Way":"");
  printf("  allow=%02x (%s)\n",way->allow,AllowedNameList(way->allow));
  if(way->props)
@@ -624,6 +625,7 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 {
  Segment *segment=LookupSegment(segments,item,1);
  Way *way=LookupWay(ways,segment->way,1);
+ char *name=WayName(ways,way);
  int i;
 
  printf("  <way id='%lu' version='1'>\n",(unsigned long)item+1);
@@ -651,8 +653,8 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 
  printf("    <tag k='highway' v='%s' />\n",HighwayName(HIGHWAY(way->type)));
 
- if(IsNormalSegment(segment) && *WayName(ways,way))
-    printf("    <tag k='name' v='%s' />\n",ParseXML_Encode_Safe_XML(WayName(ways,way)));
+ if(IsNormalSegment(segment) && *name)
+    printf("    <tag k='name' v='%s' />\n",ParseXML_Encode_Safe_XML(name));
 
  for(i=1;i<Transport_Count;i++)
     if(way->allow & TRANSPORTS(i))

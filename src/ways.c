@@ -67,7 +67,6 @@ Ways *LoadWayList(const char *filename)
 
  ways->namesoffset=sizeof(WaysFile)+ways->file.number*sizeof(Way);
 
- ways->nincache=~0;
  ways->ncached=NULL;
 
 #endif
