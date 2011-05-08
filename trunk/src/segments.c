@@ -45,6 +45,9 @@
 Segments *LoadSegmentList(const char *filename)
 {
  Segments *segments;
+#if SLIM
+ int i;
+#endif
 
  segments=(Segments*)malloc(sizeof(Segments));
 
@@ -68,9 +71,8 @@ Segments *LoadSegmentList(const char *filename)
 
  ReadFile(segments->fd,&segments->file,sizeof(SegmentsFile));
 
- segments->incache[0]=NO_SEGMENT;
- segments->incache[1]=NO_SEGMENT;
- segments->incache[2]=NO_SEGMENT;
+ for(i=0;i<sizeof(segments->cached)/sizeof(segments->cached[0]);i++)
+    segments->incache[i]=NO_SEGMENT;
 
 #endif
 
