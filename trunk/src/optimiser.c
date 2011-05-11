@@ -21,6 +21,7 @@
 
 
 #include <stdio.h>
+#include <assert.h>
 
 #include "types.h"
 #include "nodes.h"
@@ -1256,6 +1257,8 @@ void FixForwardRoute(Results *results,Result *finish_result)
        index_t seg1=result2->prev->segment;
 
        result1=FindResult(results,node1,seg1);
+
+       assert(!result1->next);   /* Bugs elsewhere can lead to infinite loop here. */
 
        result1->next=result2;
 
