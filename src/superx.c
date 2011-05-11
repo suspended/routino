@@ -101,7 +101,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
              /* Segments that are loops count twice */
 
-             assert(count<(sizeof(segmentway)/sizeof(segmentway[0])));
+             assert(count<(sizeof(segmentway)/sizeof(segmentway[0]))); /* Only a limited amount of history stored. */
 
              if(segmentx->node1==segmentx->node2)
                 segmentweight[count]=2;
@@ -249,7 +249,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
                   }
             }
 
-          assert(count<(sizeof(prevway)/sizeof(prevway[0])));
+          assert(count<(sizeof(prevway)/sizeof(prevway[0]))); /* Only a limited amount of history stored. */
 
           prevway[count++]=wayx->way;
 

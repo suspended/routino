@@ -567,7 +567,7 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
          }
        else
          {
-          assert(nprev<(sizeof(prevsegx)/sizeof(prevsegx[0])));
+          assert(nprev<(sizeof(prevsegx)/sizeof(prevsegx[0]))); /* Only a limited amount of history stored. */
 
           prevsegx[nprev]=segmentx;
           prevway[nprev] =wayx->way;
