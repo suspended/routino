@@ -48,7 +48,7 @@ $debugger ../planetsplitter$slim $option_dir $option_prefix $option_planetsplitt
 # Run filedumper
 
 echo ../filedumper$slim $option_dir $option_prefix $option_filedumper
-echo ../filedumper$slim $option_dir $option_prefix $option_filedumper > $log
+echo ../filedumper$slim $option_dir $option_prefix $option_filedumper >> $log
 $debugger ../filedumper$slim $option_dir $option_prefix $option_filedumper > $dir/$osm
 
 # Waypoints
