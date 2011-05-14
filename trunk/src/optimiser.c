@@ -113,7 +113,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     index_t node1,seg1,seg1r;
     index_t turnrelation=NO_RELATION;
     int     routes_out=0;
-    Segment *uturn_segment=NULL;
+    index_t uturn_seg=NO_SEGMENT;
 
     /* score must be better than current best score */
     if(result1->score>finish_score)
@@ -167,10 +167,10 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          }
 
        /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && segment!=uturn_segment)
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && seg2!=uturn_seg)
          {
           if(override)
-             uturn_segment=segment;
+             uturn_seg=seg2;
           goto endloop;
          }
 
@@ -296,8 +296,8 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          }
 
        /* allow U-turn at dead-ends if override is enabled */
-       if(!segment && routes_out==0 && uturn_segment)
-          segment=uturn_segment;
+       if(!segment && routes_out==0 && uturn_seg!=NO_SEGMENT)
+          segment=LookupSegment(segments,uturn_seg,1);
       }
    }
 
@@ -714,6 +714,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  results->start_node=start_node;
  results->prev_segment=prev_segment;
 
+ printf("insert result2 %d %d\n",start_node,prev_segment);
  result1=InsertResult(results,start_node,prev_segment);
 
  /* Take a shortcut if the first node is a super-node except in the override case. */
@@ -734,10 +735,12 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     index_t node1,seg1,seg1r;
     Segment *segment;
     int     routes_out=0;
-    Segment *uturn_segment=NULL;
+    index_t uturn_seg=NO_SEGMENT;
 
     node1=result1->node;
     seg1=result1->segment;
+
+    printf("result1= %d %d\n",node1,seg1);
 
     if(IsFakeSegment(seg1))
        seg1r=IndexRealSegment(seg1);
@@ -781,11 +784,13 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           seg2r=seg2;
          }
 
+       printf("result2= %d %d\n",node2,seg2);
+
        /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && segment!=uturn_segment)
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && seg2!=uturn_seg)
          {
           if(override)
-             uturn_segment=segment;
+             uturn_seg=seg2;
           goto endloop;
          }
 
@@ -844,6 +849,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        if(!result2) /* New end node/segment combination */
          {
+          printf("insert result2 %d %d\n",node2,seg2);
           result2=InsertResult(results,node2,seg2);
           result2->prev=result1;
           result2->score=cumulative_score;
@@ -874,8 +880,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           segment=NextSegment(segments,segment,node1);
 
        /* allow U-turn at dead-ends if override is enabled */
-       if(!segment && routes_out==0 && uturn_segment)
-          segment=uturn_segment;
+       if(!segment && routes_out==0 && uturn_seg!=NO_SEGMENT)
+          segment=LookupSegment(segments,uturn_seg,1);
       }
    }
 
