@@ -3,31 +3,31 @@
   <node id='257' visible='true' version='1' lat='-0.21809858996693385' lon='-0.5191028643883174' />
   <node id='259' visible='true' version='1' lat='-0.22070178828290346' lon='-0.5194778136559395' />
   <node id='261' visible='true' version='1' lat='-0.22026348707492585' lon='-0.5193082654147766'>
-    <tag k='name' v='WP1' />
+    <tag k='name' v='WP01' />
   </node>
   <node id='263' visible='true' version='1' lat='-0.2199233360272462' lon='-0.5191790778221413'>
-    <tag k='name' v='WP2' />
+    <tag k='name' v='WP02' />
   </node>
   <node id='265' visible='true' version='1' lat='-0.21887734290530528' lon='-0.5193788335075634' />
   <node id='267' visible='true' version='1' lat='-0.21923442817890232' lon='-0.519554450499408' />
   <node id='269' visible='true' version='1' lat='-0.21955455458130574' lon='-0.5193510859959124'>
-    <tag k='name' v='WP3' />
+    <tag k='name' v='WP03' />
   </node>
   <node id='271' visible='true' version='1' lat='-0.21838648826301083' lon='-0.5191374278276153' />
   <node id='273' visible='true' version='1' lat='-0.21967045850547667' lon='-0.5160319121186099'>
-    <tag k='name' v='WP9' />
+    <tag k='name' v='WP09' />
   </node>
   <node id='275' visible='true' version='1' lat='-0.22001919809793816' lon='-0.5158468652583799'>
-    <tag k='name' v='WP8' />
+    <tag k='name' v='WP08' />
   </node>
   <node id='277' visible='true' version='1' lat='-0.2203608205479482' lon='-0.5159607402492906'>
-    <tag k='name' v='WP7' />
+    <tag k='name' v='WP07' />
   </node>
   <node id='279' visible='true' version='1' lat='-0.21999072956008625' lon='-0.5175122870004505'>
-    <tag k='name' v='WP5' />
+    <tag k='name' v='WP05' />
   </node>
   <node id='281' visible='true' version='1' lat='-0.21962194811581368' lon='-0.5176842951742215'>
-    <tag k='name' v='WP6' />
+    <tag k='name' v='WP06' />
   </node>
   <node id='283' visible='true' version='1' lat='-0.21954697775967735' lon='-0.5139082939501117'>
     <tag k='name' v='WPfinish' />
@@ -40,10 +40,12 @@
   <node id='317' visible='true' version='1' lat='-0.21881956658439772' lon='-0.5209796816567882' />
   <node id='319' visible='true' version='1' lat='-0.22034447159225826' lon='-0.5140417639627524' />
   <node id='323' visible='true' version='1' lat='-0.22029573308467093' lon='-0.5176333429804723'>
-    <tag k='name' v='WP4' />
+    <tag k='name' v='WP04' />
   </node>
   <node id='325' visible='true' version='1' lat='-0.22022296242215664' lon='-0.5210519045762619' />
-  <node id='329' visible='true' version='1' lat='-0.218492980018636' lon='-0.5157886455630277' />
+  <node id='329' visible='true' version='1' lat='-0.218492980018636' lon='-0.5157886455630277' >
+    <tag k='name' v='WP10' />
+  </node>
   <node id='331' visible='true' version='1' lat='-0.21934091992851262' lon='-0.5162056682348201' />
   <node id='333' visible='true' version='1' lat='-0.2207820589348417' lon='-0.5161366988387935' />
   <node id='335' visible='true' version='1' lat='-0.21845388180276712' lon='-0.5174706370059244' />
