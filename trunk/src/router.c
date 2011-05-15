@@ -552,7 +552,7 @@ int main(int argc,char** argv)
 
           FreeResultsList(begin);
 
-          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start_node,join_segment,profile,1);
+          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start_node,join_segment,profile,2);
 
           middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,begin,end,profile);
          }

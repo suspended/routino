@@ -714,7 +714,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  results->start_node=start_node;
  results->prev_segment=prev_segment;
 
- printf("insert result2 %d %d\n",start_node,prev_segment);
  result1=InsertResult(results,start_node,prev_segment);
 
  /* Take a shortcut if the first node is a super-node except in the override case. */
@@ -734,20 +733,21 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    {
     index_t node1,seg1,seg1r;
     Segment *segment;
+    index_t turnrelation=NO_RELATION;
     int     routes_out=0;
     index_t uturn_seg=NO_SEGMENT;
 
     node1=result1->node;
     seg1=result1->segment;
 
-    printf("result1= %d %d\n",node1,seg1);
-
     if(IsFakeSegment(seg1))
        seg1r=IndexRealSegment(seg1);
     else
        seg1r=seg1;
 
-    /* node1 cannot have a turn restriction because it is not a super-node */
+    /* lookup if a turn restriction applies */
+    if(profile->turns && !IsFakeNode(node1) && IsTurnRestrictedNode(LookupNode(nodes,node1,1)))
+       turnrelation=FindFirstTurnRelation2(relations,node1,seg1r);
 
     /* Loop across all segments */
 
@@ -784,8 +784,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           seg2r=seg2;
          }
 
-       printf("result2= %d %d\n",node2,seg2);
-
        /* must not perform U-turn (unless profile allows) */
        if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && seg2!=uturn_seg)
          {
@@ -794,7 +792,9 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
          }
 
-       /* node1 cannot have a turn restriction because it is not a super-node */
+       /* must obey turn relations */
+       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1r,seg2r,profile->allow))
+          goto endloop;
 
        way=LookupWay(ways,segment->way,1);
 
@@ -849,12 +849,11 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        if(!result2) /* New end node/segment combination */
          {
-          printf("insert result2 %d %d\n",node2,seg2);
           result2=InsertResult(results,node2,seg2);
           result2->prev=result1;
           result2->score=cumulative_score;
 
-          if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
+          if(!IsFakeNode(node2) && (!IsSuperNode(LookupNode(nodes,node2,2)) || (override==2 && node2!=start_node)))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
@@ -865,7 +864,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           result2->prev=result1;
           result2->score=cumulative_score;
 
-          if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
+          if(!IsFakeNode(node2) && (!IsSuperNode(LookupNode(nodes,node2,2)) || (override==2 && node2!=start_node)))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
