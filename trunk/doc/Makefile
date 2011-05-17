@@ -1,10 +1,8 @@
-# $Header: /home/amb/CVS/routino/doc/Makefile,v 1.4 2010-09-05 18:27:07 amb Exp $
-#
 # Documentation directory Makefile
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2010 Andrew M. Bishop
+# This file Copyright 2010-2011 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +26,7 @@ WEBDIR=../web/www/routino/documentation
 
 HTML_FILES=html/*
 TXT_FILES=*.txt
+TOP_FILES=../agpl-3.0.txt
 
 ########
 
@@ -44,6 +43,11 @@ all :
 
 install: all
 	-[ -d $(DESTDIR)$(docdir) ] || mkdir -p $(DESTDIR)$(docdir)
+	@[ -d $(DESTDIR)$(docdir) ] && \
+	  for file in $(TOP_FILES); do \
+	     echo cp $$file $(DESTDIR)$(docdir) ;\
+	     cp -f $$file $(DESTDIR)$(docdir) ;\
+	  done
 	@[ -d $(DESTDIR)$(docdir) ] && \
 	  for file in $(TXT_FILES); do \
 	     echo cp $$file $(DESTDIR)$(docdir) ;\
