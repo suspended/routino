@@ -46,7 +46,7 @@ extern int option_quickest;
 
 /* Local functions */
 
-static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t endnode,index_t endsegment,Profile *profile);
+static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t endnode,index_t endsegment);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -62,18 +62,18 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
   Relations *relations The set of relations to use.
 
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
+
   index_t start_node The start node.
 
   index_t prev_segment The previous segment before the start node.
 
   index_t finish_node The finish node.
 
-  Profile *profile The profile containing the transport type, speeds and allowed highways.
-
   int override A flag to indicate if U-turns and passing over super-nodes are allowed (to get out of dead-ends).
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t prev_segment,index_t finish_node,Profile *profile,int override)
+Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node,int override)
 {
  Results *results;
  Queue   *queue;
@@ -330,14 +330,14 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
   Relations *relations The set of relations to use.
 
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
+
   Results *begin The initial portion of the route.
 
   Results *end The final portion of the route.
-
-  Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Results *begin,Results *end,Profile *profile)
+Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *end)
 {
  Results *results;
  Queue   *queue;
@@ -368,7 +368,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  if(begin->number==1)
    {
-    index_t superseg=FindSuperSegment(nodes,segments,ways,relations,begin->start_node,begin->prev_segment,profile);
+    index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
 
     results->prev_segment=superseg;
    }
@@ -384,11 +384,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  while(result3)
    {
-    printf("result3 %d %d\n",result3->node,result3->segment);
-
     if(!IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,1)))
       {
-       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,result3->node,result3->segment,profile);
+       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,result3->node,result3->segment);
 
        if(!FindResult(results,result3->node,superseg))
          {
@@ -634,14 +632,14 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
   Relations *relations The set of relations to use.
 
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
+
   index_t endnode The super-node that the route ends at.
 
   index_t endsegment The segment that the route ends with.
-
-  Profile *profile The profile containing the transport type, speeds and allowed highways.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t endnode,index_t endsegment,Profile *profile)
+static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t endnode,index_t endsegment)
 {
  Segment *segment;
 
@@ -666,7 +664,7 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
        startnode=OtherNode(segment,endnode);
 
-       results=FindNormalRoute(nodes,segments,ways,relations,startnode,NO_SEGMENT,endnode,profile,0);
+       results=FindNormalRoute(nodes,segments,ways,relations,profile,startnode,NO_SEGMENT,endnode,0);
 
        if(results && results->last_segment==endsegment)
           return(IndexSegment(segments,segment));
@@ -692,16 +690,16 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
   Relations *relations The set of relations to use.
 
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
+
   index_t start_node The start node.
 
   index_t prev_segment The previous segment before the start node.
 
-  Profile *profile The profile containing the transport type, speeds and allowed highways.
-
   int override A flag to indicate if U-turns and passing over super-nodes are allowed (to get out of dead-ends).
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t prev_segment,Profile *profile,int override)
+Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,int override)
 {
  Results *results;
  Queue   *queue;
@@ -911,12 +909,12 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
   Relations *relations The set of relations to use.
 
-  index_t finish_node The finishing node.
-
   Profile *profile The profile containing the transport type, speeds and allowed highways.
+
+  index_t finish_node The finishing node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish_node,Profile *profile)
+Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node)
 {
  Results *results,*results2;
  Queue   *queue;
@@ -1152,12 +1150,12 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
   Relations *relations The set of relations to use.
 
-  Results *middle The set of results from the super-node route.
-
   Profile *profile The profile containing the transport type, speeds and allowed highways.
+
+  Results *middle The set of results from the super-node route.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Results *middle,Profile *profile)
+Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *middle)
 {
  Result *midres,*comres1;
  Results *combined;
@@ -1179,14 +1177,14 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
     if(midres->next)
       {
-       Results *results=FindNormalRoute(nodes,segments,ways,relations,comres1->node,comres1->segment,midres->next->node,profile,0);
+       Results *results=FindNormalRoute(nodes,segments,ways,relations,profile,comres1->node,comres1->segment,midres->next->node,0);
 
        if(!results)
          {
           /* Try again but override the U-turn constraints -
              this solves any of the problems that require an override for the start or middle of a route. */
 
-          results=FindNormalRoute(nodes,segments,ways,relations,comres1->node,comres1->segment,midres->next->node,profile,1);
+          results=FindNormalRoute(nodes,segments,ways,relations,profile,comres1->node,comres1->segment,midres->next->node,1);
          }
 
        if(!results)

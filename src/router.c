@@ -499,14 +499,14 @@ int main(int argc,char** argv)
 
     /* Calculate the beginning of the route */
 
-    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start_node,join_segment,profile,0);
+    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,0);
 
     if(!begin)
       {
        /* Try again but override the U-turn constraints at the start of the route -
           this solves the problem of facing a dead-end that contains no super-nodes. */
 
-       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start_node,join_segment,profile,1);
+       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,1);
       }
 
     if(!begin)
@@ -533,7 +533,7 @@ int main(int argc,char** argv)
 
        /* Calculate the end of the route */
 
-       end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,finish_node,profile);
+       end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,finish_node);
 
        if(!end)
          {
@@ -543,7 +543,7 @@ int main(int argc,char** argv)
 
        /* Calculate the middle of the route */
 
-       middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,begin,end,profile);
+       middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
        
        if(!middle)
          {
@@ -552,9 +552,9 @@ int main(int argc,char** argv)
 
           FreeResultsList(begin);
 
-          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,start_node,join_segment,profile,2);
+          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,2);
 
-          middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,begin,end,profile);
+          middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
          }
 
        FreeResultsList(begin);
@@ -566,7 +566,7 @@ int main(int argc,char** argv)
           return(1);
          }
 
-       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,middle,profile);
+       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,middle);
 
        if(!results[point])
          {
