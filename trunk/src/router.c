@@ -557,7 +557,6 @@ int main(int argc,char** argv)
           middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
          }
 
-       FreeResultsList(begin);
        FreeResultsList(end);
 
        if(!middle)
@@ -566,7 +565,9 @@ int main(int argc,char** argv)
           return(1);
          }
 
-       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,middle);
+       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,middle);
+
+       FreeResultsList(begin);
 
        if(!results[point])
          {

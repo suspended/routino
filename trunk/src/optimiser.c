@@ -384,15 +384,23 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  while(result3)
    {
-    if(!IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,1)))
+    if((result1->node!=result3->node || result1->segment!=result3->segment) &&
+       !IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,1)))
       {
+       Result *result5=result1;
        index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,result3->node,result3->segment);
+
+       if(superseg!=result3->segment)
+         {
+          result5=InsertResult(results,result3->node,result3->segment);
+
+          result5->prev=result1;
+         }
 
        if(!FindResult(results,result3->node,superseg))
          {
           result2=InsertResult(results,result3->node,superseg);
-
-          result2->prev=result1;
+          result2->prev=result5;
 
           result2->score=result3->score;
           result2->sortby=result3->score;
@@ -1152,10 +1160,12 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
 
+  Results *begin The set of results for the start of the route.
+
   Results *middle The set of results from the super-node route.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *middle)
+Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *middle)
 {
  Result *midres,*comres1;
  Results *combined;
@@ -1165,11 +1175,48 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
  combined->start_node=middle->start_node;
  combined->prev_segment=middle->prev_segment;
 
- /* Sort out the combined route */
+ /* Insert the start point */
 
  midres=FindResult(middle,middle->start_node,middle->prev_segment);
 
  comres1=InsertResult(combined,middle->start_node,middle->prev_segment);
+
+ /* Insert the start of the route */
+
+ if(begin->number>1 && midres->next)
+   {
+    Result *begres;
+
+    midres=FindResult(middle,midres->next->node,midres->next->segment);
+
+    begres=FindResult(begin,midres->node,midres->segment);
+
+    FixForwardRoute(begin,begres);
+
+    if(midres->next && midres->next->node==midres->node)
+       midres=midres->next;
+
+    begres=FindResult(begin,begin->start_node,begin->prev_segment);
+
+    begres=begres->next;
+
+    do
+      {
+       Result *comres2;
+
+       comres2=InsertResult(combined,begres->node,begres->segment);
+
+       comres2->score=begres->score+comres1->score;
+       comres2->prev=comres1;
+
+       begres=begres->next;
+
+       comres1=comres2;
+      }
+    while(begres);
+   }
+
+ /* Sort out the combined route */
 
  do
    {
@@ -1178,14 +1225,6 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
     if(midres->next)
       {
        Results *results=FindNormalRoute(nodes,segments,ways,relations,profile,comres1->node,comres1->segment,midres->next->node,0);
-
-       if(!results)
-         {
-          /* Try again but override the U-turn constraints -
-             this solves any of the problems that require an override for the start or middle of a route. */
-
-          results=FindNormalRoute(nodes,segments,ways,relations,profile,comres1->node,comres1->segment,midres->next->node,1);
-         }
 
        if(!results)
           return(NULL);
