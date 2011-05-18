@@ -13,21 +13,23 @@
   <node id='269' visible='true' version='1' lat='-0.21955455458130574' lon='-0.5193510859959124'>
     <tag k='name' v='WP03' />
   </node>
-  <node id='271' visible='true' version='1' lat='-0.21838648826301083' lon='-0.5191374278276153' />
+  <node id='271' visible='true' version='1' lat='-0.21838648826301083' lon='-0.5191374278276153'>
+    <tag k='name' v='WP04' />
+  </node>
   <node id='273' visible='true' version='1' lat='-0.21967045850547667' lon='-0.5160319121186099'>
-    <tag k='name' v='WP09' />
+    <tag k='name' v='WP10' />
   </node>
   <node id='275' visible='true' version='1' lat='-0.22001919809793816' lon='-0.5158468652583799'>
-    <tag k='name' v='WP08' />
+    <tag k='name' v='WP09' />
   </node>
   <node id='277' visible='true' version='1' lat='-0.2203608205479482' lon='-0.5159607402492906'>
-    <tag k='name' v='WP07' />
+    <tag k='name' v='WP08' />
   </node>
   <node id='279' visible='true' version='1' lat='-0.21999072956008625' lon='-0.5175122870004505'>
-    <tag k='name' v='WP05' />
+    <tag k='name' v='WP06' />
   </node>
   <node id='281' visible='true' version='1' lat='-0.21962194811581368' lon='-0.5176842951742215'>
-    <tag k='name' v='WP06' />
+    <tag k='name' v='WP07' />
   </node>
   <node id='283' visible='true' version='1' lat='-0.21954697775967735' lon='-0.5139082939501117'>
     <tag k='name' v='WPfinish' />
@@ -40,11 +42,11 @@
   <node id='317' visible='true' version='1' lat='-0.21881956658439772' lon='-0.5209796816567882' />
   <node id='319' visible='true' version='1' lat='-0.22034447159225826' lon='-0.5140417639627524' />
   <node id='323' visible='true' version='1' lat='-0.22029573308467093' lon='-0.5176333429804723'>
-    <tag k='name' v='WP04' />
+    <tag k='name' v='WP05' />
   </node>
   <node id='325' visible='true' version='1' lat='-0.22022296242215664' lon='-0.5210519045762619' />
   <node id='329' visible='true' version='1' lat='-0.218492980018636' lon='-0.5157886455630277' >
-    <tag k='name' v='WP10' />
+    <tag k='name' v='WP11' />
   </node>
   <node id='331' visible='true' version='1' lat='-0.21934091992851262' lon='-0.5162056682348201' />
   <node id='333' visible='true' version='1' lat='-0.2207820589348417' lon='-0.5161366988387935' />
