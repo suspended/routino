@@ -69,11 +69,9 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
   index_t prev_segment The previous segment before the start node.
 
   index_t finish_node The finish node.
-
-  int override A flag to indicate if U-turns and passing over super-nodes are allowed (to get out of dead-ends).
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node,int override)
+Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node)
 {
  Results *results;
  Queue   *queue;
@@ -112,8 +110,6 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     Segment *segment;
     index_t node1,seg1,seg1r;
     index_t turnrelation=NO_RELATION;
-    int     routes_out=0;
-    index_t uturn_seg=NO_SEGMENT;
 
     /* score must be better than current best score */
     if(result1->score>finish_score)
@@ -167,19 +163,15 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          }
 
        /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && seg2!=uturn_seg)
-         {
-          if(override)
-             uturn_seg=seg2;
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2))
           goto endloop;
-         }
 
        /* must obey turn relations */
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1r,seg2r,profile->allow))
           goto endloop;
 
-       /* must not pass over super-node (unless override is active) */
-       if(node2!=finish_node && !IsFakeNode(node2) && IsSuperNode(LookupNode(nodes,node2,2)) && !override)
+       /* must not pass over super-node */
+       if(node2!=finish_node && !IsFakeNode(node2) && IsSuperNode(LookupNode(nodes,node2,2)))
           goto endloop;
 
        way=LookupWay(ways,segment->way,1);
@@ -221,8 +213,6 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           if(!(node->allow&profile->allow))
              goto endloop;
          }
-
-       routes_out++;
 
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
@@ -294,10 +284,6 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           if(!segment && IsFakeNode(finish_node))
              segment=ExtraFakeSegment(node1,finish_node);
          }
-
-       /* allow U-turn at dead-ends if override is enabled */
-       if(!segment && routes_out==0 && uturn_seg!=NO_SEGMENT)
-          segment=LookupSegment(segments,uturn_seg,1);
       }
    }
 
@@ -672,7 +658,7 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
        startnode=OtherNode(segment,endnode);
 
-       results=FindNormalRoute(nodes,segments,ways,relations,profile,startnode,NO_SEGMENT,endnode,0);
+       results=FindNormalRoute(nodes,segments,ways,relations,profile,startnode,NO_SEGMENT,endnode);
 
        if(results && results->last_segment==endsegment)
           return(IndexSegment(segments,segment));
@@ -1224,7 +1210,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
     if(midres->next)
       {
-       Results *results=FindNormalRoute(nodes,segments,ways,relations,profile,comres1->node,comres1->segment,midres->next->node,0);
+       Results *results=FindNormalRoute(nodes,segments,ways,relations,profile,comres1->node,comres1->segment,midres->next->node);
 
        if(!results)
           return(NULL);
