@@ -171,9 +171,9 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,i
 
  if(prevpoint>0 && fake_segments[4*prevpoint-4].node1==node1 && fake_segments[4*prevpoint-3].node2==node2)
    {
-    if(DISTANCE(dist1)>DISTANCE(fake_segments[4*prevpoint-4].distance)) /* closer to node2 */
+    if(DISTANCE(dist1)>DISTANCE(fake_segments[4*prevpoint-4].distance)) /* point is closer to node2 than prevpoint is */
       {
-       fake_segments[4*point-2]=fake_segments[4*prevpoint-4];
+       fake_segments[4*point-2]=fake_segments[4*prevpoint-3];
 
        fake_segments[4*point-2].node2=fakenode;
 
@@ -181,7 +181,7 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,i
       }
     else
       {
-       fake_segments[4*point-2]=fake_segments[4*prevpoint-3];
+       fake_segments[4*point-2]=fake_segments[4*prevpoint-4];
 
        fake_segments[4*point-2].node1=fakenode;
 
