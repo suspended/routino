@@ -50,7 +50,7 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the optimum route between two nodes not passing through a super-node (except in case of an override).
+  Find the optimum route between two nodes not passing through a super-node.
 
   Results *FindNormalRoute Returns a set of results.
 
@@ -163,7 +163,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          }
 
        /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2))
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
           goto endloop;
 
        /* must obey turn relations */
@@ -777,7 +777,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          }
 
        /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2) && seg2!=uturn_seg)
+       if(profile->turns && seg2!=uturn_seg && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
          {
           if(override)
              uturn_seg=seg2;
@@ -984,7 +984,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
          }
 
        /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2))
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
           goto endloop;
 
        /* must obey turn relations */

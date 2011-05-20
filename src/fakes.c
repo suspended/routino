@@ -344,3 +344,28 @@ index_t IndexRealSegment(index_t fakesegment)
 
  return(real_segments[whichsegment]);
 }
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Determine if a route between two fake segments is valid or a U-turn.
+
+  int IsFakeUTurn Returns true for a U-turn.
+
+  index_t fakesegment1 The first fake segment.
+
+  index_t fakesegment2 The second fake segment.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int IsFakeUTurn(index_t fakesegment1,index_t fakesegment2)
+{
+ index_t whichsegment1=fakesegment1-SEGMENT_FAKE;
+ index_t whichsegment2=fakesegment2-SEGMENT_FAKE;
+
+ if(fake_segments[whichsegment1].node1==fake_segments[whichsegment2].node1)
+    return(1);
+
+ if(fake_segments[whichsegment1].node2==fake_segments[whichsegment2].node2)
+    return(1);
+
+ return(0);
+}
