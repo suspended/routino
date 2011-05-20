@@ -49,5 +49,6 @@ Segment *LookupFakeSegment(index_t index);
 index_t IndexFakeSegment(Segment *fakesegment);
 index_t IndexRealSegment(index_t fakesegment);
 
+int IsFakeUTurn(index_t fakesegment1,index_t fakesegment2);
 
 #endif /* FAKES_H */
