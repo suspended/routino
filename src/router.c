@@ -441,6 +441,7 @@ int main(int argc,char** argv)
     distance_t distmin;
     index_t segment=NO_SEGMENT;
     index_t node1,node2;
+    int     nsuper=0;
 
     if(point_used[point]!=3)
        continue;
@@ -499,14 +500,14 @@ int main(int argc,char** argv)
 
     /* Calculate the beginning of the route */
 
-    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,0);
+    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node,0,&nsuper);
 
     if(!begin)
       {
        /* Try again but override the U-turn constraints at the start of the route -
-          this solves the problem of facing a dead-end that contains no super-nodes. */
+          this solves the problem of facing a end node with no super-nodes. */
 
-       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,1);
+       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node,1,&nsuper);
       }
 
     if(!begin)
@@ -515,7 +516,7 @@ int main(int argc,char** argv)
        return(1);
       }
 
-    if((finish_result=FindResult1(begin,finish_node)))
+    if(nsuper==0 && (finish_result=FindResult1(begin,finish_node)))
       {
        FixForwardRoute(begin,finish_result);
 
@@ -523,7 +524,7 @@ int main(int argc,char** argv)
 
        if(!option_quiet)
          {
-          printf("Routed: Super-Nodes Checked = %d\n",begin->number);
+          printf("Routed: Super-Nodes Checked = 0\n");
           fflush(stdout);
          }
       }
@@ -552,7 +553,7 @@ int main(int argc,char** argv)
 
           FreeResultsList(begin);
 
-          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,2);
+          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node,2,&nsuper);
 
           middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
          }

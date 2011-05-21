@@ -690,10 +690,14 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
   index_t prev_segment The previous segment before the start node.
 
+  index_t finish_node The finish node.
+
   int override A flag to indicate if U-turns and passing over super-nodes are allowed (to get out of dead-ends).
+
+  int *nsuper Returns the number of super-nodes seen.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,int override)
+Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node,int override,int *nsuper)
 {
  Results *results;
  Queue   *queue;
@@ -845,6 +849,9 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           result2->prev=result1;
           result2->score=cumulative_score;
 
+          if(!IsFakeNode(node2) && IsSuperNode(LookupNode(nodes,node2,2)))
+             (*nsuper)++;
+
           if(!IsFakeNode(node2) && (!IsSuperNode(LookupNode(nodes,node2,2)) || (override==2 && node2!=start_node)))
             {
              result2->sortby=result2->score;
@@ -867,8 +874,15 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        if(IsFakeNode(node1))
           segment=NextFakeSegment(segment,node1);
+       else if(IsFakeNode(node2))
+          segment=NULL; /* cannot call NextSegment() with a fake segment */
        else
+         {
           segment=NextSegment(segments,segment,node1);
+
+          if(!segment && IsFakeNode(finish_node))
+             segment=ExtraFakeSegment(node1,finish_node);
+         }
 
        /* allow U-turn at dead-ends if override is enabled */
        if(!segment && routes_out==0 && uturn_seg!=NO_SEGMENT)
@@ -880,7 +894,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Check it worked */
 
- if(results->number==1)
+ if(results->number==1 || (!override && !*nsuper))
    {
     FreeResultsList(results);
     return(NULL);
