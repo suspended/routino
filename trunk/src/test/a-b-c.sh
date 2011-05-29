@@ -2,7 +2,7 @@
 
 # Exit on error
 
-#set -e
+set -e
 
 # Test name
 
