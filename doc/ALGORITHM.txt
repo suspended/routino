@@ -155,10 +155,10 @@ Routing Preferences
           own speed limit and the user's speed preference for the type of
           highway is the starting point for the score.
 
-   Oneway restriction
-          If a highway has the oneway property in the opposite direction
+   One-way restriction
+          If a highway has the one-way property in the opposite direction
           to the desired travel and the user's preference is to obey
-          oneway restrictions then the segment is ignored.
+          one-way restrictions then the segment is ignored.
 
    Weight, height, width & length limits
           If a highway has one of these limits and its value is less than
@@ -176,7 +176,7 @@ Routing Preferences
           percentage and each highway either has that property or not. The
           user's property preference is scaled into the range 0.0 (for 0%)
           to 1.0 (for 100%) to give a weighted preference, a second
-          "non-property" weighted preference is calcuated in the same way
+          "non-property" weighted preference is calculated in the same way
           after subtracting the user's preference from 100%. If a segment
           has a particular property then the calculated score is divided
           by the weighted preference for that property, if not then it is
@@ -232,9 +232,9 @@ Turn Restrictions
    them) is that via points in the route can be forced to continue in the
    original direction. If the chosen method of transport obeys turn
    restrictions then it will not reverse direction at a via point but will
-   find an optimum route continuing in the same direction. This route may
-   require turning around to get out of a dead-end and it is assumed that
-   all dead-ends will allow this.
+   find an optimum route continuing in the same direction. The only
+   exception to this is when the route ahead at a waypoint is into a
+   dead-end and an immediate U-turn is allowed.
 
    A side-effect of having the starting direction at a via point defined
    by the previous part of the route is that overall non-optimal routes

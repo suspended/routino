@@ -59,7 +59,7 @@ planetsplitter
    --loggable
           Print progress messages that are suitable for logging to a file;
           normally an incrementing counter is printed which is more
-          suitable for realtime display than logging.
+          suitable for real-time display than logging.
 
    --max-iterations=<number>
           The maximum number of iterations to use when generating
@@ -80,8 +80,7 @@ planetsplitter
 
    Note: In version 1.4 of Routino the --transport, --not-highway and
    --not-property options have been removed. The same functionality can be
-   achieved by editing the tagging rules file to not output unwwanted
-   data.
+   achieved by editing the tagging rules file to not output unwanted data.
 
    Note: In version 1.5 of Routino the --slim option has been removed but
    at compilation time a separate program called planetsplitter-slim is
@@ -181,7 +180,7 @@ router
    --loggable
           Print progress messages that are suitable for logging to a file;
           normally an incrementing counter is printed which is more
-          suitable for realtime display than logging.
+          suitable for real-time display than logging.
 
    --quiet
           Don't generate any screen output while running (useful for
@@ -246,7 +245,7 @@ router
    --heading=<bearing>
           Specifies the initial direction of travel at the start of the
           route (from the lowest numbered waypoint) as a compass bearing
-          fmrom 0 to 360 degrees.
+          from 0 to 360 degrees.
 
    --highway-<highway>=<preference>
           Selects the percentage preference for using each particular type
@@ -468,7 +467,7 @@ tagmodifier
    --loggable
           Print progress messages that are suitable for logging to a file;
           normally an incrementing counter is printed which is more
-          suitable for realtime display than logging.
+          suitable for real-time display than logging.
 
    --tagging=<filename>
           The name of the XML file containing the tagging rules (defaults

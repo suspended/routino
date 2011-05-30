@@ -201,9 +201,9 @@ minimising the length.
   length of the segment and the lower of the highway's own speed limit and the
   user's speed preference for the type of highway is the starting point for the
   score.
-  <dt>Oneway restriction
-  <dd>If a highway has the oneway property in the opposite direction to the
-  desired travel and the user's preference is to obey oneway restrictions then
+  <dt>One-way restriction
+  <dd>If a highway has the one-way property in the opposite direction to the
+  desired travel and the user's preference is to obey one-way restrictions then
   the segment is ignored.
   <dt>Weight, height, width &amp; length limits
   <dd>If a highway has one of these limits and its value is less than the user's
@@ -217,7 +217,7 @@ minimising the length.
   <dd>The other highway properties are specified by the user as a percentage and
   each highway either has that property or not.  The user's property preference
   is scaled into the range 0.0 (for 0%) to 1.0 (for 100%) to give a weighted
-  preference, a second "non-property" weighted preference is calcuated in the
+  preference, a second "non-property" weighted preference is calculated in the
   same way after subtracting the user's preference from 100%.  If a segment has
   a particular property then the calculated score is divided by the weighted
   preference for that property, if not then it is divided by the non-property
