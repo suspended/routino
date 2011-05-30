@@ -677,7 +677,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 {
  TurnRestrictRelX relationx;
  int trfd;
- int total=0;
+ int total=0,deleted=0;
 
  if(nodesx->number==0 || segmentsx->number==0)
     return;
@@ -722,12 +722,15 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        segmentx=FirstSegmentX(segmentsx,relationx.via,1);
 
-       do
+       while(segmentx)
          {
           if(segmentx->way==relationx.from)
             {
              if(node_from!=NO_NODE) /* Only one segment can be on the 'from' way */
+               {
+                deleted++;
                 goto endloop;
+               }
 
              node_from=OtherNode(segmentx,relationx.via);
             }
@@ -735,7 +738,10 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           if(segmentx->way==relationx.to)
             {
              if(node_to!=NO_NODE) /* Only one segment can be on the 'to' way */
+               {
+                deleted++;
                 goto endloop;
+               }
 
              /* Don't bother with restrictions banning going the wrong way down a one-way road */
 
@@ -745,10 +751,12 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
           segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
          }
-       while(segmentx);
 
        if(node_to==NO_NODE || node_from==NO_NODE) /* Not enough segments for the selected ways */
+         {
+          deleted++;
           goto endloop;
+         }
 
        /* Write the results */
 
@@ -760,7 +768,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        total++;
 
        if(!(total%10000))
-          printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
+          printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
       }
     else
       {
@@ -771,12 +779,15 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        segmentx=FirstSegmentX(segmentsx,relationx.via,1);
 
-       do
+       while(segmentx)
          {
           if(segmentx->way==relationx.from)
             {
              if(node_from!=NO_NODE) /* Only one segment can be on the 'from' way */
+               {
+                deleted++;
                 goto endloop;
+               }
 
              node_from=OtherNode(segmentx,relationx.via);
             }
@@ -784,7 +795,10 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           if(segmentx->way!=relationx.to)
             {
              if(nnodes_to==16)
+               {
+                deleted++;
                 goto endloop;
+               }
 
              /* Don't bother with restrictions banning going the wrong way down a one-way road */
 
@@ -794,10 +808,12 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
           segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
          }
-       while(segmentx);
 
        if(nnodes_to==0 || node_from==NO_NODE) /* Not enough segments for the selected ways */
+         {
+          deleted++;
           goto endloop;
+         }
 
        /* Write the results */
 
@@ -814,7 +830,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           total++;
 
           if(!(total%10000))
-             printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
+             printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
          }
       }
 
@@ -826,7 +842,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
     segmentx=FirstSegmentX(segmentsx,relationx.via,1);
 
-    do
+    while(segmentx)
       {
        index_t othernode=OtherNode(segmentx,relationx.via);
 
@@ -836,7 +852,6 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
       }
-    while(segmentx);
 
    endloop: ;
    }
@@ -858,7 +873,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Print the final message */
 
- printf_last("Processed Turn Restriction Relations (2): Turn Relations=%d New=%d",total,total-relationsx->trnumber);
+ printf_last("Processed Turn Restriction Relations (2): Turn Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
 
  relationsx->trnumber=total;
 }
