@@ -692,16 +692,15 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
   index_t finish_node The finish node.
 
-  int override A flag to indicate if U-turns and passing over super-nodes are allowed (to get out of dead-ends).
-
   int *nsuper Returns the number of super-nodes seen.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node,int override,int *nsuper)
+Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node,int *nsuper)
 {
  Results *results;
  Queue   *queue;
  Result  *result1,*result2;
+ int     found_finish=0;
 
  /* Create the results and insert the start node */
 
@@ -712,9 +711,9 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  result1=InsertResult(results,start_node,prev_segment);
 
- /* Take a shortcut if the first node is a super-node except in the override case. */
+ /* Take a shortcut if the first node is a super-node. */
 
- if(!IsFakeNode(start_node) && IsSuperNode(LookupNode(nodes,start_node,1)) && !override)
+ if(!IsFakeNode(start_node) && IsSuperNode(LookupNode(nodes,start_node,1)))
     return(results);
 
  /* Insert the first node into the queue */
@@ -731,7 +730,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     Segment *segment;
     index_t turnrelation=NO_RELATION;
     int     routes_out=0;
-    index_t uturn_seg=NO_SEGMENT;
 
     node1=result1->node;
     seg1=result1->segment;
@@ -759,6 +757,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
+       node2=OtherNode(segment,node1); /* need this here because we use node2 at the end of the loop */
+
        /* must be a normal segment */
        if(!IsNormalSegment(segment))
           goto endloop;
@@ -766,8 +766,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayTo(segment,node1))
           goto endloop;
-
-       node2=OtherNode(segment,node1);
 
        if(IsFakeNode(node1) || IsFakeNode(node2))
          {
@@ -781,12 +779,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          }
 
        /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && seg2!=uturn_seg && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
-         {
-          if(override)
-             uturn_seg=seg2;
+       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
           goto endloop;
-         }
 
        /* must obey turn relations */
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1r,seg2r,profile->allow))
@@ -852,18 +846,21 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           if(!IsFakeNode(node2) && IsSuperNode(LookupNode(nodes,node2,2)))
              (*nsuper)++;
 
-          if(!IsFakeNode(node2) && (!IsSuperNode(LookupNode(nodes,node2,2)) || (override==2 && node2!=start_node)))
+          if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
             }
+
+          if(node2==finish_node)
+             found_finish=1;
          }
        else if(cumulative_score<result2->score) /* New end node/segment combination is better */
          {
           result2->prev=result1;
           result2->score=cumulative_score;
 
-          if(!IsFakeNode(node2) && (!IsSuperNode(LookupNode(nodes,node2,2)) || (override==2 && node2!=start_node)))
+          if(!IsFakeNode(node2) && !IsSuperNode(LookupNode(nodes,node2,2)))
             {
              result2->sortby=result2->score;
              InsertInQueue(queue,result2);
@@ -883,10 +880,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           if(!segment && IsFakeNode(finish_node))
              segment=ExtraFakeSegment(node1,finish_node);
          }
-
-       /* allow U-turn at dead-ends if override is enabled */
-       if(!segment && routes_out==0 && uturn_seg!=NO_SEGMENT)
-          segment=LookupSegment(segments,uturn_seg,1);
       }
    }
 
@@ -894,7 +887,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Check it worked */
 
- if(results->number==1 || (!override && !*nsuper))
+ if(results->number==1 || (*nsuper==0 && found_finish==0))
    {
     FreeResultsList(results);
     return(NULL);
