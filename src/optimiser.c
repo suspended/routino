@@ -97,7 +97,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  results->start_node=start_node;
  results->prev_segment=prev_segment;
 
- result1=InsertResult(results,start_node,prev_segment);
+ result1=InsertResult(results,results->start_node,results->prev_segment);
 
  queue=NewQueueList();
 
@@ -370,7 +370,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  while(result3)
    {
-    if((result1->node!=result3->node || result1->segment!=result3->segment) &&
+    if((results->start_node!=result3->node || results->prev_segment!=result3->segment) &&
        !IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,1)))
       {
        Result *result5=result1;
@@ -709,7 +709,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  results->start_node=start_node;
  results->prev_segment=prev_segment;
 
- result1=InsertResult(results,start_node,prev_segment);
+ result1=InsertResult(results,results->start_node,results->prev_segment);
 
  /* Take a shortcut if the first node is a super-node. */
 
@@ -1165,14 +1165,14 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
  combined=NewResultsList(64);
 
- combined->start_node=middle->start_node;
- combined->prev_segment=middle->prev_segment;
+ combined->start_node=begin->start_node;
+ combined->prev_segment=begin->prev_segment;
 
  /* Insert the start point */
 
  midres=FindResult(middle,middle->start_node,middle->prev_segment);
 
- comres1=InsertResult(combined,middle->start_node,middle->prev_segment);
+ comres1=InsertResult(combined,combined->start_node,combined->prev_segment);
 
  /* Insert the start of the route */
 
