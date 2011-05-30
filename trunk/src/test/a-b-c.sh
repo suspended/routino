@@ -41,13 +41,15 @@ option_router="--loggable --transport=motorcar --profiles=../../xml/routino-prof
 
 # Run planetsplitter
 
-echo ../planetsplitter$slim $option_dir $option_prefix $option_planetsplitter $osm
+echo "Running planetsplitter"
+
 echo ../planetsplitter$slim $option_dir $option_prefix $option_planetsplitter $osm > $log
 $debugger ../planetsplitter$slim $option_dir $option_prefix $option_planetsplitter $osm >> $log
 
 # Run filedumper
 
-echo ../filedumper$slim $option_dir $option_prefix $option_filedumper
+echo "Running filedumper"
+
 echo ../filedumper$slim $option_dir $option_prefix $option_filedumper >> $log
 $debugger ../filedumper$slim $option_dir $option_prefix $option_filedumper > $dir/$osm
 
@@ -64,7 +66,7 @@ for waypoint in $waypoints; do
         *) continue ;;
     esac
 
-    echo "Waypoint : $waypoint"
+    echo "Running router : $waypoint"
 
     waypoint_a=`perl waypoints.pl $osm ${waypoint}a 1`
     waypoint_b=`perl waypoints.pl $osm ${waypoint}b 2`
@@ -72,7 +74,6 @@ for waypoint in $waypoints; do
 
     [ -d $dir/$name-$waypoint ] || mkdir $dir/$name-$waypoint
 
-    echo ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_a $waypoint_b $waypoint_c
     echo ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_a $waypoint_b $waypoint_c >> $log
     $debugger ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_a $waypoint_b $waypoint_c >> $log
 

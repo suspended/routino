@@ -41,13 +41,15 @@ option_router="--loggable --transport=motorcar --profiles=../../xml/routino-prof
 
 # Run planetsplitter
 
-echo ../planetsplitter$slim $option_dir $option_prefix $option_planetsplitter $osm
+echo "Running planetsplitter"
+
 echo ../planetsplitter$slim $option_dir $option_prefix $option_planetsplitter $osm > $log
 $debugger ../planetsplitter$slim $option_dir $option_prefix $option_planetsplitter $osm >> $log
 
 # Run filedumper
 
-echo ../filedumper$slim $option_dir $option_prefix $option_filedumper
+echo "Running filedumper"
+
 echo ../filedumper$slim $option_dir $option_prefix $option_filedumper >> $log
 $debugger ../filedumper$slim $option_dir $option_prefix $option_filedumper > $dir/$osm
 
@@ -65,13 +67,12 @@ for waypoint in $waypoints; do
     [ ! $waypoint = "WPstart"  ] || continue
     [ ! $waypoint = "WPfinish" ] || continue
 
-    echo "Waypoint : $waypoint"
+    echo "Running router : $waypoint"
 
     waypoint_test=`perl waypoints.pl $osm $waypoint 2`
 
     [ -d $dir/$name-$waypoint ] || mkdir $dir/$name-$waypoint
 
-    echo ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_start $waypoint_test $waypoint_finish
     echo ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_start $waypoint_test $waypoint_finish >> $log
     $debugger ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_start $waypoint_test $waypoint_finish >> $log
 
