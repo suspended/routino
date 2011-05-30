@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -66,7 +66,7 @@ bicycle, horse, motorcar, motorbike etc).
 When processing the OpenStreetMap data the types of highways are recorded and
 these set default limits on the types of traffic allowed.  More specific
 information about permissions for different types of transport are also recorded
-as are maximum speed limits.  Further restrictions like oneway streets, weight,
+as are maximum speed limits.  Further restrictions like one-way streets, weight,
 height, width and length limits are also included where specified. Additionally
 a set of properties of each highway are also recorded.  The processing of the
 input file is controlled by a configuration file which determines the
@@ -81,7 +81,9 @@ For each type of highway a default speed limit is defined (although the actual
 speed used will be the lowest of the default and any specified in the original
 data).  To make use of the information about restrictions the weight, height,
 width and length of the transport can also be specified.  Further preferences
-about road properties (e.g. paved or not) can also be selected.
+about road properties (e.g. paved or not) can also be selected.  The simplest
+type of turn restrictions (those formed from an initial way, a node and a second
+way) are also obeyed.
 
 <p>
 
@@ -158,72 +160,55 @@ Version 1.4.1 of Routino was released on 10th July 2010.
 Version 1.5 of Routino was released on 30th October 2010.
 <br>
 Version 1.5.1 of Routino was released on 13th November 2010.
+<br>
+Version 2.0 of Routino was released on 30th May 2011.
 
 <p>
 
 The full version history is available in the NEWS file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 1.5</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.0</h3>
 
 <dl>
   <dt>Bug fixes:
-  <dd>Check that number of nodes/segments/ways doesn't exceed numerical limits.
-  <br>Allow 32-bit systems to seek within files larger than 4GB.
-  <br>Allow nearly 4G nodes to be stored instead of 2G before.
-  <br>Added rules to makefile for installation (paths specified in top-level).
-  <br>Stricter checking of UTF-8 in XML files and better UTF-8 output.
-  <br>Improve error message if parsing of command line options fail.
-  <br>Fix bugs in router's --help-profile-json and --help-profile-perl options.
-  <br>Rename heapsort function to allow compilation on Mac OS with no change.
-  <br>Reduce impact of property preferences close to 50% by using sqrt().
+  <dd>Fix mis-spelling with surface=asphalt tag
+  <br>Routes between two waypoints on the same segment now work.
+  <br>Fix reading of numeric entities from XML files (store as UTF-8 internally).
+  <br>Fix turn description in HTML file (angles were biased to the right).
+  <br>Fix possibility of occasionally missing turn information from output files.
+
+  <dt>Test cases:
+  <dd>Added test cases for routing in slim and non-slim modes.
 
   <dt>Documentation:
   <dd>Update documentation to reflect changes in program usage and function.
+  <br>Install the license file in the documentation directory.
 
   <dt>OSM tagging
-  <dd>Traffic restrictions on nodes are now included in default tagging file.
-  <br>Added processing for ferry routes (as pseudo-highway type 'ferry').
-  <br>Process foot and bicycle route relations to create new properties.
+  <dd>Process the tags associated with turn restriction relations.
+  <br>Remove the roundabout type from the parsing.
+  <br>Add parsing of mini-roundabouts.
 
   <dt>Configuration Files:
-  <dd>Added Dutch output translations.
-  <br>Added ferry information to profiles.
-  <br>Added foot and bicycle route relation processing.
-
-  <dt>planetsplitter
-  <dd>The slim mode now includes the output data as well as the temporary data.
-  <br>The slim mode is now a separate executable and not a command line option.
-  <br>Traffic restrictions on nodes are now understood when parsing OSM files.
-  <br>Falls back to installed tagging.xml configuration file as last resort.
-
-  <dt>router:
-  <dd>Added a slim mode (as a separate executable and not a command line option).
-  <br>Traffic will not be routed through a node that does not allow it.
-  <br>Falls back to installed profiles.xml & translations.xml files as last resort.
-
-  <dt>filedumper:
-  <dd>Added a slim mode (as a separate executable and not a command line option).
+  <dd>Update profiles with new options related to turn restrictions.
 
   <dt>Web pages:
-  <dd>Added Dutch translation of router.html.
-</dl>
+  <dd>Change to OpenLayers v2.10.
+  <br>Visualiser can display turn restrictions.
+  <br>Put the profile information into separate files and auto-generate them.
 
-<h3><a name="H_1_5_2"></a>Additional Changes in Version 1.5.1</h3>
+  <dt>planetsplitter:
+  <dd>Store information about turn restriction relations.
+  <br>Quite a large code re-organisation - now faster and uses less memory.
 
-<dl>
-  <dt>Bug fixes:
-  <dd>Ensure that enough memory is allocated for filenames.
-  <br>Fix bug that sometimes causes crash when processing route relations.
+  <dt>router:
+  <dd>Take turn restriction relations into account when routing.
+  <br>Continue same direction of travel at each waypoint.
+  <br>Add a new option to specify an initial direction to start travel.
 
-  <dt>Documentation:
-  <dd>Update documentation to reflect changes in program usage and function.
-
-  <dt>Programs:
-  <dd>Add an option to make the output more suitable for a log file.
-
-  <dt>Documentation:
-  <dd>Update documentation to reflect changes in program usage.
+  <dt>filedumper:
+  <dd>Print out statistics about what highways are included in the database.
 </dl>
 
 
@@ -245,7 +230,7 @@ software.
 
 <h3><a name="H_1_5_4"></a>Copyright</h3>
 
-Routino is copyright Andrew M. Bishop 2008-2010.
+Routino is copyright Andrew M. Bishop 2008-2011.
 
 
 <h2><a name="H_1_6"></a>Download</h2>
