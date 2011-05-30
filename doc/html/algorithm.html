@@ -268,8 +268,8 @@ as well as the direction of travel (segments used to reach them) is that via
 points in the route can be forced to continue in the original direction.  If the
 chosen method of transport obeys turn restrictions then it will not reverse
 direction at a via point but will find an optimum route continuing in the same
-direction.  This route may require turning around to get out of a dead-end and
-it is assumed that all dead-ends will allow this.
+direction.  The only exception to this is when the route ahead at a waypoint is
+into a dead-end and an immediate U-turn is allowed.
 <p>
 A side-effect of having the starting direction at a via point defined by the
 previous part of the route is that overall non-optimal routes may be found even
