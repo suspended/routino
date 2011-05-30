@@ -500,14 +500,14 @@ int main(int argc,char** argv)
 
     /* Calculate the beginning of the route */
 
-    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node,0,&nsuper);
+    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node,&nsuper);
 
     if(!begin)
       {
-       /* Try again but override the U-turn constraints at the start of the route -
-          this solves the problem of facing a end node with no super-nodes. */
+       /* Try again but allow a U-turn at the start waypoint -
+          this solves the problem of facing a dead-end that contains no super-nodes. */
 
-       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node,1,&nsuper);
+       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,NO_SEGMENT,finish_node,&nsuper);
       }
 
     if(!begin)
@@ -545,15 +545,15 @@ int main(int argc,char** argv)
        /* Calculate the middle of the route */
 
        middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
-       
+
        if(!middle)
          {
-          /* Try again but override the U-turn constraints at the start of the route -
+          /* Try again but allow a U-turn at the start waypoint -
              this solves the problem of facing a dead-end that contains some super-nodes. */
 
           FreeResultsList(begin);
 
-          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node,2,&nsuper);
+          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,NO_SEGMENT,finish_node,&nsuper);
 
           middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
          }
