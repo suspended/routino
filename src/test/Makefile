@@ -70,6 +70,8 @@ test : exe
 clean:
 	rm -rf slim
 	rm -rf fat
+	rm -f *.log
+	rm -f core
 	rm -f *~
 
 ########
