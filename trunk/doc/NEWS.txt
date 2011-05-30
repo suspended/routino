@@ -1,8 +1,41 @@
-Version 1.6 of Routino released : Xxx Xxx XX 2011
+Version 2.0 of Routino released : Mon May 30 2011
 -------------------------------------------------
 
 Bug fixes:
+  Fix mis-spelling with surface=asphalt tag
   Routes between two waypoints on the same segment now work.
+  Fix reading of numeric entities from XML files (store as UTF-8 internally).
+  Fix turn description in HTML file (angles were biased to the right).
+  Fix possibility of occasionally missing turn information from output files.
+
+Test cases:
+ Added test cases for routing in slim and non-slim modes.
+
+Documentation:
+  Update documentation to reflect changes in program usage and function.
+  Install the license file in the documentation directory.
+
+OSM tagging:
+  Process the tags associated with turn restriction relations.
+  Remove the roundabout type from the parsing.
+  Add parsing of mini-roundabouts.
+
+Configuration Files:
+  Update profiles with new options related to turn restrictions.
+
+Web pages:
+  Change to OpenLayers v2.10.
+  Visualiser can display turn restrictions.
+  Put the profile information into separate files and auto-generate them.
+
+planetsplitter:
+  Store information about turn restriction relations.
+  Quite a large code re-organisation - now faster and uses less memory.
+
+router:
+  Take turn restriction relations into account when routing.
+  Continue same direction of travel at each waypoint (unless dead-end).
+  Add a new option to specify an initial direction to start travel.
 
 filedumper:
   Print out statistics about what highways are included in the database.
