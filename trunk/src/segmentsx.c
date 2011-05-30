@@ -698,7 +698,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx)
 
   NodesX *nodesx The set of nodes to use.
 
-  Waysx *waysx The set of ways to use.
+  WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
