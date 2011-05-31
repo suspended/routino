@@ -59,9 +59,9 @@ static way_t      *relation_ways=NULL;
 static int         relation_nways=0;
 static relation_t *relation_relations=NULL;
 static int         relation_nrelations=0;
-static way_t       relation_from=NO_WAY;
-static way_t       relation_to=NO_WAY;
-static node_t      relation_via=NO_NODE;
+static way_t       relation_from=NO_WAY_ID;
+static way_t       relation_to=NO_WAY_ID;
+static node_t      relation_via=NO_NODE_ID;
 
 static NodesX     *nodes;
 static SegmentsX  *segments;
@@ -454,9 +454,9 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
 
     relation_nnodes=relation_nways=relation_nrelations=0;
 
-    relation_from=NO_WAY;
-    relation_to=NO_WAY;
-    relation_via=NO_NODE;
+    relation_from=NO_WAY_ID;
+    relation_to=NO_WAY_ID;
+    relation_via=NO_NODE_ID;
 
     /* Handle the relation information */
 
@@ -1002,7 +1002,7 @@ static void process_relation_tags(TagList *tags,relation_t id)
  /* Create the turn restriction relation. */
 
  if(relation_turn_restriction && restriction!=TurnRestrict_None &&
-    relation_from!=NO_WAY && relation_to!=NO_WAY && relation_via!=NO_NODE)
+    relation_from!=NO_WAY_ID && relation_to!=NO_WAY_ID && relation_via!=NO_NODE_ID)
     AppendTurnRestrictRelation(relations,id,
                                relation_from,relation_to,relation_via,
                                restriction,except);

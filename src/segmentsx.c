@@ -336,7 +336,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
  int duplicate=0,loop=0,missing=0,good=0,total=0;
  SegmentX segmentx;
  int fd;
- node_t prevnode1=NO_NODE,prevnode2=NO_NODE;
+ node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
 
  /* Print the start message */
 

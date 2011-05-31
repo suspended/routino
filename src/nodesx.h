@@ -69,7 +69,7 @@ struct _NodesX
 
  node_t   *idata;               /*+ The extended node IDs (sorted by ID). +*/
 
- node_t   *gdata;               /*+ The final node indexes (sorted geographically). +*/
+ index_t  *gdata;               /*+ The final node indexes (sorted geographically). +*/
 
  uint8_t  *super;               /*+ A bit-mask marker for super nodes (same order as sorted nodes). +*/
 

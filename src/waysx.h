@@ -67,7 +67,7 @@ struct _WaysX
 
  index_t  cnumber;              /*+ The number of entries after compacting. +*/
 
- index_t *idata;                /*+ The index of the extended data for the Ways (sorted by ID). +*/
+ way_t   *idata;                /*+ The extended way IDs (sorted by ID). +*/
 
  char    *nfilename;            /*+ The name of the temporary file (for the names). +*/
  int      nfd;                  /*+ The file descriptor of the temporary file (for the names). +*/
