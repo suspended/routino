@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/typesx.h,v 1.6 2010-12-12 16:35:55 amb Exp $
-
  Type definitions for eXtended types.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +25,18 @@
 
 
 #include <stdint.h>
+
+
+/* Constants and macros for handling them */
+
+/*+ An undefined node ID. +*/
+#define NO_NODE_ID     (~(node_t)0)
+
+/*+ An undefined way ID. +*/
+#define NO_WAY_ID      (~(way_t)0)
+
+/*+ An undefined relation ID. +*/
+#define NO_RELATION_ID (~(relation_t)0)
 
 
 /* Simple Types */
