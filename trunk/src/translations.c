@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/translations.c,v 1.13 2010-09-15 18:30:08 amb Exp $
-
  Load the translations from a file and the functions for handling them.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010 Andrew M. Bishop
+ This file Copyright 2010-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -1099,6 +1097,7 @@ static int languageType_function(const char *_tag_,int _type_,const char *lang)
 
 int ParseXMLTranslations(const char *filename,const char *language)
 {
+ FILE *file;
  int retval;
 
  store_lang=language;
@@ -1109,7 +1108,7 @@ int ParseXMLTranslations(const char *filename,const char *language)
     return(1);
    }
 
- FILE *file=fopen(filename,"r");
+ file=fopen(filename,"r");
 
  if(!file)
    {
