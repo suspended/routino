@@ -616,6 +616,7 @@ static int profileType_function(const char *_tag_,int _type_,const char *name,co
 
 int ParseXMLProfiles(const char *filename)
 {
+ FILE *file;
  int retval;
 
  if(!ExistsFile(filename))
@@ -624,7 +625,7 @@ int ParseXMLProfiles(const char *filename)
     return(1);
    }
 
- FILE *file=fopen(filename,"r");
+ file=fopen(filename,"r");
 
  if(!file)
    {

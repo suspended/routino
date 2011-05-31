@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010 Andrew M. Bishop
+ This file Copyright 2010, 2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -301,6 +301,7 @@ static int WayType_function(const char *_tag_,int _type_)
 
 int ParseXMLTaggingRules(const char *filename)
 {
+ FILE *file;
  int retval;
 
  if(!ExistsFile(filename))
@@ -309,7 +310,7 @@ int ParseXMLTaggingRules(const char *filename)
     return(1);
    }
 
- FILE *file=fopen(filename,"r");
+ file=fopen(filename,"r");
 
  if(!file)
    {
