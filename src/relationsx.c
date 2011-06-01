@@ -619,6 +619,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
 {
  int i,trfd;
+ int deleted=0;
 
  /* Print the start message */
 
@@ -644,10 +645,13 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
     relationx.from=IndexWayX(waysx,relationx.from);
     relationx.to  =IndexWayX(waysx,relationx.to);
 
-    WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+    if(relationx.via==NO_NODE || relationx.from==NO_WAY || relationx.to==NO_WAY)
+       deleted++;
+    else
+       WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
     if(!((i+1)%10000))
-       printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d",i+1);
+       printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d Deleted=%d",i+1-deleted,deleted);
    }
 
  /* Close the files */
@@ -657,7 +661,9 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Processed Turn Restriction Relations (1): Turn Relations=%d",relationsx->trnumber);
+ printf_last("Processed Turn Restriction Relations (1): Turn Relations=%d Deleted=%d",relationsx->trnumber-deleted,deleted);
+
+ relationsx->trnumber-=deleted;
 }
 
 
