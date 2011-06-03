@@ -573,7 +573,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
             }
          }
 
-       if(!option_quiet && !(results->number%10000))
+       if(!option_quiet && !(results->number%1000))
           printf_middle("Routing: Super-Nodes checked = %d",results->number);
 
       endloop:

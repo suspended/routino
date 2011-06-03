@@ -256,7 +256,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
    {
     nnodes++;
 
-    if(!(nnodes%1000))
+    if(!(nnodes%10000))
        fprintf_middle(stderr,"Reading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
