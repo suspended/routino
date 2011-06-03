@@ -778,7 +778,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
       }
     else
       {
-       node_t node_from=NO_NODE,node_to[16];
+       node_t node_from=NO_NODE,node_to[MAX_SEG_PER_NODE];
        int nnodes_to=0,i;
 
        /* Find the segments that join the node 'via' */
@@ -800,11 +800,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
           if(segmentx->way!=relationx.to)
             {
-             if(nnodes_to==16)
-               {
-                deleted++;
-                goto endloop;
-               }
+             assert(nnodes_to<MAX_SEG_PER_NODE); /* Only a limited amount of information stored. */
 
              /* Don't bother with restrictions banning going the wrong way down a one-way road */
 

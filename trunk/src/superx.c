@@ -90,8 +90,8 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
        else
          {
           int count=0,j;
-          Way segmentway[16];
-          int segmentweight[16];
+          Way segmentway[MAX_SEG_PER_NODE];
+          int segmentweight[MAX_SEG_PER_NODE];
           SegmentX *segmentx=FirstSegmentX(segmentsx,i,1);
 
           while(segmentx)
@@ -101,7 +101,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
              /* Segments that are loops count twice */
 
-             assert(count<(sizeof(segmentway)/sizeof(segmentway[0]))); /* Only a limited amount of history stored. */
+             assert(count<MAX_SEG_PER_NODE); /* Only a limited amount of information stored. */
 
              if(segmentx->node1==segmentx->node2)
                 segmentweight[count]=2;
@@ -225,7 +225,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
       {
        SegmentX *segmentx;
        int count=0,match;
-       Way prevway[16];
+       Way prevway[MAX_SEG_PER_NODE];
 
        segmentx=FirstSegmentX(segmentsx,i,1);
 
@@ -249,7 +249,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
                   }
             }
 
-          assert(count<(sizeof(prevway)/sizeof(prevway[0]))); /* Only a limited amount of history stored. */
+          assert(count<MAX_SEG_PER_NODE); /* Only a limited amount of history stored. */
 
           prevway[count++]=wayx->way;
 

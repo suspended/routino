@@ -511,8 +511,8 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  index_t index=0;
  int fd,nprev=0;
  node_t prevnode1=NO_NODE,prevnode2=NO_NODE;
- SegmentX prevsegx[16],segmentx;
- Way prevway[16];
+ SegmentX prevsegx[MAX_SEG_PER_NODE],segmentx;
+ Way prevway[MAX_SEG_PER_NODE];
 
  /* Print the start message */
 
@@ -567,7 +567,7 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
          }
        else
          {
-          assert(nprev<(sizeof(prevsegx)/sizeof(prevsegx[0]))); /* Only a limited amount of history stored. */
+          assert(nprev<MAX_SEG_PER_NODE); /* Only a limited amount of information stored. */
 
           prevsegx[nprev]=segmentx;
           prevway[nprev] =wayx->way;
