@@ -452,7 +452,7 @@ static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
 void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 {
  RouteRelX *unmatched=NULL,*lastunmatched=NULL;
- int nunmatched=0,lastnunmatched=0,iteration=0;
+ int nunmatched=0,lastnunmatched=0,iteration=1;
 
  if(waysx->number==0)
     return;
@@ -480,7 +480,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
     /* Print the start message */
 
-    printf_first("Processing Route Relations: Iteration=%d Relations=0 Modified Ways=0",iteration);
+    printf_first("Processing Route Relations (%d): Relations=0 Modified Ways=0",iteration);
 
     for(i=0;i<relationsx->rnumber;i++)
       {
@@ -497,7 +497,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
        /* Decide what type of route it is */
 
-       if(iteration==0)
+       if(iteration==1)
          {
           relations++;
           routes=relationx.routes;
@@ -571,7 +571,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
        while(relationid);
 
        if(!((i+1)%1000))
-          printf_middle("Processing Route Relations: Iteration=%d Relations=%d Modified Ways=%d",iteration,relations,ways);
+          printf_middle("Processing Route Relations (%d): Relations=%d Modified Ways=%d",iteration,relations,ways);
       }
 
     if(lastunmatched)
@@ -585,9 +585,9 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
     /* Print the final message */
 
-    printf_last("Processed Route Relations: Iteration=%d Relations=%d Modified Ways=%d",iteration,relations,ways);
+    printf_last("Processed Route Relations (%d): Relations=%d Modified Ways=%d",iteration,relations,ways);
    }
- while(lastnunmatched && ++iteration<5);
+ while(lastnunmatched && iteration++<5);
 
  if(lastunmatched)
     free(lastunmatched);
@@ -623,7 +623,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the start message */
 
- printf_first("Processing Turn Restriction Relations (1): Turn Relations=0");
+ printf_first("Processing Turn Relations (1): Relations=0");
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -651,7 +651,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
        WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
     if(!((i+1)%1000))
-       printf_middle("Processing Turn Restriction Relations (1): Turn Relations=%d Deleted=%d",i+1-deleted,deleted);
+       printf_middle("Processing Turn Relations (1): Relations=%d Deleted=%d",i+1-deleted,deleted);
    }
 
  /* Close the files */
@@ -661,7 +661,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Processed Turn Restriction Relations (1): Turn Relations=%d Deleted=%d",relationsx->trnumber-deleted,deleted);
+ printf_last("Processed Turn Relations (1): Relations=%d Deleted=%d",relationsx->trnumber-deleted,deleted);
 
  relationsx->trnumber-=deleted;
 }
@@ -690,7 +690,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Print the start message */
 
- printf_first("Processing Turn Restriction Relations (2): Turn Relations=0");
+ printf_first("Processing Turn Relations (2): Relations=0");
 
  /* Map into memory / open the files */
 
@@ -774,7 +774,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        total++;
 
        if(!(total%1000))
-          printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
+          printf_middle("Processing Turn Relations (2): Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
       }
     else
       {
@@ -832,7 +832,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           total++;
 
           if(!(total%1000))
-             printf_middle("Processing Turn Restriction Relations (2): Turn Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
+             printf_middle("Processing Turn Relations (2): Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
          }
       }
 
@@ -875,7 +875,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Print the final message */
 
- printf_last("Processed Turn Restriction Relations (2): Turn Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
+ printf_last("Processed Turn Relations (2): Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
 
  relationsx->trnumber=total;
 }
@@ -898,7 +898,7 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
 
  /* Print the start message */
 
- printf_first("Updating Turn Restriction Relations: Turn Relations=0");
+ printf_first("Updating Turn Relations: Relations=0");
 
  /* Map into memory / open the files */
 
@@ -949,7 +949,7 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
     WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
     if(!(relationsx->trnumber%1000))
-       printf_middle("Updating Turn Restriction Relations: Turn Relations=%d",relationsx->trnumber);
+       printf_middle("Updating Turn Relations: Relations=%d",relationsx->trnumber);
    }
 
  /* Close the files */
@@ -967,7 +967,7 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
 
  /* Print the final message */
 
- printf_last("Updated Turn Restriction Relations: Turn Relations=%d",relationsx->trnumber);
+ printf_last("Updated Turn Relations: Relations=%d",relationsx->trnumber);
 }
 
 
