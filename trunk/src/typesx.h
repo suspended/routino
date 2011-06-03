@@ -39,6 +39,13 @@
 #define NO_RELATION_ID (~(relation_t)0)
 
 
+/* Macro functions */
+
+#define ClearBit(xx,yy)    (xx)[(yy)/8]&=~(1<<((yy)%8))
+#define SetBit(xx,yy)      (xx)[(yy)/8]|= (1<<((yy)%8))
+#define IsBitSet(xx,yy)   ((xx)[(yy)/8]&  (1<<((yy)%8)))
+
+
 /* Simple Types */
 
 /*+ A node identifier - must be at least as large as index_t. +*/

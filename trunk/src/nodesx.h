@@ -103,11 +103,6 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 /* Macros and inline functions */
 
-#define ClearBit(xx,yy)    (xx)[(yy)/8]&=~(1<<((yy)%8))
-#define SetBit(xx,yy)      (xx)[(yy)/8]|= (1<<((yy)%8))
-#define IsBitSet(xx,yy)   ((xx)[(yy)/8]&  (1<<((yy)%8)))
-
-
 #if !SLIM
 
 #define LookupNodeX(nodesx,index,position)      &(nodesx)->data[index]
