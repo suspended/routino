@@ -32,6 +32,8 @@
 #include "relations.h"
 
 
+/* Limit types */
+
 #define SPEED_LIMIT  1
 #define WEIGHT_LIMIT 2
 #define HEIGHT_LIMIT 3
@@ -614,9 +616,10 @@ void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *re
 
 static void output_limits(index_t node,double latitude,double longitude)
 {
- Segment *segment,*segments[16];
- Way *ways[16];
- int limits[16];
+#define MAX_STORED 32
+ Segment *segment,*segments[MAX_STORED];
+ Way *ways[MAX_STORED];
+ int limits[MAX_STORED];
  int count=0;
  int i,j,same=0;
 
@@ -624,7 +627,7 @@ static void output_limits(index_t node,double latitude,double longitude)
 
  do
    {
-    if(IsNormalSegment(segment) && count<16)
+    if(IsNormalSegment(segment) && count<MAX_STORED)
       {
        ways    [count]=LookupWay(OSMWays,segment->way,1);
        segments[count]=segment;
