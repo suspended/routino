@@ -257,7 +257,7 @@ void SortWayList(WaysX *waysx)
 
     WriteFile(fd,&wayx,sizeof(WayX));
 
-    if(!((i+1)%10000))
+    if(!((i+1)%1000))
        printf_middle("Separating Way Names: Ways=%d Names=%d",i+1,nnames);
    }
 
@@ -385,7 +385,7 @@ void CompactWayList(WaysX *waysx)
 
     WriteFile(fd,&wayx,sizeof(WayX));
 
-    if(!((i+1)%10000))
+    if(!((i+1)%1000))
        printf_middle("Compacting Ways: Ways=%d Properties=%d",i+1,waysx->cnumber);
    }
 
@@ -640,7 +640,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
     SeekFile(fd,sizeof(WaysFile)+(off_t)wayx->prop*sizeof(Way));
     WriteFile(fd,&wayx->way,sizeof(Way));
 
-    if(!((i+1)%10000))
+    if(!((i+1)%1000))
        printf_middle("Writing Ways: Ways=%d",i+1);
    }
 
