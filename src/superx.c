@@ -329,7 +329,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 
  /* Print the start message */
 
- printf_first("Merging Segments: Segments=0 Super-Segments=0 Merged=0 Added=0");
+ printf_first("Merging Segments: Segments=0 Super=0 Merged=0 Added=0");
 
  /* Map into memory / open the files */
 
@@ -388,7 +388,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
        AppendSegment(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_NORMAL);
 
     if(!((i+1)%10000))
-       printf_middle("Merging Segments: Segments=%d Super-Segments=%d Merged=%d Added=%d",i+1,j,m,a);
+       printf_middle("Merging Segments: Segments=%d Super=%d Merged=%d Added=%d",i+1,j,m,a);
    }
 
  /* Unmap from memory / close the files */
@@ -405,7 +405,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 
  /* Print the final message */
 
- printf_last("Merged Segments: Segments=%d Super-Segments=%d Merged=%d Added=%d",segmentsx->number,supersegmentsx->number,m,a);
+ printf_last("Merged Segments: Segments=%d Super=%d Merged=%d Added=%d",segmentsx->number,supersegmentsx->number,m,a);
 
  return(mergedsegmentsx);
 }

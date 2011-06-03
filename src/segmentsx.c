@@ -333,14 +333,14 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t node,int 
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 {
- int duplicate=0,loop=0,missing=0,good=0,total=0;
+ int duplicate=0,loop=0,nonode=0,good=0,total=0;
  SegmentX segmentx;
  int fd;
  node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
 
  /* Print the start message */
 
- printf_first("Checking Segments: Segments=0 Duplicate=0 Loop=0 Missing-Node=0");
+ printf_first("Checking Segments: Segments=0 Duplicate=0 Loop=0 No-Node=0");
 
  /* Allocate the array of node flags */
 
@@ -368,7 +368,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
     else if(segmentx.node1==segmentx.node2)
        loop++;
     else if(index1==NO_NODE || index2==NO_NODE)
-       missing++;
+       nonode++;
     else
       {
        WriteFile(fd,&segmentx,sizeof(SegmentX));
@@ -385,7 +385,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking Segments: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",total,duplicate,loop,missing);
+       printf_middle("Checking Segments: Segments=%d Duplicate=%d Loop=%d No-Node=%d",total,duplicate,loop,nonode);
    }
 
  segmentsx->number=good;
@@ -397,7 +397,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Checked Segments: Segments=%d Duplicate=%d Loop=%d Missing-Node=%d",total,duplicate,loop,missing);
+ printf_last("Checked Segments: Segments=%d Duplicate=%d Loop=%d No-Node=%d",total,duplicate,loop,nonode);
 }
 
 
