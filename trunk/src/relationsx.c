@@ -398,7 +398,7 @@ void SortTurnRelationList(RelationsX* relationsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the turn restriction relations into via node order (then by from and to segments).
+  Sort the turn restriction relations into via index order (then by from and to segments).
 
   int sort_by_via Returns the comparison of the via, from and to fields.
 
@@ -409,8 +409,8 @@ void SortTurnRelationList(RelationsX* relationsx)
 
 static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
 {
- node_t a_id=a->via;
- node_t b_id=b->via;
+ index_t a_id=a->via;
+ index_t b_id=b->via;
 
  if(a_id<b_id)
     return(-1);
@@ -418,8 +418,8 @@ static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
     return(1);
  else
    {
-    node_t a_id=a->from;
-    node_t b_id=b->from;
+    index_t a_id=a->from;
+    index_t b_id=b->from;
 
     if(a_id<b_id)
        return(-1);
@@ -427,8 +427,8 @@ static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
        return(1);
     else
       {
-       node_t a_id=a->to;
-       node_t b_id=b->to;
+       index_t a_id=a->to;
+       index_t b_id=b->to;
 
        if(a_id<b_id)
           return(-1);
@@ -722,7 +722,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        relationx.restrict==TurnRestrict_no_u_turn ||
        relationx.restrict==TurnRestrict_no_straight_on)
       {
-       node_t node_from=NO_NODE,node_to=NO_NODE;
+       index_t node_from=NO_NODE,node_to=NO_NODE;
 
        /* Find the segments that join the node 'via' */
 
@@ -778,7 +778,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
       }
     else
       {
-       node_t node_from=NO_NODE,node_to[MAX_SEG_PER_NODE];
+       index_t node_from=NO_NODE,node_to[MAX_SEG_PER_NODE];
        int nnodes_to=0,i;
 
        /* Find the segments that join the node 'via' */
