@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.h,v 1.12 2010-05-14 17:55:56 amb Exp $
-
  A simple XML parser
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010 Andrew M. Bishop
+ This file Copyright 2010-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -78,8 +76,8 @@ char *ParseXML_Decode_Entity_Ref(const char *string);
 char *ParseXML_Decode_Char_Ref(const char *string);
 char *ParseXML_Encode_Safe_XML(const char *string);
 
-int ParseXML_GetInteger(const char *string,int *number);
-int ParseXML_GetFloating(const char *string,double *number);
+int ParseXML_IsInteger(const char *string);
+int ParseXML_IsFloating(const char *string);
 
 /* Macros to simplify the callback functions */
 
@@ -110,10 +108,10 @@ int ParseXML_GetFloating(const char *string,double *number);
    } \
     while(0)
 
-#define XMLPARSE_ASSERT_INTEGER(tag,attribute,result)  \
+#define XMLPARSE_ASSERT_INTEGER(tag,attribute)  \
  do \
    { \
-    if(!attribute || !*attribute || !ParseXML_GetInteger(attribute,&result)) \
+    if(!attribute || !*attribute || !ParseXML_IsInteger(attribute)) \
       { \
        fprintf(stderr,"XML Parser: Error on line %ld: '" #attribute "' attribute must be a integer in <%s> tag.\n",ParseXML_LineNumber(),tag); \
        return(1); \
@@ -121,10 +119,10 @@ int ParseXML_GetFloating(const char *string,double *number);
    } \
     while(0)
 
-#define XMLPARSE_ASSERT_FLOATING(tag,attribute,result)  \
+#define XMLPARSE_ASSERT_FLOATING(tag,attribute)  \
  do \
    { \
-    if(!attribute || !*attribute || !ParseXML_GetFloating(attribute,&result)) \
+    if(!attribute || !*attribute || !ParseXML_IsFloating(attribute)) \
       { \
        fprintf(stderr,"XML Parser: Error on line %ld: '" #attribute "' attribute must be a number in <%s> tag.\n",ParseXML_LineNumber(),tag); \
        return(1); \

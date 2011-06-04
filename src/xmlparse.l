@@ -1,14 +1,12 @@
 %{
 /***************************************
- $Header: /home/amb/CVS/routino/src/xmlparse.l,v 1.20 2010-10-09 11:05:28 amb Exp $
-
  A simple generic XML parser where the structure comes from the function parameters.
  Not intended to be fully conforming to XML staandard or a validating parser but
  sufficient to parse OSM XML and simple program configuration files.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010 Andrew M. Bishop
+ This file Copyright 2010-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -815,16 +813,14 @@ char *ParseXML_Encode_Safe_XML(const char *string)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Convert a string to a integer (checking that it really is a integer).
+  Check that a string really is an integer.
 
-  int ParseXML_GetInteger Returns 1 if a integer could be found or 0 otherwise.
+  int ParseXML_IsInteger Returns 1 if an integer could be found or 0 otherwise.
 
   const char *string The string to be parsed.
-
-  int *number Returns the number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXML_GetInteger(const char *string,int *number)
+int ParseXML_IsInteger(const char *string)
 {
  const char *p=string;
 
@@ -836,24 +832,20 @@ int ParseXML_GetInteger(const char *string,int *number)
 
  if(*p)
     return(0);
-
- *number=atoi(string);
-
- return(1);
+ else
+    return(1);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Convert a string to a floating point number (checking that it really is a number).
+  Check that a string really is a floating point number.
 
-  int ParseXML_GetFloating Returns 1 if a number could be found or 0 otherwise.
+  int ParseXML_IsFloating Returns 1 if a floating point number could be found or 0 otherwise.
 
   const char *string The string to be parsed.
-
-  int *number Returns the number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXML_GetFloating(const char *string,double *number)
+int ParseXML_IsFloating(const char *string)
 {
  const char *p=string;
 
@@ -876,8 +868,6 @@ int ParseXML_GetFloating(const char *string,double *number)
 
  if(*p)
     return(0);
-
- *number=atof(string);
-
- return(1);
+ else
+    return(1);
 }
