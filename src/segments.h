@@ -122,7 +122,7 @@ static inline Segment *NextSegment(Segments *segments,Segment *segment,index_t n
 #define LookupSegment(xxx,yyy,ppp) (&(xxx)->segments[yyy])
 
 /*+ Return a segment index given a set of segments and a pointer. +*/
-#define IndexSegment(xxx,yyy)      ((yyy)-&(xxx)->segments[0])
+#define IndexSegment(xxx,yyy)      (index_t)((yyy)-&(xxx)->segments[0])
 
 
 /*++++++++++++++++++++++++++++++++++++++
