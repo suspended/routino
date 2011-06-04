@@ -411,10 +411,9 @@ static int TurnType_function(const char *_tag_,int _type_,const char *direction,
  if(_type_&XMLPARSE_TAG_START && store)
    {
     char *xmlstring;
-
     int d;
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,direction,d);
+    XMLPARSE_ASSERT_INTEGER(_tag_,direction); d=atoi(direction);
     XMLPARSE_ASSERT_STRING(_tag_,string);
 
     d+=4;
@@ -452,7 +451,7 @@ static int HeadingType_function(const char *_tag_,int _type_,const char *directi
     char *xmlstring;
     int d;
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,direction,d);
+    XMLPARSE_ASSERT_INTEGER(_tag_,direction); d=atoi(direction);
     XMLPARSE_ASSERT_STRING(_tag_,string);
 
     d+=4;

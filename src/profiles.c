@@ -213,7 +213,7 @@ static int speedType_function(const char *_tag_,int _type_,const char *highway,c
     if(highwaytype==Way_Count)
        XMLPARSE_INVALID(_tag_,highway);
 
-    XMLPARSE_ASSERT_FLOATING(_tag_,kph,speed);
+    XMLPARSE_ASSERT_FLOATING(_tag_,kph); speed=atof(kph);
 
     loaded_profiles[nloaded_profiles-1]->speed[highwaytype]=kph_to_speed(speed);
    }
@@ -266,7 +266,7 @@ static int preferenceType_function(const char *_tag_,int _type_,const char *high
     if(highwaytype==Way_Count)
        XMLPARSE_INVALID(_tag_,highway);
 
-    XMLPARSE_ASSERT_FLOATING(_tag_,percent,p);
+    XMLPARSE_ASSERT_FLOATING(_tag_,percent); p=atof(percent);
 
     loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=p;
    }
@@ -319,7 +319,7 @@ static int propertyType_function(const char *_tag_,int _type_,const char *type,c
     if(property==Property_Count)
        XMLPARSE_INVALID(_tag_,type);
 
-    XMLPARSE_ASSERT_FLOATING(_tag_,percent,p);
+    XMLPARSE_ASSERT_FLOATING(_tag_,percent); p=atof(percent);
 
     loaded_profiles[nloaded_profiles-1]->props_yes[property]=p;
    }
@@ -346,7 +346,7 @@ static int onewayType_function(const char *_tag_,int _type_,const char *obey)
    {
     int o;
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,obey,o);
+    XMLPARSE_ASSERT_INTEGER(_tag_,obey); o=atoi(obey);
 
     loaded_profiles[nloaded_profiles-1]->oneway=!!o;
    }
@@ -389,7 +389,7 @@ static int turnsType_function(const char *_tag_,int _type_,const char *obey)
    {
     int o;
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,obey,o);
+    XMLPARSE_ASSERT_INTEGER(_tag_,obey); o=atoi(obey);
 
     loaded_profiles[nloaded_profiles-1]->turns=!!o;
    }
@@ -416,7 +416,7 @@ static int weightType_function(const char *_tag_,int _type_,const char *limit)
    {
     double l;
 
-    XMLPARSE_ASSERT_FLOATING(_tag_,limit,l);
+    XMLPARSE_ASSERT_FLOATING(_tag_,limit); l=atof(limit);
 
     loaded_profiles[nloaded_profiles-1]->weight=tonnes_to_weight(l);
    }
@@ -443,7 +443,7 @@ static int heightType_function(const char *_tag_,int _type_,const char *limit)
    {
     double l;
 
-    XMLPARSE_ASSERT_FLOATING(_tag_,limit,l);
+    XMLPARSE_ASSERT_FLOATING(_tag_,limit); l=atof(limit);
 
     loaded_profiles[nloaded_profiles-1]->height=metres_to_height(l);
    }
@@ -470,7 +470,7 @@ static int widthType_function(const char *_tag_,int _type_,const char *limit)
    {
     double l;
 
-    XMLPARSE_ASSERT_FLOATING(_tag_,limit,l);
+    XMLPARSE_ASSERT_FLOATING(_tag_,limit); l=atof(limit);
 
     loaded_profiles[nloaded_profiles-1]->width=metres_to_width(l);
    }
@@ -497,7 +497,7 @@ static int lengthType_function(const char *_tag_,int _type_,const char *limit)
    {
     double l;
 
-    XMLPARSE_ASSERT_FLOATING(_tag_,limit,l);
+    XMLPARSE_ASSERT_FLOATING(_tag_,limit); l=atof(limit);
 
     loaded_profiles[nloaded_profiles-1]->length=metres_to_length(l);
    }
