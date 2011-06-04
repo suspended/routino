@@ -285,14 +285,14 @@ SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t nodeindex,int position)
 
   SegmentX *segmentx The current segment.
 
-  index_t node The node index.
+  index_t nodeindex The node index.
 
   int position A flag to pass through.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t node,int position)
+SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex,int position)
 {
- if(segmentx->node1==node)
+ if(segmentx->node1==nodeindex)
    {
 #if SLIM
     index_t index=IndexSegmentX(segmentsx,segmentx);
@@ -301,13 +301,13 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t node,int 
     if(index>=segmentsx->number)
        return(NULL);
     segmentx=LookupSegmentX(segmentsx,index,position);
-    if(segmentx->node1!=node)
+    if(segmentx->node1!=nodeindex)
        return(NULL);
     else
        return(segmentx);
 #else
     segmentx++;
-    if(IndexSegmentX(segmentsx,segmentx)>=segmentsx->number || segmentx->node1!=node)
+    if(IndexSegmentX(segmentsx,segmentx)>=segmentsx->number || segmentx->node1!=nodeindex)
        return(NULL);
     else
        return(segmentx);
