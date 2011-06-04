@@ -253,6 +253,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
  if(_type_&XMLPARSE_TAG_START)
    {
+    long long llid;
     nnodes++;
 
     if(!(nnodes%10000))
@@ -262,9 +263,12 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
     /* Handle the node information */
 
-    XMLPARSE_ASSERT_STRING(_tag_,id); node_id=atoll(id); /* need long long conversion */
-    XMLPARSE_ASSERT_FLOATING(_tag_,lat,latitude);
-    XMLPARSE_ASSERT_FLOATING(_tag_,lon,longitude);
+    XMLPARSE_ASSERT_INTEGER(_tag_,id);   llid=atoll(id); /* need long long conversion */
+    node_id=(node_t)llid;
+    assert((long long)node_id==llid);      /* check node id can be stored in node_t data type. */
+
+    XMLPARSE_ASSERT_FLOATING(_tag_,lat); latitude=atof(lat);
+    XMLPARSE_ASSERT_FLOATING(_tag_,lon); longitude=atof(lon);
    }
 
  if(_type_&XMLPARSE_TAG_END)
@@ -297,9 +301,12 @@ static int ndType_function(const char *_tag_,int _type_,const char *ref)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
+    long long llid;
     node_t node_id;
 
-    XMLPARSE_ASSERT_STRING(_tag_,ref); node_id=atoll(ref); /* need long long conversion */
+    XMLPARSE_ASSERT_INTEGER(_tag_,ref); llid=atoll(ref); /* need long long conversion */
+    node_id=(node_t)llid;
+    assert((long long)node_id==llid);      /* check node id can be stored in node_t data type. */
 
     if(way_nnodes && (way_nnodes%256)==0)
        way_nodes=(node_t*)realloc((void*)way_nodes,(way_nnodes+256)*sizeof(node_t));
@@ -331,12 +338,17 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
 {
  if(_type_&XMLPARSE_TAG_START)
    {
+    long long llid;
+
     XMLPARSE_ASSERT_STRING(_tag_,type);
-    XMLPARSE_ASSERT_STRING(_tag_,ref);
+    XMLPARSE_ASSERT_INTEGER(_tag_,ref); llid=atoll(ref); /* need long long conversion */
 
     if(!strcmp(type,"node"))
       {
-       node_t node_id=atoll(ref); /* need long long conversion */
+       node_t node_id;
+
+       node_id=(node_t)llid;
+       assert((long long)node_id==llid);   /* check node id can be stored in node_t data type. */
 
        if(relation_nnodes && (relation_nnodes%256)==0)
           relation_nodes=(node_t*)realloc((void*)relation_nodes,(relation_nnodes+256)*sizeof(node_t));
@@ -351,7 +363,10 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
       }
     else if(!strcmp(type,"way"))
       {
-       way_t way_id=atoll(ref); /* need long long conversion */
+       way_t way_id;
+
+       way_id=(way_t)llid;
+       assert((long long)way_id==llid);   /* check way id can be stored in way_t data type. */
 
        if(relation_nways && (relation_nways%256)==0)
           relation_ways=(way_t*)realloc((void*)relation_ways,(relation_nways+256)*sizeof(way_t));
@@ -368,7 +383,10 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
       }
     else if(!strcmp(type,"relation"))
       {
-       relation_t relation_id=atoll(ref); /* need long long conversion */
+       relation_t relation_id;
+
+       relation_id=(relation_t)llid;
+       assert((long long)relation_id==llid);   /* check relation id can be stored in relation_t data type. */
 
        if(relation_nrelations && (relation_nrelations%256)==0)
           relation_relations=(relation_t*)realloc((void*)relation_relations,(relation_nrelations+256)*sizeof(relation_t));
@@ -399,6 +417,8 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
 
  if(_type_&XMLPARSE_TAG_START)
    {
+    long long llid;
+
     nways++;
 
     if(!(nways%1000))
@@ -410,7 +430,10 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
 
     /* Handle the way information */
 
-    XMLPARSE_ASSERT_STRING(_tag_,id); way_id=atoll(id); /* need long long conversion */
+    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
+
+    way_id=(way_t)llid;
+    assert((long long)way_id==llid);   /* check way id can be stored in way_t data type. */
    }
 
  if(_type_&XMLPARSE_TAG_END)
@@ -445,6 +468,8 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
 
  if(_type_&XMLPARSE_TAG_START)
    {
+    long long llid;
+
     nrelations++;
 
     if(!(nrelations%1000))
@@ -460,7 +485,10 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
 
     /* Handle the relation information */
 
-    XMLPARSE_ASSERT_STRING(_tag_,id); relation_id=atoll(id); /* need long long conversion */
+    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
+
+    relation_id=(relation_t)llid;
+    assert((long long)relation_id==llid);   /* check relation id can be stored in relation_t data type. */
    }
 
  if(_type_&XMLPARSE_TAG_END)
