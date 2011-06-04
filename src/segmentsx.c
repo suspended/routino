@@ -510,7 +510,7 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  int duplicate=0,good=0;
  index_t index=0;
  int fd,nprev=0;
- node_t prevnode1=NO_NODE,prevnode2=NO_NODE;
+ index_t prevnode1=NO_NODE,prevnode2=NO_NODE;
  SegmentX prevsegx[MAX_SEG_PER_NODE],segmentx;
  Way prevway[MAX_SEG_PER_NODE];
 
