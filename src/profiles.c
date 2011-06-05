@@ -781,7 +781,7 @@ int UpdateProfile(Profile *profile,Ways *ways)
 
 void PrintProfile(const Profile *profile)
 {
- unsigned int i;
+ int i;
 
  printf("Profile\n=======\n");
 
@@ -822,7 +822,7 @@ void PrintProfile(const Profile *profile)
 
 void PrintProfilesXML(void)
 {
- unsigned int i,j;
+ int i,j;
  char *padding="                ";
 
  printf("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
@@ -873,7 +873,7 @@ void PrintProfilesXML(void)
 
 void PrintProfilesJSON(void)
 {
- unsigned int i,j;
+ int i,j;
 
  printf("var routino={ // contains all default Routino options (generated using \"--help-profile-json\").\n");
  printf("\n");
@@ -982,7 +982,7 @@ void PrintProfilesJSON(void)
 
 void PrintProfilesPerl(void)
 {
- unsigned int i,j;
+ int i,j;
 
  printf("$routino={ # contains all default Routino options (generated using \"--help-profile-perl\").\n");
  printf("\n");
