@@ -474,7 +474,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  do
    {
     int ways=0,relations=0;
-    int i;
+    index_t i;
 
     SeekFile(relationsx->rfd,0);
 
@@ -618,8 +618,8 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
 void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
 {
- int i,trfd;
- int deleted=0;
+ int trfd;
+ index_t i,deleted=0;
 
  /* Print the start message */
 
@@ -683,7 +683,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 {
  TurnRestrictRelX relationx;
  int trfd;
- int total=0,deleted=0;
+ index_t total=0,deleted=0;
 
  if(nodesx->number==0 || segmentsx->number==0)
     return;
@@ -894,7 +894,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
 {
  int trfd;
- int i;
+ index_t i;
 
  /* Print the start message */
 

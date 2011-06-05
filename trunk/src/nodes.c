@@ -118,7 +118,8 @@ index_t FindClosestNode(Nodes *nodes,Segments *segments,Ways *ways,double latitu
 
  do
    {
-    int latb,lonb,llbin;
+    ll_bin_t latb,lonb;
+    ll_bin2_t llbin;
 
     count=0;
 
@@ -278,7 +279,8 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
 
  do
    {
-    int latb,lonb,llbin;
+    ll_bin_t latb,lonb;
+    ll_bin2_t llbin;
 
     count=0;
 
@@ -465,8 +467,8 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
 void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
 {
  Node *node=LookupNode(nodes,index,2);
- int latbin=-1,lonbin=-1;
- int start,end,mid;
+ ll_bin_t latbin=-1,lonbin=-1;
+ ll_bin_t start,end,mid;
  index_t offset;
 
  /* Binary search - search key exact match only is required.

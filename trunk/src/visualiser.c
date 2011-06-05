@@ -714,11 +714,11 @@ static void output_limits(index_t node,double latitude,double longitude)
 
 static void find_all_nodes(Nodes *nodes,callback_t callback)
 {
- int32_t latminbin=latlong_to_bin(radians_to_latlong(LatMin))-nodes->file.latzero;
- int32_t latmaxbin=latlong_to_bin(radians_to_latlong(LatMax))-nodes->file.latzero;
- int32_t lonminbin=latlong_to_bin(radians_to_latlong(LonMin))-nodes->file.lonzero;
- int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(LonMax))-nodes->file.lonzero;
- int latb,lonb,llbin;
+ ll_bin_t latminbin=latlong_to_bin(radians_to_latlong(LatMin))-nodes->file.latzero;
+ ll_bin_t latmaxbin=latlong_to_bin(radians_to_latlong(LatMax))-nodes->file.latzero;
+ ll_bin_t lonminbin=latlong_to_bin(radians_to_latlong(LonMin))-nodes->file.lonzero;
+ ll_bin_t lonmaxbin=latlong_to_bin(radians_to_latlong(LonMax))-nodes->file.lonzero;
+ ll_bin_t latb,lonb;
  index_t i,index1,index2;
 
  /* Loop through all of the nodes. */
@@ -726,7 +726,7 @@ static void find_all_nodes(Nodes *nodes,callback_t callback)
  for(latb=latminbin;latb<=latmaxbin;latb++)
     for(lonb=lonminbin;lonb<=lonmaxbin;lonb++)
       {
-       llbin=lonb*nodes->file.latbins+latb;
+       ll_bin2_t llbin=lonb*nodes->file.latbins+latb;
 
        if(llbin<0 || llbin>(nodes->file.latbins*nodes->file.lonbins))
           continue;

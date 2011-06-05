@@ -54,7 +54,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
  index_t i;
- int nnodes=0;
+ index_t nnodes=0;
 
  if(nodesx->number==0 || segmentsx->number==0 || waysx->number==0)
     return;
@@ -85,9 +85,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
        NodeX *nodex=LookupNodeX(nodesx,i,1);
 
        if(nodex->flags&(NODE_TURNRSTRCT|NODE_TURNRSTRCT2))
-         {
           issuper=1;
-         }
        else
          {
           int count=0,j;
@@ -197,7 +195,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
  index_t i;
  SegmentsX *supersegmentsx;
- int sn=0,ss=0;
+ index_t sn=0,ss=0;
 
  supersegmentsx=NewSegmentList(0);
 
@@ -320,7 +318,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 {
  index_t i,j;
- int m=0,a=0;
+ index_t merged=0,added=0;
  SegmentsX *mergedsegmentsx;
 
  mergedsegmentsx=NewSegmentList(0);
@@ -359,7 +357,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
           segmentx->node2   ==supersegmentx->node2 &&
           segmentx->distance==supersegmentx->distance)
          {
-          m++;
+          merged++;
           j++;
           /* mark as super-segment and normal segment */
           super=1;
@@ -373,7 +371,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
          {
           /* mark as super-segment */
           AppendSegment(mergedsegmentsx,supersegmentx->way,supersegmentx->node1,supersegmentx->node2,supersegmentx->distance|SEGMENT_SUPER);
-          a++;
+          added++;
           j++;
          }
        else
@@ -389,7 +387,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
        AppendSegment(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_NORMAL);
 
     if(!((i+1)%10000))
-       printf_middle("Merging Segments: Segments=%d Super=%d Merged=%d Added=%d",i+1,j,m,a);
+       printf_middle("Merging Segments: Segments=%d Super=%d Merged=%d Added=%d",i+1,j,merged,added);
    }
 
  /* Unmap from memory / close the files */
@@ -406,7 +404,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 
  /* Print the final message */
 
- printf_last("Merged Segments: Segments=%d Super=%d Merged=%d Added=%d",segmentsx->number,supersegmentsx->number,m,a);
+ printf_last("Merged Segments: Segments=%d Super=%d Merged=%d Added=%d",segmentsx->number,supersegmentsx->number,merged,added);
 
  return(mergedsegmentsx);
 }

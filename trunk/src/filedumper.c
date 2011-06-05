@@ -337,11 +337,11 @@ int main(int argc,char** argv)
 
     if(coordcount)
       {
-       int32_t latminbin=latlong_to_bin(radians_to_latlong(latmin))-OSMNodes->file.latzero;
-       int32_t latmaxbin=latlong_to_bin(radians_to_latlong(latmax))-OSMNodes->file.latzero;
-       int32_t lonminbin=latlong_to_bin(radians_to_latlong(lonmin))-OSMNodes->file.lonzero;
-       int32_t lonmaxbin=latlong_to_bin(radians_to_latlong(lonmax))-OSMNodes->file.lonzero;
-       int latb,lonb,llbin;
+       ll_bin_t latminbin=latlong_to_bin(radians_to_latlong(latmin))-OSMNodes->file.latzero;
+       ll_bin_t latmaxbin=latlong_to_bin(radians_to_latlong(latmax))-OSMNodes->file.latzero;
+       ll_bin_t lonminbin=latlong_to_bin(radians_to_latlong(lonmin))-OSMNodes->file.lonzero;
+       ll_bin_t lonmaxbin=latlong_to_bin(radians_to_latlong(lonmax))-OSMNodes->file.lonzero;
+       ll_bin_t latb,lonb;
        index_t item,index1,index2;
 
        if(latminbin<0)                      latminbin=0;
@@ -354,7 +354,7 @@ int main(int argc,char** argv)
        for(latb=latminbin;latb<=latmaxbin;latb++)
           for(lonb=lonminbin;lonb<=lonmaxbin;lonb++)
             {
-             llbin=lonb*OSMNodes->file.latbins+latb;
+             ll_bin2_t llbin=lonb*OSMNodes->file.latbins+latb;
 
              if(llbin<0 || llbin>(OSMNodes->file.latbins*OSMNodes->file.lonbins))
                 continue;

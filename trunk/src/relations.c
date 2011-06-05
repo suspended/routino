@@ -103,10 +103,10 @@ Relations *LoadRelationList(const char *filename)
 index_t FindFirstTurnRelation1(Relations *relations,index_t via)
 {
  TurnRelation *relation;
- int start=0;
- int end=relations->file.trnumber-1;
- int mid;
- int match=-1;
+ index_t start=0;
+ index_t end=relations->file.trnumber-1;
+ index_t mid;
+ index_t match=-1;
 
  /* Binary search - search key first match is required.
   *
@@ -227,10 +227,10 @@ index_t FindNextTurnRelation1(Relations *relations,index_t current)
 index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
 {
  TurnRelation *relation;
- int start=0;
- int end=relations->file.trnumber-1;
- int mid;
- int match=-1;
+ index_t start=0;
+ index_t end=relations->file.trnumber-1;
+ index_t mid;
+ index_t match=-1;
 
  if(IsFakeSegment(from))
     from=IndexRealSegment(from);

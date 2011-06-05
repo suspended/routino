@@ -333,7 +333,7 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 {
- int duplicate=0,loop=0,nonode=0,good=0,total=0;
+ index_t duplicate=0,loop=0,nonode=0,good=0,total=0;
  SegmentX segmentx;
  int fd;
  node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
@@ -507,7 +507,7 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
 void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
- int duplicate=0,good=0;
+ index_t duplicate=0,good=0;
  index_t index=0;
  int fd,nprev=0;
  index_t prevnode1=NO_NODE,prevnode2=NO_NODE;
@@ -630,8 +630,7 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
 void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx)
 {
- index_t index;
- int i;
+ index_t index,i;
 
  if(segmentsx->number==0)
     return;
@@ -792,7 +791,7 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
  index_t i;
  int fd;
  SegmentsFile segmentsfile={0};
- int super_number=0,normal_number=0;
+ index_t super_number=0,normal_number=0;
 
  /* Print the start message */
 

@@ -389,9 +389,9 @@ static int index_by_lat_long(NodeX *nodex,index_t index)
 
 index_t IndexNodeX(NodesX *nodesx,node_t id)
 {
- int start=0;
- int end=nodesx->number-1;
- int mid;
+ index_t start=0;
+ index_t end=nodesx->number-1;
+ index_t mid;
 
  /* Binary search - search key exact match only is required.
   *
@@ -447,7 +447,7 @@ index_t IndexNodeX(NodesX *nodesx,node_t id)
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  NodeX nodex;
- int total=0,highway=0,nothighway=0;
+ index_t total=0,highway=0,nothighway=0;
  ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
  latlong_t lat_min,lat_max,lon_min,lon_max;
  int fd;
@@ -609,8 +609,9 @@ void SaveNodeList(NodesX *nodesx,const char *filename)
  index_t i;
  int fd;
  NodesFile nodesfile={0};
- int super_number=0;
- index_t latlonbin=0,*offsets;
+ index_t super_number=0;
+ ll_bin2_t latlonbin=0;
+ index_t *offsets;
 
  /* Print the start message */
 
@@ -639,7 +640,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename)
     NodeX nodex;
     Node node;
     ll_bin_t latbin,lonbin;
-    int llbin;
+    ll_bin2_t llbin;
 
     ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
 
