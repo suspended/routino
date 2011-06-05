@@ -729,7 +729,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     index_t node1,seg1,seg1r;
     Segment *segment;
     index_t turnrelation=NO_RELATION;
-    int     routes_out=0;
 
     node1=result1->node;
     seg1=result1->segment;
@@ -825,8 +824,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           if(!(node->allow&profile->allow))
              goto endloop;
          }
-
-       routes_out++;
 
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
