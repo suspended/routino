@@ -113,13 +113,16 @@
 typedef uint32_t index_t;
 
 
-/*+ A node latitude or longitude. +*/
+/*+ A node latitude or longitude (range: +/-pi*LAT_LONG_SCALE = +/-3.14*1024*65536 = ~29 bits). +*/
 typedef int32_t  latlong_t;
 
-/*+ A node latitude or longitude bin number. +*/
+/*+ A node latitude or longitude bin number (range: +/-pi*LAT_LONG_SCALE/LAT_LONG_BIN = +/-3.14*1024 = ~13 bits). +*/
 typedef int16_t  ll_bin_t;
 
-/*+ A node latitude or longitude offset. +*/
+/*+ A node latitude and longitude bin number (range: +/-(pi*LAT_LONG_SCALE/LAT_LONG_BIN)^2 = +/-(3.14*1024)^2 = ~26 bits). +*/
+typedef int32_t  ll_bin2_t;
+
+/*+ A node latitude or longitude offset (range: 0 -> LAT_LONG_BIN-1 = 0 -> 65535 = 16 bits). +*/
 typedef uint16_t ll_off_t;
 
 
