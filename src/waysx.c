@@ -546,9 +546,9 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
 index_t IndexWayX(WaysX *waysx,way_t id)
 {
- int start=0;
- int end=waysx->number-1;
- int mid;
+ index_t start=0;
+ index_t end=waysx->number-1;
+ index_t mid;
 
  /* Binary search - search key exact match only is required.
   *
