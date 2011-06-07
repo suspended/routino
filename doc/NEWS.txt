@@ -1,3 +1,15 @@
+Version 2.0.1 of Routino released : Tue June 7 2011
+---------------------------------------------------
+
+Bug fixes:
+  Turn relations that specify missing nodes/ways are deleted (don't crash).
+  Various code tidy-ups and 32/64 bit node and index improvements.
+  Shorten the messages printed by planetsplitter to keep below 80 characters.
+
+OSM Tagging:
+  Check whether node/way/relation IDs fit in 32-bits (code ready for 64-bits).
+
+
 Version 2.0 of Routino released : Mon May 30 2011
 -------------------------------------------------
 
