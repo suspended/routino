@@ -237,7 +237,7 @@ void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
  relationx.from=from;
  relationx.to=to;
  relationx.via=via;
- relationx.restrict=restriction;
+ relationx.restriction=restriction;
  relationx.except=except;
 
  WriteFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
@@ -717,10 +717,10 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
     NodeX *nodex;
     SegmentX *segmentx;
 
-    if(relationx.restrict==TurnRestrict_no_right_turn ||
-       relationx.restrict==TurnRestrict_no_left_turn ||
-       relationx.restrict==TurnRestrict_no_u_turn ||
-       relationx.restrict==TurnRestrict_no_straight_on)
+    if(relationx.restriction==TurnRestrict_no_right_turn ||
+       relationx.restriction==TurnRestrict_no_left_turn ||
+       relationx.restriction==TurnRestrict_no_u_turn ||
+       relationx.restriction==TurnRestrict_no_straight_on)
       {
        index_t node_from=NO_NODE,node_to=NO_NODE;
 

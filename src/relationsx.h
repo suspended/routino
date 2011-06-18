@@ -51,7 +51,7 @@ struct _TurnRestrictRelX
  node_t          via;          /*+ The id of the via node; initially the OSM value, later the NodeX index. +*/
  way_t           to;           /*+ The id of the ending way; initially the OSM value, later the NodeX index then the SegmentX index. +*/
 
- TurnRestriction restrict;     /*+ The type of restriction. +*/
+ TurnRestriction restriction;  /*+ The type of restriction. +*/
  transports_t    except;       /*+ The types of transports that that this relation does not apply to. +*/
 };
 
