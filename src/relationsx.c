@@ -79,7 +79,7 @@ RelationsX *NewRelationList(int append)
  if(append)
     sprintf(relationsx->rfilename,"%s/relationsx.route.input.tmp",option_tmpdirname);
  else
-    sprintf(relationsx->rfilename,"%s/relationsx.route.%p.tmp",option_tmpdirname,relationsx);
+    sprintf(relationsx->rfilename,"%s/relationsx.route.%p.tmp",option_tmpdirname,(void*)relationsx);
 
  if(append)
    {
@@ -113,7 +113,7 @@ RelationsX *NewRelationList(int append)
  if(append)
     sprintf(relationsx->trfilename,"%s/relationsx.turn.input.tmp",option_tmpdirname);
  else
-    sprintf(relationsx->trfilename,"%s/relationsx.turn.%p.tmp",option_tmpdirname,relationsx);
+    sprintf(relationsx->trfilename,"%s/relationsx.turn.%p.tmp",option_tmpdirname,(void*)relationsx);
 
  if(append)
    {

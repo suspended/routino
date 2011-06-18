@@ -76,7 +76,7 @@ SegmentsX *NewSegmentList(int append)
  if(append)
     sprintf(segmentsx->filename,"%s/segmentsx.input.tmp",option_tmpdirname);
  else
-    sprintf(segmentsx->filename,"%s/segmentsx.%p.tmp",option_tmpdirname,segmentsx);
+    sprintf(segmentsx->filename,"%s/segmentsx.%p.tmp",option_tmpdirname,(void*)segmentsx);
 
  if(append)
    {

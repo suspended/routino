@@ -110,7 +110,7 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 #define LookupSegmentX(segmentsx,index,position)         &(segmentsx)->data[index]
 
-#define IndexSegmentX(segmentsx,segmentx)                ((segmentx)-&(segmentsx)->data[0])
+#define IndexSegmentX(segmentsx,segmentx)                (index_t)((segmentx)-&(segmentsx)->data[0])
 
 #define PutBackSegmentX(segmentsx,index,position)        /* nop */
   

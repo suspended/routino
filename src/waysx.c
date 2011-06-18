@@ -77,7 +77,7 @@ WaysX *NewWayList(int append)
  if(append)
     sprintf(waysx->filename,"%s/waysx.input.tmp",option_tmpdirname);
  else
-    sprintf(waysx->filename,"%s/waysx.%p.tmp",option_tmpdirname,waysx);
+    sprintf(waysx->filename,"%s/waysx.%p.tmp",option_tmpdirname,(void*)waysx);
 
  if(append)
    {
@@ -104,7 +104,7 @@ WaysX *NewWayList(int append)
     waysx->fd=OpenFileNew(waysx->filename);
 
  waysx->nfilename=(char*)malloc(strlen(option_tmpdirname)+32);
- sprintf(waysx->nfilename,"%s/waynames.%p.tmp",option_tmpdirname,waysx);
+ sprintf(waysx->nfilename,"%s/waynames.%p.tmp",option_tmpdirname,(void*)waysx);
 
  return(waysx);
 }
