@@ -482,10 +482,10 @@ int main(int argc,char** argv)
           GetLatLong(OSMNodes,finish_node,&lat,&lon);
 
        if(IsFakeNode(finish_node))
-          printf("Point %d is segment %d (node %d -> %d): %3.6f %4.6f = %2.3f km\n",point,segment,node1,node2,
+          printf("Point %d is segment %"Pindex_t" (node %"Pindex_t" -> %"Pindex_t"): %3.6f %4.6f = %2.3f km\n",point,segment,node1,node2,
                  radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
        else
-          printf("Point %d is node %d: %3.6f %4.6f = %2.3f km\n",point,finish_node,
+          printf("Point %d is node %"Pindex_t": %3.6f %4.6f = %2.3f km\n",point,finish_node,
                  radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
       }
 

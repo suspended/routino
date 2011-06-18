@@ -158,7 +158,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
       }
 
     if(!((i+1)%10000))
-       printf_middle("Finding Super-Nodes: Nodes=%d Super-Nodes=%d",i+1,nnodes);
+       printf_middle("Finding Super-Nodes: Nodes=%"Pindex_t" Super-Nodes=%"Pindex_t,i+1,nnodes);
    }
 
  /* Unmap from memory / close the files */
@@ -175,7 +175,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Found Super-Nodes: Nodes=%d Super-Nodes=%d",nodesx->number,nnodes);
+ printf_last("Found Super-Nodes: Nodes=%"Pindex_t" Super-Nodes=%"Pindex_t,nodesx->number,nnodes);
 }
 
 
@@ -283,7 +283,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
        sn++;
 
        if(!(sn%10000))
-          printf_middle("Creating Super-Segments: Super-Nodes=%d Super-Segments=%d",sn,ss);
+          printf_middle("Creating Super-Segments: Super-Nodes=%"Pindex_t" Super-Segments=%"Pindex_t,sn,ss);
       }
    }
 
@@ -299,7 +299,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Created Super-Segments: Super-Nodes=%d Super-Segments=%d",sn,ss);
+ printf_last("Created Super-Segments: Super-Nodes=%"Pindex_t" Super-Segments=%"Pindex_t,sn,ss);
 
  return(supersegmentsx);
 }
@@ -387,7 +387,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
        AppendSegment(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_NORMAL);
 
     if(!((i+1)%10000))
-       printf_middle("Merging Segments: Segments=%d Super=%d Merged=%d Added=%d",i+1,j,merged,added);
+       printf_middle("Merging Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,i+1,j,merged,added);
    }
 
  /* Unmap from memory / close the files */
@@ -404,7 +404,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 
  /* Print the final message */
 
- printf_last("Merged Segments: Segments=%d Super=%d Merged=%d Added=%d",segmentsx->number,supersegmentsx->number,merged,added);
+ printf_last("Merged Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,segmentsx->number,supersegmentsx->number,merged,added);
 
  return(mergedsegmentsx);
 }

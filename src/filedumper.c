@@ -280,7 +280,7 @@ int main(int argc,char** argv)
           if(item>=0 && item<OSMNodes->file.number)
              print_node(OSMNodes,item);
           else
-             printf("Invalid node number; minimum=0, maximum=%d.\n",OSMNodes->file.number-1);
+             printf("Invalid node number; minimum=0, maximum=%"Pindex_t".\n",OSMNodes->file.number-1);
          }
        else if(!strcmp(argv[arg],"--segment=all"))
          {
@@ -294,7 +294,7 @@ int main(int argc,char** argv)
           if(item>=0 && item<OSMSegments->file.number)
              print_segment(OSMSegments,item);
           else
-             printf("Invalid segment number; minimum=0, maximum=%d.\n",OSMSegments->file.number-1);
+             printf("Invalid segment number; minimum=0, maximum=%"Pindex_t".\n",OSMSegments->file.number-1);
          }
        else if(!strcmp(argv[arg],"--way=all"))
          {
@@ -308,7 +308,7 @@ int main(int argc,char** argv)
           if(item>=0 && item<OSMWays->file.number)
              print_way(OSMWays,item);
           else
-             printf("Invalid way number; minimum=0, maximum=%d.\n",OSMWays->file.number-1);
+             printf("Invalid way number; minimum=0, maximum=%"Pindex_t".\n",OSMWays->file.number-1);
          }
        else if(!strcmp(argv[arg],"--turn-relation=all"))
          {
@@ -322,7 +322,7 @@ int main(int argc,char** argv)
           if(item>=0 && item<OSMRelations->file.trnumber)
              print_turnrelation(OSMRelations,item,OSMSegments,OSMNodes);
           else
-             printf("Invalid turn relation number; minimum=0, maximum=%d.\n",OSMRelations->file.trnumber-1);
+             printf("Invalid turn relation number; minimum=0, maximum=%"Pindex_t".\n",OSMRelations->file.trnumber-1);
          }
    }
 
@@ -437,8 +437,8 @@ static void print_node(Nodes *nodes,index_t item)
 
  GetLatLong(nodes,item,&latitude,&longitude);
 
- printf("Node %d\n",item);
- printf("  firstseg=%d\n",node->firstseg);
+ printf("Node %"Pindex_t"\n",item);
+ printf("  firstseg=%"Pindex_t"\n",node->firstseg);
  printf("  latoffset=%d lonoffset=%d (latitude=%.6f longitude=%.6f)\n",node->latoffset,node->lonoffset,radians_to_degrees(latitude),radians_to_degrees(longitude));
  printf("  allow=%02x (%s)\n",node->allow,AllowedNameList(node->allow));
  if(IsSuperNode(node))
@@ -458,10 +458,10 @@ static void print_segment(Segments *segments,index_t item)
 {
  Segment *segment=LookupSegment(segments,item,1);
 
- printf("Segment %d\n",item);
- printf("  node1=%d node2=%d\n",segment->node1,segment->node2);
- printf("  next2=%d\n",segment->next2);
- printf("  way=%d\n",segment->way);
+ printf("Segment %"Pindex_t"\n",item);
+ printf("  node1=%"Pindex_t" node2=%"Pindex_t"\n",segment->node1,segment->node2);
+ printf("  next2=%"Pindex_t"\n",segment->next2);
+ printf("  way=%"Pindex_t"\n",segment->way);
  printf("  distance=%d (%.3f km)\n",DISTANCE(segment->distance),distance_to_km(DISTANCE(segment->distance)));
  if(IsSuperSegment(segment) && IsNormalSegment(segment))
     printf("  Super-Segment AND normal Segment\n");
@@ -487,7 +487,7 @@ static void print_way(Ways *ways,index_t item)
  Way *way=LookupWay(ways,item,1);
  char *name=WayName(ways,way);
 
- printf("Way %d\n",item);
+ printf("Way %"Pindex_t"\n",item);
  if(*name)
     printf("  name=%s\n",name);
  printf("  type=%02x (%s%s)\n",way->type,HighwayName(HIGHWAY(way->type)),way->type&Way_OneWay?",One-Way":"");
@@ -548,10 +548,10 @@ static void print_turnrelation(Relations *relations,index_t item,Segments *segme
    }
  while(segment);
 
- printf("Relation %d\n",item);
- printf("  from=%d (segment) = %d (way) = %d (node)\n",relation->from,from_way,from_node);
- printf("  via=%d (node)\n",relation->via);
- printf("  to=%d (segment) = %d (way) = %d (node)\n",relation->to,to_way,to_node);
+ printf("Relation %"Pindex_t"\n",item);
+ printf("  from=%"Pindex_t" (segment) = %"Pindex_t" (way) = %"Pindex_t" (node)\n",relation->from,from_way,from_node);
+ printf("  via=%"Pindex_t" (node)\n",relation->via);
+ printf("  to=%"Pindex_t" (segment) = %"Pindex_t" (way) = %"Pindex_t" (node)\n",relation->to,to_way,to_node);
  if(relation->except)
     printf("  except=%02x (%s)\n",relation->except,AllowedNameList(relation->except));
 }

@@ -24,6 +24,7 @@
 #define TYPESX_H    /*+ To stop multiple inclusions. +*/
 
 
+#include <inttypes.h>
 #include <stdint.h>
 
 
@@ -59,6 +60,16 @@ typedef uint32_t way_t;
 
 /*+ A relation identifier - must be at least as large as index_t. +*/
 typedef uint32_t relation_t;
+
+
+/*+ A printf formatting string for a node_t type (this should match the node_t definition above). +*/
+#define Pnode_t PRIu32          /* PRIu32 and PRIu64 are defined in intypes.h */
+
+/*+ A printf formatting string for a way_t type (this should match the way_t definition above). +*/
+#define Pway_t PRIu32           /* PRIu32 and PRIu64 are defined in intypes.h */
+
+/*+ A printf formatting string for a relation_t type (this should match the relation_t definition above). +*/
+#define Prelation_t PRIu32      /* PRIu32 and PRIu64 are defined in intypes.h */
 
 
 /* Enumerated types */

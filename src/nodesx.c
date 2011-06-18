@@ -209,7 +209,7 @@ void SortNodeList(NodesX *nodesx)
 
  /* Print the final message */
 
- printf_last("Sorted Nodes: Nodes=%d Duplicates=%d",xnumber,xnumber-nodesx->number);
+ printf_last("Sorted Nodes: Nodes=%"Pindex_t" Duplicates=%"Pindex_t,xnumber,xnumber-nodesx->number);
 }
 
 
@@ -499,7 +499,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking Nodes: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
+       printf_middle("Checking Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
    }
 
  nodesx->number=highway;
@@ -537,7 +537,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Checked Nodes: Nodes=%d Highway=%d not-Highway=%d",total,highway,nothighway);
+ printf_last("Checked Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
 }
 
 
@@ -582,7 +582,7 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
     WriteFile(fd,&nodex,sizeof(NodeX));
 
     if(!((i+1)%10000))
-       printf_middle("Updating Super Nodes: Nodes=%d",i+1);
+       printf_middle("Updating Super Nodes: Nodes=%"Pindex_t,i+1);
    }
 
  /* Close the files */
@@ -592,7 +592,7 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Updated Super Nodes: Nodes=%d",nodesx->number);
+ printf_last("Updated Super Nodes: Nodes=%"Pindex_t,nodesx->number);
 }
 
 
@@ -669,7 +669,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename)
     WriteFile(fd,&node,sizeof(Node));
 
     if(!((i+1)%10000))
-       printf_middle("Writing Nodes: Nodes=%d",i+1);
+       printf_middle("Writing Nodes: Nodes=%"Pindex_t,i+1);
    }
 
  /* Close the file */
@@ -704,5 +704,5 @@ void SaveNodeList(NodesX *nodesx,const char *filename)
 
  /* Print the final message */
 
- printf_last("Wrote Nodes: Nodes=%d",nodesx->number);
+ printf_last("Wrote Nodes: Nodes=%"Pindex_t,nodesx->number);
 }
