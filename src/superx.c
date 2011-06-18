@@ -447,11 +447,10 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
  while((result1=PopFromQueue(queue)))
    {
-    index_t node1,seg1;
+    index_t node1;
     SegmentX *segmentx;
 
     node1=result1->node;
-    seg1=result1->segment;
 
     segmentx=FirstSegmentX(segmentsx,node1,2); /* position 1 is already used */
 
