@@ -70,7 +70,7 @@ struct _xmltag
 
 int ParseXML(FILE *file,xmltag **tags,int options);
 
-unsigned long ParseXML_LineNumber(void);
+unsigned long long ParseXML_LineNumber(void);
 
 char *ParseXML_Decode_Entity_Ref(const char *string);
 char *ParseXML_Decode_Char_Ref(const char *string);
@@ -84,7 +84,7 @@ int ParseXML_IsFloating(const char *string);
 #define XMLPARSE_MESSAGE(tag,message) \
  do \
    { \
-    fprintf(stderr,"XML Parser: Error on line %ld: " message " in <%s> tag.\n",ParseXML_LineNumber(),tag); \
+    fprintf(stderr,"XML Parser: Error on line %llu: " message " in <%s> tag.\n",ParseXML_LineNumber(),tag); \
     return(1); \
    } \
     while(0)
@@ -92,7 +92,7 @@ int ParseXML_IsFloating(const char *string);
 #define XMLPARSE_INVALID(tag,attribute) \
  do \
    { \
-    fprintf(stderr,"XML Parser: Error on line %ld: Invalid value for '" #attribute "' attribute in <%s> tag.\n",ParseXML_LineNumber(),tag); \
+    fprintf(stderr,"XML Parser: Error on line %llu: Invalid value for '" #attribute "' attribute in <%s> tag.\n",ParseXML_LineNumber(),tag); \
     return(1); \
    } \
     while(0)
@@ -102,7 +102,7 @@ int ParseXML_IsFloating(const char *string);
    { \
     if(!attribute) \
       { \
-       fprintf(stderr,"XML Parser: Error on line %ld: '" #attribute "' attribute must be specified in <%s> tag.\n",ParseXML_LineNumber(),tag); \
+       fprintf(stderr,"XML Parser: Error on line %llu: '" #attribute "' attribute must be specified in <%s> tag.\n",ParseXML_LineNumber(),tag); \
        return(1); \
       } \
    } \
@@ -113,7 +113,7 @@ int ParseXML_IsFloating(const char *string);
    { \
     if(!attribute || !*attribute || !ParseXML_IsInteger(attribute)) \
       { \
-       fprintf(stderr,"XML Parser: Error on line %ld: '" #attribute "' attribute must be a integer in <%s> tag.\n",ParseXML_LineNumber(),tag); \
+       fprintf(stderr,"XML Parser: Error on line %llu: '" #attribute "' attribute must be a integer in <%s> tag.\n",ParseXML_LineNumber(),tag); \
        return(1); \
       } \
    } \
@@ -124,7 +124,7 @@ int ParseXML_IsFloating(const char *string);
    { \
     if(!attribute || !*attribute || !ParseXML_IsFloating(attribute)) \
       { \
-       fprintf(stderr,"XML Parser: Error on line %ld: '" #attribute "' attribute must be a number in <%s> tag.\n",ParseXML_LineNumber(),tag); \
+       fprintf(stderr,"XML Parser: Error on line %llu: '" #attribute "' attribute must be a number in <%s> tag.\n",ParseXML_LineNumber(),tag); \
        return(1); \
       } \
    } \
