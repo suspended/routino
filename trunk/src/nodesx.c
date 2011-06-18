@@ -79,7 +79,7 @@ NodesX *NewNodeList(int append)
  if(append)
     sprintf(nodesx->filename,"%s/nodesx.input.tmp",option_tmpdirname);
  else
-    sprintf(nodesx->filename,"%s/nodesx.%p.tmp",option_tmpdirname,nodesx);
+    sprintf(nodesx->filename,"%s/nodesx.%p.tmp",option_tmpdirname,(void*)nodesx);
 
  if(append)
    {
@@ -610,7 +610,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename)
  int fd;
  NodesFile nodesfile={0};
  index_t super_number=0;
- ll_bin2_t latlonbin=0;
+ ll_bin2_t latlonbin=0,maxlatlonbins;
  index_t *offsets;
 
  /* Print the start message */
@@ -678,7 +678,9 @@ void SaveNodeList(NodesX *nodesx,const char *filename)
 
  /* Finish off the offset indexing and write them out */
 
- for(;latlonbin<=(nodesx->latbins*nodesx->lonbins);latlonbin++)
+ maxlatlonbins=nodesx->latbins*nodesx->lonbins;
+
+ for(;latlonbin<=maxlatlonbins;latlonbin++)
     offsets[latlonbin]=nodesx->number;
 
  SeekFile(fd,sizeof(NodesFile));
