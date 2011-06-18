@@ -202,7 +202,7 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Sorted Segments: Segments=%d",segmentsx->number);
+ printf_last("Sorted Segments: Segments=%"Pindex_t,segmentsx->number);
 }
 
 
@@ -385,7 +385,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking Segments: Segments=%d Duplicate=%d Loop=%d No-Node=%d",total,duplicate,loop,nonode);
+       printf_middle("Checking Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t" Loop=%"Pindex_t" No-Node=%"Pindex_t,total,duplicate,loop,nonode);
    }
 
  segmentsx->number=good;
@@ -397,7 +397,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Checked Segments: Segments=%d Duplicate=%d Loop=%d No-Node=%d",total,duplicate,loop,nonode);
+ printf_last("Checked Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t" Loop=%"Pindex_t" No-Node=%"Pindex_t,total,duplicate,loop,nonode);
 }
 
 
@@ -465,7 +465,7 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     index++;
 
     if(!(index%10000))
-       printf_middle("Measuring Segments: Segments=%d",index);
+       printf_middle("Measuring Segments: Segments=%"Pindex_t,index);
    }
 
  /* Close the files */
@@ -491,7 +491,7 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Measured Segments: Segments=%d",segmentsx->number);
+ printf_last("Measured Segments: Segments=%"Pindex_t,segmentsx->number);
 }
 
 
@@ -596,7 +596,7 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     index++;
 
     if(!(index%10000))
-       printf_middle("Deduplicating Segments: Segments=%d Duplicate=%d",index,duplicate);
+       printf_middle("Deduplicating Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t,index,duplicate);
    }
 
  segmentsx->number=good;
@@ -616,7 +616,7 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Deduplicated Segments: Segments=%d Duplicate=%d Unique=%d",index,duplicate,good);
+ printf_last("Deduplicated Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t" Unique=%"Pindex_t,index,duplicate,good);
 }
 
 
@@ -673,7 +673,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx)
     segmentsx->firstnode[segmentx->node2]=index;
 
     if(!(index%10000))
-       printf_middle("Indexing Segments: Segments=%d",segmentsx->number-index);
+       printf_middle("Indexing Segments: Segments=%"Pindex_t,segmentsx->number-index);
    }
 
  /* Unmap from memory / close the files */
@@ -686,7 +686,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx)
 
  /* Print the final message */
 
- printf_last("Indexed Segments: Segments=%d",segmentsx->number);
+ printf_last("Indexed Segments: Segments=%"Pindex_t,segmentsx->number);
 }
 
 
@@ -756,7 +756,7 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     WriteFile(fd,&segmentx,sizeof(SegmentX));
 
     if(!((i+1)%10000))
-       printf_middle("Updating Segments: Segments=%d",i+1);
+       printf_middle("Updating Segments: Segments=%"Pindex_t,i+1);
    }
 
  /* Close the files */
@@ -774,7 +774,7 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Updated Segments: Segments=%d",segmentsx->number);
+ printf_last("Updated Segments: Segments=%"Pindex_t,segmentsx->number);
 }
 
 
@@ -828,7 +828,7 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
     WriteFile(fd,&segment,sizeof(Segment));
 
     if(!((i+1)%10000))
-       printf_middle("Writing Segments: Segments=%d",i+1);
+       printf_middle("Writing Segments: Segments=%"Pindex_t,i+1);
    }
 
  /* Write out the header structure */
@@ -848,7 +848,7 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
 
  /* Print the final message */
 
- printf_last("Wrote Segments: Segments=%d",segmentsx->number);
+ printf_last("Wrote Segments: Segments=%"Pindex_t,segmentsx->number);
 }
 
 

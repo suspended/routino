@@ -48,7 +48,10 @@
 
 /* Local variables */
 
-static long nnodes=0,nways=0,nrelations=0;
+static index_t nnodes=0;
+static index_t nways=0;
+static index_t nrelations=0;
+
 static TagList *current_tags=NULL;
 
 static node_t *way_nodes=NULL;
@@ -258,7 +261,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
     nnodes++;
 
     if(!(nnodes%10000))
-       printf_middle("Reading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       printf_middle("Reading: Lines=%ld Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
@@ -423,7 +426,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
     nways++;
 
     if(!(nways%1000))
-       printf_middle("Reading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       printf_middle("Reading: Lines=%ld Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
@@ -474,7 +477,7 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
     nrelations++;
 
     if(!(nrelations%1000))
-       printf_middle("Reading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       printf_middle("Reading: Lines=%ld Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
@@ -583,7 +586,7 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
- printf_last("Read: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+ printf_last("Read: Lines=%ld Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  return(retval);
 }

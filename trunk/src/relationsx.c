@@ -301,7 +301,7 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Print the final message */
 
-    printf_last("Sorted Relations: Relations=%d Duplicates=%d",trxnumber,trxnumber-relationsx->trnumber);
+    printf_last("Sorted Relations: Relations=%"Pindex_t" Duplicates=%"Pindex_t,trxnumber,trxnumber-relationsx->trnumber);
    }
 }
 
@@ -393,7 +393,7 @@ void SortTurnRelationList(RelationsX* relationsx)
 
  /* Print the final message */
 
- printf_last("Sorted Relations: Relations=%d",relationsx->trnumber);
+ printf_last("Sorted Relations: Relations=%"Pindex_t,relationsx->trnumber);
 }
 
 
@@ -571,7 +571,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
        while(relationid);
 
        if(!((i+1)%1000))
-          printf_middle("Processing Route Relations (%d): Relations=%d Modified Ways=%d",iteration,relations,ways);
+          printf_middle("Processing Route Relations (%d): Relations=%"Pindex_t" Modified Ways=%"Pindex_t,iteration,relations,ways);
       }
 
     if(lastunmatched)
@@ -585,7 +585,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
     /* Print the final message */
 
-    printf_last("Processed Route Relations (%d): Relations=%d Modified Ways=%d",iteration,relations,ways);
+    printf_last("Processed Route Relations (%d): Relations=%"Pindex_t" Modified Ways=%"Pindex_t,iteration,relations,ways);
    }
  while(lastnunmatched && iteration++<5);
 
@@ -651,7 +651,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
        WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
     if(!((i+1)%1000))
-       printf_middle("Processing Turn Relations (1): Relations=%d Deleted=%d",i+1-deleted,deleted);
+       printf_middle("Processing Turn Relations (1): Relations=%"Pindex_t" Deleted=%"Pindex_t,i+1-deleted,deleted);
    }
 
  /* Close the files */
@@ -661,7 +661,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Processed Turn Relations (1): Relations=%d Deleted=%d",relationsx->trnumber-deleted,deleted);
+ printf_last("Processed Turn Relations (1): Relations=%"Pindex_t" Deleted=%"Pindex_t,relationsx->trnumber-deleted,deleted);
 
  relationsx->trnumber-=deleted;
 }
@@ -774,7 +774,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        total++;
 
        if(!(total%1000))
-          printf_middle("Processing Turn Relations (2): Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
+          printf_middle("Processing Turn Relations (2): Relations=%"Pindex_t" Deleted=%"Pindex_t" Added=%"Pindex_t,total,deleted,total-relationsx->trnumber+deleted);
       }
     else
       {
@@ -832,7 +832,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           total++;
 
           if(!(total%1000))
-             printf_middle("Processing Turn Relations (2): Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
+             printf_middle("Processing Turn Relations (2): Relations=%"Pindex_t" Deleted=%"Pindex_t" Added=%"Pindex_t,total,deleted,total-relationsx->trnumber+deleted);
          }
       }
 
@@ -875,7 +875,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Print the final message */
 
- printf_last("Processed Turn Relations (2): Relations=%d Deleted=%d Added=%d",total,deleted,total-relationsx->trnumber+deleted);
+ printf_last("Processed Turn Relations (2): Relations=%"Pindex_t" Deleted=%"Pindex_t" Added=%"Pindex_t,total,deleted,total-relationsx->trnumber+deleted);
 
  relationsx->trnumber=total;
 }
@@ -949,7 +949,7 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
     WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
     if(!(relationsx->trnumber%1000))
-       printf_middle("Updating Turn Relations: Relations=%d",relationsx->trnumber);
+       printf_middle("Updating Turn Relations: Relations=%"Pindex_t,relationsx->trnumber);
    }
 
  /* Close the files */
@@ -967,7 +967,7 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
 
  /* Print the final message */
 
- printf_last("Updated Turn Relations: Relations=%d",relationsx->trnumber);
+ printf_last("Updated Turn Relations: Relations=%"Pindex_t,relationsx->trnumber);
 }
 
 
@@ -1014,7 +1014,7 @@ void SaveRelationList(RelationsX* relationsx,const char *filename)
     WriteFile(fd,&relation,sizeof(TurnRelation));
 
     if(!((i+1)%1000))
-       printf_middle("Writing Relations: Turn Relations=%d",i+1);
+       printf_middle("Writing Relations: Turn Relations=%"Pindex_t,i+1);
    }
 
  /* Write out the header structure */
@@ -1032,5 +1032,5 @@ void SaveRelationList(RelationsX* relationsx,const char *filename)
 
  /* Print the final message */
 
- printf_last("Wrote Relations: Turn Relations=%d",relationsx->trnumber);
+ printf_last("Wrote Relations: Turn Relations=%"Pindex_t,relationsx->trnumber);
 }

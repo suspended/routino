@@ -211,7 +211,7 @@ void SortWayList(WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Sorted Ways by Name: Ways=%d",waysx->number);
+ printf_last("Sorted Ways by Name: Ways=%"Pindex_t,waysx->number);
 
 
  /* Print the start message */
@@ -258,7 +258,7 @@ void SortWayList(WaysX *waysx)
     WriteFile(fd,&wayx,sizeof(WayX));
 
     if(!((i+1)%1000))
-       printf_middle("Separating Way Names: Ways=%d Names=%d",i+1,nnames);
+       printf_middle("Separating Way Names: Ways=%"Pindex_t" Names=%"Pindex_t,i+1,nnames);
    }
 
  if(names[0]) free(names[0]);
@@ -273,7 +273,7 @@ void SortWayList(WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Separated Way Names: Ways=%d Names=%d ",waysx->number,nnames);
+ printf_last("Separated Way Names: Ways=%"Pindex_t" Names=%"Pindex_t" ",waysx->number,nnames);
 
 
  /* Print the start message */
@@ -310,7 +310,7 @@ void SortWayList(WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Sorted Ways: Ways=%d Duplicates=%d",xnumber,xnumber-waysx->number);
+ printf_last("Sorted Ways: Ways=%"Pindex_t" Duplicates=%"Pindex_t,xnumber,xnumber-waysx->number);
 }
 
 
@@ -349,7 +349,7 @@ void CompactWayList(WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Sorted Ways by Properties: Ways=%d",waysx->number);
+ printf_last("Sorted Ways by Properties: Ways=%"Pindex_t,waysx->number);
 
 
  /* Print the start message */
@@ -386,7 +386,7 @@ void CompactWayList(WaysX *waysx)
     WriteFile(fd,&wayx,sizeof(WayX));
 
     if(!((i+1)%1000))
-       printf_middle("Compacting Ways: Ways=%d Properties=%d",i+1,waysx->cnumber);
+       printf_middle("Compacting Ways: Ways=%"Pindex_t" Properties=%"Pindex_t,i+1,waysx->cnumber);
    }
 
  /* Close the files */
@@ -396,7 +396,7 @@ void CompactWayList(WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Compacted Ways: Ways=%d Properties=%d ",waysx->number,waysx->cnumber);
+ printf_last("Compacted Ways: Ways=%"Pindex_t" Properties=%"Pindex_t" ",waysx->number,waysx->cnumber);
 
 
  /* Print the start message */
@@ -422,7 +422,7 @@ void CompactWayList(WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Sorted Ways: Ways=%d",waysx->number);
+ printf_last("Sorted Ways: Ways=%"Pindex_t,waysx->number);
 }
 
 
@@ -641,7 +641,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
     WriteFile(fd,&wayx->way,sizeof(Way));
 
     if(!((i+1)%1000))
-       printf_middle("Writing Ways: Ways=%d",i+1);
+       printf_middle("Writing Ways: Ways=%"Pindex_t,i+1);
    }
 
  /* Unmap from memory / close the file */
@@ -692,5 +692,5 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  /* Print the final message */
 
- printf_last("Wrote Ways: Ways=%d",waysx->number);
+ printf_last("Wrote Ways: Ways=%"Pindex_t,waysx->number);
 }

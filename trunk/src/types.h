@@ -23,6 +23,7 @@
 #ifndef TYPES_H
 #define TYPES_H    /*+ To stop multiple inclusions. +*/
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <math.h>
 
@@ -111,6 +112,9 @@
 
 /*+ A node, segment, way or relation index. +*/
 typedef uint32_t index_t;
+
+/*+ A printf formatting string for an index_t type (this should match the index_t definition above). +*/
+#define Pindex_t PRIu32         /* PRIu32 and PRIu64 are defined in intypes.h */
 
 
 /*+ A node latitude or longitude (range: +/-pi*LAT_LONG_SCALE = +/-3.14*1024*65536 = ~29 bits). +*/
