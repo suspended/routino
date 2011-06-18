@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <strings.h>
 
 #include "xmlparse.h"
 
@@ -70,12 +71,6 @@
 
 /* Lexer definitions */
 
-#define YY_SKIP_YYWRAP 1 /* Remove error with prototype of ..._yywrap */
-#ifndef yywrap
-/*+ Needed in lex but does nothing. +*/
-#define yywrap() 1
-#endif
-
 /*+ Reset the current string. +*/
 #define reset_string \
  if(!string) string=(char*)malloc(16); \
@@ -89,8 +84,6 @@
     string=(char*)realloc((void*)string,stringlen=(stringused+newlen+16)); \
  strcpy(string+stringused,xx); \
  stringused+=newlen;
-
-#define YY_NO_INPUT
 
 
 /* Lexer functions and variables */
@@ -106,12 +99,18 @@ static int xmlparse_options;
 %option 8bit
 %option pointer
 %option batch
+%option never-interactive
+
 %option yylineno
 
 %option nodefault
 %option perf-report
 %option fast
+%option noread
+
 %option nounput
+%option noinput
+%option noyywrap
 
 
  /* Grammar based on http://www.w3.org/TR/2004/REC-xml-20040204/ but for ASCII tags not Unicode. */
