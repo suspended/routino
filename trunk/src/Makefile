@@ -31,8 +31,8 @@ LEX=flex
 
 # Compilation program options
 
-CFLAGS=-Wall -Wmissing-prototypes
-#CFLAGS+= -Wextra -pedantic -std=c99
+CFLAGS=-Wall -Wmissing-prototypes -std=c99
+#CFLAGS+= -Wextra -pedantic
 LDFLAGS=-lm -lc
 
 CFLAGS+= -O3
