@@ -267,6 +267,9 @@ SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t nodeindex,int position)
  index_t index=segmentsx->firstnode[nodeindex];
  SegmentX *segmentx;
 
+ if(index==NO_SEGMENT)
+    return(NULL);
+
  segmentx=LookupSegmentX(segmentsx,index,position);
 
  if(segmentx->node1!=nodeindex && segmentx->node2!=nodeindex)
