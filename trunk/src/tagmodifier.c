@@ -34,7 +34,10 @@
 
 /* Local variables */
 
-static long nnodes=0,nways=0,nrelations=0;
+static unsigned long nnodes=0;
+static unsigned long nways=0;
+static unsigned long nrelations=0;
+
 TagList *current_tags=NULL;
 
 
@@ -257,7 +260,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
     nnodes++;
 
     if(!(nnodes%10000))
-       fprintf_middle(stderr,"Reading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       fprintf_middle(stderr,"Reading: Lines=%llu Nodes=%lu Ways=%lu Relations=%lu",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
    }
@@ -373,7 +376,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id,const ch
     nways++;
 
     if(!(nways%1000))
-       fprintf_middle(stderr,"Reading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       fprintf_middle(stderr,"Reading: Lines=%llu Nodes=%lu Ways=%lu Relations=%lu",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
    }
@@ -439,7 +442,7 @@ static int relationType_function(const char *_tag_,int _type_,const char *id,con
     nrelations++;
 
     if(!(nrelations%1000))
-       fprintf_middle(stderr,"Reading: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       fprintf_middle(stderr,"Reading: Lines=%llu Nodes=%lu Ways=%lu Relations=%lu",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
    }
@@ -598,7 +601,7 @@ int main(int argc,char **argv)
 
  retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
- fprintf_last(stderr,"Read: Lines=%ld Nodes=%ld Ways=%ld Relations=%ld",ParseXML_LineNumber(),nnodes,nways,nrelations);
+ fprintf_last(stderr,"Read: Lines=%llu Nodes=%lu Ways=%lu Relations=%lu",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  /* Tidy up */
 
