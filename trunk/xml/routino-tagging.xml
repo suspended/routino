@@ -384,6 +384,10 @@
       <output k="foot"       v="yes"/>
     </if>
 
+    <if k="junction" v="roundabout">
+      <output k="oneway" v="yes"/>
+    </if>
+
     <if k="route" v="ferry">
       <output k="highway" v="ferry"/>
     </if>
