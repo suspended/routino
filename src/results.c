@@ -83,7 +83,7 @@ Results *NewResultsList(int nbins)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Allocate a new results list.
+  Free a results list.
 
   Results *results The results list to be destroyed.
   ++++++++++++++++++++++++++++++++++++++*/
