@@ -686,6 +686,8 @@ void SaveNodeList(NodesX *nodesx,const char *filename)
  SeekFile(fd,sizeof(NodesFile));
  WriteFile(fd,offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
+ free(offsets);
+
  /* Write out the header structure */
 
  nodesfile.number=nodesx->number;
