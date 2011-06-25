@@ -78,9 +78,11 @@ extern TaggingRuleList RelationRules;
 /* Functions in tagging.c */
 
 int ParseXMLTaggingRules(const char *filename);
+void DeleteXMLTaggingRules(void);
 
 TaggingRule *AppendTaggingRule(TaggingRuleList *rules,const char *k,const char *v);
 void AppendTaggingAction(TaggingRule *rule,const char *k,const char *v,int output);
+void DeleteTaggingRuleList(TaggingRuleList *rules);
 
 TagList *NewTagList(void);
 void AppendTag(TagList *tags,const char *k,const char *v);

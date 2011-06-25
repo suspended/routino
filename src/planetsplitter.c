@@ -214,6 +214,8 @@ int main(int argc,char** argv)
     return(0);
    }
 
+ DeleteXMLTaggingRules();
+
  /* Process the data */
 
  printf("\nProcess OSM Data\n================\n\n");
