@@ -588,6 +588,12 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
+ free(way_nodes);
+
+ free(relation_nodes);
+ free(relation_ways);
+ free(relation_relations);
+
  return(retval);
 }
 
