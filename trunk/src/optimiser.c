@@ -661,7 +661,13 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
        results=FindNormalRoute(nodes,segments,ways,relations,profile,startnode,NO_SEGMENT,endnode);
 
        if(results && results->last_segment==endsegment)
+         {
+          FreeResultsList(results);
           return(IndexSegment(segments,segment));
+         }
+
+       if(results)
+          FreeResultsList(results);
       }
 
     segment=NextSegment(segments,segment,endnode); /* endnode cannot be a fake node (must be a super-node) */
