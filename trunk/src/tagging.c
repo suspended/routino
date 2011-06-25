@@ -330,6 +330,18 @@ int ParseXMLTaggingRules(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Delete the tagging rules loaded from the XML file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void DeleteXMLTaggingRules(void)
+{
+ DeleteTaggingRuleList(&NodeRules);
+ DeleteTaggingRuleList(&WayRules);
+ DeleteTaggingRuleList(&RelationRules);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Append a tagging rule to the list of rules.
 
   TaggingRule *AppendTaggingRule Returns the latest rule (the just added one).
@@ -395,6 +407,40 @@ void AppendTaggingAction(TaggingRule *rule,const char *k,const char *v,int outpu
     rule->actions[rule->nactions-1].v=strcpy(malloc(strlen(v)+1),v);
  else
     rule->actions[rule->nactions-1].v=NULL;
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Delete a tagging rule.
+
+  TaggingRuleList *rules The list of rules to be deleted.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void DeleteTaggingRuleList(TaggingRuleList *rules)
+{
+ int i,j;
+
+ for(i=0;i<rules->nrules;i++)
+   {
+    if(rules->rules[i].k)
+       free(rules->rules[i].k);
+    if(rules->rules[i].v)
+       free(rules->rules[i].v);
+
+    for(j=0;j<rules->rules[i].nactions;j++)
+      {
+       if(rules->rules[i].actions[j].k)
+          free(rules->rules[i].actions[j].k);
+       if(rules->rules[i].actions[j].v)
+          free(rules->rules[i].actions[j].v);
+      }
+
+    if(rules->rules[i].actions)
+       free(rules->rules[i].actions);
+   }
+
+ if(rules->rules)
+    free(rules->rules);
 }
 
 
