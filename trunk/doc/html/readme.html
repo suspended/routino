@@ -164,6 +164,8 @@ Version 1.5.1 of Routino was released on 13th November 2010.
 Version 2.0 of Routino was released on 30th May 2011.
 <br>
 Version 2.0.1 of Routino was released on 7th June 2011.
+<br>
+Version 2.0.2 of Routino was released on 26th June 2011.
 
 <p>
 
@@ -218,15 +220,31 @@ The full version history is available in the NEWS file.
 <dl>
   <dt>Bug fixes:
   <dd>Turn relations that specify missing nodes/ways are deleted (don't crash).
-  <br>Various code tidy-ups and 32/64 bit node and index improvements.
   <br>Shorten the messages printed by planetsplitter to keep below 80 characters.
+
+  <dt>Code improvements
+  <dd>Various code tidy-ups and 32/64 bit node and index improvements.
 
   <dt>OSM tagging
   <dd>Check whether node/way/relation IDs fit in 32-bits (code ready for 64-bits).
 </dl>
 
+<h4><a name="H_1_5_1_2"></a>Changes in Version 2.0.2</h4>
 
-<h3><a name="H_1_5_3"></a>License</h3>
+<dl>
+  <dt>Bug fixes:
+  <dd>Fix error with handling ferry routes (were ignored).
+  <br>Force roundabouts to be one-way (was present in v1.5.1).
+  <br>Handle super-nodes with no segments when processing (don't crash).
+
+  <dt>Code improvements
+  <dd>Use C99 standard by default and fix related warnings.
+  <br>More code tidy-up for 32/64 bit node and index types.
+  <br>Free some memory in various places (not serious leaks).
+</dl>
+
+
+<h3><a name="H_1_5_2"></a>License</h3>
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the
@@ -242,7 +260,7 @@ additional requirements to anybody who provides a networked service using this
 software.
 
 
-<h3><a name="H_1_5_4"></a>Copyright</h3>
+<h3><a name="H_1_5_3"></a>Copyright</h3>
 
 Routino is copyright Andrew M. Bishop 2008-2011.
 
