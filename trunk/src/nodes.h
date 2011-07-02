@@ -53,8 +53,8 @@ typedef struct _NodesFile
  index_t  number;               /*+ The number of nodes in total. +*/
  index_t  snumber;              /*+ The number of super-nodes. +*/
 
- index_t  latbins;              /*+ The number of bins containing latitude. +*/
- index_t  lonbins;              /*+ The number of bins containing longitude. +*/
+ ll_bin_t latbins;              /*+ The number of bins containing latitude. +*/
+ ll_bin_t lonbins;              /*+ The number of bins containing longitude. +*/
 
  ll_bin_t latzero;              /*+ The bin number of the furthest south bin. +*/
  ll_bin_t lonzero;              /*+ The bin number of the furthest west bin. +*/
