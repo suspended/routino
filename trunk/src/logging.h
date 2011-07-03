@@ -31,7 +31,7 @@
 extern int option_loggable;
 
 
-/* Functions in logging.c */
+/* Runtime progress logging functions in logging.c */
 
 #ifdef __GNUC__
 
@@ -52,6 +52,22 @@ void printf_last(const char *format, ...);
 void fprintf_first(FILE *file,const char *format, ...);
 void fprintf_middle(FILE *file,const char *format, ...);
 void fprintf_last(FILE *file,const char *format, ...);
+
+#endif
+
+
+/* Parsing/processing error logging functions in logging.c */
+
+void open_errorlog(const char *filename,int append);
+void close_errorlog(void);
+
+#ifdef __GNUC__
+
+void logerror(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
+
+#else
+
+void logerror(const char *format, ...);
 
 #endif
 
