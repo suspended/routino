@@ -186,8 +186,8 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,
 {
  RouteRelX relationx;
  FILESORT_VARINT size;
- way_t zeroway=0;
- relation_t zerorelation=0;
+ way_t noway=NO_WAY;
+ relation_t norelation=NO_RELATION;
 
  relationx.id=id;
  relationx.routes=routes;
@@ -197,11 +197,11 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,
  WriteFile(relationsx->rfd,&size,FILESORT_VARSIZE);
  WriteFile(relationsx->rfd,&relationx,sizeof(RouteRelX));
 
- WriteFile(relationsx->rfd,ways    ,nways*sizeof(way_t));
- WriteFile(relationsx->rfd,&zeroway,      sizeof(way_t));
+ WriteFile(relationsx->rfd,ways  ,nways*sizeof(way_t));
+ WriteFile(relationsx->rfd,&noway,      sizeof(way_t));
 
- WriteFile(relationsx->rfd,relations    ,nrelations*sizeof(relation_t));
- WriteFile(relationsx->rfd,&zerorelation,           sizeof(relation_t));
+ WriteFile(relationsx->rfd,relations  ,nrelations*sizeof(relation_t));
+ WriteFile(relationsx->rfd,&norelation,           sizeof(relation_t));
 
  relationsx->rnumber++;
 
@@ -527,7 +527,9 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
           /* Update the ways that are listed for the relation */
 
-          if(wayid && routes)
+          if(wayid==NO_WAY)
+             ;
+          else if(routes)
             {
              index_t way=IndexWayX(waysx,wayid);
 
@@ -547,7 +549,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
                }
             }
          }
-       while(wayid);
+       while(wayid!=NO_WAY);
 
        /* Loop through the relations */
 
@@ -557,7 +559,9 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
           /* Add the relations that are listed for this relation to the list for next time */
 
-          if(relationid && routes && relationid!=relationx.id)
+          if(relationid==NO_RELATION)
+             ;
+          else if(routes && relationid!=relationx.id)
             {
              if(nunmatched%256==0)
                 unmatched=(RouteRelX*)realloc((void*)unmatched,(nunmatched+256)*sizeof(RouteRelX));
@@ -568,7 +572,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
              nunmatched++;
             }
          }
-       while(relationid);
+       while(relationid!=NO_RELATION);
 
        if(!((i+1)%1000))
           printf_middle("Processing Route Relations (%d): Relations=%"Pindex_t" Modified Ways=%"Pindex_t,iteration,relations,ways);
