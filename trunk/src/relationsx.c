@@ -515,6 +515,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
                    routes=0; /* Nothing new to add */
                 else
                    routes=lastunmatched[j].routes;
+
                 break;
                }
          }
@@ -528,8 +529,9 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
           /* Update the ways that are listed for the relation */
 
           if(wayid==NO_WAY)
-             ;
-          else if(routes)
+             continue;
+
+          if(routes)
             {
              index_t way=IndexWayX(waysx,wayid);
 
@@ -560,7 +562,8 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
           /* Add the relations that are listed for this relation to the list for next time */
 
           if(relationid==NO_RELATION)
-             ;
+             continue;
+
           else if(routes && relationid!=relationx.id)
             {
              if(nunmatched%256==0)
@@ -701,9 +704,11 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 #if !SLIM
  nodesx->data=MapFileWriteable(nodesx->filename);
  segmentsx->data=MapFile(segmentsx->filename);
+ waysx->data=MapFile(waysx->filename);
 #else
  nodesx->fd=ReOpenFileWriteable(nodesx->filename);
  segmentsx->fd=ReOpenFile(segmentsx->filename);
+ waysx->fd=ReOpenFile(waysx->filename);
 #endif
 
  /* Re-open the file read-only and a new file writeable */
@@ -727,6 +732,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        relationx.restriction==TurnRestrict_no_straight_on)
       {
        index_t node_from=NO_NODE,node_to=NO_NODE;
+       int oneway_from=0,oneway_to=0,vehicles_from=1,vehicles_to=1;
 
        /* Find the segments that join the node 'via' */
 
@@ -736,6 +742,8 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
          {
           if(segmentx->way==relationx.from)
             {
+             WayX *wayx=LookupWayX(waysx,segmentx->way,1);
+
              if(node_from!=NO_NODE) /* Only one segment can be on the 'from' way */
                {
                 deleted++;
@@ -743,26 +751,37 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
                }
 
              node_from=OtherNode(segmentx,relationx.via);
+
+             if(IsOnewayFrom(segmentx,relationx.via))
+                oneway_from=1;  /* not allowed */
+
+             if(!(wayx->way.allow&(Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+                vehicles_from=0;  /* not allowed */
             }
 
           if(segmentx->way==relationx.to)
             {
+             WayX *wayx=LookupWayX(waysx,segmentx->way,1);
+
              if(node_to!=NO_NODE) /* Only one segment can be on the 'to' way */
                {
                 deleted++;
                 goto endloop;
                }
 
-             /* Don't bother with restrictions banning going the wrong way down a one-way road */
+             node_to=OtherNode(segmentx,relationx.via);
 
-             if(!IsOnewayTo(segmentx,relationx.via))
-                node_to=OtherNode(segmentx,relationx.via);
+             if(IsOnewayTo(segmentx,relationx.via))
+                oneway_to=1;  /* not allowed */
+
+             if(!(wayx->way.allow&(Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+                vehicles_to=0;  /* not allowed */
             }
 
           segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
          }
 
-       if(node_to==NO_NODE || node_from==NO_NODE) /* Not enough segments for the selected ways */
+       if(oneway_from || oneway_to || !vehicles_from || !vehicles_to || node_from==NO_NODE || node_to==NO_NODE)
          {
           deleted++;
           goto endloop;
@@ -782,8 +801,9 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
       }
     else
       {
-       index_t node_from=NO_NODE,node_to[MAX_SEG_PER_NODE];
-       int nnodes_to=0,i;
+       index_t node_from=NO_NODE,node_to=NO_NODE,node_other[MAX_SEG_PER_NODE];
+       int nnodes_other=0,i;
+       int oneway_from=0,vehicles_from=1;
 
        /* Find the segments that join the node 'via' */
 
@@ -793,6 +813,8 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
          {
           if(segmentx->way==relationx.from)
             {
+             WayX *wayx=LookupWayX(waysx,segmentx->way,1);
+
              if(node_from!=NO_NODE) /* Only one segment can be on the 'from' way */
                {
                 deleted++;
@@ -800,22 +822,43 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
                }
 
              node_from=OtherNode(segmentx,relationx.via);
+
+             if(IsOnewayFrom(segmentx,relationx.via))
+                oneway_from=1;  /* not allowed */
+
+             if(!(wayx->way.allow&(Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+                vehicles_from=0;  /* not allowed */
             }
 
-          if(segmentx->way!=relationx.to)
+          if(segmentx->way==relationx.to)
             {
-             assert(nnodes_to<MAX_SEG_PER_NODE); /* Only a limited amount of information stored. */
+             if(node_to!=NO_NODE) /* Only one segment can be on the 'to' way */
+               {
+                deleted++;
+                goto endloop;
+               }
 
-             /* Don't bother with restrictions banning going the wrong way down a one-way road */
+             node_to=OtherNode(segmentx,relationx.via);
+            }
 
-             if(!IsOnewayTo(segmentx,relationx.via))
-                node_to[nnodes_to++]=OtherNode(segmentx,relationx.via);
+          if(segmentx->way!=relationx.from && segmentx->way!=relationx.to)
+            {
+             WayX *wayx=LookupWayX(waysx,segmentx->way,1);
+
+             assert(nnodes_other<MAX_SEG_PER_NODE); /* Only a limited amount of information stored. */
+
+             if(IsOnewayTo(segmentx,relationx.via))
+                ;  /* not allowed */
+             else if(!(wayx->way.allow&(Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+                ;  /* not allowed */
+             else
+                node_other[nnodes_other++]=OtherNode(segmentx,relationx.via);
             }
 
           segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
          }
 
-       if(nnodes_to==0 || node_from==NO_NODE) /* Not enough segments for the selected ways */
+       if(oneway_from || !vehicles_from || node_from==NO_NODE || node_to==NO_NODE || nnodes_other==0)
          {
           deleted++;
           goto endloop;
@@ -823,13 +866,10 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        /* Write the results */
 
-       for(i=0;i<nnodes_to;i++)
+       for(i=0;i<nnodes_other;i++)
          {
-          if(node_to[i]==node_from)
-             continue;
-
           relationx.from=node_from;
-          relationx.to  =node_to[i];
+          relationx.to  =node_other[i];
 
           WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
@@ -872,9 +912,11 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 #if !SLIM
  nodesx->data=UnmapFile(nodesx->filename);
  segmentsx->data=UnmapFile(segmentsx->filename);
+ waysx->data=UnmapFile(waysx->filename);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
+ waysx->fd=CloseFile(waysx->fd);
 #endif
 
  /* Print the final message */
