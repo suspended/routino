@@ -22,7 +22,7 @@ planetsplitter
                         [--sort-ram-size=<size>]
                         [--tmpdir=<dirname>]
                         [--parse-only | --process-only]
-                        [--loggable] [--errorlog=<name>]
+                        [--loggable] [--errorlog[=<name>]]
                         [--max-iterations=<number>]
                         [--tagging=<filename>]
                         [<filename.osm> ...]
@@ -61,9 +61,10 @@ planetsplitter
           normally an incrementing counter is printed which is more
           suitable for real-time display than logging.
 
-   --errorlog=<name>
-          Log OSM parsing and processing errors to this file name (the
-          '--dir' and '--prefix' options are applied).
+   --errorlog[=<name>]
+          Log OSM parsing and processing errors to 'error.log' or the
+          specified file name (the '--dir' and '--prefix' options are
+          applied).
 
    --max-iterations=<number>
           The maximum number of iterations to use when generating

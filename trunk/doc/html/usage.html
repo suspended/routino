@@ -65,7 +65,7 @@ Usage: planetsplitter [--help]
                       [--sort-ram-size=&lt;size&gt;]
                       [--tmpdir=&lt;dirname&gt;]
                       [--parse-only | --process-only]
-                      [--loggable] [--errorlog=&lt;name&gt;]
+                      [--loggable] [--errorlog[=&lt;name&gt;]]
                       [--max-iterations=&lt;number&gt;]
                       [--tagging=&lt;filename&gt;]
                       [&lt;filename.osm&gt; ...]
@@ -97,9 +97,9 @@ Usage: planetsplitter [--help]
   <dd>Print progress messages that are suitable for logging to a file; normally
     an incrementing counter is printed which is more suitable for real-time
     display than logging.
-  <dt>--errorlog=&lt;name&gt;
-  <dd>Log OSM parsing and processing errors to this file name (the '--dir' and
-    '--prefix' options are applied).
+  <dt>--errorlog[=&lt;name&gt;]
+  <dd>Log OSM parsing and processing errors to 'error.log' or the specified file
+    name (the '--dir' and '--prefix' options are applied).
   <dt>--max-iterations=&lt;number&gt;
   <dd>The maximum number of iterations to use when generating super-nodes and
     super-segments.  Defaults to 10 which is normally enough.

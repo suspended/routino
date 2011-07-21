@@ -93,6 +93,8 @@ int main(int argc,char** argv)
        option_process_only=1;
     else if(!strcmp(argv[arg],"--loggable"))
        option_loggable=1;
+    else if(!strcmp(argv[arg],"--errorlog"))
+       errorlog="error.log";
     else if(!strncmp(argv[arg],"--errorlog=",11))
        errorlog=&argv[arg][11];
     else if(!strncmp(argv[arg],"--max-iterations=",17))
@@ -437,7 +439,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--sort-ram-size=<size>]\n"
          "                      [--tmpdir=<dirname>]\n"
          "                      [--parse-only | --process-only]\n"
-         "                      [--loggable] [--errorlog=<name>]\n"
+         "                      [--loggable] [--errorlog[=<name>]]\n"
          "                      [--max-iterations=<number>]\n"
          "                      [--tagging=<filename>]\n"
          "                      [<filename.osm> ...]\n");
@@ -473,7 +475,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--process-only            Process the stored results from previous option.\n"
             "\n"
             "--loggable                Print progress messages suitable for logging to file.\n"
-            "--errorlog=<name>         Log OSM parsing/processing errors to this file name\n"
+            "--errorlog[=<name>]       Log parsing errors to 'error.log' or the given name\n"
             "                          (the '--dir' and '--prefix' options are applied).\n"
             "\n"
             "--max-iterations=<number> The number of iterations for finding super-nodes.\n"
