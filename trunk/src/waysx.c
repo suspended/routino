@@ -529,8 +529,12 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
     return(1);
    }
+ else
+   {
+    logerror("Way %"Pway_t" is duplicated.\n",wayx->id);
 
- return(0);
+    return(0);
+   }
 }
 
 

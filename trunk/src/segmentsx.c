@@ -367,11 +367,30 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
     index_t index2=IndexNodeX(nodesx,segmentx.node2);
 
     if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
+      {
+       logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx.node1,segmentx.node2);
+
        duplicate++;
+      }
     else if(segmentx.node1==segmentx.node2)
+      {
+       logerror("Segment connects node %"Pnode_t" to itself.\n",segmentx.node1);
+
        loop++;
+      }
     else if(index1==NO_NODE || index2==NO_NODE)
+      {
+       if(index1==NO_NODE && index2==NO_NODE)
+          logerror("Segment connects nodes %"Pnode_t" and %"Pnode_t" but neither exist.\n",segmentx.node1,segmentx.node2);
+
+       if(index1==NO_NODE && index2!=NO_NODE)
+          logerror("Segment connects nodes %"Pnode_t" and %"Pnode_t" but the first one does not exist.\n",segmentx.node1,segmentx.node2);
+
+       if(index1!=NO_NODE && index2==NO_NODE)
+          logerror("Segment connects nodes %"Pnode_t" and %"Pnode_t" but the second one does not exist.\n",segmentx.node1,segmentx.node2);
+
        nonode++;
+      }
     else
       {
        WriteFile(fd,&segmentx,sizeof(SegmentX));

@@ -43,7 +43,10 @@
 /* Macros */
 
 /*+ Checks if a value in the XML is one of the allowed values for true. +*/
-#define ISTRUE(xx) (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1"))
+#define ISTRUE(xx)  (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1"))
+
+/*+ Checks if a value in the XML is one of the allowed values for false. +*/
+#define ISFALSE(xx) (!strcmp(xx,"false") || !strcmp(xx,"no") || !strcmp(xx,"0"))
 
 
 /* Local variables */
@@ -78,6 +81,10 @@ static RelationsX *relations;
 static void process_node_tags(TagList *tags,node_t id,double latitude,double longitude);
 static void process_way_tags(TagList *tags,way_t id);
 static void process_relation_tags(TagList *tags,relation_t id);
+
+static double parse_speed(way_t id,const char *k,const char *v);
+static double parse_weight(way_t id,const char *k,const char *v);
+static double parse_length(way_t id,const char *k,const char *v);
 
 
 /* The XML tag processing function prototypes */
@@ -271,7 +278,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
     node_id=(node_t)llid;
     assert((long long)node_id==llid);      /* check node id can be stored in node_t data type. */
 
-    XMLPARSE_ASSERT_FLOATING(_tag_,lat); latitude=atof(lat);
+    XMLPARSE_ASSERT_FLOATING(_tag_,lat); latitude =atof(lat);
     XMLPARSE_ASSERT_FLOATING(_tag_,lon); longitude=atof(lon);
    }
 
@@ -627,22 +634,34 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
       {
       case 'b':
        if(!strcmp(k,"bicycle"))
-          if(!ISTRUE(v))
+         {
+          if(ISFALSE(v))
              allow&=~Transports_Bicycle;
+          else if(!ISTRUE(v))
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'bicycle' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'f':
        if(!strcmp(k,"foot"))
-          if(!ISTRUE(v))
+         {
+          if(ISFALSE(v))
              allow&=~Transports_Foot;
+          else if(!ISTRUE(v))
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'foot' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'g':
        if(!strcmp(k,"goods"))
-          if(!ISTRUE(v))
+         {
+          if(ISFALSE(v))
              allow&=~Transports_Goods;
+          else if(!ISTRUE(v))
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'goods' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
@@ -652,46 +671,74 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
              flags|=NODE_MINIRNDBT;
 
        if(!strcmp(k,"horse"))
-          if(!ISTRUE(v))
+         {
+          if(ISFALSE(v))
              allow&=~Transports_Horse;
+          else if(!ISTRUE(v))
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'horse' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"hgv"))
-          if(!ISTRUE(v))
+         {
+          if(ISFALSE(v))
              allow&=~Transports_HGV;
+          else if(!ISTRUE(v))
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'hgv' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'm':
        if(!strcmp(k,"moped"))
-          if(!ISTRUE(v))
+         {
+          if(ISFALSE(v))
              allow&=~Transports_Moped;
+          else if(!ISTRUE(v))
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'moped' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"motorbike"))
-          if(!ISTRUE(v))
+         {
+          if(ISFALSE(v))
              allow&=~Transports_Motorbike;
+          else if(!ISTRUE(v))
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'motorbike' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"motorcar"))
-          if(!ISTRUE(v))
+         {
+          if(ISFALSE(v))
              allow&=~Transports_Motorcar;
+          else if(!ISTRUE(v))
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'motorcar' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'p':
        if(!strcmp(k,"psv"))
-          if(!ISTRUE(v))
+         {
+          if(ISFALSE(v))
              allow&=~Transports_PSV;
+          else if(!ISTRUE(v))
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'psv' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'w':
        if(!strcmp(k,"wheelchair"))
-          if(!ISTRUE(v))
+         {
+          if(ISFALSE(v))
              allow&=~Transports_Wheelchair;
+          else if(!ISTRUE(v))
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'wheelchair' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       default:
-       ;
+       logerror("Node %"Pnode_t" has an unrecognised tag '%s' = '%s' (after processing tagging rules).\n",id,k,v);
       }
    }
 
@@ -713,7 +760,7 @@ static void process_way_tags(TagList *tags,way_t id)
 {
  Way   way={0};
  int   oneway=0;
- char *name=NULL,*ref=NULL;
+ char *name=NULL,*ref=NULL,*refname=NULL;
  int i;
 
  /* Parse the tags */
@@ -727,134 +774,135 @@ static void process_way_tags(TagList *tags,way_t id)
       {
       case 'b':
        if(!strcmp(k,"bicycle"))
+         {
           if(ISTRUE(v))
              way.allow|= Transports_Bicycle;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'bicycle' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"bicycleroute"))
+         {
           if(ISTRUE(v))
              way.props|=Properties_BicycleRoute;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'bicycleroute' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"bridge"))
+         {
           if(ISTRUE(v))
              way.props|=Properties_Bridge;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'bridge' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'f':
        if(!strcmp(k,"foot"))
+         {
           if(ISTRUE(v))
              way.allow|= Transports_Foot;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'foot' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"footroute"))
+         {
           if(ISTRUE(v))
              way.props|=Properties_FootRoute;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'footroute' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'g':
        if(!strcmp(k,"goods"))
+         {
           if(ISTRUE(v))
              way.allow|=Transports_Goods;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'goods' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'h':
        if(!strcmp(k,"highway"))
+         {
           way.type=HighwayType(v);
 
+          if(way.type==Way_Count)
+             logerror("Way %"Pway_t" has an unrecognised highway type '%s' (after processing tagging rules).\n",id,v);
+         }
+
        if(!strcmp(k,"horse"))
+         {
           if(ISTRUE(v))
              way.allow|=Transports_Horse;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'horse' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"hgv"))
+         {
           if(ISTRUE(v))
              way.allow|=Transports_HGV;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'hgv' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'm':
        if(!strcmp(k,"maxspeed"))
-         {
-          if(strstr(v,"mph"))
-             way.speed=kph_to_speed(1.609*atof(v));
-          else
-             way.speed=kph_to_speed(atof(v));
-         }
+          way.speed=kph_to_speed(parse_speed(id,k,v));
 
        if(!strcmp(k,"maxweight"))
-         {
-          if(strstr(v,"kg"))
-             way.weight=tonnes_to_weight(atof(v)/1000);
-          else
-             way.weight=tonnes_to_weight(atof(v));
-         }
+          way.weight=tonnes_to_weight(parse_weight(id,k,v));
 
        if(!strcmp(k,"maxheight"))
-         {
-          if(strchr(v,'\''))
-            {
-             int feet,inches;
-
-             if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
-                way.height=metres_to_height((feet+(double)inches/12.0)*0.254);
-             else if(sscanf(v,"%d'",&feet)==1)
-                way.height=metres_to_height((feet+(double)inches/12.0)*0.254);
-            }
-          else if(strstr(v,"ft") || strstr(v,"feet"))
-             way.height=metres_to_height(atof(v)*0.254);
-          else
-             way.height=metres_to_height(atof(v));
-         }
+          way.height=metres_to_height(parse_length(id,k,v));
 
        if(!strcmp(k,"maxwidth"))
-         {
-          if(strchr(v,'\''))
-            {
-             int feet,inches;
-
-             if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
-                way.width=metres_to_height((feet+(double)inches/12.0)*0.254);
-             else if(sscanf(v,"%d'",&feet)==1)
-                way.width=metres_to_height((feet+(double)inches/12.0)*0.254);
-            }
-          else if(strstr(v,"ft") || strstr(v,"feet"))
-             way.width=metres_to_width(atof(v)*0.254);
-          else
-             way.width=metres_to_width(atof(v));
-         }
+          way.width=metres_to_height(parse_length(id,k,v));
 
        if(!strcmp(k,"maxlength"))
-         {
-          if(strchr(v,'\''))
-            {
-             int feet,inches;
-
-             if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
-                way.length=metres_to_height((feet+(double)inches/12.0)*0.254);
-             else if(sscanf(v,"%d'",&feet)==1)
-                way.length=metres_to_height((feet+(double)inches/12.0)*0.254);
-            }
-          else if(strstr(v,"ft") || strstr(v,"feet"))
-             way.length=metres_to_length(atof(v)*0.254);
-          else
-             way.length=metres_to_length(atof(v));
-         }
+          way.length=metres_to_height(parse_length(id,k,v));
 
        if(!strcmp(k,"moped"))
+         {
           if(ISTRUE(v))
              way.allow|=Transports_Moped;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'moped' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"motorbike"))
+         {
           if(ISTRUE(v))
              way.allow|=Transports_Motorbike;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'motorbike' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"motorcar"))
+         {
           if(ISTRUE(v))
              way.allow|=Transports_Motorcar;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'motorcar' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"multilane"))
+         {
           if(ISTRUE(v))
              way.props|=Properties_Multilane;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'multilane' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
@@ -871,18 +919,28 @@ static void process_way_tags(TagList *tags,way_t id)
              oneway=1;
           else if(!strcmp(v,"-1"))
              oneway=-1;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'oneway' = '%s' (after processing tagging rules).\n",id,v);
          }
 
        break;
 
       case 'p':
        if(!strcmp(k,"paved"))
+         {
           if(ISTRUE(v))
              way.props|=Properties_Paved;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'paved' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        if(!strcmp(k,"psv"))
+         {
           if(ISTRUE(v))
              way.allow|=Transports_PSV;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'psv' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
@@ -894,64 +952,77 @@ static void process_way_tags(TagList *tags,way_t id)
 
       case 't':
        if(!strcmp(k,"tunnel"))
+         {
           if(ISTRUE(v))
              way.props|=Properties_Tunnel;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'tunnel' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'w':
        if(!strcmp(k,"wheelchair"))
+         {
           if(ISTRUE(v))
              way.allow|=Transports_Wheelchair;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'wheelchair' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       default:
-       ;
+       logerror("Way %"Pway_t" has an unrecognised tag '%s' = '%s' (after processing tagging rules).\n",id,k,v);
       }
    }
 
  /* Create the way */
 
- if(way.type>0 && way.type<Way_Count)
+ if(way.type==0 || way.type==Way_Count)
+    return;
+
+ if(!way.allow)
+    return;
+
+ if(way_nnodes==0)
    {
-    if(way.allow)
-      {
-       char *refname;
+    logerror("Way %"Pway_t" has no nodes.\n",id);
 
-       if(oneway)
-          way.type|=Way_OneWay;
+    return;
+   }
 
-       if(ref && name)
-         {
-          refname=(char*)malloc(strlen(ref)+strlen(name)+4);
-          sprintf(refname,"%s (%s)",name,ref);
-         }
-       else if(ref && !name)
-          refname=ref;
-       else if(!ref && name)
-          refname=name;
-       else /* if(!ref && !name) */
-          refname="";
+ if(oneway)
+    way.type|=Way_OneWay;
 
-       AppendWay(ways,id,&way,refname);
+ if(ref && name)
+   {
+    refname=(char*)malloc(strlen(ref)+strlen(name)+4);
+    sprintf(refname,"%s (%s)",name,ref);
+   }
+ else if(ref && !name)
+    refname=ref;
+ else if(!ref && name)
+    refname=name;
+ else /* if(!ref && !name) */
+    refname="";
 
-       if(ref && name)
-          free(refname);
+ AppendWay(ways,id,&way,refname);
 
-       for(i=1;i<way_nnodes;i++)
-         {
-          node_t from=way_nodes[i-1];
-          node_t to  =way_nodes[i];
+ if(ref && name)
+    free(refname);
 
-          if(oneway>0)
-             AppendSegment(segments,id,from,to,ONEWAY_1TO2);
-          else if(oneway<0)
-             AppendSegment(segments,id,from,to,ONEWAY_2TO1);
-          else
-             AppendSegment(segments,id,from,to,0);
-         }
-      }
+ for(i=1;i<way_nnodes;i++)
+   {
+    node_t from=way_nodes[i-1];
+    node_t to  =way_nodes[i];
+
+    if(oneway>0)
+       AppendSegment(segments,id,from,to,ONEWAY_1TO2);
+    else if(oneway<0)
+       AppendSegment(segments,id,from,to,ONEWAY_2TO1);
+    else
+       AppendSegment(segments,id,from,to,0);
    }
 }
 
@@ -983,23 +1054,36 @@ static void process_relation_tags(TagList *tags,relation_t id)
       {
       case 'b':
        if(!strcmp(k,"bicycleroute"))
+         {
           if(ISTRUE(v))
              routes|=Transports_Bicycle;
+          else if(!ISFALSE(v))
+             logerror("Relation %"Prelation_t" has an unrecognised tag value 'bicycleroute' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'e':
        if(!strcmp(k,"except"))
+         {
           for(i=1;i<Transport_Count;i++)
              if(!strstr(v,TransportName(i)))
                 except|=TRANSPORTS(i);
+
+          if(except==Transports_None)
+             logerror("Relation %"Prelation_t" has an unrecognised tag value 'except' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
       case 'f':
        if(!strcmp(k,"footroute"))
+         {
           if(ISTRUE(v))
              routes|=Transports_Foot;
+          else if(!ISFALSE(v))
+             logerror("Relation %"Prelation_t" has an unrecognised tag value 'footroute' = '%s' (after processing tagging rules).\n",id,v);
+         }
 
        break;
 
@@ -1013,18 +1097,25 @@ static void process_relation_tags(TagList *tags,relation_t id)
           if(!strcmp(v,"only_right_turn" )) restriction=TurnRestrict_only_right_turn;
           if(!strcmp(v,"only_left_turn"  )) restriction=TurnRestrict_only_left_turn;
           if(!strcmp(v,"only_straight_on")) restriction=TurnRestrict_only_straight_on;
+
+          if(restriction==TurnRestrict_None)
+             logerror("Relation %"Prelation_t" has an unrecognised tag value 'restriction' = '%s' (after processing tagging rules).\n",id,v);
          }
 
        break;
 
       case 't':
        if(!strcmp(k,"type"))
+         {
           if(!strcmp(v,"restriction"))
              relation_turn_restriction=1;
+          else
+             logerror("Relation %"Prelation_t" has an unrecognised tag value 'type' = '%s' (after processing tagging rules).\n",id,v);
+         }
        break;
 
       default:
-       ;
+       logerror("Relation %"Prelation_t" has an unrecognised tag '%s' = '%s' (after processing tagging rules).\n",id,k,v);
       }
    }
 
@@ -1039,9 +1130,127 @@ static void process_relation_tags(TagList *tags,relation_t id)
 
  /* Create the turn restriction relation. */
 
- if(relation_turn_restriction && restriction!=TurnRestrict_None &&
-    relation_from!=NO_WAY_ID && relation_to!=NO_WAY_ID && relation_via!=NO_NODE_ID)
-    AppendTurnRestrictRelation(relations,id,
-                               relation_from,relation_to,relation_via,
-                               restriction,except);
+ if(relation_turn_restriction && restriction!=TurnRestrict_None)
+   {
+    if(relation_from==NO_WAY_ID)
+       logerror("Relation %"Prelation_t" is a turn restriction but has no 'from' way (after processing tagging rules).\n",id);
+    else if(relation_to==NO_WAY_ID)
+       logerror("Relation %"Prelation_t" is a turn restriction but has no 'to' way (after processing tagging rules).\n",id);
+    else if(relation_via==NO_NODE_ID)
+       logerror("Relation %"Prelation_t" is a turn restriction but has no 'via' node (after processing tagging rules).\n",id);
+    else
+       AppendTurnRestrictRelation(relations,id,
+                                  relation_from,relation_to,relation_via,
+                                  restriction,except);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Convert a string containing a speed into a double precision.
+
+  double parse_speed Returns the speed in km/h if it can be parsed.
+
+  way_t id The way being processed.
+
+  const char *k The tag key.
+
+  const char *v The tag value.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static double parse_speed(way_t id,const char *k,const char *v)
+{
+ char *ev;
+ double value=strtod(v,&ev);
+
+ if(v==ev)
+    logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (after processing tagging rules).\n",id,k,v);
+ else
+   {
+    while(isspace(*ev)) ev++;
+
+    if(!strcmp(ev,"mph"))
+       return(1.609*value);
+    else if(*ev==0)
+       return(value);
+    else
+       logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after processing tagging rules).\n",id,k,v);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Convert a string containing a weight into a double precision.
+
+  double parse_weight Returns the weight in tonnes if it can be parsed.
+
+  way_t id The way being processed.
+
+  const char *k The tag key.
+
+  const char *v The tag value.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static double parse_weight(way_t id,const char *k,const char *v)
+{
+ char *ev;
+ double value=strtod(v,&ev);
+
+ if(v==ev)
+    logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (after processing tagging rules).\n",id,k,v);
+ else
+   {
+    while(isspace(*ev)) ev++;
+
+    if(!strcmp(ev,"kg"))
+       return(value/1000.0);
+    else if(*ev==0)
+       return(value);
+    else
+       logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after processing tagging rules).\n",id,k,v);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Convert a string containing a length into a double precision.
+
+  double parse_length Returns the length in metres if it can be parsed.
+
+  way_t id The way being processed.
+
+  const char *k The tag key.
+
+  const char *v The tag value.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static double parse_length(way_t id,const char *k,const char *v)
+{
+ char *ev;
+ double value=strtod(v,&ev);
+
+ if(v==ev)
+    logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (after processing tagging rules).\n",id,k,v);
+ else
+   {
+    int feet,inches;
+    while(isspace(*ev)) ev++;
+
+    if(sscanf(v,"%d'%d\"",&feet,&inches)==2)
+       return((feet+(double)inches/12.0)*0.254);
+    else if(sscanf(v,"%d'",&feet)==1)
+       return(feet*0.254);
+    else if(!strcmp(ev,"ft") || !strcmp(ev,"feet"))
+       return(value*0.254);
+    else if(*ev==0)
+       return(value);
+    else
+       logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after processing tagging rules).\n",id,k,v);
+   }
+
+ return(0);
 }
