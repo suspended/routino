@@ -171,7 +171,8 @@ int main(int argc,char** argv)
 
  /* Create the error log file */
 
- open_errorlog(FileName(dirname,prefix,errorlog),option_parse_only||option_process_only);
+ if(errorlog)
+    open_errorlog(FileName(dirname,prefix,errorlog),option_parse_only||option_process_only);
 
  /* Parse the file */
 
@@ -411,7 +412,8 @@ int main(int argc,char** argv)
 
  /* Close the error log file */
 
- close_errorlog();
+ if(errorlog)
+    close_errorlog();
 
  return(0);
 }
