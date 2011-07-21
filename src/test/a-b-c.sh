@@ -35,7 +35,7 @@ option_dir="--dir=$dir"
 
 # Generic program options
 
-option_planetsplitter="--loggable --tagging=../../xml/routino-tagging.xml"
+option_planetsplitter="--loggable --tagging=../../xml/routino-tagging.xml --errorlog"
 option_filedumper="--dump-osm"
 option_router="--loggable --transport=motorcar --profiles=../../xml/routino-profiles.xml --translations=../../xml/routino-translations.xml"
 
