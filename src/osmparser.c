@@ -265,6 +265,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
  if(_type_&XMLPARSE_TAG_START)
    {
     long long llid;
+
     nnodes++;
 
     if(!(nnodes%10000))
@@ -1204,7 +1205,9 @@ static double parse_weight(way_t id,const char *k,const char *v)
     if(!strcmp(ev,"kg"))
        return(value/1000.0);
 
-    if(*ev==0 || !strcmp(ev,"T") || !strcmp(ev,"ton") || !strcmp(ev,"tons") || !strcmp(ev,"tonne") || !strcmp(ev,"tonnes"))
+    if(*ev==0 || !strcmp(ev,"T") || !strcmp(ev,"t")
+              || !strcmp(ev,"ton") || !strcmp(ev,"tons")
+              || !strcmp(ev,"tonne") || !strcmp(ev,"tonnes"))
        return(value);
 
     logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
@@ -1247,7 +1250,10 @@ static double parse_length(way_t id,const char *k,const char *v)
     if(sscanf(v,"%d ft %d in%n",&feet,&inches,&en)==2 && en && !v[en])
        return((feet+(double)inches/12.0)*0.254);
 
-    if(sscanf(v,"%d'%n",&feet,&en)==1 && en && !v[en])
+    if(sscanf(v,"%d feet %d inches%n",&feet,&inches,&en)==2 && en && !v[en])
+       return((feet+(double)inches/12.0)*0.254);
+
+    if(!strcmp(ev,"'"))
        return(feet*0.254);
 
     while(isspace(*ev)) ev++;
@@ -1255,7 +1261,7 @@ static double parse_length(way_t id,const char *k,const char *v)
     if(!strcmp(ev,"ft") || !strcmp(ev,"feet"))
        return(value*0.254);
 
-    if(*ev==0 || !strcmp(ev,"m"))
+    if(*ev==0 || !strcmp(ev,"m") || !strcmp(ev,"metre") || !strcmp(ev,"metres"))
        return(value);
 
     logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
