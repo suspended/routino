@@ -22,13 +22,22 @@
 #ifndef TAGGING_H
 #define TAGGING_H    /*+ To stop multiple inclusions. +*/
 
+#include "typesx.h"
+
+
+/* Constants */
+
+#define TAGACTION_SET      0
+#define TAGACTION_OUTPUT   1
+#define TAGACTION_LOGERROR 2
+
 
 /* Data types */
 
 /*+ A structure to contain the tagging action. +*/
 typedef struct _TaggingAction
 {
- int output;                    /*+ A flag to indicate if the output tags or input tags are to be changed. +*/
+ int action;                    /*+ A flag to indicate the type of action. +*/
 
  char *k;                       /*+ The tag key (or NULL). +*/
  char *v;                       /*+ The tag value (or NULL). +*/
@@ -81,7 +90,7 @@ int ParseXMLTaggingRules(const char *filename);
 void DeleteXMLTaggingRules(void);
 
 TaggingRule *AppendTaggingRule(TaggingRuleList *rules,const char *k,const char *v);
-void AppendTaggingAction(TaggingRule *rule,const char *k,const char *v,int output);
+void AppendTaggingAction(TaggingRule *rule,const char *k,const char *v,int action);
 void DeleteTaggingRuleList(TaggingRuleList *rules);
 
 TagList *NewTagList(void);
@@ -89,7 +98,7 @@ void AppendTag(TagList *tags,const char *k,const char *v);
 void ModifyTag(TagList *tags,const char *k,const char *v);
 void DeleteTagList(TagList *tags);
 
-TagList *ApplyTaggingRules(TaggingRuleList *rules,TagList *tags);
+TagList *ApplyTaggingRules(TaggingRuleList *rules,TagList *tags,node_t id);
 
 
 #endif /* TAGGING_H */
