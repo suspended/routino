@@ -59,6 +59,7 @@ static int NodeType_function(const char *_tag_,int _type_);
 static int IfType_function(const char *_tag_,int _type_,const char *k,const char *v);
 static int LogErrorType_function(const char *_tag_,int _type_,const char *k,const char *v);
 static int OutputType_function(const char *_tag_,int _type_,const char *k,const char *v);
+static int UnsetType_function(const char *_tag_,int _type_,const char *k);
 static int SetType_function(const char *_tag_,int _type_,const char *k,const char *v);
 
 
@@ -69,6 +70,13 @@ static xmltag SetType_tag=
               {"set",
                2, {"k","v"},
                SetType_function,
+               {NULL}};
+
+/*+ The UnsetType type tag. +*/
+static xmltag UnsetType_tag=
+              {"unset",
+               1, {"k"},
+               UnsetType_function,
                {NULL}};
 
 /*+ The OutputType type tag. +*/
@@ -90,7 +98,7 @@ static xmltag IfType_tag=
               {"if",
                2, {"k","v"},
                IfType_function,
-               {&SetType_tag,&OutputType_tag,&LogErrorType_tag,NULL}};
+               {&SetType_tag,&UnsetType_tag,&OutputType_tag,&LogErrorType_tag,NULL}};
 
 /*+ The NodeType type tag. +*/
 static xmltag NodeType_tag=
@@ -153,6 +161,27 @@ static int SetType_function(const char *_tag_,int _type_,const char *k,const cha
 {
  if(_type_&XMLPARSE_TAG_START)
     AppendTaggingAction(current_rule,k,v,TAGACTION_SET);
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the UnsetType XSD type is seen
+
+  int UnsetType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *k The contents of the 'k' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int UnsetType_function(const char *_tag_,int _type_,const char *k)
+{
+ if(_type_&XMLPARSE_TAG_START)
+    AppendTaggingAction(current_rule,k,NULL,TAGACTION_UNSET);
 
  return(0);
 }
@@ -488,6 +517,32 @@ TagList *NewTagList(void)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Delete a tag list and the contents.
+
+  TagList *tags The list of tags to delete.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void DeleteTagList(TagList *tags)
+{
+ int i;
+
+ for(i=0;i<tags->ntags;i++)
+   {
+    if(tags->k[i]) free(tags->k[i]);
+    if(tags->v[i]) free(tags->v[i]);
+   }
+
+ if(tags->ntags)
+   {
+    free(tags->k);
+    free(tags->v);
+   }
+
+ free(tags);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Append a tag to the list of tags.
 
   TagList *tags The list of tags to add to.
@@ -543,28 +598,36 @@ void ModifyTag(TagList *tags,const char *k,const char *v)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Delete a tag list and the contents.
+  Delete an existing tag from the list of tags.
 
-  TagList *tags The list of tags to delete.
+  TagList *tags The list of tags to modify.
+
+  const char *k The tag key.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void DeleteTagList(TagList *tags)
+void DeleteTag(TagList *tags,const char *k)
 {
- int i;
+ int i,j;
 
  for(i=0;i<tags->ntags;i++)
-   {
-    if(tags->k[i]) free(tags->k[i]);
-    if(tags->v[i]) free(tags->v[i]);
-   }
+    if(!strcmp(tags->k[i],k))
+      {
+       if(tags->k[i]) free(tags->k[i]);
+       if(tags->v[i]) free(tags->v[i]);
 
- if(tags->ntags)
-   {
-    free(tags->k);
-    free(tags->v);
-   }
+       for(j=i+1;j<tags->ntags;j++)
+         {
+          tags->k[j-1]=tags->k[j];
+          tags->v[j-1]=tags->v[j];
+         }
 
- free(tags);
+       tags->ntags--;
+
+       tags->k[tags->ntags]=NULL;
+       tags->v[tags->ntags]=NULL;
+
+       return;
+      }
 }
 
 
@@ -652,6 +715,8 @@ static void apply_actions(TaggingRuleList *rules,TaggingRule *rule,int match,Tag
 
     if(rule->actions[i].action==TAGACTION_SET)
        ModifyTag(input,k,v);
+    if(rule->actions[i].action==TAGACTION_UNSET)
+       DeleteTag(input,k);
     if(rule->actions[i].action==TAGACTION_OUTPUT)
        ModifyTag(output,k,v);
     if(rule->actions[i].action==TAGACTION_LOGERROR)
