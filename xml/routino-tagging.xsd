@@ -52,6 +52,7 @@
   <xsd:complexType name="IfType">
     <xsd:sequence>
       <xsd:element name="set"      type="SetType"      minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="unset"    type="UnsetType"    minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="output"   type="OutputType"   minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="logerror" type="LogErrorType" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
@@ -62,6 +63,10 @@
   <xsd:complexType name="SetType">
     <xsd:attribute name="k" type="xsd:string"/>
     <xsd:attribute name="v" type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="UnsetType">
+    <xsd:attribute name="k" type="xsd:string"/>
   </xsd:complexType>
 
   <xsd:complexType name="OutputType">

@@ -28,8 +28,9 @@
 /* Constants */
 
 #define TAGACTION_SET      0
-#define TAGACTION_OUTPUT   1
-#define TAGACTION_LOGERROR 2
+#define TAGACTION_UNSET    1
+#define TAGACTION_OUTPUT   2
+#define TAGACTION_LOGERROR 3
 
 
 /* Data types */
@@ -94,9 +95,11 @@ void AppendTaggingAction(TaggingRule *rule,const char *k,const char *v,int actio
 void DeleteTaggingRuleList(TaggingRuleList *rules);
 
 TagList *NewTagList(void);
+void DeleteTagList(TagList *tags);
+
 void AppendTag(TagList *tags,const char *k,const char *v);
 void ModifyTag(TagList *tags,const char *k,const char *v);
-void DeleteTagList(TagList *tags);
+void DeleteTag(TagList *tags,const char *k);
 
 TagList *ApplyTaggingRules(TaggingRuleList *rules,TagList *tags,node_t id);
 
