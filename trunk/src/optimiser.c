@@ -354,9 +354,14 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  if(begin->number==1)
    {
-    index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
+    if(begin->prev_segment==NO_SEGMENT)
+       results->prev_segment=NO_SEGMENT;
+    else
+      {
+       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
 
-    results->prev_segment=superseg;
+       results->prev_segment=superseg;
+      }
    }
 
  result1=InsertResult(results,results->start_node,results->prev_segment);
@@ -1282,6 +1287,20 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 void FixForwardRoute(Results *results,Result *finish_result)
 {
  Result *result2=finish_result;
+
+ /* Erase the old route if there is one */
+
+ if(results->finish_node!=NO_NODE)
+   {
+    Result *result1=FirstResult(results);
+
+    while(result1)
+      {
+       result1->next=NULL;
+
+       result1=NextResult(results,result1);
+      }
+   }
 
  /* Create the forward links for the optimum path */
 

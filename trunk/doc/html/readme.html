@@ -166,6 +166,8 @@ Version 2.0 of Routino was released on 30th May 2011.
 Version 2.0.1 of Routino was released on 7th June 2011.
 <br>
 Version 2.0.2 of Routino was released on 26th June 2011.
+<br>
+Version 2.0.3 of Routino was released on 4th August 2011.
 
 <p>
 
@@ -229,7 +231,7 @@ The full version history is available in the NEWS file.
   <dd>Check whether node/way/relation IDs fit in 32-bits (code ready for 64-bits).
 </dl>
 
-<h4><a name="H_1_5_1_3"></a>Changes in Version 2.0.2</h4>
+<h4><a name="H_1_5_1_2"></a>Changes in Version 2.0.2</h4>
 
 <dl>
   <dt>Bug fixes:
@@ -241,6 +243,16 @@ The full version history is available in the NEWS file.
   <dd>Use C99 standard by default and fix related warnings.
   <br>More code tidy-up for 32/64 bit node and index types.
   <br>Free some memory in various places (not serious leaks).
+</dl>
+
+<h4><a name="H_1_5_1_3"></a>Changes in Version 2.0.3</h4>
+
+<dl>
+  <dt>Bug fixes:
+  <dd>Handle start node being a super-node with no previous segment (don't crash).
+  <br>Make stricter checks against the profile when finding the closest segment.
+  <br>Find a valid route if the start and end point are the same location.
+  <br>Choose the better route if one with and one without super-nodes are available.
 </dl>
 
 
