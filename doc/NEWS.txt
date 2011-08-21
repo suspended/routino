@@ -1,3 +1,15 @@
+Version 2.0.3 of Routino released : Thu Aug 4 2011
+--------------------------------------------------
+
+Bug fixes:
+ Handle start node being a super-node with no previous segment (don't crash).
+ Make stricter checks against the profile when finding the closest segment.
+ Find a valid route if the start and end point are the same location.
+ Choose the better route if one with and one without super-nodes are available.
+
+Note: this version is compatible with databases from versions 2.0, 2.0.x.
+
+
 Version 2.0.2 of Routino released : Sun June 26 2011
 ----------------------------------------------------
 
@@ -9,7 +21,7 @@ Bug fixes:
 Code improvements
  Use C99 standard by default and fix related warnings.
  More code tidy-up for 32/64 bit node and index types.
-  Free some memory in various places (not serious leaks).
+ Free some memory in various places (not serious leaks).
 
 Note: this version is compatible with databases from versions 2.0, 2.0.1.
 

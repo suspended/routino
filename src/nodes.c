@@ -362,69 +362,98 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
                   {
                    if(IsNormalSegment(segment))
                      {
-                      Way *way=NULL;
+                      distance_t dist2,dist3;
+                      double lat2,lon2,dist3a,dist3b,distp;
 
                       if(profile)
-                         way=LookupWay(ways,segment->way,1);
-
-                      if(!profile || way->allow&profile->allow)
                         {
-                         distance_t dist2,dist3;
-                         double lat2,lon2,dist3a,dist3b,distp;
+                         Way *way=LookupWay(ways,segment->way,1);
+                         score_t segment_pref;
+                         int pi;
 
-                         GetLatLong(nodes,OtherNode(segment,i),&lat2,&lon2);
+                         /* mode of transport must be allowed on the highway */
+                         if(!(way->allow&profile->allow))
+                            goto endloop;
 
-                         dist2=Distance(lat2,lon2,latitude,longitude);
+                         /* must obey weight restriction (if exists) */
+                         if(way->weight && way->weight<profile->weight)
+                            goto endloop;
 
-                         dist3=Distance(lat1,lon1,lat2,lon2);
+                         /* must obey height/width/length restriction (if exists) */
+                         if((way->height && way->height<profile->height) ||
+                            (way->width  && way->width <profile->width ) ||
+                            (way->length && way->length<profile->length))
+                            goto endloop;
 
-                         /* Use law of cosines (assume flat Earth) */
+                         segment_pref=profile->highway[HIGHWAY(way->type)];
 
-                         dist3a=((double)dist1*(double)dist1-(double)dist2*(double)dist2+(double)dist3*(double)dist3)/(2.0*(double)dist3);
-                         dist3b=(double)dist3-dist3a;
-
-                         if((dist1+dist2)<dist3)
-                           {
-                            distp=0;
-                           }
-                         else if(dist3a>=0 && dist3b>=0)
-                            distp=sqrt((double)dist1*(double)dist1-dist3a*dist3a);
-                         else if(dist3a>0)
-                           {
-                            distp=dist2;
-                            dist3a=dist3;
-                            dist3b=0;
-                           }
-                         else /* if(dist3b>0) */
-                           {
-                            distp=dist1;
-                            dist3a=0;
-                            dist3b=dist3;
-                           }
-
-                         if(distp<(double)bestd)
-                           {
-                            bests=IndexSegment(segments,segment);
-
-                            if(segment->node1==i)
+                         for(pi=1;pi<Property_Count;pi++)
+                            if(ways->file.props & PROPERTIES(pi))
                               {
-                               bestn1=i;
-                               bestn2=OtherNode(segment,i);
-                               bestd1=(distance_t)dist3a;
-                               bestd2=(distance_t)dist3b;
-                              }
-                            else
-                              {
-                               bestn1=OtherNode(segment,i);
-                               bestn2=i;
-                               bestd1=(distance_t)dist3b;
-                               bestd2=(distance_t)dist3a;
+                               if(way->props & PROPERTIES(pi))
+                                  segment_pref*=profile->props_yes[pi];
+                               else
+                                  segment_pref*=profile->props_no[pi];
                               }
 
-                            bestd=(distance_t)distp;
+                         /* profile preferences must allow this highway */
+                         if(segment_pref==0)
+                            goto endloop;
+                        }
+
+                      GetLatLong(nodes,OtherNode(segment,i),&lat2,&lon2);
+
+                      dist2=Distance(lat2,lon2,latitude,longitude);
+
+                      dist3=Distance(lat1,lon1,lat2,lon2);
+
+                      /* Use law of cosines (assume flat Earth) */
+
+                      dist3a=((double)dist1*(double)dist1-(double)dist2*(double)dist2+(double)dist3*(double)dist3)/(2.0*(double)dist3);
+                      dist3b=(double)dist3-dist3a;
+
+                      if((dist1+dist2)<dist3)
+                        {
+                         distp=0;
+                        }
+                      else if(dist3a>=0 && dist3b>=0)
+                         distp=sqrt((double)dist1*(double)dist1-dist3a*dist3a);
+                      else if(dist3a>0)
+                        {
+                         distp=dist2;
+                         dist3a=dist3;
+                         dist3b=0;
+                        }
+                      else /* if(dist3b>0) */
+                        {
+                         distp=dist1;
+                         dist3a=0;
+                         dist3b=dist3;
+                        }
+
+                      if(distp<(double)bestd)
+                        {
+                         bests=IndexSegment(segments,segment);
+
+                         if(segment->node1==i)
+                           {
+                            bestn1=i;
+                            bestn2=OtherNode(segment,i);
+                            bestd1=(distance_t)dist3a;
+                            bestd2=(distance_t)dist3b;
                            }
+                         else
+                           {
+                            bestn1=OtherNode(segment,i);
+                            bestn2=i;
+                            bestd1=(distance_t)dist3b;
+                            bestd2=(distance_t)dist3a;
+                           }
+
+                         bestd=(distance_t)distp;
                         }
                      }
+                  endloop:
 
                    segment=NextSegment(segments,segment,i);
                   }
