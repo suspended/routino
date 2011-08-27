@@ -764,7 +764,28 @@ static void process_way_tags(TagList *tags,way_t id)
  char *name=NULL,*ref=NULL,*refname=NULL;
  int i;
 
- /* Parse the tags */
+ /* Parse the tags - just look for highway */
+
+ for(i=0;i<tags->ntags;i++)
+   {
+    char *k=tags->k[i];
+    char *v=tags->v[i];
+
+    if(!strcmp(k,"highway"))
+      {
+       way.type=HighwayType(v);
+
+       if(way.type==Way_Count)
+          logerror("Way %"Pway_t" has an unrecognised highway type '%s' (after tagging rules); ignoring it.\n",id,v);
+      }
+   }
+
+ /* Don't continue if this is not a highway (bypass error logging) */
+
+ if(way.type==0 || way.type==Way_Count)
+    return;
+
+ /* Parse the tags - look for the others */
 
  for(i=0;i<tags->ntags;i++)
    {
@@ -832,12 +853,7 @@ static void process_way_tags(TagList *tags,way_t id)
 
       case 'h':
        if(!strcmp(k,"highway"))
-         {
-          way.type=HighwayType(v);
-
-          if(way.type==Way_Count)
-             logerror("Way %"Pway_t" has an unrecognised highway type '%s' (after tagging rules); ignoring it.\n",id,v);
-         }
+          ;
 
        if(!strcmp(k,"horse"))
          {
@@ -979,9 +995,6 @@ static void process_way_tags(TagList *tags,way_t id)
    }
 
  /* Create the way */
-
- if(way.type==0 || way.type==Way_Count)
-    return;
 
  if(!way.allow)
     return;
