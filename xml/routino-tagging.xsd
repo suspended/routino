@@ -75,8 +75,8 @@
   </xsd:complexType>
 
   <xsd:complexType name="LogErrorType">
-    <xsd:attribute name="k"    type="xsd:string"/>
-    <xsd:attribute name="v"    type="xsd:string"/>
+    <xsd:attribute name="k" type="xsd:string"/>
+    <xsd:attribute name="v" type="xsd:string"/>
   </xsd:complexType>
 
 </xsd:schema>
