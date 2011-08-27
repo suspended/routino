@@ -554,7 +554,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
                 ways++;
                }
              else
-                logerror("Route Relation %"Prelation_t" contains way %"Pway_t" but it does not exist.\n",relationx.id,wayid);
+                logerror("Route Relation %"Prelation_t" contains Way %"Pway_t" but it does not exist in the Routino database.\n",relationx.id,wayid);
             }
          }
        while(wayid!=NO_WAY);
@@ -663,13 +663,13 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
     to  =IndexWayX(waysx,relationx.to);
 
     if(via==NO_NODE)
-       logerror("Turn Relation %"Prelation_t" contains node %"Pnode_t" but it does not exist.\n",relationx.id,relationx.via);
+       logerror("Turn Relation %"Prelation_t" contains Node %"Pnode_t" but it does not exist in the Routino database.\n",relationx.id,relationx.via);
 
     if(from==NO_WAY)
-       logerror("Turn Relation %"Prelation_t" contains way %"Pway_t" but it does not exist.\n",relationx.id,relationx.from);
+       logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" but it does not exist in the Routino database.\n",relationx.id,relationx.from);
 
     if(to==NO_WAY)
-       logerror("Turn Relation %"Prelation_t" contains way %"Pway_t" but it does not exist.\n",relationx.id,relationx.to);
+       logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" but it does not exist in the Routino database.\n",relationx.id,relationx.to);
 
     relationx.via =via;
     relationx.from=from;
@@ -769,7 +769,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
              if(node_from!=NO_NODE) /* Only one segment can be on the 'from' way */
                {
-                logerror("Turn Relation %"Prelation_t" is not at the end of the 'from' way.\n",relationx.id);
+                logerror("Turn Relation %"Prelation_t" is not stored because the 'via' node is not at the end of the 'from' way.\n",relationx.id);
                 deleted++;
                 goto endloop;
                }
@@ -789,7 +789,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
              if(node_to!=NO_NODE) /* Only one segment can be on the 'to' way */
                {
-                logerror("Turn Relation %"Prelation_t" is not at the end of 'to' way.\n",relationx.id);
+                logerror("Turn Relation %"Prelation_t" is not stored because the 'via' node is not at the end of the 'to' way.\n",relationx.id);
                 deleted++;
                 goto endloop;
                }
@@ -807,10 +807,10 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
          }
 
        if(node_from==NO_NODE)
-          logerror("Turn Relation %"Prelation_t" is not connected to 'from' way at 'via' node.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not stored because the 'via' node is not part of the 'from' way.\n",relationx.id);
 
        if(node_to==NO_NODE)
-          logerror("Turn Relation %"Prelation_t" is not connected to 'to' way at 'via' node.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not stored because the 'via' node is not part of the 'to' way.\n",relationx.id);
 
        if(oneway_from)
           logerror("Turn Relation %"Prelation_t" is not stored because the 'from' way is oneway away from the 'via' node.\n",relationx.id);
@@ -860,7 +860,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
              if(node_from!=NO_NODE) /* Only one segment can be on the 'from' way */
                {
-                logerror("Turn Relation %"Prelation_t" is not at the end of 'from' way.\n",relationx.id);
+                logerror("Turn Relation %"Prelation_t" is not stored because the 'via' node is not at the end of the 'from' way.\n",relationx.id);
                 deleted++;
                 goto endloop;
                }
@@ -878,7 +878,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
             {
              if(node_to!=NO_NODE) /* Only one segment can be on the 'to' way */
                {
-                logerror("Turn Relation %"Prelation_t" is not at the end of 'to' way.\n",relationx.id);
+                logerror("Turn Relation %"Prelation_t" is not stored because the 'via' node is not at the end of the 'to' way.\n",relationx.id);
                 deleted++;
                 goto endloop;
                }
@@ -906,16 +906,16 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
          }
 
        if(node_from==NO_NODE)
-          logerror("Turn Relation %"Prelation_t" is not connected to 'from' way at 'via' node.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not stored because the 'via' node is not part of the 'from' way.\n",relationx.id);
 
        if(node_to==NO_NODE)
-          logerror("Turn Relation %"Prelation_t" is not connected to 'yo' way at 'via' node.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not stored because the 'via' node is not part of the 'to' way.\n",relationx.id);
 
        if(nnodes_other==0)
           logerror("Turn Relation %"Prelation_t" is not needed because the only allowed exit from the 'via' node is the 'to' way.\n",relationx.id);
 
        if(oneway_from)
-          logerror("Turn Relation %"Prelation_t" is not stored because the 'from' way is oneway away from the 'via' node.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not needed because the 'from' way is oneway away from the 'via' node.\n",relationx.id);
 
        if(!vehicles_from)
           logerror("Turn Relation %"Prelation_t" is not stored because the 'from' way does not allow motor vehicles.\n",relationx.id);
