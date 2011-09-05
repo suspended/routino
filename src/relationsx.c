@@ -779,7 +779,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
              if(IsOnewayFrom(segmentx,relationx.via))
                 oneway_from=1;  /* not allowed */
 
-             if(!(wayx->way.allow&(Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+             if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
                 vehicles_from=0;  /* not allowed */
             }
 
@@ -799,7 +799,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
              if(IsOnewayTo(segmentx,relationx.via))
                 oneway_to=1;  /* not allowed */
 
-             if(!(wayx->way.allow&(Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+             if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
                 vehicles_to=0;  /* not allowed */
             }
 
@@ -819,10 +819,10 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           logerror("Turn Relation %"Prelation_t" is not needed because the 'to' way is oneway towards the 'via' node.\n",relationx.id);
 
        if(!vehicles_from)
-          logerror("Turn Relation %"Prelation_t" is not stored because the 'from' way does not allow motor vehicles.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not stored because the 'from' way does not allow vehicles.\n",relationx.id);
 
        if(!vehicles_to)
-          logerror("Turn Relation %"Prelation_t" is not needed because the 'to' way does not allow motor vehicles.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not needed because the 'to' way does not allow vehicles.\n",relationx.id);
 
        if(oneway_from || oneway_to || !vehicles_from || !vehicles_to || node_from==NO_NODE || node_to==NO_NODE)
          {
@@ -870,7 +870,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
              if(IsOnewayFrom(segmentx,relationx.via))
                 oneway_from=1;  /* not allowed */
 
-             if(!(wayx->way.allow&(Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+             if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
                 vehicles_from=0;  /* not allowed */
             }
 
@@ -892,7 +892,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
              if(IsOnewayTo(segmentx,relationx.via))
                 ;  /* not allowed */
-             else if(!(wayx->way.allow&(Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+             else if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
                 ;  /* not allowed */
              else
                {
@@ -918,7 +918,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           logerror("Turn Relation %"Prelation_t" is not needed because the 'from' way is oneway away from the 'via' node.\n",relationx.id);
 
        if(!vehicles_from)
-          logerror("Turn Relation %"Prelation_t" is not stored because the 'from' way does not allow motor vehicles.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not stored because the 'from' way does not allow vehicles.\n",relationx.id);
 
        if(oneway_from || !vehicles_from || node_from==NO_NODE || node_to==NO_NODE || nnodes_other==0)
          {
