@@ -25,33 +25,54 @@ WEBWWWDIR=../web/www/routino
 
 # Files to install
 
-FILES=profiles.xml \
-      translations.xml \
-      tagging.xml
+STANDARD_FILES=profiles.xml \
+               translations.xml \
+               tagging.xml
+
+SPECIAL_FILES=tagging-drive.xml \
+	      tagging-ride.xml \
+              tagging-walk.xml
 
 ########
 
-all :
+all : $(SPECIAL_FILES)
 	-@[ -d $(WEBDATADIR) ] && \
-	  for file in $(FILES); do \
+	  for file in $(STANDARD_FILES); do \
 	     if [ ! -f $(WEBDATADIR)/$$file ] || [ routino-$$file -nt $(WEBDATADIR)/$$file ]; then \
 	        echo cp routino-$$file $(WEBDATADIR)/$$file ;\
 	        cp -f routino-$$file $(WEBDATADIR)/$$file ;\
 	     fi ;\
-	  done ;\
-	  if [ ! -f $(WEBWWWDIR)/profiles.js ] || [ ! -f $(WEBWWWDIR)/profiles.pl ] || \
+	  done
+	-@for file in $(SPECIAL_FILES); do \
+	     if [ ! -f $(WEBDATADIR)/$$file ] || [ $$file -nt $(WEBDATADIR)/$$file ]; then \
+	        echo cp $$file $(WEBDATADIR)/$$file ;\
+	        cp -f $$file $(WEBDATADIR)/$$file ;\
+	     fi ;\
+	  done
+	-@if [ ! -f $(WEBWWWDIR)/profiles.js ] || [ ! -f $(WEBWWWDIR)/profiles.pl ] || \
 	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.pl ] || \
 	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.js ]; then \
 	     echo perl update-profiles.pl ;\
 	     ( cd $(WEBWWWDIR) ; perl update-profiles.pl ) ;\
 	  fi
 
+####
+
+tagging-drive.xml : routino-tagging.xml scripts/drive.pl
+	perl scripts/drive.pl < routino-tagging.xml > tagging-drive.xml
+
+tagging-ride.xml : routino-tagging.xml scripts/ride.pl
+	perl scripts/ride.pl < routino-tagging.xml > tagging-ride.xml
+
+tagging-walk.xml : routino-tagging.xml scripts/walk.pl
+	perl scripts/walk.pl < routino-tagging.xml > tagging-walk.xml
+
 ########
 
 install: all
 	-[ -d $(DESTDIR)$(datadir) ] || mkdir -p $(DESTDIR)$(datadir)
 	@[ -d $(DESTDIR)$(datadir) ] && \
-	  for file in $(FILES); do \
+	  for file in $(STANDARD_FILES) $(SPECIAL_FILES); do \
 	     echo cp routino-$$file $(DESTDIR)$(datadir)/$$file ;\
 	     cp -f routino-$$file $(DESTDIR)$(datadir)/$$file ;\
 	  done
@@ -65,6 +86,7 @@ clean:
 
 distclean: clean
 	rm -f $(WEBDATADIR)/*.xml
+	rm -f $(SPECIAL_FILES)
 
 ########
 
