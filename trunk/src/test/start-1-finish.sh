@@ -78,4 +78,7 @@ for waypoint in $waypoints; do
 
     mv shortest* $dir/$name-$waypoint
 
+    echo cmp $dir/$name-$waypoint/shortest-all.txt expected/$name-$waypoint.txt >> $log
+    cmp $dir/$name-$waypoint/shortest-all.txt expected/$name-$waypoint.txt >> $log
+
 done
