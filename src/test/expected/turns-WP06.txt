@@ -1,6 +1,6 @@
 # Creator : Routino - http://www.routino.org/
-# Source : Based on OpenStreetMap data from http://www.openstreetmap.org/
-# License : http://creativecommons.org/licenses/by-sa/2.0/
+# Source : Routino test cases - (c) Andrew M. Bishop
+# License : GNU Affero General Public License v3 or later
 #
 #Latitude	Longitude	    Node	Type	Segment	Segment	Total	Total  	Speed	Bearing	Highway
 #        	         	        	    	Dist   	Durat'n	Dist 	Durat'n	     	       	       
