@@ -515,18 +515,18 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
  ll_bin_t start,end,mid;
  index_t offset;
 
- /* Binary search - search key nearest below for lon, exact match for lat.
+ /* Binary search - search key nearest match below is required.
   *
   *  # <- start  |  Check mid and move start or end if it doesn't match
   *  #           |
-  *  #           |  If an exact match is wanted we can set end=mid-1 or
-  *  # <- mid    |  start=mid+1 because we know that mid doesn't match.
+  *  #           |  A lower bound match is wanted we can set end=mid-1 or
+  *  # <- mid    |  start=mid because we know that mid doesn't match.
   *  #           |
   *  #           |  Eventually either end=start or end=start+1 and one of
   *  # <- end    |  start or end is the wanted one.
   */
 
- /* Search for longitude - search for row containing node */
+ /* Search for longitude */
 
  start=0;
  end=nodes->file.lonbins-1;
@@ -537,7 +537,7 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
 
     offset=LookupNodeOffset(nodes,nodes->file.latbins*mid);
 
-    if(offset<index)                    /* Mid point is too low or just right */
+    if(offset<index)                    /* Mid point is too low for an exact match but could be lower bound */
        start=mid;
     else if(offset>index)               /* Mid point is too high */
        end=mid?(mid-1):mid;
@@ -560,7 +560,7 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
        LookupNodeOffset(nodes,lonbin*nodes->file.latbins)==LookupNodeOffset(nodes,(lonbin+1)*nodes->file.latbins))
     lonbin++;
 
- /* Search for latitude - search for exact column */
+ /* Search for latitude */
 
  start=0;
  end=nodes->file.latbins-1;
@@ -571,8 +571,8 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
 
     offset=LookupNodeOffset(nodes,lonbin*nodes->file.latbins+mid);
 
-    if(offset<index)                    /* Mid point is too low */
-       start=mid+1;
+    if(offset<index)                    /* Mid point is too low for an exact match but could be lower bound */
+       start=mid;
     else if(offset>index)               /* Mid point is too high */
        end=mid?(mid-1):mid;
     else                                /* Mid point is correct */
