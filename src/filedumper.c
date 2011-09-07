@@ -564,7 +564,7 @@ static void print_turnrelation(Relations *relations,index_t item,Segments *segme
 static void print_head_osm(void)
 {
  printf("<?xml version='1.0' encoding='UTF-8'?>\n");
- printf("<osm version='0.6' generator=''Routino'>\n");
+ printf("<osm version='0.6' generator='Routino'>\n");
 }
 
 
