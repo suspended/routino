@@ -722,11 +722,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  result1=InsertResult(results,results->start_node,results->prev_segment);
 
- /* Take a shortcut if the first node is a super-node. */
-
- if(!IsFakeNode(start_node) && IsSuperNode(LookupNode(nodes,start_node,1)))
-    return(results);
-
  /* Insert the first node into the queue */
 
  queue=NewQueueList();
