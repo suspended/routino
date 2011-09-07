@@ -32,6 +32,11 @@
 #include "profiles.h"
 
 
+/* Local functions */
+
+static int valid_segment_for_profile(Ways *ways,Segment *segment,Profile *profile);
+
+
 /*++++++++++++++++++++++++++++++++++++++
   Load in a node list from a file.
 
@@ -82,8 +87,8 @@ Nodes *LoadNodeList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find the closest node given its latitude, longitude and optionally the profile
-  of the mode of transport that must be able to move to/from this node.
+  Find the closest node given its latitude, longitude and the profile of the
+  mode of transport that must be able to move to/from this node.
 
   index_t FindClosestNode Returns the closest node.
 
@@ -99,7 +104,7 @@ Nodes *LoadNodeList(const char *filename)
 
   distance_t distance The maximum distance to look from the specified coordinates.
 
-  Profile *profile The profile of the mode of transport (or NULL).
+  Profile *profile The profile of the mode of transport.
 
   distance_t *bestdist Returns the distance to the best node.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -190,30 +195,25 @@ index_t FindClosestNode(Nodes *nodes,Segments *segments,Ways *ways,double latitu
 
              if(dist<distance)
                {
-                if(profile)
+                Segment *segment;
+
+                /* Check that at least one segment is valid for the profile */
+
+                segment=FirstSegment(segments,nodes,i,1);
+
+                do
                   {
-                   Segment *segment;
-
-                   /* Decide if this is node is valid for the profile */
-
-                   segment=FirstSegment(segments,nodes,i,1);
-
-                   do
+                   if(IsNormalSegment(segment) && valid_segment_for_profile(ways,segment,profile))
                      {
-                      Way *way=LookupWay(ways,segment->way,1);
+                      bestn=i;
+                      bestd=distance=dist;
 
-                      if(way->allow&profile->allow)
-                         break;
-
-                      segment=NextSegment(segments,segment,i);
+                      break;
                      }
-                   while(segment);
 
-                   if(!segment)
-                      continue;
+                   segment=NextSegment(segments,segment,i);
                   }
-
-                bestn=i; bestd=distance=dist;
+                while(segment);
                }
             }
 
@@ -233,8 +233,8 @@ index_t FindClosestNode(Nodes *nodes,Segments *segments,Ways *ways,double latitu
 
 /*++++++++++++++++++++++++++++++++++++++
   Find the closest point on the closest segment given its latitude, longitude
-  and optionally the profile of the mode of transport that must be able to move
-  along this segment.
+  and the profile of the mode of transport that must be able to move along this
+  segment.
 
   index_t FindClosestSegment Returns the closest segment index.
 
@@ -250,7 +250,7 @@ index_t FindClosestNode(Nodes *nodes,Segments *segments,Ways *ways,double latitu
 
   distance_t distance The maximum distance to look from the specified coordinates.
 
-  Profile *profile The profile of the mode of transport (or NULL).
+  Profile *profile The profile of the mode of transport.
 
   distance_t *bestdist Returns the distance to the closest point on the best segment.
 
@@ -360,46 +360,10 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
 
                 do
                   {
-                   if(IsNormalSegment(segment))
+                   if(IsNormalSegment(segment) && valid_segment_for_profile(ways,segment,profile))
                      {
                       distance_t dist2,dist3;
                       double lat2,lon2,dist3a,dist3b,distp;
-
-                      if(profile)
-                        {
-                         Way *way=LookupWay(ways,segment->way,1);
-                         score_t segment_pref;
-                         int pi;
-
-                         /* mode of transport must be allowed on the highway */
-                         if(!(way->allow&profile->allow))
-                            goto endloop;
-
-                         /* must obey weight restriction (if exists) */
-                         if(way->weight && way->weight<profile->weight)
-                            goto endloop;
-
-                         /* must obey height/width/length restriction (if exists) */
-                         if((way->height && way->height<profile->height) ||
-                            (way->width  && way->width <profile->width ) ||
-                            (way->length && way->length<profile->length))
-                            goto endloop;
-
-                         segment_pref=profile->highway[HIGHWAY(way->type)];
-
-                         for(pi=1;pi<Property_Count;pi++)
-                            if(ways->file.props & PROPERTIES(pi))
-                              {
-                               if(way->props & PROPERTIES(pi))
-                                  segment_pref*=profile->props_yes[pi];
-                               else
-                                  segment_pref*=profile->props_no[pi];
-                              }
-
-                         /* profile preferences must allow this highway */
-                         if(segment_pref==0)
-                            goto endloop;
-                        }
 
                       GetLatLong(nodes,OtherNode(segment,i),&lat2,&lon2);
 
@@ -453,7 +417,6 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
                          bestd=(distance_t)distp;
                         }
                      }
-                  endloop:
 
                    segment=NextSegment(segments,segment,i);
                   }
@@ -478,6 +441,58 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
  *bestdist2=bestd2;
 
  return(bests);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Check if the transport defined by the profile is allowed on the segment.
+
+  int valid_segment_for_profile Return 1 if it is or 0 if not.
+
+  Ways *ways The set of ways to use.
+
+  Segment *segment The segment to check.
+
+  Profile *profile The profile to check.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int valid_segment_for_profile(Ways *ways,Segment *segment,Profile *profile)
+{
+ Way *way=LookupWay(ways,segment->way,1);
+ score_t segment_pref;
+ int i;
+
+ /* mode of transport must be allowed on the highway */
+ if(!(way->allow&profile->allow))
+    return(0);
+
+ /* must obey weight restriction (if exists) */
+ if(way->weight && way->weight<profile->weight)
+    return(0);
+
+ /* must obey height/width/length restriction (if exists) */
+ if((way->height && way->height<profile->height) ||
+    (way->width  && way->width <profile->width ) ||
+    (way->length && way->length<profile->length))
+    return(0);
+
+ segment_pref=profile->highway[HIGHWAY(way->type)];
+
+ for(i=1;i<Property_Count;i++)
+    if(ways->file.props & PROPERTIES(i))
+      {
+       if(way->props & PROPERTIES(i))
+          segment_pref*=profile->props_yes[i];
+       else
+          segment_pref*=profile->props_no[i];
+      }
+
+ /* profile preferences must allow this highway */
+ if(segment_pref==0)
+    return(0);
+
+ /* Must be OK */
+ return(1);
 }
 
 
