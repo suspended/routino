@@ -385,7 +385,7 @@ int main(int argc,char** argv)
                       segment=NextSegment(OSMSegments,segment,item);
                      }
 
-                   if(node->flags&NODE_TURNRSTRCT)
+                   if(IsTurnRestrictedNode(node))
                      {
                       index_t relindex=FindFirstTurnRelation1(OSMRelations,item);
 
