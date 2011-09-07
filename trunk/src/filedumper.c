@@ -646,7 +646,7 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
  if(IsNormalSegment(segment))
     printf("    <tag k='routino:normal' v='yes' />\n");
 
- printf("     <tag k='routino:distance' v='%.3f' />\n",distance_to_km(DISTANCE(segment->distance)));
+ printf("    <tag k='routino:distance' v='%.3f' />\n",distance_to_km(DISTANCE(segment->distance)));
 
  if(way->type & Way_OneWay)
     printf("    <tag k='oneway' v='yes' />\n");
