@@ -602,12 +602,6 @@ int main(int argc,char** argv)
        FixForwardRoute(begin,finish_result);
 
        results[point]=begin;
-
-       if(!option_quiet)
-         {
-          printf("Routed: Super-Nodes Checked = %d\n",nsuper);
-          fflush(stdout);
-         }
       }
     else
        FreeResultsList(begin);
