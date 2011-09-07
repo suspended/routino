@@ -500,18 +500,18 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
  ll_bin_t start,end,mid;
  index_t offset;
 
- /* Binary search - search key exact match only is required.
+ /* Binary search - search key nearest below for lon, exact match for lat.
   *
   *  # <- start  |  Check mid and move start or end if it doesn't match
   *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
+  *  #           |  If an exact match is wanted we can set end=mid-1 or
+  *  # <- mid    |  start=mid+1 because we know that mid doesn't match.
   *  #           |
   *  #           |  Eventually either end=start or end=start+1 and one of
   *  # <- end    |  start or end is the wanted one.
   */
 
- /* Search for longitude */
+ /* Search for longitude - search for row containing node */
 
  start=0;
  end=nodes->file.lonbins-1;
@@ -522,10 +522,10 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
 
     offset=LookupNodeOffset(nodes,nodes->file.latbins*mid);
 
-    if(offset<index)                    /* Mid point is too low */
+    if(offset<index)                    /* Mid point is too low or just right */
        start=mid;
     else if(offset>index)               /* Mid point is too high */
-       end=mid-1;
+       end=mid?(mid-1):mid;
     else                                /* Mid point is correct */
       {lonbin=mid;break;}
    }
@@ -545,7 +545,7 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
        LookupNodeOffset(nodes,lonbin*nodes->file.latbins)==LookupNodeOffset(nodes,(lonbin+1)*nodes->file.latbins))
     lonbin++;
 
- /* Search for latitude */
+ /* Search for latitude - search for exact column */
 
  start=0;
  end=nodes->file.latbins-1;
@@ -557,9 +557,9 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
     offset=LookupNodeOffset(nodes,lonbin*nodes->file.latbins+mid);
 
     if(offset<index)                    /* Mid point is too low */
-       start=mid;
+       start=mid+1;
     else if(offset>index)               /* Mid point is too high */
-       end=mid-1;
+       end=mid?(mid-1):mid;
     else                                /* Mid point is correct */
       {latbin=mid;break;}
    }

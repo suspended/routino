@@ -423,7 +423,7 @@ index_t IndexNodeX(NodesX *nodesx,node_t id)
        if(nodesx->idata[mid]<id)      /* Mid point is too low */
           start=mid+1;
        else if(nodesx->idata[mid]>id) /* Mid point is too high */
-          end=mid-1;
+          end=mid?(mid-1):mid;
        else                           /* Mid point is correct */
           return(mid);
       }

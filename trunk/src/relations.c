@@ -108,7 +108,7 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
  index_t mid;
  index_t match=-1;
 
- /* Binary search - search key first match is required.
+ /* Binary search - search key any exact match is required.
   *
   *  # <- start  |  Check mid and move start or end if it doesn't match
   *  #           |
@@ -119,15 +119,6 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
   *  # <- end    |  start or end matches (but may not be the first).
   */
 
- if(end<start)                      /* There are no relations */
-    return(NO_RELATION);
-
- if(via<relations->via_start)       /* Check key is not before start */
-    return(NO_RELATION);
-
- if(via>relations->via_end)         /* Check key is not after end */
-    return(NO_RELATION);
-
  do
    {
     mid=(start+end)/2;              /* Choose mid point */
@@ -137,7 +128,7 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
     if(relation->via<via)           /* Mid point is too low for 'via' */
        start=mid+1;
     else if(relation->via>via)      /* Mid point is too high for 'via' */
-       end=mid-1;
+       end=mid?(mid-1):mid;
     else                            /* Mid point is correct for 'from' */
       {
        match=mid;
@@ -246,15 +237,6 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
   *  # <- end    |  start or end matches (but may not be the first).
   */
 
- if(end<start)                      /* There are no relations */
-    return(NO_RELATION);
-
- if(via<relations->via_start)       /* Check key is not before start */
-    return(NO_RELATION);
-
- if(via>relations->via_end)         /* Check key is not after end */
-    return(NO_RELATION);
-
  do
    {
     mid=(start+end)/2;              /* Choose mid point */
@@ -264,13 +246,13 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
     if(relation->via<via)           /* Mid point is too low for 'via' */
        start=mid+1;
     else if(relation->via>via)      /* Mid point is too high for 'via' */
-       end=mid-1;
+       end=mid?(mid-1):mid;
     else                            /* Mid point is correct for 'via' */
       {
        if(relation->from<from)      /* Mid point is too low for 'from' */
           start=mid+1;
        else if(relation->from>from) /* Mid point is too high for 'from' */
-          end=mid-1;
+          end=mid?(mid-1):mid;
        else                         /* Mid point is correct for 'from' */
          {
           match=mid;

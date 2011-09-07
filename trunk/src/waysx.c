@@ -580,7 +580,7 @@ index_t IndexWayX(WaysX *waysx,way_t id)
        if(waysx->idata[mid]<id)      /* Mid point is too low */
           start=mid+1;
        else if(waysx->idata[mid]>id) /* Mid point is too high */
-          end=mid-1;
+          end=mid?(mid-1):mid;
        else                          /* Mid point is correct */
           return(mid);
       }
