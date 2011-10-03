@@ -15,6 +15,7 @@ routino-2.1/agpl-3.0.txt
 !routino-2.1/test
 !routino-2.1/.svn
 !routino-2.1/xml/.svn
+!routino-2.1/xml/scripts/.svn
 !routino-2.1/doc/.svn
 !routino-2.1/doc/html/.svn
 !routino-2.1/src/.svn
