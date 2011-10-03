@@ -79,6 +79,8 @@ foreach $key (@rawparams)
 $type=$cgiparams{type};
 delete $cgiparams{type};
 
+$type="shortest" if(!$type);
+
 $format=$cgiparams{format};
 delete $cgiparams{format};
 
