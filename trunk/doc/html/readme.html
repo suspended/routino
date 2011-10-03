@@ -168,91 +168,34 @@ Version 2.0.1 of Routino was released on 7th June 2011.
 Version 2.0.2 of Routino was released on 26th June 2011.
 <br>
 Version 2.0.3 of Routino was released on 4th August 2011.
+<br>
+Version 2.1 of Routino was released on 3rd October 2011.
 
 <p>
 
 The full version history is available in the NEWS file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.0</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.1</h3>
 
 <dl>
   <dt>Bug fixes:
-  <dd>Fix mis-spelling with surface=asphalt tag
-  <br>Routes between two waypoints on the same segment now work.
-  <br>Fix reading of numeric entities from XML files (store as UTF-8 internally).
-  <br>Fix turn description in HTML file (angles were biased to the right).
-  <br>Fix possibility of occasionally missing turn information from output files.
-
-  <dt>Test cases:
-  <dd>Added test cases for routing in slim and non-slim modes.
-
-  <dt>Documentation:
-  <dd>Update documentation to reflect changes in program usage and function.
-  <br>Install the license file in the documentation directory.
+  <dd>Fix bug in pathological cases with binary search (don't crash).
+  <br>Make stricter checks for closest nodes just like in v2.0.3 for segments.
+  <br>Fix routing bug where start node is a super-node and finish is close by.
 
   <dt>OSM tagging
-  <dd>Process the tags associated with turn restriction relations.
-  <br>Remove the roundabout type from the parsing.
-  <br>Add parsing of mini-roundabouts.
+  <dd>More testing of turn relations; invalid or useless ones are discarded.
+  <br>An error log file can be generated to record parsing and processing errors.
 
   <dt>Configuration Files:
-  <dd>Update profiles with new options related to turn restrictions.
+  <dd>Add new options in the tagging rules XML file.
+  <br>Add extra tagging rules to handle many problems found in the error log for UK.
+  <br>Create special-use tagging rule files for walking, riding and driving.
 
-  <dt>Web pages:
-  <dd>Change to OpenLayers v2.10.
-  <br>Visualiser can display turn restrictions.
-  <br>Put the profile information into separate files and auto-generate them.
-
-  <dt>planetsplitter:
-  <dd>Store information about turn restriction relations.
-  <br>Quite a large code re-organisation - now faster and uses less memory.
-
-  <dt>router:
-  <dd>Take turn restriction relations into account when routing.
-  <br>Continue same direction of travel at each waypoint.
-  <br>Add a new option to specify an initial direction to start travel.
-
-  <dt>filedumper:
-  <dd>Print out statistics about what highways are included in the database.
-</dl>
-
-<h4><a name="H_1_5_1_1"></a>Changes in Version 2.0.1</h4>
-
-<dl>
-  <dt>Bug fixes:
-  <dd>Turn relations that specify missing nodes/ways are deleted (don't crash).
-  <br>Shorten the messages printed by planetsplitter to keep below 80 characters.
-
-  <dt>Code improvements
-  <dd>Various code tidy-ups and 32/64 bit node and index improvements.
-
-  <dt>OSM tagging
-  <dd>Check whether node/way/relation IDs fit in 32-bits (code ready for 64-bits).
-</dl>
-
-<h4><a name="H_1_5_1_2"></a>Changes in Version 2.0.2</h4>
-
-<dl>
-  <dt>Bug fixes:
-  <dd>Fix error with handling ferry routes (were ignored).
-  <br>Force roundabouts to be one-way (was present in v1.5.1).
-  <br>Handle super-nodes with no segments when processing (don't crash).
-
-  <dt>Code improvements
-  <dd>Use C99 standard by default and fix related warnings.
-  <br>More code tidy-up for 32/64 bit node and index types.
-  <br>Free some memory in various places (not serious leaks).
-</dl>
-
-<h4><a name="H_1_5_1_3"></a>Changes in Version 2.0.3</h4>
-
-<dl>
-  <dt>Bug fixes:
-  <dd>Handle start node being a super-node with no previous segment (don't crash).
-  <br>Make stricter checks against the profile when finding the closest segment.
-  <br>Find a valid route if the start and end point are the same location.
-  <br>Choose the better route if one with and one without super-nodes are available.
+  <dt>Test cases:
+  <dd>Create new test case for bug fixed in v2.0.3.
+  <br>Save expected results to allow future regressions to be found.
 </dl>
 
 
