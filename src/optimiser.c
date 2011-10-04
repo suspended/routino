@@ -92,7 +92,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Create the list of results and insert the first node into the queue */
 
- results=NewResultsList(8);
+ results=NewResultsList(64);
 
  results->start_node=start_node;
  results->prev_segment=prev_segment;
@@ -347,7 +347,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Create the list of results and insert the first node into the queue */
 
- results=NewResultsList(2048);
+ results=NewResultsList(131072);
 
  results->start_node=begin->start_node;
  results->prev_segment=begin->prev_segment;
@@ -715,7 +715,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Create the results and insert the start node */
 
- results=NewResultsList(8);
+ results=NewResultsList(64);
 
  results->start_node=start_node;
  results->prev_segment=prev_segment;
@@ -926,7 +926,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
  /* Create the results and insert the finish node */
 
- results=NewResultsList(8);
+ results=NewResultsList(64);
 
  results->finish_node=finish_node;
 
@@ -1100,7 +1100,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
  /* Create a results structure with the node at the end of the segment opposite the start */
 
- results2=NewResultsList(8);
+ results2=NewResultsList(64);
 
  results2->finish_node=results->finish_node;
 
@@ -1166,7 +1166,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
  Result *midres,*comres1;
  Results *combined;
 
- combined=NewResultsList(64);
+ combined=NewResultsList(256);
 
  combined->start_node=begin->start_node;
  combined->prev_segment=begin->prev_segment;
