@@ -59,17 +59,19 @@ typedef struct _Results
  uint32_t  nbins;               /*+ The number of bins. +*/
  uint32_t  mask;                /*+ A bit mask to select the bottom 'nbins' bits. +*/
 
- uint32_t  alloced;             /*+ The amount of space allocated for results
-                                    (the length of the number and pointers arrays and
-                                     1/nbins times the amount in the real results). +*/
  uint32_t  number;              /*+ The total number of occupied results. +*/
+
+ uint32_t  npoint2;             /*+ The amount of space allocated for results
+                                    (the second dimension of the 'point' array). +*/
 
  uint32_t *count;               /*+ An array of nbins counters of results in each array. +*/
  Result ***point;               /*+ An array of nbins arrays of pointers to actual results. +*/
 
- Result  **data;                /*+ An array of arrays containing the actual results
-                                    (don't need to realloc the array of data when adding more,
-                                    only realloc the array that points to the array of data).
+ uint32_t  ndata1;              /*+ The size of the first dimension of the 'data' array. +*/
+ uint32_t  ndata2;              /*+ The size of the second dimension of the 'data' array. +*/
+
+ Result  **data;                /*+ An array of arrays containing the actual results, the first
+                                    dimension is reallocated but the second dimension is not.
                                     Most importantly pointers into the real data don't change
                                     as more space is allocated (since realloc is not being used). +*/
 
