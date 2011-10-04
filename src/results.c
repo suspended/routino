@@ -27,10 +27,10 @@
 #include "results.h"
 
 /*+ The size of the increment for the Results 'point' arrays. +*/
-#define RESULTS_POINT_INCREMENT 16
+#define RESULTS_POINT_INCREMENT 4
 
 /*+ The size of the increment for the Results 'data' arrays. +*/
-#define RESULTS_DATA_INCREMENT 4
+#define RESULTS_DATA_INCREMENT 1
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -44,7 +44,6 @@
 Results *NewResultsList(int nbins)
 {
  Results *results;
- uint32_t i;
 
  results=(Results*)malloc(sizeof(Results));
 
@@ -59,21 +58,17 @@ Results *NewResultsList(int nbins)
 
  results->mask=~results->mask;
 
- results->alloced=RESULTS_POINT_INCREMENT;
  results->number=0;
 
- results->count=(uint32_t*)malloc(results->nbins*sizeof(uint32_t));
- results->point=(Result***)malloc(results->nbins*sizeof(Result**));
+ results->npoint2=0;
 
- for(i=0;i<results->nbins;i++)
-   {
-    results->count[i]=0;
+ results->count=(uint32_t*)calloc(results->nbins,sizeof(uint32_t));
+ results->point=(Result***)calloc(results->nbins,sizeof(Result**));
 
-    results->point[i]=(Result**)malloc(results->alloced*sizeof(Result*));
-   }
+ results->ndata1=0;
+ results->ndata2=results->nbins*RESULTS_DATA_INCREMENT;
 
- results->data=(Result**)malloc(1*sizeof(Result*));
- results->data[0]=(Result*)malloc(results->nbins*RESULTS_DATA_INCREMENT*sizeof(Result));
+ results->data=NULL;
 
  results->start_node=NO_NODE;
  results->prev_segment=NO_SEGMENT;
@@ -93,9 +88,9 @@ Results *NewResultsList(int nbins)
 
 void FreeResultsList(Results *results)
 {
- int i,c=(results->number-1)/(results->nbins*RESULTS_DATA_INCREMENT);
+ int i;
 
- for(i=c;i>=0;i--)
+ for(i=0;i<results->ndata1;i++)
     free(results->data[i]);
 
  free(results->data);
@@ -127,29 +122,30 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 {
  Result *result;
  int bin=node&results->mask;
- uint32_t i;
 
  /* Check that the arrays have enough space or allocate more. */
 
- if(results->count[bin]==results->alloced)
+ if(results->count[bin]==results->npoint2)
    {
-    results->alloced+=RESULTS_POINT_INCREMENT;
+    uint32_t i;
+
+    results->npoint2+=RESULTS_POINT_INCREMENT;
 
     for(i=0;i<results->nbins;i++)
-       results->point[i]=(Result**)realloc((void*)results->point[i],results->alloced*sizeof(Result*));
+       results->point[i]=(Result**)realloc((void*)results->point[i],results->npoint2*sizeof(Result*));
    }
 
- if(results->number && (results->number%RESULTS_DATA_INCREMENT)==0 && (results->number%(RESULTS_DATA_INCREMENT*results->nbins))==0)
+ if((results->number%results->ndata2)==0)
    {
-    int c=results->number/(results->nbins*RESULTS_DATA_INCREMENT);
+    results->ndata1++;
 
-    results->data=(Result**)realloc((void*)results->data,(c+1)*sizeof(Result*));
-    results->data[c]=(Result*)malloc(results->nbins*RESULTS_DATA_INCREMENT*sizeof(Result));
+    results->data=(Result**)realloc((void*)results->data,results->ndata1*sizeof(Result*));
+    results->data[results->ndata1-1]=(Result*)malloc(results->ndata2*sizeof(Result));
    }
 
  /* Insert the new entry */
 
- results->point[bin][results->count[bin]]=&results->data[results->number/(results->nbins*RESULTS_DATA_INCREMENT)][results->number%(results->nbins*RESULTS_DATA_INCREMENT)];
+ results->point[bin][results->count[bin]]=&results->data[results->ndata1-1][results->number%results->ndata2];
 
  results->number++;
 
@@ -253,20 +249,20 @@ Result *FirstResult(Results *results)
 
 Result *NextResult(Results *results,Result *result)
 {
- int i,j=0,c=(results->number-1)/(results->nbins*RESULTS_DATA_INCREMENT);
+ int i,j=0;
 
- for(i=0;i<=c;i++)
+ for(i=0;i<results->ndata1;i++)
    {
     j=result-results->data[i];
 
-    if(j>=0 && j<(results->nbins*RESULTS_DATA_INCREMENT))
+    if(j>=0 && j<results->ndata2)
        break;
    }
 
- if(++j>=(results->nbins*RESULTS_DATA_INCREMENT))
+ if(++j>=results->ndata2)
    {i++;j=0;}
 
- if((i*(results->nbins*RESULTS_DATA_INCREMENT)+j)>=results->number)
+ if((i*results->ndata2+j)>=results->number)
     return(NULL);
 
  return(&results->data[i][j]);
