@@ -61,8 +61,8 @@ typedef struct _Results
 
  uint32_t  number;              /*+ The total number of occupied results. +*/
 
- uint32_t  npoint2;             /*+ The amount of space allocated for results
-                                    (the second dimension of the 'point' array). +*/
+ uint32_t  npoint1;             /*+ The amount of space allocated for results
+                                    (the first dimension of the 'point' array). +*/
 
  uint32_t *count;               /*+ An array of nbins counters of results in each array. +*/
  Result ***point;               /*+ An array of nbins arrays of pointers to actual results. +*/
