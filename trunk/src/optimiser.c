@@ -347,7 +347,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Create the list of results and insert the first node into the queue */
 
- results=NewResultsList(131072);
+ results=NewResultsList(65536);
 
  results->start_node=begin->start_node;
  results->prev_segment=begin->prev_segment;
