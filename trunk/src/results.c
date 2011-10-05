@@ -27,12 +27,16 @@
 #include "results.h"
 
 
+/*+ The maximum number of collisions in a bin for the Results 'point' arrays before worrying. +*/
+#define MAX_COLLISIONS 32
+ 
+
 /*++++++++++++++++++++++++++++++++++++++
   Allocate a new results list.
 
   Results *NewResultsList Returns the results list.
 
-  int nbins The number of bins in the results array.
+  int nbins The initial number of bins in the results array.
   ++++++++++++++++++++++++++++++++++++++*/
 
 Results *NewResultsList(int nbins)
@@ -116,6 +120,49 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 {
  Result *result;
  int bin=node&results->mask;
+
+ /* Check if we have hit the limit on the number of collisions per bin */
+
+ if(results->count[bin]==results->npoint1 && results->count[bin]>MAX_COLLISIONS)
+   {
+    int i,j,k;
+
+    results->nbins<<=1;
+    results->mask=(results->mask<<1)|1;
+
+    results->count=(uint32_t*)realloc((void*)results->count,results->nbins*sizeof(uint32_t));
+
+    for(i=0;i<results->npoint1;i++)
+       results->point[i]=(Result**)realloc((void*)results->point[i],results->nbins*sizeof(Result*));
+
+    for(i=0;i<results->nbins/2;i++)
+      {
+       uint32_t c=results->count[i];
+
+       results->count[i+results->nbins/2]=0;
+
+       for(j=0,k=0;j<c;j++)
+         {
+          int newbin=results->point[j][i]->node&results->mask;
+
+          if(newbin==i)
+            {
+             if(k!=j)
+                results->point[k][i]=results->point[j][i];
+             k++;
+            }
+          else
+            {
+             results->point[results->count[newbin]][newbin]=results->point[j][i];
+
+             results->count[newbin]++;
+             results->count[i]--;
+            }
+         }
+      }
+
+    bin=node&results->mask;
+   }
 
  /* Check that the arrays have enough space or allocate more. */
 
