@@ -38,11 +38,11 @@ LDFLAGS=-lm -lc
 CFLAGS+= -O3
 #CFLAGS+= -O0 -g
 #CFLAGS+= -pg
-#CFLAGS+= --coverage
+#CFLAGS+= -fprofile-arcs -ftest-coverage
 
 LDFLAGS+=
 #LDFLAGS+= -pg -static
-#LDFLAGS+= --coverage
+#LDFLAGS+= -fprofile-arcs -ftest-coverage
 
 LEXFLAGS=
 
@@ -181,6 +181,7 @@ test: .FORCE
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f *.gcda *.gcno *.gcov gmon.out
 	rm -f xmlparse.c
 	cd xml  && $(MAKE) clean
 	cd test && $(MAKE) clean

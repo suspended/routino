@@ -107,6 +107,7 @@ test-skeleton.c : test/test.xsd xsd-to-xmlparser
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f *.gcda *.gcno *.gcov gmon.out
 
 ########
 
