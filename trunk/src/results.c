@@ -124,7 +124,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
  /* Check if we have hit the limit on the number of collisions per bin */
 
- if(results->count[bin]==results->npoint1 && results->count[bin]>MAX_COLLISIONS)
+ if(results->count[bin]>MAX_COLLISIONS && results->count[bin]==results->npoint1)
    {
     int i,j,k;
 
@@ -260,7 +260,7 @@ Result *FindResult(Results *results,index_t node,index_t segment)
  int i;
 
  for(i=results->count[bin]-1;i>=0;i--)
-    if(results->point[i][bin]->node==node && results->point[i][bin]->segment==segment)
+    if(results->point[i][bin]->segment==segment && results->point[i][bin]->node==node)
        return(results->point[i][bin]);
 
  return(NULL);
