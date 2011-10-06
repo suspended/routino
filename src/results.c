@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "results.h"
 
@@ -60,8 +61,8 @@ Results *NewResultsList(int nbins)
 
  results->npoint1=0;
 
- results->count=(uint32_t*)calloc(results->nbins,sizeof(uint32_t));
- results->point=NULL;
+ results->count=(uint8_t*)calloc(results->nbins,sizeof(uint8_t));
+ results->point=(Result***)malloc(MAX_COLLISIONS*sizeof(Result**));
 
  results->ndata1=0;
  results->ndata2=results->nbins;
@@ -130,14 +131,14 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
     results->nbins<<=1;
     results->mask=(results->mask<<1)|1;
 
-    results->count=(uint32_t*)realloc((void*)results->count,results->nbins*sizeof(uint32_t));
+    results->count=(uint8_t*)realloc((void*)results->count,results->nbins*sizeof(uint8_t));
 
     for(i=0;i<results->npoint1;i++)
        results->point[i]=(Result**)realloc((void*)results->point[i],results->nbins*sizeof(Result*));
 
     for(i=0;i<results->nbins/2;i++)
       {
-       uint32_t c=results->count[i];
+       int c=results->count[i];
 
        results->count[i+results->nbins/2]=0;
 
@@ -168,9 +169,13 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
  if(results->count[bin]==results->npoint1)
    {
+    assert(results->npoint1<255);
+
     results->npoint1++;
 
-    results->point=(Result***)realloc((void*)results->point,results->npoint1*sizeof(Result**));
+    if(results->npoint1>MAX_COLLISIONS)
+       results->point=(Result***)realloc((void*)results->point,results->npoint1*sizeof(Result**));
+
     results->point[results->npoint1-1]=(Result**)malloc(results->nbins*sizeof(Result*));
    }
 
