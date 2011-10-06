@@ -59,7 +59,7 @@ EXE=planetsplitter planetsplitter-slim router router-slim filedumper filedumper-
 
 ########
 
-all : $(EXE)
+all: $(EXE)
 	-@[ -d $(WEBDIR) ] && \
 	  for file in $(EXE); do \
 	     if [ ! -f $(WEBDIR)/$$file ] || [ $$file -nt $(WEBDIR)/$$file ]; then \
@@ -162,6 +162,12 @@ xmlparse.c : xmlparse.l
 
 ########
 
+test: .FORCE
+	cd xml  && $(MAKE) test
+	cd test && $(MAKE) test
+
+########
+
 install: all
 	-[ -d $(DESTDIR)$(bindir) ] || mkdir -p $(DESTDIR)$(bindir)
 	@[ -d $(DESTDIR)$(bindir) ] && \
@@ -169,12 +175,6 @@ install: all
 	     echo cp $$file $(DESTDIR)$(bindir) ;\
 	     cp -f $$file $(DESTDIR)$(bindir) ;\
 	  done
-
-########
-
-test: .FORCE
-	cd xml  && $(MAKE) test
-	cd test && $(MAKE) test
 
 ########
 
@@ -198,7 +198,7 @@ distclean: clean
 
 ########
 
-.deps : .FORCE
+.deps: .FORCE
 	@[ -d .deps ] || mkdir $@
 
 $(D) : .deps
@@ -208,7 +208,7 @@ include $(D)
 
 ########
 
-.FORCE :
+.FORCE:
 
 ########
 
