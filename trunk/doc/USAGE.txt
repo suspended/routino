@@ -68,7 +68,7 @@ planetsplitter
 
    --max-iterations=<number>
           The maximum number of iterations to use when generating
-          super-nodes and super-segments. Defaults to 10 which is normally
+          super-nodes and super-segments. Defaults to 5 which is normally
           enough.
 
    --tagging=<filename>
