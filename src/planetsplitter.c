@@ -67,7 +67,7 @@ int main(int argc,char** argv)
  WaysX      *Ways;
  RelationsX *Relations;
  int         iteration=0,quit=0;
- int         max_iterations=10;
+ int         max_iterations=5;
  char       *dirname=NULL,*prefix=NULL,*tagging=NULL,*errorlog=NULL;
  int         option_parse_only=0,option_process_only=0;
  int         option_filenames=0;
@@ -478,7 +478,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--errorlog[=<name>]       Log parsing errors to 'error.log' or the given name\n"
             "                          (the '--dir' and '--prefix' options are applied).\n"
             "\n"
-            "--max-iterations=<number> The number of iterations for finding super-nodes.\n"
+            "--max-iterations=<number> The number of iterations for finding super-nodes\n"
+            "                          (defaults to 5).\n"
             "\n"
             "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
             "                          (defaults to 'tagging.xml' with '--dir' and\n"
