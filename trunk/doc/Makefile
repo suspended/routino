@@ -30,7 +30,7 @@ TOP_FILES=../agpl-3.0.txt
 
 ########
 
-all :
+all:
 	-@[ -d $(WEBDIR) ] && \
 	  for file in $(HTML_FILES); do \
 	     if [ ! -f $(WEBDIR)/`basename $$file` ] || [ $$file -nt $(WEBDIR)/`basename $$file` ]; then \
@@ -38,6 +38,10 @@ all :
 	        cp -f $$file $(WEBDIR) ;\
 	     fi ;\
 	  done
+
+########
+
+test:
 
 ########
 

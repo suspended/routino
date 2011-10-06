@@ -35,7 +35,7 @@ SPECIAL_FILES=tagging-drive.xml \
 
 ########
 
-all : $(SPECIAL_FILES)
+all: $(SPECIAL_FILES)
 	-@[ -d $(WEBDATADIR) ] && \
 	  for file in $(STANDARD_FILES); do \
 	     if [ ! -f $(WEBDATADIR)/$$file ] || [ routino-$$file -nt $(WEBDATADIR)/$$file ]; then \
@@ -66,6 +66,10 @@ tagging-ride.xml : routino-tagging.xml scripts/ride.pl
 
 tagging-walk.xml : routino-tagging.xml scripts/walk.pl
 	perl scripts/walk.pl < routino-tagging.xml > tagging-walk.xml
+
+########
+
+test:
 
 ########
 

@@ -46,7 +46,7 @@ EXE=xsd-to-xmlparser
 
 ########
 
-all : $(EXE) $(C) $(E)
+all: $(EXE) $(C) $(E)
 	@true
 
 ########
@@ -104,6 +104,10 @@ test-skeleton.c : test/test.xsd xsd-to-xmlparser
 
 ########
 
+install:
+
+########
+
 clean:
 	rm -f *.o
 	rm -f *~
@@ -120,7 +124,7 @@ distclean: clean
 
 ########
 
-.deps : .FORCE
+.deps: .FORCE
 	@[ -d .deps ] || mkdir $@
 
 $(D) : .deps
@@ -130,4 +134,4 @@ include $(D)
 
 ########
 
-.FORCE :
+.FORCE:
