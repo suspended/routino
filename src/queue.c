@@ -153,6 +153,7 @@ Result *PopFromQueue(Queue *queue)
  index=1;
 
  queue->data[index]=queue->data[queue->noccupied];
+ queue->noccupied--;
 
  /* Bubble down the newly promoted value */
 
@@ -193,8 +194,6 @@ Result *PopFromQueue(Queue *queue)
     queue->data[index]->queued=index;
     queue->data[newindex]->queued=newindex;
    }
-
- queue->noccupied--;
 
  return(retval);
 }
