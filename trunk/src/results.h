@@ -31,7 +31,7 @@
 /* Constants */
 
 /*+ A result is not currently queued. +*/
-#define NOT_QUEUED (uint32_t)(0)
+#define NOT_QUEUED (uint32_t)(~0)
 
 
 /* Data structures */

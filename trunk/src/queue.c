@@ -75,7 +75,7 @@ void FreeQueueList(Queue *queue)
 /*++++++++++++++++++++++++++++++++++++++
   Insert a new item into the queue in the right place.
 
-  The data is stored in a "Binary Heap" http://en.wikipedia.org/wiki/Binary_heap
+  The data is stored in a "4-ary Heap" http://en.wikipedia.org/wiki/D-ary_heap
   and this operation is adding an item to the heap.
 
   Queue *queue The queue to insert the result into.
@@ -89,14 +89,14 @@ void InsertInQueue(Queue *queue,Result *result)
 
  if(result->queued==NOT_QUEUED)
    {
-    queue->noccupied++;
-    index=queue->noccupied;
-
     if(queue->noccupied==queue->nallocated)
       {
        queue->nallocated=2*queue->nallocated;
        queue->data=(Result**)realloc((void*)queue->data,queue->nallocated*sizeof(Result*));
       }
+
+    index=queue->noccupied;
+    queue->noccupied++;
 
     queue->data[index]=result;
     queue->data[index]->queued=index;
@@ -108,12 +108,12 @@ void InsertInQueue(Queue *queue,Result *result)
 
  /* Bubble up the new value */
 
- while(index>1)
+ while(index>0)
    {
     uint32_t newindex;
     Result *temp;
 
-    newindex=index/2;
+    newindex=(index-1)/4;
 
     if(queue->data[index]->sortby>=queue->data[newindex]->sortby)
        break;
@@ -133,7 +133,7 @@ void InsertInQueue(Queue *queue,Result *result)
 /*++++++++++++++++++++++++++++++++++++++
   Pop an item from the front of the queue.
 
-  The data is stored in a "Binary Heap" http://en.wikipedia.org/wiki/Binary_heap
+  The data is stored in a "4-ary Heap" http://en.wikipedia.org/wiki/D-ary_heap
   and this operation is deleting the root item from the heap.
 
   Result *PopFromQueue Returns the top item.
@@ -149,25 +149,29 @@ Result *PopFromQueue(Queue *queue)
  if(queue->noccupied==0)
     return(NULL);
 
- retval=queue->data[1];
+ retval=queue->data[0];
  retval->queued=NOT_QUEUED;
 
- index=1;
+ index=0;
+ queue->noccupied--;
 
  queue->data[index]=queue->data[queue->noccupied];
- queue->noccupied--;
 
  /* Bubble down the newly promoted value */
 
- while((2*index)<queue->noccupied)
+ while((4*index+4)<queue->noccupied)
    {
-    uint32_t newindex;
+    uint32_t childindex,newindex;
     Result *temp;
 
-    newindex=2*index;
+    childindex=newindex=4*index+1;
 
-    if(queue->data[newindex]->sortby>queue->data[newindex+1]->sortby)
-       newindex=newindex+1;
+    if(queue->data[newindex]->sortby>queue->data[++childindex]->sortby)
+       newindex=childindex;
+    if(queue->data[newindex]->sortby>queue->data[++childindex]->sortby)
+       newindex=childindex;
+    if(queue->data[newindex]->sortby>queue->data[++childindex]->sortby)
+       newindex=childindex;
 
     if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
        break;
@@ -182,12 +186,60 @@ Result *PopFromQueue(Queue *queue)
     index=newindex;
    }
 
- if((2*index)==queue->noccupied)
+ if((4*index+4)==queue->noccupied)
+   {
+    uint32_t childindex,newindex;
+    Result *temp;
+
+    childindex=newindex=4*index+1;
+
+    if(queue->data[newindex]->sortby>queue->data[++childindex]->sortby)
+       newindex=childindex;
+    if(queue->data[newindex]->sortby>queue->data[++childindex]->sortby)
+       newindex=childindex;
+
+    if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
+       ; /* break */
+    else
+      {
+       temp=queue->data[newindex];
+       queue->data[newindex]=queue->data[index];
+       queue->data[index]=temp;
+
+       queue->data[index]->queued=index;
+       queue->data[newindex]->queued=newindex;
+      }
+   }
+
+ else if((4*index+3)==queue->noccupied)
+   {
+    uint32_t childindex,newindex;
+    Result *temp;
+
+    childindex=newindex=4*index+1;
+
+    if(queue->data[newindex]->sortby>queue->data[++childindex]->sortby)
+       newindex=childindex;
+
+    if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
+       ; /* break */
+    else
+      {
+       temp=queue->data[newindex];
+       queue->data[newindex]=queue->data[index];
+       queue->data[index]=temp;
+
+       queue->data[index]->queued=index;
+       queue->data[newindex]->queued=newindex;
+      }
+   }
+
+ else if((4*index+2)==queue->noccupied)
    {
     uint32_t newindex;
     Result *temp;
 
-    newindex=2*index;
+    newindex=4*index+1;
 
     if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
        ; /* break */
