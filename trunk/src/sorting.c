@@ -204,13 +204,15 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
 
     /* Bubble up the new value */
 
-    while(index>1 &&
-          compare(datap[heap[index]],datap[heap[index/2]])<0)
+    while(index>1)
       {
        int newindex;
        int temp;
 
        newindex=index/2;
+
+       if(compare(datap[heap[index]],datap[heap[newindex]])>=0)
+          break;
 
        temp=heap[index];
        heap[index]=heap[newindex];
@@ -242,17 +244,18 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
 
     /* Bubble down the new value */
 
-    while((2*index)<ndata &&
-          (compare(datap[heap[index]],datap[heap[2*index  ]])>0 ||
-           compare(datap[heap[index]],datap[heap[2*index+1]])>0))
+    while((2*index)<ndata)
       {
        int newindex;
        int temp;
 
-       if(compare(datap[heap[2*index]],datap[heap[2*index+1]])<0)
-          newindex=2*index;
-       else
-          newindex=2*index+1;
+       newindex=2*index;
+
+       if(compare(datap[heap[newindex]],datap[heap[newindex+1]])>0)
+          newindex=newindex+1;
+
+       if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
+          break;
 
        temp=heap[newindex];
        heap[newindex]=heap[index];
@@ -261,17 +264,21 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
        index=newindex;
       }
 
-    if((2*index)==ndata &&
-       compare(datap[heap[index]],datap[heap[2*index]])>0)
+    if((2*index)==ndata)
       {
        int newindex;
        int temp;
 
        newindex=2*index;
 
-       temp=heap[newindex];
-       heap[newindex]=heap[index];
-       heap[index]=temp;
+       if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
+          ; /* break */
+       else
+         {
+          temp=heap[newindex];
+          heap[newindex]=heap[index];
+          heap[index]=temp;
+         }
       }
    }
  while(ndata>0);
@@ -469,13 +476,15 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
     /* Bubble up the new value */
 
-    while(index>1 &&
-          compare(datap[heap[index]],datap[heap[index/2]])<0)
+    while(index>1)
       {
        int newindex;
        int temp;
 
        newindex=index/2;
+
+       if(compare(datap[heap[index]],datap[heap[newindex]])>=0)
+          break;
 
        temp=heap[index];
        heap[index]=heap[newindex];
@@ -516,17 +525,18 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
     /* Bubble down the new value */
 
-    while((2*index)<ndata &&
-          (compare(datap[heap[index]],datap[heap[2*index  ]])>0 ||
-           compare(datap[heap[index]],datap[heap[2*index+1]])>0))
+    while((2*index)<ndata)
       {
        int newindex;
        int temp;
 
-       if(compare(datap[heap[2*index]],datap[heap[2*index+1]])<0)
-          newindex=2*index;
-       else
-          newindex=2*index+1;
+       newindex=2*index;
+
+       if(compare(datap[heap[newindex]],datap[heap[newindex+1]])>0)
+          newindex=newindex+1;
+
+       if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
+          break;
 
        temp=heap[newindex];
        heap[newindex]=heap[index];
@@ -535,17 +545,21 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
        index=newindex;
       }
 
-    if((2*index)==ndata &&
-       compare(datap[heap[index]],datap[heap[2*index]])>0)
+    if((2*index)==ndata)
       {
        int newindex;
        int temp;
 
        newindex=2*index;
 
-       temp=heap[newindex];
-       heap[newindex]=heap[index];
-       heap[index]=temp;
+       if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
+          ; /* break */
+       else
+         {
+          temp=heap[newindex];
+          heap[newindex]=heap[index];
+          heap[index]=temp;
+         }
       }
    }
  while(ndata>0);
@@ -597,13 +611,15 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, con
 
     /* Bubble up the new value (upside-down, put largest at top) */
 
-    while(index>1 &&
-          compare(datap1[index],datap1[index/2])>0) /* reversed compared to filesort_fixed() above */
+    while(index>1)
       {
        int newindex;
        void *temp;
 
        newindex=index/2;
+
+       if(compare(datap1[index],datap1[newindex])<=0) /* reversed compared to filesort_fixed() above */
+          break;
 
        temp=datap1[index];
        datap1[index]=datap1[newindex];
@@ -626,17 +642,18 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, con
 
     /* Bubble down the new value (upside-down, put largest at top) */
 
-    while((2*index+1)<i &&
-          (compare(datap1[index],datap1[2*index  ])<0 || /* reversed compared to filesort_fixed() above */
-           compare(datap1[index],datap1[2*index+1])<0))  /* reversed compared to filesort_fixed() above */
+    while((2*index)<(i-1))
       {
        int newindex;
        void *temp;
 
-       if(compare(datap1[2*index],datap1[2*index+1])>0) /* reversed compared to filesort_fixed() above */
-          newindex=2*index;
-       else
-          newindex=2*index+1;
+       newindex=2*index;
+
+       if(compare(datap1[newindex],datap1[newindex+1])<0) /* reversed compared to filesort_fixed() above */
+          newindex=newindex+1;
+
+       if(compare(datap1[index],datap1[newindex])>=0) /* reversed compared to filesort_fixed() above */
+          break;
 
        temp=datap1[newindex];
        datap1[newindex]=datap1[index];
@@ -645,17 +662,21 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, con
        index=newindex;
       }
 
-    if((2*index+1)==i &&
-       compare(datap1[index],datap1[2*index])<0) /* reversed compared to filesort_fixed() above */
+    if((2*index)==(i-1))
       {
        int newindex;
        void *temp;
 
        newindex=2*index;
 
-       temp=datap1[newindex];
-       datap1[newindex]=datap1[index];
-       datap1[index]=temp;
+       if(compare(datap1[index],datap1[newindex])>=0) /* reversed compared to filesort_fixed() above */
+          ; /* break */
+       else
+         {
+          temp=datap1[newindex];
+          datap1[newindex]=datap1[index];
+          datap1[index]=temp;
+         }
       }
    }
 }
