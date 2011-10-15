@@ -108,13 +108,15 @@ void InsertInQueue(Queue *queue,Result *result)
 
  /* Bubble up the new value */
 
- while(index>1 &&
-       queue->data[index]->sortby<queue->data[index/2]->sortby)
+ while(index>1)
    {
     uint32_t newindex;
     Result *temp;
 
     newindex=index/2;
+
+    if(queue->data[index]->sortby>=queue->data[newindex]->sortby)
+       break;
 
     temp=queue->data[index];
     queue->data[index]=queue->data[newindex];
@@ -157,17 +159,18 @@ Result *PopFromQueue(Queue *queue)
 
  /* Bubble down the newly promoted value */
 
- while((2*index)<queue->noccupied &&
-       (queue->data[index]->sortby>queue->data[2*index  ]->sortby ||
-        queue->data[index]->sortby>queue->data[2*index+1]->sortby))
+ while((2*index)<queue->noccupied)
    {
     uint32_t newindex;
     Result *temp;
 
-    if(queue->data[2*index]->sortby<queue->data[2*index+1]->sortby)
-       newindex=2*index;
-    else
-       newindex=2*index+1;
+    newindex=2*index;
+
+    if(queue->data[newindex]->sortby>queue->data[newindex+1]->sortby)
+       newindex=newindex+1;
+
+    if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
+       break;
 
     temp=queue->data[newindex];
     queue->data[newindex]=queue->data[index];
@@ -179,20 +182,24 @@ Result *PopFromQueue(Queue *queue)
     index=newindex;
    }
 
- if((2*index)==queue->noccupied &&
-    queue->data[index]->sortby>queue->data[2*index]->sortby)
+ if((2*index)==queue->noccupied)
    {
     uint32_t newindex;
     Result *temp;
 
     newindex=2*index;
 
-    temp=queue->data[newindex];
-    queue->data[newindex]=queue->data[index];
-    queue->data[index]=temp;
+    if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
+       ; /* break */
+    else
+      {
+       temp=queue->data[newindex];
+       queue->data[newindex]=queue->data[index];
+       queue->data[index]=temp;
 
-    queue->data[index]->queued=index;
-    queue->data[newindex]->queued=newindex;
+       queue->data[index]->queued=index;
+       queue->data[newindex]->queued=newindex;
+      }
    }
 
  return(retval);
