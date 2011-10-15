@@ -252,11 +252,11 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
        childindex=newindex=4*index+1;
 
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
           break;
@@ -276,9 +276,9 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
        childindex=newindex=4*index+1;
 
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
           ; /* break */
@@ -290,7 +290,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
          }
       }
 
-    if((4*index+3)==ndata)
+    else if((4*index+3)==ndata)
       {
        int childindex,newindex;
        int temp;
@@ -298,7 +298,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
        childindex=newindex=4*index+1;
 
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
           ; /* break */
@@ -310,7 +310,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
          }
       }
 
-    if((4*index+2)==ndata)
+    else if((4*index+2)==ndata)
       {
        int newindex;
        int temp;
@@ -579,11 +579,11 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
        childindex=newindex=4*index+1;
 
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
           break;
@@ -603,9 +603,9 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
        childindex=newindex=4*index+1;
 
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
           ; /* break */
@@ -617,7 +617,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
          }
       }
 
-    if((4*index+3)==ndata)
+    else if((4*index+3)==ndata)
       {
        int childindex,newindex;
        int temp;
@@ -625,7 +625,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
        childindex=newindex=4*index+1;
 
        if(compare(datap[heap[newindex]],datap[heap[++childindex]])>0)
-          newindex=newindex+1;
+          newindex=childindex;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
           ; /* break */
@@ -637,7 +637,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
          }
       }
 
-    if((4*index+2)==ndata)
+    else if((4*index+2)==ndata)
       {
        int newindex;
        int temp;
@@ -707,7 +707,7 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, con
        int newindex;
        void *temp;
 
-       newindex=(index-1)/2;
+       newindex=(index-1)/4;
 
        if(compare(datap[index],datap[newindex])<=0) /* reversed compared to filesort_fixed() above */
           break;
@@ -779,7 +779,7 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, con
          }
       }
 
-    if((4*index+3)==i)
+    else if((4*index+3)==i)
       {
        int childindex,newindex;
        void *temp;
@@ -799,7 +799,7 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, con
          }
       }
 
-    if((4*index+2)==i)
+    else if((4*index+2)==i)
       {
        int newindex;
        void *temp;
