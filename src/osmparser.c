@@ -1081,7 +1081,7 @@ static void process_relation_tags(TagList *tags,relation_t id)
        if(!strcmp(k,"except"))
          {
           for(i=1;i<Transport_Count;i++)
-             if(!strstr(v,TransportName(i)))
+             if(strstr(v,TransportName(i)))
                 except|=TRANSPORTS(i);
 
           if(except==Transports_None)
