@@ -93,14 +93,14 @@ void InsertInQueue(Queue *queue,Result *result)
 
  if(result->queued==NOT_QUEUED)
    {
+    queue->noccupied++;
+    index=queue->noccupied;
+
     if(queue->noccupied==queue->nallocated)
       {
        queue->nallocated=queue->nallocated+QUEUE_INCREMENT;
        queue->data=(Result**)realloc((void*)queue->data,queue->nallocated*sizeof(Result*));
       }
-
-    index=queue->noccupied;
-    queue->noccupied++;
 
     queue->data[index]=result;
     queue->data[index]->queued=index;
@@ -112,15 +112,13 @@ void InsertInQueue(Queue *queue,Result *result)
 
  /* Bubble up the new value */
 
- while(index>0)
+ while(index>1 &&
+       queue->data[index]->sortby<queue->data[index/2]->sortby)
    {
     uint32_t newindex;
     Result *temp;
 
-    newindex=(index-1)/2;
-
-    if(queue->data[index]->sortby>=queue->data[newindex]->sortby)
-       break;
+    newindex=index/2;
 
     temp=queue->data[index];
     queue->data[index]=queue->data[newindex];
@@ -153,28 +151,27 @@ Result *PopFromQueue(Queue *queue)
  if(queue->noccupied==0)
     return(NULL);
 
- retval=queue->data[0];
+ retval=queue->data[1];
  retval->queued=NOT_QUEUED;
 
- index=0;
- queue->noccupied--;
+ index=1;
 
  queue->data[index]=queue->data[queue->noccupied];
+ queue->noccupied--;
 
  /* Bubble down the newly promoted value */
 
- while((2*index+2)<queue->noccupied)
+ while((2*index)<queue->noccupied &&
+       (queue->data[index]->sortby>queue->data[2*index  ]->sortby ||
+        queue->data[index]->sortby>queue->data[2*index+1]->sortby))
    {
     uint32_t newindex;
     Result *temp;
 
-    newindex=2*index+1;
-
-    if(queue->data[newindex]->sortby>queue->data[newindex+1]->sortby)
-       newindex=newindex+1;
-
-    if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
-       break;
+    if(queue->data[2*index]->sortby<queue->data[2*index+1]->sortby)
+       newindex=2*index;
+    else
+       newindex=2*index+1;
 
     temp=queue->data[newindex];
     queue->data[newindex]=queue->data[index];
@@ -186,24 +183,20 @@ Result *PopFromQueue(Queue *queue)
     index=newindex;
    }
 
- if((2*index+2)==queue->noccupied)
+ if((2*index)==queue->noccupied &&
+    queue->data[index]->sortby>queue->data[2*index]->sortby)
    {
     uint32_t newindex;
     Result *temp;
 
-    newindex=2*index+1;
+    newindex=2*index;
 
-    if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
-       ; /* break */
-    else
-      {
-       temp=queue->data[newindex];
-       queue->data[newindex]=queue->data[index];
-       queue->data[index]=temp;
+    temp=queue->data[newindex];
+    queue->data[newindex]=queue->data[index];
+    queue->data[index]=temp;
 
-       queue->data[index]->queued=index;
-       queue->data[newindex]->queued=newindex;
-      }
+    queue->data[index]->queued=index;
+    queue->data[newindex]->queued=newindex;
    }
 
  return(retval);
