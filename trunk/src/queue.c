@@ -27,6 +27,10 @@
 #include "results.h"
 
 
+/*+ The size of the increment to the allocated memory. +*/
+#define QUEUE_INCREMENT 1024
+
+
 /*+ A queue of results. +*/
 struct _Queue
 {
@@ -49,7 +53,7 @@ Queue *NewQueueList(void)
 
  queue=(Queue*)malloc(sizeof(Queue));
 
- queue->nallocated=1024;
+ queue->nallocated=QUEUE_INCREMENT;
  queue->noccupied=0;
 
  queue->data=(Result**)malloc(queue->nallocated*sizeof(Result*));
@@ -75,7 +79,7 @@ void FreeQueueList(Queue *queue)
 /*++++++++++++++++++++++++++++++++++++++
   Insert a new item into the queue in the right place.
 
-  The data is stored in a "3-ary Heap" http://en.wikipedia.org/wiki/D-ary_heap
+  The data is stored in a "Binary Heap" http://en.wikipedia.org/wiki/Binary_heap
   and this operation is adding an item to the heap.
 
   Queue *queue The queue to insert the result into.
@@ -91,7 +95,7 @@ void InsertInQueue(Queue *queue,Result *result)
    {
     if(queue->noccupied==queue->nallocated)
       {
-       queue->nallocated=2*queue->nallocated;
+       queue->nallocated=queue->nallocated+QUEUE_INCREMENT;
        queue->data=(Result**)realloc((void*)queue->data,queue->nallocated*sizeof(Result*));
       }
 
@@ -113,7 +117,7 @@ void InsertInQueue(Queue *queue,Result *result)
     uint32_t newindex;
     Result *temp;
 
-    newindex=(index-1)/3;
+    newindex=(index-1)/2;
 
     if(queue->data[index]->sortby>=queue->data[newindex]->sortby)
        break;
@@ -133,7 +137,7 @@ void InsertInQueue(Queue *queue,Result *result)
 /*++++++++++++++++++++++++++++++++++++++
   Pop an item from the front of the queue.
 
-  The data is stored in a "3-ary Heap" http://en.wikipedia.org/wiki/D-ary_heap
+  The data is stored in a "Binary Heap" http://en.wikipedia.org/wiki/Binary_heap
   and this operation is deleting the root item from the heap.
 
   Result *PopFromQueue Returns the top item.
@@ -159,17 +163,15 @@ Result *PopFromQueue(Queue *queue)
 
  /* Bubble down the newly promoted value */
 
- while((3*index+3)<queue->noccupied)
+ while((2*index+2)<queue->noccupied)
    {
-    uint32_t childindex,newindex;
+    uint32_t newindex;
     Result *temp;
 
-    childindex=newindex=3*index+1;
+    newindex=2*index+1;
 
-    if(queue->data[newindex]->sortby>queue->data[++childindex]->sortby)
-       newindex=childindex;
-    if(queue->data[newindex]->sortby>queue->data[++childindex]->sortby)
-       newindex=childindex;
+    if(queue->data[newindex]->sortby>queue->data[newindex+1]->sortby)
+       newindex=newindex+1;
 
     if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
        break;
@@ -184,35 +186,12 @@ Result *PopFromQueue(Queue *queue)
     index=newindex;
    }
 
- if((3*index+3)==queue->noccupied)
-   {
-    uint32_t childindex,newindex;
-    Result *temp;
-
-    childindex=newindex=3*index+1;
-
-    if(queue->data[newindex]->sortby>queue->data[++childindex]->sortby)
-       newindex=childindex;
-
-    if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
-       ; /* break */
-    else
-      {
-       temp=queue->data[newindex];
-       queue->data[newindex]=queue->data[index];
-       queue->data[index]=temp;
-
-       queue->data[index]->queued=index;
-       queue->data[newindex]->queued=newindex;
-      }
-   }
-
- else if((3*index+2)==queue->noccupied)
+ if((2*index+2)==queue->noccupied)
    {
     uint32_t newindex;
     Result *temp;
 
-    newindex=3*index+1;
+    newindex=2*index+1;
 
     if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
        ; /* break */
