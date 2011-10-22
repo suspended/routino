@@ -39,7 +39,7 @@ all$(top):
 
 ########
 
-test$(top): FORCE
+test$(top): .FORCE
 	for dir in $(TOPDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
@@ -65,3 +65,7 @@ distclean$(top): clean$(top)
 	for dir in $(TOPDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
+
+########
+
+.FORCE:
