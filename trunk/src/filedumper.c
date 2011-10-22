@@ -206,17 +206,17 @@ int main(int argc,char** argv)
     printf("-----\n");
     printf("\n");
 
-    printf("sizeof(Node) =%9d Bytes\n",sizeof(Node));
-    printf("Number       =%9d\n",OSMNodes->file.number);
-    printf("Number(super)=%9d\n",OSMNodes->file.snumber);
+    printf("sizeof(Node) =%9lu Bytes\n",(unsigned long)sizeof(Node));
+    printf("Number       =%9"Pindex_t"\n",OSMNodes->file.number);
+    printf("Number(super)=%9"Pindex_t"\n",OSMNodes->file.snumber);
     printf("\n");
 
-    printf("Lat bins= %4d\n",OSMNodes->file.latbins);
-    printf("Lon bins= %4d\n",OSMNodes->file.lonbins);
+    printf("Lat bins= %4d\n",(int)OSMNodes->file.latbins);
+    printf("Lon bins= %4d\n",(int)OSMNodes->file.lonbins);
     printf("\n");
 
-    printf("Lat zero=%5d (%8.4f deg)\n",OSMNodes->file.latzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->file.latzero))));
-    printf("Lon zero=%5d (%8.4f deg)\n",OSMNodes->file.lonzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->file.lonzero))));
+    printf("Lat zero=%5d (%8.4f deg)\n",(int)OSMNodes->file.latzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->file.latzero))));
+    printf("Lon zero=%5d (%8.4f deg)\n",(int)OSMNodes->file.lonzero,radians_to_degrees(latlong_to_radians(bin_to_latlong(OSMNodes->file.lonzero))));
 
     /* Examine the segments */
 
@@ -225,10 +225,10 @@ int main(int argc,char** argv)
     printf("--------\n");
     printf("\n");
 
-    printf("sizeof(Segment)=%9d Bytes\n",sizeof(Segment));
-    printf("Number(total)  =%9d\n",OSMSegments->file.number);
-    printf("Number(super)  =%9d\n",OSMSegments->file.snumber);
-    printf("Number(normal) =%9d\n",OSMSegments->file.nnumber);
+    printf("sizeof(Segment)=%9lu Bytes\n",(unsigned long)sizeof(Segment));
+    printf("Number(total)  =%9"Pindex_t"\n",OSMSegments->file.number);
+    printf("Number(super)  =%9"Pindex_t"\n",OSMSegments->file.snumber);
+    printf("Number(normal) =%9"Pindex_t"\n",OSMSegments->file.nnumber);
 
     /* Examine the ways */
 
@@ -237,13 +237,13 @@ int main(int argc,char** argv)
     printf("----\n");
     printf("\n");
 
-    printf("sizeof(Way)      =%9d Bytes\n",sizeof(Way));
-    printf("Number(compacted)=%9d\n",OSMWays->file.number);
-    printf("Number(original) =%9d\n",OSMWays->file.onumber);
+    printf("sizeof(Way)      =%9lu Bytes\n",(unsigned long)sizeof(Way));
+    printf("Number(compacted)=%9"Pindex_t"\n",OSMWays->file.number);
+    printf("Number(original) =%9"Pindex_t"\n",OSMWays->file.onumber);
     printf("\n");
 
     stat(ways_filename,&buf);
-    printf("Total names =%9ld Bytes\n",(long)buf.st_size-sizeof(Ways)-OSMWays->file.number*sizeof(Way));
+    printf("Total names =%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)sizeof(Ways)-(unsigned long)OSMWays->file.number*(unsigned long)sizeof(Way));
     printf("\n");
 
     printf("Included highways  : %s\n",HighwaysNameList(OSMWays->file.highways));
@@ -257,8 +257,8 @@ int main(int argc,char** argv)
     printf("---------\n");
     printf("\n");
 
-    printf("sizeof(TurnRelation)=%9d Bytes\n",sizeof(TurnRelation));
-    printf("Number              =%9d\n",OSMRelations->file.trnumber);
+    printf("sizeof(TurnRelation)=%9lu Bytes\n",(unsigned long)sizeof(TurnRelation));
+    printf("Number              =%9"Pindex_t"\n",OSMRelations->file.trnumber);
    }
 
  /* Print out internal data (in plain text format) */
