@@ -186,7 +186,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
 
  /* Perform an n-way merge using a binary heap */
 
- heap=(int*)malloc(nfiles*sizeof(int));
+ heap=(int*)malloc((1+nfiles)*sizeof(int));
 
  /* Fill the heap to start with */
 
@@ -198,17 +198,18 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
 
     ReadFile(fds[i],datap[i],itemsize);
 
-    index=i;
+    index=i+1;
+
     heap[index]=i;
 
     /* Bubble up the new value */
 
-    while(index>0)
+    while(index>1)
       {
        int newindex;
        int temp;
 
-       newindex=(index-1)/2;
+       newindex=index/2;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])>=0)
           break;
@@ -227,7 +228,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
 
  do
    {
-    int index=0;
+    int index=1;
 
     if(!buildindex || buildindex(datap[heap[index]],count))
       {
@@ -237,20 +238,20 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
 
     if(ReadFile(fds[heap[index]],datap[heap[index]],itemsize))
       {
-       ndata--;
        heap[index]=heap[ndata];
+       ndata--;
       }
 
     /* Bubble down the new value */
 
-    while((2*index+2)<ndata)
+    while((2*index)<ndata)
       {
        int newindex;
        int temp;
 
-       newindex=2*index+1;
+       newindex=2*index;
 
-       if(compare(datap[heap[newindex]],datap[heap[newindex+1]])>0)
+       if(compare(datap[heap[newindex]],datap[heap[newindex+1]])>=0)
           newindex=newindex+1;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
@@ -263,12 +264,12 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
        index=newindex;
       }
 
-    if((2*index+2)==ndata)
+    if((2*index)==ndata)
       {
        int newindex;
        int temp;
 
-       newindex=2*index+1;
+       newindex=2*index;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
           ; /* break */
@@ -450,7 +451,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
  /* Perform an n-way merge using a binary heap */
 
- heap=(int*)malloc(nfiles*sizeof(int));
+ heap=(int*)malloc((1+nfiles)*sizeof(int));
 
  datap=data+option_filesort_ramsize-nfiles*sizeof(void*);
 
@@ -469,17 +470,18 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
     ReadFile(fds[i],datap[i],itemsize);
 
-    index=i;
+    index=i+1;
+
     heap[index]=i;
 
     /* Bubble up the new value */
 
-    while(index>0)
+    while(index>1)
       {
        int newindex;
        int temp;
 
-       newindex=(index-1)/2;
+       newindex=index/2;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])>=0)
           break;
@@ -498,7 +500,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
  do
    {
-    int index=0;
+    int index=1;
     FILESORT_VARINT itemsize;
 
     if(!buildindex || buildindex(datap[heap[index]],count))
@@ -511,8 +513,8 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
     if(ReadFile(fds[heap[index]],&itemsize,FILESORT_VARSIZE))
       {
-       ndata--;
        heap[index]=heap[ndata];
+       ndata--;
       }
     else
       {
@@ -523,14 +525,14 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
     /* Bubble down the new value */
 
-    while((2*index+2)<ndata)
+    while((2*index)<ndata)
       {
        int newindex;
        int temp;
 
-       newindex=2*index+1;
+       newindex=2*index;
 
-       if(compare(datap[heap[newindex]],datap[heap[newindex+1]])>0)
+       if(compare(datap[heap[newindex]],datap[heap[newindex+1]])>=0)
           newindex=newindex+1;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
@@ -543,12 +545,12 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
        index=newindex;
       }
 
-    if((2*index+2)==ndata)
+    if((2*index)==ndata)
       {
        int newindex;
        int temp;
 
-       newindex=2*index+1;
+       newindex=2*index;
 
        if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
           ; /* break */
@@ -598,29 +600,30 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
 void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, const void*))
 {
+ void **datap1=&datap[-1];
  int i;
 
  /* Fill the heap by pretending to insert the data that is already there */
 
- for(i=1;i<nitems;i++)
+ for(i=2;i<=nitems;i++)
    {
     int index=i;
 
     /* Bubble up the new value (upside-down, put largest at top) */
 
-    while(index>0)
+    while(index>1)
       {
        int newindex;
        void *temp;
 
-       newindex=(index-1)/2;
+       newindex=index/2;
 
-       if(compare(datap[index],datap[newindex])<=0) /* reversed compared to filesort_fixed() above */
+       if(compare(datap1[index],datap1[newindex])<=0) /* reversed compared to filesort_fixed() above */
           break;
 
-       temp=datap[index];
-       datap[index]=datap[newindex];
-       datap[newindex]=temp;
+       temp=datap1[index];
+       datap1[index]=datap1[newindex];
+       datap1[newindex]=temp;
 
        index=newindex;
       }
@@ -628,51 +631,51 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, con
 
  /* Repeatedly pull out the root of the heap and swap with the bottom item */
 
- for(i=nitems-1;i>0;i--)
+ for(i=nitems;i>1;i--)
    {
-    int index=0;
+    int index=1;
     void *temp;
 
-    temp=datap[index];
-    datap[index]=datap[i];
-    datap[i]=temp;
+    temp=datap1[index];
+    datap1[index]=datap1[i];
+    datap1[i]=temp;
 
     /* Bubble down the new value (upside-down, put largest at top) */
 
-    while((2*index+2)<i)
+    while((2*index)<(i-1))
       {
        int newindex;
        void *temp;
 
-       newindex=2*index+1;
+       newindex=2*index;
 
-       if(compare(datap[newindex],datap[newindex+1])<0) /* reversed compared to filesort_fixed() above */
+       if(compare(datap1[newindex],datap1[newindex+1])<=0) /* reversed compared to filesort_fixed() above */
           newindex=newindex+1;
 
-       if(compare(datap[index],datap[newindex])>=0) /* reversed compared to filesort_fixed() above */
+       if(compare(datap1[index],datap1[newindex])>=0) /* reversed compared to filesort_fixed() above */
           break;
 
-       temp=datap[newindex];
-       datap[newindex]=datap[index];
-       datap[index]=temp;
+       temp=datap1[newindex];
+       datap1[newindex]=datap1[index];
+       datap1[index]=temp;
 
        index=newindex;
       }
 
-    if((2*index+2)==i)
+    if((2*index)==(i-1))
       {
        int newindex;
        void *temp;
 
-       newindex=2*index+1;
+       newindex=2*index;
 
-       if(compare(datap[index],datap[newindex])>=0) /* reversed compared to filesort_fixed() above */
+       if(compare(datap1[index],datap1[newindex])>=0) /* reversed compared to filesort_fixed() above */
           ; /* break */
        else
          {
-          temp=datap[newindex];
-          datap[newindex]=datap[index];
-          datap[index]=temp;
+          temp=datap1[newindex];
+          datap1[newindex]=datap1[index];
+          datap1[index]=temp;
          }
       }
    }
