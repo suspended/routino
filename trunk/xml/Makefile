@@ -36,8 +36,7 @@ SPECIAL_FILES=tagging-drive.xml \
 ########
 
 all: $(SPECIAL_FILES)
-	-@[ -d $(WEBDATADIR) ] && \
-	  for file in $(STANDARD_FILES); do \
+	-@for file in $(STANDARD_FILES); do \
 	     if [ ! -f $(WEBDATADIR)/$$file ] || [ routino-$$file -nt $(WEBDATADIR)/$$file ]; then \
 	        echo cp routino-$$file $(WEBDATADIR)/$$file ;\
 	        cp -f routino-$$file $(WEBDATADIR)/$$file ;\
@@ -75,10 +74,13 @@ test:
 
 install: all
 	-[ -d $(DESTDIR)$(datadir) ] || mkdir -p $(DESTDIR)$(datadir)
-	@[ -d $(DESTDIR)$(datadir) ] && \
-	  for file in $(STANDARD_FILES) $(SPECIAL_FILES); do \
+	-@for file in $(STANDARD_FILES) ; do \
 	     echo cp routino-$$file $(DESTDIR)$(datadir)/$$file ;\
 	     cp -f routino-$$file $(DESTDIR)$(datadir)/$$file ;\
+	  done
+	-@for file in $(SPECIAL_FILES); do \
+	     echo cp $$file $(DESTDIR)$(datadir)/$$file ;\
+	     cp -f $$file $(DESTDIR)$(datadir)/$$file ;\
 	  done
 
 ########
