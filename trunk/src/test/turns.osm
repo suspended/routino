@@ -18,6 +18,11 @@
   <node id='51' version='1' visible='true' lat='-0.22189614840042465' lon='-0.5163053654637676' />
   <node id='52' version='1' visible='true' lat='-0.2206667536990629' lon='-0.5208930003039592' />
   <node id='54' version='1' visible='true' lat='-0.22078436832897996' lon='-0.5160352169735775' />
+  <node id='113' version='1' visible='true' lat='-0.22135974620623747' lon='-0.518860446158009' />
+  <node id='115' version='1' visible='true' lat='-0.22171077830316824' lon='-0.5185110945906238'>
+    <tag k='name' v='WP16' />
+  </node>
+  <node id='117' version='1' visible='true' lat='-0.22137564544507876' lon='-0.5182342364502396' />
   <node id='144' version='1' visible='true' lat='-0.22067170616836507' lon='-0.5202228983841708' />
   <node id='146' version='1' visible='true' lat='-0.2206914242782775' lon='-0.5194618767809532' />
   <node id='204' version='1' visible='true' lat='-0.21845168535119228' lon='-0.5209389065396647'>
@@ -154,6 +159,25 @@
     <tag k='highway' v='residential' />
     <tag k='name' v='high street' />
   </way>
+  <way id='116' action='modify' visible='true'>
+    <nd ref='113' />
+    <nd ref='115' />
+    <nd ref='117' />
+    <tag k='highway' v='residential' />
+    <tag k='name' v='loop 6' />
+  </way>
+  <way id='128' visible='true'>
+    <nd ref='113' />
+    <nd ref='117' />
+    <tag k='highway' v='residential' />
+    <tag k='name' v='bottom road' />
+  </way>
+  <way id='129' visible='true'>
+    <nd ref='117' />
+    <nd ref='347' />
+    <tag k='highway' v='residential' />
+    <tag k='name' v='bottom road' />
+  </way>
   <way id='143' version='1' visible='true'>
     <nd ref='144' />
     <nd ref='366' />
@@ -163,7 +187,7 @@
   </way>
   <way id='348' version='1' visible='true'>
     <nd ref='345' />
-    <nd ref='347' />
+    <nd ref='113' />
     <tag k='highway' v='residential' />
     <tag k='name' v='bottom road' />
   </way>
@@ -327,6 +351,38 @@
     <tag k='highway' v='residential' />
     <tag k='name' v='high street' />
   </way>
+  <relation id='132' version='1' visible='true'>
+    <member type='node' ref='113' role='via' />
+    <member type='way' ref='348' role='from' />
+    <member type='way' ref='128' role='to' />
+    <tag k='except' v='motorcar' />
+    <tag k='restriction' v='only_straight_on' />
+    <tag k='type' v='restriction' />
+  </relation>
+  <relation id='135' version='1' visible='true'>
+    <member type='node' ref='113' role='via' />
+    <member type='way' ref='348' role='to' />
+    <member type='way' ref='128' role='from' />
+    <tag k='except' v='motorcar' />
+    <tag k='restriction' v='only_straight_on' />
+    <tag k='type' v='restriction' />
+  </relation>
+  <relation id='140' version='1' visible='true'>
+    <member type='node' ref='117' role='via' />
+    <member type='way' ref='129' role='to' />
+    <member type='way' ref='128' role='from' />
+    <tag k='except' v='motorcar' />
+    <tag k='restriction' v='only_straight_on' />
+    <tag k='type' v='restriction' />
+  </relation>
+  <relation id='143' visible='true'>
+    <member type='node' ref='117' role='via' />
+    <member type='way' ref='129' role='from' />
+    <member type='way' ref='128' role='to' />
+    <tag k='except' v='motorcar' />
+    <tag k='restriction' v='only_straight_on' />
+    <tag k='type' v='restriction' />
+  </relation>
   <relation id='377' version='1' visible='true'>
     <member type='way' ref='55' role='from' />
     <member type='node' ref='144' role='via' />
