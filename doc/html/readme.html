@@ -170,32 +170,24 @@ Version 2.0.2 of Routino was released on 26th June 2011.
 Version 2.0.3 of Routino was released on 4th August 2011.
 <br>
 Version 2.1 of Routino was released on 3rd October 2011.
+<br>
+Version 2.1.1 of Routino was released on 23rd October 2011.
 
 <p>
 
 The full version history is available in the NEWS file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.1</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.1.1</h3>
 
 <dl>
   <dt>Bug fixes:
-  <dd>Fix bug in pathological cases with binary search (don't crash).
-  <br>Make stricter checks for closest nodes just like in v2.0.3 for segments.
-  <br>Fix routing bug where start node is a super-node and finish is close by.
-
-  <dt>OSM tagging
-  <dd>More testing of turn relations; invalid or useless ones are discarded.
-  <br>An error log file can be generated to record parsing and processing errors.
-
-  <dt>Configuration Files:
-  <dd>Add new options in the tagging rules XML file.
-  <br>Add extra tagging rules to handle many problems found in the error log for UK.
-  <br>Create special-use tagging rule files for walking, riding and driving.
-
-  <dt>Test cases:
-  <dd>Create new test case for bug fixed in v2.0.3.
-  <br>Save expected results to allow future regressions to be found.
+  <dd>Speed up the routing by a factor of 5 by improving data handling functions.
+  <br>Speed up database generation by reducing the default number of iterations.
+  <br>Fix the handling of the 'except' tag on turn restrictions.
+  <br>Fix the 'make install' option for the XML files.
+  <br>Add some more typecasts when printing data from filedumper program.
+  <br>Make the CGI script more robust if shortest/fastest is not passed in.
 </dl>
 
 

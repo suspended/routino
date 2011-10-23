@@ -1,3 +1,17 @@
+Version 2.1 of Routino released : Sun Oct 23 2011
+-------------------------------------------------
+
+Bug fixes:
+  Speed up the routing by a factor of 5 by improving data handling functions.
+  Speed up database generation by reducing the default number of iterations.
+  Fix the handling of the 'except' tag on turn restrictions.
+  Fix the 'make install' option for the XML files.
+  Add some more typecasts when printing data from filedumper program.
+  Make the CGI script more robust if shortest/fastest is not passed in.
+
+Note: this version is compatible with databases from version 2.1.
+
+
 Version 2.1 of Routino released : Mon Oct 3 2011
 ------------------------------------------------
 
