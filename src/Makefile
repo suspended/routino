@@ -53,7 +53,7 @@ FLAGS64=-D_FILE_OFFSET_BITS=64
 # Compilation targets
 
 C=$(wildcard *.c)
-D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
+D=$(wildcard .deps/*.d)
 
 EXE=planetsplitter planetsplitter-slim router router-slim filedumper filedumper-slim tagmodifier
 
@@ -79,7 +79,7 @@ PLANETSPLITTER_OBJ=planetsplitter.o \
 	           results.o queue.o sorting.o \
 	           xmlparse.o tagging.o osmparser.o
 
-planetsplitter : $(PLANETSPLITTER_OBJ)
+planetsplitter : $(PLANETSPLITTER_OBJ) .deps
 	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -154,10 +154,10 @@ xmlparse.c : xmlparse.l
 
 ########
 
-%.o : %.c
+%.o : %.c .deps
 	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=0 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
-%-slim.o : %.c
+%-slim.o : %.c .deps
 	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=1 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
@@ -200,9 +200,6 @@ distclean: clean
 
 .deps: .FORCE
 	@[ -d .deps ] || mkdir $@
-
-$(D) : .deps
-	@touch $@
 
 include $(D)
 
