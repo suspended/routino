@@ -38,7 +38,7 @@ XMLDIR=../../xml
 
 X=$(notdir $(wildcard $(XMLDIR)/*.xsd))
 C=$(foreach f,$(X),$(addsuffix -skeleton.c,$(basename $f)))
-D=$(foreach f,$(C),$(addprefix .deps/,$(addsuffix .d,$(basename $f))))
+D=$(wildcard .deps/*.d)
 O=$(foreach f,$(C),$(addsuffix .o,$(basename $f)))
 E=$(foreach f,$(C),$(basename $f))
 
@@ -75,7 +75,7 @@ xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
 
 ########
 
-%.o : %.c
+%.o : %.c .deps
 	$(CC) -c $(CFLAGS) $(FLAGS64) -I.. $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
@@ -126,9 +126,6 @@ distclean: clean
 
 .deps: .FORCE
 	@[ -d .deps ] || mkdir $@
-
-$(D) : .deps
-	@touch $@
 
 include $(D)
 
