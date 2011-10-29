@@ -319,6 +319,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     do
       {
        double latitude,longitude;
+       Node *resultnode=NULL;
        Result *nextresult;
        index_t nextrealsegment;
        Segment *nextresultsegment;
@@ -363,6 +364,9 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           nextresultsegment=NULL;
           nextrealsegment=NO_SEGMENT;
          }
+
+       if(!IsFakeNode(result->node))
+          resultnode=LookupNode(nodes,result->node,6);
 
        if(result->node!=results[point]->start_node)
          {
@@ -409,7 +413,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              important=5;
           else
             {
-             Segment *segment=FirstSegment(segments,nodes,result->node,3);
+             Segment *segment=FirstSegment(segments,resultnode,3);
 
              do
                {
@@ -644,7 +648,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n",
                                  radians_to_degrees(latitude),radians_to_degrees(longitude),
                                  IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
-                                 (!IsFakeNode(result->node) && IsSuperNode(LookupNode(nodes,result->node,1)))?'*':' ',type,
+                                 (resultnode && IsSuperNode(resultnode))?'*':' ',type,
                                  distance_to_km(seg_distance),duration_to_minutes(seg_duration),
                                  distance_to_km(cum_distance),duration_to_minutes(cum_duration),
                                  profile->speed[HIGHWAY(resultway->type)],
@@ -690,7 +694,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t\t\t\n",
                                  radians_to_degrees(latitude),radians_to_degrees(longitude),
                                  IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
-                                 (!IsFakeNode(result->node) && IsSuperNode(LookupNode(nodes,result->node,1)))?'*':' ',"Waypt",
+                                 (resultnode && IsSuperNode(resultnode))?'*':' ',"Waypt",
                                  0.0,0.0,0.0,0.0);
          }
 
