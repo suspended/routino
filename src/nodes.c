@@ -187,7 +187,7 @@ index_t FindClosestNode(Nodes *nodes,Segments *segments,Ways *ways,double latitu
 
           for(i=index1;i<index2;i++)
             {
-             Node *node=LookupNode(nodes,i,1);
+             Node *node=LookupNode(nodes,i,3);
              double lat=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb)+off_to_latlong(node->latoffset));
              double lon=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb)+off_to_latlong(node->lonoffset));
 
@@ -199,7 +199,7 @@ index_t FindClosestNode(Nodes *nodes,Segments *segments,Ways *ways,double latitu
 
                 /* Check that at least one segment is valid for the profile */
 
-                segment=FirstSegment(segments,nodes,i,1);
+                segment=FirstSegment(segments,node,1);
 
                 do
                   {
@@ -343,7 +343,7 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
 
           for(i=index1;i<index2;i++)
             {
-             Node *node=LookupNode(nodes,i,1);
+             Node *node=LookupNode(nodes,i,3);
              double lat1=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb)+off_to_latlong(node->latoffset));
              double lon1=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb)+off_to_latlong(node->lonoffset));
              distance_t dist1;
@@ -356,7 +356,7 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
 
                 /* Check each segment for closeness and if valid for the profile */
 
-                segment=FirstSegment(segments,nodes,i,1);
+                segment=FirstSegment(segments,node,1);
 
                 do
                   {
@@ -510,7 +510,7 @@ static int valid_segment_for_profile(Ways *ways,Segment *segment,Profile *profil
 
 void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
 {
- Node *node=LookupNode(nodes,index,2);
+ Node *node=LookupNode(nodes,index,4);
  ll_bin_t latbin=-1,lonbin=-1;
  ll_bin_t start,end,mid;
  index_t offset;
