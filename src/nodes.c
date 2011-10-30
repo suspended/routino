@@ -49,6 +49,7 @@ Nodes *LoadNodeList(const char *filename)
 {
  Nodes *nodes;
 #if SLIM
+ size_t sizeoffsets;
  int i;
 #endif
 
@@ -75,7 +76,13 @@ Nodes *LoadNodeList(const char *filename)
 
  ReadFile(nodes->fd,&nodes->file,sizeof(NodesFile));
 
- nodes->nodesoffset=sizeof(NodesFile)+(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t);
+ sizeoffsets=(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t);
+
+ nodes->offsets=(index_t*)malloc(sizeoffsets);
+
+ ReadFile(nodes->fd,nodes->offsets,sizeoffsets);
+
+ nodes->nodesoffset=sizeof(NodesFile)+sizeoffsets;
 
  for(i=0;i<sizeof(nodes->cached)/sizeof(nodes->cached[0]);i++)
     nodes->incache[i]=NO_NODE;

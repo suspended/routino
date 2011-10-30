@@ -78,6 +78,9 @@ struct _Nodes
 #else
 
  int       fd;                  /*+ The file descriptor for the file. +*/
+
+ index_t  *offsets;             /*+ An allocated array with a copy of the file offsets. +*/
+
  off_t     nodesoffset;         /*+ The offset of the nodes within the file. +*/
 
  Node      cached[6];           /*+ Some cached nodes read from the file in slim mode. +*/
@@ -112,20 +115,18 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
 /*+ Return a Segment index given a Node pointer and a set of segments. +*/
 #define FirstSegment(xxx,yyy,ppp)   LookupSegment((xxx),(yyy)->firstseg,ppp)
 
+/*+ Return the offset of a geographical region given a set of nodes. +*/
+#define LookupNodeOffset(xxx,yyy)   ((xxx)->offsets[yyy])
+
 
 #if !SLIM
 
 /*+ Return a Node pointer given a set of nodes and an index. +*/
 #define LookupNode(xxx,yyy,ppp)     (&(xxx)->nodes[yyy])
 
-/*+ Return the offset of a geographical region given a set of nodes. +*/
-#define LookupNodeOffset(xxx,yyy)   ((xxx)->offsets[yyy])
-
 #else
 
 static Node *LookupNode(Nodes *nodes,index_t index,int position);
-
-static index_t LookupNodeOffset(Nodes *nodes,index_t index);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -152,28 +153,6 @@ static inline Node *LookupNode(Nodes *nodes,index_t index,int position)
    }
 
  return(&nodes->cached[position-1]);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find the offset of nodes in a geographical region.
-
-  index_t LookupNodeOffset Returns the index offset.
-
-  Nodes *nodes The set of nodes to use.
-
-  index_t index The index of the offset.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static inline index_t LookupNodeOffset(Nodes *nodes,index_t index)
-{
- index_t offset;
-
- SeekFile(nodes->fd,sizeof(NodesFile)+(off_t)index*sizeof(index_t));
-
- ReadFile(nodes->fd,&offset,sizeof(index_t));
-
- return(offset);
 }
 
 #endif
