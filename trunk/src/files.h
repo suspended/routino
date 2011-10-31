@@ -23,6 +23,12 @@
 #ifndef FILES_H
 #define FILES_H    /*+ To stop multiple inclusions. +*/
 
+/* If your system does not have the pread() and pwrite() system calls then you
+ * will need to change this line to the value 0 so that seek() and
+ * read()/write() are used instead of pread()/pwrite(). */
+#define HAVE_PREAD_PWRITE 1
+
+
 #include <assert.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -150,10 +156,22 @@ static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t p
 {
  assert(fd!=-1);
 
- /* Write the data */
+ /* Seek and write the data */
+
+#if HAVE_PREAD_PWRITE
 
  if(pwrite(fd,address,length,position)!=length)
     return(-1);
+
+#else
+
+ if(lseek(fd,position,SEEK_SET)!=position)
+    return(-1);
+
+ if(write(fd,address,length)!=length)
+    return(-1);
+
+#endif
 
  return(0);
 }
@@ -177,10 +195,22 @@ static inline int SeekReadFile(int fd,void *address,size_t length,off_t position
 {
  assert(fd!=-1);
 
- /* Read the data */
+ /* Seek and read the data */
+
+#if HAVE_PREAD_PWRITE
 
  if(pread(fd,address,length,position)!=length)
     return(-1);
+
+#else
+
+ if(lseek(fd,position,SEEK_SET)!=position)
+    return(-1);
+
+ if(read(fd,address,length)!=length)
+    return(-1);
+
+#endif
 
  return(0);
 }
