@@ -93,8 +93,7 @@ RelationsX *NewRelationList(int append)
       {
        FILESORT_VARINT relationsize;
 
-       SeekFile(relationsx->rfd,position);
-       ReadFile(relationsx->rfd,&relationsize,FILESORT_VARSIZE);
+       SeekReadFile(relationsx->rfd,&relationsize,FILESORT_VARSIZE,position);
 
        relationsx->rnumber++;
        position+=relationsize+FILESORT_VARSIZE;

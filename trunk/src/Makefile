@@ -32,23 +32,25 @@ LEX=flex
 # Compilation program options
 
 CFLAGS=-Wall -Wmissing-prototypes -std=c99
-#CFLAGS+= -Wextra -pedantic
+#CFLAGS+=-Wextra -pedantic
 LDFLAGS=-lm -lc
 
-CFLAGS+= -O3
-#CFLAGS+= -O0 -g
-#CFLAGS+= -pg
-#CFLAGS+= -fprofile-arcs -ftest-coverage
+CFLAGS+=-O3
+#CFLAGS+=-O0 -g
+#CFLAGS+=-pg
+#CFLAGS+=-fprofile-arcs -ftest-coverage
 
 LDFLAGS+=
-#LDFLAGS+= -pg -static
-#LDFLAGS+= -fprofile-arcs -ftest-coverage
+#LDFLAGS+=-pg -static
+#LDFLAGS+=-fprofile-arcs -ftest-coverage
 
 LEXFLAGS=
 
 # Required to use stdio with files > 2GiB on 32-bit system.
+CFLAGS+=-D_FILE_OFFSET_BITS=64
 
-FLAGS64=-D_FILE_OFFSET_BITS=64
+# Required to compile on Linux without a warning about pread() and pwrite() functions.
+CFLAGS+=-D_POSIX_C_SOURCE=200809L
 
 # Compilation targets
 
@@ -155,10 +157,10 @@ xmlparse.c : xmlparse.l
 ########
 
 %.o : %.c .deps
-	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=0 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+	$(CC) -c $(CFLAGS) -DSLIM=0 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 %-slim.o : %.c .deps
-	$(CC) -c $(CFLAGS) $(FLAGS64) -DSLIM=1 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+	$(CC) -c $(CFLAGS) -DSLIM=1 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
 

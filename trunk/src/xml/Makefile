@@ -25,12 +25,14 @@ LD=gcc
 
 # Program options
 
-CFLAGS=-Wall -Wmissing-prototypes -O0 -g
+CFLAGS=-Wall -Wmissing-prototypes -std=c99
+#CFLAGS+=-Wextra -pedantic
 LDFLAGS=-lm -lc
 
-# Required to use stdio with files > 2GiB on 32-bit system.
+CFLAGS+=-O3
 
-FLAGS64=-D_FILE_OFFSET_BITS=64
+# Required to use stdio with files > 2GiB on 32-bit system.
+CFLAGS+=-D_FILE_OFFSET_BITS=64
 
 # Compilation targets
 
@@ -76,7 +78,7 @@ xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
 ########
 
 %.o : %.c .deps
-	$(CC) -c $(CFLAGS) $(FLAGS64) -I.. $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+	$(CC) -c $(CFLAGS) -I.. $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
 

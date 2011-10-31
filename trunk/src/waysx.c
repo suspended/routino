@@ -91,8 +91,7 @@ WaysX *NewWayList(int append)
       {
        FILESORT_VARINT waysize;
 
-       SeekFile(waysx->fd,position);
-       ReadFile(waysx->fd,&waysize,FILESORT_VARSIZE);
+       SeekReadFile(waysx->fd,&waysize,FILESORT_VARSIZE,position);
 
        waysx->number++;
        position+=waysize+FILESORT_VARSIZE;
@@ -641,8 +640,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
     allow   |=wayx->way.allow;
     props   |=wayx->way.props;
 
-    SeekFile(fd,sizeof(WaysFile)+(off_t)wayx->prop*sizeof(Way));
-    WriteFile(fd,&wayx->way,sizeof(Way));
+    SeekWriteFile(fd,&wayx->way,sizeof(Way),sizeof(WaysFile)+(off_t)wayx->prop*sizeof(Way));
 
     if(!((i+1)%1000))
        printf_middle("Writing Ways: Ways=%"Pindex_t,i+1);

@@ -180,9 +180,7 @@ static inline Segment *LookupSegment(Segments *segments,index_t index,int positi
 {
  if(segments->incache[position-1]!=index)
    {
-    SeekFile(segments->fd,sizeof(SegmentsFile)+(off_t)index*sizeof(Segment));
-
-    ReadFile(segments->fd,&segments->cached[position-1],sizeof(Segment));
+    SeekReadFile(segments->fd,&segments->cached[position-1],sizeof(Segment),sizeof(SegmentsFile)+(off_t)index*sizeof(Segment));
 
     segments->incache[position-1]=index;
    }
