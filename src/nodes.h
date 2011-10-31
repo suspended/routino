@@ -145,9 +145,7 @@ static inline Node *LookupNode(Nodes *nodes,index_t index,int position)
 {
  if(nodes->incache[position-1]!=index)
    {
-    SeekFile(nodes->fd,nodes->nodesoffset+(off_t)index*sizeof(Node));
-
-    ReadFile(nodes->fd,&nodes->cached[position-1],sizeof(Node));
+    SeekReadFile(nodes->fd,&nodes->cached[position-1],sizeof(Node),nodes->nodesoffset+(off_t)index*sizeof(Node));
 
     nodes->incache[position-1]=index;
    }

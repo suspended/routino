@@ -121,9 +121,7 @@ static inline TurnRelation *LookupTurnRelation(Relations *relations,index_t inde
 {
  if(relations->incache[position-1]!=index)
    {
-    SeekFile(relations->fd,relations->troffset+(off_t)index*sizeof(TurnRelation));
-
-    ReadFile(relations->fd,&relations->cached[position-1],sizeof(TurnRelation));
+    SeekReadFile(relations->fd,&relations->cached[position-1],sizeof(TurnRelation),relations->troffset+(off_t)index*sizeof(TurnRelation));
 
     relations->incache[position-1]=index;
    }

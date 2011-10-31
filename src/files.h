@@ -44,6 +44,9 @@ int ReOpenFileWriteable(const char *filename);
 static int WriteFile(int fd,const void *address,size_t length);
 static int ReadFile(int fd,void *address,size_t length);
 
+static int SeekWriteFile(int fd,const void *address,size_t length,off_t position);
+static int SeekReadFile(int fd,void *address,size_t length,off_t position);
+
 off_t SizeFile(const char *filename);
 int ExistsFile(const char *filename);
 
@@ -123,6 +126,60 @@ static inline int SeekFile(int fd,off_t position)
  /* Seek the data */
 
  if(lseek(fd,position,SEEK_SET)!=position)
+    return(-1);
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Write data to a file descriptor after seeking to a position.
+
+  int WriteFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor to write to.
+
+  const void *address The address of the data to be written.
+
+  size_t length The length of data to write.
+
+  off_t position The position to seek to.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t position)
+{
+ assert(fd!=-1);
+
+ /* Write the data */
+
+ if(pwrite(fd,address,length,position)!=length)
+    return(-1);
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Read data from a file descriptor after seeking to a position.
+
+  int SeekReadFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor to read from.
+
+  void *address The address the data is to be read into.
+
+  size_t length The length of data to read.
+
+  off_t position The position to seek to.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline int SeekReadFile(int fd,void *address,size_t length,off_t position)
+{
+ assert(fd!=-1);
+
+ /* Read the data */
+
+ if(pread(fd,address,length,position)!=length)
     return(-1);
 
  return(0);

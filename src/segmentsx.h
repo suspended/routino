@@ -137,9 +137,7 @@ static void PutBackSegmentX(SegmentsX *segmentsx,index_t index,int position);
 
 static inline SegmentX *LookupSegmentX(SegmentsX *segmentsx,index_t index,int position)
 {
- SeekFile(segmentsx->fd,(off_t)index*sizeof(SegmentX));
-
- ReadFile(segmentsx->fd,&segmentsx->cached[position-1],sizeof(SegmentX));
+ SeekReadFile(segmentsx->fd,&segmentsx->cached[position-1],sizeof(SegmentX),(off_t)index*sizeof(SegmentX));
 
  segmentsx->incache[position-1]=index;
 
@@ -177,9 +175,7 @@ static inline index_t IndexSegmentX(SegmentsX *segmentsx,SegmentX *segmentx)
 
 static inline void PutBackSegmentX(SegmentsX *segmentsx,index_t index,int position)
 {
- SeekFile(segmentsx->fd,(off_t)index*sizeof(SegmentX));
-
- WriteFile(segmentsx->fd,&segmentsx->cached[position-1],sizeof(SegmentX));
+ SeekWriteFile(segmentsx->fd,&segmentsx->cached[position-1],sizeof(SegmentX),(off_t)index*sizeof(SegmentX));
 }
 
 #endif /* SLIM */
