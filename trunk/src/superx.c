@@ -471,7 +471,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
        if(result1->segment==seg2)
           goto endloop;
 
-       wayx=LookupWayX(waysx,segmentx->way,2);
+       wayx=LookupWayX(waysx,segmentx->way,2); /* position 1 is already used */
 
        /* must be the right type of way */
        if(WaysCompare(&wayx->way,match))
