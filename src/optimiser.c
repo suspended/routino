@@ -248,7 +248,8 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
             {
              result2->sortby=result2->score;
 
-             InsertInQueue(queue,result2);
+             if(result2->score<finish_score)
+                InsertInQueue(queue,result2);
             }
          }
        else if(cumulative_score<result2->score) /* New score for end node/segment combination is better */
@@ -550,7 +551,8 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
              else
                 result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-             InsertInQueue(queue,result2);
+             if(result2->sortby<finish_score)
+                InsertInQueue(queue,result2);
             }
          }
        else if(cumulative_score<result2->score) /* New end node/segment pair is better */
@@ -580,7 +582,8 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
              else
                 result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-             InsertInQueue(queue,result2);
+             if(result2->sortby<finish_score)
+                InsertInQueue(queue,result2);
             }
          }
 
