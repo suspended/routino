@@ -486,7 +486,6 @@ static int HighwayType_function(const char *_tag_,int _type_,const char *type,co
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    char *xmlstring;
     Highway highway;
 
     XMLPARSE_ASSERT_STRING(_tag_,type);
@@ -497,9 +496,7 @@ static int HighwayType_function(const char *_tag_,int _type_,const char *type,co
     if(highway==Way_Count)
        XMLPARSE_INVALID(_tag_,type);
 
-    xmlstring=ParseXML_Encode_Safe_XML(string);
-
-    translate_highway[highway]=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
+    translate_highway[highway]=strcpy(malloc(strlen(string)+1),string);
    }
 
  return(0);
