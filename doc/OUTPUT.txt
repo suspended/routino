@@ -27,7 +27,8 @@
 
    The HTML file and GPX files are written out according to the selected
    language using the translations contained in the translations.xml
-   configuration file.
+   configuration file. The text files contain only the copyright section
+   translated with the rest in English.
 
 
 HTML Route Instructions
