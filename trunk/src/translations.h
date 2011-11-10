@@ -28,17 +28,21 @@
 
 /* Global variable declarations */
 
-extern char *translate_copyright_creator[2];
-extern char *translate_copyright_source[2];
-extern char *translate_copyright_license[2];
+extern char *translate_raw_copyright_creator[2];
+extern char *translate_raw_copyright_source[2];
+extern char *translate_raw_copyright_license[2];
 
-extern char *translate_heading[9];
-extern char *translate_turn[9];
+extern char *translate_xml_copyright_creator[2];
+extern char *translate_xml_copyright_source[2];
+extern char *translate_xml_copyright_license[2];
 
-extern char *translate_highway[Way_Count];
+extern char *translate_xml_heading[9];
+extern char *translate_xml_turn[9];
 
-extern char *translate_route_shortest;
-extern char *translate_route_quickest;
+extern char *translate_raw_highway[Way_Count];
+
+extern char *translate_xml_route_shortest;
+extern char *translate_xml_route_quickest;
 
 extern char *translate_html_waypoint;
 extern char *translate_html_junction;
