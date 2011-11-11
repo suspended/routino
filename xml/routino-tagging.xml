@@ -16,7 +16,7 @@
 <routino-tagging xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xsi:noNamespaceSchemaLocation="http://www.routino.org/xml/routino-tagging.xsd">
 
-  <!-- -------------------- Node rules -------------------- -->
+  <!-- - - - - - - - - - - Node rules - - - - - - - - - - -->
 
   <node>
 
@@ -186,7 +186,7 @@
 
   </node>
 
-  <!-- -------------------- Way rules -------------------- -->
+  <!-- - - - - - - - - - - Way rules - - - - - - - - - - -->
 
   <way>
 
@@ -706,7 +706,7 @@
 
   </way>
 
-  <!-- -------------------- Relation rules -------------------- -->
+  <!-- - - - - - - - - - - Relation rules - - - - - - - - - - -->
 
   <relation>
 
