@@ -379,8 +379,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           /* Cache the values to be printed rather than calculating them repeatedly for each output format */
 
-          char *waynameraw=NULL,*waynamexml=NULL;
-          const char *wayname=NULL;
+          char *waynameraw=NULL,*wayname=NULL;
           int bearing_int=0,bearing_next_int=0,turn_int=0;
           char *bearing_str=NULL,*bearing_next_str=NULL,*turn_str=NULL;
 
@@ -470,12 +469,12 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                       waynameraw=translate_raw_highway[HIGHWAY(resultway->type)];
                   }
 
-                if(!waynamexml)
-                   waynamexml=ParseXML_Encode_Safe_XML(waynameraw);
+                if(!wayname)
+                   wayname=ParseXML_Encode_Safe_XML(waynameraw);
 
                 fprintf(htmlfile,"<tr class='s'><td class='l'>%s:<td class='r'>",translate_html_segment[0]);
                 fprintf(htmlfile,translate_html_segment[1],
-                                  waynamexml,
+                                  wayname,
                                   distance_to_km(junc_distance),duration_to_minutes(junc_duration));
                 fprintf(htmlfile," [<span class='j'>");
                 fprintf(htmlfile,translate_html_total[1],
@@ -529,8 +528,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                       waynameraw=translate_raw_highway[HIGHWAY(resultway->type)];
                   }
 
-                if(!waynamexml)
-                   waynamexml=ParseXML_Encode_Safe_XML(waynameraw);
+                if(!wayname)
+                   wayname=ParseXML_Encode_Safe_XML(waynameraw);
 
                 if(!bearing_str)
                   {
@@ -541,7 +540,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 fprintf(gpxroutefile,"<desc>");
                 fprintf(gpxroutefile,translate_gpx_step,
                                      bearing_str,
-                                     waynamexml,
+                                     wayname,
                                      distance_to_km(junc_distance),duration_to_minutes(junc_duration));
                 fprintf(gpxroutefile,"</desc></rtept>\n");
 
@@ -574,11 +573,11 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 else
                    type="Junct";
 
-                if(!wayname)
+                if(!waynameraw)
                   {
-                   wayname=WayName(ways,resultway);
-                   if(!*wayname)
-                      wayname=HighwayName(HIGHWAY(resultway->type));
+                   waynameraw=WayName(ways,resultway);
+                   if(!*waynameraw)
+                      waynameraw=translate_raw_highway[HIGHWAY(resultway->type)];
                   }
 
                 if(nextresult)
@@ -602,7 +601,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                                     type,
                                     (22+turn_int)/45,
                                     ((22+bearing_next_int)/45+4)%8-4,
-                                    wayname);
+                                    waynameraw);
                   }
                 else
                    fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t\t\t%s\n",
@@ -610,7 +609,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                                     distance_to_km(junc_distance),duration_to_minutes(junc_duration),
                                     distance_to_km(cum_distance),duration_to_minutes(cum_duration),
                                     type,
-                                    wayname);
+                                    waynameraw);
                }
 
              junc_distance=0;
@@ -632,11 +631,11 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              else
                 type="Inter";
 
-             if(!wayname)
+             if(!waynameraw)
                {
-                wayname=WayName(ways,resultway);
-                if(!*wayname)
-                   wayname=HighwayName(HIGHWAY(resultway->type));
+                waynameraw=WayName(ways,resultway);
+                if(!*waynameraw)
+                   waynameraw=translate_raw_highway[HIGHWAY(resultway->type)];
                }
 
              if(!bearing_str)
@@ -653,11 +652,11 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                                  distance_to_km(cum_distance),duration_to_minutes(cum_duration),
                                  profile->speed[HIGHWAY(resultway->type)],
                                  bearing_int,
-                                 wayname);
+                                 waynameraw);
             }
 
-          if(waynamexml && waynamexml!=waynameraw)
-             free(waynamexml);
+          if(wayname && wayname!=waynameraw)
+             free(wayname);
          }
        else if(!cum_distance)
          {
