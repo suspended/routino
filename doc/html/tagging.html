@@ -53,11 +53,11 @@ format XML that are used by Routino are described below.
 
 <p>
 
-An important change for version 1.4 of Routino is that the tags in the input
-file are first processed according to a set of rules defined in a configuration
-file.  This means that the information presented here is in two parts; firstly
-the tags that are recognised by Routino after pre-processing and secondly the
-transformations in the default configuration file.
+Routino handles the tags in the input file after they have been processed
+according to a set of rules defined in a configuration file.  The first half of
+this file describes the tags that are recognised by Routino after being
+processed; the second half of the file describes the transformations that are in
+the default tagging configuration file.
 
 
 <h2><a name="H_1_2" title="After Processing"></a>Tags Recognised After Processing</h2>
@@ -70,7 +70,7 @@ Routino.
 <p>
 
 In all cases of tag processing values of <em>true</em>, <em>yes</em>, <em>1</em>
-are recognised as being affirmative and any other value is ignored.
+are recognised as being affirmative and any other value is negative.
 
 
 <h3><a name="H_1_2_1" title="Nodes"></a>Node Tags And Attributes</h3>
@@ -98,14 +98,15 @@ and specific tags must be used to remove the permissions for the transport.
 
 The <em>highway</em> tag for <em>mini_roundabout</em> is recognised since this
 provides information about places to turn around to bypass turn restrictions.
+[Currently this information is not used].
 
 
 <h3><a name="H_1_2_2" title="Ways"></a>Way Tags And Attributes</h3>
 
 The tags from the ways in the data are the ones that provide most of the
 information for routing.  The <em>id</em> attribute is used only so that the
-many segments associated with a way can be share a set of tags taken from the
-way.
+many segments associated with a way can share a set of tags taken from the way.
+The <em>nd</em> information is used to identify the nodes that make up the way.
 
 
 <h4><a name="H_1_2_2_1" title="highway (way)"></a>The highway Tag</h4>
@@ -176,8 +177,7 @@ the results.
 The <em>multilane</em> tag is used to identify whether a highway has multiple
 lanes for traffic and this sets one of the highway properties.  There is not
 normally a <em>multilane</em> tag but one needs to be added by the tag
-processing transformations.  Values of <em>true</em>, <em>yes</em>, <em>1</em>
-are recognised.
+processing transformations.  Values of <em>yes</em> or <em>no</em> are expected.
 
 
 <h4><a name="H_1_2_2_7" title="paved"></a>The paved Tag</h4>
@@ -185,7 +185,7 @@ are recognised.
 The <em>paved</em> tag is used to identify whether a highway is paved or not,
 this is one of the available highway properties.  A <em>paved</em> tag may exist
 in the original data but normally the <em>surface</em> tag needs to be
-transformed into the paved tag.
+transformed into the <em>paved</em> tag.
 
 
 <h4><a name="H_1_2_2_8" title="bridge"></a>The bridge Tag</h4>
@@ -268,6 +268,8 @@ convert this to metres.
 The tags from the relations are used to associate more properties with the
 highways that are part of that relation.  The <em>id</em> attribute is used so
 that relations that are members of other relations can be identified.
+The <em>member</em> information is used to identify the nodes and ways that make
+up the relation.
 
 
 <h4><a name="H_1_2_3_1" title="footroute"></a>The footroute Tag</h4>
@@ -315,8 +317,8 @@ a default set of disallowed transport types.
     <th class="left">Barrier
     <th class="center">foot
     <th class="center">horse
-    <th class="center">bicycle
     <th class="center">wheelchair
+    <th class="center">bicycle
     <th class="center">moped
     <th class="center">motorbike
     <th class="center">motorcar
@@ -336,7 +338,7 @@ a default set of disallowed transport types.
     <td class="center">no
     <td class="center">no
   <tr>
-    <td class="left">kissing_gate
+    <td class="left">kissing_gate, stile, v_stile, turnstile, footgate, cycle_barrier
     <td class="center">yes
     <td class="center">no
     <td class="center">no
@@ -348,23 +350,23 @@ a default set of disallowed transport types.
     <td class="center">no
     <td class="center">no
   <tr>
-    <td class="left">stile
+    <td class="left">horse_barrier, cattle_grid
     <td class="center">yes
     <td class="center">no
-    <td class="center">no
-    <td class="center">no
-    <td class="center">no
-    <td class="center">no
-    <td class="center">no
-    <td class="center">no
-    <td class="center">no
-    <td class="center">no
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
   <tr>
-    <td class="left">turnstile
+    <td class="left">car_trap
     <td class="center">yes
-    <td class="center">no
-    <td class="center">no
-    <td class="center">no
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
     <td class="center">no
     <td class="center">no
     <td class="center">no
@@ -376,9 +378,9 @@ a default set of disallowed transport types.
 <h4><a name="H_1_3_1_2" title="Generic access"></a>Generic Access Permissions</h4>
 
 The <em>access</em> tag is used to specify the default access restrictions
-through the node.  If the tag value is <em>no</em> or <em>private</em> then all
-transport types are denied access (later tag transformation rules may add
-specific transport types back again).
+through the node.  If the tag value is <em>no</em> or <em>private</em>
+or <em>limited</em> then all transport types are denied access (later tag
+transformation rules may add specific transport types back again).
 
 
 <h4><a name="H_1_3_1_3" title="Other access"></a>Other Access Permissions</h4>
@@ -400,7 +402,14 @@ One tag is recognised for each of the different modes of transport: <em>foot</em
 <em>horse</em>, <em>bicycle</em>, <em>wheelchair</em>, <em>moped</em>,
 <em>motorbike</em>, <em>motorcar</em>, <em>goods</em>, <em>hgv</em>
 and <em>psv</em>.  These indicate whether the specific type of transport is
-allowed through the node or not.
+allowed through the node or not; the values listed for the <em>access</em> tag
+are also accepted here.
+
+
+<h4><a name="H_1_3_1_5" title="Mini-roundabouts"></a>Mini-roundabouts</h4>
+
+The <em>highway</em> tag for <em>mini_roundabout</em> is passed through without
+change.
 
 
 <h3><a name="H_1_3_2" title="Ways"></a>Way Tag Transformations</h3>
@@ -426,39 +435,44 @@ is recognised by Routino.
     <th class="left">Original tag
     <th class="left">Transformed tag
   <tr>
-    <td class="left">bridleway
-    <td class="left">path
+    <td class="left">motorway_link
+    <td class="left">motorway
   <tr>
-    <td class="left">byway
-    <td class="left">track
+    <td class="left">trunk_link
+    <td class="left">trunk
   <tr>
-    <td class="left">footway
-    <td class="left">path
+    <td class="left">primary_link
+    <td class="left">primary
+  <tr>
+    <td class="left">secondary_link
+    <td class="left">secondary
+  <tr>
+    <td class="left">tertiary_link
+    <td class="left">tertiary
+  <tr>
+    <td class="left">minor, road
+    <td class="left">unclassified
   <tr>
     <td class="left">living_street
     <td class="left">residential
   <tr>
-    <td class="left">minor
-    <td class="left">unclassified
-  <tr>
-    <td class="left">pedestrian
-    <td class="left">path
-  <tr>
-    <td class="left">road
-    <td class="left">unclassified
-  <tr>
-    <td class="left">services
+    <td class="left">services, layby
     <td class="left">service
   <tr>
-    <td class="left">unsurfaced
+    <td class="left">byway, unsurfaced, unpaved
     <td class="left">track
   <tr>
-    <td class="left">unpaved
-    <td class="left">track
-  <tr>
-    <td class="left">walkway
+    <td class="left">footway, bridleway, pedestrian, walkway
     <td class="left">path
+  <tr>
+    <td class="left">route=ferry
+    <td class="left">ferry (1)
 </table>
+
+<i>
+  Note 1: A ferry route is converted into a highway of type "ferry" so that
+  routes using a ferry can be calculated.
+</i>
 
 <p>
 
@@ -474,8 +488,8 @@ below.
     <th class="left">Highway
     <th class="center">foot
     <th class="center">horse
-    <th class="center">bicycle
     <th class="center">wheelchair
+    <th class="center">bicycle
     <th class="center">moped
     <th class="center">motorbike
     <th class="center">motorcar
@@ -632,8 +646,7 @@ below.
 
 <i>
   Note 1: A path allows bicycle or horse access by default only if actually
-  labelled as a highway of type "bridleway" or certain values of
-  the <em>designation</em> tag (described below).
+  labelled as a highway of type "bridleway".
 </i>
 
 <p>
@@ -699,9 +712,9 @@ highway type.
 <h4><a name="H_1_3_2_2" title="Generic access"></a>Generic Access Permissions</h4>
 
 The <em>access</em> tag is used to specify the default access restrictions on
-the highway.  If the tag value is "no" or "private" then all transport types are
-denied access (later tag transformation rules may add specific transport types
-back again).
+the highway.  If the tag value is <em>no</em> or <em>private</em> then all
+transport types are denied access (later tag transformation rules may add
+specific transport types back again).
 
 
 <h4><a name="H_1_3_2_3" title="Other access"></a>Other Access Permissions</h4>
@@ -725,16 +738,19 @@ convert these tags into a set of allowed transport types as shown below.
     <th class="left">Designation tag
     <th class="left">Equivalent access permissions
   <tr>
-    <td class="left">bridleway or public_bridleway
-    <td class="left">foot=yes, wheelchair=yes, horse=yes, bicycle=yes
-  <tr>
     <td class="left">restricted_byway
     <td class="left">foot=yes, wheelchair=yes, horse=yes, bicycle=yes
   <tr>
-    <td class="left">byway
+    <td class="left">public_byway, byway, byway_open_to_all_traffic
     <td class="left">foot=yes, wheelchair=yes, horse=yes, bicycle=yes, moped=yes, motorbike=yes, motorcar=yes
   <tr>
-    <td class="left">footpath or public_footpath
+    <td class="left">permissive_bridleway, public_bridleway, bridleway
+    <td class="left">foot=yes, wheelchair=yes, horse=yes, bicycle=yes
+  <tr>
+    <td class="left">public_cycleway
+    <td class="left">foot=yes, wheelchair=yes, bicycle=yes
+  <tr>
+    <td class="left">permissive_footpath, public_footpath, footpath
     <td class="left">foot=yes, wheelchair=yes
 </table>
 
@@ -756,8 +772,8 @@ allowed on the highway or not.
 <h4><a name="H_1_3_2_5" title="Properties"></a>Highway Properties</h4>
 
 If there is a surface tag then the highway is assumed to be unpaved unless the
-tag value matches one of the following: <em>paved</em>, <em>asphalt</em>
-or <em>concrete</em>.
+tag value matches one of the following: <em>paved</em>, <em>asphalt</em>,
+<em>concrete</em> or many other values listed in the configuration file.
 
 <p>
 
@@ -791,6 +807,9 @@ the output.
 
 <h3><a name="H_1_3_3" title="Relations"></a>Relation Tag Transformations</h3>
 
+The <em>type</em> tag is passed through without change.
+
+
 <h4><a name="H_1_3_3_1" title="Routes"></a>Routes</h4>
 
 The <em>route</em> tag can be used to determine whether a relation is part of a
@@ -811,15 +830,7 @@ table below.
     <th class="center">footroute Property
     <th class="center">bicycleroute Property
   <tr>
-    <td class="center">foot
-    <td class="center">yes
-    <td class="center">no
-  <tr>
-    <td class="center">walking
-    <td class="center">yes
-    <td class="center">no
-  <tr>
-    <td class="center">hiking
+    <td class="center">foot, walking, hiking
     <td class="center">yes
     <td class="center">no
   <tr>
@@ -827,7 +838,7 @@ table below.
     <td class="center">no
     <td class="center">yes
   <tr>
-    <td class="center">bicycle;foot or foot;bicycle
+    <td class="center">bicycle;foot, foot;bicycle
     <td class="center">yes
     <td class="center">yes
 </table>
@@ -836,8 +847,8 @@ table below.
 <h4><a name="H_1_3_3_2" title="Turn Restrictions"></a>Turn Restrictions</h4>
 
 No tag transformations are defined for turn restriction relations but
-the <em>type</em>, <em>restriction</em> and <em>except</em> tags are passed
-through without change.
+the <em>restriction</em> and <em>except</em> tags are passed through without
+change.
 
 
 </div>

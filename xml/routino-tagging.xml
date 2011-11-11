@@ -58,21 +58,11 @@
       <set v="foot_only"/>
     </if>
 
-    <if k="barrier" v="foot_only">
-      <output k="horse"      v="no"/>
-      <output k="wheelchair" v="no"/>
-      <output k="bicycle"    v="no"/>
-      <output k="moped"      v="no"/>
-      <output k="motorbike"  v="no"/>
-      <output k="motorcar"   v="no"/>
-      <output k="goods"      v="no"/>
-      <output k="hgv"        v="no"/>
-      <output k="psv"        v="no"/>
-
-      <unset k="barrier"/>
+    <if k="barrier" v="cycle_barrier">
+      <set v="foot_only"/>
     </if>
 
-    <if k="barrier" v="cycle_barrier">
+    <if k="barrier" v="foot_only">
       <output k="horse"      v="no"/>
       <output k="wheelchair" v="no"/>
       <output k="bicycle"    v="no"/>
