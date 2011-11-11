@@ -39,6 +39,12 @@ while(<STDIN>)
       s%Nodes [0-9]+ and [0-9]+%Nodes <node-id1> and <node-id2>%gi;
      }
 
+   if(m%Segment connects node ([0-9]+)%) # Special case segment
+     {
+      $errorid=$1;
+      s%node [0-9]+%node <node-id>%g;
+     }
+
    $errors{$_}++;
 
    if($verbose && defined $errorid)
