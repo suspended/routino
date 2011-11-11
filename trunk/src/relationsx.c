@@ -274,7 +274,7 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Print the start message */
 
-    printf_first("Sorting Turn Restriction Relations");
+    printf_first("Sorting Turn Relations");
 
     /* Re-open the file read-only and a new file writeable */
 
@@ -300,7 +300,7 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Print the final message */
 
-    printf_last("Sorted Relations: Relations=%"Pindex_t" Duplicates=%"Pindex_t,trxnumber,trxnumber-relationsx->trnumber);
+    printf_last("Sorted Turn Relations: Relations=%"Pindex_t" Duplicates=%"Pindex_t,trxnumber,trxnumber-relationsx->trnumber);
    }
 }
 
@@ -375,7 +375,7 @@ void SortTurnRelationList(RelationsX* relationsx)
 
  /* Print the start message */
 
- printf_first("Sorting Turn Restriction Relations");
+ printf_first("Sorting Turn Relations");
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -396,7 +396,7 @@ void SortTurnRelationList(RelationsX* relationsx)
 
  /* Print the final message */
 
- printf_last("Sorted Relations: Relations=%"Pindex_t,relationsx->trnumber);
+ printf_last("Sorted Turn Relations: Relations=%"Pindex_t,relationsx->trnumber);
 }
 
 
