@@ -42,11 +42,19 @@
       <set v="foot_only"/>
     </if>
 
+    <if k="barrier" v="v_stile">
+      <set v="foot_only"/>
+    </if>
+
     <if k="barrier" v="turnstile">
       <set v="foot_only"/>
     </if>
 
     <if k="barrier" v="footgate">
+      <set v="foot_only"/>
+    </if>
+
+    <if k="barrier" v="squeeze">
       <set v="foot_only"/>
     </if>
 
@@ -120,6 +128,7 @@
     <if v="true"       ><set v="yes"/></if>
 
     <if v="private"    ><set v="no"/></if>
+    <if v="limited"    ><set v="no"/></if>
 
     <!-- Generic access permissions for all transport types (to override defaults) -->
 
@@ -354,6 +363,10 @@
     </if>
 
     <if k="highway" v="services">
+      <set k="highway" v="service"/>
+    </if>
+
+    <if k="highway" v="layby">
       <set k="highway" v="service"/>
     </if>
 
@@ -619,23 +632,29 @@
     <if k="surface" v="metalled">      <set k="paved" v="yes"/> <unset k="surface"/> </if>
     <if k="surface" v="paving_stones"> <set k="paved" v="yes"/> <unset k="surface"/> </if>
     <if k="surface" v="bricks">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
+    <if k="surface" v="brick">         <set k="paved" v="yes"/> <unset k="surface"/> </if>
     <if k="surface" v="setts">         <set k="paved" v="yes"/> <unset k="surface"/> </if>
+    <if k="surface" v="metal">         <set k="paved" v="yes"/> <unset k="surface"/> </if>
 
     <if k="surface" v="unpaved">       <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="unsealed">      <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="grass">         <set k="paved" v="no"/> <unset k="surface"/> </if>
+    <if k="surface" v="grass_paver">   <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="ground">        <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="earth">         <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="dirt">          <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="soil">          <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="mud">           <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="stones">        <set k="paved" v="no"/> <unset k="surface"/> </if>
+    <if k="surface" v="stone">         <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="gravel">        <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="sand">          <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="cobblestone">   <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="pebbles">       <set k="paved" v="no"/> <unset k="surface"/> </if>
+    <if k="surface" v="pebblestone">   <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="compacted">     <set k="paved" v="no"/> <unset k="surface"/> </if>
     <if k="surface" v="hardcore">      <set k="paved" v="no"/> <unset k="surface"/> </if>
+    <if k="surface" v="bark">          <set k="paved" v="no"/> <unset k="surface"/> </if>
 
     <if k="not_highway">
       <unset k="surface"/>
