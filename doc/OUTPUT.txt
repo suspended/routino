@@ -27,8 +27,8 @@
 
    The HTML file and GPX files are written out according to the selected
    language using the translations contained in the translations.xml
-   configuration file. The text files contains untranslated header lines (in
-   English) but the data is translated.
+   configuration file. The text files contains untranslated header lines
+   (in English) but the data is translated.
 
 
 HTML Route Instructions
@@ -248,4 +248,4 @@ All Nodes Text File
 
 --------
 
-Copyright 2008-2010 Andrew M. Bishop.
+Copyright 2008-2011 Andrew M. Bishop.

@@ -11,6 +11,7 @@
    Routino after being processed; the second half of the file describes
    the transformations that are in the default tagging configuration file.
 
+
 Tags Recognised After Processing
 --------------------------------
 
@@ -258,18 +259,18 @@ Barrier Defaults
    each type of node. This uses the barrier tag in the OSM file and
    converts it into a default set of disallowed transport types.
 
-   Barrier       foot horse bicycle wheelchair moped motorbike motorcar goods hgv psv
-   -------       ---- ----- ------- ---------- ----- --------- -------- ----- --- ---
-   bollard       yes  yes   yes     yes        yes   yes       no       no    no  no
+   Barrier       foot horse wheelchair bicycle moped motorbike motorcar goods hgv psv
+   -------       ---- ----- ---------- ------- ----- --------- -------- ----- --- ---
+   bollard       yes  yes   yes        yes     yes   yes       no       no    no  no
    kissing_gate,
    stile,
    v_stile,
    turnstile,
    footgate,
-   cycle_barrier yes  no    no      no         no    no        no       no    no  no
+   cycle_barrier yes  no    no         no      no    no        no       no    no  no
    horse_barrier,
-   cattle_grid   yes  no    yes     yes        yes   yes       yes      yes   yes yes
-   car_trap      yes  yes   yes     yes        no    no        no       no    no  no
+   cattle_grid   yes  no    yes        yes     yes   yes       yes      yes   yes yes
+   car_trap      yes  yes   yes        yes     no    no        no       no    no  no
 
 Generic Access Permissions
 - - - - - - - - - - - - -
