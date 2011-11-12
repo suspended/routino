@@ -104,6 +104,10 @@
               <td>German
               <td>(DE)
               <td><input name="language" type="radio" value="de" onchange="formSetLanguage('de')"><!-- language -->
+            <tr>
+              <td>Russian
+              <td>(RU)
+              <td><input name="language" type="radio" value="ru" onchange="formSetLanguage('ru')"><!-- language -->
           </table>
         </div>
       </div>
