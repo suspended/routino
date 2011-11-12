@@ -111,6 +111,9 @@ Status
    Version 2.0.1 of Routino was released on 7th June 2011.
    Version 2.0.2 of Routino was released on 26th June 2011.
    Version 2.0.3 of Routino was released on 4th August 2011.
+   Version 2.1 of Routino was released on 3rd October 2011.
+   Version 2.1.1 of Routino was released on 23rd October 2011.
+   Version 2.1.2 of Routino was released on 12th November 2011.
 
    The full version history is available in the NEWS.txt file.
 
