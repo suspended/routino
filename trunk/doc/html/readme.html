@@ -172,22 +172,29 @@ Version 2.0.3 of Routino was released on 4th August 2011.
 Version 2.1 of Routino was released on 3rd October 2011.
 <br>
 Version 2.1.1 of Routino was released on 23rd October 2011.
+<br>
+Version 2.1.2 of Routino was released on 12 November 2011.
 
 <p>
 
 The full version history is available in the NEWS file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.1.1</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.1.2</h3>
 
 <dl>
   <dt>Bug fixes:
-  <dd>Speed up the routing by a factor of 5 by improving data handling functions.
-  <br>Speed up database generation by reducing the default number of iterations.
-  <br>Fix the handling of the 'except' tag on turn restrictions.
-  <br>Fix the 'make install' option for the XML files.
-  <br>Add some more typecasts when printing data from filedumper program.
-  <br>Make the CGI script more robust if shortest/fastest is not passed in.
+  <dd>Speed up the routing by a factor of 3 for slim mode by copying data to RAM.
+  <br>Speed up routing & reduce memory use by a factor of 2.5 by stopping earlier.
+  <br>Delete profiles.js and profiles.pl when cleaning up (make clean).
+  <br>Improve output for translated versions (highway type names and text files).
+  <br>Fix the summarise-log.pl script for segments which are loops.
+  <br>Fix invalid XML syntax in tagging.xml file.
+  <dt>Configuration Files:
+  <dd>Add extra tagging rules to handle problems found in the error log for UK.
+  <br>Added Russian translations for output files.
+  <dt>Documentation:
+  <dd>Improve the documentation for the tagging rule configuration file.
 </dl>
 
 
