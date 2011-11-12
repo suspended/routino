@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-translations.xml,v 1.11 2010-11-13 14:59:55 amb Exp $
-
      An XML format file containing Routino output translations.
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010 Andrew M. Bishop
+     This file Copyright 2010-2011 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -257,6 +255,88 @@
       <name  text="%s Route  " />                           <!-- %s = [shortest|quickest] -->
       <step  text="%s op '%s' voor %.3f km, %.1f min" />    <!-- 1st %s = [turn], 2nd %s = street name -->
       <final text="Totaal trip  %.1f km, %.0f minuten" />
+    </output-gpx>
+
+  </language>
+
+ <!-- Russian language by dimmer (November 2011) -->
+
+  <language lang="ru">
+
+    <!-- Copyright of the data being routed, not of this file  -->
+    <copyright>
+      <creator string="Автор" text="Routino - http://www.routino.org/" />
+      <source  string="Источник"  text="Использованы данные OpenStreetMap http://www.openstreetmap.org/" />
+      <license string="Лицензия" text="http://creativecommons.org/licenses/by-sa/2.0/" />
+    </copyright>
+
+    <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
+    <turn direction="-4" string="очень крутой поворот налево" />
+    <turn direction="-3" string="крутой поворот налево" />
+    <turn direction="-2" string="налево" />
+    <turn direction="-1" string="плавно налево" />
+    <turn direction="0"  string="прямо" />
+    <turn direction="1"  string="плавно направо" />
+    <turn direction="2"  string="направо" />
+    <turn direction="3"  string="крутой поворот направо" />
+    <turn direction="4"  string="очень крутой поворот направо" />
+
+    <!-- Heading directions, 0 = North, -2 = West, +/-4 = South, +2 = East -->
+    <heading direction="-4" string="юг" />
+    <heading direction="-3" string="юго-запад" />
+    <heading direction="-2" string="запад" />
+    <heading direction="-1" string="северо-запад" />
+    <heading direction="0"  string="север" />
+    <heading direction="1"  string="северо-восток" />
+    <heading direction="2"  string="восток" />
+    <heading direction="3"  string="юго-восток" />
+    <heading direction="4"  string="юг" />
+
+    <!-- Highway names -->
+    <highway type="motorway"     string="автомагистраль" />
+    <highway type="trunk"        string="международная трасса" />
+    <highway type="primary"      string="дорога регионального значения" />
+    <highway type="secondary"    string="дорога областного значения" />
+    <highway type="tertiary"     string="дорога районного значения" />
+    <highway type="unclassified" string="дорога местного значения" />
+    <highway type="residential"  string="улица" />
+    <highway type="service"      string="проезд" />
+    <highway type="track"        string="дорога с/х назначения" />
+    <highway type="cycleway"     string="велодорожка" />
+    <highway type="path"         string="тропинка" />
+    <highway type="steps"        string="лестница" />
+    <highway type="ferry"        string="паром" /> 
+
+ 	
+    <!-- The type of route -->
+    <route type="shortest" string="Короткий" /> <!-- For the description and route name -->
+    <route type="quickest" string="Быстрый" /> <!-- For the description and route name -->
+
+    <!-- HTML output -->
+    <output-html>
+      <waypoint type="waypoint"  string="путевая точка" /> <!-- For the chosen waypoints -->
+      <waypoint type="junction"  string="перекрестке" /> <!-- For the interesting junctions -->
+
+      <title text="%s маршрут" /> <!-- %s = [shortest|quickest] -->
+
+      <start   string="Старт"  text=" %s, на %s" />           <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
+      <node    string="на"     text="%s, %s,  на %s" />     <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <segment string="Следуйте" text="по %s %.3f км, %.1f мин" /> <!-- 1st %s = street name -->
+      <stop    string="Стоп"   text=" %s" />                    <!-- 1st %s = [waypoint|junction] -->
+      <total   string="Всего"  text="%.1f км, %.0f минут" />
+    </output-html>
+
+    <!-- GPX output -->
+    <output-gpx>
+      <waypoint type="start"  string="Старт" /> <!-- For the first route waypoint -->
+      <waypoint type="inter"  string="INTER" /> <!-- For the intermediate route waypoints -->
+      <waypoint type="trip"   string="TRIP"  /> <!-- For the other route points -->
+      <waypoint type="finish" string="Финиш"/> <!-- For the last route waypoint -->
+
+      <desc  text="%s маршрут от 'Старта' до 'Финиша' " /> <!-- %s = [shortest|quickest] -->
+      <name  text="%s маршрут" />                                        <!-- %s = [shortest|quickest] -->
+      <step  text="на %s по '%s' %.3f км, %.1f мин" />                <!-- 1st %s = [turn], 2nd %s = street name -->
+      <final text="Всего - %.1f км, продолжительность - %.0f минут" />
     </output-gpx>
 
   </language>

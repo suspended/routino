@@ -101,6 +101,10 @@
               <td><a href="router.html.nl" title="Dutch language web page">Dutch</a>
               <td>(NL)
               <td><input name="language" type="radio" value="nl" onchange="formSetLanguage('nl')"><!-- language -->
+            <tr>
+              <td>Russian
+              <td>(RU)
+              <td><input name="language" type="radio" value="ru" onchange="formSetLanguage('ru')"><!-- language -->
           </table>
         </div>
       </div>
