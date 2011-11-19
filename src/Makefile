@@ -81,7 +81,7 @@ PLANETSPLITTER_OBJ=planetsplitter.o \
 	           results.o queue.o sorting.o \
 	           xmlparse.o tagging.o osmparser.o
 
-planetsplitter : $(PLANETSPLITTER_OBJ) .deps
+planetsplitter : $(PLANETSPLITTER_OBJ)
 	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -156,15 +156,17 @@ xmlparse.c : xmlparse.l
 
 ########
 
-%.o : %.c .deps
+%.o : %.c
+	@[ -d .deps ] || mkdir .deps
 	$(CC) -c $(CFLAGS) -DSLIM=0 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
-%-slim.o : %.c .deps
+%-slim.o : %.c
+	@[ -d .deps ] || mkdir .deps
 	$(CC) -c $(CFLAGS) -DSLIM=1 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
 
-test: .FORCE
+test:
 	cd xml  && $(MAKE) test
 	cd test && $(MAKE) test
 
@@ -200,14 +202,7 @@ distclean: clean
 
 ########
 
-.deps: .FORCE
-	@[ -d .deps ] || mkdir $@
-
 include $(D)
-
-########
-
-.FORCE:
 
 ########
 

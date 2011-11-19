@@ -78,7 +78,3 @@ clean:
 
 distclean: clean
 	@true
-
-########
-
-.FORCE :
