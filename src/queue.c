@@ -27,6 +27,10 @@
 #include "results.h"
 
 
+/*+ The size of the increment to the allocated memory. +*/
+#define QUEUE_INCREMENT 1024
+
+
 /*+ A queue of results. +*/
 struct _Queue
 {
@@ -49,7 +53,7 @@ Queue *NewQueueList(void)
 
  queue=(Queue*)malloc(sizeof(Queue));
 
- queue->nallocated=1024;
+ queue->nallocated=QUEUE_INCREMENT;
  queue->noccupied=0;
 
  queue->data=(Result**)malloc(queue->nallocated*sizeof(Result*));
@@ -94,7 +98,7 @@ void InsertInQueue(Queue *queue,Result *result)
 
     if(queue->noccupied==queue->nallocated)
       {
-       queue->nallocated=2*queue->nallocated;
+       queue->nallocated=queue->nallocated+QUEUE_INCREMENT;
        queue->data=(Result**)realloc((void*)queue->data,queue->nallocated*sizeof(Result*));
       }
 
@@ -108,15 +112,13 @@ void InsertInQueue(Queue *queue,Result *result)
 
  /* Bubble up the new value */
 
- while(index>1)
+ while(index>1 &&
+       queue->data[index]->sortby<queue->data[index/2]->sortby)
    {
     int newindex;
     Result *temp;
 
     newindex=index/2;
-
-    if(queue->data[index]->sortby>=queue->data[newindex]->sortby)
-       break;
 
     temp=queue->data[index];
     queue->data[index]=queue->data[newindex];
@@ -159,18 +161,17 @@ Result *PopFromQueue(Queue *queue)
 
  /* Bubble down the newly promoted value */
 
- while((2*index)<queue->noccupied)
+ while((2*index)<queue->noccupied &&
+       (queue->data[index]->sortby>queue->data[2*index  ]->sortby ||
+        queue->data[index]->sortby>queue->data[2*index+1]->sortby))
    {
     int newindex;
     Result *temp;
 
-    newindex=2*index;
-
-    if(queue->data[newindex]->sortby>queue->data[newindex+1]->sortby)
-       newindex=newindex+1;
-
-    if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
-       break;
+    if(queue->data[2*index]->sortby<queue->data[2*index+1]->sortby)
+       newindex=2*index;
+    else
+       newindex=2*index+1;
 
     temp=queue->data[newindex];
     queue->data[newindex]=queue->data[index];
@@ -182,24 +183,20 @@ Result *PopFromQueue(Queue *queue)
     index=newindex;
    }
 
- if((2*index)==queue->noccupied)
+ if((2*index)==queue->noccupied &&
+    queue->data[index]->sortby>queue->data[2*index]->sortby)
    {
     int newindex;
     Result *temp;
 
     newindex=2*index;
 
-    if(queue->data[index]->sortby<=queue->data[newindex]->sortby)
-       ; /* break */
-    else
-      {
-       temp=queue->data[newindex];
-       queue->data[newindex]=queue->data[index];
-       queue->data[index]=temp;
+    temp=queue->data[newindex];
+    queue->data[newindex]=queue->data[index];
+    queue->data[index]=temp;
 
-       queue->data[index]->queued=index;
-       queue->data[newindex]->queued=newindex;
-      }
+    queue->data[index]->queued=index;
+    queue->data[newindex]->queued=newindex;
    }
 
  return(retval);
