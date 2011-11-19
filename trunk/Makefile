@@ -39,7 +39,7 @@ all$(top):
 
 ########
 
-test$(top): .FORCE
+test$(top):
 	for dir in $(TOPDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
@@ -68,4 +68,6 @@ distclean$(top): clean$(top)
 
 ########
 
-.FORCE:
+.PHONY:: all$(top) test$(top) install$(top) clean$(top) distclean$(top)
+
+.PHONY:: all test install clean distclean
