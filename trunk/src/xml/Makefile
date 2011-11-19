@@ -73,16 +73,17 @@ xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
 	cd .. && $(MAKE) xmlparse.o
 
 ../xmlparse.c : ../xmlparse.l
-	cd .. && $(MAKE) xmlparse.o
+	cd .. && $(MAKE) xmlparse.c
 
 ########
 
-%.o : %.c .deps
+%.o : %.c
+	@[ -d .deps ] || mkdir .deps
 	$(CC) -c $(CFLAGS) -I.. $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
 
-test : all test-skeleton .FORCE
+test : all test-skeleton
 	@status=true ;\
 	echo "" ;\
 	for good in test/good*.xml; do \
@@ -126,11 +127,4 @@ distclean: clean
 
 ########
 
-.deps: .FORCE
-	@[ -d .deps ] || mkdir $@
-
 include $(D)
-
-########
-
-.FORCE:
