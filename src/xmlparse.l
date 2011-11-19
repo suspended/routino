@@ -177,9 +177,8 @@ charref         &#({digit}+|x{xdigit}+);
 
  /* Comments */
 
-<COMMENT>"--->"             { return(LEX_ERROR_COMMENT); }
 <COMMENT>"-->"              { BEGIN(INITIAL); }
-<COMMENT>"--"[^->]          { }
+<COMMENT>"--"[^>]           { return(LEX_ERROR_COMMENT); }
 <COMMENT>{N}                { lineno++; }
 <COMMENT>[^-]               { }
 <COMMENT>"-"                { }
