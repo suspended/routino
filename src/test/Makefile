@@ -78,3 +78,7 @@ clean:
 
 distclean: clean
 	@true
+
+########
+
+.PHONY:: all test install clean distclean

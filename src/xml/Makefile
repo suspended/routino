@@ -128,3 +128,7 @@ distclean: clean
 ########
 
 include $(D)
+
+########
+
+.PHONY:: all test install clean distclean
