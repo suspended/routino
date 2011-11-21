@@ -378,9 +378,15 @@ int main(int argc,char** argv)
 
                    while(segment)
                      {
-                      if(item>OtherNode(segment,item))
-                         if(!option_no_super || IsNormalSegment(segment))
-                            print_segment_osm(OSMSegments,IndexSegment(OSMSegments,segment),OSMWays);
+                      double olat,olon;
+                      index_t oitem=OtherNode(segment,item);
+
+                      GetLatLong(OSMNodes,oitem,&olat,&olon);
+
+                      if(olat>latmin && olat<latmax && olon>lonmin && olon<lonmax)
+                         if(item>oitem)
+                            if(!option_no_super || IsNormalSegment(segment))
+                               print_segment_osm(OSMSegments,IndexSegment(OSMSegments,segment),OSMWays);
 
                       segment=NextSegment(OSMSegments,segment,item);
                      }
