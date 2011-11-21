@@ -236,8 +236,8 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
        return(1);
     else
       {
-       distance_t a_distance=a->distance;
-       distance_t b_distance=b->distance;
+       distance_t a_distance=DISTANCE(a->distance);
+       distance_t b_distance=DISTANCE(b->distance);
 
        if(a_distance<b_distance)
           return(-1);
@@ -340,6 +340,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
  SegmentX segmentx;
  int fd;
  node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
+ distance_t prevdist=0;
 
  /* Print the start message */
 
@@ -368,7 +369,17 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
     if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
       {
-       logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx.node1,segmentx.node2);
+       if(!prevdist && !DISTANCE(segmentx.distance))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx.node1,segmentx.node2);
+
+       if(!prevdist && DISTANCE(segmentx.distance))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",segmentx.node1,segmentx.node2);
+
+       if(prevdist && !DISTANCE(segmentx.distance))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",segmentx.node1,segmentx.node2);
+
+       if(prevdist && DISTANCE(segmentx.distance))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",segmentx.node1,segmentx.node2);
 
        duplicate++;
       }
@@ -402,6 +413,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
        prevnode1=segmentx.node1;
        prevnode2=segmentx.node2;
+       prevdist=DISTANCE(segmentx.distance);
       }
 
     total++;
