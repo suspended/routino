@@ -206,6 +206,13 @@ The maxlength Tag
    value contains a measurement in feet or feet and inches then attempts
    are made to convert this to metres.
 
+The area Tag
+- - - - - -
+
+   The area tag is used to specify that a way defines an area. This is
+   used only so that in the case of duplicated segments those belonging to
+   an area can be discarded in preference to those that are not.
+
 
 Relation Tags And Attributes
 ----------------------------
@@ -454,6 +461,11 @@ Highway Names and References
 - - - - - - - - - - - - - -
 
    The name and ref tags are copied directly from the input to the output.
+
+Highway Areas
+- - - - - - -
+
+   The area tag is copied directly from the input to the output.
 
 
 Relation Tag Transformations
