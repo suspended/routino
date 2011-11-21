@@ -760,7 +760,7 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
 static void process_way_tags(TagList *tags,way_t id)
 {
  Way   way={0};
- int   oneway=0;
+ int   oneway=0,area=0;
  char *name=NULL,*ref=NULL,*refname=NULL;
  int i;
 
@@ -794,6 +794,17 @@ static void process_way_tags(TagList *tags,way_t id)
 
     switch(*k)
       {
+      case 'a':
+       if(!strcmp(k,"area"))
+         {
+          if(ISTRUE(v))
+             area=1;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'area' = '%s' (after tagging rules); using 'no'.\n",id,v);
+         }
+
+       break;
+
       case 'b':
        if(!strcmp(k,"bicycle"))
          {
@@ -1032,11 +1043,11 @@ static void process_way_tags(TagList *tags,way_t id)
     node_t to  =way_nodes[i];
 
     if(oneway>0)
-       AppendSegment(segments,id,from,to,ONEWAY_1TO2);
+       AppendSegment(segments,id,from,to,area+ONEWAY_1TO2);
     else if(oneway<0)
-       AppendSegment(segments,id,from,to,ONEWAY_2TO1);
+       AppendSegment(segments,id,from,to,area+ONEWAY_2TO1);
     else
-       AppendSegment(segments,id,from,to,0);
+       AppendSegment(segments,id,from,to,area);
    }
 }
 

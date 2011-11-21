@@ -704,6 +704,10 @@
     <if k="name"><output/></if>
     <if k="ref" ><output/></if>
 
+    <!-- Output the area tag -->
+
+    <if k="area"><output/></if>
+
   </way>
 
   <!-- - - - - - - - - - - Relation rules - - - - - - - - - - -->
