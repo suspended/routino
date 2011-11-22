@@ -46,7 +46,7 @@ static void print_segment(Segments *segments,index_t item);
 static void print_way(Ways *ways,index_t item);
 static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
 
-static void print_head_osm(void);
+static void print_head_osm(int coordcount,double latmin,double latmax,double lonmin,double lonmax);
 static void print_node_osm(Nodes *nodes,index_t item);
 static void print_segment_osm(Segments *segments,index_t item,Ways *ways);
 static void print_turnrelation_osm(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
@@ -333,7 +333,7 @@ int main(int argc,char** argv)
     if(coordcount>0 && coordcount!=4)
        print_usage(0,NULL,"The --dump-osm option must have all of --latmin, --latmax, --lonmin, --lonmax or none.\n");
 
-    print_head_osm();
+    print_head_osm(coordcount,latmin,latmax,lonmin,lonmax);
 
     if(coordcount)
       {
@@ -568,10 +568,14 @@ static void print_turnrelation(Relations *relations,index_t item,Segments *segme
   Print out a header in OSM XML format.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_head_osm(void)
+static void print_head_osm(int coordcount,double latmin,double latmax,double lonmin,double lonmax)
 {
  printf("<?xml version='1.0' encoding='UTF-8'?>\n");
  printf("<osm version='0.6' generator='Routino'>\n");
+
+ if(coordcount)
+    printf("  <bounds minlat='%.6f' maxlat='%.6f' minlon='%.6f' maxlon='%.6f' />\n",
+           radians_to_degrees(latmin),radians_to_degrees(latmax),radians_to_degrees(lonmin),radians_to_degrees(lonmax));
 }
 
 
