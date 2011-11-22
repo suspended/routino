@@ -90,7 +90,7 @@ static double parse_length(way_t id,const char *k,const char *v);
 /* The XML tag processing function prototypes */
 
 //static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding);
-//static int osmType_function(const char *_tag_,int _type_);
+static int osmType_function(const char *_tag_,int _type_,const char *version);
 static int relationType_function(const char *_tag_,int _type_,const char *id);
 static int wayType_function(const char *_tag_,int _type_,const char *id);
 static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role);
@@ -162,8 +162,8 @@ static xmltag relationType_tag=
 /*+ The osmType type tag. +*/
 static xmltag osmType_tag=
               {"osm",
-               0, {NULL},
-               NULL,
+               1, {"version"},
+               osmType_function,
                {&boundsType_tag,&boundType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
 
 /*+ The xmlDeclaration type tag. +*/
@@ -525,12 +525,20 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
   const char *_tag_ Set to the name of the element tag that triggered this function call.
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-//static int osmType_function(const char *_tag_,int _type_)
-//{
-// return(0);
-//}
+static int osmType_function(const char *_tag_,int _type_,const char *version)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    if(!version || strcmp(version,"0.6"))
+       XMLPARSE_MESSAGE(_tag_,"Invalid value for 'version' (only '0.6' accepted)");
+   }
+
+ return(0);
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++

@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-osm.xsd,v 1.2 2010-05-23 08:24:26 amb Exp $
-
      An XML Schema Definition for the part of the OSM XML format read by Routino.
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010 Andrew M. Bishop
+     This file Copyright 2010-2011 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -29,8 +27,8 @@
       <xsd:element name="way"       type="wayType"      minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="relation"  type="relationType" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
-    <!--
     <xsd:attribute name="version"   type="xsd:string"/>
+    <!--
     <xsd:attribute name="generator" type="xsd:string"/>
     -->
   </xsd:complexType>
