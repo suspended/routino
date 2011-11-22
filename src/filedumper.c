@@ -47,6 +47,8 @@ static void print_way(Ways *ways,index_t item);
 static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
 
 static void print_head_osm(int coordcount,double latmin,double latmax,double lonmin,double lonmax);
+static void print_region_osm(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,
+                             double latmin,double latmax,double lonmin,double lonmax,int option_no_super);
 static void print_node_osm(Nodes *nodes,index_t item);
 static void print_segment_osm(Segments *segments,index_t item,Ways *ways);
 static void print_turnrelation_osm(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
@@ -336,76 +338,7 @@ int main(int argc,char** argv)
     print_head_osm(coordcount,latmin,latmax,lonmin,lonmax);
 
     if(coordcount)
-      {
-       ll_bin_t latminbin=latlong_to_bin(radians_to_latlong(latmin))-OSMNodes->file.latzero;
-       ll_bin_t latmaxbin=latlong_to_bin(radians_to_latlong(latmax))-OSMNodes->file.latzero;
-       ll_bin_t lonminbin=latlong_to_bin(radians_to_latlong(lonmin))-OSMNodes->file.lonzero;
-       ll_bin_t lonmaxbin=latlong_to_bin(radians_to_latlong(lonmax))-OSMNodes->file.lonzero;
-       ll_bin_t latb,lonb;
-       index_t item,index1,index2;
-
-       if(latminbin<0)                      latminbin=0;
-       if(latmaxbin>OSMNodes->file.latbins) latmaxbin=OSMNodes->file.latbins-1;
-       if(lonminbin<0)                      lonminbin=0;
-       if(lonmaxbin>OSMNodes->file.lonbins) lonmaxbin=OSMNodes->file.lonbins-1;
-
-       /* Loop through all of the nodes. */
-
-       for(latb=latminbin;latb<=latmaxbin;latb++)
-          for(lonb=lonminbin;lonb<=lonmaxbin;lonb++)
-            {
-             ll_bin2_t llbin=lonb*OSMNodes->file.latbins+latb;
-
-             if(llbin<0 || llbin>(OSMNodes->file.latbins*OSMNodes->file.lonbins))
-                continue;
-
-             index1=LookupNodeOffset(OSMNodes,llbin);
-             index2=LookupNodeOffset(OSMNodes,llbin+1);
-
-             for(item=index1;item<index2;item++)
-               {
-                Node *node=LookupNode(OSMNodes,item,1);
-                double lat=latlong_to_radians(bin_to_latlong(OSMNodes->file.latzero+latb)+off_to_latlong(node->latoffset));
-                double lon=latlong_to_radians(bin_to_latlong(OSMNodes->file.lonzero+lonb)+off_to_latlong(node->lonoffset));
-
-                if(lat>latmin && lat<latmax && lon>lonmin && lon<lonmax)
-                  {
-                   Segment *segment;
-
-                   print_node_osm(OSMNodes,item);
-
-                   segment=FirstSegment(OSMSegments,node,1);
-
-                   while(segment)
-                     {
-                      double olat,olon;
-                      index_t oitem=OtherNode(segment,item);
-
-                      GetLatLong(OSMNodes,oitem,&olat,&olon);
-
-                      if(olat>latmin && olat<latmax && olon>lonmin && olon<lonmax)
-                         if(item>oitem)
-                            if(!option_no_super || IsNormalSegment(segment))
-                               print_segment_osm(OSMSegments,IndexSegment(OSMSegments,segment),OSMWays);
-
-                      segment=NextSegment(OSMSegments,segment,item);
-                     }
-
-                   if(IsTurnRestrictedNode(node))
-                     {
-                      index_t relindex=FindFirstTurnRelation1(OSMRelations,item);
-
-                      while(relindex!=NO_RELATION)
-                        {
-                         print_turnrelation_osm(OSMRelations,relindex,OSMSegments,OSMNodes);
-
-                         relindex=FindNextTurnRelation1(OSMRelations,relindex);
-                        }
-                     }
-                  }
-               }
-            }
-      }
+       print_region_osm(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,option_no_super);
     else
       {
        index_t item;
@@ -566,6 +499,16 @@ static void print_turnrelation(Relations *relations,index_t item,Segments *segme
 
 /*++++++++++++++++++++++++++++++++++++++
   Print out a header in OSM XML format.
+
+  int coordcount If true then include a bounding box.
+
+  double latmin The minimum latitude.
+
+  double latmax The maximum latitude.
+
+  double lonmin The minimum longitude.
+
+  double lonmax The maximum longitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static void print_head_osm(int coordcount,double latmin,double latmax,double lonmin,double lonmax)
@@ -576,6 +519,102 @@ static void print_head_osm(int coordcount,double latmin,double latmax,double lon
  if(coordcount)
     printf("  <bounds minlat='%.6f' maxlat='%.6f' minlon='%.6f' maxlon='%.6f' />\n",
            radians_to_degrees(latmin),radians_to_degrees(latmax),radians_to_degrees(lonmin),radians_to_degrees(lonmax));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print a region of the database in OSM XML format.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  Relations *relations The set of relations to use.
+
+  double latmin The minimum latitude.
+
+  double latmax The maximum latitude.
+
+  double lonmin The minimum longitude.
+
+  double lonmax The maximum longitude.
+
+  int option_no_super The option to print no super-segments.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_region_osm(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,
+                             double latmin,double latmax,double lonmin,double lonmax,int option_no_super)
+{
+ ll_bin_t latminbin=latlong_to_bin(radians_to_latlong(latmin))-nodes->file.latzero;
+ ll_bin_t latmaxbin=latlong_to_bin(radians_to_latlong(latmax))-nodes->file.latzero;
+ ll_bin_t lonminbin=latlong_to_bin(radians_to_latlong(lonmin))-nodes->file.lonzero;
+ ll_bin_t lonmaxbin=latlong_to_bin(radians_to_latlong(lonmax))-nodes->file.lonzero;
+ ll_bin_t latb,lonb;
+ index_t item,index1,index2;
+
+ if(latminbin<0)                   latminbin=0;
+ if(latmaxbin>nodes->file.latbins) latmaxbin=nodes->file.latbins-1;
+ if(lonminbin<0)                   lonminbin=0;
+ if(lonmaxbin>nodes->file.lonbins) lonmaxbin=nodes->file.lonbins-1;
+
+ /* Loop through all of the nodes. */
+
+ for(latb=latminbin;latb<=latmaxbin;latb++)
+    for(lonb=lonminbin;lonb<=lonmaxbin;lonb++)
+      {
+       ll_bin2_t llbin=lonb*nodes->file.latbins+latb;
+
+       if(llbin<0 || llbin>(nodes->file.latbins*nodes->file.lonbins))
+          continue;
+
+       index1=LookupNodeOffset(nodes,llbin);
+       index2=LookupNodeOffset(nodes,llbin+1);
+
+       for(item=index1;item<index2;item++)
+         {
+          Node *node=LookupNode(nodes,item,1);
+          double lat=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb)+off_to_latlong(node->latoffset));
+          double lon=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb)+off_to_latlong(node->lonoffset));
+
+          if(lat>latmin && lat<latmax && lon>lonmin && lon<lonmax)
+            {
+             Segment *segment;
+
+             print_node_osm(nodes,item);
+
+             segment=FirstSegment(segments,node,1);
+
+             while(segment)
+               {
+                double olat,olon;
+                index_t oitem=OtherNode(segment,item);
+
+                GetLatLong(nodes,oitem,&olat,&olon);
+
+                if(olat>latmin && olat<latmax && olon>lonmin && olon<lonmax)
+                   if(item>oitem)
+                      if(!option_no_super || IsNormalSegment(segment))
+                         print_segment_osm(segments,IndexSegment(segments,segment),ways);
+
+                segment=NextSegment(segments,segment,item);
+               }
+
+             if(IsTurnRestrictedNode(node))
+               {
+                index_t relindex=FindFirstTurnRelation1(relations,item);
+
+                while(relindex!=NO_RELATION)
+                  {
+                   print_turnrelation_osm(relations,relindex,segments,nodes);
+
+                   relindex=FindNextTurnRelation1(relations,relindex);
+                  }
+               }
+            }
+         }
+      }
 }
 
 
