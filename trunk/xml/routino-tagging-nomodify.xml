@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-tagging-nomodify.xml,v 1.5 2010-09-17 17:40:55 amb Exp $
-
      An XML format file containing Routino tagging rules - copy the input file
      directly to the output with no modifications (e.g. importing a file dumped
      by filedumper).
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010 Andrew M. Bishop
+     This file Copyright 2010, 2011 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +18,7 @@
 <routino-tagging xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xsi:noNamespaceSchemaLocation="http://www.routino.org/xml/routino-tagging.xsd">
 
-  <!-- -------------------- Node rules -------------------- -->
+  <!-- - - - - - - - - - - Node rules - - - - - - - - - - -->
 
   <node>
 
@@ -32,7 +30,7 @@
 
   </node>
 
-  <!-- -------------------- Way rules -------------------- -->
+  <!-- - - - - - - - - - - Way rules - - - - - - - - - - -->
 
   <way>
 
@@ -44,7 +42,7 @@
 
   </way>
 
-  <!-- -------------------- Relation rules -------------------- -->
+  <!-- - - - - - - - - - - Relation rules - - - - - - - - - - -->
 
   <relation>
 
