@@ -92,10 +92,11 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 {
  FILE *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
 
- int point=1;
+ char *prev_bearing=NULL,*prev_wayname=NULL;
  distance_t cum_distance=0;
  duration_t cum_duration=0;
- double finish_lat,finish_lon;
+
+ int point=1;
  int segment_count=0,route_count=0;
  int point_count=0;
 
@@ -288,103 +289,71 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                         /* "%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n" */
    }
 
- /* Loop through the segments of the route and print it */
+ /* Loop through all the sections of the route and print them */
 
  while(!results[point])
     point++;
 
  while(point<=nresults)
    {
-    int nextpoint=point;
-    double start_lat,start_lon;
+    int next_point=point;
     distance_t junc_distance=0;
     duration_t junc_duration=0;
     Result *result;
 
+    result=FindResult(results[point],results[point]->start_node,results[point]->prev_segment);
+
+    /* Print the start of the segment */
+
     if(gpxtrackfile)
        fprintf(gpxtrackfile,"<trkseg>\n");
 
-    if(IsFakeNode(results[point]->start_node))
-       GetFakeLatLong(results[point]->start_node,&start_lat,&start_lon);
-    else
-       GetLatLong(nodes,results[point]->start_node,&start_lat,&start_lon);
-
-    if(IsFakeNode(results[point]->finish_node))
-       GetFakeLatLong(results[point]->finish_node,&finish_lat,&finish_lon);
-    else
-       GetLatLong(nodes,results[point]->finish_node,&finish_lat,&finish_lon);
-
-    result=FindResult(results[point],results[point]->start_node,results[point]->prev_segment);
+    /* Loop through all the points within a section of the route and print them */
 
     do
       {
        double latitude,longitude;
        Node *resultnode=NULL;
-       Result *nextresult;
-       index_t nextrealsegment;
-       Segment *nextresultsegment;
+       index_t realsegment=NO_SEGMENT,next_realsegment=NO_SEGMENT;
+       Segment *resultsegment=NULL,*next_resultsegment=NULL;
+       Way *resultway=NULL;
+       Result *next_result;
+       int important=0;
 
-       if(result->node==results[point]->start_node)
-         {latitude=start_lat; longitude=start_lon;}
-       else if(result->node==results[point]->finish_node)
-         {latitude=finish_lat; longitude=finish_lon;}
+       distance_t seg_distance=0;
+       duration_t seg_duration=0;
+       speed_t seg_speed=0;
+       char *waynameraw=NULL,*wayname=NULL,*next_waynameraw=NULL,*next_wayname=NULL;
+       int bearing_int=0,turn_int=0,next_bearing_int=0;
+       char *turn=NULL,*next_bearing=NULL;
+
+       /* Calculate the information about this point */
+
+       if(IsFakeNode(result->node))
+          GetFakeLatLong(result->node,&latitude,&longitude);
        else
           GetLatLong(nodes,result->node,&latitude,&longitude);
-
-       if(gpxtrackfile)
-          fprintf(gpxtrackfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"/>\n",
-                  radians_to_degrees(latitude),radians_to_degrees(longitude));
-
-       nextresult=result->next;
-
-       if(!nextresult)
-          for(nextpoint=point+1;nextpoint<=nresults;nextpoint++)
-             if(results[nextpoint])
-               {
-                nextresult=FindResult(results[nextpoint],results[nextpoint]->start_node,results[nextpoint]->prev_segment);
-                nextresult=nextresult->next;
-                break;
-               }
-
-       if(nextresult)
-         {
-          if(IsFakeSegment(nextresult->segment))
-            {
-             nextresultsegment=LookupFakeSegment(nextresult->segment);
-             nextrealsegment=IndexRealSegment(nextresult->segment);
-            }
-          else
-            {
-             nextresultsegment=LookupSegment(segments,nextresult->segment,1);
-             nextrealsegment=nextresult->segment;
-            }
-         }
-       else
-         {
-          nextresultsegment=NULL;
-          nextrealsegment=NO_SEGMENT;
-         }
 
        if(!IsFakeNode(result->node))
           resultnode=LookupNode(nodes,result->node,6);
 
-       if(result->node!=results[point]->start_node)
+       /* Calculate the next result */
+
+       next_result=result->next;
+
+       if(!next_result)
+          for(next_point=point+1;next_point<=nresults;next_point++)
+             if(results[next_point])
+               {
+                next_result=FindResult(results[next_point],results[next_point]->start_node,results[next_point]->prev_segment);
+                next_result=next_result->next;
+                break;
+               }
+
+       /* Calculate the information about this segment */
+
+       if(result->node!=results[point]->start_node) /* not first point of a section of the route */
          {
-          distance_t seg_distance=0;
-          duration_t seg_duration=0;
-          index_t realsegment;
-          Segment *resultsegment;
-          Way *resultway;
-          int important=0;
-
-          /* Cache the values to be printed rather than calculating them repeatedly for each output format */
-
-          char *waynameraw=NULL,*wayname=NULL;
-          int bearing_int=0,bearing_next_int=0,turn_int=0;
-          char *bearing_str=NULL,*bearing_next_str=NULL,*turn_str=NULL;
-
-          /* Get the properties of this segment */
-
           if(IsFakeSegment(result->segment))
             {
              resultsegment=LookupFakeSegment(result->segment);
@@ -395,166 +364,219 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              resultsegment=LookupSegment(segments,result->segment,2);
              realsegment=result->segment;
             }
+
           resultway=LookupWay(ways,resultsegment->way,1);
 
           seg_distance+=DISTANCE(resultsegment->distance);
           seg_duration+=Duration(resultsegment,resultway,profile);
+
+          /* Calculate the cumulative distance/duration */
+
           junc_distance+=seg_distance;
           junc_duration+=seg_duration;
           cum_distance+=seg_distance;
           cum_duration+=seg_duration;
+         }
 
-          /* Decide if this is an important junction */
+       /* Calculate the information about the next segment */
 
-          if(result->node==results[point]->finish_node) /* Waypoint */
-             important=10;
-          else if(realsegment==nextrealsegment) /* U-turn */
-             important=5;
+       if(next_result)
+         {
+          if(IsFakeSegment(next_result->segment))
+            {
+             next_resultsegment=LookupFakeSegment(next_result->segment);
+             next_realsegment=IndexRealSegment(next_result->segment);
+            }
           else
             {
-             Segment *segment=FirstSegment(segments,resultnode,3);
+             next_resultsegment=LookupSegment(segments,next_result->segment,1);
+             next_realsegment=next_result->segment;
+            }
+         }
 
-             do
-               {
-                index_t othernode=OtherNode(segment,result->node);
+       /* Decide if this is an important junction */
 
-                if(othernode!=result->prev->node && IndexSegment(segments,segment)!=realsegment)
-                   if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
+       if(point_count==0)       /* first point overall = Waypoint */
+          important=10;
+       else if(result->node==results[point]->finish_node) /* Waypoint */
+          important=10;
+       else if(result->node==results[point]->start_node) /* first point of a section of the route */
+          important=-1;
+       else if(realsegment==next_realsegment) /* U-turn */
+          important=5;
+       else
+         {
+          Segment *segment=FirstSegment(segments,resultnode,3);
+
+          do
+            {
+             index_t othernode=OtherNode(segment,result->node);
+
+             if(othernode!=result->prev->node && IndexSegment(segments,segment)!=realsegment)
+                if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
+                  {
+                   Way *way=LookupWay(ways,segment->way,2);
+
+                   if(othernode==next_result->node) /* the next segment that we follow */
                      {
-                      Way *way=LookupWay(ways,segment->way,2);
-
-                      if(othernode==nextresult->node) /* the next segment that we follow */
-                        {
-                         if(HIGHWAY(way->type)!=HIGHWAY(resultway->type))
-                            if(important<2)
-                               important=2;
-                        }
-                      else if(IsFakeNode(nextresult->node))
-                         ;
-                      else /* a segment that we don't follow */
-                        {
-                         if(junction_other_way[HIGHWAY(resultway->type)-1][HIGHWAY(way->type)-1])
-                            if(important<3)
-                               important=3;
-
-                         if(important<1)
-                            important=1;
-                        }
+                      if(HIGHWAY(way->type)!=HIGHWAY(resultway->type))
+                         if(important<2)
+                            important=2;
                      }
+                   else if(IsFakeNode(next_result->node))
+                      ;
+                   else /* a segment that we don't follow */
+                     {
+                      if(junction_other_way[HIGHWAY(resultway->type)-1][HIGHWAY(way->type)-1])
+                         if(important<3)
+                            important=3;
 
-                segment=NextSegment(segments,segment,result->node);
-               }
-             while(segment);
+                      if(important<1)
+                         important=1;
+                     }
+                  }
+
+             segment=NextSegment(segments,segment,result->node);
+            }
+          while(segment);
+         }
+
+       /* Calculate the strings to be used */
+
+       if(resultway && textallfile)
+         {
+          waynameraw=WayName(ways,resultway);
+          if(!*waynameraw)
+             waynameraw=translate_raw_highway[HIGHWAY(resultway->type)];
+
+          bearing_int=(int)BearingAngle(nodes,resultsegment,result->node);
+
+          seg_speed=profile->speed[HIGHWAY(resultway->type)];
+         }
+
+       if(next_result && important>1)
+         {
+          if(resultsegment && (htmlfile || textfile))
+            {
+             turn_int=(int)TurnAngle(nodes,resultsegment,next_resultsegment,result->node);
+             turn=translate_xml_turn[((202+turn_int)/45)%8];
             }
 
-          /* Print out the important points (junctions / waypoints) */
-
-          if(important>1)
+          if(gpxroutefile || htmlfile)
             {
-             /* Print the intermediate finish points (because they have correct junction distances) */
+             Way *next_resultway=LookupWay(ways,next_resultsegment->way,2);
 
-             if(htmlfile)
+             next_waynameraw=WayName(ways,next_resultway);
+             if(!*next_waynameraw)
+                next_waynameraw=translate_raw_highway[HIGHWAY(next_resultway->type)];
+
+             next_wayname=ParseXML_Encode_Safe_XML(next_waynameraw);
+            }
+
+          if(htmlfile || gpxroutefile || textfile)
+            {
+             next_bearing_int=(int)BearingAngle(nodes,next_resultsegment,next_result->node);
+             next_bearing=translate_xml_heading[(4+(22+next_bearing_int)/45)%8];
+            }
+         }
+
+       /* Print out the important points (junctions / waypoints) */
+
+       if(important>1)
+         {
+          if(htmlfile)
+            {
+             char *type;
+
+             if(important==10)
+                type=translate_html_waypoint;
+             else
+                type=translate_html_junction;
+
+             if(point_count>0)  /* not the first point */
                {
-                char *type;
-
-                if(important==10)
-                   type=translate_html_waypoint;
-                else
-                   type=translate_html_junction;
-
-                if(!waynameraw)
-                  {
-                   waynameraw=WayName(ways,resultway);
-                   if(!*waynameraw)
-                      waynameraw=translate_raw_highway[HIGHWAY(resultway->type)];
-                  }
-
-                if(!wayname)
-                   wayname=ParseXML_Encode_Safe_XML(waynameraw);
-
+                /* <tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>*highway name*</span> for <span class='d'>*distance* km, *time* min</span> [<span class='j'>*distance* km, *time* minutes</span>] */
                 fprintf(htmlfile,"<tr class='s'><td class='l'>%s:<td class='r'>",translate_html_segment[0]);
                 fprintf(htmlfile,translate_html_segment[1],
-                                  wayname,
-                                  distance_to_km(junc_distance),duration_to_minutes(junc_duration));
+                                 prev_wayname,
+                                 distance_to_km(junc_distance),duration_to_minutes(junc_duration));
                 fprintf(htmlfile," [<span class='j'>");
                 fprintf(htmlfile,translate_html_total[1],
-                                  distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                                 distance_to_km(cum_distance),duration_to_minutes(cum_duration));
                 fprintf(htmlfile,"</span>]\n");
-
-                fprintf(htmlfile,"<tr class='c'><td class='l'>%d:<td class='r'>%.6f %.6f\n",
-                                 ++point_count,
-                                 radians_to_degrees(latitude),radians_to_degrees(longitude));
-
-                if(nextresult)
-                  {
-                   if(!turn_str)
-                     {
-                      turn_int=(int)TurnAngle(nodes,resultsegment,nextresultsegment,result->node);
-                      turn_str=translate_xml_turn[((202+turn_int)/45)%8];
-                     }
-
-                   if(!bearing_next_str)
-                     {
-                      bearing_next_int=(int)BearingAngle(nodes,nextresultsegment,nextresult->node);
-                      bearing_next_str=translate_xml_heading[(4+(22+bearing_next_int)/45)%8];
-                     }
-
-                   fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_node[0]);
-                   fprintf(htmlfile,translate_html_node[1],
-                                    type,
-                                    turn_str,
-                                    bearing_next_str);
-                   fprintf(htmlfile,"\n");
-                  }
-                else
-                  {
-                   fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_stop[0]);
-                   fprintf(htmlfile,translate_html_stop[1],
-                                    translate_html_waypoint);
-                   fprintf(htmlfile,"\n");
-                   fprintf(htmlfile,"<tr class='t'><td class='l'>%s:<td class='r'><span class='j'>",translate_html_total[0]);
-                   fprintf(htmlfile,translate_html_total[1],
-                                    distance_to_km(cum_distance),duration_to_minutes(cum_duration));
-                   fprintf(htmlfile,"</span>\n");
-                  }
                }
 
-             if(gpxroutefile)
+             /* <tr class='c'><td class='l'>*N*:<td class='r'>*latitude* *longitude* */
+             fprintf(htmlfile,"<tr class='c'><td class='l'>%d:<td class='r'>%.6f %.6f\n",
+                              point_count+1,
+                              radians_to_degrees(latitude),radians_to_degrees(longitude));
+
+             if(point_count==0) /* first point */
                {
-                if(!waynameraw)
-                  {
-                   waynameraw=WayName(ways,resultway);
-                   if(!*waynameraw)
-                      waynameraw=translate_raw_highway[HIGHWAY(resultway->type)];
-                  }
+                /* <tr class='n'><td class='l'>Start:<td class='r'>At <span class='w'>Waypoint</span>, head <span class='b'>*heading*</span> */
+                fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_start[0]);
+                fprintf(htmlfile,translate_html_start[1],
+                                 translate_html_waypoint,
+                                 next_bearing);
+                fprintf(htmlfile,"\n");
+               }
+             else if(next_result) /* middle point */
+               {
+                /* <tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>*direction*</span> heading <span class='b'>*heading*</span> */
+                fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_node[0]);
+                fprintf(htmlfile,translate_html_node[1],
+                                 type,
+                                 turn,
+                                 next_bearing);
+                fprintf(htmlfile,"\n");
+               }
+             else            /* end point */
+               {
+                /* <tr class='n'><td class='l'>Stop:<td class='r'>At <span class='w'>Waypoint</span> */
+                fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_stop[0]);
+                fprintf(htmlfile,translate_html_stop[1],
+                                 translate_html_waypoint);
+                fprintf(htmlfile,"\n");
 
-                if(!wayname)
-                   wayname=ParseXML_Encode_Safe_XML(waynameraw);
+                /* <tr class='t'><td class='l'>Total:<td class='r'><span class='j'>*distance* km, *time* minutes</span> */
+                fprintf(htmlfile,"<tr class='t'><td class='l'>%s:<td class='r'><span class='j'>",translate_html_total[0]);
+                fprintf(htmlfile,translate_html_total[1],
+                                 distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                fprintf(htmlfile,"</span>\n");
+               }
+            }
 
-                if(!bearing_str)
-                  {
-                   bearing_int=(int)BearingAngle(nodes,resultsegment,result->node);
-                   bearing_str=translate_xml_heading[(4+(22+bearing_int)/45)%8];
-                  }
-
+          if(gpxroutefile)
+            {
+             if(point_count>0) /* not first point */
+               {
                 fprintf(gpxroutefile,"<desc>");
                 fprintf(gpxroutefile,translate_gpx_step,
-                                     bearing_str,
-                                     wayname,
+                                     prev_bearing,
+                                     prev_wayname,
                                      distance_to_km(junc_distance),duration_to_minutes(junc_duration));
                 fprintf(gpxroutefile,"</desc></rtept>\n");
+               }
 
-                if(!nextresult)
-                  {
-                   fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
-                                        radians_to_degrees(finish_lat),radians_to_degrees(finish_lon),
-                                        translate_gpx_finish);
-                   fprintf(gpxroutefile,"<desc>");
-                   fprintf(gpxroutefile,translate_gpx_final,
-                                        distance_to_km(cum_distance),duration_to_minutes(cum_duration));
-                   fprintf(gpxroutefile,"</desc></rtept>\n");
-                  }
-                else if(important==10)
+             if(point_count==0) /* first point */
+               {
+                fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
+                                     radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                     translate_gpx_start);
+               }
+             else if(!next_result) /* end point */
+               {
+                fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
+                                     radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                     translate_gpx_finish);
+                fprintf(gpxroutefile,"<desc>");
+                fprintf(gpxroutefile,translate_gpx_final,
+                                     distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+                fprintf(gpxroutefile,"</desc></rtept>\n");
+               }
+             else            /* middle point */
+               {
+                if(important==10)
                    fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s%d</name>\n",
                                         radians_to_degrees(latitude),radians_to_degrees(longitude),
                                         translate_gpx_inter,++segment_count);
@@ -563,61 +585,76 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                                         radians_to_degrees(latitude),radians_to_degrees(longitude),
                                         translate_gpx_trip,++route_count);
                }
-
-             if(textfile)
-               {
-                char *type;
-
-                if(important==10)
-                   type="Waypt";
-                else
-                   type="Junct";
-
-                if(!waynameraw)
-                  {
-                   waynameraw=WayName(ways,resultway);
-                   if(!*waynameraw)
-                      waynameraw=translate_raw_highway[HIGHWAY(resultway->type)];
-                  }
-
-                if(nextresult)
-                  {
-                   if(!turn_str)
-                     {
-                      turn_int=(int)TurnAngle(nodes,resultsegment,nextresultsegment,result->node);
-                      turn_str=translate_xml_turn[((202+turn_int)/45)%8];
-                     }
-
-                   if(!bearing_next_str)
-                     {
-                      bearing_next_int=(int)BearingAngle(nodes,nextresultsegment,nextresult->node);
-                      bearing_next_str=translate_xml_heading[(4+(22+bearing_next_int)/45)%8];
-                     }
-
-                   fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t %+d\t %+d\t%s\n",
-                                    radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                    distance_to_km(junc_distance),duration_to_minutes(junc_duration),
-                                    distance_to_km(cum_distance),duration_to_minutes(cum_duration),
-                                    type,
-                                    (22+turn_int)/45,
-                                    ((22+bearing_next_int)/45+4)%8-4,
-                                    waynameraw);
-                  }
-                else
-                   fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t\t\t%s\n",
-                                    radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                    distance_to_km(junc_distance),duration_to_minutes(junc_duration),
-                                    distance_to_km(cum_distance),duration_to_minutes(cum_duration),
-                                    type,
-                                    waynameraw);
-               }
-
-             junc_distance=0;
-             junc_duration=0;
             }
 
-          /* Print out all of the results */
+          if(textfile)
+            {
+             char *type;
 
+             if(important==10)
+                type="Waypt";
+             else
+                type="Junct";
+
+             if(point_count==0) /* first point */
+               {
+                fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t\t %+d\t%s\n",
+                                 radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                 0.0,0.0,0.0,0.0,
+                                 type,
+                                 ((22+next_bearing_int)/45+4)%8-4,
+                                 next_waynameraw);
+               }
+             else if(!next_result) /* end point */
+               {
+                fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t\t\t\n",
+                                 radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                 distance_to_km(junc_distance),duration_to_minutes(junc_duration),
+                                 distance_to_km(cum_distance),duration_to_minutes(cum_duration),
+                                 type);
+               }
+             else               /* middle point */
+               {
+                fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t %+d\t %+d\t%s\n",
+                                 radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                 distance_to_km(junc_distance),duration_to_minutes(junc_duration),
+                                 distance_to_km(cum_distance),duration_to_minutes(cum_duration),
+                                 type,
+                                 (22+turn_int)/45,
+                                 ((22+next_bearing_int)/45+4)%8-4,
+                                 next_waynameraw);
+               }
+            }
+
+          junc_distance=0;
+          junc_duration=0;
+
+          if(htmlfile || gpxroutefile)
+            {
+             if(prev_wayname)
+                free(prev_wayname);
+
+             if(next_wayname)
+                prev_wayname=strcpy((char*)malloc(strlen(next_wayname)+1),next_wayname);
+             else
+                prev_wayname=NULL;
+
+             if(next_wayname && next_wayname!=next_waynameraw)
+                free(next_wayname);
+            }
+
+          if(gpxroutefile)
+             prev_bearing=next_bearing;
+         }
+
+       /* Print out all of the results */
+
+       if(gpxtrackfile)
+          fprintf(gpxtrackfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"/>\n",
+                               radians_to_degrees(latitude),radians_to_degrees(longitude));
+
+       if(important>=0)
+         {
           if(textallfile)
             {
              char *type;
@@ -631,80 +668,45 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              else
                 type="Inter";
 
-             if(!waynameraw)
+             if(point_count==0) /* first point */
                {
-                waynameraw=WayName(ways,resultway);
-                if(!*waynameraw)
-                   waynameraw=translate_raw_highway[HIGHWAY(resultway->type)];
+                fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t\t\t\n",
+                                    radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                    IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
+                                    (resultnode && IsSuperNode(resultnode))?'*':' ',type,
+                                    0.0,0.0,0.0,0.0);
                }
-
-             if(!bearing_str)
+             else                  /* not the first point */
                {
-                bearing_int=(int)BearingAngle(nodes,resultsegment,result->node);
-                bearing_str=translate_xml_heading[(4+(22+bearing_int)/45)%8];
+                fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n",
+                                    radians_to_degrees(latitude),radians_to_degrees(longitude),
+                                    IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
+                                    (resultnode && IsSuperNode(resultnode))?'*':' ',type,
+                                    distance_to_km(seg_distance),duration_to_minutes(seg_duration),
+                                    distance_to_km(cum_distance),duration_to_minutes(cum_duration),
+                                    speed_to_kph(seg_speed),
+                                    bearing_int,
+                                    waynameraw);
                }
-
-             fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n",
-                                 radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                 IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
-                                 (resultnode && IsSuperNode(resultnode))?'*':' ',type,
-                                 distance_to_km(seg_distance),duration_to_minutes(seg_duration),
-                                 distance_to_km(cum_distance),duration_to_minutes(cum_duration),
-                                 profile->speed[HIGHWAY(resultway->type)],
-                                 bearing_int,
-                                 waynameraw);
             }
-
-          if(wayname && wayname!=waynameraw)
-             free(wayname);
-         }
-       else if(!cum_distance)
-         {
-          int   bearing_next_int=(int)BearingAngle(nodes,nextresultsegment,nextresult->node);
-          char *bearing_next_str=translate_xml_heading[(4+(22+bearing_next_int)/45)%8];
-
-          /* Print out the very first start point */
-
-          if(htmlfile)
-            {
-             fprintf(htmlfile,"<tr class='c'><td class='l'>%d:<td class='r'>%.6f %.6f\n",
-                              ++point_count,
-                              radians_to_degrees(latitude),radians_to_degrees(longitude));
-             fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_start[0]);
-             fprintf(htmlfile,translate_html_start[1],
-                              translate_html_waypoint,
-                              bearing_next_str);
-             fprintf(htmlfile,"\n");
-            }
-
-          if(gpxroutefile)
-             fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
-                                  radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                  translate_gpx_start);
-
-          if(textfile)
-             fprintf(textfile,"%10.6f\t%11.6f\t%6.3f km\t%4.1f min\t%5.1f km\t%4.0f min\t%s\t\t +%d\t\n",
-                              radians_to_degrees(latitude),radians_to_degrees(longitude),
-                              0.0,0.0,0.0,0.0,
-                              "Waypt",
-                              (22+bearing_next_int)/45);
-
-          if(textallfile)
-             fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t\t\t\n",
-                                 radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                 IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
-                                 (resultnode && IsSuperNode(resultnode))?'*':' ',"Waypt",
-                                 0.0,0.0,0.0,0.0);
          }
 
-       result=nextresult;
+       if(wayname && wayname!=waynameraw)
+          free(wayname);
+
+       result=next_result;
+
+       if(important>1)
+          point_count++;
       }
-    while(point==nextpoint);
+    while(point==next_point);
+
+    /* Print the end of the segment */
 
     if(gpxtrackfile)
        fprintf(gpxtrackfile,"</trkseg>\n");
 
-    point=nextpoint;
+    point=next_point;
    }
 
  /* Print the tail of the files */
