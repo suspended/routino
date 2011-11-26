@@ -87,8 +87,7 @@ struct _Ways
  Way        cached[2];          /*+ Two cached nodes read from the file in slim mode. +*/
  index_t    incache[2];         /*+ The indexes of the cached ways. +*/
 
- char      *ncached;            /*+ The cached way name. +*/
- int        nalloc;             /*+ The amount of memory allocated for the way name. +*/
+ char      *ncached[2];         /*+ The cached way name. +*/
 
 #endif
 };
@@ -155,33 +154,35 @@ static inline Way *LookupWay(Ways *ways,index_t index,int position)
 
 static inline char *WayName(Ways *ways,Way *way)
 {
+ int position=way-&ways->cached[-1];
+
  int n=0;
 
  SeekFile(ways->fd,ways->namesoffset+way->name);
 
- if(!ways->ncached)
-    ways->ncached=(char*)malloc(32);
+ if(!ways->ncached[position-1])
+    ways->ncached[position-1]=(char*)malloc(32);
 
  while(1)
    {
     int i;
-    int m=ReadFile(ways->fd,ways->ncached+n,32);
+    int m=ReadFile(ways->fd,ways->ncached[position-1]+n,32);
 
     if(m<0)
        break;
     
     for(i=n;i<n+32;i++)
-       if(ways->ncached[i]==0)
+       if(ways->ncached[position-1][i]==0)
           goto exitloop;
 
     n+=32;
 
-    ways->ncached=(char*)realloc((void*)ways->ncached,n+32);
+    ways->ncached[position-1]=(char*)realloc((void*)ways->ncached[position-1],n+32);
    }
 
  exitloop:
 
- return(ways->ncached);
+ return(ways->ncached[position-1]);
 }
 
 #endif
