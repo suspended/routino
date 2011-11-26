@@ -1,11 +1,9 @@
 /***************************************
- $Header: /home/amb/CVS/routino/src/types.c,v 1.10 2010-11-28 15:12:41 amb Exp $
-
  Functions for handling the data types.
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2010 Andrew M. Bishop
+ This file Copyright 2008-2011 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -236,6 +234,8 @@ const char *HighwayName(Highway highway)
     ;
 
    case Way_OneWay:
+    ;
+   case Way_Roundabout:
     ;
    }
 

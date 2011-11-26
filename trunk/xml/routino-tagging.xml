@@ -447,10 +447,6 @@
       <output k="foot"       v="yes"/>
     </if>
 
-    <if k="junction" v="roundabout">
-      <output k="oneway" v="yes"/>
-    </if>
-
     <if k="route" v="ferry">
       <output k="highway" v="ferry"/>
     </if>
@@ -660,6 +656,11 @@
 
     <if k="lanes" v="1">
       <set k="multilane" v="no"/>
+    </if>
+
+    <if k="junction" v="roundabout">
+      <output k="oneway"     v="yes"/>
+      <output k="roundabout" v="yes"/>
     </if>
 
     <!-- Specific property rules (to override the default ones) -->
