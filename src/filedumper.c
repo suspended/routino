@@ -429,7 +429,7 @@ static void print_way(Ways *ways,index_t item)
  printf("Way %"Pindex_t"\n",item);
  if(*name)
     printf("  name=%s\n",name);
- printf("  type=%02x (%s%s)\n",way->type,HighwayName(HIGHWAY(way->type)),way->type&Way_OneWay?",One-Way":"");
+ printf("  type=%02x (%s%s%s)\n",way->type,HighwayName(HIGHWAY(way->type)),way->type&Way_OneWay?",One-Way":"",way->type&Way_Roundabout?",Roundabout":"");
  printf("  allow=%02x (%s)\n",way->allow,AllowedNameList(way->allow));
  if(way->props)
     printf("  props=%02x (%s)\n",way->props,PropertiesNameList(way->props));
@@ -700,6 +700,9 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 
  if(way->type & Way_OneWay)
     printf("    <tag k='oneway' v='yes' />\n");
+
+ if(way->type & Way_Roundabout)
+    printf("    <tag k='roundabout' v='yes' />\n");
 
  printf("    <tag k='highway' v='%s' />\n",HighwayName(HIGHWAY(way->type)));
 

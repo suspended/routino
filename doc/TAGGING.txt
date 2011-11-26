@@ -163,6 +163,12 @@ The oneway Tag
    The oneway tag is used to specify that traffic is only allowed to
    travel in one direction.
 
+The roundabout Tag
+- - - - - - - - -
+
+   The roundabout tag is used to specify that a highway is part of a
+   roundabout.
+
 The maxspeed Tag
 - - - - - - - -
 
@@ -456,6 +462,12 @@ Highway Restrictions
 
    The oneway, maxspeed, maxweight, maxheight, maxwidth and maxlength are
    copied directly from the input to the output without modification.
+
+Roundabouts
+- - - - - -
+
+   If a highway is tagged as junction=roundabout then a roundabout=yes tag
+   created on the output.
 
 Highway Names and References
 - - - - - - - - - - - - - -

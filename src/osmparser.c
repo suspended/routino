@@ -768,7 +768,7 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
 static void process_way_tags(TagList *tags,way_t id)
 {
  Way   way={0};
- int   oneway=0,area=0;
+ int   oneway=0,roundabout=0,area=0;
  char *name=NULL,*ref=NULL,*refname=NULL;
  int i;
 
@@ -984,6 +984,14 @@ static void process_way_tags(TagList *tags,way_t id)
        if(!strcmp(k,"ref"))
           ref=v;
 
+       if(!strcmp(k,"roundabout"))
+         {
+          if(ISTRUE(v))
+             roundabout=1;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag value 'roundabout' = '%s' (after tagging rules); using 'no'.\n",id,v);
+         }
+
        break;
 
       case 't':
@@ -1027,6 +1035,9 @@ static void process_way_tags(TagList *tags,way_t id)
 
  if(oneway)
     way.type|=Way_OneWay;
+
+ if(roundabout)
+    way.type|=Way_Roundabout;
 
  if(ref && name)
    {

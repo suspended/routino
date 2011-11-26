@@ -209,7 +209,8 @@ typedef enum _Highway
 
   Way_Count       =14,       /* One more than the number of highway types. */
 
-  Way_OneWay      =32
+  Way_OneWay      =32,
+  Way_Roundabout  =64
  }
  Highway;
 
