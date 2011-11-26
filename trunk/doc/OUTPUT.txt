@@ -34,9 +34,10 @@
 HTML Route Instructions
 -----------------------
 
-   The HTML route instructions file contains one line for each of the
-   interesting junctions in the route and one line for the highway that
-   connects them.
+   The HTML route instructions file contains one line for the description
+   of each of the interesting junctions in the route and one line for each
+   of the highways that connect them. The coordinates are also included in
+   the file but are not visible because of the style definitions.
 
    An example HTML file output is below (some parts are missing, for
    example the style definitions):
@@ -53,19 +54,22 @@ HTML Route Instructions
 <BODY>
 <H1>Shortest Route</H1>
 <table>
-<tr class='c'><td class='l'><td class='r'>51.524677 -0.127896
+<tr class='c'><td class='l'>1:<td class='r'>51.524658 -0.127877
 <tr class='n'><td class='l'>Start:<td class='r'>At <span class='w'>Waypoint</span>, head <span class='b'>South-East</span>
-
-<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Russell Square</span> for <span class='d'>0.391 km, 0.5 min</span> [<span class='j'>0.4 km, 0 minutes</span>]
+<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Woburn Place (A4200)</span> for <span class='d'>0.440 km, 0.5 min</span> [<span class='j'>0.4 km, 1 minutes</span>]
+<tr class='c'><td class='l'>2:<td class='r'>51.521460 -0.124099
+<tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Straight on</span> heading <span class='b'>South-East</span>
+<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Southampton Row (A4200)</span> for <span class='d'>0.34
 ...
-<tr class='t'><td class='l'>Total:<td class='r'><span class='j'>6.3 km, 5 minutes</span>
-<tr><td class='l'>Stop:<td class='r'><span class='w'>Waypoint</span>
+<tr class='c'><td class='l'>21:<td class='r'>51.478354 -0.103560
+<tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Right</span> heading <span class='b'>South-West</span>
+<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Vassall Road</span> for <span class='d'>0.013 km, 0.0 min</span> [<span class='j'>6.4 km, 6 minutes</span>]
+<tr class='c'><td class='l'>22:<td class='r'>51.478244 -0.103651
+<tr class='n'><td class='l'>Stop:<td class='r'>At <span class='w'>Waypoint</span>
+<tr class='t'><td class='l'>Total:<td class='r'><span class='j'>6.4 km, 6 minutes</span>
 </table>
 </BODY>
 </HTML>
-
-   The coordinates are included in the file but are not visible because of
-   the style definitions.
 
 
 GPX Track File
@@ -89,11 +93,11 @@ GPX Track File
 <trk>
 <name>Shortest route</name>
 <desc>Shortest route between 'start' and 'finish' waypoints</desc>
-<trkpt lat="51.524677" lon="-0.127896"/>
-<trkpt lat="51.523830" lon="-0.126993"/>
+<trkpt lat="51.524658" lon="-0.127877"/>
+<trkpt lat="51.523768" lon="-0.126918"/>
 ...
-<trkpt lat="51.478353" lon="-0.103561"/>
-<trkpt lat="51.478244" lon="-0.103652"/>
+<trkpt lat="51.478354" lon="-0.103560"/>
+<trkpt lat="51.478244" lon="-0.103651"/>
 </trkseg>
 </trk>
 </gpx>
@@ -103,7 +107,8 @@ GPX Route File
 --------------
 
    The GPX route file contains a route (ordered set of waypoints) with all
-   of the interesting junctions that the route passes through.
+   of the interesting junctions that the route passes through and a
+   description of the route to take from that point.
 
    An example GPX route file output is below:
 
@@ -120,13 +125,16 @@ GPX Route File
 <rte>
 <name>Shortest route</name>
 <desc>Shortest route between 'start' and 'finish' waypoints</desc>
-<rtept lat="51.524677" lon="-0.127896"><name>START</name>
-<desc>South-East on 'Russell Square' for 0.391 km, 0.5 min</desc></rtept>
-<rtept lat="51.521815" lon="-0.124577"><name>TRIP001</name>
-<desc>South-East on 'Russell Square' for 0.055 km, 0.1 min</desc></rtept>
+<rtept lat="51.524658" lon="-0.127877"><name>START</name>
+<desc>South-East on `Woburn Place (A4200)` for 0.440 km, 0.5 min</desc></rtept>
+<rtept lat="51.521460" lon="-0.124099"><name>TRIP001</name>
+<desc>South-East on `Southampton Row (A4200)` for 0.348 km, 0.4 min</desc></rtept>
 ...
-<rtept lat="51.478244" lon="-0.103652"><name>FINISH</name>
-<desc>Total Journey 6.3 km, 5 minutes</desc></rtept>
+<desc>South-East on `Camberwell New Road (A202)` for 0.597 km, 0.4 min</desc></rtept>
+<rtept lat="51.478354" lon="-0.103560"><name>TRIP020</name>
+<desc>South-West on `Vassall Road` for 0.013 km, 0.0 min</desc></rtept>
+<rtept lat="51.478244" lon="-0.103651"><name>FINISH</name>
+<desc>Total Journey 6.4 km, 6 minutes</desc></rtept>
 </rte>
 </gpx>
 
@@ -135,7 +143,8 @@ Text File
 ---------
 
    The text file format contains one entry for all of the interesting
-   junctions in the route and is intended to be easy to interpret.
+   junctions in the route and is intended to be easy to interpret, for
+   example for creating other output formats.
 
    An example text file output is below:
 
@@ -143,29 +152,29 @@ Text File
 # Source : Based on OpenStreetMap data from http://www.openstreetmap.org/
 # License : http://creativecommons.org/licenses/by-sa/2.0/
 #
-#Latitude       Longitude       Section         Section         Total     Total           Point   Turn    Bearing Highway
-#                               Distance        Duration        Distance  Duration        Type
- 51.524677        -0.127896      0.000 km        0.0 min          0.0 km   0 min        Waypt            +3
- 51.521815        -0.124577      0.391 km        0.5 min          0.4 km   0 min        Junct    +0      +3     Russell Square
+#Latitude   Longitude  Section   Section   Total     Total      Point  Turn  Bearing Highway
+#                      Distance  Duration  Distance  Duration   Type                 
+ 51.524658  -0.127877  0.000 km  0.0 min    0.0 km     0 min    Waypt         +3     Woburn Place (A4200)
+ 51.521460  -0.124099  0.440 km  0.5 min    0.4 km     1 min    Junct   +0    +3     Southampton Row (A4200)
 ...
- 51.478353        -0.103561      0.598 km        0.4 min          6.2 km   5 min        Junct    +2      -3     Camberwell New Road (A202)
- 51.478244        -0.103652      0.013 km        0.0 min          6.3 km   5 min        Waypt                   Vassall Road
+ 51.478354  -0.103560  0.597 km  0.4 min    6.4 km     6 min    Junct   +2    -3     Vassall Road
+ 51.478244  -0.103651  0.013 km  0.0 min    6.4 km     6 min    Waypt               
 
    The text file output contains a header (indicated by the lines starting
-   with '#') and then one line for each junction. Each line contains the
-   information for the route up to that point and the direction to go
-   next. For each of the lines the individual fields contain the
+   with '#') and then one line for each waypoint or junction. Each line
+   contains the information for the current node and the next segment to
+   be followed. For each of the lines the individual fields contain the
    following:
 
-   Latitude - Location of the point (degrees)
+   Latitude - Location of the node (degrees)
 
-   Longitude - Location of the point (degrees)
+   Longitude - Location of the node (degrees)
 
    Section Distance - The distance travelled on the section of the journey
-   that ends at this point (defined on this line).
+   that ends at this node.
 
    Section Duration - The duration of travel on the section of the journey
-   that ends at this point (defined on this line).
+   that ends at this node.
 
    Total Distance - The total distance travelled up to this point.
 
@@ -174,18 +183,18 @@ Text File
    Point Type - The type of point; either a waypoint Waypt or junction
    Junct.
 
-   Turn - The direction to turn at this point (missing for the first point
-   since the journey has not started yet and the last point because it has
-   finished). This can take one of nine values between -4 and +4 defined
-   by: 0 = Straight, +2 = Right, -2 = Left and +/-4 = Reverse.
+   Turn - The direction to turn at this point (missing for the first line
+   since the journey has not started yet and for the last line because it
+   has finished). This can take one of nine values between -4 and +4
+   defined by: 0 = Straight, +2 = Right, -2 = Left and +/-4 = Reverse.
 
-   Bearing - The direction to head at this point (missing for the last point
-   since the journey has finished). This can take one of nine values
+   Bearing - The direction to head from this point (missing for the last
+   line since the journey has finished). This can take one of nine values
    between -4 and +4 defined by: 0 = North, +2 = East, -2 = West and +/-4
    = South.
 
-   Highway - The name (or description) of the highway to follow (missing on
-   the first line).
+   Highway - The name (or description) of the highway to follow from this
+   point (missing on the last line since the journey has finished).
 
    The individual items are separated by tabs but some of the items
    contain spaces as well.
@@ -203,22 +212,24 @@ All Nodes Text File
 # Source : Based on OpenStreetMap data from http://www.openstreetmap.org/
 # License : http://creativecommons.org/licenses/by-sa/2.0/
 #
-#Latitude       Longitude           Node        Type    Segment Segment Total  Total   Speed   Bearing Highway
-#                                                       Dist    Durat'n Dist   Durat'n
- 51.524677        -0.127896      7485978*       Waypt   0.000    0.00    0.00  0.0
- 51.523830        -0.126993      7485047*       Junct   0.113    0.14    0.11  0.1    96      146    Woburn Place
+#Latitude   Longitude  Node       Type   Segment Segment  Total Total   Speed  Bearing Highway
+#                                        Dist    Durat'n  Dist  Durat'n                       
+ 51.524658  -0.127877  12466852*  Waypt  0.000   0.00     0.00   0.0                  
+ 51.523768  -0.126918  12467208*  Junct  0.119   0.15     0.12   0.1    96     146     Woburn Place (A4200)
 ...
- 51.478353        -0.103561      7576939*       Junct   0.104    0.07    6.25  5.0    96      126    Camberwell New Road (A202)
- 51.478244        -0.103652      7581605        Waypt   0.013    0.01    6.26  5.0    64      207    Vassall Road
+ 51.478354  -0.103560  12604345*  Junct  0.104   0.07     6.36   5.6    96     125     Camberwell New Road (A202)
+ 51.478244  -0.103651  12604304   Waypt  0.013   0.01     6.37   5.6    64     207     Vassall Road
 
-   The all nodes text file output is similar to the text file output
-   except that a line is printed for each of the nodes rather than just
-   the interesting junctions. For each of the lines the individual fields
-   contain the following:
+   The all nodes text file output contains a header (indicated by the
+   lines starting with '#') and then one line for each node and the
+   segment that was used to reach it. This file therefore contains exactly
+   the same model as is used internally to define a route (a series of
+   results each of which is a node and the segment leading to it). For
+   each of the lines the individual fields contain the following:
 
-   Latitude - Location of the point in degrees.
+   Latitude - Location of the node in degrees.
 
-   Longitude - Location of the point in degrees.
+   Longitude - Location of the node in degrees.
 
    Node - The internal node number and an indicator "*" if the node is a
    super-node.

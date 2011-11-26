@@ -85,8 +85,10 @@ translated.
 
 <h3><a name="H_1_1_1" title="HTML file"></a>HTML Route Instructions</h3>
 
-The HTML route instructions file contains one line for each of the interesting
-junctions in the route and one line for the highway that connects them.
+The HTML route instructions file contains one line for the description of each
+of the interesting junctions in the route and one line for each of the highways
+that connect them.  The coordinates are also included in the file but are not
+visible because of the style definitions.
 
 <p>
 
@@ -106,20 +108,29 @@ style definitions):
 &lt;BODY&gt;
 &lt;H1&gt;Shortest Route&lt;/H1&gt;
 &lt;table&gt;
-&lt;tr class='c'&gt;&lt;td class='l'&gt;&lt;td class='r'&gt;51.524677 -0.127896
-&lt;tr class='n'&gt;&lt;td class='l'&gt;Start:&lt;td class='r'&gt;At &lt;span class='w'&gt;Waypoint&lt;/span&gt;, head &lt;span class='b'&gt;South-East&lt;/span&gt;
-
-&lt;tr class='s'&gt;&lt;td class='l'&gt;Follow:&lt;td class='r'&gt;&lt;span class='h'&gt;Russell Square&lt;/span&gt; for &lt;span class='d'&gt;0.391 km, 0.5 min&lt;/span&gt; [&lt;span class='j'&gt;0.4 km, 0 minutes&lt;/span&gt;]
+&lt;tr class='c'&gt;&lt;td class='l'&gt;1:&lt;td class='r'&gt;51.524658 -0.127877
+&lt;tr class='n'&gt;&lt;td class='l'&gt;Start:&lt;td class='r'&gt;At &lt;span class='w'&gt;Waypoint&lt;/span&gt;, head &lt;span class='b'&gt;South-East&lt;/spa
+n&gt;
+&lt;tr class='s'&gt;&lt;td class='l'&gt;Follow:&lt;td class='r'&gt;&lt;span class='h'&gt;Woburn Place (A4200)&lt;/span&gt; for &lt;span class='d'&gt;0.440 k
+m, 0.5 min&lt;/span&gt; [&lt;span class='j'&gt;0.4 km, 1 minutes&lt;/span&gt;]
+&lt;tr class='c'&gt;&lt;td class='l'&gt;2:&lt;td class='r'&gt;51.521460 -0.124099
+&lt;tr class='n'&gt;&lt;td class='l'&gt;At:&lt;td class='r'&gt;Junction, go &lt;span class='t'&gt;Straight on&lt;/span&gt; heading &lt;span class='b'&gt;Sou
+th-East&lt;/span&gt;
+&lt;tr class='s'&gt;&lt;td class='l'&gt;Follow:&lt;td class='r'&gt;&lt;span class='h'&gt;Southampton Row (A4200)&lt;/span&gt; for &lt;span class='d'&gt;0.34
 ...
-&lt;tr class='t'&gt;&lt;td class='l'&gt;Total:&lt;td class='r'&gt;&lt;span class='j'&gt;6.3 km, 5 minutes&lt;/span&gt;
-&lt;tr&gt;&lt;td class='l'&gt;Stop:&lt;td class='r'&gt;&lt;span class='w'&gt;Waypoint&lt;/span&gt;
+&lt;tr class='c'&gt;&lt;td class='l'&gt;21:&lt;td class='r'&gt;51.478354 -0.103560
+&lt;tr class='n'&gt;&lt;td class='l'&gt;At:&lt;td class='r'&gt;Junction, go &lt;span class='t'&gt;Right&lt;/span&gt; heading &lt;span class='b'&gt;South-Wes
+t&lt;/span&gt;
+&lt;tr class='s'&gt;&lt;td class='l'&gt;Follow:&lt;td class='r'&gt;&lt;span class='h'&gt;Vassall Road&lt;/span&gt; for &lt;span class='d'&gt;0.013 km, 0.0 m
+in&lt;/span&gt; [&lt;span class='j'&gt;6.4 km, 6 minutes&lt;/span&gt;]
+&lt;tr class='c'&gt;&lt;td class='l'&gt;22:&lt;td class='r'&gt;51.478244 -0.103651
+&lt;tr class='n'&gt;&lt;td class='l'&gt;Stop:&lt;td class='r'&gt;At &lt;span class='w'&gt;Waypoint&lt;/span&gt;
+&lt;tr class='t'&gt;&lt;td class='l'&gt;Total:&lt;td class='r'&gt;&lt;span class='j'&gt;6.4 km, 6 minutes&lt;/span&gt;
 &lt;/table&gt;
 &lt;/BODY&gt;
 &lt;/HTML&gt;
 </pre>
 
-The coordinates are included in the file but are not visible because of the
-style definitions.
 
 <h3><a name="H_1_1_2" title="GPX track file"></a>GPX Track File</h3>
 
@@ -142,11 +153,11 @@ An example GPX track file output is below:
 &lt;trk&gt;
 &lt;name&gt;Shortest route&lt;/name&gt;
 &lt;desc&gt;Shortest route between 'start' and 'finish' waypoints&lt;/desc&gt;
-&lt;trkpt lat="51.524677" lon="-0.127896"/&gt;
-&lt;trkpt lat="51.523830" lon="-0.126993"/&gt;
+&lt;trkpt lat="51.524658" lon="-0.127877"/&gt;
+&lt;trkpt lat="51.523768" lon="-0.126918"/&gt;
 ...
-&lt;trkpt lat="51.478353" lon="-0.103561"/&gt;
-&lt;trkpt lat="51.478244" lon="-0.103652"/&gt;
+&lt;trkpt lat="51.478354" lon="-0.103560"/&gt;
+&lt;trkpt lat="51.478244" lon="-0.103651"/&gt;
 &lt;/trkseg&gt;
 &lt;/trk&gt;
 &lt;/gpx&gt;
@@ -156,7 +167,8 @@ An example GPX track file output is below:
 <h3><a name="H_1_1_3" title="GPX route file"></a>GPX Route File</h3>
 
 The GPX route file contains a route (ordered set of waypoints) with all of the
-interesting junctions that the route passes through.
+interesting junctions that the route passes through and a description of the
+route to take from that point.
 
 <p>
 
@@ -174,13 +186,16 @@ An example GPX route file output is below:
 &lt;rte&gt;
 &lt;name&gt;Shortest route&lt;/name&gt;
 &lt;desc&gt;Shortest route between 'start' and 'finish' waypoints&lt;/desc&gt;
-&lt;rtept lat="51.524677" lon="-0.127896"&gt;&lt;name&gt;START&lt;/name&gt;
-&lt;desc&gt;South-East on 'Russell Square' for 0.391 km, 0.5 min&lt;/desc&gt;&lt;/rtept&gt;
-&lt;rtept lat="51.521815" lon="-0.124577"&gt;&lt;name&gt;TRIP001&lt;/name&gt;
-&lt;desc&gt;South-East on 'Russell Square' for 0.055 km, 0.1 min&lt;/desc&gt;&lt;/rtept&gt;
+&lt;rtept lat="51.524658" lon="-0.127877"&gt;&lt;name&gt;START&lt;/name&gt;
+&lt;desc&gt;South-East on &apos;Woburn Place (A4200)&apos; for 0.440 km, 0.5 min&lt;/desc&gt;&lt;/rtept&gt;
+&lt;rtept lat="51.521460" lon="-0.124099"&gt;&lt;name&gt;TRIP001&lt;/name&gt;
+&lt;desc&gt;South-East on &apos;Southampton Row (A4200)&apos; for 0.348 km, 0.4 min&lt;/desc&gt;&lt;/rtept&gt;
 ...
-&lt;rtept lat="51.478244" lon="-0.103652"&gt;&lt;name&gt;FINISH&lt;/name&gt;
-&lt;desc&gt;Total Journey 6.3 km, 5 minutes&lt;/desc&gt;&lt;/rtept&gt;
+&lt;desc&gt;South-East on &apos;Camberwell New Road (A202)&apos; for 0.597 km, 0.4 min&lt;/desc&gt;&lt;/rtept&gt;
+&lt;rtept lat="51.478354" lon="-0.103560"&gt;&lt;name&gt;TRIP020&lt;/name&gt;
+&lt;desc&gt;South-West on &apos;Vassall Road&apos; for 0.013 km, 0.0 min&lt;/desc&gt;&lt;/rtept&gt;
+&lt;rtept lat="51.478244" lon="-0.103651"&gt;&lt;name&gt;FINISH&lt;/name&gt;
+&lt;desc&gt;Total Journey 6.4 km, 6 minutes&lt;/desc&gt;&lt;/rtept&gt;
 &lt;/rte&gt;
 &lt;/gpx&gt;
 </pre>
@@ -189,7 +204,8 @@ An example GPX route file output is below:
 <h3><a name="H_1_1_4" title="Text file"></a>Text File</h3>
 
 The text file format contains one entry for all of the interesting junctions in
-the route and is intended to be easy to interpret.
+the route and is intended to be easy to interpret, for example for creating
+other output formats.
 
 <p>
 
@@ -200,20 +216,20 @@ An example text file output is below:
 # Source : Based on OpenStreetMap data from http://www.openstreetmap.org/
 # License : http://creativecommons.org/licenses/by-sa/2.0/
 #
-#Latitude	Longitude	Section 	Section 	Total   	Total   	Point	Turn	Bearing	Highway
-#        	         	Distance	Duration	Distance	Duration	Type 	    	       	       
- 51.524677	  -0.127896	 0.000 km	 0.0 min	  0.0 km	   0 min	Waypt		 +3	
- 51.521815	  -0.124577	 0.391 km	 0.5 min	  0.4 km	   0 min	Junct	 +0	 +3	Russell Square
+#Latitude   Longitude  Section   Section   Total     Total      Point  Turn  Bearing Highway
+#                      Distance  Duration  Distance  Duration   Type                 
+ 51.524658  -0.127877  0.000 km  0.0 min    0.0 km     0 min    Waypt         +3     Woburn Place (A4200)
+ 51.521460  -0.124099  0.440 km  0.5 min    0.4 km     1 min    Junct   +0    +3     Southampton Row (A4200)
 ...
- 51.478353	  -0.103561	 0.598 km	 0.4 min	  6.2 km	   5 min	Junct	 +2	 -3	Camberwell New Road (A202)
- 51.478244	  -0.103652	 0.013 km	 0.0 min	  6.3 km	   5 min	Waypt			Vassall Road
+ 51.478354  -0.103560  0.597 km  0.4 min    6.4 km     6 min    Junct   +2    -3     Vassall Road
+ 51.478244  -0.103651  0.013 km  0.0 min    6.4 km     6 min    Waypt               
 </pre>
 
 <p>
 
 The text file output contains a header (indicated by the lines starting with
-'#') and then one line for each junction.  Each line contains the information
-for the route up to that point and the direction to go next.
+'#') and then one line for each waypoint or junction.  Each line contains the
+information for the current node and the next segment to be followed.
 
 For each of the lines the individual fields contain the following:
 
@@ -223,18 +239,18 @@ For each of the lines the individual fields contain the following:
     <th class=left>Description
   <tr>
     <td>Latitude
-    <td>Location of the point (degrees)
+    <td>Location of the node (degrees)
   <tr>
     <td>Longitude
-    <td>Location of the point (degrees)
+    <td>Location of the node (degrees)
   <tr>
     <td>Section Distance
     <td>The distance travelled on the section of the journey that ends at this
-      point (defined on this line).
+      node.
   <tr>
     <td>Section Duration
     <td>The duration of travel on the section of the journey that ends at this
-      point (defined on this line).
+      node.
   <tr>
     <td>Total Distance
     <td>The total distance travelled up to this point.
@@ -243,25 +259,25 @@ For each of the lines the individual fields contain the following:
     <td>The total duration of travel up to this point.
   <tr>
     <td>Point Type
-    <td>The type of point; either a waypoint <em>Waypt</em> or
-      junction <em>Junct</em>.
+    <td>The type of point; either a waypoint <em>Waypt</em> or junction
+      <em>Junct</em>.
   <tr>
     <td>Turn
-    <td>The direction to turn at this point (missing for the first point since
-      the journey has not started yet and the last point because it has
+    <td>The direction to turn at this point (missing for the first line since
+      the journey has not started yet and for the last line because it has
       finished).  This can take one of nine values between -4 and +4 defined by:
       0 = <em>Straight</em>, +2 = <em>Right</em>, -2 = <em>Left</em> and +/-4
       = <em>Reverse</em>.
   <tr>
     <td>Bearing
-    <td>The direction to head at this point (missing for the last point since
+    <td>The direction to head from this point (missing for the last line since
       the journey has finished).  This can take one of nine values between -4
       and +4 defined by: 0 = <em>North</em>, +2 = <em>East</em>, -2
       = <em>West</em> and +/-4 = <em>South</em>.
   <tr>
     <td>Highway
-    <td>The name (or description) of the highway to follow (missing on the first
-      line).
+    <td>The name (or description) of the highway to follow from this point
+      (missing on the last line since the journey has finished).
 </table>
 
 <p>
@@ -284,19 +300,22 @@ An example all nodes text file output is below:
 # Source : Based on OpenStreetMap data from http://www.openstreetmap.org/
 # License : http://creativecommons.org/licenses/by-sa/2.0/
 #
-#Latitude	Longitude	    Node	Type	Segment	Segment	Total	Total  	Speed	Bearing	Highway
-#        	         	        	    	Dist   	Durat'n	Dist 	Durat'n	     	       	       
- 51.524677	  -0.127896	 7485978*	Waypt	0.000	 0.00	 0.00	  0.0			
- 51.523830	  -0.126993	 7485047*	Junct	0.113	 0.14	 0.11	  0.1	 96	 146	Woburn Place
+#Latitude   Longitude  Node       Type   Segment Segment  Total Total   Speed  Bearing Highway
+#                                        Dist    Durat'n  Dist  Durat'n                       
+ 51.524658  -0.127877  12466852*  Waypt  0.000   0.00     0.00   0.0                  
+ 51.523768  -0.126918  12467208*  Junct  0.119   0.15     0.12   0.1    96     146     Woburn Place (A4200)
 ...
- 51.478353	  -0.103561	 7576939*	Junct	0.104	 0.07	 6.25	  5.0	 96	 126	Camberwell New Road (A202)
- 51.478244	  -0.103652	 7581605 	Waypt	0.013	 0.01	 6.26	  5.0	 64	 207	Vassall Road
+ 51.478354  -0.103560  12604345*  Junct  0.104   0.07     6.36   5.6    96     125     Camberwell New Road (A202)
+ 51.478244  -0.103651  12604304   Waypt  0.013   0.01     6.37   5.6    64     207     Vassall Road
 </pre>
 
 <p>
 
-The all nodes text file output is similar to the text file output except that a
-line is printed for each of the nodes rather than just the interesting junctions.
+The all nodes text file output contains a header (indicated by the lines
+starting with '#') and then one line for each node and the segment that was used
+to reach it.  This file therefore contains exactly the same model as is used
+internally to define a route (a series of results each of which is a node and
+the segment leading to it).
 
 For each of the lines the individual fields contain the following:
 
@@ -306,10 +325,10 @@ For each of the lines the individual fields contain the following:
     <th class=left>Description
   <tr>
     <td>Latitude
-    <td>Location of the point in degrees.
+    <td>Location of the node in degrees.
   <tr>
     <td>Longitude
-    <td>Location of the point in degrees.
+    <td>Location of the node in degrees.
   <tr>
     <td>Node
     <td>The internal node number and an indicator "*" if the node is a super-node.
