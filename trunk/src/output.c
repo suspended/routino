@@ -42,6 +42,18 @@
 #include "results.h"
 #include "xmlparse.h"
 
+/* Constants */
+
+#define IMP_IGNORE      -1      /*+ Ignore this point. +*/
+#define IMP_UNIMPORTANT  0      /*+ An unimportant, intermediate, node. +*/
+#define IMP_RB_NOT_EXIT  1      /*+ A roundabout exit that is not taken. +*/
+#define IMP_JUNCT_CONT   2      /*+ An un-interesting junction where the route continues without comment. +*/
+#define IMP_CHANGE       3      /*+ The highway changes type but nothing else happens. +*/
+#define IMP_JUNCT_IMPORT 4      /*+ An interesting junction to be described. +*/
+#define IMP_RB_ENTRY     5      /*+ The entrance to a roundabout. +*/
+#define IMP_RB_EXIT      6      /*+ The exit from a roundabout. +*/
+#define IMP_UTURN        7      /*+ The location of a U-turn. +*/
+#define IMP_WAYPOINT     8      /*+ A waypoint. +*/
 
 /* Global variables */
 
@@ -319,7 +331,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        Segment *resultsegment=NULL,*next_resultsegment=NULL;
        Way *resultway=NULL,*next_resultway;
        Result *next_result;
-       int important=0;
+       int important=IMP_UNIMPORTANT;
 
        distance_t seg_distance=0;
        duration_t seg_duration=0;
@@ -406,7 +418,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              if(roundabout==0)
                {
                 roundabout++;
-                important=7;
+                important=IMP_RB_ENTRY;
                }
              else
                {
@@ -423,7 +435,10 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
                          if(!(way->type&Way_Roundabout))
                             if(othernode!=next_result->node)
+                              {
                                roundabout++;
+                               important=IMP_RB_NOT_EXIT;
+                              }
                         }
 
                    segment=NextSegment(segments,segment,result->node);
@@ -435,7 +450,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              if(roundabout)
                {
                 roundabout++;
-                important=7;
+                important=IMP_RB_EXIT;
                }
          }
 
@@ -444,13 +459,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        if(roundabout)           /* roundabout */
           ;
        else if(point_count==0)  /* first point overall = Waypoint */
-          important=10;
+          important=IMP_WAYPOINT;
        else if(result->node==results[point]->finish_node) /* Waypoint */
-          important=10;
+          important=IMP_WAYPOINT;
        else if(result->node==results[point]->start_node) /* first point of a section of the route */
-          important=-1;
+          important=IMP_IGNORE;
        else if(realsegment==next_realsegment) /* U-turn */
-          important=5;
+          important=IMP_UTURN;
        else
          {
           Segment *segment=FirstSegment(segments,resultnode,3);
@@ -467,19 +482,19 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                    if(othernode==next_result->node) /* the next segment that we follow */
                      {
                       if(HIGHWAY(way->type)!=HIGHWAY(resultway->type))
-                         if(important<2)
-                            important=2;
+                         if(important<IMP_CHANGE)
+                            important=IMP_CHANGE;
                      }
                    else if(IsFakeNode(next_result->node))
                       ;
                    else /* a segment that we don't follow */
                      {
                       if(junction_other_way[HIGHWAY(resultway->type)-1][HIGHWAY(way->type)-1])
-                         if(important<3)
-                            important=3;
+                         if(important<IMP_JUNCT_IMPORT)
+                            important=IMP_JUNCT_IMPORT;
 
-                      if(important<1)
-                         important=1;
+                      if(important<IMP_JUNCT_CONT)
+                         important=IMP_JUNCT_CONT;
                      }
                   }
 
@@ -501,7 +516,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           seg_speed=profile->speed[HIGHWAY(resultway->type)];
          }
 
-       if(next_result && important>1)
+       if(next_result && important>IMP_JUNCT_CONT)
          {
           if(resultsegment && (htmlfile || textfile))
             {
@@ -527,13 +542,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        /* Print out the important points (junctions / waypoints) */
 
-       if(important>1)
+       if(important>IMP_JUNCT_CONT)
          {
           if(htmlfile)
             {
              char *type;
 
-             if(important==10)
+             if(important==IMP_WAYPOINT)
                 type=translate_html_waypoint;
              else
                 type=translate_html_junction;
@@ -634,7 +649,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                }
              else            /* middle point */
                {
-                if(important==10)
+                if(important==IMP_WAYPOINT)
                    fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s%d</name>\n",
                                         radians_to_degrees(latitude),radians_to_degrees(longitude),
                                         translate_gpx_inter,++segment_count);
@@ -649,7 +664,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
             {
              char *type;
 
-             if(important==10)
+             if(important==IMP_WAYPOINT)
                 type="Waypt";
              else
                 type="Junct";
@@ -714,22 +729,22 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           fprintf(gpxtrackfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"/>\n",
                                radians_to_degrees(latitude),radians_to_degrees(longitude));
 
-       if(important>=0)
+       if(important>IMP_IGNORE)
          {
           if(textallfile)
             {
              char *type;
 
-             if(important==10)
+             if(important==IMP_WAYPOINT)
                 type="Waypt";
-             else if(important==5)
+             else if(important==IMP_UTURN)
                 type="U-turn";
-             else if(important==2)
+             else if(important==IMP_CHANGE)
                 type="Change";
-             else if(important>=1)
-                type="Junct";
-             else
+             else if(important==IMP_UNIMPORTANT)
                 type="Inter";
+             else
+                type="Junct";
 
              if(point_count==0) /* first point */
                {
@@ -739,7 +754,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                                     (resultnode && IsSuperNode(resultnode))?'*':' ',type,
                                     0.0,0.0,0.0,0.0);
                }
-             else                  /* not the first point */
+             else               /* not the first point */
                {
                 fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n",
                                     radians_to_degrees(latitude),radians_to_degrees(longitude),
@@ -759,7 +774,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        result=next_result;
 
-       if(important>1)
+       if(important>IMP_JUNCT_CONT)
           point_count++;
       }
     while(point==next_point);
