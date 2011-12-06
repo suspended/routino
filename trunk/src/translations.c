@@ -39,32 +39,35 @@ char *translate_xml_copyright_creator[2]={"Creator","Routino - http://www.routin
 char *translate_xml_copyright_source[2] ={NULL,NULL};
 char *translate_xml_copyright_license[2]={NULL,NULL};
 
-char *translate_xml_heading[9]={"South","South-West","West","North-West","North","North-East","East","South-East","South"};
-char *translate_xml_turn[9]   ={"Very sharp left","Sharp left","Left","Slight left","Straight on","Slight right","Right","Sharp right","Very sharp right"};
+char *translate_xml_heading[9] ={"South","South-West","West","North-West","North","North-East","East","South-East","South"};
+char *translate_xml_turn[9]    ={"Very sharp left","Sharp left","Left","Slight left","Straight on","Slight right","Right","Sharp right","Very sharp right"};
+char *translate_xml_ordinal[10]={"First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eighth","Ninth","Tenth"};
 
 char *translate_raw_highway[Way_Count]={"","motorway","trunk road","primary road","secondary road","tertiary road","unclassified road","residential road","service road","track","cycleway","path","steps","ferry"};
 
 char *translate_xml_route_shortest="Shortest";
 char *translate_xml_route_quickest="Quickest";
 
-char *translate_html_waypoint="<span class='w'>Waypoint</span>";
-char *translate_html_junction="Junction";
+char *translate_html_waypoint  ="<span class='w'>Waypoint</span>";
+char *translate_html_junction  ="Junction";
+char *translate_html_roundabout="Roundabout";
 
-char *translate_html_title="%s Route";
-char *translate_html_start[2]={"Start","At %s, head %s"};
+char *translate_html_title     ="%s Route";
+char *translate_html_start[2]  ={"Start","At %s, head %s"};
 char *translate_html_segment[2]={"Follow","%s for %.3f km, %.1f min"};
-char *translate_html_node[2]={"At","%s, go %s heading %s"};
-char *translate_html_stop[2]={"Stop","At %s"};
-char *translate_html_total[2]={"Total","%.1f km, %.0f minutes"};
+char *translate_html_node[2]   ={"At","%s, go %s heading %s"};
+char *translate_html_rbnode[2] ={"Leave","%s, take the %s exit heading %s"};
+char *translate_html_stop[2]   ={"Stop","At %s"};
+char *translate_html_total[2]  ={"Total","%.1f km, %.0f minutes"};
 
 char *translate_gpx_desc ="%s between 'start' and 'finish' waypoints";
 char *translate_gpx_name ="%s Route";
 char *translate_gpx_step ="%s on '%s' for %.3f km, %.1 min";
 char *translate_gpx_final="Total Journey %.1f km, %d minutes";
 
-char *translate_gpx_start="START";
-char *translate_gpx_inter="INTER";
-char *translate_gpx_trip="TRIP";
+char *translate_gpx_start ="START";
+char *translate_gpx_inter ="INTER";
+char *translate_gpx_trip  ="TRIP";
 char *translate_gpx_finish="FINISH";
 
 
@@ -94,6 +97,7 @@ static int GPXDescType_function(const char *_tag_,int _type_,const char *text);
 static int HTMLTotalType_function(const char *_tag_,int _type_,const char *string,const char *text);
 static int HTMLStopType_function(const char *_tag_,int _type_,const char *string,const char *text);
 static int HTMLSegmentType_function(const char *_tag_,int _type_,const char *string,const char *text);
+static int HTMLRBNodeType_function(const char *_tag_,int _type_,const char *string,const char *text);
 static int HTMLNodeType_function(const char *_tag_,int _type_,const char *string,const char *text);
 static int HTMLStartType_function(const char *_tag_,int _type_,const char *string,const char *text);
 static int HTMLTitleType_function(const char *_tag_,int _type_,const char *text);
@@ -102,6 +106,7 @@ static int GPXWaypointType_function(const char *_tag_,int _type_,const char *typ
 static int HTMLWaypointType_function(const char *_tag_,int _type_,const char *type,const char *string);
 static int RouteType_function(const char *_tag_,int _type_,const char *type,const char *string);
 static int HighwayType_function(const char *_tag_,int _type_,const char *type,const char *string);
+static int OrdinalType_function(const char *_tag_,int _type_,const char *number,const char *string);
 static int HeadingType_function(const char *_tag_,int _type_,const char *direction,const char *string);
 static int TurnType_function(const char *_tag_,int _type_,const char *direction,const char *string);
 static int CopyrightLicenseType_function(const char *_tag_,int _type_,const char *string,const char *text);
@@ -144,6 +149,13 @@ static xmltag HeadingType_tag=
               {"heading",
                2, {"direction","string"},
                HeadingType_function,
+               {NULL}};
+
+/*+ The OrdinalType type tag. +*/
+static xmltag OrdinalType_tag=
+              {"ordinal",
+               2, {"number","string"},
+               OrdinalType_function,
                {NULL}};
 
 /*+ The HighwayType type tag. +*/
@@ -202,6 +214,13 @@ static xmltag HTMLNodeType_tag=
                HTMLNodeType_function,
                {NULL}};
 
+/*+ The HTMLRBNodeType type tag. +*/
+static xmltag HTMLRBNodeType_tag=
+              {"rbnode",
+               2, {"string","text"},
+               HTMLRBNodeType_function,
+               {NULL}};
+
 /*+ The HTMLSegmentType type tag. +*/
 static xmltag HTMLSegmentType_tag=
               {"segment",
@@ -228,7 +247,7 @@ static xmltag HTMLType_tag=
               {"output-html",
                0, {NULL},
                NULL,
-               {&HTMLWaypointType_tag,&HTMLTitleType_tag,&HTMLStartType_tag,&HTMLNodeType_tag,&HTMLSegmentType_tag,&HTMLStopType_tag,&HTMLTotalType_tag,NULL}};
+               {&HTMLWaypointType_tag,&HTMLTitleType_tag,&HTMLStartType_tag,&HTMLNodeType_tag,&HTMLRBNodeType_tag,&HTMLSegmentType_tag,&HTMLStopType_tag,&HTMLTotalType_tag,NULL}};
 
 /*+ The GPXDescType type tag. +*/
 static xmltag GPXDescType_tag=
@@ -270,7 +289,7 @@ static xmltag languageType_tag=
               {"language",
                1, {"lang"},
                languageType_function,
-               {&CopyrightType_tag,&TurnType_tag,&HeadingType_tag,&HighwayType_tag,&RouteType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
+               {&CopyrightType_tag,&TurnType_tag,&HeadingType_tag,&OrdinalType_tag,&HighwayType_tag,&RouteType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
 
 /*+ The RoutinoTranslationsType type tag. +*/
 static xmltag RoutinoTranslationsType_tag=
@@ -482,6 +501,42 @@ static int HeadingType_function(const char *_tag_,int _type_,const char *directi
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the OrdinalType XSD type is seen
+
+  int OrdinalType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *number The contents of the 'number' attribute (or NULL if not defined).
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int OrdinalType_function(const char *_tag_,int _type_,const char *number,const char *string)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    char *xmlstring;
+    int n;
+
+    XMLPARSE_ASSERT_INTEGER(_tag_,number); n=atoi(number);
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+
+    if(n<1 || n>10)
+       XMLPARSE_INVALID(_tag_,number);
+
+    xmlstring=ParseXML_Encode_Safe_XML(string);
+
+    translate_xml_ordinal[n-1]=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the HighwayType XSD type is seen
 
   int HighwayType_function Returns 0 if no error occured or something else otherwise.
@@ -585,6 +640,8 @@ static int HTMLWaypointType_function(const char *_tag_,int _type_,const char *ty
       }
     else if(!strcmp(type,"junction"))
        translate_html_junction=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
+    else if(!strcmp(type,"roundabout"))
+       translate_html_roundabout=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
     else
        XMLPARSE_INVALID(_tag_,type);
    }
@@ -743,6 +800,41 @@ static int HTMLNodeType_function(const char *_tag_,int _type_,const char *string
     translate_html_node[0]=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
     translate_html_node[1]=malloc(strlen(xmltext)+1+2*sizeof("<span class='b'>")+2*sizeof("</span>"));
     sprintf(translate_html_node[1],xmltext,"%s","<span class='t'>%s</span>","<span class='b'>%s</span>");
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HTMLRBNodeType XSD type is seen
+
+  int HTMLRBNodeType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *string The contents of the 'string' attribute (or NULL if not defined).
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int HTMLRBNodeType_function(const char *_tag_,int _type_,const char *string,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    char *xmlstring,*xmltext;
+
+    XMLPARSE_ASSERT_STRING(_tag_,string);
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    xmlstring=ParseXML_Encode_Safe_XML(string);
+    xmltext  =ParseXML_Encode_Safe_XML(text);
+
+    translate_html_rbnode[0]=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
+    translate_html_rbnode[1]=malloc(strlen(xmltext)+1+2*sizeof("<span class='b'>")+2*sizeof("</span>"));
+    sprintf(translate_html_rbnode[1],xmltext,"%s","<span class='t'>%s</span>","<span class='b'>%s</span>");
    }
 
  return(0);

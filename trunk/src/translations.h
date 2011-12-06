@@ -38,6 +38,7 @@ extern char *translate_xml_copyright_license[2];
 
 extern char *translate_xml_heading[9];
 extern char *translate_xml_turn[9];
+extern char *translate_xml_ordinal[10];
 
 extern char *translate_raw_highway[Way_Count];
 
@@ -46,11 +47,13 @@ extern char *translate_xml_route_quickest;
 
 extern char *translate_html_waypoint;
 extern char *translate_html_junction;
+extern char *translate_html_roundabout;
 
 extern char *translate_html_title;
 extern char *translate_html_start[2];
 extern char *translate_html_segment[2];
 extern char *translate_html_node[2];
+extern char *translate_html_rbnode[2];
 extern char *translate_html_stop[2];
 extern char *translate_html_total[2];
 
