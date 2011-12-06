@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ============================================================
-     $Header: /home/amb/CVS/routino/xml/routino-translations.xsd,v 1.3 2010-05-29 13:54:43 amb Exp $
-
      An XML Schema Definition for the Routino translations XML format
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010 Andrew M. Bishop
+     This file Copyright 2010-2011 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -30,8 +28,9 @@
   <xsd:complexType name="languageType">
     <xsd:sequence>
       <xsd:element name="copyright"   type="CopyrightType" minOccurs="0"/>
-      <xsd:element name="turn"        type="TurnType"      minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:element name="heading"     type="HeadingType"   minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="turn"        type="TurnType"      minOccurs="0" maxOccurs="9"/>
+      <xsd:element name="heading"     type="HeadingType"   minOccurs="0" maxOccurs="9"/>
+      <xsd:element name="ordinal"     type="OrdinalType"   minOccurs="0" maxOccurs="10"/>
       <xsd:element name="highway"     type="HighwayType"   minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="route"       type="RouteType"     minOccurs="0" maxOccurs="2"/>
       <xsd:element name="output-html" type="HTMLType"      minOccurs="0"/>
@@ -65,7 +64,7 @@
     <xsd:attribute name="text"    type="xsd:string"/>
   </xsd:complexType>
 
-  <!-- The turn, heading, highway and route strings -->
+  <!-- The turn, heading, ordinal, highway and route strings -->
 
   <xsd:complexType name="TurnType">
     <xsd:attribute name="direction" type="xsd:string"/>
@@ -74,6 +73,11 @@
 
   <xsd:complexType name="HeadingType">
     <xsd:attribute name="direction" type="xsd:string"/>
+    <xsd:attribute name="string"    type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="OrdinalType">
+    <xsd:attribute name="number"    type="xsd:string"/>
     <xsd:attribute name="string"    type="xsd:string"/>
   </xsd:complexType>
 
@@ -91,10 +95,11 @@
 
   <xsd:complexType name="HTMLType">
     <xsd:sequence>
-      <xsd:element name="waypoint" type="HTMLWaypointType" maxOccurs="2"/>
+      <xsd:element name="waypoint" type="HTMLWaypointType" maxOccurs="3"/>
       <xsd:element name="title"    type="HTMLTitleType"/>
       <xsd:element name="start"    type="HTMLStartType"/>
       <xsd:element name="node"     type="HTMLNodeType"/>
+      <xsd:element name="rbnode"   type="HTMLRBNodeType"/>
       <xsd:element name="segment"  type="HTMLSegmentType"/>
       <xsd:element name="stop"     type="HTMLStopType"/>
       <xsd:element name="total"    type="HTMLTotalType"/>
@@ -116,6 +121,11 @@
   </xsd:complexType>
 
   <xsd:complexType name="HTMLNodeType">
+    <xsd:attribute name="string" type="xsd:string"/>
+    <xsd:attribute name="text"   type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="HTMLRBNodeType">
     <xsd:attribute name="string" type="xsd:string"/>
     <xsd:attribute name="text"   type="xsd:string"/>
   </xsd:complexType>

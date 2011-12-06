@@ -49,6 +49,18 @@
     <heading direction="3"  string="South-East" />
     <heading direction="4"  string="South" />
 
+    <!-- Ordinals, 1 = first, 2 = second ... -->
+    <ordinal number="1"  string="First" />
+    <ordinal number="2"  string="Second" />
+    <ordinal number="3"  string="Third" />
+    <ordinal number="4"  string="Fourth" />
+    <ordinal number="5"  string="Fifth" />
+    <ordinal number="6"  string="Sixth" />
+    <ordinal number="7"  string="Seventh" />
+    <ordinal number="8"  string="Eighth" />
+    <ordinal number="9"  string="Ninth" />
+    <ordinal number="10" string="Tenth" />
+
     <!-- Highway names -->
     <highway type="motorway"     string="motorway" />
     <highway type="trunk"        string="trunk road" />
@@ -70,15 +82,17 @@
 
     <!-- HTML output -->
     <output-html>
-      <waypoint type="waypoint"  string="Waypoint" /> <!-- For the chosen waypoints -->
-      <waypoint type="junction"  string="Junction" /> <!-- For the interesting junctions -->
+      <waypoint type="waypoint"   string="Waypoint" />   <!-- For the chosen waypoints -->
+      <waypoint type="junction"   string="Junction" />   <!-- For the interesting junctions -->
+      <waypoint type="roundabout" string="Roundabout" /> <!-- For roundabouts -->
 
       <title text="%s Route" /> <!-- %s = [shortest|quickest] -->
 
-      <start   string="Start"  text="At %s, head %s" />           <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
-      <node    string="At"     text="%s, go %s heading %s" />     <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
-      <segment string="Follow" text="%s for %.3f km, %.1f min" /> <!-- 1st %s = street name -->
-      <stop    string="Stop"   text="At %s" />                    <!-- 1st %s = [waypoint|junction] -->
+      <start   string="Start"  text="At %s, head %s" />                  <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
+      <node    string="At"     text="%s, go %s heading %s" />            <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <rbnode  string="Leave"  text="%s, take the %s exit heading %s" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
+      <segment string="Follow" text="%s for %.3f km, %.1f min" />        <!-- 1st %s = street name -->
+      <stop    string="Stop"   text="At %s" />                           <!-- 1st %s = [waypoint|junction] -->
       <total   string="Total"  text="%.1f km, %.0f minutes" />
     </output-html>
 
@@ -130,6 +144,18 @@
     <heading direction="3"  string="Süd-Ost" />
     <heading direction="4"  string="Süd" />
 
+    <!-- Ordinals, 1 = first, 2 = second ... -->
+    <!-- TRANSLATION REQUIRED: ordinal number="1"  string="First" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="2"  string="Second" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="3"  string="Third" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="4"  string="Fourth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="5"  string="Fifth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="6"  string="Sixth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="7"  string="Seventh" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="8"  string="Eighth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="9"  string="Ninth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="10" string="Tenth" / -->
+
     <!-- Highway names -->
     <highway type="motorway"     string="Autobahn" />
     <highway type="trunk"        string="Schnellstraße" />
@@ -153,11 +179,13 @@
     <output-html>
       <waypoint type="waypoint"  string="Wegpunkt" />        <!-- For the chosen waypoints -->
       <waypoint type="junction"  string="Anschlussstelle" /> <!-- For the interesting junctions -->
+      <!-- TRANSLATION REQUIRED: waypoint type="roundabout" string="Roundabout" / --> <!-- For roundabouts -->
 
       <title text="%s Route" /> <!-- %s = [shortest|quickest] -->
 
       <start   string="Start"  text="Bei %s halten Sie sich Richtung %s" />          <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
       <node    string="Bei"    text="Bei %s wenden Sie sich nach %s Richtung %s" />  <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <!-- TRANSLATION REQUIRED: rbnode  string="Leave"  text="%s, take the %s exit heading %s" / --> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
       <segment string="Folgen" text="Folgen Sie der %s für %.3f km bzw. %.1f min" /> <!-- 1st %s = street name -->
       <stop    string="Stop"   text="Sie sind bei %s angekommen" />                  <!-- 1st %s = [waypoint|junction] -->
       <total   string="Gesamt" text="%.1f km, %.0f minuten" />
@@ -211,6 +239,18 @@
     <heading direction="3"  string="Zuid-Oost" />
     <heading direction="4"  string="Zuid" />
 
+    <!-- Ordinals, 1 = first, 2 = second ... -->
+    <!-- TRANSLATION REQUIRED: ordinal number="1"  string="First" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="2"  string="Second" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="3"  string="Third" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="4"  string="Fourth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="5"  string="Fifth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="6"  string="Sixth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="7"  string="Seventh" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="8"  string="Eighth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="9"  string="Ninth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="10" string="Tenth" / -->
+
     <!-- Highway names -->
     <highway type="motorway"     string="Autostrade" />
     <highway type="trunk"        string="Autoweg" />
@@ -234,11 +274,13 @@
     <output-html>
       <waypoint type="waypoint"  string="Punt" />         <!-- For the chosen waypoints -->
       <waypoint type="junction"  string="de splitsing" /> <!-- For the interesting junctions -->
+      <!-- TRANSLATION REQUIRED: waypoint type="roundabout" string="Roundabout" / --> <!-- For roundabouts -->
 
       <title text="%s Route" /> <!-- %s = [shortest|quickest] -->
 
       <start   string="Start"  text="Bij %s neemt u de richting %s" />       <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
       <node    string="Bij"    text="Bij %s gaat u %s richting %s" />        <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <!-- TRANSLATION REQUIRED: rbnode  string="Leave"  text="%s, take the %s exit heading %s" / --> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
       <segment string="Volg"   text="Volgt u de %s voor %.3f km %.1f min" /> <!-- 1st %s = street name -->
       <stop    string="Stop"   text="U bent bij  %s aangekomen" />           <!-- 1st %s = [waypoint|junction] -->
       <total   string="Totaal" text="%.1f km, %.0f minuten" />
@@ -292,6 +334,18 @@
     <heading direction="3"  string="юго-восток" />
     <heading direction="4"  string="юг" />
 
+    <!-- Ordinals, 1 = first, 2 = second ... -->
+    <!-- TRANSLATION REQUIRED: ordinal number="1"  string="First" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="2"  string="Second" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="3"  string="Third" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="4"  string="Fourth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="5"  string="Fifth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="6"  string="Sixth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="7"  string="Seventh" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="8"  string="Eighth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="9"  string="Ninth" / -->
+    <!-- TRANSLATION REQUIRED: ordinal number="10" string="Tenth" / -->
+
     <!-- Highway names -->
     <highway type="motorway"     string="автомагистраль" />
     <highway type="trunk"        string="международная трасса" />
@@ -305,9 +359,8 @@
     <highway type="cycleway"     string="велодорожка" />
     <highway type="path"         string="тропинка" />
     <highway type="steps"        string="лестница" />
-    <highway type="ferry"        string="паром" /> 
+    <highway type="ferry"        string="паром" />
 
- 	
     <!-- The type of route -->
     <route type="shortest" string="Короткий" /> <!-- For the description and route name -->
     <route type="quickest" string="Быстрый" /> <!-- For the description and route name -->
@@ -316,11 +369,13 @@
     <output-html>
       <waypoint type="waypoint"  string="путевая точка" /> <!-- For the chosen waypoints -->
       <waypoint type="junction"  string="перекрестке" /> <!-- For the interesting junctions -->
+      <!-- TRANSLATION REQUIRED: waypoint type="roundabout" string="Roundabout" / --> <!-- For roundabouts -->
 
       <title text="%s маршрут" /> <!-- %s = [shortest|quickest] -->
 
       <start   string="Старт"  text=" %s, на %s" />           <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
       <node    string="на"     text="%s, %s,  на %s" />     <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <!-- TRANSLATION REQUIRED: rbnode  string="Leave"  text="%s, take the %s exit heading %s" / --> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
       <segment string="Следуйте" text="по %s %.3f км, %.1f мин" /> <!-- 1st %s = street name -->
       <stop    string="Стоп"   text=" %s" />                    <!-- 1st %s = [waypoint|junction] -->
       <total   string="Всего"  text="%.1f км, %.0f минут" />
