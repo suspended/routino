@@ -99,6 +99,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
  int point=1;
  int segment_count=0,route_count=0;
  int point_count=0;
+ int roundabout=0;
 
  /* Open the files */
 
@@ -316,7 +317,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        Node *resultnode=NULL;
        index_t realsegment=NO_SEGMENT,next_realsegment=NO_SEGMENT;
        Segment *resultsegment=NULL,*next_resultsegment=NULL;
-       Way *resultway=NULL;
+       Way *resultway=NULL,*next_resultway;
        Result *next_result;
        int important=0;
 
@@ -394,9 +395,55 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
             }
          }
 
+       /* Decide if this is a roundabout */
+
+       if(next_result)
+         {
+          next_resultway=LookupWay(ways,next_resultsegment->way,2);
+
+          if(next_resultway->type&Way_Roundabout)
+            {
+             if(roundabout==0)
+               {
+                roundabout++;
+                important=7;
+               }
+             else
+               {
+                Segment *segment=FirstSegment(segments,resultnode,3);
+
+                do
+                  {
+                   index_t othernode=OtherNode(segment,result->node);
+
+                   if(othernode!=result->prev->node && IndexSegment(segments,segment)!=realsegment)
+                      if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
+                        {
+                         Way *way=LookupWay(ways,segment->way,3);
+
+                         if(!(way->type&Way_Roundabout))
+                            if(othernode!=next_result->node)
+                               roundabout++;
+                        }
+
+                   segment=NextSegment(segments,segment,result->node);
+                  }
+                while(segment);
+               }
+            }
+          else
+             if(roundabout)
+               {
+                roundabout++;
+                important=7;
+               }
+         }
+
        /* Decide if this is an important junction */
 
-       if(point_count==0)       /* first point overall = Waypoint */
+       if(roundabout)           /* roundabout */
+          ;
+       else if(point_count==0)  /* first point overall = Waypoint */
           important=10;
        else if(result->node==results[point]->finish_node) /* Waypoint */
           important=10;
@@ -415,7 +462,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              if(othernode!=result->prev->node && IndexSegment(segments,segment)!=realsegment)
                 if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
                   {
-                   Way *way=LookupWay(ways,segment->way,2);
+                   Way *way=LookupWay(ways,segment->way,3);
 
                    if(othernode==next_result->node) /* the next segment that we follow */
                      {
@@ -464,8 +511,6 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           if(gpxroutefile || htmlfile)
             {
-             Way *next_resultway=LookupWay(ways,next_resultsegment->way,2);
-
              next_waynameraw=WayName(ways,next_resultway);
              if(!*next_waynameraw)
                 next_waynameraw=translate_raw_highway[HIGHWAY(next_resultway->type)];
@@ -498,7 +543,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 /* <tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>*highway name*</span> for <span class='d'>*distance* km, *time* min</span> [<span class='j'>*distance* km, *time* minutes</span>] */
                 fprintf(htmlfile,"<tr class='s'><td class='l'>%s:<td class='r'>",translate_html_segment[0]);
                 fprintf(htmlfile,translate_html_segment[1],
-                                 prev_wayname,
+                                 (roundabout>1?translate_html_roundabout:prev_wayname),
                                  distance_to_km(junc_distance),duration_to_minutes(junc_duration));
                 fprintf(htmlfile," [<span class='j'>");
                 fprintf(htmlfile,translate_html_total[1],
@@ -522,13 +567,26 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                }
              else if(next_result) /* middle point */
                {
-                /* <tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>*direction*</span> heading <span class='b'>*heading*</span> */
-                fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_node[0]);
-                fprintf(htmlfile,translate_html_node[1],
-                                 type,
-                                 turn,
-                                 next_bearing);
-                fprintf(htmlfile,"\n");
+                if(roundabout>1)
+                  {
+                   /* <tr class='n'><td class='l'>At:<td class='r'>Roundabout, take <span class='t'>the *Nth* exit</span> heading <span class='b'>*heading*</span> */
+                   fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_rbnode[0]);
+                   fprintf(htmlfile,translate_html_rbnode[1],
+                                    translate_html_roundabout,
+                                    translate_xml_ordinal[roundabout-2],
+                                    next_bearing);
+                   fprintf(htmlfile,"\n");
+                  }
+                else
+                  {
+                   /* <tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>*direction*</span> heading <span class='b'>*heading*</span> */
+                   fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_node[0]);
+                   fprintf(htmlfile,translate_html_node[1],
+                                    type,
+                                    turn,
+                                    next_bearing);
+                   fprintf(htmlfile,"\n");
+                  }
                }
              else            /* end point */
                {
@@ -645,6 +703,9 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           if(gpxroutefile)
              prev_bearing=next_bearing;
+
+          if(roundabout>1)
+             roundabout=0;
          }
 
        /* Print out all of the results */
@@ -661,6 +722,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
              if(important==10)
                 type="Waypt";
+             else if(important==5)
+                type="U-turn";
              else if(important==2)
                 type="Change";
              else if(important>=1)
