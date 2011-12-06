@@ -84,10 +84,10 @@ struct _Ways
  int        fd;                 /*+ The file descriptor for the file. +*/
  off_t      namesoffset;        /*+ The offset of the names within the file. +*/
 
- Way        cached[2];          /*+ Two cached nodes read from the file in slim mode. +*/
- index_t    incache[2];         /*+ The indexes of the cached ways. +*/
+ Way        cached[3];          /*+ Two cached nodes read from the file in slim mode. +*/
+ index_t    incache[3];         /*+ The indexes of the cached ways. +*/
 
- char      *ncached[2];         /*+ The cached way name. +*/
+ char      *ncached[3];         /*+ The cached way name. +*/
 
 #endif
 };
