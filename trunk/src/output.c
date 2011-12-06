@@ -52,8 +52,9 @@
 #define IMP_JUNCT_IMPORT 4      /*+ An interesting junction to be described. +*/
 #define IMP_RB_ENTRY     5      /*+ The entrance to a roundabout. +*/
 #define IMP_RB_EXIT      6      /*+ The exit from a roundabout. +*/
-#define IMP_UTURN        7      /*+ The location of a U-turn. +*/
-#define IMP_WAYPOINT     8      /*+ A waypoint. +*/
+#define IMP_MINI_RB      7      /*+ The location of a mini-roundabout. +*/
+#define IMP_UTURN        8      /*+ The location of a U-turn. +*/
+#define IMP_WAYPOINT     9      /*+ A waypoint. +*/
 
 /* Global variables */
 
@@ -466,6 +467,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           important=IMP_IGNORE;
        else if(realsegment==next_realsegment) /* U-turn */
           important=IMP_UTURN;
+       else if(resultnode && (resultnode->flags&NODE_MINIRNDBT))
+          important=IMP_MINI_RB; /* mini-roundabout */
        else
          {
           Segment *segment=FirstSegment(segments,resultnode,3);
@@ -550,6 +553,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
              if(important==IMP_WAYPOINT)
                 type=translate_html_waypoint;
+             else if(important==IMP_MINI_RB)
+                type=translate_html_roundabout;
              else
                 type=translate_html_junction;
 
@@ -739,6 +744,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 type="Waypt";
              else if(important==IMP_UTURN)
                 type="U-turn";
+             else if(important==IMP_MINI_RB)
+                type="Mini-RB";
              else if(important==IMP_CHANGE)
                 type="Change";
              else if(important==IMP_UNIMPORTANT)
