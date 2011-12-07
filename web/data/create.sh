@@ -27,4 +27,4 @@ done
 
 bunzip2 *.bz2
 
-../bin/planetsplitter *.osm
+../bin/planetsplitter --errorlog *.osm
