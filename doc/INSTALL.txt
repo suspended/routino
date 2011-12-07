@@ -116,10 +116,10 @@ Configuration of web files
    The directory 'www/openlayers' must be filled with the openlayers
    Javascript library that can be downloaded from
    http://www.openlayers.org/.  (This version of Routino has been tested
-   with OpenLayers library version 2.10). The files must be installed so
+   with OpenLayers library version 2.11). The files must be installed so
    that the file 'www/openlayers/OpenLayers.js' and the directories
    'www/openlayers/img/', 'www/openlayers/theme/' all exist. There is a
-   script in the directory that will automatically download and the files,
+   script in the directory that will automatically download the files,
    create an optimised "OpenLayers.js" and copy the files to the required
    locations.
 
@@ -137,14 +137,11 @@ Configuration of web files
           files (only needed if planetsplitter is run with the --prefix
           option).
 
-   router.js
+   mapprefs.js
           The parameters in this file control the boundary of the visible
           map (defaults to UK), the minimum and maximum zoom levels
           (defaults to between 4 and 15 inclusive) and the source of map
           tiles (defaults to the main OpenStreetMap tile server).
-
-   visualiser.js
-          The same parameters as in router.js are in this file.
 
    The directory www/routino/documentation contains the HTML version of
    the Routino documentation.
