@@ -441,7 +441,7 @@ function discardReturnKey(ev)
 ////////////////////////////////////////////////////////////////////////////////
 
 var map;
-var layerMapOSM, layerVectors, layerGPX;
+var layerMap=[], layerVectors, layerGPX;
 var epsg4326, epsg900913;
 var map_args;
 
@@ -451,21 +451,8 @@ var map_args;
 
 function map_init(lat,lon,zoom)
 {
- // Default configuration:
- // UK coordinate range
- // West -11.0, South 49.5, East 2.0, North 61.0
- // Zoom level 4 to 15
-
- // EDIT THIS below to change the visible map limits
-
- var westedge  = -11.0;          // Minimum longitude (degrees)
- var eastedge  =   2.0;          // Maximum longitude (degrees)
- var southedge =  49.5;          // Minimum latitude (degrees)
- var northedge =  61.0;          // Maximum latitude (degrees)
- var zoomout   =     4;          // Minimum zoom
- var zoomin    =    15;          // Maximum zoom
-
- // EDIT THIS above to change the visible map limits
+ // Map properties (North/South and East/West limits and zoom in/out limits are now in mapprops.js
+ // Map URLs are now in mapprops.js
 
  //
  // Create the map
@@ -486,30 +473,33 @@ function map_init(lat,lon,zoom)
                             projection: epsg900913,
                             displayProjection: epsg4326,
 
-                            minZoomLevel: zoomout,
-                            numZoomLevels: zoomin-zoomout+1,
-                            maxResolution: 156543.0339 / Math.pow(2,zoomout),
+                            minZoomLevel: mapprops.zoomout,
+                            numZoomLevels: mapprops.zoomin-mapprops.zoomout+1,
+                            maxResolution: 156543.0339 / Math.pow(2,mapprops.zoomout),
 
                             maxExtent:        new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34),
-                            restrictedExtent: new OpenLayers.Bounds(westedge,southedge,eastedge,northedge).transform(epsg4326,epsg900913),
+                            restrictedExtent: new OpenLayers.Bounds(mapprops.westedge,mapprops.southedge,mapprops.eastedge,mapprops.northedge).transform(epsg4326,epsg900913),
 
                             units: "m"
                            });
 
  map.events.register("moveend", map, mapMoved);
 
- // Add a map tile layer (OpenStreetMap tiles, direct access)
+ // Add map tile layers
 
- layerMapOSM = new OpenLayers.Layer.TMS("Original OSM map",
-                                        "http://tile.openstreetmap.org/",
-                                        {
-                                         emptyUrl: "http://openstreetmap.org/openlayers/img/404.png",
-                                         type: 'png',
-                                         getURL: limitedUrl,
-                                         displayOutsideMaxExtent: true,
-                                         buffer: 1
-                                        });
- map.addLayer(layerMapOSM);
+ for(var l=0;l < mapprops.mapdata.length;l++)
+   {
+    layerMap[l] = new OpenLayers.Layer.TMS(mapprops.mapdata[l].label,
+                                           mapprops.mapdata[l].baseurl,
+                                           {
+                                            emptyUrl: mapprops.mapdata[l].errorurl,
+                                            type: 'png',
+                                            getURL: limitedUrl,
+                                            displayOutsideMaxExtent: true,
+                                            buffer: 1
+                                           });
+    map.addLayer(layerMap[l]);
+   }
 
  // Get a URL for the tile; limited to map restricted extent.
 
@@ -615,6 +605,15 @@ function map_init(lat,lon,zoom)
 
  if(lon != 'lon' && lat != 'lat' && zoom != 'zoom')
    {
+    if(lon<mapprops.westedge) lon=mapprops.westedge;
+    if(lon>mapprops.eastedge) lon=mapprops.eastedge;
+
+    if(lat<mapprops.southedge) lat=mapprops.southedge;
+    if(lat>mapprops.northedge) lat=mapprops.northedge;
+
+    if(zoom<mapprops.zoomout) zoom=mapprops.zoomout;
+    if(zoom>mapprops.zoomin)  zoom=mapprops.zoomin;
+
     var lonlat = new OpenLayers.LonLat(lon,lat).transform(epsg4326,map.getProjectionObject());
 
     map.moveTo(lonlat,zoom-map.minZoomLevel);
