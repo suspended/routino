@@ -79,8 +79,8 @@
       </div>
 
       <div class="hideshow_box">
-        <span id="hideshow_language_show" onclick="hideshow_show('language');" class="hideshow_show">Laat zien</span>
-        <span id="hideshow_language_hide" onclick="hideshow_hide('language');" class="hideshow_hide">Verberg</span>
+        <span id="hideshow_language_show" onclick="hideshow_show('language');" class="hideshow_show">+</span>
+        <span id="hideshow_language_hide" onclick="hideshow_hide('language');" class="hideshow_hide">-</span>
         <span class="hideshow_title">Taal (Language)</span>
 
         <!-- Note for translations: Only this HTML file needs to be translated, the Javascript has
@@ -113,8 +113,8 @@
       </div>
 
       <div class="hideshow_box">
-        <span id="hideshow_waypoint_show" onclick="hideshow_show('waypoint');" class="hideshow_hide">Laat zien</span>
-        <span id="hideshow_waypoint_hide" onclick="hideshow_hide('waypoint');" class="hideshow_show">Verberg</span>
+        <span id="hideshow_waypoint_show" onclick="hideshow_show('waypoint');" class="hideshow_hide">+</span>
+        <span id="hideshow_waypoint_hide" onclick="hideshow_hide('waypoint');" class="hideshow_show">-</span>
         <span class="hideshow_title">Coordinaten (waypoints)</span>
         <div id="hideshow_waypoint_div">
           <table>
@@ -252,8 +252,8 @@
       </div>
 
       <div class="hideshow_box">
-        <span id="hideshow_transport_show" onclick="hideshow_show('transport');" class="hideshow_hide">Laat zien</span>
-        <span id="hideshow_transport_hide" onclick="hideshow_hide('transport');" class="hideshow_show">Verberg</span>
+        <span id="hideshow_transport_show" onclick="hideshow_show('transport');" class="hideshow_hide">+</span>
+        <span id="hideshow_transport_hide" onclick="hideshow_hide('transport');" class="hideshow_show">-</span>
         <span class="hideshow_title">Transport Type</span>
         <div id="hideshow_transport_div">
           <table>
@@ -272,8 +272,8 @@
       </div>
 
       <div class="hideshow_box">
-        <span id="hideshow_highway_show" onclick="hideshow_show('highway');" class="hideshow_show">Laat zien</span>
-        <span id="hideshow_highway_hide" onclick="hideshow_hide('highway');" class="hideshow_hide">Verberg</span>
+        <span id="hideshow_highway_show" onclick="hideshow_show('highway');" class="hideshow_show">+</span>
+        <span id="hideshow_highway_hide" onclick="hideshow_hide('highway');" class="hideshow_hide">-</span>
         <span class="hideshow_title">Voorkeur Wegtype</span>
         <div id="hideshow_highway_div" style="display: none;">
           <table>
@@ -295,8 +295,8 @@
       </div>
 
       <div class="hideshow_box">
-        <span id="hideshow_speed_show" onclick="hideshow_show('speed');" class="hideshow_show">Laat zien</span>
-        <span id="hideshow_speed_hide" onclick="hideshow_hide('speed');" class="hideshow_hide">Verberg</span>
+        <span id="hideshow_speed_show" onclick="hideshow_show('speed');" class="hideshow_show">+</span>
+        <span id="hideshow_speed_hide" onclick="hideshow_hide('speed');" class="hideshow_hide">-</span>
         <span class="hideshow_title">Snelheidslimieten</span>
         <div id="hideshow_speed_div" style="display: none;">
           <table>
@@ -318,8 +318,8 @@
       </div>
 
       <div class="hideshow_box">
-        <span id="hideshow_property_show" onclick="hideshow_show('property');" class="hideshow_show">Laat zien</span>
-        <span id="hideshow_property_hide" onclick="hideshow_hide('property');" class="hideshow_hide">Verberg</span>
+        <span id="hideshow_property_show" onclick="hideshow_show('property');" class="hideshow_show">+</span>
+        <span id="hideshow_property_hide" onclick="hideshow_hide('property');" class="hideshow_hide">-</span>
         <span class="hideshow_title">Weg Eigenschappen</span>
         <div id="hideshow_property_div" style="display: none;">
           <table>
@@ -334,8 +334,8 @@
       </div>
 
       <div class="hideshow_box">
-        <span id="hideshow_restriction_show" onclick="hideshow_show('restriction');" class="hideshow_show">Laat zien</span>
-        <span id="hideshow_restriction_hide" onclick="hideshow_hide('restriction');" class="hideshow_hide">Verberg</span>
+        <span id="hideshow_restriction_show" onclick="hideshow_show('restriction');" class="hideshow_show">+</span>
+        <span id="hideshow_restriction_hide" onclick="hideshow_hide('restriction');" class="hideshow_hide">-</span>
         <span class="hideshow_title">Andere Beperkingen</span>
         <div id="hideshow_restriction_div" style="display: none;">
           <table>
@@ -363,8 +363,8 @@
       </div>
 
       <div class="hideshow_box">
-        <span id="hideshow_help_options_show" onclick="hideshow_show('help_options');" class="hideshow_hide">Laat zien</span>
-        <span id="hideshow_help_options_hide" onclick="hideshow_hide('help_options');" class="hideshow_show">Verberg</span>
+        <span id="hideshow_help_options_show" onclick="hideshow_show('help_options');" class="hideshow_hide">+</span>
+        <span id="hideshow_help_options_hide" onclick="hideshow_hide('help_options');" class="hideshow_show">-</span>
         <span class="hideshow_title">Help</span>
         <div id="hideshow_help_options_div">
           <div class="scrollable">
@@ -458,8 +458,8 @@
     </div>
 
     <div class="hideshow_box">
-      <span id="hideshow_shortest_show" onclick="hideshow_show('shortest');" class="hideshow_show">Laat zien</span>
-      <span id="hideshow_shortest_hide" onclick="hideshow_hide('shortest');" class="hideshow_hide">Verberg</span>
+      <span id="hideshow_shortest_show" onclick="hideshow_show('shortest');" class="hideshow_show">+</span>
+      <span id="hideshow_shortest_hide" onclick="hideshow_hide('shortest');" class="hideshow_hide">-</span>
       <span class="hideshow_title">Kortste Route</span>
       <div id="shortest_status">
         <span id="shortest_status_no_info"                       ><b><i>No Information</i></b></span>
@@ -482,8 +482,8 @@
     </div>
 
     <div class="hideshow_box">
-      <span id="hideshow_quickest_show" onclick="hideshow_show('quickest');" class="hideshow_show">Laat zien</span>
-      <span id="hideshow_quickest_hide" onclick="hideshow_hide('quickest');" class="hideshow_hide">Verberg</span>
+      <span id="hideshow_quickest_show" onclick="hideshow_show('quickest');" class="hideshow_show">+</span>
+      <span id="hideshow_quickest_hide" onclick="hideshow_hide('quickest');" class="hideshow_hide">-</span>
       <span class="hideshow_title">Snelste Route</span>
       <div id="quickest_status">
         <span id="quickest_status_no_info"                       ><b><i>No Information</i></b></span>
@@ -506,8 +506,8 @@
     </div>
 
     <div class="hideshow_box">
-      <span id="hideshow_help_route_show" onclick="hideshow_show('help_route');" class="hideshow_hide">Laat zien</span>
-      <span id="hideshow_help_route_hide" onclick="hideshow_hide('help_route');" class="hideshow_show">Verberg</span>
+      <span id="hideshow_help_route_show" onclick="hideshow_show('help_route');" class="hideshow_hide">+</span>
+      <span id="hideshow_help_route_hide" onclick="hideshow_hide('help_route');" class="hideshow_show">-</span>
       <span class="hideshow_title">Help</span>
       <div id="hideshow_help_route_div">
         <div class="scrollable">
