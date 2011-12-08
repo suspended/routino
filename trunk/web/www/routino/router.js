@@ -1298,12 +1298,12 @@ function displayStatus(type,subtype,content)
    }
  while(child != undefined);
 
- var span_status=document.getElementById(type + "_status_" + subtype);
+ var chosen_status=document.getElementById(type + "_status_" + subtype);
 
- span_status.style.display="";
+ chosen_status.style.display="";
 
  if(content != null)
-    span_status.innerHTML=content;
+    chosen_status.innerHTML=content;
 }
 
 

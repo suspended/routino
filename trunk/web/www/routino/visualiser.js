@@ -91,7 +91,7 @@ var box;
 
 function map_init(lat,lon,zoom)
 {
- // Map properties (North/South and East/West limits and zoom in/out limits are now in mapprops.js
+ // Map properties (North/South and East/West limits and zoom in/out limits) are now in mapprops.js
  // Map URLs are now in mapprops.js
 
  //
@@ -250,6 +250,38 @@ function updateCustomURL()
 ////////////////////////////////////////////////////////////////////////////////
 
 //
+// Display the status
+//
+
+function displayStatus(type,subtype,content)
+{
+ var div_status=document.getElementById("result_status");
+
+ var child=div_status.firstChild;
+
+ do
+   {
+    if(child.id != undefined)
+       child.style.display="none";
+
+    child=child.nextSibling;
+   }
+ while(child != undefined);
+
+ var chosen_status=document.getElementById("result_status_" + type);
+
+ chosen_status.style.display="";
+
+ if(subtype != null)
+   {
+    var format_status=document.getElementById("result_status_" + subtype).innerHTML;
+
+    chosen_status.innerHTML=format_status.replace('#',String(content));
+   }
+}
+
+
+//
 // Display data statistics
 //
 
@@ -298,8 +330,7 @@ function displayData(datatype)
 
  // Print the status
 
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "No data displayed";
+ displayStatus("no_data");
 
  // Return if just here to clear the data
 
@@ -318,10 +349,6 @@ function displayData(datatype)
  url=url + ";lonmax=" + mapbounds.right;
  url=url + ";latmax=" + mapbounds.top;
  url=url + ";data=" + datatype;
-
- // Print the status
-
- div_status.innerHTML = "Fetching " + datatype + " data ...";
 
  // Use AJAX to get the data
 
@@ -358,10 +385,6 @@ function runJunctionsSuccess(response)
 {
  var lines=response.responseText.split('\n');
 
-// This won't update the browser window
-// var div_status=document.getElementById("result_status");
-// div_status.innerHTML = "Processing " + (lines.length-2) + " junctions ...";
-
  var features=[];
 
  for(var line=0;line<lines.length;line++)
@@ -397,8 +420,7 @@ function runJunctionsSuccess(response)
 
  layerVectors.addFeatures(features);
 
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "Processed " + (lines.length-2) + " junctions";
+ displayStatus("data","junctions",lines.length-2);
 }
 
 
@@ -409,10 +431,6 @@ function runJunctionsSuccess(response)
 function runSuperSuccess(response)
 {
  var lines=response.responseText.split('\n');
-
-// This won't update the browser window
-// var div_status=document.getElementById("result_status");
-// div_status.innerHTML = "Processing " + (lines.length-2) + " super-nodes/segments ...";
 
  var features=[];
 
@@ -462,8 +480,7 @@ function runSuperSuccess(response)
 
  layerVectors.addFeatures(features);
 
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "Processed " + (lines.length-2) + " super-nodes/segments";
+ displayStatus("data","super",lines.length-2);
 }
 
 
@@ -474,10 +491,6 @@ function runSuperSuccess(response)
 function runOnewaySuccess(response)
 {
  var lines=response.responseText.split('\n');
-
-// This won't update the browser window
-// var div_status=document.getElementById("result_status");
-// div_status.innerHTML = "Processing " + (lines.length-2) + " oneway segments ...";
 
  var features=[];
 
@@ -534,8 +547,7 @@ function runOnewaySuccess(response)
 
  layerVectors.addFeatures(features);
 
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "Processed " + (lines.length-2) + " oneway segments";
+ displayStatus("data","oneway",lines.length-2);
 }
 
 
@@ -546,10 +558,6 @@ function runOnewaySuccess(response)
 function runTurnsSuccess(response)
 {
  var lines=response.responseText.split('\n');
-
-// This won't update the browser window
-// var div_status=document.getElementById("result_status");
-// div_status.innerHTML = "Processing " + (lines.length-2) + " turn restrictions ...";
 
  var features=[];
 
@@ -595,8 +603,7 @@ function runTurnsSuccess(response)
 
  layerVectors.addFeatures(features);
 
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "Processed " + (lines.length-2) + " turn restrictions";
+ displayStatus("data","turns",lines.length-2);
 }
 
 
@@ -607,10 +614,6 @@ function runTurnsSuccess(response)
 function runLimitSuccess(response)
 {
  var lines=response.responseText.split('\n');
-
-// This won't update the browser window
-// var div_status=document.getElementById("result_status");
-// div_status.innerHTML = "Processing " + (lines.length-2) + " limits ...";
 
  var features=[];
 
@@ -668,8 +671,7 @@ function runLimitSuccess(response)
 
  layerVectors.addFeatures(features);
 
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "Processed " + (lines.length-2) + " limits";
+ displayStatus("data","limit",lines.length-2);
 }
 
 
@@ -679,8 +681,5 @@ function runLimitSuccess(response)
 
 function runFailure(response)
 {
- var div_status=document.getElementById("result_status");
- div_status.innerHTML = "Failed to get visualiser data!";
-
- window.alert("Failed to get visualiser data!\n" + response.statusText);
+ displayStatus("error");
 }

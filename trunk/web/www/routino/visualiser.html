@@ -82,8 +82,30 @@
 
     <div class="hideshow_box">
       <span class="hideshow_title">Status</span>
-      <div id="result_status" style="font-style: italic;">
-        No data displayed
+      <div id="result_status">
+        <div id="result_status_no_data">
+          <b><i>No data displayed</i></b>
+        </div>
+        <div id="result_status_data" style="display: none;">
+        </div>
+        <div id="result_status_error" style="display: none;">
+          <b>Failed to get visualiser data!</b>
+        </div>
+        <div id="result_status_junctions" style="display: none;">
+          <b>Processed # junctions</b>
+        </div>
+        <div id="result_status_super"     style="display: none;">
+          <b>Processed # super-nodes/segments</b>
+        </div>
+        <div id="result_status_oneway"    style="display: none;">
+          <b>Processed # oneway segments</b>
+        </div>
+        <div id="result_status_turns"     style="display: none;">
+          <b>Processed # turn restrictions</b>
+        </div>
+        <div id="result_status_limit"     style="display: none;">
+          <b>Processed # limits</b>
+        </div>
       </div>
     </div>
 
@@ -97,13 +119,13 @@
         join are shown colour-coded:
         <br>
         <table>
-          <tr><td><img src="icons/ball-1.png" alt="Red"   <td>only one highway - a dead-end.
-          <tr><td><img src="icons/ball-2.png" alt="Yellow"<td>two highways of different types meet.
-          <tr><td><img src="icons/ball-3.png" alt="Green" <td>three highways meet.
-          <tr><td><img src="icons/ball-4.png" alt="Brown" <td>four highways meet.
-          <tr><td><img src="icons/ball-5.png" alt="Blue"  <td>five highways meet.
-          <tr><td><img src="icons/ball-6.png" alt="Pink"  <td>six highways meet.
-          <tr><td><img src="icons/ball-7.png" alt="Black" <td>seven (or more) highways meet.
+          <tr><td><img src="icons/ball-1.png" alt="Red"   ><td>only one highway - a dead-end.
+          <tr><td><img src="icons/ball-2.png" alt="Yellow"><td>two highways of different types meet.
+          <tr><td><img src="icons/ball-3.png" alt="Green" ><td>three highways meet.
+          <tr><td><img src="icons/ball-4.png" alt="Brown" ><td>four highways meet.
+          <tr><td><img src="icons/ball-5.png" alt="Blue"  ><td>five highways meet.
+          <tr><td><img src="icons/ball-6.png" alt="Pink"  ><td>six highways meet.
+          <tr><td><img src="icons/ball-7.png" alt="Black" ><td>seven (or more) highways meet.
         </table>
       </div>
     </div>
