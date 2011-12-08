@@ -32,6 +32,9 @@
 #include "relations.h"
 
 
+/*+ The maximum number of segments per node (used to size temporary storage). +*/
+#define MAX_SEG_PER_NODE 32
+
 /* Limit types */
 
 #define SPEED_LIMIT  1
@@ -620,11 +623,9 @@ void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *re
 
 static void output_limits(index_t node,double latitude,double longitude)
 {
-#define MAX_STORED 32
  Node *nodep=LookupNode(OSMNodes,node,1);
- Segment *segment,*segments[MAX_STORED];
- Way *ways[MAX_STORED];
- int limits[MAX_STORED];
+ Segment *segment,segments[MAX_SEG_PER_NODE];
+ int limits[MAX_SEG_PER_NODE];
  int count=0;
  int i,j,same=0;
 
@@ -632,21 +633,22 @@ static void output_limits(index_t node,double latitude,double longitude)
 
  do
    {
-    if(IsNormalSegment(segment) && count<MAX_STORED)
+    if(IsNormalSegment(segment) && count<MAX_SEG_PER_NODE)
       {
-       ways    [count]=LookupWay(OSMWays,segment->way,1);
-       segments[count]=segment;
+       Way *way=LookupWay(OSMWays,segment->way,1);
+
+       segments[count]=*segment;
 
        switch(limit_type)
          {
-         case SPEED_LIMIT:  limits[count]=ways[count]->speed;  break;
-         case WEIGHT_LIMIT: limits[count]=ways[count]->weight; break;
-         case HEIGHT_LIMIT: limits[count]=ways[count]->height; break;
-         case WIDTH_LIMIT:  limits[count]=ways[count]->width;  break;
-         case LENGTH_LIMIT: limits[count]=ways[count]->length; break;
+         case SPEED_LIMIT:  limits[count]=way->speed;  break;
+         case WEIGHT_LIMIT: limits[count]=way->weight; break;
+         case HEIGHT_LIMIT: limits[count]=way->height; break;
+         case WIDTH_LIMIT:  limits[count]=way->width;  break;
+         case LENGTH_LIMIT: limits[count]=way->length; break;
          }
 
-       if(limits[count] || ways[count]->type<Way_Track)
+       if(limits[count] || HIGHWAY(way->type)<Way_Track)
           count++;
       }
 
@@ -659,7 +661,7 @@ static void output_limits(index_t node,double latitude,double longitude)
  if(count==1)
     return;
 
- /* Nodes with all segments the same limit is not interesting */
+ /* Nodes with all segments the same limit are not interesting */
 
  same=0;
  for(j=0;j<count;j++)
@@ -669,7 +671,7 @@ static void output_limits(index_t node,double latitude,double longitude)
  if(same==count)
     return;
 
- /* Display the interesting speed limits */
+ /* Display the interesting limits */
 
  printf("%.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude));
 
@@ -684,7 +686,7 @@ static void output_limits(index_t node,double latitude,double longitude)
       {
        double lat,lon;
 
-       GetLatLong(OSMNodes,OtherNode(segments[i],node),&lat,&lon);
+       GetLatLong(OSMNodes,OtherNode(&segments[i],node),&lat,&lon);
 
        switch(limit_type)
          {
