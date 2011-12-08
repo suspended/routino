@@ -451,7 +451,7 @@ var map_args;
 
 function map_init(lat,lon,zoom)
 {
- // Map properties (North/South and East/West limits and zoom in/out limits are now in mapprops.js
+ // Map properties (North/South and East/West limits and zoom in/out limits) are now in mapprops.js
  // Map URLs are now in mapprops.js
 
  //
@@ -1207,9 +1207,9 @@ function runRouterSuccess(response)
  var lines=response.responseText.split('\n');
 
  var uuid=lines[0];
- var cpuinfo=lines[1];
- var distinfo=lines[2];
- var message=lines[3];
+ var cpuinfo=lines[1];  // not used
+ var distinfo=lines[2]; // not used
+ var message=lines[3];  // content not used
 
  var link;
 
@@ -1235,8 +1235,6 @@ function runRouterSuccess(response)
    }
 
  // Update the routing result message
-
- displayStatus(routing_type,"info",distinfo.bold());
 
  link=document.getElementById(routing_type + "_html");
  link.href="results.cgi?uuid=" + uuid + ";type=" + routing_type + ";format=html";
@@ -1404,6 +1402,8 @@ function getRouteSuccess(response)
          }
       }
    }
+
+ displayStatus(routing_type,"info",points[point-1].total.bold());
 
  var result="<table onmouseout='highlight(\"" + routing_type + "\",-1)'>";
 
