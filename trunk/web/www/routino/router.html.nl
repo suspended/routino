@@ -463,8 +463,11 @@
       <span id="hideshow_shortest_hide" onclick="hideshow_hide('shortest');" class="hideshow_hide">-</span>
       <span class="hideshow_title">Kortste Route</span>
       <div id="shortest_status">
-        <span id="shortest_status_no_info"                       ><b><i>No Information</i></b></span>
-        <span id="shortest_status_info"    style="display: none;"></span>
+        <div id="shortest_status_no_info">
+          <b><i>No Information</i></b>
+        </div>
+        <div id="shortest_status_info" style="display: none;">
+        </div>
       </div>
       <div id="hideshow_shortest_div" style="display: none;">
         <div id="shortest_links" style="display: none;">
@@ -487,8 +490,11 @@
       <span id="hideshow_quickest_hide" onclick="hideshow_hide('quickest');" class="hideshow_hide">-</span>
       <span class="hideshow_title">Snelste Route</span>
       <div id="quickest_status">
-        <span id="quickest_status_no_info"                       ><b><i>No Information</i></b></span>
-        <span id="quickest_status_info"    style="display: none;"></span>
+        <div id="quickest_status_no_info">
+          <b><i>No Information</i></b>
+        </div>
+        <div id="quickest_status_info" style="display: none;">
+        </div>
       </div>
       <div id="hideshow_quickest_div" style="display: none;">
         <div id="quickest_links" style="display: none;">
