@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008,2009 Andrew M. Bishop
+# This file Copyright 2008-2011 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -58,7 +58,43 @@ foreach $key (@rawparams)
 
 # Open template file and output it
 
-open(TEMPLATE,"<visualiser.html");
+$bestpref=0;
+$bestlang="";
+
+if(defined $ENV{HTTP_ACCEPT_LANGUAGE})
+  {
+   $LANGUAGES=$ENV{HTTP_ACCEPT_LANGUAGE};
+
+   @LANGUAGES=split(",",$LANGUAGES);
+
+   foreach $LANG (@LANGUAGES)
+     {
+      if($LANG =~ m%^([^; ]+) *; *q *= *([0-9.]+)%)
+        {
+         $LANG=$1;
+         $preference=$2;
+        }
+      else
+        {
+         $preference=1.0;
+        }
+
+      if($preference>$bestpref && -f "visualiser.html.$LANG")
+        {
+         $bestpref=$preference;
+         $bestlang=$LANG;
+        }
+     }
+  }
+
+if($bestpref>0)
+  {
+   open(TEMPLATE,"<visualiser.html.$bestlang");
+  }
+else
+  {
+   open(TEMPLATE,"<visualiser.html");
+  }
 
 # Parse the template and fill in the parameters
 

@@ -88,7 +88,43 @@ if( -f "router.html.$lang")
   }
 else
   {
-   open(TEMPLATE,"<router.html");
+   $bestpref=0;
+   $bestlang="";
+
+   if(defined $ENV{HTTP_ACCEPT_LANGUAGE})
+     {
+      $LANGUAGES=$ENV{HTTP_ACCEPT_LANGUAGE};
+
+      @LANGUAGES=split(",",$LANGUAGES);
+
+      foreach $LANG (@LANGUAGES)
+        {
+         if($LANG =~ m%^([^; ]+) *; *q *= *([0-9.]+)%)
+           {
+            $LANG=$1;
+            $preference=$2;
+           }
+         else
+           {
+            $preference=1.0;
+           }
+
+         if($preference>$bestpref && -f "router.html.$LANG")
+           {
+            $bestpref=$preference;
+            $bestlang=$LANG;
+           }
+        }
+     }
+
+   if($bestpref>0)
+     {
+      open(TEMPLATE,"<router.html.$bestlang");
+     }
+   else
+     {
+      open(TEMPLATE,"<router.html");
+     }
   }
 
 # Parse the template and fill in the parameters
