@@ -27,7 +27,7 @@
 #include <ctype.h>
 
 #include "typesx.h"
-#include "functionsx.h"
+#include "osmparser.h"
 
 #include "nodesx.h"
 #include "segmentsx.h"

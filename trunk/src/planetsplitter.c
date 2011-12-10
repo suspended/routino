@@ -38,7 +38,7 @@
 #include "files.h"
 #include "logging.h"
 #include "functions.h"
-#include "functionsx.h"
+#include "osmparser.h"
 #include "tagging.h"
 
 
@@ -118,9 +118,9 @@ int main(int argc,char** argv)
  if(!option_filesort_ramsize)
    {
 #if SLIM
-       option_filesort_ramsize=64*1024*1024;
+    option_filesort_ramsize=64*1024*1024;
 #else
-       option_filesort_ramsize=256*1024*1024;
+    option_filesort_ramsize=256*1024*1024;
 #endif
    }
  else
