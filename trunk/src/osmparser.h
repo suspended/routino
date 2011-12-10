@@ -1,5 +1,5 @@
 /***************************************
- Header file for miscellaneous function prototypes for extended data types.
+ Header file for OSM parser function prototype.
 
  Part of the Routino routing software.
  ******************/ /******************
@@ -20,8 +20,8 @@
  ***************************************/
 
 
-#ifndef FUNCTIONSX_H
-#define FUNCTIONSX_H    /*+ To stop multiple inclusions. +*/
+#ifndef OSMPARSER_H
+#define OSMPARSER_H    /*+ To stop multiple inclusions. +*/
 
 #include <stdio.h>
 
@@ -33,4 +33,4 @@
 int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
 
 
-#endif /* FUNCTIONSX_H */
+#endif /* OSMPARSER_H */
