@@ -846,7 +846,7 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
  for(i=0;i<segmentsx->number;i++)
    {
     SegmentX segmentx;
-    Segment  segment;
+    Segment  segment={0};
 
     ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
 

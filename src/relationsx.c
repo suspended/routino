@@ -1109,7 +1109,7 @@ void SaveRelationList(RelationsX* relationsx,const char *filename)
  for(i=0;i<relationsx->trnumber;i++)
    {
     TurnRestrictRelX relationx;
-    TurnRelation relation;
+    TurnRelation relation={0};
 
     ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
 
