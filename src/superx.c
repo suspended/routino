@@ -143,7 +143,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
              if(issuper)
                 break;
 
-             segmentx=NextSegmentX(segmentsx,segmentx,i,1);
+             segmentx=NextSegmentX(segmentsx,segmentx,i);
 
              count++;
             }
@@ -277,7 +277,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
              FreeResultsList(results);
             }
 
-          segmentx=NextSegmentX(segmentsx,segmentx,i,1);
+          segmentx=NextSegmentX(segmentsx,segmentx,i);
          }
 
        sn++;
@@ -505,7 +505,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
       endloop:
 
-       segmentx=NextSegmentX(segmentsx,segmentx,node1,2);
+       segmentx=NextSegmentX(segmentsx,segmentx,node1);
       }
    }
 
