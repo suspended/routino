@@ -272,9 +272,6 @@ SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t nodeindex,int position)
 
  segmentx=LookupSegmentX(segmentsx,index,position);
 
- if(segmentx->node1!=nodeindex && segmentx->node2!=nodeindex)
-    return(NULL);
-
  return(segmentx);
 }
 
