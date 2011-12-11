@@ -548,7 +548,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
                 if(routes&Transports_Bicycle)
                    wayx->way.props|=Properties_BicycleRoute;
 
-                PutBackWayX(waysx,way,1);
+                PutBackWayX(waysx,wayx);
 
                 ways++;
                }
@@ -945,7 +945,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
     nodex=LookupNodeX(nodesx,relationx.via,1);
     nodex->flags|=NODE_TURNRSTRCT;
-    PutBackNodeX(nodesx,relationx.via,1);
+    PutBackNodeX(nodesx,nodex);
 
     segmentx=FirstSegmentX(segmentsx,relationx.via,1);
 
@@ -955,7 +955,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
        nodex=LookupNodeX(nodesx,othernode,1);
        nodex->flags|=NODE_TURNRSTRCT2;
-       PutBackNodeX(nodesx,othernode,1);
+       PutBackNodeX(nodesx,nodex);
 
        segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
       }
