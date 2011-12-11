@@ -330,7 +330,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        Node *resultnode=NULL;
        index_t realsegment=NO_SEGMENT,next_realsegment=NO_SEGMENT;
        Segment *resultsegment=NULL,*next_resultsegment=NULL;
-       Way *resultway=NULL,*next_resultway;
+       Way *resultway=NULL,*next_resultway=NULL;
        Result *next_result;
        int important=IMP_UNIMPORTANT;
 
