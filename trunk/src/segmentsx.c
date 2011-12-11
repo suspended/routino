@@ -289,12 +289,14 @@ SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t nodeindex,int position)
   SegmentX *segmentx The current segment.
 
   index_t nodeindex The node index.
-
-  int position A flag to pass through.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex,int position)
+SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex)
 {
+#if SLIM
+ int position=1+(segmentx-&segmentsx->cached[0]);
+#endif
+
  if(segmentx->node1==nodeindex)
    {
 #if SLIM

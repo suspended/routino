@@ -802,7 +802,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
                 vehicles_to=0;  /* not allowed */
             }
 
-          segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
+          segmentx=NextSegmentX(segmentsx,segmentx,relationx.via);
          }
 
        if(node_from==NO_NODE)
@@ -901,7 +901,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
                }
             }
 
-          segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
+          segmentx=NextSegmentX(segmentsx,segmentx,relationx.via);
          }
 
        if(node_from==NO_NODE)
@@ -957,7 +957,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        nodex->flags|=NODE_TURNRSTRCT2;
        PutBackNodeX(nodesx,nodex);
 
-       segmentx=NextSegmentX(segmentsx,segmentx,relationx.via,1);
+       segmentx=NextSegmentX(segmentsx,segmentx,relationx.via);
       }
 
    endloop: ;
@@ -1047,7 +1047,7 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
        if(OtherNode(segmentx,via_node)==to_node)
           relationx.to=IndexSegmentX(segmentsx,segmentx);
 
-       segmentx=NextSegmentX(segmentsx,segmentx,via_node,1);
+       segmentx=NextSegmentX(segmentsx,segmentx,via_node);
       }
     while(segmentx);
 
