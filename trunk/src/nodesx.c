@@ -642,7 +642,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename)
  for(i=0;i<nodesx->number;i++)
    {
     NodeX nodex;
-    Node node;
+    Node node={0};
     ll_bin_t latbin,lonbin;
     ll_bin2_t llbin;
 
