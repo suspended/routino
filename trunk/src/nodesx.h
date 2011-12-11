@@ -63,7 +63,8 @@ struct _NodesX
 
 #else
 
- NodeX     cached[2];           /*+ Two cached nodes read from the file in slim mode. +*/
+ NodeX     cached[2];           /*+ Two cached extended nodes read from the file in slim mode. +*/
+ index_t   incache[2];          /*+ The indexes of the cached extended nodes. +*/
 
 #endif
 
@@ -107,13 +108,13 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 #define LookupNodeX(nodesx,index,position)      &(nodesx)->data[index]
   
-#define PutBackNodeX(nodesx,index,position)     /* nop */
+#define PutBackNodeX(nodesx,nodex)              /* nop */
 
 #else
 
 static NodeX *LookupNodeX(NodesX *nodesx,index_t index,int position);
 
-static void PutBackNodeX(NodesX *nodesx,index_t index,int position);
+static void PutBackNodeX(NodesX *nodesx,NodeX *nodex);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -132,6 +133,8 @@ static inline NodeX *LookupNodeX(NodesX *nodesx,index_t index,int position)
 {
  SeekReadFile(nodesx->fd,&nodesx->cached[position-1],sizeof(NodeX),(off_t)index*sizeof(NodeX));
 
+ nodesx->incache[position-1]=index;
+
  return(&nodesx->cached[position-1]);
 }
 
@@ -141,14 +144,14 @@ static inline NodeX *LookupNodeX(NodesX *nodesx,index_t index,int position)
 
   NodesX *nodesx The set of nodes to modify.
 
-  index_t index The node index to put back.
-
-  int position The position in the cache to use.
+  NodeX *nodex The extended node to be put back.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline void PutBackNodeX(NodesX *nodesx,index_t index,int position)
+static inline void PutBackNodeX(NodesX *nodesx,NodeX *nodex)
 {
- SeekWriteFile(nodesx->fd,&nodesx->cached[position-1],sizeof(NodeX),(off_t)index*sizeof(NodeX));
+ int position1=nodex-&nodesx->cached[0];
+
+ SeekWriteFile(nodesx->fd,&nodesx->cached[position1],sizeof(NodeX),(off_t)nodesx->incache[position1]*sizeof(NodeX));
 }
 
 #endif /* SLIM */

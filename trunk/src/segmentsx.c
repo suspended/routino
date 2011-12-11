@@ -701,7 +701,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx)
 
     segmentx->next2=segmentsx->firstnode[segmentx->node2];
 
-    PutBackSegmentX(segmentsx,index,1);
+    PutBackSegmentX(segmentsx,segmentx);
 
     segmentsx->firstnode[segmentx->node1]=index;
     segmentsx->firstnode[segmentx->node2]=index;

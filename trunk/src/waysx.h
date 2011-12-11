@@ -61,7 +61,8 @@ struct _WaysX
 
 #else
 
- WayX     cached[2];            /*+ Two cached ways read from the file in slim mode. +*/
+ WayX     cached[2];            /*+ Two cached extended ways read from the file in slim mode. +*/
+ index_t  incache[2];           /*+ The indexes of the cached extended ways. +*/
 
 #endif
 
@@ -99,13 +100,13 @@ void CompactWayList(WaysX *waysx);
 
 #define LookupWayX(waysx,index,position)  &(waysx)->data[index]
   
-#define PutBackWayX(waysx,index,position) /* nop */
+#define PutBackWayX(waysx,wayx)           /* nop */
 
 #else
 
 static WayX *LookupWayX(WaysX *waysx,index_t index,int position);
 
-static void PutBackWayX(WaysX *waysx,index_t index,int position);
+static void PutBackWayX(WaysX *waysx,WayX *wayx);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -124,6 +125,8 @@ static inline WayX *LookupWayX(WaysX *waysx,index_t index,int position)
 {
  SeekReadFile(waysx->fd,&waysx->cached[position-1],sizeof(WayX),(off_t)index*sizeof(WayX));
 
+ waysx->incache[position-1]=index;
+
  return(&waysx->cached[position-1]);
 }
 
@@ -133,14 +136,14 @@ static inline WayX *LookupWayX(WaysX *waysx,index_t index,int position)
 
   WaysX *waysx The set of ways to use.
 
-  index_t index The way index to put back.
-
-  int position The position in the cache to use.
+  WayX *wayx The extended way to be put back.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline void PutBackWayX(WaysX *waysx,index_t index,int position)
+static inline void PutBackWayX(WaysX *waysx,WayX *wayx)
 {
- SeekWriteFile(waysx->fd,&waysx->cached[position-1],sizeof(WayX),(off_t)index*sizeof(WayX));
+ int position1=wayx-&waysx->cached[0];
+
+ SeekWriteFile(waysx->fd,&waysx->cached[position1],sizeof(WayX),(off_t)waysx->incache[position1]*sizeof(WayX));
 }
 
 #endif /* SLIM */
