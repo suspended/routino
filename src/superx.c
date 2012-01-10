@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -62,6 +62,17 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Print the start message */
 
  printf_first("Finding Super-Nodes: Nodes=0 Super-Nodes=0");
+
+ /* Allocate and set the super-node markers */
+
+ if(!nodesx->super)
+   {
+    nodesx->super=(uint8_t*)malloc((1+nodesx->number/8)*sizeof(uint8_t));
+
+    assert(nodesx->super); /* Check calloc() worked */
+
+    memset(nodesx->super,~0,(1+nodesx->number/8));
+   }
 
  /* Map into memory / open the files */
 

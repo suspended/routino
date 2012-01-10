@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -531,14 +531,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  free(segmentsx->usednode);
  segmentsx->usednode=NULL;
 
- /* Allocate and set the super-node markers */
-
- nodesx->super=(uint8_t*)malloc((1+nodesx->number/8)*sizeof(uint8_t));
-
- assert(nodesx->super); /* Check calloc() worked */
-
- memset(nodesx->super,~0,(1+nodesx->number/8));
-
  /* Print the final message */
 
  printf_last("Checked Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
@@ -593,6 +585,11 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  nodesx->fd=CloseFile(nodesx->fd);
  CloseFile(fd);
+
+ /* Free the memory */
+
+ free(nodesx->super);
+ nodesx->super=NULL;
 
  /* Print the final message */
 
