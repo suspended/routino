@@ -200,7 +200,7 @@ void SortNodeList(NodesX *nodesx)
 
  sortnodesx=nodesx;
 
- filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_and_index_by_id);
+ nodesx->number=filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_and_index_by_id);
 
  /* Close the files */
 
@@ -252,8 +252,6 @@ static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
  if(index==0 || sortnodesx->idata[index-1]!=nodex->id)
    {
     sortnodesx->idata[index]=nodex->id;
-
-    sortnodesx->number++;
 
     return(1);
    }

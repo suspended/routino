@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2011 Andrew M. Bishop
+ This file Copyright 2010-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -51,8 +51,6 @@ static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b);
 
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
-
-static RelationsX* sortrelationsx;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -289,9 +287,7 @@ void SortRelationList(RelationsX* relationsx)
     trxnumber=relationsx->trnumber;
     relationsx->trnumber=0;
 
-    sortrelationsx=relationsx;
-
-    filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_by_id);
+    relationsx->trnumber=filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_by_id);
 
     /* Close the files */
 
@@ -346,8 +342,6 @@ static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index)
  if(index==0 || relationx->id!=previd)
    {
     previd=relationx->id;
-
-    sortrelationsx->trnumber++;
 
     return(1);
    }
