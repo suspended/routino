@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -300,7 +300,7 @@ void SortWayList(WaysX *waysx)
 
  sortwaysx=waysx;
 
- filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_and_index_by_id);
+ waysx->number=filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_and_index_by_id);
 
  /* Close the files */
 
@@ -521,8 +521,6 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
  if(index==0 || wayx->id!=previd)
    {
     previd=wayx->id;
-
-    sortwaysx->number++;
 
     sortwaysx->idata[index]=wayx->id;
 

@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2009-2011 Andrew M. Bishop
+ This file Copyright 2009-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -50,6 +50,8 @@ extern size_t option_filesort_ramsize;
   http://en.wikipedia.org/wiki/Heapsort.  The combination of the two should work well
   if the data is already partially sorted.
 
+  index_t filesort_fixed Returns the number of objects kept.
+
   int fd_in The file descriptor of the input file (opened for reading and at the beginning).
 
   int fd_out The file descriptor of the output file (opened for writing and empty).
@@ -59,11 +61,11 @@ extern size_t option_filesort_ramsize;
   int (*compare)(const void*, const void*) The comparison function (identical to qsort if the
                                            data to be sorted is an array of things not pointers).
 
-  int (*buildindex)(void *,index_t) If non-NULL then this function is called for each item, if it
-                                    returns 1 then it is written to the output file.
+  int (*keep)(void *,index_t) If non-NULL then this function is called for each item, if it
+                              returns 1 then the object is kept and written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const void*,const void*),int (*buildindex)(void*,index_t))
+index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const void*,const void*),int (*keep)(void*,index_t))
 {
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
@@ -123,7 +125,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
       {
        for(i=0;i<n;i++)
          {
-          if(!buildindex || buildindex(datap[i],count))
+          if(!keep || keep(datap[i],count))
             {
              WriteFile(fd_out,datap[i],itemsize);
              count++;
@@ -155,7 +157,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
    {
     for(i=0;i<nitems;i++)
       {
-       if(!buildindex || buildindex(datap[i],count))
+       if(!keep || keep(datap[i],count))
          {
           WriteFile(fd_out,datap[i],itemsize);
           count++;
@@ -230,7 +232,7 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
    {
     int index=1;
 
-    if(!buildindex || buildindex(datap[heap[index]],count))
+    if(!keep || keep(datap[heap[index]],count))
       {
        WriteFile(fd_out,datap[heap[index]],itemsize);
        count++;
@@ -300,6 +302,8 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
  free(data);
  free(datap);
  free(filename);
+
+ return(count);
 }
 
 
@@ -313,6 +317,8 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
   http://en.wikipedia.org/wiki/Heapsort.  The combination of the two should work well
   if the data is already partially sorted.
 
+  index_t filesort_vary Returns the number of objects kept.
+
   int fd_in The file descriptor of the input file (opened for reading and at the beginning).
 
   int fd_out The file descriptor of the output file (opened for writing and empty).
@@ -320,11 +326,11 @@ void filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const vo
   int (*compare)(const void*, const void*) The comparison function (identical to qsort if the
                                            data to be sorted is an array of things not pointers).
 
-  int (*buildindex)(void *,index_t) If non-NULL then this function is called for each item, if it
-                                    returns 1 then it is written to the output file.
+  int (*keep)(void *,index_t) If non-NULL then this function is called for each item, if it
+                              returns 1 then the object is kept and written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),int (*buildindex)(void*,index_t))
+index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),int (*keep)(void*,index_t))
 {
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
@@ -399,7 +405,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
       {
        for(i=0;i<n;i++)
          {
-          if(!buildindex || buildindex(datap[i],count))
+          if(!keep || keep(datap[i],count))
             {
              FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(datap[i]-FILESORT_VARSIZE);
 
@@ -503,7 +509,7 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
     int index=1;
     FILESORT_VARINT itemsize;
 
-    if(!buildindex || buildindex(datap[heap[index]],count))
+    if(!keep || keep(datap[heap[index]],count))
       {
        itemsize=*(FILESORT_VARINT*)(datap[heap[index]]-FILESORT_VARSIZE);
 
@@ -580,6 +586,8 @@ void filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),
 
  free(data);
  free(filename);
+
+ return(count);
 }
 
 
