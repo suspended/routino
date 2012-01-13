@@ -73,7 +73,7 @@ struct _SegmentsX
 
  index_t   *next1;              /*+ The index of the next segment with the same node1 (used while pruning). +*/
 
- char      *usednode;           /*+ A flag to indicate if a node is used (used for removing bad segments). +*/
+ BitMask   *usednode;           /*+ A flag to indicate if a node is used (used for removing bad segments). +*/
 };
 
 

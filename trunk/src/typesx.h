@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@
 
 #include <inttypes.h>
 #include <stdint.h>
+#include <string.h>
 
 
 /* Constants and macros for handling them */
@@ -43,7 +44,14 @@
 #define MAX_SEG_PER_NODE 32
 
 
-/* Macro functions */
+/* Bit mask macro types and functions */
+
+#define BitMask uint8_t
+
+#define AllocBitMask(xx)   (BitMask*)calloc((1+(xx)/8),8)
+
+#define SetAllBits0(xx,yy) memset((xx), 0,(1+(yy)/8))
+#define SetAllBits1(xx,yy) memset((xx),~0,(1+(yy)/8))
 
 #define ClearBit(xx,yy)    (xx)[(yy)/8]&=~(1<<((yy)%8))
 #define SetBit(xx,yy)      (xx)[(yy)/8]|= (1<<((yy)%8))

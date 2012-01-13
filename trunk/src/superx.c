@@ -23,7 +23,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "ways.h"
 
@@ -68,11 +67,11 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  if(!nodesx->super)
    {
-    nodesx->super=(uint8_t*)malloc((1+nodesx->number/8)*sizeof(uint8_t));
+    nodesx->super=AllocBitMask(nodesx->number);
 
-    assert(nodesx->super); /* Check calloc() worked */
+    assert(nodesx->super); /* Check AllocBitMask() worked */
 
-    memset(nodesx->super,~0,(1+nodesx->number/8));
+    SetAllBits1(nodesx->super,nodesx->number);
    }
 
  /* Map into memory / open the files */

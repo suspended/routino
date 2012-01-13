@@ -24,7 +24,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <sys/stat.h>
 
 #include "types.h"
@@ -400,9 +399,9 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Allocate the array of node flags */
 
- segmentsx->usednode=(char*)calloc((1+nodesx->number/8),sizeof(char));
+ segmentsx->usednode=AllocBitMask(nodesx->number);
 
- assert(segmentsx->usednode); /* Check malloc() worked */
+ assert(segmentsx->usednode); /* Check AllocBitMask() worked */
 
  /* Re-open the file read-only and a new file writeable */
 
