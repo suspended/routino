@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -51,6 +51,7 @@ extern char *option_tmpdirname;
 /* Local functions */
 
 static int sort_by_id(SegmentX *a,SegmentX *b);
+static int delete_pruned(SegmentX *segmentx,index_t index);
 
 static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
@@ -110,11 +111,14 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
 
  free(segmentsx->filename);
 
- if(segmentsx->usednode)
-    free(segmentsx->usednode);
-
  if(segmentsx->firstnode)
     free(segmentsx->firstnode);
+
+ if(segmentsx->next1)
+    free(segmentsx->next1);
+
+ if(segmentsx->usednode)
+    free(segmentsx->usednode);
 
  free(segmentsx);
 }
@@ -167,16 +171,22 @@ void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,dist
 /*++++++++++++++++++++++++++++++++++++++
   Sort the segment list.
 
-  SegmentsX *segmentsx The set of segments to modify.
+  SegmentsX *segmentsx The set of segments to sort and modify.
+
+  int delete Set to true if pruned segments are to be deleted.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortSegmentList(SegmentsX *segmentsx)
+void SortSegmentList(SegmentsX *segmentsx,int delete)
 {
  int fd;
+ index_t kept;
 
  /* Print the start message */
 
- printf_first("Sorting Segments");
+ if(delete)
+    printf_first("Sorting Segments (Deleting Pruned)");
+ else
+    printf_first("Sorting Segments");
 
  /* Close the file (finished appending) */
 
@@ -193,7 +203,10 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Sort by node indexes */
 
- filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,NULL);
+ if(delete)
+    kept=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))delete_pruned);
+ else
+    filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,NULL);
 
  /* Close the files */
 
@@ -202,7 +215,13 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Sorted Segments: Segments=%"Pindex_t,segmentsx->number);
+ if(delete)
+   {
+    printf_last("Sorted Segments: Segments=%"Pindex_t" Deleted=%"Pindex_t,kept,segmentsx->number-kept);
+    segmentsx->number=kept;
+   }
+ else
+    printf_last("Sorted Segments: Segments=%"Pindex_t,segmentsx->number);
 }
 
 
@@ -247,6 +266,25 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
           return(0);
       }
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Delete the pruned segments.
+
+  int delete_pruned Return 1 if the value is to be kept, otherwise 0.
+
+  SegmentX *segmentx The extended segment.
+
+  index_t index The index of this segment in the total.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int delete_pruned(SegmentX *segmentx,index_t index)
+{
+ if(IsPrunedSegmentX(segmentx))
+    return(0);
+
+ return(1);
 }
 
 
@@ -296,31 +334,46 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
  if(segmentx->node1==nodeindex)
    {
-#if SLIM
-    index_t index=IndexSegmentX(segmentsx,segmentx);
-    index++;
+    if(segmentsx->next1)
+      {
+       index_t index=IndexSegmentX(segmentsx,segmentx);
 
-    if(index>=segmentsx->number)
-       return(NULL);
-    segmentx=LookupSegmentX(segmentsx,index,position);
-    if(segmentx->node1!=nodeindex)
-       return(NULL);
-    else
+       if(segmentsx->next1[index]==NO_SEGMENT);
+          return(NULL);
+
+       segmentx=LookupSegmentX(segmentsx,segmentsx->next1[index],position);
+
        return(segmentx);
+      }
+    else
+      {
+#if SLIM
+       index_t index=IndexSegmentX(segmentsx,segmentx);
+       index++;
+
+       if(index>=segmentsx->number)
+          return(NULL);
+
+       segmentx=LookupSegmentX(segmentsx,index,position);
 #else
-    segmentx++;
-    if(IndexSegmentX(segmentsx,segmentx)>=segmentsx->number || segmentx->node1!=nodeindex)
-       return(NULL);
-    else
-       return(segmentx);
+       segmentx++;
+
+       if(IndexSegmentX(segmentsx,segmentx)>=segmentsx->number)
+          return(NULL);
 #endif
+
+       if(segmentx->node1!=nodeindex)
+          return(NULL);
+
+       return(segmentx);
+      }
    }
  else
    {
     if(segmentx->next2==NO_SEGMENT)
        return(NULL);
-    else
-       return(LookupSegmentX(segmentsx,segmentx->next2,position));
+
+    return(LookupSegmentX(segmentsx,segmentx->next2,position));
    }
 }
  
@@ -487,7 +540,7 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     segmentx.node2=node2;
     segmentx.way  =way;
 
-    /* Set the distance but preserve the ONEWAY_* flags */
+    /* Set the distance but preserve the other flags */
 
     segmentx.distance|=DISTANCE(DistanceX(nodex1,nodex2));
 

@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -34,6 +34,7 @@
 #include "waysx.h"
 #include "relationsx.h"
 #include "superx.h"
+#include "prunex.h"
 
 #include "files.h"
 #include "logging.h"
@@ -71,6 +72,7 @@ int main(int argc,char** argv)
  char       *dirname=NULL,*prefix=NULL,*tagging=NULL,*errorlog=NULL;
  int         option_parse_only=0,option_process_only=0;
  int         option_filenames=0;
+ int         option_prune=0;
  int         arg;
 
  /* Parse the command line arguments */
@@ -234,7 +236,7 @@ int main(int argc,char** argv)
 
  SortNodeList(Nodes);
 
- SortSegmentList(Segments);
+ SortSegmentList(Segments,0);
 
  SortWayList(Ways);
 
@@ -269,6 +271,15 @@ int main(int argc,char** argv)
  /* Convert the turn relations from ways into nodes */
 
  ProcessTurnRelations2(Relations,Nodes,Segments,Ways);
+
+ /* Prune unwanted nodes/segments. */
+
+ if(option_prune)
+   {
+    StartPruning(Nodes,Segments,Ways);
+
+    FinishPruning(Nodes,Segments,Ways);
+   }
 
 
  /* Repeated iteration on Super-Nodes and Super-Segments */
@@ -313,7 +324,7 @@ int main(int argc,char** argv)
 
     /* Sort the super-segments */
 
-    SortSegmentList(SuperSegments);
+    SortSegmentList(SuperSegments,0);
 
     /* Remove duplicated super-segments */
 
@@ -352,7 +363,7 @@ int main(int argc,char** argv)
 
  /* Sort and re-index the segments */
 
- SortSegmentList(Segments);
+ SortSegmentList(Segments,0);
 
  IndexSegments(Segments,Nodes);
 
@@ -369,7 +380,7 @@ int main(int argc,char** argv)
 
  /* Sort the segments geographically and re-index them */
 
- SortSegmentList(Segments);
+ SortSegmentList(Segments,0);
 
  IndexSegments(Segments,Nodes);
 

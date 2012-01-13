@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -71,7 +71,9 @@ struct _SegmentsX
 
  index_t   *firstnode;          /*+ The first segment index for each node. +*/
 
- char      *usednode;           /*+ A flag to indicte if a node is used. +*/
+ index_t   *next1;              /*+ The index of the next segment with the same node1 (used while pruning). +*/
+
+ char      *usednode;           /*+ A flag to indicate if a node is used (used for removing bad segments). +*/
 };
 
 
@@ -88,7 +90,7 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
 void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 
-void SortSegmentList(SegmentsX *segmentsx);
+void SortSegmentList(SegmentsX *segmentsx,int delete);
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
 
@@ -104,6 +106,9 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 
 /* Macros / inline functions */
+
+/*+ Return true if this is a pruned segment. +*/
+#define IsPrunedSegmentX(xxx)   ((xxx)->node1==NO_NODE)
 
 
 #if !SLIM
