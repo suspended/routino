@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2011 Andrew M. Bishop
+# This file Copyright 2008-2012 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ CFLAGS=-Wall -Wmissing-prototypes -std=c99
 LDFLAGS=-lm -lc
 
 CFLAGS+=-O3
-#CFLAGS+=-O0 -g
+CFLAGS+=-O0 -g
 #CFLAGS+=-pg
 #CFLAGS+=-fprofile-arcs -ftest-coverage
 
@@ -75,7 +75,7 @@ all: $(EXE)
 ########
 
 PLANETSPLITTER_OBJ=planetsplitter.o \
-	           nodesx.o segmentsx.o waysx.o relationsx.o superx.o \
+	           nodesx.o segmentsx.o waysx.o relationsx.o superx.o prunex.o \
 	           ways.o types.o \
 	           files.o logging.o \
 	           results.o queue.o sorting.o \
@@ -87,7 +87,7 @@ planetsplitter : $(PLANETSPLITTER_OBJ)
 ########
 
 PLANETSPLITTER_SLIM_OBJ=planetsplitter-slim.o \
-	                nodesx-slim.o segmentsx-slim.o waysx-slim.o relationsx-slim.o superx-slim.o \
+	                nodesx-slim.o segmentsx-slim.o waysx-slim.o relationsx-slim.o superx-slim.o prunex-slim.o \
 	                ways.o types.o \
 	                files.o logging.o \
 	                results.o queue.o sorting.o \

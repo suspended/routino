@@ -55,7 +55,7 @@ static int sort_by_id(NodeX *a,NodeX *b);
 static int deduplicate_and_index_by_id(NodeX *nodex,index_t index);
 
 static int sort_by_lat_long(NodeX *a,NodeX *b);
-static int index_by_lat_long(NodeX *nodex,index_t index);
+static int delete_pruned_and_index_by_lat_long(NodeX *nodex,index_t index);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -273,10 +273,11 @@ static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
 void SortNodeListGeographically(NodesX *nodesx)
 {
  int fd;
+ index_t kept;
 
  /* Print the start message */
 
- printf_first("Sorting Nodes Geographically");
+ printf_first("Sorting Nodes Geographically (Deleting Pruned)");
 
  /* Allocate the memory for the geographical index array */
 
@@ -296,7 +297,7 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  sortnodesx=nodesx;
 
- filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
+ kept=filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))delete_pruned_and_index_by_lat_long);
 
  /* Close the files */
 
@@ -305,7 +306,8 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  /* Print the final message */
 
- printf_last("Sorted Nodes Geographically");
+ printf_last("Sorted Nodes Geographically: Nodes=%"Pindex_t" Deleted=%"Pindex_t,kept,nodesx->number-kept);
+ nodesx->number=kept;
 }
 
 
@@ -323,54 +325,69 @@ void SortNodeListGeographically(NodesX *nodesx)
 
 static int sort_by_lat_long(NodeX *a,NodeX *b)
 {
- ll_bin_t a_lon=latlong_to_bin(a->longitude);
- ll_bin_t b_lon=latlong_to_bin(b->longitude);
+ int a_pruned=IsPrunedNodeX(a);
+ int b_pruned=IsPrunedNodeX(b);
 
- if(a_lon<b_lon)
-    return(-1);
- else if(a_lon>b_lon)
+ if(a_pruned && b_pruned)
+    return(0);
+ else if(a_pruned)
     return(1);
+ else if(b_pruned)
+    return(-1);
  else
    {
-    ll_bin_t a_lat=latlong_to_bin(a->latitude);
-    ll_bin_t b_lat=latlong_to_bin(b->latitude);
+    ll_bin_t a_lon=latlong_to_bin(a->longitude);
+    ll_bin_t b_lon=latlong_to_bin(b->longitude);
 
-    if(a_lat<b_lat)
+    if(a_lon<b_lon)
        return(-1);
-    else if(a_lat>b_lat)
+    else if(a_lon>b_lon)
        return(1);
     else
       {
-       if(a->longitude<b->longitude)
+       ll_bin_t a_lat=latlong_to_bin(a->latitude);
+       ll_bin_t b_lat=latlong_to_bin(b->latitude);
+
+       if(a_lat<b_lat)
           return(-1);
-       else if(a->longitude>b->longitude)
+       else if(a_lat>b_lat)
           return(1);
        else
          {
-          if(a->latitude<b->latitude)
+          if(a->longitude<b->longitude)
              return(-1);
-          else if(a->latitude>b->latitude)
+          else if(a->longitude>b->longitude)
              return(1);
-         }
+          else
+            {
+             if(a->latitude<b->latitude)
+                return(-1);
+             else if(a->latitude>b->latitude)
+                return(1);
+            }
 
-       return(0);
+          return(0);
+         }
       }
    }
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Create the index between the sorted and unsorted nodes.
+  Delete the pruned nodes and create the index between the sorted and unsorted nodes.
 
-  int index_by_lat_long Return 1 if the value is to be kept, otherwise 0.
+  int delete_pruned_and_index_by_lat_long Return 1 if the value is to be kept, otherwise 0.
 
   NodeX *nodex The extended node.
 
   index_t index The index of this node in the total.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int index_by_lat_long(NodeX *nodex,index_t index)
+static int delete_pruned_and_index_by_lat_long(NodeX *nodex,index_t index)
 {
+ if(IsPrunedNodeX(nodex))
+    return(0);
+
  /* Create the index from the previous sort to the current one */
 
  sortnodesx->gdata[nodex->id]=index;

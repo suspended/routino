@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -80,6 +80,9 @@
 /*+ A flag to mark a node as a turn relation via node. +*/
 #define NODE_TURNRSTRCT2 ((uint16_t)0x0800)
 
+/*+ A flag to mark a node as pruned during processing - only used in planetsplitter. +*/
+#define NODE_PRUNED    ((uint16_t)0x0400)
+
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/
 #define ONEWAY_1TO2    ((distance_t)0x80000000)
@@ -93,10 +96,10 @@
 /*+ A flag to mark a segment as a normal segment. +*/
 #define SEGMENT_NORMAL ((distance_t)0x10000000)
 
-/*+ The real distance ignoring the ONEWAY_* and SEGMENT_* flags. +*/
+/*+ The real distance ignoring the other flags. +*/
 #define DISTANCE(xx)   ((distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL))))
 
-/*+ The distance flags selecting only the ONEWAY_* and SEGMENT_* flags. +*/
+/*+ The distance flags selecting only the flags. +*/
 #define DISTFLAG(xx)   ((distance_t)((xx)&(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
 
 

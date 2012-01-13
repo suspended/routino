@@ -995,11 +995,11 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
 {
  int trfd;
- index_t i;
+ index_t i,kept=0;
 
  /* Print the start message */
 
- printf_first("Updating Turn Relations: Relations=0");
+ printf_first("Updating Turn Relations (Deleting Pruned): Relations=0");
 
  /* Map into memory / open the files */
 
@@ -1022,7 +1022,6 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
  for(i=0;i<relationsx->trnumber;i++)
    {
     TurnRestrictRelX relationx;
-    SegmentX *segmentx;
     index_t from_node,via_node,to_node;
 
     ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
@@ -1031,26 +1030,31 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
     via_node =nodesx->gdata[relationx.via];
     to_node  =nodesx->gdata[relationx.to];
 
-    segmentx=FirstSegmentX(segmentsx,via_node,1);
-
-    do
+    if(from_node<nodesx->number && via_node<nodesx->number && to_node<nodesx->number)
       {
-       if(OtherNode(segmentx,via_node)==from_node)
-          relationx.from=IndexSegmentX(segmentsx,segmentx);
+       SegmentX *segmentx=FirstSegmentX(segmentsx,via_node,1);
 
-       if(OtherNode(segmentx,via_node)==to_node)
-          relationx.to=IndexSegmentX(segmentsx,segmentx);
+       do
+         {
+          if(OtherNode(segmentx,via_node)==from_node)
+             relationx.from=IndexSegmentX(segmentsx,segmentx);
 
-       segmentx=NextSegmentX(segmentsx,segmentx,via_node);
+          if(OtherNode(segmentx,via_node)==to_node)
+             relationx.to=IndexSegmentX(segmentsx,segmentx);
+
+          segmentx=NextSegmentX(segmentsx,segmentx,via_node);
+         }
+       while(segmentx);
+
+       relationx.via=via_node;
+
+       WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+
+       kept++;
       }
-    while(segmentx);
-
-    relationx.via=via_node;
-
-    WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
     if(!(relationsx->trnumber%1000))
-       printf_middle("Updating Turn Relations: Relations=%"Pindex_t,relationsx->trnumber);
+       printf_middle("Updating Turn Relations (Deleting Pruned): Relations=%"Pindex_t,relationsx->trnumber);
    }
 
  /* Close the files */
@@ -1068,7 +1072,9 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
 
  /* Print the final message */
 
- printf_last("Updated Turn Relations: Relations=%"Pindex_t,relationsx->trnumber);
+ printf_last("Updated Turn Relations: Relations=%"Pindex_t" Deleted=%"Pindex_t,kept,relationsx->trnumber-kept);
+
+ relationsx->trnumber=kept;
 }
 
 
