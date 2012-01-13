@@ -72,7 +72,7 @@ struct _NodesX
 
  index_t  *gdata;               /*+ The final node indexes (sorted geographically). +*/
 
- uint8_t  *super;               /*+ A bit-mask marker for super nodes (same order as sorted nodes). +*/
+ BitMask  *super;               /*+ A bit-mask marker for super nodes (same order as sorted nodes). +*/
 
  index_t   latbins;             /*+ The number of bins containing latitude. +*/
  index_t   lonbins;             /*+ The number of bins containing longitude. +*/
