@@ -35,6 +35,7 @@
 
 /* Local functions */
 
+static void prune_segment_and_nodes(NodesX *nodesx,SegmentsX *segmentsx,SegmentX *segmentx);
 static void prune_node(NodesX *nodesx,NodeX *nodex);
 static void prune_segment(NodesX *nodesx,SegmentsX *segmentsx,SegmentX *segmentx);
 static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newnode1,index_t newnode2);
@@ -77,10 +78,12 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
    {
     index_t node1=segmentx.node1;
 
-    if(lastnode1==node1)
-       segmentsx->next1[index]=index+1;
+    if(index==0)
+       ;
+    else if(lastnode1==node1)
+       segmentsx->next1[index-1]=index;
     else
-       segmentsx->next1[index]=NO_SEGMENT;
+       segmentsx->next1[index-1]=NO_SEGMENT;
 
     lastnode1=node1;
     index++;
@@ -89,7 +92,7 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
        printf_middle("Added Extra Segment Indexes: Segments=%"Pindex_t,index);
    }
 
- segmentsx->next1[index]=NO_SEGMENT;
+ segmentsx->next1[index-1]=NO_SEGMENT;
 
  /* Close the file */
 
@@ -123,6 +126,203 @@ void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Prune out any groups of nodes and segments whose total length is less than a
+  specified minimum.
+
+  NodesX *nodesx The set of nodes to use.
+
+  SegmentsX *segmentsx The set of segments to use.
+
+  distance_t minimum The minimum distance to keep.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,distance_t minimum)
+{
+ index_t i,j;
+ index_t nregions=0,npruned=0;
+ BitMask *connected,*region;
+ index_t *regionsegments,*othersegments;
+ int nallocregionsegments,nallocothersegments;
+
+ if(nodesx->number==0 || segmentsx->number==0)
+    return;
+
+ /* Print the start message */
+
+ printf_first("Pruning Isolated Regions: Segments=0 Pruned=0");
+
+ /* Map into memory / open the files */
+
+#if !SLIM
+ nodesx->data=MapFileWriteable(nodesx->filename);
+ segmentsx->data=MapFileWriteable(segmentsx->filename);
+#else
+ nodesx->fd=ReOpenFileWriteable(nodesx->filename);
+ segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
+#endif
+
+ connected=AllocBitMask(segmentsx->number);
+ region   =AllocBitMask(segmentsx->number);
+
+ assert(connected); /* Check AllocBitMask() worked */
+ assert(region);    /* Check AllocBitMask() worked */
+
+ regionsegments=(index_t*)malloc((nallocregionsegments=1024)*sizeof(index_t));
+ othersegments =(index_t*)malloc((nallocothersegments =1024)*sizeof(index_t));
+
+ assert(regionsegments); /* Check malloc() worked */
+ assert(othersegments);  /* Check malloc() worked */
+
+ /* Loop through the segments and find the disconnected ones */
+
+ for(i=0;i<segmentsx->number;i++)
+   {
+    if(!IsBitSet(connected,i))
+      {
+       int nregionsegments=0,nothersegments=0;
+       distance_t total=0;
+
+       othersegments[nothersegments++]=i;
+       SetBit(region,i);
+
+       do
+         {
+          SegmentX *segmentx;
+          index_t thissegment,nodes[2];
+
+          thissegment=othersegments[--nothersegments];
+
+          if(nregionsegments==nallocregionsegments)
+             regionsegments=(index_t*)realloc(regionsegments,(nallocregionsegments+=1024)*sizeof(index_t));
+
+          regionsegments[nregionsegments++]=thissegment;
+
+          segmentx=LookupSegmentX(segmentsx,thissegment,1);
+
+          nodes[0]=segmentx->node1;
+          nodes[1]=segmentx->node2;
+          total+=DISTANCE(segmentx->distance);
+
+          for(j=0;j<2;j++)
+            {
+             segmentx=FirstSegmentX(segmentsx,nodes[j],1);
+
+             while(segmentx)
+               {
+                index_t segment=IndexSegmentX(segmentsx,segmentx);
+
+                if(segment!=thissegment)
+                  {
+                   if(IsBitSet(connected,segment))
+                     {
+                      total=minimum;
+                      goto foundconnection;
+                     }
+
+                   if(!IsBitSet(region,segment))
+                     {
+                      if(nothersegments==nallocothersegments)
+                         othersegments=(index_t*)realloc(othersegments,(nallocothersegments+=1024)*sizeof(index_t));
+
+                      othersegments[nothersegments++]=segment;
+                      SetBit(region,segment);
+                     }
+                  }
+
+                segmentx=NextSegmentX(segmentsx,segmentx,nodes[j]);
+               }
+            }
+         }
+       while(nothersegments>0 && total<minimum);
+
+      foundconnection:
+
+       /* Prune the segments or mark them as connected */
+
+       if(total<minimum)
+         {
+          nregions++;
+
+          for(j=0;j<nregionsegments;j++)
+            {
+             SegmentX *segmentx=LookupSegmentX(segmentsx,regionsegments[j],1);
+
+             SetBit(connected,regionsegments[j]);
+
+             prune_segment_and_nodes(nodesx,segmentsx,segmentx);
+
+             npruned++;
+            }
+         }
+       else
+         {
+          for(j=0;j<nregionsegments;j++)
+            {
+             SetBit(connected,regionsegments[j]);
+             ClearBit(region,regionsegments[j]);
+            }
+
+          for(j=0;j<nothersegments;j++)
+            {
+             SetBit(connected,othersegments[j]);
+             ClearBit(region,othersegments[j]);
+            }
+         }
+      }
+
+    if(!((i+1)%10000))
+       printf_middle("Pruning Isolated Regions: Segments=%"Pindex_t" Pruned=%"Pindex_t" (%"Pindex_t" Regions)",i+1,npruned,nregions);
+   }
+
+ /* Unmap from memory / close the files */
+
+ free(region);
+ free(connected);
+
+ free(regionsegments);
+ free(othersegments);
+
+#if !SLIM
+ nodesx->data=UnmapFile(nodesx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename);
+#else
+ nodesx->fd=CloseFile(nodesx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
+#endif
+
+ /* Print the final message */
+
+ printf_last("Pruned Isolated Regions: Segments=%"Pindex_t" Pruned=%"Pindex_t" (%"Pindex_t" Regions)",segmentsx->number,npruned,nregions);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Prune a segment and its two nodes.
+
+  NodesX *nodesx The set of nodes to use.
+
+  SegmentsX *segmentsx The set of segments to use.
+
+  SegmentX *segmentx The segment to be pruned.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void prune_segment_and_nodes(NodesX *nodesx,SegmentsX *segmentsx,SegmentX *segmentx)
+{
+ unlink_segment_node_refs(segmentsx,segmentx,segmentx->node1);
+ unlink_segment_node_refs(segmentsx,segmentx,segmentx->node2);
+
+ prune_node(nodesx,LookupNodeX(nodesx,segmentx->node1,1));
+ prune_node(nodesx,LookupNodeX(nodesx,segmentx->node2,1));
+
+ segmentx->node1=NO_NODE;
+ segmentx->node2=NO_NODE;
+ segmentx->next2=NO_SEGMENT;
+
+ PutBackSegmentX(segmentsx,segmentx);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Prune a node - all segment references to this node must already have gone.
 
   NodesX *nodesx The set of nodes to use.
@@ -132,6 +332,9 @@ void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
 static void prune_node(NodesX *nodesx,NodeX *nodex)
 {
+ if(IsPrunedNodeX(nodex))
+    return;
+
  nodex->flags|=NODE_PRUNED;
 
  PutBackNodeX(nodesx,nodex);
@@ -216,6 +419,9 @@ static void unlink_segment_node_refs(SegmentsX *segmentsx,SegmentX *segmentx,ind
  index_t thissegment=IndexSegmentX(segmentsx,segmentx);
  index_t segment=segmentsx->firstnode[node];
 
+ if(segment==NO_SEGMENT)
+    return;
+
  if(segment==thissegment)
    {
     if(segmentx->node1==node)
@@ -260,6 +466,6 @@ static void unlink_segment_node_refs(SegmentsX *segmentsx,SegmentX *segmentx,ind
 
        segment=nextsegment;
       }
-    while(segment!=thissegment);
+    while(segment!=thissegment && segment!=NO_SEGMENT);
    }
 }
