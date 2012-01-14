@@ -46,16 +46,16 @@
 
 /* Bit mask macro types and functions */
 
-#define BitMask uint8_t
+#define BitMask uint32_t
 
-#define AllocBitMask(xx)   (BitMask*)calloc((1+(xx)/8),8)
+#define AllocBitMask(xx)   (BitMask*)calloc((1+(xx)/32),32)
 
-#define SetAllBits0(xx,yy) memset((xx), 0,(1+(yy)/8))
-#define SetAllBits1(xx,yy) memset((xx),~0,(1+(yy)/8))
+#define SetAllBits0(xx,yy) memset((xx), 0,(1+(yy)/32))
+#define SetAllBits1(xx,yy) memset((xx),~0,(1+(yy)/32))
 
-#define ClearBit(xx,yy)    (xx)[(yy)/8]&=~(1<<((yy)%8))
-#define SetBit(xx,yy)      (xx)[(yy)/8]|= (1<<((yy)%8))
-#define IsBitSet(xx,yy)   ((xx)[(yy)/8]&  (1<<((yy)%8)))
+#define ClearBit(xx,yy)    (xx)[(yy)/32]&=~(1<<((yy)%32))
+#define SetBit(xx,yy)      (xx)[(yy)/32]|= (1<<((yy)%32))
+#define IsBitSet(xx,yy)   ((xx)[(yy)/32]&  (1<<((yy)%32)))
 
 
 /* Simple Types */
