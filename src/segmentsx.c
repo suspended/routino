@@ -337,7 +337,7 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
       {
        index_t index=IndexSegmentX(segmentsx,segmentx);
 
-       if(segmentsx->next1[index]==NO_SEGMENT);
+       if(segmentsx->next1[index]==NO_SEGMENT)
           return(NULL);
 
        segmentx=LookupSegmentX(segmentsx,segmentsx->next1[index],position);
