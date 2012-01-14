@@ -228,7 +228,7 @@ void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
                                 way_t from,way_t to,node_t via,
                                 TurnRestriction restriction,transports_t except)
 {
- TurnRestrictRelX relationx;
+ TurnRestrictRelX relationx={0};
 
  relationx.id=id;
  relationx.from=from;
