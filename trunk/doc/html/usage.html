@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -64,10 +64,11 @@ Usage: planetsplitter [--help]
                       [--dir=&lt;dirname&gt;] [--prefix=&lt;name&gt;]
                       [--sort-ram-size=&lt;size&gt;]
                       [--tmpdir=&lt;dirname&gt;]
-                      [--parse-only | --process-only]
-                      [--loggable] [--errorlog[=&lt;name&gt;]]
-                      [--max-iterations=&lt;number&gt;]
                       [--tagging=&lt;filename&gt;]
+                      [--loggable] [--errorlog[=&lt;name&gt;]]
+                      [--parse-only | --process-only]
+                      [--max-iterations=&lt;number&gt;]
+                      [--prune-isolated[=&lt;len&gt;]]
                       [&lt;filename.osm&gt; ...]
 </pre>
 
@@ -87,12 +88,12 @@ Usage: planetsplitter [--help]
   <dd>Specifies the name of the directory to store the temporary disk files.  If
     not specified then it defaults to either the value of the --dir option or the
     current directory.
-  <dt>--parse-only
-  <dd>Parse the input files and store them in a temporary file but don't process
-    the data into a routing database.
-  <dt>--process-only
-  <dd>Don't read in any files but process the existing temporary file into the
-    routing database.
+  <dt>--tagging=&lt;filename&gt;
+  <dd>Sets the filename containing the list of tagging rules in XML format for
+    the parsing the input files.  If the file doesn't exist then dirname, prefix
+    and "profiles.xml" will be combined and used, if that doesn't exist then the
+    file '/usr/local/share/routino/profiles.xml' (or custom installation
+    location) will be used.
   <dt>--loggable
   <dd>Print progress messages that are suitable for logging to a file; normally
     an incrementing counter is printed which is more suitable for real-time
@@ -100,15 +101,18 @@ Usage: planetsplitter [--help]
   <dt>--errorlog[=&lt;name&gt;]
   <dd>Log OSM parsing and processing errors to 'error.log' or the specified file
     name (the '--dir' and '--prefix' options are applied).
+  <dt>--parse-only
+  <dd>Parse the input files and store them in a temporary file but don't process
+    the data into a routing database.
+  <dt>--process-only
+  <dd>Don't read in any files but process the existing temporary file into the
+    routing database.
   <dt>--max-iterations=&lt;number&gt;
   <dd>The maximum number of iterations to use when generating super-nodes and
     super-segments.  Defaults to 5 which is normally enough.
-  <dt>--tagging=&lt;filename&gt;
-  <dd>Sets the filename containing the list of tagging rules in XML format for
-    the parsing the input files.  If the file doesn't exist then dirname, prefix
-    and "profiles.xml" will be combined and used, if that doesn't exist then the
-    file '/usr/local/share/routino/profiles.xml' (or custom installation
-    location) will be used.
+  <dt>--prune-isolated[=&lt;length&gt;]
+  <dd>Remove small disconnected groups of segments (if no length given then 500m
+    minimum length is used).
   <dt>&lt;filename.osm&gt; ...
   <dd>Specifies the filename(s) to read data from, by default data is read from
     the standard input.
@@ -126,7 +130,7 @@ created that operates in slim mode.  In slim mode the temporary files and
 database files are read as needed rather than being mapped into memory.  This
 allows a database size greater than 2 GB on 32-bit machines or usage with little
 or no virtual memory (e.g. some virtual machines).  The penalty for this is that
-the program takes about four times as long to run.</i>
+the program takes about twice as long to run.</i>
 
 <p>
 Example usage:

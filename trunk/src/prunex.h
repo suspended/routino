@@ -31,6 +31,7 @@
 void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 
+void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,distance_t minimum);
 void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distance_t minimum);
 
 

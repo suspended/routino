@@ -72,7 +72,7 @@ int main(int argc,char** argv)
  char       *dirname=NULL,*prefix=NULL,*tagging=NULL,*errorlog=NULL;
  int         option_parse_only=0,option_process_only=0;
  int         option_filenames=0;
- int         option_prune=0;
+ int         option_prune=0,prune_isolated_regions=0;
  int         arg;
 
  /* Parse the command line arguments */
@@ -103,6 +103,17 @@ int main(int argc,char** argv)
        max_iterations=atoi(&argv[arg][17]);
     else if(!strncmp(argv[arg],"--tagging=",10))
        tagging=&argv[arg][10];
+    else if(!strncmp(argv[arg],"--prune",7))
+      {
+       option_prune=1;
+
+       if(!strcmp(&argv[arg][7],"-isolated"))
+          prune_isolated_regions=500;
+       else if(!strncmp(&argv[arg][7],"-isolated=",10))
+          prune_isolated_regions=atoi(&argv[arg][17]);
+       else
+          print_usage(0,argv[arg],NULL);
+      }
     else if(argv[arg][0]=='-' && argv[arg][1]=='-')
        print_usage(0,argv[arg],NULL);
     else
@@ -278,6 +289,9 @@ int main(int argc,char** argv)
    {
     StartPruning(Nodes,Segments,Ways);
 
+    if(prune_isolated_regions)
+       PruneIsolatedRegions(Nodes,Segments,prune_isolated_regions);
+
     FinishPruning(Nodes,Segments,Ways);
    }
 
@@ -449,10 +463,11 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--dir=<dirname>] [--prefix=<name>]\n"
          "                      [--sort-ram-size=<size>]\n"
          "                      [--tmpdir=<dirname>]\n"
-         "                      [--parse-only | --process-only]\n"
-         "                      [--loggable] [--errorlog[=<name>]]\n"
-         "                      [--max-iterations=<number>]\n"
          "                      [--tagging=<filename>]\n"
+         "                      [--loggable] [--errorlog[=<name>]]\n"
+         "                      [--parse-only | --process-only]\n"
+         "                      [--max-iterations=<number>]\n"
+         "                      [--prune-isolated[=<len>]]\n"
          "                      [<filename.osm> ...]\n");
 
  if(argerr)
@@ -482,20 +497,23 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--tmpdir=<dirname>        The directory name for temporary files.\n"
             "                          (defaults to the '--dir' option directory.)\n"
             "\n"
-            "--parse-only              Parse the input OSM files and store the results.\n"
-            "--process-only            Process the stored results from previous option.\n"
+            "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
+            "                          (defaults to 'tagging.xml' with '--dir' and\n"
+            "                           '--prefix' options or the file installed in\n"
+            "                           '" DATADIR "').\n"
             "\n"
             "--loggable                Print progress messages suitable for logging to file.\n"
             "--errorlog[=<name>]       Log parsing errors to 'error.log' or the given name\n"
             "                          (the '--dir' and '--prefix' options are applied).\n"
             "\n"
+            "--parse-only              Parse the input OSM files and store the results.\n"
+            "--process-only            Process the stored results from previous option.\n"
+            "\n"
             "--max-iterations=<number> The number of iterations for finding super-nodes\n"
             "                          (defaults to 5).\n"
             "\n"
-            "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
-            "                          (defaults to 'tagging.xml' with '--dir' and\n"
-            "                           '--prefix' options or the file installed in\n"
-            "                           '" DATADIR "').\n"
+            "--prune-isolated[=<len>]  Remove small disconnected groups of segments\n"
+            "                          (if no length given then 500m length is used).\n"
             "\n"
             "<filename.osm> ...        The name(s) of the file(s) to process (by default\n"
             "                          data is read from standard input).\n"
