@@ -22,10 +22,12 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
 
+#include "types.h"
+#include "segments.h"
 #include "ways.h"
 
+#include "typesx.h"
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"

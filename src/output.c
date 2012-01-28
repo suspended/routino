@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include "types.h"
@@ -35,12 +33,12 @@
 #include "segments.h"
 #include "ways.h"
 
-#include "files.h"
 #include "functions.h"
 #include "fakes.h"
 #include "translations.h"
 #include "results.h"
 #include "xmlparse.h"
+
 
 /* Constants */
 
@@ -56,6 +54,7 @@
 #define IMP_UTURN        8      /*+ The location of a U-turn. +*/
 #define IMP_WAYPOINT     9      /*+ A waypoint. +*/
 
+
 /* Global variables */
 
 /*+ The option to calculate the quickest route insted of the shortest. +*/
@@ -63,6 +62,7 @@ extern int option_quickest;
 
 /*+ The options to select the format of the output. +*/
 extern int option_html,option_gpx_track,option_gpx_route,option_text,option_text_all;
+
 
 /* Local variables */
 

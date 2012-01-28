@@ -23,8 +23,6 @@
 #ifndef SORTING_H
 #define SORTING_H    /*+ To stop multiple inclusions. +*/
 
-#include <stdlib.h>
-
 #include "types.h"
 
 

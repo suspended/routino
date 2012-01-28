@@ -27,6 +27,7 @@
 #include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 /* Constants and macros for handling them */

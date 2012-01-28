@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@
 #define IsFakeSegment(xxx) ((xxx)>=SEGMENT_FAKE && (xxx)!=NO_SEGMENT)
 
 
-/* Functions in files.c */
+/* Functions in fakes.c */
 
 index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,index_t node1,index_t node2,distance_t dist1,distance_t dist2);
 

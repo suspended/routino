@@ -21,12 +21,13 @@
 
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <assert.h>
 
+#include "typesx.h"
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
+
 #include "prunex.h"
 
 #include "files.h"
