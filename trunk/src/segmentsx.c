@@ -23,19 +23,16 @@
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <sys/stat.h>
+#include <string.h>
 
 #include "types.h"
-#include "nodes.h"
 #include "segments.h"
 #include "ways.h"
 
+#include "typesx.h"
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
-
-#include "types.h"
 
 #include "files.h"
 #include "logging.h"

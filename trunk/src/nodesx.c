@@ -22,19 +22,15 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
 
 #include "types.h"
 #include "nodes.h"
-#include "segments.h"
 
+#include "typesx.h"
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
-
-#include "types.h"
 
 #include "files.h"
 #include "logging.h"

@@ -22,11 +22,10 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
 
 #include "types.h"
+#include "segments.h"
 #include "relations.h"
 
 #include "nodesx.h"

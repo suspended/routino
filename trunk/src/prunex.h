@@ -25,6 +25,8 @@
 
 #include "types.h"
 
+#include "typesx.h"
+
 
 /* Functions in prunex.c */
 

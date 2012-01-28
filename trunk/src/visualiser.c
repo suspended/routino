@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -25,11 +25,12 @@
 #include <string.h>
 
 #include "types.h"
-#include "visualiser.h"
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
 #include "relations.h"
+
+#include "visualiser.h"
 
 
 /*+ The maximum number of segments per node (used to size temporary storage). +*/
