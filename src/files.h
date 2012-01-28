@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -141,7 +141,7 @@ static inline int SeekFile(int fd,off_t position)
 /*++++++++++++++++++++++++++++++++++++++
   Write data to a file descriptor after seeking to a position.
 
-  int WriteFile Returns 0 if OK or something else in case of an error.
+  int SeekWriteFile Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to write to.
 

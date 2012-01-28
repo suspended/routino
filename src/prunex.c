@@ -368,7 +368,7 @@ static void prune_segment(NodesX *nodesx,SegmentsX *segmentsx,SegmentX *segmentx
 /*++++++++++++++++++++++++++++++++++++++
   Modify a segment's nodes.
 
-  NodesX *nodesx The set of nodes to use.
+  SegmentsX *segmentsx The set of segments to use.
 
   SegmentX *segmentx The segment to be modified.
 
