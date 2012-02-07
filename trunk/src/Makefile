@@ -36,7 +36,7 @@ CFLAGS=-Wall -Wmissing-prototypes -std=c99
 LDFLAGS=-lm -lc
 
 CFLAGS+=-O3
-CFLAGS+=-O0 -g
+#CFLAGS+=-O0 -g
 #CFLAGS+=-pg
 #CFLAGS+=-fprofile-arcs -ftest-coverage
 
