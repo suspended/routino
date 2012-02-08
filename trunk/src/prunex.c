@@ -36,9 +36,7 @@
 
 /* Local functions */
 
-static void prune_segment_and_nodes(NodesX *nodesx,SegmentsX *segmentsx,SegmentX *segmentx);
-static void prune_node(NodesX *nodesx,NodeX *nodex);
-static void prune_segment(NodesX *nodesx,SegmentsX *segmentsx,SegmentX *segmentx);
+static void prune_segment(SegmentsX *segmentsx,SegmentX *segmentx);
 static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newnode1,index_t newnode2);
 
 static void unlink_segment_node_refs(SegmentsX *segmentsx,SegmentX *segmentx,index_t node);
@@ -117,12 +115,56 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
 void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
+ index_t i,pruned=0;
+ int fd;
+
  free(segmentsx->next1);
  segmentsx->next1=NULL;
 
  SortSegmentList(segmentsx,1);
 
  IndexSegments(segmentsx,nodesx);
+
+ /* Print the start message */
+
+ printf_first("Marking Pruned Nodes: Nodes=0 Pruned=0");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ nodesx->fd=ReOpenFile(nodesx->filename);
+
+ DeleteFile(nodesx->filename);
+
+ fd=OpenFileNew(nodesx->filename);
+
+ /* Modify the on-disk image */
+
+ for(i=0;i<nodesx->number;i++)
+   {
+    NodeX nodex;
+
+    ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
+
+    if(segmentsx->firstnode[i]==NO_SEGMENT)
+      {
+       pruned++;
+       nodex.flags|=NODE_PRUNED;
+      }
+
+    WriteFile(fd,&nodex,sizeof(NodeX));
+
+    if(!((i+1)%10000))
+       printf_middle("Marking Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,i+1,pruned);
+   }
+
+ /* Close the files */
+
+ nodesx->fd=CloseFile(nodesx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Marked Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,nodesx->number,pruned);
 }
 
 
@@ -250,7 +292,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,distance_t minimum
 
              SetBit(connected,regionsegments[j]);
 
-             prune_segment_and_nodes(nodesx,segmentsx,segmentx);
+             prune_segment(segmentsx,segmentx);
 
              npruned++;
             }
@@ -298,61 +340,14 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,distance_t minimum
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Prune a segment and its two nodes.
-
-  NodesX *nodesx The set of nodes to use.
+  Prune a segment; unused nodes and ways will get marked for pruning later.
 
   SegmentsX *segmentsx The set of segments to use.
 
   SegmentX *segmentx The segment to be pruned.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void prune_segment_and_nodes(NodesX *nodesx,SegmentsX *segmentsx,SegmentX *segmentx)
-{
- unlink_segment_node_refs(segmentsx,segmentx,segmentx->node1);
- unlink_segment_node_refs(segmentsx,segmentx,segmentx->node2);
-
- prune_node(nodesx,LookupNodeX(nodesx,segmentx->node1,1));
- prune_node(nodesx,LookupNodeX(nodesx,segmentx->node2,1));
-
- segmentx->node1=NO_NODE;
- segmentx->node2=NO_NODE;
- segmentx->next2=NO_SEGMENT;
-
- PutBackSegmentX(segmentsx,segmentx);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Prune a node - all segment references to this node must already have gone.
-
-  NodesX *nodesx The set of nodes to use.
-
-  NodeX *nodex The node to be pruned.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static void prune_node(NodesX *nodesx,NodeX *nodex)
-{
- if(IsPrunedNodeX(nodex))
-    return;
-
- nodex->flags|=NODE_PRUNED;
-
- PutBackNodeX(nodesx,nodex);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Prune a segment.
-
-  NodesX *nodesx The set of nodes to use.
-
-  SegmentsX *segmentsx The set of segments to use.
-
-  SegmentX *segmentx The segment to be pruned.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static void prune_segment(NodesX *nodesx,SegmentsX *segmentsx,SegmentX *segmentx)
+static void prune_segment(SegmentsX *segmentsx,SegmentX *segmentx)
 {
  unlink_segment_node_refs(segmentsx,segmentx,segmentx->node1);
  unlink_segment_node_refs(segmentsx,segmentx,segmentx->node2);
@@ -366,7 +361,7 @@ static void prune_segment(NodesX *nodesx,SegmentsX *segmentsx,SegmentX *segmentx
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Modify a segment's nodes.
+  Modify a segment's nodes; unused nodes will get marked for pruning later.
 
   SegmentsX *segmentsx The set of segments to use.
 
