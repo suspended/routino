@@ -105,7 +105,7 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx);
 /* Macros and inline functions */
 
 /*+ Return true if this is a pruned node. +*/
-#define IsPrunedNodeX(xxx)   (((xxx)->flags)&NODE_PRUNED)
+#define IsPrunedNodeX(xxx)   ((xxx)->latitude==NO_LATLONG)
 
 
 #if !SLIM

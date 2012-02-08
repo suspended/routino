@@ -51,6 +51,9 @@
 /*+ An undefined relation index. +*/
 #define NO_RELATION    (~(index_t)0)
 
+/*+ An undefined location. +*/
+#define NO_LATLONG     (~(latlong_t)0)
+
 
 /*+ The lowest number allowed for a fake node. +*/
 #define NODE_FAKE      ((index_t)0xffff0000)
@@ -79,9 +82,6 @@
 
 /*+ A flag to mark a node as a turn relation via node. +*/
 #define NODE_TURNRSTRCT2 ((uint16_t)0x0800)
-
-/*+ A flag to mark a node as pruned during processing - only used in planetsplitter. +*/
-#define NODE_PRUNED    ((uint16_t)0x0400)
 
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/

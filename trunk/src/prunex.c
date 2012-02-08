@@ -148,7 +148,8 @@ void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
     if(segmentsx->firstnode[i]==NO_SEGMENT)
       {
        pruned++;
-       nodex.flags|=NODE_PRUNED;
+       nodex.latitude=NO_LATLONG;
+       nodex.longitude=NO_LATLONG;
       }
 
     WriteFile(fd,&nodex,sizeof(NodeX));
