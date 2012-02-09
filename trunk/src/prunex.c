@@ -118,6 +118,9 @@ void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  index_t i,pruned=0;
  int fd;
 
+
+ /* Delete the pruned segments */
+
  free(segmentsx->next1);
  segmentsx->next1=NULL;
 
@@ -125,7 +128,8 @@ void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  IndexSegments(segmentsx,nodesx);
 
- /* Print the start message */
+
+ /* Delete the pruned nodes */
 
  printf_first("Marking Pruned Nodes: Nodes=0 Pruned=0");
 
@@ -177,10 +181,12 @@ void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
   SegmentsX *segmentsx The set of segments to use.
 
+  WaysX *waysx The set of ways to use.
+
   distance_t minimum The minimum distance to keep.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,distance_t minimum)
+void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distance_t minimum)
 {
  index_t i,j;
  index_t nregions=0,npruned=0;
@@ -200,9 +206,11 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,distance_t minimum
 #if !SLIM
  nodesx->data=MapFileWriteable(nodesx->filename);
  segmentsx->data=MapFileWriteable(segmentsx->filename);
+ waysx->data=MapFile(waysx->filename);
 #else
  nodesx->fd=ReOpenFileWriteable(nodesx->filename);
  segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
+ waysx->fd=ReOpenFile(waysx->filename);
 #endif
 
  connected=AllocBitMask(segmentsx->number);
@@ -233,6 +241,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,distance_t minimum
          {
           SegmentX *segmentx;
           index_t thissegment,nodes[2];
+          WayX *wayx;
 
           thissegment=othersegments[--nothersegments];
 
@@ -247,8 +256,15 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,distance_t minimum
           nodes[1]=segmentx->node2;
           total+=DISTANCE(segmentx->distance);
 
+          wayx=LookupWayX(waysx,segmentx->way,1);
+
           for(j=0;j<2;j++)
             {
+             NodeX *nodex=LookupNodeX(nodesx,nodes[j],1);
+
+             if(!(nodex->allow&wayx->way.allow)) /* some type of traffic must be allowed */
+                continue;
+
              segmentx=FirstSegmentX(segmentsx,nodes[j],1);
 
              while(segmentx)
@@ -257,19 +273,28 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,distance_t minimum
 
                 if(segment!=thissegment)
                   {
-                   if(IsBitSet(connected,segment))
-                     {
-                      total=minimum;
-                      goto foundconnection;
-                     }
+                   WayX *way2x=LookupWayX(waysx,segmentx->way,2);
 
-                   if(!IsBitSet(region,segment))
+                   if(wayx->way.allow&way2x->way.allow) /* some type of traffic must be allowed */
                      {
-                      if(nothersegments==nallocothersegments)
-                         othersegments=(index_t*)realloc(othersegments,(nallocothersegments+=1024)*sizeof(index_t));
+                      /* Already connected - finish */
 
-                      othersegments[nothersegments++]=segment;
-                      SetBit(region,segment);
+                      if(IsBitSet(connected,segment))
+                        {
+                         total=minimum;
+                         goto foundconnection;
+                        }
+
+                      /* Not in region - add to list */
+
+                      if(!IsBitSet(region,segment))
+                        {
+                         if(nothersegments==nallocothersegments)
+                            othersegments=(index_t*)realloc(othersegments,(nallocothersegments+=1024)*sizeof(index_t));
+
+                         othersegments[nothersegments++]=segment;
+                         SetBit(region,segment);
+                        }
                      }
                   }
 
@@ -329,9 +354,11 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,distance_t minimum
 #if !SLIM
  nodesx->data=UnmapFile(nodesx->filename);
  segmentsx->data=UnmapFile(segmentsx->filename);
+ waysx->data=UnmapFile(waysx->filename);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
+ waysx->fd=CloseFile(waysx->fd);
 #endif
 
  /* Print the final message */

@@ -290,7 +290,7 @@ int main(int argc,char** argv)
     StartPruning(Nodes,Segments,Ways);
 
     if(prune_isolated_regions)
-       PruneIsolatedRegions(Nodes,Segments,prune_isolated_regions);
+       PruneIsolatedRegions(Nodes,Segments,Ways,prune_isolated_regions);
 
     FinishPruning(Nodes,Segments,Ways);
    }
