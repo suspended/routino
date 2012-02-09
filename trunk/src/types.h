@@ -52,7 +52,7 @@
 #define NO_RELATION    (~(index_t)0)
 
 /*+ An undefined location. +*/
-#define NO_LATLONG     (~(latlong_t)0)
+#define NO_LATLONG     ((latlong_t)0x80000000)
 
 
 /*+ The lowest number allowed for a fake node. +*/
