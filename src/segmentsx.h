@@ -63,8 +63,8 @@ struct _SegmentsX
 
 #else
 
- SegmentX   cached[2];          /*+ Two cached extended segments read from the file in slim mode. +*/
- index_t    incache[2];         /*+ The indexes of the cached extended segments. +*/
+ SegmentX   cached[4];          /*+ Four cached extended segments read from the file in slim mode. +*/
+ index_t    incache[4];         /*+ The indexes of the cached extended segments. +*/
 
 #endif
 

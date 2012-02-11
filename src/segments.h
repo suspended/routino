@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -106,6 +106,9 @@ static inline Segment *NextSegment(Segments *segments,Segment *segment,index_t n
 
 /*+ Return true if this is a super-segment. +*/
 #define IsSuperSegment(xxx)    (((xxx)->distance)&SEGMENT_SUPER)
+
+/*+ Return true if the segment is oneway. +*/
+#define IsOneway(xxx)          ((xxx)->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
 
 /*+ Return true if the segment is oneway towards the specified node. +*/
 #define IsOnewayTo(xxx,yyy)    ((xxx)->node1==(yyy)?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
