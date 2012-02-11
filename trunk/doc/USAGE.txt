@@ -26,6 +26,7 @@ planetsplitter
                          [--parse-only | --process-only]
                          [--max-iterations=<number>]
                          [--prune-isolated[=<len>]]
+                         [--prune-short[=<len>]]
                          [<filename.osm> ...]
 
    --help
@@ -83,6 +84,10 @@ planetsplitter
    --prune-isolated[=<length>]
           Remove small disconnected groups of segments (if no length given
           then 500m minimum length is used).
+
+   --prune-short[=<length>]
+          Remove small short segments (if no length given then 5m minimum
+          length is used).
 
    <filename.osm> ...
           Specifies the filename(s) to read data from, by default data is

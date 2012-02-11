@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -61,8 +61,8 @@ struct _WaysX
 
 #else
 
- WayX     cached[2];            /*+ Two cached extended ways read from the file in slim mode. +*/
- index_t  incache[2];           /*+ The indexes of the cached extended ways. +*/
+ WayX     cached[3];            /*+ Three cached extended ways read from the file in slim mode. +*/
+ index_t  incache[3];           /*+ The indexes of the cached extended ways. +*/
 
 #endif
 

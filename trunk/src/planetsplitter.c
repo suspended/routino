@@ -72,7 +72,7 @@ int main(int argc,char** argv)
  char       *dirname=NULL,*prefix=NULL,*tagging=NULL,*errorlog=NULL;
  int         option_parse_only=0,option_process_only=0;
  int         option_filenames=0;
- int         option_prune=0,prune_isolated_regions=0;
+ int         option_prune=0,prune_isolated=0,prune_short=0;
  int         arg;
 
  /* Parse the command line arguments */
@@ -108,9 +108,13 @@ int main(int argc,char** argv)
        option_prune=1;
 
        if(!strcmp(&argv[arg][7],"-isolated"))
-          prune_isolated_regions=500;
+          prune_isolated=500;
        else if(!strncmp(&argv[arg][7],"-isolated=",10))
-          prune_isolated_regions=atoi(&argv[arg][17]);
+          prune_isolated=atoi(&argv[arg][17]);
+       else if(!strcmp(&argv[arg][7],"-short"))
+          prune_short=5;
+       else if(!strncmp(&argv[arg][7],"-short=",7))
+          prune_short=atoi(&argv[arg][14]);
        else
           print_usage(0,argv[arg],NULL);
       }
@@ -289,12 +293,14 @@ int main(int argc,char** argv)
    {
     StartPruning(Nodes,Segments,Ways);
 
-    if(prune_isolated_regions)
-       PruneIsolatedRegions(Nodes,Segments,Ways,prune_isolated_regions);
+    if(prune_isolated)
+       PruneIsolatedRegions(Nodes,Segments,Ways,prune_isolated);
+
+    if(prune_short)
+       PruneShortSegments(Nodes,Segments,Ways,prune_short);
 
     FinishPruning(Nodes,Segments,Ways);
    }
-
 
  /* Repeated iteration on Super-Nodes and Super-Segments */
 
@@ -468,6 +474,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--parse-only | --process-only]\n"
          "                      [--max-iterations=<number>]\n"
          "                      [--prune-isolated[=<len>]]\n"
+         "                      [--prune-short[=<len>]]\n"
          "                      [<filename.osm> ...]\n");
 
  if(argerr)
@@ -514,6 +521,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "--prune-isolated[=<len>]  Remove small disconnected groups of segments\n"
             "                          (if no length given then 500m length is used).\n"
+            "--prune-short[=<len>]     Remove short segments\n"
+            "                          (if no length given then 5m length is used).\n"
             "\n"
             "<filename.osm> ...        The name(s) of the file(s) to process (by default\n"
             "                          data is read from standard input).\n"

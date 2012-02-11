@@ -23,6 +23,9 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "types.h"
+#include "segments.h"
+
 #include "typesx.h"
 #include "nodesx.h"
 #include "segmentsx.h"
@@ -368,6 +371,391 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Prune out any segments that are shorter than a specified minimum.
+
+  NodesX *nodesx The set of nodes to use.
+
+  SegmentsX *segmentsx The set of segments to use.
+
+  WaysX *waysx The set of ways to use.
+
+  distance_t minimum The minimum distance to keep.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distance_t minimum)
+{
+ index_t i;
+ index_t nshort=0,npruned=0;
+
+ if(nodesx->number==0 || segmentsx->number==0 || waysx->number==0)
+    return;
+
+ /* Print the start message */
+
+ printf_first("Pruning Short Segments: Segments=0 Short=0 Pruned=0");
+
+ /* Map into memory / open the files */
+
+#if !SLIM
+ nodesx->data=MapFileWriteable(nodesx->filename);
+ segmentsx->data=MapFileWriteable(segmentsx->filename);
+ waysx->data=MapFile(waysx->filename);
+#else
+ nodesx->fd=ReOpenFileWriteable(nodesx->filename);
+ segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
+ waysx->fd=ReOpenFile(waysx->filename);
+#endif
+
+ /* Loop through the segments and find the short ones for possible modification */
+
+ for(i=0;i<segmentsx->number;i++)
+   {
+    SegmentX *segmentx2=LookupSegmentX(segmentsx,i,2);
+
+    if(IsPrunedSegmentX(segmentx2))
+       continue;
+
+    /*
+                       :
+      Initial state: ..N3 -------- N2
+                       :     S2
+
+                       :
+      Final state:   ..N3        N2 --
+                       :            S2
+
+      = OR =
+
+                       :                               :
+      Initial state: ..N1 -------- N2 ---- N3 -------- N4..
+                       :     S1        S2        S3    :
+
+                       :                               :
+      Final state:   ..N1 ------------ N3 ------------ N4..   N2 --
+                       :       S1               S3     :         S2
+
+      Not if N1 is the same as N4.
+      Not if S2 has different one-way properties from S1 and S3.
+      Must combine N2, S2 and N3 disallowed transports into new N3.
+      Must not delete N2 or N3 if they are mini-roundabouts.
+      Must not delete N2 or N3 if they are part of turn relations.
+
+      = OR =
+
+                       :                   :
+      Initial state: ..N1 -------- N2 ---- N3..
+                       :     S1        S2  :
+
+                       :               :
+      Final state:   ..N1 ------------ N3..   N2 --
+                       :       S1      :         S2
+
+      Not if N1 is the same as N3.
+      Not if S1 has different one-way properties from S2.
+      Not if S1 has different highway properties from S2.
+      Not if N2 disallows transports allowed on S1 and S2.
+      Not if N2 is a mini-roundabouts.
+      Not if N2 is involved in a turn restriction.
+     */
+
+    if(DISTANCE(segmentx2->distance)<=minimum)
+      {
+       index_t node1,node2,node3,node4;
+       index_t segment1=NO_SEGMENT,segment2=i,segment3=NO_SEGMENT;
+       SegmentX *segmentx;
+       int segcount2=0,segcount3=0;
+
+       nshort++;
+
+       node2=segmentx2->node1;
+       node3=segmentx2->node2;
+
+       /* Count the segments connected to N2 and N3 */
+
+       segmentx=FirstSegmentX(segmentsx,node2,4);
+
+       while(segmentx)
+         {
+          segcount2++;
+
+          if(segment1==NO_SEGMENT)
+            {
+             index_t segment=IndexSegmentX(segmentsx,segmentx);
+
+             if(segment!=segment2)
+               {
+                segment1=segment;
+                node1=OtherNode(segmentx,node2);
+               }
+            }
+
+          segmentx=NextSegmentX(segmentsx,segmentx,node2);
+         }
+
+       segmentx=FirstSegmentX(segmentsx,node3,4);
+
+       while(segmentx)
+         {
+          segcount3++;
+
+          if(segment3==NO_SEGMENT)
+            {
+             index_t segment=IndexSegmentX(segmentsx,segmentx);
+
+             if(segment!=segment2)
+               {
+                segment3=segment;
+                node4=OtherNode(segmentx,node3);
+               }
+            }
+
+          segmentx=NextSegmentX(segmentsx,segmentx,node3);
+         }
+
+       /* Check which case we are handling (and canonicalise) */
+
+       if(segcount2>2 && segcount3>2) /* none of the cases in diagram - too complicated */
+         {
+          goto endloop;
+         }
+       else if(segcount2==1 || segcount3==1) /* first case in diagram - prune segment */
+         {
+          prune_segment(segmentsx,segmentx2);
+         }
+       else if(segcount2==2 && segcount3==2) /* second case in diagram - modify one segment and prune segment */
+         {
+          SegmentX *segmentx1,*segmentx3;
+          WayX *wayx1,*wayx2,*wayx3;
+          NodeX *nodex2,*nodex3,*newnodex;
+          index_t newnode;
+          int join12=1,join23=1;
+
+          /* Check if pruning would collapse a loop */
+
+          if(node1==node4)
+             goto endloop;
+
+          /* Check if allowed due to one-way properties */
+
+          segmentx1=LookupSegmentX(segmentsx,segment1,1);
+          segmentx3=LookupSegmentX(segmentsx,segment3,3);
+
+          if(!IsOneway(segmentx1) && !IsOneway(segmentx2))
+             ;
+          else if(IsOneway(segmentx1) && IsOneway(segmentx2))
+            {
+             if(IsOnewayTo(segmentx1,node2) && !IsOnewayFrom(segmentx2,node2)) /* S1 is one-way but S2 doesn't continue */
+                join12=0;
+
+             if(IsOnewayFrom(segmentx1,node2) && !IsOnewayTo(segmentx2,node2)) /* S1 is one-way but S2 doesn't continue */
+                join12=0;
+            }
+          else
+             join12=0;
+
+          if(!IsOneway(segmentx3) && !IsOneway(segmentx2))
+             ;
+          else if(IsOneway(segmentx3) && IsOneway(segmentx2))
+            {
+             if(IsOnewayTo(segmentx3,node3) && !IsOnewayFrom(segmentx2,node3)) /* S3 is one-way but S2 doesn't continue */
+                join23=0;
+
+             if(IsOnewayFrom(segmentx3,node3) && !IsOnewayTo(segmentx2,node3)) /* S3 is one-way but S2 doesn't continue */
+                join23=0;
+            }
+          else
+             join23=0;
+
+          if(!join12 && !join23)
+             goto endloop;
+
+          /* Check if allowed due to mini-roundabout and turn restriction */
+
+          nodex2=LookupNodeX(nodesx,node2,2);
+          nodex3=LookupNodeX(nodesx,node3,3);
+
+          if(nodex2->flags&NODE_MINIRNDBT)
+             join12=0;
+
+          if(nodex3->flags&NODE_MINIRNDBT)
+             join23=0;
+
+          if(nodex2->flags&NODE_TURNRSTRCT2 || nodex2->flags&NODE_TURNRSTRCT)
+             join12=0;
+
+          if(nodex3->flags&NODE_TURNRSTRCT2 || nodex3->flags&NODE_TURNRSTRCT)
+             join23=0;
+
+          if(!join12 && !join23)
+             goto endloop;
+
+          /* New node properties */
+
+          if(join12)
+            {
+             newnode=node3;
+             newnodex=nodex3;
+            }
+          else /* if(join23) */
+            {
+             newnode=node2;
+             newnodex=nodex2;
+            }
+
+          wayx1=LookupWayX(waysx,segmentx1->way,1);
+          wayx2=LookupWayX(waysx,segmentx2->way,2);
+          wayx3=LookupWayX(waysx,segmentx3->way,3);
+
+          newnodex->allow=nodex2->allow&nodex3->allow; /* combine the restrictions of the two nodes */
+          newnodex->allow&=~((~wayx2->way.allow)&wayx3->way.allow); /* disallow anything blocked by segment2 */
+          newnodex->allow&=~((~wayx2->way.allow)&wayx1->way.allow); /* disallow anything blocked by segment2 */
+
+          newnodex->latitude =(nodex2->latitude +nodex3->latitude )/2;
+          newnodex->longitude=(nodex2->longitude+nodex3->longitude)/2;
+
+          PutBackNodeX(nodesx,newnodex);
+
+          /* Modify segments */
+
+          segmentx1->distance+=DISTANCE(segmentx2->distance)/2;
+          segmentx3->distance+=DISTANCE(segmentx2->distance)-DISTANCE(segmentx2->distance)/2;
+
+          PutBackSegmentX(segmentsx,segmentx1);
+          PutBackSegmentX(segmentsx,segmentx3);
+
+          prune_segment(segmentsx,segmentx2);
+
+          if(segmentx1->node1==node1)
+            {
+             if(segmentx1->node2!=newnode)
+                modify_segment(segmentsx,segmentx1,node1,newnode);
+            }
+          else /* if(segmentx1->node2==node1) */
+            {
+             if(segmentx1->node1!=newnode)
+                modify_segment(segmentsx,segmentx1,newnode,node1);
+            }
+
+          if(segmentx3->node1==node4)
+            {
+             if(segmentx3->node2!=newnode)
+                modify_segment(segmentsx,segmentx3,node4,newnode);
+            }
+          else /* if(segmentx3->node2==node4) */
+            {
+             if(segmentx3->node1!=newnode)
+                modify_segment(segmentsx,segmentx3,newnode,node4);
+            }
+         }
+       else                     /* third case in diagram - prune one segment */
+         {
+          SegmentX *segmentx1;
+          WayX *wayx1,*wayx2;
+          NodeX *nodex2;
+
+          if(segcount3==2) /* not as in diagram, shuffle things round */
+            {
+             index_t temp;
+
+             temp=segment1; segment1=segment3; segment3=temp;
+             temp=node1; node1=node4; node4=temp;
+             temp=node2; node2=node3; node3=temp;
+            }
+
+          /* Check if pruning would collapse a loop */
+
+          if(node1==node3)
+             goto endloop;
+
+          /* Check if allowed due to one-way properties */
+
+          segmentx1=LookupSegmentX(segmentsx,segment1,1);
+
+          if(!IsOneway(segmentx1) && !IsOneway(segmentx2))
+             ;
+          else if(IsOneway(segmentx1) && IsOneway(segmentx2))
+            {
+             if(IsOnewayTo(segmentx1,node2) && !IsOnewayFrom(segmentx2,node2)) /* S1 is one-way but S2 doesn't continue */
+                goto endloop;
+
+             if(IsOnewayFrom(segmentx1,node2) && !IsOnewayTo(segmentx2,node2)) /* S1 is one-way but S2 doesn't continue */
+                goto endloop;
+            }
+          else
+             goto endloop;
+
+          /* Check if allowed due to mini-roundabout and turn restriction */
+
+          nodex2=LookupNodeX(nodesx,node2,2);
+
+          if(nodex2->flags&NODE_MINIRNDBT)
+             goto endloop;
+
+          if(nodex2->flags&NODE_TURNRSTRCT2 || nodex2->flags&NODE_TURNRSTRCT)
+             goto endloop;
+
+          /* Check if allowed due to highway properties */
+
+          wayx1=LookupWayX(waysx,segmentx1->way,1);
+          wayx2=LookupWayX(waysx,segmentx2->way,2);
+
+          if(WaysCompare(&wayx1->way,&wayx2->way))
+             goto endloop;
+
+          /* Check if allowed due to node restrictions */
+
+          if((nodex2->allow&wayx1->way.allow)!=wayx1->way.allow)
+             goto endloop;
+
+          if((nodex2->allow&wayx2->way.allow)!=wayx2->way.allow)
+             goto endloop;
+
+          /* Modify segments */
+
+          segmentx1->distance+=DISTANCE(segmentx2->distance);
+
+          PutBackSegmentX(segmentsx,segmentx1);
+
+          prune_segment(segmentsx,segmentx2);
+
+          if(segmentx1->node1==node1)
+            {
+             modify_segment(segmentsx,segmentx1,node1,node3);
+            }
+          else /* if(segmentx1->node2==node1) */
+            {
+             modify_segment(segmentsx,segmentx1,node3,node1);
+            }
+         }
+
+       npruned++;
+      }
+
+   endloop:
+
+    if(!((i+1)%10000))
+       printf_middle("Pruning Short Segments: Segments=%"Pindex_t" Short=%"Pindex_t" Pruned=%"Pindex_t,i+1,nshort,npruned);
+   }
+
+ /* Unmap from memory / close the files */
+
+#if !SLIM
+ nodesx->data=UnmapFile(nodesx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename);
+ waysx->data=UnmapFile(waysx->filename);
+#else
+ nodesx->fd=CloseFile(nodesx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ waysx->fd=CloseFile(waysx->fd);
+#endif
+
+ /* Print the final message */
+
+ printf_last("Pruned Short Segments: Segments=%"Pindex_t" Short=%"Pindex_t" Pruned=%"Pindex_t,segmentsx->number,nshort,npruned);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Prune a segment; unused nodes and ways will get marked for pruning later.
 
   SegmentsX *segmentsx The set of segments to use.
@@ -404,6 +792,8 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
 {
  index_t thissegment=IndexSegmentX(segmentsx,segmentx);
 
+ assert(newnode1!=newnode2);
+
  if(newnode1!=segmentx->node1)
    {
     unlink_segment_node_refs(segmentsx,segmentx,segmentx->node1);
@@ -414,7 +804,7 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
     segmentsx->firstnode[newnode1]=thissegment;
    }
 
- if(newnode1!=segmentx->node1)
+ if(newnode2!=segmentx->node2)
    {
     unlink_segment_node_refs(segmentsx,segmentx,segmentx->node2);
 
@@ -459,7 +849,7 @@ static void unlink_segment_node_refs(SegmentsX *segmentsx,SegmentX *segmentx,ind
 
     do
       {
-       SegmentX *segx=LookupSegmentX(segmentsx,segment,2);
+       SegmentX *segx=LookupSegmentX(segmentsx,segment,4);
 
        if(segx->node1==node)
          {
