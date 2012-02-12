@@ -63,8 +63,8 @@ struct _NodesX
 
 #else
 
- NodeX     cached[2];           /*+ Two cached extended nodes read from the file in slim mode. +*/
- index_t   incache[2];          /*+ The indexes of the cached extended nodes. +*/
+ NodeX     cached[3];           /*+ Three cached extended nodes read from the file in slim mode. +*/
+ index_t   incache[3];          /*+ The indexes of the cached extended nodes. +*/
 
 #endif
 
