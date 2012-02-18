@@ -44,6 +44,8 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
 
 static void unlink_segment_node_refs(SegmentsX *segmentsx,SegmentX *segmentx,index_t node);
 
+static double distance(double lat1,double lon1,double lat2,double lon2);
+
 
 /*++++++++++++++++++++++++++++++++++++++
   Initialise the data structures needed for pruning.
@@ -379,7 +381,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
   WaysX *waysx The set of ways to use.
 
-  distance_t minimum The minimum distance to keep.
+  distance_t minimum The maximum length to remove or one less than the minimum length to keep.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distance_t minimum)
@@ -413,7 +415,7 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
     SegmentX *segmentx2=LookupSegmentX(segmentsx,i,2);
 
     if(IsPrunedSegmentX(segmentx2))
-       continue;
+       goto endloop;
 
     /*
                        :
@@ -756,6 +758,388 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Prune out any nodes from straight highways where the introduced error is smaller than a specified maximum.
+
+  NodesX *nodesx The set of nodes to use.
+
+  SegmentsX *segmentsx The set of segments to use.
+
+  WaysX *waysx The set of ways to use.
+
+  distance_t maximum The maximum error to introduce.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distance_t maximum)
+{
+ index_t i;
+ index_t npruned=0;
+ BitMask *checked;
+ index_t *nodes,*segments;
+ int nalloc;
+ double maximumf;
+
+ if(nodesx->number==0 || segmentsx->number==0 || waysx->number==0)
+    return;
+
+ maximumf=distance_to_km(maximum);
+
+ /* Print the start message */
+
+ printf_first("Pruning Straight Highway Nodes: Nodes=0 Pruned=0");
+
+ /* Map into memory / open the files */
+
+#if !SLIM
+ nodesx->data=MapFile(nodesx->filename);
+ segmentsx->data=MapFileWriteable(segmentsx->filename);
+ waysx->data=MapFile(waysx->filename);
+#else
+ nodesx->fd=ReOpenFile(nodesx->filename);
+ segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
+ waysx->fd=ReOpenFile(waysx->filename);
+#endif
+
+ checked=AllocBitMask(nodesx->number);
+
+ assert(checked); /* Check AllocBitMask() worked */
+
+ nodes   =(index_t*)malloc((nalloc=1024)*sizeof(index_t));
+ segments=(index_t*)malloc( nalloc      *sizeof(index_t));
+
+ assert(nodes);    /* Check malloc() worked */
+ assert(segments); /* Check malloc() worked */
+
+ /* Loop through the nodes and find stretchs of simple highway for possible modification */
+
+ for(i=0;i<nodesx->number;i++)
+   {
+    int lowerbounded=0,upperbounded=0,loop=0;
+    index_t lower=nalloc/2,current=nalloc/2,upper=nalloc/2;
+    NodeX *nodex;
+
+    if(segmentsx->firstnode[i]==NO_SEGMENT)
+       goto endloop;
+
+    if(IsBitSet(checked,i))
+       goto endloop;
+
+    /* Check if allowed due to mini-roundabout and turn restriction */
+
+    nodex=LookupNodeX(nodesx,i,1);
+
+    if(nodex->flags&NODE_MINIRNDBT)
+       goto endloop;
+
+    if(nodex->flags&NODE_TURNRSTRCT2 || nodex->flags&NODE_TURNRSTRCT)
+       goto endloop;
+
+    /* Find all connected nodes */
+
+    nodes[current]=i;
+
+    do
+      {
+       index_t node1=NO_NODE,node2=NO_NODE;
+       index_t segment1,segment2;
+       index_t way1,way2;
+       int segcount=0;
+
+       if(!IsBitSet(checked,nodes[current]))
+         {
+          SegmentX *segmentx;
+
+          /* Count the segments connected to the node */
+
+          segmentx=FirstSegmentX(segmentsx,nodes[current],1);
+
+          while(segmentx)
+            {
+             segcount++;
+
+             if(node1==NO_NODE)
+               {
+                segment1=IndexSegmentX(segmentsx,segmentx);
+                node1=OtherNode(segmentx,nodes[current]);
+                way1=segmentx->way;
+               }
+             else if(node2==NO_NODE)
+               {
+                segment2=IndexSegmentX(segmentsx,segmentx);
+                node2=OtherNode(segmentx,nodes[current]);
+                way2=segmentx->way;
+               }
+
+             segmentx=NextSegmentX(segmentsx,segmentx,nodes[current]);
+            }
+         }
+
+       /* Perform more checks */
+
+       if(segcount==2)
+         {
+          SegmentX *segmentx1,*segmentx2;
+
+          /* Check if allowed due to one-way properties */
+
+          segmentx1=LookupSegmentX(segmentsx,segment1,1);
+          segmentx2=LookupSegmentX(segmentsx,segment2,2);
+
+          if(!IsOneway(segmentx1) && !IsOneway(segmentx2))
+             ;
+          else if(IsOneway(segmentx1) && IsOneway(segmentx2))
+            {
+             if(IsOnewayTo(segmentx1,nodes[current]) && !IsOnewayFrom(segmentx2,nodes[current])) /* S1 is one-way but S2 doesn't continue */
+                segcount=0;
+
+             if(IsOnewayFrom(segmentx1,nodes[current]) && !IsOnewayTo(segmentx2,nodes[current])) /* S1 is one-way but S2 doesn't continue */
+                segcount=0;
+            }
+          else
+             segcount=0;
+         }
+
+       if(segcount==2)
+         {
+          WayX *wayx1,*wayx2;
+
+          /* Check if allowed due to highway properties */
+
+          nodex=LookupNodeX(nodesx,nodes[current],1);
+
+          wayx1=LookupWayX(waysx,way1,1);
+          wayx2=LookupWayX(waysx,way2,2);
+
+          if(WaysCompare(&wayx1->way,&wayx2->way))
+             segcount=0;
+
+          /* Check if allowed due to node restrictions */
+
+          if((nodex->allow&wayx1->way.allow)!=wayx1->way.allow)
+             segcount=0;
+
+          if((nodex->allow&wayx2->way.allow)!=wayx2->way.allow)
+             segcount=0;
+         }
+
+       /* Update the lists */
+
+       if(segcount==2)
+         {
+          if((upper-lower)==(nalloc-1))
+            {
+             nodes   =(index_t*)realloc(nodes   ,(nalloc+=1024)*sizeof(index_t));
+             segments=(index_t*)realloc(segments, nalloc       *sizeof(index_t));
+            }
+
+          if(lower==0)     /* move everything up by one */
+            {
+             memmove(nodes+1   ,nodes   ,(upper-lower)*sizeof(index_t));
+             memmove(segments+1,segments,(upper-lower)*sizeof(index_t));
+
+             current++;
+             lower++;
+             upper++;
+            }
+
+          if(lower==upper) /* first */
+            {
+             lower--;
+
+             nodes[lower]=node1;
+             segments[lower]=segment1;
+
+             upper++;
+
+             nodes[upper]=node2;
+             segments[upper-1]=segment2;
+
+             current--;
+            }
+          else if(current==lower)
+            {
+             lower--;
+
+             if(nodes[current+1]==node2)
+               {
+                nodes[lower]=node1;
+                segments[lower]=segment1;
+               }
+             else /* if(nodes[current+1]==node1) */
+               {
+                nodes[lower]=node2;
+                segments[lower]=segment2;
+               }
+
+             current--;
+            }
+          else /* if(current==upper) */
+            {
+             upper++;
+
+             if(nodes[current-1]==node2)
+               {
+                nodes[upper]=node1;
+                segments[upper-1]=segment1;
+               }
+             else /* if(nodes[current-1]==node1) */
+               {
+                nodes[upper]=node2;
+                segments[upper-1]=segment2;
+               }
+
+             current++;
+            }
+
+          if(nodes[upper]==nodes[lower])
+            {
+             loop=1;
+             if(lowerbounded)
+                loop++;
+
+             lowerbounded=1;
+             upperbounded=1;
+            }
+         }
+       else
+         {
+          if(current==upper)
+             upperbounded=1;
+
+          if(current==lower)
+            {
+             lowerbounded=1;
+             current=upper;
+            }
+         }
+      }
+    while(!(lowerbounded && upperbounded));
+
+    /* Check for straight highway */
+
+    while((upper-lower)>=2)
+      {
+       NodeX *nodex;
+       int n=0;
+
+       for(current=lower;current<=upper;current++)
+         {
+          nodex=LookupNodeX(nodesx,nodes[current],1);
+
+          lat[n]=latlong_to_radians(nodex->latitude);
+          lon[n]=latlong_to_radians(nodex->longitude);
+          n++;
+
+          if(n>2)
+            {
+             double dist3;
+             int m;
+
+             dist3=distance(lat[0],lon[0],lat[n-1],lon[n-1]);
+
+             for(m=1;m<(n-1);m++)
+               {
+                double dist1,dist2,dist3a,dist3b,distp;
+
+                dist1=distance(lat[0  ],lon[0  ],lat[m],lon[m]);
+                dist2=distance(lat[n-1],lon[n-1],lat[m],lon[m]);
+
+                /* Use law of cosines (assume flat Earth) */
+
+                dist3a=(dist1*dist1-dist2*dist2+dist3*dist3)/(2.0*dist3);
+                dist3b=dist3-dist3a;
+
+                if((dist1+dist2)<dist3)
+                   distp=0;
+                else if(dist3a>=0 && dist3b>=0)
+                   distp=sqrt(dist1*dist1-dist3a*dist3a);
+                else if(dist3a>0)
+                   distp=dist2;
+                else /* if(dist3b>0) */
+                   distp=dist1;
+
+                if(distp>maximumf) /* gone too far */
+                  {
+                   m=0;
+                   break;
+                  }
+               }
+
+             if(m==0 && n==3)   /* only three points, out of range */
+                break;
+             else if(m==0 || (lower+n)==upper) /* delete some segments and shift along */
+               {
+                SegmentX *segmentx;
+                distance_t distance=0;
+
+                if((lower+n)==upper && m!=0) /* finished */
+                   n++;
+
+                for(m=1;m<(n-2);m++)
+                  {
+                   segmentx=LookupSegmentX(segmentsx,segments[lower+m],1);
+
+                   distance+=DISTANCE(segmentx->distance);
+
+                   prune_segment(segmentsx,segmentx);
+
+                   npruned++;
+                  }
+
+                segmentx=LookupSegmentX(segmentsx,segments[lower],1);
+
+                segmentx->distance+=distance;
+
+                if(segmentx->node1==nodes[lower])
+                   modify_segment(segmentsx,segmentx,nodes[lower],nodes[lower+n-2]);
+                else /* if(segmentx->node2==nodes[lower]) */
+                   modify_segment(segmentsx,segmentx,nodes[lower+n-2],nodes[lower]);
+
+                lower+=n-2-1;
+                break;
+               }
+            }
+         }
+
+       lower++;
+      }
+
+    /* Mark the nodes */
+
+    for(current=lower;current<=upper;current++)
+       SetBit(checked,nodes[current]);
+
+   endloop:
+
+    SetBit(checked,i);
+
+    if(!((i+1)%10000))
+       printf_middle("Pruning Straight Highway Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,i+1,npruned);
+   }
+
+ /* Unmap from memory / close the files */
+
+ free(checked);
+
+ free(nodes);
+ free(segments);
+
+#if !SLIM
+ nodesx->data=UnmapFile(nodesx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename);
+ waysx->data=UnmapFile(waysx->filename);
+#else
+ nodesx->fd=CloseFile(nodesx->fd);
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ waysx->fd=CloseFile(waysx->fd);
+#endif
+
+ /* Print the final message */
+
+ printf_last("Pruned Straight Highway Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,nodesx->number,npruned);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Prune a segment; unused nodes and ways will get marked for pruning later.
 
   SegmentsX *segmentsx The set of segments to use.
@@ -882,4 +1266,42 @@ static void unlink_segment_node_refs(SegmentsX *segmentsx,SegmentX *segmentx,ind
       }
     while(segment!=thissegment && segment!=NO_SEGMENT);
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Calculate the distance between two locations.
+
+  double distance Returns the distance between the locations.
+
+  double lat1 The latitude of the first location.
+
+  double lon1 The longitude of the first location.
+
+  double lat2 The latitude of the second location.
+
+  double lon2 The longitude of the second location.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static double distance(double lat1,double lon1,double lat2,double lon2)
+{
+ double dlon = lon1 - lon2;
+ double dlat = lat1 - lat2;
+
+ double a1,a2,a,sa,c,d;
+
+ if(dlon==0 && dlat==0)
+   return 0;
+
+ a1 = sin (dlat / 2);
+ a2 = sin (dlon / 2);
+ a = (a1 * a1) + cos (lat1) * cos (lat2) * a2 * a2;
+ sa = sqrt (a);
+ if (sa <= 1.0)
+   {c = 2 * asin (sa);}
+ else
+   {c = 2 * asin (1.0);}
+ d = 6378.137 * c;
+
+ return(d);
 }

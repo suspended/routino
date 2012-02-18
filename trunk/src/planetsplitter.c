@@ -72,7 +72,7 @@ int main(int argc,char** argv)
  char       *dirname=NULL,*prefix=NULL,*tagging=NULL,*errorlog=NULL;
  int         option_parse_only=0,option_process_only=0;
  int         option_filenames=0;
- int         option_prune=0,prune_isolated=0,prune_short=0;
+ int         option_prune=0,prune_isolated=0,prune_short=0,prune_straight=0;
  int         arg;
 
  /* Parse the command line arguments */
@@ -115,6 +115,10 @@ int main(int argc,char** argv)
           prune_short=5;
        else if(!strncmp(&argv[arg][7],"-short=",7))
           prune_short=atoi(&argv[arg][14]);
+       else if(!strcmp(&argv[arg][7],"-straight"))
+          prune_straight=3;
+       else if(!strncmp(&argv[arg][7],"-straight=",10))
+          prune_straight=atoi(&argv[arg][17]);
        else
           print_usage(0,argv[arg],NULL);
       }
@@ -299,6 +303,9 @@ int main(int argc,char** argv)
     if(prune_short)
        PruneShortSegments(Nodes,Segments,Ways,prune_short);
 
+    if(prune_straight)
+       PruneStraightHighwayNodes(Nodes,Segments,Ways,prune_straight);
+
     FinishPruning(Nodes,Segments,Ways);
    }
 
@@ -475,6 +482,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--max-iterations=<number>]\n"
          "                      [--prune-isolated[=<len>]]\n"
          "                      [--prune-short[=<len>]]\n"
+         "                      [--prune-straight[=<len>]]\n"
          "                      [<filename.osm> ...]\n");
 
  if(argerr)
@@ -523,6 +531,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "                          (if no length given then 500m length is used).\n"
             "--prune-short[=<len>]     Remove short segments\n"
             "                          (if no length given then 5m length is used).\n"
+            "--prune-straight[=<len>]  Remove nodes in virtually straight highways\n"
+            "                          (if no length given then 3m offset is allowed).\n"
             "\n"
             "<filename.osm> ...        The name(s) of the file(s) to process (by default\n"
             "                          data is read from standard input).\n"
