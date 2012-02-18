@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -225,10 +225,37 @@ minimising the length.
   property preferences close to 50% do not cause large variations in routes.
 </dl>
 
-<h3><a name="H_1_1_5"></a>Turn Restrictions</h3>
+<h3><a name="H_1_1_5"></a>Data Pruning</h3>
 
-The addition of turn restrictions adds a set of further complications because it
-introduces a set of constraints that are far more complex than one-way streets.
+From version 2.2 there are options to "prune" nodes and segments from the input
+data which means to remove nodes and/or segments without significantly changing
+the routing results.
+<p>
+The pruning options must meet a number of conditions to be useful:
+<ul>
+  <li>The topology relevant to routing must remain unchanged.  The instructions
+    that are produced from the reduced set of nodes and segments must be
+    sufficiently accurate for anybody trying to follow them on the ground.
+  <li>Any restrictions belonging to nodes or segments that stop certain types of
+    traffic from following a particular highway must be preserved.
+  <li>The total length must be calculated using the original data and not the
+    simplified data which by its nature will typically be shorter.
+  <li>The location of the remaining nodes and segments must be a good
+    representation of the original nodes and segments.  Since the calculated
+    route may be displayed on a map the remaining nodes and segments must
+    clearly indicate the route to take.
+</ul>
+<p>
+The prune options all have user-controllable parameters which allow the
+geographical accuracy to be controlled.  In the extreme case this means that
+although the topology is the same the geographical accuracy can be sacrificed to
+minimise the number of nodes and segments.
+
+<h3><a name="H_1_1_6"></a>Turn Restrictions</h3>
+
+The addition of turn restrictions in version 2.0 adds a set of further
+complications because it introduces a set of constraints that are far more
+complex than one-way streets.
 <p>
 A turn restriction in the simplest case is a combination of a segment, node and
 segment such that routes are not allowed to go from the first segment to the
@@ -283,7 +310,7 @@ section is itself optimum based on the start conditions.
 Overall the presence of turn restrictions in the database makes the routing
 slower even for regions of the map that have no turn restrictions.
 
-<h3><a name="H_1_1_4"></a>Data Implementation</h3>
+<h3><a name="H_1_1_7"></a>Data Implementation</h3>
 
 The hardest part of implementing this router is the data organisation.  The
 arrangement of the data to minimise the number of operations required to follow
@@ -314,7 +341,8 @@ The super-nodes are mixed in with the nodes and the super-segments are mixed in
 with the segments.  For the nodes they are the same as the normal nodes, so just
 a flag is needed to indicate that they are super.  The super-segments are in
 addition to the normal segments so they increase the database size (by about
-10%) and are also marked with a flag.
+10%) and are also marked with a flag.  Some segments are therefore flagged as
+both normal segments and super-segments if they both have the same end nodes.
 <p>
 The relations are stored separately from the nodes, segments and ways.  For the
 turn restriction relations the initial and final segments are stored along with
@@ -322,7 +350,7 @@ the restricted node itself.  Each node that has a turn restriction is marked in
 the main node storage with a flag to indicate this information.
 
 
-<h3><a name="H_1_1_6"></a>Practicalities</h3>
+<h3><a name="H_1_1_8"></a>Practicalities</h3>
 
 At the time of writing (April 2010) the OpenStreetMap data for Great Britain
 (taken from

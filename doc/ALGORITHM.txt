@@ -185,12 +185,40 @@ Routing Preferences
           close to 50% do not cause large variations in routes.
 
 
+Data Pruning
+------------
+
+   From version 2.2 there are options to "prune" nodes and segments from
+   the input data which means to remove nodes and/or segments without
+   significantly changing the routing results.
+
+   The pruning options must meet a number of conditions to be useful:
+     * The topology relevant to routing must remain unchanged. The
+       instructions that are produced from the reduced set of nodes and
+       segments must be sufficiently accurate for anybody trying to follow
+       them on the ground.
+     * Any restrictions belonging to nodes or segments that stop certain
+       types of traffic from following a particular highway must be
+       preserved.
+     * The total length must be calculated using the original data and not
+       the simplified data which by its nature will typically be shorter.
+     * The location of the remaining nodes and segments must be a good
+       representation of the original nodes and segments. Since the
+       calculated route may be displayed on a map the remaining nodes and
+       segments must clearly indicate the route to take.
+
+   The prune options all have user-controllable parameters which allow the
+   geographical accuracy to be controlled. In the extreme case this means
+   that although the topology is the same the geographical accuracy can be
+   sacrificed to minimise the number of nodes and segments.
+
+
 Turn Restrictions
 -----------------
 
-   The addition of turn restrictions adds a set of further complications
-   because it introduces a set of constraints that are far more complex
-   than one-way streets.
+   The addition of turn restrictions in version 2.0 adds a set of further
+   complications because it introduces a set of constraints that are far
+   more complex than one-way streets.
 
    A turn restriction in the simplest case is a combination of a segment,
    node and segment such that routes are not allowed to go from the first
@@ -286,7 +314,8 @@ Data Implementation
    normal nodes, so just a flag is needed to indicate that they are super.
    The super-segments are in addition to the normal segments so they
    increase the database size (by about 10%) and are also marked with a
-   flag.
+   flag. Some segments are therefore flagged as both normal segments and
+   super-segments if they both have the same end nodes.
 
    The relations are stored separately from the nodes, segments and ways.
    For the turn restriction relations the initial and final segments are
@@ -317,4 +346,4 @@ Practicalities
 
 --------
 
-Copyright 2008-2011 Andrew M. Bishop.
+Copyright 2008-2012 Andrew M. Bishop.
