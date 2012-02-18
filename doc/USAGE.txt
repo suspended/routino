@@ -27,6 +27,7 @@ planetsplitter
                          [--max-iterations=<number>]
                          [--prune-isolated[=<len>]]
                          [--prune-short[=<len>]]
+                         [--prune-straight[=<len>]]
                          [<filename.osm> ...]
 
    --help
@@ -86,8 +87,12 @@ planetsplitter
           then 500m minimum length is used).
 
    --prune-short[=<length>]
-          Remove small short segments (if no length given then 5m minimum
-          length is used).
+          Remove short segments (if no length given then segments up to 5m
+          length are removed).
+
+   --prune-straight[=<length>]
+          Remove nodes from straight highways (if no length given then up
+          to 3m offset is allowed).
 
    <filename.osm> ...
           Specifies the filename(s) to read data from, by default data is
