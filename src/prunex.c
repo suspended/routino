@@ -1187,9 +1187,27 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
 
  assert(newnode1!=newnode2);
 
- if(newnode1!=segmentx->node1)
+ if(newnode1>newnode2)
    {
+    index_t temp;
+
+    if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
+       segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+
+    temp=newnode1;
+    newnode1=newnode2;
+    newnode2=temp;
+
+    /* must unlink both here otherwise we end up with a loop */
+
     unlink_segment_node_refs(segmentsx,segmentx,segmentx->node1);
+    unlink_segment_node_refs(segmentsx,segmentx,segmentx->node2);
+   }
+
+ if(newnode1!=segmentx->node1) /* only modify it if the node has changed */
+   {
+    if(newnode1<newnode2)
+       unlink_segment_node_refs(segmentsx,segmentx,segmentx->node1);
 
     segmentx->node1=newnode1;
 
@@ -1197,9 +1215,10 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
     segmentsx->firstnode[newnode1]=thissegment;
    }
 
- if(newnode2!=segmentx->node2)
+ if(newnode2!=segmentx->node2) /* only modify it if the node has changed */
    {
-    unlink_segment_node_refs(segmentsx,segmentx,segmentx->node2);
+    if(newnode1<newnode2)
+       unlink_segment_node_refs(segmentsx,segmentx,segmentx->node2);
 
     segmentx->node2=newnode2;
 
