@@ -774,8 +774,9 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  index_t i;
  index_t npruned=0;
  BitMask *checked;
- index_t *nodes,*segments;
  int nalloc;
+ index_t *nodes,*segments;
+ double *lats,*lons;
  double maximumf;
 
  if(nodesx->number==0 || segmentsx->number==0 || waysx->number==0)
@@ -809,28 +810,23 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  assert(nodes);    /* Check malloc() worked */
  assert(segments); /* Check malloc() worked */
 
+ lats=(double*)malloc(nalloc*sizeof(double));
+ lons=(double*)malloc(nalloc*sizeof(double));
+
+ assert(lats);    /* Check malloc() worked */
+ assert(lons);    /* Check malloc() worked */
+
  /* Loop through the nodes and find stretchs of simple highway for possible modification */
 
  for(i=0;i<nodesx->number;i++)
    {
     int lowerbounded=0,upperbounded=0,loop=0;
     index_t lower=nalloc/2,current=nalloc/2,upper=nalloc/2;
-    NodeX *nodex;
 
     if(segmentsx->firstnode[i]==NO_SEGMENT)
        goto endloop;
 
     if(IsBitSet(checked,i))
-       goto endloop;
-
-    /* Check if allowed due to mini-roundabout and turn restriction */
-
-    nodex=LookupNodeX(nodesx,i,1);
-
-    if(nodex->flags&NODE_MINIRNDBT)
-       goto endloop;
-
-    if(nodex->flags&NODE_TURNRSTRCT2 || nodex->flags&NODE_TURNRSTRCT)
        goto endloop;
 
     /* Find all connected nodes */
@@ -843,6 +839,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
        index_t segment1,segment2;
        index_t way1,way2;
        int segcount=0;
+       NodeX *nodex;
 
        if(!IsBitSet(checked,nodes[current]))
          {
@@ -875,11 +872,24 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
        /* Perform more checks */
 
+       nodex=LookupNodeX(nodesx,nodes[current],1);
+
+       lats[current]=latlong_to_radians(nodex->latitude);
+       lons[current]=latlong_to_radians(nodex->longitude);
+
+       /* Check if allowed due to mini-roundabout and turn restriction */
+
+       if(nodex->flags&NODE_MINIRNDBT)
+          segcount=0;
+
+       if(nodex->flags&NODE_TURNRSTRCT2 || nodex->flags&NODE_TURNRSTRCT)
+          segcount=0;
+
+       /* Check if allowed due to one-way properties */
+
        if(segcount==2)
          {
           SegmentX *segmentx1,*segmentx2;
-
-          /* Check if allowed due to one-way properties */
 
           segmentx1=LookupSegmentX(segmentsx,segment1,1);
           segmentx2=LookupSegmentX(segmentsx,segment2,2);
@@ -898,21 +908,17 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
              segcount=0;
          }
 
+       /* Check if allowed due to highway properties and node restrictions */
+
        if(segcount==2)
          {
           WayX *wayx1,*wayx2;
-
-          /* Check if allowed due to highway properties */
-
-          nodex=LookupNodeX(nodesx,nodes[current],1);
 
           wayx1=LookupWayX(waysx,way1,1);
           wayx2=LookupWayX(waysx,way2,2);
 
           if(WaysCompare(&wayx1->way,&wayx2->way))
              segcount=0;
-
-          /* Check if allowed due to node restrictions */
 
           if((nodex->allow&wayx1->way.allow)!=wayx1->way.allow)
              segcount=0;
@@ -929,12 +935,18 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
             {
              nodes   =(index_t*)realloc(nodes   ,(nalloc+=1024)*sizeof(index_t));
              segments=(index_t*)realloc(segments, nalloc       *sizeof(index_t));
+
+             lats=(double*)realloc(lats,nalloc*sizeof(double));
+             lons=(double*)realloc(lons,nalloc*sizeof(double));
             }
 
           if(lower==0)     /* move everything up by one */
             {
              memmove(nodes+1   ,nodes   ,(upper-lower)*sizeof(index_t));
              memmove(segments+1,segments,(upper-lower)*sizeof(index_t));
+
+             memmove(lats+1,lats,(upper-lower)*sizeof(double));
+             memmove(lons+1,lons,(upper-lower)*sizeof(double));
 
              current++;
              lower++;
@@ -1014,99 +1026,93 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
       }
     while(!(lowerbounded && upperbounded));
 
-    /* Check for straight highway */
-
-    while((upper-lower)>=2)
-      {
-       NodeX *nodex;
-       int n=0;
-
-       for(current=lower;current<=upper;current++)
-         {
-          nodex=LookupNodeX(nodesx,nodes[current],1);
-
-          lat[n]=latlong_to_radians(nodex->latitude);
-          lon[n]=latlong_to_radians(nodex->longitude);
-          n++;
-
-          if(n>2)
-            {
-             double dist3;
-             int m;
-
-             dist3=distance(lat[0],lon[0],lat[n-1],lon[n-1]);
-
-             for(m=1;m<(n-1);m++)
-               {
-                double dist1,dist2,dist3a,dist3b,distp;
-
-                dist1=distance(lat[0  ],lon[0  ],lat[m],lon[m]);
-                dist2=distance(lat[n-1],lon[n-1],lat[m],lon[m]);
-
-                /* Use law of cosines (assume flat Earth) */
-
-                dist3a=(dist1*dist1-dist2*dist2+dist3*dist3)/(2.0*dist3);
-                dist3b=dist3-dist3a;
-
-                if((dist1+dist2)<dist3)
-                   distp=0;
-                else if(dist3a>=0 && dist3b>=0)
-                   distp=sqrt(dist1*dist1-dist3a*dist3a);
-                else if(dist3a>0)
-                   distp=dist2;
-                else /* if(dist3b>0) */
-                   distp=dist1;
-
-                if(distp>maximumf) /* gone too far */
-                  {
-                   m=0;
-                   break;
-                  }
-               }
-
-             if(m==0 && n==3)   /* only three points, out of range */
-                break;
-             else if(m==0 || (lower+n)==upper) /* delete some segments and shift along */
-               {
-                SegmentX *segmentx;
-                distance_t distance=0;
-
-                if((lower+n)==upper && m!=0) /* finished */
-                   n++;
-
-                for(m=1;m<(n-2);m++)
-                  {
-                   segmentx=LookupSegmentX(segmentsx,segments[lower+m],1);
-
-                   distance+=DISTANCE(segmentx->distance);
-
-                   prune_segment(segmentsx,segmentx);
-
-                   npruned++;
-                  }
-
-                segmentx=LookupSegmentX(segmentsx,segments[lower],1);
-
-                segmentx->distance+=distance;
-
-                if(segmentx->node1==nodes[lower])
-                   modify_segment(segmentsx,segmentx,nodes[lower],nodes[lower+n-2]);
-                else /* if(segmentx->node2==nodes[lower]) */
-                   modify_segment(segmentsx,segmentx,nodes[lower+n-2],nodes[lower]);
-
-                lower+=n-2-1;
-                break;
-               }
-            }
-         }
-
-       lower++;
-      }
-
     /* Mark the nodes */
 
     for(current=lower;current<=upper;current++)
        SetBit(checked,nodes[current]);
+
+    /* Check for straight highway */
+
+    while((upper-lower)>=2)
+      {
+       index_t bestc=lower;
+
+       for(current=lower+2;current<=upper;current++)
+         {
+          double dist1,dist2,dist3,dist3a,dist3b,distp;
+          index_t c;
+
+          dist3=distance(lats[lower],lons[lower],lats[current],lons[current]);
+
+          for(c=lower+1;c<current;c++)
+            {
+             dist1=distance(lats[lower]  ,lons[lower]  ,lats[c],lons[c]);
+             dist2=distance(lats[current],lons[current],lats[c],lons[c]);
+
+             /* Use law of cosines (assume flat Earth) */
+
+             dist3a=(dist1*dist1-dist2*dist2+dist3*dist3)/(2.0*dist3);
+             dist3b=dist3-dist3a;
+
+             if((dist1+dist2)<dist3)
+                distp=0;
+             else if(dist3a>=0 && dist3b>=0)
+                distp=sqrt(dist1*dist1-dist3a*dist3a);
+             else if(dist3a>0)
+                distp=dist2;
+             else /* if(dist3b>0) */
+                distp=dist1;
+
+             if(distp>maximumf) /* gone too far */
+                break;
+            }
+
+          if(c>bestc)
+             bestc=c;
+
+          if(bestc>c)
+             c=bestc;
+
+          if(c==current && current!=upper) /* Can replace at least this far (not finished yet) */
+             continue;
+
+          if((c-lower)<2)       /* first three points are not straight */
+            {
+             lower=c;
+             break;
+            }
+          else                  /* delete some segments and shift along */
+            {
+             SegmentX *segmentx;
+             distance_t distance=0;
+
+             current=c;
+
+             for(c=lower+1;c<current;c++)
+               {
+                segmentx=LookupSegmentX(segmentsx,segments[c],1);
+
+                distance+=DISTANCE(segmentx->distance);
+
+                prune_segment(segmentsx,segmentx);
+
+                npruned++;
+               }
+
+             segmentx=LookupSegmentX(segmentsx,segments[lower],1);
+
+             segmentx->distance+=distance;
+
+             if(segmentx->node1==nodes[lower])
+                modify_segment(segmentsx,segmentx,nodes[lower],nodes[current]);
+             else /* if(segmentx->node2==nodes[lower]) */
+                modify_segment(segmentsx,segmentx,nodes[current],nodes[lower]);
+
+             lower=current;
+             break;
+            }
+         }
+      }
 
    endloop:
 
@@ -1122,6 +1128,9 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  free(nodes);
  free(segments);
+
+ free(lats);
+ free(lons);
 
 #if !SLIM
  nodesx->data=UnmapFile(nodesx->filename);
