@@ -42,7 +42,8 @@
 static void prune_segment(SegmentsX *segmentsx,SegmentX *segmentx);
 static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newnode1,index_t newnode2);
 
-static void unlink_segment_node_refs(SegmentsX *segmentsx,SegmentX *segmentx,index_t node);
+static void unlink_segment_node1_refs(SegmentsX *segmentsx,SegmentX *segmentx);
+static void unlink_segment_node2_refs(SegmentsX *segmentsx,SegmentX *segmentx);
 
 static double distance(double lat1,double lon1,double lat2,double lon2);
 
@@ -721,13 +722,9 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
           prune_segment(segmentsx,segmentx2);
 
           if(segmentx1->node1==node1)
-            {
              modify_segment(segmentsx,segmentx1,node1,node3);
-            }
           else /* if(segmentx1->node2==node1) */
-            {
              modify_segment(segmentsx,segmentx1,node3,node1);
-            }
          }
 
        npruned++;
@@ -931,7 +928,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
        if(segcount==2)
          {
-          if((upper-lower)==(nalloc-1))
+          if(upper==(nalloc-1))
             {
              nodes   =(index_t*)realloc(nodes   ,(nalloc+=1024)*sizeof(index_t));
              segments=(index_t*)realloc(segments, nalloc       *sizeof(index_t));
@@ -1101,12 +1098,23 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
              segmentx=LookupSegmentX(segmentsx,segments[lower],1);
 
-             segmentx->distance+=distance;
+             if(nodes[lower]==nodes[current]) /* loop; all within maximum distance */
+               {
+                prune_segment(segmentsx,segmentx);
 
-             if(segmentx->node1==nodes[lower])
-                modify_segment(segmentsx,segmentx,nodes[lower],nodes[current]);
-             else /* if(segmentx->node2==nodes[lower]) */
-                modify_segment(segmentsx,segmentx,nodes[current],nodes[lower]);
+                npruned++;
+               }
+             else
+               {
+                segmentx->distance+=distance;
+
+                PutBackSegmentX(segmentsx,segmentx);
+
+                if(segmentx->node1==nodes[lower])
+                   modify_segment(segmentsx,segmentx,nodes[lower],nodes[current]);
+                else /* if(segmentx->node2==nodes[lower]) */
+                   modify_segment(segmentsx,segmentx,nodes[current],nodes[lower]);
+               }
 
              lower=current;
              break;
@@ -1158,8 +1166,8 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
 static void prune_segment(SegmentsX *segmentsx,SegmentX *segmentx)
 {
- unlink_segment_node_refs(segmentsx,segmentx,segmentx->node1);
- unlink_segment_node_refs(segmentsx,segmentx,segmentx->node2);
+ unlink_segment_node1_refs(segmentsx,segmentx);
+ unlink_segment_node2_refs(segmentsx,segmentx);
 
  segmentx->node1=NO_NODE;
  segmentx->node2=NO_NODE;
@@ -1187,104 +1195,138 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
 
  assert(newnode1!=newnode2);
 
- if(newnode1>newnode2)
+ if(newnode1>newnode2)          /* rotate the segment around */
    {
     index_t temp;
 
     if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
        segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
 
+    PutBackSegmentX(segmentsx,segmentx);
+
     temp=newnode1;
     newnode1=newnode2;
     newnode2=temp;
-
-    /* must unlink both here otherwise we end up with a loop */
-
-    unlink_segment_node_refs(segmentsx,segmentx,segmentx->node1);
-    unlink_segment_node_refs(segmentsx,segmentx,segmentx->node2);
    }
+
+ if(newnode1!=segmentx->node1)
+    unlink_segment_node1_refs(segmentsx,segmentx);
+
+ if(newnode2!=segmentx->node2)
+    unlink_segment_node2_refs(segmentsx,segmentx);
 
  if(newnode1!=segmentx->node1) /* only modify it if the node has changed */
    {
-    if(newnode1<newnode2)
-       unlink_segment_node_refs(segmentsx,segmentx,segmentx->node1);
-
     segmentx->node1=newnode1;
 
     segmentsx->next1[thissegment]=segmentsx->firstnode[newnode1];
     segmentsx->firstnode[newnode1]=thissegment;
+
+    PutBackSegmentX(segmentsx,segmentx);
    }
 
  if(newnode2!=segmentx->node2) /* only modify it if the node has changed */
    {
-    if(newnode1<newnode2)
-       unlink_segment_node_refs(segmentsx,segmentx,segmentx->node2);
-
     segmentx->node2=newnode2;
 
     segmentx->next2=segmentsx->firstnode[newnode2];
     segmentsx->firstnode[newnode2]=thissegment;
-   }
 
- PutBackSegmentX(segmentsx,segmentx);
+    PutBackSegmentX(segmentsx,segmentx);
+   }
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Unlink one node from a segment by modifying the linked list type arrangement of node references.
+  Unlink a node1 from a segment by modifying the linked list type arrangement of node references.
 
   SegmentsX *segmentsx The set of segments to use.
 
-  SegmentX *segmentx The segment to be pruned.
-
-  index_t node The node index of the end of the segment being modified here.
+  SegmentX *segmentx The segment to be modified.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void unlink_segment_node_refs(SegmentsX *segmentsx,SegmentX *segmentx,index_t node)
+static void unlink_segment_node1_refs(SegmentsX *segmentsx,SegmentX *segmentx)
 {
- index_t thissegment=IndexSegmentX(segmentsx,segmentx);
- index_t segment=segmentsx->firstnode[node];
+ index_t segment,thissegment;
 
- if(segment==NO_SEGMENT)
-    return;
+ thissegment=IndexSegmentX(segmentsx,segmentx);
+
+ segment=segmentsx->firstnode[segmentx->node1];
 
  if(segment==thissegment)
-   {
-    if(segmentx->node1==node)
-       segmentsx->firstnode[node]=segmentsx->next1[thissegment];
-    else
-       segmentsx->firstnode[node]=segmentx->next2;
-   }
+    segmentsx->firstnode[segmentx->node1]=segmentsx->next1[thissegment];
  else
    {
-    index_t nextsegment;
-
     do
       {
+       index_t nextsegment;
        SegmentX *segx=LookupSegmentX(segmentsx,segment,4);
 
-       if(segx->node1==node)
+       if(segx->node1==segmentx->node1)
          {
           nextsegment=segmentsx->next1[segment];
 
-          if(thissegment==nextsegment)
-            {
-             if(segmentx->node1==node)
-                segmentsx->next1[segment]=segmentsx->next1[thissegment];
-             else
-                segmentsx->next1[segment]=segmentx->next2;
-            }
+          if(nextsegment==thissegment)
+             segmentsx->next1[segment]=segmentsx->next1[thissegment];
          }
-       else
+       else /* if(segx->node2==segmentx->node1) */
          {
           nextsegment=segx->next2;
 
-          if(thissegment==nextsegment)
+          if(nextsegment==thissegment)
             {
-             if(segmentx->node1==node)
-                segx->next2=segmentsx->next1[thissegment];
-             else
-                segx->next2=segmentx->next2;
+             segx->next2=segmentsx->next1[thissegment];
+
+             PutBackSegmentX(segmentsx,segx);
+            }
+         }
+
+       segment=nextsegment;
+      }
+    while(segment!=thissegment && segment!=NO_SEGMENT);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Unlink a node2 from a segment by modifying the linked list type arrangement of node references.
+
+  SegmentsX *segmentsx The set of segments to use.
+
+  SegmentX *segmentx The segment to be modified.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void unlink_segment_node2_refs(SegmentsX *segmentsx,SegmentX *segmentx)
+{
+ index_t segment,thissegment;
+
+ thissegment=IndexSegmentX(segmentsx,segmentx);
+
+ segment=segmentsx->firstnode[segmentx->node2];
+
+ if(segment==thissegment)
+    segmentsx->firstnode[segmentx->node2]=segmentx->next2;
+ else
+   {
+    do
+      {
+       index_t nextsegment;
+       SegmentX *segx=LookupSegmentX(segmentsx,segment,4);
+
+       if(segx->node1==segmentx->node2)
+         {
+          nextsegment=segmentsx->next1[segment];
+
+          if(nextsegment==thissegment)
+             segmentsx->next1[segment]=segmentx->next2;
+         }
+       else /* if(segx->node2==segmentx->node2) */
+         {
+          nextsegment=segx->next2;
+
+          if(nextsegment==thissegment)
+            {
+             segx->next2=segmentx->next2;
 
              PutBackSegmentX(segmentsx,segx);
             }
