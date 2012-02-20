@@ -469,7 +469,7 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
 
     if(DISTANCE(segmentx2->distance)<=minimum)
       {
-       index_t node1,node2,node3,node4;
+       index_t node1=NO_NODE,node2,node3,node4=NO_NODE;
        index_t segment1=NO_SEGMENT,segment2=i,segment3=NO_SEGMENT;
        SegmentX *segmentx;
        int segcount2=0,segcount3=0;
@@ -839,8 +839,8 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
     do
       {
        index_t node1=NO_NODE,node2=NO_NODE;
-       index_t segment1,segment2;
-       index_t way1,way2;
+       index_t segment1=NO_SEGMENT,segment2=NO_SEGMENT;
+       index_t way1=NO_WAY,way2=NO_WAY;
        int segcount=0;
        NodeX *nodex;
 
