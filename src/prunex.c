@@ -917,6 +917,9 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
           if(WaysCompare(&wayx1->way,&wayx2->way))
              segcount=0;
 
+          if(wayx1->way.name!=wayx2->way.name)
+             segcount=0;
+
           if((nodex->allow&wayx1->way.allow)!=wayx1->way.allow)
              segcount=0;
 
