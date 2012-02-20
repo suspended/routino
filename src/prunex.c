@@ -210,11 +210,11 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->data=MapFileWriteable(nodesx->filename);
+ nodesx->data=MapFile(nodesx->filename);
  segmentsx->data=MapFileWriteable(segmentsx->filename);
  waysx->data=MapFile(waysx->filename);
 #else
- nodesx->fd=ReOpenFileWriteable(nodesx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename);
  segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
  waysx->fd=ReOpenFile(waysx->filename);
 #endif
@@ -235,6 +235,13 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
  for(i=0;i<segmentsx->number;i++)
    {
+    SegmentX *segmentx;
+
+    segmentx=LookupSegmentX(segmentsx,i,1);
+
+    if(IsPrunedSegmentX(segmentx))
+       SetBit(connected,i);
+
     if(!IsBitSet(connected,i))
       {
        int nregionsegments=0,nothersegments=0;
@@ -245,7 +252,6 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
        do
          {
-          SegmentX *segmentx;
           index_t thissegment,nodes[2];
           WayX *wayx;
 
