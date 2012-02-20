@@ -297,14 +297,14 @@ int main(int argc,char** argv)
    {
     StartPruning(Nodes,Segments,Ways);
 
+    if(prune_straight)
+       PruneStraightHighwayNodes(Nodes,Segments,Ways,prune_straight);
+
     if(prune_isolated)
        PruneIsolatedRegions(Nodes,Segments,Ways,prune_isolated);
 
     if(prune_short)
        PruneShortSegments(Nodes,Segments,Ways,prune_short);
-
-    if(prune_straight)
-       PruneStraightHighwayNodes(Nodes,Segments,Ways,prune_straight);
 
     FinishPruning(Nodes,Segments,Ways);
    }
