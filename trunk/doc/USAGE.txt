@@ -25,9 +25,10 @@ planetsplitter
                          [--loggable] [--errorlog[=<name>]]
                          [--parse-only | --process-only]
                          [--max-iterations=<number>]
-                         [--prune-isolated[=<len>]]
-                         [--prune-short[=<len>]]
-                         [--prune-straight[=<len>]]
+                         [--prune-none]
+                         [--prune-isolated=<len>]
+                         [--prune-short=<len>]
+                         [--prune-straight=<len>]
                          [<filename.osm> ...]
 
    --help
@@ -82,17 +83,21 @@ planetsplitter
           super-nodes and super-segments. Defaults to 5 which is normally
           enough.
 
-   --prune-isolated[=<length>]
-          Remove small disconnected groups of segments (if no length given
-          then 500m minimum length is used).
+   --prune-none
+          Disable the prune options below, they can be re-enabled by
+          adding them to the command line after this option.
 
-   --prune-short[=<length>]
-          Remove short segments (if no length given then segments up to 5m
-          length are removed).
+   --prune-isolated=<length>
+          Remove small disconnected groups of segments (defaults to
+          removing groups under 500m).
 
-   --prune-straight[=<length>]
-          Remove nodes from straight highways (if no length given then up
-          to 3m offset is allowed).
+   --prune-short=<length>
+          Remove short segments (defaults to removing segments up to a
+          maximum length of 5m).
+
+   --prune-straight=<length>
+          Remove nodes in almost straight highways (defaults to removing
+          nodes up to 3m offset from a straight line).
 
    <filename.osm> ...
           Specifies the filename(s) to read data from, by default data is
@@ -500,4 +505,4 @@ tagmodifier
 
 --------
 
-Copyright 2008-2011 Andrew M. Bishop.
+Copyright 2008-2012 Andrew M. Bishop.

@@ -18,6 +18,20 @@ else
     dir="fat"
 fi
 
+# Pruned or non-pruned
+
+if [ "$2" = "prune" ]; then
+    prune=""
+    pruned="-pruned"
+else
+    prune="--prune-none"
+    pruned=""
+fi
+
+# Create the output directory
+
+dir="$dir$pruned"
+
 [ -d $dir ] || mkdir $dir
 
 # Run the programs under a run-time debugger
@@ -28,14 +42,14 @@ debugger=
 # Name related options
 
 osm=$name.osm
-log=$name$slim.log
+log=$name$slim$pruned.log
 
 option_prefix="--prefix=$name"
 option_dir="--dir=$dir"
 
 # Generic program options
 
-option_planetsplitter="--loggable --tagging=../../xml/routino-tagging.xml --errorlog"
+option_planetsplitter="--loggable --tagging=../../xml/routino-tagging.xml --errorlog $prune"
 option_filedumper="--dump-osm"
 option_router="--loggable --transport=motorcar --profiles=../../xml/routino-profiles.xml --translations=copyright.xml"
 
@@ -79,7 +93,11 @@ for waypoint in $waypoints; do
 
     mv shortest* $dir/$name-$waypoint
 
-    echo cmp $dir/$name-$waypoint/shortest-all.txt expected/$name-$waypoint.txt >> $log
-    cmp $dir/$name-$waypoint/shortest-all.txt expected/$name-$waypoint.txt >> $log
+    if [ "$pruned" = "" ]; then
+
+        echo cmp $dir/$name-$waypoint/shortest-all.txt expected/$name-$waypoint.txt >> $log
+        cmp $dir/$name-$waypoint/shortest-all.txt expected/$name-$waypoint.txt >> $log
+
+    fi
 
 done
