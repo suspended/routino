@@ -235,121 +235,122 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
  for(i=0;i<segmentsx->number;i++)
    {
+    int nregionsegments=0,nothersegments=0;
+    distance_t total=0;
     SegmentX *segmentx;
 
     segmentx=LookupSegmentX(segmentsx,i,1);
 
     if(IsPrunedSegmentX(segmentx))
-       SetBit(connected,i);
+       goto endloop;
 
-    if(!IsBitSet(connected,i))
+    if(IsBitSet(connected,i))
+       goto endloop;
+
+    othersegments[nothersegments++]=i;
+    SetBit(region,i);
+
+    do
       {
-       int nregionsegments=0,nothersegments=0;
-       distance_t total=0;
+       index_t thissegment,nodes[2];
+       WayX *wayx;
 
-       othersegments[nothersegments++]=i;
-       SetBit(region,i);
+       thissegment=othersegments[--nothersegments];
 
-       do
+       if(nregionsegments==nallocregionsegments)
+          regionsegments=(index_t*)realloc(regionsegments,(nallocregionsegments+=1024)*sizeof(index_t));
+
+       regionsegments[nregionsegments++]=thissegment;
+
+       segmentx=LookupSegmentX(segmentsx,thissegment,1);
+
+       nodes[0]=segmentx->node1;
+       nodes[1]=segmentx->node2;
+       total+=DISTANCE(segmentx->distance);
+
+       wayx=LookupWayX(waysx,segmentx->way,1);
+
+       for(j=0;j<2;j++)
          {
-          index_t thissegment,nodes[2];
-          WayX *wayx;
+          NodeX *nodex=LookupNodeX(nodesx,nodes[j],1);
 
-          thissegment=othersegments[--nothersegments];
+          if(!(nodex->allow&wayx->way.allow)) /* some type of traffic must be allowed */
+             continue;
 
-          if(nregionsegments==nallocregionsegments)
-             regionsegments=(index_t*)realloc(regionsegments,(nallocregionsegments+=1024)*sizeof(index_t));
+          segmentx=FirstSegmentX(segmentsx,nodes[j],1);
 
-          regionsegments[nregionsegments++]=thissegment;
-
-          segmentx=LookupSegmentX(segmentsx,thissegment,1);
-
-          nodes[0]=segmentx->node1;
-          nodes[1]=segmentx->node2;
-          total+=DISTANCE(segmentx->distance);
-
-          wayx=LookupWayX(waysx,segmentx->way,1);
-
-          for(j=0;j<2;j++)
+          while(segmentx)
             {
-             NodeX *nodex=LookupNodeX(nodesx,nodes[j],1);
+             index_t segment=IndexSegmentX(segmentsx,segmentx);
 
-             if(!(nodex->allow&wayx->way.allow)) /* some type of traffic must be allowed */
-                continue;
-
-             segmentx=FirstSegmentX(segmentsx,nodes[j],1);
-
-             while(segmentx)
+             if(segment!=thissegment)
                {
-                index_t segment=IndexSegmentX(segmentsx,segmentx);
+                WayX *way2x=LookupWayX(waysx,segmentx->way,2);
 
-                if(segment!=thissegment)
+                if(wayx->way.allow&way2x->way.allow) /* some type of traffic must be allowed */
                   {
-                   WayX *way2x=LookupWayX(waysx,segmentx->way,2);
+                   /* Already connected - finish */
 
-                   if(wayx->way.allow&way2x->way.allow) /* some type of traffic must be allowed */
+                   if(IsBitSet(connected,segment))
                      {
-                      /* Already connected - finish */
+                      total=minimum;
+                      goto foundconnection;
+                     }
 
-                      if(IsBitSet(connected,segment))
-                        {
-                         total=minimum;
-                         goto foundconnection;
-                        }
+                   /* Not in region - add to list */
 
-                      /* Not in region - add to list */
+                   if(!IsBitSet(region,segment))
+                     {
+                      if(nothersegments==nallocothersegments)
+                         othersegments=(index_t*)realloc(othersegments,(nallocothersegments+=1024)*sizeof(index_t));
 
-                      if(!IsBitSet(region,segment))
-                        {
-                         if(nothersegments==nallocothersegments)
-                            othersegments=(index_t*)realloc(othersegments,(nallocothersegments+=1024)*sizeof(index_t));
-
-                         othersegments[nothersegments++]=segment;
-                         SetBit(region,segment);
-                        }
+                      othersegments[nothersegments++]=segment;
+                      SetBit(region,segment);
                      }
                   }
-
-                segmentx=NextSegmentX(segmentsx,segmentx,nodes[j]);
                }
-            }
-         }
-       while(nothersegments>0 && total<minimum);
 
-      foundconnection:
-
-       /* Prune the segments or mark them as connected */
-
-       if(total<minimum)
-         {
-          nregions++;
-
-          for(j=0;j<nregionsegments;j++)
-            {
-             SegmentX *segmentx=LookupSegmentX(segmentsx,regionsegments[j],1);
-
-             SetBit(connected,regionsegments[j]);
-
-             prune_segment(segmentsx,segmentx);
-
-             npruned++;
-            }
-         }
-       else
-         {
-          for(j=0;j<nregionsegments;j++)
-            {
-             SetBit(connected,regionsegments[j]);
-             ClearBit(region,regionsegments[j]);
-            }
-
-          for(j=0;j<nothersegments;j++)
-            {
-             SetBit(connected,othersegments[j]);
-             ClearBit(region,othersegments[j]);
+             segmentx=NextSegmentX(segmentsx,segmentx,nodes[j]);
             }
          }
       }
+    while(nothersegments>0 && total<minimum);
+
+   foundconnection:
+
+    /* Prune the segments or mark them as connected */
+
+    if(total<minimum)
+      {
+       nregions++;
+
+       for(j=0;j<nregionsegments;j++)
+         {
+          SegmentX *segmentx=LookupSegmentX(segmentsx,regionsegments[j],1);
+
+          SetBit(connected,regionsegments[j]);
+
+          prune_segment(segmentsx,segmentx);
+
+          npruned++;
+         }
+      }
+    else
+      {
+       for(j=0;j<nregionsegments;j++)
+         {
+          SetBit(connected,regionsegments[j]);
+          ClearBit(region,regionsegments[j]);
+         }
+
+       for(j=0;j<nothersegments;j++)
+         {
+          SetBit(connected,othersegments[j]);
+          ClearBit(region,othersegments[j]);
+         }
+      }
+
+   endloop:
 
     if(!((i+1)%10000))
        printf_middle("Pruning Isolated Regions: Segments=%"Pindex_t" Pruned=%"Pindex_t" (%"Pindex_t" Regions)",i+1,npruned,nregions);
