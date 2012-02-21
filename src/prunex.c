@@ -693,6 +693,14 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
           else
              goto endloop;
 
+          /* Check if allowed due to highway properties */
+
+          wayx1=LookupWayX(waysx,segmentx1->way,1);
+          wayx2=LookupWayX(waysx,segmentx2->way,2);
+
+          if(WaysCompare(&wayx1->way,&wayx2->way))
+             goto endloop;
+
           /* Check if allowed due to mini-roundabout and turn restriction */
 
           nodex2=LookupNodeX(nodesx,node2,2);
@@ -701,14 +709,6 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
              goto endloop;
 
           if(nodex2->flags&NODE_TURNRSTRCT2 || nodex2->flags&NODE_TURNRSTRCT)
-             goto endloop;
-
-          /* Check if allowed due to highway properties */
-
-          wayx1=LookupWayX(waysx,segmentx1->way,1);
-          wayx2=LookupWayX(waysx,segmentx2->way,2);
-
-          if(WaysCompare(&wayx1->way,&wayx2->way))
              goto endloop;
 
           /* Check if allowed due to node restrictions */
@@ -823,13 +823,13 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  for(i=0;i<nodesx->number;i++)
    {
-    int lowerbounded=0,upperbounded=0,loop=0;
+    int lowerbounded=0,upperbounded=0;
     index_t lower=nalloc/2,current=nalloc/2,upper=nalloc/2;
 
-    if(segmentsx->firstnode[i]==NO_SEGMENT)
+    if(IsBitSet(checked,i))
        goto endloop;
 
-    if(IsBitSet(checked,i))
+    if(segmentsx->firstnode[i]==NO_SEGMENT)
        goto endloop;
 
     /* Find all connected nodes */
@@ -1010,10 +1010,6 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           if(nodes[upper]==nodes[lower])
             {
-             loop=1;
-             if(lowerbounded)
-                loop++;
-
              lowerbounded=1;
              upperbounded=1;
             }
@@ -1133,8 +1129,6 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
    endloop:
 
-    SetBit(checked,i);
-
     if(!((i+1)%10000))
        printf_middle("Pruning Straight Highway Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,i+1,npruned);
    }
@@ -1201,8 +1195,6 @@ static void prune_segment(SegmentsX *segmentsx,SegmentX *segmentx)
 static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newnode1,index_t newnode2)
 {
  index_t thissegment=IndexSegmentX(segmentsx,segmentx);
-
- assert(newnode1!=newnode2);
 
  if(newnode1>newnode2)          /* rotate the segment around */
    {
