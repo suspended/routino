@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -174,27 +174,46 @@ Version 2.1 of Routino was released on 3rd October 2011.
 Version 2.1.1 of Routino was released on 23rd October 2011.
 <br>
 Version 2.1.2 of Routino was released on 12 November 2011.
+<br>
+Version 2.2 of Routino was released on 3 March 2012.
 
 <p>
 
 The full version history is available in the NEWS file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.1.2</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.2</h3>
 
 <dl>
   <dt>Bug fixes:
-  <dd>Speed up the routing by a factor of 3 for slim mode by copying data to RAM.
-  <br>Speed up routing & reduce memory use by a factor of 2.5 by stopping earlier.
-  <br>Delete profiles.js and profiles.pl when cleaning up (make clean).
-  <br>Improve output for translated versions (highway type names and text files).
-  <br>Fix the summarise-log.pl script for segments which are loops.
-  <br>Fix invalid XML syntax in tagging.xml file.
-  <dt>Configuration Files:
-  <dd>Add extra tagging rules to handle problems found in the error log for UK.
-  <br>Added Russian translations for output files.
+  <dd>Fix some Makefile bugs.
+  <br>Fix XML parsing (previously it allowed invalid XML comments).
+  <br>Fix errors in HTML and GPX output files (highway names and bearings).
+  <br>Fix errors in visualiser CGI related to oneway streets and in slim mode.
+  <br>Ensure that no non-initialised memory is written to disk.
+  <dt>OSM tagging:
+  <dd>Parse information about roundabouts and store it in the database.
   <dt>Documentation:
-  <dd>Improve the documentation for the tagging rule configuration file.
+  <dd>Update documentation to reflect changes in program usage and function.
+  <dt>Web pages:
+  <dd>Change to OpenLayers v2.11.
+  <br>Move the map preferences (ranges and URLs) to a separate file.
+  <br>Prepare the visualiser.html web page for translation.
+  <br>The customrouter script should now pick up the preferred language.
+  <dt>planetsplitter:
+  <dd>When discarding duplicate segments prefer to discard those that are areas.
+  <br>Ensure that XML file is OSM version 0.6 format.
+  <br>Add a new option to prune nodes and/or segments (enabled by default)
+  <br> - that form a small isolated sub-network.
+  <br> - that are very short.
+  <br> - that are not needed to represent a straight highway.
+  <dt>router:
+  <dd>Change the format of the text file output (not the all points text file).
+  <br>Output better HTML directions for roundabouts (e.g. take second exit).
+  <br>Describe mini-roundabouts as "roundabout" rather than "junction".
+  <dt>filedumper:
+  <dd>Ensure that all nodes needed for segments are included when dumping a region.
+  <br>Include a bounding box when dumping a region.
 </dl>
 
 
@@ -216,7 +235,7 @@ software.
 
 <h3><a name="H_1_5_3"></a>Copyright</h3>
 
-Routino is copyright Andrew M. Bishop 2008-2011.
+Routino is copyright Andrew M. Bishop 2008-2012.
 
 
 <h2><a name="H_1_6"></a>Download</h2>
