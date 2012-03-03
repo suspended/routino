@@ -114,6 +114,7 @@ Status
    Version 2.1 of Routino was released on 3rd October 2011.
    Version 2.1.1 of Routino was released on 23rd October 2011.
    Version 2.1.2 of Routino was released on 12th November 2011.
+   Version 2.2 of Routino was released on 3rd March 2012.
 
    The full version history is available in the NEWS.txt file.
 
@@ -135,7 +136,7 @@ License
 Copyright
 ---------
 
-   Routino is copyright Andrew M. Bishop 2008-2011.
+   Routino is copyright Andrew M. Bishop 2008-2012.
 
    Contact amb@gedanken.demon.co.uk for any questions or queries.
 
@@ -158,4 +159,4 @@ Download
 
 --------
 
-Copyright 2008-2011 Andrew M. Bishop.
+Copyright 2008-2012 Andrew M. Bishop.
