@@ -1,3 +1,50 @@
+Version 2.2 of Routino released : Sat Mar 3 2012
+------------------------------------------------
+
+Bug fixes:
+  Fix some Makefile bugs.
+  Fix XML parsing (previously it allowed invalid XML comments).
+  Fix errors in HTML and GPX output files (highway names and bearings).
+  Fix errors in visualiser CGI related to oneway streets and in slim mode.
+  Ensure that no non-initialised memory is written to disk.
+
+OSM tagging:
+  Parse information about roundabouts and store it in the database.
+
+Documentation:
+  Update documentation to reflect changes in program usage and function.
+
+Web pages:
+  Change to OpenLayers v2.11.
+  Move the map preferences (ranges and URLs) to a separate file.
+  Prepare the visualiser.html web page for translation.
+  The customrouter script should now pick up the preferred language.
+
+planetsplitter:
+  When discarding duplicate segments prefer to discard those that are areas.
+  Ensure that XML file is OSM version 0.6 format.
+  Add a new option to prune nodes and/or segments (enabled by default)
+   - that form a small isolated sub-network.
+   - that are very short.
+   - that are not needed to represent a straight highway.
+
+router:
+  Change the format of the text file output (not the all points text file).
+  Output better HTML directions for roundabouts (e.g. take second exit).
+  Describe mini-roundabouts as "roundabout" rather than "junction".
+
+filedumper:
+  Ensure that all nodes needed for segments are included when dumping a region.
+  Include a bounding box when dumping a region.
+
+*** Important Note: The tagging.xml files from Routino v2.1.1 or earlier   ***
+*** contain invalid XML that will not be allowed by Routino v2.2 or later. ***
+
+Note: The format of the text file output has changed in this version.
+
+Note: This version is not compatible with databases from earlier versions.
+
+
 Version 2.1.2 of Routino released : Sat Nov 12 2011
 ---------------------------------------------------
 
@@ -16,7 +63,7 @@ Configuration Files:
 Documentation:
   Improve the documentation for the tagging rule configuration file.
 
-Note: this version is compatible with databases from version 2.1 or 2.1.1.
+Note: This version is compatible with databases from version 2.1 or 2.1.1.
 
 
 Version 2.1.1 of Routino released : Sun Oct 23 2011
@@ -30,7 +77,7 @@ Bug fixes:
   Add some more typecasts when printing data from filedumper program.
   Make the CGI script more robust if shortest/fastest is not passed in.
 
-Note: this version is compatible with databases from version 2.1.
+Note: This version is compatible with databases from version 2.1.
 
 
 Version 2.1 of Routino released : Mon Oct 3 2011
@@ -54,7 +101,7 @@ Test cases:
   Create new test case for bug fixed in v2.0.3.
   Save expected results to allow future regressions to be found.
 
-Note: this version is not compatible with databases from earlier versions.
+Note: This version is not compatible with databases from earlier versions.
 
 
 Version 2.0.3 of Routino released : Thu Aug 4 2011
@@ -66,7 +113,7 @@ Bug fixes:
   Find a valid route if the start and end point are the same location.
   Choose the better route if one with and one without super-nodes are available.
 
-Note: this version is compatible with databases from versions 2.0, 2.0.x.
+Note: This version is compatible with databases from versions 2.0, 2.0.x.
 
 
 Version 2.0.2 of Routino released : Sun June 26 2011
@@ -82,7 +129,7 @@ Code improvements:
   More code tidy-up for 32/64 bit node and index types.
   Free some memory in various places (not serious leaks).
 
-Note: this version is compatible with databases from versions 2.0, 2.0.1.
+Note: This version is compatible with databases from versions 2.0, 2.0.1.
 
 
 Version 2.0.1 of Routino released : Tue June 7 2011
@@ -98,7 +145,7 @@ Code improvements:
 OSM Tagging:
   Check whether node/way/relation IDs fit in 32-bits (code ready for 64-bits).
 
-Note: this version is compatible with databases from version 2.0.
+Note: This version is compatible with databases from version 2.0.
 
 
 Version 2.0 of Routino released : Mon May 30 2011
