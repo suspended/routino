@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/time.h>
 
 #include "logging.h"
 
@@ -34,13 +35,21 @@
 /*+ The option to print the output in a way that allows logging to a file. +*/
 int option_loggable=0;
 
+/*+ The option to print timestamps with the output. +*/
+int option_logtime=1;
+
+
 /* Local functions */
 
 static void vfprintf_first(FILE *file,const char *format,va_list ap);
 static void vfprintf_middle(FILE *file,const char *format,va_list ap);
 static void vfprintf_last(FILE *file,const char *format,va_list ap);
 
+
 /* Local variables */
+
+/*+ The time that printf_first was called. +*/
+static struct timeval start_time;
 
 /*+ The length of the string printed out last time. +*/
 static int printed_length=0;
@@ -60,6 +69,9 @@ static FILE *errorlogfile;
 void printf_first(const char *format, ...)
 {
  va_list ap;
+
+ if(option_logtime)
+    gettimeofday(&start_time,NULL);
 
  if(option_loggable)
     return;
@@ -128,6 +140,9 @@ void printf_last(const char *format, ...)
 void fprintf_first(FILE *file,const char *format, ...)
 {
  va_list ap;
+
+ if(option_logtime)
+    gettimeofday(&start_time,NULL);
 
  if(option_loggable)
     return;
@@ -201,6 +216,9 @@ static void vfprintf_first(FILE *file,const char *format,va_list ap)
 {
  int retval;
 
+ if(option_logtime)
+    fprintf_elapsed_time(file,&start_time);
+
  retval=vfprintf(file,format,ap);
  fflush(file);
 
@@ -224,6 +242,10 @@ static void vfprintf_middle(FILE *file,const char *format,va_list ap)
  int retval;
 
  putchar('\r');
+
+ if(option_logtime)
+    fprintf_elapsed_time(file,&start_time);
+
  retval=vfprintf(file,format,ap);
  fflush(file);
 
@@ -255,6 +277,10 @@ static void vfprintf_last(FILE *file,const char *format,va_list ap)
 
  if(!option_loggable)
     putchar('\r');
+
+ if(option_logtime)
+    fprintf_elapsed_time(file,&start_time);
+
  retval=vfprintf(file,format,ap);
 
  if(retval>0)
@@ -263,6 +289,32 @@ static void vfprintf_last(FILE *file,const char *format,va_list ap)
 
  putchar('\n');
  fflush(file);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print the elapsed time without a following newline.
+
+  FILE *file The file to print to.
+
+  struct timeval *start The start time from which the elapsed time is to be printed.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void fprintf_elapsed_time(FILE *file,struct timeval *start)
+{
+ struct timeval finish,elapsed;
+
+ gettimeofday(&finish,NULL);
+
+ elapsed.tv_sec =finish.tv_sec -start->tv_sec;
+ elapsed.tv_usec=finish.tv_usec-start->tv_usec;
+ if(elapsed.tv_usec<0)
+   {
+    elapsed.tv_sec -=1;
+    elapsed.tv_usec+=1000000;
+   }
+
+ fprintf(file,"[%2ld:%02ld.%03ld] ",elapsed.tv_sec/60,elapsed.tv_sec%60,elapsed.tv_usec/10000);
 }
 
 

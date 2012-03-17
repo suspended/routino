@@ -22,7 +22,8 @@ planetsplitter
                          [--sort-ram-size=<size>]
                          [--tmpdir=<dirname>]
                          [--tagging=<filename>]
-                         [--loggable] [--errorlog[=<name>]]
+                         [--loggable] [--logtime]
+                         [--errorlog[=<name>]]
                          [--parse-only | --process-only]
                          [--max-iterations=<number>]
                          [--prune-none]
@@ -64,6 +65,9 @@ planetsplitter
           Print progress messages that are suitable for logging to a file;
           normally an incrementing counter is printed which is more
           suitable for real-time display than logging.
+
+   --logtime
+          Print the elapsed time for each processing step.
 
    --errorlog[=<name>]
           Log OSM parsing and processing errors to 'error.log' or the
