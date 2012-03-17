@@ -65,7 +65,8 @@ Usage: planetsplitter [--help]
                       [--sort-ram-size=&lt;size&gt;]
                       [--tmpdir=&lt;dirname&gt;]
                       [--tagging=&lt;filename&gt;]
-                      [--loggable] [--errorlog[=&lt;name&gt;]]
+                      [--loggable] [--logtime]
+                      [--errorlog[=&lt;name&gt;]]
                       [--parse-only | --process-only]
                       [--max-iterations=&lt;number&gt;]
                       [--prune-none]
@@ -101,6 +102,8 @@ Usage: planetsplitter [--help]
   <dd>Print progress messages that are suitable for logging to a file; normally
     an incrementing counter is printed which is more suitable for real-time
     display than logging.
+  <dt>--logtime
+  <dd>Print the elapsed time for each processing step.
   <dt>--errorlog[=&lt;name&gt;]
   <dd>Log OSM parsing and processing errors to 'error.log' or the specified file
     name (the '--dir' and '--prefix' options are applied).

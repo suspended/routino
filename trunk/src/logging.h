@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -24,11 +24,13 @@
 #define LOGGING_H    /*+ To stop multiple inclusions. +*/
 
 #include <stdio.h>
+#include <sys/time.h>
 
 
 /* Variables */
 
 extern int option_loggable;
+extern int option_logtime;
 
 
 /* Runtime progress logging functions in logging.c */
@@ -55,6 +57,7 @@ void fprintf_last(FILE *file,const char *format, ...);
 
 #endif
 
+void fprintf_elapsed_time(FILE *file,struct timeval *start);
 
 /* Parsing/processing error logging functions in logging.c */
 

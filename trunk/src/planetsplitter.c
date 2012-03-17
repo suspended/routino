@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/time.h>
 
 #include "types.h"
 #include "ways.h"
@@ -63,6 +64,7 @@ static void print_usage(int detail,const char *argerr,const char *err);
 
 int main(int argc,char** argv)
 {
+ struct timeval start_time;
  NodesX     *Nodes;
  SegmentsX  *Segments,*SuperSegments=NULL,*MergedSegments=NULL;
  WaysX      *Ways;
@@ -74,6 +76,8 @@ int main(int argc,char** argv)
  int         option_filenames=0;
  int         option_prune_isolated=500,option_prune_short=5,option_prune_straight=3;
  int         arg;
+
+ gettimeofday(&start_time,NULL);
 
  /* Parse the command line arguments */
 
@@ -95,6 +99,8 @@ int main(int argc,char** argv)
        option_process_only=1;
     else if(!strcmp(argv[arg],"--loggable"))
        option_loggable=1;
+    else if(!strcmp(argv[arg],"--logtime"))
+       option_logtime=1;
     else if(!strcmp(argv[arg],"--errorlog"))
        errorlog="error.log";
     else if(!strncmp(argv[arg],"--errorlog=",11))
@@ -449,6 +455,16 @@ int main(int argc,char** argv)
  if(errorlog)
     close_errorlog();
 
+ /* Print the total time */
+
+ if(option_logtime)
+   {
+    printf("\n");
+    fprintf_elapsed_time(stdout,&start_time);
+    printf("Complete\n");
+    fflush(stdout);
+   }
+
  return(0);
 }
 
@@ -471,7 +487,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--sort-ram-size=<size>]\n"
          "                      [--tmpdir=<dirname>]\n"
          "                      [--tagging=<filename>]\n"
-         "                      [--loggable] [--errorlog[=<name>]]\n"
+         "                      [--loggable] [--logtime]\n"
+         "                      [--errorlog[=<name>]]\n"
          "                      [--parse-only | --process-only]\n"
          "                      [--max-iterations=<number>]\n"
          "                      [--prune-none]\n"
@@ -513,6 +530,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "                           '" DATADIR "').\n"
             "\n"
             "--loggable                Print progress messages suitable for logging to file.\n"
+            "--logtime                 Print the elapsed time for each processing step.\n"
             "--errorlog[=<name>]       Log parsing errors to 'error.log' or the given name\n"
             "                          (the '--dir' and '--prefix' options are applied).\n"
             "\n"
