@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2011 Andrew M. Bishop
+// This file Copyright 2008-2012 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -738,6 +738,21 @@ function markerCentre(marker)
 
 
 //
+// Centre the map on the marker
+//
+
+function markerRecentre(marker)
+{
+ lon=document.forms["form"].elements["lon" + marker].value;
+ lat=document.forms["form"].elements["lat" + marker].value;
+
+ var lonlat = new OpenLayers.LonLat(lon,lat).transform(epsg4326,map.getProjectionObject());
+
+ map.panTo(lonlat);
+}
+
+
+//
 // Clear the current marker.
 //
 
@@ -854,6 +869,35 @@ function markerHome(marker)
 
 
 //
+// Set this marker as the current location.
+//
+
+function markerLocate(marker)
+{
+ if(navigator.geolocation)
+    navigator.geolocation.getCurrentPosition(
+                                             function(position) {
+                                              markerLocateUpdate(marker,position.coords.longitude,position.coords.latitude);
+                                             });
+}
+
+
+//
+// The callback to actually set the marker location
+//
+
+function markerLocateUpdate(marker,lon,lat)
+{
+ document.forms["form"].elements["lon" + marker].value=lon;
+ document.forms["form"].elements["lat" + marker].value=lat;
+
+ formSetCoords(marker);
+
+ markersmoved=true;
+}
+
+
+//
 // Update an icon to set colours and home or normal marker.
 //
 
@@ -933,9 +977,12 @@ function markerHomeCookie(marker)
 function markerMoveUp(marker)
 {
  if(marker==1)
-    return false;
-
- markerSwap(marker,marker-1);
+   {
+    for(var m=1;m<vismarkers;m++)
+       markerSwap(m,m+1);
+   }
+ else
+    markerSwap(marker,marker-1);
 }
 
 
@@ -946,9 +993,12 @@ function markerMoveUp(marker)
 function markerMoveDown(marker)
 {
  if(marker==vismarkers)
-    return false;
-
- markerSwap(marker,marker+1);
+   {
+    for(var m=vismarkers;m>1;m--)
+       markerSwap(m,m-1);
+   }
+ else
+    markerSwap(marker,marker+1);
 }
 
 
