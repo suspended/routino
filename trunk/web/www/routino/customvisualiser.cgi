@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2011 Andrew M. Bishop
+# This file Copyright 2008-2012 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -56,63 +56,22 @@ foreach $key (@rawparams)
      }
   }
 
-# Open template file and output it
+# Redirect to the HTML page.
 
-$bestpref=0;
-$bestlang="";
+$params="";
 
-if(defined $ENV{HTTP_ACCEPT_LANGUAGE})
+foreach $param (keys %cgiparams)
   {
-   $LANGUAGES=$ENV{HTTP_ACCEPT_LANGUAGE};
-
-   @LANGUAGES=split(",",$LANGUAGES);
-
-   foreach $LANG (@LANGUAGES)
+   if($params eq "")
      {
-      if($LANG =~ m%^([^; ]+) *; *q *= *([0-9.]+)%)
-        {
-         $LANG=$1;
-         $preference=$2;
-        }
-      else
-        {
-         $preference=1.0;
-        }
-
-      if($preference>$bestpref && -f "visualiser.html.$LANG")
-        {
-         $bestpref=$preference;
-         $bestlang=$LANG;
-        }
-     }
-  }
-
-if($bestpref>0)
-  {
-   open(TEMPLATE,"<visualiser.html.$bestlang");
-  }
-else
-  {
-   open(TEMPLATE,"<visualiser.html");
-  }
-
-# Parse the template and fill in the parameters
-
-print header('text/html');
-
-while(<TEMPLATE>)
-  {
-   if(m%^<BODY.+>%)
-     {
-      s/'lat'/$cgiparams{'lat'}/   if(defined $cgiparams{'lat'});
-      s/'lon'/$cgiparams{'lon'}/   if(defined $cgiparams{'lon'});
-      s/'zoom'/$cgiparams{'zoom'}/ if(defined $cgiparams{'zoom'});
-      print;
+      $params="?";
      }
    else
      {
-      print;
+      $params.="&";
      }
+
+   $params.="$param=$cgiparams{$param}";
   }
 
-close(TEMPLATE);
+print $query->redirect("visualiser.html".$params);

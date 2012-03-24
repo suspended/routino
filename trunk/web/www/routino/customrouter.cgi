@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2011 Andrew M. Bishop
+# This file Copyright 2008-2012 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-# Use the generic router script
-require "router.pl";
 
 # Use the perl CGI module
 use CGI ':cgi';
@@ -39,8 +36,8 @@ $query=new CGI;
               "lat"             => "[-0-9.]+",
               "zoom"            => "[0-9]+",
 
-              "lon[1-9]"        => "[-0-9.]+",
-              "lat[1-9]"        => "[-0-9.]+",
+              "lon[1-9]+"       => "[-0-9.]+",
+              "lat[1-9]+"       => "[-0-9.]+",
               "transport"       => "[a-z]+",
               "highway-[a-z]+"  => "[0-9.]+",
               "speed-[a-z]+"    => "[0-9.]+",
@@ -74,107 +71,22 @@ foreach $key (@rawparams)
      }
   }
 
-# Fill in the default parameters
+# Redirect to the HTML page.
 
-%fullparams=FillInDefaults(%cgiparams);
+$params="";
 
-# Open template file and output it
-
-$lang=$cgiparams{'language'};
-
-if( -f "router.html.$lang")
+foreach $param (keys %cgiparams)
   {
-   open(TEMPLATE,"<router.html.$lang");
-  }
-else
-  {
-   $bestpref=0;
-   $bestlang="";
-
-   if(defined $ENV{HTTP_ACCEPT_LANGUAGE})
+   if($params eq "")
      {
-      $LANGUAGES=$ENV{HTTP_ACCEPT_LANGUAGE};
-
-      @LANGUAGES=split(",",$LANGUAGES);
-
-      foreach $LANG (@LANGUAGES)
-        {
-         if($LANG =~ m%^([^; ]+) *; *q *= *([0-9.]+)%)
-           {
-            $LANG=$1;
-            $preference=$2;
-           }
-         else
-           {
-            $preference=1.0;
-           }
-
-         if($preference>$bestpref && -f "router.html.$LANG")
-           {
-            $bestpref=$preference;
-            $bestlang=$LANG;
-           }
-        }
-     }
-
-   if($bestpref>0)
-     {
-      open(TEMPLATE,"<router.html.$bestlang");
+      $params="?";
      }
    else
      {
-      open(TEMPLATE,"<router.html");
+      $params.="&";
      }
+
+   $params.="$param=$cgiparams{$param}";
   }
 
-# Parse the template and fill in the parameters
-
-print header('text/html');
-
-while(<TEMPLATE>)
-  {
-   if(m%^<BODY.+>%)
-     {
-      s/'lat'/$cgiparams{'lat'}/   if(defined $cgiparams{'lat'});
-      s/'lon'/$cgiparams{'lon'}/   if(defined $cgiparams{'lon'});
-      s/'zoom'/$cgiparams{'zoom'}/ if(defined $cgiparams{'zoom'});
-      print;
-     }
-   elsif(m%<input% && m%<!-- ([^ ]+) *-->%)
-     {
-      $key=$1;
-
-      m%type="([a-z]+)"%;
-      $type=$1;
-
-      m%value="([a-z]+)"%;
-      $value=$1;
-
-      if($type eq "radio")
-        {
-         $checked="";
-         $checked="checked" if($fullparams{$key} eq $value);
-
-         s%><!-- .+? *-->% $checked>%;
-        }
-      elsif($type eq "checkbox")
-        {
-         $checked="";
-         $checked="checked" if($fullparams{$key});
-
-         s%><!-- .+? *-->% $checked>%;
-        }
-      elsif($type eq "text")
-        {
-         s%><!-- .+? *-->% value="$fullparams{$key}">%;
-        }
-
-      print;
-     }
-   else
-     {
-      print;
-     }
-  }
-
-close(TEMPLATE);
+print $query->redirect("router.html".$params);
