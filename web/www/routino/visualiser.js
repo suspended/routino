@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2011 Andrew M. Bishop
+// This file Copyright 2008-2012 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -75,6 +75,42 @@ var turn_restriction_style;
 
 
 ////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////// Initialisation /////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+// Process the URL query string and extract the arguments
+
+var legal={"^lon"  : "^[-0-9.]+$",
+           "^lat"  : "^[-0-9.]+$",
+           "^zoom" : "^[0-9]+$"};
+
+var args={};
+
+if(location.search.length>1)
+  {
+   var query,queries;
+
+   query=location.search.replace(/^\?/,"");
+   query=query.replace(/;/g,'&');
+   queries=query.split('&');
+
+   for(var i=0;i<queries.length;i++)
+     {
+      queries[i].match(/^([^=]+)(=(.*))?$/);
+
+      k=RegExp.$1;
+      v=unescape(RegExp.$3);
+
+      for(var l in legal)
+        {
+         if(k.match(RegExp(l)) && v.match(RegExp(legal[l])))
+            args[k]=v;
+        }
+     }
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// Map handling /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -89,8 +125,12 @@ var box;
 // Initialise the 'map' object
 //
 
-function map_init(lat,lon,zoom)
+function map_init()
 {
+ lon =args["lon"];
+ lat =args["lat"];
+ zoom=args["zoom"];
+
  // Map properties (North/South and East/West limits and zoom in/out limits) are now in mapprops.js
  // Map URLs are now in mapprops.js
 
@@ -223,7 +263,7 @@ function mapMoved()
 
  var zoom = this.getZoom() + map.minZoomLevel;
 
- map_args="lat=" + lonlat.lat + ";lon=" + lonlat.lon + ";zoom=" + zoom;
+ map_args="lat=" + format5f(lonlat.lat) + ";lon=" + format5f(lonlat.lon) + ";zoom=" + zoom;
 
  updateCustomURL();
 }
@@ -239,8 +279,8 @@ function updateCustomURL()
  var link_url  =document.getElementById("link_url");
  var edit_url  =document.getElementById("edit_url");
 
- router_url.href="customrouter.cgi?" + map_args;
- link_url.href="customvisualiser.cgi?" + map_args;
+ router_url.href="router.html?" + map_args;
+ link_url.href="visualiser.html?" + map_args;
  edit_url.href="http://www.openstreetmap.org/edit?" + map_args;
 }
 

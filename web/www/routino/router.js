@@ -20,6 +20,14 @@
 //
 
 
+var maxmarkers=9, vismarkers=9, markers, markersmoved, paramschanged;
+var homelat=null, homelon=null;
+
+
+////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////// Initialisation /////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 // Make a deep copy of the routino profile.
 
 var routino_default={};
@@ -40,6 +48,64 @@ for(var l1 in routino)
            }
      }
 
+// Store the latitude and longitude in the routino variable
+
+routino.point=[];
+for(var marker=1;marker<=maxmarkers;marker++)
+  {
+   routino.point[marker]={};
+
+   routino.point[marker].lon="";
+   routino.point[marker].lat="";
+   routino.point[marker].active=false;
+  }
+
+// Process the URL query string and extract the arguments
+
+var legal={"^lon"             : "^[-0-9.]+$",
+           "^lat"             : "^[-0-9.]+$",
+           "^zoom"            : "^[0-9]+$",
+
+           "^lon[1-9]"        : "^[-0-9.]+$",
+           "^lat[1-9]"        : "^[-0-9.]+$",
+           "^transport"       : "^[a-z]+$",
+           "^highway-[a-z]+"  : "^[0-9.]+$",
+           "^speed-[a-z]+"    : "^[0-9.]+$",
+           "^property-[a-z]+" : "^[0-9.]+$",
+           "^oneway"          : "^(1|0|true|false|on|off)$",
+           "^turns"           : "^(1|0|true|false|on|off)$",
+           "^weight"          : "^[0-9.]+$",
+           "^height"          : "^[0-9.]+$",
+           "^width"           : "^[0-9.]+$",
+           "^length"          : "^[0-9.]+$",
+
+           "^language"        : "^[-a-zA-Z]+$"};
+
+var args={};
+
+if(location.search.length>1)
+  {
+   var query,queries;
+
+   query=location.search.replace(/^\?/,"");
+   query=query.replace(/;/g,'&');
+   queries=query.split('&');
+
+   for(var i=0;i<queries.length;i++)
+     {
+      queries[i].match(/^([^=]+)(=(.*))?$/);
+
+      k=RegExp.$1;
+      v=unescape(RegExp.$3);
+
+      for(var l in legal)
+        {
+         if(k.match(RegExp(l)) && v.match(RegExp(legal[l])))
+            args[k]=v;
+        }
+     }
+  }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// Form handling /////////////////////////////////
@@ -51,78 +117,63 @@ for(var l1 in routino)
 
 function form_init()
 {
- // Update the routino variable with the URL settings (from the HTML).
-
- for(var lang=0;lang< document.forms["form"].elements["language"].length;lang++)
-    if(document.forms["form"].elements["language"][lang].checked)
-       formSetLanguage(document.forms["form"].elements["language"][lang].value);
-
- var transport=null;
-
- for(var key in routino.transports)
-    if(document.forms["form"].elements["transport"][routino.transports[key]-1].checked)
-       transport=key;
-
- if(transport==null)
-    formSetTransport(routino.transport);
- else
-   {
-    routino.transport=transport;
-
-    for(var key in routino.profile_highway)
-      {
-       if(document.forms["form"].elements["highway-" + key].value=="")
-          document.forms["form"].elements["highway-" + key].value=routino.profile_highway[key][routino.transport];
-       else
-          formSetHighway(key);
-      }
-
-    for(var key in routino.profile_speed)
-      {
-       if(document.forms["form"].elements["speed-" + key].value=="")
-          document.forms["form"].elements["speed-" + key].value=routino.profile_speed[key][routino.transport];
-       else
-          formSetSpeed(key);
-      }
-
-    for(var key in routino.profile_property)
-      {
-       if(document.forms["form"].elements["property-" + key].value=="")
-          document.forms["form"].elements["property-" + key].value=routino.profile_property[key][routino.transport];
-       else
-          formSetProperty(key);
-      }
-
-    for(var key in routino.restrictions)
-      {
-       if(key=="oneway" || key=="turns")
-          formSetRestriction(key);
-       else
-         {
-          if(document.forms["form"].elements["restrict-" + key].value=="")
-             document.forms["form"].elements["restrict-" + key].value=routino.profile_restrictions[key][routino.transport];
-          else
-             formSetRestriction(key);
-         }
-      }
-   }
-
- // Delete the extra empty waypoints
+ // Fill in the waypoints
 
  var filled=0;
 
- for(var marker=nmarkers;marker>=1;marker--)
+ for(var marker=maxmarkers;marker>=1;marker--)
    {
-    var lon=document.forms["form"].elements["lon" + marker].value;
-    var lat=document.forms["form"].elements["lat" + marker].value;
+    var lon=args["lon" + marker];
+    var lat=args["lat" + marker];
 
-    if(lon != "" && lat != "")
+    if(lon != undefined && lat != undefined && lon != "" && lat != "")
       {
+       formSetCoords(marker,lon,lat,true);
+
        filled++;
-       markerAddMap(marker);
       }
     else if(filled==0)
        markerRemove(marker);
+   }
+
+ // Update the transport type with the URL settings which updates all HTML forms to defaults.
+
+ var transport=routino.transport;
+
+ if(args["transport"] != undefined)
+    transport=args["transport"];
+
+ formSetTransport(transport);
+
+ // Update the HTML with the URL settings
+
+ if(args["language"] != undefined)
+    formSetLanguage(args["language"]);
+
+ for(var key in routino.profile_highway)
+    if(args["highway-" + key] != undefined)
+       formSetHighway(key,args["highway-" + key]);
+
+ for(var key in routino.profile_speed)
+    if(args["speed-" + key] != undefined)
+       formSetSpeed(key,args["speed-" + key]);
+
+ for(var key in routino.profile_property)
+    if(args["property-" + key] != undefined)
+       formSetProperty(key,args["property-" + key]);
+
+ for(var key in routino.restrictions)
+   {
+    if(key=="oneway" || key=="turns")
+      {
+       if(args[key] != undefined)
+          formSetRestriction(key,args[key]);
+      }
+    else
+      {
+       if(args["restrict-" + key] != undefined)
+          formSetRestriction(key,args["restrict-" + key]);
+      }
    }
 
  // Get the home location cookie and compare to each waypoint
@@ -140,10 +191,10 @@ function form_init()
 
  if(homelon!=null && homelat!=null)
    {
-    for(var marker=nmarkers;marker>=1;marker--)
+    for(var marker=maxmarkers;marker>=1;marker--)
       {
-       var lon=document.forms["form"].elements["lon" + marker].value;
-       var lat=document.forms["form"].elements["lat" + marker].value;
+       var lon=routino.point[marker].lon;
+       var lat=routino.point[marker].lat;
 
        if(lon==homelon && lat==homelat)
           updateIcon(marker);
@@ -151,13 +202,8 @@ function form_init()
 
     // If the first location is empty and the cookie is set then fill it.
 
-    if(document.forms["form"].elements["lon1"].value=="" && document.forms["form"].elements["lat1"].value=="")
-      {
-       document.forms["form"].elements["lon1"].value=homelon;
-       document.forms["form"].elements["lat1"].value=homelat;
-
-       markerAddMap(1);
-      }
+    if(routino.point[1].lon=="" && routino.point[1].lat=="")
+       formSetCoords(1,homelon,homelat,true);
    }
 
  updateCustomURL();
@@ -168,9 +214,24 @@ function form_init()
 // Change of language in the form
 //
 
-function formSetLanguage(type)
+function formSetLanguage(value)
 {
- routino.language=type;
+ if(value == undefined)
+   {
+    for(var lang=0;lang<document.forms["form"].elements["language"].length;lang++)
+       if(document.forms["form"].elements["language"][lang].checked)
+          routino.language=document.forms["form"].elements["language"][lang].value;
+   }
+ else
+   {
+    for(var lang=0;lang<document.forms["form"].elements["language"].length;lang++)
+       if(document.forms["form"].elements["language"][lang].value==value)
+          document.forms["form"].elements["language"][lang].checked=true;
+       else
+          document.forms["form"].elements["language"][lang].checked=false;
+
+    routino.language=value;
+   }
 
  updateCustomURL();
 }
@@ -180,9 +241,9 @@ function formSetLanguage(type)
 // Change of transport in the form
 //
 
-function formSetTransport(type)
+function formSetTransport(value)
 {
- routino.transport=type;
+ routino.transport=value;
 
  for(var key in routino.transports)
     document.forms["form"].elements["transport"][routino.transports[key]-1].checked=(key==routino.transport);
@@ -214,9 +275,15 @@ function formSetTransport(type)
 // Change of highway in the form
 //
 
-function formSetHighway(type)
+function formSetHighway(type,value)
 {
- routino.profile_highway[type][routino.transport]=document.forms["form"].elements["highway-" + type].value;
+ if(value == undefined)
+    routino.profile_highway[type][routino.transport]=document.forms["form"].elements["highway-" + type].value;
+ else
+   {
+    document.forms["form"].elements["highway-" + type].value=value;
+    routino.profile_highway[type][routino.transport]=value;
+   }
 
  paramschanged=true;
 
@@ -228,9 +295,15 @@ function formSetHighway(type)
 // Change of Speed in the form
 //
 
-function formSetSpeed(type)
+function formSetSpeed(type,value)
 {
- routino.profile_speed[type][routino.transport]=document.forms["form"].elements["speed-" + type].value;
+ if(value == undefined)
+    routino.profile_speed[type][routino.transport]=document.forms["form"].elements["speed-" + type].value;
+ else
+   {
+    document.forms["form"].elements["speed-" + type].value=value;
+    routino.profile_speed[type][routino.transport]=value;
+   }
 
  paramschanged=true;
 
@@ -242,9 +315,15 @@ function formSetSpeed(type)
 // Change of Property in the form
 //
 
-function formSetProperty(type)
+function formSetProperty(type,value)
 {
- routino.profile_property[type][routino.transport]=document.forms["form"].elements["property-" + type].value;
+ if(value == undefined)
+    routino.profile_property[type][routino.transport]=document.forms["form"].elements["property-" + type].value;
+ else
+   {
+    document.forms["form"].elements["property-" + type].value=value;
+    routino.profile_property[type][routino.transport]=value;
+   }
 
  paramschanged=true;
 
@@ -256,12 +335,24 @@ function formSetProperty(type)
 // Change of Restriction rule in the form
 //
 
-function formSetRestriction(type)
+function formSetRestriction(type,value)
 {
- if(type=="oneway" || type=="turns")
-    routino.profile_restrictions[type][routino.transport]=document.forms["form"].elements["restrict-" + type].checked;
+ if(value == undefined)
+   {
+    if(type=="oneway" || type=="turns")
+       routino.profile_restrictions[type][routino.transport]=document.forms["form"].elements["restrict-" + type].checked;
+    else
+       routino.profile_restrictions[type][routino.transport]=document.forms["form"].elements["restrict-" + type].value;
+   }
  else
-    routino.profile_restrictions[type][routino.transport]=document.forms["form"].elements["restrict-" + type].value;
+   {
+    if(type=="oneway" || type=="turns")
+       document.forms["form"].elements["restrict-" + type].checked=value;
+    else
+       document.forms["form"].elements["restrict-" + type].value=value;
+
+    routino.profile_restrictions[type][routino.transport]=value;
+   }
 
  paramschanged=true;
 
@@ -273,27 +364,49 @@ function formSetRestriction(type)
 // Set the feature coordinates from the form when the form changes.
 //
 
-function formSetCoords(marker)
+function formSetCoords(marker,lon,lat,active)
 {
+ if(lon == undefined || lat == undefined)
+   {
+    routino.point[marker].lon=document.forms["form"].elements["lon" + marker].value;
+    routino.point[marker].lat=document.forms["form"].elements["lat" + marker].value;
+
+    if(routino.point[marker].lon=="" || routino.point[marker].lat=="")
+       markerCentre(marker);
+   }
+ else
+   {
+    document.forms["form"].elements["lon" + marker].value=lon;
+    document.forms["form"].elements["lat" + marker].value=lat;
+
+    routino.point[marker].lon=lon;
+    routino.point[marker].lat=lat;
+
+    if(active != undefined)
+      {
+       if(active)
+          markerAddMap(marker);
+       else
+          markerRemoveMap(marker);
+      }
+   }
+
  var lonlat=map.getCenter().clone();
 
  lonlat.transform(map.getProjectionObject(),epsg4326);
 
- var lon=document.forms["form"].elements["lon" + marker].value;
- var lat=document.forms["form"].elements["lat" + marker].value;
-
- if(lon!="")
+ if(routino.point[marker].lon!="")
    {
-    if(lon<-180) lon=-180;
-    if(lon>+180) lon=+180;
-    lonlat.lon=lon;
+    if(routino.point[marker].lon<-180) routino.point[marker].lon=-180;
+    if(routino.point[marker].lon>+180) routino.point[marker].lon=+180;
+    lonlat.lon=routino.point[marker].lon;
    }
 
- if(lat!="")
+ if(routino.point[marker].lat!="")
    {
-    if(lat<-90 ) lat=-90 ;
-    if(lat>+90 ) lat=+90 ;
-    lonlat.lat=lat;
+    if(routino.point[marker].lat<-90 ) routino.point[marker].lat=-90 ;
+    if(routino.point[marker].lat>+90 ) routino.point[marker].lat=+90 ;
+    lonlat.lat=routino.point[marker].lat;
    }
 
  var point = lonlat.clone();
@@ -303,27 +416,6 @@ function formSetCoords(marker)
  markers[marker].move(point);
 
  markersmoved=true;
-
- coordsSetForm(marker);
-}
-
-
-//
-// Set the feature coordinates in the form.
-//
-
-function coordsSetForm(marker)
-{
- var lonlat = new OpenLayers.LonLat(markers[marker].geometry.x, markers[marker].geometry.y);
- lonlat.transform(map.getProjectionObject(),epsg4326);
-
- var lon=format5f(lonlat.lon);
- var lat=format5f(lonlat.lat);
-
- document.forms["form"].elements["lon" + marker].value=lon;
- document.forms["form"].elements["lat" + marker].value=lat;
-
- updateIcon(marker);
 
  updateCustomURL();
 }
@@ -364,10 +456,10 @@ function buildURLArguments(all)
  url=url + "transport=" + routino.transport;
 
  for(var marker=1;marker<=vismarkers;marker++)
-    if(markers[marker].style.display == "" || all)
+    if(routino.point[marker].active || all)
       {
-       url=url + ";lon" + marker + "=" + document.forms["form"].elements["lon" + marker].value;
-       url=url + ";lat" + marker + "=" + document.forms["form"].elements["lat" + marker].value;
+       url=url + ";lon" + marker + "=" + routino.point[marker].lon;
+       url=url + ";lat" + marker + "=" + routino.point[marker].lat;
       }
 
  for(var key in routino.profile_highway)
@@ -403,8 +495,8 @@ function updateCustomURL()
  var link_url      =document.getElementById("link_url");
  var edit_url      =document.getElementById("edit_url");
 
- visualiser_url.href="customvisualiser.cgi?" + map_args;
- link_url.href="customrouter.cgi" + buildURLArguments(1) + ";" + map_args;
+ visualiser_url.href="visualiser.html?" + map_args;
+ link_url.href="router.html" + buildURLArguments(1) + ";" + map_args;
  edit_url.href="http://www.openstreetmap.org/edit?" + map_args;
 }
 
@@ -445,12 +537,16 @@ var layerMap=[], layerVectors, layerGPX;
 var epsg4326, epsg900913;
 var map_args;
 
-// 
+//
 // Initialise the 'map' object
 //
 
-function map_init(lat,lon,zoom)
+function map_init()
 {
+ lon =args["lon"];
+ lat =args["lat"];
+ zoom=args["zoom"];
+
  // Map properties (North/South and East/West limits and zoom in/out limits) are now in mapprops.js
  // Map URLs are now in mapprops.js
 
@@ -532,21 +628,19 @@ function map_init(lat,lon,zoom)
 
  gpx_style={shortest: new OpenLayers.Style({},{strokeWidth: 3, strokeColor: "#00FF00"}),
             quickest: new OpenLayers.Style({},{strokeWidth: 3, strokeColor: "#0000FF"})};
- 
+
  // Add a vectors layer
- 
+
  layerVectors = new OpenLayers.Layer.Vector("Markers");
  map.addLayer(layerVectors);
 
  // A set of markers
 
- nmarkers=99;
- vismarkers=0;
  markers={};
  markersmoved=false;
  paramschanged=false;
 
- for(var marker=1;marker<=nmarkers;marker++)
+ for(var marker=1;marker<=maxmarkers;marker++)
    {
     if(document.forms["form"].elements["lon" + marker] != undefined)
       {
@@ -562,7 +656,7 @@ function map_init(lat,lon,zoom)
       }
     else
       {
-       nmarkers=marker-1;
+       maxmarkers=marker-1;
        vismarkers=marker-1;
        break;
       }
@@ -603,7 +697,7 @@ function map_init(lat,lon,zoom)
 
  // Move the map
 
- if(lon != 'lon' && lat != 'lat' && zoom != 'zoom')
+ if(lon != undefined && lat != undefined && zoom != undefined)
    {
     if(lon<mapprops.westedge) lon=mapprops.westedge;
     if(lon>mapprops.eastedge) lon=mapprops.eastedge;
@@ -633,7 +727,7 @@ function mapMoved()
 
  var zoom = this.getZoom() + map.minZoomLevel;
 
- map_args="lat=" + lonlat.lat + ";lon=" + lonlat.lon + ";zoom=" + zoom;
+ map_args="lat=" + format5f(lonlat.lat) + ";lon=" + format5f(lonlat.lon) + ";zoom=" + zoom;
 
  updateCustomURL();
 }
@@ -650,7 +744,7 @@ function dragMove(feature,pixel)
       {
        markersmoved=true;
 
-       coordsSetForm(marker);
+       dragSetForm(marker);
       }
 }
 
@@ -666,17 +760,30 @@ function dragComplete(feature,pixel)
       {
        markersmoved=true;
 
-       coordsSetForm(marker);
+       dragSetForm(marker);
       }
+}
+
+
+//
+// Set the feature coordinates in the form after dragging.
+//
+
+function dragSetForm(marker)
+{
+ var lonlat = new OpenLayers.LonLat(markers[marker].geometry.x, markers[marker].geometry.y);
+ lonlat.transform(map.getProjectionObject(),epsg4326);
+
+ var lon=format5f(lonlat.lon);
+ var lat=format5f(lonlat.lat);
+
+ formSetCoords(marker,lon,lat);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// Marker handling ////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
-var nmarkers, vismarkers, markers, markersmoved, paramschanged;
-var homelat=null, homelon=null;
 
 
 //
@@ -685,7 +792,7 @@ var homelat=null, homelon=null;
 
 function markerToggleMap(marker)
 {
- if(markers[marker].style.display == "")
+ if(routino.point[marker].active)
     markerRemoveMap(marker);
  else
     markerAddMap(marker);
@@ -699,8 +806,7 @@ function markerToggleMap(marker)
 function markerAddMap(marker)
 {
  markers[marker].style.display = "";
-
- formSetCoords(marker);
+ routino.point[marker].active=true;
 
  updateIcon(marker);
 
@@ -715,6 +821,7 @@ function markerAddMap(marker)
 function markerRemoveMap(marker)
 {
  markers[marker].style.display = "none";
+ routino.point[marker].active=false;
 
  updateIcon(marker);
 
@@ -728,12 +835,11 @@ function markerRemoveMap(marker)
 
 function markerCentre(marker)
 {
- document.forms["form"].elements["lon" + marker].value="";
- document.forms["form"].elements["lat" + marker].value="";
+ var lonlat=map.getCenter().clone();
 
- formSetCoords(marker);
+ lonlat.transform(map.getProjectionObject(),epsg4326);
 
- markersmoved=true;
+ formSetCoords(marker,lonlat.lon,lonlat.lat,true);
 }
 
 
@@ -743,8 +849,8 @@ function markerCentre(marker)
 
 function markerRecentre(marker)
 {
- lon=document.forms["form"].elements["lon" + marker].value;
- lat=document.forms["form"].elements["lat" + marker].value;
+ lon=routino.point[marker].lon;
+ lat=routino.point[marker].lat;
 
  var lonlat = new OpenLayers.LonLat(lon,lat).transform(epsg4326,map.getProjectionObject());
 
@@ -759,15 +865,7 @@ function markerRecentre(marker)
 function markerRemove(marker)
 {
  for(var marker2=marker;marker2<vismarkers;marker2++)
-   {
-    document.forms["form"].elements["lon" + marker2].value=document.forms["form"].elements["lon" + (marker2+1)].value;
-    document.forms["form"].elements["lat" + marker2].value=document.forms["form"].elements["lat" + (marker2+1)].value;
-
-    if(markers[marker2+1].style.display=="")
-       markerAddMap(marker2);
-    else
-       markerRemoveMap(marker2);
-   }
+    formSetCoords(marker2,routino.point[marker2+1].lon,routino.point[marker2+1].lat,routino.point[marker2+1].active);
 
  markerRemoveMap(vismarkers);
 
@@ -790,7 +888,7 @@ function markerRemove(marker)
 
 function markerAddBefore(marker)
 {
- if(vismarkers==nmarkers || marker==1)
+ if(vismarkers==maxmarkers || marker==1)
     return false;
 
  vismarkers++;
@@ -800,19 +898,9 @@ function markerAddBefore(marker)
  marker_tr.style.display="";
 
  for(var marker2=vismarkers;marker2>marker;marker2--)
-   {
-    document.forms["form"].elements["lon" + marker2].value=document.forms["form"].elements["lon" + (marker2-1)].value;
-    document.forms["form"].elements["lat" + marker2].value=document.forms["form"].elements["lat" + (marker2-1)].value;
+    formSetCoords(marker2,routino.point[marker2-1].lon,routino.point[marker2-1].lat,routino.point[marker2-1].active);
 
-    if(markers[marker2-1].style.display=="")
-       markerAddMap(marker2);
-    else
-       markerRemoveMap(marker2);
-   }
-
- document.forms["form"].elements["lon" + marker].value="";
- document.forms["form"].elements["lat" + marker].value="";
- markers[marker].style.display="none";
+ formSetCoords(marker,"","",false);
 
  markerRemoveMap(marker);
 
@@ -826,7 +914,7 @@ function markerAddBefore(marker)
 
 function markerAddAfter(marker)
 {
- if(vismarkers==nmarkers)
+ if(vismarkers==maxmarkers)
     return false;
 
  vismarkers++;
@@ -836,19 +924,9 @@ function markerAddAfter(marker)
  marker_tr.style.display="";
 
  for(var marker2=vismarkers;marker2>(marker+1);marker2--)
-   {
-    document.forms["form"].elements["lon" + marker2].value=document.forms["form"].elements["lon" + (marker2-1)].value;
-    document.forms["form"].elements["lat" + marker2].value=document.forms["form"].elements["lat" + (marker2-1)].value;
+    formSetCoords(marker2,routino.point[marker2-1].lon,routino.point[marker2-1].lat,routino.point[marker2-1].active);
 
-    if(markers[marker2-1].style.display=="")
-       markerAddMap(marker2);
-    else
-       markerRemoveMap(marker2);
-   }
-
- document.forms["form"].elements["lon" + (marker+1)].value="";
- document.forms["form"].elements["lat" + (marker+1)].value="";
- markers[marker+1].style.display="none";
+ formSetCoords(marker+1,"","",false);
 
  markerRemoveMap(marker+1);
 
@@ -863,7 +941,7 @@ function markerAddAfter(marker)
 function markerHome(marker)
 {
  if(markerHomeCookie(marker))
-    for(marker=1;marker<=nmarkers;marker++)
+    for(marker=1;marker<=maxmarkers;marker++)
        updateIcon(marker);
 }
 
@@ -877,23 +955,8 @@ function markerLocate(marker)
  if(navigator.geolocation)
     navigator.geolocation.getCurrentPosition(
                                              function(position) {
-                                              markerLocateUpdate(marker,position.coords.longitude,position.coords.latitude);
+                                              formSetCoords(marker,position.coords.longitude,position.coords.latitude,true);
                                              });
-}
-
-
-//
-// The callback to actually set the marker location
-//
-
-function markerLocateUpdate(marker,lon,lat)
-{
- document.forms["form"].elements["lon" + marker].value=lon;
- document.forms["form"].elements["lat" + marker].value=lat;
-
- formSetCoords(marker);
-
- markersmoved=true;
 }
 
 
@@ -903,12 +966,12 @@ function markerLocateUpdate(marker,lon,lat)
 
 function updateIcon(marker)
 {
- var lon=document.forms["form"].elements["lon" + marker].value;
- var lat=document.forms["form"].elements["lat" + marker].value;
+ var lon=routino.point[marker].lon;
+ var lat=routino.point[marker].lat;
 
  if(lon==homelon && lat==homelat)
    {
-    if(markers[marker].style.display=="")
+    if(routino.point[marker].active)
        document.images["waypoint" + marker].src="icons/marker-home-red.png";
     else
        document.images["waypoint" + marker].src="icons/marker-home-grey.png";
@@ -917,7 +980,7 @@ function updateIcon(marker)
    }
  else
    {
-    if(markers[marker].style.display=="")
+    if(routino.point[marker].active)
        document.images["waypoint" + marker].src="icons/marker-" + marker + "-red.png";
     else
        document.images["waypoint" + marker].src="icons/marker-" + marker + "-grey.png";
@@ -935,8 +998,8 @@ function updateIcon(marker)
 
 function markerHomeCookie(marker)
 {
- var lon=document.forms["form"].elements["lon" + marker].value;
- var lat=document.forms["form"].elements["lat" + marker].value;
+ var lon=routino.point[marker].lon;
+ var lat=routino.point[marker].lat;
 
  if(lon=="" || lat=="")
     return(false);
@@ -1008,25 +1071,13 @@ function markerMoveDown(marker)
 
 function markerSwap(marker1,marker2)
 {
- var lon=document.forms["form"].elements["lon" + marker1].value;
- var lat=document.forms["form"].elements["lat" + marker1].value;
- var display=markers[marker1].style.display;
+ var lon=routino.point[marker1].lon;
+ var lat=routino.point[marker1].lat;
+ var active=routino.point[marker1].active;
 
- document.forms["form"].elements["lon" + marker1].value=document.forms["form"].elements["lon" + marker2].value;
- document.forms["form"].elements["lat" + marker1].value=document.forms["form"].elements["lat" + marker2].value;
- if(markers[marker2].style.display=="")
-    markerAddMap(marker1);
- else
-    markerRemoveMap(marker1);
+ formSetCoords(marker1,routino.point[marker2].lon,routino.point[marker2].lat,routino.point[marker2].active);
 
- document.forms["form"].elements["lon" + marker2].value=lon;
- document.forms["form"].elements["lat" + marker2].value=lat;
- if(display=="")
-    markerAddMap(marker2);
- else
-    markerRemoveMap(marker2);
-
- updateCustomURL();
+ formSetCoords(marker2,lon,lat,active);
 }
 
 
