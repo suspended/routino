@@ -205,8 +205,6 @@ function form_init()
     if(routino.point[1].lon=="" && routino.point[1].lat=="")
        formSetCoords(1,homelon,homelat,true);
    }
-
- updateCustomURL();
 }
 
 
@@ -232,8 +230,6 @@ function formSetLanguage(value)
 
     routino.language=value;
    }
-
- updateCustomURL();
 }
 
 
@@ -266,8 +262,6 @@ function formSetTransport(value)
    }
 
  paramschanged=true;
-
- updateCustomURL();
 }
 
 
@@ -286,8 +280,6 @@ function formSetHighway(type,value)
    }
 
  paramschanged=true;
-
- updateCustomURL();
 }
 
 
@@ -306,8 +298,6 @@ function formSetSpeed(type,value)
    }
 
  paramschanged=true;
-
- updateCustomURL();
 }
 
 
@@ -326,8 +316,6 @@ function formSetProperty(type,value)
    }
 
  paramschanged=true;
-
- updateCustomURL();
 }
 
 
@@ -355,8 +343,6 @@ function formSetRestriction(type,value)
    }
 
  paramschanged=true;
-
- updateCustomURL();
 }
 
 
@@ -416,8 +402,6 @@ function formSetCoords(marker,lon,lat,active)
  markers[marker].move(point);
 
  markersmoved=true;
-
- updateCustomURL();
 }
 
 
@@ -449,14 +433,12 @@ function format5f(number)
 // Build a set of URL arguments
 //
 
-function buildURLArguments(all)
+function buildURLArguments(lang)
 {
- var url="?";
-
- url=url + "transport=" + routino.transport;
+ var url= "transport=" + routino.transport;
 
  for(var marker=1;marker<=vismarkers;marker++)
-    if(routino.point[marker].active || all)
+    if(routino.point[marker].active)
       {
        url=url + ";lon" + marker + "=" + routino.point[marker].lon;
        url=url + ";lat" + marker + "=" + routino.point[marker].lat;
@@ -478,7 +460,7 @@ function buildURLArguments(all)
     if(routino.profile_restrictions[key][routino.transport]!=routino_default.profile_restrictions[key][routino.transport])
        url=url + ";" + key + "=" + routino.profile_restrictions[key][routino.transport];
 
- if(routino.language)
+ if(lang && routino.language)
     url=url + ";language=" + routino.language;
 
  return(url);
@@ -486,18 +468,38 @@ function buildURLArguments(all)
 
 
 //
-// Update custom URL
+// Build a set of URL arguments for the map location
 //
 
-function updateCustomURL()
+function buildMapArguments()
 {
- var visualiser_url=document.getElementById("visualiser_url");
- var link_url      =document.getElementById("link_url");
- var edit_url      =document.getElementById("edit_url");
+ var centre = map.getCenter().clone();
 
- visualiser_url.href="visualiser.html?" + map_args;
- link_url.href="router.html" + buildURLArguments(1) + ";" + map_args;
- edit_url.href="http://www.openstreetmap.org/edit?" + map_args;
+ var lonlat = centre.transform(map.getProjectionObject(),epsg4326);
+
+ var zoom = map.getZoom() + map.minZoomLevel;
+
+ return "lat=" + format5f(lonlat.lat) + ";lon=" + format5f(lonlat.lon) + ";zoom=" + zoom;
+}
+
+
+//
+// Update a URL
+//
+
+function updateURL(element)
+{
+ if(element.id == "permalink_url")
+    element.href=location.pathname + "?" + buildURLArguments(true) + ";" + buildMapArguments();
+
+ if(element.id == "visualiser_url")
+    element.href="visualiser.html" + "?" + buildMapArguments();
+
+ if(element.id == "edit_url")
+    element.href="http://www.openstreetmap.org/edit" + "?" + buildMapArguments();
+
+ if(element.id.match(/^lang_([a-zA-Z-]+)_url$/))
+    element.href="router.html" + "." + RegExp.$1 + "?" + buildURLArguments(false) + ";" + buildMapArguments();
 }
 
 
@@ -535,7 +537,6 @@ function discardReturnKey(ev)
 var map;
 var layerMap=[], layerVectors, layerGPX;
 var epsg4326, epsg900913;
-var map_args;
 
 //
 // Initialise the 'map' object
@@ -578,8 +579,6 @@ function map_init()
 
                             units: "m"
                            });
-
- map.events.register("moveend", map, mapMoved);
 
  // Add map tile layers
 
@@ -712,24 +711,6 @@ function map_init()
 
     map.moveTo(lonlat,zoom-map.minZoomLevel);
    }
-}
-
-
-//
-// Map has moved
-//
-
-function mapMoved()
-{
- var centre = map.getCenter().clone();
-
- var lonlat = centre.transform(map.getProjectionObject(),epsg4326);
-
- var zoom = this.getZoom() + map.minZoomLevel;
-
- map_args="lat=" + format5f(lonlat.lat) + ";lon=" + format5f(lonlat.lon) + ";zoom=" + zoom;
-
- updateCustomURL();
 }
 
 
@@ -877,8 +858,6 @@ function markerRemove(marker)
 
  if(vismarkers==1)
     markerAddAfter(1);
-
- updateCustomURL();
 }
 
 
@@ -903,8 +882,6 @@ function markerAddBefore(marker)
  formSetCoords(marker,"","",false);
 
  markerRemoveMap(marker);
-
- updateCustomURL();
 }
 
 
@@ -929,8 +906,6 @@ function markerAddAfter(marker)
  formSetCoords(marker+1,"","",false);
 
  markerRemoveMap(marker+1);
-
- updateCustomURL();
 }
 
 
@@ -1089,8 +1064,6 @@ function markersReverse()
 {
  for(var marker=1;marker<=vismarkers/2;marker++)
     markerSwap(marker,vismarkers+1-marker);
-
- updateCustomURL();
 }
 
 
@@ -1275,7 +1248,7 @@ function findRoute(type)
 
  displayStatus("result","running");
 
- var url="router.cgi" + buildURLArguments(0) + ";type=" + type;
+ var url="router.cgi" + "?" + buildURLArguments(true) + ";type=" + type;
 
  // Destroy the existing layer(s)
 

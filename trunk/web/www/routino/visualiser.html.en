@@ -75,6 +75,27 @@
     </div>
 
     <div class="hideshow_box">
+      <span id="hideshow_language_show" onclick="hideshow_show('language');" class="hideshow_show">+</span>
+      <span id="hideshow_language_hide" onclick="hideshow_hide('language');" class="hideshow_hide">-</span>
+      <span class="hideshow_title">Language</span>
+
+      <!-- Note for translations: Only this HTML file needs to be translated, the Javascript has
+           no language specific information in it.  Only the body text and title attributes should
+           be changed, the values passed to the JavaScript and the element names must not be changed.
+           The selection below changes the language option passed to the router and selects the
+           output language not the web page language, the links are for that.  The router itself uses
+           the translations.xml file for the translated versions of the output. -->
+
+      <div id="hideshow_language_div" style="display: none;">
+        <table>
+          <tr>
+            <td><a id="lang_en_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="visualiser.html.en" title="English language web page">English</a>
+            <td>(EN)
+        </table>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
       <span class="hideshow_title">Instructions</span>
       Zoom in and then use the buttons below to download the data.  The
       server will only return data if the selected area is small enough.
@@ -247,9 +268,9 @@
 
     <div class="hideshow_box">
       <span class="hideshow_title">Links</span>
-      <a id="link_url"                href="visualiser.html">Permanent link to this view</a>
+      <a id="permalink_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="visualiser.html">Permanent link to this view</a>
       <br>
-      <a id="edit_url" target="other" href="http://www.openstreetmap.org/">Edit OSM data in Potlatch</a>
+      <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="http://www.openstreetmap.org/" target="edit">Edit OSM data in Potlatch</a>
     </div>
   </div>
 
@@ -258,7 +279,7 @@
       <span class="hideshow_title">Router</span>
       To perform routing on the map use the link below.
       <br>
-      <a id="router_url" target="other" href="router.html">Custom link to this map view</a>
+      <a id="router_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html" target="router">Custom link to this map view</a>
     </div>
   </div>
 
