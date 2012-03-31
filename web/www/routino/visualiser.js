@@ -117,7 +117,6 @@ if(location.search.length>1)
 var map;
 var layerMap=[], layerVectors, layerBoxes;
 var epsg4326, epsg900913;
-var map_args;
 
 var box;
 
@@ -162,8 +161,6 @@ function map_init()
 
                             units: "m"
                            });
-
- map.events.register("moveend", map, mapMoved);
 
  // Add map tile layers
 
@@ -252,36 +249,62 @@ function map_init()
 
 
 //
-// Map has moved
+// Format a number in printf("%.5f") format.
 //
 
-function mapMoved()
+function format5f(number)
+{
+ var newnumber=Math.floor(number*100000+0.5);
+ var delta=0;
+
+ if(newnumber>=0 && newnumber<100000) delta= 100000;
+ if(newnumber<0 && newnumber>-100000) delta=-100000;
+
+ var string=String(newnumber+delta);
+
+ var intpart =string.substring(0,string.length-5);
+ var fracpart=string.substring(string.length-5,string.length);
+
+ if(delta>0) intpart="0";
+ if(delta<0) intpart="-0";
+
+ return(intpart + "." + fracpart);
+}
+
+
+//
+// Build a set of URL arguments for the map location
+//
+
+function buildMapArguments()
 {
  var centre = map.getCenter().clone();
 
  var lonlat = centre.transform(map.getProjectionObject(),epsg4326);
 
- var zoom = this.getZoom() + map.minZoomLevel;
+ var zoom = map.getZoom() + map.minZoomLevel;
 
- map_args="lat=" + format5f(lonlat.lat) + ";lon=" + format5f(lonlat.lon) + ";zoom=" + zoom;
-
- updateCustomURL();
+ return "lat=" + format5f(lonlat.lat) + ";lon=" + format5f(lonlat.lon) + ";zoom=" + zoom;
 }
 
 
 //
-// Update custom URL
+// Update a URL
 //
 
-function updateCustomURL()
+function updateURL(element)
 {
- var router_url=document.getElementById("router_url");
- var link_url  =document.getElementById("link_url");
- var edit_url  =document.getElementById("edit_url");
+ if(element.id == "permalink_url")
+    element.href=location.pathname + "?" + buildMapArguments();
 
- router_url.href="router.html?" + map_args;
- link_url.href="visualiser.html?" + map_args;
- edit_url.href="http://www.openstreetmap.org/edit?" + map_args;
+ if(element.id == "router_url")
+    element.href="router.html" + "?" + buildMapArguments();
+
+ if(element.id == "edit_url")
+    element.href="http://www.openstreetmap.org/edit" + "?" + buildMapArguments();
+
+ if(element.id.match(/^lang_([a-zA-Z-]+)_url$/))
+    element.href="visualiser.html" + "." + RegExp.$1 + "?" + buildMapArguments();
 }
 
 

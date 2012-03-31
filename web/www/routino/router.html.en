@@ -91,7 +91,7 @@
         <div id="hideshow_language_div" style="display: none;">
           <table>
             <tr>
-              <td><a href="router.html.en" title="English language web page">English</a>
+              <td><a id="lang_en_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html.en" title="English language web page">English</a>
               <td>(EN)
               <td><input name="language" type="radio" value="en" onchange="formSetLanguage()" checked>
             <tr>
@@ -99,7 +99,7 @@
               <td>(DE)
               <td><input name="language" type="radio" value="de" onchange="formSetLanguage()">
             <tr>
-              <td><a href="router.html.nl" title="Dutch language web page">Dutch</a>
+              <td><a id="lang_nl_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html.nl" title="Dutch language web page">Dutch</a>
               <td>(NL)
               <td><input name="language" type="radio" value="nl" onchange="formSetLanguage()">
             <tr>
@@ -373,9 +373,9 @@
 
       <div class="hideshow_box">
         <span class="hideshow_title">Links</span>
-        <a id="link_url"                href="router.html">Permanent link to these parameters</a>
+        <a id="permalink_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html">Permanent link to these parameters</a>
         <br>
-        <a id="edit_url" target="other" href="http://www.openstreetmap.org/">Edit OSM data in Potlatch</a>
+        <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="http://www.openstreetmap.org/" target="edit">Edit OSM data in Potlatch</a>
       </div>
 
       <div class="hideshow_box">
@@ -582,7 +582,7 @@
       To see Routino's view of the data there is a data visualiser that allows
       displaying of the underlying data in various ways.
       <br>
-      <a id="visualiser_url" target="other" href="visualiser.html">Custom link to this map view</a>
+      <a id="visualiser_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="visualiser.html" target="visualiser">Custom link to this map view</a>
     </div>
   </div>
 
