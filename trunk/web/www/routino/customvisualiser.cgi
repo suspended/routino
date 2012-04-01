@@ -27,40 +27,11 @@ use CGI ':cgi';
 
 $query=new CGI;
 
-@rawparams=$query->param;
-
-# Legal CGI parameters with regexp validity check
-
-%legalparams=(
-              "lon"  => "[-0-9.]+",
-              "lat"  => "[-0-9.]+",
-              "zoom" => "[0-9]+"
-             );
-
-# Validate the CGI parameters, ignore invalid ones
-
-foreach $key (@rawparams)
-  {
-   foreach $test (keys (%legalparams))
-     {
-      if($key =~ m%^$test$%)
-        {
-         $value=$query->param($key);
-
-         if($value =~ m%^$legalparams{$test}$%)
-           {
-            $cgiparams{$key}=$value;
-            last;
-           }
-        }
-     }
-  }
-
 # Redirect to the HTML page.
 
 $params="";
 
-foreach $param (keys %cgiparams)
+foreach $key ($query->param)
   {
    if($params eq "")
      {
@@ -71,7 +42,7 @@ foreach $param (keys %cgiparams)
       $params.="&";
      }
 
-   $params.="$param=$cgiparams{$param}";
+   $params.="$key=".$query->param($key);
   }
 
 print $query->redirect("visualiser.html".$params);
