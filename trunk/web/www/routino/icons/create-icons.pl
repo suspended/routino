@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2010 Andrew M. Bishop
+# This file Copyright 2008-2012 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ use Graphics::Magick;
 @borders=("black","grey");
 @letters=("red","grey");
 
-foreach $character ('0'..'9','home')
+foreach $character (0..99,'home')
   {
    foreach $colour (0..$#names)
      {
@@ -57,12 +57,22 @@ foreach $character ('0'..'9','home')
          $image->Composite(image => $home, compose => Over,
                            x => 32-$home->Get('width')/2, y => 26-$home->Get('height')/2);
         }
-      else
+      elsif($character>=0 && $character<=9)
         {
          ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) = 
            $image->QueryFontMetrics(text => $character, font => 'Helvetica', pointsize => '36');
 
          $image->Annotate(text => $character, font => 'Helvetica', pointsize => '36',
+                          stroke => $letters[$colour], fill => $letters[$colour],
+                          x => 32, y => 32-$descender, align => Center,
+                          antialias => 'false');
+        }
+      else
+        {
+         ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) = 
+           $image->QueryFontMetrics(text => $character, font => 'Helvetica', pointsize => '32');
+
+         $image->Annotate(text => $character, font => 'Helvetica', pointsize => '32',
                           stroke => $letters[$colour], fill => $letters[$colour],
                           x => 32, y => 32-$descender, align => Center,
                           antialias => 'false');

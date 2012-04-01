@@ -19,8 +19,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+// The number of waypoints to include in the HTML
+var maxmarkers=9;
 
-var maxmarkers=9, vismarkers=9, markers, markersmoved, paramschanged;
+var vismarkers, markers, markersmoved, paramschanged;
 var homelat=null, homelon=null;
 
 
@@ -105,6 +107,31 @@ if(location.search.length>1)
         }
      }
   }
+
+
+//
+// Fill in the HTML - add the missing waypoints
+//
+
+function html_init()
+{
+ var waypoints=document.getElementById("waypoints");
+ var waypoint_html=waypoints.rows[0].innerHTML;
+
+ waypoints.deleteRow(0);
+
+ for(var marker=maxmarkers;marker>=1;marker--)
+   {
+    waypoint=waypoints.insertRow(0);
+    waypoint.id="point" + marker;
+
+    var this_waypoint_html=waypoint_html.split('XXX').join(marker);
+
+    waypoint.innerHTML=this_waypoint_html;
+   }
+
+ vismarkers=maxmarkers;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -641,24 +668,15 @@ function map_init()
 
  for(var marker=1;marker<=maxmarkers;marker++)
    {
-    if(document.forms["form"].elements["lon" + marker] != undefined)
-      {
-       markers[marker] = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(0,0),{},
-                                                       new OpenLayers.Style({},{externalGraphic: 'icons/marker-' + marker + '-red.png',
-                                                                                fillColor: "white",
-                                                                                graphicYOffset: -25,
-                                                                                graphicWidth: 21,
-                                                                                graphicHeight: 25,
-                                                                                display: "none"}));
+    markers[marker] = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(0,0),{},
+                                                    new OpenLayers.Style({},{externalGraphic: 'icons/marker-' + marker + '-red.png',
+                                                                             fillColor: "white",
+                                                                             graphicYOffset: -25,
+                                                                             graphicWidth: 21,
+                                                                             graphicHeight: 25,
+                                                                             display: "none"}));
 
-       layerVectors.addFeatures([markers[marker]]);
-      }
-    else
-      {
-       maxmarkers=marker-1;
-       vismarkers=marker-1;
-       break;
-      }
+    layerVectors.addFeatures([markers[marker]]);
    }
 
  // A function to drag the markers
