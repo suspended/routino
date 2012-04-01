@@ -52,7 +52,7 @@
 <link href="router.css" type="text/css" rel="stylesheet">
 
 </HEAD>
-<BODY onload="map_init();form_init();block_return_key();">
+<BODY onload="html_init();map_init();form_init();block_return_key();">
 
 <!-- Left hand side of window - data panel -->
 
@@ -118,152 +118,24 @@
         <span id="hideshow_waypoint_hide" onclick="hideshow_hide('waypoint');" class="hideshow_show">-</span>
         <span class="hideshow_title">Coordinaten (waypoints)</span>
         <div id="hideshow_waypoint_div">
-          <table>
-            <tr id="point1">
+          <table id="waypoints">
+            <tr id="pointXXX" style="display: none;">
               <td>
-                <img name="waypoint1" src="icons/marker-1-grey.png" title="Waypoint 1 Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint 1" onmousedown="markerToggleMap(1)">&nbsp;
+                <img name="waypointXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX)">&nbsp;
               <td>
-                <input name="lon1" type="text" size=7 title="Waypoint 1 Longitude" onchange="formSetCoords(1);">E&nbsp;
+                <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E&nbsp;
               <td>
-                <input name="lat1" type="text" size=7 title="Waypoint 1 Latitude"  onchange="formSetCoords(1);">N&nbsp;
+                <input name="latXXX" type="text" size="7" title="Waypoint XXX Latitude"  onchange="formSetCoords(XXX);">N&nbsp;
               <td>
-                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(1);"  >
-                <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(1);">
-                <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(1);"  >
-                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(1);"><br>
-                <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(1);"    >
-                <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(1);"  >
-                <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(1);">
-                <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(1);"  >
-            <tr id="point2">
-              <td>
-                <img name="waypoint2" src="icons/marker-2-grey.png" title="Waypoint 2 Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint 2" onmousedown="markerToggleMap(2)">&nbsp;
-              <td>
-                <input name="lon2" type="text" size=7 title="Waypoint 2 Longitude" onchange="formSetCoords(2);">E&nbsp;
-              <td>
-                <input name="lat2" type="text" size=7 title="Waypoint 2 Latitude"  onchange="formSetCoords(2);">N&nbsp;
-              <td>
-                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(2);"  >
-                <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(2);">
-                <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(2);"  >
-                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(2);"><br>
-                <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(2);"    >
-                <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(2);"  >
-                <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(2);">
-                <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(2);"  >
-            <tr id="point3">
-              <td>
-                <img name="waypoint3" src="icons/marker-3-grey.png" title="Waypoint 3 Position - (click voor plaatsen/verwijderen on map)" alt="Waypoint 3" onmousedown="markerToggleMap(3)">&nbsp;
-              <td>
-                <input name="lon3" type="text" size=7 title="Waypoint 3 Longitude" onchange="formSetCoords(3);">E&nbsp;
-              <td>
-                <input name="lat3" type="text" size=7 title="Waypoint 3 Latitude"  onchange="formSetCoords(3);">N&nbsp;
-              <td>
-                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(3);"  >
-                <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(3);">
-                <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(3);"  >
-                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(3);"><br>
-                <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(3);"    >
-                <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(3);"  >
-                <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(3);">
-                <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(3);"  >
-            <tr id="point4">
-              <td>
-                <img name="waypoint4" src="icons/marker-4-grey.png" title="Waypoint 4 Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint 4" onmousedown="markerToggleMap(4)">&nbsp;
-              <td>
-                <input name="lon4" type="text" size=7 title="Waypoint 4 Longitude" onchange="formSetCoords(4);">E&nbsp;
-              <td>
-                <input name="lat4" type="text" size=7 title="Waypoint 4 Latitude"  onchange="formSetCoords(4);">N&nbsp;
-              <td>
-                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(4);"  >
-                <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(4);">
-                <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(4);"  >
-                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(4);"><br>
-                <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(4);"    >
-                <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(4);"  >
-                <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(4);">
-                <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(4);"  >
-            <tr id="point5">
-              <td>
-                <img name="waypoint5" src="icons/marker-5-grey.png" title="Waypoint 5 Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint 5" onmousedown="markerToggleMap(5)">&nbsp;
-              <td>
-                <input name="lon5" type="text" size=7 title="Waypoint 5 Longitude" onchange="formSetCoords(5);">E&nbsp;
-              <td>
-                <input name="lat5" type="text" size=7 title="Waypoint 5 Latitude"  onchange="formSetCoords(5);">N&nbsp;
-              <td>
-                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(5);"  >
-                <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(5);">
-                <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(5);"  >
-                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(5);"><br>
-                <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(5);"    >
-                <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(5);"  >
-                <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(5);">
-                <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(5);"  >
-            <tr id="point6">
-              <td>
-                <img name="waypoint6" src="icons/marker-6-grey.png" title="Waypoint 6 Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint 6" onmousedown="markerToggleMap(6)">&nbsp;
-              <td>
-                <input name="lon6" type="text" size=7 title="Waypoint 6 Longitude" onchange="formSetCoords(6);">E&nbsp;
-              <td>
-                <input name="lat6" type="text" size=7 title="Waypoint 6 Latitude"  onchange="formSetCoords(6);">N&nbsp;
-              <td>
-                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(6);"  >
-                <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(6);">
-                <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(6);"  >
-                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(6);"><br>
-                <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(6);"    >
-                <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(6);"  >
-                <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(6);">
-                <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(6);"  >
-            <tr id="point7">
-              <td>
-                <img name="waypoint7" src="icons/marker-7-grey.png" title="Waypoint 7 Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint 7" onmousedown="markerToggleMap(7)">&nbsp;
-              <td>
-                <input name="lon7" type="text" size=7 title="Waypoint 7 Longitude" onchange="formSetCoords(7);">E&nbsp;
-              <td>
-                <input name="lat7" type="text" size=7 title="Waypoint 7 Latitude"  onchange="formSetCoords(7);">N&nbsp;
-              <td>
-                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(7);"  >
-                <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(7);">
-                <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(7);"  >
-                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(7);"><br>
-                <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(7);"    >
-                <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(7);"  >
-                <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(7);">
-                <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(7);"  >
-            <tr id="point8">
-              <td>
-                <img name="waypoint8" src="icons/marker-8-grey.png" title="Waypoint 8 Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint 8" onmousedown="markerToggleMap(8)">&nbsp;
-              <td>
-                <input name="lon8" type="text" size=7 title="Waypoint 8 Longitude" onchange="formSetCoords(8);">E&nbsp;
-              <td>
-                <input name="lat8" type="text" size=7 title="Waypoint 8 Latitude"  onchange="formSetCoords(8);">N&nbsp;
-              <td>
-                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(8);"  >
-                <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(8);">
-                <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(8);"  >
-                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(8);"><br>
-                <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(8);"    >
-                <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(8);"  >
-                <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(8);">
-                <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(8);"  >
-            <tr id="point9">
-              <td>
-                <img name="waypoint9" src="icons/marker-9-grey.png" title="Waypoint 9 Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint 9" onmousedown="markerToggleMap(9)">&nbsp;
-              <td>
-                <input name="lon9" type="text" size=7 title="Waypoint 9 Longitude" onchange="formSetCoords(9);">E&nbsp;
-              <td>
-                <input name="lat9" type="text" size=7 title="Waypoint 9 Latitude"  onchange="formSetCoords(9);">N&nbsp;
-              <td>
-                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(9);"  >
-                <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(9);">
-                <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(9);"  >
-                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(9);"><br>
-                <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(9);"    >
-                <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(9);"  >
-                <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(9);">
-                <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(9);"  >
-            <!-- Up to 99 markers can be included here in the HTML  -->
+                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(XXX);"  >
+                <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(XXX);">
+                <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(XXX);"  >
+                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(XXX);"><br>
+                <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(XXX);"    >
+                <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(XXX);"  >
+                <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(XXX);">
+                <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(XXX);"  >
+            <!-- The waypoints are inserted by the JavaScript, see the "maxmarkers" variable in router.js.  -->
             <tr>
               <td colspan="4" align="center"><input type="button" title="Keer volgorde punten om" value="Keer volgorde punten om" onmousedown="markersReverse();">
           </table>
