@@ -27,55 +27,11 @@ use CGI ':cgi';
 
 $query=new CGI;
 
-@rawparams=$query->param;
-
-# Legal CGI parameters with regexp validity check
-
-%legalparams=(
-              "lon"             => "[-0-9.]+",
-              "lat"             => "[-0-9.]+",
-              "zoom"            => "[0-9]+",
-
-              "lon[1-9]+"       => "[-0-9.]+",
-              "lat[1-9]+"       => "[-0-9.]+",
-              "transport"       => "[a-z]+",
-              "highway-[a-z]+"  => "[0-9.]+",
-              "speed-[a-z]+"    => "[0-9.]+",
-              "property-[a-z]+" => "[0-9.]+",
-              "oneway"          => "(1|0|true|false|on|off)",
-              "turns"           => "(1|0|true|false|on|off)",
-              "weight"          => "[0-9.]+",
-              "height"          => "[0-9.]+",
-              "width"           => "[0-9.]+",
-              "length"          => "[0-9.]+",
-
-              "language"        => "[-a-zA-Z]+"
-             );
-
-# Validate the CGI parameters, ignore invalid ones
-
-foreach $key (@rawparams)
-  {
-   foreach $test (keys (%legalparams))
-     {
-      if($key =~ m%^$test$%)
-        {
-         $value=$query->param($key);
-
-         if($value =~ m%^$legalparams{$test}$%)
-           {
-            $cgiparams{$key}=$value;
-            last;
-           }
-        }
-     }
-  }
-
 # Redirect to the HTML page.
 
 $params="";
 
-foreach $param (keys %cgiparams)
+foreach $key ($query->param)
   {
    if($params eq "")
      {
@@ -86,7 +42,7 @@ foreach $param (keys %cgiparams)
       $params.="&";
      }
 
-   $params.="$param=$cgiparams{$param}";
+   $params.="$key=".$query->param($key);
   }
 
 print $query->redirect("router.html".$params);
