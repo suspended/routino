@@ -155,31 +155,35 @@ int main(int argc,char** argv)
        option_tmpdirname=dirname;
    }
 
- if(tagging)
+ 
+ if(!option_process_only)
    {
-    if(!ExistsFile(tagging))
+    if(tagging)
       {
-       fprintf(stderr,"Error: The '--tagging' option specifies a file that does not exist.\n");
-       return(1);
+       if(!ExistsFile(tagging))
+         {
+          fprintf(stderr,"Error: The '--tagging' option specifies a file that does not exist.\n");
+          return(1);
+         }
       }
-   }
- else
-   {
-    if(ExistsFile(FileName(dirname,prefix,"tagging.xml")))
-       tagging=FileName(dirname,prefix,"tagging.xml");
-    else if(ExistsFile(FileName(DATADIR,NULL,"tagging.xml")))
-       tagging=FileName(DATADIR,NULL,"tagging.xml");
     else
       {
-       fprintf(stderr,"Error: The '--tagging' option was not used and the default 'tagging.xml' does not exist.\n");
+       if(ExistsFile(FileName(dirname,prefix,"tagging.xml")))
+          tagging=FileName(dirname,prefix,"tagging.xml");
+       else if(ExistsFile(FileName(DATADIR,NULL,"tagging.xml")))
+          tagging=FileName(DATADIR,NULL,"tagging.xml");
+       else
+         {
+          fprintf(stderr,"Error: The '--tagging' option was not used and the default 'tagging.xml' does not exist.\n");
+          return(1);
+         }
+      }
+
+    if(ParseXMLTaggingRules(tagging))
+      {
+       fprintf(stderr,"Error: Cannot read the tagging rules in the file '%s'.\n",tagging);
        return(1);
       }
-   }
-
- if(ParseXMLTaggingRules(tagging))
-   {
-    fprintf(stderr,"Error: Cannot read the tagging rules in the file '%s'.\n",tagging);
-    return(1);
    }
 
  /* Create new node, segment, way and relation variables */
@@ -199,40 +203,45 @@ int main(int argc,char** argv)
 
  /* Parse the file */
 
- if(option_filenames)
-   {
-    for(arg=1;arg<argc;arg++)
-      {
-       FILE *file;
+if(!option_process_only)
+  {
+   if(option_filenames)
+     {
+      for(arg=1;arg<argc;arg++)
+        {
+         FILE *file;
 
-       if(argv[arg][0]=='-' && argv[arg][1]=='-')
-          continue;
+         if(argv[arg][0]=='-' && argv[arg][1]=='-')
+            continue;
 
-       file=fopen(argv[arg],"rb");
+         file=fopen(argv[arg],"rb");
 
-       if(!file)
-         {
-          fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",argv[arg],strerror(errno));
-          exit(EXIT_FAILURE);
-         }
+         if(!file)
+           {
+            fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",argv[arg],strerror(errno));
+            exit(EXIT_FAILURE);
+           }
 
-       printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
-       fflush(stdout);
+         printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
+         fflush(stdout);
 
-       if(ParseOSM(file,Nodes,Segments,Ways,Relations))
-          exit(EXIT_FAILURE);
+         if(ParseOSM(file,Nodes,Segments,Ways,Relations))
+            exit(EXIT_FAILURE);
 
-       fclose(file);
-      }
-   }
- else if(!option_process_only)
-   {
-    printf("\nParse OSM Data\n==============\n\n");
-    fflush(stdout);
+         fclose(file);
+        }
+     }
+   else
+     {
+      printf("\nParse OSM Data\n==============\n\n");
+      fflush(stdout);
 
-    if(ParseOSM(stdin,Nodes,Segments,Ways,Relations))
-       exit(EXIT_FAILURE);
-   }
+      if(ParseOSM(stdin,Nodes,Segments,Ways,Relations))
+         exit(EXIT_FAILURE);
+     }
+
+   DeleteXMLTaggingRules();
+  }
 
  if(option_parse_only)
    {
@@ -243,8 +252,6 @@ int main(int argc,char** argv)
 
     return(0);
    }
-
- DeleteXMLTaggingRules();
 
  /* Process the data */
 
