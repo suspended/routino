@@ -96,6 +96,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id);
 static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role);
 static int ndType_function(const char *_tag_,int _type_,const char *ref);
 static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon);
+static int changesetType_function(const char *_tag_,int _type_);
 static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v);
 //static int boundType_function(const char *_tag_,int _type_);
 //static int boundsType_function(const char *_tag_,int _type_);
@@ -123,6 +124,13 @@ static xmltag tagType_tag=
                2, {"k","v"},
                tagType_function,
                {NULL}};
+
+/*+ The changesetType type tag. +*/
+static xmltag changesetType_tag=
+              {"changeset",
+               0, {NULL},
+               changesetType_function,
+               {&tagType_tag,NULL}};
 
 /*+ The nodeType type tag. +*/
 static xmltag nodeType_tag=
@@ -164,7 +172,7 @@ static xmltag osmType_tag=
               {"osm",
                1, {"version"},
                osmType_function,
-               {&boundsType_tag,&boundType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+               {&boundsType_tag,&boundType_tag,&changesetType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
 
 /*+ The xmlDeclaration type tag. +*/
 static xmltag xmlDeclaration_tag=
@@ -242,6 +250,24 @@ static int tagType_function(const char *_tag_,int _type_,const char *k,const cha
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the changesetType XSD type is seen
+
+  int changesetType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int changesetType_function(const char *_tag_,int _type_)
+{
+ current_tags=NULL;
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the nodeType XSD type is seen
 
   int nodeType_function Returns 0 if no error occured or something else otherwise.
@@ -289,7 +315,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
     process_node_tags(result,node_id,latitude,longitude);
 
-    DeleteTagList(current_tags);
+    DeleteTagList(current_tags); current_tags=NULL;
     DeleteTagList(result);
    }
 
@@ -454,7 +480,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
 
     process_way_tags(result,way_id);
 
-    DeleteTagList(current_tags);
+    DeleteTagList(current_tags); current_tags=NULL;
     DeleteTagList(result);
    }
 
@@ -509,7 +535,7 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
 
     process_relation_tags(result,relation_id);
 
-    DeleteTagList(current_tags);
+    DeleteTagList(current_tags); current_tags=NULL;
     DeleteTagList(result);
    }
 

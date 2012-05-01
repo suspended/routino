@@ -5,7 +5,7 @@
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010-2011 Andrew M. Bishop
+     This file Copyright 2010-2012 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,12 @@
 
   <xsd:complexType name="osmType">
     <xsd:sequence>
-      <xsd:element name="bounds"    type="boundsType"   minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:element name="bound"     type="boundType"    minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:element name="node"      type="nodeType"     minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:element name="way"       type="wayType"      minOccurs="0" maxOccurs="unbounded"/>
-      <xsd:element name="relation"  type="relationType" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="bounds"    type="boundsType"    minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="bound"     type="boundType"     minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="changeset" type="changesetType" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="node"      type="nodeType"      minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="way"       type="wayType"       minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="relation"  type="relationType"  minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
     <xsd:attribute name="version"   type="xsd:string"/>
     <!--
@@ -33,7 +34,7 @@
     -->
   </xsd:complexType>
 
-  <!-- The second level bounds, node, way and relation elements -->
+  <!-- The second level bounds, bound, changeset, node, way and relation elements -->
 
   <xsd:complexType name="boundsType">
     <!--
@@ -52,6 +53,24 @@
     -->
   </xsd:complexType>
 
+  <xsd:complexType name="changesetType">
+    <xsd:sequence>
+      <xsd:element name="tag"        type="tagType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <!--
+    <xsd:attribute name="id"         type="xsd:string"/>
+    <xsd:attribute name="min_lat"    type="xsd:string"/>
+    <xsd:attribute name="min_lon"    type="xsd:string"/>
+    <xsd:attribute name="max_lat"    type="xsd:string"/>
+    <xsd:attribute name="max_lon"    type="xsd:string"/>
+    <xsd:attribute name="created_at" type="xsd:string"/>
+    <xsd:attribute name="closed_at"  type="xsd:string"/>
+    <xsd:attribute name="open"       type="xsd:string"/>
+    <xsd:attribute name="uid"        type="xsd:string"/>
+    <xsd:attribute name="user"       type="xsd:string"/>
+    -->
+  </xsd:complexType>
+
   <xsd:complexType name="nodeType">
     <xsd:sequence>
       <xsd:element name="tag"       type="tagType" minOccurs="0" maxOccurs="unbounded"/>
@@ -65,6 +84,7 @@
     <xsd:attribute name="user"      type="xsd:string"/>
     <xsd:attribute name="visible"   type="xsd:string"/>
     <xsd:attribute name="version"   type="xsd:string"/>
+    <xsd:attribute name="changeset" type="xsd:string"/>
     <xsd:attribute name="action"    type="xsd:string"/>
     -->
   </xsd:complexType>
@@ -81,6 +101,7 @@
     <xsd:attribute name="user"      type="xsd:string"/>
     <xsd:attribute name="visible"   type="xsd:string"/>
     <xsd:attribute name="version"   type="xsd:string"/>
+    <xsd:attribute name="changeset" type="xsd:string"/>
     <xsd:attribute name="action"    type="xsd:string"/>
     -->
   </xsd:complexType>
@@ -97,6 +118,7 @@
     <xsd:attribute name="user"      type="xsd:string"/>
     <xsd:attribute name="visible"   type="xsd:string"/>
     <xsd:attribute name="version"   type="xsd:string"/>
+    <xsd:attribute name="changeset" type="xsd:string"/>
     <xsd:attribute name="action"    type="xsd:string"/>
     -->
   </xsd:complexType>
