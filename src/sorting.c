@@ -25,6 +25,11 @@
 #include <string.h>
 #include <assert.h>
 
+#if defined(USE_PTHREADS) && USE_PTHREADS
+#include <pthread.h>
+#include <unistd.h>
+#endif
+
 #include "types.h"
 
 #include "files.h"
@@ -38,6 +43,36 @@ extern char *option_tmpdirname;
 
 /*+ The amount of RAM to use for filesorting. +*/
 extern size_t option_filesort_ramsize;
+
+/*+ The number of filesorting threads allowed. +*/
+extern int option_filesort_threads;
+
+
+/* Thread data type definitions */
+
+/*+ A data type for holding data for a thread. +*/
+typedef struct _thread_data
+ {
+  pthread_t thread;             /*+ The thread identifier. +*/
+
+  int       running;            /*+ A flag indicating the current state of the thread. +*/
+
+  void     *data;               /*+ The main data array. +*/
+  void    **datap;              /*+ An array of pointers to the data objects. +*/
+  size_t    n;                  /*+ The number of pointers. +*/
+
+  char    *filename;            /*+ The name of the file to write the results to. +*/
+
+  size_t   itemsize;            /*+ The size of each item. +*/
+  int    (*compare)(const void*,const void*); /*+ The comparison function. +*/
+ }
+ thread_data;
+
+
+/* Thread helper functions */
+
+static void *filesort_fixed_heapsort_thread(thread_data *thread);
+static void *filesort_vary_heapsort_thread(thread_data *thread);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -70,31 +105,54 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
  index_t count=0,total=0;
- size_t nitems=option_filesort_ramsize/(itemsize+sizeof(void*));
- void *data=NULL,**datap=NULL;
- char *filename;
+ size_t nitems=option_filesort_ramsize/(option_filesort_threads*(itemsize+sizeof(void*)));
+ void *data,**datap;
+ thread_data *threads;
  int i,more=1;
+#if defined(USE_PTHREADS) && USE_PTHREADS
+ int nthreads=0;
+#endif
 
  /* Allocate the RAM buffer and other bits */
 
- data=malloc(nitems*itemsize);
- datap=malloc(nitems*sizeof(void*));
+ threads=(thread_data*)malloc(option_filesort_threads*sizeof(thread_data));
 
- filename=(char*)malloc(strlen(option_tmpdirname)+24);
+ for(i=0;i<option_filesort_threads;i++)
+   {
+    threads[i].running=0;
+
+    threads[i].data=malloc(nitems*itemsize);
+    threads[i].datap=malloc(nitems*sizeof(void*));
+
+    threads[i].filename=(char*)malloc(strlen(option_tmpdirname)+24);
+
+    threads[i].itemsize=itemsize;
+    threads[i].compare=compare;
+   }
 
  /* Loop around, fill the buffer, sort the data and write a temporary file */
 
  do
    {
-    int fd,n=0;
+    int thread=0;
+
+#if defined(USE_PTHREADS) && USE_PTHREADS
+
+    /* Find a spare slot (one *must* be unused at all times) */
+
+    for(thread=0;thread<option_filesort_threads;thread++)
+       if(!threads[thread].running)
+          break;
+
+#endif
 
     /* Read in the data and create pointers */
 
     for(i=0;i<nitems;i++)
       {
-       datap[i]=data+i*itemsize;
+       threads[thread].datap[i]=threads[thread].data+i*itemsize;
 
-       if(ReadFile(fd_in,datap[i],itemsize))
+       if(ReadFile(fd_in,threads[thread].datap[i],itemsize))
          {
           more=0;
           break;
@@ -103,68 +161,106 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
        total++;
       }
 
-    n=i;
+    threads[thread].n=i;
 
     /* Shortcut if there is no data and no previous files (i.e. no data at all) */
 
-    if(nfiles==0 && n==0)
+    if(nfiles==0 && threads[thread].n==0)
        goto tidy_and_exit;
 
     /* No new data read in this time round */
 
-    if(n==0)
+    if(threads[thread].n==0)
        break;
 
-    /* Sort the data pointers using a heap sort */
+    /* Sort the data pointers using a heap sort (potentially in a thread) */
 
-    filesort_heapsort(datap,n,compare);
+    sprintf(threads[thread].filename,"%s/filesort.%d.tmp",option_tmpdirname,nfiles);
 
-    /* Shortcut if all read in and sorted at once */
+#if defined(USE_PTHREADS) && USE_PTHREADS
 
-    if(nfiles==0 && !more)
+    if(option_filesort_threads==1)
       {
-       for(i=0;i<n;i++)
+       threads[thread].running=1;
+
+       filesort_fixed_heapsort_thread(&threads[thread]);
+
+       threads[thread].running=0;
+      }
+    else
+      {
+       while(nthreads==(option_filesort_threads-1))
          {
-          if(!keep || keep(datap[i],count))
-            {
-             WriteFile(fd_out,datap[i],itemsize);
-             count++;
-            }
+          struct timespec millisecond={0,1000000};
+
+          for(i=0;i<option_filesort_threads;i++)
+             if(threads[i].running==2)
+               {
+                pthread_join(threads[i].thread,NULL);
+                threads[i].running=0;
+                nthreads--;
+                printf("thread stopped nthreads=%d\n",nthreads);
+               }
+
+          if(nthreads==(option_filesort_threads-1))
+             nanosleep(&millisecond,NULL);
          }
 
-       goto tidy_and_exit;
+       threads[thread].running=1;
+
+       pthread_create(&threads[thread].thread,NULL,(void* (*)(void*))filesort_fixed_heapsort_thread,&threads[thread]);
+
+       nthreads++;
+       printf("thread started nthreads=%d\n",nthreads);
       }
 
-    /* Create a temporary file and write the result */
+#else
 
-    sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,nfiles);
+    filesort_fixed_heapsort_thread(&threads[thread]);
 
-    fd=OpenFileNew(filename);
-
-    for(i=0;i<n;i++)
-       WriteFile(fd,datap[i],itemsize);
-
-    CloseFile(fd);
+#endif
 
     nfiles++;
    }
  while(more);
 
- /* Shortcut if only one file (unlucky for us there must have been exactly
-    nitems, lucky for us we still have the data in RAM) */
+ /* Wait for all of the threads to finish */
+
+#if defined(USE_PTHREADS) && USE_PTHREADS
+
+ while(nthreads && option_filesort_threads>1)
+   {
+    struct timespec millisecond={0,1000000};
+
+    for(i=0;i<option_filesort_threads;i++)
+       if(threads[i].running==2)
+         {
+          pthread_join(threads[i].thread,NULL);
+          threads[i].running=0;
+          nthreads--;
+          printf("thread stopped nthreads=%d\n",nthreads);
+         }
+
+    if(nthreads)
+       nanosleep(&millisecond,NULL);
+   }
+
+#endif
+
+ /* Shortcut if only one file, lucky for us we still have the data in RAM) */
 
  if(nfiles==1)
    {
-    for(i=0;i<nitems;i++)
+    for(i=0;i<threads[0].n;i++)
       {
-       if(!keep || keep(datap[i],count))
+       if(!keep || keep(threads[0].datap[i],count))
          {
-          WriteFile(fd_out,datap[i],itemsize);
+          WriteFile(fd_out,threads[0].datap[i],itemsize);
           count++;
          }
       }
 
-    DeleteFile(filename);
+    DeleteFile(threads[0].filename);
 
     goto tidy_and_exit;
    }
@@ -179,6 +275,8 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
  for(i=0;i<nfiles;i++)
    {
+    char *filename=threads[0].filename;
+
     sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,i);
 
     fds[i]=ReOpenFile(filename);
@@ -189,6 +287,9 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
  /* Perform an n-way merge using a binary heap */
 
  heap=(int*)malloc((1+nfiles)*sizeof(int));
+
+ data =threads[0].data;
+ datap=threads[0].datap;
 
  /* Fill the heap to start with */
 
@@ -299,9 +400,13 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
  if(heap)
     free(heap);
 
- free(data);
- free(datap);
- free(filename);
+ for(i=0;i<option_filesort_threads;i++)
+   {
+    free(threads[i].data);
+    free(threads[i].datap);
+
+    free(threads[i].filename);
+   }
 
  return(count);
 }
@@ -335,16 +440,30 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
  index_t count=0,total=0;
+ size_t datasize=option_filesort_ramsize/option_filesort_threads;
  FILESORT_VARINT nextitemsize,largestitemsize=0;
- void *data=NULL,**datap=NULL;
- char *filename;
+ void *data,**datap;
+ thread_data *threads;
  int i,more=1;
+#if defined(USE_PTHREADS) && USE_PTHREADS
+ int nthreads=0;
+#endif
 
  /* Allocate the RAM buffer and other bits */
 
- data=malloc(option_filesort_ramsize);
+ threads=(thread_data*)malloc(option_filesort_threads*sizeof(thread_data));
 
- filename=(char*)malloc(strlen(option_tmpdirname)+24);
+ for(i=0;i<option_filesort_threads;i++)
+   {
+    threads[i].running=0;
+
+    threads[i].data=malloc(datasize);
+    threads[i].datap=NULL;
+
+    threads[i].filename=(char*)malloc(strlen(option_tmpdirname)+24);
+
+    threads[i].compare=compare;
+   }
 
  /* Loop around, fill the buffer, sort the data and write a temporary file */
 
@@ -353,27 +472,39 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
  do
    {
-    int fd,n=0;
     size_t ramused=FILESORT_VARALIGN-FILESORT_VARSIZE;
+    int thread=0;
 
-    datap=data+option_filesort_ramsize;
+#if defined(USE_PTHREADS) && USE_PTHREADS
+
+    /* Find a spare slot (one *must* be unused at all times) */
+
+    for(thread=0;thread<option_filesort_threads;thread++)
+       if(!threads[thread].running)
+          break;
+
+#endif
+
+    threads[thread].datap=threads[thread].data+datasize;
+
+    threads[thread].n=0;
 
     /* Read in the data and create pointers */
 
-    while((ramused+FILESORT_VARSIZE+nextitemsize)<=((void*)datap-sizeof(void*)-data))
+    while((ramused+FILESORT_VARSIZE+nextitemsize)<=((void*)threads[thread].datap-sizeof(void*)-threads[thread].data))
       {
        FILESORT_VARINT itemsize=nextitemsize;
 
        if(itemsize>largestitemsize)
           largestitemsize=itemsize;
 
-       *(FILESORT_VARINT*)(data+ramused)=itemsize;
+       *(FILESORT_VARINT*)(threads[thread].data+ramused)=itemsize;
 
        ramused+=FILESORT_VARSIZE;
 
-       ReadFile(fd_in,data+ramused,itemsize);
+       ReadFile(fd_in,threads[thread].data+ramused,itemsize);
 
-       *--datap=data+ramused; /* points to real data */
+       *--threads[thread].datap=threads[thread].data+ramused; /* points to real data */
 
        ramused+=itemsize;
 
@@ -381,7 +512,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
        ramused+=FILESORT_VARALIGN-FILESORT_VARSIZE;
 
        total++;
-       n++;
+       threads[thread].n++;
 
        if(ReadFile(fd_in,&nextitemsize,FILESORT_VARSIZE))
          {
@@ -392,55 +523,108 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
     /* No new data read in this time round */
 
-    if(n==0)
+    if(threads[thread].n==0)
        break;
 
-    /* Sort the data pointers using a heap sort */
+    /* Sort the data pointers using a heap sort (potentially in a thread) */
 
-    filesort_heapsort(datap,n,compare);
+    sprintf(threads[thread].filename,"%s/filesort.%d.tmp",option_tmpdirname,nfiles);
 
-    /* Shortcut if all read in and sorted at once */
+#if defined(USE_PTHREADS) && USE_PTHREADS
 
-    if(nfiles==0 && !more)
+    if(option_filesort_threads==1)
       {
-       for(i=0;i<n;i++)
-         {
-          if(!keep || keep(datap[i],count))
-            {
-             FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(datap[i]-FILESORT_VARSIZE);
+       threads[thread].running=1;
 
-             WriteFile(fd_out,datap[i]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
-             count++;
-            }
+       filesort_vary_heapsort_thread(&threads[thread]);
+
+       threads[thread].running=0;
+      }
+    else
+      {
+       while(nthreads==(option_filesort_threads-1))
+         {
+          struct timespec millisecond={0,1000000};
+
+          for(i=0;i<option_filesort_threads;i++)
+             if(threads[i].running==2)
+               {
+                pthread_join(threads[i].thread,NULL);
+                threads[i].running=0;
+                nthreads--;
+                printf("thread stopped nthreads=%d\n",nthreads);
+               }
+
+          if(nthreads==(option_filesort_threads-1))
+             nanosleep(&millisecond,NULL);
          }
 
-       goto tidy_and_exit;
+       threads[thread].running=1;
+
+       pthread_create(&threads[thread].thread,NULL,(void* (*)(void*))filesort_vary_heapsort_thread,&threads[thread]);
+
+       nthreads++;
+       printf("thread started nthreads=%d\n",nthreads);
       }
 
-    /* Create a temporary file and write the result */
+#else
 
-    sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,nfiles);
+    filesort_vary_heapsort_thread(&threads[thread]);
 
-    fd=OpenFileNew(filename);
-
-    for(i=0;i<n;i++)
-      {
-       FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(datap[i]-FILESORT_VARSIZE);
-
-       WriteFile(fd,datap[i]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
-      }
-
-    CloseFile(fd);
+#endif
 
     nfiles++;
    }
  while(more);
 
+ /* Wait for all of the threads to finish */
+
+#if defined(USE_PTHREADS) && USE_PTHREADS
+
+ while(nthreads && option_filesort_threads>1)
+   {
+    struct timespec millisecond={0,1000000};
+
+    for(i=0;i<option_filesort_threads;i++)
+       if(threads[i].running==2)
+         {
+          pthread_join(threads[i].thread,NULL);
+          threads[i].running=0;
+          nthreads--;
+          printf("thread stopped nthreads=%d\n",nthreads);
+         }
+
+    if(nthreads)
+       nanosleep(&millisecond,NULL);
+   }
+
+#endif
+
+ /* Shortcut if only one file, lucky for us we still have the data in RAM) */
+
+ if(nfiles==1)
+   {
+    for(i=0;i<threads[0].n;i++)
+      {
+       if(!keep || keep(threads[0].datap[i],count))
+         {
+          FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(threads[0].datap[i]-FILESORT_VARSIZE);
+
+          WriteFile(fd_out,threads[0].datap[i]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
+          count++;
+         }
+      }
+
+    DeleteFile(threads[0].filename);
+
+    goto tidy_and_exit;
+   }
+
  /* Check that number of files is less than file size */
 
  largestitemsize=FILESORT_VARALIGN*(1+(largestitemsize+FILESORT_VARALIGN-FILESORT_VARSIZE)/FILESORT_VARALIGN);
 
- assert(nfiles<((option_filesort_ramsize-nfiles*sizeof(void*))/largestitemsize));
+ assert(nfiles<((datasize-nfiles*sizeof(void*))/largestitemsize));
 
  /* Open all of the temporary files */
 
@@ -448,6 +632,8 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
  for(i=0;i<nfiles;i++)
    {
+    char *filename=threads[0].filename;
+
     sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,i);
 
     fds[i]=ReOpenFile(filename);
@@ -459,7 +645,8 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
  heap=(int*)malloc((1+nfiles)*sizeof(int));
 
- datap=data+option_filesort_ramsize-nfiles*sizeof(void*);
+ data=threads[0].data;
+ datap=data+datasize-nfiles*sizeof(void*);
 
  /* Fill the heap to start with */
 
@@ -584,10 +771,80 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
  if(heap)
     free(heap);
 
- free(data);
- free(filename);
+ for(i=0;i<option_filesort_threads;i++)
+   {
+    free(threads[i].data);
+
+    free(threads[i].filename);
+   }
 
  return(count);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  A wrapper function that can be run in a thread for fixed data.
+
+  void *filesort_fixed_heapsort_thread Returns NULL (required to return void*).
+
+  thread_data *thread The data to be processed in this thread.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void *filesort_fixed_heapsort_thread(thread_data *thread)
+{
+ int fd,i;
+
+ /* Sort the data pointers using a heap sort */
+
+ filesort_heapsort(thread->datap,thread->n,thread->compare);
+
+ /* Create a temporary file and write the result */
+
+ fd=OpenFileNew(thread->filename);
+
+ for(i=0;i<thread->n;i++)
+    WriteFile(fd,thread->datap[i],thread->itemsize);
+
+ CloseFile(fd);
+
+ thread->running=2;
+
+ return(NULL);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  A wrapper function that can be run in a thread for variable data.
+
+  void *filesort_vary_heapsort_thread Returns NULL (required to return void*).
+
+  thread_data *thread The data to be processed in this thread.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void *filesort_vary_heapsort_thread(thread_data *thread)
+{
+ int fd,i;
+
+ /* Sort the data pointers using a heap sort */
+
+ filesort_heapsort(thread->datap,thread->n,thread->compare);
+
+ /* Create a temporary file and write the result */
+
+ fd=OpenFileNew(thread->filename);
+
+ for(i=0;i<thread->n;i++)
+   {
+    FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(thread->datap[i]-FILESORT_VARSIZE);
+
+    WriteFile(fd,thread->datap[i]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
+   }
+
+ CloseFile(fd);
+
+ thread->running=2;
+
+ return(NULL);
 }
 
 
