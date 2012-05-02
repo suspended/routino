@@ -33,18 +33,21 @@ LEX=flex
 
 CFLAGS=-Wall -Wmissing-prototypes -std=c99
 #CFLAGS+=-Wextra -pedantic
-LDFLAGS=-lm -lc
+LDFLAGS=-lm
 
 CFLAGS+=-O3
 #CFLAGS+=-O0 -g
 #CFLAGS+=-pg
 #CFLAGS+=-fprofile-arcs -ftest-coverage
 
-LDFLAGS+=
 #LDFLAGS+=-pg -static
 #LDFLAGS+=-fprofile-arcs -ftest-coverage
 
 LEXFLAGS=
+
+# Required for multi-threaded support
+CFLAGS+=-pthread -DUSE_PTHREADS
+LDFLAGS+=-pthread -lpthread
 
 # Required to use stdio with files > 2GiB on 32-bit system.
 CFLAGS+=-D_FILE_OFFSET_BITS=64

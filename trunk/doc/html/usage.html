@@ -62,7 +62,7 @@ database that is used for routing.
 <pre class="boxed">
 Usage: planetsplitter [--help]
                       [--dir=&lt;dirname&gt;] [--prefix=&lt;name&gt;]
-                      [--sort-ram-size=&lt;size&gt;]
+                      [--sort-ram-size=&lt;size&gt;] [--sort-threads=&lt;number&gt;]
                       [--tmpdir=&lt;dirname&gt;]
                       [--tagging=&lt;filename&gt;]
                       [--loggable] [--logtime]
@@ -88,6 +88,9 @@ Usage: planetsplitter [--help]
   <dt>--sort-ram-size=&lt;size&gt;
   <dd>Specifies the amount of RAM (in MB) to use for sorting the data.  If not
     specified then 64 MB will be used in slim mode or 256 MB otherwise.
+  <dt>--sort-threads=&lt;number&gt;
+  <dd>The number of threads to use for data sorting (the sorting memory is
+    shared between the threads).
   <dt>--tmpdir=&lt;dirname&gt;
   <dd>Specifies the name of the directory to store the temporary disk files.  If
     not specified then it defaults to either the value of the --dir option or the

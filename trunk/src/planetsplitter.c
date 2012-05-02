@@ -52,6 +52,9 @@ char *option_tmpdirname=NULL;
 /*+ The amount of RAM to use for filesorting. +*/
 size_t option_filesort_ramsize=0;
 
+/*+ The number of threads to use for filesorting. +*/
+int option_filesort_threads=1;
+
 
 /* Local functions */
 
@@ -87,6 +90,10 @@ int main(int argc,char** argv)
        print_usage(1,NULL,NULL);
     else if(!strncmp(argv[arg],"--sort-ram-size=",16))
        option_filesort_ramsize=atoi(&argv[arg][16]);
+#if defined(USE_PTHREADS) && USE_PTHREADS
+    else if(!strncmp(argv[arg],"--sort-threads=",15))
+       option_filesort_threads=atoi(&argv[arg][15]);
+#endif
     else if(!strncmp(argv[arg],"--dir=",6))
        dirname=&argv[arg][6];
     else if(!strncmp(argv[arg],"--tmpdir=",9))
@@ -491,7 +498,11 @@ static void print_usage(int detail,const char *argerr,const char *err)
  fprintf(stderr,
          "Usage: planetsplitter [--help]\n"
          "                      [--dir=<dirname>] [--prefix=<name>]\n"
+#if defined(USE_PTHREADS) && USE_PTHREADS
+         "                      [--sort-ram-size=<size>] [--sort-threads=<number>]\n"
+#else
          "                      [--sort-ram-size=<size>]\n"
+#endif
          "                      [--tmpdir=<dirname>]\n"
          "                      [--tagging=<filename>]\n"
          "                      [--loggable] [--logtime]\n"
@@ -528,6 +539,10 @@ static void print_usage(int detail,const char *argerr,const char *err)
 #else
             "                          (defaults to 256MB otherwise.)\n"
 #endif
+#if defined(USE_PTHREADS) && USE_PTHREADS
+            "--sort-threads=<number>   The number of threads to use for data sorting.\n"
+#endif
+            "\n"
             "--tmpdir=<dirname>        The directory name for temporary files.\n"
             "                          (defaults to the '--dir' option directory.)\n"
             "\n"
