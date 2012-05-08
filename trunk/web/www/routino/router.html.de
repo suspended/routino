@@ -30,7 +30,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <!-- OpenLayers Javascript library -->
-<script src="/javascript/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="../openlayers/OpenLayers.js" type="text/javascript"></script>
 
 <!-- Page elements -->
 <script src="page-elements.js" type="text/javascript"></script>
@@ -52,7 +52,7 @@
 <link href="router.css" type="text/css" rel="stylesheet">
 
 </HEAD>
-<BODY onload="map_init('lat','lon','zoom');form_init();block_return_key();">
+<BODY onload="html_init();map_init();form_init();block_return_key();">
 
 <!-- Left hand side of window - data panel -->
 
@@ -93,21 +93,21 @@
         <div id="hideshow_language_div" style="display: none;">
           <table>
             <tr>
-              <td><a href="router.html.de" title="Deutsche Webseite">German</a>
+              <td><a id="lang_de_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);"  href="router.html.de" title="Deutsche Webseite">German</a>
               <td>(DE)
-              <td><input name="language" type="radio" value="de" onchange="formSetLanguage('de')" checked><!-- language -->
+              <td><input name="language" type="radio" value="de" onchange="formSetLanguage()" checked>
 	    <tr>
-              <td><a href="router.html.en" title="English language web page">English</a>
+              <td><a id="lang_en_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);"  href="router.html.en" title="English language web page">English</a>
               <td>(EN)
-              <td><input name="language" type="radio" value="en" onchange="formSetLanguage('en')"><!-- language -->
+              <td><input name="language" type="radio" value="en" onchange="formSetLanguage()">
             <tr>
-              <td><a href="router.html.nl" title="Dutch language web page">Dutch</a>
+              <td><a id="lang_nl_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);"  href="router.html.nl" title="Dutch language web page">Dutch</a>
               <td>(NL)
-              <td><input name="language" type="radio" value="nl" onchange="formSetLanguage('nl')"><!-- language -->
+              <td><input name="language" type="radio" value="nl" onchange="formSetLanguage()">
             <tr>
               <td>Russian
               <td>(RU)
-              <td><input name="language" type="radio" value="ru" onchange="formSetLanguage('ru')"><!-- language -->
+              <td><input name="language" type="radio" value="ru" onchange="formSetLanguage()">
           </table>
         </div>
       </div>
@@ -148,16 +148,16 @@
         <span class="hideshow_title">Fortbewegungsart</span>
         <div id="hideshow_transport_div">
           <table>
-            <tr><td>Fu&szlig;g&auml;nger      <td><input name="transport" type="radio" value="foot"       onchange="formSetTransport('foot'      )"><!-- transport -->
-            <tr><td>Reiter     <td><input name="transport" type="radio" value="horse"      onchange="formSetTransport('horse'     )"><!-- transport -->
-            <tr><td>Rollstuhl<td><input name="transport" type="radio" value="wheelchair" onchange="formSetTransport('wheelchair')"><!-- transport -->
-            <tr><td>Fahrrad   <td><input name="transport" type="radio" value="bicycle"    onchange="formSetTransport('bicycle'   )"><!-- transport -->
-            <tr><td>Moped     <td><input name="transport" type="radio" value="moped"      onchange="formSetTransport('moped'     )"><!-- transport -->
-            <tr><td>Motorrad <td><input name="transport" type="radio" value="motorbike"  onchange="formSetTransport('motorbike' )"><!-- transport -->
-            <tr><td>Auto  <td><input name="transport" type="radio" value="motorcar"   onchange="formSetTransport('motorcar'  )"><!-- transport -->
-            <tr><td>LKW     <td><input name="transport" type="radio" value="goods"      onchange="formSetTransport('goods'     )"><!-- transport -->
-            <tr><td>Schwertransport       <td><input name="transport" type="radio" value="hgv"        onchange="formSetTransport('hgv'       )"><!-- transport -->
-            <tr><td>Personenverkehr       <td><input name="transport" type="radio" value="psv"        onchange="formSetTransport('psv'       )"><!-- transport -->
+            <tr><td>Fu&szlig;g&auml;nger <td><input name="transport" type="radio" value="foot"       onchange="formSetTransport('foot'      )">
+            <tr><td>Reiter               <td><input name="transport" type="radio" value="horse"      onchange="formSetTransport('horse'     )">
+            <tr><td>Rollstuhl            <td><input name="transport" type="radio" value="wheelchair" onchange="formSetTransport('wheelchair')">
+            <tr><td>Fahrrad              <td><input name="transport" type="radio" value="bicycle"    onchange="formSetTransport('bicycle'   )">
+            <tr><td>Moped                <td><input name="transport" type="radio" value="moped"      onchange="formSetTransport('moped'     )">
+            <tr><td>Motorrad             <td><input name="transport" type="radio" value="motorbike"  onchange="formSetTransport('motorbike' )">
+            <tr><td>Auto                 <td><input name="transport" type="radio" value="motorcar"   onchange="formSetTransport('motorcar'  )">
+            <tr><td>LKW                  <td><input name="transport" type="radio" value="goods"      onchange="formSetTransport('goods'     )">
+            <tr><td>Schwertransport      <td><input name="transport" type="radio" value="hgv"        onchange="formSetTransport('hgv'       )">
+            <tr><td>Personenverkehr      <td><input name="transport" type="radio" value="psv"        onchange="formSetTransport('psv'       )">
           </table>
         </div>
       </div>
@@ -168,19 +168,19 @@
         <span class="hideshow_title">Vorgaben zur Wegnutzung</span>
         <div id="hideshow_highway_div" style="display: none;">
           <table>
-            <tr><td>Autobahn:    <td><input name="highway-motorway"     type="text" size=3 onchange="formSetHighway('motorway'    )"><!-- highway-motorway     --><td>%
-            <tr><td>Schnellstra&szlig;e:       <td><input name="highway-trunk"        type="text" size=3 onchange="formSetHighway('trunk'       )"><!-- highway-trunk        --><td>%
-            <tr><td>Bundesstra&szlig;e:     <td><input name="highway-primary"      type="text" size=3 onchange="formSetHighway('primary'     )"><!-- highway-primary      --><td>%
-            <tr><td>Landesstra&szlig;e:   <td><input name="highway-secondary"    type="text" size=3 onchange="formSetHighway('secondary'   )"><!-- highway-secondary    --><td>%
-            <tr><td>Hauptstra&szlig;e:    <td><input name="highway-tertiary"     type="text" size=3 onchange="formSetHighway('tertiary'    )"><!-- highway-tertiary     --><td>%
-            <tr><td>Stra&szlig;e:<td><input name="highway-unclassified" type="text" size=3 onchange="formSetHighway('unclassified')"><!-- highway-unclassified --><td>%
-            <tr><td>Wohnstra&szlig;e: <td><input name="highway-residential"  type="text" size=3 onchange="formSetHighway('residential' )"><!-- highway-residential  --><td>%
-            <tr><td>Zufahrtsweg:     <td><input name="highway-service"      type="text" size=3 onchange="formSetHighway('service'     )"><!-- highway-service      --><td>%
-            <tr><td>Feld-(Wald-)weg:       <td><input name="highway-track"        type="text" size=3 onchange="formSetHighway('track'       )"><!-- highway-track        --><td>%
-            <tr><td>Fahrradweg:    <td><input name="highway-cycleway"     type="text" size=3 onchange="formSetHighway('cycleway'    )"><!-- highway-cycleway     --><td>%
-            <tr><td>Weg:        <td><input name="highway-path"         type="text" size=3 onchange="formSetHighway('path'        )"><!-- highway-path         --><td>%
-            <tr><td>Fu&szlig;weg:       <td><input name="highway-steps"        type="text" size=3 onchange="formSetHighway('steps'       )"><!-- highway-steps        --><td>%
-            <tr><td>F&auml;hre:       <td><input name="highway-ferry"        type="text" size=3 onchange="formSetHighway('ferry'       )"><!-- highway-ferry        --><td>%
+            <tr><td>Autobahn:            <td><input name="highway-motorway"     type="text" size=3 onchange="formSetHighway('motorway'    )"><td>%
+            <tr><td>Schnellstra&szlig;e: <td><input name="highway-trunk"        type="text" size=3 onchange="formSetHighway('trunk'       )"><td>%
+            <tr><td>Bundesstra&szlig;e:  <td><input name="highway-primary"      type="text" size=3 onchange="formSetHighway('primary'     )"><td>%
+            <tr><td>Landesstra&szlig;e:  <td><input name="highway-secondary"    type="text" size=3 onchange="formSetHighway('secondary'   )"><td>%
+            <tr><td>Hauptstra&szlig;e:   <td><input name="highway-tertiary"     type="text" size=3 onchange="formSetHighway('tertiary'    )"><td>%
+            <tr><td>Stra&szlig;e:        <td><input name="highway-unclassified" type="text" size=3 onchange="formSetHighway('unclassified')"><td>%
+            <tr><td>Wohnstra&szlig;e:    <td><input name="highway-residential"  type="text" size=3 onchange="formSetHighway('residential' )"><td>%
+            <tr><td>Zufahrtsweg:         <td><input name="highway-service"      type="text" size=3 onchange="formSetHighway('service'     )"><td>%
+            <tr><td>Feld-(Wald-)weg:     <td><input name="highway-track"        type="text" size=3 onchange="formSetHighway('track'       )"><td>%
+            <tr><td>Fahrradweg:          <td><input name="highway-cycleway"     type="text" size=3 onchange="formSetHighway('cycleway'    )"><td>%
+            <tr><td>Weg:                 <td><input name="highway-path"         type="text" size=3 onchange="formSetHighway('path'        )"><td>%
+            <tr><td>Fu&szlig;weg:        <td><input name="highway-steps"        type="text" size=3 onchange="formSetHighway('steps'       )"><td>%
+            <tr><td>F&auml;hre:          <td><input name="highway-ferry"        type="text" size=3 onchange="formSetHighway('ferry'       )"><td>%
           </table>
         </div>
       </div>
@@ -191,19 +191,19 @@
         <span class="hideshow_title">Geschwindigkeitsvorgaben</span>
         <div id="hideshow_speed_div" style="display: none;">
           <table>
-            <tr><td>Autobahn:    <td><input name="speed-motorway"     type="text" size=3 onchange="formSetSpeed('motorway'    )"><!-- speed-motorway     --><td>km/hr
-            <tr><td>Schnellstra&szlig;e:       <td><input name="speed-trunk"        type="text" size=3 onchange="formSetSpeed('trunk'       )"><!-- speed-trunk        --><td>km/hr
-            <tr><td>Bundesstra&szlig;e:     <td><input name="speed-primary"      type="text" size=3 onchange="formSetSpeed('primary'     )"><!-- speed-primary      --><td>km/hr
-            <tr><td>Landesstra&szlig;e:   <td><input name="speed-secondary"    type="text" size=3 onchange="formSetSpeed('secondary'   )"><!-- speed-secondary    --><td>km/hr
-            <tr><td>Hauptstra&szlig;e:    <td><input name="speed-tertiary"     type="text" size=3 onchange="formSetSpeed('tertiary'    )"><!-- speed-tertiary     --><td>km/hr
-            <tr><td>Stra&szlig;e:<td><input name="speed-unclassified" type="text" size=3 onchange="formSetSpeed('unclassified')"><!-- speed-unclassified --><td>km/hr
-            <tr><td>Wohnstra&szlig;e: <td><input name="speed-residential"  type="text" size=3 onchange="formSetSpeed('residential' )"><!-- speed-residential  --><td>km/hr
-            <tr><td>Zufahrtsweg:     <td><input name="speed-service"      type="text" size=3 onchange="formSetSpeed('service'     )"><!-- speed-service      --><td>km/hr
-            <tr><td>Feld-(Wald-)weg:       <td><input name="speed-track"        type="text" size=3 onchange="formSetSpeed('track'       )"><!-- speed-track        --><td>km/hr
-            <tr><td>Fahrradweg:    <td><input name="speed-cycleway"     type="text" size=3 onchange="formSetSpeed('cycleway'    )"><!-- speed-cycleway     --><td>km/hr
-            <tr><td>Weg:        <td><input name="speed-path"         type="text" size=3 onchange="formSetSpeed('path'        )"><!-- speed-path         --><td>km/hr
-            <tr><td>Fu&szlig;weg:       <td><input name="speed-steps"        type="text" size=3 onchange="formSetSpeed('steps'       )"><!-- speed-steps        --><td>km/hr
-            <tr><td>F&auml;hre:       <td><input name="speed-ferry"        type="text" size=3 onchange="formSetSpeed('ferry'       )"><!-- speed-ferry        --><td>km/hr
+            <tr><td>Autobahn:            <td><input name="speed-motorway"     type="text" size=3 onchange="formSetSpeed('motorway'    )"><td>km/hr
+            <tr><td>Schnellstra&szlig;e: <td><input name="speed-trunk"        type="text" size=3 onchange="formSetSpeed('trunk'       )"><td>km/hr
+            <tr><td>Bundesstra&szlig;e:  <td><input name="speed-primary"      type="text" size=3 onchange="formSetSpeed('primary'     )"><td>km/hr
+            <tr><td>Landesstra&szlig;e:  <td><input name="speed-secondary"    type="text" size=3 onchange="formSetSpeed('secondary'   )"><td>km/hr
+            <tr><td>Hauptstra&szlig;e:   <td><input name="speed-tertiary"     type="text" size=3 onchange="formSetSpeed('tertiary'    )"><td>km/hr
+            <tr><td>Stra&szlig;e:        <td><input name="speed-unclassified" type="text" size=3 onchange="formSetSpeed('unclassified')"><td>km/hr
+            <tr><td>Wohnstra&szlig;e:    <td><input name="speed-residential"  type="text" size=3 onchange="formSetSpeed('residential' )"><td>km/hr
+            <tr><td>Zufahrtsweg:         <td><input name="speed-service"      type="text" size=3 onchange="formSetSpeed('service'     )"><td>km/hr
+            <tr><td>Feld-(Wald-)weg:     <td><input name="speed-track"        type="text" size=3 onchange="formSetSpeed('track'       )"><td>km/hr
+            <tr><td>Fahrradweg:          <td><input name="speed-cycleway"     type="text" size=3 onchange="formSetSpeed('cycleway'    )"><td>km/hr
+            <tr><td>Weg:                 <td><input name="speed-path"         type="text" size=3 onchange="formSetSpeed('path'        )"><td>km/hr
+            <tr><td>Fu&szlig;weg:        <td><input name="speed-steps"        type="text" size=3 onchange="formSetSpeed('steps'       )"><td>km/hr
+            <tr><td>F&auml;hre:          <td><input name="speed-ferry"        type="text" size=3 onchange="formSetSpeed('ferry'       )"><td>km/hr
           </table>
         </div>
       </div>
@@ -214,12 +214,12 @@
         <span class="hideshow_title">Vorgaben zur Wegbeschaffenheit</span>
         <div id="hideshow_property_div" style="display: none;">
           <table>
-            <tr><td>befestigt:         <td><input name="property-paved"        type="text" size=3 onchange="formSetProperty('paved'       )"><!-- property-paved        --><td>%
-            <tr><td>mehrspurig:<td><input name="property-multilane"    type="text" size=3 onchange="formSetProperty('multilane'   )"><!-- property-multilane    --><td>%
-            <tr><td>Br&uuml;cken:        <td><input name="property-bridge"       type="text" size=3 onchange="formSetProperty('bridge'      )"><!-- property-bridge       --><td>%
-            <tr><td>Tunnel:        <td><input name="property-tunnel"       type="text" size=3 onchange="formSetProperty('tunnel'      )"><!-- property-tunnel       --><td>%
-            <tr><td>Wanderweg: <td><input name="property-footroute"    type="text" size=3 onchange="formSetProperty('footroute'   )"><!-- property-footroute    --><td>%
-            <tr><td>Radweg: <td><input name="property-bicycleroute" type="text" size=3 onchange="formSetProperty('bicycleroute')"><!-- property-bicycleroute --><td>%
+            <tr><td>befestigt:    <td><input name="property-paved"        type="text" size=3 onchange="formSetProperty('paved'       )"><td>%
+            <tr><td>mehrspurig:   <td><input name="property-multilane"    type="text" size=3 onchange="formSetProperty('multilane'   )"><td>%
+            <tr><td>Br&uuml;cken: <td><input name="property-bridge"       type="text" size=3 onchange="formSetProperty('bridge'      )"><td>%
+            <tr><td>Tunnel:       <td><input name="property-tunnel"       type="text" size=3 onchange="formSetProperty('tunnel'      )"><td>%
+            <tr><td>Wanderweg:    <td><input name="property-footroute"    type="text" size=3 onchange="formSetProperty('footroute'   )"><td>%
+            <tr><td>Radweg:       <td><input name="property-bicycleroute" type="text" size=3 onchange="formSetProperty('bicycleroute')"><td>%
           </table>
         </div>
       </div>
@@ -230,12 +230,12 @@
         <span class="hideshow_title">andere Vorgaben</span>
         <div id="hideshow_restriction_div" style="display: none;">
           <table>
-            <tr><td>beachte Einbahnstra&szlig;en:<td><input name="restrict-oneway" type="checkbox"    onchange="formSetRestriction('oneway')"><!-- oneway --><td>
-            <tr><td>beachte Abbiegeverbot: <td><input name="restrict-turns"  type="checkbox"    onchange="formSetRestriction('turns' )"><!-- turns  --><td>
-            <tr><td>Gewicht:     <td><input name="restrict-weight" type="text" size=3 onchange="formSetRestriction('weight')"><!-- weight --><td>Tonnen
-            <tr><td>H&ouml;he:     <td><input name="restrict-height" type="text" size=3 onchange="formSetRestriction('height')"><!-- height --><td>Meter
-            <tr><td>Breite:      <td><input name="restrict-width"  type="text" size=3 onchange="formSetRestriction('width' )"><!-- width  --><td>Meter
-            <tr><td>L&auml;nge:     <td><input name="restrict-length" type="text" size=3 onchange="formSetRestriction('length')"><!-- length --><td>Meter
+            <tr><td>beachte Einbahnstra&szlig;en:<td><input name="restrict-oneway" type="checkbox"    onchange="formSetRestriction('oneway')"><td>
+            <tr><td>beachte Abbiegeverbot:       <td><input name="restrict-turns"  type="checkbox"    onchange="formSetRestriction('turns' )"><td>
+            <tr><td>Gewicht:                     <td><input name="restrict-weight" type="text" size=3 onchange="formSetRestriction('weight')"><td>Tonnen
+            <tr><td>H&ouml;he:                   <td><input name="restrict-height" type="text" size=3 onchange="formSetRestriction('height')"><td>Meter
+            <tr><td>Breite:                      <td><input name="restrict-width"  type="text" size=3 onchange="formSetRestriction('width' )"><td>Meter
+            <tr><td>L&auml;nge:                  <td><input name="restrict-length" type="text" size=3 onchange="formSetRestriction('length')"><td>Meter
           </table>
         </div>
       </div>
@@ -248,9 +248,9 @@
 
       <div class="hideshow_box">
         <span class="hideshow_title">Links</span>
-        <a id="link_url"                href="router.html">Dauerhafter Link zu diesen Vorgaben</a>
+        <a id="permalink_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html">Dauerhafter Link zu diesen Vorgaben</a>
         <br>
-        <a id="edit_url" target="other" href="http://www.openstreetmap.org/">Bearbeitet die OSM-Daten in Potlatch</a>
+        <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="http://www.openstreetmap.org/" target="edit">Bearbeitet die OSM-Daten in Potlatch</a>
       </div>
 
       <div class="hideshow_box">
@@ -353,10 +353,10 @@
       <div id="hideshow_shortest_div" style="display: none;">
         <div id="shortest_links" style="display: none;">
           <table>
-            <tr><td>HTML:<td><a id="shortest_html"      target="shortest_html"      href="#">&ouml;ffne Popup</a>
+            <tr><td>HTML:            <td><a id="shortest_html"      target="shortest_html"      href="#">&ouml;ffne Popup</a>
             <tr><td>GPX Track-Datei: <td><a id="shortest_gpx_track" target="shortest_gpx_track" href="#">&ouml;ffne Popup</a>
-            <tr><td>GPX Routen-Datei: <td><a id="shortest_gpx_route" target="shortest_gpx_route" href="#">&ouml;ffne Popup</a>
-            <tr><td>Volltext-Datei: <td><a id="shortest_text_all"  target="shortest_text_all"  href="#">&ouml;ffne Popup</a>
+            <tr><td>GPX Routen-Datei:<td><a id="shortest_gpx_route" target="shortest_gpx_route" href="#">&ouml;ffne Popup</a>
+            <tr><td>Volltext-Datei:  <td><a id="shortest_text_all"  target="shortest_text_all"  href="#">&ouml;ffne Popup</a>
             <tr><td>Text-Datei:      <td><a id="shortest_text"      target="shortest_text"      href="#">&ouml;ffne Popup</a>
           </table>
           <hr>
@@ -380,10 +380,10 @@
       <div id="hideshow_quickest_div" style="display: none;">
         <div id="quickest_links" style="display: none;">
           <table>
-            <tr><td>HTML:<td><a id="quickest_html"      target="quickest_html"      href="#">&ouml;ffne Popup</a>
+            <tr><td>HTML:            <td><a id="quickest_html"      target="quickest_html"      href="#">&ouml;ffne Popup</a>
             <tr><td>GPX Track-Datei: <td><a id="quickest_gpx_track" target="quickest_gpx_track" href="#">&ouml;ffne Popup</a>
-            <tr><td>GPX Routen-Datei: <td><a id="quickest_gpx_route" target="quickest_gpx_route" href="#">&ouml;ffne Popup</a>
-            <tr><td>Volltext-Datei: <td><a id="quickest_text_all"  target="quickest_text_all"  href="#">&ouml;ffne Popup</a>
+            <tr><td>GPX Routen-Datei:<td><a id="quickest_gpx_route" target="quickest_gpx_route" href="#">&ouml;ffne Popup</a>
+            <tr><td>Volltext-Datei:  <td><a id="quickest_text_all"  target="quickest_text_all"  href="#">&ouml;ffne Popup</a>
             <tr><td>Text-Datei:      <td><a id="quickest_text"      target="quickest_text"      href="#">&ouml;ffne Popup</a>
           </table>
           <hr>
@@ -445,7 +445,7 @@
       <span class="hideshow_title">Ansichten</span>
 	Die Anzeige der Daten kann auf verschiedene Weise angepasst werden.	
       <br>
-      <a id="visualiser_url" target="other" href="visualiser.html">anpassen dieser Kartenansicht</a>
+      <a id="visualiser_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="visualiser.html" target="visualiser">anpassen dieser Kartenansicht</a>
     </div>
   </div>
 
