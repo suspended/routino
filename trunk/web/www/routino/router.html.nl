@@ -102,7 +102,7 @@
               <td>(EN)
               <td><input name="language" type="radio" value="en" onchange="formSetLanguage()" >
             <tr>
-              <td>German
+              <td><a id="lang_de_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html.de" title="Deutsche Webseite">German</a>
               <td>(DE)
               <td><input name="language" type="radio" value="de" onchange="formSetLanguage()">
             <tr>
@@ -130,7 +130,8 @@
                 <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(XXX);"  >
                 <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(XXX);">
                 <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(XXX);"  >
-                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(XXX);"><br>
+                <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(XXX);">
+                <br>
                 <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(XXX);"    >
                 <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(XXX);"  >
                 <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(XXX);">
