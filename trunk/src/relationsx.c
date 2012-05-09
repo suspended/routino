@@ -536,10 +536,16 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
                 WayX *wayx=LookupWayX(waysx,way,1);
 
                 if(routes&Transports_Foot)
+                  {
+                   wayx->way.allow|=Transports_Foot;
                    wayx->way.props|=Properties_FootRoute;
+                  }
 
                 if(routes&Transports_Bicycle)
+                  {
+                   wayx->way.allow|=Transports_Bicycle;
                    wayx->way.props|=Properties_BicycleRoute;
+                  }
 
                 PutBackWayX(waysx,wayx);
 
