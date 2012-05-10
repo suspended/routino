@@ -27,7 +27,6 @@
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 #include <pthread.h>
-#include <unistd.h>
 #endif
 
 #include "types.h"
@@ -68,6 +67,14 @@ typedef struct _thread_data
  }
  thread_data;
 
+/* Thread variables */
+
+#if defined(USE_PTHREADS) && USE_PTHREADS
+
+static pthread_mutex_t running_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t running_cond = PTHREAD_COND_INITIALIZER;
+
+#endif
 
 /* Thread helper functions */
 
@@ -140,9 +147,13 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
     /* Find a spare slot (one *must* be unused at all times) */
 
+    pthread_mutex_lock(&running_mutex);
+
     for(thread=0;thread<option_filesort_threads;thread++)
        if(!threads[thread].running)
           break;
+
+    pthread_mutex_unlock(&running_mutex);
 
 #endif
 
@@ -181,37 +192,45 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
     if(option_filesort_threads==1)
       {
+       pthread_mutex_lock(&running_mutex);
+
        threads[thread].running=1;
+
+       pthread_mutex_unlock(&running_mutex);
 
        filesort_fixed_heapsort_thread(&threads[thread]);
 
+       pthread_mutex_lock(&running_mutex);
+
        threads[thread].running=0;
+
+       pthread_mutex_unlock(&running_mutex);
       }
     else
       {
+       pthread_mutex_lock(&running_mutex);
+
        while(nthreads==(option_filesort_threads-1))
          {
-          struct timespec millisecond={0,1000000};
-
           for(i=0;i<option_filesort_threads;i++)
              if(threads[i].running==2)
                {
                 pthread_join(threads[i].thread,NULL);
                 threads[i].running=0;
                 nthreads--;
-                printf("thread stopped nthreads=%d\n",nthreads);
                }
 
           if(nthreads==(option_filesort_threads-1))
-             nanosleep(&millisecond,NULL);
+             pthread_cond_wait(&running_cond,&running_mutex);
          }
 
        threads[thread].running=1;
 
+       pthread_mutex_unlock(&running_mutex);
+
        pthread_create(&threads[thread].thread,NULL,(void* (*)(void*))filesort_fixed_heapsort_thread,&threads[thread]);
 
        nthreads++;
-       printf("thread started nthreads=%d\n",nthreads);
       }
 
 #else
@@ -230,7 +249,9 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
  while(nthreads && option_filesort_threads>1)
    {
-    struct timespec millisecond={0,1000000};
+    pthread_mutex_lock(&running_mutex);
+
+    pthread_cond_wait(&running_cond,&running_mutex);
 
     for(i=0;i<option_filesort_threads;i++)
        if(threads[i].running==2)
@@ -238,11 +259,9 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
           pthread_join(threads[i].thread,NULL);
           threads[i].running=0;
           nthreads--;
-          printf("thread stopped nthreads=%d\n",nthreads);
          }
 
-    if(nthreads)
-       nanosleep(&millisecond,NULL);
+    pthread_mutex_unlock(&running_mutex);
    }
 
 #endif
@@ -479,9 +498,13 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
     /* Find a spare slot (one *must* be unused at all times) */
 
+    pthread_mutex_lock(&running_mutex);
+
     for(thread=0;thread<option_filesort_threads;thread++)
        if(!threads[thread].running)
           break;
+
+    pthread_mutex_unlock(&running_mutex);
 
 #endif
 
@@ -534,37 +557,45 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
     if(option_filesort_threads==1)
       {
+       pthread_mutex_lock(&running_mutex);
+
        threads[thread].running=1;
+
+       pthread_mutex_unlock(&running_mutex);
 
        filesort_vary_heapsort_thread(&threads[thread]);
 
+       pthread_mutex_lock(&running_mutex);
+
        threads[thread].running=0;
+
+       pthread_mutex_unlock(&running_mutex);
       }
     else
       {
+       pthread_mutex_lock(&running_mutex);
+
        while(nthreads==(option_filesort_threads-1))
          {
-          struct timespec millisecond={0,1000000};
-
           for(i=0;i<option_filesort_threads;i++)
              if(threads[i].running==2)
                {
                 pthread_join(threads[i].thread,NULL);
                 threads[i].running=0;
                 nthreads--;
-                printf("thread stopped nthreads=%d\n",nthreads);
                }
 
           if(nthreads==(option_filesort_threads-1))
-             nanosleep(&millisecond,NULL);
+             pthread_cond_wait(&running_cond,&running_mutex);
          }
 
        threads[thread].running=1;
 
+       pthread_mutex_unlock(&running_mutex);
+
        pthread_create(&threads[thread].thread,NULL,(void* (*)(void*))filesort_vary_heapsort_thread,&threads[thread]);
 
        nthreads++;
-       printf("thread started nthreads=%d\n",nthreads);
       }
 
 #else
@@ -583,7 +614,9 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
  while(nthreads && option_filesort_threads>1)
    {
-    struct timespec millisecond={0,1000000};
+    pthread_mutex_lock(&running_mutex);
+
+    pthread_cond_wait(&running_cond,&running_mutex);
 
     for(i=0;i<option_filesort_threads;i++)
        if(threads[i].running==2)
@@ -591,11 +624,9 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
           pthread_join(threads[i].thread,NULL);
           threads[i].running=0;
           nthreads--;
-          printf("thread stopped nthreads=%d\n",nthreads);
          }
 
-    if(nthreads)
-       nanosleep(&millisecond,NULL);
+    pthread_mutex_unlock(&running_mutex);
    }
 
 #endif
@@ -807,7 +838,17 @@ static void *filesort_fixed_heapsort_thread(thread_data *thread)
 
  CloseFile(fd);
 
+#if defined(USE_PTHREADS) && USE_PTHREADS
+
+ pthread_mutex_lock(&running_mutex);
+
  thread->running=2;
+
+ pthread_cond_signal(&running_cond);
+
+ pthread_mutex_unlock(&running_mutex);
+
+#endif
 
  return(NULL);
 }
@@ -842,7 +883,17 @@ static void *filesort_vary_heapsort_thread(thread_data *thread)
 
  CloseFile(fd);
 
+#if defined(USE_PTHREADS) && USE_PTHREADS
+
+ pthread_mutex_lock(&running_mutex);
+
  thread->running=2;
+
+ pthread_cond_signal(&running_cond);
+
+ pthread_mutex_unlock(&running_mutex);
+
+#endif
 
  return(NULL);
 }
