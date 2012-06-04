@@ -48,9 +48,8 @@ Example Web Page
    that is accessible by a web server. After copying the files some of
    them need to be edited; search through the files for lines that contain
    the words "EDIT THIS" and make appropriate edits. The files that need
-   editing are 'paths.pl' (to set the directory paths) and 'router.js' and
-   'visualiser.js' to limit the range of the visible map (latitude,
-   longitude and zoom).
+   editing are 'paths.pl' (to set the directory paths) and 'mapprefs.js' (to
+   set the map properties).
 
 
 Configuration of web files
@@ -130,12 +129,9 @@ Configuration of web files
 
    paths.pl
           This contains the names of the directories that contain the
-          executable files, router database and temporary results.
-
-   router.pl
-          This file contains the filename prefix for the routing database
-          files (only needed if planetsplitter is run with the --prefix
-          option).
+          executable files, router database and temporary results; the
+          prefix for the routing database; and the names of the
+          executables.
 
    mapprefs.js
           The parameters in this file control the boundary of the visible
@@ -160,4 +156,4 @@ Configuration of web server
 
 --------
 
-Copyright 2008-2011 Andrew M. Bishop.
+Copyright 2008-2012 Andrew M. Bishop.
