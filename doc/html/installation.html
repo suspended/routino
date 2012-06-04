@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -100,8 +100,8 @@ The files in the <tt>web</tt> directory will require copying to a location that
 is accessible by a web server.  After copying the files some of them need to be
 edited; search through the files for lines that contain the words "EDIT THIS"
 and make appropriate edits.  The files that need editing are <tt>paths.pl</tt>
-(to set the directory paths) and <tt>router.js</tt> and <tt>visualiser.js</tt>
-to limit the range of the visible map (latitude, longitude and zoom).
+(to set the directory paths) and <tt>mapprefs.js</tt> (to set the map
+properties).
 
 
 <h3><a name="H_1_3_1"></a>Configuration of web files</h3>
@@ -193,10 +193,8 @@ The description below lists all of the files that contain editable information.
 <dl>
   <dt>paths.pl
   <dd>This contains the names of the directories that contain the executable
-      files, router database and temporary results.
-  <dt>router.pl
-  <dd>This file contains the filename prefix for the routing database files
-      (only needed if planetsplitter is run with the --prefix option).
+      files, router database and temporary results; the prefix for the routing
+      database; and the names of the executables.
   <dt>mapprefs.js
   <dd>The parameters in this file control the boundary of the visible map
       (defaults to UK), the minimum and maximum zoom levels (defaults to between
