@@ -3,7 +3,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2010 Andrew M. Bishop
+# This file Copyright 2008-2012 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,9 @@ $root_dir="../..";
 $bin_dir="$root_dir/bin";
 $data_dir="$root_dir/data";
 $results_dir="$root_dir/results";
+
+# EDIT THIS to set the filename prefix for the routing database files.
+$data_prefix="";
 
 # EDIT THIS to change the names of the executables (enables easy selection of slim mode).
 $router_exe="router";
