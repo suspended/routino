@@ -3,7 +3,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2011 Andrew M. Bishop
+# This file Copyright 2008-2012 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -104,7 +104,14 @@ sub RunRouter
 
    # Create a unique output directory
 
-   chomp($uuid=`echo '$params' $$ | md5sum | cut -f1 '-d '`);
+   if($^O eq "darwin")
+     {
+      chomp($uuid=`echo '$params' $$ | md5    | cut -f1 '-d '`);
+     }
+   else
+     {
+      chomp($uuid=`echo '$params' $$ | md5sum | cut -f1 '-d '`);
+     }
 
    mkdir $uuid;
    chmod 0775, $uuid;
