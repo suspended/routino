@@ -432,6 +432,8 @@ filedumper
                o junctions = segment count at each junction.
                o super = super-node and super-segments.
                o oneway = oneway segments.
+               o highway-* = segments of the specified highway type (e.g.
+                 highway-primary to display segments ofprimary roads).
                o transport-* = segments allowing the specified transport
                  type (e.g. transport-foot to display segments accessible
                  on foot).
