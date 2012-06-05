@@ -59,6 +59,7 @@ for(var marker=1;marker<=maxmarkers;marker++)
 
    routino.point[marker].lon="";
    routino.point[marker].lat="";
+   routino.point[marker].search="";
    routino.point[marker].active=false;
   }
 
@@ -70,6 +71,7 @@ var legal={"^lon"             : "^[-0-9.]+$",
 
            "^lon[1-9]"        : "^[-0-9.]+$",
            "^lat[1-9]"        : "^[-0-9.]+$",
+           "^search[1-9]"     : "^.+$",
            "^transport"       : "^[a-z]+$",
            "^highway-[a-z]+"  : "^[0-9.]+$",
            "^speed-[a-z]+"    : "^[0-9.]+$",
@@ -152,10 +154,32 @@ function form_init()
    {
     var lon=args["lon" + marker];
     var lat=args["lat" + marker];
+    var search=args["search" + marker];
 
-    if(lon != undefined && lat != undefined && lon != "" && lat != "")
+    if(lon != undefined && lat != undefined && search != undefined && lon != "" && lat != "" && search != "")
+      {
+       formSetSearch(marker,search);
+       formSetCoords(marker,lon,lat,true);
+
+       markerSearch(marker);
+
+       filled++;
+      }
+    else if(lon != undefined && lat != undefined && lon != "" && lat != "")
       {
        formSetCoords(marker,lon,lat,true);
+
+       markerCoords(marker);
+
+       filled++;
+      }
+    else if(search != undefined && search != "")
+      {
+       formSetSearch(marker,search);
+
+       markerSearch(marker);
+
+       DoSearch(marker);
 
        filled++;
       }
@@ -389,8 +413,8 @@ function formSetCoords(marker,lon,lat,active)
    }
  else
    {
-    document.forms["form"].elements["lon" + marker].value=lon;
-    document.forms["form"].elements["lat" + marker].value=lat;
+    document.forms["form"].elements["lon" + marker].value=format5f(lon);
+    document.forms["form"].elements["lat" + marker].value=format5f(lat);
 
     routino.point[marker].lon=lon;
     routino.point[marker].lat=lat;
@@ -433,6 +457,27 @@ function formSetCoords(marker,lon,lat,active)
 
 
 //
+// Set the feature coordinates from the form when the form changes.
+//
+
+function formSetSearch(marker,search)
+{
+ if(search == undefined)
+   {
+    routino.point[marker].search=document.forms["form"].elements["search" + marker].value;
+
+    DoSearch(marker);
+   }
+ else
+   {
+    document.forms["form"].elements["search" + marker].value=search;
+
+    routino.point[marker].search=search;
+   }
+}
+
+
+//
 // Format a number in printf("%.5f") format.
 //
 
@@ -469,6 +514,8 @@ function buildURLArguments(lang)
       {
        url=url + ";lon" + marker + "=" + routino.point[marker].lon;
        url=url + ";lat" + marker + "=" + routino.point[marker].lat;
+       if(routino.point[marker].search != "")
+          url=url + ";search" + marker + "=" + encodeURIComponent(routino.point[marker].search);
       }
 
  for(var key in routino.profile_highway)
@@ -825,6 +872,34 @@ function markerRemoveMap(marker)
  updateIcon(marker);
 
  markersmoved=true;
+}
+
+
+//
+// Display search string for the marker
+//
+
+function markerSearch(marker)
+{
+ var search_span=document.getElementById("search" + marker);
+ var coords_span=document.getElementById("coords" + marker);
+
+ search_span.style.display="";
+ coords_span.style.display="none";
+}
+
+
+//
+// Display coordinates for the marker
+//
+
+function markerCoords(marker)
+{
+ var search_span=document.getElementById("search" + marker);
+ var coords_span=document.getElementById("coords" + marker);
+
+ search_span.style.display="none";
+ coords_span.style.display="";
 }
 
 
@@ -1527,4 +1602,41 @@ function getRouteFailure(response)
 {
  var div_route=document.getElementById(routing_type + "_route");
  div_route.innerHTML = "";
+}
+
+
+//
+// Perform a search
+//
+
+function DoSearch(marker)
+{
+ // Use AJAX to get the search result
+
+ var search=routino.point[marker].search;
+
+ var url="search.cgi?marker=" + marker + ";search=" + encodeURIComponent(search);
+
+ OpenLayers.loadURL(url,null,null,runSearchSuccess);
+}
+
+
+//
+// Success in running search.
+//
+
+function runSearchSuccess(response)
+{
+ var lines=response.responseText.split('\n');
+
+ var marker=lines[0];
+ var cpuinfo=lines[1];  // not used
+ var latlon=lines[2];
+ var message=lines[3];  // not used
+
+ latlon.match('([-.0-9]+) ([-.0-9]+)');
+ lat = RegExp.$1;
+ lon = RegExp.$2;
+
+ formSetCoords(marker,lon,lat,true);
 }

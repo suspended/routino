@@ -100,7 +100,7 @@
             <tr>
               <td><a id="lang_en_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html.en" title="Engelstalige web pagina">English</a>
               <td>(EN)
-              <td><input name="language" type="radio" value="en" onchange="formSetLanguage()" >
+              <td><input name="language" type="radio" value="en" onchange="formSetLanguage()">
             <tr>
               <td><a id="lang_de_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html.de" title="Deutsche Webseite">German</a>
               <td>(DE)
@@ -123,22 +123,28 @@
               <td>
                 <img name="waypointXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX)">&nbsp;
               <td>
-                <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E&nbsp;
+                <span id="coordsXXX">
+                  <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E&nbsp;
+                  <input name="latXXX" type="text" size="7" title="Waypoint XXX Latitude"  onchange="formSetCoords(XXX);">N&nbsp;
+                </span>
+                <span id="searchXXX" style="display: none;">
+                  <input name="searchXXX" type="text" size="20" title="Waypoint XXX Location" onchange="formSetSearch(XXX);">
+                </span>
               <td>
-                <input name="latXXX" type="text" size="7" title="Waypoint XXX Latitude"  onchange="formSetCoords(XXX);">N&nbsp;
-              <td>
-                <img alt="?" src="icons/waypoint-locate.png"   title="Get current location"         onmousedown="markerLocate(XXX);"  >
+                <img alt="?" src="icons/waypoint-search.png"   title="Search for location"         onmousedown="markerSearch(XXX);"  >
+                <img alt="G" src="icons/waypoint-locate.png"   title="Get current location"        onmousedown="markerLocate(XXX);"  >
                 <img alt="O" src="icons/waypoint-recentre.png" title="Centre map on this waypoint"  onmousedown="markerRecentre(XXX);">
                 <img alt="^" src="icons/waypoint-up.png"       title="Beweeg dit punt naar boven"   onmousedown="markerMoveUp(XXX);"  >
                 <img alt="+" src="icons/waypoint-add.png"      title="Voeg hierna punt toe"         onmousedown="markerAddAfter(XXX);">
                 <br>
+                <img alt="#" src="icons/waypoint-coords.png"   title="Coordinates for location"    onmousedown="markerCoords(XXX);"  >
                 <img alt="~" src="icons/waypoint-home.png"     title="Toggle als thuis locatie"     onmousedown="markerHome(XXX);"    >
                 <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(XXX);"  >
                 <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(XXX);">
                 <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(XXX);"  >
             <!-- The waypoints are inserted by the JavaScript, see the "maxmarkers" variable in router.js.  -->
             <tr>
-              <td colspan="4" align="center"><input type="button" title="Keer volgorde punten om" value="Keer volgorde punten om" onmousedown="markersReverse();">
+              <td colspan="3" align="center"><input type="button" title="Keer volgorde punten om" value="Keer volgorde punten om" onmousedown="markersReverse();">
           </table>
         </div>
       </div>

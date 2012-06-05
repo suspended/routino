@@ -36,4 +36,8 @@ $data_prefix="";
 $router_exe="router";
 $filedumper_exe="filedumper";
 
+# EDIT THIS to change the search type and base URL (must be a type recognised by search.pl).
+$search_type="nominatim";
+$search_baseurl="http://nominatim.openstreetmap.org/search";
+
 1;
