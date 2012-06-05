@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2011 Andrew M. Bishop
+# This file Copyright 2008-2012 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ $query=new CGI;
               "latmax" => "[-0-9.]+",
               "lonmin" => "[-0-9.]+",
               "lonmax" => "[-0-9.]+",
-              "data"   => "(junctions|super|oneway|turns|speed|weight|height|width|length)"
+              "data"   => "(junctions|super|oneway|transport-.*|turns|speed|weight|height|width|length)"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -68,6 +68,7 @@ foreach $key (@rawparams)
          "speed"     => 0.2,
          "super"     => 0.2,
          "oneway"    => 0.2,
+         "transport" => 0.2,
          "turns"     => 0.3,
          "weight"    => 0.3,
          "height"    => 0.3,
@@ -89,7 +90,10 @@ if($latmin eq "" || $latmax eq "" || $lonmin eq "" || $lonmax eq "" || $data eq 
    exit;
   }
 
-if(($latmax-$latmin)>$limits{$data} || ($lonmax-$lonmin)>$limits{$data})
+$subdata=$data;
+$subdata="transport" if($data =~ m%transport-%);
+
+if(($latmax-$latmin)>$limits{$subdata} || ($lonmax-$lonmin)>$limits{$subdata})
   {
    print header(-status => '500 Selected area too large');
    exit;

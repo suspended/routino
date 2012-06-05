@@ -432,6 +432,9 @@ filedumper
                o junctions = segment count at each junction.
                o super = super-node and super-segments.
                o oneway = oneway segments.
+               o transport-* = segments allowing the specified transport
+                 type (e.g. transport-foot to display segments accessible
+                 on foot).
                o turns = turn restrictions.
                o speed = speed limits.
                o weight = weight limits.

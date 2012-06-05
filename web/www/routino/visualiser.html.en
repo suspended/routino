@@ -121,6 +121,9 @@
         <div id="result_status_oneway"    style="display: none;">
           <b>Processed # oneway segments</b>
         </div>
+        <div id="result_status_transport" style="display: none;">
+          <b>Processed # segments</b>
+        </div>
         <div id="result_status_turns"     style="display: none;">
           <b>Processed # turn restrictions</b>
         </div>
@@ -169,6 +172,29 @@
         Each one-way segment is shown with a coloured triangle indicating the
         allowed direction.  The colours of the triangles depend on the bearing
         of the highway segment.
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_transport_show" onclick="hideshow_show('transport');" class="hideshow_show">+</span>
+      <span id="hideshow_transport_hide" onclick="hideshow_hide('transport');" class="hideshow_hide">-</span>
+      <input type="button" id="transport" onclick="displayData('transport');" value="Display Transport Segments">
+      <div id="hideshow_transport_div" style="display: none;">
+        Each segment allowed for the chosen type of transport is drawn.
+        <form name="transports" id="transports" method="get">
+          <table>
+            <tr><td>Foot      <td><input name="transport" type="radio" value="foot"      >
+            <tr><td>Horse     <td><input name="transport" type="radio" value="horse"     >
+            <tr><td>Wheelchair<td><input name="transport" type="radio" value="wheelchair">
+            <tr><td>Bicycle   <td><input name="transport" type="radio" value="bicycle"   >
+            <tr><td>Moped     <td><input name="transport" type="radio" value="moped"     >
+            <tr><td>Motorbike <td><input name="transport" type="radio" value="motorbike" >
+            <tr><td>Motorcar  <td><input name="transport" type="radio" value="motorcar"  checked>
+            <tr><td>Goods     <td><input name="transport" type="radio" value="goods"     >
+            <tr><td>HGV       <td><input name="transport" type="radio" value="hgv"       >
+            <tr><td>PSV       <td><input name="transport" type="radio" value="psv"       >
+          </table>
+        </form>
       </div>
     </div>
 
