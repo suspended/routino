@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -138,6 +138,8 @@ int main(int argc,char** argv)
 
  if(option_visualiser)
    {
+    Transport transport;
+
     if(coordcount!=4)
        print_usage(0,NULL,"The --visualiser option must have --latmin, --latmax, --lonmin, --lonmax.\n");
 
@@ -150,6 +152,8 @@ int main(int argc,char** argv)
        OutputSuper(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"oneway"))
        OutputOneway(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
+    else if(!strncmp(option_data,"transport",9) && option_data[9]=='-' && (transport=TransportType(option_data+10))!=Transport_None)
+       OutputTransport(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,transport);
     else if(!strcmp(option_data,"turns"))
        OutputTurnRestrictions(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"speed"))
@@ -889,15 +893,16 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "  --data=<data-type>      * the type of data to select.\n"
             "\n"
             "  <data-type> can be selected from:\n"
-            "      junctions = segment count at each junction.\n"
-            "      super     = super-node and super-segments.\n"
-            "      oneway    = oneway segments.\n"
-            "      turns     = turn restrictions.\n"
-            "      speed     = speed limits.\n"
-            "      weight    = weight limits.\n"
-            "      height    = height limits.\n"
-            "      width     = width limits.\n"
-            "      length    = length limits.\n"
+            "      junctions   = segment count at each junction.\n"
+            "      super       = super-node and super-segments.\n"
+            "      oneway      = oneway segments.\n"
+            "      transport-* = segments allowing the specified transport type.\n"
+            "      turns       = turn restrictions.\n"
+            "      speed       = speed limits.\n"
+            "      weight      = weight limits.\n"
+            "      height      = height limits.\n"
+            "      width       = width limits.\n"
+            "      length      = length limits.\n"
             "\n"
             "--dump                    Dump selected contents of the database.\n"
             "  --node=<node>           * the node with the selected index.\n"

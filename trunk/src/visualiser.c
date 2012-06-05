@@ -61,6 +61,7 @@ static double LonMin;
 static double LonMax;
 
 static int limit_type=0;
+static Transports transports=Transports_None;
 
 /* Local functions */
 
@@ -68,6 +69,7 @@ static void find_all_nodes(Nodes *nodes,callback_t callback);
 static void output_junctions(index_t node,double latitude,double longitude);
 static void output_super(index_t node,double latitude,double longitude);
 static void output_oneway(index_t node,double latitude,double longitude);
+static void output_transport(index_t node,double latitude,double longitude);
 static void output_turnrestriction(index_t node,double latitude,double longitude);
 static void output_limits(index_t node,double latitude,double longitude);
 
@@ -305,6 +307,94 @@ static void output_oneway(index_t node,double latitude,double longitude)
              printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
           else if(IsOnewayFrom(segment,othernode))
              printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(lat),radians_to_degrees(lon),radians_to_degrees(latitude),radians_to_degrees(longitude));
+         }
+      }
+
+    segment=NextSegment(OSMSegments,segment,node);
+   }
+ while(segment);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Output the data for segments allowed for a paticular type of traffic.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  Relations *relations The set of relations to use.
+
+  double latmin The minimum latitude.
+
+  double latmax The maximum latitude.
+
+  double lonmin The minimum longitude.
+
+  double lonmax The maximum longitude.
+
+  Transport transport The type of transport.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void OutputTransport(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,double latmin,double latmax,double lonmin,double lonmax,Transport transport)
+{
+ /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
+
+ OSMNodes=nodes;
+ OSMSegments=segments;
+ OSMWays=ways;
+ OSMRelations=relations;
+
+ LatMin=latmin;
+ LatMax=latmax;
+ LonMin=lonmin;
+ LonMax=lonmax;
+
+ /* Iterate through the nodes and process them */
+
+ transports=TRANSPORTS(transport);
+
+ find_all_nodes(nodes,(callback_t)output_transport);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Process a single node and all connected one-way segments (called as a callback).
+
+  index_t node The node to output.
+
+  double latitude The latitude of the node.
+
+  double longitude The longitude of the node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void output_transport(index_t node,double latitude,double longitude)
+{
+ Node *nodep=LookupNode(OSMNodes,node,1);
+ Segment *segment;
+
+ segment=FirstSegment(OSMSegments,nodep,1);
+
+ do
+   {
+    if(IsNormalSegment(segment))
+      {
+       index_t othernode=OtherNode(segment,node);
+
+       if(node>othernode)
+         {
+          Way *way=LookupWay(OSMWays,segment->way,1);
+
+          if(way->allow&transports)
+            {
+             double lat,lon;
+
+             GetLatLong(OSMNodes,othernode,&lat,&lon);
+
+             printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
+            }
          }
       }
 
