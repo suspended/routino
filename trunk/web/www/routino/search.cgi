@@ -26,6 +26,7 @@ require "search.pl";
 # Use the perl CGI module
 use CGI ':cgi';
 
+
 # Create the query and get the parameters
 
 $query=new CGI;
@@ -34,9 +35,9 @@ $query=new CGI;
 
 # Convert the CGI parameters
 
-foreach $key (@rawparams)
+foreach my $key (@rawparams)
   {
-   $value=$query->param($key);
+   my $value=$query->param($key);
 
    $cgiparams{$key}=$value;
   }

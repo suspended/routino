@@ -41,12 +41,12 @@ sub FillInDefaults
 
    $params{transport}=$routino->{transport} if(!defined $params{transport});
 
-   my($transport)=$params{transport};
+   my $transport=$params{transport};
 
-   foreach $highway (keys %{$routino->{highways}})
+   foreach my $highway (keys %{$routino->{highways}})
      {
-      $key="highway-$highway";
-      $value=$routino->{profile_highway}->{$highway}->{$transport};
+      my $key="highway-$highway";
+      my $value=$routino->{profile_highway}->{$highway}->{$transport};
       $params{$key}=$value if(!defined $params{$key});
 
       $key="speed-$highway";
@@ -54,10 +54,10 @@ sub FillInDefaults
       $params{$key}=$value if(!defined $params{$key});
      }
 
-   foreach $property (keys %{$routino->{properties}})
+   foreach my $property (keys %{$routino->{properties}})
      {
-      $key="property-$property";
-      $value=$routino->{profile_property}->{$property}->{$transport};
+      my $key="property-$property";
+      my $value=$routino->{profile_property}->{$property}->{$transport};
       $params{$key}=$value if(!defined $params{$key});
      }
 
@@ -67,10 +67,10 @@ sub FillInDefaults
    $params{turns} =~ s/(true|on)/1/;
    $params{turns} =~ s/(false|off)/0/;
 
-   foreach $restriction (keys %{$routino->{restrictions}})
+   foreach my $restriction (keys %{$routino->{restrictions}})
      {
-      $key="$restriction";
-      $value=$routino->{profile_restrictions}->{$restriction}->{$transport};
+      my $key="$restriction";
+      my $value=$routino->{profile_restrictions}->{$restriction}->{$transport};
       $params{$key}=$value if(!defined $params{$key});
      }
 
@@ -88,9 +88,9 @@ sub RunRouter
 
    # Combine all of the parameters together
 
-   my($params)="--$optimise";
+   my $params="--$optimise";
 
-   foreach $key (keys %params)
+   foreach my $key (keys %params)
      {
       $params.=" --$key=$params{$key}";
      }
@@ -101,6 +101,8 @@ sub RunRouter
    chdir $results_dir;
 
    # Create a unique output directory
+
+   my $uuid;
 
    if($^O eq "darwin")
      {
@@ -123,22 +125,22 @@ sub RunRouter
 
    system "$bin_dir/$router_exe $params > router.log 2>&1";
 
-   (undef,undef,$cuser,$csystem) = times;
-   $time=sprintf "time: %.3f CPU / %.3f elapsed",$cuser+$csystem,tv_interval($t0);
+   my(undef,undef,$cuser,$csystem) = times;
+   my $time=sprintf "time: %.3f CPU / %.3f elapsed",$cuser+$csystem,tv_interval($t0);
 
-   $message="";
+   my $message="";
 
    if($? != 0)
      {
       $message=`tail -1 router.log`;
      }
 
-   $result="";
+   my $result="";
 
    if(-f "$optimise.txt")
      {
       $result=`tail -1 $optimise.txt`;
-      @result=split(/\t/,$result);
+      my @result=split(/\t/,$result);
       $result = $result[4]." , ".$result[5];
      }
 
@@ -180,10 +182,10 @@ sub ReturnOutput
 
    if($type eq "router") { $format="log" }
 
-   $suffix=$suffixes{$format};
-   $mime  =$mimetypes{$format};
+   my $suffix=$suffixes{$format};
+   my $mime  =$mimetypes{$format};
 
-   $file="$results_dir/$uuid/$type$suffix";
+   my $file="$results_dir/$uuid/$type$suffix";
 
    # Return the output
 

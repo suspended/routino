@@ -55,7 +55,7 @@ sub RunSearch
      }
 
    my(undef,undef,$cuser,$csystem) = times;
-   my($time)=sprintf "time: %.3f CPU / %.3f elapsed",$cuser+$csystem,tv_interval($t0);
+   my $time=sprintf "time: %.3f CPU / %.3f elapsed",$cuser+$csystem,tv_interval($t0);
 
    # Return the results
 
@@ -73,10 +73,10 @@ sub DoNominatimSearch
 
    $search =~ s% %+%g;
 
-   my($url)="$search_baseurl?format=json&limit=1&q=$search";
+   my $url="$search_baseurl?format=json&limit=1&q=$search";
 
-   my($ua)=LWP::UserAgent->new;
-   my($res)=$ua->get($url);
+   my $ua=LWP::UserAgent->new;
+   my $res=$ua->get($url);
 
    my($lat,$lon,$message)=("","","");
 
