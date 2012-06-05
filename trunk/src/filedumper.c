@@ -138,6 +138,7 @@ int main(int argc,char** argv)
 
  if(option_visualiser)
    {
+    Highway highway;
     Transport transport;
 
     if(coordcount!=4)
@@ -152,6 +153,8 @@ int main(int argc,char** argv)
        OutputSuper(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"oneway"))
        OutputOneway(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
+    else if(!strncmp(option_data,"highway",7) && option_data[7]=='-' && (highway=HighwayType(option_data+8))!=Way_Count)
+       OutputHighway(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,highway);
     else if(!strncmp(option_data,"transport",9) && option_data[9]=='-' && (transport=TransportType(option_data+10))!=Transport_None)
        OutputTransport(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,transport);
     else if(!strcmp(option_data,"turns"))
@@ -896,6 +899,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "      junctions   = segment count at each junction.\n"
             "      super       = super-node and super-segments.\n"
             "      oneway      = oneway segments.\n"
+            "      highway-*   = segments of the specified highway type.\n"
             "      transport-* = segments allowing the specified transport type.\n"
             "      turns       = turn restrictions.\n"
             "      speed       = speed limits.\n"

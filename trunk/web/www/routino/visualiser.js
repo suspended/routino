@@ -28,6 +28,7 @@ var data_types=[
                 "junctions",
                 "super",
                 "oneway",
+                "highway",
                 "transport",
                 "turns",
                 "speed",
@@ -427,6 +428,14 @@ function displayData(datatype)
    case 'oneway':
     OpenLayers.loadURL(url,null,null,runOnewaySuccess,runFailure);
     break;
+   case 'highway':
+    var highways=document.forms["highways"].elements["highway"];
+    for(var h in highways)
+       if(highways[h].checked)
+          highway=highways[h].value;
+    url+="-" + highway;
+    OpenLayers.loadURL(url,null,null,runHighwaySuccess,runFailure);
+    break;
    case 'transport':
     var transports=document.forms["transports"].elements["transport"];
     for(var t in transports)
@@ -624,6 +633,58 @@ function runOnewaySuccess(response)
 
 
 //
+// Success in getting the highway data
+//
+
+function runHighwaySuccess(response)
+{
+ var lines=response.responseText.split('\n');
+
+ var features=[];
+
+ for(var line=0;line<lines.length;line++)
+   {
+    var words=lines[line].split(' ');
+
+    if(line == 0)
+      {
+       var lat1=words[0];
+       var lon1=words[1];
+       var lat2=words[2];
+       var lon2=words[3];
+
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,map.getProjectionObject());
+
+       box = new OpenLayers.Marker.Box(bounds);
+
+       layerBoxes.addMarker(box);
+      }
+    else if(words[0] != "")
+      {
+       var lat1=words[0];
+       var lon1=words[1];
+       var lat2=words[2];
+       var lon2=words[3];
+
+       var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
+       var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
+
+       var point1 = new OpenLayers.Geometry.Point(lonlat1.lon,lonlat1.lat);
+       var point2 = new OpenLayers.Geometry.Point(lonlat2.lon,lonlat2.lat);
+
+       var segment = new OpenLayers.Geometry.LineString([point1,point2]);
+
+       features.push(new OpenLayers.Feature.Vector(segment,{},super_segment_style));
+      }
+   }
+
+ layerVectors.addFeatures(features);
+
+ displayStatus("data","highway",lines.length-2);
+}
+
+
+//
 // Success in getting the transport data
 //
 
@@ -671,7 +732,7 @@ function runTransportSuccess(response)
 
  layerVectors.addFeatures(features);
 
- displayStatus("data","tansport",lines.length-2);
+ displayStatus("data","transport",lines.length-2);
 }
 
 

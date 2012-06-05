@@ -121,6 +121,9 @@
         <div id="result_status_oneway"    style="display: none;">
           <b>Processed # oneway segments</b>
         </div>
+        <div id="result_status_highway"   style="display: none;">
+          <b>Processed # segments</b>
+        </div>
         <div id="result_status_transport" style="display: none;">
           <b>Processed # segments</b>
         </div>
@@ -172,6 +175,32 @@
         Each one-way segment is shown with a coloured triangle indicating the
         allowed direction.  The colours of the triangles depend on the bearing
         of the highway segment.
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_highway_show" onclick="hideshow_show('highway');" class="hideshow_show">+</span>
+      <span id="hideshow_highway_hide" onclick="hideshow_hide('highway');" class="hideshow_hide">-</span>
+      <input type="button" id="highway" onclick="displayData('highway');" value="Display Highway Segments">
+      <div id="hideshow_highway_div" style="display: none;">
+        Each segment of the chosen type of highway is drawn.
+        <form name="highways" id="highways" method="get">
+          <table>
+            <tr><td>Motorway:    <td><input name="highway" type="radio" value="motorway"    >
+            <tr><td>Trunk:       <td><input name="highway" type="radio" value="trunk"       >
+            <tr><td>Primary:     <td><input name="highway" type="radio" value="primary"     checked>
+            <tr><td>Secondary:   <td><input name="highway" type="radio" value="secondary"   >
+            <tr><td>Tertiary:    <td><input name="highway" type="radio" value="tertiary"    >
+            <tr><td>Unclassified:<td><input name="highway" type="radio" value="unclassified">
+            <tr><td>Residential: <td><input name="highway" type="radio" value="residential" >
+            <tr><td>Service:     <td><input name="highway" type="radio" value="service"     >
+            <tr><td>Track:       <td><input name="highway" type="radio" value="track"       >
+            <tr><td>Cycleway:    <td><input name="highway" type="radio" value="cycleway"    >
+            <tr><td>Path:        <td><input name="highway" type="radio" value="path"        >
+            <tr><td>Steps:       <td><input name="highway" type="radio" value="steps"       >
+            <tr><td>Ferry:       <td><input name="highway" type="radio" value="ferry"       >
+          </table>
+        </form>
       </div>
     </div>
 
