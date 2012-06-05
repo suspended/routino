@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2011 Andrew M. Bishop
+# This file Copyright 2008-2012 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ require "router.pl";
 
 # Use the perl CGI module
 use CGI ':cgi';
+
 
 # Create the query and get the parameters
 
@@ -57,13 +58,13 @@ $query=new CGI;
 
 # Validate the CGI parameters, ignore invalid ones
 
-foreach $key (@rawparams)
+foreach my $key (@rawparams)
   {
-   foreach $test (keys (%legalparams))
+   foreach my $test (keys (%legalparams))
      {
       if($key =~ m%^$test$%)
         {
-         $value=$query->param($key);
+         my $value=$query->param($key);
 
          if($value =~ m%^$legalparams{$test}$%)
            {
