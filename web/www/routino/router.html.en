@@ -129,7 +129,7 @@
                   <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E&nbsp;
                   <input name="latXXX" type="text" size="7" title="Waypoint XXX Latitude"  onchange="formSetCoords(XXX);">N&nbsp;
                 </span>
-                <span id="searchXXX" style="display: none; text-align: left;">
+                <span id="searchXXX" style="display: none;">
                   <input name="searchXXX" type="text" size="20" title="Waypoint XXX Location" onchange="formSetSearch(XXX);">
                 </span>
               <td>
@@ -422,17 +422,17 @@
           After calculating a route you can download the GPX file or plain
           text route description (summary or detailed version). Also you
           can view the route description and zoom in to selected parts.
-          <p style="margin-bottom: 0px">
+          <p>
           <b>Problem Solving</b>
           <br>
           If the router completes with an error then the most likely cause is
           that it is not possible to find a route between the selected points.
           Moving one or more markers or changing the routing options should
           allow a route to be found.
-          <p style="margin-bottom: 0px">
+          <p>
           <b>Output Formats</b>
           <br>
-          <dl style="margin-top: 0px">
+          <dl>
             <dt>HTML instructions
             <dd>A description of the route to take with directions at each
               important junction.

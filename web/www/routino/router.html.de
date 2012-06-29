@@ -131,7 +131,7 @@
                   <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E&nbsp;
                   <input name="latXXX" type="text" size="7" title="Waypoint XXX Latitude"  onchange="formSetCoords(XXX);">N&nbsp;
                 </span>
-                <span id="searchXXX" style="display: none; text-align: left;">
+                <span id="searchXXX" style="display: none;">
                   <input name="searchXXX" type="text" size="20" title="Waypoint XXX Location" onchange="formSetSearch(XXX);">
                 </span>
               <td>
@@ -416,16 +416,16 @@
           <br>
 	  Nach der Routenberechnung kann man eine GPX oder eine einfache Textdatei (Kurz- oder Langfassung)
 	  herunterladen. Ebenso kann man die Routenbeschreibung ansehen und in ausgew&auml;lte Bereiche zoomen.
-          <p style="margin-bottom: 0px">
+          <p>
           <b>Probleml&ouml;sung</b>
           <br>
 	  Wenn der Router einen Fehler meldet liegt es meistens daran, dass kein Weg zwischen den gew&auml;lten Punkten unter
 	  Beachtung der Vorgaben gefunden werden kann. Das Bewegen eines oder mehrere Punkte oder das ver&auml;ndern von
 	  Vorgaben sollte es erlauben eine Route zu finden.
-          <p style="margin-bottom: 0px">
+          <p>
           <b>Ausgabe-Formate</b>
           <br>
-          <dl style="margin-top: 0px">
+          <dl>
             <dt>HTMLs
             <dd>Eine Beschreibung der Route mit Anweisungen f&uuml;r jede wichtige Abzweigung.
             <dt>GPX Track-Datei
