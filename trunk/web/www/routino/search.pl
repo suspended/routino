@@ -22,6 +22,9 @@
 # Use the directory paths script
 require "paths.pl";
 
+# Use the perl URI module
+use URI::Escape;
+
 # Use the perl LWP module
 use LWP::UserAgent;
 
@@ -40,7 +43,7 @@ $t0 = [gettimeofday];
 
 sub RunSearch
   {
-   my($search)=@_;
+   my($search,$left,$right,$top,$bottom)=@_;
 
    # Perform the search based on the type
 
@@ -48,7 +51,7 @@ sub RunSearch
 
    if($search_type eq "nominatim")
      {
-      ($message,@places)=DoNominatimSearch($search);
+      ($message,@places)=DoNominatimSearch($search,$left,$right,$top,$bottom);
      }
    else
      {
@@ -70,18 +73,28 @@ sub RunSearch
 
 sub DoNominatimSearch
   {
-   my($search)=@_;
+   my($search,$left,$right,$top,$bottom)=@_;
 
-   $search =~ s% %+%g;
+   $search = uri_escape($search);
 
-   my $url="$search_baseurl?format=json&q=$search";
+   my $url;
+
+   if($left && $right && $top && $bottom)
+     {
+      $url="$search_baseurl?format=json&viewbox=$left,$top,$right,$bottom&q=$search";
+     }
+   else
+     {
+      $url="$search_baseurl?format=json&q=$search";
+     }
 
    my $ua=LWP::UserAgent->new;
+
    my $res=$ua->get($url);
 
    if(!$res->is_success)
      {
-      return($response->status_line,[]);
+      return($res->status_line);
      }
 
    my($result)=decode_json($res->content);

@@ -33,23 +33,51 @@ $query=new CGI;
 
 @rawparams=$query->param;
 
-# Convert the CGI parameters
+# Legal CGI parameters with regexp validity check
+
+%legalparams=(
+              "marker"  => "[0-9]+",
+
+              "left"    => "[-0-9.]+",
+              "right"   => "[-0-9.]+",
+              "top"     => "[-0-9.]+",
+              "bottom"  => "[-0-9.]+",
+
+              "search"  => ".+"
+             );
+
+# Validate the CGI parameters, ignore invalid ones
 
 foreach my $key (@rawparams)
   {
-   my $value=$query->param($key);
+   foreach my $test (keys (%legalparams))
+     {
+      if($key =~ m%^$test$%)
+        {
+         my $value=$query->param($key);
 
-   $cgiparams{$key}=$value;
+         if($value =~ m%^$legalparams{$test}$%)
+           {
+            $cgiparams{$key}=$value;
+            last;
+           }
+        }
+     }
   }
 
 # Parse the parameters
 
-$marker=$cgiparams{"marker"};
-$search=$cgiparams{"search"};
+$marker=$cgiparams{marker};
+$search=$cgiparams{search};
+
+$left  =$cgiparams{left};
+$right =$cgiparams{right};
+$top   =$cgiparams{top};
+$bottom=$cgiparams{bottom};
 
 # Run the search
 
-($search_time,$search_message,@places)=RunSearch($search);
+($search_time,$search_message,@places)=RunSearch($search,$left,$right,$top,$bottom);
 
 # Return the output
 
