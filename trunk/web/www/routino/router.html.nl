@@ -132,7 +132,7 @@
                   <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E&nbsp;
                   <input name="latXXX" type="text" size="7" title="Waypoint XXX Latitude"  onchange="formSetCoords(XXX);">N&nbsp;
                 </span>
-                <span id="searchXXX" style="display: none; text-align: left;">
+                <span id="searchXXX" style="display: none;">
                   <input name="searchXXX" type="text" size="20" title="Waypoint XXX Location" onchange="formSetSearch(XXX);">
                 </span>
               <td>
@@ -426,17 +426,17 @@
           <br>
           Na het berekenen van een route, kan het GPX bestand, of de beschrijving als tekstbestand downloaden.
           Door met muis over de beschrijving te bewegen, ziet u die ook op de kaart gesitueerd.
-          <p style="margin-bottom: 0px">
+          <p>
           <b>Problem Solving</b>
           <br>
           Als de router eindigt met een fout, dan is de meest waarschijnlijke
           oorzaak, dat er geen route mogelijk is tussen de gekozen punten.
           Het verplaatsen van de punten, of het aanpassen van weg-eigenschappen
           of voertuigtype kan een oplossing bieden.
-          <p style="margin-bottom: 0px">
+          <p>
           <b>Output Formats</b>
           <br>
-          <dl style="margin-top: 0px">
+          <dl>
             <dt>HTML instructies
             <dd>Een beschrijving van de route, met de te nemen afslag aan iedere splitsing.
             <dt>GPX track bestand

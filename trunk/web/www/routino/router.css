@@ -88,6 +88,11 @@ DIV#tab_options_div INPUT[type="text"]
  text-align: right;
 }
 
+DIV#tab_options_div INPUT[size="20"]
+{
+ text-align: left;
+}
+
 DIV#tab_options_div INPUT:hover
 {
  background: #F0F0C0;
