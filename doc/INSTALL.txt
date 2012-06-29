@@ -17,6 +17,9 @@ Compilation
 
    To compile the programs just type 'make'.
 
+   To use the search function on the web page the perl module "JSON::PP"
+   must be installed.
+
 
 Installation
 ------------

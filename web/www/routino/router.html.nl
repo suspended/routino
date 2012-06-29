@@ -119,7 +119,12 @@
         <span class="hideshow_title">Coordinaten (waypoints)</span>
         <div id="hideshow_waypoint_div">
           <table id="waypoints">
-            <tr id="pointXXX" style="display: none;">
+            <colgroup>
+              <col style="width: 25px;">
+              <col>
+              <col style="width: 76px;">
+            </colgroup>
+            <tr id="waypointXXX" style="display: none;">
               <td>
                 <img name="waypointXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX)">&nbsp;
               <td>
@@ -127,7 +132,7 @@
                   <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E&nbsp;
                   <input name="latXXX" type="text" size="7" title="Waypoint XXX Latitude"  onchange="formSetCoords(XXX);">N&nbsp;
                 </span>
-                <span id="searchXXX" style="display: none;">
+                <span id="searchXXX" style="display: none; text-align: left;">
                   <input name="searchXXX" type="text" size="20" title="Waypoint XXX Location" onchange="formSetSearch(XXX);">
                 </span>
               <td>
@@ -142,6 +147,7 @@
                 <img alt="o" src="icons/waypoint-centre.png"   title="Centreer dit punt op map"     onmousedown="markerCentre(XXX);"  >
                 <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(XXX);">
                 <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(XXX);"  >
+            <tr id="searchresultsXXX" style="display: none;">
             <!-- The waypoints are inserted by the JavaScript, see the "maxmarkers" variable in router.js.  -->
             <tr>
               <td colspan="3" align="center"><input type="button" title="Keer volgorde punten om" value="Keer volgorde punten om" onmousedown="markersReverse();">

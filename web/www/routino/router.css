@@ -71,6 +71,11 @@ DIV#tab_options_div TABLE TD
  margin:  0;
 }
 
+DIV#tab_options_div A:hover
+{
+ background: #F0F000;
+}
+
 DIV#tab_options_div INPUT
 {
  padding: 0;
@@ -81,11 +86,6 @@ DIV#tab_options_div INPUT
 DIV#tab_options_div INPUT[type="text"]
 {
  text-align: right;
-}
-
-DIV#tab_options_div INPUT[size="20"]
-{
- text-align: left;
 }
 
 DIV#tab_options_div INPUT:hover

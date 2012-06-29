@@ -118,17 +118,25 @@ if(location.search.length>1)
 function html_init()
 {
  var waypoints=document.getElementById("waypoints");
- var waypoint_html=waypoints.rows[0].innerHTML;
 
+ var waypoint_html=waypoints.rows[0].innerHTML;
+ waypoints.deleteRow(0);
+
+ var searchresults_html=waypoints.rows[0].innerHTML;
  waypoints.deleteRow(0);
 
  for(var marker=maxmarkers;marker>=1;marker--)
    {
-    waypoint=waypoints.insertRow(0);
-    waypoint.id="point" + marker;
+    var searchresults=waypoints.insertRow(0);
+    searchresults.id="searchresults" + marker;
+
+    var this_searchresults_html=searchresults_html.split('XXX').join(marker);
+    searchresults.innerHTML=this_searchresults_html;
+
+    var waypoint=waypoints.insertRow(0);
+    waypoint.id="waypoint" + marker;
 
     var this_waypoint_html=waypoint_html.split('XXX').join(marker);
-
     waypoint.innerHTML=this_waypoint_html;
    }
 
@@ -403,6 +411,8 @@ function formSetRestriction(type,value)
 
 function formSetCoords(marker,lon,lat,active)
 {
+ clearSearchResult(marker);
+
  if(lon == undefined || lat == undefined)
    {
     routino.point[marker].lon=document.forms["form"].elements["lon" + marker].value;
@@ -462,6 +472,8 @@ function formSetCoords(marker,lon,lat,active)
 
 function formSetSearch(marker,search)
 {
+ clearSearchResult(marker);
+
  if(search == undefined)
    {
     routino.point[marker].search=document.forms["form"].elements["search" + marker].value;
@@ -838,6 +850,8 @@ function dragSetForm(marker)
 
 function markerToggleMap(marker)
 {
+ clearSearchResult(marker);
+
  if(routino.point[marker].active)
     markerRemoveMap(marker);
  else
@@ -851,6 +865,8 @@ function markerToggleMap(marker)
 
 function markerAddMap(marker)
 {
+ clearSearchResult(marker);
+
  markers[marker].style.display = "";
  routino.point[marker].active=true;
 
@@ -866,6 +882,8 @@ function markerAddMap(marker)
 
 function markerRemoveMap(marker)
 {
+ clearSearchResult(marker);
+
  markers[marker].style.display = "none";
  routino.point[marker].active=false;
 
@@ -881,6 +899,8 @@ function markerRemoveMap(marker)
 
 function markerSearch(marker)
 {
+ clearSearchResult(marker);
+
  var search_span=document.getElementById("search" + marker);
  var coords_span=document.getElementById("coords" + marker);
 
@@ -895,6 +915,8 @@ function markerSearch(marker)
 
 function markerCoords(marker)
 {
+ clearSearchResult(marker);
+
  var search_span=document.getElementById("search" + marker);
  var coords_span=document.getElementById("coords" + marker);
 
@@ -909,6 +931,8 @@ function markerCoords(marker)
 
 function markerCentre(marker)
 {
+ clearSearchResult(marker);
+
  var lonlat=map.getCenter().clone();
 
  lonlat.transform(map.getProjectionObject(),epsg4326);
@@ -923,6 +947,8 @@ function markerCentre(marker)
 
 function markerRecentre(marker)
 {
+ clearSearchResult(marker);
+
  lon=routino.point[marker].lon;
  lat=routino.point[marker].lat;
 
@@ -938,13 +964,14 @@ function markerRecentre(marker)
 
 function markerRemove(marker)
 {
+ clearSearchResult(marker);
+
  for(var marker2=marker;marker2<vismarkers;marker2++)
     formSetCoords(marker2,routino.point[marker2+1].lon,routino.point[marker2+1].lat,routino.point[marker2+1].active);
 
  markerRemoveMap(vismarkers);
 
- var marker_tr=document.getElementById("point" + vismarkers);
-
+ var marker_tr=document.getElementById("waypoint" + vismarkers);
  marker_tr.style.display="none";
 
  vismarkers--;
@@ -960,13 +987,14 @@ function markerRemove(marker)
 
 function markerAddBefore(marker)
 {
+ clearSearchResult(marker);
+
  if(vismarkers==maxmarkers || marker==1)
     return false;
 
  vismarkers++;
 
- var marker_tr=document.getElementById("point" + vismarkers);
-
+ var marker_tr=document.getElementById("waypoint" + vismarkers);
  marker_tr.style.display="";
 
  for(var marker2=vismarkers;marker2>marker;marker2--)
@@ -984,13 +1012,14 @@ function markerAddBefore(marker)
 
 function markerAddAfter(marker)
 {
+ clearSearchResult(marker);
+
  if(vismarkers==maxmarkers)
     return false;
 
  vismarkers++;
 
- var marker_tr=document.getElementById("point" + vismarkers);
-
+ var marker_tr=document.getElementById("waypoint" + vismarkers);
  marker_tr.style.display="";
 
  for(var marker2=vismarkers;marker2>(marker+1);marker2--)
@@ -1008,6 +1037,8 @@ function markerAddAfter(marker)
 
 function markerHome(marker)
 {
+ clearSearchResult(marker);
+
  if(markerHomeCookie(marker))
     for(marker=1;marker<=maxmarkers;marker++)
        updateIcon(marker);
@@ -1020,6 +1051,8 @@ function markerHome(marker)
 
 function markerLocate(marker)
 {
+ clearSearchResult(marker);
+
  if(navigator.geolocation)
     navigator.geolocation.getCurrentPosition(
                                              function(position) {
@@ -1621,6 +1654,8 @@ function DoSearch(marker)
 }
 
 
+var searchresults=[];
+
 //
 // Success in running search.
 //
@@ -1631,12 +1666,80 @@ function runSearchSuccess(response)
 
  var marker=lines[0];
  var cpuinfo=lines[1];  // not used
- var latlon=lines[2];
- var message=lines[3];  // not used
+ var message=lines[2];  // not used
 
- latlon.match('([-.0-9]+) ([-.0-9]+)');
- lat = RegExp.$1;
- lon = RegExp.$2;
+ if(message != "")
+   {
+    alert(message);
+    return;
+   }
 
- formSetCoords(marker,lon,lat,true);
+ searchresults[marker]=[];
+
+ for(var line=3;line<lines.length;line++)
+   {
+    var thisline=lines[line];
+
+    if(thisline=="")
+       break;
+
+    thisline.match('([-.0-9]+) ([-.0-9]+) (.*)');
+
+    searchresults[marker][searchresults[marker].length]={lat: Number(RegExp.$1), lon: Number(RegExp.$2), name: RegExp.$3};
+   }
+
+ if(searchresults[marker].length==1)
+   {
+    formSetSearch(marker,searchresults[marker][0].name);
+    formSetCoords(marker,searchresults[marker][0].lon,searchresults[marker][0].lat,true);
+   }
+ else
+   {
+    var search=document.getElementById("search" + marker);
+    var results=document.getElementById("searchresults" + marker);
+
+    var innerHTML="<td colspan=\"3\">";
+
+    for(var n=0;n<searchresults[marker].length;n++)
+      {
+       if(n>0)
+          innerHTML+="<br>";
+
+       innerHTML+="<a href=\"#\" onclick=\"choseSearchResult(" + marker + "," + n + ")\">" +
+                  searchresults[marker][n].name +
+                  "</a>";
+      }
+
+    results.innerHTML=innerHTML;
+
+    results.style.display="";
+
+    var searchresult_tr=document.getElementById("searchresults" + marker);
+    searchresult_tr.style.display="";
+   }
+}
+
+
+//
+// Display search results.
+//
+
+function choseSearchResult(marker,n)
+{
+ if(n>=0)
+   {
+    formSetSearch(marker,searchresults[marker][n].name);
+    formSetCoords(marker,searchresults[marker][n].lon,searchresults[marker][n].lat,true);
+   }
+}
+
+
+//
+// Clear search results.
+//
+
+function clearSearchResult(marker)
+{
+ var searchresult_tr=document.getElementById("searchresults" + marker);
+ searchresult_tr.style.display="none";
 }

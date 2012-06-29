@@ -49,7 +49,7 @@ $search=$cgiparams{"search"};
 
 # Run the search
 
-($search_time,$search_lat,$search_lon,$search_message)=RunSearch($search);
+($search_time,$search_message,@places)=RunSearch($search);
 
 # Return the output
 
@@ -57,5 +57,8 @@ print header('text/plain');
 
 print "$marker\n";
 print "$search_time\n";
-print "$search_lat $search_lon\n";
 print "$search_message\n";
+foreach $place (@places)
+  {
+   print "$place\n";
+  }
