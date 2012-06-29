@@ -439,8 +439,7 @@ function formSetCoords(marker,lon,lat,active)
    }
 
  var lonlat=map.getCenter().clone();
-
- lonlat.transform(map.getProjectionObject(),epsg4326);
+ lonlat.transform(epsg900913,epsg4326);
 
  if(routino.point[marker].lon!="")
    {
@@ -456,11 +455,10 @@ function formSetCoords(marker,lon,lat,active)
     lonlat.lat=routino.point[marker].lat;
    }
 
- var point = lonlat.clone();
+ lonlat=lonlat.clone()
+ lonlat.transform(epsg4326,epsg900913);
 
- point.transform(epsg4326,map.getProjectionObject());
-
- markers[marker].move(point);
+ markers[marker].move(lonlat);
 
  markersmoved=true;
 }
@@ -559,9 +557,8 @@ function buildURLArguments(lang)
 
 function buildMapArguments()
 {
- var centre = map.getCenter().clone();
-
- var lonlat = centre.transform(map.getProjectionObject(),epsg4326);
+ var lonlat = map.getCenter().clone();
+ lonlat.transform(epsg900913,epsg4326);
 
  var zoom = map.getZoom() + map.minZoomLevel;
 
@@ -784,7 +781,8 @@ function map_init()
     if(zoom<mapprops.zoomout) zoom=mapprops.zoomout;
     if(zoom>mapprops.zoomin)  zoom=mapprops.zoomin;
 
-    var lonlat = new OpenLayers.LonLat(lon,lat).transform(epsg4326,map.getProjectionObject());
+    var lonlat = new OpenLayers.LonLat(lon,lat);
+    lonlat.transform(epsg4326,epsg900913);
 
     map.moveTo(lonlat,zoom-map.minZoomLevel);
    }
@@ -830,7 +828,7 @@ function dragComplete(feature,pixel)
 function dragSetForm(marker)
 {
  var lonlat = new OpenLayers.LonLat(markers[marker].geometry.x, markers[marker].geometry.y);
- lonlat.transform(map.getProjectionObject(),epsg4326);
+ lonlat.transform(epsg900913,epsg4326);
 
  var lon=format5f(lonlat.lon);
  var lat=format5f(lonlat.lat);
@@ -934,8 +932,7 @@ function markerCentre(marker)
  clearSearchResult(marker);
 
  var lonlat=map.getCenter().clone();
-
- lonlat.transform(map.getProjectionObject(),epsg4326);
+ lonlat.transform(epsg900913,epsg4326);
 
  formSetCoords(marker,lonlat.lon,lonlat.lat,true);
 }
@@ -952,7 +949,8 @@ function markerRecentre(marker)
  lon=routino.point[marker].lon;
  lat=routino.point[marker].lat;
 
- var lonlat = new OpenLayers.LonLat(lon,lat).transform(epsg4326,map.getProjectionObject());
+ var lonlat = new OpenLayers.LonLat(lon,lat);
+ lonlat.transform(epsg4326,epsg900913);
 
  map.panTo(lonlat);
 }
@@ -1211,7 +1209,8 @@ var gpx_style={shortest: null, quickest: null};
 
 function zoomTo(type,line)
 {
- var lonlat = new OpenLayers.LonLat(routepoints[type][line].lon,routepoints[type][line].lat).transform(epsg4326,map.getProjectionObject());
+ var lonlat = new OpenLayers.LonLat(routepoints[type][line].lon,routepoints[type][line].lat);
+ lonlat.transform(epsg4326,epsg900913);
 
  map.moveTo(lonlat,map.numZoomLevels-2);
 }
@@ -1233,7 +1232,8 @@ function highlight(type,line)
    {
     // Marker
 
-    var lonlat = new OpenLayers.LonLat(routepoints[type][line].lon,routepoints[type][line].lat).transform(epsg4326,map.getProjectionObject());
+    var lonlat = new OpenLayers.LonLat(routepoints[type][line].lon,routepoints[type][line].lat);
+    lonlat.transform(epsg4326,epsg900913);
 
     highlights[type].move(lonlat);
 
@@ -1648,16 +1648,14 @@ function DoSearch(marker)
 
  var search=routino.point[marker].search;
 
- var bounds=map.getExtent();
-
- var lefttop     = new OpenLayers.LonLat(bounds.left ,bounds.top   ).transform(map.getProjectionObject(),epsg4326);
- var rightbottom = new OpenLayers.LonLat(bounds.right,bounds.bottom).transform(map.getProjectionObject(),epsg4326);
+ var bounds=map.getExtent().clone();
+ bounds.transform(epsg900913,epsg4326);
 
  var url="search.cgi?marker=" + marker +
-         ";left=" + format5f(lefttop.lon) +
-         ";top="  + format5f(lefttop.lat) +
-         ";right="  + format5f(rightbottom.lon) +
-         ";bottom=" + format5f(rightbottom.lat) +
+         ";left=" + format5f(bounds.left) +
+         ";top="  + format5f(bounds.top) +
+         ";right="  + format5f(bounds.right) +
+         ";bottom=" + format5f(bounds.bottom) +
          ";search=" + encodeURIComponent(search);
 
  OpenLayers.loadURL(url,null,null,runSearchSuccess);
