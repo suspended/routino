@@ -25,6 +25,9 @@ require "paths.pl";
 # Use the perl LWP module
 use LWP::UserAgent;
 
+# Use the perl JSON module
+use JSON::PP;
+
 # Use the perl Time::HiRes module
 use Time::HiRes qw(gettimeofday tv_interval);
 
@@ -41,16 +44,14 @@ sub RunSearch
 
    # Perform the search based on the type
 
-   my($lat,$lon,$message);
+   my(@places)=[];
 
    if($search_type eq "nominatim")
      {
-      ($lat,$lon,$message)=DoNominatimSearch($search);
+      ($message,@places)=DoNominatimSearch($search);
      }
    else
      {
-      $lat="";
-      $lon="";
       $message="Unknown search type '$search_type'";
      }
 
@@ -59,7 +60,7 @@ sub RunSearch
 
    # Return the results
 
-   return($time,$lat,$lon,$message);
+   return($time,$message,@places);
   }
 
 
@@ -73,20 +74,30 @@ sub DoNominatimSearch
 
    $search =~ s% %+%g;
 
-   my $url="$search_baseurl?format=json&limit=1&q=$search";
+   my $url="$search_baseurl?format=json&q=$search";
 
    my $ua=LWP::UserAgent->new;
    my $res=$ua->get($url);
 
-   my($lat,$lon,$message)=("","","");
+   if(!$res->is_success)
+     {
+      return($response->status_line,[]);
+     }
 
-   $lat=$1 if($res->content =~ m%"lat" *: *"([-.0-9]+)"%);
+   my($result)=decode_json($res->content);
 
-   $lon=$1 if($res->content =~ m%"lon" *: *"([-.0-9]+)"%);
+   my(@places);
 
-   $message="No result" if($lon eq "" || $lat eq "");
+   foreach my $place (@$result)
+     {
+      my($lat)=$place->{"lat"};
+      my($lon)=$place->{"lon"};
+      my($name)=$place->{"display_name"};
 
-   return($lat,$lon,$message);
+      push(@places,"$lat $lon $name");
+     }
+
+   return("",@places);
   }
 
 
