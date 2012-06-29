@@ -52,7 +52,7 @@
 <link href="router.css" type="text/css" rel="stylesheet">
 
 </HEAD>
-<BODY onload="html_init();map_init();form_init();block_return_key();">
+<BODY onload="html_init();map_init();form_init();">
 
 <!-- Left hand side of window - data panel -->
 
@@ -66,7 +66,7 @@
 
   <div class="tab_content" id="tab_options_div">
 
-    <form name="form" id="form" action="router.cgi" method="get">
+    <form name="form" id="form" action="" method="get" onsubmit="return false;">
       <div class="hideshow_box">
         <span class="hideshow_title">Routino OpenStreetMap Router</span>
         Zoom naar straatniveau.
@@ -148,6 +148,7 @@
                 <img alt="v" src="icons/waypoint-down.png"     title="Beweeg dit punt naar beneden" onmousedown="markerMoveDown(XXX);">
                 <img alt="-" src="icons/waypoint-remove.png"   title="Verwijder dit punt"           onmousedown="markerRemove(XXX);"  >
             <tr id="searchresultsXXX" style="display: none;">
+              <td colspan="3">
             <!-- The waypoints are inserted by the JavaScript, see the "maxmarkers" variable in router.js.  -->
             <tr>
               <td colspan="3" align="center"><input type="button" title="Keer volgorde punten om" value="Keer volgorde punten om" onmousedown="markersReverse();">

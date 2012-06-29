@@ -184,7 +184,7 @@
       <input type="button" id="highway" onclick="displayData('highway');" value="Display Highway Segments">
       <div id="hideshow_highway_div" style="display: none;">
         Each segment of the chosen type of highway is drawn.
-        <form name="highways" id="highways" method="get">
+        <form name="highways" id="highways" action="" method="get" onsubmit="return false;">
           <table>
             <tr><td>Motorway:    <td><input name="highway" type="radio" value="motorway"    >
             <tr><td>Trunk:       <td><input name="highway" type="radio" value="trunk"       >
@@ -210,7 +210,7 @@
       <input type="button" id="transport" onclick="displayData('transport');" value="Display Transport Segments">
       <div id="hideshow_transport_div" style="display: none;">
         Each segment allowed for the chosen type of transport is drawn.
-        <form name="transports" id="transports" method="get">
+        <form name="transports" id="transports" action="" method="get" onsubmit="return false;">
           <table>
             <tr><td>Foot      <td><input name="transport" type="radio" value="foot"      >
             <tr><td>Horse     <td><input name="transport" type="radio" value="horse"     >
