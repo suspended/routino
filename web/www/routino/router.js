@@ -1648,7 +1648,17 @@ function DoSearch(marker)
 
  var search=routino.point[marker].search;
 
- var url="search.cgi?marker=" + marker + ";search=" + encodeURIComponent(search);
+ var bounds=map.getExtent();
+
+ var lefttop     = new OpenLayers.LonLat(bounds.left ,bounds.top   ).transform(map.getProjectionObject(),epsg4326);
+ var rightbottom = new OpenLayers.LonLat(bounds.right,bounds.bottom).transform(map.getProjectionObject(),epsg4326);
+
+ var url="search.cgi?marker=" + marker +
+         ";left=" + format5f(lefttop.lon) +
+         ";top="  + format5f(lefttop.lat) +
+         ";right="  + format5f(rightbottom.lon) +
+         ";bottom=" + format5f(rightbottom.lat) +
+         ";search=" + encodeURIComponent(search);
 
  OpenLayers.loadURL(url,null,null,runSearchSuccess);
 }
