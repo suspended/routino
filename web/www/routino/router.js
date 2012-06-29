@@ -586,33 +586,6 @@ function updateURL(element)
 }
 
 
-//
-// Block the use of the return key to submit the form
-//
-
-function block_return_key()
-{
- var form=document.getElementById("form");
-
- if(form.addEventListener)
-    form.addEventListener('keyup', discardReturnKey, false);
- else if(form.attachEvent)
-    form.attachEvent('keyup', discardReturnKey); // Internet Explorer
-}
-
-//
-// Function to discard the return key if pressed
-//
-
-function discardReturnKey(ev)
-{
- if(ev.keyCode==13)
-    return(false);
-
- return(true);
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// Map handling /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
