@@ -243,7 +243,8 @@ function map_init()
     if(zoom<mapprops.zoomout) zoom=mapprops.zoomout;
     if(zoom>mapprops.zoomin)  zoom=mapprops.zoomin;
 
-    var lonlat = new OpenLayers.LonLat(lon,lat).transform(epsg4326,map.getProjectionObject());
+    var lonlat = new OpenLayers.LonLat(lon,lat);
+    lonlat.transform(epsg4326,epsg900913);
 
     map.moveTo(lonlat,zoom-map.minZoomLevel);
    }
@@ -280,9 +281,8 @@ function format5f(number)
 
 function buildMapArguments()
 {
- var centre = map.getCenter().clone();
-
- var lonlat = centre.transform(map.getProjectionObject(),epsg4326);
+ var lonlat = map.getCenter().clone();
+ lonlat.transform(epsg900913,epsg4326);
 
  var zoom = map.getZoom() + map.minZoomLevel;
 
@@ -479,7 +479,7 @@ function runJunctionsSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,map.getProjectionObject());
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
 
        box = new OpenLayers.Marker.Box(bounds);
 
@@ -528,7 +528,7 @@ function runSuperSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,map.getProjectionObject());
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
 
        box = new OpenLayers.Marker.Box(bounds);
 
@@ -586,7 +586,7 @@ function runOnewaySuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,map.getProjectionObject());
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
 
        box = new OpenLayers.Marker.Box(bounds);
 
@@ -653,7 +653,7 @@ function runHighwaySuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,map.getProjectionObject());
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
 
        box = new OpenLayers.Marker.Box(bounds);
 
@@ -705,7 +705,7 @@ function runTransportSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,map.getProjectionObject());
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
 
        box = new OpenLayers.Marker.Box(bounds);
 
@@ -757,7 +757,7 @@ function runTurnsSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,map.getProjectionObject());
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
 
        box = new OpenLayers.Marker.Box(bounds);
 
@@ -815,7 +815,7 @@ function runLimitSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,map.getProjectionObject());
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
 
        box = new OpenLayers.Marker.Box(bounds);
 
