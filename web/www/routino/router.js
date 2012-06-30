@@ -128,16 +128,14 @@ function html_init()
  for(var marker=maxmarkers;marker>=1;marker--)
    {
     var searchresults=waypoints.insertRow(0);
-    searchresults.id="searchresults" + marker;
 
-    var this_searchresults_html=searchresults_html.split('XXX').join(marker);
-    searchresults.innerHTML=this_searchresults_html;
+    searchresults.id="searchresults" + marker;
+    searchresults.innerHTML=searchresults_html.split('XXX').join(marker);
 
     var waypoint=waypoints.insertRow(0);
-    waypoint.id="waypoint" + marker;
 
-    var this_waypoint_html=waypoint_html.split('XXX').join(marker);
-    waypoint.innerHTML=this_waypoint_html;
+    waypoint.id="waypoint" + marker;
+    waypoint.innerHTML=waypoint_html.split('XXX').join(marker);
    }
 
  vismarkers=maxmarkers;
@@ -872,11 +870,8 @@ function markerSearch(marker)
 {
  clearSearchResult(marker);
 
- var search_span=document.getElementById("search" + marker);
- var coords_span=document.getElementById("coords" + marker);
-
- search_span.style.display="";
- coords_span.style.display="none";
+ document.getElementById("coords" + marker).style.display="none";
+ document.getElementById("search" + marker).style.display="";
 }
 
 
@@ -888,11 +883,8 @@ function markerCoords(marker)
 {
  clearSearchResult(marker);
 
- var search_span=document.getElementById("search" + marker);
- var coords_span=document.getElementById("coords" + marker);
-
- search_span.style.display="none";
- coords_span.style.display="";
+ document.getElementById("search" + marker).style.display="none";
+ document.getElementById("coords" + marker).style.display="";
 }
 
 
@@ -942,8 +934,7 @@ function markerRemove(marker)
 
  markerRemoveMap(vismarkers);
 
- var marker_tr=document.getElementById("waypoint" + vismarkers);
- marker_tr.style.display="none";
+ document.getElementById("waypoint" + vismarkers).style.display="none";
 
  vismarkers--;
 
@@ -965,8 +956,7 @@ function markerAddBefore(marker)
 
  vismarkers++;
 
- var marker_tr=document.getElementById("waypoint" + vismarkers);
- marker_tr.style.display="";
+ document.getElementById("waypoint" + vismarkers).style.display="";
 
  for(var marker2=vismarkers;marker2>marker;marker2--)
     formSetCoords(marker2,routino.point[marker2-1].lon,routino.point[marker2-1].lat,routino.point[marker2-1].active);
@@ -990,8 +980,7 @@ function markerAddAfter(marker)
 
  vismarkers++;
 
- var marker_tr=document.getElementById("waypoint" + vismarkers);
- marker_tr.style.display="";
+ document.getElementById("waypoint" + vismarkers).style.display="";
 
  for(var marker2=vismarkers;marker2>(marker+1);marker2--)
     formSetCoords(marker2,routino.point[marker2-1].lon,routino.point[marker2-1].lat,routino.point[marker2-1].active);
@@ -1292,11 +1281,9 @@ function removeGPXTrace(type)
 
  displayStatus(type,"no_info");
 
- var div_links=document.getElementById(type + "_links");
- div_links.style.display = "none";
+ document.getElementById(type + "_links").style.display = "none";
 
- var div_route=document.getElementById(type + "_route");
- div_route.innerHTML = "";
+ document.getElementById(type + "_route").innerHTML = "";
 
  hideshow_hide(type);
 }
@@ -1324,12 +1311,8 @@ function displayStatistics()
 
 function runStatisticsSuccess(response)
 {
- var statistics_data=document.getElementById("statistics_data");
- var statistics_link=document.getElementById("statistics_link");
-
- statistics_data.innerHTML="<pre>" + response.responseText + "</pre>";
-
- statistics_link.style.display="none";
+ document.getElementById("statistics_data").innerHTML="<pre>" + response.responseText + "</pre>";
+ document.getElementById("statistics_link").style.display="none";
 }
 
 
@@ -1411,17 +1394,20 @@ function runRouterSuccess(response)
 
  link=document.getElementById(routing_type + "_html");
  link.href="results.cgi?uuid=" + uuid + ";type=" + routing_type + ";format=html";
+
  link=document.getElementById(routing_type + "_gpx_track");
  link.href="results.cgi?uuid=" + uuid + ";type=" + routing_type + ";format=gpx-track";
+
  link=document.getElementById(routing_type + "_gpx_route");
  link.href="results.cgi?uuid=" + uuid + ";type=" + routing_type + ";format=gpx-route";
+
  link=document.getElementById(routing_type + "_text_all");
  link.href="results.cgi?uuid=" + uuid + ";type=" + routing_type + ";format=text-all";
+
  link=document.getElementById(routing_type + "_text");
  link.href="results.cgi?uuid=" + uuid + ";type=" + routing_type + ";format=text";
 
- var div_links=document.getElementById(routing_type + "_links");
- div_links.style.display = "";
+ links=document.getElementById(routing_type + "_links").style.display = "";
 
  // Add a GPX layer
 
@@ -1458,9 +1444,7 @@ function runRouterFailure(response)
 
 function displayStatus(type,subtype,content)
 {
- var div_status=document.getElementById(type + "_status");
-
- var child=div_status.firstChild;
+ var child=document.getElementById(type + "_status").firstChild;
 
  do
    {
@@ -1505,7 +1489,6 @@ function displayResult(type,uuid)
 function getRouteSuccess(response)
 {
  var lines=response.responseText.split('\n');
- var div_route=document.getElementById(routing_type + "_route");
 
  routepoints[routing_type]=[];
 
@@ -1596,7 +1579,7 @@ function getRouteSuccess(response)
 
  result=result + "</table>";
 
- div_route.innerHTML=result;
+ document.getElementById(routing_type + "_route").innerHTML=result;
 }
 
 
@@ -1606,8 +1589,7 @@ function getRouteSuccess(response)
 
 function getRouteFailure(response)
 {
- var div_route=document.getElementById(routing_type + "_route");
- div_route.innerHTML = "";
+ document.getElementById(routing_type + "_route").innerHTML = "";
 }
 
 
@@ -1676,7 +1658,6 @@ function runSearchSuccess(response)
    }
  else
    {
-    var search=document.getElementById("search" + marker);
     var results=document.getElementById("searchresults" + marker);
 
     var innerHTML="<td colspan=\"3\">";
@@ -1694,9 +1675,6 @@ function runSearchSuccess(response)
     results.innerHTML=innerHTML;
 
     results.style.display="";
-
-    var searchresult_tr=document.getElementById("searchresults" + marker);
-    searchresult_tr.style.display="";
    }
 }
 
@@ -1721,6 +1699,5 @@ function choseSearchResult(marker,n)
 
 function clearSearchResult(marker)
 {
- var searchresult_tr=document.getElementById("searchresults" + marker);
- searchresult_tr.style.display="none";
+ document.getElementById("searchresults" + marker).style.display="none";
 }
