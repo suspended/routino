@@ -320,9 +320,7 @@ function updateURL(element)
 
 function displayStatus(type,subtype,content)
 {
- var div_status=document.getElementById("result_status");
-
- var child=div_status.firstChild;
+ var child=document.getElementById("result_status").firstChild;
 
  do
    {
@@ -364,12 +362,8 @@ function displayStatistics()
 
 function runStatisticsSuccess(response)
 {
- var statistics_data=document.getElementById("statistics_data");
- var statistics_link=document.getElementById("statistics_link");
-
- statistics_data.innerHTML="<pre>" + response.responseText + "</pre>";
-
- statistics_link.style.display="none";
+ document.getElementById("statistics_data").innerHTML="<pre>" + response.responseText + "</pre>";
+ document.getElementById("statistics_link").style.display="none";
 }
 
 
