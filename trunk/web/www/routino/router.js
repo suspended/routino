@@ -626,10 +626,11 @@ function map_init()
                             numZoomLevels: mapprops.zoomin-mapprops.zoomout+1,
                             maxResolution: 156543.0339 / Math.pow(2,mapprops.zoomout),
 
+                            // These two lines are not needed with OpenLayers 2.12
+                            units: "m",
                             maxExtent:        new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34),
-                            restrictedExtent: new OpenLayers.Bounds(mapprops.westedge,mapprops.southedge,mapprops.eastedge,mapprops.northedge).transform(epsg4326,epsg900913),
 
-                            units: "m"
+                            restrictedExtent: new OpenLayers.Bounds(mapprops.westedge,mapprops.southedge,mapprops.eastedge,mapprops.northedge).transform(epsg4326,epsg900913)
                            });
 
  // Add map tile layers
@@ -1299,7 +1300,7 @@ function displayStatistics()
 {
  // Use AJAX to get the statistics
 
- OpenLayers.loadURL("statistics.cgi",null,null,runStatisticsSuccess);
+ OpenLayers.Request.GET({url: "statistics.cgi", success: runStatisticsSuccess});
 }
 
 
@@ -1348,7 +1349,7 @@ function findRoute(type)
 
  routing_type=type;
 
- OpenLayers.loadURL(url,null,null,runRouterSuccess,runRouterFailure);
+ OpenLayers.Request.GET({url: url, success: runRouterSuccess, failure: runRouterFailure});
 }
 
 
@@ -1411,12 +1412,13 @@ function runRouterSuccess(response)
 
  var url="results.cgi?uuid=" + uuid + ";type=" + routing_type + ";format=gpx-track";
 
- layerGPX[routing_type] = new OpenLayers.Layer.GML("GPX (" + routing_type + ")", url,
-                                                   {
-                                                    format:     OpenLayers.Format.GPX,
-                                                    style:      gpx_style[routing_type],
-                                                    projection: map.displayProjection
-                                                   });
+ layerGPX[routing_type] = new OpenLayers.Layer.Vector("GPX (" + routing_type + ")",
+                                                      {
+                                                       protocol:   new OpenLayers.Protocol.HTTP({url: url, format: new OpenLayers.Format.GPX()}),
+                                                       strategies: [new OpenLayers.Strategy.Fixed()],
+                                                       style:      gpx_style[routing_type],
+                                                       projection: map.displayProjection
+                                                      });
 
  map.addLayer(layerGPX[routing_type]);
 
@@ -1476,7 +1478,7 @@ function displayResult(type,uuid)
 
  // Use AJAX to get the route
 
- OpenLayers.loadURL(url,null,null,getRouteSuccess,getRouteFailure);
+ OpenLayers.Request.GET({url: url, success: getRouteSuccess, failure: getRouteFailure});
 }
 
 
@@ -1611,7 +1613,7 @@ function DoSearch(marker)
          ";bottom=" + format5f(bounds.bottom) +
          ";search=" + encodeURIComponent(search);
 
- OpenLayers.loadURL(url,null,null,runSearchSuccess);
+ OpenLayers.Request.GET({url: url, success: runSearchSuccess});
 }
 
 
