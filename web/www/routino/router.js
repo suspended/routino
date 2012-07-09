@@ -19,8 +19,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-// The number of waypoints to include in the HTML
-var maxmarkers=9;
 
 var vismarkers, markers, markersmoved, paramschanged;
 var homelat=null, homelon=null;
@@ -53,7 +51,7 @@ for(var l1 in routino)
 // Store the latitude and longitude in the routino variable
 
 routino.point=[];
-for(var marker=1;marker<=maxmarkers;marker++)
+for(var marker=1;marker<=mapprops.maxmarkers;marker++)
   {
    routino.point[marker]={};
 
@@ -125,7 +123,7 @@ function html_init()
  var searchresults_html=waypoints.rows[0].innerHTML;
  waypoints.deleteRow(0);
 
- for(var marker=maxmarkers;marker>=1;marker--)
+ for(var marker=mapprops.maxmarkers;marker>=1;marker--)
    {
     var searchresults=waypoints.insertRow(0);
 
@@ -138,7 +136,7 @@ function html_init()
     waypoint.innerHTML=waypoint_html.split('XXX').join(marker);
    }
 
- vismarkers=maxmarkers;
+ vismarkers=mapprops.maxmarkers;
 }
 
 
@@ -156,7 +154,7 @@ function form_init()
 
  var filled=0;
 
- for(var marker=maxmarkers;marker>=1;marker--)
+ for(var marker=mapprops.maxmarkers;marker>=1;marker--)
    {
     var lon=args["lon" + marker];
     var lat=args["lat" + marker];
@@ -248,7 +246,7 @@ function form_init()
 
  if(homelon!=null && homelat!=null)
    {
-    for(var marker=maxmarkers;marker>=1;marker--)
+    for(var marker=mapprops.maxmarkers;marker>=1;marker--)
       {
        var lon=routino.point[marker].lon;
        var lat=routino.point[marker].lat;
@@ -693,7 +691,7 @@ function map_init()
  markersmoved=false;
  paramschanged=false;
 
- for(var marker=1;marker<=maxmarkers;marker++)
+ for(var marker=1;marker<=mapprops.maxmarkers;marker++)
    {
     markers[marker] = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(0,0),{},
                                                     new OpenLayers.Style({},{externalGraphic: 'icons/marker-' + marker + '-red.png',
@@ -951,7 +949,7 @@ function markerAddBefore(marker)
 {
  clearSearchResult(marker);
 
- if(vismarkers==maxmarkers || marker==1)
+ if(vismarkers==mapprops.maxmarkers || marker==1)
     return false;
 
  vismarkers++;
@@ -975,7 +973,7 @@ function markerAddAfter(marker)
 {
  clearSearchResult(marker);
 
- if(vismarkers==maxmarkers)
+ if(vismarkers==mapprops.maxmarkers)
     return false;
 
  vismarkers++;
@@ -1000,7 +998,7 @@ function markerHome(marker)
  clearSearchResult(marker);
 
  if(markerHomeCookie(marker))
-    for(marker=1;marker<=maxmarkers;marker++)
+    for(marker=1;marker<=mapprops.maxmarkers;marker++)
        updateIcon(marker);
 }
 
