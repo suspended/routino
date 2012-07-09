@@ -156,12 +156,13 @@ function map_init()
 
                             minZoomLevel: mapprops.zoomout,
                             numZoomLevels: mapprops.zoomin-mapprops.zoomout+1,
-                            maxResolution: 156543.0339 / Math.pow(2,mapprops.zoomout),
+                            maxResolution: 156543.03390625 / Math.pow(2,mapprops.zoomout),
 
+                            // These two lines are not needed with OpenLayers 2.12
+                            units: "m",
                             maxExtent:        new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34),
-                            restrictedExtent: new OpenLayers.Bounds(mapprops.westedge,mapprops.southedge,mapprops.eastedge,mapprops.northedge).transform(epsg4326,epsg900913),
 
-                            units: "m"
+                            restrictedExtent: new OpenLayers.Bounds(mapprops.westedge,mapprops.southedge,mapprops.eastedge,mapprops.northedge).transform(epsg4326,epsg900913)
                            });
 
  // Add map tile layers
@@ -352,7 +353,7 @@ function displayStatistics()
 {
  // Use AJAX to get the statistics
 
- OpenLayers.loadURL("statistics.cgi",null,null,runStatisticsSuccess);
+ OpenLayers.Request.GET({url: "statistics.cgi", success: runStatisticsSuccess});
 }
 
 
@@ -414,13 +415,13 @@ function displayData(datatype)
  switch(datatype)
    {
    case 'junctions':
-    OpenLayers.loadURL(url,null,null,runJunctionsSuccess,runFailure);
+    OpenLayers.Request.GET({url: url, success: runJunctionsSuccess, failure: runFailure});
     break;
    case 'super':
-    OpenLayers.loadURL(url,null,null,runSuperSuccess,runFailure);
+    OpenLayers.Request.GET({url: url, success: runSuperSuccess, faliure: runFailure});
     break;
    case 'oneway':
-    OpenLayers.loadURL(url,null,null,runOnewaySuccess,runFailure);
+    OpenLayers.Request.GET({url: url, success: runOnewaySuccess, failure: runFailure});
     break;
    case 'highway':
     var highways=document.forms["highways"].elements["highway"];
@@ -428,7 +429,7 @@ function displayData(datatype)
        if(highways[h].checked)
           highway=highways[h].value;
     url+="-" + highway;
-    OpenLayers.loadURL(url,null,null,runHighwaySuccess,runFailure);
+    OpenLayers.Request.GET({url: url, success: runHighwaySuccess, falure: runFailure});
     break;
    case 'transport':
     var transports=document.forms["transports"].elements["transport"];
@@ -436,17 +437,17 @@ function displayData(datatype)
        if(transports[t].checked)
           transport=transports[t].value;
     url+="-" + transport;
-    OpenLayers.loadURL(url,null,null,runTransportSuccess,runFailure);
+    OpenLayers.Request.GET({url: url, success: runTransportSuccess, failure: runFailure});
     break;
    case 'turns':
-    OpenLayers.loadURL(url,null,null,runTurnsSuccess,runFailure);
+    OpenLayers.Request.GET({url: url, success: runTurnsSuccess, failure: runFailure});
     break;
    case 'speed':
    case 'weight':
    case 'height':
    case 'width':
    case 'length':
-    OpenLayers.loadURL(url,null,null,runLimitSuccess,runFailure);
+    OpenLayers.Request.GET({url: url, success: runLimitSuccess, failure: runFailure});
     break;
    }
 }
