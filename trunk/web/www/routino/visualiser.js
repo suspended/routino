@@ -233,7 +233,7 @@ function map_init()
 
  // Move the map
 
- if(lon != 'lon' && lat != 'lat' && zoom != 'zoom')
+ if(lon != undefined && lat != undefined && zoom != undefined)
    {
     if(lon<mapprops.westedge) lon=mapprops.westedge;
     if(lon>mapprops.eastedge) lon=mapprops.eastedge;
