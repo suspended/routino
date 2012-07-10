@@ -189,6 +189,13 @@ function form_init()
       }
     else if(filled==0)
        markerRemove(marker);
+
+    var searchfield=document.forms["form"].elements["search" + marker];
+
+    if(searchfield.addEventListener)
+       searchfield.addEventListener('keyup', searchOnReturnKey, false);
+    else if(searchfield.attachEvent)
+       searchfield.attachEvent('keyup', searchOnReturnKey); // Internet Explorer
    }
 
  // Update the transport type with the URL settings which updates all HTML forms to defaults.
@@ -260,6 +267,21 @@ function form_init()
     if(routino.point[1].lon=="" && routino.point[1].lat=="")
        formSetCoords(1,homelon,homelat,true);
    }
+}
+
+
+//
+// Function to perform the search if the return key is pressed.
+// (using 'onchange' only triggers once and is confusing when clicking outside the field).
+//
+
+function searchOnReturnKey(ev)
+{
+ if(ev.keyCode==13)
+    if(this.name.match(/^search([0-9]+)$/))
+       formSetSearch(RegExp.$1);
+
+ return(true);
 }
 
 
