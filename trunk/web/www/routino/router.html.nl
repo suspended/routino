@@ -133,7 +133,7 @@
                   <input name="latXXX" type="text" size="7" title="Waypoint XXX Latitude"  onchange="formSetCoords(XXX);">N&nbsp;
                 </span>
                 <span id="searchXXX" style="display: none;">
-                  <input name="searchXXX" type="text" size="20" title="Waypoint XXX Location" onchange="formSetSearch(XXX);">
+                  <input name="searchXXX" type="text" size="20" title="Waypoint XXX Location"> <!-- uses Javascript event for triggering -->
                 </span>
               <td>
                 <img alt="?" src="icons/waypoint-search.png"   title="Search for location"         onmousedown="markerSearch(XXX);"  >
