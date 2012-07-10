@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008,2009 Andrew M. Bishop
+// This file Copyright 2008-2012 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ function tab_select(name)
  var tab=document.getElementById("tab_" + name);
 
  if(tab.className=="tab_selected")
-   {return;}
+    return;
 
  // Hide the deslected tabs and DIVs
 
@@ -52,10 +52,8 @@ function tab_select(name)
 
  // Display the newly selected tab and DIV
 
- var div=document.getElementById(tab.id + "_div");
-
  tab.className="tab_selected";
- div.style.display="";
+ document.getElementById(tab.id + "_div").style.display="";
 }
 
 
@@ -65,13 +63,9 @@ function tab_select(name)
 
 function hideshow_show(name)
 {
- var span1=document.getElementById("hideshow_" + name + "_show");
- var span2=document.getElementById("hideshow_" + name + "_hide");
- var div=document.getElementById("hideshow_" + name + "_div");
-
- div.style.display="";
- span1.className="hideshow_hide";
- span2.className="hideshow_show";
+ document.getElementById("hideshow_" + name + "_show").className="hideshow_hide";
+ document.getElementById("hideshow_" + name + "_hide").className="hideshow_show";
+ document.getElementById("hideshow_" + name + "_div").style.display="";
 }
 
 
@@ -81,11 +75,7 @@ function hideshow_show(name)
 
 function hideshow_hide(name)
 {
- var span1=document.getElementById("hideshow_" + name + "_show");
- var span2=document.getElementById("hideshow_" + name + "_hide");
- var div=document.getElementById("hideshow_" + name + "_div");
-
- div.style.display="none";
- span2.className="hideshow_hide";
- span1.className="hideshow_show";
+ document.getElementById("hideshow_" + name + "_show").className="hideshow_show";
+ document.getElementById("hideshow_" + name + "_hide").className="hideshow_hide";
+ document.getElementById("hideshow_" + name + "_div").style.display="none";
 }
