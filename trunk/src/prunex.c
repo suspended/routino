@@ -949,11 +949,11 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           if(lower==0)     /* move everything up by one */
             {
-             memmove(nodes+1   ,nodes   ,(upper-lower)*sizeof(index_t));
-             memmove(segments+1,segments,(upper-lower)*sizeof(index_t));
+             memmove(nodes+1   ,nodes   ,(1+upper-lower)*sizeof(index_t));
+             memmove(segments+1,segments,(1+upper-lower)*sizeof(index_t));
 
-             memmove(lats+1,lats,(upper-lower)*sizeof(double));
-             memmove(lons+1,lons,(upper-lower)*sizeof(double));
+             memmove(lats+1,lats,(1+upper-lower)*sizeof(double));
+             memmove(lons+1,lons,(1+upper-lower)*sizeof(double));
 
              current++;
              lower++;
