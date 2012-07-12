@@ -646,7 +646,7 @@ function map_init()
 
                             minZoomLevel: mapprops.zoomout,
                             numZoomLevels: mapprops.zoomin-mapprops.zoomout+1,
-                            maxResolution: 156543.0339 / Math.pow(2,mapprops.zoomout),
+                            maxResolution: 156543.03390625 / Math.pow(2,mapprops.zoomout),
 
                             // These two lines are not needed with OpenLayers 2.12
                             units: "m",
