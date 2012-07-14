@@ -36,7 +36,7 @@
 int option_loggable=0;
 
 /*+ The option to print timestamps with the output. +*/
-int option_logtime=1;
+int option_logtime=0;
 
 
 /* Local functions */
