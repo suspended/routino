@@ -145,15 +145,18 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
-    /* Find a spare slot (one *must* be unused at all times) */
+    if(option_filesort_threads>1)
+      {
+       /* Find a spare slot (one *must* be unused at all times) */
 
-    pthread_mutex_lock(&running_mutex);
+       pthread_mutex_lock(&running_mutex);
 
-    for(thread=0;thread<option_filesort_threads;thread++)
-       if(!threads[thread].running)
-          break;
+       for(thread=0;thread<option_filesort_threads;thread++)
+          if(!threads[thread].running)
+             break;
 
-    pthread_mutex_unlock(&running_mutex);
+       pthread_mutex_unlock(&running_mutex);
+      }
 
 #endif
 
@@ -174,9 +177,9 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
     threads[thread].n=i;
 
-    /* Shortcut if there is no data and no previous files (i.e. no data at all) */
+    /* Shortcut if there is no previous data and no more data (i.e. no data at all) */
 
-    if(nfiles==0 && threads[thread].n==0)
+    if(more==0 && total==0)
        goto tidy_and_exit;
 
     /* No new data read in this time round */
@@ -190,23 +193,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
-    if(option_filesort_threads==1)
-      {
-       pthread_mutex_lock(&running_mutex);
-
-       threads[thread].running=1;
-
-       pthread_mutex_unlock(&running_mutex);
-
-       filesort_fixed_heapsort_thread(&threads[thread]);
-
-       pthread_mutex_lock(&running_mutex);
-
-       threads[thread].running=0;
-
-       pthread_mutex_unlock(&running_mutex);
-      }
-    else
+    if(option_filesort_threads>1)
       {
        pthread_mutex_lock(&running_mutex);
 
@@ -232,10 +219,11 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
        nthreads++;
       }
+    else
 
 #else
 
-    filesort_fixed_heapsort_thread(&threads[thread]);
+       filesort_fixed_heapsort_thread(&threads[thread]);
 
 #endif
 
@@ -247,7 +235,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
- while(nthreads && option_filesort_threads>1)
+ while(option_filesort_threads>1 && nthreads)
    {
     pthread_mutex_lock(&running_mutex);
 
@@ -496,15 +484,18 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
-    /* Find a spare slot (one *must* be unused at all times) */
+    if(option_filesort_threads>1)
+      {
+       /* Find a spare slot (one *must* be unused at all times) */
 
-    pthread_mutex_lock(&running_mutex);
+       pthread_mutex_lock(&running_mutex);
 
-    for(thread=0;thread<option_filesort_threads;thread++)
-       if(!threads[thread].running)
-          break;
+       for(thread=0;thread<option_filesort_threads;thread++)
+          if(!threads[thread].running)
+             break;
 
-    pthread_mutex_unlock(&running_mutex);
+       pthread_mutex_unlock(&running_mutex);
+      }
 
 #endif
 
@@ -555,23 +546,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
-    if(option_filesort_threads==1)
-      {
-       pthread_mutex_lock(&running_mutex);
-
-       threads[thread].running=1;
-
-       pthread_mutex_unlock(&running_mutex);
-
-       filesort_vary_heapsort_thread(&threads[thread]);
-
-       pthread_mutex_lock(&running_mutex);
-
-       threads[thread].running=0;
-
-       pthread_mutex_unlock(&running_mutex);
-      }
-    else
+    if(option_filesort_threads>1)
       {
        pthread_mutex_lock(&running_mutex);
 
@@ -597,10 +572,11 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
        nthreads++;
       }
+    else
 
 #else
 
-    filesort_vary_heapsort_thread(&threads[thread]);
+       filesort_vary_heapsort_thread(&threads[thread]);
 
 #endif
 
@@ -612,7 +588,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
- while(nthreads && option_filesort_threads>1)
+ while(option_filesort_threads>1 && nthreads)
    {
     pthread_mutex_lock(&running_mutex);
 
@@ -840,13 +816,16 @@ static void *filesort_fixed_heapsort_thread(thread_data *thread)
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
- pthread_mutex_lock(&running_mutex);
+ if(option_filesort_threads>1)
+   {
+    pthread_mutex_lock(&running_mutex);
 
- thread->running=2;
+    thread->running=2;
 
- pthread_cond_signal(&running_cond);
+    pthread_cond_signal(&running_cond);
 
- pthread_mutex_unlock(&running_mutex);
+    pthread_mutex_unlock(&running_mutex);
+   }
 
 #endif
 
@@ -885,13 +864,16 @@ static void *filesort_vary_heapsort_thread(thread_data *thread)
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
- pthread_mutex_lock(&running_mutex);
+ if(option_filesort_threads>1)
+   {
+    pthread_mutex_lock(&running_mutex);
 
- thread->running=2;
+    thread->running=2;
 
- pthread_cond_signal(&running_cond);
+    pthread_cond_signal(&running_cond);
 
- pthread_mutex_unlock(&running_mutex);
+    pthread_mutex_unlock(&running_mutex);
+   }
 
 #endif
 
