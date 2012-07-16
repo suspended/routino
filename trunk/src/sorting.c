@@ -193,7 +193,11 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
-    if(option_filesort_threads>1)
+    /* Shortcut if only one file, don't write to disk */
+
+    if(more==0 && nfiles==0)
+       filesort_heapsort(threads[thread].datap,threads[thread].n,threads[thread].compare);
+    else if(option_filesort_threads>1)
       {
        pthread_mutex_lock(&running_mutex);
 
@@ -220,9 +224,15 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
        nthreads++;
       }
     else
+       filesort_fixed_heapsort_thread(&threads[thread]);
 
 #else
 
+    /* Shortcut if only one file, don't write to disk */
+
+    if(more==0 && nfiles==0)
+       filesort_heapsort(threads[thread].datap,threads[thread].n,threads[thread].compare);
+    else
        filesort_fixed_heapsort_thread(&threads[thread]);
 
 #endif
@@ -542,11 +552,18 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
     /* Sort the data pointers using a heap sort (potentially in a thread) */
 
-    sprintf(threads[thread].filename,"%s/filesort.%d.tmp",option_tmpdirname,nfiles);
+    if(more==0 && nfiles==0)
+       threads[thread].filename[0]=0;
+    else
+       sprintf(threads[thread].filename,"%s/filesort.%d.tmp",option_tmpdirname,nfiles);
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
-    if(option_filesort_threads>1)
+    /* Shortcut if only one file, don't write to disk */
+
+    if(more==0 && nfiles==0)
+       filesort_heapsort(threads[thread].datap,threads[thread].n,threads[thread].compare);
+    else if(option_filesort_threads>1)
       {
        pthread_mutex_lock(&running_mutex);
 
@@ -573,9 +590,15 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
        nthreads++;
       }
     else
+       filesort_vary_heapsort_thread(&threads[thread]);
 
 #else
 
+    /* Shortcut if only one file, don't write to disk */
+
+    if(more==0 && nfiles==0)
+       filesort_heapsort(threads[thread].datap,threads[thread].n,threads[thread].compare);
+    else
        filesort_vary_heapsort_thread(&threads[thread]);
 
 #endif
