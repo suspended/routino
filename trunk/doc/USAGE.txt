@@ -50,7 +50,8 @@ planetsplitter
 
    --sort-threads=<number>
           The number of threads to use for data sorting (the sorting
-          memory is shared between the threads).
+          memory is shared between the threads - too many threads and not
+          enough memory will reduce the performance).
 
    --tmpdir=<dirname>
           Specifies the name of the directory to store the temporary disk
