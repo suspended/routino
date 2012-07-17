@@ -90,7 +90,8 @@ Usage: planetsplitter [--help]
     specified then 64 MB will be used in slim mode or 256 MB otherwise.
   <dt>--sort-threads=&lt;number&gt;
   <dd>The number of threads to use for data sorting (the sorting memory is
-    shared between the threads).
+    shared between the threads - too many threads and not enough memory will
+    reduce the performance).
   <dt>--tmpdir=&lt;dirname&gt;
   <dd>Specifies the name of the directory to store the temporary disk files.  If
     not specified then it defaults to either the value of the --dir option or the
