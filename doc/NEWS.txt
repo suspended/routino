@@ -1,3 +1,49 @@
+Version 2.3 of Routino released : Sat Jul 21 2012
+-------------------------------------------------
+
+Bug fixes:
+  Handle OSM files that contain changesets (don't raise an error).
+  Force bicyle/foot routes to allow bicycle/foot transport.
+  Fix problem running CGIs on Macs (md5 program name).
+  Fix bug with pruning straight highways (uninitialised data).
+  Fix bug with XML parsing error log (could miss some unrecognised tags).
+
+Web pages (all):
+  Make compatible with OpenLayers v2.12 (but don't change the install script).
+  Make all HTML files standards compliant.
+  Allow the HTML files to parse the query string instead of using a CGI.
+  Move all user-editable parameters to paths.pl and mapprops.js.
+
+Web pages (router):
+  Add a button to put a marker at the current location (Javascript geolocation).
+  Add a button to centre the map on a given marker.
+  Automatically insert the waypoints in the HTML from the JavaScript.
+  Added a German language router web page translation.
+  Add buttons to switch between lat/long and placename with Nominatim lookups.
+
+Web pages (visualiser):
+  Allow plotting segments of each highway type.
+  Allow plotting segments accessible to each transport type.
+
+planetsplitter:
+  Add a new '--logtime' option that prints the elapsed time of each step.
+  Make the sort functions multi-threaded (run-time option).
+  Improve the XML parsing speed slightly.
+
+
+Note: Existing mapprops.js and paths.pl files need to be updated to include new
+      items for this version.
+
+Note: Existing OpenLayers installations must be updated if they were installed
+      with older Routino provided script (the old OpenLayers.js will not work).
+
+Note: The CGI scripts customrouter.cgi and customvisualiser.cgi are deprecated
+      and will be removed in the next version.
+
+Note: The noscript.cgi and noscript.html web pages are deprecated and will be
+      removed in the next version.
+
+
 Version 2.2 of Routino released : Sat Mar 3 2012
 ------------------------------------------------
 
@@ -37,6 +83,7 @@ filedumper:
   Ensure that all nodes needed for segments are included when dumping a region.
   Include a bounding box when dumping a region.
 
+
 *** Important Note: The tagging.xml files from Routino v2.1.1 or earlier   ***
 *** contain invalid XML that will not be allowed by Routino v2.2 or later. ***
 
@@ -63,6 +110,7 @@ Configuration Files:
 Documentation:
   Improve the documentation for the tagging rule configuration file.
 
+
 Note: This version is compatible with databases from version 2.1 or 2.1.1.
 
 
@@ -76,6 +124,7 @@ Bug fixes:
   Fix the 'make install' option for the XML files.
   Add some more typecasts when printing data from filedumper program.
   Make the CGI script more robust if shortest/fastest is not passed in.
+
 
 Note: This version is compatible with databases from version 2.1.
 
@@ -101,6 +150,7 @@ Test cases:
   Create new test case for bug fixed in v2.0.3.
   Save expected results to allow future regressions to be found.
 
+
 Note: This version is not compatible with databases from earlier versions.
 
 
@@ -112,6 +162,7 @@ Bug fixes:
   Make stricter checks against the profile when finding the closest segment.
   Find a valid route if the start and end point are the same location.
   Choose the better route if one with and one without super-nodes are available.
+
 
 Note: This version is compatible with databases from versions 2.0, 2.0.x.
 
@@ -129,6 +180,7 @@ Code improvements:
   More code tidy-up for 32/64 bit node and index types.
   Free some memory in various places (not serious leaks).
 
+
 Note: This version is compatible with databases from versions 2.0, 2.0.1.
 
 
@@ -144,6 +196,7 @@ Code improvements:
 
 OSM Tagging:
   Check whether node/way/relation IDs fit in 32-bits (code ready for 64-bits).
+
 
 Note: This version is compatible with databases from version 2.0.
 
