@@ -173,48 +173,66 @@ Version 2.1 of Routino was released on 3rd October 2011.
 <br>
 Version 2.1.1 of Routino was released on 23rd October 2011.
 <br>
-Version 2.1.2 of Routino was released on 12 November 2011.
+Version 2.1.2 of Routino was released on 12th November 2011.
 <br>
-Version 2.2 of Routino was released on 3 March 2012.
+Version 2.2 of Routino was released on 3rd March 2012.
+<br>
+Version 2.3 of Routino was released on 21st July 2012.
 
 <p>
 
 The full version history is available in the NEWS file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.2</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.3</h3>
 
 <dl>
   <dt>Bug fixes:
-  <dd>Fix some Makefile bugs.
-  <br>Fix XML parsing (previously it allowed invalid XML comments).
-  <br>Fix errors in HTML and GPX output files (highway names and bearings).
-  <br>Fix errors in visualiser CGI related to oneway streets and in slim mode.
-  <br>Ensure that no non-initialised memory is written to disk.
-  <dt>OSM tagging:
-  <dd>Parse information about roundabouts and store it in the database.
-  <dt>Documentation:
-  <dd>Update documentation to reflect changes in program usage and function.
-  <dt>Web pages:
-  <dd>Change to OpenLayers v2.11.
-  <br>Move the map preferences (ranges and URLs) to a separate file.
-  <br>Prepare the visualiser.html web page for translation.
-  <br>The customrouter script should now pick up the preferred language.
+  <dd>Handle OSM files that contain changesets (don't raise an error).
+  <br>Force bicyle/foot routes to allow bicycle/foot transport.
+  <br>Fix problem running CGIs on Macs (md5 program name).
+  <br>Fix bug with pruning straight highways (uninitialised data).
+  <br>Fix bug with XML parsing error log (could miss some unrecognised tags).
+
+  <dt>Web pages (all):
+  <dd>Make compatible with OpenLayers v2.12 (but don't change the install script).
+  <br>Make all HTML files standards compliant.
+  <br>Allow the HTML files to parse the query string instead of using a CGI.
+  <br>Move all user-editable parameters to paths.pl and mapprops.js.
+
+  <dt>Web pages (router):
+  <dd>Add a button to put a marker at the current location (Javascript geolocation).
+  <br>Add a button to centre the map on a given marker.
+  <br>Automatically insert the waypoints in the HTML from the JavaScript.
+  <br>Added a German language router web page translation.
+  <br>Add buttons to switch between lat/long and placename with Nominatim lookups.
+
+  <dt>Web pages (visualiser):
+  <dd>Allow plotting segments of each highway type.
+  <br>Allow plotting segments accessible to each transport type.
+
   <dt>planetsplitter:
-  <dd>When discarding duplicate segments prefer to discard those that are areas.
-  <br>Ensure that XML file is OSM version 0.6 format.
-  <br>Add a new option to prune nodes and/or segments (enabled by default)
-  <br> - that form a small isolated sub-network.
-  <br> - that are very short.
-  <br> - that are not needed to represent a straight highway.
-  <dt>router:
-  <dd>Change the format of the text file output (not the all points text file).
-  <br>Output better HTML directions for roundabouts (e.g. take second exit).
-  <br>Describe mini-roundabouts as "roundabout" rather than "junction".
-  <dt>filedumper:
-  <dd>Ensure that all nodes needed for segments are included when dumping a region.
-  <br>Include a bounding box when dumping a region.
+  <dd>Add a new '--logtime' option that prints the elapsed time of each step.
+  <br>Make the sort functions multi-threaded (run-time option).
+  <br>Improve the XML parsing speed slightly.
 </dl>
+
+<p>
+<b>Note:</b> Existing mapprops.js and paths.pl files need to be updated to
+include new items for this version.
+
+<p>
+<b>Note:</b> Existing OpenLayers installations must be updated if they were
+installed with older Routino provided script (the old OpenLayers.js will not
+work).
+
+<p>
+<b>Note:</b> The CGI scripts customrouter.cgi and customvisualiser.cgi are
+deprecated and will be removed in the next version.
+
+<p>
+<b>Note:</b> The noscript.cgi and noscript.html web pages are deprecated and
+will be removed in the next version.
 
 
 <h3><a name="H_1_5_2"></a>License</h3>
