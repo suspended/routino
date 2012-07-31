@@ -128,12 +128,12 @@ foreach $colour (0..9)
 
 # Limit signs
 
-foreach $limit (1..160)
+foreach $limit (1..200)
   {
    &draw_limit($limit);
   }
 
-foreach $limit (10..200)
+foreach $limit (1..400)
   {
    &draw_limit(sprintf "%.1f",$limit/10);
   }
@@ -160,13 +160,16 @@ sub draw_limit
                 stroke => 'red', fill => 'white', strokewidth => 3,
                 antialias => 'false');
 
-   ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) =
-     $image->QueryFontMetrics(text => "$limit", font => 'Helvetica', pointsize => '22');
+   if($limit ne "no")
+     {
+      ($x_ppem, $y_ppem, $ascender, $descender, $width, $height, $max_advance) =
+        $image->QueryFontMetrics(text => "$limit", font => 'Helvetica', pointsize => '22');
 
-   $image->Annotate(text => "$limit", font => 'Helvetica', pointsize => '22',
-                    stroke => 'black', fill => 'black',
-                    x => 28, y => 28-$descender, align => Center,
-                    antialias => 'false');
+      $image->Annotate(text => "$limit", font => 'Helvetica', pointsize => '22',
+                       stroke => 'black', fill => 'black',
+                       x => 28, y => 28-$descender, align => Center,
+                       antialias => 'false');
+     }
 
    $image->Resize(width => 19, height => 19);
 
