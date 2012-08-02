@@ -957,17 +957,10 @@ function markerRemove(marker)
 {
  clearSearchResult(marker);
 
- for(var marker2=marker;marker2<vismarkers;marker2++)
-   {
-    formSetCoords(marker2,routino.point[marker2+1].lon,routino.point[marker2+1].lat);
-    markerAddRemoveMap(marker2,routino.point[marker2+1].active);
-   }
+ for(var m=marker;m<vismarkers;m++)
+    markerMove(m,m+1);
 
- markerRemoveMap(vismarkers);
-
- document.getElementById("waypoint" + vismarkers).style.display="none";
-
- vismarkers--;
+ markerRemoveForm(vismarkers--);
 
  if(vismarkers==1)
     markerAddAfter(1);
@@ -985,18 +978,12 @@ function markerAddBefore(marker)
  if(vismarkers==mapprops.maxmarkers || marker==1)
     return false;
 
- vismarkers++;
+ markerAddForm(++vismarkers);
 
- document.getElementById("waypoint" + vismarkers).style.display="";
+ for(var m=vismarkers;m>marker;m--)
+    markerMove(m,m-1);
 
- for(var marker2=vismarkers;marker2>marker;marker2--)
-   {
-    formSetCoords(marker2,routino.point[marker2-1].lon,routino.point[marker2-1].lat);
-    markerAddRemoveMap(marker2,routino.point[marker2-1].active);
-   }
-
- formSetCoords(marker,"","");
- markerRemoveMap(marker);
+ markerClearForm(marker-1);
 }
 
 
@@ -1011,18 +998,12 @@ function markerAddAfter(marker)
  if(vismarkers==mapprops.maxmarkers)
     return false;
 
- vismarkers++;
+ markerAddForm(++vismarkers);
 
- document.getElementById("waypoint" + vismarkers).style.display="";
+ for(var m=vismarkers;m>(marker+1);m--)
+    markerMove(m,m-1);
 
- for(var marker2=vismarkers;marker2>(marker+1);marker2--)
-   {
-    formSetCoords(marker2,routino.point[marker2-1].lon,routino.point[marker2-1].lat);
-    markerAddRemoveMap(marker2,routino.point[marker2-1].active);
-   }
-
- formSetCoords(marker+1,"","");
- markerRemoveMap(marker+1);
+ markerClearForm(marker+1);
 }
 
 
@@ -1163,20 +1144,58 @@ function markerMoveDown(marker)
 
 
 //
+// Move a marker from one place to another.
+//
+
+function markerMove(marker1,marker2)
+{
+ for(var element in routino.point[marker2])
+   {
+    routino.point[marker1][element]=routino.point[marker2][element];
+   }
+
+ document.getElementById("search" + marker1).style.display=document.getElementById("search" + marker2).style.display;
+
+ document.getElementById("coords" + marker1).style.display=document.getElementById("coords" + marker2).style.display;
+
+ document.forms["form"].elements["search" + marker1].value=document.forms["form"].elements["search" + marker2].value;
+
+ formSetCoords(marker1,routino.point[marker1].lon,routino.point[marker1].lat);
+
+ markerAddRemoveMap(marker1,routino.point[marker1].active);
+}
+
+
+//
 // Swap a pair of markers.
 //
 
 function markerSwap(marker1,marker2)
 {
- var lon=routino.point[marker1].lon;
- var lat=routino.point[marker1].lat;
- var active=routino.point[marker1].active;
+ for(var element in routino.point[marker2])
+   {
+    var temp=routino.point[marker1][element];
+    routino.point[marker1][element]=routino.point[marker2][element];
+    routino.point[marker2][element]=temp;
+   }
 
- formSetCoords(marker1,routino.point[marker2].lon,routino.point[marker2].lat);
- markerAddRemoveMap(marker1,routino.point[marker2].active);
+ var search_display=document.getElementById("search" + marker1).style.display;
+ document.getElementById("search" + marker1).style.display=document.getElementById("search" + marker2).style.display;
+ document.getElementById("search" + marker2).style.display=search_display;
 
- formSetCoords(marker2,lon,lat);
- markerAddRemoveMap(marker2,active);
+ var coords_display=document.getElementById("coords" + marker1).style.display;
+ document.getElementById("coords" + marker1).style.display=document.getElementById("coords" + marker2).style.display;
+ document.getElementById("coords" + marker2).style.display=coords_display;
+
+ var search_value=document.forms["form"].elements["search" + marker1].value;
+ document.forms["form"].elements["search" + marker1].value=document.forms["form"].elements["search" + marker2].value;
+ document.forms["form"].elements["search" + marker2].value=search_value;
+
+ formSetCoords(marker1,routino.point[marker1].lon,routino.point[marker1].lat);
+ formSetCoords(marker2,routino.point[marker2].lon,routino.point[marker2].lat);
+
+ markerAddRemoveMap(marker1,routino.point[marker1].active);
+ markerAddRemoveMap(marker2,routino.point[marker2].active);
 }
 
 
@@ -1188,6 +1207,46 @@ function markersReverse()
 {
  for(var marker=1;marker<=vismarkers/2;marker++)
     markerSwap(marker,vismarkers+1-marker);
+}
+
+
+//
+// Display the form for a marker
+//
+
+function markerAddForm(marker)
+{
+ document.getElementById("waypoint" + marker).style.display="";
+}
+
+
+//
+// Hide the form for a marker
+//
+
+function markerRemoveForm(marker)
+{
+ document.getElementById("waypoint" + marker).style.display="none";
+
+ markerClearForm(marker);
+}
+
+
+//
+// Clear the form for a marker
+//
+
+function markerClearForm(marker)
+{
+ markerRemoveMap(marker);
+ markerCoords(marker);
+
+ formSetCoords(marker,"","");
+ formSetSearch(marker,"");
+
+ updateIcon(marker);
+
+ routino.point[marker].used=false;
 }
 
 
