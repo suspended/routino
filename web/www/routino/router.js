@@ -163,7 +163,9 @@ function form_init()
     if(lon != undefined && lat != undefined && search != undefined && lon != "" && lat != "" && search != "")
       {
        formSetSearch(marker,search);
-       formSetCoords(marker,lon,lat,true);
+       formSetCoords(marker,lon,lat);
+
+       markerAddMap(marker);
 
        markerSearch(marker);
 
@@ -171,7 +173,9 @@ function form_init()
       }
     else if(lon != undefined && lat != undefined && lon != "" && lat != "")
       {
-       formSetCoords(marker,lon,lat,true);
+       formSetCoords(marker,lon,lat);
+
+       markerAddMap(marker);
 
        markerCoords(marker);
 
@@ -265,7 +269,10 @@ function form_init()
     // If the first location is empty and the cookie is set then fill it.
 
     if(routino.point[1].lon=="" && routino.point[1].lat=="")
-       formSetCoords(1,homelon,homelat,true);
+      {
+       formSetCoords(1,homelon,homelat);
+       markerAddMap(1);
+      }
    }
 }
 
@@ -427,17 +434,14 @@ function formSetRestriction(type,value)
 // Set the feature coordinates from the form when the form changes.
 //
 
-function formSetCoords(marker,lon,lat,active)
+function formSetCoords(marker,lon,lat)
 {
  clearSearchResult(marker);
 
- if(lon == undefined || lat == undefined)
+ if(lon == undefined && lat == undefined)
    {
     routino.point[marker].lon=document.forms["form"].elements["lon" + marker].value;
     routino.point[marker].lat=document.forms["form"].elements["lat" + marker].value;
-
-    if(routino.point[marker].lon=="" || routino.point[marker].lat=="")
-       markerCentre(marker);
    }
  else
    {
@@ -446,14 +450,6 @@ function formSetCoords(marker,lon,lat,active)
 
     routino.point[marker].lon=lon;
     routino.point[marker].lat=lat;
-
-    if(active != undefined)
-      {
-       if(active)
-          markerAddMap(marker);
-       else
-          markerRemoveMap(marker);
-      }
    }
 
  var lonlat=map.getCenter().clone();
@@ -483,7 +479,7 @@ function formSetCoords(marker,lon,lat,active)
 
 
 //
-// Set the feature coordinates from the form when the form changes.
+// Set the search field from the form when the form changes.
 //
 
 function formSetSearch(marker,search)
@@ -842,10 +838,20 @@ function markerToggleMap(marker)
 {
  clearSearchResult(marker);
 
- if(routino.point[marker].active)
-    markerRemoveMap(marker);
- else
+ markerAddRemoveMap(marker,!routino.point[marker].active);
+}
+
+
+//
+// Show or hide a marker on the map.
+//
+
+function markerAddRemoveMap(marker,active)
+{
+ if(active)
     markerAddMap(marker);
+ else
+    markerRemoveMap(marker);
 }
 
 
@@ -920,7 +926,8 @@ function markerCentre(marker)
  var lonlat=map.getCenter().clone();
  lonlat.transform(epsg900913,epsg4326);
 
- formSetCoords(marker,lonlat.lon,lonlat.lat,true);
+ formSetCoords(marker,lonlat.lon,lonlat.lat);
+ markerAddMap(marker);
 }
 
 
@@ -951,7 +958,10 @@ function markerRemove(marker)
  clearSearchResult(marker);
 
  for(var marker2=marker;marker2<vismarkers;marker2++)
-    formSetCoords(marker2,routino.point[marker2+1].lon,routino.point[marker2+1].lat,routino.point[marker2+1].active);
+   {
+    formSetCoords(marker2,routino.point[marker2+1].lon,routino.point[marker2+1].lat);
+    markerAddRemoveMap(marker2,routino.point[marker2+1].active);
+   }
 
  markerRemoveMap(vismarkers);
 
@@ -980,10 +990,12 @@ function markerAddBefore(marker)
  document.getElementById("waypoint" + vismarkers).style.display="";
 
  for(var marker2=vismarkers;marker2>marker;marker2--)
-    formSetCoords(marker2,routino.point[marker2-1].lon,routino.point[marker2-1].lat,routino.point[marker2-1].active);
+   {
+    formSetCoords(marker2,routino.point[marker2-1].lon,routino.point[marker2-1].lat);
+    markerAddRemoveMap(marker2,routino.point[marker2-1].active);
+   }
 
- formSetCoords(marker,"","",false);
-
+ formSetCoords(marker,"","");
  markerRemoveMap(marker);
 }
 
@@ -1004,10 +1016,12 @@ function markerAddAfter(marker)
  document.getElementById("waypoint" + vismarkers).style.display="";
 
  for(var marker2=vismarkers;marker2>(marker+1);marker2--)
-    formSetCoords(marker2,routino.point[marker2-1].lon,routino.point[marker2-1].lat,routino.point[marker2-1].active);
+   {
+    formSetCoords(marker2,routino.point[marker2-1].lon,routino.point[marker2-1].lat);
+    markerAddRemoveMap(marker2,routino.point[marker2-1].active);
+   }
 
- formSetCoords(marker+1,"","",false);
-
+ formSetCoords(marker+1,"","");
  markerRemoveMap(marker+1);
 }
 
@@ -1037,7 +1051,8 @@ function markerLocate(marker)
  if(navigator.geolocation)
     navigator.geolocation.getCurrentPosition(
                                              function(position) {
-                                              formSetCoords(marker,position.coords.longitude,position.coords.latitude,true);
+                                              formSetCoords(marker,position.coords.longitude,position.coords.latitude);
+                                              markerAddMap(marker);
                                              });
 }
 
@@ -1157,9 +1172,11 @@ function markerSwap(marker1,marker2)
  var lat=routino.point[marker1].lat;
  var active=routino.point[marker1].active;
 
- formSetCoords(marker1,routino.point[marker2].lon,routino.point[marker2].lat,routino.point[marker2].active);
+ formSetCoords(marker1,routino.point[marker2].lon,routino.point[marker2].lat);
+ markerAddRemoveMap(marker1,routino.point[marker2].active);
 
- formSetCoords(marker2,lon,lat,active);
+ formSetCoords(marker2,lon,lat);
+ markerAddRemoveMap(marker2,active);
 }
 
 
@@ -1676,7 +1693,8 @@ function runSearchSuccess(response)
  if(searchresults[marker].length==1)
    {
     formSetSearch(marker,searchresults[marker][0].name);
-    formSetCoords(marker,searchresults[marker][0].lon,searchresults[marker][0].lat,true);
+    formSetCoords(marker,searchresults[marker][0].lon,searchresults[marker][0].lat);
+    markerAddMap(marker);
    }
  else
    {
@@ -1710,7 +1728,8 @@ function choseSearchResult(marker,n)
  if(n>=0)
    {
     formSetSearch(marker,searchresults[marker][n].name);
-    formSetCoords(marker,searchresults[marker][n].lon,searchresults[marker][n].lat,true);
+    formSetCoords(marker,searchresults[marker][n].lon,searchresults[marker][n].lat);
+    markerAddMap(marker);
    }
 }
 
