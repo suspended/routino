@@ -59,6 +59,7 @@ for(var marker=1;marker<=mapprops.maxmarkers;marker++)
    routino.point[marker].lat="";
    routino.point[marker].search="";
    routino.point[marker].active=false;
+   routino.point[marker].used=false;
   }
 
 // Process the URL query string and extract the arguments
@@ -268,7 +269,7 @@ function form_init()
 
     // If the first location is empty and the cookie is set then fill it.
 
-    if(routino.point[1].lon=="" && routino.point[1].lat=="")
+    if(!routino.point[1].used)
       {
        formSetCoords(1,homelon,homelat);
        markerAddMap(1);
@@ -440,41 +441,56 @@ function formSetCoords(marker,lon,lat)
 
  if(lon == undefined && lat == undefined)
    {
-    routino.point[marker].lon=document.forms["form"].elements["lon" + marker].value;
-    routino.point[marker].lat=document.forms["form"].elements["lat" + marker].value;
+    lon=document.forms["form"].elements["lon" + marker].value;
+    lat=document.forms["form"].elements["lat" + marker].value;
+   }
+
+ if(lon == "" && lat == "")
+   {
+    document.forms["form"].elements["lon" + marker].value="";
+    document.forms["form"].elements["lat" + marker].value="";
+
+    routino.point[marker].lon="";
+    routino.point[marker].lat=""
    }
  else
    {
+    if(lon=="")
+      {
+       var lonlat=map.getCenter().clone();
+       lonlat.transform(epsg900913,epsg4326);
+
+       lon=lonlat.lon;
+      }
+
+    if(lon<-180) lon=-180;
+    if(lon>+180) lon=+180;
+
+    if(lat=="")
+      {
+       var lonlat=map.getCenter().clone();
+       lonlat.transform(epsg900913,epsg4326);
+
+       lat=lonlat.lat;
+      }
+
+    if(lat<-90 ) lat=-90 ;
+    if(lat>+90 ) lat=+90 ;
+
+    var lonlat = new OpenLayers.LonLat(lon,lat);
+    lonlat.transform(epsg4326,epsg900913);
+
+    markers[marker].move(lonlat);
+
+    markersmoved=true;
+
     document.forms["form"].elements["lon" + marker].value=format5f(lon);
     document.forms["form"].elements["lat" + marker].value=format5f(lat);
 
     routino.point[marker].lon=lon;
     routino.point[marker].lat=lat;
+    routino.point[marker].used=true;
    }
-
- var lonlat=map.getCenter().clone();
- lonlat.transform(epsg900913,epsg4326);
-
- if(routino.point[marker].lon!="")
-   {
-    if(routino.point[marker].lon<-180) routino.point[marker].lon=-180;
-    if(routino.point[marker].lon>+180) routino.point[marker].lon=+180;
-    lonlat.lon=routino.point[marker].lon;
-   }
-
- if(routino.point[marker].lat!="")
-   {
-    if(routino.point[marker].lat<-90 ) routino.point[marker].lat=-90 ;
-    if(routino.point[marker].lat>+90 ) routino.point[marker].lat=+90 ;
-    lonlat.lat=routino.point[marker].lat;
-   }
-
- lonlat=lonlat.clone()
- lonlat.transform(epsg4326,epsg900913);
-
- markers[marker].move(lonlat);
-
- markersmoved=true;
 }
 
 
@@ -836,7 +852,12 @@ function dragSetForm(marker)
 
 function markerToggleMap(marker)
 {
- clearSearchResult(marker);
+ if(!routino.point[marker].used)
+   {
+    routino.point[marker].used=true;
+    markerCentre(marker);
+    markerCoords(marker);
+   }
 
  markerAddRemoveMap(marker,!routino.point[marker].active);
 }
@@ -865,6 +886,7 @@ function markerAddMap(marker)
 
  markers[marker].style.display = "";
  routino.point[marker].active=true;
+ routino.point[marker].used=true;
 
  updateIcon(marker);
 
@@ -921,13 +943,15 @@ function markerCoords(marker)
 
 function markerCentre(marker)
 {
+ if(!routino.point[marker].used)
+    return;
+
  clearSearchResult(marker);
 
  var lonlat=map.getCenter().clone();
  lonlat.transform(epsg900913,epsg4326);
 
  formSetCoords(marker,lonlat.lon,lonlat.lat);
- markerAddMap(marker);
 }
 
 
@@ -937,6 +961,9 @@ function markerCentre(marker)
 
 function markerRecentre(marker)
 {
+ if(!routino.point[marker].used)
+    return;
+
  clearSearchResult(marker);
 
  lon=routino.point[marker].lon;
@@ -1013,6 +1040,9 @@ function markerAddAfter(marker)
 
 function markerHome(marker)
 {
+ if(!routino.point[marker].used)
+    return;
+
  clearSearchResult(marker);
 
  if(markerHomeCookie(marker))
