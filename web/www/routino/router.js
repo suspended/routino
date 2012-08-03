@@ -139,8 +139,6 @@ function html_init()            // called from router.html
     waypoint.id="waypoint" + marker;
     waypoint.innerHTML=waypoint_html.split('XXX').join(marker);
    }
-
- vismarkers=mapprops.maxmarkers;
 }
 
 
@@ -156,7 +154,7 @@ function form_init()            // called from router.html
 {
  // Fill in the waypoints
 
- var found=0;
+ vismarkers=0;
 
  for(var marker=mapprops.maxmarkers;marker>=1;marker--)
    {
@@ -175,7 +173,7 @@ function form_init()            // called from router.html
 
        markerSearch(marker);
 
-       found++;
+       vismarkers++;
       }
     else if(lon != undefined && lat != undefined && lon != "" && lat != "")
       {
@@ -187,7 +185,7 @@ function form_init()            // called from router.html
 
        markerCoords(marker);
 
-       found++;
+       vismarkers++;
       }
     else if(search != undefined && search != "")
       {
@@ -199,10 +197,14 @@ function form_init()            // called from router.html
 
        DoSearch(marker);
 
-       found++;
+       vismarkers++;
       }
-    else if(found || marker<=2)
+    else if(vismarkers || marker<=2)
+      {
        markerAddForm(marker);
+
+       vismarkers++;
+      }
 
     var searchfield=document.forms["form"].elements["search" + marker];
 
@@ -267,12 +269,8 @@ function form_init()            // called from router.html
 
  if(homelon!=null && homelat!=null)
    {
-    for(var marker=mapprops.maxmarkers;marker>=1;marker--)
-       if(routino.point[marker].lon==homelon && routino.point[marker].lat==homelat)
-         {
-          routino.point[marker].home=true;
-          updateIcon(marker);
-         }
+    for(var m=1;m<=vismarkers;m++)
+       markerCheckHome(m);
 
     // If the first location is empty and the cookie is set then fill it.
 
@@ -494,6 +492,8 @@ function formSetCoords(marker,lon,lat) // called from router.html (with one argu
     routino.point[marker].lon=lon;
     routino.point[marker].lat=lat;
     routino.point[marker].used=true;
+
+    markerCheckHome(marker);
    }
 }
 
@@ -805,11 +805,7 @@ function dragMove(feature,pixel)
 {
  for(var marker in markers)
     if(feature==markers[marker])
-      {
-       markersmoved=true;
-
        dragSetForm(marker);
-      }
 }
 
 
@@ -821,18 +817,7 @@ function dragComplete(feature,pixel)
 {
  for(var marker in markers)
     if(feature==markers[marker])
-      {
-       markersmoved=true;
-
        dragSetForm(marker);
-
-       if(routino.point[marker].home)
-          if(routino.point[marker].lon!=homelon || routino.point[marker].lat!=homelat)
-            {
-             routino.point[marker].home=false;
-             updateIcon(marker);
-            }
-      }
 }
 
 
@@ -996,7 +981,7 @@ function markerRemove(marker)   // called from router.html
  clearSearchResult(marker);
 
  for(var m=marker;m<vismarkers;m++)
-    markerMove(m,m+1);
+    markerCopy(m,m+1);
 
  markerRemoveForm(vismarkers--);
 
@@ -1019,7 +1004,7 @@ function markerAddBefore(marker)
  markerAddForm(++vismarkers);
 
  for(var m=vismarkers;m>marker;m--)
-    markerMove(m,m-1);
+    markerCopy(m,m-1);
 
  markerClearForm(marker-1);
 }
@@ -1039,7 +1024,7 @@ function markerAddAfter(marker) // called from router.html
  markerAddForm(++vismarkers);
 
  for(var m=vismarkers;m>(marker+1);m--)
-    markerMove(m,m-1);
+    markerCopy(m,m-1);
 
  markerClearForm(marker+1);
 }
@@ -1054,12 +1039,13 @@ function markerHome(marker)     // called from router.html
  if(!routino.point[marker].used)
    {
     markerMoveHome(marker);
-    return;
    }
+ else
+   {
+    clearSearchResult(marker);
 
- clearSearchResult(marker);
-
- markerSetClearHome(marker,!routino.point[marker].home);
+    markerSetClearHome(marker,!routino.point[marker].home);
+   }
 }
 
 
@@ -1160,15 +1146,28 @@ function markerSetClearHome(marker,home)
 
  document.cookie=cookie + ";expires=" + date.toGMTString();
 
- for(m=1;m<=mapprops.maxmarkers;m++)
-   {
-    if(routino.point[m].lon==homelon && routino.point[m].lat==homelat)
-       routino.point[m].home=true;
-    else
-       routino.point[m].home=false;
+ updateIcon(marker);
 
-    updateIcon(m);
-   }
+ for(m=1;m<=mapprops.maxmarkers;m++)
+    markerCheckHome(m);
+}
+
+
+//
+// Check if a marker is the home marker
+//
+
+function markerCheckHome(marker)
+{
+ var home=routino.point[marker].home;
+
+ if(routino.point[marker].lon==homelon && routino.point[marker].lat==homelat)
+    routino.point[marker].home=true;
+ else
+    routino.point[marker].home=false;
+
+ if(home!=routino.point[marker].home)
+    updateIcon(marker);
 }
 
 
@@ -1205,15 +1204,13 @@ function markerMoveDown(marker) // called from router.html
 
 
 //
-// Move a marker from one place to another.
+// Copy a marker from one place to another.
 //
 
-function markerMove(marker1,marker2)
+function markerCopy(marker1,marker2)
 {
  for(var element in routino.point[marker2])
-   {
     routino.point[marker1][element]=routino.point[marker2][element];
-   }
 
  document.getElementById("search" + marker1).style.display=document.getElementById("search" + marker2).style.display;
 
@@ -1286,7 +1283,7 @@ function markersLoop()          // called from router.html
  if(routino.point[vismarkers].used)
     markerAddForm(++vismarkers);
 
- markerMove(vismarkers,1);
+ markerCopy(vismarkers,1);
 }
 
 
