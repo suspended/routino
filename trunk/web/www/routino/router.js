@@ -129,11 +129,13 @@ function html_init()            // called from router.html
    {
     var searchresults=waypoints.insertRow(0);
 
+    searchresults.style.display="none";
     searchresults.id="searchresults" + marker;
     searchresults.innerHTML=searchresults_html.split('XXX').join(marker);
 
     var waypoint=waypoints.insertRow(0);
 
+    waypoint.style.display="none";
     waypoint.id="waypoint" + marker;
     waypoint.innerHTML=waypoint_html.split('XXX').join(marker);
    }
@@ -154,7 +156,7 @@ function form_init()            // called from router.html
 {
  // Fill in the waypoints
 
- var filled=0;
+ var found=0;
 
  for(var marker=mapprops.maxmarkers;marker>=1;marker--)
    {
@@ -164,6 +166,8 @@ function form_init()            // called from router.html
 
     if(lon != undefined && lat != undefined && search != undefined && lon != "" && lat != "" && search != "")
       {
+       markerAddForm(marker);
+
        formSetSearch(marker,search);
        formSetCoords(marker,lon,lat);
 
@@ -171,30 +175,34 @@ function form_init()            // called from router.html
 
        markerSearch(marker);
 
-       filled++;
+       found++;
       }
     else if(lon != undefined && lat != undefined && lon != "" && lat != "")
       {
+       markerAddForm(marker);
+
        formSetCoords(marker,lon,lat);
 
        markerAddMap(marker);
 
        markerCoords(marker);
 
-       filled++;
+       found++;
       }
     else if(search != undefined && search != "")
       {
+       markerAddForm(marker);
+
        formSetSearch(marker,search);
 
        markerSearch(marker);
 
        DoSearch(marker);
 
-       filled++;
+       found++;
       }
-    else if(filled==0)
-       markerRemove(marker);
+    else if(found || marker<=2)
+       markerAddForm(marker);
 
     var searchfield=document.forms["form"].elements["search" + marker];
 
