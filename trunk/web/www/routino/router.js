@@ -60,6 +60,7 @@ for(var marker=1;marker<=mapprops.maxmarkers;marker++)
    routino.point[marker].search="";
    routino.point[marker].active=false;
    routino.point[marker].used=false;
+   routino.point[marker].home=false;
   }
 
 // Process the URL query string and extract the arguments
@@ -259,21 +260,16 @@ function form_init()            // called from router.html
  if(homelon!=null && homelat!=null)
    {
     for(var marker=mapprops.maxmarkers;marker>=1;marker--)
-      {
-       var lon=routino.point[marker].lon;
-       var lat=routino.point[marker].lat;
-
-       if(lon==homelon && lat==homelat)
+       if(routino.point[marker].lon==homelon && routino.point[marker].lat==homelat)
+         {
+          routino.point[marker].home=true;
           updateIcon(marker);
-      }
+         }
 
     // If the first location is empty and the cookie is set then fill it.
 
     if(!routino.point[1].used)
-      {
-       formSetCoords(1,homelon,homelat);
-       markerAddMap(1);
-      }
+       markerMoveHome(1);
    }
 }
 
@@ -821,6 +817,13 @@ function dragComplete(feature,pixel)
        markersmoved=true;
 
        dragSetForm(marker);
+
+       if(routino.point[marker].home)
+          if(routino.point[marker].lon!=homelon || routino.point[marker].lat!=homelat)
+            {
+             routino.point[marker].home=false;
+             updateIcon(marker);
+            }
       }
 }
 
@@ -1041,13 +1044,14 @@ function markerAddAfter(marker) // called from router.html
 function markerHome(marker)     // called from router.html
 {
  if(!routino.point[marker].used)
+   {
+    markerMoveHome(marker);
     return;
+   }
 
  clearSearchResult(marker);
 
- if(markerHomeCookie(marker))
-    for(marker=1;marker<=mapprops.maxmarkers;marker++)
-       updateIcon(marker);
+ markerSetClearHome(marker,!routino.point[marker].home);
 }
 
 
@@ -1074,10 +1078,7 @@ function markerLocate(marker)   // called from router.html
 
 function updateIcon(marker)
 {
- var lon=routino.point[marker].lon;
- var lat=routino.point[marker].lat;
-
- if(lon==homelon && lat==homelat)
+ if(routino.point[marker].home)
    {
     if(routino.point[marker].active)
        document.images["waypoint" + marker].src="icons/marker-home-red.png";
@@ -1101,43 +1102,65 @@ function updateIcon(marker)
 
 
 //
+// Move the marker to the home location
+//
+
+function markerMoveHome(marker)
+{
+ if(homelon==null || homelat==null)
+    return;
+
+ routino.point[marker].home=true;
+ routino.point[marker].used=true;
+
+ formSetCoords(marker,homelon,homelat);
+ markerAddMap(marker);
+}
+
+
+//
 // Set or clear the home marker icon
 //
 
-function markerHomeCookie(marker)
+function markerSetClearHome(marker,home)
 {
- var lon=routino.point[marker].lon;
- var lat=routino.point[marker].lat;
-
- if(lon=="" || lat=="")
-    return(false);
-
  var cookie;
  var date = new Date();
 
- if((homelat==null && homelon==null) ||
-    (homelat!=lat  && homelon!=lon))
+ if(home)
    {
-    cookie="Routino-home=lon:" + lon + ":lat:" + lat;
+    homelat=routino.point[marker].lat;
+    homelon=routino.point[marker].lon;
+
+    cookie="Routino-home=lon:" + homelon + ":lat:" + homelat;
 
     date.setUTCFullYear(date.getUTCFullYear()+5);
 
-    homelat=lat;
-    homelon=lon;
+    routino.point[marker].home=true;
    }
  else
    {
+    homelat=null;
+    homelon=null;
+
     cookie="Routino-home=unset";
 
     date.setUTCFullYear(date.getUTCFullYear()-1);
 
-    homelat=null;
-    homelon=null;
+    routino.point[marker].home=false;
    }
 
  document.cookie=cookie + ";expires=" + date.toGMTString();
 
- return(true);
+ for(m=1;m<=mapprops.maxmarkers;m++)
+   {
+    if(routino.point[m].lon==homelon && routino.point[m].lat==homelat)
+       routino.point[m].home=true;
+    else
+       routino.point[m].home=false;
+
+    updateIcon(m);
+   }
 }
 
 
@@ -1277,6 +1300,7 @@ function markerClearForm(marker)
  updateIcon(marker);
 
  routino.point[marker].used=false;
+ routino.point[marker].home=false;
 }
 
 
