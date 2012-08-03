@@ -1272,6 +1272,25 @@ function markersReverse()       // called from router.html
 
 
 //
+// Close the loop.
+//
+
+function markersLoop()          // called from router.html
+{
+ if(vismarkers==mapprops.maxmarkers)
+    return false;
+
+ if(routino.point[vismarkers].lon==routino.point[1].lon && routino.point[vismarkers].lat==routino.point[1].lat)
+    return false;
+
+ if(routino.point[vismarkers].used)
+    markerAddForm(++vismarkers);
+
+ markerMove(vismarkers,1);
+}
+
+
+//
 // Display the form for a marker
 //
 

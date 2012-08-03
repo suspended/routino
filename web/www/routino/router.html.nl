@@ -151,7 +151,9 @@
               <td colspan="3">
             <!-- The waypoints are inserted by the JavaScript, see the "maxmarkers" variable in router.js.  -->
             <tr>
-              <td colspan="3" align="center"><input type="button" title="Keer volgorde punten om" value="Keer volgorde punten om" onmousedown="markersReverse();">
+              <td colspan="3" align="center">
+                <input type="button" title="Keer volgorde punten om" value="Keer volgorde punten om" onmousedown="markersReverse();">
+                <input type="button" title="Add a new waypoint to make a loop" value="Close loop"    onmousedown="markersLoop();">
           </table>
         </div>
       </div>
