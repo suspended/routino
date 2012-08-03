@@ -71,6 +71,11 @@ DIV#tab_options_div TABLE TD
  margin:  0;
 }
 
+DIV#tab_options_div TABLE#waypoints
+{
+ width: 100%;
+}
+
 DIV#tab_options_div A:hover
 {
  background: #F0F000;
@@ -88,7 +93,7 @@ DIV#tab_options_div INPUT[type="text"]
  text-align: right;
 }
 
-DIV#tab_options_div INPUT[size="20"]
+DIV#tab_options_div INPUT[size="18"]
 {
  text-align: left;
 }

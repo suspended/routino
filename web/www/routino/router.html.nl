@@ -119,21 +119,16 @@
         <span class="hideshow_title">Coordinaten (waypoints)</span>
         <div id="hideshow_waypoint_div">
           <table id="waypoints">
-            <colgroup>
-              <col style="width: 25px;">
-              <col>
-              <col style="width: 76px;">
-            </colgroup>
             <tr id="waypointXXX" style="display: none;">
               <td>
                 <img name="waypointXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX)">&nbsp;
               <td>
                 <span id="coordsXXX">
-                  <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E&nbsp;
-                  <input name="latXXX" type="text" size="7" title="Waypoint XXX Latitude"  onchange="formSetCoords(XXX);">N&nbsp;
+                  <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E
+                  <input name="latXXX" type="text" size="7" title="Waypoint XXX Latitude"  onchange="formSetCoords(XXX);">N
                 </span>
                 <span id="searchXXX" style="display: none;">
-                  <input name="searchXXX" type="text" size="20" title="Waypoint XXX Location"> <!-- uses Javascript event for triggering -->
+                  <input name="searchXXX" type="text" size="18" title="Waypoint XXX Location"> <!-- uses Javascript event for triggering -->
                 </span>
               <td>
                 <img alt="?" src="icons/waypoint-search.png"   title="Search for location"         onmousedown="markerSearch(XXX);"  >
