@@ -126,7 +126,7 @@ var box;
 // Initialise the 'map' object
 //
 
-function map_init()
+function map_init()             // called from visualiser.html
 {
  lon =args["lon"];
  lat =args["lat"];
@@ -295,7 +295,7 @@ function buildMapArguments()
 // Update a URL
 //
 
-function updateURL(element)
+function updateURL(element)     // called from visualiser.html
 {
  if(element.id == "permalink_url")
     element.href=location.pathname + "?" + buildMapArguments();
@@ -372,7 +372,7 @@ function runStatisticsSuccess(response)
 // Get the requested data
 //
 
-function displayData(datatype)
+function displayData(datatype)  // called from visualiser.html
 {
  for(var data in data_types)
     hideshow_hide(data_types[data]);

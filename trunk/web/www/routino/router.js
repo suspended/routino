@@ -114,7 +114,7 @@ if(location.search.length>1)
 // Fill in the HTML - add the missing waypoints
 //
 
-function html_init()
+function html_init()            // called from router.html
 {
  var waypoints=document.getElementById("waypoints");
 
@@ -149,7 +149,7 @@ function html_init()
 // Form initialisation - fill in the uninitialised parts
 //
 
-function form_init()
+function form_init()            // called from router.html
 {
  // Fill in the waypoints
 
@@ -297,7 +297,7 @@ function searchOnReturnKey(ev)
 // Change of language in the form
 //
 
-function formSetLanguage(value)
+function formSetLanguage(value) // called from router.html (with no arguments)
 {
  if(value == undefined)
    {
@@ -322,7 +322,7 @@ function formSetLanguage(value)
 // Change of transport in the form
 //
 
-function formSetTransport(value)
+function formSetTransport(value) // called from router.html
 {
  routino.transport=value;
 
@@ -354,7 +354,7 @@ function formSetTransport(value)
 // Change of highway in the form
 //
 
-function formSetHighway(type,value)
+function formSetHighway(type,value) // called from router.html (with one argument)
 {
  if(value == undefined)
     routino.profile_highway[type][routino.transport]=document.forms["form"].elements["highway-" + type].value;
@@ -372,7 +372,7 @@ function formSetHighway(type,value)
 // Change of Speed in the form
 //
 
-function formSetSpeed(type,value)
+function formSetSpeed(type,value) // called from router.html (with one argument)
 {
  if(value == undefined)
     routino.profile_speed[type][routino.transport]=document.forms["form"].elements["speed-" + type].value;
@@ -390,7 +390,7 @@ function formSetSpeed(type,value)
 // Change of Property in the form
 //
 
-function formSetProperty(type,value)
+function formSetProperty(type,value) // called from router.html (with one argument)
 {
  if(value == undefined)
     routino.profile_property[type][routino.transport]=document.forms["form"].elements["property-" + type].value;
@@ -408,7 +408,7 @@ function formSetProperty(type,value)
 // Change of Restriction rule in the form
 //
 
-function formSetRestriction(type,value)
+function formSetRestriction(type,value) // called from router.html (with one argument)
 {
  if(value == undefined)
    {
@@ -435,7 +435,7 @@ function formSetRestriction(type,value)
 // Set the feature coordinates from the form when the form changes.
 //
 
-function formSetCoords(marker,lon,lat)
+function formSetCoords(marker,lon,lat) // called from router.html (with one argument)
 {
  clearSearchResult(marker);
 
@@ -498,7 +498,7 @@ function formSetCoords(marker,lon,lat)
 // Set the search field from the form when the form changes.
 //
 
-function formSetSearch(marker,search)
+function formSetSearch(marker,search) // called from event handler linked to router.html (with one argument)
 {
  clearSearchResult(marker);
 
@@ -600,7 +600,7 @@ function buildMapArguments()
 // Update a URL
 //
 
-function updateURL(element)
+function updateURL(element)     // called from router.html
 {
  if(element.id == "permalink_url")
     element.href=location.pathname + "?" + buildURLArguments(true) + ";" + buildMapArguments();
@@ -628,7 +628,7 @@ var epsg4326, epsg900913;
 // Initialise the 'map' object
 //
 
-function map_init()
+function map_init()             // called from router.html
 {
  lon =args["lon"];
  lat =args["lat"];
@@ -850,7 +850,7 @@ function dragSetForm(marker)
 // Toggle a marker on the map.
 //
 
-function markerToggleMap(marker)
+function markerToggleMap(marker) // called from router.html
 {
  if(!routino.point[marker].used)
    {
@@ -915,7 +915,7 @@ function markerRemoveMap(marker)
 // Display search string for the marker
 //
 
-function markerSearch(marker)
+function markerSearch(marker)   // called from router.html
 {
  clearSearchResult(marker);
 
@@ -928,7 +928,7 @@ function markerSearch(marker)
 // Display coordinates for the marker
 //
 
-function markerCoords(marker)
+function markerCoords(marker)   // called from router.html
 {
  clearSearchResult(marker);
 
@@ -941,7 +941,7 @@ function markerCoords(marker)
 // Centre the marker on the map
 //
 
-function markerCentre(marker)
+function markerCentre(marker)   // called from router.html
 {
  if(!routino.point[marker].used)
     return;
@@ -959,7 +959,7 @@ function markerCentre(marker)
 // Centre the map on the marker
 //
 
-function markerRecentre(marker)
+function markerRecentre(marker) // called from router.html
 {
  if(!routino.point[marker].used)
     return;
@@ -980,7 +980,7 @@ function markerRecentre(marker)
 // Clear the current marker.
 //
 
-function markerRemove(marker)
+function markerRemove(marker)   // called from router.html
 {
  clearSearchResult(marker);
 
@@ -1018,7 +1018,7 @@ function markerAddBefore(marker)
 // Add a marker after the current one.
 //
 
-function markerAddAfter(marker)
+function markerAddAfter(marker) // called from router.html
 {
  clearSearchResult(marker);
 
@@ -1038,7 +1038,7 @@ function markerAddAfter(marker)
 // Set this marker as the home location.
 //
 
-function markerHome(marker)
+function markerHome(marker)     // called from router.html
 {
  if(!routino.point[marker].used)
     return;
@@ -1055,7 +1055,7 @@ function markerHome(marker)
 // Set this marker as the current location.
 //
 
-function markerLocate(marker)
+function markerLocate(marker)   // called from router.html
 {
  clearSearchResult(marker);
 
@@ -1145,7 +1145,7 @@ function markerHomeCookie(marker)
 // Move this marker up.
 //
 
-function markerMoveUp(marker)
+function markerMoveUp(marker)   // called from router.html
 {
  if(marker==1)
    {
@@ -1161,7 +1161,7 @@ function markerMoveUp(marker)
 // Move this marker down.
 //
 
-function markerMoveDown(marker)
+function markerMoveDown(marker) // called from router.html
 {
  if(marker==vismarkers)
    {
@@ -1233,7 +1233,7 @@ function markerSwap(marker1,marker2)
 // Reverse the markers.
 //
 
-function markersReverse()
+function markersReverse()       // called from router.html
 {
  for(var marker=1;marker<=vismarkers/2;marker++)
     markerSwap(marker,vismarkers+1-marker);
@@ -1424,7 +1424,7 @@ function removeGPXTrace(type)
 // Display data statistics
 //
 
-function displayStatistics()
+function displayStatistics() // called from router.html
 {
  // Use AJAX to get the statistics
 
@@ -1447,7 +1447,7 @@ function runStatisticsSuccess(response)
 // Submit form - perform the routing
 //
 
-function findRoute(type)
+function findRoute(type) // called from router.html
 {
  tab_select("results");
 
