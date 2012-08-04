@@ -91,7 +91,7 @@ delete $cgiparams{format};
 
 # Run the router
 
-($router_uuid,$router_time,$router_result,$router_message)=RunRouter($type,%fullparams);
+my($router_uuid,$router_success)=RunRouter($type,%fullparams);
 
 # Return the output
 
@@ -104,7 +104,5 @@ else
    print header('text/plain');
 
    print "$router_uuid\n";
-   print "$router_time\n";
-   print "$router_result\n";
-   print "$router_message\n";
+   print "$router_success\n";
   }
