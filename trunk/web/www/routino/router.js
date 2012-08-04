@@ -1538,15 +1538,13 @@ function runRouterSuccess(response)
  var lines=response.responseText.split('\n');
 
  var uuid=lines[0];
- var cpuinfo=lines[1];  // not used
- var distinfo=lines[2]; // not used
- var message=lines[3];  // content not used
+ var success=lines[1];
 
  var link;
 
  // Update the status message
 
- if(message!="")
+ if(success=="ERROR")
    {
     displayStatus("result","error");
     hideshow_show('help_route');

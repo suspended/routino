@@ -119,34 +119,32 @@ sub RunRouter
 
    # Run the router
 
+   my($safe_params)="";
+   $safe_params.=" --dir=".pop([split('/',$data_dir)]) if($data_dir);
+   $safe_params.=" --prefix=$data_prefix" if($data_prefix);
+
+   open(LOG,">router.log");
+   print LOG "$router_exe $params$safe_params\n\n"; # Don't put the full pathnames in the logfile.
+   close(LOG);
+
    $params.=" --dir=$data_dir" if($data_dir);
    $params.=" --prefix=$data_prefix" if($data_prefix);
    $params.=" --loggable";
 
-   system "$bin_dir/$router_exe $params > router.log 2>&1";
+   system "$bin_dir/$router_exe $params >> router.log 2>&1";
+
+   my $status="OK";
+   $status="ERROR" if($? != 0);
 
    my(undef,undef,$cuser,$csystem) = times;
-   my $time=sprintf "time: %.3f CPU / %.3f elapsed",$cuser+$csystem,tv_interval($t0);
 
-   my $message="";
-
-   if($? != 0)
-     {
-      $message=`tail -1 router.log`;
-     }
-
-   my $result="";
-
-   if(-f "$optimise.txt")
-     {
-      $result=`tail -1 $optimise.txt`;
-      my @result=split(/\t/,$result);
-      $result = $result[4]." , ".$result[5];
-     }
+   open(LOG,">>router.log");
+   printf LOG "\nTime: %.3f CPU / %.3f elapsed\n",$cuser+$csystem,tv_interval($t0);
+   close(LOG);
 
    # Return the results
 
-   return($uuid,$time,$result,$message);
+   return($uuid,$status);
   }
 
 
