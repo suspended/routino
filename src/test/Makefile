@@ -89,8 +89,9 @@ clean:
 	rm -rf fat-pruned
 	rm -rf slim-pruned
 	rm -f *.log
-	rm -f core
 	rm -f *~
+	rm -f core
+	rm -f *.gcda *.gcno *.gcov gmon.out
 
 ########
 

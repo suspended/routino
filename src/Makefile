@@ -186,8 +186,9 @@ install: all
 ########
 
 clean:
-	rm -f *.o
 	rm -f *~
+	rm -f *.o
+	rm -f core
 	rm -f *.gcda *.gcno *.gcov gmon.out
 	rm -f xmlparse.c
 	cd xml  && $(MAKE) clean
