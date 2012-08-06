@@ -1,7 +1,7 @@
 %{
 /***************************************
  A simple generic XML parser where the structure comes from the function parameters.
- Not intended to be fully conforming to XML staandard or a validating parser but
+ Not intended to be fully conforming to XML standard or a validating parser but
  sufficient to parse OSM XML and simple program configuration files.
 
  Part of the Routino routing software.
@@ -73,12 +73,26 @@
 
 /*+ Reset the current string. +*/
 #define reset_string \
- stringnum=(stringnum+1)%XMLPARSE_MAX_ATTRS; \
+ stringnum=-1;
+
+/*+ Prepare for the next string. +*/
+#define next_string \
+ stringnum++; \
+ if(stringnum>=numstrings) \
+   { \
+    int i; \
+    numstrings+=32; \
+    string=(char**)realloc((void*)string,numstrings*sizeof(char*)); \
+    stringlen=(unsigned long*)realloc((void*)stringlen,numstrings*sizeof(unsigned long)); \
+    stringused=(unsigned long*)realloc((void*)stringused,numstrings*sizeof(unsigned long)); \
+    for(i=stringnum;i<numstrings;i++) \
+      {string[i]=NULL;stringlen[i]=0;stringused[i]=0;} \
+   } \
  if(!string[stringnum]) string[stringnum]=(char*)malloc(stringlen[stringnum]=256); \
  *string[stringnum]=0; \
  stringused[stringnum]=0;
 
-/*+ append information to the current string. +*/
+/*+ Append information to the current string. +*/
 #define append_string(xx) \
  newlen=strlen(xx); \
  if((stringused[stringnum]+newlen)>=stringlen[stringnum]) \
@@ -165,9 +179,9 @@ charref         (&#({digit}+|x{xdigit}+);)
 
 %%
  /* Must use static variables since the parser returns often. */
- static int stringnum=0;
- static char *string[XMLPARSE_MAX_ATTRS]={NULL};
- static unsigned long stringlen[XMLPARSE_MAX_ATTRS]={0},stringused[XMLPARSE_MAX_ATTRS]={0};
+ static int numstrings=0,stringnum=0;
+ static char **string=NULL;
+ static unsigned long *stringlen=NULL,*stringused=NULL;
  static int after_attr=0;
  int newlen;
  int doctype_depth=0;
@@ -216,7 +230,7 @@ charref         (&#({digit}+|x{xdigit}+);)
 
  /* XML declaration start */
 
-<XML_DECL_START>xml         { BEGIN(XML_DECL); yylval=yytext; return(LEX_XML_DECL_BEGIN); }
+<XML_DECL_START>xml         { BEGIN(XML_DECL); reset_string; yylval=yytext; return(LEX_XML_DECL_BEGIN); }
 <XML_DECL_START>{N}         { /* lineno++; */ return(LEX_ERROR_XML_DECL_START); }
 <XML_DECL_START>.           { return(LEX_ERROR_XML_DECL_START); }
 
@@ -230,7 +244,7 @@ charref         (&#({digit}+|x{xdigit}+);)
 
  /* Any tag start */
 
-<TAG_START>{name}           { BEGIN(TAG); yylval=yytext; return(LEX_TAG_BEGIN); }
+<TAG_START>{name}           { BEGIN(TAG); reset_string; yylval=yytext; return(LEX_TAG_BEGIN); }
 <TAG_START>{N}              { /* lineno++; */ return(LEX_ERROR_TAG_START); }
 <TAG_START>.                { return(LEX_ERROR_TAG_START); }
 
@@ -259,8 +273,8 @@ charref         (&#({digit}+|x{xdigit}+);)
 <ATTR_KEY>{N}               { /* lineno++; */ return(LEX_ERROR_ATTR); }
 <ATTR_KEY>.                 { return(LEX_ERROR_ATTR); }
 
-<ATTR_VAL>\"                { BEGIN(DQUOTED); reset_string; }
-<ATTR_VAL>\'                { BEGIN(SQUOTED); reset_string; }
+<ATTR_VAL>\"                { BEGIN(DQUOTED); next_string; }
+<ATTR_VAL>\'                { BEGIN(SQUOTED); next_string; }
 <ATTR_VAL>{N}               { /* lineno++; */ return(LEX_ERROR_ATTR); }
 <ATTR_VAL>.                 { return(LEX_ERROR_ATTR); }
 
@@ -286,7 +300,12 @@ charref         (&#({digit}+|x{xdigit}+);)
 
  /* End of file */
 
-<<EOF>>                     { for(stringnum=0;stringnum<XMLPARSE_MAX_ATTRS;stringnum++) {free(string[stringnum]); string[stringnum]=NULL; stringlen[stringnum]=stringused[stringnum]=0;}
+<<EOF>>                     { for(stringnum=0;stringnum<numstrings;stringnum++) if(string[stringnum]) free(string[stringnum]);
+                              if(string) free(string); string=NULL;
+                              if(stringlen) free(stringlen); stringlen=NULL;
+                              if(stringlen) free(stringlen); stringlen=NULL;
+                              if(stringused) free(stringused); stringused=NULL;
+                              numstrings=0;
                               BEGIN(INITIAL); return(LEX_EOF); }
 
 %%
