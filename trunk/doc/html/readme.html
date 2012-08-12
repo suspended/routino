@@ -2,7 +2,7 @@
 <HTML>
 
 <!--
- Routino documentation - algorithm
+ Routino documentation - readme
 
  Part of the Routino routing software.
 
@@ -178,13 +178,35 @@ Version 2.1.2 of Routino was released on 12th November 2011.
 Version 2.2 of Routino was released on 3rd March 2012.
 <br>
 Version 2.3 of Routino was released on 21st July 2012.
+<br>
+Version 2.3.1 of Routino was released on 11th August 2012.
 
 <p>
 
 The full version history is available in the NEWS file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.3</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Versions 2.3 and 2.3.1</h3>
+
+In version 2.3.1:
+
+<dl>
+  <dt>Bug fixes:
+  <dd>Create marker-XXX-grey.png icon which gets used before Javascript removes it.
+  <br>Provide full set of 99 marker icons instead of just 19.
+  <br>Add more limit icons (0.0-0.9, 20.0-40.0 and 161-200).
+  <br>Fix router web page problem with placing initial marker (coords not updated).
+  <br>Hide waypoints so that they are not visible when Javascript adds them to HTML.
+  <br>Fix web page font problems by choosing an explicit font pixel-size in the CSS.
+  <br>Fix potential crash in XML files containing lots of key/value pairs in a tag.
+
+  <dt>Web pages (router):
+  <dd>Unused waypoints show as blank rather than 0,0.
+  <br>Add a button to insert a waypoint to close the loop.
+  <br>Write the command line and execution time to the log file.
+</dl>
+
+In version 2.3:
 
 <dl>
   <dt>Bug fixes:

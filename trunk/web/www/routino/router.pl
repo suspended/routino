@@ -120,7 +120,13 @@ sub RunRouter
    # Run the router
 
    my($safe_params)="";
-   $safe_params.=" --dir=".pop([split('/',$data_dir)]) if($data_dir);
+   if($data_dir)
+     {
+      my(@pathparts)=split('/',$data_dir);
+      $safe_params.=" --dir=".pop(@pathparts);
+     }
+   # This works in newer Perl versions, but not older ones.
+   #$safe_params.=" --dir=".pop([split('/',$data_dir)]) if($data_dir);
    $safe_params.=" --prefix=$data_prefix" if($data_prefix);
 
    open(LOG,">router.log");
