@@ -389,7 +389,7 @@ static void output_highway(index_t node,double latitude,double longitude)
          {
           Way *way=LookupWay(OSMWays,segment->way,1);
 
-          if(way->type==highways)
+          if(HIGHWAY(way->type)==highways)
             {
              double lat,lon;
 
