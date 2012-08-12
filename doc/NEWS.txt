@@ -1,3 +1,24 @@
+Version 2.3.1 of Routino released : Sat Aug 11 2012
+---------------------------------------------------
+
+Bug fixes:
+  Create marker-XXX-grey.png icon which gets used before Javascript removes it.
+  Provide full set of 99 marker icons instead of just 19.
+  Add more limit icons (0.0-0.9, 20.0-40.0 and 161-200).
+  Fix router web page problem with placing initial marker (coords not updated).
+  Hide waypoints so that they are not visible when Javascript adds them to HTML.
+  Fix web page font problems by choosing an explicit font pixel-size in the CSS.
+  Fix potential crash in XML files containing lots of key/value pairs in a tag.
+
+Web pages (router):
+  Unused waypoints show as blank rather than 0,0.
+  Add a button to insert a waypoint to close the loop.
+  Write the command line and execution time to the log file.
+
+
+Note: This version is compatible with databases from versions 2.2 or 2.3.
+
+
 Version 2.3 of Routino released : Sat Jul 21 2012
 -------------------------------------------------
 
@@ -31,6 +52,8 @@ planetsplitter:
   Improve the XML parsing speed slightly.
 
 
+Note: This version is compatible with databases from versions 2.2.
+
 Note: Existing mapprops.js and paths.pl files need to be updated to include new
       items for this version.
 
@@ -38,10 +61,10 @@ Note: Existing OpenLayers installations must be updated if they were installed
       with older Routino provided script (the old OpenLayers.js will not work).
 
 Note: The CGI scripts customrouter.cgi and customvisualiser.cgi are deprecated
-      and will be removed in the next version.
+      and will be removed in version 2.4
 
 Note: The noscript.cgi and noscript.html web pages are deprecated and will be
-      removed in the next version.
+      removed in version 2.4
 
 
 Version 2.2 of Routino released : Sat Mar 3 2012

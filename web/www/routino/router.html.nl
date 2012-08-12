@@ -119,6 +119,11 @@
         <span class="hideshow_title">Coordinaten (waypoints)</span>
         <div id="hideshow_waypoint_div">
           <table id="waypoints">
+            <colgroup>
+              <col style="width: 25px;">
+              <col>
+              <col style="width: 76px;">
+            </colgroup>
             <tr id="waypointXXX" style="display: none;">
               <td>
                 <img name="waypointXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX)">&nbsp;
