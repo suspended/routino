@@ -50,7 +50,7 @@ test : exe
 	done ;\
 	for script in $(S); do \
 	   echo "" ;\
-	   echo "Testing: $$script (slimm, no pruning) ... " ;\
+	   echo "Testing: $$script (slim, no pruning) ... " ;\
 	   if ./$$script slim; then echo "... passed"; else echo "... FAILED"; status=false; fi ;\
 	done ;\
 	echo "" ;\
