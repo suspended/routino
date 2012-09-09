@@ -45,7 +45,8 @@ extern int option_quickest;
 
 /* Local functions */
 
-static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t endnode,index_t endsegment);
+static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish_node,index_t finish_segment);
+static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t finish_node);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -361,7 +362,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        results->prev_segment=NO_SEGMENT;
     else
       {
-       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
+       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,begin->start_node,begin->prev_segment);
 
        results->prev_segment=superseg;
       }
@@ -382,7 +383,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        !IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,5)))
       {
        Result *result5=result1;
-       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,result3->node,result3->segment);
+       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,result3->node,result3->segment);
 
        if(superseg!=result3->segment)
          {
@@ -639,197 +640,182 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
   Relations *relations The set of relations to use.
 
-  Profile *profile The profile containing the transport type, speeds and allowed highways.
-
   index_t finish_node The super-node that the route ends at.
 
   index_t finish_segment The segment that the route ends with.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node,index_t finish_segment)
+static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish_node,index_t finish_segment)
 {
- Node *node=LookupNode(nodes,finish_node,5); /* finish_node cannot be a fake node (must be a super-node) */
- Segment *segment;
+ Node *supernode;
+ Segment *supersegment;
 
  if(IsFakeSegment(finish_segment))
     finish_segment=IndexRealSegment(finish_segment);
 
- segment=LookupSegment(segments,finish_segment,2);
+ supernode=LookupNode(nodes,finish_node,5); /* finish_node cannot be a fake node (must be a super-node) */
+ supersegment=LookupSegment(segments,finish_segment,2);
 
- if(IsSuperSegment(segment))
+ if(IsSuperSegment(supersegment))
     return(finish_segment);
 
  /* Loop across all segments */
 
- segment=FirstSegment(segments,node,3); /* finish_node cannot be a fake node (must be a super-node) */
+ supersegment=FirstSegment(segments,supernode,3); /* finish_node cannot be a fake node (must be a super-node) */
 
- while(segment)
+ while(supersegment)
    {
-    if(IsSuperSegment(segment))
+    if(IsSuperSegment(supersegment))
       {
        Results *results;
-       Queue   *queue;
-       index_t startnode;
-       score_t finish_score;
-       Result  *finish_result;
-       Result  *result1,*result2;
+       Result *result;
+       index_t start_node;
 
-       startnode=OtherNode(segment,finish_node);
+       start_node=OtherNode(supersegment,finish_node);
 
-       /* Set up the finish conditions */
+       results=FindSuperRoute(nodes,segments,ways,relations,start_node,finish_node);
 
-       finish_score=INF_SCORE;
-       finish_result=NULL;
-
-       /* Create the list of results and insert the first node into the queue */
-
-       results=NewResultsList(4);
-
-       results->start_node=startnode;
-       results->prev_segment=NO_SEGMENT;
-
-       result1=InsertResult(results,results->start_node,results->prev_segment);
-
-       queue=NewQueueList();
-
-       InsertInQueue(queue,result1);
-
-       /* Loop across all nodes in the queue */
-
-       while((result1=PopFromQueue(queue)))
-         {
-          Node *node1p=NULL;
-          Segment *segment;
-          index_t node1,seg1;
-
-          /* score must be better than current best score */
-          if(result1->score>finish_score)
-             continue;
-
-          node1=result1->node;
-          seg1=result1->segment;
-
-          node1p=LookupNode(nodes,node1,1);
-
-          /* Loop across all segments */
-
-          segment=FirstSegment(segments,node1p,1); /* node1 cannot be a fake node */
-
-          while(segment)
-            {
-             Node *node2p=NULL;
-             index_t node2,seg2;
-             score_t segment_score,cumulative_score;
-
-             node2=OtherNode(segment,node1); /* need this here because we use node2 at the end of the loop */
-
-             /* must be a normal segment */
-             if(!IsNormalSegment(segment))
-                goto endloop;
-
-             /* must obey one-way restrictions */
-             if(IsOnewayTo(segment,node1))
-                goto endloop;
-
-             seg2=IndexSegment(segments,segment);
-
-             /* must not perform U-turn */
-             if(seg1==seg2)
-                goto endloop;
-
-             node2p=LookupNode(nodes,node2,2);
-
-             /* must not pass over super-node */
-             if(node2!=finish_node && IsSuperNode(node2p))
-                goto endloop;
-
-             segment_score=(score_t)DISTANCE(segment->distance);
-
-             cumulative_score=result1->score+segment_score;
-
-             /* score must be better than current best score */
-             if(cumulative_score>finish_score)
-                goto endloop;
-
-             result2=FindResult(results,node2,seg2);
-
-             if(!result2) /* New end node/segment combination */
-               {
-                result2=InsertResult(results,node2,seg2);
-                result2->prev=result1;
-                result2->score=cumulative_score;
-
-                if(node2==finish_node)
-                  {
-                   if(cumulative_score<finish_score)
-                     {
-                      finish_score=cumulative_score;
-                      finish_result=result2;
-                     }
-                  }
-                else
-                  {
-                   result2->sortby=result2->score;
-
-                   if(result2->score<finish_score)
-                      InsertInQueue(queue,result2);
-                  }
-               }
-             else if(cumulative_score<result2->score) /* New score for end node/segment combination is better */
-               {
-                result2->prev=result1;
-                result2->score=cumulative_score;
-                result2->segment=seg2;
-
-                if(node2==finish_node)
-                  {
-                   if(cumulative_score<finish_score)
-                     {
-                      finish_score=cumulative_score;
-                      finish_result=result2;
-                     }
-                  }
-                else
-                  {
-                   result2->sortby=result2->score;
-
-                   if(result2->score<finish_score)
-                      InsertInQueue(queue,result2);
-                  }
-               }
-
-            endloop:
-
-             segment=NextSegment(segments,segment,node1);
-            }
-         }
-
-       FreeQueueList(queue);
-
-       /* Check it worked */
-
-       if(!finish_result)
-         {
-          FreeResultsList(results);
+       if(!results)
           continue;
-         }
 
-       FixForwardRoute(results,finish_result);
+       result=FindResult(results,finish_node,finish_segment);
 
-       if(results->last_segment==finish_segment && (distance_t)finish_score==(distance_t)DISTANCE(segment->distance))
+       if(result && (distance_t)result->score==DISTANCE(supersegment->distance))
          {
           FreeResultsList(results);
-          return(IndexSegment(segments,segment));
+          return(IndexSegment(segments,supersegment));
          }
 
        if(results)
           FreeResultsList(results);
       }
 
-    segment=NextSegment(segments,segment,finish_node); /* finish_node cannot be a fake node (must be a super-node) */
+    supersegment=NextSegment(segments,supersegment,finish_node); /* finish_node cannot be a fake node (must be a super-node) */
    }
 
  return(finish_segment);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the shortest route between two super-nodes using only normal nodes.
+  This is effectively the same function as is used in superx.c when finding super-segments initially.
+
+  Results *FindSuperRoute Returns a set of results.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  Relations *relations The set of relations to use.
+
+  index_t start_node The start node.
+
+  index_t finish_node The finish node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t finish_node)
+{
+ Results *results;
+ Queue   *queue;
+ Result  *result1,*result2;
+
+ /* Create the list of results and insert the first node into the queue */
+
+ results=NewResultsList(4);
+
+ results->start_node=start_node;
+ results->prev_segment=NO_SEGMENT;
+
+ result1=InsertResult(results,results->start_node,results->prev_segment);
+
+ queue=NewQueueList();
+
+ InsertInQueue(queue,result1);
+
+ /* Loop across all nodes in the queue */
+
+ while((result1=PopFromQueue(queue)))
+   {
+    Node *node1p=NULL;
+    Segment *segment;
+    index_t node1,seg1;
+
+    node1=result1->node;
+    seg1=result1->segment;
+
+    node1p=LookupNode(nodes,node1,1);
+
+    /* Loop across all segments */
+
+    segment=FirstSegment(segments,node1p,1); /* node1 cannot be a fake node */
+
+    while(segment)
+      {
+       Node *node2p=NULL;
+       index_t node2,seg2;
+       score_t cumulative_score;
+
+       /* must be a normal segment */
+       if(!IsNormalSegment(segment))
+          goto endloop;
+
+       /* must obey one-way restrictions */
+       if(IsOnewayTo(segment,node1))
+          goto endloop;
+
+       seg2=IndexSegment(segments,segment);
+
+       /* must not perform U-turn */
+       if(seg1==seg2)
+          goto endloop;
+
+       node2=OtherNode(segment,node1);
+
+       node2p=LookupNode(nodes,node2,2);
+
+       /* must not pass over super-node */
+       if(node2!=finish_node && IsSuperNode(node2p))
+          goto endloop;
+
+       cumulative_score=result1->score+(score_t)DISTANCE(segment->distance);
+
+       result2=FindResult(results,node2,seg2);
+
+       if(!result2) /* New end node/segment combination */
+         {
+          result2=InsertResult(results,node2,seg2);
+          result2->prev=result1;
+          result2->score=cumulative_score;
+          result2->sortby=result2->score;
+
+          /* don't route beyond a super-node. */
+          if(!IsSuperNode(node2p))
+             InsertInQueue(queue,result2);
+         }
+       else if(cumulative_score<result2->score) /* New score for end node/segment combination is better */
+         {
+          result2->prev=result1;
+          result2->segment=seg2;
+          result2->score=cumulative_score;
+          result2->sortby=result2->score;
+
+          /* don't route beyond a super-node. */
+          if(!IsSuperNode(node2p))
+             InsertInQueue(queue,result2);
+         }
+
+      endloop:
+
+       segment=NextSegment(segments,segment,node1);
+      }
+   }
+
+ FreeQueueList(queue);
+
+ return(results);
 }
 
 
