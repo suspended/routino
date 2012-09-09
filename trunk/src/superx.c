@@ -478,8 +478,6 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
        if(IsOnewayTo(segmentx,node1))
           goto endloop;
 
-       node2=OtherNode(segmentx,node1);
-
        seg2=IndexSegmentX(segmentsx,segmentx);
 
        /* must not be a u-turn */
@@ -493,6 +491,8 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
           goto endloop;
 
        cumulative_distance=(distance_t)result1->score+DISTANCE(segmentx->distance);
+
+       node2=OtherNode(segmentx,node1);
 
        result2=FindResult(results,node2,seg2);
 
