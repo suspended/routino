@@ -164,7 +164,7 @@ void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name)
 
  waysx->number++;
 
- assert(!(waysx->number==0)); /* Zero marks the high-water mark for ways. */
+ assert(waysx->number!=0); /* Zero marks the high-water mark for ways. */
 }
 
 

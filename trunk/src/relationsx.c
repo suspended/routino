@@ -201,7 +201,7 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,
 
  relationsx->rnumber++;
 
- assert(!(relationsx->rnumber==0)); /* Zero marks the high-water mark for relations. */
+ assert(relationsx->rnumber!=0); /* Zero marks the high-water mark for relations. */
 }
 
 
@@ -240,7 +240,7 @@ void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
 
  relationsx->trnumber++;
 
- assert(!(relationsx->trnumber==0)); /* Zero marks the high-water mark for relations. */
+ assert(relationsx->trnumber!=0); /* Zero marks the high-water mark for relations. */
 }
 
 
