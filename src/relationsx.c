@@ -537,13 +537,21 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
 
                 if(routes&Transports_Foot)
                   {
-                   wayx->way.allow|=Transports_Foot;
+                   if(!(wayx->way.allow&Transports_Foot))
+                     {
+                      logerror("Route Relation %"Prelation_t" for Foot contains Way %"Pway_t" that does not allow Foot transport; overriding.\n",relationx.id,wayid);
+                      wayx->way.allow|=Transports_Foot;
+                     }
                    wayx->way.props|=Properties_FootRoute;
                   }
 
                 if(routes&Transports_Bicycle)
                   {
-                   wayx->way.allow|=Transports_Bicycle;
+                   if(!(wayx->way.allow&Transports_Bicycle))
+                     {
+                      logerror("Route Relation %"Prelation_t" for Bicycle contains Way %"Pway_t" that does not allow Bicycle transport; overriding.\n",relationx.id,wayid);
+                      wayx->way.allow|=Transports_Bicycle;
+                     }
                    wayx->way.props|=Properties_BicycleRoute;
                   }
 
