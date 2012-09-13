@@ -159,20 +159,20 @@
     <tag k='highway' v='residential' />
     <tag k='name' v='high street' />
   </way>
-  <way id='116' action='modify' visible='true'>
+  <way id='116' version='1' visible='true'>
     <nd ref='113' />
     <nd ref='115' />
     <nd ref='117' />
     <tag k='highway' v='residential' />
     <tag k='name' v='loop 6' />
   </way>
-  <way id='128' visible='true'>
+  <way id='128' version='1' visible='true'>
     <nd ref='113' />
     <nd ref='117' />
     <tag k='highway' v='residential' />
     <tag k='name' v='bottom road' />
   </way>
-  <way id='129' visible='true'>
+  <way id='129' version='1' visible='true'>
     <nd ref='117' />
     <nd ref='347' />
     <tag k='highway' v='residential' />
@@ -375,7 +375,7 @@
     <tag k='restriction' v='only_straight_on' />
     <tag k='type' v='restriction' />
   </relation>
-  <relation id='143' visible='true'>
+  <relation id='143' version='1' visible='true'>
     <member type='node' ref='117' role='via' />
     <member type='way' ref='129' role='from' />
     <member type='way' ref='128' role='to' />

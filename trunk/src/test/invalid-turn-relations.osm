@@ -115,7 +115,7 @@
     <nd ref='174' />
     <tag k='highway' v='unclassified' />
   </way>
-  <way id='278' action='modify' visible='true' version='1'>
+  <way id='278' visible='true' version='1'>
     <nd ref='277' />
     <nd ref='124' />
     <tag k='highway' v='unclassified' />
