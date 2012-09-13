@@ -450,7 +450,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
  /* Insert the first node into the queue */
 
- results=NewResultsList(4);
+ results=NewResultsList(64);
 
  queue=NewQueueList();
 
