@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' upload='true' generator='JOSM'>
-  <node id='97' visible='true' lat='-0.2203330521761548' lon='-0.5194857377924652' />
-  <node id='95' visible='true' lat='-0.22040525704431851' lon='-0.517799295180183' />
+  <node id='97' visible='true' version='1' lat='-0.2203330521761548' lon='-0.5194857377924652' />
+  <node id='95' visible='true' version='1' lat='-0.22040525704431851' lon='-0.517799295180183' />
   <node id='3' visible='true' version='1' lat='-0.2217201380129468' lon='-0.5209275966384278' />
   <node id='4' visible='true' version='1' lat='-0.21828070777942268' lon='-0.5207912709437164' />
   <node id='6' visible='true' version='1' lat='-0.21804206074333024' lon='-0.5205359496121407' />
