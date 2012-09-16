@@ -79,6 +79,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  double  finish_lat,finish_lon;
  Result  *finish_result;
  Result  *result1,*result2;
+ int     force_uturn=0;
 
  /* Set up the finish conditions */
 
@@ -93,15 +94,24 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  /* Create the list of results and insert the first node into the queue */
 
  results=NewResultsList(64);
+ queue=NewQueueList();
 
  results->start_node=start_node;
  results->prev_segment=prev_segment;
 
  result1=InsertResult(results,results->start_node,results->prev_segment);
 
- queue=NewQueueList();
-
  InsertInQueue(queue,result1);
+
+ /* Check for barrier at start waypoint - must perform U-turn */
+
+ if(prev_segment!=NO_SEGMENT && !IsFakeNode(start_node))
+   {
+    Node *start=LookupNode(nodes,start_node,1);
+
+    if(!(start->allow&profile->allow))
+       force_uturn=1;
+   }
 
  /* Loop across all nodes in the queue */
 
@@ -167,9 +177,16 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           seg2r=seg2;
          }
 
-       /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
-          goto endloop;
+       /* must perform U-turn in special cases */
+       if(force_uturn && node1==results->start_node)
+         {
+          if(seg2r!=result1->segment)
+             goto endloop;
+         }
+       else
+          /* must not perform U-turn (unless profile allows) */
+          if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
+             goto endloop;
 
        /* must obey turn relations */
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1r,seg2r,profile->allow))
@@ -217,8 +234,8 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(segment_pref==0)
           goto endloop;
 
-       /* mode of transport must be allowed through node2 */
-       if(node2p && !(node2p->allow&profile->allow))
+       /* mode of transport must be allowed through node2 unless it is the final node */
+       if(node2p && node2!=finish_node && !(node2p->allow&profile->allow))
           goto endloop;
 
        if(option_quickest==0)
@@ -329,6 +346,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  score_t finish_score;
  double  finish_lat,finish_lon;
  Result  *result1,*result2,*result3,*result4;
+ int     force_uturn=0;
 
  if(!option_quiet)
     printf_first("Routing: Super-Nodes checked = 0");
@@ -346,6 +364,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  /* Create the list of results and insert the first node into the queue */
 
  results=NewResultsList(65536);
+ queue=NewQueueList();
 
  results->start_node=begin->start_node;
  results->prev_segment=begin->prev_segment;
@@ -363,8 +382,6 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    }
 
  result1=InsertResult(results,results->start_node,results->prev_segment);
-
- queue=NewQueueList();
 
  /* Insert the finish points of the beginning part of the path into the queue,
     translating the segments into super-segments. */
@@ -413,6 +430,16 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  if(begin->number==1)
     InsertInQueue(queue,result1);
 
+ /* Check for barrier at start waypoint - must perform U-turn */
+
+ if(begin->number==1 && results->prev_segment!=NO_SEGMENT)
+   {
+    Node *start=LookupNode(nodes,result1->node,1);
+
+    if(!(start->allow&profile->allow))
+       force_uturn=1;
+   }
+
  /* Loop across all nodes in the queue */
 
  while((result1=PopFromQueue(queue)))
@@ -457,9 +484,16 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        seg2=IndexSegment(segments,segment); /* segment cannot be a fake segment (must be a super-segment) */
 
-       /* must not perform U-turn */
-       if(seg1==seg2) /* No fake segments, applies to all profiles */
-          goto endloop;
+       /* must perform U-turn in special cases */
+       if(force_uturn && node1==results->start_node)
+         {
+          if(seg2!=result1->segment)
+             goto endloop;
+         }
+       else
+          /* must not perform U-turn */
+          if(seg1==seg2) /* No fake segments, applies to all profiles */
+             goto endloop;
 
        /* must obey turn relations */
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1,seg2,profile->allow))
@@ -504,8 +538,8 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        node2p=LookupNode(nodes,node2,2); /* node2 cannot be a fake node (must be a super-node) */
 
-       /* mode of transport must be allowed through node2 */
-       if(!(node2p->allow&profile->allow))
+       /* mode of transport must be allowed through node2 unless it is the final node */
+       if(node2!=end->finish_node && !(node2p->allow&profile->allow))
           goto endloop;
 
        if(option_quickest==0)
@@ -723,13 +757,12 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
  /* Create the list of results and insert the first node into the queue */
 
  results=NewResultsList(64);
+ queue=NewQueueList();
 
  results->start_node=start_node;
  results->prev_segment=NO_SEGMENT;
 
  result1=InsertResult(results,results->start_node,results->prev_segment);
-
- queue=NewQueueList();
 
  InsertInQueue(queue,result1);
 
@@ -847,22 +880,29 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  Results *results;
  Queue   *queue;
  Result  *result1,*result2;
- int     found_finish=0;
+ int     found_finish=0,force_uturn=0;
 
- /* Create the results and insert the start node */
+ /* Create the list of results and insert the first node into the queue */
 
  results=NewResultsList(64);
+ queue=NewQueueList();
 
  results->start_node=start_node;
  results->prev_segment=prev_segment;
 
  result1=InsertResult(results,results->start_node,results->prev_segment);
 
- /* Insert the first node into the queue */
-
- queue=NewQueueList();
-
  InsertInQueue(queue,result1);
+
+ /* Check for barrier at start waypoint - must perform U-turn */
+
+ if(prev_segment!=NO_SEGMENT && !IsFakeNode(start_node))
+   {
+    Node *start=LookupNode(nodes,start_node,1);
+
+    if(!(start->allow&profile->allow))
+       force_uturn=1;
+   }
 
  /* Loop across all nodes in the queue */
 
@@ -924,9 +964,16 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           seg2r=seg2;
          }
 
-       /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
-          goto endloop;
+       /* must perform U-turn in special cases */
+       if(node1==start_node && force_uturn)
+         {
+          if(seg2r!=result1->segment)
+             goto endloop;
+         }
+       else
+          /* must not perform U-turn (unless profile allows) */
+          if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
+             goto endloop;
 
        /* must obey turn relations */
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1r,seg2r,profile->allow))
@@ -970,8 +1017,8 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(!IsFakeNode(node2))
           node2p=LookupNode(nodes,node2,2);
 
-       /* mode of transport must be allowed through node2 */
-       if(node2p && !(node2p->allow&profile->allow))
+       /* mode of transport must be allowed through node2 unless it is the final node */
+       if(node2p && node2!=finish_node && !(node2p->allow&profile->allow))
           goto endloop;
 
        if(option_quickest==0)
@@ -1067,17 +1114,14 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
  Queue   *queue;
  Result  *result1,*result2,*result3;
 
- /* Create the results and insert the finish node */
+ /* Create the results and insert the finish node into the queue */
 
  results=NewResultsList(64);
+ queue=NewQueueList();
 
  results->finish_node=finish_node;
 
  result1=InsertResult(results,finish_node,NO_SEGMENT);
-
- /* Insert the first node into the queue */
-
- queue=NewQueueList();
 
  InsertInQueue(queue,result1);
 
