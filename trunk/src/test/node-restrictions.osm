@@ -33,7 +33,6 @@
   <node id='73' visible='true' version='1' lat='-0.2201725235935236' lon='-0.518597315296112'>
     <tag k='access' v='no' />
     <tag k='barrier' v='bollard' />
-    <tag k='foot' v='yes' />
     <tag k='name' v='WP04' />
   </node>
   <node id='92' visible='true' version='1' lat='-0.2207386134847756' lon='-0.5178011278670027' />

@@ -124,9 +124,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
              segmentway[count]=wayx->way;
 
-             /* If the node allows less traffic types than any connecting way then it is super */
+             /* If the node allows less traffic types than any connecting way then it is super if it allows anything */
 
-             if((wayx->way.allow&nodex->allow)!=wayx->way.allow)
+             if((wayx->way.allow&nodex->allow)!=wayx->way.allow && nodex->allow!=Transports_None)
                {
                 issuper=1;
                 break;
