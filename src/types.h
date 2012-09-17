@@ -291,7 +291,7 @@ typedef enum _Transports
   Transports_HGV        = TRANSPORTS(Transport_HGV       ),
   Transports_PSV        = TRANSPORTS(Transport_PSV       ),
 
-  Transports_ALL        = 65535
+  Transports_ALL        = TRANSPORTS(Transport_Count     )-1
  }
  Transports;
 
@@ -326,14 +326,14 @@ typedef enum _Properties
  {
   Properties_None         = 0,
 
-  Properties_Paved        = PROPERTIES(Property_Paved),
-  Properties_Multilane    = PROPERTIES(Property_Multilane),
-  Properties_Bridge       = PROPERTIES(Property_Bridge),
-  Properties_Tunnel       = PROPERTIES(Property_Tunnel),
-  Properties_FootRoute    = PROPERTIES(Property_FootRoute),
+  Properties_Paved        = PROPERTIES(Property_Paved       ),
+  Properties_Multilane    = PROPERTIES(Property_Multilane   ),
+  Properties_Bridge       = PROPERTIES(Property_Bridge      ),
+  Properties_Tunnel       = PROPERTIES(Property_Tunnel      ),
+  Properties_FootRoute    = PROPERTIES(Property_FootRoute   ),
   Properties_BicycleRoute = PROPERTIES(Property_BicycleRoute),
 
-  Properties_ALL          = 255
+  Properties_ALL          = PROPERTIES(Property_Count       )-1
  }
  Properties;
 
