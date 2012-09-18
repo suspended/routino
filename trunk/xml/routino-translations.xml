@@ -5,7 +5,7 @@
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010-2011 Andrew M. Bishop
+     This file Copyright 2010-2012 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@
     <copyright>
       <creator string="Creator" text="Routino - http://www.routino.org/" />
       <source  string="Source"  text="Based on OpenStreetMap data from http://www.openstreetmap.org/" />
-      <license string="License" text="http://creativecommons.org/licenses/by-sa/2.0/" />
+      <license string="License" text="http://www.openstreetmap.org/copyright" />
     </copyright>
 
     <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
@@ -119,7 +119,7 @@
     <copyright>
       <creator string="Creator" text="Routino - http://www.routino.org/" />
       <source  string="Source"  text="Basierend auf OpenStreetMap-Daten, erhältlich via http://www.openstreetmap.org/" />
-      <license string="License" text="http://creativecommons.org/licenses/by-sa/2.0/" />
+      <license string="License" text="http://www.openstreetmap.org/copyright" />
     </copyright>
 
     <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
@@ -214,7 +214,7 @@
     <copyright>
       <creator string="Creator" text="Routino - http://www.routino.org/" />
       <source  string="Source"  text="Basierend auf OpenStreetMap-Daten, erhältlich via http://www.openstreetmap.org/" />
-      <license string="License" text="http://creativecommons.org/licenses/by-sa/2.0/" />
+      <license string="License" text="http://www.openstreetmap.org/copyright" />
     </copyright>
 
     <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
@@ -309,7 +309,7 @@
     <copyright>
       <creator string="Автор" text="Routino - http://www.routino.org/" />
       <source  string="Источник"  text="Использованы данные OpenStreetMap http://www.openstreetmap.org/" />
-      <license string="Лицензия" text="http://creativecommons.org/licenses/by-sa/2.0/" />
+      <license string="Лицензия" text="http://www.openstreetmap.org/copyright" />
     </copyright>
 
     <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
