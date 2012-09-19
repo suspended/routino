@@ -224,9 +224,11 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Map into memory / open the files */
 
 #if !SLIM
+ nodesx->data=MapFile(nodesx->filename);
  segmentsx->data=MapFile(segmentsx->filename);
  waysx->data=MapFile(waysx->filename);
 #else
+ nodesx->fd=ReOpenFile(nodesx->filename);
  segmentsx->fd=ReOpenFile(segmentsx->filename);
  waysx->fd=ReOpenFile(waysx->filename);
 #endif
@@ -305,9 +307,11 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
+ nodesx->data=UnmapFile(nodesx->filename);
  segmentsx->data=UnmapFile(segmentsx->filename);
  waysx->data=UnmapFile(waysx->filename);
 #else
+ nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
  waysx->fd=CloseFile(waysx->fd);
 #endif
@@ -471,6 +475,7 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
 
     while(segmentx)
       {
+       NodeX  *node2x;
        index_t node2,seg2;
        distance_t cumulative_distance;
 
@@ -490,9 +495,15 @@ static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,n
        if(WaysCompare(&wayx->way,match))
           goto endloop;
 
-       cumulative_distance=(distance_t)result1->score+DISTANCE(segmentx->distance);
-
        node2=OtherNode(segmentx,node1);
+
+       node2x=LookupNodeX(nodesx,node2,2); /* position 1 is already used */
+
+       /* Don't route beyond a node with no access */
+       if(node2x->allow==Transports_None)
+          goto endloop;
+
+       cumulative_distance=(distance_t)result1->score+DISTANCE(segmentx->distance);
 
        result2=FindResult(results,node2,seg2);
 
