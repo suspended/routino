@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -571,7 +571,7 @@ int main(int argc,char** argv)
             {
              if(!finish_result)
                {
-                fprintf(stderr,"Error: Cannot find route compatible with profile.\n");
+                fprintf(stderr,"Error: Cannot create combined route following super-route.\n");
                 return(1);
                }
             }
