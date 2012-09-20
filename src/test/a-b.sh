@@ -94,8 +94,8 @@ for waypoint in $waypoints; do
 
     if [ "$pruned" = "" ]; then
 
-        echo cmp $dir/$name-$waypoint/shortest-all.txt expected/$name-$waypoint.txt >> $log
-        cmp $dir/$name-$waypoint/shortest-all.txt expected/$name-$waypoint.txt >> $log
+        echo diff -u expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt >> $log
+        diff -u expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt >> $log
 
     fi
 
