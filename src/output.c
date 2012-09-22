@@ -475,21 +475,19 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           do
             {
-             index_t othernode=OtherNode(segment,result->node);
+             index_t seg=IndexSegment(segments,segment);
 
-             if(othernode!=result->prev->node && IndexSegment(segments,segment)!=realsegment)
+             if(seg!=realsegment)
                 if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
                   {
                    Way *way=LookupWay(ways,segment->way,3);
 
-                   if(othernode==next_result->node) /* the next segment that we follow */
+                   if(seg==next_realsegment) /* the next segment that we follow */
                      {
                       if(HIGHWAY(way->type)!=HIGHWAY(resultway->type))
                          if(important<IMP_CHANGE)
                             important=IMP_CHANGE;
                      }
-                   else if(IsFakeNode(next_result->node))
-                      ;
                    else /* a segment that we don't follow */
                      {
                       if(junction_other_way[HIGHWAY(resultway->type)-1][HIGHWAY(way->type)-1])
