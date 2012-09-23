@@ -746,6 +746,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 type="Mini-RB";
              else if(important==IMP_CHANGE)
                 type="Change";
+             else if(important==IMP_JUNCT_CONT || important==IMP_RB_NOT_EXIT)
+                type="Junct-";
              else if(important==IMP_UNIMPORTANT)
                 type="Inter";
              else
