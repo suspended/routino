@@ -46,7 +46,7 @@ HTML Route Instructions
 <HTML>
 <!-- Creator : Routino - http://www.routino.org/ -->
 <!-- Source : Based on OpenStreetMap data from http://www.openstreetmap.org/ -->
-<!-- License : http://creativecommons.org/licenses/by-sa/2.0/ -->
+<!-- License : http://www.openstreetmap.org/copyright -->
 <HEAD>
 <TITLE>Shortest Route</TITLE>
 ...
@@ -56,15 +56,24 @@ HTML Route Instructions
 <table>
 <tr class='c'><td class='l'>1:<td class='r'>51.524658 -0.127877
 <tr class='n'><td class='l'>Start:<td class='r'>At <span class='w'>Waypoint</span>, head <span class='b'>South-East</span>
-<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Woburn Place (A4200)</span> for <span class='d'>0.440 km, 0.5 min</span> [<span class='j'>0.4 km, 1 minutes</span>]
-<tr class='c'><td class='l'>2:<td class='r'>51.521460 -0.124099
+<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Woburn Place (A4200)</span> for <span class='d'>0.251 km, 0.3 min</span> [<span class='j'>0.3 km, 0 minutes</span>]
+<tr class='c'><td class='l'>2:<td class='r'>51.522811 -0.125781
 <tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Straight on</span> heading <span class='b'>South-East</span>
-<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Southampton Row (A4200)</span> for <span class='d'>0.34
+<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Russell Square (A4200)</span> for <span class='d'>0.186 km, 0.2 min</span> [<span class='j'>0.4 km, 1 minutes</span>]
+<tr class='c'><td class='l'>3:<td class='r'>51.521482 -0.124123
+<tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Straig
+ht on</span> heading <span class='b'>South-East</span>
+<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Southampton Row
+ (A4200)</span> for <span class='d'>0.351 km, 0.4 min</span> [<span class='j'>0.
+8 km, 1 minutes</span>]
 ...
-<tr class='c'><td class='l'>21:<td class='r'>51.478354 -0.103560
-<tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Right</span> heading <span class='b'>South-West</span>
-<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Vassall Road</span> for <span class='d'>0.013 km, 0.0 min</span> [<span class='j'>6.4 km, 6 minutes</span>]
-<tr class='c'><td class='l'>22:<td class='r'>51.478244 -0.103651
+<tr class='c'><td class='l'>21:<td class='r'>51.477678 -0.106792
+<tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Slight left</span> heading <span class='b'>South-East</span>
+<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Vassall Road</span> for <span class='d'>0.138 km, 0.2 min</span> [<span class='j'>6.3 km, 6 minutes</span>]
+<tr class='c'><td class='l'>22:<td class='r'>51.478015 -0.104870
+<tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Straight on</span> heading <span class='b'>East</span>
+<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Vassall Road</span> for <span class='d'>0.087 km, 0.1 min</span> [<span class='j'>6.4 km, 6 minutes</span>]
+<tr class='c'><td class='l'>23:<td class='r'>51.478244 -0.103651
 <tr class='n'><td class='l'>Stop:<td class='r'>At <span class='w'>Waypoint</span>
 <tr class='t'><td class='l'>Total:<td class='r'><span class='j'>6.4 km, 6 minutes</span>
 </table>
@@ -87,7 +96,7 @@ GPX Track File
 <metadata>
 <desc>Creator : Routino - http://www.routino.org/</desc>
 <copyright author="Based on OpenStreetMap data from http://www.openstreetmap.org/">
-<license>http://creativecommons.org/licenses/by-sa/2.0/</license>
+<license>http://www.openstreetmap.org/copyright</license>
 </copyright>
 </metadata>
 <trk>
@@ -95,8 +104,10 @@ GPX Track File
 <desc>Shortest route between 'start' and 'finish' waypoints</desc>
 <trkpt lat="51.524658" lon="-0.127877"/>
 <trkpt lat="51.523768" lon="-0.126918"/>
+<trkpt lat="51.522811" lon="-0.125781"/>
 ...
-<trkpt lat="51.478354" lon="-0.103560"/>
+<trkpt lat="51.478015" lon="-0.104870"/>
+<trkpt lat="51.478127" lon="-0.104174"/>
 <trkpt lat="51.478244" lon="-0.103651"/>
 </trkseg>
 </trk>
@@ -119,22 +130,37 @@ GPX Route File
 <metadata>
 <desc>Creator : Routino - http://www.routino.org/</desc>
 <copyright author="Based on OpenStreetMap data from http://www.openstreetmap.org/">
-<license>http://creativecommons.org/licenses/by-sa/2.0/</license>
+<license>http://www.openstreetmap.org/copyright</license>
 </copyright>
 </metadata>
 <rte>
 <name>Shortest route</name>
 <desc>Shortest route between 'start' and 'finish' waypoints</desc>
-<rtept lat="51.524658" lon="-0.127877"><name>START</name>
-<desc>South-East on `Woburn Place (A4200)` for 0.440 km, 0.5 min</desc></rtept>
-<rtept lat="51.521460" lon="-0.124099"><name>TRIP001</name>
-<desc>South-East on `Southampton Row (A4200)` for 0.348 km, 0.4 min</desc></rtept>
+<rtept lat="51.524658" lon="-0.127877">
+  <name>START</name>
+  <desc>South-East on 'Woburn Place (A4200)' for 0.251 km, 0.3 min</desc>
+</rtept>
+<rtept lat="51.522811" lon="-0.125781">
+  <name>TRIP001</name>
+  <desc>South-East on 'Russell Square (A4200)' for 0.186 km, 0.2 min</desc>
+</rtept>
+<rtept lat="51.521482" lon="-0.124123">
+  <name>TRIP002</name>
+  <desc>South-East on 'Southampton Row (A4200)' for 0.351 km, 0.4 min</desc>
+</rtept>
 ...
-<desc>South-East on `Camberwell New Road (A202)` for 0.597 km, 0.4 min</desc></rtept>
-<rtept lat="51.478354" lon="-0.103560"><name>TRIP020</name>
-<desc>South-West on `Vassall Road` for 0.013 km, 0.0 min</desc></rtept>
-<rtept lat="51.478244" lon="-0.103651"><name>FINISH</name>
-<desc>Total Journey 6.4 km, 6 minutes</desc></rtept>
+<rtept lat="51.477678" lon="-0.106792">
+  <name>TRIP020</name>
+  <desc>South-East on 'Vassall Road' for 0.138 km, 0.2 min</desc>
+</rtept>
+<rtept lat="51.478015" lon="-0.104870">
+  <name>TRIP021</name>
+  <desc>East on 'Vassall Road' for 0.087 km, 0.1 min</desc>
+</rtept>
+<rtept lat="51.478244" lon="-0.103651">
+  <name>FINISH</name>
+  <desc>Total Journey 6.4 km, 6 minutes</desc>
+</rtept>
 </rte>
 </gpx>
 
@@ -150,15 +176,17 @@ Text File
 
 # Creator : Routino - http://www.routino.org/
 # Source : Based on OpenStreetMap data from http://www.openstreetmap.org/
-# License : http://creativecommons.org/licenses/by-sa/2.0/
+# License : http://www.openstreetmap.org/copyright
 #
-#Latitude   Longitude  Section   Section   Total     Total      Point  Turn  Bearing Highway
-#                      Distance  Duration  Distance  Duration   Type                 
- 51.524658  -0.127877  0.000 km  0.0 min    0.0 km     0 min    Waypt         +3     Woburn Place (A4200)
- 51.521460  -0.124099  0.440 km  0.5 min    0.4 km     1 min    Junct   +0    +3     Southampton Row (A4200)
+#Latitude   Longitude  Section   Section  Total    Total    Point Turn Bearing Highway
+#                      Distance  Duration Distance Duration Type
+ 51.524658  -0.127877  0.000 km  0.0 min  0.0 km   0 min    Waypt  +3          Woburn Place (A4200)
+ 51.522811  -0.125781  0.251 km  0.3 min  0.3 km   0 min    Junct  +0  +3      Russell Square (A4200)
+ 51.521482  -0.124123  0.186 km  0.2 min  0.4 km   1 min    Junct  +0  +3      Southampton Row (A4200)
 ...
- 51.478354  -0.103560  0.597 km  0.4 min    6.4 km     6 min    Junct   +2    -3     Vassall Road
- 51.478244  -0.103651  0.013 km  0.0 min    6.4 km     6 min    Waypt               
+ 51.477678  -0.106792  0.204 km  0.2 min  6.1 km   5 min    Junct  +0  +3      Vassall Road
+ 51.478015  -0.104870  0.138 km  0.2 min  6.3 km   6 min    Junct  +0  +2      Vassall Road
+ 51.478244  -0.103651  0.087 km  0.1 min  6.4 km   6 min    Waypt
 
    The text file output contains a header (indicated by the lines starting
    with '#') and then one line for each waypoint or junction. Each line
@@ -210,15 +238,17 @@ All Nodes Text File
 
 # Creator : Routino - http://www.routino.org/
 # Source : Based on OpenStreetMap data from http://www.openstreetmap.org/
-# License : http://creativecommons.org/licenses/by-sa/2.0/
+# License : http://www.openstreetmap.org/copyright
 #
-#Latitude   Longitude  Node       Type   Segment Segment  Total Total   Speed  Bearing Highway
-#                                        Dist    Durat'n  Dist  Durat'n                       
- 51.524658  -0.127877  12466852*  Waypt  0.000   0.00     0.00   0.0                  
- 51.523768  -0.126918  12467208*  Junct  0.119   0.15     0.12   0.1    96     146     Woburn Place (A4200)
+#Latitude   Longitude  Node      Type   Segment Segment Total Total   Speed Bearing Highway
+#                                       Dist    Durat'n Dist  Durat'n
+ 51.524658  -0.127877  8439703*  Waypt   0.000  0.00    0.00   0.0
+ 51.523768  -0.126918  8439948*  Junct-  0.119  0.15    0.12   0.1     96    146    Woburn Place (A4200)
+ 51.522811  -0.125781  8440207*  Junct   0.132  0.17    0.25   0.3     96    143    Woburn Place (A4200)
 ...
- 51.478354  -0.103560  12604345*  Junct  0.104   0.07     6.36   5.6    96     125     Camberwell New Road (A202)
- 51.478244  -0.103651  12604304   Waypt  0.013   0.01     6.37   5.6    64     207     Vassall Road
+ 51.478015  -0.104870  8529638*  Change  0.138  0.17    6.26   5.6     48     74    Vassall Road
+ 51.478127  -0.104174  8529849*  Junct-  0.049  0.04    6.31   5.7     64     75    Vassall Road
+ 51.478244  -0.103651  8530008   Waypt   0.038  0.04    6.35   5.7     64     70    Vassall Road
 
    The all nodes text file output contains a header (indicated by the
    lines starting with '#') and then one line for each node and the
@@ -234,8 +264,9 @@ All Nodes Text File
    Node - The internal node number and an indicator "*" if the node is a
    super-node.
 
-   Type - The type of point; a waypoint Waypt, junction Junct, change of
-   highway Change or intermediate node Inter.
+   Type - The type of point; a waypoint Waypt, important junction Junct,
+   unimportant junction Junct-, change of highway Change or intermediate node
+   Inter.
 
    Segment Distance - The distance travelled on the segment defined on this
    line.
