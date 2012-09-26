@@ -30,6 +30,7 @@ var data_types=[
                 "oneway",
                 "highway",
                 "transport",
+                "barrier",
                 "turns",
                 "speed",
                 "weight",
@@ -439,6 +440,14 @@ function displayData(datatype)  // called from visualiser.html
     url+="-" + transport;
     OpenLayers.Request.GET({url: url, success: runTransportSuccess, failure: runFailure});
     break;
+   case 'barrier':
+    var transports=document.forms["barriers"].elements["barrier"];
+    for(var t in transports)
+       if(transports[t].checked)
+          transport=transports[t].value;
+    url+="-" + transport;
+    OpenLayers.Request.GET({url: url, success: runBarrierSuccess, failure: runFailure});
+    break;
    case 'turns':
     OpenLayers.Request.GET({url: url, success: runTurnsSuccess, failure: runFailure});
     break;
@@ -728,6 +737,52 @@ function runTransportSuccess(response)
  layerVectors.addFeatures(features);
 
  displayStatus("data","transport",lines.length-2);
+}
+
+
+//
+// Success in getting the barrier data
+//
+
+function runBarrierSuccess(response)
+{
+ var lines=response.responseText.split('\n');
+
+ var features=[];
+
+ for(var line=0;line<lines.length;line++)
+   {
+    var words=lines[line].split(' ');
+
+    if(line == 0)
+      {
+       var lat1=words[0];
+       var lon1=words[1];
+       var lat2=words[2];
+       var lon2=words[3];
+
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+
+       box = new OpenLayers.Marker.Box(bounds);
+
+       layerBoxes.addMarker(box);
+      }
+    else if(words[0] != "")
+      {
+       var lat=words[0];
+       var lon=words[1];
+
+       var lonlat= new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
+
+       var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
+
+       features.push(new OpenLayers.Feature.Vector(point,{},super_node_style));
+      }
+   }
+
+ layerVectors.addFeatures(features);
+
+ displayStatus("data","barrier",lines.length-2);
 }
 
 

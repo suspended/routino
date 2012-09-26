@@ -127,6 +127,9 @@
         <div id="result_status_transport" style="display: none;">
           <b>Processed # segments</b>
         </div>
+        <div id="result_status_barrier"   style="display: none;">
+          <b>Processed # nodes</b>
+        </div>
         <div id="result_status_turns"     style="display: none;">
           <b>Processed # turn restrictions</b>
         </div>
@@ -222,6 +225,29 @@
             <tr><td>Goods     <td><input name="transport" type="radio" value="goods"     >
             <tr><td>HGV       <td><input name="transport" type="radio" value="hgv"       >
             <tr><td>PSV       <td><input name="transport" type="radio" value="psv"       >
+          </table>
+        </form>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_barrier_show" onclick="hideshow_show('barrier');" class="hideshow_show">+</span>
+      <span id="hideshow_barrier_hide" onclick="hideshow_hide('barrier');" class="hideshow_hide">-</span>
+      <input type="button" id="barrier" onclick="displayData('barrier');" value="Display Barrier Nodes">
+      <div id="hideshow_barrier_div" style="display: none;">
+        Each barrier blocking the chosen type of transport is drawn.
+        <form name="barriers" id="barriers" action="" method="get" onsubmit="return false;">
+          <table>
+            <tr><td>Foot      <td><input name="barrier" type="radio" value="foot"      >
+            <tr><td>Horse     <td><input name="barrier" type="radio" value="horse"     >
+            <tr><td>Wheelchair<td><input name="barrier" type="radio" value="wheelchair">
+            <tr><td>Bicycle   <td><input name="barrier" type="radio" value="bicycle"   >
+            <tr><td>Moped     <td><input name="barrier" type="radio" value="moped"     >
+            <tr><td>Motorbike <td><input name="barrier" type="radio" value="motorbike" >
+            <tr><td>Motorcar  <td><input name="barrier" type="radio" value="motorcar"  checked>
+            <tr><td>Goods     <td><input name="barrier" type="radio" value="goods"     >
+            <tr><td>HGV       <td><input name="barrier" type="radio" value="hgv"       >
+            <tr><td>PSV       <td><input name="barrier" type="radio" value="psv"       >
           </table>
         </form>
       </div>

@@ -157,6 +157,8 @@ int main(int argc,char** argv)
        OutputHighway(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,highway);
     else if(!strncmp(option_data,"transport",9) && option_data[9]=='-' && (transport=TransportType(option_data+10))!=Transport_None)
        OutputTransport(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,transport);
+    else if(!strncmp(option_data,"barrier",7) && option_data[7]=='-' && (transport=TransportType(option_data+8))!=Transport_None)
+       OutputBarrier(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,transport);
     else if(!strcmp(option_data,"turns"))
        OutputTurnRestrictions(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"speed"))
@@ -901,6 +903,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "      oneway      = oneway segments.\n"
             "      highway-*   = segments of the specified highway type.\n"
             "      transport-* = segments allowing the specified transport type.\n"
+            "      barrier-*   = nodes disallowing the specified transport type.\n"
             "      turns       = turn restrictions.\n"
             "      speed       = speed limits.\n"
             "      weight      = weight limits.\n"

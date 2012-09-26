@@ -40,7 +40,7 @@ $query=new CGI;
               "latmax" => "[-0-9.]+",
               "lonmin" => "[-0-9.]+",
               "lonmax" => "[-0-9.]+",
-              "data"   => "(junctions|super|oneway|highway-.*|transport-.*|turns|speed|weight|height|width|length)"
+              "data"   => "(junctions|super|oneway|highway-.*|transport-.*|barrier-.*|turns|speed|weight|height|width|length)"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -71,6 +71,7 @@ foreach my $key (@rawparams)
          "oneway"    => 0.2,
          "highway"   => 0.2,
          "transport" => 0.2,
+         "barrier"   => 0.2,
          "turns"     => 0.3,
          "weight"    => 0.3,
          "height"    => 0.3,
@@ -93,8 +94,9 @@ if($latmin eq "" || $latmax eq "" || $lonmin eq "" || $lonmax eq "" || $data eq 
   }
 
 $subdata=$data;
-$subdata="highway" if($data =~ m%highway-%);
+$subdata="highway"   if($data =~ m%highway-%);
 $subdata="transport" if($data =~ m%transport-%);
+$subdata="barrier"   if($data =~ m%barrier-%);
 
 if(($latmax-$latmin)>$limits{$subdata} || ($lonmax-$lonmin)>$limits{$subdata})
   {
