@@ -380,16 +380,16 @@ int main(int argc,char** argv)
 
 static void print_node(Nodes *nodes,index_t item)
 {
- Node *node=LookupNode(nodes,item,1);
+ Node *nodep=LookupNode(nodes,item,1);
  double latitude,longitude;
 
  GetLatLong(nodes,item,&latitude,&longitude);
 
  printf("Node %"Pindex_t"\n",item);
- printf("  firstseg=%"Pindex_t"\n",node->firstseg);
- printf("  latoffset=%d lonoffset=%d (latitude=%.6f longitude=%.6f)\n",node->latoffset,node->lonoffset,radians_to_degrees(latitude),radians_to_degrees(longitude));
- printf("  allow=%02x (%s)\n",node->allow,AllowedNameList(node->allow));
- if(IsSuperNode(node))
+ printf("  firstseg=%"Pindex_t"\n",nodep->firstseg);
+ printf("  latoffset=%d lonoffset=%d (latitude=%.6f longitude=%.6f)\n",nodep->latoffset,nodep->lonoffset,radians_to_degrees(latitude),radians_to_degrees(longitude));
+ printf("  allow=%02x (%s)\n",nodep->allow,AllowedNameList(nodep->allow));
+ if(IsSuperNode(nodep))
     printf("  Super-Node\n");
 }
 
@@ -404,20 +404,20 @@ static void print_node(Nodes *nodes,index_t item)
 
 static void print_segment(Segments *segments,index_t item)
 {
- Segment *segment=LookupSegment(segments,item,1);
+ Segment *segmentp=LookupSegment(segments,item,1);
 
  printf("Segment %"Pindex_t"\n",item);
- printf("  node1=%"Pindex_t" node2=%"Pindex_t"\n",segment->node1,segment->node2);
- printf("  next2=%"Pindex_t"\n",segment->next2);
- printf("  way=%"Pindex_t"\n",segment->way);
- printf("  distance=%d (%.3f km)\n",DISTANCE(segment->distance),distance_to_km(DISTANCE(segment->distance)));
- if(IsSuperSegment(segment) && IsNormalSegment(segment))
+ printf("  node1=%"Pindex_t" node2=%"Pindex_t"\n",segmentp->node1,segmentp->node2);
+ printf("  next2=%"Pindex_t"\n",segmentp->next2);
+ printf("  way=%"Pindex_t"\n",segmentp->way);
+ printf("  distance=%d (%.3f km)\n",DISTANCE(segmentp->distance),distance_to_km(DISTANCE(segmentp->distance)));
+ if(IsSuperSegment(segmentp) && IsNormalSegment(segmentp))
     printf("  Super-Segment AND normal Segment\n");
- else if(IsSuperSegment(segment) && !IsNormalSegment(segment))
+ else if(IsSuperSegment(segmentp) && !IsNormalSegment(segmentp))
     printf("  Super-Segment\n");
- if(IsOnewayTo(segment,segment->node1))
+ if(IsOnewayTo(segmentp,segmentp->node1))
     printf("  One-Way from node2 to node1\n");
- if(IsOnewayTo(segment,segment->node2))
+ if(IsOnewayTo(segmentp,segmentp->node2))
     printf("  One-Way from node1 to node2\n");
 }
 
@@ -432,26 +432,26 @@ static void print_segment(Segments *segments,index_t item)
 
 static void print_way(Ways *ways,index_t item)
 {
- Way *way=LookupWay(ways,item,1);
- char *name=WayName(ways,way);
+ Way *wayp=LookupWay(ways,item,1);
+ char *name=WayName(ways,wayp);
 
  printf("Way %"Pindex_t"\n",item);
  if(*name)
     printf("  name=%s\n",name);
- printf("  type=%02x (%s%s%s)\n",way->type,HighwayName(HIGHWAY(way->type)),way->type&Way_OneWay?",One-Way":"",way->type&Way_Roundabout?",Roundabout":"");
- printf("  allow=%02x (%s)\n",way->allow,AllowedNameList(way->allow));
- if(way->props)
-    printf("  props=%02x (%s)\n",way->props,PropertiesNameList(way->props));
- if(way->speed)
-    printf("  speed=%d (%d km/hr)\n",way->speed,speed_to_kph(way->speed));
- if(way->weight)
-    printf("  weight=%d (%.1f tonnes)\n",way->weight,weight_to_tonnes(way->weight));
- if(way->height)
-    printf("  height=%d (%.1f m)\n",way->height,height_to_metres(way->height));
- if(way->width)
-    printf("  width=%d (%.1f m)\n",way->width,width_to_metres(way->width));
- if(way->length)
-    printf("  length=%d (%.1f m)\n",way->length,length_to_metres(way->length));
+ printf("  type=%02x (%s%s%s)\n",wayp->type,HighwayName(HIGHWAY(wayp->type)),wayp->type&Way_OneWay?",One-Way":"",wayp->type&Way_Roundabout?",Roundabout":"");
+ printf("  allow=%02x (%s)\n",wayp->allow,AllowedNameList(wayp->allow));
+ if(wayp->props)
+    printf("  props=%02x (%s)\n",wayp->props,PropertiesNameList(wayp->props));
+ if(wayp->speed)
+    printf("  speed=%d (%d km/hr)\n",wayp->speed,speed_to_kph(wayp->speed));
+ if(wayp->weight)
+    printf("  weight=%d (%.1f tonnes)\n",wayp->weight,weight_to_tonnes(wayp->weight));
+ if(wayp->height)
+    printf("  height=%d (%.1f m)\n",wayp->height,height_to_metres(wayp->height));
+ if(wayp->width)
+    printf("  width=%d (%.1f m)\n",wayp->width,width_to_metres(wayp->width));
+ if(wayp->length)
+    printf("  length=%d (%.1f m)\n",wayp->length,length_to_metres(wayp->length));
 }
 
 
@@ -469,40 +469,40 @@ static void print_way(Ways *ways,index_t item)
 
 static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes *nodes)
 {
- Segment *segment;
- TurnRelation *relation=LookupTurnRelation(relations,item,1);
- Node *node=LookupNode(nodes,relation->via,1);
+ Segment *segmentp;
+ TurnRelation *relationp=LookupTurnRelation(relations,item,1);
+ Node *nodep=LookupNode(nodes,relationp->via,1);
  index_t from_way=NO_WAY,to_way=NO_WAY;
  index_t from_node=NO_NODE,to_node=NO_NODE;
 
- segment=FirstSegment(segments,node,1);
+ segmentp=FirstSegment(segments,nodep,1);
 
  do
    {
-    index_t seg=IndexSegment(segments,segment);
+    index_t seg=IndexSegment(segments,segmentp);
 
-    if(seg==relation->from)
+    if(seg==relationp->from)
       {
-       from_node=OtherNode(segment,relation->from);
-       from_way=segment->way;
+       from_node=OtherNode(segmentp,relationp->from);
+       from_way=segmentp->way;
       }
 
-    if(seg==relation->to)
+    if(seg==relationp->to)
       {
-       to_node=OtherNode(segment,relation->to);
-       to_way=segment->way;
+       to_node=OtherNode(segmentp,relationp->to);
+       to_way=segmentp->way;
       }
 
-    segment=NextSegment(segments,segment,relation->via);
+    segmentp=NextSegment(segments,segmentp,relationp->via);
    }
- while(segment);
+ while(segmentp);
 
  printf("Relation %"Pindex_t"\n",item);
- printf("  from=%"Pindex_t" (segment) = %"Pindex_t" (way) = %"Pindex_t" (node)\n",relation->from,from_way,from_node);
- printf("  via=%"Pindex_t" (node)\n",relation->via);
- printf("  to=%"Pindex_t" (segment) = %"Pindex_t" (way) = %"Pindex_t" (node)\n",relation->to,to_way,to_node);
- if(relation->except)
-    printf("  except=%02x (%s)\n",relation->except,AllowedNameList(relation->except));
+ printf("  from=%"Pindex_t" (segment) = %"Pindex_t" (way) = %"Pindex_t" (node)\n",relationp->from,from_way,from_node);
+ printf("  via=%"Pindex_t" (node)\n",relationp->via);
+ printf("  to=%"Pindex_t" (segment) = %"Pindex_t" (way) = %"Pindex_t" (node)\n",relationp->to,to_way,to_node);
+ if(relationp->except)
+    printf("  except=%02x (%s)\n",relationp->except,AllowedNameList(relationp->except));
 }
 
 
@@ -583,34 +583,34 @@ static void print_region_osm(Nodes *nodes,Segments *segments,Ways *ways,Relation
 
        for(item=index1;item<index2;item++)
          {
-          Node *node=LookupNode(nodes,item,1);
-          double lat=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb)+off_to_latlong(node->latoffset));
-          double lon=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb)+off_to_latlong(node->lonoffset));
+          Node *nodep=LookupNode(nodes,item,1);
+          double lat=latlong_to_radians(bin_to_latlong(nodes->file.latzero+latb)+off_to_latlong(nodep->latoffset));
+          double lon=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonb)+off_to_latlong(nodep->lonoffset));
 
           if(lat>latmin && lat<latmax && lon>lonmin && lon<lonmax)
             {
-             Segment *segment;
+             Segment *segmentp;
 
              print_node_osm(nodes,item);
 
-             segment=FirstSegment(segments,node,1);
+             segmentp=FirstSegment(segments,nodep,1);
 
-             while(segment)
+             while(segmentp)
                {
                 double olat,olon;
-                index_t oitem=OtherNode(segment,item);
+                index_t oitem=OtherNode(segmentp,item);
 
                 GetLatLong(nodes,oitem,&olat,&olon);
 
                 if(olat>latmin && olat<latmax && olon>lonmin && olon<lonmax)
                    if(item>oitem)
-                      if(!option_no_super || IsNormalSegment(segment))
-                         print_segment_osm(segments,IndexSegment(segments,segment),ways);
+                      if(!option_no_super || IsNormalSegment(segmentp))
+                         print_segment_osm(segments,IndexSegment(segments,segmentp),ways);
 
-                segment=NextSegment(segments,segment,item);
+                segmentp=NextSegment(segments,segmentp,item);
                }
 
-             if(IsTurnRestrictedNode(node))
+             if(IsTurnRestrictedNode(nodep))
                {
                 index_t relindex=FindFirstTurnRelation1(relations,item);
 
@@ -637,32 +637,32 @@ static void print_region_osm(Nodes *nodes,Segments *segments,Ways *ways,Relation
 
 static void print_node_osm(Nodes *nodes,index_t item)
 {
- Node *node=LookupNode(nodes,item,1);
+ Node *nodep=LookupNode(nodes,item,1);
  double latitude,longitude;
  int i;
 
  GetLatLong(nodes,item,&latitude,&longitude);
 
- if(node->allow==Transports_ALL && node->flags==0)
+ if(nodep->allow==Transports_ALL && nodep->flags==0)
     printf("  <node id='%lu' lat='%.7f' lon='%.7f' version='1' />\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
  else
    {
     printf("  <node id='%lu' lat='%.7f' lon='%.7f' version='1'>\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
 
-    if(node->flags & NODE_SUPER)
+    if(nodep->flags & NODE_SUPER)
        printf("    <tag k='routino:super' v='yes' />\n");
 
-    if(node->flags & NODE_UTURN)
+    if(nodep->flags & NODE_UTURN)
        printf("    <tag k='routino:uturn' v='yes' />\n");
 
-    if(node->flags & NODE_MINIRNDBT)
+    if(nodep->flags & NODE_MINIRNDBT)
        printf("    <tag k='highway' v='mini_roundabout' />\n");
 
-    if(node->flags & NODE_TURNRSTRCT)
+    if(nodep->flags & NODE_TURNRSTRCT)
        printf("    <tag k='routino:turnrestriction' v='yes' />\n");
 
     for(i=1;i<Transport_Count;i++)
-       if(!(node->allow & TRANSPORTS(i)))
+       if(!(nodep->allow & TRANSPORTS(i)))
           printf("    <tag k='%s' v='no' />\n",TransportName(i));
 
     printf("  </node>\n");
@@ -682,61 +682,61 @@ static void print_node_osm(Nodes *nodes,index_t item)
 
 static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 {
- Segment *segment=LookupSegment(segments,item,1);
- Way *way=LookupWay(ways,segment->way,1);
- char *name=WayName(ways,way);
+ Segment *segmentp=LookupSegment(segments,item,1);
+ Way *wayp=LookupWay(ways,segmentp->way,1);
+ char *name=WayName(ways,wayp);
  int i;
 
  printf("  <way id='%lu' version='1'>\n",(unsigned long)item+1);
 
- if(IsOnewayTo(segment,segment->node1))
+ if(IsOnewayTo(segmentp,segmentp->node1))
    {
-    printf("    <nd ref='%lu' />\n",(unsigned long)segment->node2+1);
-    printf("    <nd ref='%lu' />\n",(unsigned long)segment->node1+1);
+    printf("    <nd ref='%lu' />\n",(unsigned long)segmentp->node2+1);
+    printf("    <nd ref='%lu' />\n",(unsigned long)segmentp->node1+1);
    }
  else
    {
-    printf("    <nd ref='%lu' />\n",(unsigned long)segment->node1+1);
-    printf("    <nd ref='%lu' />\n",(unsigned long)segment->node2+1);
+    printf("    <nd ref='%lu' />\n",(unsigned long)segmentp->node1+1);
+    printf("    <nd ref='%lu' />\n",(unsigned long)segmentp->node2+1);
    }
 
- if(IsSuperSegment(segment))
+ if(IsSuperSegment(segmentp))
     printf("    <tag k='routino:super' v='yes' />\n");
- if(IsNormalSegment(segment))
+ if(IsNormalSegment(segmentp))
     printf("    <tag k='routino:normal' v='yes' />\n");
 
- printf("    <tag k='routino:distance' v='%.3f' />\n",distance_to_km(DISTANCE(segment->distance)));
+ printf("    <tag k='routino:distance' v='%.3f' />\n",distance_to_km(DISTANCE(segmentp->distance)));
 
- if(way->type & Way_OneWay)
+ if(wayp->type & Way_OneWay)
     printf("    <tag k='oneway' v='yes' />\n");
 
- if(way->type & Way_Roundabout)
+ if(wayp->type & Way_Roundabout)
     printf("    <tag k='roundabout' v='yes' />\n");
 
- printf("    <tag k='highway' v='%s' />\n",HighwayName(HIGHWAY(way->type)));
+ printf("    <tag k='highway' v='%s' />\n",HighwayName(HIGHWAY(wayp->type)));
 
- if(IsNormalSegment(segment) && *name)
+ if(IsNormalSegment(segmentp) && *name)
     printf("    <tag k='name' v='%s' />\n",ParseXML_Encode_Safe_XML(name));
 
  for(i=1;i<Transport_Count;i++)
-    if(way->allow & TRANSPORTS(i))
+    if(wayp->allow & TRANSPORTS(i))
        printf("    <tag k='%s' v='yes' />\n",TransportName(i));
 
  for(i=1;i<Property_Count;i++)
-    if(way->props & PROPERTIES(i))
+    if(wayp->props & PROPERTIES(i))
        printf("    <tag k='%s' v='yes' />\n",PropertyName(i));
 
- if(way->speed)
-    printf("    <tag k='maxspeed' v='%d' />\n",speed_to_kph(way->speed));
+ if(wayp->speed)
+    printf("    <tag k='maxspeed' v='%d' />\n",speed_to_kph(wayp->speed));
 
- if(way->weight)
-    printf("    <tag k='maxweight' v='%.1f' />\n",weight_to_tonnes(way->weight));
- if(way->height)
-    printf("    <tag k='maxheight' v='%.1f' />\n",height_to_metres(way->height));
- if(way->width)
-    printf("    <tag k='maxwidth' v='%.1f' />\n",width_to_metres(way->width));
- if(way->length)
-    printf("    <tag k='maxlength' v='%.1f' />\n",length_to_metres(way->length));
+ if(wayp->weight)
+    printf("    <tag k='maxweight' v='%.1f' />\n",weight_to_tonnes(wayp->weight));
+ if(wayp->height)
+    printf("    <tag k='maxheight' v='%.1f' />\n",height_to_metres(wayp->height));
+ if(wayp->width)
+    printf("    <tag k='maxwidth' v='%.1f' />\n",width_to_metres(wayp->width));
+ if(wayp->length)
+    printf("    <tag k='maxlength' v='%.1f' />\n",length_to_metres(wayp->length));
 
  printf("  </way>\n");
 }
@@ -756,12 +756,12 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 
 static void print_turnrelation_osm(Relations *relations,index_t item,Segments *segments,Nodes *nodes)
 {
- TurnRelation *relation=LookupTurnRelation(relations,item,1);
+ TurnRelation *relationp=LookupTurnRelation(relations,item,1);
 
- Segment *segment_from=LookupSegment(segments,relation->from,1);
- Segment *segment_to  =LookupSegment(segments,relation->to  ,2);
+ Segment *segmentp_from=LookupSegment(segments,relationp->from,1);
+ Segment *segmentp_to  =LookupSegment(segments,relationp->to  ,2);
 
- double angle=TurnAngle(nodes,segment_from,segment_to,relation->via);
+ double angle=TurnAngle(nodes,segmentp_from,segmentp_to,relationp->via);
 
  char *restriction;
 
@@ -778,12 +778,12 @@ static void print_turnrelation_osm(Relations *relations,index_t item,Segments *s
  printf("    <tag k='type' v='restriction' />\n");
  printf("    <tag k='restriction' v='%s'/>\n",restriction);
 
- if(relation->except)
-    printf("    <tag k='except' v='%s' />\n",AllowedNameList(relation->except));
+ if(relationp->except)
+    printf("    <tag k='except' v='%s' />\n",AllowedNameList(relationp->except));
 
- printf("    <member type='way' ref='%lu' role='from' />\n",(unsigned long)relation->from+1);
- printf("    <member type='node' ref='%lu' role='via' />\n",(unsigned long)relation->via+1);
- printf("    <member type='way' ref='%lu' role='to' />\n",(unsigned long)relation->to+1);
+ printf("    <member type='way' ref='%lu' role='from' />\n",(unsigned long)relationp->from+1);
+ printf("    <member type='node' ref='%lu' role='via' />\n",(unsigned long)relationp->via+1);
+ printf("    <member type='way' ref='%lu' role='to' />\n",(unsigned long)relationp->to+1);
 
  printf("  </relation>\n");
 }

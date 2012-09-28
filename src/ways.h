@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -97,7 +97,7 @@ struct _Ways
 
 Ways *LoadWayList(const char *filename);
 
-int WaysCompare(Way *way1,Way *way2);
+int WaysCompare(Way *way1p,Way *way2p);
 
 
 /* Macros and inline functions */
@@ -114,7 +114,7 @@ int WaysCompare(Way *way1,Way *way2);
 
 static Way *LookupWay(Ways *ways,index_t index,int position);
 
-static char *WayName(Ways *ways,Way *way);
+static char *WayName(Ways *ways,Way *wayp);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -149,16 +149,16 @@ static inline Way *LookupWay(Ways *ways,index_t index,int position)
 
   Ways *ways The set of ways to use.
 
-  Way *way The Way pointer.
+  Way *wayp The Way pointer.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline char *WayName(Ways *ways,Way *way)
+static inline char *WayName(Ways *ways,Way *wayp)
 {
- int position=way-&ways->cached[-1];
+ int position=wayp-&ways->cached[-1];
 
  int n=0;
 
- SeekFile(ways->fd,ways->namesoffset+way->name);
+ SeekFile(ways->fd,ways->namesoffset+wayp->name);
 
  if(!ways->ncached[position-1])
     ways->ncached[position-1]=(char*)malloc(32);

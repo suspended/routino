@@ -37,16 +37,16 @@
 
 /* Functions in fakes.c */
 
-index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,index_t node1,index_t node2,distance_t dist1,distance_t dist2);
+index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segmentp,index_t node1,index_t node2,distance_t dist1,distance_t dist2);
 
 void GetFakeLatLong(index_t fakenode, double *latitude,double *longitude);
 
 Segment *FirstFakeSegment(index_t fakenode);
-Segment *NextFakeSegment(Segment *fakesegment,index_t fakenode);
+Segment *NextFakeSegment(Segment *fakesegmentp,index_t fakenode);
 Segment *ExtraFakeSegment(index_t realnode,index_t fakenode);
 
 Segment *LookupFakeSegment(index_t index);
-index_t IndexFakeSegment(Segment *fakesegment);
+index_t IndexFakeSegment(Segment *fakesegmentp);
 index_t IndexRealSegment(index_t fakesegment);
 
 int IsFakeUTurn(index_t fakesegment1,index_t fakesegment2);

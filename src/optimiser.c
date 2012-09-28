@@ -107,9 +107,9 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  if(prev_segment!=NO_SEGMENT && !IsFakeNode(start_node))
    {
-    Node *start=LookupNode(nodes,start_node,1);
+    Node *startp=LookupNode(nodes,start_node,1);
 
-    if(!(start->allow&profile->allow))
+    if(!(startp->allow&profile->allow))
        force_uturn=1;
    }
 
@@ -118,7 +118,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  while((result1=PopFromQueue(queue)))
    {
     Node *node1p=NULL;
-    Segment *segment;
+    Segment *segmentp;
     index_t node1,seg1,seg1r;
     index_t turnrelation=NO_RELATION;
 
@@ -144,36 +144,36 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     /* Loop across all segments */
 
     if(IsFakeNode(node1))
-       segment=FirstFakeSegment(node1);
+       segmentp=FirstFakeSegment(node1);
     else
-       segment=FirstSegment(segments,node1p,1);
+       segmentp=FirstSegment(segments,node1p,1);
 
-    while(segment)
+    while(segmentp)
       {
        Node *node2p=NULL;
-       Way *way;
+       Way *wayp;
        index_t node2,seg2,seg2r;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
-       node2=OtherNode(segment,node1); /* need this here because we use node2 at the end of the loop */
+       node2=OtherNode(segmentp,node1); /* need this here because we use node2 at the end of the loop */
 
        /* must be a normal segment */
-       if(!IsNormalSegment(segment))
+       if(!IsNormalSegment(segmentp))
           goto endloop;
 
        /* must obey one-way restrictions (unless profile allows) */
-       if(profile->oneway && IsOnewayTo(segment,node1))
+       if(profile->oneway && IsOnewayTo(segmentp,node1))
           goto endloop;
 
        if(IsFakeNode(node1) || IsFakeNode(node2))
          {
-          seg2 =IndexFakeSegment(segment);
+          seg2 =IndexFakeSegment(segmentp);
           seg2r=IndexRealSegment(seg2);
          }
        else
          {
-          seg2 =IndexSegment(segments,segment);
+          seg2 =IndexSegment(segments,segmentp);
           seg2r=seg2;
          }
 
@@ -199,23 +199,23 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(node2!=finish_node && node2p && IsSuperNode(node2p))
           goto endloop;
 
-       way=LookupWay(ways,segment->way,1);
+       wayp=LookupWay(ways,segmentp->way,1);
 
        /* mode of transport must be allowed on the highway */
-       if(!(way->allow&profile->allow))
+       if(!(wayp->allow&profile->allow))
           goto endloop;
 
        /* must obey weight restriction (if exists) */
-       if(way->weight && way->weight<profile->weight)
+       if(wayp->weight && wayp->weight<profile->weight)
           goto endloop;
 
        /* must obey height/width/length restriction (if exist) */
-       if((way->height && way->height<profile->height) ||
-          (way->width  && way->width <profile->width ) ||
-          (way->length && way->length<profile->length))
+       if((wayp->height && wayp->height<profile->height) ||
+          (wayp->width  && wayp->width <profile->width ) ||
+          (wayp->length && wayp->length<profile->length))
           goto endloop;
 
-       segment_pref=profile->highway[HIGHWAY(way->type)];
+       segment_pref=profile->highway[HIGHWAY(wayp->type)];
 
        /* highway preferences must allow this highway */
        if(segment_pref==0)
@@ -224,7 +224,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        for(i=1;i<Property_Count;i++)
           if(ways->file.props & PROPERTIES(i))
             {
-             if(way->props & PROPERTIES(i))
+             if(wayp->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
              else
                 segment_pref*=profile->props_no[i];
@@ -239,9 +239,9 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        if(option_quickest==0)
-          segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
+          segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segment,way,profile)/segment_pref;
+          segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -289,15 +289,15 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
       endloop:
 
        if(IsFakeNode(node1))
-          segment=NextFakeSegment(segment,node1);
+          segmentp=NextFakeSegment(segmentp,node1);
        else if(IsFakeNode(node2))
-          segment=NULL; /* cannot call NextSegment() with a fake segment */
+          segmentp=NULL; /* cannot call NextSegment() with a fake segment */
        else
          {
-          segment=NextSegment(segments,segment,node1);
+          segmentp=NextSegment(segments,segmentp,node1);
 
-          if(!segment && IsFakeNode(finish_node))
-             segment=ExtraFakeSegment(node1,finish_node);
+          if(!segmentp && IsFakeNode(finish_node))
+             segmentp=ExtraFakeSegment(node1,finish_node);
          }
       }
    }
@@ -434,9 +434,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  if(begin->number==1 && results->prev_segment!=NO_SEGMENT)
    {
-    Node *start=LookupNode(nodes,result1->node,1);
+    Node *startp=LookupNode(nodes,result1->node,1);
 
-    if(!(start->allow&profile->allow))
+    if(!(startp->allow&profile->allow))
        force_uturn=1;
    }
 
@@ -445,7 +445,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  while((result1=PopFromQueue(queue)))
    {
     Node *node1p;
-    Segment *segment;
+    Segment *segmentp;
     index_t node1,seg1;
     index_t turnrelation=NO_RELATION;
 
@@ -464,25 +464,25 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
     /* Loop across all segments */
 
-    segment=FirstSegment(segments,node1p,1); /* node1 cannot be a fake node (must be a super-node) */
+    segmentp=FirstSegment(segments,node1p,1); /* node1 cannot be a fake node (must be a super-node) */
 
-    while(segment)
+    while(segmentp)
       {
        Node *node2p;
-       Way *way;
+       Way *wayp;
        index_t node2,seg2;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
        /* must be a super segment */
-       if(!IsSuperSegment(segment))
+       if(!IsSuperSegment(segmentp))
           goto endloop;
 
        /* must obey one-way restrictions (unless profile allows) */
-       if(profile->oneway && IsOnewayTo(segment,node1))
+       if(profile->oneway && IsOnewayTo(segmentp,node1))
           goto endloop;
 
-       seg2=IndexSegment(segments,segment); /* segment cannot be a fake segment (must be a super-segment) */
+       seg2=IndexSegment(segments,segmentp); /* segment cannot be a fake segment (must be a super-segment) */
 
        /* must perform U-turn in special cases */
        if(force_uturn && node1==results->start_node)
@@ -499,23 +499,23 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1,seg2,profile->allow))
           goto endloop;
 
-       way=LookupWay(ways,segment->way,1);
+       wayp=LookupWay(ways,segmentp->way,1);
 
        /* mode of transport must be allowed on the highway */
-       if(!(way->allow&profile->allow))
+       if(!(wayp->allow&profile->allow))
           goto endloop;
 
        /* must obey weight restriction (if exists) */
-       if(way->weight && way->weight<profile->weight)
+       if(wayp->weight && wayp->weight<profile->weight)
           goto endloop;
 
        /* must obey height/width/length restriction (if exist) */
-       if((way->height && way->height<profile->height) ||
-          (way->width  && way->width <profile->width ) ||
-          (way->length && way->length<profile->length))
+       if((wayp->height && wayp->height<profile->height) ||
+          (wayp->width  && wayp->width <profile->width ) ||
+          (wayp->length && wayp->length<profile->length))
           goto endloop;
 
-       segment_pref=profile->highway[HIGHWAY(way->type)];
+       segment_pref=profile->highway[HIGHWAY(wayp->type)];
 
        /* highway preferences must allow this highway */
        if(segment_pref==0)
@@ -524,7 +524,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        for(i=1;i<Property_Count;i++)
           if(ways->file.props & PROPERTIES(i))
             {
-             if(way->props & PROPERTIES(i))
+             if(wayp->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
              else
                 segment_pref*=profile->props_no[i];
@@ -534,7 +534,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(segment_pref==0)
           goto endloop;
 
-       node2=OtherNode(segment,node1);
+       node2=OtherNode(segmentp,node1);
 
        node2p=LookupNode(nodes,node2,2); /* node2 cannot be a fake node (must be a super-node) */
 
@@ -543,9 +543,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        if(option_quickest==0)
-          segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
+          segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segment,way,profile)/segment_pref;
+          segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -624,7 +624,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
       endloop:
 
-       segment=NextSegment(segments,segment,node1); /* node1 cannot be a fake node (must be a super-node) */
+       segmentp=NextSegment(segments,segmentp,node1); /* node1 cannot be a fake node (must be a super-node) */
       }
    }
 
@@ -679,31 +679,31 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
 static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish_node,index_t finish_segment)
 {
- Node *supernode;
- Segment *supersegment;
+ Node *supernodep;
+ Segment *supersegmentp;
 
  if(IsFakeSegment(finish_segment))
     finish_segment=IndexRealSegment(finish_segment);
 
- supernode=LookupNode(nodes,finish_node,5); /* finish_node cannot be a fake node (must be a super-node) */
- supersegment=LookupSegment(segments,finish_segment,2); /* finish_segment cannot be a fake segment. */
+ supernodep=LookupNode(nodes,finish_node,5); /* finish_node cannot be a fake node (must be a super-node) */
+ supersegmentp=LookupSegment(segments,finish_segment,2); /* finish_segment cannot be a fake segment. */
 
- if(IsSuperSegment(supersegment))
+ if(IsSuperSegment(supersegmentp))
     return(finish_segment);
 
  /* Loop across all segments */
 
- supersegment=FirstSegment(segments,supernode,3); /* supernode cannot be a fake node (must be a super-node) */
+ supersegmentp=FirstSegment(segments,supernodep,3); /* supernode cannot be a fake node (must be a super-node) */
 
- while(supersegment)
+ while(supersegmentp)
    {
-    if(IsSuperSegment(supersegment))
+    if(IsSuperSegment(supersegmentp))
       {
        Results *results;
        Result *result;
        index_t start_node;
 
-       start_node=OtherNode(supersegment,finish_node);
+       start_node=OtherNode(supersegmentp,finish_node);
 
        results=FindSuperRoute(nodes,segments,ways,relations,start_node,finish_node);
 
@@ -712,17 +712,17 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
        result=FindResult(results,finish_node,finish_segment);
 
-       if(result && (distance_t)result->score==DISTANCE(supersegment->distance))
+       if(result && (distance_t)result->score==DISTANCE(supersegmentp->distance))
          {
           FreeResultsList(results);
-          return(IndexSegment(segments,supersegment));
+          return(IndexSegment(segments,supersegmentp));
          }
 
        if(results)
           FreeResultsList(results);
       }
 
-    supersegment=NextSegment(segments,supersegment,finish_node); /* finish_node cannot be a fake node (must be a super-node) */
+    supersegmentp=NextSegment(segments,supersegmentp,finish_node); /* finish_node cannot be a fake node (must be a super-node) */
    }
 
  return(finish_segment);
@@ -771,7 +771,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
  while((result1=PopFromQueue(queue)))
    {
     Node *node1p=NULL;
-    Segment *segment;
+    Segment *segmentp;
     index_t node1,seg1;
 
     node1=result1->node;
@@ -781,29 +781,29 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
 
     /* Loop across all segments */
 
-    segment=FirstSegment(segments,node1p,1); /* node1 cannot be a fake node */
+    segmentp=FirstSegment(segments,node1p,1); /* node1 cannot be a fake node */
 
-    while(segment)
+    while(segmentp)
       {
        Node *node2p=NULL;
        index_t node2,seg2;
        score_t cumulative_score;
 
        /* must be a normal segment */
-       if(!IsNormalSegment(segment))
+       if(!IsNormalSegment(segmentp))
           goto endloop;
 
        /* must obey one-way restrictions */
-       if(IsOnewayTo(segment,node1))
+       if(IsOnewayTo(segmentp,node1))
           goto endloop;
 
-       seg2=IndexSegment(segments,segment);
+       seg2=IndexSegment(segments,segmentp);
 
        /* must not perform U-turn */
        if(seg1==seg2)
           goto endloop;
 
-       node2=OtherNode(segment,node1);
+       node2=OtherNode(segmentp,node1);
 
        node2p=LookupNode(nodes,node2,2); /* node2 cannot be a fake node */
 
@@ -812,7 +812,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
           goto endloop;
 
        /* Specifically looking for the shortest route to emulate superx.c */
-       cumulative_score=result1->score+(score_t)DISTANCE(segment->distance);
+       cumulative_score=result1->score+(score_t)DISTANCE(segmentp->distance);
 
        result2=FindResult(results,node2,seg2);
 
@@ -841,7 +841,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
 
       endloop:
 
-       segment=NextSegment(segments,segment,node1);
+       segmentp=NextSegment(segments,segmentp,node1);
       }
    }
 
@@ -898,9 +898,9 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  if(prev_segment!=NO_SEGMENT && !IsFakeNode(start_node))
    {
-    Node *start=LookupNode(nodes,start_node,1);
+    Node *startp=LookupNode(nodes,start_node,1);
 
-    if(!(start->allow&profile->allow))
+    if(!(startp->allow&profile->allow))
        force_uturn=1;
    }
 
@@ -909,7 +909,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  while((result1=PopFromQueue(queue)))
    {
     Node *node1p=NULL;
-    Segment *segment;
+    Segment *segmentp;
     index_t node1,seg1,seg1r;
     index_t turnrelation=NO_RELATION;
 
@@ -931,36 +931,36 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     /* Loop across all segments */
 
     if(IsFakeNode(node1))
-       segment=FirstFakeSegment(node1);
+       segmentp=FirstFakeSegment(node1);
     else
-       segment=FirstSegment(segments,node1p,1);
+       segmentp=FirstSegment(segments,node1p,1);
 
-    while(segment)
+    while(segmentp)
       {
        Node *node2p=NULL;
-       Way *way;
+       Way *wayp;
        index_t node2,seg2,seg2r;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
-       node2=OtherNode(segment,node1); /* need this here because we use node2 at the end of the loop */
+       node2=OtherNode(segmentp,node1); /* need this here because we use node2 at the end of the loop */
 
        /* must be a normal segment */
-       if(!IsNormalSegment(segment))
+       if(!IsNormalSegment(segmentp))
           goto endloop;
 
        /* must obey one-way restrictions (unless profile allows) */
-       if(profile->oneway && IsOnewayTo(segment,node1))
+       if(profile->oneway && IsOnewayTo(segmentp,node1))
           goto endloop;
 
        if(IsFakeNode(node1) || IsFakeNode(node2))
          {
-          seg2 =IndexFakeSegment(segment);
+          seg2 =IndexFakeSegment(segmentp);
           seg2r=IndexRealSegment(seg2);
          }
        else
          {
-          seg2 =IndexSegment(segments,segment);
+          seg2 =IndexSegment(segments,segmentp);
           seg2r=seg2;
          }
 
@@ -979,23 +979,23 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1r,seg2r,profile->allow))
           goto endloop;
 
-       way=LookupWay(ways,segment->way,1);
+       wayp=LookupWay(ways,segmentp->way,1);
 
        /* mode of transport must be allowed on the highway */
-       if(!(way->allow&profile->allow))
+       if(!(wayp->allow&profile->allow))
           goto endloop;
 
        /* must obey weight restriction (if exists) */
-       if(way->weight && way->weight<profile->weight)
+       if(wayp->weight && wayp->weight<profile->weight)
           goto endloop;
 
        /* must obey height/width/length restriction (if exists) */
-       if((way->height && way->height<profile->height) ||
-          (way->width  && way->width <profile->width ) ||
-          (way->length && way->length<profile->length))
+       if((wayp->height && wayp->height<profile->height) ||
+          (wayp->width  && wayp->width <profile->width ) ||
+          (wayp->length && wayp->length<profile->length))
           goto endloop;
 
-       segment_pref=profile->highway[HIGHWAY(way->type)];
+       segment_pref=profile->highway[HIGHWAY(wayp->type)];
 
        /* highway preferences must allow this highway */
        if(segment_pref==0)
@@ -1004,7 +1004,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        for(i=1;i<Property_Count;i++)
           if(ways->file.props & PROPERTIES(i))
             {
-             if(way->props & PROPERTIES(i))
+             if(wayp->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
              else
                 segment_pref*=profile->props_no[i];
@@ -1022,9 +1022,9 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        if(option_quickest==0)
-          segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
+          segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segment,way,profile)/segment_pref;
+          segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -1063,15 +1063,15 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
       endloop:
 
        if(IsFakeNode(node1))
-          segment=NextFakeSegment(segment,node1);
+          segmentp=NextFakeSegment(segmentp,node1);
        else if(IsFakeNode(node2))
-          segment=NULL; /* cannot call NextSegment() with a fake segment */
+          segmentp=NULL; /* cannot call NextSegment() with a fake segment */
        else
          {
-          segment=NextSegment(segments,segment,node1);
+          segmentp=NextSegment(segments,segmentp,node1);
 
-          if(!segment && IsFakeNode(finish_node))
-             segment=ExtraFakeSegment(node1,finish_node);
+          if(!segmentp && IsFakeNode(finish_node))
+             segmentp=ExtraFakeSegment(node1,finish_node);
          }
       }
    }
@@ -1130,7 +1130,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
  while((result1=PopFromQueue(queue)))
    {
     Node *node1p=NULL;
-    Segment *segment;
+    Segment *segmentp;
     index_t node1,seg1,seg1r;
     index_t turnrelation=NO_RELATION;
 
@@ -1152,40 +1152,40 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
     /* Loop across all segments */
 
     if(IsFakeNode(node1))
-       segment=FirstFakeSegment(node1);
+       segmentp=FirstFakeSegment(node1);
     else
-       segment=FirstSegment(segments,node1p,1);
+       segmentp=FirstSegment(segments,node1p,1);
 
-    while(segment)
+    while(segmentp)
       {
        Node *node2p=NULL;
-       Way *way;
+       Way *wayp;
        index_t node2,seg2,seg2r;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
 
        /* must be a normal segment unless node1 is a super-node (see below). */
-       if((IsFakeNode(node1) || !IsSuperNode(node1p)) && !IsNormalSegment(segment))
+       if((IsFakeNode(node1) || !IsSuperNode(node1p)) && !IsNormalSegment(segmentp))
           goto endloop;
 
        /* must be a super segment if node1 is a super-node to give starting super-segment for finding middle route. */
-       if((!IsFakeNode(node1) && IsSuperNode(node1p)) && !IsSuperSegment(segment))
+       if((!IsFakeNode(node1) && IsSuperNode(node1p)) && !IsSuperSegment(segmentp))
           goto endloop;
 
        /* must obey one-way restrictions (unless profile allows) */
-       if(profile->oneway && IsOnewayFrom(segment,node1)) /* working backwards => disallow oneway *from* node1 */
+       if(profile->oneway && IsOnewayFrom(segmentp,node1)) /* working backwards => disallow oneway *from* node1 */
           goto endloop;
 
-       node2=OtherNode(segment,node1);
+       node2=OtherNode(segmentp,node1);
 
        if(IsFakeNode(node1) || IsFakeNode(node2))
          {
-          seg2 =IndexFakeSegment(segment);
+          seg2 =IndexFakeSegment(segmentp);
           seg2r=IndexRealSegment(seg2);
          }
        else
          {
-          seg2 =IndexSegment(segments,segment);
+          seg2 =IndexSegment(segments,segmentp);
           seg2r=seg2;
          }
 
@@ -1202,23 +1202,23 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
              goto endloop;
          }
 
-       way=LookupWay(ways,segment->way,1);
+       wayp=LookupWay(ways,segmentp->way,1);
 
        /* mode of transport must be allowed on the highway */
-       if(!(way->allow&profile->allow))
+       if(!(wayp->allow&profile->allow))
           goto endloop;
 
        /* must obey weight restriction (if exists) */
-       if(way->weight && way->weight<profile->weight)
+       if(wayp->weight && wayp->weight<profile->weight)
           goto endloop;
 
        /* must obey height/width/length restriction (if exist) */
-       if((way->height && way->height<profile->height) ||
-          (way->width  && way->width <profile->width ) ||
-          (way->length && way->length<profile->length))
+       if((wayp->height && wayp->height<profile->height) ||
+          (wayp->width  && wayp->width <profile->width ) ||
+          (wayp->length && wayp->length<profile->length))
           goto endloop;
 
-       segment_pref=profile->highway[HIGHWAY(way->type)];
+       segment_pref=profile->highway[HIGHWAY(wayp->type)];
 
        /* highway preferences must allow this highway */
        if(segment_pref==0)
@@ -1227,7 +1227,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        for(i=1;i<Property_Count;i++)
           if(ways->file.props & PROPERTIES(i))
             {
-             if(way->props & PROPERTIES(i))
+             if(wayp->props & PROPERTIES(i))
                 segment_pref*=profile->props_yes[i];
              else
                 segment_pref*=profile->props_no[i];
@@ -1245,9 +1245,9 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           goto endloop;
 
        if(option_quickest==0)
-          segment_score=(score_t)DISTANCE(segment->distance)/segment_pref;
+          segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segment,way,profile)/segment_pref;
+          segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -1280,9 +1280,9 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
       endloop:
 
        if(IsFakeNode(node1))
-          segment=NextFakeSegment(segment,node1);
+          segmentp=NextFakeSegment(segmentp,node1);
        else
-          segment=NextSegment(segments,segment,node1);
+          segmentp=NextSegment(segments,segmentp,node1);
       }
    }
 

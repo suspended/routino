@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -57,7 +57,7 @@ static int prevpoint=0;
 
   int point Which of the waypoints this is.
 
-  Segment *segment The segment to split.
+  Segment *segmentp The segment to split.
 
   index_t node1 The first node at the end of this segment.
 
@@ -68,7 +68,7 @@ static int prevpoint=0;
   distance_t dist2 The distance to the second node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,index_t node1,index_t node2,distance_t dist1,distance_t dist2)
+index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segmentp,index_t node1,index_t node2,distance_t dist1,distance_t dist2)
 {
  index_t fakenode;
  double lat1,lon1,lat2,lon2;
@@ -149,23 +149,23 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,i
 
  /* Create the first fake segment */
 
- fake_segments[4*point-4]=*segment;
+ fake_segments[4*point-4]=*segmentp;
 
  fake_segments[4*point-4].node2=fakenode;
 
- fake_segments[4*point-4].distance=DISTANCE(dist1)|DISTFLAG(segment->distance);
+ fake_segments[4*point-4].distance=DISTANCE(dist1)|DISTFLAG(segmentp->distance);
 
- real_segments[4*point-4]=IndexSegment(segments,segment);
+ real_segments[4*point-4]=IndexSegment(segments,segmentp);
 
  /* Create the second fake segment */
 
- fake_segments[4*point-3]=*segment;
+ fake_segments[4*point-3]=*segmentp;
 
  fake_segments[4*point-3].node1=fakenode;
 
- fake_segments[4*point-3].distance=DISTANCE(dist2)|DISTFLAG(segment->distance);
+ fake_segments[4*point-3].distance=DISTANCE(dist2)|DISTFLAG(segmentp->distance);
 
- real_segments[4*point-3]=IndexSegment(segments,segment);
+ real_segments[4*point-3]=IndexSegment(segments,segmentp);
 
  /* Create a third fake segment to join adjacent points if both are fake and on the same real segment */
 
@@ -177,7 +177,7 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,i
 
        fake_segments[4*point-2].node2=fakenode;
 
-       fake_segments[4*point-2].distance=(DISTANCE(dist1)-DISTANCE(fake_segments[4*prevpoint-4].distance))|DISTFLAG(segment->distance);
+       fake_segments[4*point-2].distance=(DISTANCE(dist1)-DISTANCE(fake_segments[4*prevpoint-4].distance))|DISTFLAG(segmentp->distance);
       }
     else
       {
@@ -185,10 +185,10 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segment,i
 
        fake_segments[4*point-2].node1=fakenode;
 
-       fake_segments[4*point-2].distance=(DISTANCE(fake_segments[4*prevpoint-4].distance)-DISTANCE(dist1))|DISTFLAG(segment->distance);
+       fake_segments[4*point-2].distance=(DISTANCE(fake_segments[4*prevpoint-4].distance)-DISTANCE(dist1))|DISTFLAG(segmentp->distance);
       }
 
-    real_segments[4*point-2]=IndexSegment(segments,segment);
+    real_segments[4*point-2]=IndexSegment(segments,segmentp);
 
     fake_segments[4*prevpoint-1]=fake_segments[4*point-2];
 
@@ -243,25 +243,25 @@ Segment *FirstFakeSegment(index_t fakenode)
 
   Segment *NextFakeSegment Returns a pointer to the next fake segment.
 
-  Segment *fakesegment The first fake segment.
+  Segment *fakesegmentp The first fake segment.
 
   index_t fakenode The node to lookup.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Segment *NextFakeSegment(Segment *fakesegment,index_t fakenode)
+Segment *NextFakeSegment(Segment *fakesegmentp,index_t fakenode)
 {
  index_t whichnode=fakenode-NODE_FAKE;
 
- if(fakesegment==&fake_segments[4*whichnode-4])
+ if(fakesegmentp==&fake_segments[4*whichnode-4])
     return(&fake_segments[4*whichnode-3]);
 
- if(fakesegment==&fake_segments[4*whichnode-3] && fake_segments[4*whichnode-2].node1!=NO_NODE)
+ if(fakesegmentp==&fake_segments[4*whichnode-3] && fake_segments[4*whichnode-2].node1!=NO_NODE)
     return(&fake_segments[4*whichnode-2]);
 
- if(fakesegment==&fake_segments[4*whichnode-3] && fake_segments[4*whichnode-1].node1!=NO_NODE)
+ if(fakesegmentp==&fake_segments[4*whichnode-3] && fake_segments[4*whichnode-1].node1!=NO_NODE)
     return(&fake_segments[4*whichnode-1]);
 
- if(fakesegment==&fake_segments[4*whichnode-2] && fake_segments[4*whichnode-1].node1!=NO_NODE)
+ if(fakesegmentp==&fake_segments[4*whichnode-2] && fake_segments[4*whichnode-1].node1!=NO_NODE)
     return(&fake_segments[4*whichnode-1]);
 
  return(NULL);
@@ -313,12 +313,12 @@ Segment *LookupFakeSegment(index_t fakesegment)
 
   index_t IndexFakeSegment Returns the fake segment.
 
-  Segment *fakesegment The fake segment to look for.
+  Segment *fakesegmentp The fake segment to look for.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t IndexFakeSegment(Segment *fakesegment)
+index_t IndexFakeSegment(Segment *fakesegmentp)
 {
- index_t whichsegment=fakesegment-&fake_segments[0];
+ index_t whichsegment=fakesegmentp-&fake_segments[0];
 
  return(whichsegment+SEGMENT_FAKE);
 }

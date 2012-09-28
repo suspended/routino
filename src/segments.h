@@ -90,13 +90,13 @@ index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,ind
 
 distance_t Distance(double lat1,double lon1,double lat2,double lon2);
 
-duration_t Duration(Segment *segment,Way *way,Profile *profile);
+duration_t Duration(Segment *segmentp,Way *wayp,Profile *profile);
 
-double TurnAngle(Nodes *nodes,Segment *segment1,Segment *segment2,index_t node);
-double BearingAngle(Nodes *nodes,Segment *segment,index_t node);
+double TurnAngle(Nodes *nodes,Segment *segment1p,Segment *segment2p,index_t node);
+double BearingAngle(Nodes *nodes,Segment *segmentp,index_t node);
 
 
-static inline Segment *NextSegment(Segments *segments,Segment *segment,index_t node);
+static inline Segment *NextSegment(Segments *segments,Segment *segmentp,index_t node);
 
 
 /* Macros and inline functions */
@@ -135,28 +135,28 @@ static inline Segment *NextSegment(Segments *segments,Segment *segment,index_t n
 
   Segments *segments The set of segments to use.
 
-  Segment *segment The current segment.
+  Segment *segmentp The current segment.
 
   index_t node The wanted node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline Segment *NextSegment(Segments *segments,Segment *segment,index_t node)
+static inline Segment *NextSegment(Segments *segments,Segment *segmentp,index_t node)
 {
- if(segment->node1==node)
+ if(segmentp->node1==node)
    {
-    segment++;
+    segmentp++;
 
-    if(IndexSegment(segments,segment)>=segments->file.number || segment->node1!=node)
+    if(IndexSegment(segments,segmentp)>=segments->file.number || segmentp->node1!=node)
        return(NULL);
     else
-       return(segment);
+       return(segmentp);
    }
  else
    {
-    if(segment->next2==NO_SEGMENT)
+    if(segmentp->next2==NO_SEGMENT)
        return(NULL);
     else
-       return(LookupSegment(segments,segment->next2,1));
+       return(LookupSegment(segments,segmentp->next2,1));
    }
 }
 
@@ -164,7 +164,7 @@ static inline Segment *NextSegment(Segments *segments,Segment *segment,index_t n
 
 static Segment *LookupSegment(Segments *segments,index_t index,int position);
 
-static index_t IndexSegment(Segments *segments,Segment *segment);
+static index_t IndexSegment(Segments *segments,Segment *segmentp);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -199,12 +199,12 @@ static inline Segment *LookupSegment(Segments *segments,index_t index,int positi
 
   Segments *segments The set of segments to use.
 
-  Segment *segment The segment whose index is to be found.
+  Segment *segmentp The segment whose index is to be found.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline index_t IndexSegment(Segments *segments,Segment *segment)
+static inline index_t IndexSegment(Segments *segments,Segment *segmentp)
 {
- int position1=segment-&segments->cached[0];
+ int position1=segmentp-&segments->cached[0];
 
  return(segments->incache[position1]);
 }
@@ -217,37 +217,37 @@ static inline index_t IndexSegment(Segments *segments,Segment *segment)
 
   Segments *segments The set of segments to use.
 
-  Segment *segment The current segment.
+  Segment *segmentp The current segment.
 
   index_t node The wanted node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline Segment *NextSegment(Segments *segments,Segment *segment,index_t node)
+static inline Segment *NextSegment(Segments *segments,Segment *segmentp,index_t node)
 {
- int position=segment-&segments->cached[-1];
+ int position=segmentp-&segments->cached[-1];
 
- if(segment->node1==node)
+ if(segmentp->node1==node)
    {
-    index_t index=IndexSegment(segments,segment);
+    index_t index=IndexSegment(segments,segmentp);
 
     index++;
 
     if(index>=segments->file.number)
        return(NULL);
 
-    segment=LookupSegment(segments,index,position);
+    segmentp=LookupSegment(segments,index,position);
 
-    if(segment->node1!=node)
+    if(segmentp->node1!=node)
        return(NULL);
     else
-       return(segment);
+       return(segmentp);
    }
  else
    {
-    if(segment->next2==NO_SEGMENT)
+    if(segmentp->next2==NO_SEGMENT)
        return(NULL);
     else
-       return(LookupSegment(segments,segment->next2,position));
+       return(LookupSegment(segments,segmentp->next2,position));
    }
 }
 
