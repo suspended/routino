@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -85,39 +85,39 @@ Ways *LoadWayList(const char *filename)
 
   int WaysCompare Returns a comparison.
 
-  Way *way1 The first way.
+  Way *way1p The first way.
 
-  Way *way2 The second way.
+  Way *way2p The second way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int WaysCompare(Way *way1,Way *way2)
+int WaysCompare(Way *way1p,Way *way2p)
 {
- if(way1==way2)
+ if(way1p==way2p)
     return(0);
 
- if(way1->type!=way2->type)
-    return((int)way1->type - (int)way2->type);
+ if(way1p->type!=way2p->type)
+    return((int)way1p->type - (int)way2p->type);
 
- if(way1->allow!=way2->allow)
-    return((int)way1->allow - (int)way2->allow);
+ if(way1p->allow!=way2p->allow)
+    return((int)way1p->allow - (int)way2p->allow);
 
- if(way1->props!=way2->props)
-    return((int)way1->props - (int)way2->props);
+ if(way1p->props!=way2p->props)
+    return((int)way1p->props - (int)way2p->props);
 
- if(way1->speed!=way2->speed)
-    return((int)way1->speed - (int)way2->speed);
+ if(way1p->speed!=way2p->speed)
+    return((int)way1p->speed - (int)way2p->speed);
 
- if(way1->weight!=way2->weight)
-    return((int)way1->weight - (int)way2->weight);
+ if(way1p->weight!=way2p->weight)
+    return((int)way1p->weight - (int)way2p->weight);
 
- if(way1->height!=way2->height)
-    return((int)way1->height - (int)way2->height);
+ if(way1p->height!=way2p->height)
+    return((int)way1p->height - (int)way2p->height);
 
- if(way1->width!=way2->width)
-    return((int)way1->width - (int)way2->width);
+ if(way1p->width!=way2p->width)
+    return((int)way1p->width - (int)way2p->width);
 
- if(way1->length!=way2->length)
-    return((int)way1->length - (int)way2->length);
+ if(way1p->length!=way2p->length)
+    return((int)way1p->length - (int)way2p->length);
 
  return(0);
 }

@@ -327,10 +327,10 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     do
       {
        double latitude,longitude;
-       Node *resultnode=NULL;
+       Node *resultnodep=NULL;
        index_t realsegment=NO_SEGMENT,next_realsegment=NO_SEGMENT;
-       Segment *resultsegment=NULL,*next_resultsegment=NULL;
-       Way *resultway=NULL,*next_resultway=NULL;
+       Segment *resultsegmentp=NULL,*next_resultsegmentp=NULL;
+       Way *resultwayp=NULL,*next_resultwayp=NULL;
        Result *next_result;
        int important=IMP_UNIMPORTANT;
 
@@ -349,7 +349,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           GetLatLong(nodes,result->node,&latitude,&longitude);
 
        if(!IsFakeNode(result->node))
-          resultnode=LookupNode(nodes,result->node,6);
+          resultnodep=LookupNode(nodes,result->node,6);
 
        /* Calculate the next result */
 
@@ -370,19 +370,19 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
          {
           if(IsFakeSegment(result->segment))
             {
-             resultsegment=LookupFakeSegment(result->segment);
+             resultsegmentp=LookupFakeSegment(result->segment);
              realsegment=IndexRealSegment(result->segment);
             }
           else
             {
-             resultsegment=LookupSegment(segments,result->segment,2);
+             resultsegmentp=LookupSegment(segments,result->segment,2);
              realsegment=result->segment;
             }
 
-          resultway=LookupWay(ways,resultsegment->way,1);
+          resultwayp=LookupWay(ways,resultsegmentp->way,1);
 
-          seg_distance+=DISTANCE(resultsegment->distance);
-          seg_duration+=Duration(resultsegment,resultway,profile);
+          seg_distance+=DISTANCE(resultsegmentp->distance);
+          seg_duration+=Duration(resultsegmentp,resultwayp,profile);
 
           /* Calculate the cumulative distance/duration */
 
@@ -398,12 +398,12 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
          {
           if(IsFakeSegment(next_result->segment))
             {
-             next_resultsegment=LookupFakeSegment(next_result->segment);
+             next_resultsegmentp=LookupFakeSegment(next_result->segment);
              next_realsegment=IndexRealSegment(next_result->segment);
             }
           else
             {
-             next_resultsegment=LookupSegment(segments,next_result->segment,1);
+             next_resultsegmentp=LookupSegment(segments,next_result->segment,1);
              next_realsegment=next_result->segment;
             }
          }
@@ -412,9 +412,9 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        if(next_result)
          {
-          next_resultway=LookupWay(ways,next_resultsegment->way,2);
+          next_resultwayp=LookupWay(ways,next_resultsegmentp->way,2);
 
-          if(next_resultway->type&Way_Roundabout)
+          if(next_resultwayp->type&Way_Roundabout)
             {
              if(roundabout==0)
                {
@@ -423,18 +423,18 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                }
              else
                {
-                Segment *segment=FirstSegment(segments,resultnode,3);
+                Segment *segmentp=FirstSegment(segments,resultnodep,3);
 
                 do
                   {
-                   index_t othernode=OtherNode(segment,result->node);
+                   index_t othernode=OtherNode(segmentp,result->node);
 
-                   if(othernode!=result->prev->node && IndexSegment(segments,segment)!=realsegment)
-                      if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
+                   if(othernode!=result->prev->node && IndexSegment(segments,segmentp)!=realsegment)
+                      if(IsNormalSegment(segmentp) && (!profile->oneway || !IsOnewayTo(segmentp,result->node)))
                         {
-                         Way *way=LookupWay(ways,segment->way,3);
+                         Way *wayp=LookupWay(ways,segmentp->way,3);
 
-                         if(!(way->type&Way_Roundabout))
+                         if(!(wayp->type&Way_Roundabout))
                             if(othernode!=next_result->node)
                               {
                                roundabout++;
@@ -442,9 +442,9 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                               }
                         }
 
-                   segment=NextSegment(segments,segment,result->node);
+                   segmentp=NextSegment(segments,segmentp,result->node);
                   }
-                while(segment);
+                while(segmentp);
                }
             }
           else
@@ -467,30 +467,30 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           important=IMP_IGNORE;
        else if(realsegment==next_realsegment) /* U-turn */
           important=IMP_UTURN;
-       else if(resultnode && (resultnode->flags&NODE_MINIRNDBT))
+       else if(resultnodep && (resultnodep->flags&NODE_MINIRNDBT))
           important=IMP_MINI_RB; /* mini-roundabout */
        else
          {
-          Segment *segment=FirstSegment(segments,resultnode,3);
+          Segment *segmentp=FirstSegment(segments,resultnodep,3);
 
           do
             {
-             index_t seg=IndexSegment(segments,segment);
+             index_t seg=IndexSegment(segments,segmentp);
 
              if(seg!=realsegment)
-                if(IsNormalSegment(segment) && (!profile->oneway || !IsOnewayTo(segment,result->node)))
+                if(IsNormalSegment(segmentp) && (!profile->oneway || !IsOnewayTo(segmentp,result->node)))
                   {
-                   Way *way=LookupWay(ways,segment->way,3);
+                   Way *wayp=LookupWay(ways,segmentp->way,3);
 
                    if(seg==next_realsegment) /* the next segment that we follow */
                      {
-                      if(HIGHWAY(way->type)!=HIGHWAY(resultway->type))
+                      if(HIGHWAY(wayp->type)!=HIGHWAY(resultwayp->type))
                          if(important<IMP_CHANGE)
                             important=IMP_CHANGE;
                      }
                    else /* a segment that we don't follow */
                      {
-                      if(junction_other_way[HIGHWAY(resultway->type)-1][HIGHWAY(way->type)-1])
+                      if(junction_other_way[HIGHWAY(resultwayp->type)-1][HIGHWAY(wayp->type)-1])
                          if(important<IMP_JUNCT_IMPORT)
                             important=IMP_JUNCT_IMPORT;
 
@@ -499,44 +499,44 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                      }
                   }
 
-             segment=NextSegment(segments,segment,result->node);
+             segmentp=NextSegment(segments,segmentp,result->node);
             }
-          while(segment);
+          while(segmentp);
          }
 
        /* Calculate the strings to be used */
 
-       if(resultway && textallfile)
+       if(resultwayp && textallfile)
          {
-          waynameraw=WayName(ways,resultway);
+          waynameraw=WayName(ways,resultwayp);
           if(!*waynameraw)
-             waynameraw=translate_raw_highway[HIGHWAY(resultway->type)];
+             waynameraw=translate_raw_highway[HIGHWAY(resultwayp->type)];
 
-          bearing_int=(int)BearingAngle(nodes,resultsegment,result->node);
+          bearing_int=(int)BearingAngle(nodes,resultsegmentp,result->node);
 
-          seg_speed=profile->speed[HIGHWAY(resultway->type)];
+          seg_speed=profile->speed[HIGHWAY(resultwayp->type)];
          }
 
        if(next_result && important>IMP_JUNCT_CONT)
          {
-          if(resultsegment && (htmlfile || textfile))
+          if(resultsegmentp && (htmlfile || textfile))
             {
-             turn_int=(int)TurnAngle(nodes,resultsegment,next_resultsegment,result->node);
+             turn_int=(int)TurnAngle(nodes,resultsegmentp,next_resultsegmentp,result->node);
              turn=translate_xml_turn[((202+turn_int)/45)%8];
             }
 
           if(gpxroutefile || htmlfile)
             {
-             next_waynameraw=WayName(ways,next_resultway);
+             next_waynameraw=WayName(ways,next_resultwayp);
              if(!*next_waynameraw)
-                next_waynameraw=translate_raw_highway[HIGHWAY(next_resultway->type)];
+                next_waynameraw=translate_raw_highway[HIGHWAY(next_resultwayp->type)];
 
              next_wayname=ParseXML_Encode_Safe_XML(next_waynameraw);
             }
 
           if(htmlfile || gpxroutefile || textfile)
             {
-             next_bearing_int=(int)BearingAngle(nodes,next_resultsegment,next_result->node);
+             next_bearing_int=(int)BearingAngle(nodes,next_resultsegmentp,next_result->node);
              next_bearing=translate_xml_heading[(4+(22+next_bearing_int)/45)%8];
             }
          }
@@ -758,7 +758,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t\t\t\n",
                                     radians_to_degrees(latitude),radians_to_degrees(longitude),
                                     IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
-                                    (resultnode && IsSuperNode(resultnode))?'*':' ',type,
+                                    (resultnodep && IsSuperNode(resultnodep))?'*':' ',type,
                                     0.0,0.0,0.0,0.0);
                }
              else               /* not the first point */
@@ -766,7 +766,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                 fprintf(textallfile,"%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n",
                                     radians_to_degrees(latitude),radians_to_degrees(longitude),
                                     IsFakeNode(result->node)?(NODE_FAKE-result->node):result->node,
-                                    (resultnode && IsSuperNode(resultnode))?'*':' ',type,
+                                    (resultnodep && IsSuperNode(resultnodep))?'*':' ',type,
                                     distance_to_km(seg_distance),duration_to_minutes(seg_duration),
                                     distance_to_km(cum_distance),duration_to_minutes(cum_duration),
                                     speed_to_kph(seg_speed),
