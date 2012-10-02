@@ -5,7 +5,7 @@
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010-2011 Andrew M. Bishop
+     This file Copyright 2010-2012 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@
     <!-- Note: The default is that all transport types are allowed past a barrier;
                access must be specified to disallow each transport type. -->
 
-    <!-- Barriers -->
+    <!-- Barrier types -->
 
     <if k="barrier" v="bollard">
       <output k="motorcar"   v="no"/>
@@ -116,6 +116,8 @@
     <if v="permissive" ><set v="yes"/></if>
     <if v="destination"><set v="yes"/></if>
     <if v="true"       ><set v="yes"/></if>
+    <if v="public"     ><set v="yes"/></if>
+    <if v="official"   ><set v="yes"/></if>
 
     <if v="private"    ><set v="no"/></if>
     <if v="limited"    ><set v="no"/></if>
@@ -176,7 +178,6 @@
     <if k="goods"     ><output/></if>
     <if k="hgv"       ><output/></if>
     <if k="psv"       ><output/></if>
-
 
     <!-- Mini-roundabouts  -->
 
@@ -461,6 +462,7 @@
     <if v="official"   ><set v="yes"/></if>
 
     <if v="private"    ><set v="no"/></if>
+    <if v="limited"    ><set v="no"/></if>
 
     <!-- Generic access permissions for all transport types (to override defaults) -->
 
