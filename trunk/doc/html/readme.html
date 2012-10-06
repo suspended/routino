@@ -180,13 +180,41 @@ Version 2.2 of Routino was released on 3rd March 2012.
 Version 2.3 of Routino was released on 21st July 2012.
 <br>
 Version 2.3.1 of Routino was released on 11th August 2012.
+<br>
+Version 2.3.2 of Routino was released on 6th October 2012.
 
 <p>
 
 The full version history is available in the NEWS file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Versions 2.3 and 2.3.1</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Versions 2.3, 2.3.1 and 2.3.2</h3>
+
+In version 2.3.2:
+
+<dl>
+  <dt>Bug fixes:
+  <dd>Fix for highway type visualiser (was missing one-way segments).
+  <br>Fix a real-life routing problem with oneway streets and super-segments.
+  <br>Find a route even if an end waypoint forbids the specified transport.
+  <br>Include the final junction in the HTML output (was missed in some cases).
+
+  <dt>Test cases:
+  <dd>Create new test cases for two bugs fixed in this version.
+
+  <dt>router:
+  <dd>Improve the error message for some cases of failing to route.
+
+  <dt>planetsplitter:
+  <dd>Log an error if a foot/bicycle way doesn't allow foot/bicycle transport.
+  <br>Do not mark nodes as super-nodes if they allow no transport types through.
+
+  <dt>Web pages (visualiser):
+  <dd>Allow plotting nodes that block each transport type.
+
+  <dt>Configuration Files:
+  <dd>Change the default license/copyright notice in the translations.xml file.
+</dl>
 
 In version 2.3.1:
 
