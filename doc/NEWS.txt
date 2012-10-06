@@ -1,3 +1,32 @@
+Version 2.3.2 of Routino released : Sat Oct 6 2012
+--------------------------------------------------
+
+Bug fixes:
+  Fix for highway type visualiser (was missing one-way segments).
+  Fix a real-life routing problem with oneway streets and super-segments.
+  Find a route even if an end waypoint forbids the specified transport.
+  Include the final junction in the HTML output (was missed in some cases).
+
+Test cases:
+  Create new test cases for two bugs fixed in this version.
+
+router:
+  Improve the error message for some cases of failing to route.
+
+planetsplitter:
+  Log an error if a foot/bicycle way doesn't allow foot/bicycle transport.
+  Do not mark nodes as super-nodes if they allow no transport types through.
+
+Web pages (visualiser):
+  Allow plotting nodes that block each transport type.
+
+Configuration Files:
+  Change the default license/copyright notice in the translations.xml file.
+
+
+Note: This version is compatible with databases from versions 2.2 or 2.3/2.3.1.
+
+
 Version 2.3.1 of Routino released : Sat Aug 11 2012
 ---------------------------------------------------
 
