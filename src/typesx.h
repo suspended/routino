@@ -49,14 +49,15 @@
 
 #define BitMask uint32_t
 
-#define AllocBitMask(xx)   (BitMask*)calloc((1+(xx)/32),sizeof(BitMask))
+#define AllocBitMask(xx)    (BitMask*)calloc((1+(xx)/32),sizeof(BitMask))
 
-#define SetAllBits0(xx,yy) memset((xx), 0,(1+(yy)/32)*sizeof(BitMask))
-#define SetAllBits1(xx,yy) memset((xx),~0,(1+(yy)/32)*sizeof(BitMask))
+#define ClearAllBits(xx,yy) memset((xx), 0,(1+(yy)/32)*sizeof(BitMask))
+#define SetAllBits(xx,yy)   memset((xx),~0,(1+(yy)/32)*sizeof(BitMask))
 
-#define ClearBit(xx,yy)    (xx)[(yy)/32]&=~(((BitMask)1)<<((yy)%32))
-#define SetBit(xx,yy)      (xx)[(yy)/32]|= (((BitMask)1)<<((yy)%32))
-#define IsBitSet(xx,yy)   ((xx)[(yy)/32]&  (((BitMask)1)<<((yy)%32)))
+#define ClearBit(xx,yy)     (xx)[(yy)/32]&=~(((BitMask)1)<<((yy)%32))
+#define SetBit(xx,yy)       (xx)[(yy)/32]|= (((BitMask)1)<<((yy)%32))
+
+#define IsBitSet(xx,yy)    ((xx)[(yy)/32]&  (((BitMask)1)<<((yy)%32)))
 
 
 /* Simple Types */
