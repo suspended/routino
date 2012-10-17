@@ -289,10 +289,6 @@ if(!option_process_only)
 
  ProcessTurnRelations1(Relations,Nodes,Ways);
 
- /* Compact the ways (must be before measuring the segments) */
-
- CompactWayList(Ways);
-
  /* Measure the segments and replace node/way id with index (must be after removing non-highway nodes) */
 
  MeasureSegments(Segments,Nodes,Ways);
@@ -412,6 +408,10 @@ if(!option_process_only)
 
  printf("\nCross-Reference Nodes and Segments\n==================================\n\n");
  fflush(stdout);
+
+ /* Compact the ways (must be before updating the segments) */
+
+ CompactWayList(Ways);
 
  /* Sort the nodes geographically and update the segment indexes accordingly */
 
