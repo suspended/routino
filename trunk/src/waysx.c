@@ -153,7 +153,7 @@ void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name)
  FILESORT_VARINT size;
 
  wayx.id=id;
- wayx.prop=0;
+ wayx.cid=0;
  wayx.way=*way;
 
  size=sizeof(WayX)+strlen(name)+1;
@@ -380,7 +380,7 @@ void CompactWayList(WaysX *waysx)
        waysx->cnumber++;
       }
 
-    wayx.prop=waysx->cnumber-1;
+    wayx.cid=waysx->cnumber-1;
 
     WriteFile(fd,&wayx,sizeof(WayX));
 
@@ -638,7 +638,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
     allow   |=wayx->way.allow;
     props   |=wayx->way.props;
 
-    SeekWriteFile(fd,&wayx->way,sizeof(Way),sizeof(WaysFile)+(off_t)wayx->prop*sizeof(Way));
+    SeekWriteFile(fd,&wayx->way,sizeof(Way),sizeof(WaysFile)+(off_t)wayx->cid*sizeof(Way));
 
     if(!((i+1)%1000))
        printf_middle("Writing Ways: Ways=%"Pindex_t,i+1);

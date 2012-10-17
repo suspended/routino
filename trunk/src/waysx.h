@@ -41,9 +41,9 @@ struct _WayX
 {
  way_t    id;                   /*+ The way identifier; the OSM value. +*/
 
- index_t  prop;                 /*+ The index of the properties of the way in the compacted list. +*/
+ index_t  cid;                  /*+ The index of the way in the compacted list. +*/
 
- Way      way;                  /*+ The real Way data. +*/
+ Way      way;                  /*+ The real way data. +*/
 };
 
 
