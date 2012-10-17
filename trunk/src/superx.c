@@ -73,7 +73,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
     assert(nodesx->super); /* Check AllocBitMask() worked */
 
-    SetAllBits1(nodesx->super,nodesx->number);
+    SetAllBits(nodesx->super,nodesx->number);
    }
 
  /* Map into memory / open the files */
