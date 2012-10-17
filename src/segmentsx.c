@@ -833,7 +833,7 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
     wayx=LookupWayX(waysx,segmentx.way,1);
 
-    segmentx.way=wayx->prop;
+    segmentx.way=wayx->cid;
 
     WriteFile(fd,&segmentx,sizeof(SegmentX));
 
