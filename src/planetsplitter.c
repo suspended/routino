@@ -411,7 +411,7 @@ if(!option_process_only)
 
  /* Compact the ways (must be before updating the segments) */
 
- CompactWayList(Ways);
+ CompactWayList(Segments,Ways);
 
  /* Sort the nodes geographically and update the segment indexes accordingly */
 
