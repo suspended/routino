@@ -28,6 +28,7 @@
 #include "ways.h"
 
 #include "typesx.h"
+#include "segmentsx.h"
 #include "waysx.h"
 
 #include "files.h"
@@ -272,7 +273,7 @@ void SortWayList(WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Separated Way Names: Ways=%"Pindex_t" Names=%"Pindex_t" ",waysx->number,nnames);
+ printf_last("Separated Way Names: Ways=%"Pindex_t" Names=%"Pindex_t,waysx->number,nnames);
 
 
  /* Print the start message */
@@ -316,14 +317,17 @@ void SortWayList(WaysX *waysx)
 /*++++++++++++++++++++++++++++++++++++++
   Compact the list of ways.
 
+  SegmentsX *segmentsx The set of segments to modify.
+
   WaysX *waysx The set of ways to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void CompactWayList(WaysX *waysx)
+void CompactWayList(SegmentsX *segmentsx,WaysX *waysx)
 {
- index_t i;
+ index_t i,unused=0;
  int fd;
  Way lastway;
+ BitMask *waysused;
 
  /* Print the start message */
 
@@ -353,7 +357,40 @@ void CompactWayList(WaysX *waysx)
 
  /* Print the start message */
 
- printf_first("Compacting Ways: Ways=0 Properties=0");
+ printf_first("Checking Used Ways: Segments=0");
+
+ /* Allocate the bitmask */
+
+ waysused=AllocBitMask(waysx->number);
+
+ assert(waysused); /* Check AllocBitMask() worked */
+
+ /* Open the segments file and read through it */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
+
+ for(i=0;i<segmentsx->number;i++)
+   {
+    SegmentX segmentx;
+
+    ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
+
+    SetBit(waysused,segmentx.way);
+
+    if(!(i%10000))
+       printf_middle("Checking Used Ways: Segments=%"Pindex_t,i);
+   }
+
+ segmentsx->fd=CloseFile(segmentsx->fd);
+
+ /* Print the final message */
+
+ printf_last("Checked Used Ways: Segments=%"Pindex_t,segmentsx->number);
+
+
+ /* Print the start message */
+
+ printf_first("Compacting Ways: Ways=0 Unique=0 Unused=0");
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -373,19 +410,28 @@ void CompactWayList(WaysX *waysx)
 
     ReadFile(waysx->fd,&wayx,sizeof(WayX));
 
-    if(waysx->cnumber==0 || wayx.way.name!=lastway.name || WaysCompare(&lastway,&wayx.way))
+    if(!IsBitSet(waysused,wayx.cid))
       {
-       lastway=wayx.way;
+       unused++;
 
-       waysx->cnumber++;
+       wayx.cid=NO_WAY;
       }
+    else
+      {
+       if(waysx->cnumber==0 || wayx.way.name!=lastway.name || WaysCompare(&lastway,&wayx.way))
+         {
+          lastway=wayx.way;
 
-    wayx.cid=waysx->cnumber-1;
+          waysx->cnumber++;
+         }
+
+       wayx.cid=waysx->cnumber-1;
+      }
 
     WriteFile(fd,&wayx,sizeof(WayX));
 
     if(!((i+1)%1000))
-       printf_middle("Compacting Ways: Ways=%"Pindex_t" Properties=%"Pindex_t,i+1,waysx->cnumber);
+       printf_middle("Compacting Ways: Ways=%"Pindex_t" Unique=%"Pindex_t" Unused=%"Pindex_t,i+1,waysx->cnumber,unused);
    }
 
  /* Close the files */
@@ -395,7 +441,9 @@ void CompactWayList(WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Compacted Ways: Ways=%"Pindex_t" Properties=%"Pindex_t" ",waysx->number,waysx->cnumber);
+ printf_last("Compacted Ways: Ways=%"Pindex_t" Unique=%"Pindex_t" Unused=%"Pindex_t,waysx->number,waysx->cnumber,unused);
+
+ free(waysused);
 
 
  /* Print the start message */
@@ -524,6 +572,8 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
     sortwaysx->idata[index]=wayx->id;
 
+    wayx->cid=index;
+
     return(1);
    }
  else
@@ -638,7 +688,8 @@ void SaveWayList(WaysX *waysx,const char *filename)
     allow   |=wayx->way.allow;
     props   |=wayx->way.props;
 
-    SeekWriteFile(fd,&wayx->way,sizeof(Way),sizeof(WaysFile)+(off_t)wayx->cid*sizeof(Way));
+    if(wayx->cid!=NO_WAY)
+       SeekWriteFile(fd,&wayx->way,sizeof(Way),sizeof(WaysFile)+(off_t)wayx->cid*sizeof(Way));
 
     if(!((i+1)%1000))
        printf_middle("Writing Ways: Ways=%"Pindex_t,i+1);
@@ -692,5 +743,5 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  /* Print the final message */
 
- printf_last("Wrote Ways: Ways=%"Pindex_t,waysx->number);
+ printf_last("Wrote Ways: Ways=%"Pindex_t" Compacted Ways=%"Pindex_t,waysx->number,waysx->cnumber);
 }

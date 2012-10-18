@@ -91,7 +91,7 @@ void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name);
 
 void SortWayList(WaysX *waysx);
 
-void CompactWayList(WaysX *waysx);
+void CompactWayList(SegmentsX *segmentsx,WaysX *waysx);
 
 
 /* Macros / inline functions */
