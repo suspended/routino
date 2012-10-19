@@ -39,9 +39,7 @@
 /*+ An extended structure containing a single way. +*/
 struct _WayX
 {
- way_t    id;                   /*+ The way identifier; the OSM value. +*/
-
- index_t  cid;                  /*+ The index of the way in the compacted list. +*/
+ way_t    id;                   /*+ The way identifier; initially the OSM value, later the Node index. +*/
 
  Way      way;                  /*+ The real way data. +*/
 };
@@ -69,6 +67,8 @@ struct _WaysX
  index_t  cnumber;              /*+ The number of entries after compacting. +*/
 
  way_t   *idata;                /*+ The extended way IDs (sorted by ID). +*/
+
+ index_t *cdata;                /*+ The compacted way ID (sorted by ID). +*/
 
  char    *nfilename;            /*+ The name of the temporary file (for the names). +*/
  int      nfd;                  /*+ The file descriptor of the temporary file (for the names). +*/

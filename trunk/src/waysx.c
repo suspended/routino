@@ -128,6 +128,9 @@ void FreeWayList(WaysX *waysx,int keep)
  if(waysx->idata)
     free(waysx->idata);
 
+ if(waysx->cdata)
+    free(waysx->cdata);
+
  DeleteFile(waysx->nfilename);
 
  free(waysx->nfilename);
@@ -154,7 +157,6 @@ void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name)
  FILESORT_VARINT size;
 
  wayx.id=id;
- wayx.cid=0;
  wayx.way=*way;
 
  size=sizeof(WayX)+strlen(name)+1;
@@ -328,20 +330,23 @@ void CompactWayList(SegmentsX *segmentsx,WaysX *waysx)
  int fd;
  Way lastway;
  BitMask *waysused;
+ char *filename_tmp=(char*)malloc(strlen(waysx->filename)+1);
+
+ strcpy(filename_tmp,waysx->filename);
+ strcat(filename_tmp,"c");
+
 
  /* Print the start message */
 
  printf_first("Sorting Ways by Properties");
 
- /* Re-open the file read-only and a new file writeable */
+ /* Re-open the file read-only and a new temporary file writeable */
 
  waysx->fd=ReOpenFile(waysx->filename);
 
- DeleteFile(waysx->filename);
+ fd=OpenFileNew(filename_tmp);
 
- fd=OpenFileNew(waysx->filename);
-
- /* Sort the ways to allow compacting according to he properties */
+ /* Sort the ways to allow compacting according to the properties */
 
  filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(const void*,const void*))sort_by_name_and_prop_and_id,NULL);
 
@@ -392,13 +397,15 @@ void CompactWayList(SegmentsX *segmentsx,WaysX *waysx)
 
  printf_first("Compacting Ways: Ways=0 Unique=0 Unused=0");
 
- /* Re-open the file read-only and a new file writeable */
+ /* Allocate the array of indexes */
 
- waysx->fd=ReOpenFile(waysx->filename);
+ waysx->cdata=(index_t*)malloc(waysx->number*sizeof(index_t));
 
- DeleteFile(waysx->filename);
+ assert(waysx->cdata); /* Check malloc() worked */
 
- fd=OpenFileNew(waysx->filename);
+ /* Re-open the temporary file read-only */
+
+ fd=ReOpenFile(filename_tmp);
 
  /* Update the way as we go using the sorted index */
 
@@ -408,13 +415,13 @@ void CompactWayList(SegmentsX *segmentsx,WaysX *waysx)
    {
     WayX wayx;
 
-    ReadFile(waysx->fd,&wayx,sizeof(WayX));
+    ReadFile(fd,&wayx,sizeof(WayX));
 
-    if(!IsBitSet(waysused,wayx.cid))
+    if(!IsBitSet(waysused,wayx.id))
       {
        unused++;
 
-       wayx.cid=NO_WAY;
+       waysx->cdata[wayx.id]=NO_WAY;
       }
     else
       {
@@ -425,19 +432,17 @@ void CompactWayList(SegmentsX *segmentsx,WaysX *waysx)
           waysx->cnumber++;
          }
 
-       wayx.cid=waysx->cnumber-1;
+       waysx->cdata[wayx.id]=waysx->cnumber-1;
       }
-
-    WriteFile(fd,&wayx,sizeof(WayX));
 
     if(!((i+1)%1000))
        printf_middle("Compacting Ways: Ways=%"Pindex_t" Unique=%"Pindex_t" Unused=%"Pindex_t,i+1,waysx->cnumber,unused);
    }
 
- /* Close the files */
+ /* Close the file and delete it */
 
- waysx->fd=CloseFile(waysx->fd);
  CloseFile(fd);
+ DeleteFile(filename_tmp);
 
  /* Print the final message */
 
@@ -445,31 +450,7 @@ void CompactWayList(SegmentsX *segmentsx,WaysX *waysx)
 
  free(waysused);
 
-
- /* Print the start message */
-
- printf_first("Sorting Ways");
-
- /* Re-open the file read-only and a new file writeable */
-
- waysx->fd=ReOpenFile(waysx->filename);
-
- DeleteFile(waysx->filename);
-
- fd=OpenFileNew(waysx->filename);
-
- /* Sort the ways by index */
-
- filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(const void*,const void*))sort_by_id,NULL);
-
- /* Close the files */
-
- waysx->fd=CloseFile(waysx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Sorted Ways: Ways=%"Pindex_t,waysx->number);
+ free(filename_tmp);
 }
 
 
@@ -572,7 +553,7 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
     sortwaysx->idata[index]=wayx->id;
 
-    wayx->cid=index;
+    wayx->id=index;
 
     return(1);
    }
@@ -688,8 +669,8 @@ void SaveWayList(WaysX *waysx,const char *filename)
     allow   |=wayx->way.allow;
     props   |=wayx->way.props;
 
-    if(wayx->cid!=NO_WAY)
-       SeekWriteFile(fd,&wayx->way,sizeof(Way),sizeof(WaysFile)+(off_t)wayx->cid*sizeof(Way));
+    if(waysx->cdata[i]!=NO_WAY)
+       SeekWriteFile(fd,&wayx->way,sizeof(Way),sizeof(WaysFile)+(off_t)waysx->cdata[i]*sizeof(Way));
 
     if(!((i+1)%1000))
        printf_middle("Writing Ways: Ways=%"Pindex_t,i+1);
