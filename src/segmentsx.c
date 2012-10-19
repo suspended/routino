@@ -812,7 +812,6 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  for(i=0;i<segmentsx->number;i++)
    {
     SegmentX segmentx;
-    WayX *wayx;
 
     ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
@@ -831,9 +830,7 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
           segmentx.distance^=ONEWAY_2TO1|ONEWAY_1TO2;
       }
 
-    wayx=LookupWayX(waysx,segmentx.way,1);
-
-    segmentx.way=wayx->cid;
+    segmentx.way=waysx->cdata[segmentx.way];
 
     WriteFile(fd,&segmentx,sizeof(SegmentX));
 
