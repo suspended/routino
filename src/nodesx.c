@@ -539,7 +539,11 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
     if(segmentsx->firstnode[total]==NO_SEGMENT)
+      {
        pruned++;
+
+       nodesx->pdata[total]=NO_NODE;
+      }
     else
       {
        nodex.id=notpruned;
