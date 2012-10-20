@@ -189,7 +189,7 @@ void SortNodeList(NodesX *nodesx)
 
  assert(nodesx->idata); /* Check malloc() worked */
 
- /* Sort by node indexes */
+ /* Sort the nodes by ID and index them */
 
  xnumber=nodesx->number;
  nodesx->number=0;
@@ -289,7 +289,7 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  fd=OpenFileNew(nodesx->filename);
 
- /* Sort geographically */
+ /* Sort nodes geographically and index them */
 
  sortnodesx=nodesx;
 
@@ -463,20 +463,11 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  NodeX nodex;
  index_t total=0,highway=0,nothighway=0;
- ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
- latlong_t lat_min,lat_max,lon_min,lon_max;
  int fd;
 
  /* Print the start message */
 
  printf_first("Checking Nodes: Nodes=0");
-
- /* While we are here we can work out the range of data */
-
- lat_min=radians_to_latlong( 2);
- lat_max=radians_to_latlong(-2);
- lon_min=radians_to_latlong( 4);
- lon_max=radians_to_latlong(-4);
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -500,15 +491,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
        nodesx->idata[highway]=nodesx->idata[total];
        highway++;
-
-       if(nodex.latitude<lat_min)
-          lat_min=nodex.latitude;
-       if(nodex.latitude>lat_max)
-          lat_max=nodex.latitude;
-       if(nodex.longitude<lon_min)
-          lon_min=nodex.longitude;
-       if(nodex.longitude>lon_max)
-          lon_max=nodex.longitude;
       }
 
     total++;
@@ -523,19 +505,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  nodesx->fd=CloseFile(nodesx->fd);
  CloseFile(fd);
-
- /* Work out the number of bins */
-
- lat_min_bin=latlong_to_bin(lat_min);
- lon_min_bin=latlong_to_bin(lon_min);
- lat_max_bin=latlong_to_bin(lat_max);
- lon_max_bin=latlong_to_bin(lon_max);
-
- nodesx->latzero=lat_min_bin;
- nodesx->lonzero=lon_min_bin;
-
- nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
- nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
 
  /* Free the now-unneeded index */
 
@@ -560,10 +529,19 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
 {
  index_t i;
  int fd;
+ ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
+ latlong_t lat_min,lat_max,lon_min,lon_max;
 
  /* Print the start message */
 
- printf_first("Updating Super Nodes: Nodes=0");
+ printf_first("Updating Nodes: Nodes=0");
+
+ /* While we are here we can work out the range of data */
+
+ lat_min=radians_to_latlong( 2);
+ lat_max=radians_to_latlong(-2);
+ lon_min=radians_to_latlong( 4);
+ lon_max=radians_to_latlong(-4);
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -588,8 +566,17 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
     WriteFile(fd,&nodex,sizeof(NodeX));
 
+    if(nodex.latitude<lat_min)
+       lat_min=nodex.latitude;
+    if(nodex.latitude>lat_max)
+       lat_max=nodex.latitude;
+    if(nodex.longitude<lon_min)
+       lon_min=nodex.longitude;
+    if(nodex.longitude>lon_max)
+       lon_max=nodex.longitude;
+
     if(!((i+1)%10000))
-       printf_middle("Updating Super Nodes: Nodes=%"Pindex_t,i+1);
+       printf_middle("Updating Nodes: Nodes=%"Pindex_t,i+1);
    }
 
  /* Close the files */
@@ -602,9 +589,22 @@ void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
  free(nodesx->super);
  nodesx->super=NULL;
 
+ /* Work out the number of bins */
+
+ lat_min_bin=latlong_to_bin(lat_min);
+ lon_min_bin=latlong_to_bin(lon_min);
+ lat_max_bin=latlong_to_bin(lat_max);
+ lon_max_bin=latlong_to_bin(lon_max);
+
+ nodesx->latzero=lat_min_bin;
+ nodesx->lonzero=lon_min_bin;
+
+ nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
+ nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
+
  /* Print the final message */
 
- printf_last("Updated Super Nodes: Nodes=%"Pindex_t,nodesx->number);
+ printf_last("Updated Nodes: Nodes=%"Pindex_t,nodesx->number);
 }
 
 
