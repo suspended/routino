@@ -269,7 +269,7 @@ if(!option_process_only)
 
  SortNodeList(Nodes);
 
- SortSegmentList(Segments,0);
+ SortSegmentList(Segments);
 
  SortWayList(Ways);
 
@@ -295,11 +295,19 @@ if(!option_process_only)
 
  /* Index the segments */
 
- IndexSegments(Segments,Nodes);
+ IndexSegments(Segments,Nodes,Ways);
 
  /* Convert the turn relations from ways into nodes */
 
  ProcessTurnRelations2(Relations,Nodes,Segments,Ways);
+
+ /* Compact the ways (must be after turn relations 2) */
+
+ CompactWayList(Ways,Segments);
+
+ /* Index the segments */
+
+ IndexSegments(Segments,Nodes,Ways);
 
  /* Prune unwanted nodes/segments. */
 
@@ -323,10 +331,11 @@ if(!option_process_only)
 
     /* Remove the pruned nodes and segments and update the indexes */
 
-    SortSegmentList(Segments,1);
     RemovePrunedNodes(Nodes,Segments);
-    IndexSegments(Segments,Nodes);
+    RemovePrunedSegments(Segments,Ways);
+    CompactWayList(Ways,Segments);
     RemovePrunedTurnRelations(Relations,Nodes);
+    IndexSegments(Segments,Nodes,Ways);
    }
 
  /* Repeated iteration on Super-Nodes and Super-Segments */
@@ -371,7 +380,7 @@ if(!option_process_only)
 
     /* Sort the super-segments */
 
-    SortSegmentList(SuperSegments,0);
+    SortSegmentList(SuperSegments);
 
     /* Remove duplicated super-segments */
 
@@ -379,7 +388,7 @@ if(!option_process_only)
 
     /* Index the segments */
 
-    IndexSegments(SuperSegments,Nodes);
+    IndexSegments(SuperSegments,Nodes,Ways);
 
     /* Check for end condition */
 
@@ -408,20 +417,16 @@ if(!option_process_only)
 
  Segments=MergedSegments;
 
- /* Sort and re-index the segments */
+ /* Sort and re-index the merged segments */
 
- SortSegmentList(Segments,0);
+ SortSegmentList(Segments);
 
- IndexSegments(Segments,Nodes);
+ IndexSegments(Segments,Nodes,Ways);
 
  /* Cross reference the nodes and segments */
 
  printf("\nCross-Reference Nodes and Segments\n==================================\n\n");
  fflush(stdout);
-
- /* Compact the ways (must be before updating the segments) */
-
- CompactWayList(Segments,Ways);
 
  /* Sort the nodes geographically and update the segment indexes accordingly */
 
@@ -431,9 +436,9 @@ if(!option_process_only)
 
  /* Sort the segments geographically and re-index them */
 
- SortSegmentList(Segments,0);
+ SortSegmentList(Segments);
 
- IndexSegments(Segments,Nodes);
+ IndexSegments(Segments,Nodes,Ways);
 
  /* Update the nodes */
 
