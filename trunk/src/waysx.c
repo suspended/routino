@@ -41,16 +41,13 @@
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
-
 /* Local variables */
 
 /*+ Temporary file-local variables for use by the sort functions. +*/
 static WaysX *sortwaysx;
-static index_t sortunused;
-static BitMask *sortwaysused;
+static SegmentsX *sortsegmentsx;
 
-
-/* Functions */
+/* Local functions */
 
 static int sort_by_id(WayX *a,WayX *b);
 static int sort_by_name_and_id(WayX *a,WayX *b);
@@ -299,7 +296,7 @@ void SortWayList(WaysX *waysx)
 
  assert(waysx->idata); /* Check malloc() worked */
 
- /* Sort the ways by index and index them */
+ /* Sort the ways by ID and index them */
 
  xnumber=waysx->number;
  waysx->number=0;
@@ -320,49 +317,17 @@ void SortWayList(WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Compact the list of ways.
-
-  SegmentsX *segmentsx The set of segments to modify.
+  Compact the way list, removing duplicated ways and unused ways.
 
   WaysX *waysx The set of ways to process.
+
+  SegmentsX *segmentsx The set of segments to check.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void CompactWayList(SegmentsX *segmentsx,WaysX *waysx)
+void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
 {
- index_t i;
-
- /* Print the start message */
-
- printf_first("Checking Used Ways: Segments=0");
-
- /* Allocate the bitmask */
-
- sortwaysused=AllocBitMask(waysx->number);
-
- assert(sortwaysused); /* Check AllocBitMask() worked */
-
- /* Open the segments file and read through it */
-
- segmentsx->fd=ReOpenFile(segmentsx->filename);
-
- for(i=0;i<segmentsx->number;i++)
-   {
-    SegmentX segmentx;
-
-    ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
-
-    SetBit(sortwaysused,segmentx.way);
-
-    if(!(i%10000))
-       printf_middle("Checking Used Ways: Segments=%"Pindex_t,i);
-   }
-
- segmentsx->fd=CloseFile(segmentsx->fd);
-
- /* Print the final message */
-
- printf_last("Checked Used Ways: Segments=%"Pindex_t,segmentsx->number);
-
+ int fd;
+ index_t cnumber;
 
  /* Print the start message */
 
@@ -374,26 +339,33 @@ void CompactWayList(SegmentsX *segmentsx,WaysX *waysx)
 
  assert(waysx->cdata); /* Check malloc() worked */
 
- /* Re-open the file read-only */
+ /* Re-open the file read-only and a new file writeable */
 
  waysx->fd=ReOpenFile(waysx->filename);
+
+ DeleteFile(waysx->filename);
+
+ fd=OpenFileNew(waysx->filename);
 
  /* Sort the ways to allow compacting according to the properties */
 
  sortwaysx=waysx;
- sortunused=0;
+ sortsegmentsx=segmentsx;
 
- filesort_fixed(waysx->fd,-1,sizeof(WayX),(int (*)(const void*,const void*))sort_by_name_and_prop_and_id,(int (*)(void*,index_t))deduplicate_and_index_by_compact_id);
+ cnumber=filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(const void*,const void*))sort_by_name_and_prop_and_id,(int (*)(void*,index_t))deduplicate_and_index_by_compact_id);
 
- /* Close the file */
+ /* Close the files */
 
  waysx->fd=CloseFile(waysx->fd);
+ CloseFile(fd);
 
  /* Print the final message */
 
- printf_last("Sorted and Compacted Ways: Ways=%"Pindex_t" Unique=%"Pindex_t" Unused=%"Pindex_t,waysx->number,waysx->cnumber,sortunused);
+ printf_last("Sorted and Compacted Ways: Ways=%"Pindex_t" Unique=%"Pindex_t,waysx->number,cnumber);
+ waysx->number=cnumber;
 
- free(sortwaysused);
+ free(segmentsx->usedway);
+ segmentsx->usedway=NULL;
 }
 
 
@@ -483,7 +455,7 @@ static int sort_by_name_and_prop_and_id(WayX *a,WayX *b)
 
   WayX *wayx The extended way.
 
-  index_t index The index of this way in the total.
+  index_t index The index of this way in the total that have been kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
@@ -516,32 +488,36 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
   WayX *wayx The extended way.
 
-  index_t index The index of this way in the total.
+  index_t index The index of this way in the total that have been kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index)
 {
  static Way lastway;
 
- if(!IsBitSet(sortwaysused,wayx->id))
+ if(sortsegmentsx && !IsBitSet(sortsegmentsx->usedway,wayx->id))
    {
-    sortunused++;
-
     sortwaysx->cdata[wayx->id]=NO_WAY;
+
+    return(0);
+   }
+
+ if(index==0 || wayx->way.name!=lastway.name || WaysCompare(&lastway,&wayx->way))
+   {
+    lastway=wayx->way;
+
+    sortwaysx->cdata[wayx->id]=index;
+
+    wayx->id=index;
+
+    return(1);
    }
  else
    {
-    if(sortwaysx->cnumber==0 || wayx->way.name!=lastway.name || WaysCompare(&lastway,&wayx->way))
-      {
-       lastway=wayx->way;
+    sortwaysx->cdata[wayx->id]=index-1;
 
-       sortwaysx->cnumber++;
-      }
-
-    sortwaysx->cdata[wayx->id]=sortwaysx->cnumber-1;
+    return(0);
    }
-
- return(0);
 }
 
 
@@ -648,8 +624,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
     allow   |=wayx->way.allow;
     props   |=wayx->way.props;
 
-    if(waysx->cdata[i]!=NO_WAY)
-       SeekWriteFile(fd,&wayx->way,sizeof(Way),sizeof(WaysFile)+(off_t)waysx->cdata[i]*sizeof(Way));
+    WriteFile(fd,&wayx->way,sizeof(Way));
 
     if(!((i+1)%1000))
        printf_middle("Writing Ways: Ways=%"Pindex_t,i+1);
@@ -665,7 +640,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  /* Write out the ways names */
 
- SeekFile(fd,sizeof(WaysFile)+(off_t)waysx->cnumber*sizeof(Way));
+ SeekFile(fd,sizeof(WaysFile)+(off_t)waysx->number*sizeof(Way));
 
  waysx->nfd=ReOpenFile(waysx->nfilename);
 
@@ -689,8 +664,8 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  /* Write out the header structure */
 
- waysfile.number =waysx->cnumber;
- waysfile.onumber=waysx->number;
+ waysfile.number =waysx->number;
+ waysfile.onumber=0;
 
  waysfile.highways=highways;
  waysfile.allow   =allow;
@@ -703,5 +678,5 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  /* Print the final message */
 
- printf_last("Wrote Ways: Ways=%"Pindex_t" Compacted Ways=%"Pindex_t,waysx->number,waysx->cnumber);
+ printf_last("Wrote Ways: Ways=%"Pindex_t,waysx->number);
 }

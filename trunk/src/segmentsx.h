@@ -73,6 +73,8 @@ struct _SegmentsX
  index_t   *next1;              /*+ The index of the next segment with the same node1 (used while pruning). +*/
 
  BitMask   *usednode;           /*+ A flag to indicate if a node is used (used for removing bad segments). +*/
+
+ BitMask   *usedway;            /*+ A flag to indicate if a way is used (used for removing pruned ways). +*/
 };
 
 
@@ -89,7 +91,9 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
 void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 
-void SortSegmentList(SegmentsX *segmentsx,int delete);
+void SortSegmentList(SegmentsX *segmentsx);
+
+void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx);
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
 
@@ -99,7 +103,7 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 
-void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx);
+void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 

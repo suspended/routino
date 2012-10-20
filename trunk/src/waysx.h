@@ -39,7 +39,7 @@
 /*+ An extended structure containing a single way. +*/
 struct _WayX
 {
- way_t    id;                   /*+ The way identifier; initially the OSM value, later the Node index. +*/
+ way_t    id;                   /*+ The way identifier; initially the OSM value, later the Way index. +*/
 
  Way      way;                  /*+ The real way data. +*/
 };
@@ -64,11 +64,9 @@ struct _WaysX
 
 #endif
 
- index_t  cnumber;              /*+ The number of entries after compacting. +*/
-
  way_t   *idata;                /*+ The extended way IDs (sorted by ID). +*/
 
- index_t *cdata;                /*+ The compacted way ID (sorted by ID). +*/
+ index_t *cdata;                /*+ The compacted way IDs (same order as sorted ways). +*/
 
  char    *nfilename;            /*+ The name of the temporary file (for the names). +*/
  int      nfd;                  /*+ The file descriptor of the temporary file (for the names). +*/
@@ -91,7 +89,7 @@ void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name);
 
 void SortWayList(WaysX *waysx);
 
-void CompactWayList(SegmentsX *segmentsx,WaysX *waysx);
+void CompactWayList(WaysX *waysx,SegmentsX *segmentsx);
 
 
 /* Macros / inline functions */

@@ -331,7 +331,7 @@ static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
 
   TurnRestrictRelX *relationx The extended relation.
 
-  index_t index The index of this relation in the total.
+  index_t index The index of this relation in the total that have been kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index)
@@ -687,7 +687,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
        WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
 
     if(!((i+1)%1000))
-       printf_middle("Processing Turn Relations (1): Relations=%"Pindex_t" Deleted=%"Pindex_t,i+1-deleted,deleted);
+       printf_middle("Processing Turn Relations (1): Relations=%"Pindex_t" Deleted=%"Pindex_t,i+1,deleted);
    }
 
  /* Close the files */
@@ -697,7 +697,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Processed Turn Relations (1): Relations=%"Pindex_t" Deleted=%"Pindex_t,relationsx->trnumber-deleted,deleted);
+ printf_last("Processed Turn Relations (1): Relations=%"Pindex_t" Deleted=%"Pindex_t,relationsx->trnumber,deleted);
 
  relationsx->trnumber-=deleted;
 }
@@ -1050,14 +1050,6 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 
  relationsx->trfd=CloseFile(relationsx->trfd);
  CloseFile(trfd);
-
- /* Free the memory */
-
- if(nodesx->pdata)
-   {
-    free(nodesx->pdata);
-    nodesx->pdata=NULL;
-   }
 
  /* Print the final message */
 

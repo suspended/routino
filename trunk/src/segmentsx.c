@@ -44,6 +44,11 @@
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
+/* Local variables */
+
+/*+ Temporary file-local variable for use by the sort functions. +*/
+static SegmentsX *sortsegmentsx;
+
 /* Local functions */
 
 static int sort_by_id(SegmentX *a,SegmentX *b);
@@ -168,21 +173,15 @@ void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,dist
   Sort the segment list.
 
   SegmentsX *segmentsx The set of segments to sort and modify.
-
-  int delete Set to true if pruned segments are to be deleted.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortSegmentList(SegmentsX *segmentsx,int delete)
+void SortSegmentList(SegmentsX *segmentsx)
 {
  int fd;
- index_t kept;
 
  /* Print the start message */
 
- if(delete)
-    printf_first("Sorting Segments (Deleting Pruned)");
- else
-    printf_first("Sorting Segments");
+ printf_first("Sorting Segments");
 
  /* Close the file (finished appending) */
 
@@ -199,10 +198,7 @@ void SortSegmentList(SegmentsX *segmentsx,int delete)
 
  /* Sort by node indexes */
 
- if(delete)
-    kept=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))delete_pruned);
- else
-    filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,NULL);
+ filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,NULL);
 
  /* Close the files */
 
@@ -211,13 +207,61 @@ void SortSegmentList(SegmentsX *segmentsx,int delete)
 
  /* Print the final message */
 
- if(delete)
-   {
-    printf_last("Sorted Segments: Segments=%"Pindex_t" Deleted=%"Pindex_t,kept,segmentsx->number-kept);
-    segmentsx->number=kept;
-   }
- else
-    printf_last("Sorted Segments: Segments=%"Pindex_t,segmentsx->number);
+ printf_last("Sorted Segments: Segments=%"Pindex_t,segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Prune the deleted segments while resorting the list.
+
+  SegmentsX *segmentsx The set of segments to sort and modify.
+
+  WaysX *waysx The set of ways to check.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
+{
+ int fd;
+ index_t kept;
+
+ /* Print the start message */
+
+ printf_first("Sorting Segments (Deleting Pruned, Checking Ways)");
+
+ /* Close the file (finished appending) */
+
+ if(segmentsx->fd!=-1)
+    segmentsx->fd=CloseFile(segmentsx->fd);
+
+ /* Allocate the way usage bitmask */
+
+ segmentsx->usedway=AllocBitMask(waysx->number);
+
+ assert(segmentsx->usedway); /* Check AllocBitMask() worked */
+
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
+
+ DeleteFile(segmentsx->filename);
+
+ fd=OpenFileNew(segmentsx->filename);
+
+ /* Sort by node indexes */
+
+ sortsegmentsx=segmentsx;
+
+ kept=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))delete_pruned);
+
+ /* Close the files */
+
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Sorted Segments: Segments=%"Pindex_t" Deleted=%"Pindex_t,kept,segmentsx->number-kept);
+ segmentsx->number=kept;
 }
 
 
@@ -272,13 +316,15 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
 
   SegmentX *segmentx The extended segment.
 
-  index_t index The index of this segment in the total.
+  index_t index The index of this segment in the total that have been kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int delete_pruned(SegmentX *segmentx,index_t index)
 {
  if(IsPrunedSegmentX(segmentx))
     return(0);
+
+ SetBit(sortsegmentsx->usedway,segmentx->way);
 
  return(1);
 }
@@ -394,7 +440,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  printf_first("Checking Segments: Segments=0 Duplicate=0 Loop=0 No-Node=0");
 
- /* Allocate the array of node flags */
+ /* Allocate the node usage bitmask */
 
  segmentsx->usednode=AllocBitMask(nodesx->number);
 
@@ -511,6 +557,12 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  nodesx->fd=ReOpenFile(nodesx->filename);
 #endif
 
+ /* Allocate the way usage bitmask */
+
+ segmentsx->usedway=AllocBitMask(waysx->number);
+
+ assert(segmentsx->usedway); /* Check AllocBitMask() worked */
+
  /* Re-open the file read-only and a new file writeable */
 
  segmentsx->fd=ReOpenFile(segmentsx->filename);
@@ -535,6 +587,8 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     segmentx.node1=node1;
     segmentx.node2=node2;
     segmentx.way  =way;
+
+    SetBit(segmentsx->usedway,segmentx.way);
 
     /* Set the distance but preserve the other flags */
 
@@ -707,10 +761,12 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
   SegmentsX *segmentsx The set of segments to modify.
 
-  NodesX *nodesx The sset of nodes to use.
+  NodesX *nodesx The set of nodes to use.
+
+  WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx)
+void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  index_t index,i;
 
@@ -753,6 +809,12 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx)
        segmentx->node2=nodesx->pdata[segmentx->node2];
       }
 
+    if(waysx->cdata)
+      {
+       //printf("segment=%ld segment->way=%ld waysx->cdata[segmentx->way]=%ld\n",index,segmentx->way,waysx->cdata[segmentx->way]);
+       segmentx->way=waysx->cdata[segmentx->way];
+      }
+
     segmentx->next2=segmentsx->firstnode[segmentx->node2];
 
     PutBackSegmentX(segmentsx,segmentx);
@@ -771,6 +833,20 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx)
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
 #endif
+
+ /* Free the memory */
+
+ if(nodesx->pdata)
+   {
+    free(nodesx->pdata);
+    nodesx->pdata=NULL;
+   }
+
+ if(waysx->cdata)
+   {
+    free(waysx->cdata);
+    waysx->cdata=NULL;
+   }
 
  /* Print the final message */
 
@@ -835,8 +911,6 @@ void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
        if(segmentx.distance&(ONEWAY_2TO1|ONEWAY_1TO2))
           segmentx.distance^=ONEWAY_2TO1|ONEWAY_1TO2;
       }
-
-    segmentx.way=waysx->cdata[segmentx.way];
 
     WriteFile(fd,&segmentx,sizeof(SegmentX));
 
