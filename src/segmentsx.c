@@ -747,6 +747,12 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx)
    {
     SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
 
+    if(nodesx->pdata)
+      {
+       segmentx->node1=nodesx->pdata[segmentx->node1];
+       segmentx->node2=nodesx->pdata[segmentx->node2];
+      }
+
     segmentx->next2=segmentsx->firstnode[segmentx->node2];
 
     PutBackSegmentX(segmentsx,segmentx);

@@ -51,7 +51,7 @@ static int sort_by_id(NodeX *a,NodeX *b);
 static int deduplicate_and_index_by_id(NodeX *nodex,index_t index);
 
 static int sort_by_lat_long(NodeX *a,NodeX *b);
-static int delete_pruned_and_index_by_lat_long(NodeX *nodex,index_t index);
+static int index_by_lat_long(NodeX *nodex,index_t index);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -293,7 +293,7 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  sortnodesx=nodesx;
 
- kept=filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))delete_pruned_and_index_by_lat_long);
+ kept=filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
 
  /* Close the files */
 
@@ -321,69 +321,54 @@ void SortNodeListGeographically(NodesX *nodesx)
 
 static int sort_by_lat_long(NodeX *a,NodeX *b)
 {
- int a_pruned=IsPrunedNodeX(a);
- int b_pruned=IsPrunedNodeX(b);
+ ll_bin_t a_lon=latlong_to_bin(a->longitude);
+ ll_bin_t b_lon=latlong_to_bin(b->longitude);
 
- if(a_pruned && b_pruned)
-    return(0);
- else if(a_pruned)
-    return(1);
- else if(b_pruned)
+ if(a_lon<b_lon)
     return(-1);
+ else if(a_lon>b_lon)
+    return(1);
  else
    {
-    ll_bin_t a_lon=latlong_to_bin(a->longitude);
-    ll_bin_t b_lon=latlong_to_bin(b->longitude);
+    ll_bin_t a_lat=latlong_to_bin(a->latitude);
+    ll_bin_t b_lat=latlong_to_bin(b->latitude);
 
-    if(a_lon<b_lon)
+    if(a_lat<b_lat)
        return(-1);
-    else if(a_lon>b_lon)
+    else if(a_lat>b_lat)
        return(1);
     else
       {
-       ll_bin_t a_lat=latlong_to_bin(a->latitude);
-       ll_bin_t b_lat=latlong_to_bin(b->latitude);
-
-       if(a_lat<b_lat)
+       if(a->longitude<b->longitude)
           return(-1);
-       else if(a_lat>b_lat)
+       else if(a->longitude>b->longitude)
           return(1);
        else
          {
-          if(a->longitude<b->longitude)
+          if(a->latitude<b->latitude)
              return(-1);
-          else if(a->longitude>b->longitude)
+          else if(a->latitude>b->latitude)
              return(1);
-          else
-            {
-             if(a->latitude<b->latitude)
-                return(-1);
-             else if(a->latitude>b->latitude)
-                return(1);
-            }
-
-          return(0);
          }
+
+       return(0);
       }
    }
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Delete the pruned nodes and create the index between the sorted and unsorted nodes.
+  Create the index between the sorted and unsorted nodes.
 
-  int delete_pruned_and_index_by_lat_long Return 1 if the value is to be kept, otherwise 0.
+  int index_by_lat_long Return 1 if the value is to be kept, otherwise 0.
 
   NodeX *nodex The extended node.
 
   index_t index The index of this node in the total.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int delete_pruned_and_index_by_lat_long(NodeX *nodex,index_t index)
+static int index_by_lat_long(NodeX *nodex,index_t index)
 {
- if(IsPrunedNodeX(nodex))
-    return(0);
-
  /* Create the index from the previous sort to the current one */
 
  sortnodesx->gdata[nodex->id]=index;
@@ -486,10 +471,10 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
     else
       {
        nodex.id=highway;
+       nodesx->idata[highway]=nodesx->idata[total];
 
        WriteFile(fd,&nodex,sizeof(NodeX));
 
-       nodesx->idata[highway]=nodesx->idata[total];
        highway++;
       }
 
@@ -514,6 +499,73 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
  /* Print the final message */
 
  printf_last("Checked Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Remove any nodes that have been pruned.
+
+  NodesX *nodesx The set of nodes to prune.
+
+  SegmentsX *segmentsx The set of segments to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
+{
+ NodeX nodex;
+ index_t total=0,pruned=0,notpruned=0;
+ int fd;
+
+ /* Print the start message */
+
+ printf_first("Deleting Pruned Nodes: Nodes=0 Pruned=0");
+
+ /* Allocate the array of indexes */
+
+ nodesx->pdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
+
+ assert(nodesx->pdata); /* Check malloc() worked */
+
+ /* Re-open the file read-only and a new file writeable */
+
+ nodesx->fd=ReOpenFile(nodesx->filename);
+
+ DeleteFile(nodesx->filename);
+
+ fd=OpenFileNew(nodesx->filename);
+
+ /* Modify the on-disk image */
+
+ while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
+   {
+    if(segmentsx->firstnode[total]==NO_SEGMENT)
+       pruned++;
+    else
+      {
+       nodex.id=notpruned;
+       nodesx->pdata[total]=notpruned;
+
+       WriteFile(fd,&nodex,sizeof(NodeX));
+
+       notpruned++;
+      }
+
+    total++;
+
+    if(!(total%10000))
+       printf_middle("Deleting Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,total,pruned);
+   }
+
+ nodesx->number=notpruned;
+
+ /* Close the files */
+
+ nodesx->fd=CloseFile(nodesx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Deleted Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,total,pruned);
 }
 
 

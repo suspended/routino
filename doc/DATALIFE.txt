@@ -8,65 +8,69 @@ Key:
   M = Modified
   | = Preserved unmodified for later
 
-                              ...................................................
+                              ...........................
                               : nodesx->idata
                               : | . nodesx->gdata
-                              : | . | . nodesx->super
-                              : | . | . | . nodex->id
-                              : | . | . | . | .......................................
-                              : v . v . v . v : segmentsx->firstnode
-                              :   .   .   .   : | . segmentsx->next1
-                              :   .   .   .   : | . | . segmentsx->usednode
-                              :   .   .   .   : | . | . | ...........................
-                              :   .   .   .   : v . v . v : waysx->idata
-                              :   .   .   .   :   .   .   : | . waysx->cdata
-                              :   .   .   .   :   .   .   : | . | . wayx->id
-                              :   .   .   .   :   .   .   : | . | . | ...............
-Function name (in order)      :   .   .   .   :   .   .   : v . v . v : relationx->id
-|                             :   .   .   .   :   .   .   :   .   .   : | ...........
-v                             :   .   .   .   :   .   .   :   .   .   : v :
-                              :...............:...........:...........:...:
-SortNodeList                  : C .   .   . U :   .   .   :   .   .   :   :
-SortSegmentList               : | .   .   .   :   .   .   :   .   .   :   :
-SortWayList                   : | .   .   .   :   .   .   : C .   . M :   :
-SortRelationList              : | .   .   .   :   .   .   : | .   .   : U :
-RemoveBadSegments             : U .   .   .   :   .   . C : | .   .   : | :
-RemoveNonHighwayNodes         : M .   .   . M :   .   . D : | .   .   : | :
-ProcessRouteRelations         : | .   .   . | :   .   .   : U .   .   : U :
-ProcessTurnRelations1         : U .   .   . | :   .   .   : U .   .   : U :
-MeasureSegments               : D .   .   . | :   .   .   : D .   .   : | :
-IndexSegments                 :   .   .   . | : C .   .   :   .   .   : | :
-ProcessTurnRelations2         :   .   .   . | : U .   .   :   .   .   : U :
-                              :...............:...........:...........:...:
-StartPruning                  :   .   .   . | : | . C .   :   .   .   :   :
-PruneStraightHighwayNodes     :   .   .   . | : U . U .   :   .   .   :   :
-PruneIsolatedRegions          :   .   .   . | : U . U .   :   .   .   :   :
-PruneShortSegments            :   .   .   . | : U . U .   :   .   .   :   :
-FinishPruning                 :   .   .   . | : U . D .   :   .   .   :   :
-  SortSegmentList             :   .   .   . | : | .   .   :   .   .   :   :
-  IndexSegments               :   .   .   . | : C .   .   :   .   .   :   :
-                              :...............:...........:...........:...:
-ChooseSuperNodes              :   .   . C . | : U .   .   :   .   .   :   : <-+
-CreateSuperSegments           :   .   . U . | : U .   .   :   .   .   :   :   |
-SortSegmentList               :   .   . | . | :   .   .   :   .   .   :   :   |
-DeduplicateSegments           :   .   . | . | :   .   .   :   .   .   :   :   |
-IndexSegments                 :   .   . | . | : C*.   .   :   .   .   :   : --+
-                              :...............:...........:...........:...:
-MergeSuperSegments            :   .   . | . | :   .   .   :   .   .   :   :
-SortSegmentList               :   .   . | . | :   .   .   :   .   .   :   :
-IndexSegments                 :   .   . | . | : C .   .   :   .   .   :   :
-                              :...............:...........:...........:...:
-CompactWayList                :   .   . | . | :   .   .   :   . C . U :   :
-SortNodeListGeographically    :   . C . | . U :   .   .   :   . | .   :   :
-UpdateSegments                :   . U . | . | :   .   .   :   . U .   :   :
-SortSegmentList               :   . | . | . | :   .   .   :   . | .   :   :
-IndexSegments                 :   . | . | . | : C .   .   :   . | .   :   :
-UpdateNodes                   :   . U . D . M : U .   .   :   . | .   :   :
-UpdateTurnRelations           :   . U .   . | : U .   .   :   . | .   :   :
-SortTurnRelationList          :   .   .   . | :   .   .   :   . | .   :   :
-                              :...............:...........:...........:...:
-SaveNodeList                  :   .   .   . U :   .   .   :   . | .   :   :
-SaveSegmentList               :   .   .   .   :   .   .   :   . | .   :   :
-SaveWayList                   :   .   .   .   :   .   .   :   . U .   :   :
-SaveRelationList              :   .   .   .   :   .   .   :   .   .   :   :
-                              :...............:...........:...........:...:
+                              : | . | . nodesx->pdata
+                              : | . | . | . nodesx->super
+                              : | . | . | . | . nodex->id
+                              : | . | . | . | . | ...............................
+                              : v . v . v . v . v : segmentsx->firstnode
+                              :   .   .   .   .   : | . segmentsx->next1
+                              :   .   .   .   .   : | . | . segmentsx->usednode
+                              :   .   .   .   .   : | . | . | . segmentx->node1,2
+                              :   .   .   .   .   : | . | . | . | ..................
+                              :   .   .   .   .   : v . v . v . v : waysx->idata
+                              :   .   .   .   .   :   .   .   .   : | . waysx->cdata
+                              :   .   .   .   .   :   .   .   .   : | . | . wayx->id
+                              :   .   .   .   .   :   .   .   .   : | . | . | ...............
+Function name (in order)      :   .   .   .   .   :   .   .   .   : v . v . v : relationx->id
+|                             :   .   .   .   .   :   .   .   .   :   .   .   : | ...........
+v                             :   .   .   .   .   :   .   .   .   :   .   .   : v :
+                              :...................:...............:...........:...:
+SortNodeList                  : C .   .   .   . U :   .   .   .   :   .   .   :   :
+SortSegmentList               : | .   .   .   .   :   .   .   . U :   .   .   :   :
+SortWayList                   : | .   .   .   .   :   .   .   .   : C .   . M :   :
+SortRelationList              : | .   .   .   .   :   .   .   .   : | .   .   : U :
+RemoveBadSegments             : U .   .   .   .   :   .   . C . U : | .   .   : | :
+RemoveNonHighwayNodes         : M .   .   .   . M :   .   . D .   : | .   .   : | :
+ProcessRouteRelations         : | .   .   .   . | :   .   .   .   : U .   .   : U :
+ProcessTurnRelations1         : U .   .   .   . | :   .   .   .   : U .   .   : U :
+MeasureSegments               : D .   .   .   . | :   .   .   . M : D .   .   : | :
+IndexSegments                 :   .   .   .   . | : C .   .   . U :   .   .   : | :
+ProcessTurnRelations2         :   .   .   .   . | : U .   .   . U :   .   .   : U :
+                              :...................:...............:...........:...:
+StartPruning                  :   .   .   .   . | : | . C .   . U :   .   .   :   :
+PruneStraightHighwayNodes     :   .   .   .   . | : U . U .   . U :   .   .   :   :
+PruneIsolatedRegions          :   .   .   .   . | : U . U .   . U :   .   .   :   :
+PruneShortSegments            :   .   .   .   . | : U . U .   . U :   .   .   :   :
+FinishPruning                 :   .   .   .   . | : | . D .   . | :   .   .   :   :
+SortSegmentList               :   .   .   .   . | : | .   .   . U :   .   .   :   :
+RemovePrunedNodes             :   .   . C .   . M : U .   .   .   :   .   .   :   :
+IndexSegments                 :   .   . U .   . | : M .   .   . M :   .   .   :   :
+RemovePrunedTurnRelations     :   .   . D .   . | : | .   .   . | :   .   .   :   :
+                              :...................:...............:...........:...:
+ChooseSuperNodes              :   .   .   . C . | : U .   .   . | :   .   .   :   : <-+
+CreateSuperSegments           :   .   .   . U . | : U .   .   . U :   .   .   :   :   |
+SortSegmentList               :   .   .   . | . | :   .   .   . U*:   .   .   :   :   |
+DeduplicateSegments           :   .   .   . | . | :   .   .   . U*:   .   .   :   :   |
+IndexSegments                 :   .   .   . | . | : C*.   .   . U*:   .   .   :   :   |
+                              :...................:...............:...........:...: --+
+MergeSuperSegments            :   .   .   . | . | :   .   .   . | :   .   .   :   :
+SortSegmentList               :   .   .   . | . | :   .   .   . U :   .   .   :   :
+IndexSegments                 :   .   .   . | . | : M .   .   . U :   .   .   :   :
+                              :...................:...............:...........:...:
+CompactWayList                :   .   .   . | . | :   .   .   . | :   . C . U :   :
+SortNodeListGeographically    :   . C .   . | . U :   .   .   . | :   . | .   :   :
+UpdateSegments                :   . U .   . | . | :   .   .   . U :   . U .   :   :
+SortSegmentList               :   . | .   . | . | :   .   .   . U :   . | .   :   :
+IndexSegments                 :   . | .   . | . | : M .   .   . U :   . | .   :   :
+UpdateNodes                   :   . U .   . D . M : U .   .   . | :   . | .   :   :
+UpdateTurnRelations           :   . U .   .   . | : U .   .   . U :   . | .   :   :
+SortTurnRelationList          :   .   .   .   . | :   .   .   . | :   . | .   :   :
+                              :...................:...............:...........:...:
+SaveNodeList                  :   .   .   .   . U :   .   .   . | :   . | .   :   :
+SaveSegmentList               :   .   .   .   .   :   .   .   . U :   . | .   :   :
+SaveWayList                   :   .   .   .   .   :   .   .   .   :   . U .   :   :
+SaveRelationList              :   .   .   .   .   :   .   .   .   :   .   .   :   :
+                              :...................:...............:...........:...:

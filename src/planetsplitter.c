@@ -305,6 +305,9 @@ if(!option_process_only)
 
  if(option_prune_straight || option_prune_isolated || option_prune_short)
    {
+    printf("\nPrune Unneeded Data\n===================\n\n");
+    fflush(stdout);
+
     StartPruning(Nodes,Segments,Ways);
 
     if(option_prune_straight)
@@ -317,6 +320,13 @@ if(!option_process_only)
        PruneShortSegments(Nodes,Segments,Ways,option_prune_short);
 
     FinishPruning(Nodes,Segments,Ways);
+
+    /* Remove the pruned nodes and segments and update the indexes */
+
+    SortSegmentList(Segments,1);
+    RemovePrunedNodes(Nodes,Segments);
+    IndexSegments(Segments,Nodes);
+    RemovePrunedTurnRelations(Relations,Nodes);
    }
 
  /* Repeated iteration on Super-Nodes and Super-Segments */

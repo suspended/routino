@@ -121,61 +121,8 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
 void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
- index_t i,pruned=0;
- int fd;
-
-
- /* Delete the pruned segments */
-
  free(segmentsx->next1);
  segmentsx->next1=NULL;
-
- SortSegmentList(segmentsx,1);
-
- IndexSegments(segmentsx,nodesx);
-
-
- /* Delete the pruned nodes */
-
- printf_first("Marking Pruned Nodes: Nodes=0 Pruned=0");
-
- /* Re-open the file read-only and a new file writeable */
-
- nodesx->fd=ReOpenFile(nodesx->filename);
-
- DeleteFile(nodesx->filename);
-
- fd=OpenFileNew(nodesx->filename);
-
- /* Modify the on-disk image */
-
- for(i=0;i<nodesx->number;i++)
-   {
-    NodeX nodex;
-
-    ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
-
-    if(segmentsx->firstnode[i]==NO_SEGMENT)
-      {
-       pruned++;
-       nodex.latitude=NO_LATLONG;
-       nodex.longitude=NO_LATLONG;
-      }
-
-    WriteFile(fd,&nodex,sizeof(NodeX));
-
-    if(!((i+1)%10000))
-       printf_middle("Marking Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,i+1,pruned);
-   }
-
- /* Close the files */
-
- nodesx->fd=CloseFile(nodesx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Marked Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,nodesx->number,pruned);
 }
 
 

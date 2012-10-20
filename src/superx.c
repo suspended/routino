@@ -97,9 +97,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
        int issuper=0;
        NodeX *nodex=LookupNodeX(nodesx,i,1);
 
-       if(IsPrunedNodeX(nodex))
-          issuper=0;
-       else if(nodex->flags&(NODE_TURNRSTRCT|NODE_TURNRSTRCT2))
+       if(nodex->flags&(NODE_TURNRSTRCT|NODE_TURNRSTRCT2))
           issuper=1;
        else
          {
