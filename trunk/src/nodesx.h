@@ -70,6 +70,8 @@ struct _NodesX
 
  node_t   *idata;               /*+ The extended node IDs (sorted by ID). +*/
 
+ index_t  *pdata;               /*+ The node indexes after pruning. +*/
+
  index_t  *gdata;               /*+ The final node indexes (sorted geographically). +*/
 
  BitMask  *super;               /*+ A bit-mask marker for super nodes (same order as sorted nodes). +*/
@@ -99,14 +101,12 @@ void SortNodeListGeographically(NodesX *nodesx);
 
 void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
+void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx);
+
 void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
 
 /* Macros and inline functions */
-
-/*+ Return true if this is a pruned node. +*/
-#define IsPrunedNodeX(xxx)   ((xxx)->latitude==NO_LATLONG)
-
 
 #if !SLIM
 

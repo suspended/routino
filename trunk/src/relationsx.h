@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2011 Andrew M. Bishop
+ This file Copyright 2010-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -97,6 +97,8 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx);
 
 void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx);
 void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
+
+void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx);
 
 void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx);
 
