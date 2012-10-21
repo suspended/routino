@@ -57,8 +57,7 @@ struct _Way
 /*+ A structure containing the header from the file. +*/
 typedef struct _WaysFile
 {
- index_t      number;           /*+ The number of ways stored. +*/
- index_t      onumber;          /*+ The number of ways originally. +*/
+ index_t      number;           /*+ The number of ways. +*/
 
  highways_t   highways;         /*+ The types of highways that were seen when parsing. +*/
  transports_t allow;            /*+ The types of traffic that were seen when parsing. +*/
