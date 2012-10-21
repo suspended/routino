@@ -89,7 +89,7 @@ struct _NodesX
 NodesX *NewNodeList(int append);
 void FreeNodeList(NodesX *nodesx,int keep);
 
-void SaveNodeList(NodesX *nodesx,const char *filename);
+void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx);
 
 index_t IndexNodeX(NodesX *nodesx,node_t id);
 

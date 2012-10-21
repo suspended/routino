@@ -75,12 +75,11 @@ SortSegmentList               :      :   .   .   . | . | :   .   .   .   . U :  
 IndexSegments                 :  S   :   .   .   . | . | : R .   .   .   . U :   .   .   :   :
                               :......:...................:...................:...........:...:
 SortNodeListGeographically    :      :   . C .   . | . U :   .   .   .   . | :   .   .   :   :
-SortSegmentListGeographically :      :   . U .   . | . | :   .   .   .   . U :   .   .   :   :
-IndexSegments                 :  S   :   . | .   . | . | : R .   .   .   . U :   .   .   :   :
-UpdateNodes                   :      :   . U .   . D . M : U .   .   .   . | :   .   .   :   :
+SortSegmentListGeographically :      :   . U .   . D . | :   .   .   .   . U :   .   .   :   :
+IndexSegments                 :  S   :   . | .   .   . | : R .   .   .   . U :   .   .   :   :
 SortTurnRelationListGeogra... : n    :   . U .   .   . | : U .   .   .   . U :   .   .   :   :
                               :......:...................:...................:...........:...:
-SaveNodeList                  :      :   .   .   .   . U :   .   .   .   . | :   .   .   :   :
+SaveNodeList                  :      :   . U .   .   . U : U .   .   .   . | :   .   .   :   :
 SaveSegmentList               :      :   .   .   .   .   :   .   .   .   . U :   .   .   :   :
 SaveWayList                   :      :   .   .   .   .   :   .   .   .   .   :   .   .   :   :
 SaveRelationList              :      :   .   .   .   .   :   .   .   .   .   :   .   .   :   :
