@@ -93,6 +93,8 @@ void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,dist
 
 void SortSegmentList(SegmentsX *segmentsx);
 
+void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx);
+
 void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx);
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
@@ -104,8 +106,6 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 
 void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
-
-void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 
 /* Macros / inline functions */

@@ -46,13 +46,15 @@ extern char *option_tmpdirname;
 
 /* Local variables */
 
-/*+ Temporary file-local variable for use by the sort functions. +*/
+/*+ Temporary file-local variables for use by the sort functions. +*/
 static SegmentsX *sortsegmentsx;
+static NodesX *sortnodesx;
 
 /* Local functions */
 
 static int sort_by_id(SegmentX *a,SegmentX *b);
 static int delete_pruned(SegmentX *segmentx,index_t index);
+static int geographically_index(SegmentX *segmentx,index_t index);
 
 static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
@@ -329,6 +331,79 @@ static int delete_pruned(SegmentX *segmentx,index_t index)
     return(0);
 
  SetBit(sortsegmentsx->usedway,segmentx->way);
+
+ return(1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the segments geographically after updating the node indexes.
+
+  SegmentsX *segmentsx The set of segments to modify.
+
+  NodesX *nodesx The set of nodes to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
+{
+ int fd;
+
+ /* Print the start message */
+
+ printf_first("Sorting Segments Geographically");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename);
+
+ DeleteFile(segmentsx->filename);
+
+ fd=OpenFileNew(segmentsx->filename);
+
+ /* Update the segments with geographically sorted node indexes and sort them */
+
+ sortnodesx=nodesx;
+
+ filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(void*,index_t))geographically_index,
+                                                  (int (*)(const void*,const void*))sort_by_id,
+                                                  NULL);
+ /* Close the files */
+
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Sorted Segments Geographically");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Update the segment indexes.
+
+  int geographically_index Return 1 if the value is to be kept, otherwise 0.
+
+  SegmentX *segmentx The extended segment.
+
+  index_t index The number of sorted segments that have been read from the input file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int geographically_index(SegmentX *segmentx,index_t index)
+{
+ segmentx->node1=sortnodesx->gdata[segmentx->node1];
+ segmentx->node2=sortnodesx->gdata[segmentx->node2];
+
+ if(segmentx->node1>segmentx->node2)
+   {
+    index_t temp;
+
+    temp=segmentx->node1;
+    segmentx->node1=segmentx->node2;
+    segmentx->node2=temp;
+
+    if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
+       segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+   }
 
  return(1);
 }
@@ -855,89 +930,6 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Print the final message */
 
  printf_last("Indexed Segments: Segments=%"Pindex_t,segmentsx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Update the segment indexes after geographical sorting.
-
-  SegmentsX *segmentsx The set of segments to modify.
-
-  NodesX *nodesx The set of nodes to use.
-
-  WaysX *waysx The set of ways to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void UpdateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
-{
- index_t i;
- int fd;
-
- /* Print the start message */
-
- printf_first("Updating Segments: Segments=0");
-
- /* Map into memory / open the files */
-
-#if !SLIM
- waysx->data=MapFile(waysx->filename);
-#else
- waysx->fd=ReOpenFile(waysx->filename);
-#endif
-
- /* Re-open the file read-only and a new file writeable */
-
- segmentsx->fd=ReOpenFile(segmentsx->filename);
-
- DeleteFile(segmentsx->filename);
-
- fd=OpenFileNew(segmentsx->filename);
-
- /* Modify the on-disk image */
-
- for(i=0;i<segmentsx->number;i++)
-   {
-    SegmentX segmentx;
-
-    ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
-
-    segmentx.node1=nodesx->gdata[segmentx.node1];
-    segmentx.node2=nodesx->gdata[segmentx.node2];
-
-    if(segmentx.node1>segmentx.node2)
-      {
-       index_t temp;
-
-       temp=segmentx.node1;
-       segmentx.node1=segmentx.node2;
-       segmentx.node2=temp;
-
-       if(segmentx.distance&(ONEWAY_2TO1|ONEWAY_1TO2))
-          segmentx.distance^=ONEWAY_2TO1|ONEWAY_1TO2;
-      }
-
-    WriteFile(fd,&segmentx,sizeof(SegmentX));
-
-    if(!((i+1)%10000))
-       printf_middle("Updating Segments: Segments=%"Pindex_t,i+1);
-   }
-
- /* Close the files */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
-
- /* Unmap from memory / close the files */
-
-#if !SLIM
- waysx->data=UnmapFile(waysx->filename);
-#else
- waysx->fd=CloseFile(waysx->fd);
-#endif
-
- /* Print the final message */
-
- printf_last("Updated Segments: Segments=%"Pindex_t,segmentsx->number);
 }
 
 
