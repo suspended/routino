@@ -78,8 +78,7 @@ SortNodeListGeographically    :      :   . C .   . | . U :   .   .   .   . | :  
 SortSegmentListGeographically :      :   . U .   . | . | :   .   .   .   . U :   .   .   :   :
 IndexSegments                 :  S   :   . | .   . | . | : R .   .   .   . U :   .   .   :   :
 UpdateNodes                   :      :   . U .   . D . M : U .   .   .   . | :   .   .   :   :
-UpdateTurnRelations           : n    :   . U .   .   . | : U .   .   .   . U :   .   .   :   :
-SortTurnRelationList          :      :   .   .   .   . | :   .   .   .   . | :   .   .   :   :
+SortTurnRelationListGeogra... : n    :   . U .   .   . | : U .   .   .   . U :   .   .   :   :
                               :......:...................:...................:...........:...:
 SaveNodeList                  :      :   .   .   .   . U :   .   .   .   . | :   .   .   :   :
 SaveSegmentList               :      :   .   .   .   .   :   .   .   .   . U :   .   .   :   :

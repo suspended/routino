@@ -442,11 +442,9 @@ if(!option_process_only)
 
  UpdateNodes(Nodes,Segments);
 
- /* Fix the turn relations after sorting nodes geographically */
+ /* Sort the turn relations geographically */
 
- UpdateTurnRelations(Relations,Nodes,Segments);
-
- SortTurnRelationList(Relations);
+ SortTurnRelationListGeographically(Relations,Nodes,Segments);
 
  /* Output the results */
 
