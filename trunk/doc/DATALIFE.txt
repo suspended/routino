@@ -75,8 +75,7 @@ SortSegmentList               :      :   .   .   . | . | :   .   .   .   . U :  
 IndexSegments                 :  S   :   .   .   . | . | : R .   .   .   . U :   .   .   :   :
                               :......:...................:...................:...........:...:
 SortNodeListGeographically    :      :   . C .   . | . U :   .   .   .   . | :   .   .   :   :
-UpdateSegments                :    w :   . U .   . | . | :   .   .   .   . U :   .   .   :   :
-SortSegmentList               :      :   . | .   . | . | :   .   .   .   . U :   .   .   :   :
+SortSegmentListGeographically :      :   . U .   . | . | :   .   .   .   . U :   .   .   :   :
 IndexSegments                 :  S   :   . | .   . | . | : R .   .   .   . U :   .   .   :   :
 UpdateNodes                   :      :   . U .   . D . M : U .   .   .   . | :   .   .   :   :
 UpdateTurnRelations           : n    :   . U .   .   . | : U .   .   .   . U :   .   .   :   :

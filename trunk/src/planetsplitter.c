@@ -428,15 +428,13 @@ if(!option_process_only)
  printf("\nCross-Reference Nodes and Segments\n==================================\n\n");
  fflush(stdout);
 
- /* Sort the nodes geographically and update the segment indexes accordingly */
+ /* Sort the nodes and segments geographically */
 
  SortNodeListGeographically(Nodes);
 
- UpdateSegments(Segments,Nodes,Ways);
+ SortSegmentListGeographically(Segments,Nodes);
 
- /* Sort the segments geographically and re-index them */
-
- SortSegmentList(Segments);
+ /* Re-index the segments */
 
  IndexSegments(Segments,Nodes,Ways);
 
