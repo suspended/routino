@@ -438,10 +438,6 @@ if(!option_process_only)
 
  IndexSegments(Segments,Nodes,Ways);
 
- /* Update the nodes */
-
- UpdateNodes(Nodes,Segments);
-
  /* Sort the turn relations geographically */
 
  SortTurnRelationListGeographically(Relations,Nodes,Segments);
@@ -453,7 +449,7 @@ if(!option_process_only)
 
  /* Write out the nodes */
 
- SaveNodeList(Nodes,FileName(dirname,prefix,"nodes.mem"));
+ SaveNodeList(Nodes,FileName(dirname,prefix,"nodes.mem"),Segments);
 
  FreeNodeList(Nodes,0);
 

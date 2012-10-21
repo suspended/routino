@@ -42,8 +42,9 @@
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
-/*+ A temporary file-local variable for use by the sort functions. +*/
+/*+ Temporary file-local variables for use by the sort functions. +*/
 static NodesX *sortnodesx;
+static latlong_t lat_min,lat_max,lon_min,lon_max;
 
 /* Functions */
 
@@ -274,6 +275,14 @@ static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
 void SortNodeListGeographically(NodesX *nodesx)
 {
  int fd;
+ ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
+
+ /* While we are here we can work out the range of data */
+
+ lat_min=radians_to_latlong( 2);
+ lat_max=radians_to_latlong(-2);
+ lon_min=radians_to_latlong( 4);
+ lon_max=radians_to_latlong(-4);
 
  /* Print the start message */
 
@@ -305,6 +314,24 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  nodesx->fd=CloseFile(nodesx->fd);
  CloseFile(fd);
+
+ /* Free the memory */
+
+ free(nodesx->super);
+ nodesx->super=NULL;
+
+ /* Work out the number of bins */
+
+ lat_min_bin=latlong_to_bin(lat_min);
+ lon_min_bin=latlong_to_bin(lon_min);
+ lat_max_bin=latlong_to_bin(lat_max);
+ lon_max_bin=latlong_to_bin(lon_max);
+
+ nodesx->latzero=lat_min_bin;
+ nodesx->lonzero=lon_min_bin;
+
+ nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
+ nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
 
  /* Print the final message */
 
@@ -375,6 +402,18 @@ static int sort_by_lat_long(NodeX *a,NodeX *b)
 static int index_by_lat_long(NodeX *nodex,index_t index)
 {
  sortnodesx->gdata[nodex->id]=index;
+
+ if(IsBitSet(sortnodesx->super,nodex->id))
+    nodex->flags|=NODE_SUPER;
+
+ if(nodex->latitude<lat_min)
+    lat_min=nodex->latitude;
+ if(nodex->latitude>lat_max)
+    lat_max=nodex->latitude;
+ if(nodex->longitude<lon_min)
+    lon_min=nodex->longitude;
+ if(nodex->longitude>lon_max)
+    lon_max=nodex->longitude;
 
  return(1);
 }
@@ -577,105 +616,16 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Insert the super-node flag and the first segment indexes after geographical sorting.
-
-  NodesX *nodesx The set of nodes to modify.
-
-  SegmentsX *segmentsx The set of segments to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void UpdateNodes(NodesX *nodesx,SegmentsX *segmentsx)
-{
- index_t i;
- int fd;
- ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
- latlong_t lat_min,lat_max,lon_min,lon_max;
-
- /* Print the start message */
-
- printf_first("Updating Nodes: Nodes=0");
-
- /* While we are here we can work out the range of data */
-
- lat_min=radians_to_latlong( 2);
- lat_max=radians_to_latlong(-2);
- lon_min=radians_to_latlong( 4);
- lon_max=radians_to_latlong(-4);
-
- /* Re-open the file read-only and a new file writeable */
-
- nodesx->fd=ReOpenFile(nodesx->filename);
-
- DeleteFile(nodesx->filename);
-
- fd=OpenFileNew(nodesx->filename);
-
- /* Modify the on-disk image */
-
- for(i=0;i<nodesx->number;i++)
-   {
-    NodeX nodex;
-
-    ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
-
-    if(IsBitSet(nodesx->super,nodex.id))
-       nodex.flags|=NODE_SUPER;
-
-    nodex.id=segmentsx->firstnode[nodesx->gdata[nodex.id]];
-
-    WriteFile(fd,&nodex,sizeof(NodeX));
-
-    if(nodex.latitude<lat_min)
-       lat_min=nodex.latitude;
-    if(nodex.latitude>lat_max)
-       lat_max=nodex.latitude;
-    if(nodex.longitude<lon_min)
-       lon_min=nodex.longitude;
-    if(nodex.longitude>lon_max)
-       lon_max=nodex.longitude;
-
-    if(!((i+1)%10000))
-       printf_middle("Updating Nodes: Nodes=%"Pindex_t,i+1);
-   }
-
- /* Close the files */
-
- nodesx->fd=CloseFile(nodesx->fd);
- CloseFile(fd);
-
- /* Free the memory */
-
- free(nodesx->super);
- nodesx->super=NULL;
-
- /* Work out the number of bins */
-
- lat_min_bin=latlong_to_bin(lat_min);
- lon_min_bin=latlong_to_bin(lon_min);
- lat_max_bin=latlong_to_bin(lat_max);
- lon_max_bin=latlong_to_bin(lon_max);
-
- nodesx->latzero=lat_min_bin;
- nodesx->lonzero=lon_min_bin;
-
- nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
- nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
-
- /* Print the final message */
-
- printf_last("Updated Nodes: Nodes=%"Pindex_t,nodesx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Save the final node list database to a file.
 
   NodesX *nodesx The set of nodes to save.
 
   const char *filename The name of the file to save.
+
+  SegmentsX *segmentsx The set of segments to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SaveNodeList(NodesX *nodesx,const char *filename)
+void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
 {
  index_t i;
  int fd;
@@ -719,7 +669,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename)
 
     node.latoffset=latlong_to_off(nodex.latitude);
     node.lonoffset=latlong_to_off(nodex.longitude);
-    node.firstseg=nodex.id;
+    node.firstseg=segmentsx->firstnode[nodesx->gdata[nodex.id]];
     node.allow=nodex.allow;
     node.flags=nodex.flags;
 
