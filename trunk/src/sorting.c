@@ -100,18 +100,27 @@ static void *filesort_vary_heapsort_thread(thread_data *thread);
 
   size_t itemsize The size of each item in the file that needs sorting.
 
-  int (*compare)(const void*, const void*) The comparison function (identical to qsort if the
-                                           data to be sorted is an array of things not pointers).
+  int (*pre_sort_function)(void *,index_t) If non-NULL then this function is called for
+     each item before they have been sorted.  The second parameter is the number of objects
+     previously read from the input file.  If the function returns 1 then the object is kept
+     and it is sorted, otherwise it is ignored.
 
-  int (*keep)(void *,index_t) If non-NULL then this function is called for each item, if it
-                              returns 1 then the object is kept and written to the output file.
+  int (*compare_function)(const void*, const void*) The comparison function.  This is identical
+     to qsort if the data to be sorted is an array of things not pointers.
+
+  int (*post_sort_function)(void *,index_t) If non-NULL then this function is called for
+     each item after they have been sorted.  The second parameter is the number of objects
+     already written to the output file.  If the function returns 1 then the object is written
+     to the output file., otherwise it is ignored.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const void*,const void*),int (*keep)(void*,index_t))
+index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_function)(void*,index_t),
+                                                            int (*compare_function)(const void*,const void*),
+                                                            int (*post_sort_function)(void*,index_t))
 {
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
- index_t count=0,total=0;
+ index_t count_out=0,count_in=0;
  size_t nitems=option_filesort_ramsize/(option_filesort_threads*(itemsize+sizeof(void*)));
  void *data,**datap;
  thread_data *threads;
@@ -134,7 +143,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
     threads[i].filename=(char*)malloc(strlen(option_tmpdirname)+24);
 
     threads[i].itemsize=itemsize;
-    threads[i].compare=compare;
+    threads[i].compare=compare_function;
    }
 
  /* Loop around, fill the buffer, sort the data and write a temporary file */
@@ -162,7 +171,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
     /* Read in the data and create pointers */
 
-    for(i=0;i<nitems;i++)
+    for(i=0;i<nitems;)
       {
        threads[thread].datap[i]=threads[thread].data+i*itemsize;
 
@@ -172,14 +181,18 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
           break;
          }
 
-       total++;
+       if(!pre_sort_function || pre_sort_function(threads[thread].datap[i],count_in))
+         {
+          i++;
+          count_in++;
+         }
       }
 
     threads[thread].n=i;
 
     /* Shortcut if there is no previous data and no more data (i.e. no data at all) */
 
-    if(more==0 && total==0)
+    if(more==0 && count_in==0)
        goto tidy_and_exit;
 
     /* No new data read in this time round */
@@ -270,10 +283,10 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
    {
     for(i=0;i<threads[0].n;i++)
       {
-       if(!keep || keep(threads[0].datap[i],count))
+       if(!post_sort_function || post_sort_function(threads[0].datap[i],count_out))
          {
           WriteFile(fd_out,threads[0].datap[i],itemsize);
-          count++;
+          count_out++;
          }
       }
 
@@ -331,7 +344,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
        newindex=index/2;
 
-       if(compare(datap[heap[index]],datap[heap[newindex]])>=0)
+       if(compare_function(datap[heap[index]],datap[heap[newindex]])>=0)
           break;
 
        temp=heap[index];
@@ -350,10 +363,10 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
    {
     int index=1;
 
-    if(!keep || keep(datap[heap[index]],count))
+    if(!post_sort_function || post_sort_function(datap[heap[index]],count_out))
       {
        WriteFile(fd_out,datap[heap[index]],itemsize);
-       count++;
+       count_out++;
       }
 
     if(ReadFile(fds[heap[index]],datap[heap[index]],itemsize))
@@ -371,10 +384,10 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
        newindex=2*index;
 
-       if(compare(datap[heap[newindex]],datap[heap[newindex+1]])>=0)
+       if(compare_function(datap[heap[newindex]],datap[heap[newindex+1]])>=0)
           newindex=newindex+1;
 
-       if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
+       if(compare_function(datap[heap[index]],datap[heap[newindex]])<=0)
           break;
 
        temp=heap[newindex];
@@ -391,7 +404,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
        newindex=2*index;
 
-       if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
+       if(compare_function(datap[heap[index]],datap[heap[newindex]])<=0)
           ; /* break */
        else
          {
@@ -425,7 +438,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
     free(threads[i].filename);
    }
 
- return(count);
+ return(count_out);
 }
 
 
@@ -445,18 +458,27 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const
 
   int fd_out The file descriptor of the output file (opened for writing and empty).
 
-  int (*compare)(const void*, const void*) The comparison function (identical to qsort if the
-                                           data to be sorted is an array of things not pointers).
+  int (*pre_sort_function)(void *,index_t) If non-NULL then this function is called for
+     each item before they have been sorted.  The second parameter is the number of objects
+     previously read from the input file.  If the function returns 1 then the object is kept
+     and it is sorted, otherwise it is ignored.
 
-  int (*keep)(void *,index_t) If non-NULL then this function is called for each item, if it
-                              returns 1 then the object is kept and written to the output file.
+  int (*compare_function)(const void*, const void*) The comparison function.  This is identical
+     to qsort if the data to be sorted is an array of things not pointers.
+
+  int (*post_sort_function)(void *,index_t) If non-NULL then this function is called for
+     each item after they have been sorted.  The second parameter is the number of objects
+     already written to the output file.  If the function returns 1 then the object is written
+     to the output file., otherwise it is ignored.
   ++++++++++++++++++++++++++++++++++++++*/
 
-index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),int (*keep)(void*,index_t))
+index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_t),
+                                           int (*compare_function)(const void*,const void*),
+                                           int (*post_sort_function)(void*,index_t))
 {
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
- index_t count=0,total=0;
+ index_t count_out=0,count_in=0;
  size_t datasize=option_filesort_ramsize/option_filesort_threads;
  FILESORT_VARINT nextitemsize,largestitemsize=0;
  void *data,**datap;
@@ -479,7 +501,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
     threads[i].filename=(char*)malloc(strlen(option_tmpdirname)+24);
 
-    threads[i].compare=compare;
+    threads[i].compare=compare_function;
    }
 
  /* Loop around, fill the buffer, sort the data and write a temporary file */
@@ -528,15 +550,18 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
        ReadFile(fd_in,threads[thread].data+ramused,itemsize);
 
-       *--threads[thread].datap=threads[thread].data+ramused; /* points to real data */
+       if(!pre_sort_function || pre_sort_function(threads[thread].data+ramused,count_in))
+         {
+          *--threads[thread].datap=threads[thread].data+ramused; /* points to real data */
 
-       ramused+=itemsize;
+          ramused+=itemsize;
 
-       ramused =FILESORT_VARALIGN*((ramused+FILESORT_VARSIZE-1)/FILESORT_VARALIGN);
-       ramused+=FILESORT_VARALIGN-FILESORT_VARSIZE;
+          ramused =FILESORT_VARALIGN*((ramused+FILESORT_VARSIZE-1)/FILESORT_VARALIGN);
+          ramused+=FILESORT_VARALIGN-FILESORT_VARSIZE;
 
-       total++;
-       threads[thread].n++;
+          count_in++;
+          threads[thread].n++;
+         }
 
        if(ReadFile(fd_in,&nextitemsize,FILESORT_VARSIZE))
          {
@@ -636,12 +661,12 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
    {
     for(i=0;i<threads[0].n;i++)
       {
-       if(!keep || keep(threads[0].datap[i],count))
+       if(!post_sort_function || post_sort_function(threads[0].datap[i],count_out))
          {
           FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(threads[0].datap[i]-FILESORT_VARSIZE);
 
           WriteFile(fd_out,threads[0].datap[i]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
-          count++;
+          count_out++;
          }
       }
 
@@ -706,7 +731,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
        newindex=index/2;
 
-       if(compare(datap[heap[index]],datap[heap[newindex]])>=0)
+       if(compare_function(datap[heap[index]],datap[heap[newindex]])>=0)
           break;
 
        temp=heap[index];
@@ -726,12 +751,12 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
     int index=1;
     FILESORT_VARINT itemsize;
 
-    if(!keep || keep(datap[heap[index]],count))
+    if(!post_sort_function || post_sort_function(datap[heap[index]],count_out))
       {
        itemsize=*(FILESORT_VARINT*)(datap[heap[index]]-FILESORT_VARSIZE);
 
        WriteFile(fd_out,datap[heap[index]]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
-       count++;
+       count_out++;
       }
 
     if(ReadFile(fds[heap[index]],&itemsize,FILESORT_VARSIZE))
@@ -755,10 +780,10 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
        newindex=2*index;
 
-       if(compare(datap[heap[newindex]],datap[heap[newindex+1]])>=0)
+       if(compare_function(datap[heap[newindex]],datap[heap[newindex+1]])>=0)
           newindex=newindex+1;
 
-       if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
+       if(compare_function(datap[heap[index]],datap[heap[newindex]])<=0)
           break;
 
        temp=heap[newindex];
@@ -775,7 +800,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
 
        newindex=2*index;
 
-       if(compare(datap[heap[index]],datap[heap[newindex]])<=0)
+       if(compare_function(datap[heap[index]],datap[heap[newindex]])<=0)
           ; /* break */
        else
          {
@@ -808,7 +833,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void
     free(threads[i].filename);
    }
 
- return(count);
+ return(count_out);
 }
 
 
@@ -915,11 +940,11 @@ static void *filesort_vary_heapsort_thread(thread_data *thread)
 
   size_t nitems The number of items of data to sort.
 
-  int(*compare)(const void *, const void *) The comparison function (identical to qsort if the
-                                            data to be sorted was an array of things not pointers).
+  int (*compare_function)(const void*, const void*) The comparison function.  This is identical
+     to qsort if the data to be sorted is an array of things not pointers.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, const void*))
+void filesort_heapsort(void **datap,size_t nitems,int(*compare_function)(const void*, const void*))
 {
  void **datap1=&datap[-1];
  int i;
@@ -939,7 +964,7 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, con
 
        newindex=index/2;
 
-       if(compare(datap1[index],datap1[newindex])<=0) /* reversed compared to filesort_fixed() above */
+       if(compare_function(datap1[index],datap1[newindex])<=0) /* reversed comparison to filesort_fixed() above */
           break;
 
        temp=datap1[index];
@@ -970,10 +995,10 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, con
 
        newindex=2*index;
 
-       if(compare(datap1[newindex],datap1[newindex+1])<=0) /* reversed compared to filesort_fixed() above */
+       if(compare_function(datap1[newindex],datap1[newindex+1])<=0) /* reversed comparison to filesort_fixed() above */
           newindex=newindex+1;
 
-       if(compare(datap1[index],datap1[newindex])>=0) /* reversed compared to filesort_fixed() above */
+       if(compare_function(datap1[index],datap1[newindex])>=0) /* reversed comparison to filesort_fixed() above */
           break;
 
        temp=datap1[newindex];
@@ -990,7 +1015,7 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, con
 
        newindex=2*index;
 
-       if(compare(datap1[index],datap1[newindex])>=0) /* reversed compared to filesort_fixed() above */
+       if(compare_function(datap1[index],datap1[newindex])>=0) /* reversed comparison to filesort_fixed() above */
           ; /* break */
        else
          {

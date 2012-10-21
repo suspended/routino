@@ -199,7 +199,9 @@ void SortNodeList(NodesX *nodesx)
 
  sortnodesx=nodesx;
 
- nodesx->number=filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_and_index_by_id);
+ nodesx->number=filesort_fixed(nodesx->fd,fd,sizeof(NodeX),NULL,
+                                                           (int (*)(const void*,const void*))sort_by_id,
+                                                           (int (*)(void*,index_t))deduplicate_and_index_by_id);
 
  /* Close the files */
 
@@ -243,7 +245,7 @@ static int sort_by_id(NodeX *a,NodeX *b)
 
   NodeX *nodex The extended node.
 
-  index_t index The index of this node in the total that have been kept.
+  index_t index The number of sorted nodes that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
@@ -295,7 +297,9 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  sortnodesx=nodesx;
 
- filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
+ filesort_fixed(nodesx->fd,fd,sizeof(NodeX),NULL,
+                                            (int (*)(const void*,const void*))sort_by_lat_long,
+                                            (int (*)(void*,index_t))index_by_lat_long);
 
  /* Close the files */
 
@@ -365,7 +369,7 @@ static int sort_by_lat_long(NodeX *a,NodeX *b)
 
   NodeX *nodex The extended node.
 
-  index_t index The index of this node in the total that have been kept.
+  index_t index The number of sorted nodes that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int index_by_lat_long(NodeX *nodex,index_t index)

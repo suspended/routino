@@ -286,7 +286,9 @@ void SortRelationList(RelationsX* relationsx)
     trxnumber=relationsx->trnumber;
     relationsx->trnumber=0;
 
-    relationsx->trnumber=filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_by_id);
+    relationsx->trnumber=filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),NULL,
+                                                                                       (int (*)(const void*,const void*))sort_by_id,
+                                                                                       (int (*)(void*,index_t))deduplicate_by_id);
 
     /* Close the files */
 
@@ -331,7 +333,7 @@ static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
 
   TurnRestrictRelX *relationx The extended relation.
 
-  index_t index The index of this relation in the total that have been kept.
+  index_t index The number of sorted relations that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index)
@@ -380,7 +382,9 @@ void SortTurnRelationList(RelationsX* relationsx)
 
  /* Sort the relations */
 
- filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(const void*,const void*))sort_by_via,NULL);
+ filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),NULL,
+                                                               (int (*)(const void*,const void*))sort_by_via,
+                                                               NULL);
 
  /* Close the files */
 

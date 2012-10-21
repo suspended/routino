@@ -198,7 +198,9 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Sort by node indexes */
 
- filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,NULL);
+ filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
+                                                  (int (*)(const void*,const void*))sort_by_id,
+                                                  NULL);
 
  /* Close the files */
 
@@ -226,7 +228,7 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Print the start message */
 
- printf_first("Sorting Segments (Deleting Pruned, Checking Ways)");
+ printf_first("Sorting and Pruning Segments");
 
  /* Close the file (finished appending) */
 
@@ -251,7 +253,9 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  sortsegmentsx=segmentsx;
 
- kept=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))delete_pruned);
+ kept=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
+                                                       (int (*)(const void*,const void*))sort_by_id,
+                                                       (int (*)(void*,index_t))delete_pruned);
 
  /* Close the files */
 
@@ -260,7 +264,7 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Sorted Segments: Segments=%"Pindex_t" Deleted=%"Pindex_t,kept,segmentsx->number-kept);
+ printf_last("Sorted and Pruned Segments: Segments=%"Pindex_t" Deleted=%"Pindex_t,kept,segmentsx->number-kept);
  segmentsx->number=kept;
 }
 
@@ -316,7 +320,7 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
 
   SegmentX *segmentx The extended segment.
 
-  index_t index The index of this segment in the total that have been kept.
+  index_t index The number of sorted segments that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int delete_pruned(SegmentX *segmentx,index_t index)

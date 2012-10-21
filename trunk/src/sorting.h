@@ -35,9 +35,13 @@
 #define FILESORT_VARSIZE  sizeof(FILESORT_VARINT)
 #define FILESORT_VARALIGN sizeof(void*)
 
-index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*compare)(const void*,const void*),int (*keep)(void*,index_t));
+index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_function)(void*,index_t),
+                                                            int (*compare_function)(const void*,const void*),
+                                                            int (*post_sort_function)(void*,index_t));
 
-index_t filesort_vary(int fd_in,int fd_out,int (*compare)(const void*,const void*),int (*keep)(void*,index_t));
+index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_t),
+                                           int (*compare_function)(const void*,const void*),
+                                           int (*post_sort_function)(void*,index_t));
 
 void filesort_heapsort(void **datap,size_t nitems,int(*compare)(const void*, const void*));
 

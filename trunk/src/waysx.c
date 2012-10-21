@@ -204,7 +204,9 @@ void SortWayList(WaysX *waysx)
 
  /* Sort the ways to allow separating the names */
 
- filesort_vary(waysx->fd,fd,(int (*)(const void*,const void*))sort_by_name_and_id,NULL);
+ filesort_vary(waysx->fd,fd,NULL,
+                            (int (*)(const void*,const void*))sort_by_name_and_id,
+                            NULL);
 
  /* Close the files */
 
@@ -303,7 +305,9 @@ void SortWayList(WaysX *waysx)
 
  sortwaysx=waysx;
 
- waysx->number=filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(const void*,const void*))sort_by_id,(int (*)(void*,index_t))deduplicate_and_index_by_id);
+ waysx->number=filesort_fixed(waysx->fd,fd,sizeof(WayX),NULL,
+                                                        (int (*)(const void*,const void*))sort_by_id,
+                                                        (int (*)(void*,index_t))deduplicate_and_index_by_id);
 
  /* Close the files */
 
@@ -352,7 +356,9 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
  sortwaysx=waysx;
  sortsegmentsx=segmentsx;
 
- cnumber=filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(const void*,const void*))sort_by_name_and_prop_and_id,(int (*)(void*,index_t))deduplicate_and_index_by_compact_id);
+ cnumber=filesort_fixed(waysx->fd,fd,sizeof(WayX),NULL,
+                                                  (int (*)(const void*,const void*))sort_by_name_and_prop_and_id,
+                                                  (int (*)(void*,index_t))deduplicate_and_index_by_compact_id);
 
  /* Close the files */
 
@@ -455,7 +461,7 @@ static int sort_by_name_and_prop_and_id(WayX *a,WayX *b)
 
   WayX *wayx The extended way.
 
-  index_t index The index of this way in the total that have been kept.
+  index_t index The number of sorted ways that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
@@ -488,7 +494,7 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
   WayX *wayx The extended way.
 
-  index_t index The index of this way in the total that have been kept.
+  index_t index The number of sorted ways that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index)
