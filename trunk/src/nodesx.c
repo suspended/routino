@@ -115,6 +115,9 @@ void FreeNodeList(NodesX *nodesx,int keep)
  if(nodesx->gdata)
     free(nodesx->gdata);
 
+ if(nodesx->pdata)
+    free(nodesx->pdata);
+
  if(nodesx->super)
     free(nodesx->super);
 
@@ -240,7 +243,7 @@ static int sort_by_id(NodeX *a,NodeX *b)
 
   NodeX *nodex The extended node.
 
-  index_t index The index of this node in the total.
+  index_t index The index of this node in the total that have been kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
@@ -269,11 +272,10 @@ static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
 void SortNodeListGeographically(NodesX *nodesx)
 {
  int fd;
- index_t kept;
 
  /* Print the start message */
 
- printf_first("Sorting Nodes Geographically (Deleting Pruned)");
+ printf_first("Sorting Nodes Geographically");
 
  /* Allocate the memory for the geographical index array */
 
@@ -293,7 +295,7 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  sortnodesx=nodesx;
 
- kept=filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
+ filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(const void*,const void*))sort_by_lat_long,(int (*)(void*,index_t))index_by_lat_long);
 
  /* Close the files */
 
@@ -302,8 +304,7 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  /* Print the final message */
 
- printf_last("Sorted Nodes Geographically: Nodes=%"Pindex_t" Deleted=%"Pindex_t,kept,nodesx->number-kept);
- nodesx->number=kept;
+ printf_last("Sorted Nodes Geographically: Nodes=%"Pindex_t,nodesx->number);
 }
 
 
@@ -364,13 +365,11 @@ static int sort_by_lat_long(NodeX *a,NodeX *b)
 
   NodeX *nodex The extended node.
 
-  index_t index The index of this node in the total.
+  index_t index The index of this node in the total that have been kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int index_by_lat_long(NodeX *nodex,index_t index)
 {
- /* Create the index from the previous sort to the current one */
-
  sortnodesx->gdata[nodex->id]=index;
 
  return(1);
