@@ -248,13 +248,12 @@ int main(int argc,char** argv)
     printf("----\n");
     printf("\n");
 
-    printf("sizeof(Way)      =%9lu Bytes\n",(unsigned long)sizeof(Way));
-    printf("Number(compacted)=%9"Pindex_t"\n",OSMWays->file.number);
-    printf("Number(original) =%9"Pindex_t"\n",OSMWays->file.onumber);
+    printf("sizeof(Way)=%9lu Bytes\n",(unsigned long)sizeof(Way));
+    printf("Number     =%9"Pindex_t"\n",OSMWays->file.number);
     printf("\n");
 
     stat(ways_filename,&buf);
-    printf("Total names =%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)sizeof(Ways)-(unsigned long)OSMWays->file.number*(unsigned long)sizeof(Way));
+    printf("Total names=%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)sizeof(Ways)-(unsigned long)OSMWays->file.number*(unsigned long)sizeof(Way));
     printf("\n");
 
     printf("Included highways  : %s\n",HighwaysNameList(OSMWays->file.highways));
