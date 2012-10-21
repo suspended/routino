@@ -593,6 +593,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
  index_t i;
  int fd;
  int position=0;
+ WayX wayx;
  WaysFile waysfile={0};
  highways_t   highways=0;
  transports_t allow=0;
@@ -602,13 +603,10 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  printf_first("Writing Ways: Ways=0");
 
- /* Map into memory /  open the file */
+ /* Re-open the files */
 
-#if !SLIM
- waysx->data=MapFile(waysx->filename);
-#else
  waysx->fd=ReOpenFile(waysx->filename);
-#endif
+ waysx->nfd=ReOpenFile(waysx->nfilename);
 
  /* Write out the ways data */
 
@@ -618,31 +616,21 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  for(i=0;i<waysx->number;i++)
    {
-    WayX *wayx=LookupWayX(waysx,i,1);
+    ReadFile(waysx->fd,&wayx,sizeof(WayX));
 
-    highways|=HIGHWAYS(wayx->way.type);
-    allow   |=wayx->way.allow;
-    props   |=wayx->way.props;
+    highways|=HIGHWAYS(wayx.way.type);
+    allow   |=wayx.way.allow;
+    props   |=wayx.way.props;
 
-    WriteFile(fd,&wayx->way,sizeof(Way));
+    WriteFile(fd,&wayx.way,sizeof(Way));
 
     if(!((i+1)%1000))
        printf_middle("Writing Ways: Ways=%"Pindex_t,i+1);
    }
 
- /* Unmap from memory / close the file */
-
-#if !SLIM
- waysx->data=UnmapFile(waysx->filename);
-#else
- waysx->fd=CloseFile(waysx->fd);
-#endif
-
  /* Write out the ways names */
 
  SeekFile(fd,sizeof(WaysFile)+(off_t)waysx->number*sizeof(Way));
-
- waysx->nfd=ReOpenFile(waysx->nfilename);
 
  while(position<waysx->nlength)
    {
@@ -653,19 +641,20 @@ void SaveWayList(WaysX *waysx,const char *filename)
        len=waysx->nlength-position;
 
     ReadFile(waysx->nfd,temp,len);
+
     WriteFile(fd,temp,len);
 
     position+=len;
    }
 
- /* Close the file */
+ /* Close the files */
 
+ waysx->fd=CloseFile(waysx->fd);
  waysx->nfd=CloseFile(waysx->nfd);
 
  /* Write out the header structure */
 
  waysfile.number =waysx->number;
- waysfile.onumber=0;
 
  waysfile.highways=highways;
  waysfile.allow   =allow;
