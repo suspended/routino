@@ -38,18 +38,24 @@
 #include "sorting.h"
 
 
+/* Global variables */
+
+/*+ The command line '--tmpdir' option or its default value. +*/
+extern char *option_tmpdirname;
+
 /* Local functions */
 
 static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b);
 static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index);
 
+static int geographically_index(TurnRestrictRelX *relationx,index_t index);
 static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b);
 
+/* Local variables */
 
-/* Variables */
-
-/*+ The command line '--tmpdir' option or its default value. +*/
-extern char *option_tmpdirname;
+/*+ Temporary file-local variables for use by the sort functions. +*/
+static SegmentsX *sortsegmentsx;
+static NodesX *sortnodesx;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -351,92 +357,6 @@ static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index)
     logerror("Relation %"Prelation_t" is duplicated.\n",relationx->id);
 
     return(0);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the list of turn relations.
-
-  RelationsX* relationsx The set of relations to process.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void SortTurnRelationList(RelationsX* relationsx)
-{
- int trfd;
-
- if(relationsx->trnumber==0)
-    return;
-
- /* Print the start message */
-
- printf_first("Sorting Turn Relations");
-
- /* Re-open the file read-only and a new file writeable */
-
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
-
- DeleteFile(relationsx->trfilename);
-
- trfd=OpenFileNew(relationsx->trfilename);
-
- /* Sort the relations */
-
- filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),NULL,
-                                                               (int (*)(const void*,const void*))sort_by_via,
-                                                               NULL);
-
- /* Close the files */
-
- relationsx->trfd=CloseFile(relationsx->trfd);
- CloseFile(trfd);
-
- /* Print the final message */
-
- printf_last("Sorted Turn Relations: Relations=%"Pindex_t,relationsx->trnumber);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the turn restriction relations into via index order (then by from and to segments).
-
-  int sort_by_via Returns the comparison of the via, from and to fields.
-
-  TurnRestrictRelX *a The first extended relation.
-
-  TurnRestrictRelX *b The second extended relation.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
-{
- index_t a_id=a->via;
- index_t b_id=b->via;
-
- if(a_id<b_id)
-    return(-1);
- else if(a_id>b_id)
-    return(1);
- else
-   {
-    index_t a_id=a->from;
-    index_t b_id=b->from;
-
-    if(a_id<b_id)
-       return(-1);
-    else if(a_id>b_id)
-       return(1);
-    else
-      {
-       index_t a_id=a->to;
-       index_t b_id=b->to;
-
-       if(a_id<b_id)
-          return(-1);
-       else if(a_id>b_id)
-          return(1);
-       else
-          return(0);
-      }
    }
 }
 
@@ -1062,7 +982,7 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Update the node indexes and replace nodes with segments after geographical sorting.
+  Sort the turn relations geographically after updating the node indexes.
 
   RelationsX *relationsx The set of relations to modify.
 
@@ -1071,14 +991,13 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
   SegmentsX *segmentsx The set of segments to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
+void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
 {
  int trfd;
- index_t i;
 
  /* Print the start message */
 
- printf_first("Updating Turn Relations: Relations=0");
+ printf_first("Sorting Turn Relations Geographically");
 
  /* Map into memory / open the files */
 
@@ -1096,41 +1015,14 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
 
  trfd=OpenFileNew(relationsx->trfilename);
 
- /* Process all of the relations */
+ /* Update the segments with geographically sorted node indexes and sort them */
 
- for(i=0;i<relationsx->trnumber;i++)
-   {
-    TurnRestrictRelX relationx;
-    SegmentX *segmentx;
-    index_t from_node,via_node,to_node;
+ sortnodesx=nodesx;
+ sortsegmentsx=segmentsx;
 
-    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
-
-    from_node=nodesx->gdata[relationx.from];
-    via_node =nodesx->gdata[relationx.via];
-    to_node  =nodesx->gdata[relationx.to];
-
-    segmentx=FirstSegmentX(segmentsx,via_node,1);
-
-    do
-      {
-       if(OtherNode(segmentx,via_node)==from_node)
-          relationx.from=IndexSegmentX(segmentsx,segmentx);
-
-       if(OtherNode(segmentx,via_node)==to_node)
-          relationx.to=IndexSegmentX(segmentsx,segmentx);
-
-       segmentx=NextSegmentX(segmentsx,segmentx,via_node);
-      }
-    while(segmentx);
-
-    relationx.via=via_node;
-
-    WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
-
-    if(!((i+1)%1000))
-       printf_middle("Updating Turn Relations: Relations=%"Pindex_t,i+1);
-   }
+ filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(void*,index_t))geographically_index,
+                                                               (int (*)(const void*,const void*))sort_by_via,
+                                                               NULL);
 
  /* Close the files */
 
@@ -1147,7 +1039,90 @@ void UpdateTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmen
 
  /* Print the final message */
 
- printf_last("Updated Turn Relations: Relations=%"Pindex_t,relationsx->trnumber);
+ printf_last("Sorted Turn Relations Geographically");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Update the turn relation indexes.
+
+  int geographically_index Return 1 if the value is to be kept, otherwise 0.
+
+  TurnRestrictRelX *relationx The extended turn relation.
+
+  index_t index The number of sorted turn relations that have been read from the input file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int geographically_index(TurnRestrictRelX *relationx,index_t index)
+{
+ SegmentX *segmentx;
+ index_t from_node,via_node,to_node;
+
+ from_node=sortnodesx->gdata[relationx->from];
+ via_node =sortnodesx->gdata[relationx->via];
+ to_node  =sortnodesx->gdata[relationx->to];
+
+ segmentx=FirstSegmentX(sortsegmentsx,via_node,1);
+
+ do
+   {
+    if(OtherNode(segmentx,via_node)==from_node)
+       relationx->from=IndexSegmentX(sortsegmentsx,segmentx);
+
+    if(OtherNode(segmentx,via_node)==to_node)
+       relationx->to=IndexSegmentX(sortsegmentsx,segmentx);
+
+    segmentx=NextSegmentX(sortsegmentsx,segmentx,via_node);
+   }
+ while(segmentx);
+
+ relationx->via=via_node;
+
+ return(1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the turn restriction relations into via index order (then by from and to segments).
+
+  int sort_by_via Returns the comparison of the via, from and to fields.
+
+  TurnRestrictRelX *a The first extended relation.
+
+  TurnRestrictRelX *b The second extended relation.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
+{
+ index_t a_id=a->via;
+ index_t b_id=b->via;
+
+ if(a_id<b_id)
+    return(-1);
+ else if(a_id>b_id)
+    return(1);
+ else
+   {
+    index_t a_id=a->from;
+    index_t b_id=b->from;
+
+    if(a_id<b_id)
+       return(-1);
+    else if(a_id>b_id)
+       return(1);
+    else
+      {
+       index_t a_id=a->to;
+       index_t b_id=b->to;
+
+       if(a_id<b_id)
+          return(-1);
+       else if(a_id>b_id)
+          return(1);
+       else
+          return(0);
+      }
+   }
 }
 
 
