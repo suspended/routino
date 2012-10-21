@@ -779,12 +779,12 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Allocate the array of indexes */
 
- if(!segmentsx->firstnode)
-   {
-    segmentsx->firstnode=(index_t*)malloc(nodesx->number*sizeof(index_t));
+ if(segmentsx->firstnode)
+    free(segmentsx->firstnode);
 
-    assert(segmentsx->firstnode); /* Check malloc() worked */
-   }
+ segmentsx->firstnode=(index_t*)malloc(nodesx->number*sizeof(index_t));
+
+ assert(segmentsx->firstnode); /* Check malloc() worked */
 
  for(i=0;i<nodesx->number;i++)
     segmentsx->firstnode[i]=NO_SEGMENT;
