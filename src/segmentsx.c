@@ -374,7 +374,7 @@ void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
 
  /* Print the final message */
 
- printf_last("Sorted Segments Geographically");
+ printf_last("Sorted Segments Geographically: Segments=%"Pindex_t,segmentsx->number);
 }
 
 
