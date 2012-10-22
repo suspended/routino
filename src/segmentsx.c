@@ -255,9 +255,9 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  sortsegmentsx=segmentsx;
 
- kept=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
+ kept=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(void*,index_t))delete_pruned,
                                                        (int (*)(const void*,const void*))sort_by_id,
-                                                       (int (*)(void*,index_t))delete_pruned);
+                                                       NULL);
 
  /* Close the files */
 
