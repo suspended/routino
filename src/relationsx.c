@@ -1049,7 +1049,7 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 
   TurnRestrictRelX *relationx The extended turn relation.
 
-  index_t index The number of sorted turn relations that have been read from the input file.
+  index_t index The number of unsorted turn relations that have been read from the input file.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int geographically_index(TurnRestrictRelX *relationx,index_t index)

@@ -120,7 +120,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
 {
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
- index_t count_out=0,count_in=0;
+ index_t count_out=0,count_in=0,total=0;
  size_t nitems=option_filesort_ramsize/(option_filesort_threads*(itemsize+sizeof(void*)));
  void *data,**datap;
  thread_data *threads;
@@ -184,15 +184,17 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
        if(!pre_sort_function || pre_sort_function(threads[thread].datap[i],count_in))
          {
           i++;
-          count_in++;
+          total++;
          }
+
+       count_in++;
       }
 
     threads[thread].n=i;
 
     /* Shortcut if there is no previous data and no more data (i.e. no data at all) */
 
-    if(more==0 && count_in==0)
+    if(more==0 && total==0)
        goto tidy_and_exit;
 
     /* No new data read in this time round */
@@ -478,7 +480,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 {
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
- index_t count_out=0,count_in=0;
+ index_t count_out=0,count_in=0,total=0;
  size_t datasize=option_filesort_ramsize/option_filesort_threads;
  FILESORT_VARINT nextitemsize,largestitemsize=0;
  void *data,**datap;
@@ -559,9 +561,11 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
           ramused =FILESORT_VARALIGN*((ramused+FILESORT_VARSIZE-1)/FILESORT_VARALIGN);
           ramused+=FILESORT_VARALIGN-FILESORT_VARSIZE;
 
-          count_in++;
+          total++;
           threads[thread].n++;
          }
+
+       count_in++;
 
        if(ReadFile(fd_in,&nextitemsize,FILESORT_VARSIZE))
          {
