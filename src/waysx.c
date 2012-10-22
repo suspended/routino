@@ -53,6 +53,7 @@ static int sort_by_id(WayX *a,WayX *b);
 static int sort_by_name_and_id(WayX *a,WayX *b);
 static int sort_by_name_and_prop_and_id(WayX *a,WayX *b);
 
+static int delete_pruned(WayX *wayx,index_t index);
 static int deduplicate_and_index_by_id(WayX *wayx,index_t index);
 static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index);
 
@@ -356,7 +357,7 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
  sortwaysx=waysx;
  sortsegmentsx=segmentsx;
 
- cnumber=filesort_fixed(waysx->fd,fd,sizeof(WayX),NULL,
+ cnumber=filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(void*,index_t))delete_pruned,
                                                   (int (*)(const void*,const void*))sort_by_name_and_prop_and_id,
                                                   (int (*)(void*,index_t))deduplicate_and_index_by_compact_id);
 
@@ -488,6 +489,29 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Delete the ways that are no longer being used.
+
+  int deduplicate_and_index_by_id Return 1 if the value is to be kept, otherwise 0.
+
+  WayX *wayx The extended way.
+
+  index_t index The number of unsorted ways that have been read from the input file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int delete_pruned(WayX *wayx,index_t index)
+{
+ if(sortsegmentsx && !IsBitSet(sortsegmentsx->usedway,wayx->id))
+   {
+    sortwaysx->cdata[wayx->id]=NO_WAY;
+
+    return(0);
+   }
+
+ return(1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Create the index of compacted Way identifiers and ignore Ways with duplicated properties.
 
   int deduplicate_and_index_by_compact_id Return 1 if the value is to be kept, otherwise 0.
@@ -500,13 +524,6 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index)
 {
  static Way lastway;
-
- if(sortsegmentsx && !IsBitSet(sortsegmentsx->usedway,wayx->id))
-   {
-    sortwaysx->cdata[wayx->id]=NO_WAY;
-
-    return(0);
-   }
 
  if(index==0 || wayx->way.name!=lastway.name || WaysCompare(&lastway,&wayx->way))
    {
