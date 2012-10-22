@@ -290,7 +290,6 @@ void SortRelationList(RelationsX* relationsx)
     /* Sort the relations */
 
     trxnumber=relationsx->trnumber;
-    relationsx->trnumber=0;
 
     relationsx->trnumber=filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),NULL,
                                                                                        (int (*)(const void*,const void*))sort_by_id,
@@ -1039,7 +1038,7 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 
  /* Print the final message */
 
- printf_last("Sorted Turn Relations Geographically");
+ printf_last("Sorted Turn Relations Geographically: Turn Relations=%"Pindex_t,relationsx->trnumber);
 }
 
 
