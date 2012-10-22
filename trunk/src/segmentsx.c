@@ -322,7 +322,7 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
 
   SegmentX *segmentx The extended segment.
 
-  index_t index The number of sorted segments that have already been written to the output file.
+  index_t index The number of unsorted segments that have been read from the input file.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int delete_pruned(SegmentX *segmentx,index_t index)
@@ -385,7 +385,7 @@ void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
 
   SegmentX *segmentx The extended segment.
 
-  index_t index The number of sorted segments that have been read from the input file.
+  index_t index The number of unsorted segments that have been read from the input file.
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int geographically_index(SegmentX *segmentx,index_t index)
