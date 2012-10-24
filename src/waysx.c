@@ -53,7 +53,7 @@ static int sort_by_id(WayX *a,WayX *b);
 static int sort_by_name_and_id(WayX *a,WayX *b);
 static int sort_by_name_and_prop_and_id(WayX *a,WayX *b);
 
-static int delete_pruned(WayX *wayx,index_t index);
+static int delete_unused(WayX *wayx,index_t index);
 static int deduplicate_and_index_by_id(WayX *wayx,index_t index);
 static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index);
 
@@ -357,7 +357,7 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
  sortwaysx=waysx;
  sortsegmentsx=segmentsx;
 
- cnumber=filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(void*,index_t))delete_pruned,
+ cnumber=filesort_fixed(waysx->fd,fd,sizeof(WayX),(int (*)(void*,index_t))delete_unused,
                                                   (int (*)(const void*,const void*))sort_by_name_and_prop_and_id,
                                                   (int (*)(void*,index_t))deduplicate_and_index_by_compact_id);
 
@@ -475,8 +475,6 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
     sortwaysx->idata[index]=wayx->id;
 
-    wayx->id=index;
-
     return(1);
    }
  else
@@ -491,23 +489,27 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 /*++++++++++++++++++++++++++++++++++++++
   Delete the ways that are no longer being used.
 
-  int deduplicate_and_index_by_id Return 1 if the value is to be kept, otherwise 0.
+  int delete_unused Return 1 if the value is to be kept, otherwise 0.
 
   WayX *wayx The extended way.
 
   index_t index The number of unsorted ways that have been read from the input file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int delete_pruned(WayX *wayx,index_t index)
+static int delete_unused(WayX *wayx,index_t index)
 {
- if(sortsegmentsx && !IsBitSet(sortsegmentsx->usedway,wayx->id))
+ if(sortsegmentsx && !IsBitSet(sortsegmentsx->usedway,index))
    {
-    sortwaysx->cdata[wayx->id]=NO_WAY;
+    sortwaysx->cdata[index]=NO_WAY;
 
     return(0);
    }
+ else
+   {
+    wayx->id=index;
 
- return(1);
+    return(1);
+   }
 }
 
 
