@@ -571,7 +571,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "--prune-none              Disable the prune options below, they are re-enabled\n"
             "                          by adding them to the command line after this option.\n"
-            "--prune-isolated=<len>    Remove small disconnected groups of segments\n"
+            "--prune-isolated=<len>    Remove access from small disconnected segment groups\n"
             "                          (defaults to removing groups under 500m).\n"
             "--prune-short=<len>       Remove short segments (defaults to removing segments\n"
             "                          up to a maximum length of 5m).\n"

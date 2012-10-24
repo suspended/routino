@@ -97,8 +97,10 @@ planetsplitter
           adding them to the command line after this option.
 
    --prune-isolated=<length>
-          Remove small disconnected groups of segments (defaults to
-          removing groups under 500m).
+          Remove the access permissions for a transport type from small
+          disconnected groups of segments and remove the segments if they
+          nd up with no access permission (defaults to removing groups
+          under 500m).
 
    --prune-short=<length>
           Remove short segments (defaults to removing segments up to a
