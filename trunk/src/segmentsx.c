@@ -889,10 +889,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
       }
 
     if(waysx->cdata)
-      {
-       //printf("segment=%ld segment->way=%ld waysx->cdata[segmentx->way]=%ld\n",index,segmentx->way,waysx->cdata[segmentx->way]);
        segmentx->way=waysx->cdata[segmentx->way];
-      }
 
     segmentx->next2=segmentsx->firstnode[segmentx->node2];
 
