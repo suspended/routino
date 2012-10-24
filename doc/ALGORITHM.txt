@@ -208,10 +208,27 @@ Data Pruning
        segments must clearly indicate the route to take.
 
    The prune options all have user-controllable parameters which allow the
-   geographical accuracy to be controlled. In the extreme case this means
-   that although the topology is the same the geographical accuracy can be
-   sacrificed to minimise the number of nodes and segments.
+   geographical accuracy to be controlled. This means that although the
+   topology is the same the geographical accuracy can be sacrificed
+   slightly to minimise the number of nodes and segments.
 
+   The pruning options that are available are:
+     * Removing the access permissions for a transport type from segments
+       if it is not possible to route that transport type from those
+       segments to a significant number of other places. The limit on the
+       pruning is set by the total length of the isolated group of
+       segments. This significantly increases the chance that a route will
+       be found by not putting waypoints in inaccessible places.
+     * Removing short segments, the limit is set by the length of the
+       segment. This removes a number of redundant segments (and
+       associated nodes) but rules are applied to ensure that removing the
+       segments does not alter junction topology or remove node access
+       permissions or changes in way properties.
+     * Removing nodes from almost straight highways, the limit is set by
+       the distance between the remaining segments and the original nodes.
+       This removes a large number of redundant nodes (and therefore
+       segments) but again care is taken not to remove node access
+       permissions or changes in way properties.
 
 Turn Restrictions
 -----------------

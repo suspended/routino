@@ -37,6 +37,11 @@
 #include "logging.h"
 
 
+/* Global variables */
+
+/*+ The command line '--tmpdir' option or its default value. +*/
+extern char *option_tmpdirname;
+
 /* Local functions */
 
 static void prune_segment(SegmentsX *segmentsx,SegmentX *segmentx);
@@ -141,18 +146,16 @@ void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
 void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distance_t minimum)
 {
- index_t i,j;
- index_t nregions=0,npruned=0;
+ transport_t transport;
  BitMask *connected,*region;
  index_t *regionsegments,*othersegments;
  int nallocregionsegments,nallocothersegments;
+ char *newwayfilename;
+ index_t nnewways=0;
+ int fd;
 
  if(nodesx->number==0 || segmentsx->number==0)
     return;
-
- /* Print the start message */
-
- printf_first("Pruning Isolated Regions: Segments=0 Pruned=0");
 
  /* Map into memory / open the files */
 
@@ -166,6 +169,12 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  waysx->fd=ReOpenFile(waysx->filename);
 #endif
 
+ newwayfilename=(char*)malloc(strlen(option_tmpdirname)+36);
+
+ sprintf(newwayfilename,"%s/waysx.%p.new.tmp",option_tmpdirname,(void*)waysx);
+
+ fd=OpenFileNew(newwayfilename);
+
  connected=AllocBitMask(segmentsx->number);
  region   =AllocBitMask(segmentsx->number);
 
@@ -178,129 +187,198 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  assert(regionsegments); /* Check malloc() worked */
  assert(othersegments);  /* Check malloc() worked */
 
- /* Loop through the segments and find the disconnected ones */
+ /* Loop through the transport types */
 
- for(i=0;i<segmentsx->number;i++)
+ printf("waysx->number=%d\n",waysx->number);
+
+ for(transport=Transport_None+1;transport<Transport_Count;transport++)
    {
-    int nregionsegments=0,nothersegments=0;
-    distance_t total=0;
-    SegmentX *segmentx;
+    index_t i,j;
+    index_t nregions=0,npruned=0,nadjusted=0;
+    const char *transport_str=TransportName(transport);
+    transports_t transports=TRANSPORTS(transport);
 
-    segmentx=LookupSegmentX(segmentsx,i,1);
+    /* Print the start message */
 
-    if(IsPrunedSegmentX(segmentx))
-       goto endloop;
+    printf_first("Pruning Isolated Regions (%s): Segments=0 Adjusted=0 Pruned=0",transport_str);
 
-    if(IsBitSet(connected,i))
-       goto endloop;
+    /* Loop through the segments and find the disconnected ones */
 
-    othersegments[nothersegments++]=i;
-    SetBit(region,i);
+    ClearAllBits(connected,segmentsx->number);
+    ClearAllBits(region   ,segmentsx->number);
 
-    do
+    for(i=0;i<segmentsx->number;i++)
       {
-       index_t thissegment,nodes[2];
-       WayX *wayx;
+       int nregionsegments=0,nothersegments=0;
+       distance_t total=0;
+       SegmentX *segmentx;
+       WayX *wayx,tmpwayx;
 
-       thissegment=othersegments[--nothersegments];
+       segmentx=LookupSegmentX(segmentsx,i,1);
 
-       if(nregionsegments==nallocregionsegments)
-          regionsegments=(index_t*)realloc(regionsegments,(nallocregionsegments+=1024)*sizeof(index_t));
+       if(IsPrunedSegmentX(segmentx))
+          goto endloop;
 
-       regionsegments[nregionsegments++]=thissegment;
+       if(IsBitSet(connected,i))
+          goto endloop;
 
-       segmentx=LookupSegmentX(segmentsx,thissegment,1);
+       if(segmentx->way<waysx->number)
+          wayx=LookupWayX(waysx,segmentx->way,1);
+       else
+          SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),(segmentx->way-waysx->number)*sizeof(WayX));
 
-       nodes[0]=segmentx->node1;
-       nodes[1]=segmentx->node2;
-       total+=DISTANCE(segmentx->distance);
+       if(!(wayx->way.allow&transports))
+          goto endloop;
 
-       wayx=LookupWayX(waysx,segmentx->way,1);
+       othersegments[nothersegments++]=i;
+       SetBit(region,i);
 
-       for(j=0;j<2;j++)
+       do
          {
-          NodeX *nodex=LookupNodeX(nodesx,nodes[j],1);
+          index_t thissegment,nodes[2];
 
-          if(!(nodex->allow&wayx->way.allow)) /* some type of traffic must be allowed */
-             continue;
+          thissegment=othersegments[--nothersegments];
 
-          segmentx=FirstSegmentX(segmentsx,nodes[j],1);
+          if(nregionsegments==nallocregionsegments)
+             regionsegments=(index_t*)realloc(regionsegments,(nallocregionsegments+=1024)*sizeof(index_t));
 
-          while(segmentx)
+          regionsegments[nregionsegments++]=thissegment;
+
+          segmentx=LookupSegmentX(segmentsx,thissegment,1);
+
+          nodes[0]=segmentx->node1;
+          nodes[1]=segmentx->node2;
+          total+=DISTANCE(segmentx->distance);
+
+          for(j=0;j<2;j++)
             {
-             index_t segment=IndexSegmentX(segmentsx,segmentx);
+             NodeX *nodex=LookupNodeX(nodesx,nodes[j],1);
 
-             if(segment!=thissegment)
+             if(!(nodex->allow&transports))
+                continue;
+
+             segmentx=FirstSegmentX(segmentsx,nodes[j],1);
+
+             while(segmentx)
                {
-                WayX *way2x=LookupWayX(waysx,segmentx->way,2);
+                index_t segment=IndexSegmentX(segmentsx,segmentx);
 
-                if(wayx->way.allow&way2x->way.allow) /* some type of traffic must be allowed */
+                if(segment!=thissegment)
                   {
-                   /* Already connected - finish */
+                   if(segmentx->way<waysx->number)
+                      wayx=LookupWayX(waysx,segmentx->way,1);
+                   else
+                      SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),(segmentx->way-waysx->number)*sizeof(WayX));
 
-                   if(IsBitSet(connected,segment))
+                   if(wayx->way.allow&transports)
                      {
-                      total=minimum;
-                      goto foundconnection;
-                     }
+                      /* Already connected - finish */
 
-                   /* Not in region - add to list */
+                      if(IsBitSet(connected,segment))
+                        {
+                         total=minimum;
+                         goto foundconnection;
+                        }
 
-                   if(!IsBitSet(region,segment))
-                     {
-                      if(nothersegments==nallocothersegments)
-                         othersegments=(index_t*)realloc(othersegments,(nallocothersegments+=1024)*sizeof(index_t));
+                      /* Not in region - add to list */
 
-                      othersegments[nothersegments++]=segment;
-                      SetBit(region,segment);
+                      if(!IsBitSet(region,segment))
+                        {
+                         if(nothersegments==nallocothersegments)
+                            othersegments=(index_t*)realloc(othersegments,(nallocothersegments+=1024)*sizeof(index_t));
+
+                         othersegments[nothersegments++]=segment;
+                         SetBit(region,segment);
+                        }
                      }
                   }
-               }
 
-             segmentx=NextSegmentX(segmentsx,segmentx,nodes[j]);
+                segmentx=NextSegmentX(segmentsx,segmentx,nodes[j]);
+               }
             }
          }
-      }
-    while(nothersegments>0 && total<minimum);
+       while(nothersegments>0 && total<minimum);
 
-   foundconnection:
+      foundconnection:
 
-    /* Prune the segments or mark them as connected */
+       /* Prune the segments or mark them as connected */
 
-    if(total<minimum)
-      {
-       nregions++;
-
-       for(j=0;j<nregionsegments;j++)
+       if(total<minimum)        /* not connected - delete them */
          {
-          SegmentX *segmentx=LookupSegmentX(segmentsx,regionsegments[j],1);
+          nregions++;
 
-          SetBit(connected,regionsegments[j]);
+          for(j=0;j<nregionsegments;j++)
+            {
+             SegmentX *segmentx;
+             WayX *wayx,tmpwayx;
 
-          prune_segment(segmentsx,segmentx);
+             SetBit(connected,regionsegments[j]); /* not really connected, but don't need to check again */
+             ClearBit(region,regionsegments[j]);
 
-          npruned++;
+             segmentx=LookupSegmentX(segmentsx,regionsegments[j],1);
+
+             if(segmentx->way<waysx->number)
+                wayx=LookupWayX(waysx,segmentx->way,1);
+             else
+                SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),(segmentx->way-waysx->number)*sizeof(WayX));
+
+             if(wayx->way.allow==transports)
+               {
+                prune_segment(segmentsx,segmentx);
+
+                npruned++;
+               }
+             else
+               {
+                if(segmentx->way<waysx->number) /* create a new way */
+                  {
+                   tmpwayx=*wayx;
+
+                   tmpwayx.way.allow&=~transports;
+
+                   SeekWriteFile(fd,&tmpwayx,sizeof(WayX),nnewways*sizeof(WayX));
+
+                   segmentx->way=waysx->number+nnewways;
+
+                   nnewways++;
+
+                   PutBackSegmentX(segmentsx,segmentx);
+                  }
+                else            /* modify the existing one */
+                  {
+                   tmpwayx.way.allow&=~transports;
+
+                   SeekWriteFile(fd,&tmpwayx,sizeof(WayX),(segmentx->way-waysx->number)*sizeof(WayX));
+                  }
+
+                nadjusted++;
+               }
+            }
          }
-      }
-    else
-      {
-       for(j=0;j<nregionsegments;j++)
+       else                     /* connected - mark as part of the main region */
          {
-          SetBit(connected,regionsegments[j]);
-          ClearBit(region,regionsegments[j]);
+          for(j=0;j<nregionsegments;j++)
+            {
+             SetBit(connected,regionsegments[j]);
+             ClearBit(region,regionsegments[j]);
+            }
+
+          for(j=0;j<nothersegments;j++)
+            {
+             SetBit(connected,othersegments[j]);
+             ClearBit(region,othersegments[j]);
+            }
          }
 
-       for(j=0;j<nothersegments;j++)
-         {
-          SetBit(connected,othersegments[j]);
-          ClearBit(region,othersegments[j]);
-         }
+      endloop:
+
+       if(!((i+1)%10000))
+          printf_middle("Pruning Isolated Regions (%s): Segments=%"Pindex_t" Adjusted=%"Pindex_t" Pruned=%"Pindex_t" (%"Pindex_t" Regions)",transport_str,i+1,nadjusted,npruned,nregions);
       }
 
-   endloop:
+    /* Print the final message */
 
-    if(!((i+1)%10000))
-       printf_middle("Pruning Isolated Regions: Segments=%"Pindex_t" Pruned=%"Pindex_t" (%"Pindex_t" Regions)",i+1,npruned,nregions);
+    printf_last("Pruned Isolated Regions (%s): Segments=%"Pindex_t" Adjusted=%"Pindex_t" Pruned=%"Pindex_t" (%"Pindex_t" Regions)",transport_str,segmentsx->number,nadjusted,npruned,nregions);
    }
 
  /* Unmap from memory / close the files */
@@ -321,9 +399,27 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  waysx->fd=CloseFile(waysx->fd);
 #endif
 
- /* Print the final message */
+ /* Append the new ways to the end of the existing ones */
 
- printf_last("Pruned Isolated Regions: Segments=%"Pindex_t" Pruned=%"Pindex_t" (%"Pindex_t" Regions)",segmentsx->number,npruned,nregions);
+ SeekFile(fd,0);
+
+ waysx->fd=OpenFileAppend(waysx->filename);
+
+ for(;nnewways>0;nnewways--)
+   {
+    WayX wayx;
+
+    ReadFile(fd,&wayx,sizeof(WayX));
+    WriteFile(waysx->fd,&wayx,sizeof(WayX));
+
+    waysx->number++;
+   }
+
+ waysx->fd=CloseFile(waysx->fd);
+
+ CloseFile(fd);
+
+ DeleteFile(newwayfilename);
 }
 
 
