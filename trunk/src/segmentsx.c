@@ -309,7 +309,7 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
        else if(a_distance>b_distance)
           return(1);
        else
-          return(0);
+          return(FILESORT_PRESERVE_ORDER(a,b));
       }
    }
 }

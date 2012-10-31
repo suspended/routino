@@ -235,7 +235,7 @@ static int sort_by_id(NodeX *a,NodeX *b)
  else if(a_id>b_id)
     return(1);
  else
-    return(0);
+    return(FILESORT_PRESERVE_ORDER(a,b));
 }
 
 
@@ -383,7 +383,7 @@ static int sort_by_lat_long(NodeX *a,NodeX *b)
              return(1);
          }
 
-       return(0);
+       return(FILESORT_PRESERVE_ORDER(a,b));
       }
    }
 }

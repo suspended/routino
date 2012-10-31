@@ -28,12 +28,22 @@
 #include "types.h"
 
 
-/* Functions in sorting.c */
+/* Constants */
 
 /*+ The type, size and alignment of variable to store the variable length +*/
 #define FILESORT_VARINT   unsigned short
 #define FILESORT_VARSIZE  sizeof(FILESORT_VARINT)
 #define FILESORT_VARALIGN sizeof(void*)
+
+
+/* Macros */
+
+/*+ A macro to use as a last resort in the comparison function to preserve
+    on the output the input order of items that compare equally. +*/
+#define FILESORT_PRESERVE_ORDER(a,b) ( ((a)<(b)) ? -1 : +1)
+
+
+/* Functions in sorting.c */
 
 index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_function)(void*,index_t),
                                                             int (*compare_function)(const void*,const void*),

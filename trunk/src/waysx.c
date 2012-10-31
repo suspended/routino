@@ -396,7 +396,7 @@ static int sort_by_id(WayX *a,WayX *b)
  else if(a_id>b_id)
     return(1);
  else
-    return(0);
+    return(FILESORT_PRESERVE_ORDER(a,b));
 }
 
 

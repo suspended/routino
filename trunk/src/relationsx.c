@@ -327,7 +327,7 @@ static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
  else if(a_id>b_id)
     return(1);
  else
-    return(0);
+    return(FILESORT_PRESERVE_ORDER(a,b));
 }
 
 
@@ -1119,7 +1119,7 @@ static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
        else if(a_id>b_id)
           return(1);
        else
-          return(0);
+          return(FILESORT_PRESERVE_ORDER(a,b));
       }
    }
 }
