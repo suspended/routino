@@ -80,7 +80,7 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  /* Open the file read-only */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
  /* Read the on-disk image */
 
@@ -160,13 +160,13 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->data=MapFile(nodesx->filename);
- segmentsx->data=MapFileWriteable(segmentsx->filename);
- waysx->data=MapFile(waysx->filename);
+ nodesx->data=MapFile(nodesx->filename_tmp);
+ segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
+ waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename);
- segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
- waysx->fd=ReOpenFile(waysx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+ segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 #endif
 
  newwayfilename=(char*)malloc(strlen(option_tmpdirname)+36);
@@ -390,9 +390,9 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  free(othersegments);
 
 #if !SLIM
- nodesx->data=UnmapFile(nodesx->filename);
- segmentsx->data=UnmapFile(segmentsx->filename);
- waysx->data=UnmapFile(waysx->filename);
+ nodesx->data=UnmapFile(nodesx->filename_tmp);
+ segmentsx->data=UnmapFile(segmentsx->filename_tmp);
+ waysx->data=UnmapFile(waysx->filename_tmp);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
@@ -403,7 +403,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
  SeekFile(fd,0);
 
- waysx->fd=OpenFileAppend(waysx->filename);
+ waysx->fd=OpenFileAppend(waysx->filename_tmp);
 
  for(;nnewways>0;nnewways--)
    {
@@ -450,13 +450,13 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->data=MapFileWriteable(nodesx->filename);
- segmentsx->data=MapFileWriteable(segmentsx->filename);
- waysx->data=MapFile(waysx->filename);
+ nodesx->data=MapFileWriteable(nodesx->filename_tmp);
+ segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
+ waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFileWriteable(nodesx->filename);
- segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
- waysx->fd=ReOpenFile(waysx->filename);
+ nodesx->fd=ReOpenFileWriteable(nodesx->filename_tmp);
+ segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 #endif
 
  /* Loop through the segments and find the short ones for possible modification */
@@ -789,9 +789,9 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
  /* Unmap from memory / close the files */
 
 #if !SLIM
- nodesx->data=UnmapFile(nodesx->filename);
- segmentsx->data=UnmapFile(segmentsx->filename);
- waysx->data=UnmapFile(waysx->filename);
+ nodesx->data=UnmapFile(nodesx->filename_tmp);
+ segmentsx->data=UnmapFile(segmentsx->filename_tmp);
+ waysx->data=UnmapFile(waysx->filename_tmp);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
@@ -838,13 +838,13 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->data=MapFile(nodesx->filename);
- segmentsx->data=MapFileWriteable(segmentsx->filename);
- waysx->data=MapFile(waysx->filename);
+ nodesx->data=MapFile(nodesx->filename_tmp);
+ segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
+ waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename);
- segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
- waysx->fd=ReOpenFile(waysx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+ segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 #endif
 
  checked=AllocBitMask(nodesx->number);
@@ -1188,9 +1188,9 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  free(lons);
 
 #if !SLIM
- nodesx->data=UnmapFile(nodesx->filename);
- segmentsx->data=UnmapFile(segmentsx->filename);
- waysx->data=UnmapFile(waysx->filename);
+ nodesx->data=UnmapFile(nodesx->filename_tmp);
+ segmentsx->data=UnmapFile(segmentsx->filename_tmp);
+ waysx->data=UnmapFile(waysx->filename_tmp);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);

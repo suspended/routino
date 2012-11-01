@@ -52,8 +52,10 @@ struct _SegmentX
 /*+ A structure containing a set of segments (memory format). +*/
 struct _SegmentsX
 {
- char      *filename;           /*+ The name of the temporary file. +*/
- int        fd;                 /*+ The file descriptor of the temporary file. +*/
+ char      *filename;           /*+ The name of the intermediate file (for the SegmentsX). +*/
+ char      *filename_tmp;       /*+ The name of the temporary file (for the SegmentsX). +*/
+
+ int        fd;                 /*+ The file descriptor of the open file (for the SegmentsX). +*/
 
  index_t    number;             /*+ The number of extended segments still being considered. +*/
 
@@ -83,6 +85,7 @@ struct _SegmentsX
 
 SegmentsX *NewSegmentList(int append);
 void FreeSegmentList(SegmentsX *segmentsx,int keep);
+void FinishSegmentList(SegmentsX *segmentsx);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 

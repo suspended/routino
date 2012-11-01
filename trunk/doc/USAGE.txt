@@ -25,6 +25,7 @@ planetsplitter
                          [--loggable] [--logtime]
                          [--errorlog[=<name>]]
                          [--parse-only | --process-only]
+                         [--append]
                          [--max-iterations=<number>]
                          [--prune-none]
                          [--prune-isolated=<len>]
@@ -77,15 +78,22 @@ planetsplitter
    --errorlog[=<name>]
           Log OSM parsing and processing errors to 'error.log' or the
           specified file name (the '--dir' and '--prefix' options are
-          applied).
+          applied). If the --append option is used then the existing log
+          file will be appended, otherwise a new one will be created.
 
    --parse-only
-          Parse the input files and store them in a temporary file but
-          don't process the data into a routing database.
+          Parse the input files and store the data in intermediate files
+          but don't process the data into a routing database. This option
+          must be used with the --append option for all except the first
+          file.
 
    --process-only
-          Don't read in any files but process the existing temporary file
-          into the routing database.
+          Don't read in any files but process the existing intermediate
+          files created by using the --parse-only option.
+
+   --append
+          Parse the input file and append the result to the existing
+          intermediate files.
 
    --max-iterations=<number>
           The maximum number of iterations to use when generating
@@ -127,12 +135,26 @@ planetsplitter
    machines). The penalty for this is that the program takes about twice
    as long to run.
 
-   Example usage:
+   Example usage 1:
 
-   ./planetsplitter --dir=data --prefix=gb great_britain.osm
+   planetsplitter --dir=data --prefix=gb great_britain.osm
 
    This will generate the output files 'data/gb-nodes.mem',
-   'data/gb-segments.mem' and 'data/gb-ways.mem'.
+   'data/gb-segments.mem' and 'data/gb-ways.mem'. Multiple filenames can
+   be specified on the command line and they will all be read in, combined
+   and processed together.
+
+   Example usage 2:
+
+   planetsplitter --dir=data --prefix=gb --parse-only          great_britain_part1.osm
+   planetsplitter --dir=data --prefix=gb --parse-only --append great_britain_part2.osm
+   planetsplitter --dir=data --prefix=gb --parse-only --append ...
+   planetsplitter --dir=data --prefix=gb --process-only
+
+   This will generate the same output files as the first example but
+   parsing the input files is performed separately from the data
+   processing. The first file read in must not use the --append option but
+   the later ones must.
 
 
 router
@@ -376,8 +398,8 @@ router
 
    Example usage (motorbike journey, scenic route, not very fast):
 
-   ./router --dir=data --prefix=gb --transport=motorbike --highway-motorway=0 \
-            --highway-trunk=0 --speed-primary=80 --speed-secondary=80 --quickest
+   router --dir=data --prefix=gb --transport=motorbike --highway-motorway=0 \
+          --highway-trunk=0 --speed-primary=80 --speed-secondary=80 --quickest
 
    This will use the files 'data/gb-nodes.mem', 'data/gb-segments.mem' and
    'data/gb-ways.mem' to find the quickest route by motorbike not using

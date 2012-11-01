@@ -61,14 +61,18 @@ struct _RelationsX
 {
  /* Route relations */
 
- char      *rfilename;         /*+ The name of the temporary file (for the RouteRelX). +*/
- int        rfd;               /*+ The file descriptor of the temporary file (for the RouteRelX). +*/
+ char      *rfilename;         /*+ The name of the intermediate file (for the RouteRelX). +*/
+ char      *rfilename_tmp;     /*+ The name of the temporary file (for the RouteRelX). +*/
+
+ int        rfd;               /*+ The file descriptor of the open file (for the RouteRelX). +*/
 
  index_t    rnumber;           /*+ The number of extended route relations. +*/
 
  /* Turn restriction relations */
 
- char      *trfilename;        /*+ The name of the temporary file (for the TurnRestrictRelX). +*/
+ char      *trfilename;        /*+ The name of the intermediate file (for the TurnRestrictRelX). +*/
+ char      *trfilename_tmp;    /*+ The name of the temporary file (for the TurnRestrictRelX). +*/
+
  int        trfd;              /*+ The file descriptor of the temporary file (for the TurnRestrictRelX). +*/
 
  index_t    trnumber;          /*+ The number of extended turn restriction relations. +*/
@@ -79,6 +83,7 @@ struct _RelationsX
 
 RelationsX *NewRelationList(int append);
 void FreeRelationList(RelationsX *relationsx,int keep);
+void FinishRelationList(RelationsX *relationsx);
 
 void AppendRouteRelation(RelationsX* relationsx,relation_t id,
                          transports_t routes,

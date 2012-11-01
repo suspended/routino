@@ -74,12 +74,11 @@ WaysX *NewWayList(int append)
 
  assert(waysx); /* Check calloc() worked */
 
- waysx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
+ waysx->filename    =(char*)malloc(strlen(option_tmpdirname)+32);
+ waysx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
 
- if(append)
-    sprintf(waysx->filename,"%s/waysx.input.tmp",option_tmpdirname);
- else
-    sprintf(waysx->filename,"%s/waysx.%p.tmp",option_tmpdirname,(void*)waysx);
+ sprintf(waysx->filename    ,"%s/waysx.parsed.mem",option_tmpdirname);
+ sprintf(waysx->filename_tmp,"%s/waysx.%p.tmp"    ,option_tmpdirname,(void*)waysx);
 
  if(append)
    {
@@ -104,8 +103,10 @@ WaysX *NewWayList(int append)
  else
     waysx->fd=OpenFileNew(waysx->filename);
 
- waysx->nfilename=(char*)malloc(strlen(option_tmpdirname)+32);
- sprintf(waysx->nfilename,"%s/waynames.%p.tmp",option_tmpdirname,(void*)waysx);
+
+ waysx->nfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
+
+ sprintf(waysx->nfilename_tmp,"%s/waynames.%p.tmp",option_tmpdirname,(void*)waysx);
 
  return(waysx);
 }
@@ -124,7 +125,10 @@ void FreeWayList(WaysX *waysx,int keep)
  if(!keep)
     DeleteFile(waysx->filename);
 
+ DeleteFile(waysx->filename_tmp);
+
  free(waysx->filename);
+ free(waysx->filename_tmp);
 
  if(waysx->idata)
     free(waysx->idata);
@@ -132,9 +136,9 @@ void FreeWayList(WaysX *waysx,int keep)
  if(waysx->cdata)
     free(waysx->cdata);
 
- DeleteFile(waysx->nfilename);
+ DeleteFile(waysx->nfilename_tmp);
 
- free(waysx->nfilename);
+ free(waysx->nfilename_tmp);
 
  free(waysx);
 }
@@ -173,6 +177,24 @@ void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Finish appending ways and change the filename over.
+
+  WaysX *waysx The ways that have been appended.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FinishWayList(WaysX *waysx)
+{
+ /* Close the file (finished appending) */
+
+ waysx->fd=CloseFile(waysx->fd);
+
+ /* Rename the file to the temporary name (used everywhere else) */
+
+ RenameFile(waysx->filename,waysx->filename_tmp);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Sort the list of ways.
 
   WaysX *waysx The set of ways to process.
@@ -191,17 +213,13 @@ void SortWayList(WaysX *waysx)
 
  printf_first("Sorting Ways by Name");
 
- /* Close the file (finished appending) */
-
- waysx->fd=CloseFile(waysx->fd);
-
  /* Re-open the file read-only and a new file writeable */
 
- waysx->fd=ReOpenFile(waysx->filename);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 
- DeleteFile(waysx->filename);
+ DeleteFile(waysx->filename_tmp);
 
- fd=OpenFileNew(waysx->filename);
+ fd=OpenFileNew(waysx->filename_tmp);
 
  /* Sort the ways to allow separating the names */
 
@@ -225,13 +243,13 @@ void SortWayList(WaysX *waysx)
 
  /* Re-open the file read-only and new files writeable */
 
- waysx->fd=ReOpenFile(waysx->filename);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 
- DeleteFile(waysx->filename);
+ DeleteFile(waysx->filename_tmp);
 
- fd=OpenFileNew(waysx->filename);
+ fd=OpenFileNew(waysx->filename_tmp);
 
- waysx->nfd=OpenFileNew(waysx->nfilename);
+ waysx->nfd=OpenFileNew(waysx->nfilename_tmp);
 
  /* Copy from the single file into two files */
 
@@ -287,11 +305,11 @@ void SortWayList(WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- waysx->fd=ReOpenFile(waysx->filename);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 
- DeleteFile(waysx->filename);
+ DeleteFile(waysx->filename_tmp);
 
- fd=OpenFileNew(waysx->filename);
+ fd=OpenFileNew(waysx->filename_tmp);
 
  /* Allocate the array of indexes */
 
@@ -346,11 +364,11 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- waysx->fd=ReOpenFile(waysx->filename);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 
- DeleteFile(waysx->filename);
+ DeleteFile(waysx->filename_tmp);
 
- fd=OpenFileNew(waysx->filename);
+ fd=OpenFileNew(waysx->filename_tmp);
 
  /* Sort the ways to allow compacting according to the properties */
 
@@ -630,8 +648,8 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  /* Re-open the files */
 
- waysx->fd=ReOpenFile(waysx->filename);
- waysx->nfd=ReOpenFile(waysx->nfilename);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
+ waysx->nfd=ReOpenFile(waysx->nfilename_tmp);
 
  /* Write out the ways data */
 

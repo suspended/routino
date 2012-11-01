@@ -77,12 +77,11 @@ RelationsX *NewRelationList(int append)
 
  /* Route Relations */
 
- relationsx->rfilename=(char*)malloc(strlen(option_tmpdirname)+32);
+ relationsx->rfilename    =(char*)malloc(strlen(option_tmpdirname)+32);
+ relationsx->rfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
 
- if(append)
-    sprintf(relationsx->rfilename,"%s/relationsx.route.input.tmp",option_tmpdirname);
- else
-    sprintf(relationsx->rfilename,"%s/relationsx.route.%p.tmp",option_tmpdirname,(void*)relationsx);
+ sprintf(relationsx->rfilename    ,"%s/relationsx.route.parsed.mem",option_tmpdirname);
+ sprintf(relationsx->rfilename_tmp,"%s/relationsx.route.%p.tmp"    ,option_tmpdirname,(void*)relationsx);
 
  if(append)
    {
@@ -110,12 +109,11 @@ RelationsX *NewRelationList(int append)
 
  /* Turn Restriction Relations */
 
- relationsx->trfilename=(char*)malloc(strlen(option_tmpdirname)+32);
+ relationsx->trfilename    =(char*)malloc(strlen(option_tmpdirname)+32);
+ relationsx->trfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
 
- if(append)
-    sprintf(relationsx->trfilename,"%s/relationsx.turn.input.tmp",option_tmpdirname);
- else
-    sprintf(relationsx->trfilename,"%s/relationsx.turn.%p.tmp",option_tmpdirname,(void*)relationsx);
+ sprintf(relationsx->trfilename    ,"%s/relationsx.turn.parsed.mem",option_tmpdirname);
+ sprintf(relationsx->trfilename_tmp,"%s/relationsx.turn.%p.tmp"    ,option_tmpdirname,(void*)relationsx);
 
  if(append)
    {
@@ -149,7 +147,10 @@ void FreeRelationList(RelationsX *relationsx,int keep)
  if(!keep)
     DeleteFile(relationsx->rfilename);
 
+ DeleteFile(relationsx->rfilename_tmp);
+
  free(relationsx->rfilename);
+ free(relationsx->rfilename_tmp);
 
 
  /* Turn Restriction relations */
@@ -157,7 +158,10 @@ void FreeRelationList(RelationsX *relationsx,int keep)
  if(!keep)
     DeleteFile(relationsx->trfilename);
 
+ DeleteFile(relationsx->trfilename_tmp);
+
  free(relationsx->trfilename);
+ free(relationsx->trfilename_tmp);
 
  free(relationsx);
 }
@@ -251,6 +255,26 @@ void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Finish appending relations and change the filename over.
+
+  RelationsX *relationsx The relations that have been appended.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FinishRelationList(RelationsX *relationsx)
+{
+ /* Close the files (finished appending) */
+
+ relationsx->rfd =CloseFile(relationsx->rfd);
+ relationsx->trfd=CloseFile(relationsx->trfd);
+
+ /* Rename the files to the temporary names (used everywhere else) */
+
+ RenameFile(relationsx->rfilename ,relationsx->rfilename_tmp);
+ RenameFile(relationsx->trfilename,relationsx->trfilename_tmp);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Sort the list of relations.
 
   RelationsX* relationsx The set of relations to process.
@@ -258,15 +282,7 @@ void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
 
 void SortRelationList(RelationsX* relationsx)
 {
- /* Close the files (finished appending) */
-
- relationsx->rfd=CloseFile(relationsx->rfd);
-
- relationsx->trfd=CloseFile(relationsx->trfd);
-
-
  /* Route Relations */
-
 
  /* Turn Restriction Relations. */
 
@@ -281,11 +297,11 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Re-open the file read-only and a new file writeable */
 
-    relationsx->trfd=ReOpenFile(relationsx->trfilename);
+    relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
 
-    DeleteFile(relationsx->trfilename);
+    DeleteFile(relationsx->trfilename_tmp);
 
-    trfd=OpenFileNew(relationsx->trfilename);
+    trfd=OpenFileNew(relationsx->trfilename_tmp);
 
     /* Sort the relations */
 
@@ -379,14 +395,14 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  /* Map into memory / open the files */
 
 #if !SLIM
- waysx->data=MapFileWriteable(waysx->filename);
+ waysx->data=MapFileWriteable(waysx->filename_tmp);
 #else
- waysx->fd=ReOpenFileWriteable(waysx->filename);
+ waysx->fd=ReOpenFileWriteable(waysx->filename_tmp);
 #endif
 
  /* Re-open the file read-only */
 
- relationsx->rfd=ReOpenFile(relationsx->rfilename);
+ relationsx->rfd=ReOpenFile(relationsx->rfilename_tmp);
 
  /* Read through the file. */
 
@@ -543,7 +559,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- waysx->data=UnmapFile(waysx->filename);
+ waysx->data=UnmapFile(waysx->filename_tmp);
 #else
  waysx->fd=CloseFile(waysx->fd);
 #endif
@@ -571,11 +587,11 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
+ relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
 
- DeleteFile(relationsx->trfilename);
+ DeleteFile(relationsx->trfilename_tmp);
 
- trfd=OpenFileNew(relationsx->trfilename);
+ trfd=OpenFileNew(relationsx->trfilename_tmp);
 
  /* Process all of the relations */
 
@@ -654,22 +670,22 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->data=MapFileWriteable(nodesx->filename);
- segmentsx->data=MapFile(segmentsx->filename);
- waysx->data=MapFile(waysx->filename);
+ nodesx->data=MapFileWriteable(nodesx->filename_tmp);
+ segmentsx->data=MapFile(segmentsx->filename_tmp);
+ waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFileWriteable(nodesx->filename);
- segmentsx->fd=ReOpenFile(segmentsx->filename);
- waysx->fd=ReOpenFile(waysx->filename);
+ nodesx->fd=ReOpenFileWriteable(nodesx->filename_tmp);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 #endif
 
  /* Re-open the file read-only and a new file writeable */
 
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
+ relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
 
- DeleteFile(relationsx->trfilename);
+ DeleteFile(relationsx->trfilename_tmp);
 
- trfd=OpenFileNew(relationsx->trfilename);
+ trfd=OpenFileNew(relationsx->trfilename_tmp);
 
  /* Process all of the relations */
 
@@ -901,9 +917,9 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  /* Unmap from memory / close the files */
 
 #if !SLIM
- nodesx->data=UnmapFile(nodesx->filename);
- segmentsx->data=UnmapFile(segmentsx->filename);
- waysx->data=UnmapFile(waysx->filename);
+ nodesx->data=UnmapFile(nodesx->filename_tmp);
+ segmentsx->data=UnmapFile(segmentsx->filename_tmp);
+ waysx->data=UnmapFile(waysx->filename_tmp);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
@@ -938,11 +954,11 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
+ relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
 
- DeleteFile(relationsx->trfilename);
+ DeleteFile(relationsx->trfilename_tmp);
 
- trfd=OpenFileNew(relationsx->trfilename);
+ trfd=OpenFileNew(relationsx->trfilename_tmp);
 
  /* Process all of the relations */
 
@@ -1001,18 +1017,18 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
  /* Map into memory / open the files */
 
 #if !SLIM
- segmentsx->data=MapFile(segmentsx->filename);
+ segmentsx->data=MapFile(segmentsx->filename_tmp);
 #else
- segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 #endif
 
  /* Re-open the file read-only and a new file writeable */
 
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
+ relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
 
- DeleteFile(relationsx->trfilename);
+ DeleteFile(relationsx->trfilename_tmp);
 
- trfd=OpenFileNew(relationsx->trfilename);
+ trfd=OpenFileNew(relationsx->trfilename_tmp);
 
  /* Update the segments with geographically sorted node indexes and sort them */
 
@@ -1031,7 +1047,7 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
  /* Unmap from memory / close the files */
 
 #if !SLIM
- segmentsx->data=UnmapFile(segmentsx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename_tmp);
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
 #endif
@@ -1145,7 +1161,7 @@ void SaveRelationList(RelationsX* relationsx,const char *filename)
 
  /* Re-open the file read-only */
 
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
+ relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
 
  /* Write out the relations data */
 

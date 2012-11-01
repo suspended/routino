@@ -75,7 +75,7 @@ int main(int argc,char** argv)
  int         iteration=0,quit=0;
  int         max_iterations=5;
  char       *dirname=NULL,*prefix=NULL,*tagging=NULL,*errorlog=NULL;
- int         option_parse_only=0,option_process_only=0;
+ int         option_parse_only=0,option_process_only=0,option_append=0;
  int         option_filenames=0;
  int         option_prune_isolated=500,option_prune_short=5,option_prune_straight=3;
  int         arg;
@@ -104,6 +104,8 @@ int main(int argc,char** argv)
        option_parse_only=1;
     else if(!strcmp(argv[arg],"--process-only"))
        option_process_only=1;
+    else if(!strcmp(argv[arg],"--append"))
+       option_append=1;
     else if(!strcmp(argv[arg],"--loggable"))
        option_loggable=1;
     else if(!strcmp(argv[arg],"--logtime"))
@@ -139,6 +141,9 @@ int main(int argc,char** argv)
 
  if(option_parse_only && option_process_only)
     print_usage(0,NULL,"Cannot use '--parse-only' and '--process-only' at the same time.");
+
+ if(option_append && option_process_only)
+    print_usage(0,NULL,"Cannot use '--append' and '--process-only' at the same time.");
 
  if(option_filenames && option_process_only)
     print_usage(0,NULL,"Cannot use '--process-only' and filenames at the same time.");
@@ -195,18 +200,18 @@ int main(int argc,char** argv)
 
  /* Create new node, segment, way and relation variables */
 
- Nodes=NewNodeList(option_parse_only||option_process_only);
+ Nodes=NewNodeList(option_append||option_process_only);
 
- Segments=NewSegmentList(option_parse_only||option_process_only);
+ Segments=NewSegmentList(option_append||option_process_only);
 
- Ways=NewWayList(option_parse_only||option_process_only);
+ Ways=NewWayList(option_append||option_process_only);
 
- Relations=NewRelationList(option_parse_only||option_process_only);
+ Relations=NewRelationList(option_append||option_process_only);
 
  /* Create the error log file */
 
  if(errorlog)
-    open_errorlog(FileName(dirname,prefix,errorlog),option_parse_only||option_process_only);
+    open_errorlog(FileName(dirname,prefix,errorlog),option_append||option_process_only);
 
  /* Parse the file */
 
@@ -259,6 +264,11 @@ if(!option_process_only)
 
     return(0);
    }
+
+ FinishNodeList(Nodes);
+ FinishSegmentList(Segments);
+ FinishWayList(Ways);
+ FinishRelationList(Relations);
 
  /* Process the data */
 
@@ -515,6 +525,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--loggable] [--logtime]\n"
          "                      [--errorlog[=<name>]]\n"
          "                      [--parse-only | --process-only]\n"
+         "                      [--append]\n"
          "                      [--max-iterations=<number>]\n"
          "                      [--prune-none]\n"
          "                      [--prune-isolated=<len>]\n"
@@ -563,8 +574,9 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--errorlog[=<name>]       Log parsing errors to 'error.log' or the given name\n"
             "                          (the '--dir' and '--prefix' options are applied).\n"
             "\n"
-            "--parse-only              Parse the input OSM files and store the results.\n"
+            "--parse-only              Parse the OSM file(s) and store the results.\n"
             "--process-only            Process the stored results from previous option.\n"
+            "--append                  Parse the OSM file(s) and append to existing results.\n"
             "\n"
             "--max-iterations=<number> The number of iterations for finding super-nodes\n"
             "                          (defaults to 5).\n"
