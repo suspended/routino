@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -372,12 +372,30 @@ int CloseFile(int fd)
 
   int DeleteFile Returns 0 if OK.
 
-  char *filename The name of the file to delete.
+  const char *filename The name of the file to delete.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int DeleteFile(char *filename)
+int DeleteFile(const char *filename)
 {
  unlink(filename);
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Rename a file on disk.
+
+  int DeleteFile Returns 0 if OK.
+
+  const char *oldfilename The old name of the file before renaming.
+
+  const char *newfilename The new name of the file after renaming.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int RenameFile(const char *oldfilename,const char *newfilename)
+{
+ rename(oldfilename,newfilename);
 
  return(0);
 }

@@ -60,7 +60,9 @@ static int SeekFile(int fd,off_t position);
 
 int CloseFile(int fd);
 
-int DeleteFile(char *filename);
+int DeleteFile(const char *filename);
+
+int RenameFile(const char *oldfilename,const char *newfilename);
 
 
 /* Inline the frequently called functions */
