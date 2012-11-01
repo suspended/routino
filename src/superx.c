@@ -79,13 +79,13 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->data=MapFile(nodesx->filename);
- segmentsx->data=MapFile(segmentsx->filename);
- waysx->data=MapFile(waysx->filename);
+ nodesx->data=MapFile(nodesx->filename_tmp);
+ segmentsx->data=MapFile(segmentsx->filename_tmp);
+ waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename);
- segmentsx->fd=ReOpenFile(segmentsx->filename);
- waysx->fd=ReOpenFile(waysx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 #endif
 
  /* Find super-nodes */
@@ -177,9 +177,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- nodesx->data=UnmapFile(nodesx->filename);
- segmentsx->data=UnmapFile(segmentsx->filename);
- waysx->data=UnmapFile(waysx->filename);
+ nodesx->data=UnmapFile(nodesx->filename_tmp);
+ segmentsx->data=UnmapFile(segmentsx->filename_tmp);
+ waysx->data=UnmapFile(waysx->filename_tmp);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
@@ -213,7 +213,11 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  supersegmentsx=NewSegmentList(0);
 
  if(segmentsx->number==0 || waysx->number==0)
+   {
+    FinishSegmentList(supersegmentsx);
+
     return(supersegmentsx);
+   }
 
  /* Print the start message */
 
@@ -222,13 +226,13 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Map into memory / open the files */
 
 #if !SLIM
- nodesx->data=MapFile(nodesx->filename);
- segmentsx->data=MapFile(segmentsx->filename);
- waysx->data=MapFile(waysx->filename);
+ nodesx->data=MapFile(nodesx->filename_tmp);
+ segmentsx->data=MapFile(segmentsx->filename_tmp);
+ waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename);
- segmentsx->fd=ReOpenFile(segmentsx->filename);
- waysx->fd=ReOpenFile(waysx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 #endif
 
  /* Create super-segments for each super-node. */
@@ -305,9 +309,9 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- nodesx->data=UnmapFile(nodesx->filename);
- segmentsx->data=UnmapFile(segmentsx->filename);
- waysx->data=UnmapFile(waysx->filename);
+ nodesx->data=UnmapFile(nodesx->filename_tmp);
+ segmentsx->data=UnmapFile(segmentsx->filename_tmp);
+ waysx->data=UnmapFile(waysx->filename_tmp);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
@@ -317,6 +321,8 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Print the final message */
 
  printf_last("Created Super-Segments: Super-Nodes=%"Pindex_t" Super-Segments=%"Pindex_t,sn,ss);
+
+ FinishSegmentList(supersegmentsx);
 
  return(supersegmentsx);
 }
@@ -341,7 +347,11 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
  mergedsegmentsx=NewSegmentList(0);
 
  if(segmentsx->number==0)
+   {
+    FinishSegmentList(mergedsegmentsx);
+
     return(mergedsegmentsx);
+   }
 
  /* Print the start message */
 
@@ -350,13 +360,13 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
  /* Map into memory / open the files */
 
 #if !SLIM
- segmentsx->data=MapFile(segmentsx->filename);
+ segmentsx->data=MapFile(segmentsx->filename_tmp);
  if(supersegmentsx->number>0)
-    supersegmentsx->data=MapFile(supersegmentsx->filename);
+    supersegmentsx->data=MapFile(supersegmentsx->filename_tmp);
 #else
- segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
  if(supersegmentsx->number>0)
-    supersegmentsx->fd=ReOpenFile(supersegmentsx->filename);
+    supersegmentsx->fd=ReOpenFile(supersegmentsx->filename_tmp);
 #endif
 
  /* Loop through and create a new list of combined segments */
@@ -410,9 +420,9 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- segmentsx->data=UnmapFile(segmentsx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename_tmp);
  if(supersegmentsx->number>0)
-    supersegmentsx->data=UnmapFile(supersegmentsx->filename);
+    supersegmentsx->data=UnmapFile(supersegmentsx->filename_tmp);
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
  if(supersegmentsx->number>0)
@@ -422,6 +432,8 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
  /* Print the final message */
 
  printf_last("Merged Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,segmentsx->number,supersegmentsx->number,merged,added);
+
+ FinishSegmentList(mergedsegmentsx);
 
  return(mergedsegmentsx);
 }

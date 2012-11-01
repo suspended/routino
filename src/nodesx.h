@@ -52,8 +52,10 @@ struct _NodeX
 /*+ A structure containing a set of nodes (memory format). +*/
 struct _NodesX
 {
- char     *filename;            /*+ The name of the temporary file. +*/
- int       fd;                  /*+ The file descriptor of the temporary file. +*/
+ char     *filename;            /*+ The name of the intermediate file (for the NodesX). +*/
+ char     *filename_tmp;        /*+ The name of the temporary file (for the NodesX). +*/
+
+ int       fd;                  /*+ The file descriptor of the open file (for the NodesX). +*/
 
  index_t   number;              /*+ The number of extended nodes still being considered. +*/
 
@@ -88,6 +90,7 @@ struct _NodesX
 
 NodesX *NewNodeList(int append);
 void FreeNodeList(NodesX *nodesx,int keep);
+void FinishNodeList(NodesX *nodesx);
 
 void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx);
 

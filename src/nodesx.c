@@ -71,12 +71,11 @@ NodesX *NewNodeList(int append)
 
  assert(nodesx); /* Check calloc() worked */
 
- nodesx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
+ nodesx->filename    =(char*)malloc(strlen(option_tmpdirname)+32);
+ nodesx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
 
- if(append)
-    sprintf(nodesx->filename,"%s/nodesx.input.tmp",option_tmpdirname);
- else
-    sprintf(nodesx->filename,"%s/nodesx.%p.tmp",option_tmpdirname,(void*)nodesx);
+ sprintf(nodesx->filename    ,"%s/nodesx.parsed.mem",option_tmpdirname);
+ sprintf(nodesx->filename_tmp,"%s/nodesx.%p.tmp"    ,option_tmpdirname,(void*)nodesx);
 
  if(append)
    {
@@ -108,7 +107,10 @@ void FreeNodeList(NodesX *nodesx,int keep)
  if(!keep)
     DeleteFile(nodesx->filename);
 
+ DeleteFile(nodesx->filename_tmp);
+
  free(nodesx->filename);
+ free(nodesx->filename_tmp);
 
  if(nodesx->idata)
     free(nodesx->idata);
@@ -161,6 +163,24 @@ void AppendNode(NodesX *nodesx,node_t id,double latitude,double longitude,transp
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Finish appending nodes and change the filename over.
+
+  NodesX *nodesx The nodes that have been appended.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FinishNodeList(NodesX *nodesx)
+{
+ /* Close the file (finished appending) */
+
+ nodesx->fd=CloseFile(nodesx->fd);
+
+ /* Rename the file to the temporary name (used everywhere else) */
+
+ RenameFile(nodesx->filename,nodesx->filename_tmp);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Sort the node list.
 
   NodesX *nodesx The set of nodes to modify.
@@ -175,17 +195,13 @@ void SortNodeList(NodesX *nodesx)
 
  printf_first("Sorting Nodes");
 
- /* Close the file (finished appending) */
-
- nodesx->fd=CloseFile(nodesx->fd);
-
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFile(nodesx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
 
- DeleteFile(nodesx->filename);
+ DeleteFile(nodesx->filename_tmp);
 
- fd=OpenFileNew(nodesx->filename);
+ fd=OpenFileNew(nodesx->filename_tmp);
 
  /* Allocate the array of indexes */
 
@@ -296,11 +312,11 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFile(nodesx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
 
- DeleteFile(nodesx->filename);
+ DeleteFile(nodesx->filename_tmp);
 
- fd=OpenFileNew(nodesx->filename);
+ fd=OpenFileNew(nodesx->filename_tmp);
 
  /* Sort nodes geographically and index them */
 
@@ -498,11 +514,11 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFile(nodesx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
 
- DeleteFile(nodesx->filename);
+ DeleteFile(nodesx->filename_tmp);
 
- fd=OpenFileNew(nodesx->filename);
+ fd=OpenFileNew(nodesx->filename_tmp);
 
  /* Modify the on-disk image */
 
@@ -570,11 +586,11 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFile(nodesx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
 
- DeleteFile(nodesx->filename);
+ DeleteFile(nodesx->filename_tmp);
 
- fd=OpenFileNew(nodesx->filename);
+ fd=OpenFileNew(nodesx->filename_tmp);
 
  /* Modify the on-disk image */
 
@@ -648,7 +664,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
 
  /* Re-open the file */
 
- nodesx->fd=ReOpenFile(nodesx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
 
  /* Write out the nodes data */
 

@@ -48,8 +48,10 @@ struct _WayX
 /*+ A structure containing a set of ways (memory format). +*/
 struct _WaysX
 {
- char    *filename;             /*+ The name of the temporary file (for the WaysX). +*/
- int      fd;                   /*+ The file descriptor of the temporary file (for the WaysX). +*/
+ char    *filename;             /*+ The name of the intermediate file (for the WaysX). +*/
+ char    *filename_tmp;         /*+ The name of the temporary file (for the WaysX). +*/
+
+ int      fd;                   /*+ The file descriptor of the open file (for the WaysX). +*/
 
  index_t  number;               /*+ The number of extended ways still being considered. +*/
 
@@ -68,8 +70,9 @@ struct _WaysX
 
  index_t *cdata;                /*+ The compacted way IDs (same order as sorted ways). +*/
 
- char    *nfilename;            /*+ The name of the temporary file (for the names). +*/
- int      nfd;                  /*+ The file descriptor of the temporary file (for the names). +*/
+ char    *nfilename_tmp;        /*+ The name of the temporary file (for the WaysX names). +*/
+
+ int      nfd;                  /*+ The file descriptor of the temporary file (for the WaysX names). +*/
 
  uint32_t nlength;              /*+ The length of the string of name entries. +*/
 };
@@ -80,6 +83,7 @@ struct _WaysX
 
 WaysX *NewWayList(int append);
 void FreeWayList(WaysX *waysx,int keep);
+void FinishWayList(WaysX *waysx);
 
 void SaveWayList(WaysX *waysx,const char *filename);
 

@@ -75,12 +75,11 @@ SegmentsX *NewSegmentList(int append)
 
  assert(segmentsx); /* Check calloc() worked */
 
- segmentsx->filename=(char*)malloc(strlen(option_tmpdirname)+32);
+ segmentsx->filename    =(char*)malloc(strlen(option_tmpdirname)+32);
+ segmentsx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
 
- if(append)
-    sprintf(segmentsx->filename,"%s/segmentsx.input.tmp",option_tmpdirname);
- else
-    sprintf(segmentsx->filename,"%s/segmentsx.%p.tmp",option_tmpdirname,(void*)segmentsx);
+ sprintf(segmentsx->filename    ,"%s/segmentsx.parsed.mem",option_tmpdirname);
+ sprintf(segmentsx->filename_tmp,"%s/segmentsx.%p.tmp"    ,option_tmpdirname,(void*)segmentsx);
 
  if(append)
    {
@@ -112,7 +111,10 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
  if(!keep)
     DeleteFile(segmentsx->filename);
 
+ DeleteFile(segmentsx->filename_tmp);
+
  free(segmentsx->filename);
+ free(segmentsx->filename_tmp);
 
  if(segmentsx->firstnode)
     free(segmentsx->firstnode);
@@ -172,6 +174,24 @@ void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,dist
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Finish appending segments and change the filename over.
+
+  SegmentsX *segmentsx The segments that have been appended.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FinishSegmentList(SegmentsX *segmentsx)
+{
+ /* Close the file (finished appending) */
+
+ segmentsx->fd=CloseFile(segmentsx->fd);
+
+ /* Rename the file to the temporary name (used everywhere else) */
+
+ RenameFile(segmentsx->filename,segmentsx->filename_tmp);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Sort the segment list.
 
   SegmentsX *segmentsx The set of segments to sort and modify.
@@ -185,18 +205,13 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  printf_first("Sorting Segments");
 
- /* Close the file (finished appending) */
-
- if(segmentsx->fd!=-1)
-    segmentsx->fd=CloseFile(segmentsx->fd);
-
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
- DeleteFile(segmentsx->filename);
+ DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename_tmp);
 
  /* Sort by node indexes */
 
@@ -245,11 +260,11 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
- DeleteFile(segmentsx->filename);
+ DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename_tmp);
 
  /* Sort by node indexes */
 
@@ -354,11 +369,11 @@ void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
- DeleteFile(segmentsx->filename);
+ DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename_tmp);
 
  /* Update the segments with geographically sorted node indexes and sort them */
 
@@ -527,11 +542,11 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
- DeleteFile(segmentsx->filename);
+ DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename_tmp);
 
  /* Modify the on-disk image */
 
@@ -631,9 +646,9 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Map into memory /  open the file */
 
 #if !SLIM
- nodesx->data=MapFile(nodesx->filename);
+ nodesx->data=MapFile(nodesx->filename_tmp);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename);
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
 #endif
 
  /* Allocate the way usage bitmask */
@@ -644,11 +659,11 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
- DeleteFile(segmentsx->filename);
+ DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename_tmp);
 
  /* Modify the on-disk image */
 
@@ -699,7 +714,7 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Unmap from memory / close the file */
 
 #if !SLIM
- nodesx->data=UnmapFile(nodesx->filename);
+ nodesx->data=UnmapFile(nodesx->filename_tmp);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
 #endif
@@ -736,18 +751,18 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Map into memory / open the file */
 
 #if !SLIM
- waysx->data=MapFile(waysx->filename);
+ waysx->data=MapFile(waysx->filename_tmp);
 #else
- waysx->fd=ReOpenFile(waysx->filename);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
 #endif
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
- DeleteFile(segmentsx->filename);
+ DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename);
+ fd=OpenFileNew(segmentsx->filename_tmp);
 
  /* Modify the on-disk image */
 
@@ -824,7 +839,7 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Unmap from memory / close the file */
 
 #if !SLIM
- waysx->data=UnmapFile(waysx->filename);
+ waysx->data=UnmapFile(waysx->filename_tmp);
 #else
  waysx->fd=CloseFile(waysx->fd);
 #endif
@@ -871,9 +886,9 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Map into memory / open the files */
 
 #if !SLIM
- segmentsx->data=MapFileWriteable(segmentsx->filename);
+ segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
 #else
- segmentsx->fd=ReOpenFileWriteable(segmentsx->filename);
+ segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
 #endif
 
  /* Read through the segments in reverse order */
@@ -905,7 +920,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- segmentsx->data=UnmapFile(segmentsx->filename);
+ segmentsx->data=UnmapFile(segmentsx->filename_tmp);
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
 #endif
@@ -951,7 +966,7 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
 
  /* Re-open the file */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
  /* Write out the segments data */
 
