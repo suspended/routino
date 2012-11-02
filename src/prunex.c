@@ -189,8 +189,6 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
  /* Loop through the transport types */
 
- printf("waysx->number=%d\n",waysx->number);
-
  for(transport=Transport_None+1;transport<Transport_Count;transport++)
    {
     index_t i,j;
@@ -673,32 +671,39 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
           segmentx1->distance+=DISTANCE(segmentx2->distance)/2;
           segmentx3->distance+=DISTANCE(segmentx2->distance)-DISTANCE(segmentx2->distance)/2;
 
-          PutBackSegmentX(segmentsx,segmentx1);
-          PutBackSegmentX(segmentsx,segmentx3);
-
-          prune_segment(segmentsx,segmentx2);
-
           if(segmentx1->node1==node1)
             {
              if(segmentx1->node2!=newnode)
                 modify_segment(segmentsx,segmentx1,node1,newnode);
+             else
+                PutBackSegmentX(segmentsx,segmentx1);
             }
           else /* if(segmentx1->node2==node1) */
             {
              if(segmentx1->node1!=newnode)
                 modify_segment(segmentsx,segmentx1,newnode,node1);
+             else
+                PutBackSegmentX(segmentsx,segmentx1);
             }
 
           if(segmentx3->node1==node4)
             {
              if(segmentx3->node2!=newnode)
                 modify_segment(segmentsx,segmentx3,node4,newnode);
+             else
+                PutBackSegmentX(segmentsx,segmentx3);
             }
           else /* if(segmentx3->node2==node4) */
             {
              if(segmentx3->node1!=newnode)
                 modify_segment(segmentsx,segmentx3,newnode,node4);
+             else
+                PutBackSegmentX(segmentsx,segmentx3);
             }
+
+          ReLookupSegmentX(segmentsx,segmentx2);
+
+          prune_segment(segmentsx,segmentx2);
          }
        else                     /* third case in diagram - prune one segment */
          {
@@ -767,14 +772,14 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
 
           segmentx1->distance+=DISTANCE(segmentx2->distance);
 
-          PutBackSegmentX(segmentsx,segmentx1);
-
-          prune_segment(segmentsx,segmentx2);
-
           if(segmentx1->node1==node1)
              modify_segment(segmentsx,segmentx1,node1,node3);
           else /* if(segmentx1->node2==node1) */
              modify_segment(segmentsx,segmentx1,node3,node1);
+
+          ReLookupSegmentX(segmentsx,segmentx2);
+
+          prune_segment(segmentsx,segmentx2);
          }
 
        npruned++;
@@ -1157,8 +1162,6 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                {
                 segmentx->distance+=distance;
 
-                PutBackSegmentX(segmentsx,segmentx);
-
                 if(segmentx->node1==nodes[lower])
                    modify_segment(segmentsx,segmentx,nodes[lower],nodes[current]);
                 else /* if(segmentx->node2==nodes[lower]) */
@@ -1214,6 +1217,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 static void prune_segment(SegmentsX *segmentsx,SegmentX *segmentx)
 {
  unlink_segment_node1_refs(segmentsx,segmentx);
+
  unlink_segment_node2_refs(segmentsx,segmentx);
 
  segmentx->node1=NO_NODE;
@@ -1247,8 +1251,6 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
     if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
        segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
 
-    PutBackSegmentX(segmentsx,segmentx);
-
     temp=newnode1;
     newnode1=newnode2;
     newnode2=temp;
@@ -1266,8 +1268,6 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
 
     segmentsx->next1[thissegment]=segmentsx->firstnode[newnode1];
     segmentsx->firstnode[newnode1]=thissegment;
-
-    PutBackSegmentX(segmentsx,segmentx);
    }
 
  if(newnode2!=segmentx->node2) /* only modify it if the node has changed */
@@ -1276,9 +1276,9 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
 
     segmentx->next2=segmentsx->firstnode[newnode2];
     segmentsx->firstnode[newnode2]=thissegment;
-
-    PutBackSegmentX(segmentsx,segmentx);
    }
+
+ PutBackSegmentX(segmentsx,segmentx);
 }
 
 

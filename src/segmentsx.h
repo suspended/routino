@@ -124,6 +124,8 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 #define IndexSegmentX(segmentsx,segmentx)                (index_t)((segmentx)-&(segmentsx)->data[0])
 
 #define PutBackSegmentX(segmentsx,segmentx)              /* nop */
+
+#define ReLookupSegmentX(segmentsx,segmentx)             /* nop */
   
 #else
 
@@ -132,6 +134,8 @@ static SegmentX *LookupSegmentX(SegmentsX *segmentsx,index_t index,int position)
 static index_t IndexSegmentX(SegmentsX *segmentsx,SegmentX *segmentx);
 
 static void PutBackSegmentX(SegmentsX *segmentsx,SegmentX *segmentx);
+
+static void ReLookupSegmentX(SegmentsX *segmentsx,SegmentX *segmentx);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -187,6 +191,22 @@ static inline void PutBackSegmentX(SegmentsX *segmentsx,SegmentX *segmentx)
  int position1=segmentx-&segmentsx->cached[0];
 
  SeekWriteFile(segmentsx->fd,&segmentsx->cached[position1],sizeof(SegmentX),(off_t)segmentsx->incache[position1]*sizeof(SegmentX));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup an extended segment's data from the disk into file again after the disk was updated.
+
+  SegmentsX *segmentsx The set of segments to use.
+
+  SegmentX *segmentx The extended segment to refresh.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline void ReLookupSegmentX(SegmentsX *segmentsx,SegmentX *segmentx)
+{
+ int position1=segmentx-&segmentsx->cached[0];
+
+ SeekReadFile(segmentsx->fd,&segmentsx->cached[position1],sizeof(SegmentX),(off_t)segmentsx->incache[position1]*sizeof(SegmentX));
 }
 
 #endif /* SLIM */
