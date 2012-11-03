@@ -63,10 +63,12 @@ static NodesX *sortnodesx;
 
   RelationsX *NewRelationList Returns the relation list.
 
-  int append Set to 1 if the file is to be opened for appending (now or later).
+  int append Set to 1 if the file is to be opened for appending.
+
+  int readonly Set to 1 if the file is not to be opened.
   ++++++++++++++++++++++++++++++++++++++*/
 
-RelationsX *NewRelationList(int append)
+RelationsX *NewRelationList(int append,int readonly)
 {
  RelationsX *relationsx;
 
@@ -83,28 +85,35 @@ RelationsX *NewRelationList(int append)
  sprintf(relationsx->rfilename    ,"%s/relationsx.route.parsed.mem",option_tmpdirname);
  sprintf(relationsx->rfilename_tmp,"%s/relationsx.route.%p.tmp"    ,option_tmpdirname,(void*)relationsx);
 
- if(append)
-   {
-    off_t size,position=0;
-
-    relationsx->rfd=OpenFileAppend(relationsx->rfilename);
-
-    size=SizeFile(relationsx->rfilename);
-
-    while(position<size)
+ if(append || readonly)
+    if(ExistsFile(relationsx->rfilename))
       {
-       FILESORT_VARINT relationsize;
+       off_t size,position=0;
+       int rfd;
 
-       SeekReadFile(relationsx->rfd,&relationsize,FILESORT_VARSIZE,position);
+       size=SizeFile(relationsx->rfilename);
 
-       relationsx->rnumber++;
-       position+=relationsize+FILESORT_VARSIZE;
+       rfd=ReOpenFile(relationsx->rfilename);
+
+       while(position<size)
+         {
+          FILESORT_VARINT relationsize;
+
+          SeekReadFile(rfd,&relationsize,FILESORT_VARSIZE,position);
+
+          relationsx->rnumber++;
+          position+=relationsize+FILESORT_VARSIZE;
+         }
+
+       CloseFile(rfd);
       }
 
-    SeekFile(relationsx->rfd,size);
-   }
- else
+ if(append)
+    relationsx->rfd=OpenFileAppend(relationsx->rfilename);
+ else if(!readonly)
     relationsx->rfd=OpenFileNew(relationsx->rfilename);
+ else
+    relationsx->rfd=-1;
 
 
  /* Turn Restriction Relations */
@@ -115,18 +124,22 @@ RelationsX *NewRelationList(int append)
  sprintf(relationsx->trfilename    ,"%s/relationsx.turn.parsed.mem",option_tmpdirname);
  sprintf(relationsx->trfilename_tmp,"%s/relationsx.turn.%p.tmp"    ,option_tmpdirname,(void*)relationsx);
 
+ if(append || readonly)
+    if(ExistsFile(relationsx->trfilename))
+      {
+       off_t size;
+
+       size=SizeFile(relationsx->trfilename);
+
+       relationsx->trnumber=size/sizeof(TurnRestrictRelX);
+      }
+
  if(append)
-   {
-    off_t size;
-
     relationsx->trfd=OpenFileAppend(relationsx->trfilename);
-
-    size=SizeFile(relationsx->trfilename);
-
-    relationsx->trnumber=size/sizeof(TurnRestrictRelX);
-   }
- else
+ else if(!readonly)
     relationsx->trfd=OpenFileNew(relationsx->trfilename);
+ else
+    relationsx->trfd=-1;
 
  return(relationsx);
 }
