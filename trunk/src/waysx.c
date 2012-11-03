@@ -63,10 +63,12 @@ static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index);
 
   WaysX *NewWayList Returns the way list.
 
-  int append Set to 1 if the file is to be opened for appending (now or later).
+  int append Set to 1 if the file is to be opened for appending.
+
+  int readonly Set to 1 if the file is not to be opened.
   ++++++++++++++++++++++++++++++++++++++*/
 
-WaysX *NewWayList(int append)
+WaysX *NewWayList(int append,int readonly)
 {
  WaysX *waysx;
 
@@ -80,28 +82,35 @@ WaysX *NewWayList(int append)
  sprintf(waysx->filename    ,"%s/waysx.parsed.mem",option_tmpdirname);
  sprintf(waysx->filename_tmp,"%s/waysx.%p.tmp"    ,option_tmpdirname,(void*)waysx);
 
- if(append)
-   {
-    off_t size,position=0;
-
-    waysx->fd=OpenFileAppend(waysx->filename);
-
-    size=SizeFile(waysx->filename);
-
-    while(position<size)
+ if(append || readonly)
+    if(ExistsFile(waysx->filename))
       {
-       FILESORT_VARINT waysize;
+       off_t size,position=0;
+       int fd;
 
-       SeekReadFile(waysx->fd,&waysize,FILESORT_VARSIZE,position);
+       size=SizeFile(waysx->filename);
 
-       waysx->number++;
-       position+=waysize+FILESORT_VARSIZE;
+       fd=ReOpenFile(waysx->filename);
+
+       while(position<size)
+         {
+          FILESORT_VARINT waysize;
+
+          SeekReadFile(fd,&waysize,FILESORT_VARSIZE,position);
+
+          waysx->number++;
+          position+=waysize+FILESORT_VARSIZE;
+         }
+
+       CloseFile(fd);
       }
 
-    SeekFile(waysx->fd,size);
-   }
- else
+ if(append)
+    waysx->fd=OpenFileAppend(waysx->filename);
+ else if(!readonly)
     waysx->fd=OpenFileNew(waysx->filename);
+ else
+    waysx->fd=-1;
 
 
  waysx->nfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);

@@ -88,7 +88,7 @@ struct _NodesX
 
 /* Functions in nodesx.c */
 
-NodesX *NewNodeList(int append);
+NodesX *NewNodeList(int append,int readonly);
 void FreeNodeList(NodesX *nodesx,int keep);
 void FinishNodeList(NodesX *nodesx);
 

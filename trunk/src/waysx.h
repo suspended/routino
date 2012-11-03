@@ -81,7 +81,7 @@ struct _WaysX
 /* Functions in waysx.c */
 
 
-WaysX *NewWayList(int append);
+WaysX *NewWayList(int append,int readonly);
 void FreeWayList(WaysX *waysx,int keep);
 void FinishWayList(WaysX *waysx);
 

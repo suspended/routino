@@ -60,10 +60,12 @@ static int index_by_lat_long(NodeX *nodex,index_t index);
 
   NodesX *NewNodeList Returns a pointer to the node list.
 
-  int append Set to 1 if the file is to be opened for appending (now or later).
+  int append Set to 1 if the file is to be opened for appending.
+
+  int readonly Set to 1 if the file is not to be opened.
   ++++++++++++++++++++++++++++++++++++++*/
 
-NodesX *NewNodeList(int append)
+NodesX *NewNodeList(int append,int readonly)
 {
  NodesX *nodesx;
 
@@ -77,18 +79,22 @@ NodesX *NewNodeList(int append)
  sprintf(nodesx->filename    ,"%s/nodesx.parsed.mem",option_tmpdirname);
  sprintf(nodesx->filename_tmp,"%s/nodesx.%p.tmp"    ,option_tmpdirname,(void*)nodesx);
 
+ if(append || readonly)
+    if(ExistsFile(nodesx->filename))
+      {
+       off_t size;
+
+       size=SizeFile(nodesx->filename);
+
+       nodesx->number=size/sizeof(NodeX);
+      }
+
  if(append)
-   {
-    off_t size;
-
     nodesx->fd=OpenFileAppend(nodesx->filename);
-
-    size=SizeFile(nodesx->filename);
-
-    nodesx->number=size/sizeof(NodeX);
-   }
- else
+ else if(!readonly)
     nodesx->fd=OpenFileNew(nodesx->filename);
+ else
+    nodesx->fd=-1;
 
  return(nodesx);
 }

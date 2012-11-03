@@ -210,7 +210,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  SegmentsX *supersegmentsx;
  index_t sn=0,ss=0;
 
- supersegmentsx=NewSegmentList(0);
+ supersegmentsx=NewSegmentList(0,0);
 
  if(segmentsx->number==0 || waysx->number==0)
    {
@@ -344,7 +344,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
  index_t merged=0,added=0;
  SegmentsX *mergedsegmentsx;
 
- mergedsegmentsx=NewSegmentList(0);
+ mergedsegmentsx=NewSegmentList(0,0);
 
  if(segmentsx->number==0)
    {

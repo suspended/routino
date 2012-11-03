@@ -64,10 +64,12 @@ static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
   SegmentsX *NewSegmentList Returns the segment list.
 
-  int append Set to 1 if the file is to be opened for appending (now or later).
+  int append Set to 1 if the file is to be opened for appending.
+
+  int readonly Set to 1 if the file is not to be opened.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsX *NewSegmentList(int append)
+SegmentsX *NewSegmentList(int append,int readonly)
 {
  SegmentsX *segmentsx;
 
@@ -81,18 +83,22 @@ SegmentsX *NewSegmentList(int append)
  sprintf(segmentsx->filename    ,"%s/segmentsx.parsed.mem",option_tmpdirname);
  sprintf(segmentsx->filename_tmp,"%s/segmentsx.%p.tmp"    ,option_tmpdirname,(void*)segmentsx);
 
+ if(append || readonly)
+    if(ExistsFile(segmentsx->filename))
+      {
+       off_t size;
+
+       size=SizeFile(segmentsx->filename);
+
+       segmentsx->number=size/sizeof(SegmentX);
+      }
+
  if(append)
-   {
-    off_t size;
-
     segmentsx->fd=OpenFileAppend(segmentsx->filename);
-
-    size=SizeFile(segmentsx->filename);
-
-    segmentsx->number=size/sizeof(SegmentX);
-   }
- else
+ else if(!readonly)
     segmentsx->fd=OpenFileNew(segmentsx->filename);
+ else
+    segmentsx->fd=-1;
 
  return(segmentsx);
 }

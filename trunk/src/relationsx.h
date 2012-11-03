@@ -81,7 +81,7 @@ struct _RelationsX
 
 /* Functions in relationsx.c */
 
-RelationsX *NewRelationList(int append);
+RelationsX *NewRelationList(int append,int readonly);
 void FreeRelationList(RelationsX *relationsx,int keep);
 void FinishRelationList(RelationsX *relationsx);
 

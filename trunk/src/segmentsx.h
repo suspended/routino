@@ -83,7 +83,7 @@ struct _SegmentsX
 /* Functions in segmentsx.c */
 
 
-SegmentsX *NewSegmentList(int append);
+SegmentsX *NewSegmentList(int append,int readonly);
 void FreeSegmentList(SegmentsX *segmentsx,int keep);
 void FinishSegmentList(SegmentsX *segmentsx);
 
