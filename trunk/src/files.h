@@ -40,7 +40,7 @@ char *FileName(const char *dirname,const char *prefix, const char *name);
 
 void *MapFile(const char *filename);
 void *MapFileWriteable(const char *filename);
-void *UnmapFile(const char *filename);
+void *UnmapFile(const void *address);
 
 int OpenFileNew(const char *filename);
 int OpenFileAppend(const char *filename);

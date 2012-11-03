@@ -170,20 +170,20 @@ void *MapFileWriteable(const char *filename)
 
   void *UnmapFile Returns NULL (for similarity to the MapFile function).
 
-  const char *filename The name of the file when it was opened.
+  const void *address The address of the mapped file in memory.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void *UnmapFile(const char *filename)
+void *UnmapFile(const void *address)
 {
  int i;
 
  for(i=0;i<nmappedfiles;i++)
-    if(!strcmp(mappedfiles[i].filename,filename))
+    if(mappedfiles[i].address==address)
        break;
 
  if(i==nmappedfiles)
    {
-    fprintf(stderr,"The file '%s' was not mapped using MapFile().\n",filename);
+    fprintf(stderr,"The data at address %p was not mapped using MapFile().\n",address);
     exit(EXIT_FAILURE);
    }
 
