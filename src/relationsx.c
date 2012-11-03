@@ -559,7 +559,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- waysx->data=UnmapFile(waysx->filename_tmp);
+ waysx->data=UnmapFile(waysx->data);
 #else
  waysx->fd=CloseFile(waysx->fd);
 #endif
@@ -917,9 +917,9 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  /* Unmap from memory / close the files */
 
 #if !SLIM
- nodesx->data=UnmapFile(nodesx->filename_tmp);
- segmentsx->data=UnmapFile(segmentsx->filename_tmp);
- waysx->data=UnmapFile(waysx->filename_tmp);
+ nodesx->data=UnmapFile(nodesx->data);
+ segmentsx->data=UnmapFile(segmentsx->data);
+ waysx->data=UnmapFile(waysx->data);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
  segmentsx->fd=CloseFile(segmentsx->fd);
@@ -1047,7 +1047,7 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
  /* Unmap from memory / close the files */
 
 #if !SLIM
- segmentsx->data=UnmapFile(segmentsx->filename_tmp);
+ segmentsx->data=UnmapFile(segmentsx->data);
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
 #endif

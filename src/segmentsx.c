@@ -714,7 +714,7 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Unmap from memory / close the file */
 
 #if !SLIM
- nodesx->data=UnmapFile(nodesx->filename_tmp);
+ nodesx->data=UnmapFile(nodesx->data);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
 #endif
@@ -839,7 +839,7 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Unmap from memory / close the file */
 
 #if !SLIM
- waysx->data=UnmapFile(waysx->filename_tmp);
+ waysx->data=UnmapFile(waysx->data);
 #else
  waysx->fd=CloseFile(waysx->fd);
 #endif
@@ -920,7 +920,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- segmentsx->data=UnmapFile(segmentsx->filename_tmp);
+ segmentsx->data=UnmapFile(segmentsx->data);
 #else
  segmentsx->fd=CloseFile(segmentsx->fd);
 #endif
