@@ -150,7 +150,6 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  BitMask *connected,*region;
  index_t *regionsegments,*othersegments;
  int nallocregionsegments,nallocothersegments;
- char *newwayfilename;
  index_t nnewways=0;
  int fd;
 
@@ -169,11 +168,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  waysx->fd=ReOpenFile(waysx->filename_tmp);
 #endif
 
- newwayfilename=(char*)malloc(strlen(option_tmpdirname)+36);
-
- sprintf(newwayfilename,"%s/waysx.%p.new.tmp",option_tmpdirname,(void*)waysx);
-
- fd=OpenFileNew(newwayfilename);
+ fd=ReOpenFileWriteable(waysx->filename_tmp);
 
  connected=AllocBitMask(segmentsx->number);
  region   =AllocBitMask(segmentsx->number);
@@ -223,7 +218,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
        if(segmentx->way<waysx->number)
           wayx=LookupWayX(waysx,segmentx->way,1);
        else
-          SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),(segmentx->way-waysx->number)*sizeof(WayX));
+          SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),segmentx->way*sizeof(WayX));
 
        if(!(wayx->way.allow&transports))
           goto endloop;
@@ -266,7 +261,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
                    if(segmentx->way<waysx->number)
                       wayx=LookupWayX(waysx,segmentx->way,1);
                    else
-                      SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),(segmentx->way-waysx->number)*sizeof(WayX));
+                      SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),segmentx->way*sizeof(WayX));
 
                    if(wayx->way.allow&transports)
                      {
@@ -318,7 +313,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
              if(segmentx->way<waysx->number)
                 wayx=LookupWayX(waysx,segmentx->way,1);
              else
-                SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),(segmentx->way-waysx->number)*sizeof(WayX));
+                SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),segmentx->way*sizeof(WayX));
 
              if(wayx->way.allow==transports)
                {
@@ -334,9 +329,9 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
                    tmpwayx.way.allow&=~transports;
 
-                   SeekWriteFile(fd,&tmpwayx,sizeof(WayX),nnewways*sizeof(WayX));
-
                    segmentx->way=waysx->number+nnewways;
+
+                   SeekWriteFile(fd,&tmpwayx,sizeof(WayX),segmentx->way*sizeof(WayX));
 
                    nnewways++;
 
@@ -346,7 +341,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
                   {
                    tmpwayx.way.allow&=~transports;
 
-                   SeekWriteFile(fd,&tmpwayx,sizeof(WayX),(segmentx->way-waysx->number)*sizeof(WayX));
+                   SeekWriteFile(fd,&tmpwayx,sizeof(WayX),segmentx->way*sizeof(WayX));
                   }
 
                 nadjusted++;
@@ -397,27 +392,9 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  waysx->fd=CloseFile(waysx->fd);
 #endif
 
- /* Append the new ways to the end of the existing ones */
-
- SeekFile(fd,0);
-
- waysx->fd=OpenFileAppend(waysx->filename_tmp);
-
- for(;nnewways>0;nnewways--)
-   {
-    WayX wayx;
-
-    ReadFile(fd,&wayx,sizeof(WayX));
-    WriteFile(waysx->fd,&wayx,sizeof(WayX));
-
-    waysx->number++;
-   }
-
- waysx->fd=CloseFile(waysx->fd);
-
  CloseFile(fd);
 
- DeleteFile(newwayfilename);
+ waysx->number+=nnewways;
 }
 
 
