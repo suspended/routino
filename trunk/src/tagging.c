@@ -721,11 +721,11 @@ static void apply_actions(TaggingRuleList *rules,TaggingRule *rule,int match,Tag
     if(rule->actions[i].action==TAGACTION_LOGERROR)
       {
        if(rules==&NodeRules)
-          logerror("Node %"Pnode_t" has an unrecognised tag value '%s' = '%s' (in tagging rules).\n",id,k,v);
+          logerror("Node %"Pnode_t" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",id,k,v);
        if(rules==&WayRules)
-          logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (in tagging rules).\n",id,k,v);
+          logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",id,k,v);
        if(rules==&RelationRules)
-          logerror("Relation %"Prelation_t" has an unrecognised tag value '%s' = '%s' (in tagging rules).\n",id,k,v);
+          logerror("Relation %"Prelation_t" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",id,k,v);
       }
    }
 }
