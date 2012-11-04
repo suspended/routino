@@ -815,6 +815,20 @@ static void process_way_tags(TagList *tags,way_t id)
  char *name=NULL,*ref=NULL,*refname=NULL;
  int i;
 
+ /* Sanity check */
+
+ if(way_nnodes==0)
+   {
+    logerror("Way %"Pway_t" has no nodes.\n",id);
+    return;
+   }
+
+ if(way_nnodes==1)
+   {
+    logerror("Way %"Pway_t" has only one node.\n",id);
+    return;
+   }
+
  /* Parse the tags - just look for highway */
 
  for(i=0;i<tags->ntags;i++)
@@ -1116,13 +1130,6 @@ static void process_way_tags(TagList *tags,way_t id)
  if(!way.allow)
     return;
 
- if(way_nnodes==0)
-   {
-    logerror("Way %"Pway_t" has no nodes.\n",id);
-
-    return;
-   }
-
  if(oneway)
     way.type|=Way_OneWay;
 
@@ -1176,6 +1183,14 @@ static void process_relation_tags(TagList *tags,relation_t id)
  int relation_turn_restriction=0;
  TurnRestriction restriction=TurnRestrict_None;
  int i;
+
+ /* Sanity check */
+
+ if(relation_nnodes==0 && relation_nways==0 && relation_nrelations==0)
+   {
+    logerror("Relation %"Prelation_t" has no nodes, ways or relations.\n",id);
+    return;
+   }
 
  /* Parse the tags */
 
