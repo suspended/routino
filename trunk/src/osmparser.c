@@ -1408,6 +1408,12 @@ static double parse_length(way_t id,const char *k,const char *v)
     if(sscanf(v,"%d' %d\"%n",&feet,&inches,&en)==2 && en && !v[en])
        return((feet+(double)inches/12.0)*0.254);
 
+    if(sscanf(v,"%d'%d\"%n",&feet,&inches,&en)==2 && en && !v[en])
+       return((feet+(double)inches/12.0)*0.254);
+
+    if(sscanf(v,"%d'-%d\"%n",&feet,&inches,&en)==2 && en && !v[en])
+       return((feet+(double)inches/12.0)*0.254);
+
     if(sscanf(v,"%d - %d%n",&feet,&inches,&en)==2 && en && !v[en])
        return((feet+(double)inches/12.0)*0.254);
 
