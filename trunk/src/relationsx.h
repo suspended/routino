@@ -82,7 +82,7 @@ struct _RelationsX
 /* Functions in relationsx.c */
 
 RelationsX *NewRelationList(int append,int readonly);
-void FreeRelationList(RelationsX *relationsx,int keep);
+void FreeRelationList(RelationsX *relationsx);
 void FinishRelationList(RelationsX *relationsx);
 
 void AppendRouteRelation(RelationsX* relationsx,relation_t id,
@@ -98,9 +98,9 @@ void SortRelationList(RelationsX *relationsx);
 
 void SortTurnRelationList(RelationsX* relationsx);
 
-void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx);
+void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int preserve);
 
-void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx);
+void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,int preserve);
 void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 
 void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx);

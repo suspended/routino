@@ -89,7 +89,7 @@ struct _NodesX
 /* Functions in nodesx.c */
 
 NodesX *NewNodeList(int append,int readonly);
-void FreeNodeList(NodesX *nodesx,int keep);
+void FreeNodeList(NodesX *nodesx);
 void FinishNodeList(NodesX *nodesx);
 
 void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx);
@@ -102,7 +102,7 @@ void SortNodeList(NodesX *nodesx);
 
 void SortNodeListGeographically(NodesX *nodesx);
 
-void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx);
+void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int preserve);
 
 void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx);
 

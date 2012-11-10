@@ -25,7 +25,7 @@ planetsplitter
                          [--loggable] [--logtime]
                          [--errorlog[=<name>]]
                          [--parse-only | --process-only]
-                         [--append]
+                         [--append] [--preserve]
                          [--max-iterations=<number>]
                          [--prune-none]
                          [--prune-isolated=<len>]
@@ -94,6 +94,10 @@ planetsplitter
    --append
           Parse the input file and append the result to the existing
           intermediate files.
+
+   --preserve
+          Store a set of intermediate files after parsing the OSM files,
+          sorting and removing duplicates.
 
    --max-iterations=<number>
           The maximum number of iterations to use when generating

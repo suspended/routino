@@ -75,7 +75,7 @@ int main(int argc,char** argv)
  int         iteration=0,quit=0;
  int         max_iterations=5;
  char       *dirname=NULL,*prefix=NULL,*tagging=NULL,*errorlog=NULL;
- int         option_parse_only=0,option_process_only=0,option_append=0;
+ int         option_parse_only=0,option_process_only=0,option_append=0,option_preserve=0;
  int         option_filenames=0;
  int         option_prune_isolated=500,option_prune_short=5,option_prune_straight=3;
  int         arg;
@@ -106,6 +106,8 @@ int main(int argc,char** argv)
        option_process_only=1;
     else if(!strcmp(argv[arg],"--append"))
        option_append=1;
+    else if(!strcmp(argv[arg],"--preserve"))
+       option_preserve=1;
     else if(!strcmp(argv[arg],"--loggable"))
        option_loggable=1;
     else if(!strcmp(argv[arg],"--logtime"))
@@ -256,21 +258,19 @@ if(!option_process_only)
 
  if(option_parse_only)
    {
-    FreeNodeList(Nodes,1);
-    FreeSegmentList(Segments,1);
-    FreeWayList(Ways,1);
-    FreeRelationList(Relations,1);
+    FreeNodeList(Nodes);
+    FreeSegmentList(Segments);
+    FreeWayList(Ways);
+    FreeRelationList(Relations);
 
     return(0);
    }
 
- if(!option_process_only)
-   {
-    FinishNodeList(Nodes);
-    FinishSegmentList(Segments);
-    FinishWayList(Ways);
-    FinishRelationList(Relations);
-   }
+ FinishNodeList(Nodes);
+ FinishSegmentList(Segments);
+ FinishWayList(Ways);
+ FinishRelationList(Relations);
+
 
  /* Process the data */
 
@@ -289,21 +289,21 @@ if(!option_process_only)
 
  /* Remove bad segments (must be after sorting the nodes and segments) */
 
- RemoveBadSegments(Nodes,Segments);
+ RemoveBadSegments(Segments,Nodes,option_preserve);
 
  /* Remove non-highway nodes (must be after removing the bad segments) */
 
- RemoveNonHighwayNodes(Nodes,Segments);
+ RemoveNonHighwayNodes(Nodes,Segments,option_preserve);
 
  /* Extract the way names (must be before using the ways) */
 
- ExtractWayNames(Ways);
+ ExtractWayNames(Ways,option_preserve);
 
  /* Process the route relations and first part of turn relations (must be before compacting the ways) */
 
- ProcessRouteRelations(Relations,Ways);
+ ProcessRouteRelations(Relations,Ways,option_preserve);
 
- ProcessTurnRelations1(Relations,Nodes,Ways);
+ ProcessTurnRelations1(Relations,Nodes,Ways,option_preserve);
 
  /* Measure the segments and replace node/way id with index (must be after removing non-highway nodes) */
 
@@ -389,7 +389,7 @@ if(!option_process_only)
 
        nsuper=SuperSegments->number;
 
-       FreeSegmentList(SuperSegments,0);
+       FreeSegmentList(SuperSegments);
 
        SuperSegments=SuperSegments2;
       }
@@ -423,9 +423,9 @@ if(!option_process_only)
 
  MergedSegments=MergeSuperSegments(Segments,SuperSegments);
 
- FreeSegmentList(Segments,0);
+ FreeSegmentList(Segments);
 
- FreeSegmentList(SuperSegments,0);
+ FreeSegmentList(SuperSegments);
 
  Segments=MergedSegments;
 
@@ -461,25 +461,25 @@ if(!option_process_only)
 
  SaveNodeList(Nodes,FileName(dirname,prefix,"nodes.mem"),Segments);
 
- FreeNodeList(Nodes,0);
+ FreeNodeList(Nodes);
 
  /* Write out the segments */
 
  SaveSegmentList(Segments,FileName(dirname,prefix,"segments.mem"));
 
- FreeSegmentList(Segments,0);
+ FreeSegmentList(Segments);
 
  /* Write out the ways */
 
  SaveWayList(Ways,FileName(dirname,prefix,"ways.mem"));
 
- FreeWayList(Ways,0);
+ FreeWayList(Ways);
 
  /* Write out the relations */
 
  SaveRelationList(Relations,FileName(dirname,prefix,"relations.mem"));
 
- FreeRelationList(Relations,0);
+ FreeRelationList(Relations);
 
  /* Close the error log file */
 
@@ -577,6 +577,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--parse-only              Parse the OSM file(s) and store the results.\n"
             "--process-only            Process the stored results from previous option.\n"
             "--append                  Parse the OSM file(s) and append to existing results.\n"
+            "--preserve                Keep the intermediate files after parsing & sorting.\n"
             "\n"
             "--max-iterations=<number> The number of iterations for finding super-nodes\n"
             "                          (defaults to 5).\n"

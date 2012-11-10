@@ -84,7 +84,7 @@ struct _SegmentsX
 
 
 SegmentsX *NewSegmentList(int append,int readonly);
-void FreeSegmentList(SegmentsX *segmentsx,int keep);
+void FreeSegmentList(SegmentsX *segmentsx);
 void FinishSegmentList(SegmentsX *segmentsx);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
@@ -100,7 +100,7 @@ void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx);
 
 void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx);
 
-void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
+void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,int preserve);
 
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 

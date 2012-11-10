@@ -111,15 +111,10 @@ SegmentsX *NewSegmentList(int append,int readonly)
   Free a segment list.
 
   SegmentsX *segmentsx The set of segments to be freed.
-
-  int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeSegmentList(SegmentsX *segmentsx,int keep)
+void FreeSegmentList(SegmentsX *segmentsx)
 {
- if(!keep)
-    DeleteFile(segmentsx->filename);
-
  DeleteFile(segmentsx->filename_tmp);
 
  free(segmentsx->filename);
@@ -192,7 +187,8 @@ void FinishSegmentList(SegmentsX *segmentsx)
 {
  /* Close the file (finished appending) */
 
- segmentsx->fd=CloseFile(segmentsx->fd);
+ if(segmentsx->fd!=-1)
+    segmentsx->fd=CloseFile(segmentsx->fd);
 
  /* Rename the file to the temporary name (used everywhere else) */
 
@@ -567,12 +563,14 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 /*++++++++++++++++++++++++++++++++++++++
   Remove bad segments (duplicated, zero length or with missing nodes).
 
+  SegmentsX *segmentsx The set of segments to modify.
+
   NodesX *nodesx The set of nodes to use.
 
-  SegmentsX *segmentsx The set of segments to modify.
+  int preserve If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
+void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,int preserve)
 {
  index_t loop=0,nonode=0,good=0,total=0;
  SegmentX segmentx;
@@ -592,7 +590,10 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
- DeleteFile(segmentsx->filename_tmp);
+ if(preserve)
+    RenameFile(segmentsx->filename_tmp,segmentsx->filename);
+ else
+    DeleteFile(segmentsx->filename_tmp);
 
  fd=OpenFileNew(segmentsx->filename_tmp);
 
