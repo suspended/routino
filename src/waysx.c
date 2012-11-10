@@ -54,7 +54,8 @@ static int sort_by_name(WayX *a,WayX *b);
 static int sort_by_name_and_prop_and_id(WayX *a,WayX *b);
 
 static int delete_unused(WayX *wayx,index_t index);
-static int deduplicate_and_index_by_id(WayX *wayx,index_t index);
+static int deduplicate_by_id(WayX *wayx,index_t index);
+static int index_by_id(WayX *wayx,index_t index);
 static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index);
 
 
@@ -226,21 +227,13 @@ void SortWayList(WaysX *waysx)
 
  fd=OpenFileNew(waysx->filename_tmp);
 
- /* Allocate the array of indexes */
-
- waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
-
- assert(waysx->idata); /* Check malloc() worked */
-
  /* Sort the ways by ID and index them */
 
  xnumber=waysx->number;
 
- sortwaysx=waysx;
-
  waysx->number=filesort_vary(waysx->fd,fd,NULL,
                                           (int (*)(const void*,const void*))sort_by_id,
-                                          (int (*)(void*,index_t))deduplicate_and_index_by_id);
+                                          (int (*)(void*,index_t))deduplicate_by_id);
 
  /* Close the files */
 
@@ -370,11 +363,19 @@ void ExtractWayNames(WaysX *waysx)
 
  fd=OpenFileNew(waysx->filename_tmp);
 
+ /* Allocate the array of indexes */
+
+ waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
+
+ assert(waysx->idata); /* Check malloc() worked */
+
  /* Sort the ways by ID */
+
+ sortwaysx=waysx;
 
  filesort_fixed(waysx->fd,fd,sizeof(WayX),NULL,
                                           (int (*)(const void*,const void*))sort_by_id,
-                                          NULL);
+                                          (int (*)(void*,index_t))index_by_id);
 
  /* Close the files */
 
@@ -522,24 +523,22 @@ static int sort_by_name_and_prop_and_id(WayX *a,WayX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Create the index of identifiers and discard duplicate ways.
+  Discard duplicate ways.
 
-  int deduplicate_and_index_by_id Return 1 if the value is to be kept, otherwise 0.
+  int deduplicate_by_id Return 1 if the value is to be kept, otherwise 0.
 
   WayX *wayx The extended way.
 
   index_t index The number of sorted ways that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
+static int deduplicate_by_id(WayX *wayx,index_t index)
 {
  static way_t previd;
 
  if(index==0 || wayx->id!=previd)
    {
     previd=wayx->id;
-
-    sortwaysx->idata[index]=wayx->id;
 
     return(1);
    }
@@ -549,6 +548,24 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
     return(0);
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Create the index of identifiers.
+
+  int index_by_id Return 1 if the value is to be kept, otherwise 0.
+
+  WayX *wayx The extended way.
+
+  index_t index The number of sorted ways that have already been written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int index_by_id(WayX *wayx,index_t index)
+{
+ sortwaysx->idata[index]=wayx->id;
+
+ return(1);
 }
 
 
