@@ -45,8 +45,11 @@ extern char *option_tmpdirname;
 
 /* Local functions */
 
-static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b);
-static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index);
+static int sort_route_by_id(RouteRelX *a,RouteRelX *b);
+static int deduplicate_route_by_id(RouteRelX *relationx,index_t index);
+
+static int sort_turn_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b);
+static int deduplicate_turn_by_id(TurnRestrictRelX *relationx,index_t index);
 
 static int geographically_index(TurnRestrictRelX *relationx,index_t index);
 static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b);
@@ -297,6 +300,41 @@ void SortRelationList(RelationsX* relationsx)
 {
  /* Route Relations */
 
+ if(relationsx->rnumber)
+   {
+    index_t rxnumber;
+    int rfd;
+
+    /* Print the start message */
+
+    printf_first("Sorting Route Relations");
+
+    /* Re-open the file read-only and a new file writeable */
+
+    relationsx->rfd=ReOpenFile(relationsx->rfilename_tmp);
+
+    DeleteFile(relationsx->rfilename_tmp);
+
+    rfd=OpenFileNew(relationsx->rfilename_tmp);
+
+    /* Sort the relations */
+
+    rxnumber=relationsx->rnumber;
+
+    relationsx->rnumber=filesort_vary(relationsx->rfd,rfd,NULL,
+                                                          (int (*)(const void*,const void*))sort_route_by_id,
+                                                          (int (*)(void*,index_t))deduplicate_route_by_id);
+
+    /* Close the files */
+
+    relationsx->rfd=CloseFile(relationsx->rfd);
+    CloseFile(rfd);
+
+    /* Print the final message */
+
+    printf_last("Sorted Route Relations: Relations=%"Pindex_t" Duplicates=%"Pindex_t,rxnumber,rxnumber-relationsx->rnumber);
+   }
+
  /* Turn Restriction Relations. */
 
  if(relationsx->trnumber)
@@ -321,8 +359,8 @@ void SortRelationList(RelationsX* relationsx)
     trxnumber=relationsx->trnumber;
 
     relationsx->trnumber=filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),NULL,
-                                                                                       (int (*)(const void*,const void*))sort_by_id,
-                                                                                       (int (*)(void*,index_t))deduplicate_by_id);
+                                                                                       (int (*)(const void*,const void*))sort_turn_by_id,
+                                                                                       (int (*)(void*,index_t))deduplicate_turn_by_id);
 
     /* Close the files */
 
@@ -337,16 +375,16 @@ void SortRelationList(RelationsX* relationsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the turn restriction relations into id order.
+  Sort the route relations into id order.
 
-  int sort_by_id Returns the comparison of the id fields.
+  int sort_route_by_id Returns the comparison of the id fields.
 
-  TurnRestrictRelX *a The first extended relation.
+  RouteRelX *a The first extended relation.
 
-  TurnRestrictRelX *b The second extended relation.
+  RouteRelX *b The second extended relation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
+static int sort_route_by_id(RouteRelX *a,RouteRelX *b)
 {
  relation_t a_id=a->id;
  relation_t b_id=b->id;
@@ -361,16 +399,69 @@ static int sort_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Deduplicate the extended relations using the id after sorting.
+  Deduplicate the route relations using the id after sorting.
 
-  int deduplicate_by_id Return 1 if the value is to be kept, otherwise 0.
+  int deduplicate_route_by_id Return 1 if the value is to be kept, otherwise 0.
+
+  RouteRelX *relationx The extended relation.
+
+  index_t index The number of sorted relations that have already been written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int deduplicate_route_by_id(RouteRelX *relationx,index_t index)
+{
+ static relation_t previd;
+
+ if(index==0 || relationx->id!=previd)
+   {
+    previd=relationx->id;
+
+    return(1);
+   }
+ else
+   {
+    logerror("Relation %"Prelation_t" is duplicated.\n",relationx->id);
+
+    return(0);
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the turn restriction relations into id order.
+
+  int sort_turn_by_id Returns the comparison of the id fields.
+
+  TurnRestrictRelX *a The first extended relation.
+
+  TurnRestrictRelX *b The second extended relation.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int sort_turn_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
+{
+ relation_t a_id=a->id;
+ relation_t b_id=b->id;
+
+ if(a_id<b_id)
+    return(-1);
+ else if(a_id>b_id)
+    return(1);
+ else
+    return(FILESORT_PRESERVE_ORDER(a,b));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Deduplicate the turn restriction relations using the id after sorting.
+
+  int deduplicate_turn_by_id Return 1 if the value is to be kept, otherwise 0.
 
   TurnRestrictRelX *relationx The extended relation.
 
   index_t index The number of sorted relations that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int deduplicate_by_id(TurnRestrictRelX *relationx,index_t index)
+static int deduplicate_turn_by_id(TurnRestrictRelX *relationx,index_t index)
 {
  static relation_t previd;
 
