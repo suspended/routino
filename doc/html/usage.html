@@ -68,7 +68,7 @@ Usage: planetsplitter [--help]
                       [--loggable] [--logtime]
                       [--errorlog[=&lt;name&gt;]]
                       [--parse-only | --process-only]
-                      [--append]
+                      [--append] [--preserve]
                       [--max-iterations=&lt;number&gt;]
                       [--prune-none]
                       [--prune-isolated=&lt;len&gt;]
@@ -124,6 +124,9 @@ Usage: planetsplitter [--help]
   <dt>--append
   <dd>Parse the input file and append the result to the existing intermediate
     files.
+  <dt>--preserve
+  <dd>Store a set of intermediate files after parsing the OSM files, sorting and
+    removing duplicates.
   <dt>--max-iterations=&lt;number&gt;
   <dd>The maximum number of iterations to use when generating super-nodes and
     super-segments.  Defaults to 5 which is normally enough.

@@ -104,15 +104,10 @@ NodesX *NewNodeList(int append,int readonly)
   Free a node list.
 
   NodesX *nodesx The set of nodes to be freed.
-
-  int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeNodeList(NodesX *nodesx,int keep)
+void FreeNodeList(NodesX *nodesx)
 {
- if(!keep)
-    DeleteFile(nodesx->filename);
-
  DeleteFile(nodesx->filename_tmp);
 
  free(nodesx->filename);
@@ -178,7 +173,8 @@ void FinishNodeList(NodesX *nodesx)
 {
  /* Close the file (finished appending) */
 
- nodesx->fd=CloseFile(nodesx->fd);
+ if(nodesx->fd!=-1)
+    nodesx->fd=CloseFile(nodesx->fd);
 
  /* Rename the file to the temporary name (used everywhere else) */
 
@@ -218,7 +214,6 @@ void SortNodeList(NodesX *nodesx)
  /* Sort the nodes by ID and index them */
 
  xnumber=nodesx->number;
- nodesx->number=0;
 
  sortnodesx=nodesx;
 
@@ -506,9 +501,11 @@ index_t IndexNodeX(NodesX *nodesx,node_t id)
   NodesX *nodesx The set of nodes to modify.
 
   SegmentsX *segmentsx The set of segments to use.
+
+  int preserve If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
+void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int preserve)
 {
  NodeX nodex;
  index_t total=0,highway=0,nothighway=0;
@@ -522,7 +519,10 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  nodesx->fd=ReOpenFile(nodesx->filename_tmp);
 
- DeleteFile(nodesx->filename_tmp);
+ if(preserve)
+    RenameFile(nodesx->filename_tmp,nodesx->filename);
+ else
+    DeleteFile(nodesx->filename_tmp);
 
  fd=OpenFileNew(nodesx->filename_tmp);
 

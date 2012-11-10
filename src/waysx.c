@@ -126,15 +126,10 @@ WaysX *NewWayList(int append,int readonly)
   Free a way list.
 
   WaysX *waysx The set of ways to be freed.
-
-  int keep Set to 1 if the file is to be kept (for appending later).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeWayList(WaysX *waysx,int keep)
+void FreeWayList(WaysX *waysx)
 {
- if(!keep)
-    DeleteFile(waysx->filename);
-
  DeleteFile(waysx->filename_tmp);
 
  free(waysx->filename);
@@ -196,7 +191,8 @@ void FinishWayList(WaysX *waysx)
 {
  /* Close the file (finished appending) */
 
- waysx->fd=CloseFile(waysx->fd);
+ if(waysx->fd!=-1)
+    waysx->fd=CloseFile(waysx->fd);
 
  /* Rename the file to the temporary name (used everywhere else) */
 
@@ -250,9 +246,11 @@ void SortWayList(WaysX *waysx)
   Extract the way names from the ways and reference the list of names from the ways.
 
   WaysX *waysx The set of ways to process.
+
+  int preserve If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ExtractWayNames(WaysX *waysx)
+void ExtractWayNames(WaysX *waysx,int preserve)
 {
  index_t i;
  int fd;
@@ -269,7 +267,10 @@ void ExtractWayNames(WaysX *waysx)
 
  waysx->fd=ReOpenFile(waysx->filename_tmp);
 
- DeleteFile(waysx->filename_tmp);
+ if(preserve)
+    RenameFile(waysx->filename_tmp,waysx->filename);
+ else
+    DeleteFile(waysx->filename_tmp);
 
  fd=OpenFileNew(waysx->filename_tmp);
 
