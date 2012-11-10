@@ -243,45 +243,6 @@ void SortSegmentList(SegmentsX *segmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the segment list (no de-duplication).
-
-  SegmentsX *segmentsx The set of segments to sort and modify.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void JustSortSegmentList(SegmentsX *segmentsx)
-{
- int fd;
-
- /* Print the start message */
-
- printf_first("Sorting Segments");
-
- /* Re-open the file read-only and a new file writeable */
-
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileNew(segmentsx->filename_tmp);
-
- /* Sort by node indexes */
-
- filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
-                                                  (int (*)(const void*,const void*))sort_by_id,
-                                                  NULL);
-
- /* Close the files */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Sorted Segments: Segments=%"Pindex_t,segmentsx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Prune the deleted segments while resorting the list.
 
   SegmentsX *segmentsx The set of segments to sort and modify.

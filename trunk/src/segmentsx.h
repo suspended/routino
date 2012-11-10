@@ -96,8 +96,6 @@ void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,dist
 
 void SortSegmentList(SegmentsX *segmentsx);
 
-void JustSortSegmentList(SegmentsX *segmentsx);
-
 void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx);
 
 void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx);
