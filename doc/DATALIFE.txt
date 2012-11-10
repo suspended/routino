@@ -70,8 +70,7 @@ CreateSuperSegments           : nsw  :   .   .   . U . | : U .   .   .   . R*:  
 DeduplicateSuperSegments      :   w  :   .   .   . | . | :   .   .   .   . U*:   .   .   :   :   | o
 IndexSegments                 :  S   :   .   .   . | . | : C*.   .   .   . U*:   .   .   :   :   | p
                               :......:...................:...................:...........:...: --+
-MergeSuperSegments            :  s   :   .   .   . | . | :   .   .   .   . | :   .   .   :   :
-JustSortSegmentList           :      :   .   .   . | . | :   .   .   .   . U :   .   .   :   :
+MergeSuperSegments            :  s   :   .   .   . | . | :   .   .   .   . U :   .   .   :   :
 IndexSegments                 :  S   :   .   .   . | . | : R .   .   .   . U :   .   .   :   :
                               :......:...................:...................:...........:...:
 SortNodeListGeographically    :      :   . C .   . | . U :   .   .   .   . | :   .   .   :   :

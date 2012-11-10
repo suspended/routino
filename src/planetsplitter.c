@@ -429,9 +429,7 @@ if(!option_process_only)
 
  Segments=MergedSegments;
 
- /* Sort and re-index the merged segments */
-
- JustSortSegmentList(Segments);
+ /* Re-index the merged segments */
 
  IndexSegments(Segments,Nodes,Ways);
 
