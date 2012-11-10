@@ -167,7 +167,6 @@ int main(int argc,char** argv)
        option_tmpdirname=dirname;
    }
 
- 
  if(!option_process_only)
    {
     if(tagging)
@@ -200,13 +199,13 @@ int main(int argc,char** argv)
 
  /* Create new node, segment, way and relation variables */
 
- Nodes=NewNodeList(option_append||option_process_only);
+ Nodes=NewNodeList(option_append,option_process_only);
 
- Segments=NewSegmentList(option_append||option_process_only);
+ Segments=NewSegmentList(option_append,option_process_only);
 
- Ways=NewWayList(option_append||option_process_only);
+ Ways=NewWayList(option_append,option_process_only);
 
- Relations=NewRelationList(option_append||option_process_only);
+ Relations=NewRelationList(option_append,option_process_only);
 
  /* Create the error log file */
 
@@ -265,10 +264,13 @@ if(!option_process_only)
     return(0);
    }
 
- FinishNodeList(Nodes);
- FinishSegmentList(Segments);
- FinishWayList(Ways);
- FinishRelationList(Relations);
+ if(!option_process_only)
+   {
+    FinishNodeList(Nodes);
+    FinishSegmentList(Segments);
+    FinishWayList(Ways);
+    FinishRelationList(Relations);
+   }
 
  /* Process the data */
 
@@ -292,6 +294,10 @@ if(!option_process_only)
  /* Remove non-highway nodes (must be after removing the bad segments) */
 
  RemoveNonHighwayNodes(Nodes,Segments);
+
+ /* Extract the way names (must be before using the ways) */
+
+ ExtractWayNames(Ways);
 
  /* Process the route relations and first part of turn relations (must be before compacting the ways) */
 
