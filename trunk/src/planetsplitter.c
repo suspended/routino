@@ -396,7 +396,7 @@ if(!option_process_only)
 
     /* Sort the super-segments */
 
-    SortSegmentList(SuperSegments);
+    JustSortSegmentList(SuperSegments);
 
     /* Remove duplicated super-segments */
 
@@ -435,7 +435,7 @@ if(!option_process_only)
 
  /* Sort and re-index the merged segments */
 
- SortSegmentList(Segments);
+ JustSortSegmentList(Segments);
 
  IndexSegments(Segments,Nodes,Ways);
 
