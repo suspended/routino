@@ -41,11 +41,11 @@ v                             :      :   .   .   .   .   :   .   .   .   .   :  
                               :......:...................:...................:...........:...:
 SortNodeList                  :      : C .   .   .   . U :   .   .   .   . | :   .   . | : | :
 SortSegmentList               :      : | .   .   .   .   :   .   .   .   . U :   .   . | : | :
-SortWayList                   :      : | .   .   .   .   :   .   .   .   . | : C .   . U : | :
-SortRelationList              :      : | .   .   .   .   :   .   .   .   . | : | .   .   : U :
-RemoveBadSegments             :      : U .   .   .   .   :   .   . C .   . U : | .   .   : | :
-RemoveNonHighwayNodes         :      : M .   .   .   . R :   .   . D .   . | : | .   .   : | :
-ExtractWayNames               :      : | .   .   .   . | :   .   .   .   . | : | .   .   : | :
+SortWayList                   :      : | .   .   .   .   :   .   .   .   . | :   .   . | : | :
+SortRelationList              :      : | .   .   .   .   :   .   .   .   . | :   .   . | : U :
+RemoveBadSegments             :      : U .   .   .   .   :   .   . C .   . U :   .   . | : | :
+RemoveNonHighwayNodes         :      : M .   .   .   . R :   .   . D .   . | :   .   . | : | :
+ExtractWayNames               :      : | .   .   .   . | :   .   .   .   . | : C .   . U : | :
 ProcessRouteRelations         :   W  : | .   .   .   . | :   .   .   .   . | : U .   .   : U :
 ProcessTurnRelations1         :      : U .   .   .   . | :   .   .   .   . | : U .   .   : U :
 MeasureSegments               : n    : D .   .   .   . | :   .   .   . C . M : D .   .   : | :
