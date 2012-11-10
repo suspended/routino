@@ -47,8 +47,9 @@ extern char *option_tmpdirname;
 /* Local variables */
 
 /*+ Temporary file-local variables for use by the sort functions. +*/
-static SegmentsX *sortsegmentsx;
 static NodesX *sortnodesx;
+static SegmentsX *sortsegmentsx;
+static WaysX *sortwaysx;
 
 /* Local functions */
 
@@ -56,6 +57,7 @@ static int sort_by_id(SegmentX *a,SegmentX *b);
 static int deduplicate_by_id(SegmentX *segmentx,index_t index);
 static int delete_pruned(SegmentX *segmentx,index_t index);
 static int geographically_index(SegmentX *segmentx,index_t index);
+static int deduplicate_super(SegmentX *segmentx,index_t index);
 
 static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
@@ -290,7 +292,7 @@ void JustSortSegmentList(SegmentsX *segmentsx)
 void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 {
  int fd;
- index_t kept;
+ index_t xnumber;
 
  /* Print the start message */
 
@@ -312,11 +314,13 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Sort by node indexes */
 
+ xnumber=segmentsx->number;
+
  sortsegmentsx=segmentsx;
 
- kept=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(void*,index_t))delete_pruned,
-                                                       (int (*)(const void*,const void*))sort_by_id,
-                                                       NULL);
+ segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(void*,index_t))delete_pruned,
+                                                                    (int (*)(const void*,const void*))sort_by_id,
+                                                                    NULL);
 
  /* Close the files */
 
@@ -325,8 +329,7 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Sorted and Pruned Segments: Segments=%"Pindex_t" Deleted=%"Pindex_t,kept,segmentsx->number-kept);
- segmentsx->number=kept;
+ printf_last("Sorted and Pruned Segments: Segments=%"Pindex_t" Deleted=%"Pindex_t,xnumber,xnumber-segmentsx->number);
 }
 
 
@@ -790,27 +793,21 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Remove the duplicate segments.
+  Remove the duplicate super-segments.
 
-  SegmentsX *segmentsx The set of segments to modify.
-
-  NodesX *nodesx The set of nodes to use.
+  SegmentsX *segmentsx The set of super-segments to modify.
 
   WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
+void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx)
 {
- index_t duplicate=0,good=0;
- index_t index=0;
- int fd,nprev=0;
- index_t prevnode1=NO_NODE,prevnode2=NO_NODE;
- SegmentX prevsegx[MAX_SEG_PER_NODE],segmentx;
- Way prevway[MAX_SEG_PER_NODE];
+ int fd;
+ index_t xnumber;
 
  /* Print the start message */
 
- printf_first("Deduplicating Segments: Segments=0 Duplicate=0");
+ printf_first("Sorting and Deduplicating Super-Segments");
 
  /* Map into memory / open the file */
 
@@ -828,72 +825,16 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  fd=OpenFileNew(segmentsx->filename_tmp);
 
- /* Modify the on-disk image */
+ /* Sort by node indexes */
 
- while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
-   {
-    WayX *wayx=LookupWayX(waysx,segmentx.way,1);
-    int isduplicate=0;
+ xnumber=segmentsx->number;
 
-    if(segmentx.node1==prevnode1 && segmentx.node2==prevnode2)
-      {
-       int offset;
+ sortsegmentsx=segmentsx;
+ sortwaysx=waysx;
 
-       for(offset=0;offset<nprev;offset++)
-         {
-          if(DISTFLAG(segmentx.distance)==DISTFLAG(prevsegx[offset].distance))
-             if(!WaysCompare(&prevway[offset],&wayx->way))
-               {
-                isduplicate=1;
-                break;
-               }
-         }
-
-       if(isduplicate)
-         {
-          nprev--;
-
-          for(;offset<nprev;offset++)
-            {
-             prevsegx[offset]=prevsegx[offset+1];
-             prevway[offset] =prevway[offset+1];
-            }
-         }
-       else
-         {
-          assert(nprev<MAX_SEG_PER_NODE); /* Only a limited amount of information stored. */
-
-          prevsegx[nprev]=segmentx;
-          prevway[nprev] =wayx->way;
-
-          nprev++;
-         }
-      }
-    else
-      {
-       nprev=1;
-       prevnode1=segmentx.node1;
-       prevnode2=segmentx.node2;
-       prevsegx[0]=segmentx;
-       prevway[0] =wayx->way;
-      }
-
-    if(isduplicate)
-       duplicate++;
-    else
-      {
-       WriteFile(fd,&segmentx,sizeof(SegmentX));
-
-       good++;
-      }
-
-    index++;
-
-    if(!(index%10000))
-       printf_middle("Deduplicating Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t,index,duplicate);
-   }
-
- segmentsx->number=good;
+ segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
+                                                                    (int (*)(const void*,const void*))sort_by_id,
+                                                                    (int (*)(void*,index_t))deduplicate_super);
 
  /* Close the files */
 
@@ -910,7 +851,74 @@ void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Deduplicated Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t" Unique=%"Pindex_t,index,duplicate,good);
+ printf_last("Sorted and Deduplicated Super-Segments: Super-Segments=%"Pindex_t" Duplicate=%"Pindex_t,xnumber,xnumber-segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  De-duplicate super-segments.
+
+  int deduplicate_super Return 1 if the value is to be kept, otherwise 0.
+
+  SegmentX *segmentx The extended super-segment.
+
+  index_t index The number of sorted super-segments that have already been written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int deduplicate_super(SegmentX *segmentx,index_t index)
+{
+ static int nprev=0;
+ static index_t prevnode1=NO_NODE,prevnode2=NO_NODE;
+ static SegmentX prevsegx[MAX_SEG_PER_NODE];
+ static Way prevway[MAX_SEG_PER_NODE];
+
+ WayX *wayx=LookupWayX(sortwaysx,segmentx->way,1);
+ int isduplicate=0;
+
+ if(index==0 || segmentx->node1!=prevnode1 || segmentx->node2!=prevnode2)
+   {
+    nprev=1;
+    prevnode1=segmentx->node1;
+    prevnode2=segmentx->node2;
+    prevsegx[0]=*segmentx;
+    prevway[0] =wayx->way;
+   }
+ else
+   {
+    int offset;
+
+    for(offset=0;offset<nprev;offset++)
+      {
+       if(DISTFLAG(segmentx->distance)==DISTFLAG(prevsegx[offset].distance))
+          if(!WaysCompare(&prevway[offset],&wayx->way))
+            {
+             isduplicate=1;
+             break;
+            }
+      }
+
+    if(isduplicate)
+      {
+       nprev--;
+
+       for(;offset<nprev;offset++)
+         {
+          prevsegx[offset]=prevsegx[offset+1];
+          prevway[offset] =prevway[offset+1];
+         }
+      }
+    else
+      {
+       assert(nprev<MAX_SEG_PER_NODE); /* Only a limited amount of information stored. */
+
+       prevsegx[nprev]=*segmentx;
+       prevway[nprev] =wayx->way;
+
+       nprev++;
+      }
+   }
+
+ return(!isduplicate);
 }
 
 
