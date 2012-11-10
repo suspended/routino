@@ -53,6 +53,7 @@ static NodesX *sortnodesx;
 /* Local functions */
 
 static int sort_by_id(SegmentX *a,SegmentX *b);
+static int deduplicate_by_id(SegmentX *segmentx,index_t index);
 static int delete_pruned(SegmentX *segmentx,index_t index);
 static int geographically_index(SegmentX *segmentx,index_t index);
 
@@ -198,12 +199,54 @@ void FinishSegmentList(SegmentsX *segmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the segment list.
+  Sort the segment list and deduplicate it.
 
   SegmentsX *segmentsx The set of segments to sort and modify.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void SortSegmentList(SegmentsX *segmentsx)
+{
+ int fd;
+ index_t xnumber;
+
+ /* Print the start message */
+
+ printf_first("Sorting Segments");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+
+ DeleteFile(segmentsx->filename_tmp);
+
+ fd=OpenFileNew(segmentsx->filename_tmp);
+
+ /* Sort by node indexes */
+
+ xnumber=segmentsx->number;
+
+ segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
+                                                                    (int (*)(const void*,const void*))sort_by_id,
+                                                                    (int (*)(void*,index_t))deduplicate_by_id);
+
+ /* Close the files */
+
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Sorted Segments: Segments=%"Pindex_t" Duplicates=%"Pindex_t,xnumber,xnumber-segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the segment list (no de-duplication).
+
+  SegmentsX *segmentsx The set of segments to sort and modify.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void JustSortSegmentList(SegmentsX *segmentsx)
 {
  int fd;
 
@@ -252,11 +295,6 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
  /* Print the start message */
 
  printf_first("Sorting and Pruning Segments");
-
- /* Close the file (finished appending) */
-
- if(segmentsx->fd!=-1)
-    segmentsx->fd=CloseFile(segmentsx->fd);
 
  /* Allocate the way usage bitmask */
 
@@ -332,6 +370,48 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
        else
           return(FILESORT_PRESERVE_ORDER(a,b));
       }
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Discard duplicate segments using only the node ids.
+
+  int deduplicate_by_id Return 1 if the value is to be kept, otherwise 0.
+
+  SegmentX *segmentx The extended segment.
+
+  index_t index The number of sorted segments that have already been written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int deduplicate_by_id(SegmentX *segmentx,index_t index)
+{
+ static node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
+ static distance_t prevdist=0;
+
+ if(index==0 || prevnode1!=segmentx->node1 || prevnode2!=segmentx->node2)
+   {
+    prevnode1=segmentx->node1;
+    prevnode2=segmentx->node2;
+    prevdist=DISTANCE(segmentx->distance);
+
+    return(1);
+   }
+ else
+   {
+    if(!prevdist && !DISTANCE(segmentx->distance))
+       logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx->node1,segmentx->node2);
+
+    if(!prevdist && DISTANCE(segmentx->distance))
+       logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",segmentx->node1,segmentx->node2);
+
+    if(prevdist && !DISTANCE(segmentx->distance))
+       logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",segmentx->node1,segmentx->node2);
+
+    if(prevdist && DISTANCE(segmentx->distance))
+       logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",segmentx->node1,segmentx->node2);
+
+    return(0);
    }
 }
 
@@ -530,15 +610,13 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
 void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 {
- index_t duplicate=0,loop=0,nonode=0,good=0,total=0;
+ index_t loop=0,nonode=0,good=0,total=0;
  SegmentX segmentx;
  int fd;
- node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
- distance_t prevdist=0;
 
  /* Print the start message */
 
- printf_first("Checking Segments: Segments=0 Duplicate=0 Loop=0 No-Node=0");
+ printf_first("Checking Segments: Segments=0 Loop=0 No-Node=0");
 
  /* Allocate the node usage bitmask */
 
@@ -561,23 +639,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
     index_t index1=IndexNodeX(nodesx,segmentx.node1);
     index_t index2=IndexNodeX(nodesx,segmentx.node2);
 
-    if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
-      {
-       if(!prevdist && !DISTANCE(segmentx.distance))
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx.node1,segmentx.node2);
-
-       if(!prevdist && DISTANCE(segmentx.distance))
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",segmentx.node1,segmentx.node2);
-
-       if(prevdist && !DISTANCE(segmentx.distance))
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",segmentx.node1,segmentx.node2);
-
-       if(prevdist && DISTANCE(segmentx.distance))
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",segmentx.node1,segmentx.node2);
-
-       duplicate++;
-      }
-    else if(segmentx.node1==segmentx.node2)
+    if(segmentx.node1==segmentx.node2)
       {
        logerror("Segment connects node %"Pnode_t" to itself.\n",segmentx.node1);
 
@@ -604,16 +666,12 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
        SetBit(segmentsx->usednode,index2);
 
        good++;
-
-       prevnode1=segmentx.node1;
-       prevnode2=segmentx.node2;
-       prevdist=DISTANCE(segmentx.distance);
       }
 
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t" Loop=%"Pindex_t" No-Node=%"Pindex_t,total,duplicate,loop,nonode);
+       printf_middle("Checking Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Node=%"Pindex_t,total,loop,nonode);
    }
 
  segmentsx->number=good;
@@ -625,7 +683,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Checked Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t" Loop=%"Pindex_t" No-Node=%"Pindex_t,total,duplicate,loop,nonode);
+ printf_last("Checked Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Node=%"Pindex_t,total,loop,nonode);
 }
 
 
