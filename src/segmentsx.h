@@ -106,7 +106,7 @@ void RemoveBadSegments(NodesX *nodesx,SegmentsX *segmentsx);
 
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
-void DeduplicateSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
+void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx);
 
 void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
 

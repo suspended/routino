@@ -65,14 +65,13 @@ CompactWaysList               :      :   .   . | .   . | :   .   .   . D . | :  
 RemovePrunedTurnRelations     :      :   .   . U .   . | :   .   .   .   . | :   . | .   :   :  | l
 IndexSegments                 :  S   :   .   . D .   . | : R .   .   .   . M :   . D .   :   : /
                               :......:...................:...................:...........:...:
-ChooseSuperNodes              : nsw  :   .   .   . C . | : U .   .   .   . | :   .   .   :   : <-+
-CreateSuperSegments           : nsw  :   .   .   . U . | : U .   .   .   . R*:   .   .   :   :   | L
-SortSegmentList               :      :   .   .   . | . | :   .   .   .   . U*:   .   .   :   :   | o
-DeduplicateSegments           :   w  :   .   .   . | . | :   .   .   .   . U*:   .   .   :   :   | o
+ChooseSuperNodes              : nsw  :   .   .   . C . | : U .   .   .   . | :   .   .   :   : <-+ L
+CreateSuperSegments           : nsw  :   .   .   . U . | : U .   .   .   . R*:   .   .   :   :   | o
+DeduplicateSuperSegments      :   w  :   .   .   . | . | :   .   .   .   . U*:   .   .   :   :   | o
 IndexSegments                 :  S   :   .   .   . | . | : C*.   .   .   . U*:   .   .   :   :   | p
                               :......:...................:...................:...........:...: --+
 MergeSuperSegments            :  s   :   .   .   . | . | :   .   .   .   . | :   .   .   :   :
-SortSegmentList               :      :   .   .   . | . | :   .   .   .   . U :   .   .   :   :
+JustSortSegmentList           :      :   .   .   . | . | :   .   .   .   . U :   .   .   :   :
 IndexSegments                 :  S   :   .   .   . | . | : R .   .   .   . U :   .   .   :   :
                               :......:...................:...................:...........:...:
 SortNodeListGeographically    :      :   . C .   . | . U :   .   .   .   . | :   .   .   :   :

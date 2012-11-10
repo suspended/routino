@@ -394,13 +394,9 @@ if(!option_process_only)
        SuperSegments=SuperSegments2;
       }
 
-    /* Sort the super-segments */
+    /* Sort the super-segments and remove duplicates */
 
-    JustSortSegmentList(SuperSegments);
-
-    /* Remove duplicated super-segments */
-
-    DeduplicateSegments(SuperSegments,Nodes,Ways);
+    DeduplicateSuperSegments(SuperSegments,Ways);
 
     /* Index the segments */
 
