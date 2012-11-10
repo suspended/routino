@@ -92,6 +92,7 @@ index_t IndexWayX(WaysX *waysx,way_t id);
 void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name);
 
 void SortWayList(WaysX *waysx);
+void ExtractWayNames(WaysX *waysx);
 
 void CompactWayList(WaysX *waysx,SegmentsX *segmentsx);
 

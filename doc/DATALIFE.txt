@@ -45,6 +45,7 @@ SortWayList                   :      : | .   .   .   .   :   .   .   .   . | : C
 SortRelationList              :      : | .   .   .   .   :   .   .   .   . | : | .   .   : U :
 RemoveBadSegments             :      : U .   .   .   .   :   .   . C .   . U : | .   .   : | :
 RemoveNonHighwayNodes         :      : M .   .   .   . R :   .   . D .   . | : | .   .   : | :
+ExtractWayNames               :      : | .   .   .   . | :   .   .   .   . | : | .   .   : | :
 ProcessRouteRelations         :   W  : | .   .   .   . | :   .   .   .   . | : U .   .   : U :
 ProcessTurnRelations1         :      : U .   .   .   . | :   .   .   .   . | : U .   .   : U :
 MeasureSegments               : n    : D .   .   .   . | :   .   .   . C . M : D .   .   : | :
