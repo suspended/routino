@@ -353,22 +353,22 @@ static int deduplicate_by_id(SegmentX *segmentx,index_t index)
    {
     prevnode1=segmentx->node1;
     prevnode2=segmentx->node2;
-    prevdist=DISTANCE(segmentx->distance);
+    prevdist=segmentx->distance;
 
     return(1);
    }
  else
    {
-    if(!prevdist && !DISTANCE(segmentx->distance))
+    if(!(prevdist&SEGMENT_AREA) && !(segmentx->distance&SEGMENT_AREA))
        logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx->node1,segmentx->node2);
 
-    if(!prevdist && DISTANCE(segmentx->distance))
+    if(!(prevdist&SEGMENT_AREA) && (segmentx->distance&SEGMENT_AREA))
        logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",segmentx->node1,segmentx->node2);
 
-    if(prevdist && !DISTANCE(segmentx->distance))
+    if((prevdist&SEGMENT_AREA) && !(segmentx->distance&SEGMENT_AREA))
        logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",segmentx->node1,segmentx->node2);
 
-    if(prevdist && DISTANCE(segmentx->distance))
+    if((prevdist&SEGMENT_AREA) && (segmentx->distance&SEGMENT_AREA))
        logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",segmentx->node1,segmentx->node2);
 
     return(0);
@@ -715,7 +715,7 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
     /* Set the distance but preserve the other flags */
 
-    segmentx.distance|=DISTANCE(DistanceX(nodex1,nodex2));
+    segmentx.distance=DISTANCE(DistanceX(nodex1,nodex2))|DISTFLAG(segmentx.distance);
 
     /* Write the modified segment */
 

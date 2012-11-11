@@ -96,11 +96,14 @@
 /*+ A flag to mark a segment as a normal segment. +*/
 #define SEGMENT_NORMAL ((distance_t)0x10000000)
 
+/*+ A flag to mark a segment as being part of an area. +*/
+#define SEGMENT_AREA   ((distance_t)0x08000000)
+
 /*+ The real distance ignoring the other flags. +*/
-#define DISTANCE(xx)   ((distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL))))
+#define DISTANCE(xx)   ((distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL|SEGMENT_AREA))))
 
 /*+ The distance flags selecting only the flags. +*/
-#define DISTFLAG(xx)   ((distance_t)((xx)&(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
+#define DISTFLAG(xx)   ((distance_t)((xx)&(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL|SEGMENT_AREA)))
 
 
 /*+ A very large almost infinite distance. +*/
