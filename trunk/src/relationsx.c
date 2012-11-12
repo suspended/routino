@@ -200,8 +200,8 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,
 {
  RouteRelX relationx;
  FILESORT_VARINT size;
- way_t noway=NO_WAY;
- relation_t norelation=NO_RELATION;
+ way_t noway=NO_WAY_ID;
+ relation_t norelation=NO_RELATION_ID;
 
  relationx.id=id;
  relationx.routes=routes;
@@ -564,7 +564,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int preserve)
 
           /* Update the ways that are listed for the relation */
 
-          if(wayid==NO_WAY)
+          if(wayid==NO_WAY_ID)
              continue;
 
           if(routes)
@@ -603,7 +603,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int preserve)
                 logerror("Route Relation %"Prelation_t" contains Way %"Pway_t" but it does not exist in the Routino database.\n",relationx.id,wayid);
             }
          }
-       while(wayid!=NO_WAY);
+       while(wayid!=NO_WAY_ID);
 
        /* Loop through the relations */
 
@@ -613,7 +613,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int preserve)
 
           /* Add the relations that are listed for this relation to the list for next time */
 
-          if(relationid==NO_RELATION)
+          if(relationid==NO_RELATION_ID)
              continue;
 
           if(relationid==relationx.id)
@@ -629,7 +629,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int preserve)
              nunmatched++;
             }
          }
-       while(relationid!=NO_RELATION);
+       while(relationid!=NO_RELATION_ID);
 
        if(!((i+1)%1000))
           printf_middle("Processing Route Relations (%d): Relations=%"Pindex_t" Modified Ways=%"Pindex_t,iteration,relations,ways);
@@ -707,8 +707,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,in
  for(i=0;i<relationsx->trnumber;i++)
    {
     TurnRestrictRelX relationx;
-    node_t via;
-    way_t from,to;
+    index_t via,from,to;
 
     ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
 
