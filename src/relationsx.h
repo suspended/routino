@@ -83,7 +83,7 @@ struct _RelationsX
 
 RelationsX *NewRelationList(int append,int readonly);
 void FreeRelationList(RelationsX *relationsx);
-void FinishRelationList(RelationsX *relationsx);
+void FinishRelationList(RelationsX *relationsx,int preserve);
 
 void AppendRouteRelation(RelationsX* relationsx,relation_t id,
                          transports_t routes,

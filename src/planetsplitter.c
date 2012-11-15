@@ -256,6 +256,11 @@ if(!option_process_only)
    DeleteXMLTaggingRules();
   }
 
+ FinishNodeList(Nodes,option_parse_only);
+ FinishSegmentList(Segments,option_parse_only);
+ FinishWayList(Ways,option_parse_only);
+ FinishRelationList(Relations,option_parse_only);
+
  if(option_parse_only)
    {
     FreeNodeList(Nodes);
@@ -265,11 +270,6 @@ if(!option_process_only)
 
     return(0);
    }
-
- FinishNodeList(Nodes);
- FinishSegmentList(Segments);
- FinishWayList(Ways);
- FinishRelationList(Relations);
 
 
  /* Process the data */

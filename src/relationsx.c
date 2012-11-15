@@ -68,7 +68,7 @@ static NodesX *sortnodesx;
 
   int append Set to 1 if the file is to be opened for appending.
 
-  int readonly Set to 1 if the file is not to be opened.
+  int readonly Set to 1 if the file is to be opened for reading.
   ++++++++++++++++++++++++++++++++++++++*/
 
 RelationsX *NewRelationList(int append,int readonly)
@@ -109,12 +109,14 @@ RelationsX *NewRelationList(int append,int readonly)
          }
 
        CloseFile(rfd);
+
+       RenameFile(relationsx->rfilename ,relationsx->rfilename_tmp);
       }
 
  if(append)
-    relationsx->rfd=OpenFileAppend(relationsx->rfilename);
+    relationsx->rfd=OpenFileAppend(relationsx->rfilename_tmp);
  else if(!readonly)
-    relationsx->rfd=OpenFileNew(relationsx->rfilename);
+    relationsx->rfd=OpenFileNew(relationsx->rfilename_tmp);
  else
     relationsx->rfd=-1;
 
@@ -135,12 +137,14 @@ RelationsX *NewRelationList(int append,int readonly)
        size=SizeFile(relationsx->trfilename);
 
        relationsx->trnumber=size/sizeof(TurnRestrictRelX);
+
+       RenameFile(relationsx->trfilename,relationsx->trfilename_tmp);
       }
 
  if(append)
-    relationsx->trfd=OpenFileAppend(relationsx->trfilename);
+    relationsx->trfd=OpenFileAppend(relationsx->trfilename_tmp);
  else if(!readonly)
-    relationsx->trfd=OpenFileNew(relationsx->trfilename);
+    relationsx->trfd=OpenFileNew(relationsx->trfilename_tmp);
  else
     relationsx->trfd=-1;
 
@@ -266,9 +270,11 @@ void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
   Finish appending relations and change the filename over.
 
   RelationsX *relationsx The relations that have been appended.
+
+  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FinishRelationList(RelationsX *relationsx)
+void FinishRelationList(RelationsX *relationsx,int preserve)
 {
  /* Close the files (finished appending) */
 
@@ -278,10 +284,13 @@ void FinishRelationList(RelationsX *relationsx)
  if(relationsx->trfd!=-1)
     relationsx->trfd=CloseFile(relationsx->trfd);
 
- /* Rename the files to the temporary names (used everywhere else) */
+ /* Rename the file if keeping it */
 
- RenameFile(relationsx->rfilename ,relationsx->rfilename_tmp);
- RenameFile(relationsx->trfilename,relationsx->trfilename_tmp);
+ if(preserve)
+    RenameFile(relationsx->rfilename_tmp ,relationsx->rfilename);
+
+ if(preserve)
+    RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
 }
 
 
