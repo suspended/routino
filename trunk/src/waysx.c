@@ -66,7 +66,7 @@ static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index);
 
   int append Set to 1 if the file is to be opened for appending.
 
-  int readonly Set to 1 if the file is not to be opened.
+  int readonly Set to 1 if the file is to be opened for reading.
   ++++++++++++++++++++++++++++++++++++++*/
 
 WaysX *NewWayList(int append,int readonly)
@@ -104,12 +104,14 @@ WaysX *NewWayList(int append,int readonly)
          }
 
        CloseFile(fd);
+
+       RenameFile(waysx->filename,waysx->filename_tmp);
       }
 
  if(append)
-    waysx->fd=OpenFileAppend(waysx->filename);
+    waysx->fd=OpenFileAppend(waysx->filename_tmp);
  else if(!readonly)
-    waysx->fd=OpenFileNew(waysx->filename);
+    waysx->fd=OpenFileNew(waysx->filename_tmp);
  else
     waysx->fd=-1;
 
@@ -185,18 +187,21 @@ void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name)
   Finish appending ways and change the filename over.
 
   WaysX *waysx The ways that have been appended.
+
+  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FinishWayList(WaysX *waysx)
+void FinishWayList(WaysX *waysx,int preserve)
 {
  /* Close the file (finished appending) */
 
  if(waysx->fd!=-1)
     waysx->fd=CloseFile(waysx->fd);
 
- /* Rename the file to the temporary name (used everywhere else) */
+ /* Rename the file if keeping it */
 
- RenameFile(waysx->filename,waysx->filename_tmp);
+ if(preserve)
+    RenameFile(waysx->filename_tmp,waysx->filename);
 }
 
 

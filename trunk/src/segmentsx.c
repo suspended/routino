@@ -69,7 +69,7 @@ static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
   int append Set to 1 if the file is to be opened for appending.
 
-  int readonly Set to 1 if the file is not to be opened.
+  int readonly Set to 1 if the file is to be opened for reading.
   ++++++++++++++++++++++++++++++++++++++*/
 
 SegmentsX *NewSegmentList(int append,int readonly)
@@ -94,12 +94,14 @@ SegmentsX *NewSegmentList(int append,int readonly)
        size=SizeFile(segmentsx->filename);
 
        segmentsx->number=size/sizeof(SegmentX);
+
+       RenameFile(segmentsx->filename,segmentsx->filename_tmp);
       }
 
  if(append)
-    segmentsx->fd=OpenFileAppend(segmentsx->filename);
+    segmentsx->fd=OpenFileAppend(segmentsx->filename_tmp);
  else if(!readonly)
-    segmentsx->fd=OpenFileNew(segmentsx->filename);
+    segmentsx->fd=OpenFileNew(segmentsx->filename_tmp);
  else
     segmentsx->fd=-1;
 
@@ -181,18 +183,21 @@ void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,dist
   Finish appending segments and change the filename over.
 
   SegmentsX *segmentsx The segments that have been appended.
+
+  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FinishSegmentList(SegmentsX *segmentsx)
+void FinishSegmentList(SegmentsX *segmentsx,int preserve)
 {
  /* Close the file (finished appending) */
 
  if(segmentsx->fd!=-1)
     segmentsx->fd=CloseFile(segmentsx->fd);
 
- /* Rename the file to the temporary name (used everywhere else) */
+ /* Rename the file if keeping it */
 
- RenameFile(segmentsx->filename,segmentsx->filename_tmp);
+ if(preserve)
+    RenameFile(segmentsx->filename_tmp,segmentsx->filename);
 }
 
 

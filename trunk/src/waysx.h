@@ -83,7 +83,7 @@ struct _WaysX
 
 WaysX *NewWayList(int append,int readonly);
 void FreeWayList(WaysX *waysx);
-void FinishWayList(WaysX *waysx);
+void FinishWayList(WaysX *waysx,int preserve);
 
 void SaveWayList(WaysX *waysx,const char *filename);
 

@@ -85,7 +85,7 @@ struct _SegmentsX
 
 SegmentsX *NewSegmentList(int append,int readonly);
 void FreeSegmentList(SegmentsX *segmentsx);
-void FinishSegmentList(SegmentsX *segmentsx);
+void FinishSegmentList(SegmentsX *segmentsx,int preserve);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 

@@ -62,7 +62,7 @@ static int index_by_lat_long(NodeX *nodex,index_t index);
 
   int append Set to 1 if the file is to be opened for appending.
 
-  int readonly Set to 1 if the file is not to be opened.
+  int readonly Set to 1 if the file is to be opened for reading.
   ++++++++++++++++++++++++++++++++++++++*/
 
 NodesX *NewNodeList(int append,int readonly)
@@ -87,12 +87,14 @@ NodesX *NewNodeList(int append,int readonly)
        size=SizeFile(nodesx->filename);
 
        nodesx->number=size/sizeof(NodeX);
+
+       RenameFile(nodesx->filename,nodesx->filename_tmp);
       }
 
  if(append)
-    nodesx->fd=OpenFileAppend(nodesx->filename);
+    nodesx->fd=OpenFileAppend(nodesx->filename_tmp);
  else if(!readonly)
-    nodesx->fd=OpenFileNew(nodesx->filename);
+    nodesx->fd=OpenFileNew(nodesx->filename_tmp);
  else
     nodesx->fd=-1;
 
@@ -167,18 +169,21 @@ void AppendNode(NodesX *nodesx,node_t id,double latitude,double longitude,transp
   Finish appending nodes and change the filename over.
 
   NodesX *nodesx The nodes that have been appended.
+
+  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FinishNodeList(NodesX *nodesx)
+void FinishNodeList(NodesX *nodesx,int preserve)
 {
  /* Close the file (finished appending) */
 
  if(nodesx->fd!=-1)
     nodesx->fd=CloseFile(nodesx->fd);
 
- /* Rename the file to the temporary name (used everywhere else) */
+ /* Rename the file if keeping it */
 
- RenameFile(nodesx->filename,nodesx->filename_tmp);
+ if(preserve)
+    RenameFile(nodesx->filename_tmp,nodesx->filename);
 }
 
 
