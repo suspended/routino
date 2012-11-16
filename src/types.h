@@ -68,20 +68,24 @@
 /*+ The latitude and longitude integer range within each bin. +*/
 #define LAT_LONG_BIN   65536
 
+
 /*+ A flag to mark a node as a super-node. +*/
-#define NODE_SUPER     ((uint16_t)0x8000)
+#define NODE_SUPER       ((uint16_t)0x8000)
 
 /*+ A flag to mark a node as suitable for a U-turn. +*/
-#define NODE_UTURN     ((uint16_t)0x4000)
+#define NODE_UTURN       ((uint16_t)0x4000)
 
 /*+ A flag to mark a node as a mini-roundabout. +*/
-#define NODE_MINIRNDBT ((uint16_t)0x2000)
+#define NODE_MINIRNDBT   ((uint16_t)0x2000)
 
 /*+ A flag to mark a node as a turn relation via node. +*/
-#define NODE_TURNRSTRCT ((uint16_t)0x1000)
+#define NODE_TURNRSTRCT  ((uint16_t)0x1000)
 
-/*+ A flag to mark a node as a turn relation via node. +*/
+/*+ A flag to mark a node as adjacent to a turn relation via node. +*/
 #define NODE_TURNRSTRCT2 ((uint16_t)0x0800)
+
+/*+ A flag to mark a node as deleted. +*/
+#define NODE_DELETED     ((uint16_t)0x0400)
 
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/
@@ -111,6 +115,14 @@
 
 /*+ A very large almost infinite score. +*/
 #define INF_SCORE      (score_t)1E30
+
+
+/*+ A flag to mark a deleted way. +*/
+#define WAY_DELETED (~(highway_t)0)
+
+
+/*+ A flag to mark a deleted relation. +*/
+#define RELATION_DELETED (~(transports_t)0)
 
 
 /* Simple Types */

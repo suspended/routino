@@ -257,7 +257,7 @@ static int sort_by_id(NodeX *a,NodeX *b)
  else if(a_id>b_id)
     return(1);
  else
-    return(FILESORT_PRESERVE_ORDER(a,b));
+    return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
 }
 
 
@@ -273,11 +273,20 @@ static int sort_by_id(NodeX *a,NodeX *b)
 
 static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
 {
- if(index==0 || sortnodesx->idata[index-1]!=nodex->id)
-   {
-    sortnodesx->idata[index]=nodex->id;
+ static node_t previd=NO_NODE_ID;
 
-    return(1);
+ if(nodex->id!=previd)
+   {
+    previd=nodex->id;
+
+    if(nodex->flags&NODE_DELETED)
+       return(0);
+    else
+      {
+       sortnodesx->idata[index]=nodex->id;
+
+       return(1);
+      }
    }
  else
    {

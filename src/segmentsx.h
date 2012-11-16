@@ -94,13 +94,15 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
 void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 
+void ApplySegmentChanges(SegmentsX *segmentsx);
+
 void SortSegmentList(SegmentsX *segmentsx);
 
 void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx);
 
 void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx);
 
-void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,int preserve);
+void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int preserve);
 
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 

@@ -25,7 +25,7 @@ planetsplitter
                          [--loggable] [--logtime]
                          [--errorlog[=<name>]]
                          [--parse-only | --process-only]
-                         [--append] [--preserve]
+                         [--append] [--preserve] [--changes]
                          [--max-iterations=<number>]
                          [--prune-none]
                          [--prune-isolated=<len>]
@@ -93,11 +93,19 @@ planetsplitter
 
    --append
           Parse the input file and append the result to the existing
-          intermediate files.
+          intermediate files; the appended file can be either an OSM file
+          or an OSC change file.
 
    --preserve
           Store a set of intermediate files after parsing the OSM files,
-          sorting and removing duplicates.
+          sorting and removing duplicates; this allows appending an OSC
+          file and re-processing later.
+
+   --changes
+          This option indicates that the data being processed contains one
+          or more OSC (OSM changes) files, they must be applied in time
+          sequence if more than one is used. This option implies --append
+          when parsing data files and --preserve when processing data.
 
    --max-iterations=<number>
           The maximum number of iterations to use when generating
@@ -159,6 +167,23 @@ planetsplitter
    parsing the input files is performed separately from the data
    processing. The first file read in must not use the --append option but
    the later ones must.
+
+   Example usage 3:
+
+   planetsplitter --dir=data --prefix=gb --preserve great_britain_part.osm
+
+   planetsplitter --dir=data --prefix=gb --append --preserve great_britain.osc
+
+   This will generate the same output files as the first example. The
+   first command will process the complete file and keep some intermediate
+   data for later. The second command will apply a set of changes to the
+   stored intermediate data and keep the updated intermediate files for
+   repeating this step later with more change data.
+
+   The parsing and processing can be split into multiple commands as it
+   was in example 2 with the --preserve option used with --process-only
+   for the initial OSM file(s) and the --changes option used with
+   --parse-only or --process-only for every OSC file.
 
 
 router

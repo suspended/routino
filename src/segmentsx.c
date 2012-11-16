@@ -53,6 +53,8 @@ static WaysX *sortwaysx;
 
 /* Local functions */
 
+static int sort_by_way_id(SegmentX *a,SegmentX *b);
+static int apply_changes(SegmentX *segmentx,index_t index);
 static int sort_by_id(SegmentX *a,SegmentX *b);
 static int deduplicate_by_id(SegmentX *segmentx,index_t index);
 static int delete_pruned(SegmentX *segmentx,index_t index);
@@ -202,6 +204,48 @@ void FinishSegmentList(SegmentsX *segmentsx,int preserve)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Apply the changes to the segments (no unique id to use).
+
+  SegmentsX *segmentsx The set of segments to sort and modify.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void ApplySegmentChanges(SegmentsX *segmentsx)
+{
+ int fd;
+ index_t xnumber;
+
+ /* Print the start message */
+
+ printf_first("Applying Segment Changes");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+
+ DeleteFile(segmentsx->filename_tmp);
+
+ fd=OpenFileNew(segmentsx->filename_tmp);
+
+ /* Sort by node indexes */
+
+ xnumber=segmentsx->number;
+
+ segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
+                                                                    (int (*)(const void*,const void*))sort_by_way_id,
+                                                                    (int (*)(void*,index_t))apply_changes);
+
+ /* Close the files */
+
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Applying Segment Changes: Segments=%"Pindex_t" Changed=%"Pindex_t,xnumber,xnumber-segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Sort the segment list and deduplicate it.
 
   SegmentsX *segmentsx The set of segments to sort and modify.
@@ -296,6 +340,30 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Sort the segments into way id order.
+
+  int sort_by_way_id Returns the comparison of the way fields.
+
+  SegmentX *a The first segment.
+
+  SegmentX *b The second segment.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int sort_by_way_id(SegmentX *a,SegmentX *b)
+{
+ way_t a_id=a->way;
+ way_t b_id=b->way;
+
+ if(a_id<b_id)
+    return(-1);
+ else if(a_id>b_id)
+    return(1);
+ else /* if(a_id==b_id) */
+    return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Sort the segments into id order, first by node1 then by node2, finally by distance.
 
   int sort_by_id Returns the comparison of the node fields.
@@ -333,9 +401,41 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
        else if(a_distance>b_distance)
           return(1);
        else
-          return(FILESORT_PRESERVE_ORDER(a,b));
+          return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
       }
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Apply the changes to the segments.
+
+  int apply_changes Return 1 if the value is to be kept, otherwise 0.
+
+  SegmentX *segmentx The extended segment.
+
+  index_t index The number of sorted segments that have already been written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int apply_changes(SegmentX *segmentx,index_t index)
+{
+ static way_t prevway=NO_WAY_ID;
+ static int deleted=0;
+
+ if(prevway!=segmentx->way)
+   {
+    prevway=segmentx->way;
+    deleted=0;
+   }
+
+ if(!deleted)
+    if(segmentx->node1==NO_NODE_ID)
+       deleted=1;
+
+ if(deleted)
+    return(0);
+ else
+    return(1);
 }
 
 
@@ -572,18 +672,20 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
   NodesX *nodesx The set of nodes to use.
 
+  WaysX *waysx The set of ways to use.
+
   int preserve If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,int preserve)
+void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int preserve)
 {
- index_t loop=0,nonode=0,good=0,total=0;
+ index_t noway=0,loop=0,nonode=0,good=0,total=0;
  SegmentX segmentx;
  int fd;
 
  /* Print the start message */
 
- printf_first("Checking Segments: Segments=0 Loop=0 No-Node=0");
+ printf_first("Checking Segments: Segments=0 Loop=0 No-Way=0 No-Node=0");
 
  /* Allocate the node usage bitmask */
 
@@ -608,8 +710,15 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,int preserve)
    {
     index_t index1=IndexNodeX(nodesx,segmentx.node1);
     index_t index2=IndexNodeX(nodesx,segmentx.node2);
+    index_t indexw=IndexWayX(waysx,segmentx.way);
 
-    if(segmentx.node1==segmentx.node2)
+    if(indexw==NO_WAY)
+      {
+       logerror("Segment belongs to way %"Pway_t" but it doesn't exist.\n",segmentx.way);
+
+       noway++;
+      }
+    else if(segmentx.node1==segmentx.node2)
       {
        logerror("Segment connects node %"Pnode_t" to itself.\n",segmentx.node1);
 
@@ -641,7 +750,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,int preserve)
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Node=%"Pindex_t,total,loop,nonode);
+       printf_middle("Checking Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t,total,loop,noway,nonode);
    }
 
  segmentsx->number=good;
@@ -653,7 +762,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,int preserve)
 
  /* Print the final message */
 
- printf_last("Checked Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Node=%"Pindex_t,total,loop,nonode);
+ printf_last("Checked Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t,total,loop,noway,nonode);
 }
 
 

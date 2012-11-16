@@ -49,7 +49,16 @@
 #define ISFALSE(xx) (!strcmp(xx,"false") || !strcmp(xx,"no") || !strcmp(xx,"0"))
 
 
+/* Constants */
+
+#define MODE_CREATE  2
+#define MODE_MODIFY  1
+#define MODE_DELETE -1
+
+
 /* Local variables */
+
+static int mode=MODE_CREATE;
 
 static index_t nnodes=0;
 static index_t nways=0;
@@ -91,6 +100,10 @@ static double parse_length(way_t id,const char *k,const char *v);
 
 //static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding);
 static int osmType_function(const char *_tag_,int _type_,const char *version);
+static int osmChangeType_function(const char *_tag_,int _type_,const char *version);
+static int deleteType_function(const char *_tag_,int _type_);
+static int createType_function(const char *_tag_,int _type_);
+static int modifyType_function(const char *_tag_,int _type_);
 static int relationType_function(const char *_tag_,int _type_,const char *id);
 static int wayType_function(const char *_tag_,int _type_,const char *id);
 static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role);
@@ -167,6 +180,34 @@ static xmltag relationType_tag=
                relationType_function,
                {&memberType_tag,&tagType_tag,NULL}};
 
+/*+ The deleteType type tag. +*/
+static xmltag deleteType_tag=
+              {"delete",
+               0, {NULL},
+               deleteType_function,
+               {&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+
+/*+ The createType type tag. +*/
+static xmltag createType_tag=
+              {"create",
+               0, {NULL},
+               createType_function,
+               {&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+
+/*+ The modifyType type tag. +*/
+static xmltag modifyType_tag=
+              {"modify",
+               0, {NULL},
+               modifyType_function,
+               {&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+
+/*+ The osmChangeType type tag. +*/
+static xmltag osmChangeType_tag=
+              {"osmChange",
+               1, {"version"},
+               osmChangeType_function,
+               {&boundsType_tag,&modifyType_tag,&createType_tag,&deleteType_tag,NULL}};
+
 /*+ The osmType type tag. +*/
 static xmltag osmType_tag=
               {"osm",
@@ -182,8 +223,11 @@ static xmltag xmlDeclaration_tag=
                {NULL}};
 
 
-/*+ The complete set of tags at the top level. +*/
-static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
+/*+ The complete set of tags at the top level for OSM. +*/
+static xmltag *xml_osm_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
+
+/*+ The complete set of tags at the top level for OSC. +*/
+static xmltag *xml_osc_toplevel_tags[]={&xmlDeclaration_tag,&osmChangeType_tag,NULL};
 
 
 /* The XML tag processing functions */
@@ -305,8 +349,11 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
     node_id=(node_t)llid;
     assert((long long)node_id==llid);      /* check node id can be stored in node_t data type. */
 
-    XMLPARSE_ASSERT_FLOATING(_tag_,lat); latitude =atof(lat);
-    XMLPARSE_ASSERT_FLOATING(_tag_,lon); longitude=atof(lon);
+    if(mode!=MODE_DELETE)
+      {
+       XMLPARSE_ASSERT_FLOATING(_tag_,lat); latitude =atof(lat);
+       XMLPARSE_ASSERT_FLOATING(_tag_,lon); longitude=atof(lon);
+      }
    }
 
  if(_type_&XMLPARSE_TAG_END)
@@ -544,6 +591,87 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the deleteType XSD type is seen
+
+  int deleteType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int deleteType_function(const char *_tag_,int _type_)
+{
+ if(_type_&XMLPARSE_TAG_START)
+    mode=MODE_DELETE;
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the createType XSD type is seen
+
+  int createType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int createType_function(const char *_tag_,int _type_)
+{
+ if(_type_&XMLPARSE_TAG_START)
+    mode=MODE_CREATE;
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the modifyType XSD type is seen
+
+  int modifyType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int modifyType_function(const char *_tag_,int _type_)
+{
+ if(_type_&XMLPARSE_TAG_START)
+    mode=MODE_MODIFY;
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the osmChangeType XSD type is seen
+
+  int osmChangeType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int osmChangeType_function(const char *_tag_,int _type_,const char *version)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    if(!version || strcmp(version,"0.6"))
+       XMLPARSE_MESSAGE(_tag_,"Invalid value for 'version' (only '0.6' accepted)");
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the osmType XSD type is seen
 
   int osmType_function Returns 0 if no error occured or something else otherwise.
@@ -559,6 +687,8 @@ static int osmType_function(const char *_tag_,int _type_,const char *version)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
+    mode=MODE_CREATE;
+
     if(!version || strcmp(version,"0.6"))
        XMLPARSE_MESSAGE(_tag_,"Invalid value for 'version' (only '0.6' accepted)");
    }
@@ -622,11 +752,68 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  /* Parse the file */
 
+ mode=MODE_CREATE;
+
  nnodes=0,nways=0,nrelations=0;
 
  printf_first("Reading: Lines=0 Nodes=0 Ways=0 Relations=0");
 
- retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
+ retval=ParseXML(file,xml_osm_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
+
+ printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
+
+ free(way_nodes);
+
+ free(relation_nodes);
+ free(relation_ways);
+ free(relation_relations);
+
+ return(retval);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Parse an OSC XML file (from planet download).
+
+  int ParseOSC Returns 0 if OK or something else in case of an error.
+
+  FILE *file The file to read from.
+
+  NodesX *OSMNodes The data structure of nodes to fill in.
+
+  SegmentsX *OSMSegments The data structure of segments to fill in.
+
+  WaysX *OSMWays The data structure of ways to fill in.
+
+  RelationsX *OSMRelations The data structure of relations to fill in.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseOSC(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
+{
+ int retval;
+
+ /* Copy the function parameters and initialise the variables. */
+
+ nodes=OSMNodes;
+ segments=OSMSegments;
+ ways=OSMWays;
+ relations=OSMRelations;
+
+ way_nodes=(node_t*)malloc(256*sizeof(node_t));
+
+ relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
+ relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
+ relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
+
+ /* Parse the file */
+
+ mode=MODE_CREATE;
+
+ nnodes=0,nways=0,nrelations=0;
+
+ printf_first("Reading: Lines=0 Nodes=0 Ways=0 Relations=0");
+
+ retval=ParseXML(file,xml_osc_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
  printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
@@ -657,6 +844,15 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
  transports_t allow=Transports_ALL;
  uint16_t flags=0;
  int i;
+
+ /* Delete */
+
+ if(mode==MODE_DELETE)
+   {
+    AppendNode(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow,NODE_DELETED);
+
+    return;
+   }
 
  /* Parse the tags */
 
@@ -815,6 +1011,19 @@ static void process_way_tags(TagList *tags,way_t id)
  int roundabout=0;
  char *name=NULL,*ref=NULL,*refname=NULL;
  int i;
+
+ /* Delete */
+
+ if(mode==MODE_DELETE)
+   {
+    way.type=WAY_DELETED;
+
+    AppendWay(ways,id,&way,"");
+
+    AppendSegment(segments,id,NO_NODE_ID,NO_NODE_ID,0);
+
+    return;
+   }
 
  /* Sanity check */
 
@@ -1154,6 +1363,9 @@ static void process_way_tags(TagList *tags,way_t id)
  if(ref && name)
     free(refname);
 
+ if(mode==MODE_MODIFY)
+    AppendSegment(segments,id,NO_NODE_ID,NO_NODE_ID,0);
+
  for(i=1;i<way_nnodes;i++)
    {
     node_t from=way_nodes[i-1];
@@ -1179,6 +1391,21 @@ static void process_relation_tags(TagList *tags,relation_t id)
  int relation_turn_restriction=0;
  TurnRestriction restriction=TurnRestrict_None;
  int i;
+
+ /* Delete */
+
+ if(mode==MODE_DELETE)
+   {
+    AppendRouteRelation(relations,id,RELATION_DELETED,
+                        relation_ways,relation_nways,
+                        relation_relations,relation_nrelations);
+
+    AppendTurnRestrictRelation(relations,id,
+                               relation_from,relation_to,relation_via,
+                               restriction,RELATION_DELETED);
+
+    return;
+   }
 
  /* Sanity check */
 
