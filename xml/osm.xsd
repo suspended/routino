@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <!-- ============================================================
-     An XML Schema Definition for the OSM (JOSM?) XML format
+     An XML Schema Definition for the OSM XML format (including JOSM
+     specific additions such as 'bounds' tag and 'action' attribute).
 
-     Created by reverse engineering a JOSM saved file, not used in Routino
-     but a proof-of-concept parser created by xsd-to-xmlparser.
+     Created by reverse engineering a JOSM saved file; not used in Routino
+     but in a proof-of-concept parser created by xsd-to-xmlparser.
      ============================================================
      This file Copyright 2010-2012 Andrew M. Bishop
 
