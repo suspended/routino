@@ -469,7 +469,7 @@ static int sort_by_id(WayX *a,WayX *b)
  else if(a_id>b_id)
     return(1);
  else
-    return(FILESORT_PRESERVE_ORDER(a,b));
+    return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
 }
 
 
@@ -540,13 +540,16 @@ static int sort_by_name_and_prop_and_id(WayX *a,WayX *b)
 
 static int deduplicate_by_id(WayX *wayx,index_t index)
 {
- static way_t previd;
+ static way_t previd=NO_WAY_ID;
 
- if(index==0 || wayx->id!=previd)
+ if(wayx->id!=previd)
    {
     previd=wayx->id;
 
-    return(1);
+    if(wayx->way.type==WAY_DELETED)
+       return(0);
+    else
+       return(1);
    }
  else
    {

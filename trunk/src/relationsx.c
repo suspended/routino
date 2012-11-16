@@ -398,7 +398,7 @@ static int sort_route_by_id(RouteRelX *a,RouteRelX *b)
  else if(a_id>b_id)
     return(1);
  else
-    return(FILESORT_PRESERVE_ORDER(a,b));
+    return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
 }
 
 
@@ -414,13 +414,16 @@ static int sort_route_by_id(RouteRelX *a,RouteRelX *b)
 
 static int deduplicate_route_by_id(RouteRelX *relationx,index_t index)
 {
- static relation_t previd;
+ static relation_t previd=NO_RELATION_ID;
 
- if(index==0 || relationx->id!=previd)
+ if(relationx->id!=previd)
    {
     previd=relationx->id;
 
-    return(1);
+    if(relationx->routes==RELATION_DELETED)
+       return(0);
+    else
+       return(1);
    }
  else
    {
@@ -451,7 +454,7 @@ static int sort_turn_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
  else if(a_id>b_id)
     return(1);
  else
-    return(FILESORT_PRESERVE_ORDER(a,b));
+    return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
 }
 
 
@@ -467,13 +470,16 @@ static int sort_turn_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
 
 static int deduplicate_turn_by_id(TurnRestrictRelX *relationx,index_t index)
 {
- static relation_t previd;
+ static relation_t previd=NO_RELATION_ID;
 
- if(index==0 || relationx->id!=previd)
+ if(relationx->id!=previd)
    {
     previd=relationx->id;
 
-    return(1);
+    if(relationx->except==RELATION_DELETED)
+       return(0);
+    else
+       return(1);
    }
  else
    {

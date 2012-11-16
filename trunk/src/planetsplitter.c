@@ -75,7 +75,8 @@ int main(int argc,char** argv)
  int         iteration=0,quit=0;
  int         max_iterations=5;
  char       *dirname=NULL,*prefix=NULL,*tagging=NULL,*errorlog=NULL;
- int         option_parse_only=0,option_process_only=0,option_append=0,option_preserve=0;
+ int         option_parse_only=0,option_process_only=0;
+ int         option_append=0,option_preserve=0,option_changes=0;
  int         option_filenames=0;
  int         option_prune_isolated=500,option_prune_short=5,option_prune_straight=3;
  int         arg;
@@ -108,6 +109,8 @@ int main(int argc,char** argv)
        option_append=1;
     else if(!strcmp(argv[arg],"--preserve"))
        option_preserve=1;
+    else if(!strcmp(argv[arg],"--changes"))
+       option_changes=1;
     else if(!strcmp(argv[arg],"--loggable"))
        option_loggable=1;
     else if(!strcmp(argv[arg],"--logtime"))
@@ -201,18 +204,18 @@ int main(int argc,char** argv)
 
  /* Create new node, segment, way and relation variables */
 
- Nodes=NewNodeList(option_append,option_process_only);
+ Nodes=NewNodeList(option_append||option_changes,option_process_only);
 
- Segments=NewSegmentList(option_append,option_process_only);
+ Segments=NewSegmentList(option_append||option_changes,option_process_only);
 
- Ways=NewWayList(option_append,option_process_only);
+ Ways=NewWayList(option_append||option_changes,option_process_only);
 
- Relations=NewRelationList(option_append,option_process_only);
+ Relations=NewRelationList(option_append||option_changes,option_process_only);
 
  /* Create the error log file */
 
  if(errorlog)
-    open_errorlog(FileName(dirname,prefix,errorlog),option_append||option_process_only);
+    open_errorlog(FileName(dirname,prefix,errorlog),option_append||option_changes||option_process_only);
 
  /* Parse the file */
 
@@ -235,22 +238,44 @@ if(!option_process_only)
             exit(EXIT_FAILURE);
            }
 
-         printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
-         fflush(stdout);
+         if(option_changes)
+           {
+            printf("\nParse OSC Data [%s]\n==============\n\n",argv[arg]);
+            fflush(stdout);
 
-         if(ParseOSM(file,Nodes,Segments,Ways,Relations))
-            exit(EXIT_FAILURE);
+            if(ParseOSC(file,Nodes,Segments,Ways,Relations))
+               exit(EXIT_FAILURE);
+           }
+         else
+           {
+            printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
+            fflush(stdout);
+
+            if(ParseOSM(file,Nodes,Segments,Ways,Relations))
+               exit(EXIT_FAILURE);
+           }
 
          fclose(file);
         }
      }
    else
      {
-      printf("\nParse OSM Data\n==============\n\n");
-      fflush(stdout);
+      if(option_changes)
+        {
+         printf("\nParse OSC Data\n==============\n\n");
+         fflush(stdout);
 
-      if(ParseOSM(stdin,Nodes,Segments,Ways,Relations))
-         exit(EXIT_FAILURE);
+         if(ParseOSC(stdin,Nodes,Segments,Ways,Relations))
+            exit(EXIT_FAILURE);
+        }
+      else
+        {
+         printf("\nParse OSM Data\n==============\n\n");
+         fflush(stdout);
+
+         if(ParseOSM(stdin,Nodes,Segments,Ways,Relations))
+            exit(EXIT_FAILURE);
+        }
      }
 
    DeleteXMLTaggingRules();
@@ -281,29 +306,32 @@ if(!option_process_only)
 
  SortNodeList(Nodes);
 
+ if(option_changes)
+    ApplySegmentChanges(Segments);
+
  SortSegmentList(Segments);
 
  SortWayList(Ways);
 
  SortRelationList(Relations);
 
- /* Remove bad segments (must be after sorting the nodes and segments) */
+ /* Extract the way names (must be before using the ways) */
 
- RemoveBadSegments(Segments,Nodes,option_preserve);
+ ExtractWayNames(Ways,option_preserve||option_changes);
+
+ /* Remove bad segments (must be after sorting the nodes, segments and ways) */
+
+ RemoveBadSegments(Segments,Nodes,Ways,option_preserve||option_changes);
 
  /* Remove non-highway nodes (must be after removing the bad segments) */
 
- RemoveNonHighwayNodes(Nodes,Segments,option_preserve);
-
- /* Extract the way names (must be before using the ways) */
-
- ExtractWayNames(Ways,option_preserve);
+ RemoveNonHighwayNodes(Nodes,Segments,option_preserve||option_changes);
 
  /* Process the route relations and first part of turn relations (must be before compacting the ways) */
 
- ProcessRouteRelations(Relations,Ways,option_preserve);
+ ProcessRouteRelations(Relations,Ways,option_preserve||option_changes);
 
- ProcessTurnRelations1(Relations,Nodes,Ways,option_preserve);
+ ProcessTurnRelations1(Relations,Nodes,Ways,option_preserve||option_changes);
 
  /* Measure the segments and replace node/way id with index (must be after removing non-highway nodes) */
 
@@ -525,7 +553,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--loggable] [--logtime]\n"
          "                      [--errorlog[=<name>]]\n"
          "                      [--parse-only | --process-only]\n"
-         "                      [--append]\n"
+         "                      [--append] [--preserve] [--changes]\n"
          "                      [--max-iterations=<number>]\n"
          "                      [--prune-none]\n"
          "                      [--prune-isolated=<len>]\n"
@@ -574,10 +602,11 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--errorlog[=<name>]       Log parsing errors to 'error.log' or the given name\n"
             "                          (the '--dir' and '--prefix' options are applied).\n"
             "\n"
-            "--parse-only              Parse the OSM file(s) and store the results.\n"
+            "--parse-only              Parse the OSM/OSC file(s) and store the results.\n"
             "--process-only            Process the stored results from previous option.\n"
             "--append                  Parse the OSM file(s) and append to existing results.\n"
             "--preserve                Keep the intermediate files after parsing & sorting.\n"
+            "--changes                 Parse the data as an OSC file and apply the changes.\n"
             "\n"
             "--max-iterations=<number> The number of iterations for finding super-nodes\n"
             "                          (defaults to 5).\n"
