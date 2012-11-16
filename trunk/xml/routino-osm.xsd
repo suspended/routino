@@ -3,7 +3,7 @@
 <!-- ============================================================
      An XML Schema Definition for the part of the OSM XML format read by Routino.
 
-     Part of the Routino routing software.
+     Part of the Routino routing software (semi-automatically converted to create osmparse.c).
      ============================================================
      This file Copyright 2010-2012 Andrew M. Bishop
 
