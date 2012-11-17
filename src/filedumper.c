@@ -44,14 +44,14 @@
 static void print_node(Nodes *nodes,index_t item);
 static void print_segment(Segments *segments,index_t item);
 static void print_way(Ways *ways,index_t item);
-static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
+static void print_turn_relation(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
 
 static void print_head_osm(int coordcount,double latmin,double latmax,double lonmin,double lonmax);
 static void print_region_osm(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,
                              double latmin,double latmax,double lonmin,double lonmax,int option_no_super);
 static void print_node_osm(Nodes *nodes,index_t item);
 static void print_segment_osm(Segments *segments,index_t item,Ways *ways);
-static void print_turnrelation_osm(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
+static void print_turn_relation_osm(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
 static void print_tail_osm(void);
 
 static char *RFC822Date(time_t t);
@@ -323,14 +323,14 @@ int main(int argc,char** argv)
        else if(!strcmp(argv[arg],"--turn-relation=all"))
          {
           for(item=0;item<OSMRelations->file.trnumber;item++)
-             print_turnrelation(OSMRelations,item,OSMSegments,OSMNodes);
+             print_turn_relation(OSMRelations,item,OSMSegments,OSMNodes);
          }
        else if(!strncmp(argv[arg],"--turn-relation=",16))
          {
           item=atoi(&argv[arg][16]);
 
           if(item>=0 && item<OSMRelations->file.trnumber)
-             print_turnrelation(OSMRelations,item,OSMSegments,OSMNodes);
+             print_turn_relation(OSMRelations,item,OSMSegments,OSMNodes);
           else
              printf("Invalid turn relation number; minimum=0, maximum=%"Pindex_t".\n",OSMRelations->file.trnumber-1);
          }
@@ -359,7 +359,7 @@ int main(int argc,char** argv)
              print_segment_osm(OSMSegments,item,OSMWays);
 
        for(item=0;item<OSMRelations->file.trnumber;item++)
-          print_turnrelation_osm(OSMRelations,item,OSMSegments,OSMNodes);
+          print_turn_relation_osm(OSMRelations,item,OSMSegments,OSMNodes);
       }
 
     print_tail_osm();
@@ -466,7 +466,7 @@ static void print_way(Ways *ways,index_t item)
   Nodes *nodes The set of nodes to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_turnrelation(Relations *relations,index_t item,Segments *segments,Nodes *nodes)
+static void print_turn_relation(Relations *relations,index_t item,Segments *segments,Nodes *nodes)
 {
  Segment *segmentp;
  TurnRelation *relationp=LookupTurnRelation(relations,item,1);
@@ -615,7 +615,7 @@ static void print_region_osm(Nodes *nodes,Segments *segments,Ways *ways,Relation
 
                 while(relindex!=NO_RELATION)
                   {
-                   print_turnrelation_osm(relations,relindex,segments,nodes);
+                   print_turn_relation_osm(relations,relindex,segments,nodes);
 
                    relindex=FindNextTurnRelation1(relations,relindex);
                   }
@@ -753,7 +753,7 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
   Nodes *nodes The set of nodes to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_turnrelation_osm(Relations *relations,index_t item,Segments *segments,Nodes *nodes)
+static void print_turn_relation_osm(Relations *relations,index_t item,Segments *segments,Nodes *nodes)
 {
  TurnRelation *relationp=LookupTurnRelation(relations,item,1);
 
@@ -863,7 +863,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                                --data=<data-type>]\n"
          "                  [--dump [--node=<node> ...]\n"
          "                          [--segment=<segment> ...]\n"
-         "                          [--way=<way> ...]]\n"
+         "                          [--way=<way> ...]\n"
          "                          [--turn-relation=<rel> ...]]\n"
          "                  [--dump-osm [--no-super]\n"
          "                              [--latmin=<latmin> --latmax=<latmax>\n"
