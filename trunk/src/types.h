@@ -40,16 +40,16 @@
 
 
 /*+ An undefined node index. +*/
-#define NO_NODE        (~(index_t)0)
+#define NO_NODE        ((index_t)~0)
 
 /*+ An undefined segment index. +*/
-#define NO_SEGMENT     (~(index_t)0)
+#define NO_SEGMENT     ((index_t)~0)
 
 /*+ An undefined way index. +*/
-#define NO_WAY         (~(index_t)0)
+#define NO_WAY         ((index_t)~0)
 
 /*+ An undefined relation index. +*/
-#define NO_RELATION    (~(index_t)0)
+#define NO_RELATION    ((index_t)~0)
 
 /*+ An undefined location. +*/
 #define NO_LATLONG     ((latlong_t)0x80000000)
@@ -118,11 +118,11 @@
 
 
 /*+ A flag to mark a deleted way. +*/
-#define WAY_DELETED (~(highway_t)0)
+#define WAY_DELETED ((highway_t)~0)
 
 
 /*+ A flag to mark a deleted relation. +*/
-#define RELATION_DELETED (~(transports_t)0)
+#define RELATION_DELETED ((transports_t)~0)
 
 
 /* Simple Types */
