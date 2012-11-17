@@ -51,6 +51,7 @@
 
 /* Constants */
 
+#define MODE_NORMAL  3
 #define MODE_CREATE  2
 #define MODE_MODIFY  1
 #define MODE_DELETE -1
@@ -58,7 +59,7 @@
 
 /* Local variables */
 
-static int mode=MODE_CREATE;
+static int mode=MODE_NORMAL;
 
 static index_t nnodes=0;
 static index_t nways=0;
@@ -687,7 +688,7 @@ static int osmType_function(const char *_tag_,int _type_,const char *version)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    mode=MODE_CREATE;
+    mode=MODE_NORMAL;
 
     if(!version || strcmp(version,"0.6"))
        XMLPARSE_MESSAGE(_tag_,"Invalid value for 'version' (only '0.6' accepted)");
@@ -752,8 +753,6 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  /* Parse the file */
 
- mode=MODE_CREATE;
-
  nnodes=0,nways=0,nrelations=0;
 
  printf_first("Reading: Lines=0 Nodes=0 Ways=0 Relations=0");
@@ -806,8 +805,6 @@ int ParseOSC(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
  relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
 
  /* Parse the file */
-
- mode=MODE_CREATE;
 
  nnodes=0,nways=0,nrelations=0;
 
@@ -1014,16 +1011,17 @@ static void process_way_tags(TagList *tags,way_t id)
 
  /* Delete */
 
- if(mode==MODE_DELETE)
+ if(mode==MODE_DELETE || (mode!=MODE_NORMAL && IndexWayX(ways,id)!=NO_WAY))
    {
     way.type=WAY_DELETED;
 
     AppendWay(ways,id,&way,"");
 
     AppendSegment(segments,id,NO_NODE_ID,NO_NODE_ID,0);
-
-    return;
    }
+
+ if(mode==MODE_DELETE)
+    return;
 
  /* Sanity check */
 
@@ -1362,9 +1360,6 @@ static void process_way_tags(TagList *tags,way_t id)
 
  if(ref && name)
     free(refname);
-
- if(mode==MODE_MODIFY)
-    AppendSegment(segments,id,NO_NODE_ID,NO_NODE_ID,0);
 
  for(i=1;i<way_nnodes;i++)
    {
