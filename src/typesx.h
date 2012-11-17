@@ -33,13 +33,13 @@
 /* Constants and macros for handling them */
 
 /*+ An undefined node ID. +*/
-#define NO_NODE_ID     (~(node_t)0)
+#define NO_NODE_ID     ((node_t)~0)
 
 /*+ An undefined way ID. +*/
-#define NO_WAY_ID      (~(way_t)0)
+#define NO_WAY_ID      ((way_t)~0)
 
 /*+ An undefined relation ID. +*/
-#define NO_RELATION_ID (~(relation_t)0)
+#define NO_RELATION_ID ((relation_t)~0)
 
 /*+ The maximum number of segments per node (used to size temporary storage). +*/
 #define MAX_SEG_PER_NODE 32
