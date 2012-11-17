@@ -205,7 +205,7 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,
                          way_t *ways,int nways,
                          relation_t *relations,int nrelations)
 {
- RouteRelX relationx;
+ RouteRelX relationx={0};
  FILESORT_VARINT size;
  way_t noway=NO_WAY_ID;
  relation_t norelation=NO_RELATION_ID;
