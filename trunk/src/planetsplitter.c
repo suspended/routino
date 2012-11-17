@@ -55,6 +55,9 @@ size_t option_filesort_ramsize=0;
 /*+ The number of threads to use for filesorting. +*/
 int option_filesort_threads=1;
 
+/*+ The option to apply changes (needed to suppress some error log messages) +*/
+int option_changes=0;
+
 
 /* Local functions */
 
@@ -76,7 +79,7 @@ int main(int argc,char** argv)
  int         max_iterations=5;
  char       *dirname=NULL,*prefix=NULL,*tagging=NULL,*errorlog=NULL;
  int         option_parse_only=0,option_process_only=0;
- int         option_append=0,option_preserve=0,option_changes=0;
+ int         option_append=0,option_preserve=0;
  int         option_filenames=0;
  int         option_prune_isolated=500,option_prune_short=5,option_prune_straight=3;
  int         arg;
