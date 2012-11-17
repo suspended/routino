@@ -43,6 +43,15 @@
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
+/*+ The option to apply changes (needed to suppress some error log messages) +*/
+extern int option_changes;
+
+/* Local variables */
+
+/*+ Temporary file-local variables for use by the sort functions. +*/
+static SegmentsX *sortsegmentsx;
+static NodesX *sortnodesx;
+
 /* Local functions */
 
 static int sort_route_by_id(RouteRelX *a,RouteRelX *b);
@@ -53,12 +62,6 @@ static int deduplicate_turn_by_id(TurnRestrictRelX *relationx,index_t index);
 
 static int geographically_index(TurnRestrictRelX *relationx,index_t index);
 static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b);
-
-/* Local variables */
-
-/*+ Temporary file-local variables for use by the sort functions. +*/
-static SegmentsX *sortsegmentsx;
-static NodesX *sortnodesx;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -427,7 +430,8 @@ static int deduplicate_route_by_id(RouteRelX *relationx,index_t index)
    }
  else
    {
-    logerror("Relation %"Prelation_t" is duplicated.\n",relationx->id);
+    if(!option_changes)
+       logerror("Relation %"Prelation_t" is duplicated.\n",relationx->id);
 
     return(0);
    }
@@ -483,7 +487,8 @@ static int deduplicate_turn_by_id(TurnRestrictRelX *relationx,index_t index)
    }
  else
    {
-    logerror("Relation %"Prelation_t" is duplicated.\n",relationx->id);
+    if(!option_changes)
+       logerror("Relation %"Prelation_t" is duplicated.\n",relationx->id);
 
     return(0);
    }

@@ -44,6 +44,9 @@
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
+/*+ The option to apply changes (needed to suppress some error log messages) +*/
+extern int option_changes;
+
 /* Local variables */
 
 /*+ Temporary file-local variables for use by the sort functions. +*/
@@ -464,17 +467,20 @@ static int deduplicate_by_id(SegmentX *segmentx,index_t index)
    }
  else
    {
-    if(!(prevdist&SEGMENT_AREA) && !(segmentx->distance&SEGMENT_AREA))
-       logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx->node1,segmentx->node2);
+    if(!option_changes)
+      {
+       if(!(prevdist&SEGMENT_AREA) && !(segmentx->distance&SEGMENT_AREA))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx->node1,segmentx->node2);
 
-    if(!(prevdist&SEGMENT_AREA) && (segmentx->distance&SEGMENT_AREA))
-       logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",segmentx->node1,segmentx->node2);
+       if(!(prevdist&SEGMENT_AREA) && (segmentx->distance&SEGMENT_AREA))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",segmentx->node1,segmentx->node2);
 
-    if((prevdist&SEGMENT_AREA) && !(segmentx->distance&SEGMENT_AREA))
-       logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",segmentx->node1,segmentx->node2);
+       if((prevdist&SEGMENT_AREA) && !(segmentx->distance&SEGMENT_AREA))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",segmentx->node1,segmentx->node2);
 
-    if((prevdist&SEGMENT_AREA) && (segmentx->distance&SEGMENT_AREA))
-       logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",segmentx->node1,segmentx->node2);
+       if((prevdist&SEGMENT_AREA) && (segmentx->distance&SEGMENT_AREA))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",segmentx->node1,segmentx->node2);
+      }
 
     return(0);
    }
