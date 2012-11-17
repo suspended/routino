@@ -60,7 +60,7 @@ CFLAGS+=-D_POSIX_C_SOURCE=200809L
 C=$(wildcard *.c)
 D=$(wildcard .deps/*.d)
 
-EXE=planetsplitter planetsplitter-slim router router-slim filedumper filedumper-slim tagmodifier
+EXE=planetsplitter planetsplitter-slim router router-slim filedumperx filedumper filedumper-slim tagmodifier
 
 ########
 
@@ -120,6 +120,14 @@ ROUTER_SLIM_OBJ=router-slim.o \
 
 router-slim : $(ROUTER_SLIM_OBJ)
 	$(LD) $(ROUTER_SLIM_OBJ) -o $@ $(LDFLAGS)
+
+########
+
+FILEDUMPERX_OBJ=filedumperx.o \
+	        files.o
+
+filedumperx : $(FILEDUMPERX_OBJ)
+	$(LD) $(FILEDUMPERX_OBJ) -o $@ $(LDFLAGS)
 
 ########
 

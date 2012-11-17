@@ -47,12 +47,13 @@
 
 <h2><a name="H_1_1"></a>Program Usage</h2>
 
-There are four programs that make up this software.  The first one takes the
+There are five programs that make up this software.  The first one takes the
 planet.osm datafile from OpenStreetMap (or other source of data using the same
 formats) and converts it into a local database.  The second program uses the
 database to determine an optimum route between two points.  The third program
 allows visualisation of the data and statistics to be extracted.  The fourth
-program is a test program for the tag transformations.
+program allows dumping the raw parsed data for test purposes and the fifth is a
+test program for the tag transformations.
 
 <h3><a name="H_1_1_1"></a>planetsplitter</h3>
 
@@ -530,7 +531,50 @@ that operates in slim mode.  In slim mode the database files are read as needed
 rather than being mapped into memory.</i>
 
 
-<h3><a name="H_1_1_4"></a>tagmodifier</h3>
+<h3><a name="H_1_1_4"></a>filedumperx</h3>
+
+This program is a modified version of filedumper that will dump out the contents
+of the intermediate data that is saved by planetsplitter after processing using
+the --preserve or --changes option.  This is intended for test purposes only and
+gives no useful information about the routing database.
+
+<pre class="boxed">
+Usage: filedumper [--help]
+                  [--dir=&lt;dirname&gt;] [--prefix=&lt;name&gt;]
+                  [--dump [--nodes]
+                          [--segments]
+                          [--ways]
+                          [--route-relations]
+                          [--turn-relations]]
+</pre>
+
+<dl>
+  <dt>--help
+  <dd>Prints out the help information.
+  <dt>--dir=&lt;dirname&gt;
+  <dd>Sets the directory name in which to read the local database.
+    Defaults to the current directory.
+  <dt>--prefix=&lt;name&gt;
+  <dd>Sets the filename prefix for the files in the local database.
+  <dt>--dump
+  <dd>Dumps the complete set of data in the intermediate files that are written
+    by planetsplitter using the --preserve or --changes options.
+    <dl>
+      <dt>--nodes
+      <dd>Dumps the node data.
+      <dt>--segments
+      <dd>Dumps the segment data.
+      <dt>--ways
+      <dd>Dumps the way data.
+      <dt>--route-relations
+      <dd>Dumps the route relation data.
+      <dt>--turn-relations
+      <dd>Dumps the turn relation data.
+    </dl>
+</dl>
+
+
+<h3><a name="H_1_1_5"></a>tagmodifier</h3>
 
 This program is used to run the tag transformation process on an OSM XML file
 for test purposes.
