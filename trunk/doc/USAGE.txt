@@ -2,14 +2,14 @@
                                ===============
 
 
-   There are four programs that make up this software. The first one takes
+   There are five programs that make up this software. The first one takes
    the planet.osm datafile from OpenStreetMap (or other source of data
    using the same formats) and converts it into a local database. The
    second program uses the database to determine an optimum route between
    two points. The third program allows visualisation of the data and
-   statistics to be extracted. The fourth program is a test program for
-   the tag transformations.
-
+   statistics to be extracted. The fourth program allows dumping the raw
+   parsed data for test purposes and the fifth is a test program for the
+   tag transformations.
 
 planetsplitter
 --------------
@@ -172,7 +172,7 @@ planetsplitter
 
    planetsplitter --dir=data --prefix=gb --preserve great_britain_part.osm
 
-   planetsplitter --dir=data --prefix=gb --append --preserve great_britain.osc
+   planetsplitter --dir=data --prefix=gb --changes great_britain.osc
 
    This will generate the same output files as the first example. The
    first command will process the complete file and keep some intermediate
@@ -540,6 +540,54 @@ filedumper
    compilation time a separate program called filedumper-slim is created
    that operates in slim mode. In slim mode the database files are read as
    needed rather than being mapped into memory.
+
+
+filedumperx
+-----------
+
+   This program is a modified version of filedumper that will dump out the
+   contents of the intermediate data that is saved by planetsplitter after
+   processing using the --preserve or --changes option. This is intended
+   for test purposes only and gives no useful information about the
+   routing database.
+
+   Usage: filedumper [--help]
+                     [--dir=<dirname>] [--prefix=<name>]
+                     [--dump [--nodes]
+                             [--segments]
+                             [--ways]
+                             [--route-relations]
+                             [--turn-relations]]
+
+   --help
+          Prints out the help information.
+
+   --dir=<dirname>
+          Sets the directory name in which to read the local database.
+          Defaults to the current directory.
+
+   --prefix=<name>
+          Sets the filename prefix for the files in the local database.
+
+   --dump
+          Dumps the complete set of data in the intermediate files that
+          are written by planetsplitter using the --preserve or --changes
+          options.
+
+        --nodes
+                Dumps the node data.
+
+        --segments
+                Dumps the segment data.
+
+        --ways
+                Dumps the way data.
+
+        --route-relations
+                Dumps the route relation data.
+
+        --turn-relations
+                Dumps the turn relation data.
 
 
 tagmodifier
