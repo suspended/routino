@@ -131,7 +131,7 @@ WaysX *NewWayList(int append,int readonly,int index)
 
              SeekReadFile(fd,&waysize,FILESORT_VARSIZE,position);
 
-             SeekReadFile(fd,&wayx,sizeof(WayX),position+2);
+             SeekReadFile(fd,&wayx,sizeof(WayX),position+FILESORT_VARSIZE);
 
              waysx->idata[waysx->inumber]=wayx.id;
 
