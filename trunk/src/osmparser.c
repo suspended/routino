@@ -1389,7 +1389,7 @@ static void process_relation_tags(TagList *tags,relation_t id)
 
  /* Delete */
 
- if(mode==MODE_DELETE)
+ if(mode==MODE_DELETE || mode==MODE_MODIFY)
    {
     AppendRouteRelation(relations,id,RELATION_DELETED,
                         relation_ways,relation_nways,
@@ -1398,9 +1398,10 @@ static void process_relation_tags(TagList *tags,relation_t id)
     AppendTurnRestrictRelation(relations,id,
                                relation_from,relation_to,relation_via,
                                restriction,RELATION_DELETED);
-
-    return;
    }
+
+ if(mode==MODE_DELETE)
+    return;
 
  /* Sanity check */
 
