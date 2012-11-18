@@ -84,15 +84,15 @@ struct _SegmentsX
 
 
 SegmentsX *NewSegmentList(int append,int readonly);
-void FreeSegmentList(SegmentsX *segmentsx);
-void FinishSegmentList(SegmentsX *segmentsx,int preserve);
+void FreeSegmentList(SegmentsX *segmentsx,int preserve);
+
+void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
+void FinishSegmentList(SegmentsX *segmentsx);
 
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
 SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t nodeindex,int position);
 SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex);
-
-void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 
 void ApplySegmentChanges(SegmentsX *segmentsx);
 

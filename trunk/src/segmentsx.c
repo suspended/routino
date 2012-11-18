@@ -118,11 +118,16 @@ SegmentsX *NewSegmentList(int append,int readonly)
   Free a segment list.
 
   SegmentsX *segmentsx The set of segments to be freed.
+
+  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeSegmentList(SegmentsX *segmentsx)
+void FreeSegmentList(SegmentsX *segmentsx,int preserve)
 {
- DeleteFile(segmentsx->filename_tmp);
+ if(preserve)
+    RenameFile(segmentsx->filename_tmp,segmentsx->filename);
+ else
+    DeleteFile(segmentsx->filename_tmp);
 
  free(segmentsx->filename);
  free(segmentsx->filename_tmp);
@@ -188,21 +193,12 @@ void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,dist
   Finish appending segments and change the filename over.
 
   SegmentsX *segmentsx The segments that have been appended.
-
-  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FinishSegmentList(SegmentsX *segmentsx,int preserve)
+void FinishSegmentList(SegmentsX *segmentsx)
 {
- /* Close the file (finished appending) */
-
  if(segmentsx->fd!=-1)
     segmentsx->fd=CloseFile(segmentsx->fd);
-
- /* Rename the file if keeping it */
-
- if(preserve)
-    RenameFile(segmentsx->filename_tmp,segmentsx->filename);
 }
 
 

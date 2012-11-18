@@ -159,13 +159,18 @@ RelationsX *NewRelationList(int append,int readonly)
   Free a relation list.
 
   RelationsX *relationsx The set of relations to be freed.
+
+  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeRelationList(RelationsX *relationsx)
+void FreeRelationList(RelationsX *relationsx,int preserve)
 {
  /* Route relations */
 
- DeleteFile(relationsx->rfilename_tmp);
+ if(preserve)
+    RenameFile(relationsx->rfilename_tmp,relationsx->rfilename);
+ else
+    DeleteFile(relationsx->rfilename_tmp);
 
  free(relationsx->rfilename);
  free(relationsx->rfilename_tmp);
@@ -173,7 +178,10 @@ void FreeRelationList(RelationsX *relationsx)
 
  /* Turn Restriction relations */
 
- DeleteFile(relationsx->trfilename_tmp);
+ if(preserve)
+    RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
+ else
+    DeleteFile(relationsx->trfilename_tmp);
 
  free(relationsx->trfilename);
  free(relationsx->trfilename_tmp);
@@ -273,27 +281,15 @@ void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
   Finish appending relations and change the filename over.
 
   RelationsX *relationsx The relations that have been appended.
-
-  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FinishRelationList(RelationsX *relationsx,int preserve)
+void FinishRelationList(RelationsX *relationsx)
 {
- /* Close the files (finished appending) */
-
  if(relationsx->rfd!=-1)
     relationsx->rfd =CloseFile(relationsx->rfd);
 
  if(relationsx->trfd!=-1)
     relationsx->trfd=CloseFile(relationsx->trfd);
-
- /* Rename the file if keeping it */
-
- if(preserve)
-    RenameFile(relationsx->rfilename_tmp ,relationsx->rfilename);
-
- if(preserve)
-    RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
 }
 
 

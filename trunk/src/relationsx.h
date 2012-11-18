@@ -82,8 +82,7 @@ struct _RelationsX
 /* Functions in relationsx.c */
 
 RelationsX *NewRelationList(int append,int readonly);
-void FreeRelationList(RelationsX *relationsx);
-void FinishRelationList(RelationsX *relationsx,int preserve);
+void FreeRelationList(RelationsX *relationsx,int preserve);
 
 void AppendRouteRelation(RelationsX* relationsx,relation_t id,
                          transports_t routes,
@@ -93,6 +92,8 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,
 void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
                                 way_t from,way_t to,node_t via,
                                 TurnRestriction restriction,transports_t except);
+
+void FinishRelationList(RelationsX *relationsx);
 
 void SortRelationList(RelationsX *relationsx);
 

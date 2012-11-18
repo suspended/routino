@@ -111,11 +111,16 @@ NodesX *NewNodeList(int append,int readonly)
   Free a node list.
 
   NodesX *nodesx The set of nodes to be freed.
+
+  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeNodeList(NodesX *nodesx)
+void FreeNodeList(NodesX *nodesx,int preserve)
 {
- DeleteFile(nodesx->filename_tmp);
+ if(preserve)
+    RenameFile(nodesx->filename_tmp,nodesx->filename);
+ else
+    DeleteFile(nodesx->filename_tmp);
 
  free(nodesx->filename);
  free(nodesx->filename_tmp);
@@ -174,21 +179,12 @@ void AppendNode(NodesX *nodesx,node_t id,double latitude,double longitude,transp
   Finish appending nodes and change the filename over.
 
   NodesX *nodesx The nodes that have been appended.
-
-  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FinishNodeList(NodesX *nodesx,int preserve)
+void FinishNodeList(NodesX *nodesx)
 {
- /* Close the file (finished appending) */
-
  if(nodesx->fd!=-1)
     nodesx->fd=CloseFile(nodesx->fd);
-
- /* Rename the file if keeping it */
-
- if(preserve)
-    RenameFile(nodesx->filename_tmp,nodesx->filename);
 }
 
 
