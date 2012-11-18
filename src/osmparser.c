@@ -1011,11 +1011,13 @@ static void process_way_tags(TagList *tags,way_t id)
 
  /* Delete */
 
- if(mode==MODE_DELETE || (mode!=MODE_NORMAL && IndexWayX(ways,id)!=NO_WAY))
+ if(mode==MODE_DELETE || (mode==MODE_MODIFY && IndexWayX(ways,id)!=NO_WAY))
    {
     way.type=WAY_DELETED;
 
     AppendWay(ways,id,&way,"");
+
+    way.type=0;
 
     AppendSegment(segments,id,NO_NODE_ID,NO_NODE_ID,0);
    }
