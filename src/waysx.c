@@ -165,11 +165,16 @@ WaysX *NewWayList(int append,int readonly,int index)
   Free a way list.
 
   WaysX *waysx The set of ways to be freed.
+
+  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeWayList(WaysX *waysx)
+void FreeWayList(WaysX *waysx,int preserve)
 {
- DeleteFile(waysx->filename_tmp);
+ if(preserve)
+    RenameFile(waysx->filename_tmp,waysx->filename);
+ else
+    DeleteFile(waysx->filename_tmp);
 
  free(waysx->filename);
  free(waysx->filename_tmp);
@@ -224,24 +229,15 @@ void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name)
   Finish appending ways and change the filename over.
 
   WaysX *waysx The ways that have been appended.
-
-  int preserve If set then the results file is to be preserved.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FinishWayList(WaysX *waysx,int preserve)
+void FinishWayList(WaysX *waysx)
 {
  if(waysx->idata)
    {free(waysx->idata);waysx->idata=NULL;}
 
- /* Close the file (finished appending) */
-
  if(waysx->fd!=-1)
     waysx->fd=CloseFile(waysx->fd);
-
- /* Rename the file if keeping it */
-
- if(preserve)
-    RenameFile(waysx->filename_tmp,waysx->filename);
 }
 
 

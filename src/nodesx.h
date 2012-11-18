@@ -89,14 +89,14 @@ struct _NodesX
 /* Functions in nodesx.c */
 
 NodesX *NewNodeList(int append,int readonly);
-void FreeNodeList(NodesX *nodesx);
-void FinishNodeList(NodesX *nodesx,int preserve);
+void FreeNodeList(NodesX *nodesx,int preserve);
+
+void AppendNode(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags);
+void FinishNodeList(NodesX *nodesx);
 
 void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx);
 
 index_t IndexNodeX(NodesX *nodesx,node_t id);
-
-void AppendNode(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags);
 
 void SortNodeList(NodesX *nodesx);
 

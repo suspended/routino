@@ -83,14 +83,14 @@ struct _WaysX
 
 
 WaysX *NewWayList(int append,int readonly,int index);
-void FreeWayList(WaysX *waysx);
-void FinishWayList(WaysX *waysx,int preserve);
+void FreeWayList(WaysX *waysx,int preserve);
+
+void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name);
+void FinishWayList(WaysX *waysx);
 
 void SaveWayList(WaysX *waysx,const char *filename);
 
 index_t IndexWayX(WaysX *waysx,way_t id);
-
-void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name);
 
 void SortWayList(WaysX *waysx);
 

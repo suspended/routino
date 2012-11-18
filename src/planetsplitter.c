@@ -284,25 +284,25 @@ if(!option_process_only)
    DeleteXMLTaggingRules();
   }
 
- FinishNodeList(Nodes,option_parse_only);
- FinishSegmentList(Segments,option_parse_only);
- FinishWayList(Ways,option_parse_only);
- FinishRelationList(Relations,option_parse_only);
+ FinishNodeList(Nodes);
+ FinishSegmentList(Segments);
+ FinishWayList(Ways);
+ FinishRelationList(Relations);
 
- if(option_parse_only)
+ if(option_parse_only && !option_preserve && !option_changes)
    {
-    FreeNodeList(Nodes);
-    FreeSegmentList(Segments);
-    FreeWayList(Ways);
-    FreeRelationList(Relations);
+    FreeNodeList(Nodes,1);
+    FreeSegmentList(Segments,1);
+    FreeWayList(Ways,1);
+    FreeRelationList(Relations,1);
 
     return(0);
    }
 
 
- /* Process the data */
+ /* Sort the data */
 
- printf("\nProcess OSM Data\n================\n\n");
+ printf("\nSort OSM Data\n=============\n\n");
  fflush(stdout);
 
  /* Sort the nodes, segments, ways and relations */
@@ -317,6 +317,22 @@ if(!option_process_only)
  SortWayList(Ways);
 
  SortRelationList(Relations);
+
+ if(option_parse_only)
+   {
+    FreeNodeList(Nodes,1);
+    FreeSegmentList(Segments,1);
+    FreeWayList(Ways,1);
+    FreeRelationList(Relations,1);
+
+    return(0);
+   }
+
+
+ /* Process the data */
+
+ printf("\nProcess OSM Data\n================\n\n");
+ fflush(stdout);
 
  /* Extract the way names (must be before using the ways) */
 
@@ -420,7 +436,7 @@ if(!option_process_only)
 
        nsuper=SuperSegments->number;
 
-       FreeSegmentList(SuperSegments);
+       FreeSegmentList(SuperSegments,0);
 
        SuperSegments=SuperSegments2;
       }
@@ -454,9 +470,9 @@ if(!option_process_only)
 
  MergedSegments=MergeSuperSegments(Segments,SuperSegments);
 
- FreeSegmentList(Segments);
+ FreeSegmentList(Segments,0);
 
- FreeSegmentList(SuperSegments);
+ FreeSegmentList(SuperSegments,0);
 
  Segments=MergedSegments;
 
@@ -492,25 +508,25 @@ if(!option_process_only)
 
  SaveNodeList(Nodes,FileName(dirname,prefix,"nodes.mem"),Segments);
 
- FreeNodeList(Nodes);
+ FreeNodeList(Nodes,0);
 
  /* Write out the segments */
 
  SaveSegmentList(Segments,FileName(dirname,prefix,"segments.mem"));
 
- FreeSegmentList(Segments);
+ FreeSegmentList(Segments,0);
 
  /* Write out the ways */
 
  SaveWayList(Ways,FileName(dirname,prefix,"ways.mem"));
 
- FreeWayList(Ways);
+ FreeWayList(Ways,0);
 
  /* Write out the relations */
 
  SaveRelationList(Relations,FileName(dirname,prefix,"relations.mem"));
 
- FreeRelationList(Relations);
+ FreeRelationList(Relations,0);
 
  /* Close the error log file */
 
