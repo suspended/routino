@@ -400,7 +400,17 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
        else if(a_distance>b_distance)
           return(1);
        else
-          return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
+         {
+          distance_t a_distflag=DISTFLAG(a->distance);
+          distance_t b_distflag=DISTFLAG(b->distance);
+
+          if(a_distflag<b_distflag)
+             return(-1);
+          else if(a_distflag>b_distflag)
+             return(1);
+          else
+             return(FILESORT_PRESERVE_ORDER(a,b)); /* preserve order */
+         }
       }
    }
 }
