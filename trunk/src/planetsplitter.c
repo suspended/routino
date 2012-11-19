@@ -211,7 +211,7 @@ int main(int argc,char** argv)
 
  Segments=NewSegmentList(option_append||option_changes,option_process_only);
 
- Ways=NewWayList(option_append||option_changes,option_process_only,option_changes);
+ Ways=NewWayList(option_append||option_changes,option_process_only);
 
  Relations=NewRelationList(option_append||option_changes,option_process_only);
 

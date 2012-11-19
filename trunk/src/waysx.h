@@ -66,7 +66,6 @@ struct _WaysX
 
 #endif
 
- index_t  inumber;              /*+ The number of extended way IDs in the idata array. +*/
  way_t   *idata;                /*+ The extended way IDs (sorted by ID). +*/
 
  index_t *cdata;                /*+ The compacted way IDs (same order as sorted ways). +*/
@@ -82,7 +81,7 @@ struct _WaysX
 /* Functions in waysx.c */
 
 
-WaysX *NewWayList(int append,int readonly,int index);
+WaysX *NewWayList(int append,int readonly);
 void FreeWayList(WaysX *waysx,int preserve);
 
 void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name);

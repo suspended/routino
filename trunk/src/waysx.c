@@ -70,11 +70,9 @@ static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index);
   int append Set to 1 if the file is to be opened for appending.
 
   int readonly Set to 1 if the file is to be opened for reading.
-
-  int index Set to 1 if the file is to be indexed (requires append=1).
   ++++++++++++++++++++++++++++++++++++++*/
 
-WaysX *NewWayList(int append,int readonly,int index)
+WaysX *NewWayList(int append,int readonly)
 {
  WaysX *waysx;
 
@@ -109,38 +107,6 @@ WaysX *NewWayList(int append,int readonly,int index)
          }
 
        CloseFile(fd);
-
-       if(append && index)
-         {
-          /* Allocate the array of indexes */
-
-          waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
-
-          assert(waysx->idata); /* Check malloc() worked */
-
-          /* Read through the file again */
-
-          fd=ReOpenFile(waysx->filename);
-
-          position=0;
-
-          while(position<size)
-            {
-             FILESORT_VARINT waysize;
-             WayX wayx;
-
-             SeekReadFile(fd,&waysize,FILESORT_VARSIZE,position);
-
-             SeekReadFile(fd,&wayx,sizeof(WayX),position+FILESORT_VARSIZE);
-
-             waysx->idata[waysx->inumber]=wayx.id;
-
-             waysx->inumber++;
-             position+=waysize+FILESORT_VARSIZE;
-            }
-
-          CloseFile(fd);
-         }
 
        RenameFile(waysx->filename,waysx->filename_tmp);
       }
@@ -233,9 +199,6 @@ void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name)
 
 void FinishWayList(WaysX *waysx)
 {
- if(waysx->idata)
-   {free(waysx->idata);waysx->idata=NULL;}
-
  if(waysx->fd!=-1)
     waysx->fd=CloseFile(waysx->fd);
 }
@@ -410,8 +373,6 @@ void ExtractWayNames(WaysX *waysx,int preserve)
  waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
 
  assert(waysx->idata); /* Check malloc() worked */
-
- waysx->inumber=waysx->number;
 
  /* Sort the ways by ID */
 
@@ -690,7 +651,7 @@ static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index)
 index_t IndexWayX(WaysX *waysx,way_t id)
 {
  index_t start=0;
- index_t end=waysx->inumber-1;
+ index_t end=waysx->number-1;
  index_t mid;
 
  /* Binary search - search key exact match only is required.
