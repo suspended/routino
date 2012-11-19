@@ -226,13 +226,13 @@ static void print_ways(const char *filename)
 
     ReadFile(fd,&wayx,sizeof(WayX));
 
-    if(malloced<(waysize-FILESORT_VARSIZE-sizeof(WayX)))
+    if(malloced<(waysize-sizeof(WayX)))
       {
-       malloced=(waysize-FILESORT_VARSIZE-sizeof(WayX));
+       malloced=(waysize-sizeof(WayX));
        name=(char*)realloc((void*)name,malloced);
       }
 
-    ReadFile(fd,name,(waysize-FILESORT_VARSIZE-sizeof(WayX)));
+    ReadFile(fd,name,(waysize-sizeof(WayX)));
 
     printf("Way %"Pway_t"\n",wayx.id);
     if(*name)
