@@ -59,7 +59,7 @@ static WaysX *sortwaysx;
 static int sort_by_way_id(SegmentX *a,SegmentX *b);
 static int apply_changes(SegmentX *segmentx,index_t index);
 static int sort_by_id(SegmentX *a,SegmentX *b);
-static int deduplicate_by_id(SegmentX *segmentx,index_t index);
+static int deduplicate(SegmentX *segmentx,index_t index);
 static int delete_pruned(SegmentX *segmentx,index_t index);
 static int geographically_index(SegmentX *segmentx,index_t index);
 static int deduplicate_super(SegmentX *segmentx,index_t index);
@@ -273,7 +273,7 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
                                                                     (int (*)(const void*,const void*))sort_by_id,
-                                                                    (int (*)(void*,index_t))deduplicate_by_id);
+                                                                    (int (*)(void*,index_t))deduplicate);
 
  /* Close the files */
 
@@ -449,47 +449,32 @@ static int apply_changes(SegmentX *segmentx,index_t index)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Discard duplicate segments using only the node ids.
+  Discard duplicate segments.
 
-  int deduplicate_by_id Return 1 if the value is to be kept, otherwise 0.
+  int deduplicate Return 1 if the value is to be kept, otherwise 0.
 
   SegmentX *segmentx The extended segment.
 
   index_t index The number of sorted segments that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int deduplicate_by_id(SegmentX *segmentx,index_t index)
+static int deduplicate(SegmentX *segmentx,index_t index)
 {
  static node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
+ static way_t prevway=NO_WAY_ID;
  static distance_t prevdist=0;
 
- if(index==0 || prevnode1!=segmentx->node1 || prevnode2!=segmentx->node2)
+ if(prevnode1!=segmentx->node1 || prevnode2!=segmentx->node2 || prevway!=segmentx->way || prevdist!=segmentx->distance)
    {
     prevnode1=segmentx->node1;
     prevnode2=segmentx->node2;
+    prevway=segmentx->way;
     prevdist=segmentx->distance;
 
     return(1);
    }
  else
-   {
-    if(!option_changes)
-      {
-       if(!(prevdist&SEGMENT_AREA) && !(segmentx->distance&SEGMENT_AREA))
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx->node1,segmentx->node2);
-
-       if(!(prevdist&SEGMENT_AREA) && (segmentx->distance&SEGMENT_AREA))
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",segmentx->node1,segmentx->node2);
-
-       if((prevdist&SEGMENT_AREA) && !(segmentx->distance&SEGMENT_AREA))
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",segmentx->node1,segmentx->node2);
-
-       if((prevdist&SEGMENT_AREA) && (segmentx->distance&SEGMENT_AREA))
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",segmentx->node1,segmentx->node2);
-      }
-
     return(0);
-   }
 }
 
 
@@ -691,13 +676,15 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
 void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int preserve)
 {
- index_t noway=0,loop=0,nonode=0,good=0,total=0;
+ index_t noway=0,loop=0,nonode=0,duplicate=0,good=0,total=0;
+ node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
+ distance_t prevdist=0;
  SegmentX segmentx;
  int fd;
 
  /* Print the start message */
 
- printf_first("Checking Segments: Segments=0 Loop=0 No-Way=0 No-Node=0");
+ printf_first("Checking Segments: Segments=0 Loop=0 No-Way=0 No-Node=0 Duplicate=0");
 
  /* Allocate the node usage bitmask */
 
@@ -749,6 +736,22 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int pres
 
        nonode++;
       }
+    else if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
+      {
+       if(!(prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx.node1,segmentx.node2);
+
+       if(!(prevdist&SEGMENT_AREA) && (segmentx.distance&SEGMENT_AREA))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",segmentx.node1,segmentx.node2);
+
+       if((prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",segmentx.node1,segmentx.node2);
+
+       if((prevdist&SEGMENT_AREA) && (segmentx.distance&SEGMENT_AREA))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",segmentx.node1,segmentx.node2);
+
+       duplicate++;
+      }
     else
       {
        WriteFile(fd,&segmentx,sizeof(SegmentX));
@@ -756,13 +759,17 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int pres
        SetBit(segmentsx->usednode,index1);
        SetBit(segmentsx->usednode,index2);
 
+       prevnode1=segmentx.node1;
+       prevnode2=segmentx.node2;
+       prevdist=DISTANCE(segmentx.distance);
+
        good++;
       }
 
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t,total,loop,noway,nonode);
+       printf_middle("Checking Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t" Duplicate=%"Pindex_t,total,loop,noway,nonode,duplicate);
    }
 
  segmentsx->number=good;
@@ -774,7 +781,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int pres
 
  /* Print the final message */
 
- printf_last("Checked Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t,total,loop,noway,nonode);
+ printf_last("Checked Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t" Duplicate=%"Pindex_t,total,loop,noway,nonode,duplicate);
 }
 
 
