@@ -127,14 +127,13 @@ Usage: planetsplitter [--help]
     files; the appended file can be either an OSM file or an OSC change file.
   <dt>--preserve
   <dd>Store a set of intermediate files after parsing the OSM files, sorting and
-    removing duplicates.  This option must be used before the first OSC changes
-    file is applied even if the --parse-only option was used to read the data.
+    removing duplicates; this allows appending an OSC file and re-processing
+    later.
   <dt>--changes
   <dd>This option indicates that the data being processed contains one or more
     OSC (OSM changes) files, they must be applied in time sequence if more than
     one is used.  This option implies --append when parsing data files and
-    --preserve when processing data.  Changes can only be applied if the
-    previous run to create the intermediate files used the --preserve option.
+    --preserve when processing data.
   <dt>--max-iterations=&lt;number&gt;
   <dd>The maximum number of iterations to use when generating super-nodes and
     super-segments.  Defaults to 5 which is normally enough.
@@ -211,10 +210,9 @@ intermediate data and keep the updated intermediate files for repeating this
 step later with more change data.
 <p>
 The parsing and processing can be split into multiple commands as it was in
-example 2.  The --process-only option can be used for the initial OSM file(s)
-but --preserve is required with the final OSM file to ensure that the data is
-sorted before applying the changes.  The --changes option can be used with
---parse-only and then --process-only and --preserve for the OSC file.
+example 2 with the --preserve option used with --process-only for the initial
+OSM file(s) and the --changes option used with --parse-only or --process-only
+for every OSC file.
 
 
 <h3><a name="H_1_1_2"></a>router</h3>

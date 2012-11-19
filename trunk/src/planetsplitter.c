@@ -289,7 +289,7 @@ if(!option_process_only)
  FinishWayList(Ways);
  FinishRelationList(Relations);
 
- if(option_parse_only && !option_preserve && !option_changes)
+ if(option_parse_only)
    {
     FreeNodeList(Nodes,1);
     FreeSegmentList(Segments,1);
@@ -317,17 +317,6 @@ if(!option_process_only)
  SortWayList(Ways);
 
  SortRelationList(Relations);
-
- if(option_parse_only)
-   {
-    FreeNodeList(Nodes,1);
-    FreeSegmentList(Segments,1);
-    FreeWayList(Ways,1);
-    FreeRelationList(Relations,1);
-
-    return(0);
-   }
-
 
  /* Process the data */
 
