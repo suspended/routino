@@ -68,7 +68,7 @@ static int deduplicate_super(SegmentX *segmentx,index_t index);
 
 static int geographically_index(SegmentX *segmentx,index_t index);
 
-static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
+static segdist_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -160,10 +160,12 @@ void FreeSegmentList(SegmentsX *segmentsx,int preserve)
 
   node_t node2 The second node in the segment.
 
-  distance_t distance The distance between the nodes (or just the flags).
+  segdist_t length The length of the segment.
+
+  segflags_t flags The flags for the segment.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendSegmentList(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance)
+void AppendSegmentList(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,segdist_t length,segflags_t flags)
 {
  SegmentX segmentx;
 
@@ -175,15 +177,16 @@ void AppendSegmentList(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,
     node1=node2;
     node2=temp;
 
-    if(distance&(ONEWAY_2TO1|ONEWAY_1TO2))
-       distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+    if(flags&(ONEWAY_2TO1|ONEWAY_1TO2))
+       flags^=ONEWAY_2TO1|ONEWAY_1TO2;
    }
 
  segmentx.node1=node1;
  segmentx.node2=node2;
  segmentx.next2=NO_SEGMENT;
  segmentx.way=way;
- segmentx.distance=distance;
+ segmentx.length=length;
+ segmentx.flags=flags;
 
  WriteFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
@@ -466,21 +469,21 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
        return(1);
     else
       {
-       distance_t a_distance=DISTANCE(a->distance);
-       distance_t b_distance=DISTANCE(b->distance);
+       segdist_t a_length=a->length;
+       segdist_t b_length=b->length;
 
-       if(a_distance<b_distance)
+       if(a_length<b_length)
           return(-1);
-       else if(a_distance>b_distance)
+       else if(a_length>b_length)
           return(1);
        else
          {
-          distance_t a_distflag=DISTFLAG(a->distance);
-          distance_t b_distflag=DISTFLAG(b->distance);
+          segflags_t a_flags=a->flags;
+          segflags_t b_flags=b->flags;
 
-          if(a_distflag<b_distflag)
+          if(a_flags<b_flags)
              return(-1);
-          else if(a_distflag>b_distflag)
+          else if(a_flags>b_flags)
              return(1);
           else
              return(FILESORT_PRESERVE_ORDER(a,b)); /* preserve order */
@@ -504,14 +507,18 @@ static int deduplicate(SegmentX *segmentx,index_t index)
 {
  static node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
  static way_t prevway=NO_WAY_ID;
- static distance_t prevdist=0;
+ static segdist_t prevlength=0;
+ static segflags_t prevflags=0;
 
- if(prevnode1!=segmentx->node1 || prevnode2!=segmentx->node2 || prevway!=segmentx->way || prevdist!=segmentx->distance)
+ if(prevnode1!=segmentx->node1 || prevnode2!=segmentx->node2 ||
+    prevway!=segmentx->way ||
+    prevlength!=segmentx->length || prevflags!=segmentx->flags)
    {
     prevnode1=segmentx->node1;
     prevnode2=segmentx->node2;
     prevway=segmentx->way;
-    prevdist=segmentx->distance;
+    prevlength=segmentx->length;
+    prevflags=segmentx->flags;
 
     return(1);
    }
@@ -536,7 +543,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int pres
 {
  index_t noway=0,loop=0,nonode=0,duplicate=0,good=0,total=0;
  node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
- distance_t prevdist=0;
+ segflags_t prevflags=0;
  SegmentX segmentx;
  int fd;
 
@@ -596,16 +603,16 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int pres
       }
     else if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
       {
-       if(!(prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
+       if(!(prevflags&SEGMENT_AREA) && !(segmentx.flags&SEGMENT_AREA))
           logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx.node1,segmentx.node2);
 
-       if(!(prevdist&SEGMENT_AREA) && (segmentx.distance&SEGMENT_AREA))
+       if(!(prevflags&SEGMENT_AREA) && (segmentx.flags&SEGMENT_AREA))
           logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",segmentx.node1,segmentx.node2);
 
-       if((prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
+       if((prevflags&SEGMENT_AREA) && !(segmentx.flags&SEGMENT_AREA))
           logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",segmentx.node1,segmentx.node2);
 
-       if((prevdist&SEGMENT_AREA) && (segmentx.distance&SEGMENT_AREA))
+       if((prevflags&SEGMENT_AREA) && (segmentx.flags&SEGMENT_AREA))
           logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",segmentx.node1,segmentx.node2);
 
        duplicate++;
@@ -619,7 +626,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int pres
 
        prevnode1=segmentx.node1;
        prevnode2=segmentx.node2;
-       prevdist=DISTANCE(segmentx.distance);
+       prevflags=segmentx.flags;
 
        good++;
       }
@@ -706,7 +713,8 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
     /* Set the distance but preserve the other flags */
 
-    segmentx.distance=DISTANCE(DistanceX(nodex1,nodex2))|DISTFLAG(segmentx.distance);
+    segmentx.length=DistanceX(nodex1,nodex2);
+    segmentx.flags=segmentx.flags&(~SEGMENT_AREA);
 
     /* Write the modified segment */
 
@@ -1010,7 +1018,7 @@ static int deduplicate_super(SegmentX *segmentx,index_t index)
 
     for(offset=0;offset<nprev;offset++)
       {
-       if(DISTFLAG(segmentx->distance)==DISTFLAG(prevsegx[offset].distance))
+       if(segmentx->flags==prevsegx[offset].flags)
           if(!WaysCompare(&prevway[offset],&wayx->way))
             {
              isduplicate=1;
@@ -1108,8 +1116,8 @@ static int geographically_index(SegmentX *segmentx,index_t index)
     segmentx->node1=segmentx->node2;
     segmentx->node2=temp;
 
-    if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
-       segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+    if(segmentx->flags&(ONEWAY_2TO1|ONEWAY_1TO2))
+       segmentx->flags^=ONEWAY_2TO1|ONEWAY_1TO2;
    }
 
  return(1);
@@ -1152,11 +1160,12 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
 
     ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
-    segment.node1   =segmentx.node1;
-    segment.node2   =segmentx.node2;
-    segment.next2   =segmentx.next2;
-    segment.way     =segmentx.way;
-    segment.distance=segmentx.distance;
+    segment.node1 =segmentx.node1;
+    segment.node2 =segmentx.node2;
+    segment.next2 =segmentx.next2;
+    segment.way   =segmentx.way;
+    segment.length=segmentx.length;
+    segment.flags =segmentx.flags;
 
     if(IsSuperSegment(&segment))
        super_number++;
@@ -1193,14 +1202,14 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Calculate the distance between two nodes.
 
-  distance_t DistanceX Returns the distance between the extended nodes.
+  segdist_t DistanceX Returns the distance between the extended nodes.
 
   NodeX *nodex1 The starting node.
 
   NodeX *nodex2 The end node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2)
+static segdist_t DistanceX(NodeX *nodex1,NodeX *nodex2)
 {
  double dlon = latlong_to_radians(nodex1->longitude) - latlong_to_radians(nodex2->longitude);
  double dlat = latlong_to_radians(nodex1->latitude)  - latlong_to_radians(nodex2->latitude);

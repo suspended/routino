@@ -37,7 +37,7 @@
 
 /* Functions in fakes.c */
 
-index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segmentp,index_t node1,index_t node2,distance_t dist1,distance_t dist2);
+index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segmentp,index_t node1,index_t node2,segdist_t dist1,segdist_t dist2);
 
 void GetFakeLatLong(index_t fakenode, double *latitude,double *longitude);
 

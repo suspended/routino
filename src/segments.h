@@ -46,7 +46,8 @@ struct _Segment
 
  index_t    way;                /*+ The index of the way associated with the segment. +*/
 
- distance_t distance;           /*+ The distance between the nodes. +*/
+ segdist_t  length;             /*+ The length of the segment. +*/
+ segflags_t flags;              /*+ The flags for the segment. +*/
 };
 
 
@@ -102,19 +103,19 @@ static inline Segment *NextSegment(Segments *segments,Segment *segmentp,index_t 
 /* Macros and inline functions */
 
 /*+ Return true if this is a normal segment. +*/
-#define IsNormalSegment(xxx)   (((xxx)->distance)&SEGMENT_NORMAL)
+#define IsNormalSegment(xxx)   ((xxx)->flags&SEGMENT_NORMAL)
 
 /*+ Return true if this is a super-segment. +*/
-#define IsSuperSegment(xxx)    (((xxx)->distance)&SEGMENT_SUPER)
+#define IsSuperSegment(xxx)    ((xxx)->flags&SEGMENT_SUPER)
 
 /*+ Return true if the segment is oneway. +*/
-#define IsOneway(xxx)          ((xxx)->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
+#define IsOneway(xxx)          ((xxx)->flags&(ONEWAY_2TO1|ONEWAY_1TO2))
 
 /*+ Return true if the segment is oneway towards the specified node. +*/
-#define IsOnewayTo(xxx,yyy)    ((xxx)->node1==(yyy)?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
+#define IsOnewayTo(xxx,yyy)    ((xxx)->node1==(yyy)?((xxx)->flags&ONEWAY_2TO1):((xxx)->flags&ONEWAY_1TO2))
 
 /*+ Return true if the segment is oneway from the specified node. +*/
-#define IsOnewayFrom(xxx,yyy)  ((xxx)->node2==(yyy)?((xxx)->distance&ONEWAY_2TO1):((xxx)->distance&ONEWAY_1TO2))
+#define IsOnewayFrom(xxx,yyy)  ((xxx)->node2==(yyy)?((xxx)->flags&ONEWAY_2TO1):((xxx)->flags&ONEWAY_1TO2))
 
 /*+ Return the other node in the segment that is not the specified node. +*/
 #define OtherNode(xxx,yyy)     ((xxx)->node1==(yyy)?(xxx)->node2:(xxx)->node1)

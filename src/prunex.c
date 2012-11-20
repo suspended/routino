@@ -241,7 +241,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
           nodes[0]=segmentx->node1;
           nodes[1]=segmentx->node2;
-          total+=DISTANCE(segmentx->distance);
+          total+=segmentx->length;
 
           for(j=0;j<2;j++)
             {
@@ -486,7 +486,7 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
       Not if N2 is involved in a turn restriction.
      */
 
-    if(DISTANCE(segmentx2->distance)<=minimum)
+    if(segmentx2->length<=minimum)
       {
        index_t node1=NO_NODE,node2,node3,node4=NO_NODE;
        index_t segment1=NO_SEGMENT,segment2=i,segment3=NO_SEGMENT;
@@ -645,8 +645,8 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
 
           /* Modify segments */
 
-          segmentx1->distance+=DISTANCE(segmentx2->distance)/2;
-          segmentx3->distance+=DISTANCE(segmentx2->distance)-DISTANCE(segmentx2->distance)/2;
+          segmentx1->length+=segmentx2->length/2;
+          segmentx3->length+=segmentx2->length-segmentx2->length/2;
 
           if(segmentx1->node1==node1)
             {
@@ -747,7 +747,7 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
 
           /* Modify segments */
 
-          segmentx1->distance+=DISTANCE(segmentx2->distance);
+          segmentx1->length+=segmentx2->length;
 
           if(segmentx1->node1==node1)
              modify_segment(segmentsx,segmentx1,node1,node3);
@@ -1120,7 +1120,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                {
                 segmentx=LookupSegmentX(segmentsx,segments[c],1);
 
-                distance+=DISTANCE(segmentx->distance);
+                distance+=segmentx->length;
 
                 prune_segment(segmentsx,segmentx);
 
@@ -1137,7 +1137,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                }
              else
                {
-                segmentx->distance+=distance;
+                segmentx->length+=distance;
 
                 if(segmentx->node1==nodes[lower])
                    modify_segment(segmentsx,segmentx,nodes[lower],nodes[current]);
@@ -1225,8 +1225,8 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
    {
     index_t temp;
 
-    if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
-       segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+    if(segmentx->flags&(ONEWAY_2TO1|ONEWAY_1TO2))
+       segmentx->flags^=ONEWAY_2TO1|ONEWAY_1TO2;
 
     temp=newnode1;
     newnode1=newnode2;
