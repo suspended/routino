@@ -124,7 +124,7 @@ router-slim : $(ROUTER_SLIM_OBJ)
 ########
 
 FILEDUMPERX_OBJ=filedumperx.o \
-	        files.o
+	        files.o logging.o
 
 filedumperx : $(FILEDUMPERX_OBJ)
 	$(LD) $(FILEDUMPERX_OBJ) -o $@ $(LDFLAGS)

@@ -20,7 +20,6 @@
  ***************************************/
 
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -76,7 +75,7 @@ NodesX *NewNodeList(int append,int readonly)
 
  nodesx=(NodesX*)calloc(1,sizeof(NodesX));
 
- assert(nodesx); /* Check calloc() worked */
+ logassert(nodesx,"Failed to allocate memory (try using slim mode?)"); /* Check calloc() worked */
 
  nodesx->filename    =(char*)malloc(strlen(option_tmpdirname)+32);
  nodesx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
@@ -171,7 +170,7 @@ void AppendNodeList(NodesX *nodesx,node_t id,double latitude,double longitude,tr
 
  nodesx->number++;
 
- assert(nodesx->number<NODE_FAKE); /* NODE_FAKE marks the high-water mark for real nodes. */
+ logassert(nodesx->number<NODE_FAKE,"Too many nodes (change index_t to 64-bits?)"); /* NODE_FAKE marks the high-water mark for real nodes. */
 }
 
 
@@ -274,7 +273,7 @@ void SortNodeList(NodesX *nodesx)
 
  nodesx->idata=(node_t*)malloc(nodesx->number*sizeof(node_t));
 
- assert(nodesx->idata); /* Check malloc() worked */
+ logassert(nodesx->idata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  /* Sort the nodes by ID and index them */
 
@@ -451,7 +450,7 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  nodesx->pdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
 
- assert(nodesx->pdata); /* Check malloc() worked */
+ logassert(nodesx->pdata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -526,7 +525,7 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  nodesx->gdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
 
- assert(nodesx->gdata); /* Check malloc() worked */
+ logassert(nodesx->gdata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -680,7 +679,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
 
  offsets=(index_t*)malloc((nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
- assert(offsets); /* Check malloc() worked */
+ logassert(offsets,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  latlonbin=0;
 

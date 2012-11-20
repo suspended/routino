@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2011 Andrew M. Bishop
+ This file Copyright 2010-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -272,7 +272,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
     XMLPARSE_ASSERT_INTEGER(_tag_,id);   llid=atoll(id); /* need long long conversion */
     node_id=(node_t)llid;
-    assert((long long)node_id==llid);      /* check node id can be stored in node_t data type. */
+    logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
    }
 
  if(_type_&XMLPARSE_TAG_END)
@@ -399,7 +399,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id,const ch
     XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
 
     way_id=(way_t)llid;
-    assert((long long)way_id==llid);   /* check way id can be stored in way_t data type. */
+    logassert((long long)way_id==llid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
    }
 
  if(_type_&XMLPARSE_TAG_END)
@@ -476,7 +476,7 @@ static int relationType_function(const char *_tag_,int _type_,const char *id,con
     XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
 
     relation_id=(relation_t)llid;
-    assert((long long)relation_id==llid);   /* check relation id can be stored in relation_t data type. */
+    logassert((long long)relation_id==llid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
    }
 
  if(_type_&XMLPARSE_TAG_END)

@@ -22,9 +22,10 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include "results.h"
+
+#include "logging.h"
 
 
 /*+ The maximum number of collisions in a bin for the Results 'point' arrays before worrying. +*/
@@ -168,7 +169,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
  if(results->count[bin]==results->npoint1)
    {
-    assert(results->npoint1<255);
+    logassert(results->npoint1<255,"Results are more numerous than expected (report a bug)");
 
     results->npoint1++;
 

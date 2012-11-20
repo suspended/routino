@@ -20,7 +20,6 @@
  ***************************************/
 
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -348,7 +347,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
     XMLPARSE_ASSERT_INTEGER(_tag_,id);   llid=atoll(id); /* need long long conversion */
     node_id=(node_t)llid;
-    assert((long long)node_id==llid);      /* check node id can be stored in node_t data type. */
+    logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
 
     if(mode!=MODE_DELETE)
       {
@@ -392,7 +391,7 @@ static int ndType_function(const char *_tag_,int _type_,const char *ref)
 
     XMLPARSE_ASSERT_INTEGER(_tag_,ref); llid=atoll(ref); /* need long long conversion */
     node_id=(node_t)llid;
-    assert((long long)node_id==llid);      /* check node id can be stored in node_t data type. */
+    logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
 
     if(way_nnodes && (way_nnodes%256)==0)
        way_nodes=(node_t*)realloc((void*)way_nodes,(way_nnodes+256)*sizeof(node_t));
@@ -434,7 +433,7 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
        node_t node_id;
 
        node_id=(node_t)llid;
-       assert((long long)node_id==llid);   /* check node id can be stored in node_t data type. */
+       logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
 
        if(relation_nnodes && (relation_nnodes%256)==0)
           relation_nodes=(node_t*)realloc((void*)relation_nodes,(relation_nnodes+256)*sizeof(node_t));
@@ -452,7 +451,7 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
        way_t way_id;
 
        way_id=(way_t)llid;
-       assert((long long)way_id==llid);   /* check way id can be stored in way_t data type. */
+       logassert((long long)way_id==llid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
 
        if(relation_nways && (relation_nways%256)==0)
           relation_ways=(way_t*)realloc((void*)relation_ways,(relation_nways+256)*sizeof(way_t));
@@ -472,7 +471,7 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
        relation_t relation_id;
 
        relation_id=(relation_t)llid;
-       assert((long long)relation_id==llid);   /* check relation id can be stored in relation_t data type. */
+       logassert((long long)relation_id==llid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
 
        if(relation_nrelations && (relation_nrelations%256)==0)
           relation_relations=(relation_t*)realloc((void*)relation_relations,(relation_nrelations+256)*sizeof(relation_t));
@@ -519,7 +518,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
     XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
 
     way_id=(way_t)llid;
-    assert((long long)way_id==llid);   /* check way id can be stored in way_t data type. */
+    logassert((long long)way_id==llid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
    }
 
  if(_type_&XMLPARSE_TAG_END)
@@ -574,7 +573,7 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
     XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
 
     relation_id=(relation_t)llid;
-    assert((long long)relation_id==llid);   /* check relation id can be stored in relation_t data type. */
+    logassert((long long)relation_id==llid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
    }
 
  if(_type_&XMLPARSE_TAG_END)

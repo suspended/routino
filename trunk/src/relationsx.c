@@ -20,7 +20,6 @@
  ***************************************/
 
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -80,7 +79,7 @@ RelationsX *NewRelationList(int append,int readonly)
 
  relationsx=(RelationsX*)calloc(1,sizeof(RelationsX));
 
- assert(relationsx); /* Check calloc() worked */
+ logassert(relationsx,"Failed to allocate memory (try using slim mode?)"); /* Check calloc() worked */
 
 
  /* Route Relations */
@@ -234,7 +233,7 @@ void AppendRouteRelationList(RelationsX* relationsx,relation_t id,
 
  relationsx->rnumber++;
 
- assert(relationsx->rnumber!=0); /* Zero marks the high-water mark for relations. */
+ logassert(relationsx->rnumber!=0,"Too many route relations (change index_t to 64-bits?)"); /* Zero marks the high-water mark for relations. */
 }
 
 
@@ -273,7 +272,7 @@ void AppendTurnRelationList(RelationsX* relationsx,relation_t id,
 
  relationsx->trnumber++;
 
- assert(relationsx->trnumber!=0); /* Zero marks the high-water mark for relations. */
+ logassert(relationsx->trnumber!=0,"Too many turn relations (change index_t to 64-bits?)"); /* Zero marks the high-water mark for relations. */
 }
 
 
@@ -965,7 +964,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
                 ;  /* not allowed */
              else
                {
-                assert(nnodes_other<MAX_SEG_PER_NODE); /* Only a limited amount of information stored. */
+                logassert(nnodes_other<MAX_SEG_PER_NODE,"Too many segments for one node (increase MAX_SEG_PER_NODE?)"); /* Only a limited amount of information stored. */
 
                 node_other[nnodes_other++]=OtherNode(segmentx,relationx.via);
                }

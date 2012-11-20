@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 #include <pthread.h>
@@ -31,6 +30,7 @@
 
 #include "types.h"
 
+#include "logging.h"
 #include "files.h"
 #include "sorting.h"
 
@@ -299,7 +299,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
 
  /* Check that number of files is less than file size */
 
- assert(nfiles<nitems);
+ logassert(nfiles<nitems,"Too many temporary files (use more sorting memory?)");
 
  /* Open all of the temporary files */
 
@@ -683,7 +683,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
  largestitemsize=FILESORT_VARALIGN*(1+(largestitemsize+FILESORT_VARALIGN-FILESORT_VARSIZE)/FILESORT_VARALIGN);
 
- assert(nfiles<((datasize-nfiles*sizeof(void*))/largestitemsize));
+ logassert(nfiles<((datasize-nfiles*sizeof(void*))/largestitemsize),"Too many temporary files (use more sorting memory?)");
 
  /* Open all of the temporary files */
 

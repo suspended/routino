@@ -20,7 +20,6 @@
  ***************************************/
 
 
-#include <assert.h>
 #include <stdlib.h>
 
 #include "types.h"
@@ -71,7 +70,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
    {
     nodesx->super=AllocBitMask(nodesx->number);
 
-    assert(nodesx->super); /* Check AllocBitMask() worked */
+    logassert(nodesx->super,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 
     SetAllBits(nodesx->super,nodesx->number);
    }
@@ -113,7 +112,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
              /* Segments that are loops count twice */
 
-             assert(count<MAX_SEG_PER_NODE); /* Only a limited amount of information stored. */
+             logassert(count<MAX_SEG_PER_NODE,"Too many segments for one node (increase MAX_SEG_PER_NODE?)"); /* Only a limited amount of information stored. */
 
              if(segmentx->node1==segmentx->node2)
                 segmentweight[count]=2;
@@ -267,7 +266,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
                   }
             }
 
-          assert(count<MAX_SEG_PER_NODE); /* Only a limited amount of history stored. */
+          logassert(count<MAX_SEG_PER_NODE,"Too many segments for one node (increase MAX_SEG_PER_NODE?)"); /* Only a limited amount of history stored. */
 
           prevway[count++]=wayx->way;
 

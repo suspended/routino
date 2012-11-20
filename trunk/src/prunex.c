@@ -21,7 +21,6 @@
 
 
 #include <stdlib.h>
-#include <assert.h>
 
 #include "types.h"
 #include "segments.h"
@@ -76,7 +75,7 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  segmentsx->next1=(index_t*)calloc(segmentsx->number,sizeof(index_t));
 
- assert(segmentsx->next1); /* Check malloc() worked */
+ logassert(segmentsx->next1,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  /* Open the file read-only */
 
@@ -173,14 +172,14 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  connected=AllocBitMask(segmentsx->number);
  region   =AllocBitMask(segmentsx->number);
 
- assert(connected); /* Check AllocBitMask() worked */
- assert(region);    /* Check AllocBitMask() worked */
+ logassert(connected,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
+ logassert(region,"Failed to allocate memory (try using slim mode?)");    /* Check AllocBitMask() worked */
 
  regionsegments=(index_t*)malloc((nallocregionsegments=1024)*sizeof(index_t));
  othersegments =(index_t*)malloc((nallocothersegments =1024)*sizeof(index_t));
 
- assert(regionsegments); /* Check malloc() worked */
- assert(othersegments);  /* Check malloc() worked */
+ logassert(regionsegments,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
+ logassert(othersegments,"Failed to allocate memory (try using slim mode?)");  /* Check malloc() worked */
 
  /* Loop through the transport types */
 
@@ -831,19 +830,19 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  checked=AllocBitMask(nodesx->number);
 
- assert(checked); /* Check AllocBitMask() worked */
+ logassert(checked,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 
  nodes   =(index_t*)malloc((nalloc=1024)*sizeof(index_t));
  segments=(index_t*)malloc( nalloc      *sizeof(index_t));
 
- assert(nodes);    /* Check malloc() worked */
- assert(segments); /* Check malloc() worked */
+ logassert(nodes,"Failed to allocate memory (try using slim mode?)");    /* Check malloc() worked */
+ logassert(segments,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  lats=(double*)malloc(nalloc*sizeof(double));
  lons=(double*)malloc(nalloc*sizeof(double));
 
- assert(lats);    /* Check malloc() worked */
- assert(lons);    /* Check malloc() worked */
+ logassert(lats,"Failed to allocate memory (try using slim mode?)");    /* Check malloc() worked */
+ logassert(lons,"Failed to allocate memory (try using slim mode?)");    /* Check malloc() worked */
 
  /* Loop through the nodes and find stretchs of simple highway for possible modification */
 

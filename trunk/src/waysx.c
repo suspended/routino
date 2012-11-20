@@ -20,7 +20,6 @@
  ***************************************/
 
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -79,7 +78,7 @@ WaysX *NewWayList(int append,int readonly)
 
  waysx=(WaysX*)calloc(1,sizeof(WaysX));
 
- assert(waysx); /* Check calloc() worked */
+ logassert(waysx,"Failed to allocate memory (try using slim mode?)"); /* Check calloc() worked */
 
  waysx->filename    =(char*)malloc(strlen(option_tmpdirname)+32);
  waysx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
@@ -188,7 +187,7 @@ void AppendWayList(WaysX *waysx,way_t id,Way *way,const char *name)
 
  waysx->number++;
 
- assert(waysx->number!=0); /* Zero marks the high-water mark for ways. */
+ logassert(waysx->number!=0,"Too many ways (change index_t to 64-bits?)"); /* Zero marks the high-water mark for ways. */
 }
 
 
@@ -489,7 +488,7 @@ void ExtractWayNames(WaysX *waysx,int preserve)
 
  waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
 
- assert(waysx->idata); /* Check malloc() worked */
+ logassert(waysx->idata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  /* Sort the ways by ID */
 
@@ -574,7 +573,7 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
 
  waysx->cdata=(index_t*)malloc(waysx->number*sizeof(index_t));
 
- assert(waysx->cdata); /* Check malloc() worked */
+ logassert(waysx->cdata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  /* Re-open the file read-only and a new file writeable */
 
