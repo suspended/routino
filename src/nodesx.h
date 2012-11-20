@@ -88,7 +88,7 @@ struct _NodesX
 /* Functions in nodesx.c */
 
 NodesX *NewNodeList(int append,int readonly);
-void FreeNodeList(NodesX *nodesx,int preserve);
+void FreeNodeList(NodesX *nodesx,int keep);
 
 void AppendNodeList(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,nodeflags_t flags);
 void FinishNodeList(NodesX *nodesx);
@@ -97,7 +97,7 @@ index_t IndexNodeX(NodesX *nodesx,node_t id);
 
 void SortNodeList(NodesX *nodesx);
 
-void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int preserve);
+void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int keep);
 
 void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx);
 
