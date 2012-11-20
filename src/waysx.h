@@ -87,8 +87,6 @@ void FreeWayList(WaysX *waysx,int preserve);
 void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name);
 void FinishWayList(WaysX *waysx);
 
-void SaveWayList(WaysX *waysx,const char *filename);
-
 index_t IndexWayX(WaysX *waysx,way_t id);
 
 void SortWayList(WaysX *waysx);
@@ -96,6 +94,8 @@ void SortWayList(WaysX *waysx);
 void ExtractWayNames(WaysX *waysx,int preserve);
 
 void CompactWayList(WaysX *waysx,SegmentsX *segmentsx);
+
+void SaveWayList(WaysX *waysx,const char *filename);
 
 
 /* Macros / inline functions */
