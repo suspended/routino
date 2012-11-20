@@ -409,7 +409,7 @@ static void print_segment(Segments *segments,index_t item)
  printf("  node1=%"Pindex_t" node2=%"Pindex_t"\n",segmentp->node1,segmentp->node2);
  printf("  next2=%"Pindex_t"\n",segmentp->next2);
  printf("  way=%"Pindex_t"\n",segmentp->way);
- printf("  distance=%d (%.3f km)\n",DISTANCE(segmentp->distance),distance_to_km(DISTANCE(segmentp->distance)));
+ printf("  distance=%d (%.3f km)\n",segmentp->length,distance_to_km(segmentp->length));
  if(IsSuperSegment(segmentp) && IsNormalSegment(segmentp))
     printf("  Super-Segment AND normal Segment\n");
  else if(IsSuperSegment(segmentp) && !IsNormalSegment(segmentp))
@@ -704,7 +704,7 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
  if(IsNormalSegment(segmentp))
     printf("    <tag k='routino:normal' v='yes' />\n");
 
- printf("    <tag k='routino:distance' v='%.3f' />\n",distance_to_km(DISTANCE(segmentp->distance)));
+ printf("    <tag k='routino:distance' v='%.3f' />\n",distance_to_km(segmentp->length));
 
  if(wayp->type & Way_OneWay)
     printf("    <tag k='oneway' v='yes' />\n");

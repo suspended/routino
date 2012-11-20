@@ -217,25 +217,25 @@ distance_t Distance(double lat1,double lon1,double lat2,double lon2)
 
 duration_t Duration(Segment *segmentp,Way *wayp,Profile *profile)
 {
- speed_t    speed1=wayp->speed;
- speed_t    speed2=profile->speed[HIGHWAY(wayp->type)];
- distance_t distance=DISTANCE(segmentp->distance);
+ speed_t   speed1=wayp->speed;
+ speed_t   speed2=profile->speed[HIGHWAY(wayp->type)];
+ segdist_t length=segmentp->length;
 
  if(speed1==0)
    {
     if(speed2==0)
        return(hours_to_duration(10));
     else
-       return distance_speed_to_duration(distance,speed2);
+       return distance_speed_to_duration(length,speed2);
    }
  else /* if(speed1!=0) */
    {
     if(speed2==0)
-       return distance_speed_to_duration(distance,speed1);
+       return distance_speed_to_duration(length,speed1);
     else if(speed1<=speed2)
-       return distance_speed_to_duration(distance,speed1);
+       return distance_speed_to_duration(length,speed1);
     else
-       return distance_speed_to_duration(distance,speed2);
+       return distance_speed_to_duration(length,speed2);
    }
 }
 

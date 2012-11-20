@@ -186,11 +186,11 @@ static void print_segments(const char *filename)
     printf("Segment\n");
     printf("  node1=%"Pnode_t" node2=%"Pnode_t"\n",segmentx.node1,segmentx.node2);
     printf("  way=%"Pway_t"\n",segmentx.way);
-    if(segmentx.distance&SEGMENT_AREA)
+    if(segmentx.flags&SEGMENT_AREA)
        printf("  Part of area\n");
-    if(segmentx.distance&ONEWAY_1TO2)
+    if(segmentx.flags&ONEWAY_1TO2)
        printf("  One-way (forward)\n");
-    if(segmentx.distance&ONEWAY_2TO1)
+    if(segmentx.flags&ONEWAY_2TO1)
        printf("  One-way (reverse)\n");
 
     position+=sizeof(SegmentX);
