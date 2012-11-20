@@ -115,7 +115,7 @@ typedef struct _WaysX WaysX;
 
 typedef struct _RouteRelX RouteRelX;
 
-typedef struct _TurnRestrictRelX TurnRestrictRelX;
+typedef struct _TurnRelX TurnRelX;
 
 typedef struct _RelationsX RelationsX;
 

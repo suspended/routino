@@ -43,7 +43,7 @@ struct _RouteRelX
 
 
 /*+ An extended structure containing a single turn restriction relation. +*/
-struct _TurnRestrictRelX
+struct _TurnRelX
 {
  relation_t      id;           /*+ The relation identifier. +*/
 
@@ -70,10 +70,10 @@ struct _RelationsX
 
  /* Turn restriction relations */
 
- char      *trfilename;        /*+ The name of the intermediate file (for the TurnRestrictRelX). +*/
- char      *trfilename_tmp;    /*+ The name of the temporary file (for the TurnRestrictRelX). +*/
+ char      *trfilename;        /*+ The name of the intermediate file (for the TurnRelX). +*/
+ char      *trfilename_tmp;    /*+ The name of the temporary file (for the TurnRelX). +*/
 
- int        trfd;              /*+ The file descriptor of the temporary file (for the TurnRestrictRelX). +*/
+ int        trfd;              /*+ The file descriptor of the temporary file (for the TurnRelX). +*/
 
  index_t    trnumber;          /*+ The number of extended turn restriction relations. +*/
 };
