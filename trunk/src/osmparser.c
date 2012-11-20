@@ -839,7 +839,7 @@ int ParseOSC(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 static void process_node_tags(TagList *tags,node_t id,double latitude,double longitude)
 {
  transports_t allow=Transports_ALL;
- uint16_t flags=0;
+ nodeflags_t flags=0;
  int i;
 
  /* Delete */
