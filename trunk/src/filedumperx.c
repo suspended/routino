@@ -328,9 +328,9 @@ static void print_turn_relations(const char *filename)
 
  while(position<size)
    {
-    TurnRestrictRelX relationx;
+    TurnRelX relationx;
 
-    ReadFile(fd,&relationx,sizeof(TurnRestrictRelX));
+    ReadFile(fd,&relationx,sizeof(TurnRelX));
 
     printf("Relation %"Prelation_t"\n",relationx.id);
     printf("  from=%"Pway_t"\n",relationx.from);
@@ -340,7 +340,7 @@ static void print_turn_relations(const char *filename)
     if(relationx.except)
        printf("  except=%02x\n",relationx.except);
 
-    position+=sizeof(TurnRestrictRelX);
+    position+=sizeof(TurnRelX);
    }
 
  CloseFile(fd);

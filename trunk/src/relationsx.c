@@ -57,11 +57,11 @@ static NodesX *sortnodesx;
 static int sort_route_by_id(RouteRelX *a,RouteRelX *b);
 static int deduplicate_route_by_id(RouteRelX *relationx,index_t index);
 
-static int sort_turn_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b);
-static int deduplicate_turn_by_id(TurnRestrictRelX *relationx,index_t index);
+static int sort_turn_by_id(TurnRelX *a,TurnRelX *b);
+static int deduplicate_turn_by_id(TurnRelX *relationx,index_t index);
 
-static int geographically_index(TurnRestrictRelX *relationx,index_t index);
-static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b);
+static int geographically_index(TurnRelX *relationx,index_t index);
+static int sort_by_via(TurnRelX *a,TurnRelX *b);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -139,7 +139,7 @@ RelationsX *NewRelationList(int append,int readonly)
 
        size=SizeFile(relationsx->trfilename);
 
-       relationsx->trnumber=size/sizeof(TurnRestrictRelX);
+       relationsx->trnumber=size/sizeof(TurnRelX);
 
        RenameFile(relationsx->trfilename,relationsx->trfilename_tmp);
       }
@@ -260,7 +260,7 @@ void AppendTurnRelationList(RelationsX* relationsx,relation_t id,
                             way_t from,way_t to,node_t via,
                             TurnRestriction restriction,transports_t except)
 {
- TurnRestrictRelX relationx={0};
+ TurnRelX relationx={0};
 
  relationx.id=id;
  relationx.from=from;
@@ -269,7 +269,7 @@ void AppendTurnRelationList(RelationsX* relationsx,relation_t id,
  relationx.restriction=restriction;
  relationx.except=except;
 
- WriteFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
+ WriteFile(relationsx->trfd,&relationx,sizeof(TurnRelX));
 
  relationsx->trnumber++;
 
@@ -361,9 +361,9 @@ void SortRelationList(RelationsX* relationsx)
 
     trxnumber=relationsx->trnumber;
 
-    relationsx->trnumber=filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),NULL,
-                                                                                       (int (*)(const void*,const void*))sort_turn_by_id,
-                                                                                       (int (*)(void*,index_t))deduplicate_turn_by_id);
+    relationsx->trnumber=filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRelX),NULL,
+                                                                               (int (*)(const void*,const void*))sort_turn_by_id,
+                                                                               (int (*)(void*,index_t))deduplicate_turn_by_id);
 
     /* Close the files */
 
@@ -439,12 +439,12 @@ static int deduplicate_route_by_id(RouteRelX *relationx,index_t index)
 
   int sort_turn_by_id Returns the comparison of the id fields.
 
-  TurnRestrictRelX *a The first extended relation.
+  TurnRelX *a The first extended relation.
 
-  TurnRestrictRelX *b The second extended relation.
+  TurnRelX *b The second extended relation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_turn_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
+static int sort_turn_by_id(TurnRelX *a,TurnRelX *b)
 {
  relation_t a_id=a->id;
  relation_t b_id=b->id;
@@ -463,12 +463,12 @@ static int sort_turn_by_id(TurnRestrictRelX *a,TurnRestrictRelX *b)
 
   int deduplicate_turn_by_id Return 1 if the value is to be kept, otherwise 0.
 
-  TurnRestrictRelX *relationx The extended relation.
+  TurnRelX *relationx The extended relation.
 
   index_t index The number of sorted relations that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int deduplicate_turn_by_id(TurnRestrictRelX *relationx,index_t index)
+static int deduplicate_turn_by_id(TurnRelX *relationx,index_t index)
 {
  static relation_t previd=NO_RELATION_ID;
 
@@ -722,10 +722,10 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,in
 
  for(i=0;i<relationsx->trnumber;i++)
    {
-    TurnRestrictRelX relationx;
+    TurnRelX relationx;
     index_t via,from,to;
 
-    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
+    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRelX));
 
     via =IndexNodeX(nodesx,relationx.via);
     from=IndexWayX(waysx,relationx.from);
@@ -747,7 +747,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,in
     if(relationx.via==NO_NODE || relationx.from==NO_WAY || relationx.to==NO_WAY)
        deleted++;
     else
-       WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+       WriteFile(trfd,&relationx,sizeof(TurnRelX));
 
     if(!((i+1)%1000))
        printf_middle("Processing Turn Relations (1): Relations=%"Pindex_t" Deleted=%"Pindex_t,i+1,deleted);
@@ -780,7 +780,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,in
 
 void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
- TurnRestrictRelX relationx;
+ TurnRelX relationx;
  int trfd;
  index_t total=0,deleted=0;
 
@@ -813,7 +813,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Process all of the relations */
 
- while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX)))
+ while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRelX)))
    {
     NodeX *nodex;
     SegmentX *segmentx;
@@ -904,7 +904,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        relationx.from=node_from;
        relationx.to  =node_to;
 
-       WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+       WriteFile(trfd,&relationx,sizeof(TurnRelX));
 
        total++;
 
@@ -1002,7 +1002,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           relationx.from=node_from;
           relationx.to  =node_other[i];
 
-          WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+          WriteFile(trfd,&relationx,sizeof(TurnRelX));
 
           total++;
 
@@ -1068,7 +1068,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
 void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 {
- TurnRestrictRelX relationx;
+ TurnRelX relationx;
  index_t total=0,pruned=0,notpruned=0;
  int trfd;
 
@@ -1086,7 +1086,7 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 
  /* Process all of the relations */
 
- while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX)))
+ while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRelX)))
    {
     relationx.from=nodesx->pdata[relationx.from];
     relationx.via =nodesx->pdata[relationx.via];
@@ -1096,7 +1096,7 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
        pruned++;
     else
       {
-       WriteFile(trfd,&relationx,sizeof(TurnRestrictRelX));
+       WriteFile(trfd,&relationx,sizeof(TurnRelX));
 
        notpruned++;
       }
@@ -1159,9 +1159,9 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
  sortnodesx=nodesx;
  sortsegmentsx=segmentsx;
 
- filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRestrictRelX),(int (*)(void*,index_t))geographically_index,
-                                                               (int (*)(const void*,const void*))sort_by_via,
-                                                               NULL);
+ filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRelX),(int (*)(void*,index_t))geographically_index,
+                                                       (int (*)(const void*,const void*))sort_by_via,
+                                                       NULL);
 
  /* Close the files */
 
@@ -1187,12 +1187,12 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 
   int geographically_index Return 1 if the value is to be kept, otherwise 0.
 
-  TurnRestrictRelX *relationx The extended turn relation.
+  TurnRelX *relationx The extended turn relation.
 
   index_t index The number of unsorted turn relations that have been read from the input file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int geographically_index(TurnRestrictRelX *relationx,index_t index)
+static int geographically_index(TurnRelX *relationx,index_t index)
 {
  SegmentX *segmentx;
  index_t from_node,via_node,to_node;
@@ -1226,12 +1226,12 @@ static int geographically_index(TurnRestrictRelX *relationx,index_t index)
 
   int sort_by_via Returns the comparison of the via, from and to fields.
 
-  TurnRestrictRelX *a The first extended relation.
+  TurnRelX *a The first extended relation.
 
-  TurnRestrictRelX *b The second extended relation.
+  TurnRelX *b The second extended relation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_via(TurnRestrictRelX *a,TurnRestrictRelX *b)
+static int sort_by_via(TurnRelX *a,TurnRelX *b)
 {
  index_t a_id=a->via;
  index_t b_id=b->via;
@@ -1295,10 +1295,10 @@ void SaveRelationList(RelationsX* relationsx,const char *filename)
 
  for(i=0;i<relationsx->trnumber;i++)
    {
-    TurnRestrictRelX relationx;
+    TurnRelX relationx;
     TurnRelation relation={0};
 
-    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRestrictRelX));
+    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRelX));
 
     relation.from=relationx.from;
     relation.via=relationx.via;
