@@ -846,7 +846,7 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
 
  if(mode==MODE_DELETE)
    {
-    AppendNode(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow,NODE_DELETED);
+    AppendNodeList(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow,NODE_DELETED);
 
     return;
    }
@@ -989,7 +989,7 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
 
  /* Create the node */
 
- AppendNode(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow,flags);
+ AppendNodeList(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow,flags);
 }
 
 
@@ -1015,11 +1015,11 @@ static void process_way_tags(TagList *tags,way_t id)
    {
     way.type=WAY_DELETED;
 
-    AppendWay(ways,id,&way,"");
+    AppendWayList(ways,id,&way,"");
 
     way.type=0;
 
-    AppendSegment(segments,id,NO_NODE_ID,NO_NODE_ID,0);
+    AppendSegmentList(segments,id,NO_NODE_ID,NO_NODE_ID,0);
    }
 
  if(mode==MODE_DELETE)
@@ -1358,7 +1358,7 @@ static void process_way_tags(TagList *tags,way_t id)
  else /* if(!ref && !name) */
     refname="";
 
- AppendWay(ways,id,&way,refname);
+ AppendWayList(ways,id,&way,refname);
 
  if(ref && name)
     free(refname);
@@ -1368,7 +1368,7 @@ static void process_way_tags(TagList *tags,way_t id)
     node_t from=way_nodes[i-1];
     node_t to  =way_nodes[i];
 
-    AppendSegment(segments,id,from,to,area+oneway);
+    AppendSegmentList(segments,id,from,to,area+oneway);
    }
 }
 
@@ -1393,13 +1393,13 @@ static void process_relation_tags(TagList *tags,relation_t id)
 
  if(mode==MODE_DELETE || mode==MODE_MODIFY)
    {
-    AppendRouteRelation(relations,id,RELATION_DELETED,
-                        relation_ways,relation_nways,
-                        relation_relations,relation_nrelations);
+    AppendRouteRelationList(relations,id,RELATION_DELETED,
+                            relation_ways,relation_nways,
+                            relation_relations,relation_nrelations);
 
-    AppendTurnRestrictRelation(relations,id,
-                               relation_from,relation_to,relation_via,
-                               restriction,RELATION_DELETED);
+    AppendTurnRelationList(relations,id,
+                           relation_from,relation_to,relation_via,
+                           restriction,RELATION_DELETED);
    }
 
  if(mode==MODE_DELETE)
@@ -1506,9 +1506,9 @@ static void process_relation_tags(TagList *tags,relation_t id)
     other relations that are routes) */
 
  if((relation_nways || relation_nrelations) && !relation_turn_restriction)
-    AppendRouteRelation(relations,id,routes,
-                        relation_ways,relation_nways,
-                        relation_relations,relation_nrelations);
+    AppendRouteRelationList(relations,id,routes,
+                            relation_ways,relation_nways,
+                            relation_relations,relation_nrelations);
 
  /* Create the turn restriction relation. */
 
@@ -1521,9 +1521,9 @@ static void process_relation_tags(TagList *tags,relation_t id)
     else if(relation_via==NO_NODE_ID)
        logerror("Relation %"Prelation_t" is a turn restriction but has no 'via' node.\n",id);
     else
-       AppendTurnRestrictRelation(relations,id,
-                                  relation_from,relation_to,relation_via,
-                                  restriction,except);
+       AppendTurnRelationList(relations,id,
+                              relation_from,relation_to,relation_via,
+                              restriction,except);
    }
 }
 

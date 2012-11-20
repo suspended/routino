@@ -157,7 +157,7 @@ void FreeNodeList(NodesX *nodesx,int preserve)
   uint16_t flags The flags to set for this node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendNode(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags)
+void AppendNodeList(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags)
 {
  NodeX nodex;
 
