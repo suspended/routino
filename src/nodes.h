@@ -44,7 +44,7 @@ struct _Node
  ll_off_t     lonoffset;        /*+ The node longitude offset within its bin. +*/
 
  transports_t allow;            /*+ The types of transport that are allowed through the node. +*/
- uint16_t     flags;            /*+ Flags containing extra information (e.g. super-node, turn restriction). +*/
+ nodeflags_t  flags;            /*+ Flags containing extra information (e.g. super-node, turn restriction). +*/
 };
 
 

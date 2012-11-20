@@ -154,10 +154,10 @@ void FreeNodeList(NodesX *nodesx,int preserve)
 
   transports_t allow The allowed traffic types through the node.
 
-  uint16_t flags The flags to set for this node.
+  nodeflags_t flags The flags to set for this node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendNodeList(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags)
+void AppendNodeList(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,nodeflags_t flags)
 {
  NodeX nodex;
 

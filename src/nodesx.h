@@ -45,8 +45,7 @@ struct _NodeX
  latlong_t    longitude;        /*+ The node longitude. +*/
 
  transports_t allow;            /*+ The node allowed traffic. +*/
-
- uint16_t     flags;            /*+ The node flags. +*/
+ nodeflags_t  flags;            /*+ The node flags. +*/
 };
 
 /*+ A structure containing a set of nodes (memory format). +*/
@@ -91,7 +90,7 @@ struct _NodesX
 NodesX *NewNodeList(int append,int readonly);
 void FreeNodeList(NodesX *nodesx,int preserve);
 
-void AppendNodeList(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags);
+void AppendNodeList(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,nodeflags_t flags);
 void FinishNodeList(NodesX *nodesx);
 
 index_t IndexNodeX(NodesX *nodesx,node_t id);
