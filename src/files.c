@@ -386,7 +386,7 @@ int DeleteFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Rename a file on disk.
 
-  int DeleteFile Returns 0 if OK.
+  int RenameFile Returns 0 if OK.
 
   const char *oldfilename The old name of the file before renaming.
 
