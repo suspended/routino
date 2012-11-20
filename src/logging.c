@@ -370,3 +370,21 @@ void logerror(const char *format, ...)
 
  va_end(ap);
 }
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Log a fatal error and exit
+
+  const char *message The error message.
+
+  const char *file The file in which the error occured.
+
+  int line The line number in the file at which the error occured.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void _logassert(const char *message,const char *file,int line)
+{
+ fprintf(stderr,"Routino Fatal Error (%s:%d): %s\n",file,line,message);
+
+ exit(EXIT_FAILURE);
+}

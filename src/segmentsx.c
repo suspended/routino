@@ -20,7 +20,6 @@
  ***************************************/
 
 
-#include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -87,7 +86,7 @@ SegmentsX *NewSegmentList(int append,int readonly)
 
  segmentsx=(SegmentsX*)calloc(1,sizeof(SegmentsX));
 
- assert(segmentsx); /* Check calloc() worked */
+ logassert(segmentsx,"Failed to allocate memory (try using slim mode?)"); /* Check calloc() worked */
 
  segmentsx->filename    =(char*)malloc(strlen(option_tmpdirname)+32);
  segmentsx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
@@ -192,7 +191,7 @@ void AppendSegmentList(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,
 
  segmentsx->number++;
 
- assert(segmentsx->number<SEGMENT_FAKE); /* SEGMENT_FAKE marks the high-water mark for real segments. */
+ logassert(segmentsx->number<SEGMENT_FAKE,"Too many segments (change index_t to 64-bits?)"); /* SEGMENT_FAKE marks the high-water mark for real segments. */
 }
 
 
@@ -555,7 +554,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int pres
 
  segmentsx->usednode=AllocBitMask(nodesx->number);
 
- assert(segmentsx->usednode); /* Check AllocBitMask() worked */
+ logassert(segmentsx->usednode,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -682,7 +681,7 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  segmentsx->usedway=AllocBitMask(waysx->number);
 
- assert(segmentsx->usedway); /* Check AllocBitMask() worked */
+ logassert(segmentsx->usedway,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -781,7 +780,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  segmentsx->firstnode=(index_t*)malloc(nodesx->number*sizeof(index_t));
 
- assert(segmentsx->firstnode); /* Check malloc() worked */
+ logassert(segmentsx->firstnode,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  for(i=0;i<nodesx->number;i++)
     segmentsx->firstnode[i]=NO_SEGMENT;
@@ -869,7 +868,7 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  segmentsx->usedway=AllocBitMask(waysx->number);
 
- assert(segmentsx->usedway); /* Check AllocBitMask() worked */
+ logassert(segmentsx->usedway,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -1038,7 +1037,7 @@ static int deduplicate_super(SegmentX *segmentx,index_t index)
       }
     else
       {
-       assert(nprev<MAX_SEG_PER_NODE); /* Only a limited amount of information stored. */
+       logassert(nprev<MAX_SEG_PER_NODE,"Too many segments for one node (increase MAX_SEG_PER_NODE?)"); /* Only a limited amount of information stored. */
 
        prevsegx[nprev]=*segmentx;
        prevway[nprev] =wayx->way;

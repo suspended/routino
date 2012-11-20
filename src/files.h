@@ -29,9 +29,10 @@
 #define HAVE_PREAD_PWRITE 1
 
 
-#include <assert.h>
 #include <unistd.h>
 #include <sys/types.h>
+
+#include "logging.h"
 
 
 /* Functions in files.c */
@@ -81,7 +82,7 @@ int RenameFile(const char *oldfilename,const char *newfilename);
 
 static inline int WriteFile(int fd,const void *address,size_t length)
 {
- assert(fd!=-1);
+ logassert(fd!=-1,"File descriptor is in error - report a bug");
 
  /* Write the data */
 
@@ -106,7 +107,7 @@ static inline int WriteFile(int fd,const void *address,size_t length)
 
 static inline int ReadFile(int fd,void *address,size_t length)
 {
- assert(fd!=-1);
+ logassert(fd!=-1,"File descriptor is in error - report a bug");
 
  /* Read the data */
 
@@ -129,7 +130,7 @@ static inline int ReadFile(int fd,void *address,size_t length)
 
 static inline int SeekFile(int fd,off_t position)
 {
- assert(fd!=-1);
+ logassert(fd!=-1,"File descriptor is in error - report a bug");
 
  /* Seek the data */
 
@@ -156,7 +157,7 @@ static inline int SeekFile(int fd,off_t position)
 
 static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t position)
 {
- assert(fd!=-1);
+ logassert(fd!=-1,"File descriptor is in error - report a bug");
 
  /* Seek and write the data */
 
@@ -195,7 +196,7 @@ static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t p
 
 static inline int SeekReadFile(int fd,void *address,size_t length,off_t position)
 {
- assert(fd!=-1);
+ logassert(fd!=-1,"File descriptor is in error - report a bug");
 
  /* Seek and read the data */
 

@@ -20,8 +20,6 @@
  ***************************************/
 
 
-#include <assert.h>
-
 #include "types.h"
 #include "nodes.h"
 #include "segments.h"
@@ -1508,7 +1506,7 @@ void FixForwardRoute(Results *results,Result *finish_result)
 
        result1=FindResult(results,node1,seg1);
 
-       assert(!result1->next);   /* Bugs elsewhere can lead to infinite loop here. */
+       logassert(!result1->next,"Unable to reverse route through results (report a bug)"); /* Bugs elsewhere can lead to infinite loop here. */
 
        result1->next=result2;
 

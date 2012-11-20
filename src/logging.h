@@ -75,4 +75,11 @@ void logerror(const char *format, ...);
 #endif
 
 
+/* Runtime fatal error assertion */
+
+#define logassert(xx,yy) do{ if(!(xx)) _logassert(yy,__FILE__,__LINE__); } while(0);
+
+void _logassert(const char *message,const char *file,int line);
+
+
 #endif /* LOGGING_H */
