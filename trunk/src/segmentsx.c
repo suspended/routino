@@ -122,12 +122,12 @@ SegmentsX *NewSegmentList(int append,int readonly)
 
   SegmentsX *segmentsx The set of segments to be freed.
 
-  int preserve If set then the results file is to be preserved.
+  int keep If set then the results file is to be kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeSegmentList(SegmentsX *segmentsx,int preserve)
+void FreeSegmentList(SegmentsX *segmentsx,int keep)
 {
- if(preserve)
+ if(keep)
     RenameFile(segmentsx->filename_tmp,segmentsx->filename);
  else
     DeleteFile(segmentsx->filename_tmp);
@@ -535,10 +535,10 @@ static int deduplicate(SegmentX *segmentx,index_t index)
 
   WaysX *waysx The set of ways to use.
 
-  int preserve If set to 1 then keep the old data file otherwise delete it.
+  int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int preserve)
+void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep)
 {
  index_t noway=0,loop=0,nonode=0,duplicate=0,good=0,total=0;
  node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
@@ -560,7 +560,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int pres
 
  segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
- if(preserve)
+ if(keep)
     RenameFile(segmentsx->filename_tmp,segmentsx->filename);
  else
     DeleteFile(segmentsx->filename_tmp);
@@ -710,7 +710,7 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
     SetBit(segmentsx->usedway,segmentx.way);
 
-    /* Set the distance but preserve the other flags */
+    /* Set the distance but keep the other flags except for area */
 
     segmentx.length=DistanceX(nodex1,nodex2);
     segmentx.flags=segmentx.flags&(~SEGMENT_AREA);

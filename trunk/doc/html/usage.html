@@ -69,7 +69,7 @@ Usage: planetsplitter [--help]
                       [--loggable] [--logtime]
                       [--errorlog[=&lt;name&gt;]]
                       [--parse-only | --process-only]
-                      [--append] [--preserve] [--changes]
+                      [--append] [--keep] [--changes]
                       [--max-iterations=&lt;number&gt;]
                       [--prune-none]
                       [--prune-isolated=&lt;len&gt;]
@@ -125,7 +125,7 @@ Usage: planetsplitter [--help]
   <dt>--append
   <dd>Parse the input file and append the result to the existing intermediate
     files; the appended file can be either an OSM file or an OSC change file.
-  <dt>--preserve
+  <dt>--keep
   <dd>Store a set of intermediate files after parsing the OSM files, sorting and
     removing duplicates; this allows appending an OSC file and re-processing
     later.
@@ -133,7 +133,7 @@ Usage: planetsplitter [--help]
   <dd>This option indicates that the data being processed contains one or more
     OSC (OSM changes) files, they must be applied in time sequence if more than
     one is used.  This option implies --append when parsing data files and
-    --preserve when processing data.
+    --keep when processing data.
   <dt>--max-iterations=&lt;number&gt;
   <dd>The maximum number of iterations to use when generating super-nodes and
     super-segments.  Defaults to 5 which is normally enough.
@@ -198,7 +198,7 @@ read in must not use the --append option but the later ones must.
 Example usage 3:
 
 <pre class="boxed">
-planetsplitter --dir=data --prefix=gb --preserve great_britain_part.osm
+planetsplitter --dir=data --prefix=gb --keep    great_britain_part.osm
 
 planetsplitter --dir=data --prefix=gb --changes great_britain.osc
 </pre>
@@ -210,9 +210,9 @@ intermediate data and keep the updated intermediate files for repeating this
 step later with more change data.
 <p>
 The parsing and processing can be split into multiple commands as it was in
-example 2 with the --preserve option used with --process-only for the initial
-OSM file(s) and the --changes option used with --parse-only or --process-only
-for every OSC file.
+example 2 with the --keep option used with --process-only for the initial OSM
+file(s) and the --changes option used with --parse-only or --process-only for
+every OSC file.
 
 
 <h3><a name="H_1_1_2"></a>router</h3>
@@ -535,7 +535,7 @@ rather than being mapped into memory.</i>
 
 This program is a modified version of filedumper that will dump out the contents
 of the intermediate data that is saved by planetsplitter after processing using
-the --preserve or --changes option.  This is intended for test purposes only and
+the --keep or --changes option.  This is intended for test purposes only and
 gives no useful information about the routing database.
 
 <pre class="boxed">
@@ -558,7 +558,7 @@ Usage: filedumper [--help]
   <dd>Sets the filename prefix for the files in the local database.
   <dt>--dump
   <dd>Dumps the complete set of data in the intermediate files that are written
-    by planetsplitter using the --preserve or --changes options.
+    by planetsplitter using the --keep or --changes options.
     <dl>
       <dt>--nodes
       <dd>Dumps the node data.

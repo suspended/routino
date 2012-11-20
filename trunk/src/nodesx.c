@@ -111,12 +111,12 @@ NodesX *NewNodeList(int append,int readonly)
 
   NodesX *nodesx The set of nodes to be freed.
 
-  int preserve If set then the results file is to be preserved.
+  int keep If set then the results file is to be kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeNodeList(NodesX *nodesx,int preserve)
+void FreeNodeList(NodesX *nodesx,int keep)
 {
- if(preserve)
+ if(keep)
     RenameFile(nodesx->filename_tmp,nodesx->filename);
  else
     DeleteFile(nodesx->filename_tmp);
@@ -364,10 +364,10 @@ static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
 
   SegmentsX *segmentsx The set of segments to use.
 
-  int preserve If set to 1 then keep the old data file otherwise delete it.
+  int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int preserve)
+void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int keep)
 {
  NodeX nodex;
  index_t total=0,highway=0,nothighway=0;
@@ -381,7 +381,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int preserve)
 
  nodesx->fd=ReOpenFile(nodesx->filename_tmp);
 
- if(preserve)
+ if(keep)
     RenameFile(nodesx->filename_tmp,nodesx->filename);
  else
     DeleteFile(nodesx->filename_tmp);

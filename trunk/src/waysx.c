@@ -132,12 +132,12 @@ WaysX *NewWayList(int append,int readonly)
 
   WaysX *waysx The set of ways to be freed.
 
-  int preserve If set then the results file is to be preserved.
+  int keep If set then the results file is to be kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeWayList(WaysX *waysx,int preserve)
+void FreeWayList(WaysX *waysx,int keep)
 {
- if(preserve)
+ if(keep)
     RenameFile(waysx->filename_tmp,waysx->filename);
  else
     DeleteFile(waysx->filename_tmp);
@@ -367,10 +367,10 @@ static int deduplicate_by_id(WayX *wayx,index_t index)
 
   WaysX *waysx The set of ways to process.
 
-  int preserve If set to 1 then keep the old data file otherwise delete it.
+  int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ExtractWayNames(WaysX *waysx,int preserve)
+void ExtractWayNames(WaysX *waysx,int keep)
 {
  index_t i;
  int fd;
@@ -387,7 +387,7 @@ void ExtractWayNames(WaysX *waysx,int preserve)
 
  waysx->fd=ReOpenFile(waysx->filename_tmp);
 
- if(preserve)
+ if(keep)
     RenameFile(waysx->filename_tmp,waysx->filename);
  else
     DeleteFile(waysx->filename_tmp);

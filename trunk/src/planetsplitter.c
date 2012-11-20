@@ -79,7 +79,7 @@ int main(int argc,char** argv)
  int         max_iterations=5;
  char       *dirname=NULL,*prefix=NULL,*tagging=NULL,*errorlog=NULL;
  int         option_parse_only=0,option_process_only=0;
- int         option_append=0,option_preserve=0;
+ int         option_append=0,option_keep=0;
  int         option_filenames=0;
  int         option_prune_isolated=500,option_prune_short=5,option_prune_straight=3;
  int         arg;
@@ -110,8 +110,8 @@ int main(int argc,char** argv)
        option_process_only=1;
     else if(!strcmp(argv[arg],"--append"))
        option_append=1;
-    else if(!strcmp(argv[arg],"--preserve"))
-       option_preserve=1;
+    else if(!strcmp(argv[arg],"--keep"))
+       option_keep=1;
     else if(!strcmp(argv[arg],"--changes"))
        option_changes=1;
     else if(!strcmp(argv[arg],"--loggable"))
@@ -325,21 +325,21 @@ if(!option_process_only)
 
  /* Extract the way names (must be before using the ways) */
 
- ExtractWayNames(Ways,option_preserve||option_changes);
+ ExtractWayNames(Ways,option_keep||option_changes);
 
  /* Remove bad segments (must be after sorting the nodes, segments and ways) */
 
- RemoveBadSegments(Segments,Nodes,Ways,option_preserve||option_changes);
+ RemoveBadSegments(Segments,Nodes,Ways,option_keep||option_changes);
 
  /* Remove non-highway nodes (must be after removing the bad segments) */
 
- RemoveNonHighwayNodes(Nodes,Segments,option_preserve||option_changes);
+ RemoveNonHighwayNodes(Nodes,Segments,option_keep||option_changes);
 
  /* Process the route relations and first part of turn relations (must be before compacting the ways) */
 
- ProcessRouteRelations(Relations,Ways,option_preserve||option_changes);
+ ProcessRouteRelations(Relations,Ways,option_keep||option_changes);
 
- ProcessTurnRelations1(Relations,Nodes,Ways,option_preserve||option_changes);
+ ProcessTurnRelations1(Relations,Nodes,Ways,option_keep||option_changes);
 
  /* Measure the segments and replace node/way id with index (must be after removing non-highway nodes) */
 
@@ -561,7 +561,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--loggable] [--logtime]\n"
          "                      [--errorlog[=<name>]]\n"
          "                      [--parse-only | --process-only]\n"
-         "                      [--append] [--preserve] [--changes]\n"
+         "                      [--append] [--keep] [--changes]\n"
          "                      [--max-iterations=<number>]\n"
          "                      [--prune-none]\n"
          "                      [--prune-isolated=<len>]\n"
@@ -613,7 +613,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--parse-only              Parse the OSM/OSC file(s) and store the results.\n"
             "--process-only            Process the stored results from previous option.\n"
             "--append                  Parse the OSM file(s) and append to existing results.\n"
-            "--preserve                Keep the intermediate files after parsing & sorting.\n"
+            "--keep                    Keep the intermediate files after parsing & sorting.\n"
             "--changes                 Parse the data as an OSC file and apply the changes.\n"
             "\n"
             "--max-iterations=<number> The number of iterations for finding super-nodes\n"

@@ -159,14 +159,14 @@ RelationsX *NewRelationList(int append,int readonly)
 
   RelationsX *relationsx The set of relations to be freed.
 
-  int preserve If set then the results file is to be preserved.
+  int keep If set then the results file is to be kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeRelationList(RelationsX *relationsx,int preserve)
+void FreeRelationList(RelationsX *relationsx,int keep)
 {
  /* Route relations */
 
- if(preserve)
+ if(keep)
     RenameFile(relationsx->rfilename_tmp,relationsx->rfilename);
  else
     DeleteFile(relationsx->rfilename_tmp);
@@ -177,7 +177,7 @@ void FreeRelationList(RelationsX *relationsx,int preserve)
 
  /* Turn Restriction relations */
 
- if(preserve)
+ if(keep)
     RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
  else
     DeleteFile(relationsx->trfilename_tmp);
@@ -497,10 +497,10 @@ static int deduplicate_turn_by_id(TurnRelX *relationx,index_t index)
 
   WaysX *waysx The set of ways to modify.
 
-  int preserve If set to 1 then keep the old data file otherwise delete it.
+  int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int preserve)
+void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 {
  RouteRelX *unmatched=NULL,*lastunmatched=NULL;
  int nunmatched=0,lastnunmatched=0,iteration=1;
@@ -672,7 +672,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int preserve)
 
  relationsx->rfd=CloseFile(relationsx->rfd);
 
- if(preserve)
+ if(keep)
     RenameFile(relationsx->rfilename_tmp,relationsx->rfilename);
 
  /* Unmap from memory / close the files */
@@ -694,10 +694,10 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int preserve)
 
   WaysX *waysx The set of ways to use.
 
-  int preserve If set to 1 then keep the old data file otherwise delete it.
+  int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,int preserve)
+void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,int keep)
 {
  int trfd;
  index_t i,deleted=0;
@@ -710,7 +710,7 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,in
 
  relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
 
- if(preserve)
+ if(keep)
     RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
  else
     DeleteFile(relationsx->trfilename_tmp);
