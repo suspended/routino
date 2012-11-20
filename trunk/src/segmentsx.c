@@ -58,11 +58,15 @@ static WaysX *sortwaysx;
 
 static int sort_by_way_id(SegmentX *a,SegmentX *b);
 static int apply_changes(SegmentX *segmentx,index_t index);
+
 static int sort_by_id(SegmentX *a,SegmentX *b);
 static int deduplicate(SegmentX *segmentx,index_t index);
+
 static int delete_pruned(SegmentX *segmentx,index_t index);
-static int geographically_index(SegmentX *segmentx,index_t index);
+
 static int deduplicate_super(SegmentX *segmentx,index_t index);
+
+static int geographically_index(SegmentX *segmentx,index_t index);
 
 static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
@@ -203,376 +207,6 @@ void FinishSegmentList(SegmentsX *segmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Apply the changes to the segments (no unique id to use).
-
-  SegmentsX *segmentsx The set of segments to sort and modify.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void ApplySegmentChanges(SegmentsX *segmentsx)
-{
- int fd;
- index_t xnumber;
-
- /* Print the start message */
-
- printf_first("Applying Segment Changes");
-
- /* Re-open the file read-only and a new file writeable */
-
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileNew(segmentsx->filename_tmp);
-
- /* Sort by node indexes */
-
- xnumber=segmentsx->number;
-
- segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
-                                                                    (int (*)(const void*,const void*))sort_by_way_id,
-                                                                    (int (*)(void*,index_t))apply_changes);
-
- /* Close the files */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Applying Segment Changes: Segments=%"Pindex_t" Changed=%"Pindex_t,xnumber,xnumber-segmentsx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the segment list and deduplicate it.
-
-  SegmentsX *segmentsx The set of segments to sort and modify.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void SortSegmentList(SegmentsX *segmentsx)
-{
- int fd;
- index_t xnumber;
-
- /* Print the start message */
-
- printf_first("Sorting Segments");
-
- /* Re-open the file read-only and a new file writeable */
-
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileNew(segmentsx->filename_tmp);
-
- /* Sort by node indexes */
-
- xnumber=segmentsx->number;
-
- segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
-                                                                    (int (*)(const void*,const void*))sort_by_id,
-                                                                    (int (*)(void*,index_t))deduplicate);
-
- /* Close the files */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Sorted Segments: Segments=%"Pindex_t" Duplicates=%"Pindex_t,xnumber,xnumber-segmentsx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Prune the deleted segments while resorting the list.
-
-  SegmentsX *segmentsx The set of segments to sort and modify.
-
-  WaysX *waysx The set of ways to check.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
-{
- int fd;
- index_t xnumber;
-
- /* Print the start message */
-
- printf_first("Sorting and Pruning Segments");
-
- /* Allocate the way usage bitmask */
-
- segmentsx->usedway=AllocBitMask(waysx->number);
-
- assert(segmentsx->usedway); /* Check AllocBitMask() worked */
-
- /* Re-open the file read-only and a new file writeable */
-
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileNew(segmentsx->filename_tmp);
-
- /* Sort by node indexes */
-
- xnumber=segmentsx->number;
-
- sortsegmentsx=segmentsx;
-
- segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(void*,index_t))delete_pruned,
-                                                                    (int (*)(const void*,const void*))sort_by_id,
-                                                                    NULL);
-
- /* Close the files */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Sorted and Pruned Segments: Segments=%"Pindex_t" Deleted=%"Pindex_t,xnumber,xnumber-segmentsx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the segments into way id order.
-
-  int sort_by_way_id Returns the comparison of the way fields.
-
-  SegmentX *a The first segment.
-
-  SegmentX *b The second segment.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int sort_by_way_id(SegmentX *a,SegmentX *b)
-{
- way_t a_id=a->way;
- way_t b_id=b->way;
-
- if(a_id<b_id)
-    return(-1);
- else if(a_id>b_id)
-    return(1);
- else /* if(a_id==b_id) */
-    return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the segments into id order, first by node1 then by node2, finally by distance.
-
-  int sort_by_id Returns the comparison of the node fields.
-
-  SegmentX *a The first segment.
-
-  SegmentX *b The second segment.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int sort_by_id(SegmentX *a,SegmentX *b)
-{
- node_t a_id1=a->node1;
- node_t b_id1=b->node1;
-
- if(a_id1<b_id1)
-    return(-1);
- else if(a_id1>b_id1)
-    return(1);
- else /* if(a_id1==b_id1) */
-   {
-    node_t a_id2=a->node2;
-    node_t b_id2=b->node2;
-
-    if(a_id2<b_id2)
-       return(-1);
-    else if(a_id2>b_id2)
-       return(1);
-    else
-      {
-       distance_t a_distance=DISTANCE(a->distance);
-       distance_t b_distance=DISTANCE(b->distance);
-
-       if(a_distance<b_distance)
-          return(-1);
-       else if(a_distance>b_distance)
-          return(1);
-       else
-         {
-          distance_t a_distflag=DISTFLAG(a->distance);
-          distance_t b_distflag=DISTFLAG(b->distance);
-
-          if(a_distflag<b_distflag)
-             return(-1);
-          else if(a_distflag>b_distflag)
-             return(1);
-          else
-             return(FILESORT_PRESERVE_ORDER(a,b)); /* preserve order */
-         }
-      }
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Apply the changes to the segments.
-
-  int apply_changes Return 1 if the value is to be kept, otherwise 0.
-
-  SegmentX *segmentx The extended segment.
-
-  index_t index The number of sorted segments that have already been written to the output file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int apply_changes(SegmentX *segmentx,index_t index)
-{
- static way_t prevway=NO_WAY_ID;
- static int deleted=0;
-
- if(prevway!=segmentx->way)
-   {
-    prevway=segmentx->way;
-    deleted=0;
-   }
-
- if(!deleted)
-    if(segmentx->node1==NO_NODE_ID)
-       deleted=1;
-
- if(deleted)
-    return(0);
- else
-    return(1);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Discard duplicate segments.
-
-  int deduplicate Return 1 if the value is to be kept, otherwise 0.
-
-  SegmentX *segmentx The extended segment.
-
-  index_t index The number of sorted segments that have already been written to the output file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int deduplicate(SegmentX *segmentx,index_t index)
-{
- static node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
- static way_t prevway=NO_WAY_ID;
- static distance_t prevdist=0;
-
- if(prevnode1!=segmentx->node1 || prevnode2!=segmentx->node2 || prevway!=segmentx->way || prevdist!=segmentx->distance)
-   {
-    prevnode1=segmentx->node1;
-    prevnode2=segmentx->node2;
-    prevway=segmentx->way;
-    prevdist=segmentx->distance;
-
-    return(1);
-   }
- else
-    return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Delete the pruned segments.
-
-  int delete_pruned Return 1 if the value is to be kept, otherwise 0.
-
-  SegmentX *segmentx The extended segment.
-
-  index_t index The number of unsorted segments that have been read from the input file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int delete_pruned(SegmentX *segmentx,index_t index)
-{
- if(IsPrunedSegmentX(segmentx))
-    return(0);
-
- SetBit(sortsegmentsx->usedway,segmentx->way);
-
- return(1);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the segments geographically after updating the node indexes.
-
-  SegmentsX *segmentsx The set of segments to modify.
-
-  NodesX *nodesx The set of nodes to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
-{
- int fd;
-
- /* Print the start message */
-
- printf_first("Sorting Segments Geographically");
-
- /* Re-open the file read-only and a new file writeable */
-
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileNew(segmentsx->filename_tmp);
-
- /* Update the segments with geographically sorted node indexes and sort them */
-
- sortnodesx=nodesx;
-
- filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(void*,index_t))geographically_index,
-                                                  (int (*)(const void*,const void*))sort_by_id,
-                                                  NULL);
- /* Close the files */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Sorted Segments Geographically: Segments=%"Pindex_t,segmentsx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Update the segment indexes.
-
-  int geographically_index Return 1 if the value is to be kept, otherwise 0.
-
-  SegmentX *segmentx The extended segment.
-
-  index_t index The number of unsorted segments that have been read from the input file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int geographically_index(SegmentX *segmentx,index_t index)
-{
- segmentx->node1=sortnodesx->gdata[segmentx->node1];
- segmentx->node2=sortnodesx->gdata[segmentx->node2];
-
- if(segmentx->node1>segmentx->node2)
-   {
-    index_t temp;
-
-    temp=segmentx->node1;
-    segmentx->node1=segmentx->node2;
-    segmentx->node2=temp;
-
-    if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
-       segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
-   }
-
- return(1);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Find the first extended segment with a particular starting node index.
  
   SegmentX *FirstSegmentX Returns a pointer to the first extended segment with the specified id.
@@ -662,6 +296,230 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 }
  
  
+/*++++++++++++++++++++++++++++++++++++++
+  Apply the changes to the segments (no unique id to use).
+
+  SegmentsX *segmentsx The set of segments to sort and modify.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void ApplySegmentChanges(SegmentsX *segmentsx)
+{
+ int fd;
+ index_t xnumber;
+
+ /* Print the start message */
+
+ printf_first("Applying Segment Changes");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+
+ DeleteFile(segmentsx->filename_tmp);
+
+ fd=OpenFileNew(segmentsx->filename_tmp);
+
+ /* Sort by node indexes */
+
+ xnumber=segmentsx->number;
+
+ segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
+                                                                    (int (*)(const void*,const void*))sort_by_way_id,
+                                                                    (int (*)(void*,index_t))apply_changes);
+
+ /* Close the files */
+
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Applying Segment Changes: Segments=%"Pindex_t" Changed=%"Pindex_t,xnumber,xnumber-segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the segments into way id order.
+
+  int sort_by_way_id Returns the comparison of the way fields.
+
+  SegmentX *a The first segment.
+
+  SegmentX *b The second segment.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int sort_by_way_id(SegmentX *a,SegmentX *b)
+{
+ way_t a_id=a->way;
+ way_t b_id=b->way;
+
+ if(a_id<b_id)
+    return(-1);
+ else if(a_id>b_id)
+    return(1);
+ else /* if(a_id==b_id) */
+    return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Apply the changes to the segments.
+
+  int apply_changes Return 1 if the value is to be kept, otherwise 0.
+
+  SegmentX *segmentx The extended segment.
+
+  index_t index The number of sorted segments that have already been written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int apply_changes(SegmentX *segmentx,index_t index)
+{
+ static way_t prevway=NO_WAY_ID;
+ static int deleted=0;
+
+ if(prevway!=segmentx->way)
+   {
+    prevway=segmentx->way;
+    deleted=0;
+   }
+
+ if(!deleted)
+    if(segmentx->node1==NO_NODE_ID)
+       deleted=1;
+
+ if(deleted)
+    return(0);
+ else
+    return(1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the segment list and deduplicate it.
+
+  SegmentsX *segmentsx The set of segments to sort and modify.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void SortSegmentList(SegmentsX *segmentsx)
+{
+ int fd;
+ index_t xnumber;
+
+ /* Print the start message */
+
+ printf_first("Sorting Segments");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+
+ DeleteFile(segmentsx->filename_tmp);
+
+ fd=OpenFileNew(segmentsx->filename_tmp);
+
+ /* Sort by node indexes */
+
+ xnumber=segmentsx->number;
+
+ segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
+                                                                    (int (*)(const void*,const void*))sort_by_id,
+                                                                    (int (*)(void*,index_t))deduplicate);
+
+ /* Close the files */
+
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Sorted Segments: Segments=%"Pindex_t" Duplicates=%"Pindex_t,xnumber,xnumber-segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the segments into id order, first by node1 then by node2, finally by distance.
+
+  int sort_by_id Returns the comparison of the node fields.
+
+  SegmentX *a The first segment.
+
+  SegmentX *b The second segment.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int sort_by_id(SegmentX *a,SegmentX *b)
+{
+ node_t a_id1=a->node1;
+ node_t b_id1=b->node1;
+
+ if(a_id1<b_id1)
+    return(-1);
+ else if(a_id1>b_id1)
+    return(1);
+ else /* if(a_id1==b_id1) */
+   {
+    node_t a_id2=a->node2;
+    node_t b_id2=b->node2;
+
+    if(a_id2<b_id2)
+       return(-1);
+    else if(a_id2>b_id2)
+       return(1);
+    else
+      {
+       distance_t a_distance=DISTANCE(a->distance);
+       distance_t b_distance=DISTANCE(b->distance);
+
+       if(a_distance<b_distance)
+          return(-1);
+       else if(a_distance>b_distance)
+          return(1);
+       else
+         {
+          distance_t a_distflag=DISTFLAG(a->distance);
+          distance_t b_distflag=DISTFLAG(b->distance);
+
+          if(a_distflag<b_distflag)
+             return(-1);
+          else if(a_distflag>b_distflag)
+             return(1);
+          else
+             return(FILESORT_PRESERVE_ORDER(a,b)); /* preserve order */
+         }
+      }
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Discard duplicate segments.
+
+  int deduplicate Return 1 if the value is to be kept, otherwise 0.
+
+  SegmentX *segmentx The extended segment.
+
+  index_t index The number of sorted segments that have already been written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int deduplicate(SegmentX *segmentx,index_t index)
+{
+ static node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
+ static way_t prevway=NO_WAY_ID;
+ static distance_t prevdist=0;
+
+ if(prevnode1!=segmentx->node1 || prevnode2!=segmentx->node2 || prevway!=segmentx->way || prevdist!=segmentx->distance)
+   {
+    prevnode1=segmentx->node1;
+    prevnode2=segmentx->node2;
+    prevway=segmentx->way;
+    prevdist=segmentx->distance;
+
+    return(1);
+   }
+ else
+    return(0);
+}
+
+
 /*++++++++++++++++++++++++++++++++++++++
   Remove bad segments (duplicated, zero length or with missing nodes).
 
@@ -888,6 +746,174 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Index the segments by creating the firstnode index and filling in the segment next2 parameter.
+
+  SegmentsX *segmentsx The set of segments to modify.
+
+  NodesX *nodesx The set of nodes to use.
+
+  WaysX *waysx The set of ways to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
+{
+ index_t index,i;
+
+ if(segmentsx->number==0)
+    return;
+
+ /* Print the start message */
+
+ printf_first("Indexing Segments: Segments=0");
+
+ /* Allocate the array of indexes */
+
+ if(segmentsx->firstnode)
+    free(segmentsx->firstnode);
+
+ segmentsx->firstnode=(index_t*)malloc(nodesx->number*sizeof(index_t));
+
+ assert(segmentsx->firstnode); /* Check malloc() worked */
+
+ for(i=0;i<nodesx->number;i++)
+    segmentsx->firstnode[i]=NO_SEGMENT;
+
+ /* Map into memory / open the files */
+
+#if !SLIM
+ segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
+#else
+ segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
+#endif
+
+ /* Read through the segments in reverse order */
+
+ for(index=segmentsx->number-1;index!=NO_SEGMENT;index--)
+   {
+    SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
+
+    if(nodesx->pdata)
+      {
+       segmentx->node1=nodesx->pdata[segmentx->node1];
+       segmentx->node2=nodesx->pdata[segmentx->node2];
+      }
+
+    if(waysx->cdata)
+       segmentx->way=waysx->cdata[segmentx->way];
+
+    segmentx->next2=segmentsx->firstnode[segmentx->node2];
+
+    PutBackSegmentX(segmentsx,segmentx);
+
+    segmentsx->firstnode[segmentx->node1]=index;
+    segmentsx->firstnode[segmentx->node2]=index;
+
+    if(!(index%10000))
+       printf_middle("Indexing Segments: Segments=%"Pindex_t,segmentsx->number-index);
+   }
+
+ /* Unmap from memory / close the files */
+
+#if !SLIM
+ segmentsx->data=UnmapFile(segmentsx->data);
+#else
+ segmentsx->fd=CloseFile(segmentsx->fd);
+#endif
+
+ /* Free the memory */
+
+ if(nodesx->pdata)
+   {
+    free(nodesx->pdata);
+    nodesx->pdata=NULL;
+   }
+
+ if(waysx->cdata)
+   {
+    free(waysx->cdata);
+    waysx->cdata=NULL;
+   }
+
+ /* Print the final message */
+
+ printf_last("Indexed Segments: Segments=%"Pindex_t,segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Prune the deleted segments while resorting the list.
+
+  SegmentsX *segmentsx The set of segments to sort and modify.
+
+  WaysX *waysx The set of ways to check.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
+{
+ int fd;
+ index_t xnumber;
+
+ /* Print the start message */
+
+ printf_first("Sorting and Pruning Segments");
+
+ /* Allocate the way usage bitmask */
+
+ segmentsx->usedway=AllocBitMask(waysx->number);
+
+ assert(segmentsx->usedway); /* Check AllocBitMask() worked */
+
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+
+ DeleteFile(segmentsx->filename_tmp);
+
+ fd=OpenFileNew(segmentsx->filename_tmp);
+
+ /* Sort by node indexes */
+
+ xnumber=segmentsx->number;
+
+ sortsegmentsx=segmentsx;
+
+ segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(void*,index_t))delete_pruned,
+                                                                    (int (*)(const void*,const void*))sort_by_id,
+                                                                    NULL);
+
+ /* Close the files */
+
+ segmentsx->fd=CloseFile(segmentsx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Sorted and Pruned Segments: Segments=%"Pindex_t" Deleted=%"Pindex_t,xnumber,xnumber-segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Delete the pruned segments.
+
+  int delete_pruned Return 1 if the value is to be kept, otherwise 0.
+
+  SegmentX *segmentx The extended segment.
+
+  index_t index The number of unsorted segments that have been read from the input file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int delete_pruned(SegmentX *segmentx,index_t index)
+{
+ if(IsPrunedSegmentX(segmentx))
+    return(0);
+
+ SetBit(sortsegmentsx->usedway,segmentx->way);
+
+ return(1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Remove the duplicate super-segments.
 
   SegmentsX *segmentsx The set of super-segments to modify.
@@ -1018,97 +1044,75 @@ static int deduplicate_super(SegmentX *segmentx,index_t index)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Index the segments by creating the firstnode index and filling in the segment next2 parameter.
+  Sort the segments geographically after updating the node indexes.
 
   SegmentsX *segmentsx The set of segments to modify.
 
   NodesX *nodesx The set of nodes to use.
-
-  WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
+void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
 {
- index_t index,i;
-
- if(segmentsx->number==0)
-    return;
+ int fd;
 
  /* Print the start message */
 
- printf_first("Indexing Segments: Segments=0");
+ printf_first("Sorting Segments Geographically");
 
- /* Allocate the array of indexes */
+ /* Re-open the file read-only and a new file writeable */
 
- if(segmentsx->firstnode)
-    free(segmentsx->firstnode);
+ segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
- segmentsx->firstnode=(index_t*)malloc(nodesx->number*sizeof(index_t));
+ DeleteFile(segmentsx->filename_tmp);
 
- assert(segmentsx->firstnode); /* Check malloc() worked */
+ fd=OpenFileNew(segmentsx->filename_tmp);
 
- for(i=0;i<nodesx->number;i++)
-    segmentsx->firstnode[i]=NO_SEGMENT;
+ /* Update the segments with geographically sorted node indexes and sort them */
 
- /* Map into memory / open the files */
+ sortnodesx=nodesx;
 
-#if !SLIM
- segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
-#else
- segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
-#endif
+ filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(void*,index_t))geographically_index,
+                                                  (int (*)(const void*,const void*))sort_by_id,
+                                                  NULL);
+ /* Close the files */
 
- /* Read through the segments in reverse order */
-
- for(index=segmentsx->number-1;index!=NO_SEGMENT;index--)
-   {
-    SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
-
-    if(nodesx->pdata)
-      {
-       segmentx->node1=nodesx->pdata[segmentx->node1];
-       segmentx->node2=nodesx->pdata[segmentx->node2];
-      }
-
-    if(waysx->cdata)
-       segmentx->way=waysx->cdata[segmentx->way];
-
-    segmentx->next2=segmentsx->firstnode[segmentx->node2];
-
-    PutBackSegmentX(segmentsx,segmentx);
-
-    segmentsx->firstnode[segmentx->node1]=index;
-    segmentsx->firstnode[segmentx->node2]=index;
-
-    if(!(index%10000))
-       printf_middle("Indexing Segments: Segments=%"Pindex_t,segmentsx->number-index);
-   }
-
- /* Unmap from memory / close the files */
-
-#if !SLIM
- segmentsx->data=UnmapFile(segmentsx->data);
-#else
  segmentsx->fd=CloseFile(segmentsx->fd);
-#endif
-
- /* Free the memory */
-
- if(nodesx->pdata)
-   {
-    free(nodesx->pdata);
-    nodesx->pdata=NULL;
-   }
-
- if(waysx->cdata)
-   {
-    free(waysx->cdata);
-    waysx->cdata=NULL;
-   }
+ CloseFile(fd);
 
  /* Print the final message */
 
- printf_last("Indexed Segments: Segments=%"Pindex_t,segmentsx->number);
+ printf_last("Sorted Segments Geographically: Segments=%"Pindex_t,segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Update the segment indexes.
+
+  int geographically_index Return 1 if the value is to be kept, otherwise 0.
+
+  SegmentX *segmentx The extended segment.
+
+  index_t index The number of unsorted segments that have been read from the input file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int geographically_index(SegmentX *segmentx,index_t index)
+{
+ segmentx->node1=sortnodesx->gdata[segmentx->node1];
+ segmentx->node2=sortnodesx->gdata[segmentx->node2];
+
+ if(segmentx->node1>segmentx->node2)
+   {
+    index_t temp;
+
+    temp=segmentx->node1;
+    segmentx->node1=segmentx->node2;
+    segmentx->node2=temp;
+
+    if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
+       segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+   }
+
+ return(1);
 }
 
 

@@ -82,14 +82,11 @@ struct _SegmentsX
 
 /* Functions in segmentsx.c */
 
-
 SegmentsX *NewSegmentList(int append,int readonly);
 void FreeSegmentList(SegmentsX *segmentsx,int preserve);
 
 void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 void FinishSegmentList(SegmentsX *segmentsx);
-
-void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
 SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t nodeindex,int position);
 SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex);
@@ -98,19 +95,19 @@ void ApplySegmentChanges(SegmentsX *segmentsx);
 
 void SortSegmentList(SegmentsX *segmentsx);
 
-void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx);
-
-void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx);
+void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int preserve);
 
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
+void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx);
+
 void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx);
 
-void CreateRealSegments(SegmentsX *segmentsx,WaysX *waysx);
+void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx);
 
-void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
+void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
 
 /* Macros / inline functions */

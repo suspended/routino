@@ -189,6 +189,65 @@ void FinishNodeList(NodesX *nodesx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Find a particular node index.
+
+  index_t IndexNodeX Returns the index of the extended node with the specified id.
+
+  NodesX *nodesx The set of nodes to use.
+
+  node_t id The node id to look for.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexNodeX(NodesX *nodesx,node_t id)
+{
+ index_t start=0;
+ index_t end=nodesx->number-1;
+ index_t mid;
+
+ /* Binary search - search key exact match only is required.
+  *
+  *  # <- start  |  Check mid and move start or end if it doesn't match
+  *  #           |
+  *  #           |  Since an exact match is wanted we can set end=mid-1
+  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
+  *  #           |
+  *  #           |  Eventually either end=start or end=start+1 and one of
+  *  # <- end    |  start or end is the wanted one.
+  */
+
+ if(end<start)                        /* There are no nodes */
+    return(NO_NODE);
+ else if(id<nodesx->idata[start])     /* Check key is not before start */
+    return(NO_NODE);
+ else if(id>nodesx->idata[end])       /* Check key is not after end */
+    return(NO_NODE);
+ else
+   {
+    do
+      {
+       mid=(start+end)/2;             /* Choose mid point */
+
+       if(nodesx->idata[mid]<id)      /* Mid point is too low */
+          start=mid+1;
+       else if(nodesx->idata[mid]>id) /* Mid point is too high */
+          end=mid?(mid-1):mid;
+       else                           /* Mid point is correct */
+          return(mid);
+      }
+    while((end-start)>1);
+
+    if(nodesx->idata[start]==id)      /* Start is correct */
+       return(start);
+
+    if(nodesx->idata[end]==id)        /* End is correct */
+       return(end);
+   }
+
+ return(NO_NODE);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Sort the node list.
 
   NodesX *nodesx The set of nodes to modify.
@@ -296,6 +355,148 @@ static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
 
     return(0);
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Remove any nodes that are not part of a highway.
+
+  NodesX *nodesx The set of nodes to modify.
+
+  SegmentsX *segmentsx The set of segments to use.
+
+  int preserve If set to 1 then keep the old data file otherwise delete it.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int preserve)
+{
+ NodeX nodex;
+ index_t total=0,highway=0,nothighway=0;
+ int fd;
+
+ /* Print the start message */
+
+ printf_first("Checking Nodes: Nodes=0");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+
+ if(preserve)
+    RenameFile(nodesx->filename_tmp,nodesx->filename);
+ else
+    DeleteFile(nodesx->filename_tmp);
+
+ fd=OpenFileNew(nodesx->filename_tmp);
+
+ /* Modify the on-disk image */
+
+ while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
+   {
+    if(!IsBitSet(segmentsx->usednode,total))
+       nothighway++;
+    else
+      {
+       nodex.id=highway;
+       nodesx->idata[highway]=nodesx->idata[total];
+
+       WriteFile(fd,&nodex,sizeof(NodeX));
+
+       highway++;
+      }
+
+    total++;
+
+    if(!(total%10000))
+       printf_middle("Checking Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
+   }
+
+ nodesx->number=highway;
+
+ /* Close the files */
+
+ nodesx->fd=CloseFile(nodesx->fd);
+ CloseFile(fd);
+
+ /* Free the now-unneeded index */
+
+ free(segmentsx->usednode);
+ segmentsx->usednode=NULL;
+
+ /* Print the final message */
+
+ printf_last("Checked Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Remove any nodes that have been pruned.
+
+  NodesX *nodesx The set of nodes to prune.
+
+  SegmentsX *segmentsx The set of segments to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
+{
+ NodeX nodex;
+ index_t total=0,pruned=0,notpruned=0;
+ int fd;
+
+ /* Print the start message */
+
+ printf_first("Deleting Pruned Nodes: Nodes=0 Pruned=0");
+
+ /* Allocate the array of indexes */
+
+ nodesx->pdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
+
+ assert(nodesx->pdata); /* Check malloc() worked */
+
+ /* Re-open the file read-only and a new file writeable */
+
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+
+ DeleteFile(nodesx->filename_tmp);
+
+ fd=OpenFileNew(nodesx->filename_tmp);
+
+ /* Modify the on-disk image */
+
+ while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
+   {
+    if(segmentsx->firstnode[total]==NO_SEGMENT)
+      {
+       pruned++;
+
+       nodesx->pdata[total]=NO_NODE;
+      }
+    else
+      {
+       nodex.id=notpruned;
+       nodesx->pdata[total]=notpruned;
+
+       WriteFile(fd,&nodex,sizeof(NodeX));
+
+       notpruned++;
+      }
+
+    total++;
+
+    if(!(total%10000))
+       printf_middle("Deleting Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,total,pruned);
+   }
+
+ nodesx->number=notpruned;
+
+ /* Close the files */
+
+ nodesx->fd=CloseFile(nodesx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Deleted Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,total,pruned);
 }
 
 
@@ -449,207 +650,6 @@ static int index_by_lat_long(NodeX *nodex,index_t index)
     lon_max=nodex->longitude;
 
  return(1);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find a particular node index.
-
-  index_t IndexNodeX Returns the index of the extended node with the specified id.
-
-  NodesX *nodesx The set of nodes to use.
-
-  node_t id The node id to look for.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-index_t IndexNodeX(NodesX *nodesx,node_t id)
-{
- index_t start=0;
- index_t end=nodesx->number-1;
- index_t mid;
-
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- if(end<start)                        /* There are no nodes */
-    return(NO_NODE);
- else if(id<nodesx->idata[start])     /* Check key is not before start */
-    return(NO_NODE);
- else if(id>nodesx->idata[end])       /* Check key is not after end */
-    return(NO_NODE);
- else
-   {
-    do
-      {
-       mid=(start+end)/2;             /* Choose mid point */
-
-       if(nodesx->idata[mid]<id)      /* Mid point is too low */
-          start=mid+1;
-       else if(nodesx->idata[mid]>id) /* Mid point is too high */
-          end=mid?(mid-1):mid;
-       else                           /* Mid point is correct */
-          return(mid);
-      }
-    while((end-start)>1);
-
-    if(nodesx->idata[start]==id)      /* Start is correct */
-       return(start);
-
-    if(nodesx->idata[end]==id)        /* End is correct */
-       return(end);
-   }
-
- return(NO_NODE);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Remove any nodes that are not part of a highway.
-
-  NodesX *nodesx The set of nodes to modify.
-
-  SegmentsX *segmentsx The set of segments to use.
-
-  int preserve If set to 1 then keep the old data file otherwise delete it.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int preserve)
-{
- NodeX nodex;
- index_t total=0,highway=0,nothighway=0;
- int fd;
-
- /* Print the start message */
-
- printf_first("Checking Nodes: Nodes=0");
-
- /* Re-open the file read-only and a new file writeable */
-
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
-
- if(preserve)
-    RenameFile(nodesx->filename_tmp,nodesx->filename);
- else
-    DeleteFile(nodesx->filename_tmp);
-
- fd=OpenFileNew(nodesx->filename_tmp);
-
- /* Modify the on-disk image */
-
- while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
-   {
-    if(!IsBitSet(segmentsx->usednode,total))
-       nothighway++;
-    else
-      {
-       nodex.id=highway;
-       nodesx->idata[highway]=nodesx->idata[total];
-
-       WriteFile(fd,&nodex,sizeof(NodeX));
-
-       highway++;
-      }
-
-    total++;
-
-    if(!(total%10000))
-       printf_middle("Checking Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
-   }
-
- nodesx->number=highway;
-
- /* Close the files */
-
- nodesx->fd=CloseFile(nodesx->fd);
- CloseFile(fd);
-
- /* Free the now-unneeded index */
-
- free(segmentsx->usednode);
- segmentsx->usednode=NULL;
-
- /* Print the final message */
-
- printf_last("Checked Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Remove any nodes that have been pruned.
-
-  NodesX *nodesx The set of nodes to prune.
-
-  SegmentsX *segmentsx The set of segments to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
-{
- NodeX nodex;
- index_t total=0,pruned=0,notpruned=0;
- int fd;
-
- /* Print the start message */
-
- printf_first("Deleting Pruned Nodes: Nodes=0 Pruned=0");
-
- /* Allocate the array of indexes */
-
- nodesx->pdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
-
- assert(nodesx->pdata); /* Check malloc() worked */
-
- /* Re-open the file read-only and a new file writeable */
-
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
-
- DeleteFile(nodesx->filename_tmp);
-
- fd=OpenFileNew(nodesx->filename_tmp);
-
- /* Modify the on-disk image */
-
- while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
-   {
-    if(segmentsx->firstnode[total]==NO_SEGMENT)
-      {
-       pruned++;
-
-       nodesx->pdata[total]=NO_NODE;
-      }
-    else
-      {
-       nodex.id=notpruned;
-       nodesx->pdata[total]=notpruned;
-
-       WriteFile(fd,&nodex,sizeof(NodeX));
-
-       notpruned++;
-      }
-
-    total++;
-
-    if(!(total%10000))
-       printf_middle("Deleting Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,total,pruned);
-   }
-
- nodesx->number=notpruned;
-
- /* Close the files */
-
- nodesx->fd=CloseFile(nodesx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Deleted Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,total,pruned);
 }
 
 

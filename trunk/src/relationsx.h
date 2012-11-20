@@ -88,16 +88,12 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,
                          transports_t routes,
                          way_t *ways,int nways,
                          relation_t *relations,int nrelations);
-
 void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
                                 way_t from,way_t to,node_t via,
                                 TurnRestriction restriction,transports_t except);
-
 void FinishRelationList(RelationsX *relationsx);
 
 void SortRelationList(RelationsX *relationsx);
-
-void SortTurnRelationList(RelationsX* relationsx);
 
 void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int preserve);
 

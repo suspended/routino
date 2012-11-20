@@ -53,12 +53,13 @@ static SegmentsX *sortsegmentsx;
 /* Local functions */
 
 static int sort_by_id(WayX *a,WayX *b);
+static int deduplicate_by_id(WayX *wayx,index_t index);
+
 static int sort_by_name(WayX *a,WayX *b);
-static int sort_by_name_and_prop_and_id(WayX *a,WayX *b);
+static int index_by_id(WayX *wayx,index_t index);
 
 static int delete_unused(WayX *wayx,index_t index);
-static int deduplicate_by_id(WayX *wayx,index_t index);
-static int index_by_id(WayX *wayx,index_t index);
+static int sort_by_name_and_prop_and_id(WayX *a,WayX *b);
 static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index);
 
 
@@ -205,6 +206,65 @@ void FinishWayList(WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Find a particular way index.
+
+  index_t IndexWayX Returns the index of the extended way with the specified id.
+
+  WaysX *waysx The set of ways to process.
+
+  way_t id The way id to look for.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexWayX(WaysX *waysx,way_t id)
+{
+ index_t start=0;
+ index_t end=waysx->number-1;
+ index_t mid;
+
+ /* Binary search - search key exact match only is required.
+  *
+  *  # <- start  |  Check mid and move start or end if it doesn't match
+  *  #           |
+  *  #           |  Since an exact match is wanted we can set end=mid-1
+  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
+  *  #           |
+  *  #           |  Eventually either end=start or end=start+1 and one of
+  *  # <- end    |  start or end is the wanted one.
+  */
+
+ if(end<start)                   /* There are no ways */
+    return(NO_WAY);
+ else if(id<waysx->idata[start]) /* Check key is not before start */
+    return(NO_WAY);
+ else if(id>waysx->idata[end])   /* Check key is not after end */
+    return(NO_WAY);
+ else
+   {
+    do
+      {
+       mid=(start+end)/2;            /* Choose mid point */
+
+       if(waysx->idata[mid]<id)      /* Mid point is too low */
+          start=mid+1;
+       else if(waysx->idata[mid]>id) /* Mid point is too high */
+          end=mid?(mid-1):mid;
+       else                          /* Mid point is correct */
+          return(mid);
+      }
+    while((end-start)>1);
+
+    if(waysx->idata[start]==id)      /* Start is correct */
+       return(start);
+
+    if(waysx->idata[end]==id)        /* End is correct */
+       return(end);
+   }
+
+ return(NO_WAY);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Sort the list of ways.
 
   WaysX *waysx The set of ways to process.
@@ -243,6 +303,63 @@ void SortWayList(WaysX *waysx)
  /* Print the final message */
 
  printf_last("Sorted Ways: Ways=%"Pindex_t" Duplicates=%"Pindex_t,xnumber,xnumber-waysx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the ways into id order.
+
+  int sort_by_id Returns the comparison of the id fields.
+
+  WayX *a The first extended way.
+
+  WayX *b The second extended way.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int sort_by_id(WayX *a,WayX *b)
+{
+ way_t a_id=a->id;
+ way_t b_id=b->id;
+
+ if(a_id<b_id)
+    return(-1);
+ else if(a_id>b_id)
+    return(1);
+ else
+    return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Discard duplicate ways.
+
+  int deduplicate_by_id Return 1 if the value is to be kept, otherwise 0.
+
+  WayX *wayx The extended way.
+
+  index_t index The number of sorted ways that have already been written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int deduplicate_by_id(WayX *wayx,index_t index)
+{
+ static way_t previd=NO_WAY_ID;
+
+ if(wayx->id!=previd)
+   {
+    previd=wayx->id;
+
+    if(wayx->way.type==WAY_DELETED)
+       return(0);
+    else
+       return(1);
+   }
+ else
+   {
+    if(!option_changes)
+       logerror("Way %"Pway_t" is duplicated.\n",wayx->id);
+
+    return(0);
+   }
 }
 
 
@@ -394,6 +511,49 @@ void ExtractWayNames(WaysX *waysx,int preserve)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Sort the ways into name order and then id order.
+
+  int sort_by_name Returns the comparison of the name fields.
+
+  WayX *a The first extended Way.
+
+  WayX *b The second extended Way.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int sort_by_name(WayX *a,WayX *b)
+{
+ int compare;
+ char *a_name=(char*)a+sizeof(WayX);
+ char *b_name=(char*)b+sizeof(WayX);
+
+ compare=strcmp(a_name,b_name);
+
+ if(compare)
+    return(compare);
+ else
+    return(FILESORT_PRESERVE_ORDER(a,b));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Create the index of identifiers.
+
+  int index_by_id Return 1 if the value is to be kept, otherwise 0.
+
+  WayX *wayx The extended way.
+
+  index_t index The number of sorted ways that have already been written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int index_by_id(WayX *wayx,index_t index)
+{
+ sortwaysx->idata[index]=wayx->id;
+
+ return(1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Compact the way list, removing duplicated ways and unused ways.
 
   WaysX *waysx The set of ways to process.
@@ -449,51 +609,29 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the ways into id order.
+  Delete the ways that are no longer being used.
 
-  int sort_by_id Returns the comparison of the id fields.
+  int delete_unused Return 1 if the value is to be kept, otherwise 0.
 
-  WayX *a The first extended way.
+  WayX *wayx The extended way.
 
-  WayX *b The second extended way.
+  index_t index The number of unsorted ways that have been read from the input file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_id(WayX *a,WayX *b)
+static int delete_unused(WayX *wayx,index_t index)
 {
- way_t a_id=a->id;
- way_t b_id=b->id;
+ if(sortsegmentsx && !IsBitSet(sortsegmentsx->usedway,index))
+   {
+    sortwaysx->cdata[index]=NO_WAY;
 
- if(a_id<b_id)
-    return(-1);
- else if(a_id>b_id)
+    return(0);
+   }
+ else
+   {
+    wayx->id=index;
+
     return(1);
- else
-    return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the ways into name order and then id order.
-
-  int sort_by_name Returns the comparison of the name fields.
-
-  WayX *a The first extended Way.
-
-  WayX *b The second extended Way.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int sort_by_name(WayX *a,WayX *b)
-{
- int compare;
- char *a_name=(char*)a+sizeof(WayX);
- char *b_name=(char*)b+sizeof(WayX);
-
- compare=strcmp(a_name,b_name);
-
- if(compare)
-    return(compare);
- else
-    return(FILESORT_PRESERVE_ORDER(a,b));
+   }
 }
 
 
@@ -528,84 +666,6 @@ static int sort_by_name_and_prop_and_id(WayX *a,WayX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Discard duplicate ways.
-
-  int deduplicate_by_id Return 1 if the value is to be kept, otherwise 0.
-
-  WayX *wayx The extended way.
-
-  index_t index The number of sorted ways that have already been written to the output file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int deduplicate_by_id(WayX *wayx,index_t index)
-{
- static way_t previd=NO_WAY_ID;
-
- if(wayx->id!=previd)
-   {
-    previd=wayx->id;
-
-    if(wayx->way.type==WAY_DELETED)
-       return(0);
-    else
-       return(1);
-   }
- else
-   {
-    if(!option_changes)
-       logerror("Way %"Pway_t" is duplicated.\n",wayx->id);
-
-    return(0);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Create the index of identifiers.
-
-  int index_by_id Return 1 if the value is to be kept, otherwise 0.
-
-  WayX *wayx The extended way.
-
-  index_t index The number of sorted ways that have already been written to the output file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int index_by_id(WayX *wayx,index_t index)
-{
- sortwaysx->idata[index]=wayx->id;
-
- return(1);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Delete the ways that are no longer being used.
-
-  int delete_unused Return 1 if the value is to be kept, otherwise 0.
-
-  WayX *wayx The extended way.
-
-  index_t index The number of unsorted ways that have been read from the input file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int delete_unused(WayX *wayx,index_t index)
-{
- if(sortsegmentsx && !IsBitSet(sortsegmentsx->usedway,index))
-   {
-    sortwaysx->cdata[index]=NO_WAY;
-
-    return(0);
-   }
- else
-   {
-    wayx->id=index;
-
-    return(1);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Create the index of compacted Way identifiers and ignore Ways with duplicated properties.
 
   int deduplicate_and_index_by_compact_id Return 1 if the value is to be kept, otherwise 0.
@@ -635,65 +695,6 @@ static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index)
 
     return(0);
    }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Find a particular way index.
-
-  index_t IndexWayX Returns the index of the extended way with the specified id.
-
-  WaysX *waysx The set of ways to process.
-
-  way_t id The way id to look for.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-index_t IndexWayX(WaysX *waysx,way_t id)
-{
- index_t start=0;
- index_t end=waysx->number-1;
- index_t mid;
-
- /* Binary search - search key exact match only is required.
-  *
-  *  # <- start  |  Check mid and move start or end if it doesn't match
-  *  #           |
-  *  #           |  Since an exact match is wanted we can set end=mid-1
-  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
-  *  #           |
-  *  #           |  Eventually either end=start or end=start+1 and one of
-  *  # <- end    |  start or end is the wanted one.
-  */
-
- if(end<start)                   /* There are no ways */
-    return(NO_WAY);
- else if(id<waysx->idata[start]) /* Check key is not before start */
-    return(NO_WAY);
- else if(id>waysx->idata[end])   /* Check key is not after end */
-    return(NO_WAY);
- else
-   {
-    do
-      {
-       mid=(start+end)/2;            /* Choose mid point */
-
-       if(waysx->idata[mid]<id)      /* Mid point is too low */
-          start=mid+1;
-       else if(waysx->idata[mid]>id) /* Mid point is too high */
-          end=mid?(mid-1):mid;
-       else                          /* Mid point is correct */
-          return(mid);
-      }
-    while((end-start)>1);
-
-    if(waysx->idata[start]==id)      /* Start is correct */
-       return(start);
-
-    if(waysx->idata[end]==id)        /* End is correct */
-       return(end);
-   }
-
- return(NO_WAY);
 }
 
 
