@@ -172,7 +172,7 @@ void FreeWayList(WaysX *waysx,int preserve)
   const char *name The name or reference of the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendWay(WaysX *waysx,way_t id,Way *way,const char *name)
+void AppendWayList(WaysX *waysx,way_t id,Way *way,const char *name)
 {
  WayX wayx;
  FILESORT_VARINT size;

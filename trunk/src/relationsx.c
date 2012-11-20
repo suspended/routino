@@ -208,10 +208,10 @@ void FreeRelationList(RelationsX *relationsx,int preserve)
   int nrelations The number of relations that are members of the relation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendRouteRelation(RelationsX* relationsx,relation_t id,
-                         transports_t routes,
-                         way_t *ways,int nways,
-                         relation_t *relations,int nrelations)
+void AppendRouteRelationList(RelationsX* relationsx,relation_t id,
+                             transports_t routes,
+                             way_t *ways,int nways,
+                             relation_t *relations,int nrelations)
 {
  RouteRelX relationx={0};
  FILESORT_VARINT size;
@@ -256,9 +256,9 @@ void AppendRouteRelation(RelationsX* relationsx,relation_t id,
   transports_t except The set of transports allowed to bypass the restriction.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendTurnRestrictRelation(RelationsX* relationsx,relation_t id,
-                                way_t from,way_t to,node_t via,
-                                TurnRestriction restriction,transports_t except)
+void AppendTurnRelationList(RelationsX* relationsx,relation_t id,
+                            way_t from,way_t to,node_t via,
+                            TurnRestriction restriction,transports_t except)
 {
  TurnRestrictRelX relationx={0};
 

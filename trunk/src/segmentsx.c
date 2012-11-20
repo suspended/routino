@@ -163,7 +163,7 @@ void FreeSegmentList(SegmentsX *segmentsx,int preserve)
   distance_t distance The distance between the nodes (or just the flags).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance)
+void AppendSegmentList(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance)
 {
  SegmentX segmentx;
 

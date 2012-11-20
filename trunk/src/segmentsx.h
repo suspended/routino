@@ -85,7 +85,7 @@ struct _SegmentsX
 SegmentsX *NewSegmentList(int append,int readonly);
 void FreeSegmentList(SegmentsX *segmentsx,int preserve);
 
-void AppendSegment(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
+void AppendSegmentList(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 void FinishSegmentList(SegmentsX *segmentsx);
 
 SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t nodeindex,int position);

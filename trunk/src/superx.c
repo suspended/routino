@@ -40,7 +40,7 @@
 
 /* Local functions */
 
-static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match);
+static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -275,7 +275,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
           if(!match)
             {
-             Results *results=FindRoutesWay(nodesx,segmentsx,waysx,i,&wayx->way);
+             Results *results=FindSuperRoutes(nodesx,segmentsx,waysx,i,&wayx->way);
              Result *result=FirstResult(results);
 
              while(result)
@@ -283,9 +283,9 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
                 if(IsBitSet(nodesx->super,result->node) && result->segment!=NO_SEGMENT)
                   {
                    if(wayx->way.type&Way_OneWay && result->node!=i)
-                      AppendSegment(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
+                      AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
                    else
-                      AppendSegment(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score));
+                      AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score));
 
                    ss++;
                   }
@@ -397,7 +397,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
                (segmentx->node1>supersegmentx->node1))
          {
           /* mark as super-segment */
-          AppendSegment(mergedsegmentsx,supersegmentx->way,supersegmentx->node1,supersegmentx->node2,supersegmentx->distance|SEGMENT_SUPER);
+          AppendSegmentList(mergedsegmentsx,supersegmentx->way,supersegmentx->node1,supersegmentx->node2,supersegmentx->distance|SEGMENT_SUPER);
           added++;
           j++;
          }
@@ -409,9 +409,9 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
       }
 
     if(super)
-       AppendSegment(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_SUPER|SEGMENT_NORMAL);
+       AppendSegmentList(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_SUPER|SEGMENT_NORMAL);
     else
-       AppendSegment(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_NORMAL);
+       AppendSegmentList(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_NORMAL);
 
     if(!((i+1)%10000))
        printf_middle("Merging Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,i+1,j,merged,added);
@@ -442,7 +442,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 /*++++++++++++++++++++++++++++++++++++++
   Find all routes from a specified super-node to any other super-node that follows a certain type of way.
 
-  Results *FindRoutesWay Returns a set of results.
+  Results *FindSuperRoutes Returns a set of results.
 
   NodesX *nodesx The set of nodes to use.
 
@@ -455,7 +455,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
   Way *match A template for the type of way that the route must follow.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static Results *FindRoutesWay(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match)
+static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match)
 {
  Results *results;
  Queue *queue;

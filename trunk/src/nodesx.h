@@ -91,7 +91,7 @@ struct _NodesX
 NodesX *NewNodeList(int append,int readonly);
 void FreeNodeList(NodesX *nodesx,int preserve);
 
-void AppendNode(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags);
+void AppendNodeList(NodesX *nodesx,node_t id,double latitude,double longitude,transports_t allow,uint16_t flags);
 void FinishNodeList(NodesX *nodesx);
 
 index_t IndexNodeX(NodesX *nodesx,node_t id);
