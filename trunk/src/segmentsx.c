@@ -706,6 +706,7 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     /* Set the distance but keep the other flags except for area */
 
     segmentx.distance=DISTANCE(DistanceX(nodex1,nodex2))|DISTFLAG(segmentx.distance);
+    segmentx.distance&=~SEGMENT_AREA;
 
     /* Write the modified segment */
 

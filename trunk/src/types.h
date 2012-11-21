@@ -88,26 +88,26 @@
 #define NODE_DELETED     ((nodeflags_t)0x0400)
 
 
+/*+ A flag to mark a segment as being part of an area (must be the highest valued flag). +*/
+#define SEGMENT_AREA   ((distance_t)0x80000000)
+
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/
-#define ONEWAY_1TO2    ((distance_t)0x80000000)
+#define ONEWAY_1TO2    ((distance_t)0x40000000)
 
 /*+ A flag to mark a segment as one-way from node2 to node1. +*/
-#define ONEWAY_2TO1    ((distance_t)0x40000000)
+#define ONEWAY_2TO1    ((distance_t)0x20000000)
 
 /*+ A flag to mark a segment as a super-segment. +*/
-#define SEGMENT_SUPER  ((distance_t)0x20000000)
+#define SEGMENT_SUPER  ((distance_t)0x10000000)
 
 /*+ A flag to mark a segment as a normal segment. +*/
-#define SEGMENT_NORMAL ((distance_t)0x10000000)
-
-/*+ A flag to mark a segment as being part of an area. +*/
-#define SEGMENT_AREA   ((distance_t)0x08000000)
+#define SEGMENT_NORMAL ((distance_t)0x08000000)
 
 /*+ The real distance ignoring the other flags. +*/
-#define DISTANCE(xx)   ((distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL|SEGMENT_AREA))))
+#define DISTANCE(xx)   ((distance_t)((xx)&(~(SEGMENT_AREA|ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL))))
 
 /*+ The distance flags selecting only the flags. +*/
-#define DISTFLAG(xx)   ((distance_t)((xx)&(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL|SEGMENT_AREA)))
+#define DISTFLAG(xx)   ((distance_t)((xx)&(SEGMENT_AREA|ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
 
 
 /*+ A very large almost infinite distance. +*/
