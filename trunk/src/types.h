@@ -89,23 +89,29 @@
 
 
 /*+ A flag to mark a segment as one-way from node1 to node2. +*/
-#define ONEWAY_1TO2    ((segflags_t)0x8000)
+#define ONEWAY_1TO2    ((distance_t)0x80000000)
 
 /*+ A flag to mark a segment as one-way from node2 to node1. +*/
-#define ONEWAY_2TO1    ((segflags_t)0x4000)
+#define ONEWAY_2TO1    ((distance_t)0x40000000)
 
 /*+ A flag to mark a segment as a super-segment. +*/
-#define SEGMENT_SUPER  ((segflags_t)0x2000)
+#define SEGMENT_SUPER  ((distance_t)0x20000000)
 
 /*+ A flag to mark a segment as a normal segment. +*/
-#define SEGMENT_NORMAL ((segflags_t)0x1000)
+#define SEGMENT_NORMAL ((distance_t)0x10000000)
 
 /*+ A flag to mark a segment as being part of an area. +*/
-#define SEGMENT_AREA   ((segflags_t)0x0800)
+#define SEGMENT_AREA   ((distance_t)0x08000000)
+
+/*+ The real distance ignoring the other flags. +*/
+#define DISTANCE(xx)   ((distance_t)((xx)&(~(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL|SEGMENT_AREA))))
+
+/*+ The distance flags selecting only the flags. +*/
+#define DISTFLAG(xx)   ((distance_t)((xx)&(ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL|SEGMENT_AREA)))
 
 
 /*+ A very large almost infinite distance. +*/
-#define INF_DISTANCE   ((distance_t)~0)
+#define INF_DISTANCE   DISTANCE(~0)
 
 /*+ A very large almost infinite score. +*/
 #define INF_SCORE      (score_t)1E30
@@ -173,13 +179,7 @@ typedef uint16_t ll_off_t;
 /*+ Node flags. +*/
 typedef uint16_t nodeflags_t;
 
-/*+ A segment length, measured in metres. +*/
-typedef uint16_t segdist_t;
-
-/*+ Segment flags. +*/
-typedef uint16_t segflags_t;
-
-/*+ A potentially long distance, measured in metres. +*/
+/*+ A distance, measured in metres. +*/
 typedef uint32_t distance_t;
 
 /*+ A duration, measured in 1/10th seconds. +*/

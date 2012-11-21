@@ -282,9 +282,9 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
                 if(IsBitSet(nodesx->super,result->node) && result->segment!=NO_SEGMENT)
                   {
                    if(wayx->way.type&Way_OneWay && result->node!=i)
-                      AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,(distance_t)result->score,ONEWAY_1TO2);
+                      AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
                    else
-                      AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,(distance_t)result->score,0);
+                      AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score));
 
                    ss++;
                   }
@@ -379,10 +379,9 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
       {
        SegmentX *supersegmentx=LookupSegmentX(supersegmentsx,j,1);
 
-       if(segmentx->node1 ==supersegmentx->node1 &&
-          segmentx->node2 ==supersegmentx->node2 &&
-          segmentx->length==supersegmentx->length &&
-          segmentx->flags ==supersegmentx->flags)
+       if(segmentx->node1   ==supersegmentx->node1 &&
+          segmentx->node2   ==supersegmentx->node2 &&
+          segmentx->distance==supersegmentx->distance)
          {
           merged++;
           j++;
@@ -397,7 +396,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
                (segmentx->node1>supersegmentx->node1))
          {
           /* mark as super-segment */
-          AppendSegmentList(mergedsegmentsx,supersegmentx->way,supersegmentx->node1,supersegmentx->node2,supersegmentx->length,supersegmentx->flags|SEGMENT_SUPER);
+          AppendSegmentList(mergedsegmentsx,supersegmentx->way,supersegmentx->node1,supersegmentx->node2,supersegmentx->distance|SEGMENT_SUPER);
           added++;
           j++;
          }
@@ -409,9 +408,9 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
       }
 
     if(super)
-       AppendSegmentList(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->length,segmentx->flags|SEGMENT_SUPER|SEGMENT_NORMAL);
+       AppendSegmentList(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_SUPER|SEGMENT_NORMAL);
     else
-       AppendSegmentList(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->length,segmentx->flags|SEGMENT_NORMAL);
+       AppendSegmentList(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_NORMAL);
 
     if(!((i+1)%10000))
        printf_middle("Merging Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,i+1,j,merged,added);
@@ -513,7 +512,7 @@ static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx
        if(node2x->allow==Transports_None)
           goto endloop;
 
-       cumulative_distance=(distance_t)result1->score+segmentx->length;
+       cumulative_distance=(distance_t)result1->score+DISTANCE(segmentx->distance);
 
        result2=FindResult(results,node2,seg2);
 
