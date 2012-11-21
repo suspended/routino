@@ -1003,7 +1003,7 @@ static void process_node_tags(TagList *tags,node_t id,double latitude,double lon
 static void process_way_tags(TagList *tags,way_t id)
 {
  Way way={0};
- segflags_t oneway=0,area=0;
+ distance_t oneway=0,area=0;
  int roundabout=0;
  char *name=NULL,*ref=NULL,*refname=NULL;
  int i;
@@ -1018,7 +1018,7 @@ static void process_way_tags(TagList *tags,way_t id)
 
     way.type=0;
 
-    AppendSegmentList(segments,id,NO_NODE_ID,NO_NODE_ID,0,0);
+    AppendSegmentList(segments,id,NO_NODE_ID,NO_NODE_ID,0);
    }
 
  if(mode==MODE_DELETE)
@@ -1367,7 +1367,7 @@ static void process_way_tags(TagList *tags,way_t id)
     node_t from=way_nodes[i-1];
     node_t to  =way_nodes[i];
 
-    AppendSegmentList(segments,id,from,to,0,area+oneway);
+    AppendSegmentList(segments,id,from,to,area+oneway);
    }
 }
 

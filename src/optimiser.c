@@ -237,7 +237,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        if(option_quickest==0)
-          segment_score=(score_t)segmentp->length/segment_pref;
+          segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
           segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
@@ -541,7 +541,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        if(option_quickest==0)
-          segment_score=(score_t)segmentp->length/segment_pref;
+          segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
           segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
@@ -710,7 +710,7 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
        result=FindResult(results,finish_node,finish_segment);
 
-       if(result && (distance_t)result->score==supersegmentp->length)
+       if(result && (distance_t)result->score==DISTANCE(supersegmentp->distance))
          {
           FreeResultsList(results);
           return(IndexSegment(segments,supersegmentp));
@@ -810,7 +810,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
           goto endloop;
 
        /* Specifically looking for the shortest route to emulate superx.c */
-       cumulative_score=result1->score+(score_t)segmentp->length;
+       cumulative_score=result1->score+(score_t)DISTANCE(segmentp->distance);
 
        result2=FindResult(results,node2,seg2);
 
@@ -1020,7 +1020,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        if(option_quickest==0)
-          segment_score=(score_t)segmentp->length/segment_pref;
+          segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
           segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
@@ -1243,7 +1243,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           goto endloop;
 
        if(option_quickest==0)
-          segment_score=(score_t)segmentp->length/segment_pref;
+          segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
           segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 

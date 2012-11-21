@@ -381,7 +381,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           resultwayp=LookupWay(ways,resultsegmentp->way,1);
 
-          seg_distance+=resultsegmentp->length;
+          seg_distance+=DISTANCE(resultsegmentp->distance);
           seg_duration+=Duration(resultsegmentp,resultwayp,profile);
 
           /* Calculate the cumulative distance/duration */
