@@ -1006,7 +1006,7 @@ static void process_way_tags(TagList *tags,way_t id)
  distance_t oneway=0,area=0;
  int roundabout=0;
  char *name=NULL,*ref=NULL,*refname=NULL;
- int i;
+ int i,j;
 
  /* Delete */
 
@@ -1366,6 +1366,15 @@ static void process_way_tags(TagList *tags,way_t id)
    {
     node_t from=way_nodes[i-1];
     node_t to  =way_nodes[i];
+
+    for(j=1;j<i;j++)
+      {
+       node_t n1=way_nodes[j-1];
+       node_t n2=way_nodes[j];
+
+       if((n1==from && n2==to) || (n2==from && n1==to))
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",n1,n2,id);
+      }
 
     AppendSegmentList(segments,id,from,to,area+oneway);
    }
