@@ -41,9 +41,6 @@
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
-/*+ The option to apply changes (needed to suppress some error log messages) +*/
-extern int option_changes;
-
 /* Local variables */
 
 /*+ Temporary file-local variables for use by the sort functions. +*/
@@ -348,12 +345,7 @@ static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
       }
    }
  else
-   {
-    if(!option_changes)
-       logerror("Node %"Pnode_t" is duplicated\n",nodex->id);
-
     return(0);
-   }
 }
 
 

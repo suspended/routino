@@ -40,9 +40,6 @@
 /*+ The command line '--tmpdir' option or its default value. +*/
 extern char *option_tmpdirname;
 
-/*+ The option to apply changes (needed to suppress some error log messages) +*/
-extern int option_changes;
-
 /* Local variables */
 
 /*+ Temporary file-local variables for use by the sort functions. +*/
@@ -353,12 +350,7 @@ static int deduplicate_by_id(WayX *wayx,index_t index)
        return(1);
    }
  else
-   {
-    if(!option_changes)
-       logerror("Way %"Pway_t" is duplicated.\n",wayx->id);
-
     return(0);
-   }
 }
 
 
