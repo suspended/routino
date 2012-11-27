@@ -6,7 +6,7 @@ $verbose=1 if($#ARGV==0 && $ARGV[0] eq "-v");
 $html=0;
 $html=1 if($#ARGV==0 && $ARGV[0] eq "-html");
 
-die "Usage: $0 [-v | -html] < <error-log-file>\n" if($#ARGV>0 || ($ARGV==0 && !$verbose && !$html));
+die "Usage: $0 [-v | -html] < <error-log-file>\n" if($#ARGV>0 || ($#ARGV==0 && !$verbose && !$html));
 
 
 # Read in each line from the error log and store them
