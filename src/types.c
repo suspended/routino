@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -38,47 +38,47 @@ Highway HighwayType(const char *highway)
  switch(*highway)
    {
    case 'c':
-    if(!strcmp(highway,"cycleway")) return(Way_Cycleway);
-    return(Way_Count);
+    if(!strcmp(highway,"cycleway")) return(Highway_Cycleway);
+    break;
 
    case 'f':
-    if(!strcmp(highway,"ferry")) return(Way_Ferry);
-    return(Way_Count);
+    if(!strcmp(highway,"ferry")) return(Highway_Ferry);
+    break;
 
    case 'm':
-    if(!strcmp(highway,"motorway")) return(Way_Motorway);
-    return(Way_Count);
+    if(!strcmp(highway,"motorway")) return(Highway_Motorway);
+    break;
 
    case 'p':
-    if(!strcmp(highway,"primary")) return(Way_Primary);
-    if(!strcmp(highway,"path")) return(Way_Path);
-    return(Way_Count);
+    if(!strcmp(highway,"primary")) return(Highway_Primary);
+    if(!strcmp(highway,"path")) return(Highway_Path);
+    break;
 
    case 'r':
-    if(!strcmp(highway,"residential")) return(Way_Residential);
-    return(Way_Count);
+    if(!strcmp(highway,"residential")) return(Highway_Residential);
+    break;
 
    case 's':
-    if(!strcmp(highway,"secondary")) return(Way_Secondary);
-    if(!strcmp(highway,"service")) return(Way_Service);
-    if(!strcmp(highway,"steps")) return(Way_Steps);
-    return(Way_Count);
+    if(!strcmp(highway,"secondary")) return(Highway_Secondary);
+    if(!strcmp(highway,"service")) return(Highway_Service);
+    if(!strcmp(highway,"steps")) return(Highway_Steps);
+    break;
 
    case 't':
-    if(!strcmp(highway,"trunk")) return(Way_Trunk);
-    if(!strcmp(highway,"tertiary")) return(Way_Tertiary);
-    if(!strcmp(highway,"track")) return(Way_Track);
-    return(Way_Count);
+    if(!strcmp(highway,"trunk")) return(Highway_Trunk);
+    if(!strcmp(highway,"tertiary")) return(Highway_Tertiary);
+    if(!strcmp(highway,"track")) return(Highway_Track);
+    break;
 
    case 'u':
-    if(!strcmp(highway,"unclassified")) return(Way_Unclassified);
-    return(Way_Count);
+    if(!strcmp(highway,"unclassified")) return(Highway_Unclassified);
+    break;
 
    default:
     ;
    }
 
- return(Way_Count);
+ return(Highway_None);
 }
 
 
@@ -203,39 +203,42 @@ const char *HighwayName(Highway highway)
 {
  switch(highway)
    {
-   case Way_Motorway:
+   case Highway_None:
+    return("NONE");
+
+   case Highway_Motorway:
     return("motorway");
-   case Way_Trunk:
+   case Highway_Trunk:
     return("trunk");
-   case Way_Primary:
+   case Highway_Primary:
     return("primary");
-   case Way_Secondary:
+   case Highway_Secondary:
     return("secondary");
-   case Way_Tertiary:
+   case Highway_Tertiary:
     return("tertiary");
-   case Way_Unclassified:
+   case Highway_Unclassified:
     return("unclassified");
-   case Way_Residential:
+   case Highway_Residential:
     return("residential");
-   case Way_Service:
+   case Highway_Service:
     return("service");
-   case Way_Track:
+   case Highway_Track:
     return("track");
-   case Way_Cycleway:
+   case Highway_Cycleway:
     return("cycleway");
-   case Way_Path:
+   case Highway_Path:
     return("path");
-   case Way_Steps:
+   case Highway_Steps:
     return("steps");
-   case Way_Ferry:
+   case Highway_Ferry:
     return("ferry");
 
-   case Way_Count:
+   case Highway_Count:
     ;
 
-   case Way_OneWay:
+   case Highway_OneWay:
     ;
-   case Way_Roundabout:
+   case Highway_Roundabout:
     ;
    }
 

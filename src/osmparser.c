@@ -1016,7 +1016,7 @@ static void process_way_tags(TagList *tags,way_t id)
 
     AppendWayList(ways,id,&way,"");
 
-    way.type=0;
+    way.type=Highway_None;
 
     AppendSegmentList(segments,id,NO_NODE_ID,NO_NODE_ID,0);
    }
@@ -1049,14 +1049,16 @@ static void process_way_tags(TagList *tags,way_t id)
       {
        way.type=HighwayType(v);
 
-       if(way.type==Way_Count)
+       if(way.type==Highway_None)
           logerror("Way %"Pway_t" has an unrecognised highway type '%s' (after tagging rules); ignoring it.\n",id,v);
+
+       break;
       }
    }
 
  /* Don't continue if this is not a highway (bypass error logging) */
 
- if(way.type==0 || way.type==Way_Count)
+ if(way.type==Highway_None)
     return;
 
  /* Parse the tags - look for the others */
@@ -1340,10 +1342,10 @@ static void process_way_tags(TagList *tags,way_t id)
     return;
 
  if(oneway)
-    way.type|=Way_OneWay;
+    way.type|=Highway_OneWay;
 
  if(roundabout)
-    way.type|=Way_Roundabout;
+    way.type|=Highway_Roundabout;
 
  if(ref && name)
    {

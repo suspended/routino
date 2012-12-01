@@ -214,24 +214,26 @@ typedef uint8_t highway_t;
 /*+ The different types of a highway. +*/
 typedef enum _Highway
  {
-  Way_Motorway    = 1,
-  Way_Trunk       = 2,
-  Way_Primary     = 3,
-  Way_Secondary   = 4,
-  Way_Tertiary    = 5,
-  Way_Unclassified= 6,
-  Way_Residential = 7,
-  Way_Service     = 8,
-  Way_Track       = 9,
-  Way_Cycleway    =10,
-  Way_Path        =11,
-  Way_Steps       =12,
-  Way_Ferry       =13,
+  Highway_None         =  0,
 
-  Way_Count       =14,       /* One more than the number of highway types. */
+  Highway_Motorway     =  1,
+  Highway_Trunk        =  2,
+  Highway_Primary      =  3,
+  Highway_Secondary    =  4,
+  Highway_Tertiary     =  5,
+  Highway_Unclassified =  6,
+  Highway_Residential  =  7,
+  Highway_Service      =  8,
+  Highway_Track        =  9,
+  Highway_Cycleway     = 10,
+  Highway_Path         = 11,
+  Highway_Steps        = 12,
+  Highway_Ferry        = 13,
 
-  Way_OneWay      =32,
-  Way_Roundabout  =64
+  Highway_Count        = 14,       /* One more than the number of highway types. */
+
+  Highway_OneWay       = 32,
+  Highway_Roundabout   = 64
  }
  Highway;
 
@@ -247,19 +249,19 @@ typedef enum _Highways
  {
   Highways_None         = 0,
 
-  Highways_Motorway     = HIGHWAYS(Way_Motorway    ),
-  Highways_Trunk        = HIGHWAYS(Way_Trunk       ),
-  Highways_Primary      = HIGHWAYS(Way_Primary     ),
-  Highways_Secondary    = HIGHWAYS(Way_Secondary   ),
-  Highways_Tertiary     = HIGHWAYS(Way_Tertiary    ),
-  Highways_Unclassified = HIGHWAYS(Way_Unclassified),
-  Highways_Residential  = HIGHWAYS(Way_Residential ),
-  Highways_Service      = HIGHWAYS(Way_Service     ),
-  Highways_Track        = HIGHWAYS(Way_Track       ),
-  Highways_Cycleway     = HIGHWAYS(Way_Cycleway    ),
-  Highways_Path         = HIGHWAYS(Way_Path        ),
-  Highways_Steps        = HIGHWAYS(Way_Steps       ),
-  Highways_Ferry        = HIGHWAYS(Way_Ferry       )
+  Highways_Motorway     = HIGHWAYS(Highway_Motorway    ),
+  Highways_Trunk        = HIGHWAYS(Highway_Trunk       ),
+  Highways_Primary      = HIGHWAYS(Highway_Primary     ),
+  Highways_Secondary    = HIGHWAYS(Highway_Secondary   ),
+  Highways_Tertiary     = HIGHWAYS(Highway_Tertiary    ),
+  Highways_Unclassified = HIGHWAYS(Highway_Unclassified),
+  Highways_Residential  = HIGHWAYS(Highway_Residential ),
+  Highways_Service      = HIGHWAYS(Highway_Service     ),
+  Highways_Track        = HIGHWAYS(Highway_Track       ),
+  Highways_Cycleway     = HIGHWAYS(Highway_Cycleway    ),
+  Highways_Path         = HIGHWAYS(Highway_Path        ),
+  Highways_Steps        = HIGHWAYS(Highway_Steps       ),
+  Highways_Ferry        = HIGHWAYS(Highway_Ferry       )
  }
  Highways;
 

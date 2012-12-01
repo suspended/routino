@@ -61,7 +61,7 @@ static double LonMin;
 static double LonMax;
 
 static int limit_type=0;
-static Highway highways=Way_Count;
+static Highway highways=Highway_None;
 static Transports transports=Transports_None;
 
 /* Local functions */
@@ -893,7 +893,7 @@ static void output_limits(index_t node,double latitude,double longitude)
          case LENGTH_LIMIT: limits[count]=wayp->length; break;
          }
 
-       if(limits[count] || HIGHWAY(wayp->type)<Way_Track)
+       if(limits[count] || HIGHWAY(wayp->type)<Highway_Track)
           count++;
       }
 

@@ -281,7 +281,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
                {
                 if(IsBitSet(nodesx->super,result->node) && result->segment!=NO_SEGMENT)
                   {
-                   if(wayx->way.type&Way_OneWay && result->node!=i)
+                   if(wayx->way.type&Highway_OneWay && result->node!=i)
                       AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
                    else
                       AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score));
