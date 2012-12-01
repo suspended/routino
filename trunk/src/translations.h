@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2011 Andrew M. Bishop
+ This file Copyright 2010-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,7 @@ extern char *translate_xml_heading[9];
 extern char *translate_xml_turn[9];
 extern char *translate_xml_ordinal[10];
 
-extern char *translate_raw_highway[Way_Count];
+extern char *translate_raw_highway[Highway_Count];
 
 extern char *translate_xml_route_shortest;
 extern char *translate_xml_route_quickest;

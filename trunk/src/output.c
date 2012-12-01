@@ -67,7 +67,7 @@ extern int option_html,option_gpx_track,option_gpx_route,option_text,option_text
 /* Local variables */
 
 /*+ Heuristics for determining if a junction is important. +*/
-static char junction_other_way[Way_Count][Way_Count]=
+static char junction_other_way[Highway_Count][Highway_Count]=
  { /* M, T, P, S, T, U, R, S, T, C, P, S, F = Way type of route not taken */
   {   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, /* Motorway     */
   {   1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, /* Trunk        */
@@ -414,7 +414,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
          {
           next_resultwayp=LookupWay(ways,next_resultsegmentp->way,2);
 
-          if(next_resultwayp->type&Way_Roundabout)
+          if(next_resultwayp->type&Highway_Roundabout)
             {
              if(roundabout==0)
                {
@@ -434,7 +434,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                         {
                          Way *wayp=LookupWay(ways,segmentp->way,3);
 
-                         if(!(wayp->type&Way_Roundabout))
+                         if(!(wayp->type&Highway_Roundabout))
                             if(othernode!=next_result->node)
                               {
                                roundabout++;

@@ -37,10 +37,10 @@ typedef struct _Profile
 
  transports_t allow;                     /*+ The type of transport expressed as a bitmask. +*/
 
- score_t      highway[Way_Count];        /*+ A floating point preference for travel on the highway. +*/
+ score_t      highway[Highway_Count];    /*+ A floating point preference for travel on the highway. +*/
  score_t      max_pref;                  /*+ The maximum preference for any highway type. +*/
 
- speed_t      speed[Way_Count];          /*+ The maximum speed on each type of highway. +*/
+ speed_t      speed[Highway_Count];      /*+ The maximum speed on each type of highway. +*/
  speed_t      max_speed;                 /*+ The maximum speed for any highway type. +*/
 
  score_t      props_yes[Property_Count]; /*+ A floating point preference for ways with this attribute. +*/

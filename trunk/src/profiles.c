@@ -209,7 +209,7 @@ static int speedType_function(const char *_tag_,int _type_,const char *highway,c
 
     highwaytype=HighwayType(highway);
 
-    if(highwaytype==Way_Count)
+    if(highwaytype==Highway_None)
        XMLPARSE_INVALID(_tag_,highway);
 
     XMLPARSE_ASSERT_FLOATING(_tag_,kph); speed=atof(kph);
@@ -262,7 +262,7 @@ static int preferenceType_function(const char *_tag_,int _type_,const char *high
 
     highwaytype=HighwayType(highway);
 
-    if(highwaytype==Way_Count)
+    if(highwaytype==Highway_None)
        XMLPARSE_INVALID(_tag_,highway);
 
     XMLPARSE_ASSERT_FLOATING(_tag_,percent); p=atof(percent);
@@ -315,7 +315,7 @@ static int propertyType_function(const char *_tag_,int _type_,const char *type,c
 
     property=PropertyType(type);
 
-    if(property==Property_Count)
+    if(property==Property_None)
        XMLPARSE_INVALID(_tag_,type);
 
     XMLPARSE_ASSERT_FLOATING(_tag_,percent); p=atof(percent);
@@ -697,7 +697,7 @@ int UpdateProfile(Profile *profile,Ways *ways)
 
  /* Normalise the highway preferences into the range ~0 -> 1 */
 
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
    {
     if(profile->highway[i]<0)
        profile->highway[i]=0;
@@ -709,7 +709,7 @@ int UpdateProfile(Profile *profile,Ways *ways)
  if(hmax==0)
     return(1);
 
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
    {
     profile->highway[i]/=hmax;
 
@@ -748,7 +748,7 @@ int UpdateProfile(Profile *profile,Ways *ways)
 
  profile->max_speed=0;
 
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
     if(profile->speed[i]>profile->max_speed)
        profile->max_speed=profile->speed[i];
 
@@ -790,12 +790,12 @@ void PrintProfile(const Profile *profile)
 
  printf("\n");
 
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
     printf("Highway %-12s: %3d%%\n",HighwayName(i),(int)profile->highway[i]);
 
  printf("\n");
 
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
     if(profile->highway[i])
        printf("Speed on %-12s: %3d km/h / %2.0f mph\n",HighwayName(i),profile->speed[i],(double)profile->speed[i]/1.6);
 
@@ -835,12 +835,12 @@ void PrintProfilesXML(void)
     printf("  <profile name=\"%s\" transport=\"%s\">\n",loaded_profiles[j]->name,TransportName(loaded_profiles[j]->transport));
 
     printf("    <speeds>\n");
-    for(i=1;i<Way_Count;i++)
+    for(i=1;i<Highway_Count;i++)
        printf("      <speed highway=\"%s\"%s kph=\"%d\" />\n",HighwayName(i),padding+3+strlen(HighwayName(i)),loaded_profiles[j]->speed[i]);
     printf("    </speeds>\n");
 
     printf("    <preferences>\n");
-    for(i=1;i<Way_Count;i++)
+    for(i=1;i<Highway_Count;i++)
        printf("      <preference highway=\"%s\"%s percent=\"%.0f\" />\n",HighwayName(i),padding+3+strlen(HighwayName(i)),loaded_profiles[j]->highway[i]);
     printf("    </preferences>\n");
 
@@ -890,7 +890,7 @@ void PrintProfilesJSON(void)
 
  printf("  // Highway types\n");
  printf("  highways: { ");
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
     printf("%s%s: %d",i==1?"":", ",HighwayName(i),i);
  printf(" },\n");
  printf("\n");
@@ -908,24 +908,24 @@ void PrintProfilesJSON(void)
 
  printf("  // Allowed highways\n");
  printf("  profile_highway: {\n");
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
    {
     printf("    %12s: { ",HighwayName(i));
     for(j=0;j<nloaded_profiles;j++)
        printf("%s%s: %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->highway[i]);
-    printf(" }%s\n",i==(Way_Count-1)?"":",");
+    printf(" }%s\n",i==(Highway_Count-1)?"":",");
    }
  printf("     },\n");
  printf("\n");
 
  printf("  // Speed limits\n");
  printf("  profile_speed: {\n");
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
    {
     printf("    %12s: { ",HighwayName(i));
     for(j=0;j<nloaded_profiles;j++)
        printf("%s%s: %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),loaded_profiles[j]->speed[i]);
-    printf(" }%s\n",i==(Way_Count-1)?"":",");
+    printf(" }%s\n",i==(Highway_Count-1)?"":",");
    }
  printf("     },\n");
  printf("\n");
@@ -999,7 +999,7 @@ void PrintProfilesPerl(void)
 
  printf("  # Highway types\n");
  printf("  highways => { ");
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
     printf("%s%s => %d",i==1?"":", ",HighwayName(i),i);
  printf(" },\n");
  printf("\n");
@@ -1017,24 +1017,24 @@ void PrintProfilesPerl(void)
 
  printf("  # Allowed highways\n");
  printf("  profile_highway => {\n");
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
    {
     printf("  %12s => {",HighwayName(i));
     for(j=0;j<nloaded_profiles;j++)
        printf("%s %s => %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->highway[i]);
-    printf(" }%s\n",i==(Way_Count-1)?"":",");
+    printf(" }%s\n",i==(Highway_Count-1)?"":",");
    }
  printf("     },\n");
  printf("\n");
 
  printf("  # Speed limits\n");
  printf("  profile_speed => {\n");
- for(i=1;i<Way_Count;i++)
+ for(i=1;i<Highway_Count;i++)
    {
     printf("  %12s => {",HighwayName(i));
     for(j=0;j<nloaded_profiles;j++)
        printf("%s %s => %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),loaded_profiles[j]->speed[i]);
-    printf(" }%s\n",i==(Way_Count-1)?"":",");
+    printf(" }%s\n",i==(Highway_Count-1)?"":",");
    }
  printf("     },\n");
  printf("\n");

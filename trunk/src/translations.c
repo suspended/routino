@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2011 Andrew M. Bishop
+ This file Copyright 2010-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,7 @@ char *translate_xml_heading[9] ={"South","South-West","West","North-West","North
 char *translate_xml_turn[9]    ={"Very sharp left","Sharp left","Left","Slight left","Straight on","Slight right","Right","Sharp right","Very sharp right"};
 char *translate_xml_ordinal[10]={"First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eighth","Ninth","Tenth"};
 
-char *translate_raw_highway[Way_Count]={"","motorway","trunk road","primary road","secondary road","tertiary road","unclassified road","residential road","service road","track","cycleway","path","steps","ferry"};
+char *translate_raw_highway[Highway_Count]={"","motorway","trunk road","primary road","secondary road","tertiary road","unclassified road","residential road","service road","track","cycleway","path","steps","ferry"};
 
 char *translate_xml_route_shortest="Shortest";
 char *translate_xml_route_quickest="Quickest";
@@ -561,7 +561,7 @@ static int HighwayType_function(const char *_tag_,int _type_,const char *type,co
 
     highway=HighwayType(type);
 
-    if(highway==Way_Count)
+    if(highway==Highway_None)
        XMLPARSE_INVALID(_tag_,type);
 
     translate_raw_highway[highway]=strcpy(malloc(strlen(string)+1),string);

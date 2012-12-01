@@ -153,7 +153,7 @@ int main(int argc,char** argv)
        OutputSuper(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"oneway"))
        OutputOneway(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
-    else if(!strncmp(option_data,"highway",7) && option_data[7]=='-' && (highway=HighwayType(option_data+8))!=Way_Count)
+    else if(!strncmp(option_data,"highway",7) && option_data[7]=='-' && (highway=HighwayType(option_data+8))!=Highway_None)
        OutputHighway(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,highway);
     else if(!strncmp(option_data,"transport",9) && option_data[9]=='-' && (transport=TransportType(option_data+10))!=Transport_None)
        OutputTransport(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,transport);
@@ -437,7 +437,7 @@ static void print_way(Ways *ways,index_t item)
  printf("Way %"Pindex_t"\n",item);
  if(*name)
     printf("  name=%s\n",name);
- printf("  type=%02x (%s%s%s)\n",wayp->type,HighwayName(HIGHWAY(wayp->type)),wayp->type&Way_OneWay?",One-Way":"",wayp->type&Way_Roundabout?",Roundabout":"");
+ printf("  type=%02x (%s%s%s)\n",wayp->type,HighwayName(HIGHWAY(wayp->type)),wayp->type&Highway_OneWay?",One-Way":"",wayp->type&Highway_Roundabout?",Roundabout":"");
  printf("  allow=%02x (%s)\n",wayp->allow,AllowedNameList(wayp->allow));
  if(wayp->props)
     printf("  props=%02x (%s)\n",wayp->props,PropertiesNameList(wayp->props));
@@ -706,10 +706,10 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
 
  printf("    <tag k='routino:distance' v='%.3f' />\n",distance_to_km(DISTANCE(segmentp->distance)));
 
- if(wayp->type & Way_OneWay)
+ if(wayp->type & Highway_OneWay)
     printf("    <tag k='oneway' v='yes' />\n");
 
- if(wayp->type & Way_Roundabout)
+ if(wayp->type & Highway_Roundabout)
     printf("    <tag k='roundabout' v='yes' />\n");
 
  printf("    <tag k='highway' v='%s' />\n",HighwayName(HIGHWAY(wayp->type)));

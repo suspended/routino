@@ -284,7 +284,7 @@ int main(int argc,char** argv)
 
        highway=HighwayType(string);
 
-       if(highway==Way_Count)
+       if(highway==Highway_None)
           print_usage(0,argv[arg],NULL);
 
        profile->highway[highway]=atof(equal+1);
@@ -305,7 +305,7 @@ int main(int argc,char** argv)
 
        highway=HighwayType(string);
 
-       if(highway==Way_Count)
+       if(highway==Highway_None)
           print_usage(0,argv[arg],NULL);
 
        profile->speed[highway]=kph_to_speed(atof(equal+1));
@@ -326,7 +326,7 @@ int main(int argc,char** argv)
 
        property=PropertyType(string);
 
-       if(property==Property_Count)
+       if(property==Property_None)
           print_usage(0,argv[arg],NULL);
 
        profile->props_yes[property]=atof(equal+1);
