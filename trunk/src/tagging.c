@@ -531,11 +531,8 @@ void DeleteTagList(TagList *tags)
     if(tags->v[i]) free(tags->v[i]);
    }
 
- if(tags->ntags)
-   {
-    free(tags->k);
-    free(tags->v);
-   }
+ if(tags->k) free(tags->k);
+ if(tags->v) free(tags->v);
 
  free(tags);
 }
@@ -553,14 +550,14 @@ void DeleteTagList(TagList *tags)
 
 void AppendTag(TagList *tags,const char *k,const char *v)
 {
- if((tags->ntags%16)==0)
+ if((tags->ntags%8)==0)
    {
     int i;
 
-    tags->k=(char**)realloc((void*)tags->k,(tags->ntags+16)*sizeof(char*));
-    tags->v=(char**)realloc((void*)tags->v,(tags->ntags+16)*sizeof(char*));
+    tags->k=(char**)realloc((void*)tags->k,(tags->ntags+8)*sizeof(char*));
+    tags->v=(char**)realloc((void*)tags->v,(tags->ntags+8)*sizeof(char*));
 
-    for(i=tags->ntags;i<(tags->ntags+16);i++)
+    for(i=tags->ntags;i<(tags->ntags+8);i++)
        tags->k[i]=tags->v[i]=NULL;
    }
 
