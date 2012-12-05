@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -351,21 +351,21 @@ a default set of disallowed transport types.
     <th class="center">hgv
     <th class="center">psv
   <tr>
-    <td class="left">bollard
+    <td class="left">kissing_gate, footgate, stile, v_stile, turnstile, squeeze, squeeze_stile, cycle_barrier, bicycle_barrier
     <td class="center">yes
-    <td class="center">yes
-    <td class="center">yes
-    <td class="center">yes
-    <td class="center">yes
-    <td class="center">yes
+    <td class="center">no
+    <td class="center">no
+    <td class="center">no
+    <td class="center">no
+    <td class="center">no
     <td class="center">no
     <td class="center">no
     <td class="center">no
     <td class="center">no
   <tr>
-    <td class="left">kissing_gate, stile, v_stile, turnstile, footgate, cycle_barrier
+    <td class="left">horse_stile, horse_jump, step_over
     <td class="center">yes
-    <td class="center">no
+    <td class="center">yes
     <td class="center">no
     <td class="center">no
     <td class="center">no
@@ -387,13 +387,25 @@ a default set of disallowed transport types.
     <td class="center">yes
     <td class="center">yes
   <tr>
-    <td class="left">car_trap
+    <td class="left">motorcyle_barrier
     <td class="center">yes
     <td class="center">yes
     <td class="center">yes
     <td class="center">yes
     <td class="center">no
     <td class="center">no
+    <td class="center">no
+    <td class="center">no
+    <td class="center">no
+    <td class="center">no
+  <tr>
+    <td class="left">bollard, car_barrier, car_trap
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
+    <td class="center">yes
     <td class="center">no
     <td class="center">no
     <td class="center">no
@@ -483,7 +495,7 @@ is recognised by Routino.
     <td class="left">living_street
     <td class="left">residential
   <tr>
-    <td class="left">services, layby
+    <td class="left">access, services, layby
     <td class="left">service
   <tr>
     <td class="left">byway, unsurfaced, unpaved
