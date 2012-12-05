@@ -107,18 +107,24 @@
     </if>
 
     <if k="barrier" v="horse_barrier">
-      <output k="horse"      v="no"/>
-
-      <unset k="barrier"/>
+      <set v="no_horse"/>
     </if>
 
     <if k="barrier" v="cattle_grid">
+      <set v="no_horse"/>
+    </if>
+
+    <if k="barrier" v="no_horse">
       <output k="horse"      v="no"/>
 
       <unset k="barrier"/>
     </if>
 
     <if k="barrier" v="motorcyle_barrier">
+      <set v="no_motorised"/>
+    </if>
+
+    <if k="barrier" v="no_motorised">
       <output k="moped"      v="no"/>
       <output k="motorbike"  v="no"/>
       <output k="motorcar"   v="no"/>
@@ -130,26 +136,18 @@
     </if>
 
     <if k="barrier" v="bollard">
-      <output k="motorcar"   v="no"/>
-      <output k="goods"      v="no"/>
-      <output k="hgv"        v="no"/>
-      <output k="psv"        v="no"/>
-
-      <unset k="barrier"/>
+      <set v="not_2plus_wheels"/>
     </if>
 
     <if k="barrier" v="car_barrier">
-      <output k="motorcar"   v="no"/>
-      <output k="goods"      v="no"/>
-      <output k="hgv"        v="no"/>
-      <output k="psv"        v="no"/>
-
-      <unset k="barrier"/>
+      <set v="not_2plus_wheels"/>
     </if>
 
     <if k="barrier" v="car_trap">
-      <output k="moped"      v="no"/>
-      <output k="motorbike"  v="no"/>
+      <set v="not_2plus_wheels"/>
+    </if>
+
+    <if k="barrier" v="not_2plus_wheels">
       <output k="motorcar"   v="no"/>
       <output k="goods"      v="no"/>
       <output k="hgv"        v="no"/>
