@@ -123,7 +123,7 @@ static unsigned long long lineno;
 %option verbose
 
 %option nodefault
-%option fast
+%option full
 %option noread
 
 %option noreject
@@ -133,6 +133,8 @@ static unsigned long long lineno;
 %option noyymore
 %option noyylineno
 
+%option ansi-definitions
+%option ansi-prototypes
 
  /* Grammar based on http://www.w3.org/TR/2004/REC-xml-20040204/ but for ASCII tags not Unicode. */
 
@@ -151,8 +153,28 @@ U4c             \xF4[\x80-\x8F][\x80-\xBF][\x80-\xBF]
 U4              {U4a}|{U4b}|{U4c}
 
 U               ({U1}|{U2}|{U3}|{U4})
-UquotedS        ([\x09\x0A\x0D\x20-\x25\x28-\x3B\x3D\x3F-\x7F]|{U2}|{U3}|{U4})
-UquotedD        ([\x09\x0A\x0D\x20-\x21\x23-\x25\x27-\x3B\x3D\x3F-\x7F]|{U2}|{U3}|{U4})
+
+U2_bup          [\xC2-\xDF].
+U3a_bup         \xE0.{1,2}
+U3b_bup         [\xE1-\xEC].{1,2}
+U3c_bup         \xED.{1,2}
+U3d_bup         [\xEE-\xEF].{1,2}
+U3_bup          {U3a_bup}|{U3b_bup}|{U3c_bup}|{U3d_bup}
+U4a_bup         \xF0.{1,3}
+U4b_bup         [\xF1-\xF3].{1,3}
+U4c_bup         \xF4.{1,3}
+U4_bup          {U4a_bup}|{U4b_bup}|{U4c_bup}
+
+U1_xml          ([\x09\x0A\x0D\x20-\x25\x27-\x3B\x3D\x3F-\x7F])
+
+U1quotedS_xml   ([\x09\x0A\x0D\x20-\x25\x28-\x3B\x3D\x3F-\x7F])
+U1quotedD_xml   ([\x09\x0A\x0D\x20-\x21\x23-\x25\x27-\x3B\x3D\x3F-\x7F])
+
+UquotedS        ({U1quotedS_xml}|{U2}|{U3}|{U4})
+UquotedD        ({U1quotedD_xml}|{U2}|{U3}|{U4})
+
+UquotedS_bup    ({U2_bup}|{U3_bup}|{U4_bup})
+UquotedD_bup    ({U2_bup}|{U3_bup}|{U4_bup})
 
 N               (\n|\r\n)
 
@@ -161,10 +183,14 @@ digit           [0-9]
 xdigit          [a-fA-F0-9]
 
 namechar        ({letter}|{digit}|[-._:])
-name            (({letter}|[_:]){namechar}*)
+namestart       ({letter}|[_:])
+name            ({namestart}{namechar}*)
 
 entityref       (&{name};)
 charref         (&#({digit}+|x{xdigit}+);)
+
+entityref_bup   (&{namestart}{namechar}*[^-.0-9:;A-Z_a-z]*)
+charref_bup     (&#({digit}*[^0-9;]*|x{xdigit}*[^a-fA-F0-9;]*))
 
 
 %x BANGTAG
@@ -202,7 +228,9 @@ charref         (&#({digit}+|x{xdigit}+);)
 
 <BANGTAG>"--"               { BEGIN(COMMENT); }
 <BANGTAG>"[CDATA["          { BEGIN(CDATA); }
+<BANGTAG>"[".{1,6}          { return(LEX_ERROR_TAG_START); /* avoid backing up */ }
 <BANGTAG>"DOCTYPE"          { BEGIN(DOCTYPE); doctype_depth=0; }
+<BANGTAG>"D".{1,6}          { return(LEX_ERROR_TAG_START); /* avoid backing up */ }
 <BANGTAG>{N}                { /* lineno++; */ return(LEX_ERROR_TAG_START); }
 <BANGTAG>.                  { return(LEX_ERROR_TAG_START); }
 
@@ -210,6 +238,7 @@ charref         (&#({digit}+|x{xdigit}+);)
 
 <COMMENT>"-->"              { BEGIN(INITIAL); }
 <COMMENT>"--"[^>]           { return(LEX_ERROR_COMMENT); }
+<COMMENT>"-".               { /* avoid backing up */ }
 <COMMENT>{N}                { lineno++; }
 <COMMENT>[^-]               { }
 <COMMENT>"-"                { }
@@ -217,6 +246,7 @@ charref         (&#({digit}+|x{xdigit}+);)
  /* CDATA */
 
 <CDATA>"]]>"                { BEGIN(INITIAL); }
+<CDATA>"]]"                 { /* avoid backing up */ }
 <CDATA>"]"                  { }
 <CDATA>{N}                  { lineno++; }
 <CDATA>[^]]                 { }
@@ -231,6 +261,7 @@ charref         (&#({digit}+|x{xdigit}+);)
  /* XML declaration start */
 
 <XML_DECL_START>xml         { BEGIN(XML_DECL); reset_string; yylval=yytext; return(LEX_XML_DECL_BEGIN); }
+<XML_DECL_START>x.{1,2}     { return(LEX_ERROR_XML_DECL_START); /* avoid backing up */ }
 <XML_DECL_START>{N}         { /* lineno++; */ return(LEX_ERROR_XML_DECL_START); }
 <XML_DECL_START>.           { return(LEX_ERROR_XML_DECL_START); }
 
@@ -283,19 +314,27 @@ charref         (&#({digit}+|x{xdigit}+);)
 <DQUOTED>\"                 { BEGIN(after_attr); yylval=string[stringnum]; return(LEX_ATTR_VAL); }
 <DQUOTED>{entityref}        { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
                               else { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} } }
+<DQUOTED>{entityref_bup}    { yylval=yytext; return(LEX_ERROR_ATTR_VAL); /* avoid backing up */ }
 <DQUOTED>{charref}          { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
                               else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
+<DQUOTED>{charref_bup}      { yylval=yytext; return(LEX_ERROR_ATTR_VAL); /* avoid backing up */ }
 <DQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
-<DQUOTED>{UquotedD}+        { append_string(yytext); }
+<DQUOTED>{U1quotedD_xml}+   { append_string(yytext); /* optimise after avoiding backing up */ }
+<DQUOTED>{UquotedD}         { append_string(yytext); }
+<DQUOTED>{UquotedD_bup}     { yylval=yytext; return(LEX_ERROR_ATTR_VAL); /* avoid backing up */ }
 <DQUOTED>.                  { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 
 <SQUOTED>\'                 { BEGIN(after_attr); yylval=string[stringnum]; return(LEX_ATTR_VAL); }
 <SQUOTED>{entityref}        { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
                               else { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} } }
+<SQUOTED>{entityref_bup}    { yylval=yytext; return(LEX_ERROR_ATTR_VAL); /* avoid backing up */ }
 <SQUOTED>{charref}          { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
                               else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
+<SQUOTED>{charref_bup}      { yylval=yytext; return(LEX_ERROR_ATTR_VAL); /* avoid backing up */ }
 <SQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
-<SQUOTED>{UquotedS}+        { append_string(yytext); }
+<SQUOTED>{U1quotedS_xml}+   { append_string(yytext); /* optimise after avoiding backing up */ }
+<SQUOTED>{UquotedS}         { append_string(yytext); }
+<SQUOTED>{UquotedS_bup}     { yylval=yytext; return(LEX_ERROR_ATTR_VAL); /* avoid backing up */ }
 <SQUOTED>.                  { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 
  /* End of file */
