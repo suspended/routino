@@ -206,12 +206,12 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
        SegmentX *segmentx;
        WayX *wayx,tmpwayx;
 
+       if(IsBitSet(connected,i))
+          goto endloop;
+
        segmentx=LookupSegmentX(segmentsx,i,1);
 
        if(IsPrunedSegmentX(segmentx))
-          goto endloop;
-
-       if(IsBitSet(connected,i))
           goto endloop;
 
        if(segmentx->way<waysx->number)
@@ -515,6 +515,8 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
                 node1=OtherNode(segmentx,node2);
                }
             }
+          else if(segcount2>2)
+             break;
 
           segmentx=NextSegmentX(segmentsx,segmentx,node2);
          }
@@ -535,6 +537,8 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
                 node4=OtherNode(segmentx,node3);
                }
             }
+          else if(segcount3>2)
+             break;
 
           segmentx=NextSegmentX(segmentsx,segmentx,node3);
          }
@@ -869,7 +873,22 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
        int segcount=0;
        NodeX *nodex;
 
-       if(!IsBitSet(checked,nodes[current]))
+       /* Get the node data */
+
+       nodex=LookupNodeX(nodesx,nodes[current],1);
+
+       lats[current]=latlong_to_radians(nodex->latitude);
+       lons[current]=latlong_to_radians(nodex->longitude);
+
+       /* Count the segments at the node if not forced to be an end node */
+
+       if(IsBitSet(checked,nodes[current]))
+          ;
+       else if(nodex->flags&NODE_MINIRNDBT)
+          ;
+       else if(nodex->flags&NODE_TURNRSTRCT2 || nodex->flags&NODE_TURNRSTRCT)
+          ;
+       else
          {
           SegmentX *segmentx;
 
@@ -893,25 +912,12 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                 node2=OtherNode(segmentx,nodes[current]);
                 way2=segmentx->way;
                }
+             else
+                break;
 
              segmentx=NextSegmentX(segmentsx,segmentx,nodes[current]);
             }
          }
-
-       /* Perform more checks */
-
-       nodex=LookupNodeX(nodesx,nodes[current],1);
-
-       lats[current]=latlong_to_radians(nodex->latitude);
-       lons[current]=latlong_to_radians(nodex->longitude);
-
-       /* Check if allowed due to mini-roundabout and turn restriction */
-
-       if(nodex->flags&NODE_MINIRNDBT)
-          segcount=0;
-
-       if(nodex->flags&NODE_TURNRSTRCT2 || nodex->flags&NODE_TURNRSTRCT)
-          segcount=0;
 
        /* Check if allowed due to one-way properties */
 
