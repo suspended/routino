@@ -123,7 +123,7 @@ static unsigned long long lineno;
 %option verbose
 
 %option nodefault
-%option full
+%option fast
 %option noread
 
 %option noreject
@@ -222,7 +222,7 @@ charref_bup     (&#({digit}*[^0-9;]*|x{xdigit}*[^a-fA-F0-9;]*))
 ">"                         { return(LEX_ERROR_CLOSE); }
 
 {N}                         { lineno++; }
-[^<>]                       { }
+[^<>\n]+                    { }
 
  /* Tags beginning with '!' */
 
@@ -239,9 +239,9 @@ charref_bup     (&#({digit}*[^0-9;]*|x{xdigit}*[^a-fA-F0-9;]*))
 <COMMENT>"-->"              { BEGIN(INITIAL); }
 <COMMENT>"--"[^>]           { return(LEX_ERROR_COMMENT); }
 <COMMENT>"-".               { /* avoid backing up */ }
-<COMMENT>{N}                { lineno++; }
-<COMMENT>[^-]               { }
 <COMMENT>"-"                { }
+<COMMENT>{N}                { lineno++; }
+<COMMENT>[^-\n]+            { }
 
  /* CDATA */
 
@@ -249,14 +249,14 @@ charref_bup     (&#({digit}*[^0-9;]*|x{xdigit}*[^a-fA-F0-9;]*))
 <CDATA>"]]"                 { /* avoid backing up */ }
 <CDATA>"]"                  { }
 <CDATA>{N}                  { lineno++; }
-<CDATA>[^]]                 { }
+<CDATA>[^]\n]+              { }
 
  /* DOCTYPE */
 
 <DOCTYPE>"<"                { doctype_depth++; }
 <DOCTYPE>">"                { if(doctype_depth==0) BEGIN(INITIAL); else doctype_depth--; }
 <DOCTYPE>{N}                { lineno++; }
-<DOCTYPE>[^<>]              { }
+<DOCTYPE>[^<>\n]+           { }
 
  /* XML declaration start */
 
