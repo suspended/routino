@@ -58,6 +58,7 @@
 #define LEX_ERROR_ATTR_VAL       109
 #define LEX_ERROR_ENTITY_REF     110
 #define LEX_ERROR_CHAR_REF       111
+#define LEX_ERROR_TEXT_OUTSIDE   112
 
 #define LEX_ERROR_UNEXP_TAG      201
 #define LEX_ERROR_UNBALANCED     202
@@ -195,8 +196,6 @@ charref_bup     (&#({digit}*[^0-9;]*|x{xdigit}*[^a-fA-F0-9;]*))
 
 %x BANGTAG
 %x COMMENT
-%x CDATA
-%x DOCTYPE
 %x XML_DECL_START XML_DECL
 %x TAG_START TAG
 %x ATTR_KEY ATTR_VAL
@@ -210,7 +209,6 @@ charref_bup     (&#({digit}*[^0-9;]*|x{xdigit}*[^a-fA-F0-9;]*))
  static unsigned long *stringlen=NULL,*stringused=NULL;
  static int after_attr=0;
  int newlen;
- int doctype_depth=0;
 
  /* Handle top level entities */
 
@@ -222,15 +220,12 @@ charref_bup     (&#({digit}*[^0-9;]*|x{xdigit}*[^a-fA-F0-9;]*))
 ">"                         { return(LEX_ERROR_CLOSE); }
 
 {N}                         { lineno++; }
-[^<>\n]+                    { }
+{S}+                        { }
+.                           { yylval=yytext; return(LEX_ERROR_TEXT_OUTSIDE); }
 
  /* Tags beginning with '!' */
 
 <BANGTAG>"--"               { BEGIN(COMMENT); }
-<BANGTAG>"[CDATA["          { BEGIN(CDATA); }
-<BANGTAG>"[".{1,6}          { return(LEX_ERROR_TAG_START); /* avoid backing up */ }
-<BANGTAG>"DOCTYPE"          { BEGIN(DOCTYPE); doctype_depth=0; }
-<BANGTAG>"D".{1,6}          { return(LEX_ERROR_TAG_START); /* avoid backing up */ }
 <BANGTAG>{N}                { /* lineno++; */ return(LEX_ERROR_TAG_START); }
 <BANGTAG>.                  { return(LEX_ERROR_TAG_START); }
 
@@ -242,21 +237,6 @@ charref_bup     (&#({digit}*[^0-9;]*|x{xdigit}*[^a-fA-F0-9;]*))
 <COMMENT>"-"                { }
 <COMMENT>{N}                { lineno++; }
 <COMMENT>[^-\n]+            { }
-
- /* CDATA */
-
-<CDATA>"]]>"                { BEGIN(INITIAL); }
-<CDATA>"]]"                 { /* avoid backing up */ }
-<CDATA>"]"                  { }
-<CDATA>{N}                  { lineno++; }
-<CDATA>[^]\n]+              { }
-
- /* DOCTYPE */
-
-<DOCTYPE>"<"                { doctype_depth++; }
-<DOCTYPE>">"                { if(doctype_depth==0) BEGIN(INITIAL); else doctype_depth--; }
-<DOCTYPE>{N}                { lineno++; }
-<DOCTYPE>[^<>\n]+           { }
 
  /* XML declaration start */
 
@@ -318,10 +298,10 @@ charref_bup     (&#({digit}*[^0-9;]*|x{xdigit}*[^a-fA-F0-9;]*))
 <DQUOTED>{charref}          { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
                               else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
 <DQUOTED>{charref_bup}      { yylval=yytext; return(LEX_ERROR_ATTR_VAL); /* avoid backing up */ }
-<DQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 <DQUOTED>{U1quotedD_xml}+   { append_string(yytext); /* optimise after avoiding backing up */ }
 <DQUOTED>{UquotedD}         { append_string(yytext); }
 <DQUOTED>{UquotedD_bup}     { yylval=yytext; return(LEX_ERROR_ATTR_VAL); /* avoid backing up */ }
+<DQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 <DQUOTED>.                  { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 
 <SQUOTED>\'                 { BEGIN(after_attr); yylval=string[stringnum]; return(LEX_ATTR_VAL); }
@@ -331,10 +311,10 @@ charref_bup     (&#({digit}*[^0-9;]*|x{xdigit}*[^a-fA-F0-9;]*))
 <SQUOTED>{charref}          { if(xmlparse_options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
                               else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
 <SQUOTED>{charref_bup}      { yylval=yytext; return(LEX_ERROR_ATTR_VAL); /* avoid backing up */ }
-<SQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 <SQUOTED>{U1quotedS_xml}+   { append_string(yytext); /* optimise after avoiding backing up */ }
 <SQUOTED>{UquotedS}         { append_string(yytext); }
 <SQUOTED>{UquotedS_bup}     { yylval=yytext; return(LEX_ERROR_ATTR_VAL); /* avoid backing up */ }
+<SQUOTED>[<>&]              { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 <SQUOTED>.                  { yylval=yytext; return(LEX_ERROR_ATTR_VAL); }
 
  /* End of file */
@@ -639,6 +619,10 @@ int ParseXML(FILE *file,xmltag **tags,int options)
 
       case LEX_ERROR_CHAR_REF:
        fprintf(stderr,"XML Parser: Error on line %llu: invalid character reference '%s' seen in attribute value.\n",lineno,yylval);
+       break;
+
+      case LEX_ERROR_TEXT_OUTSIDE:
+       fprintf(stderr,"XML Parser: Error on line %llu: non-whitespace '%s' seen outside tag.\n",lineno,yylval);
        break;
       }
    }
