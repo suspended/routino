@@ -4,9 +4,9 @@
 
 <test>
 
-  <level1>
+  <level1 attr1="value1">
     <level2>
-      <![[CDATA <level1> ]]>
+      text
     </level2>
   </level1>
 
