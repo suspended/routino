@@ -273,16 +273,17 @@ Barrier Defaults
 
    Barrier       foot horse wheelchair bicycle moped motorbike motorcar goods hgv psv
    -------       ---- ----- ---------- ------- ----- --------- -------- ----- --- ---
-   bollard       yes  yes   yes        yes     yes   yes       no       no    no  no
-   kissing_gate,
-   stile,
-   v_stile,
-   turnstile,
-   footgate,
-   cycle_barrier yes  no    no         no      no    no        no       no    no  no
-   horse_barrier,
-   cattle_grid   yes  no    yes        yes     yes   yes       yes      yes   yes yes
-   car_trap      yes  yes   yes        yes     no    no        no       no    no  no
+   kissing_gate, footgate, stile, v_stile, turnstile, squeeze, squeeze_stile,
+   cycle_barrier, bicycle_barrier
+                 yes  no    no         no      no    no        no       no    no  no
+   horse_stile, horse_jump, step_over
+                 yes  yes   no         no      no    no        no       no    no  no
+   horse_barrier, cattle_grid
+                 yes  no    yes        yes     yes   yes       yes      yes   yes yes
+   motorcyle_barrier
+                 yes  yes   yes        yes     no    no        no       no    no  no
+   bollard, car_barrier, car_trap
+                 yes  yes   yes        yes     yes   yes       no       no    no  no
 
 Generic Access Permissions
 - - - - - - - - - - - - -
@@ -341,7 +342,7 @@ Highway Defaults
    tertiary_link                           tertiary
    minor, road                             unclassified
    living_street                           residential
-   services, layby                         service
+   access, services, layby                 service
    byway, unsurfaced, unpaved              track
    footway, bridleway, pedestrian, walkway path
    route=ferry                             ferry (1)
@@ -509,4 +510,4 @@ Turn Restrictions
 
 --------
 
-Copyright 2008-2011 Andrew M. Bishop.
+Copyright 2008-2012 Andrew M. Bishop.
