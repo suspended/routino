@@ -1,3 +1,41 @@
+Version 2.4 of Routino released : Sat Dec 8 2012
+------------------------------------------------
+
+Bug fixes:
+  Fix pruning short segments in slim mode (gave different results to non-slim).
+  Fix error with segment lengths for some segments from ways that are areas.
+  Fix latent bug with route relations when compiled for 64-bit IDs.
+
+router/planetsplitter:
+  Replace all debugging "assert" statements with fatal error messages.
+
+planetsplitter:
+  Delete ways that are not used from the output files (names remain though).
+  Delete turn relations that are not used from the output files.
+  Speed up the processing, mainly by reducing the number of I/O operations.
+  Change the pruning of isolated regions to look at each transport type.
+  Slim and normal mode now give identical results (sorting preserves order).
+  Log some more error cases, clarify some existing ones.
+  Added a --append option which must be used to append files to existing data.
+  Added a --keep option which can be used to keep parsed, sorted data.
+  Added a --changes option to allow appending OSM change files (.osc files).
+
+Configuration Files:
+  Accept some more tag values for OSM file parsing.
+
+summarise-log.pl
+  Can now generate an HTML version with links to OSM information for each item.
+
+Deleted obsoleted files:
+  The CGI scripts customrouter.cgi and customvisualiser.cgi have been removed.
+  The noscript.cgi and noscript.html web pages have been removed.
+
+
+Note: Files deprecated in version 2.3 have been removed in version 2.4.
+
+Note: This version is not compatible with databases from previous versions.
+
+
 Version 2.3.2 of Routino released : Sat Oct 6 2012
 --------------------------------------------------
 

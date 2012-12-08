@@ -182,107 +182,52 @@ Version 2.3 of Routino was released on 21st July 2012.
 Version 2.3.1 of Routino was released on 11th August 2012.
 <br>
 Version 2.3.2 of Routino was released on 6th October 2012.
+<br>
+Version 2.4 of Routino was released on 8th December 2012.
 
 <p>
 
 The full version history is available in the NEWS file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Versions 2.3, 2.3.1 and 2.3.2</h3>
-
-In version 2.3.2:
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.4</h3>
 
 <dl>
   <dt>Bug fixes:
-  <dd>Fix for highway type visualiser (was missing one-way segments).
-  <br>Fix a real-life routing problem with oneway streets and super-segments.
-  <br>Find a route even if an end waypoint forbids the specified transport.
-  <br>Include the final junction in the HTML output (was missed in some cases).
+  <dd>Fix pruning short segments in slim mode (gave different results to non-slim).
+  <br>Fix error with segment lengths for some segments from ways that are areas.
+  <br>Fix latent bug with route relations when compiled for 64-bit IDs.
 
-  <dt>Test cases:
-  <dd>Create new test cases for two bugs fixed in this version.
-
-  <dt>router:
-  <dd>Improve the error message for some cases of failing to route.
+  <dt>router/planetsplitter:
+  <dd>Replace all debugging "assert" statements with fatal error messages.
 
   <dt>planetsplitter:
-  <dd>Log an error if a foot/bicycle way doesn't allow foot/bicycle transport.
-  <br>Do not mark nodes as super-nodes if they allow no transport types through.
-
-  <dt>Web pages (visualiser):
-  <dd>Allow plotting nodes that block each transport type.
+  <dd>Delete ways that are not used from the output files (names remain though).
+  <br>Delete turn relations that are not used from the output files.
+  <br>Speed up the processing, mainly by reducing the number of I/O operations.
+  <br>Change the pruning of isolated regions to look at each transport type.
+  <br>Slim and normal mode now give identical results (sorting preserves order).
+  <br>Log some more error cases, clarify some existing ones.
+  <br>Added a --append option which must be used to append files to existing data.
+  <br>Added a --keep option which can be used to keep parsed, sorted data.
+  <br>Added a --changes option to allow appending OSM change files (.osc files).
 
   <dt>Configuration Files:
-  <dd>Change the default license/copyright notice in the translations.xml file.
-</dl>
+  <dd>Accept some more tag values for OSM file parsing.
 
-In version 2.3.1:
+  <dt>summarise-log.pl:
+  <dd>Can now generate an HTML version with links to OSM information for each item.
 
-<dl>
-  <dt>Bug fixes:
-  <dd>Create marker-XXX-grey.png icon which gets used before Javascript removes it.
-  <br>Provide full set of 99 marker icons instead of just 19.
-  <br>Add more limit icons (0.0-0.9, 20.0-40.0 and 161-200).
-  <br>Fix router web page problem with placing initial marker (coords not updated).
-  <br>Hide waypoints so that they are not visible when Javascript adds them to HTML.
-  <br>Fix web page font problems by choosing an explicit font pixel-size in the CSS.
-  <br>Fix potential crash in XML files containing lots of key/value pairs in a tag.
-
-  <dt>Web pages (router):
-  <dd>Unused waypoints show as blank rather than 0,0.
-  <br>Add a button to insert a waypoint to close the loop.
-  <br>Write the command line and execution time to the log file.
-</dl>
-
-In version 2.3:
-
-<dl>
-  <dt>Bug fixes:
-  <dd>Handle OSM files that contain changesets (don't raise an error).
-  <br>Force bicyle/foot routes to allow bicycle/foot transport.
-  <br>Fix problem running CGIs on Macs (md5 program name).
-  <br>Fix bug with pruning straight highways (uninitialised data).
-  <br>Fix bug with XML parsing error log (could miss some unrecognised tags).
-
-  <dt>Web pages (all):
-  <dd>Make compatible with OpenLayers v2.12 (but don't change the install script).
-  <br>Make all HTML files standards compliant.
-  <br>Allow the HTML files to parse the query string instead of using a CGI.
-  <br>Move all user-editable parameters to paths.pl and mapprops.js.
-
-  <dt>Web pages (router):
-  <dd>Add a button to put a marker at the current location (Javascript geolocation).
-  <br>Add a button to centre the map on a given marker.
-  <br>Automatically insert the waypoints in the HTML from the JavaScript.
-  <br>Added a German language router web page translation.
-  <br>Add buttons to switch between lat/long and placename with Nominatim lookups.
-
-  <dt>Web pages (visualiser):
-  <dd>Allow plotting segments of each highway type.
-  <br>Allow plotting segments accessible to each transport type.
-
-  <dt>planetsplitter:
-  <dd>Add a new '--logtime' option that prints the elapsed time of each step.
-  <br>Make the sort functions multi-threaded (run-time option).
-  <br>Improve the XML parsing speed slightly.
+  <dt>Deleted obsoleted files:
+  <dd>The CGI scripts customrouter.cgi and customvisualiser.cgi have been removed.
+  <br>The noscript.cgi and noscript.html web pages have been removed.
 </dl>
 
 <p>
-<b>Note:</b> Existing mapprops.js and paths.pl files need to be updated to
-include new items for this version.
+<b>Note:</b> Files deprecated in version 2.3 have been removed in version 2.4.
 
 <p>
-<b>Note:</b> Existing OpenLayers installations must be updated if they were
-installed with older Routino provided script (the old OpenLayers.js will not
-work).
-
-<p>
-<b>Note:</b> The CGI scripts customrouter.cgi and customvisualiser.cgi are
-deprecated and will be removed in the next version.
-
-<p>
-<b>Note:</b> The noscript.cgi and noscript.html web pages are deprecated and
-will be removed in the next version.
+<b>Note:</b> This version is not compatible with databases from previous versions.
 
 
 <h3><a name="H_1_5_2"></a>License</h3>
