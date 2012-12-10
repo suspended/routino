@@ -27,8 +27,6 @@ WEBDIR=../web/bin
 CC=gcc
 LD=gcc
 
-LEX=flex
-
 # Compilation program options
 
 CFLAGS=-Wall -Wmissing-prototypes -std=c99
@@ -36,14 +34,12 @@ CFLAGS=-Wall -Wmissing-prototypes -std=c99
 LDFLAGS=-lm
 
 CFLAGS+=-O3
-#CFLAGS+=-O0 -g
+CFLAGS+=-O0 -g
 #CFLAGS+=-pg
 #CFLAGS+=-fprofile-arcs -ftest-coverage
 
 #LDFLAGS+=-pg -static
 #LDFLAGS+=-fprofile-arcs -ftest-coverage
-
-LEXFLAGS=
 
 # Required for multi-threaded support
 CFLAGS+=-pthread -DUSE_PTHREADS
@@ -160,13 +156,6 @@ tagmodifier : $(TAGMODIFIER_OBJ)
 
 ########
 
-xmlparse.c : xmlparse.l
-	$(LEX) $(LEXFLAGS)  $<
-	-@mv lex.yy.c xmlparse.c
-	@echo Created xmlparse.c
-
-########
-
 %.o : %.c
 	@[ -d .deps ] || mkdir .deps
 	$(CC) -c $(CFLAGS) -DSLIM=0 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
@@ -198,7 +187,6 @@ clean:
 	rm -f *.o
 	rm -f core
 	rm -f *.gcda *.gcno *.gcov gmon.out
-	rm -f xmlparse.c
 	cd xml  && $(MAKE) clean
 	cd test && $(MAKE) clean
 
