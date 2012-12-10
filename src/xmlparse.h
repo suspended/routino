@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2011 Andrew M. Bishop
+ This file Copyright 2010-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,6 @@
 
 #ifndef XMLPARSE_H
 #define XMLPARSE_H    /*+ To stop multiple inclusions. +*/
-
-#include <stdio.h>
 
 
 /*+ The maximum number of attributes per tag. +*/
@@ -68,7 +66,7 @@ struct _xmltag
 
 /* XML parser functions */
 
-int ParseXML(FILE *file,xmltag **tags,int options);
+int ParseXML(int fd,xmltag **tags,int options);
 
 unsigned long long ParseXML_LineNumber(void);
 

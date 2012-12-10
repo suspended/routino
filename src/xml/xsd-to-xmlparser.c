@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010 Andrew M. Bishop
+ This file Copyright 2010-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -300,7 +300,7 @@ int main(int argc,char **argv)
 {
  int i,j,k;
 
- if(ParseXML(stdin,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE))
+ if(ParseXML(0,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE))
    {
     fprintf(stderr,"Cannot parse XML file - exiting.\n");
     exit(1);
@@ -477,7 +477,7 @@ int main(int argc,char **argv)
  printf("\n");
  printf("int main(int argc,char **argv)\n");
  printf("{\n");
- printf(" if(ParseXML(stdin,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_WARN))\n");
+ printf(" if(ParseXML(0,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_WARN))\n");
  printf("    return(1);\n");
  printf(" else\n");
  printf("    return(0);\n");

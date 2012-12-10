@@ -564,7 +564,7 @@ static int xmlDeclaration_function(const char *_tag_,int _type_,const char *vers
 int main(int argc,char **argv)
 {
  char *tagging=NULL,*filename=NULL;
- FILE *file;
+ int fd;
  int arg,retval;
 
  /* Parse the command line arguments */
@@ -615,30 +615,22 @@ int main(int argc,char **argv)
  /* Open the input file */
 
  if(filename)
-   {
-    file=fopen(filename,"rb");
-
-    if(!file)
-      {
-       fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",argv[arg],strerror(errno));
-       exit(EXIT_FAILURE);
-      }
-   }
+    fd=ReOpenFile(filename);
  else
-    file=stdin;
+    fd=0;
 
  /* Parse the file */
 
  fprintf_first(stderr,"Reading: Lines=0 Nodes=0 Ways=0 Relations=0");
 
- retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
+ retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
  fprintf_last(stderr,"Read: Lines=%llu Nodes=%lu Ways=%lu Relations=%lu",ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  /* Tidy up */
 
  if(filename)
-    fclose(file);
+    CloseFile(fd);
 
  return(retval);
 }

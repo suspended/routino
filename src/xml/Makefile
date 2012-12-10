@@ -72,9 +72,6 @@ xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
 ../xmlparse.o : ../xmlparse.c ../xmlparse.h
 	cd .. && $(MAKE) xmlparse.o
 
-../xmlparse.c : ../xmlparse.l
-	cd .. && $(MAKE) xmlparse.c
-
 ########
 
 %.o : %.c

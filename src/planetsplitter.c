@@ -225,25 +225,19 @@ if(!option_process_only)
      {
       for(arg=1;arg<argc;arg++)
         {
-         FILE *file;
+         int fd;
 
          if(argv[arg][0]=='-' && argv[arg][1]=='-')
             continue;
 
-         file=fopen(argv[arg],"rb");
-
-         if(!file)
-           {
-            fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",argv[arg],strerror(errno));
-            exit(EXIT_FAILURE);
-           }
+         fd=ReOpenFile(argv[arg]);
 
          if(option_changes)
            {
             printf("\nParse OSC Data [%s]\n==============\n\n",argv[arg]);
             fflush(stdout);
 
-            if(ParseOSC(file,Nodes,Segments,Ways,Relations))
+            if(ParseOSC(fd,Nodes,Segments,Ways,Relations))
                exit(EXIT_FAILURE);
            }
          else
@@ -251,11 +245,11 @@ if(!option_process_only)
             printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
             fflush(stdout);
 
-            if(ParseOSM(file,Nodes,Segments,Ways,Relations))
+            if(ParseOSM(fd,Nodes,Segments,Ways,Relations))
                exit(EXIT_FAILURE);
            }
 
-         fclose(file);
+         CloseFile(fd);
         }
      }
    else
@@ -265,7 +259,7 @@ if(!option_process_only)
          printf("\nParse OSC Data\n==============\n\n");
          fflush(stdout);
 
-         if(ParseOSC(stdin,Nodes,Segments,Ways,Relations))
+         if(ParseOSC(0,Nodes,Segments,Ways,Relations))
             exit(EXIT_FAILURE);
         }
       else
@@ -273,7 +267,7 @@ if(!option_process_only)
          printf("\nParse OSM Data\n==============\n\n");
          fflush(stdout);
 
-         if(ParseOSM(stdin,Nodes,Segments,Ways,Relations))
+         if(ParseOSM(0,Nodes,Segments,Ways,Relations))
             exit(EXIT_FAILURE);
         }
      }
