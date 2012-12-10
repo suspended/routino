@@ -23,16 +23,14 @@
 #ifndef OSMPARSER_H
 #define OSMPARSER_H    /*+ To stop multiple inclusions. +*/
 
-#include <stdio.h>
-
 #include "typesx.h"
 
 
 /* Functions in osmparser.c */
 
-int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
+int ParseOSM(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
 
-int ParseOSC(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
+int ParseOSC(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
 
 
 #endif /* OSMPARSER_H */

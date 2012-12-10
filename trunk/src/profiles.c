@@ -615,7 +615,7 @@ static int profileType_function(const char *_tag_,int _type_,const char *name,co
 
 int ParseXMLProfiles(const char *filename)
 {
- FILE *file;
+ int fd;
  int retval;
 
  if(!ExistsFile(filename))
@@ -624,17 +624,11 @@ int ParseXMLProfiles(const char *filename)
     return(1);
    }
 
- file=fopen(filename,"r");
+ fd=ReOpenFile(filename);
 
- if(!file)
-   {
-    fprintf(stderr,"Error: Cannot open profiles file '%s' for reading.\n",filename);
-    return(1);
-   }
+ retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
 
- retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
-
- fclose(file);
+ CloseFile(fd);
 
  if(retval)
    {

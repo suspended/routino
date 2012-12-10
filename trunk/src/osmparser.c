@@ -20,7 +20,6 @@
  ***************************************/
 
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -722,7 +721,7 @@ static int osmType_function(const char *_tag_,int _type_,const char *version)
 
   int ParseOSM Returns 0 if OK or something else in case of an error.
 
-  FILE *file The file to read from.
+  int fd The file descriptor of the file to read from.
 
   NodesX *OSMNodes The data structure of nodes to fill in.
 
@@ -733,7 +732,7 @@ static int osmType_function(const char *_tag_,int _type_,const char *version)
   RelationsX *OSMRelations The data structure of relations to fill in.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
+int ParseOSM(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
 {
  int retval;
 
@@ -756,7 +755,7 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  printf_first("Reading: Lines=0 Nodes=0 Ways=0 Relations=0");
 
- retval=ParseXML(file,xml_osm_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
+ retval=ParseXML(fd,xml_osm_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
  printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
@@ -775,7 +774,7 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
   int ParseOSC Returns 0 if OK or something else in case of an error.
 
-  FILE *file The file to read from.
+  int fd The file descriptor of the file to read from.
 
   NodesX *OSMNodes The data structure of nodes to fill in.
 
@@ -786,7 +785,7 @@ int ParseOSM(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
   RelationsX *OSMRelations The data structure of relations to fill in.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseOSC(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
+int ParseOSC(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
 {
  int retval;
 
@@ -809,7 +808,7 @@ int ParseOSC(FILE *file,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  printf_first("Reading: Lines=0 Nodes=0 Ways=0 Relations=0");
 
- retval=ParseXML(file,xml_osc_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
+ retval=ParseXML(fd,xml_osc_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
  printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
 

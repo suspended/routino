@@ -1198,7 +1198,7 @@ static int languageType_function(const char *_tag_,int _type_,const char *lang)
 
 int ParseXMLTranslations(const char *filename,const char *language)
 {
- FILE *file;
+ int fd;
  int retval;
 
  store_lang=language;
@@ -1209,17 +1209,11 @@ int ParseXMLTranslations(const char *filename,const char *language)
     return(1);
    }
 
- file=fopen(filename,"r");
+ fd=ReOpenFile(filename);
 
- if(!file)
-   {
-    fprintf(stderr,"Error: Cannot open translations file '%s' for reading.\n",filename);
-    return(1);
-   }
+ retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME|XMLPARSE_RETURN_ATTR_ENCODED);
 
- retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME|XMLPARSE_RETURN_ATTR_ENCODED);
-
- fclose(file);
+ CloseFile(fd);
 
  if(retval)
     return(1);

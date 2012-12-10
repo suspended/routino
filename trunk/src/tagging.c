@@ -360,7 +360,7 @@ static int RelationType_function(const char *_tag_,int _type_)
 
 int ParseXMLTaggingRules(const char *filename)
 {
- FILE *file;
+ int fd;
  int retval;
 
  if(!ExistsFile(filename))
@@ -369,17 +369,11 @@ int ParseXMLTaggingRules(const char *filename)
     return(1);
    }
 
- file=fopen(filename,"r");
+ fd=ReOpenFile(filename);
 
- if(!file)
-   {
-    fprintf(stderr,"Error: Cannot open tagging rules file '%s' for reading.\n",filename);
-    return(1);
-   }
+ retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
 
- retval=ParseXML(file,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
-
- fclose(file);
+ CloseFile(fd);
 
  if(retval)
     return(1);
