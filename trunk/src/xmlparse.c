@@ -670,18 +670,18 @@ int ParseXML(int fd,xmltag **tags,int options)
 
        <DQUOTED>\"                 { BEGIN(after_attr); return(LEX_ATTR_VAL); }
        <DQUOTED>{entityref}        { if(options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
-                                     else { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} } }
+                                     else { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {return(LEX_ERROR_ENTITY_REF);} } }
        <DQUOTED>{charref}          { if(options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
-                                     else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
+                                     else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {return(LEX_ERROR_CHAR_REF);} } }
        <DQUOTED>{UquotedD}         { }
        <DQUOTED>[<>&]              { return(LEX_ERROR_ATTR_VAL); }
        <DQUOTED>.                  { return(LEX_ERROR_ATTR_VAL); }
 
        <SQUOTED>\'                 { BEGIN(after_attr); return(LEX_ATTR_VAL); }
        <SQUOTED>{entityref}        { if(options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
-                                     else { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_ENTITY_REF);} } }
+                                     else { const char *str=ParseXML_Decode_Entity_Ref(yytext); if(str) {append_string(str);} else {return(LEX_ERROR_ENTITY_REF);} } }
        <SQUOTED>{charref}          { if(options&XMLPARSE_RETURN_ATTR_ENCODED) {append_string(yytext);}
-                                     else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {yylval=yytext; return(LEX_ERROR_CHAR_REF);} } }
+                                     else { const char *str=ParseXML_Decode_Char_Ref(yytext);   if(str) {append_string(str);} else {return(LEX_ERROR_CHAR_REF);} } }
        <SQUOTED>{UquotedS}         { append_string(yytext); }
        <SQUOTED>[<>&]              { return(LEX_ERROR_ATTR_VAL); }
        <SQUOTED>.                  { return(LEX_ERROR_ATTR_VAL); }
@@ -702,8 +702,12 @@ int ParseXML(int fd,xmltag **tags,int options)
       {
        switch(quoted[(int)*(unsigned char*)buffer_ptr])
          {
-         case 10:            /* U1 */
-          NEXT_CHAR;
+         case 10:            /* U1 - used by all tag keys and many values */
+          do
+            {
+             NEXT_CHAR;
+            }
+          while(quoted[(int)*(unsigned char*)buffer_ptr]==10);
           break;
 
          case 20:            /* U2 */
