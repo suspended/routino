@@ -309,15 +309,15 @@ int ParseXML(int fd,xmltag **tags,int options)
          {
           NEXT_CHAR;
 
-          if(*buffer_ptr=='!')
-            {
-             NEXT_CHAR;
-             BEGIN(LEX_STATE_BANGTAG);
-            }
-          else if(*buffer_ptr=='/')
+          if(*buffer_ptr=='/')
             {
              NEXT_CHAR;
              BEGIN(LEX_STATE_END_TAG1);
+            }
+          else if(*buffer_ptr=='!')
+            {
+             NEXT_CHAR;
+             BEGIN(LEX_STATE_BANGTAG);
             }
           else if(*buffer_ptr=='?')
             {
@@ -375,13 +375,7 @@ int ParseXML(int fd,xmltag **tags,int options)
        while(*buffer_ptr!='-' && *buffer_ptr!='\n')
           NEXT_CHAR;
 
-       if(*buffer_ptr=='\n')
-         {
-          NEXT_CHAR;
-
-          lineno++;
-         }
-       else /* if(*buffer_ptr=='-') */
+       if(*buffer_ptr=='-')
          {
           NEXT_CHAR;
 
@@ -396,6 +390,12 @@ int ParseXML(int fd,xmltag **tags,int options)
             }
 
           BEGIN(LEX_ERROR_COMMENT);
+         }
+       else /* if(*buffer_ptr=='\n') */
+         {
+          NEXT_CHAR;
+
+          lineno++;
          }
       }
 
@@ -451,24 +451,7 @@ int ParseXML(int fd,xmltag **tags,int options)
        while(whitespace[(int)*(unsigned char*)buffer_ptr])
           NEXT_CHAR;
 
-       if(*buffer_ptr=='\n')
-         {
-          NEXT_CHAR;
-          lineno++;
-         }
-       else if(*buffer_ptr=='?')
-         {
-          NEXT_CHAR;
-          if(*buffer_ptr=='>')
-            {
-             NEXT_CHAR;
-             NEXT(LEX_STATE_INITIAL);
-             BEGIN(LEX_FUNC_XML_DECL_FINISH);
-            }
-
-          BEGIN(LEX_ERROR_XML_DECL);
-         }
-       else if(namestart[(int)*(unsigned char*)buffer_ptr])
+       if(namestart[(int)*(unsigned char*)buffer_ptr])
          {
           START_TOKEN;
 
@@ -482,6 +465,23 @@ int ParseXML(int fd,xmltag **tags,int options)
           after_attr=LEX_STATE_XML_DECL;
           NEXT(LEX_STATE_ATTR_KEY);
           BEGIN(LEX_FUNC_ATTR_KEY);
+         }
+       else if(*buffer_ptr=='?')
+         {
+          NEXT_CHAR;
+          if(*buffer_ptr=='>')
+            {
+             NEXT_CHAR;
+             NEXT(LEX_STATE_INITIAL);
+             BEGIN(LEX_FUNC_XML_DECL_FINISH);
+            }
+
+          BEGIN(LEX_ERROR_XML_DECL);
+         }
+       else if(*buffer_ptr=='\n')
+         {
+          NEXT_CHAR;
+          lineno++;
          }
        else
           BEGIN(LEX_ERROR_XML_DECL);
@@ -580,10 +580,20 @@ int ParseXML(int fd,xmltag **tags,int options)
        while(whitespace[(int)*(unsigned char*)buffer_ptr])
           NEXT_CHAR;
 
-       if(*buffer_ptr=='\n')
+       if(namestart[(int)*(unsigned char*)buffer_ptr])
          {
+          START_TOKEN;
+
           NEXT_CHAR;
-          lineno++;
+          while(namechar[(int)*(unsigned char*)buffer_ptr])
+             NEXT_CHAR;
+
+          saved_buffer_ptr=*buffer_ptr;
+          *buffer_ptr=0;
+
+          after_attr=LEX_STATE_TAG;
+          NEXT(LEX_STATE_ATTR_KEY);
+          BEGIN(LEX_FUNC_ATTR_KEY);
          }
        else if(*buffer_ptr=='/')
          {
@@ -603,20 +613,10 @@ int ParseXML(int fd,xmltag **tags,int options)
           NEXT(LEX_STATE_INITIAL);
           BEGIN(LEX_FUNC_TAG_PUSH);
          }
-       else if(namestart[(int)*(unsigned char*)buffer_ptr])
+       else if(*buffer_ptr=='\n')
          {
-          START_TOKEN;
-
           NEXT_CHAR;
-          while(namechar[(int)*(unsigned char*)buffer_ptr])
-             NEXT_CHAR;
-
-          saved_buffer_ptr=*buffer_ptr;
-          *buffer_ptr=0;
-
-          after_attr=LEX_STATE_TAG;
-          NEXT(LEX_STATE_ATTR_KEY);
-          BEGIN(LEX_FUNC_ATTR_KEY);
+          lineno++;
          }
        else
           BEGIN(LEX_ERROR_TAG);
@@ -653,15 +653,15 @@ int ParseXML(int fd,xmltag **tags,int options)
 
    case LEX_STATE_ATTR_VAL:
 
-    if(*buffer_ptr=='\'')
-      {
-       NEXT_CHAR;
-       BEGIN(LEX_STATE_SQUOTED);
-      }
     if(*buffer_ptr=='"')
       {
        NEXT_CHAR;
        BEGIN(LEX_STATE_DQUOTED);
+      }
+    else if(*buffer_ptr=='\'')
+      {
+       NEXT_CHAR;
+       BEGIN(LEX_STATE_SQUOTED);
       }
 
     BEGIN(LEX_ERROR_ATTR);
@@ -795,12 +795,12 @@ int ParseXML(int fd,xmltag **tags,int options)
              int charref_len=3;
 
              NEXT_CHAR;
-             if(*buffer_ptr=='x') /* hex */
+             if(digit[(int)*(unsigned char*)buffer_ptr]) /* decimal */
                {
                 NEXT_CHAR;
                 charref_len++;
 
-                while(xdigit[(int)*(unsigned char*)buffer_ptr])
+                while(digit[(int)*(unsigned char*)buffer_ptr])
                   {
                    NEXT_CHAR;
                    charref_len++;
@@ -809,12 +809,12 @@ int ParseXML(int fd,xmltag **tags,int options)
                 if(*buffer_ptr!=';')
                    BEGIN(LEX_ERROR_ATTR_VAL);
                }
-             else if(digit[(int)*(unsigned char*)buffer_ptr]) /* decimal */
+             else if(*buffer_ptr=='x') /* hex */
                {
                 NEXT_CHAR;
                 charref_len++;
 
-                while(digit[(int)*(unsigned char*)buffer_ptr])
+                while(xdigit[(int)*(unsigned char*)buffer_ptr])
                   {
                    NEXT_CHAR;
                    charref_len++;
@@ -1267,7 +1267,35 @@ char *ParseXML_Encode_Safe_XML(const char *string)
  do
    {
     for(;j<len && string[i];i++)
-       if(string[i]=='<')
+       if(string[i]>=32 && (unsigned char)string[i]<=127)
+          result[j++]=string[i];
+       else if(string[i]=='\'')
+         {
+          result[j++]='&';
+          result[j++]='a';
+          result[j++]='p';
+          result[j++]='o';
+          result[j++]='s';
+          result[j++]=';';
+         }
+       else if(string[i]=='&')
+         {
+          result[j++]='&';
+          result[j++]='a';
+          result[j++]='m';
+          result[j++]='p';
+          result[j++]=';';
+         }
+       else if(string[i]=='"')
+         {
+          result[j++]='&';
+          result[j++]='q';
+          result[j++]='u';
+          result[j++]='o';
+          result[j++]='t';
+          result[j++]=';';
+         }
+       else if(string[i]=='<')
          {
           result[j++]='&';
           result[j++]='l';
@@ -1281,34 +1309,6 @@ char *ParseXML_Encode_Safe_XML(const char *string)
           result[j++]='t';
           result[j++]=';';
          }
-       else if(string[i]=='&')
-         {
-          result[j++]='&';
-          result[j++]='a';
-          result[j++]='m';
-          result[j++]='p';
-          result[j++]=';';
-         }
-       else if(string[i]=='\'')
-         {
-          result[j++]='&';
-          result[j++]='a';
-          result[j++]='p';
-          result[j++]='o';
-          result[j++]='s';
-          result[j++]=';';
-         }
-       else if(string[i]=='"')
-         {
-          result[j++]='&';
-          result[j++]='q';
-          result[j++]='u';
-          result[j++]='o';
-          result[j++]='t';
-          result[j++]=';';
-         }
-       else if(string[i]>=32 && (unsigned char)string[i]<=127)
-          result[j++]=string[i];
        else
          {
           unsigned int unicode;
