@@ -164,7 +164,7 @@ int main(int argc,char** argv)
    {
     if(ExistsFile(FileName(dirname,prefix,"profiles.xml")))
        profiles=FileName(dirname,prefix,"profiles.xml");
-    else if(ExistsFile(FileName(DATADIR,NULL,"tagging.xml")))
+    else if(ExistsFile(FileName(DATADIR,NULL,"profiles.xml")))
        profiles=FileName(DATADIR,NULL,"profiles.xml");
     else
       {
