@@ -23,6 +23,7 @@
 
 
 #include <stdio.h>
+#include <unistd.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -300,7 +301,7 @@ int main(int argc,char **argv)
 {
  int i,j,k;
 
- if(ParseXML(0,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE))
+ if(ParseXML(STDIN_FILENO,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE))
    {
     fprintf(stderr,"Cannot parse XML file - exiting.\n");
     exit(1);
@@ -350,6 +351,7 @@ int main(int argc,char **argv)
  printf("\n");
  printf("\n");
  printf("#include <stdio.h>\n");
+ printf("#include <unistd.h>\n");
  printf("\n");
  printf("#include \"xmlparse.h\"\n");
 
@@ -477,7 +479,7 @@ int main(int argc,char **argv)
  printf("\n");
  printf("int main(int argc,char **argv)\n");
  printf("{\n");
- printf(" if(ParseXML(0,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_WARN))\n");
+ printf(" if(ParseXML(STDIN_FILENO,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_WARN))\n");
  printf("    return(1);\n");
  printf(" else\n");
  printf("    return(0);\n");
