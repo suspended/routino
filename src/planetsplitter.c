@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/time.h>
@@ -259,7 +260,7 @@ if(!option_process_only)
          printf("\nParse OSC Data\n==============\n\n");
          fflush(stdout);
 
-         if(ParseOSC(0,Nodes,Segments,Ways,Relations))
+         if(ParseOSC(STDIN_FILENO,Nodes,Segments,Ways,Relations))
             exit(EXIT_FAILURE);
         }
       else
@@ -267,7 +268,7 @@ if(!option_process_only)
          printf("\nParse OSM Data\n==============\n\n");
          fflush(stdout);
 
-         if(ParseOSM(0,Nodes,Segments,Ways,Relations))
+         if(ParseOSM(STDIN_FILENO,Nodes,Segments,Ways,Relations))
             exit(EXIT_FAILURE);
         }
      }
