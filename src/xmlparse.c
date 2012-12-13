@@ -86,7 +86,7 @@
 
 static unsigned long long lineno;
 
-static char buffer[2][8192];
+static char buffer[2][16384];
 static char *buffer_token,*buffer_end,*buffer_ptr;
 static int buffer_active=0;
 
@@ -103,15 +103,22 @@ static inline int buffer_refill(int fd)
 {
  ssize_t n,m=0;
 
- buffer_active=!buffer_active;
+ m=(buffer_end-buffer[buffer_active])+1;
 
- if(buffer_token)
+ if(m>(sizeof(buffer[0])/2))    /* more than half full */
    {
-    m=(buffer_end-buffer_token)+1;
+    m=0;
 
-    memcpy(buffer[buffer_active],buffer_token,m);
+    buffer_active=!buffer_active;
 
-    buffer_token=buffer[buffer_active];
+    if(buffer_token)
+      {
+       m=(buffer_end-buffer_token)+1;
+
+       memcpy(buffer[buffer_active],buffer_token,m);
+
+       buffer_token=buffer[buffer_active];
+      }
    }
 
  n=read(fd,buffer[buffer_active]+m,sizeof(buffer[0])-m);
@@ -264,7 +271,8 @@ int ParseXML(int fd,xmltag **tags,int options)
 
  lineno=1;
 
- END_TOKEN;
+ buffer_end=buffer[buffer_active]+sizeof(buffer[0])-1;
+ buffer_token=NULL;
 
  buffer_refill(fd);
 
