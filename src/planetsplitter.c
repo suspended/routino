@@ -43,6 +43,7 @@
 #include "functions.h"
 #include "osmparser.h"
 #include "tagging.h"
+#include "uncompress.h"
 
 
 /* Global variables */
@@ -227,11 +228,15 @@ if(!option_process_only)
       for(arg=1;arg<argc;arg++)
         {
          int fd;
+         char *p;
 
          if(argv[arg][0]=='-' && argv[arg][1]=='-')
             continue;
 
          fd=ReOpenFile(argv[arg]);
+
+         if((p=strstr(argv[arg],".bz2")) && !strcmp(p,".bz2"))
+            fd=Uncompress_Bzip2(fd);
 
          if(option_changes)
            {
