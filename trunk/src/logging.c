@@ -241,7 +241,7 @@ static void vfprintf_middle(FILE *file,const char *format,va_list ap)
 {
  int retval;
 
- putchar('\r');
+ fputc('\r',file);
 
  if(option_logtime)
     fprintf_elapsed_time(file,&start_time);
@@ -254,7 +254,7 @@ static void vfprintf_middle(FILE *file,const char *format,va_list ap)
     int new_printed_length=retval;
 
     while(retval++<printed_length)
-       putchar(' ');
+       fputc(' ',file);
 
     printed_length=new_printed_length;
    }
@@ -276,7 +276,7 @@ static void vfprintf_last(FILE *file,const char *format,va_list ap)
  int retval;
 
  if(!option_loggable)
-    putchar('\r');
+    fputc('\r',file);
 
  if(option_logtime)
     fprintf_elapsed_time(file,&start_time);
@@ -285,9 +285,9 @@ static void vfprintf_last(FILE *file,const char *format,va_list ap)
 
  if(retval>0)
     while(retval++<printed_length)
-       putchar(' ');
+       fputc(' ',file);
 
- putchar('\n');
+ fputc('\n',file);
  fflush(file);
 }
 
