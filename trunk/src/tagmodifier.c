@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
@@ -30,6 +31,7 @@
 #include "logging.h"
 #include "xmlparse.h"
 #include "tagging.h"
+#include "uncompress.h"
 
 
 /* Local variables */
@@ -563,7 +565,7 @@ static int xmlDeclaration_function(const char *_tag_,int _type_,const char *vers
 
 int main(int argc,char **argv)
 {
- char *tagging=NULL,*filename=NULL;
+ char *tagging=NULL,*filename=NULL,*p;
  int fd;
  int arg,retval;
 
@@ -617,7 +619,10 @@ int main(int argc,char **argv)
  if(filename)
     fd=ReOpenFile(filename);
  else
-    fd=0;
+    fd=STDIN_FILENO;
+
+ if((p=strstr(filename,".bz2")) && !strcmp(p,".bz2"))
+    fd=Uncompress_Bzip2(fd);
 
  /* Parse the file */
 
