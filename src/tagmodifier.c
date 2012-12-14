@@ -624,6 +624,9 @@ int main(int argc,char **argv)
  if((p=strstr(filename,".bz2")) && !strcmp(p,".bz2"))
     fd=Uncompress_Bzip2(fd);
 
+ if((p=strstr(filename,".gz")) && !strcmp(p,".gz"))
+    fd=Uncompress_Gzip(fd);
+
  /* Parse the file */
 
  fprintf_first(stderr,"Reading: Lines=0 Nodes=0 Ways=0 Relations=0");

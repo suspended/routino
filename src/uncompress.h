@@ -25,4 +25,6 @@
 
 int Uncompress_Bzip2(int filefd);
 
+int Uncompress_Gzip(int filefd);
+
 #endif /* UNCOMPRESS_H */
