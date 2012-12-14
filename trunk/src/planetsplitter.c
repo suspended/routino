@@ -567,7 +567,14 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--prune-isolated=<len>]\n"
          "                      [--prune-short=<len>]\n"
          "                      [--prune-straight=<len>]\n"
-         "                      [<filename.osm> ...]\n");
+         "                      [<filename.osm> ... | <filename.osc> ..."
+#if defined(USE_BZIP2) && USE_BZIP2
+         "\n                       | <filename.osm.bz2> ... | <filename.osc.bz2> ..."
+#endif
+#if defined(USE_GZIP) && USE_GZIP
+         "\n                       | <filename.osm.gz> ... | <filename.osc.gz> ..."
+#endif
+         "]\n");
 
  if(argerr)
     fprintf(stderr,
@@ -628,8 +635,14 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--prune-straight=<len>    Remove nodes in almost straight highways (defaults to\n"
             "                          removing nodes up to 3m offset from a straight line).\n"
             "\n"
-            "<filename.osm> ...        The name(s) of the file(s) to process (by default\n"
-            "                          data is read from standard input).\n"
+            "<filename.osm> ...        The name(s) of the file(s) to process (defaults to\n"
+            "<filename.osc> ...         reading data from standard input).\n"
+#if defined(USE_BZIP2) && USE_BZIP2
+            "                          Filenames ending '.bz2' will be bzip2 uncompressed.\n"
+#endif
+#if defined(USE_GZIP) && USE_GZIP
+            "                          Filenames ending '.gz' will be gzip uncompressed.\n"
+#endif
             "\n"
             "<transport> defaults to all but can be set to:\n"
             "%s"

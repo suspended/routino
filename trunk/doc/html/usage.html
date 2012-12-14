@@ -75,7 +75,9 @@ Usage: planetsplitter [--help]
                       [--prune-isolated=&lt;len&gt;]
                       [--prune-short=&lt;len&gt;]
                       [--prune-straight=&lt;len&gt;]
-                      [&lt;filename.osm&gt; ...]
+                      [&lt;filename.osm&gt; ... | &lt;filename.osc&gt; ...
+                       &lt;filename.osm.bz2&gt; ... | &lt;filename.osc.bz2&gt; ...
+                       &lt;filename.osm.gz&gt; ... | &lt;filename.osc.gz&gt; ...]
 </pre>
 
 <dl>
@@ -150,9 +152,11 @@ Usage: planetsplitter [--help]
   <dt>--prune-straight=&lt;length&gt;
   <dd>Remove nodes in almost straight highways (defaults to removing nodes up to
     3m offset from a straight line).
-  <dt>&lt;filename.osm&gt; ...
-  <dd>Specifies the filename(s) to read data from, by default data is read from
-    the standard input.
+  <dt>&lt;filename.osm&gt; ... | &lt;filename.osc&gt; ...
+  <dd>Specifies the filename(s) to read data from (defaults to reading data from
+    the standard input).  Filenames ending '.bz2' will be bzip2 uncompressed (if
+    bzip2 support compiled in).  Filenames ending '.gz' will be gzip
+    uncompressed (if gzip support compiled in).
 </dl>
 
 <p>
@@ -583,7 +587,7 @@ for test purposes.
 Usage: tagmodifier [--help]
                    [--loggable]
                    [--tagging=&lt;filename&gt;]
-                   [&lt;filename.osm&gt;]
+                   [&lt;filename.osm&gt; | &lt;filename.osm.bz2&gt; | &lt;filename.osm.gz&gt;]
 </pre>
 
 <dl>
@@ -596,9 +600,11 @@ Usage: tagmodifier [--help]
   <dt>--tagging=&lt;filename&gt;
   <dd>The name of the XML file containing the tagging rules (defaults to
     'tagging.xml' in the current directory).
-  <dt>&lt;filename.osm&gt; ...
-  <dd>Specifies the filename to read data from, by default data is read from
-    the standard input.
+  <dt>&lt;filename.osm&gt;
+  <dd>Specifies the filename(s) to read data from (defaults to reading data from
+    the standard input).  Filenames ending '.bz2' will be bzip2 uncompressed (if
+    bzip2 support compiled in).  Filenames ending '.gz' will be gzip
+    uncompressed (if gzip support compiled in).
 </dl>
 
 </div>

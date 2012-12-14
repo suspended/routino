@@ -656,7 +656,14 @@ static void print_usage(int detail)
          "Usage: tagmodifier [--help]\n"
          "                   [--loggable]\n"
          "                   [--tagging=<filename>]\n"
-         "                   [<filename.osm>]\n");
+         "                   [<filename.osm>"
+#if defined(USE_BZIP2) && USE_BZIP2
+         " | <filename.osm.bz2>"
+#endif
+#if defined(USE_GZIP) && USE_GZIP
+         " | <filename.osm.gz>"
+#endif
+         "]\n");
 
  if(detail)
     fprintf(stderr,
@@ -668,8 +675,15 @@ static void print_usage(int detail)
             "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
             "                          (defaults to 'tagging.xml' in current directory).\n"
             "\n"
-            "<filename.osm>            The name of the file to process (by default data is\n"
-            "                          read from standard input).\n");
+            "<filename.osm>            The name of the file to process (defaults to\n"
+            "                           reading data from standard input).\n"
+#if defined(USE_BZIP2) && USE_BZIP2
+            "                          Filenames ending '.bz2' will be bzip2 uncompressed.\n"
+#endif
+#if defined(USE_GZIP) && USE_GZIP
+            "                          Filenames ending '.gz' will be gzip uncompressed.\n"
+#endif
+            );
 
  exit(!detail);
 }
