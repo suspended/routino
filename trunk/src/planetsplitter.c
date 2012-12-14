@@ -238,6 +238,9 @@ if(!option_process_only)
          if((p=strstr(argv[arg],".bz2")) && !strcmp(p,".bz2"))
             fd=Uncompress_Bzip2(fd);
 
+         if((p=strstr(argv[arg],".gz")) && !strcmp(p,".gz"))
+            fd=Uncompress_Gzip(fd);
+
          if(option_changes)
            {
             printf("\nParse OSC Data [%s]\n==============\n\n",argv[arg]);

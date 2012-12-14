@@ -49,6 +49,10 @@ LDFLAGS+=-pthread -lpthread
 CFLAGS+=-DUSE_BZIP2
 LDFLAGS+=-lbz2
 
+# Required for gzip support
+CFLAGS+=-DUSE_GZIP
+LDFLAGS+=-lz
+
 # Required to use stdio with files > 2GiB on 32-bit system.
 CFLAGS+=-D_FILE_OFFSET_BITS=64
 
