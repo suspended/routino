@@ -217,6 +217,15 @@ index_t IndexWayX(WaysX *waysx,way_t id)
  index_t end=waysx->number-1;
  index_t mid;
 
+ if(waysx->number==0)           /* There are no ways */
+    return(NO_WAY);
+
+ if(id<waysx->idata[start])     /* Key is before start */
+    return(NO_WAY);
+
+ if(id>waysx->idata[end])       /* Key is after end */
+    return(NO_WAY);
+
  /* Binary search - search key exact match only is required.
   *
   *  # <- start  |  Check mid and move start or end if it doesn't match
@@ -228,33 +237,24 @@ index_t IndexWayX(WaysX *waysx,way_t id)
   *  # <- end    |  start or end is the wanted one.
   */
 
- if(end<start)                   /* There are no ways */
-    return(NO_WAY);
- else if(id<waysx->idata[start]) /* Check key is not before start */
-    return(NO_WAY);
- else if(id>waysx->idata[end])   /* Check key is not after end */
-    return(NO_WAY);
- else
+ do
    {
-    do
-      {
-       mid=(start+end)/2;            /* Choose mid point */
+    mid=(start+end)/2;            /* Choose mid point */
 
-       if(waysx->idata[mid]<id)      /* Mid point is too low */
-          start=mid+1;
-       else if(waysx->idata[mid]>id) /* Mid point is too high */
-          end=mid?(mid-1):mid;
-       else                          /* Mid point is correct */
-          return(mid);
-      }
-    while((end-start)>1);
-
-    if(waysx->idata[start]==id)      /* Start is correct */
-       return(start);
-
-    if(waysx->idata[end]==id)        /* End is correct */
-       return(end);
+    if(waysx->idata[mid]<id)      /* Mid point is too low */
+       start=mid+1;
+    else if(waysx->idata[mid]>id) /* Mid point is too high */
+       end=mid?(mid-1):mid;
+    else                          /* Mid point is correct */
+       return(mid);
    }
+ while((end-start)>1);
+
+ if(waysx->idata[start]==id)      /* Start is correct */
+    return(start);
+
+ if(waysx->idata[end]==id)        /* End is correct */
+    return(end);
 
  return(NO_WAY);
 }

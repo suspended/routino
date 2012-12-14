@@ -200,6 +200,15 @@ index_t IndexNodeX(NodesX *nodesx,node_t id)
  index_t end=nodesx->number-1;
  index_t mid;
 
+ if(nodesx->number==0)          /* No nodes */
+    return(NO_NODE);
+
+ if(id<nodesx->idata[start])    /* Key is before start */
+    return(NO_NODE);
+
+ if(id>nodesx->idata[end])      /* Key is after end */
+    return(NO_NODE);
+
  /* Binary search - search key exact match only is required.
   *
   *  # <- start  |  Check mid and move start or end if it doesn't match
@@ -211,33 +220,24 @@ index_t IndexNodeX(NodesX *nodesx,node_t id)
   *  # <- end    |  start or end is the wanted one.
   */
 
- if(end<start)                        /* There are no nodes */
-    return(NO_NODE);
- else if(id<nodesx->idata[start])     /* Check key is not before start */
-    return(NO_NODE);
- else if(id>nodesx->idata[end])       /* Check key is not after end */
-    return(NO_NODE);
- else
+ do
    {
-    do
-      {
-       mid=(start+end)/2;             /* Choose mid point */
+    mid=(start+end)/2;             /* Choose mid point */
 
-       if(nodesx->idata[mid]<id)      /* Mid point is too low */
-          start=mid+1;
-       else if(nodesx->idata[mid]>id) /* Mid point is too high */
-          end=mid?(mid-1):mid;
-       else                           /* Mid point is correct */
-          return(mid);
-      }
-    while((end-start)>1);
-
-    if(nodesx->idata[start]==id)      /* Start is correct */
-       return(start);
-
-    if(nodesx->idata[end]==id)        /* End is correct */
-       return(end);
+    if(nodesx->idata[mid]<id)      /* Mid point is too low */
+       start=mid+1;
+    else if(nodesx->idata[mid]>id) /* Mid point is too high */
+       end=mid?(mid-1):mid;
+    else                           /* Mid point is correct */
+       return(mid);
    }
+ while((end-start)>1);
+
+ if(nodesx->idata[start]==id)      /* Start is correct */
+    return(start);
+
+ if(nodesx->idata[end]==id)        /* End is correct */
+    return(end);
 
  return(NO_NODE);
 }
