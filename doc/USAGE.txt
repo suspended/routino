@@ -31,7 +31,9 @@ planetsplitter
                          [--prune-isolated=<len>]
                          [--prune-short=<len>]
                          [--prune-straight=<len>]
-                         [<filename.osm> ...]
+                         [<filename.osm> ... | <filename.osc> ...
+                          <filename.osm.bz2> ... | <filename.osc.bz2> ...
+                          <filename.osm.gz> ... | <filename.osc.gz> ...]
 
    --help
           Prints out the help information.
@@ -130,9 +132,12 @@ planetsplitter
           Remove nodes in almost straight highways (defaults to removing
           nodes up to 3m offset from a straight line).
 
-   <filename.osm> ...
-          Specifies the filename(s) to read data from, by default data is
-          read from the standard input.
+   <filename.osm> ... | <filename.osc> ...
+          Specifies the filename(s) to read data from (defaults to reading
+          data from the standard input). Filenames ending '.bz2' will be
+          bzip2 uncompressed (if bzip2 support compiled in). Filenames
+          ending '.gz' will be gzip uncompressed (if gzip support compiled
+          in).
 
    Note: In version 1.4 of Routino the --transport, --not-highway and
    --not-property options have been removed. The same functionality can be
@@ -598,7 +603,7 @@ tagmodifier
    Usage: tagmodifier [--help]
                       [--loggable]
                       [--tagging=<filename>]
-                      [<filename.osm>]
+                      [<filename.osm> | <filename.osm.bz2> | <filename.osm.gz>]
 
    --help
           Prints out the help information.
@@ -612,9 +617,12 @@ tagmodifier
           The name of the XML file containing the tagging rules (defaults
           to 'tagging.xml' in the current directory).
 
-   <filename.osm> ...
-          Specifies the filename to read data from, by default data is
-          read from the standard input.
+   <filename.osm>
+          Specifies the filename(s) to read data from (defaults to reading
+          data from the standard input). Filenames ending '.bz2' will be
+          bzip2 uncompressed (if bzip2 support compiled in). Filenames
+          ending '.gz' will be gzip uncompressed (if gzip support compiled
+          in).
 
 
 --------
