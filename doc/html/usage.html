@@ -585,21 +585,26 @@ for test purposes.
 
 <pre class="boxed">
 Usage: tagmodifier [--help]
-                   [--loggable]
                    [--tagging=&lt;filename&gt;]
+                   [--loggable] [--logtime]
+                   [--errorlog[&lt;name&gt;]]
                    [&lt;filename.osm&gt; | &lt;filename.osm.bz2&gt; | &lt;filename.osm.gz&gt;]
 </pre>
 
 <dl>
   <dt>--help
   <dd>Prints out the help information.
+  <dt>--tagging=&lt;filename&gt;
+  <dd>The name of the XML file containing the tagging rules (defaults to
+    'tagging.xml' in the current directory).
   <dt>--loggable
   <dd>Print progress messages that are suitable for logging to a file; normally
     an incrementing counter is printed which is more suitable for real-time
     display than logging.
-  <dt>--tagging=&lt;filename&gt;
-  <dd>The name of the XML file containing the tagging rules (defaults to
-    'tagging.xml' in the current directory).
+  <dt>--logtime
+    <dd>Print the elapsed time for the processing.
+  <dt>--errorlog[=<name>]
+    <dd>Log parsing errors to 'error.log' or the specified file name.
   <dt>&lt;filename.osm&gt;
   <dd>Specifies the filename(s) to read data from (defaults to reading data from
     the standard input).  Filenames ending '.bz2' will be bzip2 uncompressed (if
