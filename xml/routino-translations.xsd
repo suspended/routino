@@ -5,7 +5,7 @@
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010-2011 Andrew M. Bishop
+     This file Copyright 2010-2012 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,11 @@
 
   <xsd:complexType name="RoutinoTranslationsType">
     <xsd:sequence>
-      <xsd:element name="language" type="languageType" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="language" type="LanguageType" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
   </xsd:complexType>
 
-  <xsd:complexType name="languageType">
+  <xsd:complexType name="LanguageType">
     <xsd:sequence>
       <xsd:element name="copyright"   type="CopyrightType" minOccurs="0"/>
       <xsd:element name="turn"        type="TurnType"      minOccurs="0" maxOccurs="9"/>

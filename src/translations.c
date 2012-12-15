@@ -87,7 +87,7 @@ static int stored=0;
 
 //static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding);
 //static int RoutinoTranslationsType_function(const char *_tag_,int _type_);
-static int languageType_function(const char *_tag_,int _type_,const char *lang);
+static int LanguageType_function(const char *_tag_,int _type_,const char *lang);
 //static int CopyrightType_function(const char *_tag_,int _type_);
 static int TurnType_function(const char *_tag_,int _type_,const char *direction,const char *string);
 static int HeadingType_function(const char *_tag_,int _type_,const char *direction,const char *string);
@@ -118,7 +118,7 @@ static int GPXFinalType_function(const char *_tag_,int _type_,const char *text);
 
 static xmltag xmlDeclaration_tag;
 static xmltag RoutinoTranslationsType_tag;
-static xmltag languageType_tag;
+static xmltag LanguageType_tag;
 static xmltag CopyrightType_tag;
 static xmltag TurnType_tag;
 static xmltag HeadingType_tag;
@@ -162,13 +162,13 @@ static xmltag RoutinoTranslationsType_tag=
               {"routino-translations",
                0, {NULL},
                NULL,
-               {&languageType_tag,NULL}};
+               {&LanguageType_tag,NULL}};
 
-/*+ The languageType type tag. +*/
-static xmltag languageType_tag=
+/*+ The LanguageType type tag. +*/
+static xmltag LanguageType_tag=
               {"language",
                1, {"lang"},
-               languageType_function,
+               LanguageType_function,
                {&CopyrightType_tag,&TurnType_tag,&HeadingType_tag,&OrdinalType_tag,&HighwayType_tag,&RouteType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
 
 /*+ The CopyrightType type tag. +*/
@@ -380,9 +380,9 @@ static xmltag GPXFinalType_tag=
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the languageType XSD type is seen
+  The function that is called when the LanguageType XSD type is seen
 
-  int languageType_function Returns 0 if no error occured or something else otherwise.
+  int LanguageType_function Returns 0 if no error occured or something else otherwise.
 
   const char *_tag_ Set to the name of the element tag that triggered this function call.
 
@@ -391,7 +391,7 @@ static xmltag GPXFinalType_tag=
   const char *lang The contents of the 'lang' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int languageType_function(const char *_tag_,int _type_,const char *lang)
+static int LanguageType_function(const char *_tag_,int _type_,const char *lang)
 {
  static int first=1;
 
