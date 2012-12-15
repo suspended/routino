@@ -279,7 +279,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyTaggingRules(&NodeRules,current_tags,node_id);
+    TagList *result=ApplyNodeTaggingRules(current_tags,node_id);
     int i;
 
     for(i=0;i<result->ntags;i++)
@@ -406,7 +406,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id,const ch
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyTaggingRules(&WayRules,current_tags,way_id);
+    TagList *result=ApplyWayTaggingRules(current_tags,way_id);
     int i;
 
     for(i=0;i<result->ntags;i++)
@@ -483,7 +483,7 @@ static int relationType_function(const char *_tag_,int _type_,const char *id,con
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyTaggingRules(&RelationRules,current_tags,relation_id);
+    TagList *result=ApplyRelationTaggingRules(current_tags,relation_id);
     int i;
 
     for(i=0;i<result->ntags;i++)
