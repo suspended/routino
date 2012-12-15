@@ -70,17 +70,76 @@ static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,con
 
 //static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding);
 //static int RoutinoTaggingType_function(const char *_tag_,int _type_);
-static int RelationType_function(const char *_tag_,int _type_);
-static int WayType_function(const char *_tag_,int _type_);
 static int NodeType_function(const char *_tag_,int _type_);
+static int WayType_function(const char *_tag_,int _type_);
+static int RelationType_function(const char *_tag_,int _type_);
 static int IfType_function(const char *_tag_,int _type_,const char *k,const char *v);
-static int LogErrorType_function(const char *_tag_,int _type_,const char *k,const char *v);
-static int OutputType_function(const char *_tag_,int _type_,const char *k,const char *v);
-static int UnsetType_function(const char *_tag_,int _type_,const char *k);
 static int SetType_function(const char *_tag_,int _type_,const char *k,const char *v);
+static int UnsetType_function(const char *_tag_,int _type_,const char *k);
+static int OutputType_function(const char *_tag_,int _type_,const char *k,const char *v);
+static int LogErrorType_function(const char *_tag_,int _type_,const char *k,const char *v);
 
 
-/* The XML tag definitions */
+/* The XML tag definitions (forward declarations) */
+
+static xmltag xmlDeclaration_tag;
+static xmltag RoutinoTaggingType_tag;
+static xmltag NodeType_tag;
+static xmltag WayType_tag;
+static xmltag RelationType_tag;
+static xmltag IfType_tag;
+static xmltag SetType_tag;
+static xmltag UnsetType_tag;
+static xmltag OutputType_tag;
+static xmltag LogErrorType_tag;
+
+
+/* The XML tag definition values */
+
+/*+ The complete set of tags at the top level. +*/
+static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoTaggingType_tag,NULL};
+
+/*+ The xmlDeclaration type tag. +*/
+static xmltag xmlDeclaration_tag=
+              {"xml",
+               2, {"version","encoding"},
+               NULL,
+               {NULL}};
+
+/*+ The RoutinoTaggingType type tag. +*/
+static xmltag RoutinoTaggingType_tag=
+              {"routino-tagging",
+               0, {NULL},
+               NULL,
+               {&NodeType_tag,&WayType_tag,&RelationType_tag,NULL}};
+
+/*+ The NodeType type tag. +*/
+static xmltag NodeType_tag=
+              {"node",
+               0, {NULL},
+               NodeType_function,
+               {&IfType_tag,NULL}};
+
+/*+ The WayType type tag. +*/
+static xmltag WayType_tag=
+              {"way",
+               0, {NULL},
+               WayType_function,
+               {&IfType_tag,NULL}};
+
+/*+ The RelationType type tag. +*/
+static xmltag RelationType_tag=
+              {"relation",
+               0, {NULL},
+               RelationType_function,
+               {&IfType_tag,NULL}};
+
+/*+ The IfType type tag. +*/
+static xmltag IfType_tag=
+              {"if",
+               2, {"k","v"},
+               IfType_function,
+               {&IfType_tag,&SetType_tag,&UnsetType_tag,&OutputType_tag,&LogErrorType_tag,NULL}};
 
 /*+ The SetType type tag. +*/
 static xmltag SetType_tag=
@@ -110,54 +169,143 @@ static xmltag LogErrorType_tag=
                LogErrorType_function,
                {NULL}};
 
-/*+ The IfType type tag. +*/
-static xmltag IfType_tag=
-              {"if",
-               2, {"k","v"},
-               IfType_function,
-               {&IfType_tag,&SetType_tag,&UnsetType_tag,&OutputType_tag,&LogErrorType_tag,NULL}};
-
-/*+ The NodeType type tag. +*/
-static xmltag NodeType_tag=
-              {"node",
-               0, {NULL},
-               NodeType_function,
-               {&IfType_tag,NULL}};
-
-/*+ The WayType type tag. +*/
-static xmltag WayType_tag=
-              {"way",
-               0, {NULL},
-               WayType_function,
-               {&IfType_tag,NULL}};
-
-/*+ The RelationType type tag. +*/
-static xmltag RelationType_tag=
-              {"relation",
-               0, {NULL},
-               RelationType_function,
-               {&IfType_tag,NULL}};
-
-/*+ The RoutinoTaggingType type tag. +*/
-static xmltag RoutinoTaggingType_tag=
-              {"routino-tagging",
-               0, {NULL},
-               NULL,
-               {&NodeType_tag,&WayType_tag,&RelationType_tag,NULL}};
-
-/*+ The xmlDeclaration type tag. +*/
-static xmltag xmlDeclaration_tag=
-              {"xml",
-               2, {"version","encoding"},
-               NULL,
-               {NULL}};
-
-
-/*+ The complete set of tags at the top level. +*/
-static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoTaggingType_tag,NULL};
-
 
 /* The XML tag processing functions */
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the XML declaration is seen
+
+  int xmlDeclaration_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
+
+  const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the RoutinoTaggingType XSD type is seen
+
+  int RoutinoTaggingType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int RoutinoTaggingType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the NodeType XSD type is seen
+
+  int NodeType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int NodeType_function(const char *_tag_,int _type_)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    current_list_stack_depth=0;
+    current_list=&NodeRules;
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the WayType XSD type is seen
+
+  int WayType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int WayType_function(const char *_tag_,int _type_)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    current_list_stack_depth=0;
+    current_list=&WayRules;
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the RelationType XSD type is seen
+
+  int RelationType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int RelationType_function(const char *_tag_,int _type_)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    current_list_stack_depth=0;
+    current_list=&RelationRules;
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the IfType XSD type is seen
+
+  int IfType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *k The contents of the 'k' attribute (or NULL if not defined).
+
+  const char *v The contents of the 'v' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int IfType_function(const char *_tag_,int _type_,const char *k,const char *v)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    if(!current_list_stack || (current_list_stack_depth%8)==7)
+       current_list_stack=(TaggingRuleList**)realloc((void*)current_list_stack,(current_list_stack_depth+8)*sizeof(TaggingRuleList*));
+
+    current_list_stack[current_list_stack_depth++]=current_list;
+
+    current_list=AppendTaggingRule(current_list,k,v,TAGACTION_IF);
+   }
+
+ if(_type_&XMLPARSE_TAG_END)
+    current_list=current_list_stack[--current_list_stack_depth];
+
+ return(0);
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -248,141 +396,6 @@ static int LogErrorType_function(const char *_tag_,int _type_,const char *k,cons
 
  return(0);
 }
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the IfType XSD type is seen
-
-  int IfType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-
-  const char *k The contents of the 'k' attribute (or NULL if not defined).
-
-  const char *v The contents of the 'v' attribute (or NULL if not defined).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int IfType_function(const char *_tag_,int _type_,const char *k,const char *v)
-{
- if(_type_&XMLPARSE_TAG_START)
-   {
-    if(!current_list_stack || (current_list_stack_depth%8)==7)
-       current_list_stack=(TaggingRuleList**)realloc((void*)current_list_stack,(current_list_stack_depth+8)*sizeof(TaggingRuleList*));
-
-    current_list_stack[current_list_stack_depth++]=current_list;
-
-    current_list=AppendTaggingRule(current_list,k,v,TAGACTION_IF);
-   }
-
- if(_type_&XMLPARSE_TAG_END)
-    current_list=current_list_stack[--current_list_stack_depth];
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the NodeType XSD type is seen
-
-  int NodeType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int NodeType_function(const char *_tag_,int _type_)
-{
- if(_type_&XMLPARSE_TAG_START)
-   {
-    current_list_stack_depth=0;
-    current_list=&NodeRules;
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the WayType XSD type is seen
-
-  int WayType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int WayType_function(const char *_tag_,int _type_)
-{
- if(_type_&XMLPARSE_TAG_START)
-   {
-    current_list_stack_depth=0;
-    current_list=&WayRules;
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the RelationType XSD type is seen
-
-  int RelationType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int RelationType_function(const char *_tag_,int _type_)
-{
- if(_type_&XMLPARSE_TAG_START)
-   {
-    current_list_stack_depth=0;
-    current_list=&RelationRules;
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the RoutinoTaggingType XSD type is seen
-
-  int RoutinoTaggingType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-//static int RoutinoTaggingType_function(const char *_tag_,int _type_)
-//{
-// return(0);
-//}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the XML declaration is seen
-
-  int xmlDeclaration_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-
-  const char *version The contents of the 'version' attribute (or NULL if not defined).
-
-  const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-//static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding)
-//{
-// return(0);
-//}
 
 
 /*++++++++++++++++++++++++++++++++++++++

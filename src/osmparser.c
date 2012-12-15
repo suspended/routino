@@ -100,21 +100,67 @@ static double parse_length(way_t id,const char *k,const char *v);
 //static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding);
 static int osmType_function(const char *_tag_,int _type_,const char *version);
 static int osmChangeType_function(const char *_tag_,int _type_,const char *version);
-static int deleteType_function(const char *_tag_,int _type_);
-static int createType_function(const char *_tag_,int _type_);
-static int modifyType_function(const char *_tag_,int _type_);
-static int relationType_function(const char *_tag_,int _type_,const char *id);
-static int wayType_function(const char *_tag_,int _type_,const char *id);
-static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role);
-static int ndType_function(const char *_tag_,int _type_,const char *ref);
-static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon);
-static int changesetType_function(const char *_tag_,int _type_);
-static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v);
-//static int boundType_function(const char *_tag_,int _type_);
 //static int boundsType_function(const char *_tag_,int _type_);
+//static int boundType_function(const char *_tag_,int _type_);
+static int changesetType_function(const char *_tag_,int _type_);
+static int modifyType_function(const char *_tag_,int _type_);
+static int createType_function(const char *_tag_,int _type_);
+static int deleteType_function(const char *_tag_,int _type_);
+static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon);
+static int wayType_function(const char *_tag_,int _type_,const char *id);
+static int relationType_function(const char *_tag_,int _type_,const char *id);
+static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v);
+static int ndType_function(const char *_tag_,int _type_,const char *ref);
+static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role);
 
 
-/* The XML tag definitions */
+/* The XML tag definitions (forward declarations) */
+
+static xmltag xmlDeclaration_tag;
+static xmltag osmType_tag;
+static xmltag osmChangeType_tag;
+static xmltag boundsType_tag;
+static xmltag boundType_tag;
+static xmltag changesetType_tag;
+static xmltag modifyType_tag;
+static xmltag createType_tag;
+static xmltag deleteType_tag;
+static xmltag nodeType_tag;
+static xmltag wayType_tag;
+static xmltag relationType_tag;
+static xmltag tagType_tag;
+static xmltag ndType_tag;
+static xmltag memberType_tag;
+
+
+/* The XML tag definition values */
+
+/*+ The complete set of tags at the top level for OSM. +*/
+static xmltag *xml_osm_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
+
+/*+ The complete set of tags at the top level for OSC. +*/
+static xmltag *xml_osc_toplevel_tags[]={&xmlDeclaration_tag,&osmChangeType_tag,NULL};
+
+/*+ The xmlDeclaration type tag. +*/
+static xmltag xmlDeclaration_tag=
+              {"xml",
+               2, {"version","encoding"},
+               NULL,
+               {NULL}};
+
+/*+ The osmType type tag. +*/
+static xmltag osmType_tag=
+              {"osm",
+               1, {"version"},
+               osmType_function,
+               {&boundsType_tag,&boundType_tag,&changesetType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+
+/*+ The osmChangeType type tag. +*/
+static xmltag osmChangeType_tag=
+              {"osmChange",
+               1, {"version"},
+               osmChangeType_function,
+               {&boundsType_tag,&modifyType_tag,&createType_tag,&deleteType_tag,NULL}};
 
 /*+ The boundsType type tag. +*/
 static xmltag boundsType_tag=
@@ -130,13 +176,6 @@ static xmltag boundType_tag=
                NULL,
                {NULL}};
 
-/*+ The tagType type tag. +*/
-static xmltag tagType_tag=
-              {"tag",
-               2, {"k","v"},
-               tagType_function,
-               {NULL}};
-
 /*+ The changesetType type tag. +*/
 static xmltag changesetType_tag=
               {"changeset",
@@ -144,26 +183,33 @@ static xmltag changesetType_tag=
                changesetType_function,
                {&tagType_tag,NULL}};
 
+/*+ The modifyType type tag. +*/
+static xmltag modifyType_tag=
+              {"modify",
+               0, {NULL},
+               modifyType_function,
+               {&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+
+/*+ The createType type tag. +*/
+static xmltag createType_tag=
+              {"create",
+               0, {NULL},
+               createType_function,
+               {&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+
+/*+ The deleteType type tag. +*/
+static xmltag deleteType_tag=
+              {"delete",
+               0, {NULL},
+               deleteType_function,
+               {&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+
 /*+ The nodeType type tag. +*/
 static xmltag nodeType_tag=
               {"node",
                3, {"id","lat","lon"},
                nodeType_function,
                {&tagType_tag,NULL}};
-
-/*+ The ndType type tag. +*/
-static xmltag ndType_tag=
-              {"nd",
-               1, {"ref"},
-               ndType_function,
-               {NULL}};
-
-/*+ The memberType type tag. +*/
-static xmltag memberType_tag=
-              {"member",
-               3, {"type","ref","role"},
-               memberType_function,
-               {NULL}};
 
 /*+ The wayType type tag. +*/
 static xmltag wayType_tag=
@@ -179,57 +225,99 @@ static xmltag relationType_tag=
                relationType_function,
                {&memberType_tag,&tagType_tag,NULL}};
 
-/*+ The deleteType type tag. +*/
-static xmltag deleteType_tag=
-              {"delete",
-               0, {NULL},
-               deleteType_function,
-               {&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+/*+ The tagType type tag. +*/
+static xmltag tagType_tag=
+              {"tag",
+               2, {"k","v"},
+               tagType_function,
+               {NULL}};
 
-/*+ The createType type tag. +*/
-static xmltag createType_tag=
-              {"create",
-               0, {NULL},
-               createType_function,
-               {&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
+/*+ The ndType type tag. +*/
+static xmltag ndType_tag=
+              {"nd",
+               1, {"ref"},
+               ndType_function,
+               {NULL}};
 
-/*+ The modifyType type tag. +*/
-static xmltag modifyType_tag=
-              {"modify",
-               0, {NULL},
-               modifyType_function,
-               {&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
-
-/*+ The osmChangeType type tag. +*/
-static xmltag osmChangeType_tag=
-              {"osmChange",
-               1, {"version"},
-               osmChangeType_function,
-               {&boundsType_tag,&modifyType_tag,&createType_tag,&deleteType_tag,NULL}};
-
-/*+ The osmType type tag. +*/
-static xmltag osmType_tag=
-              {"osm",
-               1, {"version"},
-               osmType_function,
-               {&boundsType_tag,&boundType_tag,&changesetType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
-
-/*+ The xmlDeclaration type tag. +*/
-static xmltag xmlDeclaration_tag=
-              {"xml",
-               2, {"version","encoding"},
-               NULL,
+/*+ The memberType type tag. +*/
+static xmltag memberType_tag=
+              {"member",
+               3, {"type","ref","role"},
+               memberType_function,
                {NULL}};
 
 
-/*+ The complete set of tags at the top level for OSM. +*/
-static xmltag *xml_osm_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
-
-/*+ The complete set of tags at the top level for OSC. +*/
-static xmltag *xml_osc_toplevel_tags[]={&xmlDeclaration_tag,&osmChangeType_tag,NULL};
-
-
 /* The XML tag processing functions */
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the XML declaration is seen
+
+  int xmlDeclaration_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
+
+  const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the osmType XSD type is seen
+
+  int osmType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int osmType_function(const char *_tag_,int _type_,const char *version)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    mode=MODE_NORMAL;
+
+    if(!version || strcmp(version,"0.6"))
+       XMLPARSE_MESSAGE(_tag_,"Invalid value for 'version' (only '0.6' accepted)");
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the osmChangeType XSD type is seen
+
+  int osmChangeType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int osmChangeType_function(const char *_tag_,int _type_,const char *version)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    if(!version || strcmp(version,"0.6"))
+       XMLPARSE_MESSAGE(_tag_,"Invalid value for 'version' (only '0.6' accepted)");
+   }
+
+ return(0);
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -265,34 +353,6 @@ static xmltag *xml_osc_toplevel_tags[]={&xmlDeclaration_tag,&osmChangeType_tag,N
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the tagType XSD type is seen
-
-  int tagType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-
-  const char *k The contents of the 'k' attribute (or NULL if not defined).
-
-  const char *v The contents of the 'v' attribute (or NULL if not defined).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v)
-{
- if(_type_&XMLPARSE_TAG_START && current_tags)
-   {
-    XMLPARSE_ASSERT_STRING(_tag_,k);
-    XMLPARSE_ASSERT_STRING(_tag_,v);
-
-    AppendTag(current_tags,k,v);
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the changesetType XSD type is seen
 
   int changesetType_function Returns 0 if no error occured or something else otherwise.
@@ -305,6 +365,63 @@ static int tagType_function(const char *_tag_,int _type_,const char *k,const cha
 static int changesetType_function(const char *_tag_,int _type_)
 {
  current_tags=NULL;
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the modifyType XSD type is seen
+
+  int modifyType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int modifyType_function(const char *_tag_,int _type_)
+{
+ if(_type_&XMLPARSE_TAG_START)
+    mode=MODE_MODIFY;
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the createType XSD type is seen
+
+  int createType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int createType_function(const char *_tag_,int _type_)
+{
+ if(_type_&XMLPARSE_TAG_START)
+    mode=MODE_CREATE;
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the deleteType XSD type is seen
+
+  int deleteType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int deleteType_function(const char *_tag_,int _type_)
+{
+ if(_type_&XMLPARSE_TAG_START)
+    mode=MODE_DELETE;
 
  return(0);
 }
@@ -363,6 +480,140 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
     DeleteTagList(current_tags); current_tags=NULL;
     DeleteTagList(result);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the wayType XSD type is seen
+
+  int wayType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *id The contents of the 'id' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int wayType_function(const char *_tag_,int _type_,const char *id)
+{
+ static way_t way_id;
+
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    long long llid;
+
+    nways++;
+
+    if(!(nways%1000))
+       printf_middle("Reading: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
+
+    current_tags=NewTagList();
+
+    way_nnodes=0;
+
+    /* Handle the way information */
+
+    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
+
+    way_id=(way_t)llid;
+    logassert((long long)way_id==llid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
+   }
+
+ if(_type_&XMLPARSE_TAG_END)
+   {
+    TagList *result=ApplyWayTaggingRules(current_tags,way_id);
+
+    process_way_tags(result,way_id);
+
+    DeleteTagList(current_tags); current_tags=NULL;
+    DeleteTagList(result);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the relationType XSD type is seen
+
+  int relationType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *id The contents of the 'id' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int relationType_function(const char *_tag_,int _type_,const char *id)
+{
+ static relation_t relation_id;
+
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    long long llid;
+
+    nrelations++;
+
+    if(!(nrelations%1000))
+       printf_middle("Reading: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
+
+    current_tags=NewTagList();
+
+    relation_nnodes=relation_nways=relation_nrelations=0;
+
+    relation_from=NO_WAY_ID;
+    relation_to=NO_WAY_ID;
+    relation_via=NO_NODE_ID;
+
+    /* Handle the relation information */
+
+    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
+
+    relation_id=(relation_t)llid;
+    logassert((long long)relation_id==llid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
+   }
+
+ if(_type_&XMLPARSE_TAG_END)
+   {
+    TagList *result=ApplyRelationTaggingRules(current_tags,relation_id);
+
+    process_relation_tags(result,relation_id);
+
+    DeleteTagList(current_tags); current_tags=NULL;
+    DeleteTagList(result);
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the tagType XSD type is seen
+
+  int tagType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *k The contents of the 'k' attribute (or NULL if not defined).
+
+  const char *v The contents of the 'v' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int tagType_function(const char *_tag_,int _type_,const char *k,const char *v)
+{
+ if(_type_&XMLPARSE_TAG_START && current_tags)
+   {
+    XMLPARSE_ASSERT_STRING(_tag_,k);
+    XMLPARSE_ASSERT_STRING(_tag_,v);
+
+    AppendTag(current_tags,k,v);
    }
 
  return(0);
@@ -481,239 +732,6 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
 
  return(0);
 }
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the wayType XSD type is seen
-
-  int wayType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-
-  const char *id The contents of the 'id' attribute (or NULL if not defined).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int wayType_function(const char *_tag_,int _type_,const char *id)
-{
- static way_t way_id;
-
- if(_type_&XMLPARSE_TAG_START)
-   {
-    long long llid;
-
-    nways++;
-
-    if(!(nways%1000))
-       printf_middle("Reading: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
-
-    current_tags=NewTagList();
-
-    way_nnodes=0;
-
-    /* Handle the way information */
-
-    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
-
-    way_id=(way_t)llid;
-    logassert((long long)way_id==llid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
-   }
-
- if(_type_&XMLPARSE_TAG_END)
-   {
-    TagList *result=ApplyWayTaggingRules(current_tags,way_id);
-
-    process_way_tags(result,way_id);
-
-    DeleteTagList(current_tags); current_tags=NULL;
-    DeleteTagList(result);
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the relationType XSD type is seen
-
-  int relationType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-
-  const char *id The contents of the 'id' attribute (or NULL if not defined).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int relationType_function(const char *_tag_,int _type_,const char *id)
-{
- static relation_t relation_id;
-
- if(_type_&XMLPARSE_TAG_START)
-   {
-    long long llid;
-
-    nrelations++;
-
-    if(!(nrelations%1000))
-       printf_middle("Reading: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
-
-    current_tags=NewTagList();
-
-    relation_nnodes=relation_nways=relation_nrelations=0;
-
-    relation_from=NO_WAY_ID;
-    relation_to=NO_WAY_ID;
-    relation_via=NO_NODE_ID;
-
-    /* Handle the relation information */
-
-    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
-
-    relation_id=(relation_t)llid;
-    logassert((long long)relation_id==llid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
-   }
-
- if(_type_&XMLPARSE_TAG_END)
-   {
-    TagList *result=ApplyRelationTaggingRules(current_tags,relation_id);
-
-    process_relation_tags(result,relation_id);
-
-    DeleteTagList(current_tags); current_tags=NULL;
-    DeleteTagList(result);
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the deleteType XSD type is seen
-
-  int deleteType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int deleteType_function(const char *_tag_,int _type_)
-{
- if(_type_&XMLPARSE_TAG_START)
-    mode=MODE_DELETE;
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the createType XSD type is seen
-
-  int createType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int createType_function(const char *_tag_,int _type_)
-{
- if(_type_&XMLPARSE_TAG_START)
-    mode=MODE_CREATE;
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the modifyType XSD type is seen
-
-  int modifyType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int modifyType_function(const char *_tag_,int _type_)
-{
- if(_type_&XMLPARSE_TAG_START)
-    mode=MODE_MODIFY;
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the osmChangeType XSD type is seen
-
-  int osmChangeType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-
-  const char *version The contents of the 'version' attribute (or NULL if not defined).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int osmChangeType_function(const char *_tag_,int _type_,const char *version)
-{
- if(_type_&XMLPARSE_TAG_START)
-   {
-    if(!version || strcmp(version,"0.6"))
-       XMLPARSE_MESSAGE(_tag_,"Invalid value for 'version' (only '0.6' accepted)");
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the osmType XSD type is seen
-
-  int osmType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-
-  const char *version The contents of the 'version' attribute (or NULL if not defined).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int osmType_function(const char *_tag_,int _type_,const char *version)
-{
- if(_type_&XMLPARSE_TAG_START)
-   {
-    mode=MODE_NORMAL;
-
-    if(!version || strcmp(version,"0.6"))
-       XMLPARSE_MESSAGE(_tag_,"Invalid value for 'version' (only '0.6' accepted)");
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the XML declaration is seen
-
-  int xmlDeclaration_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-
-  const char *version The contents of the 'version' attribute (or NULL if not defined).
-
-  const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-//static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding)
-//{
-// return(0);
-//}
 
 
 /*++++++++++++++++++++++++++++++++++++++
