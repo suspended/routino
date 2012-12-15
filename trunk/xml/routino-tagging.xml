@@ -783,7 +783,9 @@
         <if k="bridge" v="swing">           <set v="yes"/> </if>
         <if k="bridge" v="viaduct">         <set v="yes"/> </if>
 
-        <output/>
+        <if k="bridge">
+          <output/>
+        </if>
 
       </if>
 
@@ -791,7 +793,9 @@
 
         <if k="tunnel" v="underpass"> <set v="yes"/> </if>
 
-        <output/>
+        <if k="tunnel">
+          <output/>
+        </if>
 
       </if>
 
@@ -872,7 +876,9 @@
 
       <if k="except" v="bus"> <set v="psv"/> </if>
 
-      <output/>
+      <if k="except">
+        <output/>
+      </if>
 
     </if>
 
