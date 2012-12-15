@@ -565,7 +565,8 @@ static int xmlDeclaration_function(const char *_tag_,int _type_,const char *vers
 
 int main(int argc,char **argv)
 {
- char *tagging=NULL,*filename=NULL,*p;
+ char *tagging=NULL,*filename=NULL,*errorlog=NULL;
+ char *p;
  int fd;
  int arg,retval;
 
@@ -575,10 +576,16 @@ int main(int argc,char **argv)
    {
     if(!strcmp(argv[arg],"--help"))
        print_usage(1);
-    else if(!strcmp(argv[arg],"--loggable"))
-       option_loggable=1;
     else if(!strncmp(argv[arg],"--tagging=",10))
        tagging=&argv[arg][10];
+    else if(!strcmp(argv[arg],"--loggable"))
+       option_loggable=1;
+    else if(!strcmp(argv[arg],"--logtime"))
+       option_logtime=1;
+    else if(!strcmp(argv[arg],"--errorlog"))
+       errorlog="error.log";
+    else if(!strncmp(argv[arg],"--errorlog=",11))
+       errorlog=&argv[arg][11];
     else if(argv[arg][0]=='-' && argv[arg][1]=='-')
        print_usage(0);
     else if(filename)
@@ -627,6 +634,11 @@ int main(int argc,char **argv)
  if((p=strstr(filename,".gz")) && !strcmp(p,".gz"))
     fd=Uncompress_Gzip(fd);
 
+ /* Create the error log file */
+
+ if(errorlog)
+    open_errorlog(errorlog,0);
+
  /* Parse the file */
 
  fprintf_first(stderr,"Reading: Lines=0 Nodes=0 Ways=0 Relations=0");
@@ -634,6 +646,11 @@ int main(int argc,char **argv)
  retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
  fprintf_last(stderr,"Read: Lines=%llu Nodes=%lu Ways=%lu Relations=%lu",ParseXML_LineNumber(),nnodes,nways,nrelations);
+
+ /* Close the error log file */
+
+ if(errorlog)
+    close_errorlog();
 
  /* Tidy up */
 
@@ -654,8 +671,9 @@ static void print_usage(int detail)
 {
  fprintf(stderr,
          "Usage: tagmodifier [--help]\n"
-         "                   [--loggable]\n"
          "                   [--tagging=<filename>]\n"
+         "                   [--loggable] [--logtime]\n"
+         "                   [--errorlog[=<name>]]\n"
          "                   [<filename.osm>"
 #if defined(USE_BZIP2) && USE_BZIP2
          " | <filename.osm.bz2>"
@@ -670,10 +688,12 @@ static void print_usage(int detail)
             "\n"
             "--help                    Prints this information.\n"
             "\n"
-            "--loggable                Print progress messages suitable for logging to file.\n"
-            "\n"
             "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
             "                          (defaults to 'tagging.xml' in current directory).\n"
+            "\n"
+            "--loggable                Print progress messages suitable for logging to file.\n"
+            "--logtime                 Print the elapsed time for the processing.\n"
+            "--errorlog[=<name>]       Log parsing errors to 'error.log' or the given name.\n"
             "\n"
             "<filename.osm>            The name of the file to process (defaults to\n"
             "                           reading data from standard input).\n"
