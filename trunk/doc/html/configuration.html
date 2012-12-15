@@ -108,41 +108,66 @@ for motorway_link and motorway highway types.
 &lt;/routino-tagging&gt;
 </pre>
 
-The rules all have the same format; an <em>if</em> element for matching the
-input and some <em>set</em>, <em>unset</em> or <em>output</em> elements to
-either change the input tags or create an output tag.  The <em>k</em>
-and <em>v</em> attributes have the same meaning as the attributes with the same
-names in the OSM XML file - the tag key and tag value.
+The rules all have the same format; an <em>if</em> or <em>ifnot</em> element at
+the top level for matching the input and some other elements inside to be used
+if there was a match.
 
 <p>
 
-An <em>if</em> rule that has both <em>k</em> and <em>v</em> specified is only
-applied if a tag exists in the input that matches both.  An <em>if</em> rule
-that has only the <em>k</em> attribute is applied if a tag with that key exists
-and an <em>if</em> rule that has only the <em>v</em> attribute is applied to all
-tags with that value.  An <em>if</em> rule that has neither attribute specified
-always matches.
+Within the <em>if</em> and <em>ifnot</em> rules any of the rules can be used.
+These are <em>if</em>, <em>ifnot</em>, <em>set</em>, <em>unset</em>,
+<em>output</em> or <em>logerror</em> elements.
 
 <p>
 
-For the <em>set</em> and <em>output</em> elements the tag that is created in the
-input or output tag set uses the <em>k</em> and <em>v</em> attributes specified.
-If one or both are not specified then the ones that matched in the <em>if</em>
-element are used instead.  For the <em>unset</em> element the tag that is
-deleted from the input is the one that matches the <em>k</em> attribute
-specified or the one from the encompassing <em>if</em> rule.
+The rules for matching the <em>if</em> or <em>ifnot</em> elements are the
+following:
+
+<ul>
+  <li>An <em>if</em> rule that has both <em>k</em> and <em>v</em> specified is
+    only matched if a tag exists in the input that matches both.
+  <li>An <em>if</em> rule that has only the <em>k</em> attribute is matched if a
+    tag with that key exists.
+  <li>An <em>if</em> rule that has only the <em>v</em> attribute is matched for
+    each tag with that value (i.e. the contents may be used more than once).
+  <li>An <em>if</em> rule that has neither attribute specified always matches.
+  <li>An <em>ifnot</em> rule that has both <em>k</em> and <em>v</em> specified
+    is only matched if no tag exists in the input that matches both.
+  <li>An <em>ifnot</em> rule that has only the <em>k</em> attribute is matched
+    only if no tag with that key exists.
+  <li>An <em>ifnot</em> rule that has only the <em>v</em> attribute is only
+    matched if no tag with that value exists.
+  <li>An <em>ifnot</em> rule that has neither attribute specified never matches.
+</ul>
+
+<p>
+
+For <em>set</em>, <em>unset</em>, <em>output</em> or <em>logerror</em> elements
+inside of an <em>if</em> rule an unspecified value for the <em>k</em>
+or <em>v</em> attribute is replaced by the values from the tag that matched the
+outer <em>if</em> rule.  This makes it simple to delete tags that match a
+particular rule without having to specify the parameters more than once.  For
+elements inside of an <em>ifnot</em> element an unspecified value for
+the <em>k</em> or <em>v</em> attribute is replaced by the values from the
+outer <em>ifnot</em> rule.  This means that either the outer <em>ifnot</em>
+element or the inner element must specify both <em>k</em> and <em>v</em>
+attributes between them.  For nested <em>if</em> or <em>ifnot</em> elements the
+outer <em>k</em> and <em>v</em> attributes are not inherited by the inner
+elements.
+
+<p>
+
+The <em>set</em> and <em>unset</em> elements either create or delete a tag from
+the input data that was read from the file.  If the <em>set</em> element is used
+and the tag already exists then it is modified.  The <em>output</em> element
+adds a tag to the set that will be used by Routino to determine the data
+properties.
 
 <p>
 
 The <em>logerror</em> element will cause an error message to be added to the
 error log file that reports that the key and attribute combination are not
 recognised.
-
-<p>
-
-At the top level only the <em>if</em> rules are allowed.  Within
-<em>if</em> rules any of the <em>set</em>, <em>unset</em>, <em>output</em>
-or <em>logerror</em> elements are allowed.
 
 
 <h3><a name="H_1_1_2" title="Profiles"></a>Routing Profiles</h3>
