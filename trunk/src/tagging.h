@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2011 Andrew M. Bishop
+ This file Copyright 2010-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -25,46 +25,30 @@
 #include "typesx.h"
 
 
-/* Constants */
-
-#define TAGACTION_SET      0
-#define TAGACTION_UNSET    1
-#define TAGACTION_OUTPUT   2
-#define TAGACTION_LOGERROR 3
-
-
 /* Data types */
 
-/*+ A structure to contain the tagging action. +*/
-typedef struct _TaggingAction
+typedef struct _TaggingRuleList TaggingRuleList;
+
+
+/*+ A structure to contain the tagging rule/action. +*/
+typedef struct _TaggingRule
 {
  int action;                    /*+ A flag to indicate the type of action. +*/
 
  char *k;                       /*+ The tag key (or NULL). +*/
  char *v;                       /*+ The tag value (or NULL). +*/
-}
- TaggingAction;
 
-
-/*+ A structure to contain the tagging rule. +*/
-typedef struct _TaggingRule
-{
- char *k;                       /*+ The tag key (or NULL). +*/
- char *v;                       /*+ The tag value (or NULL). +*/
-
- TaggingAction *actions;        /*+ The actions to take. +*/
- int            nactions;       /*+ The number of actions. +*/
+ TaggingRuleList *rulelist;     /*+ The sub-rules belonging to this rule. +*/
 }
  TaggingRule;
 
 
 /*+ A structure to contain the list of rules and associated information. +*/
-typedef struct _TaggingRuleList
+struct _TaggingRuleList
 {
  TaggingRule *rules;            /*+ The array of rules. +*/
  int          nrules;           /*+ The number of rules. +*/
-}
- TaggingRuleList;
+};
 
 
 /*+ A structure to hold a list of tags to be processed. +*/
@@ -78,30 +62,19 @@ typedef struct _TagList
  TagList;
 
 
-/* Global variables */
-
-extern TaggingRuleList NodeRules;
-extern TaggingRuleList WayRules;
-extern TaggingRuleList RelationRules;
-
-
 /* Functions in tagging.c */
 
 int ParseXMLTaggingRules(const char *filename);
 void DeleteXMLTaggingRules(void);
 
-TaggingRule *AppendTaggingRule(TaggingRuleList *rules,const char *k,const char *v);
-void AppendTaggingAction(TaggingRule *rule,const char *k,const char *v,int action);
-void DeleteTaggingRuleList(TaggingRuleList *rules);
-
 TagList *NewTagList(void);
 void DeleteTagList(TagList *tags);
 
 void AppendTag(TagList *tags,const char *k,const char *v);
-void ModifyTag(TagList *tags,const char *k,const char *v);
-void DeleteTag(TagList *tags,const char *k);
 
-TagList *ApplyTaggingRules(TaggingRuleList *rules,TagList *tags,node_t id);
+TagList *ApplyNodeTaggingRules(TagList *tags,node_t id);
+TagList *ApplyWayTaggingRules(TagList *tags,way_t id);
+TagList *ApplyRelationTaggingRules(TagList *tags,relation_t id);
 
 
 #endif /* TAGGING_H */
