@@ -64,7 +64,6 @@ static void ModifyTag(TagList *tags,const char *k,const char *v);
 static void DeleteTag(TagList *tags,const char *k);
 
 static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,const char *match_k,const char *match_v);
-static void ApplyActions(TaggingRuleList *rules,TagList *input,TagList *output,const char *match_k,const char *match_v);
 
 
 /* The XML tag processing function prototypes */
@@ -746,84 +745,14 @@ TagList *ApplyRelationTaggingRules(TagList *tags,relation_t id)
 static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,const char *match_k,const char *match_v)
 {
  int i,j;
-
- for(i=0;i<rules->nrules;i++)
-   {
-    const char *k,*v;
-
-    //printf("rule k=%s v=%s (action=%d)\n",rules->rules[i].k,rules->rules[i].v,rules->rules[i].action);
-
-    if(rules->rules[i].k)
-       k=rules->rules[i].k;
-    else
-       k=match_k;
-
-    if(rules->rules[i].v)
-       v=rules->rules[i].v;
-    else
-       v=match_v;
-
-    if(k && v)
-      {
-       for(j=0;j<input->ntags;j++)
-          if(!strcmp(input->k[j],k) && !strcmp(input->v[j],v))
-            {
-             //printf("1 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
-
-             ApplyActions(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
-            }
-      }
-    else if(k && !v)
-      {
-       for(j=0;j<input->ntags;j++)
-          if(!strcmp(input->k[j],k))
-            {
-             //printf("2 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
-
-             ApplyActions(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
-            }
-      }
-    else if(!k && v)
-      {
-       for(j=0;j<input->ntags;j++)
-          if(!strcmp(input->v[j],v))
-            {
-             //printf("3 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
-
-             ApplyActions(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
-            }
-      }
-    else /* if(!k && !v) */
-      {
-       for(j=0;j<input->ntags;j++)
-            {
-             //printf("4 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
-
-          ApplyActions(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
-            }
-      }
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Apply a rule to a matching tag.
-
-  TaggingRuleList *rules The list of rules from the match.
-
-  TagList *input The input tags.
-
-  TagList *output The output tags.
-
-  const char *match_k The key matched at the higher level rule.
-
-  const char *match_v The value matched at the higher level rule.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static void ApplyActions(TaggingRuleList *rules,TagList *input,TagList *output,const char *match_k,const char *match_v)
-{
- int i;
+ char *match_k_copy=NULL,*match_v_copy=NULL;
  
+ if(match_k)
+    match_k_copy=strcpy(malloc(strlen(match_k)+1),match_k);
+
+ if(match_v)
+    match_v_copy=strcpy(malloc(strlen(match_v)+1),match_v);
+
  for(i=0;i<rules->nrules;i++)
    {
     const char *k,*v;
@@ -831,25 +760,72 @@ static void ApplyActions(TaggingRuleList *rules,TagList *input,TagList *output,c
     if(rules->rules[i].k)
        k=rules->rules[i].k;
     else
-       k=match_k;
+       k=match_k_copy;
 
     if(rules->rules[i].v)
        v=rules->rules[i].v;
     else
-       v=match_v;
+       v=match_v_copy;
 
     //printf("action k=%s v=%s (action=%d)\n",k,v,rules->rules[i].action);
 
-    if(rules->rules[i].action==TAGACTION_IF)
-       ApplyRules(rules->rules[i].rulelist,input,output,k,v);
-    if(rules->rules[i].action==TAGACTION_SET)
-       ModifyTag(input,k,v);
-    if(rules->rules[i].action==TAGACTION_UNSET)
-       DeleteTag(input,k);
-    if(rules->rules[i].action==TAGACTION_OUTPUT)
-       ModifyTag(output,k,v);
-    if(rules->rules[i].action==TAGACTION_LOGERROR)
+    switch(rules->rules[i].action)
       {
+      case TAGACTION_IF:
+       if(k && v)
+         {
+          for(j=0;j<input->ntags;j++)
+             if(!strcmp(input->k[j],k) && !strcmp(input->v[j],v))
+               {
+                //printf("1 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
+
+                ApplyRules(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
+               }
+         }
+       else if(k && !v)
+         {
+          for(j=0;j<input->ntags;j++)
+             if(!strcmp(input->k[j],k))
+               {
+                //printf("2 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
+
+                ApplyRules(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
+               }
+         }
+       else if(!k && v)
+         {
+          for(j=0;j<input->ntags;j++)
+             if(!strcmp(input->v[j],v))
+               {
+                //printf("3 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
+
+                ApplyRules(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
+               }
+         }
+       else /* if(!k && !v) */
+         {
+          for(j=0;j<input->ntags;j++)
+            {
+             //printf("4 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
+
+             ApplyRules(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
+            }
+         }
+       break;
+
+      case TAGACTION_SET:
+       ModifyTag(input,k,v);
+       break;
+
+      case TAGACTION_UNSET:
+       DeleteTag(input,k);
+       break;
+
+      case TAGACTION_OUTPUT:
+       ModifyTag(output,k,v);
+       break;
+
+      case TAGACTION_LOGERROR:
        if(current_list==&NodeRules)
           logerror("Node %"Pnode_t" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_node_id,k,v);
        if(current_list==&WayRules)
@@ -858,4 +834,7 @@ static void ApplyActions(TaggingRuleList *rules,TagList *input,TagList *output,c
           logerror("Relation %"Prelation_t" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_relation_id,k,v);
       }
    }
+
+ if(match_k_copy) free(match_k_copy);
+ if(match_v_copy) free(match_v_copy);
 }

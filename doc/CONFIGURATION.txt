@@ -52,6 +52,8 @@ Tag Transformation Rules
       <output k="paved"      v="yes"/>
       <output k="multilane"  v="yes"/>
       <output k="oneway"     v="yes"/>
+
+      <unset k="highway"/>
     </if>
 ...
   <way>
@@ -59,20 +61,30 @@ Tag Transformation Rules
 </routino-tagging>
 
    The rules all have the same format; an if element for matching the
-   input and some set or output elements to either change the input tags
-   or create an output tag. The k and v attributes have the same meaning
-   as the attributes with the same names in the OSM XML file - the tag key
-   and tag value.
+   input and some set, unset or output elements to either change the input
+   tags or create an output tag. The k and v attributes have the same
+   meaning as the attributes with the same names in the OSM XML file - the
+   tag key and tag value.
 
    An if rule that has both k and v specified is only applied if a tag
    exists in the input that matches both. An if rule that has only the k
    attribute is applied if a tag with that key exists and an if rule that
-   has only the v attribute is applied to all tags with that value.
+   has only the v attribute is applied to all tags with that value. An if
+   rule that has neither attribute specified always matches.
 
    For the set and output elements the tag that is created in the input or
    output tag set uses the k and v attributes specified. If one or both
-   are not specified then the original ones are used.
+   are not specified then the ones that matched in the if element are used
+   instead. For the unset element the tag that is deleted from the input
+   is the one that matches the k attribute specified or the one from the
+   encompassing if rule.
 
+   The logerror element will cause an error message to be added to the
+   error log file that reports that the key and attribute combination are
+   not recognised.
+
+   At the top level only the if rules are allowed. Within if rules any of
+   the set, unset, output or logerror elements are allowed.
 
 Routing Profiles
 ----------------
@@ -114,8 +126,7 @@ Routing Profiles
       <property type="multilane"    percent="25" />
       <property type="bridge"       percent="50" />
       <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="55" />
-      <property type="bicycleroute" percent="55" />
+...
     </properties>
     <restrictions>
       <oneway obey="0" />
@@ -176,4 +187,4 @@ Output Translations
 
 --------
 
-Copyright 2010 Andrew M. Bishop.
+Copyright 2010-2012 Andrew M. Bishop.

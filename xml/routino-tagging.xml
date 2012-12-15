@@ -23,142 +23,146 @@
     <!-- Note: The default is that all transport types are allowed past a barrier;
                access must be specified to disallow each transport type. -->
 
-    <!-- Not useful barrier types (too generic) -->
-
-    <if k="barrier" v="gate">     <unset/></if>
-    <if k="barrier" v="entrance"> <unset/></if>
-    <if k="barrier" v="lift_gate"><unset/></if>
-
-    <!-- Barrier types -->
-
-    <if k="barrier" v="kissing_gate">
-      <set v="foot_only"/>
-    </if>
-
-    <if k="barrier" v="footgate">
-      <set v="foot_only"/>
-    </if>
-
-    <if k="barrier" v="stile">
-      <set v="foot_only"/>
-    </if>
-
-    <if k="barrier" v="v_stile">
-      <set v="foot_only"/>
-    </if>
-
-    <if k="barrier" v="turnstile">
-      <set v="foot_only"/>
-    </if>
-
-    <if k="barrier" v="squeeze">
-      <set v="foot_only"/>
-    </if>
-
-    <if k="barrier" v="squeeze_stile">
-      <set v="foot_only"/>
-    </if>
-
-    <if k="barrier" v="cycle_barrier">
-      <set v="foot_only"/>
-    </if>
-
-    <if k="barrier" v="bicycle_barrier">
-      <set v="foot_only"/>
-    </if>
-
-    <if k="barrier" v="foot_only">
-      <output k="horse"      v="no"/>
-      <output k="wheelchair" v="no"/>
-      <output k="bicycle"    v="no"/>
-      <output k="moped"      v="no"/>
-      <output k="motorbike"  v="no"/>
-      <output k="motorcar"   v="no"/>
-      <output k="goods"      v="no"/>
-      <output k="hgv"        v="no"/>
-      <output k="psv"        v="no"/>
-
-      <unset k="barrier"/>
-    </if>
-
-    <if k="barrier" v="horse_stile">
-      <set v="not_wheeled"/>
-    </if>
-
-    <if k="barrier" v="horse_jump">
-      <set v="not_wheeled"/>
-    </if>
-
-    <if k="barrier" v="step_over">
-      <set v="not_wheeled"/>
-    </if>
-
-    <if k="barrier" v="not_wheeled">
-      <output k="wheelchair" v="no"/>
-      <output k="bicycle"    v="no"/>
-      <output k="moped"      v="no"/>
-      <output k="motorbike"  v="no"/>
-      <output k="motorcar"   v="no"/>
-      <output k="goods"      v="no"/>
-      <output k="hgv"        v="no"/>
-      <output k="psv"        v="no"/>
-
-      <unset k="barrier"/>
-    </if>
-
-    <if k="barrier" v="horse_barrier">
-      <set v="no_horse"/>
-    </if>
-
-    <if k="barrier" v="cattle_grid">
-      <set v="no_horse"/>
-    </if>
-
-    <if k="barrier" v="no_horse">
-      <output k="horse"      v="no"/>
-
-      <unset k="barrier"/>
-    </if>
-
-    <if k="barrier" v="motorcyle_barrier">
-      <set v="no_motorised"/>
-    </if>
-
-    <if k="barrier" v="no_motorised">
-      <output k="moped"      v="no"/>
-      <output k="motorbike"  v="no"/>
-      <output k="motorcar"   v="no"/>
-      <output k="goods"      v="no"/>
-      <output k="hgv"        v="no"/>
-      <output k="psv"        v="no"/>
-
-      <unset k="barrier"/>
-    </if>
-
-    <if k="barrier" v="bollard">
-      <set v="not_2plus_wheels"/>
-    </if>
-
-    <if k="barrier" v="car_barrier">
-      <set v="not_2plus_wheels"/>
-    </if>
-
-    <if k="barrier" v="car_trap">
-      <set v="not_2plus_wheels"/>
-    </if>
-
-    <if k="barrier" v="not_2plus_wheels">
-      <output k="motorcar"   v="no"/>
-      <output k="goods"      v="no"/>
-      <output k="hgv"        v="no"/>
-      <output k="psv"        v="no"/>
-
-      <unset k="barrier"/>
-    </if>
-
     <if k="barrier">
-      <logerror/>
-    </if>
+
+      <!-- Not useful barrier types (too generic) -->
+
+      <if k="barrier" v="gate">     <unset/></if>
+      <if k="barrier" v="entrance"> <unset/></if>
+      <if k="barrier" v="lift_gate"><unset/></if>
+
+      <!-- Barrier types -->
+
+      <if k="barrier" v="kissing_gate">
+        <set v="foot_only"/>
+      </if>
+
+      <if k="barrier" v="footgate">
+        <set v="foot_only"/>
+      </if>
+
+      <if k="barrier" v="stile">
+        <set v="foot_only"/>
+      </if>
+
+      <if k="barrier" v="v_stile">
+        <set v="foot_only"/>
+      </if>
+
+      <if k="barrier" v="turnstile">
+        <set v="foot_only"/>
+      </if>
+
+      <if k="barrier" v="squeeze">
+        <set v="foot_only"/>
+      </if>
+
+      <if k="barrier" v="squeeze_stile">
+        <set v="foot_only"/>
+      </if>
+
+      <if k="barrier" v="cycle_barrier">
+        <set v="foot_only"/>
+      </if>
+
+      <if k="barrier" v="bicycle_barrier">
+        <set v="foot_only"/>
+      </if>
+
+      <if k="barrier" v="foot_only">
+        <output k="horse"      v="no"/>
+        <output k="wheelchair" v="no"/>
+        <output k="bicycle"    v="no"/>
+        <output k="moped"      v="no"/>
+        <output k="motorbike"  v="no"/>
+        <output k="motorcar"   v="no"/>
+        <output k="goods"      v="no"/>
+        <output k="hgv"        v="no"/>
+        <output k="psv"        v="no"/>
+
+        <unset k="barrier"/>
+      </if>
+
+      <if k="barrier" v="horse_stile">
+        <set v="not_wheeled"/>
+      </if>
+
+      <if k="barrier" v="horse_jump">
+        <set v="not_wheeled"/>
+      </if>
+
+      <if k="barrier" v="step_over">
+        <set v="not_wheeled"/>
+      </if>
+
+      <if k="barrier" v="not_wheeled">
+        <output k="wheelchair" v="no"/>
+        <output k="bicycle"    v="no"/>
+        <output k="moped"      v="no"/>
+        <output k="motorbike"  v="no"/>
+        <output k="motorcar"   v="no"/>
+        <output k="goods"      v="no"/>
+        <output k="hgv"        v="no"/>
+        <output k="psv"        v="no"/>
+
+        <unset k="barrier"/>
+      </if>
+
+      <if k="barrier" v="horse_barrier">
+        <set v="no_horse"/>
+      </if>
+
+      <if k="barrier" v="cattle_grid">
+        <set v="no_horse"/>
+      </if>
+
+      <if k="barrier" v="no_horse">
+        <output k="horse"      v="no"/>
+
+        <unset k="barrier"/>
+      </if>
+
+      <if k="barrier" v="motorcyle_barrier">
+        <set v="no_motorised"/>
+      </if>
+
+      <if k="barrier" v="no_motorised">
+        <output k="moped"      v="no"/>
+        <output k="motorbike"  v="no"/>
+        <output k="motorcar"   v="no"/>
+        <output k="goods"      v="no"/>
+        <output k="hgv"        v="no"/>
+        <output k="psv"        v="no"/>
+
+        <unset k="barrier"/>
+      </if>
+
+      <if k="barrier" v="bollard">
+        <set v="not_2plus_wheels"/>
+      </if>
+
+      <if k="barrier" v="car_barrier">
+        <set v="not_2plus_wheels"/>
+      </if>
+
+      <if k="barrier" v="car_trap">
+        <set v="not_2plus_wheels"/>
+      </if>
+
+      <if k="barrier" v="not_2plus_wheels">
+        <output k="motorcar"   v="no"/>
+        <output k="goods"      v="no"/>
+        <output k="hgv"        v="no"/>
+        <output k="psv"        v="no"/>
+
+        <unset k="barrier"/>
+      </if>
+
+      <if k="barrier">
+        <logerror/>
+      </if>
+
+    </if> <!-- k="barrier" -->
 
     <!-- Normalisation of access tags -->
 
@@ -176,25 +180,27 @@
     <!-- Generic access permissions for all transport types (to override defaults) -->
 
     <if k="access">
+
       <set k="noaccess" v="yes"/>
-    </if>
 
-    <if k="access" v="yes">
-      <set k="noaccess" v="no"/>
-    </if>
+      <if k="access" v="yes">
+        <set k="noaccess" v="no"/>
+      </if>
 
-    <if k="noaccess" v="yes">
-      <output k="foot"       v="no"/>
-      <output k="horse"      v="no"/>
-      <output k="wheelchair" v="no"/>
-      <output k="bicycle"    v="no"/>
-      <output k="moped"      v="no"/>
-      <output k="motorbike"  v="no"/>
-      <output k="motorcar"   v="no"/>
-      <output k="goods"      v="no"/>
-      <output k="hgv"        v="no"/>
-      <output k="psv"        v="no"/>
-    </if>
+      <if k="noaccess" v="yes">
+        <output k="foot"       v="no"/>
+        <output k="horse"      v="no"/>
+        <output k="wheelchair" v="no"/>
+        <output k="bicycle"    v="no"/>
+        <output k="moped"      v="no"/>
+        <output k="motorbike"  v="no"/>
+        <output k="motorcar"   v="no"/>
+        <output k="goods"      v="no"/>
+        <output k="hgv"        v="no"/>
+        <output k="psv"        v="no"/>
+      </if>
+
+    </if> <!-- k="access" -->
 
     <!-- Generic access permissions for classes of transport types -->
 
@@ -245,22 +251,26 @@
     <!-- Note: The default is that no transport type is allowed on any highway;
                access must be specified to allow each transport type. -->
 
-    <!-- Not useful highway types -->
+    <if k="highway">
 
-    <if k="highway" v="proposed">
-      <unset/>
-    </if>
+      <!-- Not useful highway types -->
 
-    <if k="highway" v="construction">
-      <unset/>
-    </if>
+      <if v="proposed">
+        <unset/>
+      </if>
 
-    <if k="highway" v="abandoned">
-      <unset/>
-    </if>
+      <if v="construction">
+        <unset/>
+      </if>
 
-    <if k="highway" v="raceway">
-      <unset/>
+      <if v="abandoned">
+        <unset/>
+      </if>
+
+      <if v="raceway">
+        <unset/>
+      </if>
+
     </if>
 
     <!-- Mark ways that are not highways to suppress error logging on non-highways -->
@@ -273,284 +283,288 @@
       <unset k="not_highway"/>
     </if>
 
-    <!-- Highway types (includes default access and default properties) -->
-
-    <if k="highway" v="motorway_link">
-      <set v="motorway"/>
-    </if>
-
-    <if k="highway" v="motorway">
-      <output k="highway"/>
-
-      <output k="motorbike"  v="yes"/>
-      <output k="motorcar"   v="yes"/>
-      <output k="goods"      v="yes"/>
-      <output k="hgv"        v="yes"/>
-      <output k="psv"        v="yes"/>
-
-      <output k="paved"      v="yes"/>
-      <output k="multilane"  v="yes"/>
-      <output k="oneway"     v="yes"/>
-
-      <unset k="highway"/>
-    </if>
-
-    <if k="highway" v="trunk_link">
-      <set v="trunk"/>
-    </if>
-
-    <if k="highway" v="trunk">
-      <output k="highway"/>
-
-      <output k="bicycle"    v="yes"/>
-      <output k="moped"      v="yes"/>
-      <output k="motorbike"  v="yes"/>
-      <output k="motorcar"   v="yes"/>
-      <output k="goods"      v="yes"/>
-      <output k="hgv"        v="yes"/>
-      <output k="psv"        v="yes"/>
-
-      <output k="paved"      v="yes"/>
-
-      <unset k="highway"/>
-    </if>
-
-    <if k="highway" v="primary_link">
-      <set v="primary"/>
-    </if>
-
-    <if k="highway" v="primary">
-      <output k="highway"/>
-
-      <output k="foot"       v="yes"/>
-      <output k="horse"      v="yes"/>
-      <output k="wheelchair" v="no"/>
-      <output k="bicycle"    v="yes"/>
-      <output k="moped"      v="yes"/>
-      <output k="motorbike"  v="yes"/>
-      <output k="motorcar"   v="yes"/>
-      <output k="goods"      v="yes"/>
-      <output k="hgv"        v="yes"/>
-      <output k="psv"        v="yes"/>
-
-      <output k="paved"      v="yes"/>
-
-      <unset k="highway"/>
-    </if>
-
-    <if k="highway" v="secondary_link">
-      <set v="secondary"/>
-    </if>
-
-    <if k="highway" v="secondary">
-      <output k="highway"/>
-
-      <output k="foot"       v="yes"/>
-      <output k="horse"      v="yes"/>
-      <output k="wheelchair" v="yes"/>
-      <output k="bicycle"    v="yes"/>
-      <output k="moped"      v="yes"/>
-      <output k="motorbike"  v="yes"/>
-      <output k="motorcar"   v="yes"/>
-      <output k="goods"      v="yes"/>
-      <output k="hgv"        v="yes"/>
-      <output k="psv"        v="yes"/>
-
-      <output k="paved"      v="yes"/>
-
-      <unset k="highway"/>
-    </if>
-
-    <if k="highway" v="tertiary_link">
-      <set v="tertiary"/>
-    </if>
-
-    <if k="highway" v="tertiary">
-      <output k="highway"/>
-
-      <output k="foot"       v="yes"/>
-      <output k="horse"      v="yes"/>
-      <output k="wheelchair" v="yes"/>
-      <output k="bicycle"    v="yes"/>
-      <output k="moped"      v="yes"/>
-      <output k="motorbike"  v="yes"/>
-      <output k="motorcar"   v="yes"/>
-      <output k="goods"      v="yes"/>
-      <output k="hgv"        v="yes"/>
-      <output k="psv"        v="yes"/>
-
-      <output k="paved"      v="yes"/>
-
-      <unset k="highway"/>
-    </if>
-
-    <if k="highway" v="minor">
-      <set k="highway" v="unclassified"/>
-    </if>
-
-    <if k="highway" v="road">
-      <set k="highway" v="unclassified"/>
-    </if>
-
-    <if k="highway" v="unclassified">
-      <output k="highway"/>
-
-      <output k="foot"       v="yes"/>
-      <output k="horse"      v="yes"/>
-      <output k="wheelchair" v="yes"/>
-      <output k="bicycle"    v="yes"/>
-      <output k="moped"      v="yes"/>
-      <output k="motorbike"  v="yes"/>
-      <output k="motorcar"   v="yes"/>
-      <output k="goods"      v="yes"/>
-      <output k="hgv"        v="yes"/>
-      <output k="psv"        v="yes"/>
-
-      <output k="paved"      v="yes"/>
-
-      <unset k="highway"/>
-    </if>
-
-    <if k="highway" v="living_street">
-      <set k="highway" v="residential"/>
-    </if>
-
-    <if k="highway" v="residential">
-      <output k="highway"/>
+    <if k="highway">
+
+      <!-- Highway types (includes default access and default properties) -->
+
+      <if k="highway" v="motorway_link">
+        <set v="motorway"/>
+      </if>
+
+      <if k="highway" v="motorway">
+        <output k="highway"/>
+
+        <output k="motorbike"  v="yes"/>
+        <output k="motorcar"   v="yes"/>
+        <output k="goods"      v="yes"/>
+        <output k="hgv"        v="yes"/>
+        <output k="psv"        v="yes"/>
+
+        <output k="paved"      v="yes"/>
+        <output k="multilane"  v="yes"/>
+        <output k="oneway"     v="yes"/>
+
+        <unset k="highway"/>
+      </if>
+
+      <if k="highway" v="trunk_link">
+        <set v="trunk"/>
+      </if>
+
+      <if k="highway" v="trunk">
+        <output k="highway"/>
+
+        <output k="bicycle"    v="yes"/>
+        <output k="moped"      v="yes"/>
+        <output k="motorbike"  v="yes"/>
+        <output k="motorcar"   v="yes"/>
+        <output k="goods"      v="yes"/>
+        <output k="hgv"        v="yes"/>
+        <output k="psv"        v="yes"/>
+
+        <output k="paved"      v="yes"/>
+
+        <unset k="highway"/>
+      </if>
+
+      <if k="highway" v="primary_link">
+        <set v="primary"/>
+      </if>
+
+      <if k="highway" v="primary">
+        <output k="highway"/>
+
+        <output k="foot"       v="yes"/>
+        <output k="horse"      v="yes"/>
+        <output k="wheelchair" v="no"/>
+        <output k="bicycle"    v="yes"/>
+        <output k="moped"      v="yes"/>
+        <output k="motorbike"  v="yes"/>
+        <output k="motorcar"   v="yes"/>
+        <output k="goods"      v="yes"/>
+        <output k="hgv"        v="yes"/>
+        <output k="psv"        v="yes"/>
+
+        <output k="paved"      v="yes"/>
+
+        <unset k="highway"/>
+      </if>
+
+      <if k="highway" v="secondary_link">
+        <set v="secondary"/>
+      </if>
+
+      <if k="highway" v="secondary">
+        <output k="highway"/>
+
+        <output k="foot"       v="yes"/>
+        <output k="horse"      v="yes"/>
+        <output k="wheelchair" v="yes"/>
+        <output k="bicycle"    v="yes"/>
+        <output k="moped"      v="yes"/>
+        <output k="motorbike"  v="yes"/>
+        <output k="motorcar"   v="yes"/>
+        <output k="goods"      v="yes"/>
+        <output k="hgv"        v="yes"/>
+        <output k="psv"        v="yes"/>
+
+        <output k="paved"      v="yes"/>
+
+        <unset k="highway"/>
+      </if>
+
+      <if k="highway" v="tertiary_link">
+        <set v="tertiary"/>
+      </if>
+
+      <if k="highway" v="tertiary">
+        <output k="highway"/>
+
+        <output k="foot"       v="yes"/>
+        <output k="horse"      v="yes"/>
+        <output k="wheelchair" v="yes"/>
+        <output k="bicycle"    v="yes"/>
+        <output k="moped"      v="yes"/>
+        <output k="motorbike"  v="yes"/>
+        <output k="motorcar"   v="yes"/>
+        <output k="goods"      v="yes"/>
+        <output k="hgv"        v="yes"/>
+        <output k="psv"        v="yes"/>
+
+        <output k="paved"      v="yes"/>
+
+        <unset k="highway"/>
+      </if>
+
+      <if k="highway" v="minor">
+        <set k="highway" v="unclassified"/>
+      </if>
+
+      <if k="highway" v="road">
+        <set k="highway" v="unclassified"/>
+      </if>
+
+      <if k="highway" v="unclassified">
+        <output k="highway"/>
+
+        <output k="foot"       v="yes"/>
+        <output k="horse"      v="yes"/>
+        <output k="wheelchair" v="yes"/>
+        <output k="bicycle"    v="yes"/>
+        <output k="moped"      v="yes"/>
+        <output k="motorbike"  v="yes"/>
+        <output k="motorcar"   v="yes"/>
+        <output k="goods"      v="yes"/>
+        <output k="hgv"        v="yes"/>
+        <output k="psv"        v="yes"/>
+
+        <output k="paved"      v="yes"/>
+
+        <unset k="highway"/>
+      </if>
+
+      <if k="highway" v="living_street">
+        <set k="highway" v="residential"/>
+      </if>
+
+      <if k="highway" v="residential">
+        <output k="highway"/>
+
+        <output k="foot"       v="yes"/>
+        <output k="horse"      v="yes"/>
+        <output k="wheelchair" v="yes"/>
+        <output k="bicycle"    v="yes"/>
+        <output k="moped"      v="yes"/>
+        <output k="motorbike"  v="yes"/>
+        <output k="motorcar"   v="yes"/>
+        <output k="goods"      v="yes"/>
+        <output k="hgv"        v="yes"/>
+        <output k="psv"        v="yes"/>
+
+        <output k="paved"      v="yes"/>
 
-      <output k="foot"       v="yes"/>
-      <output k="horse"      v="yes"/>
-      <output k="wheelchair" v="yes"/>
-      <output k="bicycle"    v="yes"/>
-      <output k="moped"      v="yes"/>
-      <output k="motorbike"  v="yes"/>
-      <output k="motorcar"   v="yes"/>
-      <output k="goods"      v="yes"/>
-      <output k="hgv"        v="yes"/>
-      <output k="psv"        v="yes"/>
+        <unset k="highway"/>
+      </if>
 
-      <output k="paved"      v="yes"/>
+      <if k="highway" v="access">
+        <set k="highway" v="service"/>
+      </if>
 
-      <unset k="highway"/>
-    </if>
+      <if k="highway" v="services">
+        <set k="highway" v="service"/>
+      </if>
 
-    <if k="highway" v="access">
-      <set k="highway" v="service"/>
-    </if>
+      <if k="highway" v="layby">
+        <set k="highway" v="service"/>
+      </if>
 
-    <if k="highway" v="services">
-      <set k="highway" v="service"/>
-    </if>
+      <if k="highway" v="service">
+        <output k="highway"/>
 
-    <if k="highway" v="layby">
-      <set k="highway" v="service"/>
-    </if>
+        <output k="foot"       v="yes"/>
+        <output k="horse"      v="yes"/>
+        <output k="wheelchair" v="yes"/>
+        <output k="bicycle"    v="yes"/>
+        <output k="moped"      v="yes"/>
+        <output k="motorbike"  v="yes"/>
+        <output k="motorcar"   v="yes"/>
+        <output k="goods"      v="yes"/>
+        <output k="hgv"        v="yes"/>
+        <output k="psv"        v="yes"/>
 
-    <if k="highway" v="service">
-      <output k="highway"/>
+        <output k="paved"      v="yes"/>
 
-      <output k="foot"       v="yes"/>
-      <output k="horse"      v="yes"/>
-      <output k="wheelchair" v="yes"/>
-      <output k="bicycle"    v="yes"/>
-      <output k="moped"      v="yes"/>
-      <output k="motorbike"  v="yes"/>
-      <output k="motorcar"   v="yes"/>
-      <output k="goods"      v="yes"/>
-      <output k="hgv"        v="yes"/>
-      <output k="psv"        v="yes"/>
+        <unset k="highway"/>
+      </if>
 
-      <output k="paved"      v="yes"/>
+      <if k="highway" v="byway">
+        <set k="highway" v="track"/>
+      </if>
 
-      <unset k="highway"/>
-    </if>
+      <if k="highway" v="unsurfaced">
+        <set k="highway" v="track"/>
+      </if>
 
-    <if k="highway" v="byway">
-      <set k="highway" v="track"/>
-    </if>
+      <if k="highway" v="unpaved">
+        <set k="highway" v="track"/>
+      </if>
 
-    <if k="highway" v="unsurfaced">
-      <set k="highway" v="track"/>
-    </if>
+      <if k="highway" v="track">
+        <output k="highway"/>
 
-    <if k="highway" v="unpaved">
-      <set k="highway" v="track"/>
-    </if>
+        <output k="foot"       v="yes"/>
+        <output k="horse"      v="yes"/>
+        <output k="bicycle"    v="yes"/>
 
-    <if k="highway" v="track">
-      <output k="highway"/>
+        <unset k="highway"/>
+      </if>
 
-      <output k="foot"       v="yes"/>
-      <output k="horse"      v="yes"/>
-      <output k="bicycle"    v="yes"/>
+      <if k="tracktype" v="grade1">
+        <output k="paved"      v="yes"/>
+      </if>
 
-      <unset k="highway"/>
-    </if>
+      <if k="highway" v="cycleway">
+        <output k="highway"/>
 
-    <if k="tracktype" v="grade1">
-      <output k="paved"      v="yes"/>
-    </if>
+        <output k="foot"       v="yes"/>
+        <output k="wheelchair" v="yes"/>
+        <output k="bicycle"    v="yes"/>
 
-    <if k="highway" v="cycleway">
-      <output k="highway"/>
+        <output k="paved"      v="yes"/>
 
-      <output k="foot"       v="yes"/>
-      <output k="wheelchair" v="yes"/>
-      <output k="bicycle"    v="yes"/>
+        <unset k="highway"/>
+      </if>
 
-      <output k="paved"      v="yes"/>
+      <if k="highway" v="footway">
+        <set k="highway" v="path"/>
+      </if>
 
-      <unset k="highway"/>
-    </if>
+      <if k="highway" v="bridleway">
+        <set k="highway" v="path"/>
 
-    <if k="highway" v="footway">
-      <set k="highway" v="path"/>
-    </if>
+        <output k="horse"      v="yes"/>
+        <output k="bicycle"    v="yes"/>
+      </if>
 
-    <if k="highway" v="bridleway">
-      <set k="highway" v="path"/>
+      <if k="highway" v="pedestrian">
+        <set k="highway" v="path"/>
 
-      <output k="horse"      v="yes"/>
-      <output k="bicycle"    v="yes"/>
-    </if>
+        <output k="paved"      v="yes"/>
+      </if>
 
-    <if k="highway" v="pedestrian">
-      <set k="highway" v="path"/>
+      <if k="highway" v="walkway">
+        <set k="highway"  v="path"/>
 
-      <output k="paved"      v="yes"/>
-    </if>
+        <output k="paved"      v="yes"/>
+      </if>
 
-    <if k="highway" v="walkway">
-      <set k="highway"  v="path"/>
+      <if k="highway" v="path">
+        <output k="highway"/>
 
-      <output k="paved"      v="yes"/>
-    </if>
+        <output k="foot"       v="yes"/>
+        <output k="wheelchair" v="yes"/>
 
-    <if k="highway" v="path">
-      <output k="highway"/>
+        <unset k="highway"/>
+      </if>
 
-      <output k="foot"       v="yes"/>
-      <output k="wheelchair" v="yes"/>
+      <if k="highway" v="steps">
+        <output k="highway"/>
 
-      <unset k="highway"/>
-    </if>
+        <output k="foot"       v="yes"/>
 
-    <if k="highway" v="steps">
-      <output k="highway"/>
+        <unset k="highway"/>
+      </if>
 
-      <output k="foot"       v="yes"/>
+      <if k="highway">
+        <logerror/>
 
-      <unset k="highway"/>
-    </if>
+        <set k="not_highway" v="yes"/>
+      </if>
+
+    </if> <!-- k="highway" -->
 
     <if k="route" v="ferry">
       <output k="highway" v="ferry"/>
-    </if>
-
-    <if k="highway">
-      <logerror/>
-
-      <set k="not_highway" v="yes"/>
     </if>
 
     <!-- Normalisation of access tags -->
@@ -569,24 +583,26 @@
     <!-- Generic access permissions for all transport types (to override defaults) -->
 
     <if k="access">
+
       <set k="noaccess" v="yes"/>
-    </if>
 
-    <if k="access" v="yes">
-      <set k="noaccess" v="no"/>
-    </if>
+      <if k="access" v="yes">
+        <set k="noaccess" v="no"/>
+      </if>
 
-    <if k="noaccess" v="yes">
-      <output k="foot"       v="no"/>
-      <output k="horse"      v="no"/>
-      <output k="wheelchair" v="no"/>
-      <output k="bicycle"    v="no"/>
-      <output k="moped"      v="no"/>
-      <output k="motorbike"  v="no"/>
-      <output k="motorcar"   v="no"/>
-      <output k="goods"      v="no"/>
-      <output k="hgv"        v="no"/>
-      <output k="psv"        v="no"/>
+      <if k="noaccess" v="yes">
+        <output k="foot"       v="no"/>
+        <output k="horse"      v="no"/>
+        <output k="wheelchair" v="no"/>
+        <output k="bicycle"    v="no"/>
+        <output k="moped"      v="no"/>
+        <output k="motorbike"  v="no"/>
+        <output k="motorcar"   v="no"/>
+        <output k="goods"      v="no"/>
+        <output k="hgv"        v="no"/>
+        <output k="psv"        v="no"/>
+      </if>
+
     </if>
 
     <!-- Generic access permissions for classes of transport types -->
@@ -612,82 +628,86 @@
 
     <!-- Other access permissions (e.g. UK) -->
 
-    <if k="designation" v="restricted_byway">
-      <output k="foot"       v="yes"/>
-      <output k="horse"      v="yes"/>
-      <output k="wheelchair" v="yes"/>
-      <output k="bicycle"    v="yes"/>
-
-      <unset k="designation"/>
-    </if>
-
-    <if k="designation" v="public_byway">
-      <set v="byway_open_to_all_traffic"/>
-    </if>
-
-    <if k="designation" v="byway">
-      <set v="byway_open_to_all_traffic"/>
-    </if>
-
-    <if k="designation" v="byway_open_to_all_traffic">
-      <output k="foot"       v="yes"/>
-      <output k="horse"      v="yes"/>
-      <output k="wheelchair" v="yes"/>
-      <output k="bicycle"    v="yes"/>
-      <output k="moped"      v="yes"/>
-      <output k="motorbike"  v="yes"/>
-      <output k="motorcar"   v="yes"/>
-
-      <unset k="designation"/>
-    </if>
-
-    <if k="designation" v="permissive_bridleway">
-      <set v="bridleway"/>
-    </if>
-
-    <if k="designation" v="public_bridleway">
-      <set v="bridleway"/>
-    </if>
-
-    <if k="designation" v="bridleway">
-      <output k="foot"       v="yes"/>
-      <output k="horse"      v="yes"/>
-      <output k="wheelchair" v="yes"/>
-      <output k="bicycle"    v="yes"/>
-
-      <unset k="designation"/>
-    </if>
-
-    <if k="designation" v="public_cycleway">
-      <output k="foot"       v="yes"/>
-      <output k="wheelchair" v="yes"/>
-      <output k="bicycle"    v="yes"/>
-
-      <unset k="designation"/>
-    </if>
-
-    <if k="designation" v="permissive_footpath">
-      <set v="footpath"/>
-    </if>
-
-    <if k="designation" v="public_footpath">
-      <set v="footpath"/>
-    </if>
-
-    <if k="designation" v="footpath">
-      <output k="foot"       v="yes"/>
-      <output k="wheelchair" v="yes"/>
-
-      <unset k="designation"/>
-    </if>
-
-    <if k="not_highway">
-      <unset k="designation"/>
-    </if>
-
     <if k="designation">
-      <logerror/>
-    </if>
+
+      <if k="designation" v="restricted_byway">
+        <output k="foot"       v="yes"/>
+        <output k="horse"      v="yes"/>
+        <output k="wheelchair" v="yes"/>
+        <output k="bicycle"    v="yes"/>
+
+        <unset k="designation"/>
+      </if>
+
+      <if k="designation" v="public_byway">
+        <set v="byway_open_to_all_traffic"/>
+      </if>
+
+      <if k="designation" v="byway">
+        <set v="byway_open_to_all_traffic"/>
+      </if>
+
+      <if k="designation" v="byway_open_to_all_traffic">
+        <output k="foot"       v="yes"/>
+        <output k="horse"      v="yes"/>
+        <output k="wheelchair" v="yes"/>
+        <output k="bicycle"    v="yes"/>
+        <output k="moped"      v="yes"/>
+        <output k="motorbike"  v="yes"/>
+        <output k="motorcar"   v="yes"/>
+
+        <unset k="designation"/>
+      </if>
+
+      <if k="designation" v="permissive_bridleway">
+        <set v="bridleway"/>
+      </if>
+
+      <if k="designation" v="public_bridleway">
+        <set v="bridleway"/>
+      </if>
+
+      <if k="designation" v="bridleway">
+        <output k="foot"       v="yes"/>
+        <output k="horse"      v="yes"/>
+        <output k="wheelchair" v="yes"/>
+        <output k="bicycle"    v="yes"/>
+
+        <unset k="designation"/>
+      </if>
+
+      <if k="designation" v="public_cycleway">
+        <output k="foot"       v="yes"/>
+        <output k="wheelchair" v="yes"/>
+        <output k="bicycle"    v="yes"/>
+
+        <unset k="designation"/>
+      </if>
+
+      <if k="designation" v="permissive_footpath">
+        <set v="footpath"/>
+      </if>
+
+      <if k="designation" v="public_footpath">
+        <set v="footpath"/>
+      </if>
+
+      <if k="designation" v="footpath">
+        <output k="foot"       v="yes"/>
+        <output k="wheelchair" v="yes"/>
+
+        <unset k="designation"/>
+      </if>
+
+      <if k="not_highway">
+        <unset k="designation"/>
+      </if>
+
+      <if k="designation">
+        <logerror/>
+      </if>
+
+    </if> <!-- k="designation" -->
 
     <!-- Specific access rules (to override the generic ones) -->
 
@@ -712,68 +732,72 @@
 
     <!-- Normalisation of property tags -->
 
-    <!-- Tags from http://wiki.openstreetmap.org/wiki/Key:surface on 2012-11-21 -->
-
-    <if k="surface" v="asphalt">               <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="cobblestone">           <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="cobblestone:flattened"> <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="compacted">             <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="concrete">              <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="concrete:lanes">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="concrete:plates">       <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="dirt">                  <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="earth">                 <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="fine_gravel">           <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="grass">                 <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="grass_paver">           <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="gravel">                <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="ground">                <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="metal">                 <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="mud">                   <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="paved">                 <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="paving_stones">         <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="paving_stones:20">      <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="paving_stones:30">      <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="pebblestone">           <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="sand">                  <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="unpaved">               <set k="paved" v="no"/>  <unset k="surface"/> </if>
-    <if k="surface" v="wood">                  <set k="paved" v="no"/>  <unset k="surface"/> </if>
-
-    <!-- Other tags -->
-
-    <if k="surface" v="sealed">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="cement">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="tarmac">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="tar_and_chip">  <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="metalled">      <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="bricks">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="brick">         <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="brick_weave">   <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="setts">         <set k="paved" v="yes"/> <unset k="surface"/> </if>
-    <if k="surface" v="sett">          <set k="paved" v="yes"/> <unset k="surface"/> </if>
-
-    <if k="surface" v="unsealed">      <set k="paved" v="no"/> <unset k="surface"/> </if>
-    <if k="surface" v="soil">          <set k="paved" v="no"/> <unset k="surface"/> </if>
-    <if k="surface" v="stones">        <set k="paved" v="no"/> <unset k="surface"/> </if>
-    <if k="surface" v="stone">         <set k="paved" v="no"/> <unset k="surface"/> </if>
-    <if k="surface" v="pebbles">       <set k="paved" v="no"/> <unset k="surface"/> </if>
-    <if k="surface" v="hardcore">      <set k="paved" v="no"/> <unset k="surface"/> </if>
-    <if k="surface" v="bark">          <set k="paved" v="no"/> <unset k="surface"/> </if>
-
     <if k="not_highway">
       <unset k="surface"/>
     </if>
 
     <if k="surface">
-      <logerror/>
-    </if>
+
+      <!-- Tags from http://wiki.openstreetmap.org/wiki/Key:surface on 2012-11-21 -->
+
+      <if k="surface" v="asphalt">               <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="cobblestone">           <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="cobblestone:flattened"> <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="compacted">             <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="concrete">              <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="concrete:lanes">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="concrete:plates">       <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="dirt">                  <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="earth">                 <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="fine_gravel">           <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="grass">                 <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="grass_paver">           <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="gravel">                <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="ground">                <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="metal">                 <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="mud">                   <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="paved">                 <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="paving_stones">         <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="paving_stones:20">      <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="paving_stones:30">      <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="pebblestone">           <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="sand">                  <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="unpaved">               <set k="paved" v="no"/>  <unset k="surface"/> </if>
+      <if k="surface" v="wood">                  <set k="paved" v="no"/>  <unset k="surface"/> </if>
+
+      <!-- Other tags -->
+
+      <if k="surface" v="sealed">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="cement">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="tarmac">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="tar_and_chip">  <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="metalled">      <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="bricks">        <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="brick">         <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="brick_weave">   <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="setts">         <set k="paved" v="yes"/> <unset k="surface"/> </if>
+      <if k="surface" v="sett">          <set k="paved" v="yes"/> <unset k="surface"/> </if>
+
+      <if k="surface" v="unsealed">      <set k="paved" v="no"/> <unset k="surface"/> </if>
+      <if k="surface" v="soil">          <set k="paved" v="no"/> <unset k="surface"/> </if>
+      <if k="surface" v="stones">        <set k="paved" v="no"/> <unset k="surface"/> </if>
+      <if k="surface" v="stone">         <set k="paved" v="no"/> <unset k="surface"/> </if>
+      <if k="surface" v="pebbles">       <set k="paved" v="no"/> <unset k="surface"/> </if>
+      <if k="surface" v="hardcore">      <set k="paved" v="no"/> <unset k="surface"/> </if>
+      <if k="surface" v="bark">          <set k="paved" v="no"/> <unset k="surface"/> </if>
+
+      <if k="surface">
+        <logerror/>
+      </if>
+
+    </if> <!-- k="surface" -->
 
     <if k="lanes">
       <set k="multilane" v="yes"/>
-    </if>
 
-    <if k="lanes" v="1">
-      <set k="multilane" v="no"/>
+      <if v="1">
+        <set k="multilane" v="no"/>
+      </if>
     </if>
 
     <if k="junction" v="roundabout">
@@ -839,31 +863,35 @@
 
     <!-- Copy route relations -->
 
-    <if k="route" v="foot">
-      <output k="footroute" v="yes"/>
-    </if>
+    <if k="route">
 
-    <if k="route" v="walking">
-      <output k="footroute" v="yes"/>
-    </if>
+      <if k="route" v="foot">
+        <output k="footroute" v="yes"/>
+      </if>
 
-    <if k="route" v="hiking">
-      <output k="footroute" v="yes"/>
-    </if>
+      <if k="route" v="walking">
+        <output k="footroute" v="yes"/>
+      </if>
 
-    <if k="route" v="foot;bicycle">
-      <output k="footroute"    v="yes"/>
-      <output k="bicycleroute" v="yes"/>
-    </if>
+      <if k="route" v="hiking">
+        <output k="footroute" v="yes"/>
+      </if>
 
-    <if k="route" v="bicycle;foot">
-      <output k="footroute"    v="yes"/>
-      <output k="bicycleroute" v="yes"/>
-    </if>
+      <if k="route" v="foot;bicycle">
+        <output k="footroute"    v="yes"/>
+        <output k="bicycleroute" v="yes"/>
+      </if>
 
-    <if k="route" v="bicycle">
-      <output k="bicycleroute" v="yes"/>
-    </if>
+      <if k="route" v="bicycle;foot">
+        <output k="footroute"    v="yes"/>
+        <output k="bicycleroute" v="yes"/>
+      </if>
+
+      <if k="route" v="bicycle">
+        <output k="bicycleroute" v="yes"/>
+      </if>
+
+    </if> <!-- k="route" -->
 
     <!-- Pass through turn relations -->
 

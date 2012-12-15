@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -99,6 +99,8 @@ for motorway_link and motorway highway types.
       &lt;output k="paved"      v="yes"/&gt;
       &lt;output k="multilane"  v="yes"/&gt;
       &lt;output k="oneway"     v="yes"/&gt;
+
+      &lt;unset k="highway"/&gt;
     &lt;/if&gt;
 ...
   &lt;way&gt;
@@ -107,10 +109,10 @@ for motorway_link and motorway highway types.
 </pre>
 
 The rules all have the same format; an <em>if</em> element for matching the
-input and some <em>set</em> or <em>output</em> elements to either change the
-input tags or create an output tag.  The <em>k</em> and <em>v</em> attributes
-have the same meaning as the attributes with the same names in the OSM XML file
-- the tag key and tag value.
+input and some <em>set</em>, <em>unset</em> or <em>output</em> elements to
+either change the input tags or create an output tag.  The <em>k</em>
+and <em>v</em> attributes have the same meaning as the attributes with the same
+names in the OSM XML file - the tag key and tag value.
 
 <p>
 
@@ -118,13 +120,29 @@ An <em>if</em> rule that has both <em>k</em> and <em>v</em> specified is only
 applied if a tag exists in the input that matches both.  An <em>if</em> rule
 that has only the <em>k</em> attribute is applied if a tag with that key exists
 and an <em>if</em> rule that has only the <em>v</em> attribute is applied to all
-tags with that value.
+tags with that value.  An <em>if</em> rule that has neither attribute specified
+always matches.
 
 <p>
 
 For the <em>set</em> and <em>output</em> elements the tag that is created in the
 input or output tag set uses the <em>k</em> and <em>v</em> attributes specified.
-If one or both are not specified then the original ones are used.
+If one or both are not specified then the ones that matched in the <em>if</em>
+element are used instead.  For the <em>unset</em> element the tag that is
+deleted from the input is the one that matches the <em>k</em> attribute
+specified or the one from the encompassing <em>if</em> rule.
+
+<p>
+
+The <em>logerror</em> element will cause an error message to be added to the
+error log file that reports that the key and attribute combination are not
+recognised.
+
+<p>
+
+At the top level only the <em>if</em> rules are allowed.  Within
+<em>if</em> rules any of the <em>set</em>, <em>unset</em>, <em>output</em>
+or <em>logerror</em> elements are allowed.
 
 
 <h3><a name="H_1_1_2" title="Profiles"></a>Routing Profiles</h3>
