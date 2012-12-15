@@ -1058,6 +1058,9 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
  index_t total=0,pruned=0,notpruned=0;
  int trfd;
 
+ if(relationsx->trnumber==0)
+    return;
+
  /* Print the start message */
 
  printf_first("Deleting Pruned Turn Relations: Relations=0 Pruned=0");
@@ -1119,6 +1122,9 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
 {
  int trfd;
+
+ if(segmentsx->number==0)
+    return;
 
  /* Print the start message */
 

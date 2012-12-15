@@ -67,6 +67,9 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  SegmentX segmentx;
  index_t index=0,lastnode1=NO_NODE;
 
+ if(segmentsx->number==0)
+    return;
+
  /* Print the start message */
 
  printf_first("Adding Extra Segment Indexes: Segments=0");
@@ -125,7 +128,9 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
 void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
- free(segmentsx->next1);
+ if(segmentsx->next1)
+    free(segmentsx->next1);
+
  segmentsx->next1=NULL;
 }
 

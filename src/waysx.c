@@ -557,6 +557,9 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
  int fd;
  index_t cnumber;
 
+ if(waysx->number==0)
+    return;
+
  /* Print the start message */
 
  printf_first("Sorting Ways and Compacting");
