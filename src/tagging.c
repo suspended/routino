@@ -33,10 +33,14 @@
 /* Constants */
 
 #define TAGACTION_IF       1
-#define TAGACTION_SET      2
-#define TAGACTION_UNSET    3
-#define TAGACTION_OUTPUT   4
-#define TAGACTION_LOGERROR 5
+#define TAGACTION_IFNOT    2
+
+#define TAGACTION_INHERIT  3    /* Not a real action, just a marker */
+
+#define TAGACTION_SET      4
+#define TAGACTION_UNSET    5
+#define TAGACTION_OUTPUT   6
+#define TAGACTION_LOGERROR 7
 
 
 /* Local variables */
@@ -74,6 +78,7 @@ static int NodeType_function(const char *_tag_,int _type_);
 static int WayType_function(const char *_tag_,int _type_);
 static int RelationType_function(const char *_tag_,int _type_);
 static int IfType_function(const char *_tag_,int _type_,const char *k,const char *v);
+static int IfNotType_function(const char *_tag_,int _type_,const char *k,const char *v);
 static int SetType_function(const char *_tag_,int _type_,const char *k,const char *v);
 static int UnsetType_function(const char *_tag_,int _type_,const char *k);
 static int OutputType_function(const char *_tag_,int _type_,const char *k,const char *v);
@@ -88,6 +93,7 @@ static xmltag NodeType_tag;
 static xmltag WayType_tag;
 static xmltag RelationType_tag;
 static xmltag IfType_tag;
+static xmltag IfNotType_tag;
 static xmltag SetType_tag;
 static xmltag UnsetType_tag;
 static xmltag OutputType_tag;
@@ -118,28 +124,35 @@ static xmltag NodeType_tag=
               {"node",
                0, {NULL},
                NodeType_function,
-               {&IfType_tag,NULL}};
+               {&IfType_tag,&IfNotType_tag,NULL}};
 
 /*+ The WayType type tag. +*/
 static xmltag WayType_tag=
               {"way",
                0, {NULL},
                WayType_function,
-               {&IfType_tag,NULL}};
+               {&IfType_tag,&IfNotType_tag,NULL}};
 
 /*+ The RelationType type tag. +*/
 static xmltag RelationType_tag=
               {"relation",
                0, {NULL},
                RelationType_function,
-               {&IfType_tag,NULL}};
+               {&IfType_tag,&IfNotType_tag,NULL}};
 
 /*+ The IfType type tag. +*/
 static xmltag IfType_tag=
               {"if",
                2, {"k","v"},
                IfType_function,
-               {&IfType_tag,&SetType_tag,&UnsetType_tag,&OutputType_tag,&LogErrorType_tag,NULL}};
+               {&IfType_tag,&IfNotType_tag,&SetType_tag,&UnsetType_tag,&OutputType_tag,&LogErrorType_tag,NULL}};
+
+/*+ The IfNotType type tag. +*/
+static xmltag IfNotType_tag=
+              {"ifnot",
+               2, {"k","v"},
+               IfNotType_function,
+               {&IfType_tag,&IfNotType_tag,&SetType_tag,&UnsetType_tag,&OutputType_tag,&LogErrorType_tag,NULL}};
 
 /*+ The SetType type tag. +*/
 static xmltag SetType_tag=
@@ -299,6 +312,39 @@ static int IfType_function(const char *_tag_,int _type_,const char *k,const char
     current_list_stack[current_list_stack_depth++]=current_list;
 
     current_list=AppendTaggingRule(current_list,k,v,TAGACTION_IF);
+   }
+
+ if(_type_&XMLPARSE_TAG_END)
+    current_list=current_list_stack[--current_list_stack_depth];
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the IfNotType XSD type is seen
+
+  int IfNotType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *k The contents of the 'k' attribute (or NULL if not defined).
+
+  const char *v The contents of the 'v' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int IfNotType_function(const char *_tag_,int _type_,const char *k,const char *v)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    if(!current_list_stack || (current_list_stack_depth%8)==7)
+       current_list_stack=(TaggingRuleList**)realloc((void*)current_list_stack,(current_list_stack_depth+8)*sizeof(TaggingRuleList*));
+
+    current_list_stack[current_list_stack_depth++]=current_list;
+
+    current_list=AppendTaggingRule(current_list,k,v,TAGACTION_IFNOT);
    }
 
  if(_type_&XMLPARSE_TAG_END)
@@ -770,17 +816,15 @@ static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,con
    {
     const char *k,*v;
 
-    if(rules->rules[i].k)
-       k=rules->rules[i].k;
-    else
+    k=rules->rules[i].k;
+
+    if(!k && rules->rules[i].action >= TAGACTION_INHERIT)
        k=match_k_copy;
 
-    if(rules->rules[i].v)
-       v=rules->rules[i].v;
-    else
-       v=match_v_copy;
+    v=rules->rules[i].v;
 
-    //printf("action k=%s v=%s (action=%d)\n",k,v,rules->rules[i].action);
+    if(!v && rules->rules[i].action >= TAGACTION_INHERIT)
+       v=match_v_copy;
 
     switch(rules->rules[i].action)
       {
@@ -789,41 +833,53 @@ static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,con
          {
           for(j=0;j<input->ntags;j++)
              if(!strcmp(input->k[j],k) && !strcmp(input->v[j],v))
-               {
-                //printf("1 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
-
                 ApplyRules(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
-               }
          }
        else if(k && !v)
          {
           for(j=0;j<input->ntags;j++)
              if(!strcmp(input->k[j],k))
-               {
-                //printf("2 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
-
                 ApplyRules(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
-               }
          }
        else if(!k && v)
          {
           for(j=0;j<input->ntags;j++)
              if(!strcmp(input->v[j],v))
-               {
-                //printf("3 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
-
                 ApplyRules(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
-               }
          }
        else /* if(!k && !v) */
          {
           for(j=0;j<input->ntags;j++)
-            {
-             //printf("4 matched k=%s v=%s (action=%d)\n",input->k[j],input->v[j],rules->rules[i].action);
-
              ApplyRules(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
-            }
          }
+       break;
+
+      case TAGACTION_IFNOT:
+       if(k && v)
+         {
+          for(j=0;j<input->ntags;j++)
+             if(!strcmp(input->k[j],k) && !strcmp(input->v[j],v))
+                break;
+         }
+       else if(k && !v)
+         {
+          for(j=0;j<input->ntags;j++)
+             if(!strcmp(input->k[j],k))
+                break;
+         }
+       else if(!k && v)
+         {
+          for(j=0;j<input->ntags;j++)
+             if(!strcmp(input->v[j],v))
+                break;
+         }
+       else /* if(!k && !v) */
+         {
+          break;
+         }
+
+       if(j==input->ntags)
+          ApplyRules(rules->rules[i].rulelist,input,output,k,v);
        break;
 
       case TAGACTION_SET:

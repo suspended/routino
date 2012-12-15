@@ -60,31 +60,50 @@ Tag Transformation Rules
 
 </routino-tagging>
 
-   The rules all have the same format; an if element for matching the
-   input and some set, unset or output elements to either change the input
-   tags or create an output tag. The k and v attributes have the same
-   meaning as the attributes with the same names in the OSM XML file - the
-   tag key and tag value.
+   The rules all have the same format; an if or ifnot element at the top
+   level for matching the input and some other elements inside to be used
+   if there was a match.
 
-   An if rule that has both k and v specified is only applied if a tag
-   exists in the input that matches both. An if rule that has only the k
-   attribute is applied if a tag with that key exists and an if rule that
-   has only the v attribute is applied to all tags with that value. An if
-   rule that has neither attribute specified always matches.
+   Within the if and ifnot rules any of the rules can be used. These are
+   if, ifnot, set, unset, output or logerror elements.
 
-   For the set and output elements the tag that is created in the input or
-   output tag set uses the k and v attributes specified. If one or both
-   are not specified then the ones that matched in the if element are used
-   instead. For the unset element the tag that is deleted from the input
-   is the one that matches the k attribute specified or the one from the
-   encompassing if rule.
+   The rules for matching the if or ifnot elements are the following:
+     * An if rule that has both k and v specified is only matched if a tag
+       exists in the input that matches both.
+     * An if rule that has only the k attribute is matched if a tag with
+       that key exists.
+     * An if rule that has only the v attribute is matched for each tag
+       with that value (i.e. the contents may be used more than once).
+     * An if rule that has neither attribute specified always matches.
+     * An ifnot rule that has both k and v specified is only matched if no
+       tag exists in the input that matches both.
+     * An ifnot rule that has only the k attribute is matched only if no
+       tag with that key exists.
+     * An ifnot rule that has only the v attribute is only matched if no
+       tag with that value exists.
+     * An ifnot rule that has neither attribute specified never matches.
+
+   For set, unset, output or logerror elements inside of an if rule an
+   unspecified value for the k or v attribute is replaced by the values
+   from the tag that matched the outer if rule. This makes it simple to
+   delete tags that match a particular rule without having to specify the
+   parameters more than once. For elements inside of an ifnot element an
+   unspecified value for the k or v attribute is replaced by the values
+   from the outer ifnot rule. This means that either the outer ifnot
+   element or the inner element must specify both k and v attributes
+   between them. For nested if or ifnot elements the outer k and v
+   attributes are not inherited by the inner elements.
+
+   The set and unset elements either create or delete a tag from the input
+   data that was read from the file. If the set element is used and the
+   tag already exists then it is modified. The output element adds a tag
+   to the set that will be used by Routino to determine the data
+   properties.
 
    The logerror element will cause an error message to be added to the
    error log file that reports that the key and attribute combination are
    not recognised.
 
-   At the top level only the if rules are allowed. Within if rules any of
-   the set, unset, output or logerror elements are allowed.
 
 Routing Profiles
 ----------------
