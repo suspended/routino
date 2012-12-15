@@ -662,6 +662,9 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  int fd;
  SegmentX segmentx;
 
+ if(segmentsx->number==0)
+    return;
+
  /* Print the start message */
 
  printf_first("Measuring Segments: Segments=0");
@@ -857,6 +860,9 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
  int fd;
  index_t xnumber;
 
+ if(segmentsx->number==0)
+    return;
+
  /* Print the start message */
 
  printf_first("Sorting and Pruning Segments");
@@ -929,6 +935,9 @@ void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx)
 {
  int fd;
  index_t xnumber;
+
+ if(waysx->number==0)
+    return;
 
  /* Print the start message */
 
@@ -1058,6 +1067,9 @@ static int deduplicate_super(SegmentX *segmentx,index_t index)
 void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
 {
  int fd;
+
+ if(segmentsx->number==0)
+    return;
 
  /* Print the start message */
 

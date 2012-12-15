@@ -434,6 +434,9 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
  index_t total=0,pruned=0,notpruned=0;
  int fd;
 
+ if(nodesx->number==0)
+    return;
+
  /* Print the start message */
 
  printf_first("Deleting Pruned Nodes: Nodes=0 Pruned=0");
@@ -501,6 +504,9 @@ void SortNodeListGeographically(NodesX *nodesx)
 {
  int fd;
  ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
+
+ if(nodesx->number==0)
+    return;
 
  /* While we are here we can work out the range of data */
 
