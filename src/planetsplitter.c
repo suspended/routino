@@ -91,18 +91,28 @@ int main(int argc,char** argv)
    {
     if(!strcmp(argv[arg],"--help"))
        print_usage(1,NULL,NULL);
+    else if(!strncmp(argv[arg],"--dir=",6))
+       dirname=&argv[arg][6];
+    else if(!strncmp(argv[arg],"--prefix=",9))
+       prefix=&argv[arg][9];
     else if(!strncmp(argv[arg],"--sort-ram-size=",16))
        option_filesort_ramsize=atoi(&argv[arg][16]);
 #if defined(USE_PTHREADS) && USE_PTHREADS
     else if(!strncmp(argv[arg],"--sort-threads=",15))
        option_filesort_threads=atoi(&argv[arg][15]);
 #endif
-    else if(!strncmp(argv[arg],"--dir=",6))
-       dirname=&argv[arg][6];
     else if(!strncmp(argv[arg],"--tmpdir=",9))
        option_tmpdirname=&argv[arg][9];
-    else if(!strncmp(argv[arg],"--prefix=",9))
-       prefix=&argv[arg][9];
+    else if(!strncmp(argv[arg],"--tagging=",10))
+       tagging=&argv[arg][10];
+    else if(!strcmp(argv[arg],"--loggable"))
+       option_loggable=1;
+    else if(!strcmp(argv[arg],"--logtime"))
+       option_logtime=1;
+    else if(!strcmp(argv[arg],"--errorlog"))
+       errorlog="error.log";
+    else if(!strncmp(argv[arg],"--errorlog=",11))
+       errorlog=&argv[arg][11];
     else if(!strcmp(argv[arg],"--parse-only"))
        option_parse_only=1;
     else if(!strcmp(argv[arg],"--process-only"))
@@ -113,18 +123,8 @@ int main(int argc,char** argv)
        option_keep=1;
     else if(!strcmp(argv[arg],"--changes"))
        option_changes=1;
-    else if(!strcmp(argv[arg],"--loggable"))
-       option_loggable=1;
-    else if(!strcmp(argv[arg],"--logtime"))
-       option_logtime=1;
-    else if(!strcmp(argv[arg],"--errorlog"))
-       errorlog="error.log";
-    else if(!strncmp(argv[arg],"--errorlog=",11))
-       errorlog=&argv[arg][11];
     else if(!strncmp(argv[arg],"--max-iterations=",17))
        max_iterations=atoi(&argv[arg][17]);
-    else if(!strncmp(argv[arg],"--tagging=",10))
-       tagging=&argv[arg][10];
     else if(!strncmp(argv[arg],"--prune",7))
       {
        if(!strcmp(&argv[arg][7],"-none"))
