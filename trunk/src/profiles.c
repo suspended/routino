@@ -47,29 +47,66 @@ static int nloaded_profiles=0;
 //static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding);
 //static int RoutinoProfilesType_function(const char *_tag_,int _type_);
 static int profileType_function(const char *_tag_,int _type_,const char *name,const char *transport);
-//static int restrictionsType_function(const char *_tag_,int _type_);
-static int lengthType_function(const char *_tag_,int _type_,const char *limit);
-static int widthType_function(const char *_tag_,int _type_,const char *limit);
-static int heightType_function(const char *_tag_,int _type_,const char *limit);
-static int weightType_function(const char *_tag_,int _type_,const char *limit);
-static int turnsType_function(const char *_tag_,int _type_,const char *obey);
-//static int propertiesType_function(const char *_tag_,int _type_);
-static int onewayType_function(const char *_tag_,int _type_,const char *obey);
-static int propertyType_function(const char *_tag_,int _type_,const char *type,const char *percent);
-//static int preferencesType_function(const char *_tag_,int _type_);
-static int preferenceType_function(const char *_tag_,int _type_,const char *highway,const char *percent);
 //static int speedsType_function(const char *_tag_,int _type_);
+//static int preferencesType_function(const char *_tag_,int _type_);
+//static int propertiesType_function(const char *_tag_,int _type_);
+//static int restrictionsType_function(const char *_tag_,int _type_);
 static int speedType_function(const char *_tag_,int _type_,const char *highway,const char *kph);
+static int preferenceType_function(const char *_tag_,int _type_,const char *highway,const char *percent);
+static int propertyType_function(const char *_tag_,int _type_,const char *type,const char *percent);
+static int onewayType_function(const char *_tag_,int _type_,const char *obey);
+static int turnsType_function(const char *_tag_,int _type_,const char *obey);
+static int weightType_function(const char *_tag_,int _type_,const char *limit);
+static int heightType_function(const char *_tag_,int _type_,const char *limit);
+static int widthType_function(const char *_tag_,int _type_,const char *limit);
+static int lengthType_function(const char *_tag_,int _type_,const char *limit);
 
 
-/* The XML tag definitions */
+/* The XML tag definitions (forward declarations) */
 
-/*+ The speedType type tag. +*/
-static xmltag speedType_tag=
-              {"speed",
-               2, {"highway","kph"},
-               speedType_function,
+static xmltag xmlDeclaration_tag;
+static xmltag RoutinoProfilesType_tag;
+static xmltag profileType_tag;
+static xmltag speedsType_tag;
+static xmltag preferencesType_tag;
+static xmltag propertiesType_tag;
+static xmltag restrictionsType_tag;
+static xmltag speedType_tag;
+static xmltag preferenceType_tag;
+static xmltag propertyType_tag;
+static xmltag onewayType_tag;
+static xmltag turnsType_tag;
+static xmltag weightType_tag;
+static xmltag heightType_tag;
+static xmltag widthType_tag;
+static xmltag lengthType_tag;
+
+
+/* The XML tag definition values */
+
+/*+ The complete set of tags at the top level. +*/
+static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoProfilesType_tag,NULL};
+
+/*+ The xmlDeclaration type tag. +*/
+static xmltag xmlDeclaration_tag=
+              {"xml",
+               2, {"version","encoding"},
+               NULL,
                {NULL}};
+
+/*+ The RoutinoProfilesType type tag. +*/
+static xmltag RoutinoProfilesType_tag=
+              {"routino-profiles",
+               0, {NULL},
+               NULL,
+               {&profileType_tag,NULL}};
+
+/*+ The profileType type tag. +*/
+static xmltag profileType_tag=
+              {"profile",
+               2, {"name","transport"},
+               profileType_function,
+               {&speedsType_tag,&preferencesType_tag,&propertiesType_tag,&restrictionsType_tag,NULL}};
 
 /*+ The speedsType type tag. +*/
 static xmltag speedsType_tag=
@@ -78,19 +115,40 @@ static xmltag speedsType_tag=
                NULL,
                {&speedType_tag,NULL}};
 
-/*+ The preferenceType type tag. +*/
-static xmltag preferenceType_tag=
-              {"preference",
-               2, {"highway","percent"},
-               preferenceType_function,
-               {NULL}};
-
 /*+ The preferencesType type tag. +*/
 static xmltag preferencesType_tag=
               {"preferences",
                0, {NULL},
                NULL,
                {&preferenceType_tag,NULL}};
+
+/*+ The propertiesType type tag. +*/
+static xmltag propertiesType_tag=
+              {"properties",
+               0, {NULL},
+               NULL,
+               {&propertyType_tag,NULL}};
+
+/*+ The restrictionsType type tag. +*/
+static xmltag restrictionsType_tag=
+              {"restrictions",
+               0, {NULL},
+               NULL,
+               {&onewayType_tag,&turnsType_tag,&weightType_tag,&heightType_tag,&widthType_tag,&lengthType_tag,NULL}};
+
+/*+ The speedType type tag. +*/
+static xmltag speedType_tag=
+              {"speed",
+               2, {"highway","kph"},
+               speedType_function,
+               {NULL}};
+
+/*+ The preferenceType type tag. +*/
+static xmltag preferenceType_tag=
+              {"preference",
+               2, {"highway","percent"},
+               preferenceType_function,
+               {NULL}};
 
 /*+ The propertyType type tag. +*/
 static xmltag propertyType_tag=
@@ -105,13 +163,6 @@ static xmltag onewayType_tag=
                1, {"obey"},
                onewayType_function,
                {NULL}};
-
-/*+ The propertiesType type tag. +*/
-static xmltag propertiesType_tag=
-              {"properties",
-               0, {NULL},
-               NULL,
-               {&propertyType_tag,NULL}};
 
 /*+ The turnsType type tag. +*/
 static xmltag turnsType_tag=
@@ -148,40 +199,156 @@ static xmltag lengthType_tag=
                lengthType_function,
                {NULL}};
 
-/*+ The restrictionsType type tag. +*/
-static xmltag restrictionsType_tag=
-              {"restrictions",
-               0, {NULL},
-               NULL,
-               {&onewayType_tag,&turnsType_tag,&weightType_tag,&heightType_tag,&widthType_tag,&lengthType_tag,NULL}};
-
-/*+ The profileType type tag. +*/
-static xmltag profileType_tag=
-              {"profile",
-               2, {"name","transport"},
-               profileType_function,
-               {&speedsType_tag,&preferencesType_tag,&propertiesType_tag,&restrictionsType_tag,NULL}};
-
-/*+ The RoutinoProfilesType type tag. +*/
-static xmltag RoutinoProfilesType_tag=
-              {"routino-profiles",
-               0, {NULL},
-               NULL,
-               {&profileType_tag,NULL}};
-
-/*+ The xmlDeclaration type tag. +*/
-static xmltag xmlDeclaration_tag=
-              {"xml",
-               2, {"version","encoding"},
-               NULL,
-               {NULL}};
-
-
-/*+ The complete set of tags at the top level. +*/
-static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoProfilesType_tag,NULL};
-
 
 /* The XML tag processing functions */
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the XML declaration is seen
+
+  int xmlDeclaration_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *version The contents of the 'version' attribute (or NULL if not defined).
+
+  const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the RoutinoProfilesType XSD type is seen
+
+  int RoutinoProfilesType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int RoutinoProfilesType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the profileType XSD type is seen
+
+  int profileType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *name The contents of the 'name' attribute (or NULL if not defined).
+
+  const char *transport The contents of the 'transport' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int profileType_function(const char *_tag_,int _type_,const char *name,const char *transport)
+{
+ if(_type_&XMLPARSE_TAG_START)
+   {
+    Transport transporttype;
+    int i;
+
+    XMLPARSE_ASSERT_STRING(_tag_,name);
+    XMLPARSE_ASSERT_STRING(_tag_,transport);
+
+    for(i=0;i<nloaded_profiles;i++)
+       if(!strcmp(name,loaded_profiles[i]->name))
+          XMLPARSE_MESSAGE(_tag_,"profile name must be unique");
+
+    transporttype=TransportType(transport);
+
+    if(transporttype==Transport_None)
+       XMLPARSE_INVALID(_tag_,transport);
+
+    if((nloaded_profiles%16)==0)
+       loaded_profiles=(Profile**)realloc((void*)loaded_profiles,(nloaded_profiles+16)*sizeof(Profile*));
+
+    nloaded_profiles++;
+
+    loaded_profiles[nloaded_profiles-1]=(Profile*)calloc(1,sizeof(Profile));
+
+    loaded_profiles[nloaded_profiles-1]->name=strcpy(malloc(strlen(name)+1),name);
+    loaded_profiles[nloaded_profiles-1]->transport=transporttype;
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the speedsType XSD type is seen
+
+  int speedsType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int speedsType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the preferencesType XSD type is seen
+
+  int preferencesType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int preferencesType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the propertiesType XSD type is seen
+
+  int propertiesType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int propertiesType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the restrictionsType XSD type is seen
+
+  int restrictionsType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+//static int restrictionsType_function(const char *_tag_,int _type_)
+//{
+// return(0);
+//}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -222,22 +389,6 @@ static int speedType_function(const char *_tag_,int _type_,const char *highway,c
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the speedsType XSD type is seen
-
-  int speedsType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-//static int speedsType_function(const char *_tag_,int _type_)
-//{
-// return(0);
-//}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   The function that is called when the preferenceType XSD type is seen
 
   int preferenceType_function Returns 0 if no error occured or something else otherwise.
@@ -272,22 +423,6 @@ static int preferenceType_function(const char *_tag_,int _type_,const char *high
 
  return(0);
 }
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the preferencesType XSD type is seen
-
-  int preferencesType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-//static int preferencesType_function(const char *_tag_,int _type_)
-//{
-// return(0);
-//}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -352,22 +487,6 @@ static int onewayType_function(const char *_tag_,int _type_,const char *obey)
 
  return(0);
 }
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the propertiesType XSD type is seen
-
-  int propertiesType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-//static int propertiesType_function(const char *_tag_,int _type_)
-//{
-// return(0);
-//}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -503,106 +622,6 @@ static int lengthType_function(const char *_tag_,int _type_,const char *limit)
 
  return(0);
 }
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the restrictionsType XSD type is seen
-
-  int restrictionsType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-//static int restrictionsType_function(const char *_tag_,int _type_)
-//{
-// return(0);
-//}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the profileType XSD type is seen
-
-  int profileType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-
-  const char *name The contents of the 'name' attribute (or NULL if not defined).
-
-  const char *transport The contents of the 'transport' attribute (or NULL if not defined).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int profileType_function(const char *_tag_,int _type_,const char *name,const char *transport)
-{
- if(_type_&XMLPARSE_TAG_START)
-   {
-    Transport transporttype;
-    int i;
-
-    XMLPARSE_ASSERT_STRING(_tag_,name);
-    XMLPARSE_ASSERT_STRING(_tag_,transport);
-
-    for(i=0;i<nloaded_profiles;i++)
-       if(!strcmp(name,loaded_profiles[i]->name))
-          XMLPARSE_MESSAGE(_tag_,"profile name must be unique");
-
-    transporttype=TransportType(transport);
-
-    if(transporttype==Transport_None)
-       XMLPARSE_INVALID(_tag_,transport);
-
-    if((nloaded_profiles%16)==0)
-       loaded_profiles=(Profile**)realloc((void*)loaded_profiles,(nloaded_profiles+16)*sizeof(Profile*));
-
-    nloaded_profiles++;
-
-    loaded_profiles[nloaded_profiles-1]=(Profile*)calloc(1,sizeof(Profile));
-
-    loaded_profiles[nloaded_profiles-1]->name=strcpy(malloc(strlen(name)+1),name);
-    loaded_profiles[nloaded_profiles-1]->transport=transporttype;
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the RoutinoProfilesType XSD type is seen
-
-  int RoutinoProfilesType_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-//static int RoutinoProfilesType_function(const char *_tag_,int _type_)
-//{
-// return(0);
-//}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  The function that is called when the XML declaration is seen
-
-  int xmlDeclaration_function Returns 0 if no error occured or something else otherwise.
-
-  const char *_tag_ Set to the name of the element tag that triggered this function call.
-
-  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
-
-  const char *version The contents of the 'version' attribute (or NULL if not defined).
-
-  const char *encoding The contents of the 'encoding' attribute (or NULL if not defined).
-  ++++++++++++++++++++++++++++++++++++++*/
-
-//static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding)
-//{
-// return(0);
-//}
 
 
 /*++++++++++++++++++++++++++++++++++++++
