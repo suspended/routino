@@ -1,3 +1,15 @@
+Version 2.4.1 of Routino released : Mon Dec 17 2012
+---------------------------------------------------
+
+Bug fixes:
+  Fix error with finding routes with low preference values (router).
+  Fix error when searching for default profiles.xml (router).
+  Fix bug with printing log messages when output is not stdout (tagmodifier).
+  Stop various crashes if trying to process file with no data (planetsplitter).
+
+Note: This version is compatible with databases from version 2.4.
+
+
 Version 2.4 of Routino released : Sat Dec 8 2012
 ------------------------------------------------
 
