@@ -254,34 +254,25 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           result2=InsertResult(results,node2,seg2);
           result2->prev=result1;
           result2->score=cumulative_score;
-
-          if(node2==finish_node)
-            {
-             finish_score=cumulative_score;
-             finish_result=result2;
-            }
-          else
-            {
-             result2->sortby=result2->score;
-             InsertInQueue(queue,result2);
-            }
          }
        else if(cumulative_score<result2->score) /* New score for end node/segment combination is better */
          {
           result2->prev=result1;
           result2->score=cumulative_score;
           result2->segment=seg2;
+         }
+       else
+          goto endloop;
 
-          if(node2==finish_node)
-            {
-             finish_score=cumulative_score;
-             finish_result=result2;
-            }
-          else
-            {
-             result2->sortby=result2->score;
-             InsertInQueue(queue,result2);
-            }
+       if(node2==finish_node)
+         {
+          finish_score=cumulative_score;
+          finish_result=result2;
+         }
+       else
+         {
+          result2->sortby=result2->score;
+          InsertInQueue(queue,result2);
          }
 
       endloop:
@@ -558,63 +549,39 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           result2=InsertResult(results,node2,seg2);
           result2->prev=result1;
           result2->score=cumulative_score;
-
-          if((result3=FindResult(end,node2,seg2)))
-            {
-             if((result2->score+result3->score)<finish_score)
-               {
-                finish_score=result2->score+result3->score;
-                finish_result=result2;
-               }
-            }
-          else
-            {
-             double lat,lon;
-             distance_t direct;
-
-             GetLatLong(nodes,node2,&lat,&lon); /* node2 cannot be a fake node (must be a super-node) */
-
-             direct=Distance(lat,lon,finish_lat,finish_lon);
-
-             if(option_quickest==0)
-                result2->sortby=result2->score+(score_t)direct/profile->max_pref;
-             else
-                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
-
-             if(result2->sortby<finish_score)
-                InsertInQueue(queue,result2);
-            }
          }
        else if(cumulative_score<result2->score) /* New end node/segment pair is better */
          {
           result2->prev=result1;
           result2->score=cumulative_score;
+         }
+       else
+          goto endloop;
 
-          if((result3=FindResult(end,node2,seg2)))
+       if((result3=FindResult(end,node2,seg2)))
+         {
+          if((result2->score+result3->score)<finish_score)
             {
-             if((result2->score+result3->score)<finish_score)
-               {
-                finish_score=result2->score+result3->score;
-                finish_result=result2;
-               }
+             finish_score=result2->score+result3->score;
+             finish_result=result2;
             }
-          else if(result2->score<finish_score)
-            {
-             double lat,lon;
-             distance_t direct;
+         }
+       else
+         {
+          double lat,lon;
+          distance_t direct;
 
-             GetLatLong(nodes,node2,&lat,&lon); /* node2 cannot be a fake node (must be a super-node) */
+          GetLatLong(nodes,node2,&lat,&lon); /* node2 cannot be a fake node (must be a super-node) */
 
-             direct=Distance(lat,lon,finish_lat,finish_lon);
+          direct=Distance(lat,lon,finish_lat,finish_lon);
 
-             if(option_quickest==0)
-                result2->sortby=result2->score+(score_t)direct/profile->max_pref;
-             else
-                result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
+          if(option_quickest==0)
+             result2->sortby=result2->score+(score_t)direct/profile->max_pref;
+          else
+             result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-             if(result2->sortby<finish_score)
-                InsertInQueue(queue,result2);
-            }
+          if(result2->sortby<finish_score)
+             InsertInQueue(queue,result2);
          }
 
        if(!option_quiet && !(results->number%1000))
@@ -820,10 +787,6 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
           result2->prev=result1;
           result2->score=cumulative_score;
           result2->sortby=result2->score;
-
-          /* don't route beyond a super-node. */
-          if(!IsSuperNode(node2p))
-             InsertInQueue(queue,result2);
          }
        else if(cumulative_score<result2->score) /* New score for end node/segment combination is better */
          {
@@ -831,11 +794,12 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
           result2->segment=seg2;
           result2->score=cumulative_score;
           result2->sortby=result2->score;
-
-          /* don't route beyond a super-node. */
-          if(!IsSuperNode(node2p))
-             InsertInQueue(queue,result2);
          }
+       else goto endloop;
+
+       /* don't route beyond a super-node. */
+       if(!IsSuperNode(node2p))
+          InsertInQueue(queue,result2);
 
       endloop:
 
@@ -1037,12 +1001,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           if(node2p && IsSuperNode(node2p))
              (*nsuper)++;
 
-          if(node2p && !IsSuperNode(node2p))
-            {
-             result2->sortby=result2->score;
-             InsertInQueue(queue,result2);
-            }
-
           if(node2==finish_node)
              found_finish=1;
          }
@@ -1050,12 +1008,14 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          {
           result2->prev=result1;
           result2->score=cumulative_score;
+         }
+       else
+          goto endloop;
 
-          if(node2p && !IsSuperNode(node2p))
-            {
-             result2->sortby=result2->score;
-             InsertInQueue(queue,result2);
-            }
+       if(node2p && !IsSuperNode(node2p))
+         {
+          result2->sortby=result2->score;
+          InsertInQueue(queue,result2);
          }
 
       endloop:
@@ -1256,23 +1216,19 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           result2=InsertResult(results,node2,seg2);
           result2->next=result1;   /* working backwards */
           result2->score=cumulative_score;
-
-          if(IsFakeNode(node1) || !IsSuperNode(node1p))
-            {
-             result2->sortby=result2->score;
-             InsertInQueue(queue,result2);
-            }
          }
        else if(cumulative_score<result2->score) /* New end node is better */
          {
           result2->next=result1; /* working backwards */
           result2->score=cumulative_score;
+         }
+       else
+          goto endloop;
 
-          if(IsFakeNode(node1) || !IsSuperNode(node1p))
-            {
-             result2->sortby=result2->score;
-             InsertInQueue(queue,result2);
-            }
+       if(IsFakeNode(node1) || !IsSuperNode(node1p))
+         {
+          result2->sortby=result2->score;
+          InsertInQueue(queue,result2);
          }
 
       endloop:
