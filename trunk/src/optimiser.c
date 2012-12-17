@@ -351,7 +351,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Set up the finish conditions */
 
- finish_score=INF_DISTANCE;
+ finish_score=INF_SCORE;
  finish_result=NULL;
 
  if(IsFakeNode(end->finish_node))
