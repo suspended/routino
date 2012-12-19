@@ -39,10 +39,10 @@
 #define LEX_FUNC_XML_DECL_BEGIN    2
 #define LEX_FUNC_TAG_POP           3
 #define LEX_FUNC_TAG_PUSH          4
-#define LEX_FUNC_XML_DECL_FINISH   6
-#define LEX_FUNC_TAG_FINISH        7
-#define LEX_FUNC_ATTR_KEY          8
-#define LEX_FUNC_ATTR_VAL          9
+#define LEX_FUNC_XML_DECL_FINISH   5
+#define LEX_FUNC_TAG_FINISH        6
+#define LEX_FUNC_ATTR_KEY          7
+#define LEX_FUNC_ATTR_VAL          8
 
 #define LEX_STATE_INITIAL         10
 #define LEX_STATE_BANGTAG         11
@@ -86,8 +86,8 @@
 
 static unsigned long long lineno;
 
-static char buffer[2][16384];
-static char *buffer_token,*buffer_end,*buffer_ptr;
+static unsigned char buffer[2][16384];
+static unsigned char *buffer_token,*buffer_end,*buffer_ptr;
 static int buffer_active=0;
 
 
@@ -131,6 +131,7 @@ static inline int buffer_refill(int fd)
  else
     return(0);
 }
+
 
 /* Macros to simplify the parser (and make it look more like lex) */
 
@@ -208,10 +209,10 @@ static const unsigned char namestart[256],namechar[256],whitespace[256],digit[25
 
   int nattributes The number of attributes collected.
 
-  char *attributes[XMLPARSE_MAX_ATTRS] The list of attributes.
+  unsigned char *attributes[XMLPARSE_MAX_ATTRS] The list of attributes.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int call_callback(const char *name,int (*callback)(),int type,int nattributes,char *attributes[XMLPARSE_MAX_ATTRS])
+static inline int call_callback(const char *name,int (*callback)(),int type,int nattributes,unsigned char *attributes[XMLPARSE_MAX_ATTRS])
 {
  switch(nattributes)
    {
@@ -259,7 +260,7 @@ int ParseXML(int fd,xmltag **tags,int options)
  unsigned char saved_buffer_ptr=0;
  const unsigned char *quoted;
 
- char *attributes[XMLPARSE_MAX_ATTRS]={NULL};
+ unsigned char *attributes[XMLPARSE_MAX_ATTRS]={NULL};
  int attribute=0;
 
  int stackdepth=0,stackused=0;
@@ -304,7 +305,7 @@ int ParseXML(int fd,xmltag **tags,int options)
 
     while(1)
       {
-       while(whitespace[(int)*(unsigned char*)buffer_ptr])
+       while(whitespace[(int)*buffer_ptr])
           NEXT_CHAR;
 
        if(*buffer_ptr=='\n')
@@ -456,15 +457,15 @@ int ParseXML(int fd,xmltag **tags,int options)
 
     while(1)
       {
-       while(whitespace[(int)*(unsigned char*)buffer_ptr])
+       while(whitespace[(int)*buffer_ptr])
           NEXT_CHAR;
 
-       if(namestart[(int)*(unsigned char*)buffer_ptr])
+       if(namestart[(int)*buffer_ptr])
          {
           START_TOKEN;
 
           NEXT_CHAR;
-          while(namechar[(int)*(unsigned char*)buffer_ptr])
+          while(namechar[(int)*buffer_ptr])
              NEXT_CHAR;
 
           saved_buffer_ptr=*buffer_ptr;
@@ -507,12 +508,12 @@ int ParseXML(int fd,xmltag **tags,int options)
 
    case LEX_STATE_TAG_START:
 
-    if(namestart[(int)*(unsigned char*)buffer_ptr])
+    if(namestart[(int)*buffer_ptr])
       {
        START_TOKEN;
 
        NEXT_CHAR;
-       while(namechar[(int)*(unsigned char*)buffer_ptr])
+       while(namechar[(int)*buffer_ptr])
           NEXT_CHAR;
 
        saved_buffer_ptr=*buffer_ptr;
@@ -534,12 +535,12 @@ int ParseXML(int fd,xmltag **tags,int options)
 
    case LEX_STATE_END_TAG1:
 
-    if(namestart[(int)*(unsigned char*)buffer_ptr])
+    if(namestart[(int)*buffer_ptr])
       {
        START_TOKEN;
 
        NEXT_CHAR;
-       while(namechar[(int)*(unsigned char*)buffer_ptr])
+       while(namechar[(int)*buffer_ptr])
           NEXT_CHAR;
 
        saved_buffer_ptr=*buffer_ptr;
@@ -585,15 +586,15 @@ int ParseXML(int fd,xmltag **tags,int options)
 
     while(1)
       {
-       while(whitespace[(int)*(unsigned char*)buffer_ptr])
+       while(whitespace[(int)*buffer_ptr])
           NEXT_CHAR;
 
-       if(namestart[(int)*(unsigned char*)buffer_ptr])
+       if(namestart[(int)*buffer_ptr])
          {
           START_TOKEN;
 
           NEXT_CHAR;
-          while(namechar[(int)*(unsigned char*)buffer_ptr])
+          while(namechar[(int)*buffer_ptr])
              NEXT_CHAR;
 
           saved_buffer_ptr=*buffer_ptr;
@@ -708,89 +709,89 @@ int ParseXML(int fd,xmltag **tags,int options)
 
     while(1)
       {
-       switch(quoted[(int)*(unsigned char*)buffer_ptr])
+       switch(quoted[(int)*buffer_ptr])
          {
          case 10:            /* U1 - used by all tag keys and many values */
           do
             {
              NEXT_CHAR;
             }
-          while(quoted[(int)*(unsigned char*)buffer_ptr]==10);
+          while(quoted[(int)*buffer_ptr]==10);
           break;
 
          case 20:            /* U2 */
           NEXT_CHAR;
-          if(!U2[0][(int)*(unsigned char*)buffer_ptr])
+          if(!U2[0][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
           break;
 
          case 31:            /* U3a */
           NEXT_CHAR;
-          if(!U3a[0][(int)*(unsigned char*)buffer_ptr])
+          if(!U3a[0][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
-          if(!U3a[1][(int)*(unsigned char*)buffer_ptr])
+          if(!U3a[1][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
           break;
 
          case 32:            /* U3b */
           NEXT_CHAR;
-          if(!U3b[0][(int)*(unsigned char*)buffer_ptr])
+          if(!U3b[0][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
-          if(!U3b[1][(int)*(unsigned char*)buffer_ptr])
+          if(!U3b[1][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
           break;
 
          case 33:            /* U3c */
           NEXT_CHAR;
-          if(!U3c[0][(int)*(unsigned char*)buffer_ptr])
+          if(!U3c[0][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
-          if(!U3c[1][(int)*(unsigned char*)buffer_ptr])
+          if(!U3c[1][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
           break;
 
          case 34:            /* U3d */
           NEXT_CHAR;
-          if(!U3d[0][(int)*(unsigned char*)buffer_ptr])
+          if(!U3d[0][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
-          if(!U3d[1][(int)*(unsigned char*)buffer_ptr])
+          if(!U3d[1][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
           break;
 
          case 41:            /* U4a */
           NEXT_CHAR;
-          if(!U4a[0][(int)*(unsigned char*)buffer_ptr])
+          if(!U4a[0][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
-          if(!U4a[1][(int)*(unsigned char*)buffer_ptr])
+          if(!U4a[1][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
           break;
 
          case 42:            /* U4b */
           NEXT_CHAR;
-          if(!U4b[0][(int)*(unsigned char*)buffer_ptr])
+          if(!U4b[0][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
-          if(!U4b[1][(int)*(unsigned char*)buffer_ptr])
+          if(!U4b[1][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
           break;
 
          case 43:            /* U4c */
           NEXT_CHAR;
-          if(!U4c[0][(int)*(unsigned char*)buffer_ptr])
+          if(!U4c[0][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
-          if(!U4c[1][(int)*(unsigned char*)buffer_ptr])
+          if(!U4c[1][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
           break;
@@ -803,12 +804,12 @@ int ParseXML(int fd,xmltag **tags,int options)
              int charref_len=3;
 
              NEXT_CHAR;
-             if(digit[(int)*(unsigned char*)buffer_ptr]) /* decimal */
+             if(digit[(int)*buffer_ptr]) /* decimal */
                {
                 NEXT_CHAR;
                 charref_len++;
 
-                while(digit[(int)*(unsigned char*)buffer_ptr])
+                while(digit[(int)*buffer_ptr])
                   {
                    NEXT_CHAR;
                    charref_len++;
@@ -822,7 +823,7 @@ int ParseXML(int fd,xmltag **tags,int options)
                 NEXT_CHAR;
                 charref_len++;
 
-                while(xdigit[(int)*(unsigned char*)buffer_ptr])
+                while(xdigit[(int)*buffer_ptr])
                   {
                    NEXT_CHAR;
                    charref_len++;
@@ -843,7 +844,7 @@ int ParseXML(int fd,xmltag **tags,int options)
                 saved_buffer_ptr=*buffer_ptr;
                 *buffer_ptr=0;
 
-                str=ParseXML_Decode_Char_Ref(buffer_ptr-charref_len);
+                str=ParseXML_Decode_Char_Ref((char*)(buffer_ptr-charref_len));
 
                 if(!str)
                   {
@@ -857,12 +858,12 @@ int ParseXML(int fd,xmltag **tags,int options)
                 *buffer_ptr=saved_buffer_ptr;
                }
             }
-          else if(namestart[(int)*(unsigned char*)buffer_ptr]) /* entityref */
+          else if(namestart[(int)*buffer_ptr]) /* entityref */
             {
              int entityref_len=3;
 
              NEXT_CHAR;
-             while(namechar[(int)*(unsigned char*)buffer_ptr])
+             while(namechar[(int)*buffer_ptr])
                {
                 NEXT_CHAR;
                 entityref_len++;
@@ -880,7 +881,7 @@ int ParseXML(int fd,xmltag **tags,int options)
                 saved_buffer_ptr=*buffer_ptr;
                 *buffer_ptr=0;
 
-                str=ParseXML_Decode_Entity_Ref(buffer_ptr-entityref_len);
+                str=ParseXML_Decode_Entity_Ref((char*)(buffer_ptr-entityref_len));
 
                 if(!str)
                   {
@@ -931,7 +932,7 @@ int ParseXML(int fd,xmltag **tags,int options)
     tag=NULL;
 
     for(i=0;tags[i];i++)
-       if(!strcasecmp(buffer_token,tags[i]->name))
+       if(!strcasecmp((char*)buffer_token,tags[i]->name))
          {
           tag=tags[i];
 
@@ -998,7 +999,7 @@ int ParseXML(int fd,xmltag **tags,int options)
     tags=tags_stack[stackused];
     tag =tag_stack [stackused];
 
-    if(strcmp(tag->name,buffer_token))
+    if(strcmp((char*)buffer_token,tag->name))
        BEGIN(LEX_ERROR_UNBALANCED);
 
     if(stackused<0)
@@ -1028,7 +1029,7 @@ int ParseXML(int fd,xmltag **tags,int options)
     attribute=-1;
 
     for(i=0;i<tag->nattributes;i++)
-       if(!strcasecmp(buffer_token,tag->attributes[i]))
+       if(!strcasecmp((char*)buffer_token,tag->attributes[i]))
          {
           attribute=i;
 
@@ -1038,7 +1039,7 @@ int ParseXML(int fd,xmltag **tags,int options)
     if(attribute==-1)
       {
        if((options&XMLPARSE_UNKNOWN_ATTRIBUTES)==XMLPARSE_UNKNOWN_ATTR_ERROR ||
-          ((options&XMLPARSE_UNKNOWN_ATTRIBUTES)==XMLPARSE_UNKNOWN_ATTR_ERRNONAME && !strchr(buffer_token,':')))
+          ((options&XMLPARSE_UNKNOWN_ATTRIBUTES)==XMLPARSE_UNKNOWN_ATTR_ERRNONAME && !strchr((char*)buffer_token,':')))
           BEGIN(LEX_ERROR_UNEXP_ATT);
        else if((options&XMLPARSE_UNKNOWN_ATTRIBUTES)==XMLPARSE_UNKNOWN_ATTR_WARN)
           fprintf(stderr,"XML Parser: Warning on line %llu: unexpected attribute '%s' for tag '%s'.\n",lineno,buffer_token,tag->name);
