@@ -277,7 +277,7 @@ static void uncompress_gzip_pipe(int filefd,int pipefd)
  int infinished=0;
  int state;
 
- if((state=inflateInit2(&z,15+32))!=Z_OK)
+ if(inflateInit2(&z,15+32)!=Z_OK)
     exit(EXIT_FAILURE);
 
  do
