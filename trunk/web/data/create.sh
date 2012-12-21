@@ -3,28 +3,22 @@
 # This script can download either from GeoFabrik or Cloudmade.
 
 
-# EDIT THIS to set the names of the files to download.
+# EDIT THIS to set the names of the files to download from GeoFabrik.
 files="europe/great_britain.osm.bz2 europe/ireland.osm.bz2 europe/isle_of_man.osm.bz2"
+server="download.geofabrik.de/openstreetmap"
+
+## EDIT THIS to set the names of the files to download from Cloudmade.
+#files="europe/northern_europe/united_kingdom/united_kingdom.osm.bz2 europe/northern_europe/ireland/ireland.osm.bz2"
+#server="downloads.cloudmade.com"
+
 
 # Download the files
 
 for file in $files; do
-   wget -N http://download.geofabrik.de/osm/$file
+   wget -N http://$server/$file
 done
-
-
-## EDIT THIS to set the names of the files to download.
-#files="europe/united_kingdom/united_kingdom.osm.bz2 europe/ireland/ireland.osm.bz2 europe/isle_of_man/isle_of_man.osm.bz2"
-#
-## Download the files
-#
-#for file in $files; do
-#   wget -N http://downloads.cloudmade.com/$file
-#done
 
 
 # Process the data
 
-bunzip2 *.bz2
-
-../bin/planetsplitter --errorlog *.osm
+../bin/planetsplitter --errorlog *.osm.bz2
