@@ -24,75 +24,22 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "typesx.h"
-#include "nodesx.h"
-#include "segmentsx.h"
-#include "waysx.h"
-#include "relationsx.h"
+#include "types.h"
 
 #include "osmparser.h"
 
 #include "xmlparse.h"
 #include "tagging.h"
-
 #include "logging.h"
-
-
-/* Macros */
-
-/*+ Checks if a value in the XML is one of the allowed values for true. +*/
-#define ISTRUE(xx)  (!strcmp(xx,"true") || !strcmp(xx,"yes") || !strcmp(xx,"1"))
-
-/*+ Checks if a value in the XML is one of the allowed values for false. +*/
-#define ISFALSE(xx) (!strcmp(xx,"false") || !strcmp(xx,"no") || !strcmp(xx,"0"))
-
-
-/* Constants */
-
-#define MODE_NORMAL  3
-#define MODE_CREATE  2
-#define MODE_MODIFY  1
-#define MODE_DELETE -1
 
 
 /* Local variables */
 
-static int mode=MODE_NORMAL;
+static int current_mode=MODE_NORMAL;
 
-static index_t nnodes=0;
-static index_t nways=0;
-static index_t nrelations=0;
+static index_t nnodes=0,nways=0,nrelations=0;
 
 static TagList *current_tags=NULL;
-
-static node_t *way_nodes=NULL;
-static int     way_nnodes=0;
-
-static node_t     *relation_nodes=NULL;
-static int         relation_nnodes=0;
-static way_t      *relation_ways=NULL;
-static int         relation_nways=0;
-static relation_t *relation_relations=NULL;
-static int         relation_nrelations=0;
-static way_t       relation_from=NO_WAY_ID;
-static way_t       relation_to=NO_WAY_ID;
-static node_t      relation_via=NO_NODE_ID;
-
-static NodesX     *nodes;
-static SegmentsX  *segments;
-static WaysX      *ways;
-static RelationsX *relations;
-
-
-/* Local functions */
-
-static void process_node_tags(TagList *tags,node_t id,double latitude,double longitude);
-static void process_way_tags(TagList *tags,way_t id);
-static void process_relation_tags(TagList *tags,relation_t id);
-
-static double parse_speed(way_t id,const char *k,const char *v);
-static double parse_weight(way_t id,const char *k,const char *v);
-static double parse_length(way_t id,const char *k,const char *v);
 
 
 /* The XML tag processing function prototypes */
@@ -136,10 +83,10 @@ static xmltag memberType_tag;
 /* The XML tag definition values */
 
 /*+ The complete set of tags at the top level for OSM. +*/
-static xmltag *xml_osm_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
+xmltag *xml_osm_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
 
 /*+ The complete set of tags at the top level for OSC. +*/
-static xmltag *xml_osc_toplevel_tags[]={&xmlDeclaration_tag,&osmChangeType_tag,NULL};
+xmltag *xml_osc_toplevel_tags[]={&xmlDeclaration_tag,&osmChangeType_tag,NULL};
 
 /*+ The xmlDeclaration type tag. +*/
 static xmltag xmlDeclaration_tag=
@@ -284,13 +231,25 @@ static xmltag memberType_tag=
 
 static int osmType_function(const char *_tag_,int _type_,const char *version)
 {
+ /* Print the initial message */
+
+ if(_type_&XMLPARSE_TAG_START)
+    printf_first("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes=0,nways=0,nrelations=0);
+
+ /* Check the tag values */
+
  if(_type_&XMLPARSE_TAG_START)
    {
-    mode=MODE_NORMAL;
+    current_mode=MODE_NORMAL;
 
     if(!version || strcmp(version,"0.6"))
        XMLPARSE_MESSAGE(_tag_,"Invalid value for 'version' (only '0.6' accepted)");
    }
+
+ /* Print the final message */
+
+ if(_type_&XMLPARSE_TAG_END)
+    printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  return(0);
 }
@@ -310,11 +269,23 @@ static int osmType_function(const char *_tag_,int _type_,const char *version)
 
 static int osmChangeType_function(const char *_tag_,int _type_,const char *version)
 {
+ /* Print the initial message */
+
+ if(_type_&XMLPARSE_TAG_START)
+    printf_first("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes=0,nways=0,nrelations=0);
+
+ /* Check the tag values */
+
  if(_type_&XMLPARSE_TAG_START)
    {
     if(!version || strcmp(version,"0.6"))
        XMLPARSE_MESSAGE(_tag_,"Invalid value for 'version' (only '0.6' accepted)");
    }
+
+ /* Print the final message */
+
+ if(_type_&XMLPARSE_TAG_END)
+    printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  return(0);
 }
@@ -383,7 +354,7 @@ static int changesetType_function(const char *_tag_,int _type_)
 static int modifyType_function(const char *_tag_,int _type_)
 {
  if(_type_&XMLPARSE_TAG_START)
-    mode=MODE_MODIFY;
+    current_mode=MODE_MODIFY;
 
  return(0);
 }
@@ -402,7 +373,7 @@ static int modifyType_function(const char *_tag_,int _type_)
 static int createType_function(const char *_tag_,int _type_)
 {
  if(_type_&XMLPARSE_TAG_START)
-    mode=MODE_CREATE;
+    current_mode=MODE_CREATE;
 
  return(0);
 }
@@ -421,7 +392,7 @@ static int createType_function(const char *_tag_,int _type_)
 static int deleteType_function(const char *_tag_,int _type_)
 {
  if(_type_&XMLPARSE_TAG_START)
-    mode=MODE_DELETE;
+    current_mode=MODE_DELETE;
 
  return(0);
 }
@@ -465,7 +436,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
     node_id=(node_t)llid;
     logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
 
-    if(mode!=MODE_DELETE)
+    if(current_mode!=MODE_DELETE)
       {
        XMLPARSE_ASSERT_FLOATING(_tag_,lat); latitude =atof(lat);
        XMLPARSE_ASSERT_FLOATING(_tag_,lon); longitude=atof(lon);
@@ -476,7 +447,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
    {
     TagList *result=ApplyNodeTaggingRules(current_tags,node_id);
 
-    process_node_tags(result,node_id,latitude,longitude);
+    ProcessNodeTags(result,node_id,latitude,longitude,current_mode);
 
     DeleteTagList(current_tags); current_tags=NULL;
     DeleteTagList(result);
@@ -513,7 +484,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
 
     current_tags=NewTagList();
 
-    way_nnodes=0;
+    osmparser_way_nnodes=0;
 
     /* Handle the way information */
 
@@ -527,7 +498,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
    {
     TagList *result=ApplyWayTaggingRules(current_tags,way_id);
 
-    process_way_tags(result,way_id);
+    ProcessWayTags(result,way_id,current_mode);
 
     DeleteTagList(current_tags); current_tags=NULL;
     DeleteTagList(result);
@@ -564,11 +535,11 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
 
     current_tags=NewTagList();
 
-    relation_nnodes=relation_nways=relation_nrelations=0;
+    osmparser_relation_nnodes=osmparser_relation_nways=osmparser_relation_nrelations=0;
 
-    relation_from=NO_WAY_ID;
-    relation_to=NO_WAY_ID;
-    relation_via=NO_NODE_ID;
+    osmparser_relation_from=NO_WAY_ID;
+    osmparser_relation_to=NO_WAY_ID;
+    osmparser_relation_via=NO_NODE_ID;
 
     /* Handle the relation information */
 
@@ -582,7 +553,7 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
    {
     TagList *result=ApplyRelationTaggingRules(current_tags,relation_id);
 
-    process_relation_tags(result,relation_id);
+    ProcessRelationTags(result,relation_id,current_mode);
 
     DeleteTagList(current_tags); current_tags=NULL;
     DeleteTagList(result);
@@ -643,10 +614,10 @@ static int ndType_function(const char *_tag_,int _type_,const char *ref)
     node_id=(node_t)llid;
     logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
 
-    if(way_nnodes && (way_nnodes%256)==0)
-       way_nodes=(node_t*)realloc((void*)way_nodes,(way_nnodes+256)*sizeof(node_t));
+    if(osmparser_way_nnodes && (osmparser_way_nnodes%256)==0)
+       osmparser_way_nodes=(node_t*)realloc((void*)osmparser_way_nodes,(osmparser_way_nnodes+256)*sizeof(node_t));
 
-    way_nodes[way_nnodes++]=node_id;
+    osmparser_way_nodes[osmparser_way_nnodes++]=node_id;
    }
 
  return(0);
@@ -685,15 +656,15 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
        node_id=(node_t)llid;
        logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
 
-       if(relation_nnodes && (relation_nnodes%256)==0)
-          relation_nodes=(node_t*)realloc((void*)relation_nodes,(relation_nnodes+256)*sizeof(node_t));
+       if(osmparser_relation_nnodes && (osmparser_relation_nnodes%256)==0)
+          osmparser_relation_nodes=(node_t*)realloc((void*)osmparser_relation_nodes,(osmparser_relation_nnodes+256)*sizeof(node_t));
 
-       relation_nodes[relation_nnodes++]=node_id;
+       osmparser_relation_nodes[osmparser_relation_nnodes++]=node_id;
 
        if(role)
          {
           if(!strcmp(role,"via"))
-             relation_via=node_id;
+             osmparser_relation_via=node_id;
          }
       }
     else if(!strcmp(type,"way"))
@@ -703,17 +674,17 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
        way_id=(way_t)llid;
        logassert((long long)way_id==llid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
 
-       if(relation_nways && (relation_nways%256)==0)
-          relation_ways=(way_t*)realloc((void*)relation_ways,(relation_nways+256)*sizeof(way_t));
+       if(osmparser_relation_nways && (osmparser_relation_nways%256)==0)
+          osmparser_relation_ways=(way_t*)realloc((void*)osmparser_relation_ways,(osmparser_relation_nways+256)*sizeof(way_t));
 
-       relation_ways[relation_nways++]=way_id;
+       osmparser_relation_ways[osmparser_relation_nways++]=way_id;
 
        if(role)
          {
           if(!strcmp(role,"from"))
-             relation_from=way_id;
+             osmparser_relation_from=way_id;
           if(!strcmp(role,"to"))
-             relation_to=way_id;
+             osmparser_relation_to=way_id;
          }
       }
     else if(!strcmp(type,"relation"))
@@ -723,966 +694,11 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
        relation_id=(relation_t)llid;
        logassert((long long)relation_id==llid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
 
-       if(relation_nrelations && (relation_nrelations%256)==0)
-          relation_relations=(relation_t*)realloc((void*)relation_relations,(relation_nrelations+256)*sizeof(relation_t));
+       if(osmparser_relation_nrelations && (osmparser_relation_nrelations%256)==0)
+          osmparser_relation_relations=(relation_t*)realloc((void*)osmparser_relation_relations,(osmparser_relation_nrelations+256)*sizeof(relation_t));
 
-       relation_relations[relation_nrelations++]=relation_id;
+       osmparser_relation_relations[osmparser_relation_nrelations++]=relation_id;
       }
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Parse an OSM XML file (from JOSM or planet download).
-
-  int ParseOSM Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor of the file to read from.
-
-  NodesX *OSMNodes The data structure of nodes to fill in.
-
-  SegmentsX *OSMSegments The data structure of segments to fill in.
-
-  WaysX *OSMWays The data structure of ways to fill in.
-
-  RelationsX *OSMRelations The data structure of relations to fill in.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int ParseOSM(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
-{
- int retval;
-
- /* Copy the function parameters and initialise the variables. */
-
- nodes=OSMNodes;
- segments=OSMSegments;
- ways=OSMWays;
- relations=OSMRelations;
-
- way_nodes=(node_t*)malloc(256*sizeof(node_t));
-
- relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
-
- /* Parse the file */
-
- nnodes=0,nways=0,nrelations=0;
-
- printf_first("Reading: Lines=0 Nodes=0 Ways=0 Relations=0");
-
- retval=ParseXML(fd,xml_osm_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
-
- printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
-
- free(way_nodes);
-
- free(relation_nodes);
- free(relation_ways);
- free(relation_relations);
-
- return(retval);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Parse an OSC XML file (from planet download).
-
-  int ParseOSC Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor of the file to read from.
-
-  NodesX *OSMNodes The data structure of nodes to fill in.
-
-  SegmentsX *OSMSegments The data structure of segments to fill in.
-
-  WaysX *OSMWays The data structure of ways to fill in.
-
-  RelationsX *OSMRelations The data structure of relations to fill in.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int ParseOSC(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
-{
- int retval;
-
- /* Copy the function parameters and initialise the variables. */
-
- nodes=OSMNodes;
- segments=OSMSegments;
- ways=OSMWays;
- relations=OSMRelations;
-
- way_nodes=(node_t*)malloc(256*sizeof(node_t));
-
- relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
-
- /* Parse the file */
-
- nnodes=0,nways=0,nrelations=0;
-
- printf_first("Reading: Lines=0 Nodes=0 Ways=0 Relations=0");
-
- retval=ParseXML(fd,xml_osc_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
-
- printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
-
- free(way_nodes);
-
- free(relation_nodes);
- free(relation_ways);
- free(relation_relations);
-
- return(retval);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Process the tags associated with a node.
-
-  TagList *tags The list of node tags.
-
-  node_t id The id of the node.
-
-  double latitude The latitude of the node.
-
-  double longitude The longitude of the node.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static void process_node_tags(TagList *tags,node_t id,double latitude,double longitude)
-{
- transports_t allow=Transports_ALL;
- nodeflags_t flags=0;
- int i;
-
- /* Delete */
-
- if(mode==MODE_DELETE)
-   {
-    AppendNodeList(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow,NODE_DELETED);
-
-    return;
-   }
-
- /* Parse the tags */
-
- for(i=0;i<tags->ntags;i++)
-   {
-    int recognised=0;
-    char *k=tags->k[i];
-    char *v=tags->v[i];
-
-    switch(*k)
-      {
-      case 'b':
-       if(!strcmp(k,"bicycle"))
-         {
-          if(ISFALSE(v))
-             allow&=~Transports_Bicycle;
-          else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'bicycle' = '%s' (after tagging rules); using 'yes'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'f':
-       if(!strcmp(k,"foot"))
-         {
-          if(ISFALSE(v))
-             allow&=~Transports_Foot;
-          else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'foot' = '%s' (after tagging rules); using 'yes'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'g':
-       if(!strcmp(k,"goods"))
-         {
-          if(ISFALSE(v))
-             allow&=~Transports_Goods;
-          else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'goods' = '%s' (after tagging rules); using 'yes'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'h':
-       if(!strcmp(k,"highway"))
-          if(!strcmp(v,"mini_roundabout"))
-            {
-             flags|=NODE_MINIRNDBT;
-             recognised=1; break;
-            }
-
-       if(!strcmp(k,"horse"))
-         {
-          if(ISFALSE(v))
-             allow&=~Transports_Horse;
-          else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'horse' = '%s' (after tagging rules); using 'yes'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"hgv"))
-         {
-          if(ISFALSE(v))
-             allow&=~Transports_HGV;
-          else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'hgv' = '%s' (after tagging rules); using 'yes'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'm':
-       if(!strcmp(k,"moped"))
-         {
-          if(ISFALSE(v))
-             allow&=~Transports_Moped;
-          else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'moped' = '%s' (after tagging rules); using 'yes'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"motorbike"))
-         {
-          if(ISFALSE(v))
-             allow&=~Transports_Motorbike;
-          else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'motorbike' = '%s' (after tagging rules); using 'yes'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"motorcar"))
-         {
-          if(ISFALSE(v))
-             allow&=~Transports_Motorcar;
-          else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'motorcar' = '%s' (after tagging rules); using 'yes'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'p':
-       if(!strcmp(k,"psv"))
-         {
-          if(ISFALSE(v))
-             allow&=~Transports_PSV;
-          else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'psv' = '%s' (after tagging rules); using 'yes'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'w':
-       if(!strcmp(k,"wheelchair"))
-         {
-          if(ISFALSE(v))
-             allow&=~Transports_Wheelchair;
-          else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'wheelchair' = '%s' (after tagging rules); using 'yes'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      default:
-       break;
-      }
-
-    if(!recognised)
-       logerror("Node %"Pnode_t" has an unrecognised tag '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
-   }
-
- /* Create the node */
-
- AppendNodeList(nodes,id,degrees_to_radians(latitude),degrees_to_radians(longitude),allow,flags);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Process the tags associated with a way.
-
-  TagList *tags The list of way tags.
-
-  way_t id The id of the way.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static void process_way_tags(TagList *tags,way_t id)
-{
- Way way={0};
- distance_t oneway=0,area=0;
- int roundabout=0;
- char *name=NULL,*ref=NULL,*refname=NULL;
- int i,j;
-
- /* Delete */
-
- if(mode==MODE_DELETE || mode==MODE_MODIFY)
-   {
-    way.type=WAY_DELETED;
-
-    AppendWayList(ways,id,&way,"");
-
-    way.type=Highway_None;
-
-    AppendSegmentList(segments,id,NO_NODE_ID,NO_NODE_ID,0);
-   }
-
- if(mode==MODE_DELETE)
-    return;
-
- /* Sanity check */
-
- if(way_nnodes==0)
-   {
-    logerror("Way %"Pway_t" has no nodes.\n",id);
-    return;
-   }
-
- if(way_nnodes==1)
-   {
-    logerror("Way %"Pway_t" has only one node.\n",id);
-    return;
-   }
-
- /* Parse the tags - just look for highway */
-
- for(i=0;i<tags->ntags;i++)
-   {
-    char *k=tags->k[i];
-    char *v=tags->v[i];
-
-    if(!strcmp(k,"highway"))
-      {
-       way.type=HighwayType(v);
-
-       if(way.type==Highway_None)
-          logerror("Way %"Pway_t" has an unrecognised highway type '%s' (after tagging rules); ignoring it.\n",id,v);
-
-       break;
-      }
-   }
-
- /* Don't continue if this is not a highway (bypass error logging) */
-
- if(way.type==Highway_None)
-    return;
-
- /* Parse the tags - look for the others */
-
- for(i=0;i<tags->ntags;i++)
-   {
-    int recognised=0;
-    char *k=tags->k[i];
-    char *v=tags->v[i];
-
-    switch(*k)
-      {
-      case 'a':
-       if(!strcmp(k,"area"))
-         {
-          if(ISTRUE(v))
-             area=SEGMENT_AREA;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'area' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'b':
-       if(!strcmp(k,"bicycle"))
-         {
-          if(ISTRUE(v))
-             way.allow|=Transports_Bicycle;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'bicycle' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"bicycleroute"))
-         {
-          if(ISTRUE(v))
-             way.props|=Properties_BicycleRoute;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'bicycleroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"bridge"))
-         {
-          if(ISTRUE(v))
-             way.props|=Properties_Bridge;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'bridge' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'f':
-       if(!strcmp(k,"foot"))
-         {
-          if(ISTRUE(v))
-             way.allow|=Transports_Foot;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'foot' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"footroute"))
-         {
-          if(ISTRUE(v))
-             way.props|=Properties_FootRoute;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'footroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'g':
-       if(!strcmp(k,"goods"))
-         {
-          if(ISTRUE(v))
-             way.allow|=Transports_Goods;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'goods' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'h':
-       if(!strcmp(k,"highway"))
-         {recognised=1; break;}
-
-       if(!strcmp(k,"horse"))
-         {
-          if(ISTRUE(v))
-             way.allow|=Transports_Horse;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'horse' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"hgv"))
-         {
-          if(ISTRUE(v))
-             way.allow|=Transports_HGV;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'hgv' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'm':
-       if(!strncmp(k,"max",3))
-         {
-          if(!strcmp(k+3,"speed"))
-            {
-             way.speed=kph_to_speed(parse_speed(id,k,v));
-             recognised=1; break;
-            }
-
-          if(!strcmp(k+3,"weight"))
-            {
-             way.weight=tonnes_to_weight(parse_weight(id,k,v));
-             recognised=1; break;
-            }
-
-          if(!strcmp(k+3,"height"))
-            {
-             way.height=metres_to_height(parse_length(id,k,v));
-             recognised=1; break;
-            }
-
-          if(!strcmp(k+3,"width"))
-            {
-             way.width=metres_to_height(parse_length(id,k,v));
-             recognised=1; break;
-            }
-
-          if(!strcmp(k+3,"length"))
-            {
-             way.length=metres_to_height(parse_length(id,k,v));
-             recognised=1; break;
-            }
-         }
-
-       if(!strcmp(k,"moped"))
-         {
-          if(ISTRUE(v))
-             way.allow|=Transports_Moped;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'moped' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"motorbike"))
-         {
-          if(ISTRUE(v))
-             way.allow|=Transports_Motorbike;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'motorbike' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"motorcar"))
-         {
-          if(ISTRUE(v))
-             way.allow|=Transports_Motorcar;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'motorcar' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"multilane"))
-         {
-          if(ISTRUE(v))
-             way.props|=Properties_Multilane;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'multilane' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'n':
-       if(!strcmp(k,"name"))
-         {
-          name=v;
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'o':
-       if(!strcmp(k,"oneway"))
-         {
-          if(ISTRUE(v))
-             oneway=ONEWAY_1TO2;
-          else if(!strcmp(v,"-1"))
-             oneway=ONEWAY_2TO1;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'oneway' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'p':
-       if(!strcmp(k,"paved"))
-         {
-          if(ISTRUE(v))
-             way.props|=Properties_Paved;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'paved' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"psv"))
-         {
-          if(ISTRUE(v))
-             way.allow|=Transports_PSV;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'psv' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'r':
-       if(!strcmp(k,"ref"))
-         {
-          ref=v;
-          recognised=1; break;
-         }
-
-       if(!strcmp(k,"roundabout"))
-         {
-          if(ISTRUE(v))
-             roundabout=1;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'roundabout' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 't':
-       if(!strcmp(k,"tunnel"))
-         {
-          if(ISTRUE(v))
-             way.props|=Properties_Tunnel;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'tunnel' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'w':
-       if(!strcmp(k,"wheelchair"))
-         {
-          if(ISTRUE(v))
-             way.allow|=Transports_Wheelchair;
-          else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'wheelchair' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      default:
-       break;
-      }
-
-    if(!recognised)
-       logerror("Way %"Pway_t" has an unrecognised tag '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
-   }
-
- /* Create the way */
-
- if(!way.allow)
-    return;
-
- if(oneway)
-    way.type|=Highway_OneWay;
-
- if(roundabout)
-    way.type|=Highway_Roundabout;
-
- if(ref && name)
-   {
-    refname=(char*)malloc(strlen(ref)+strlen(name)+4);
-    sprintf(refname,"%s (%s)",name,ref);
-   }
- else if(ref && !name)
-    refname=ref;
- else if(!ref && name)
-    refname=name;
- else /* if(!ref && !name) */
-    refname="";
-
- AppendWayList(ways,id,&way,refname);
-
- if(ref && name)
-    free(refname);
-
- for(i=1;i<way_nnodes;i++)
-   {
-    node_t from=way_nodes[i-1];
-    node_t to  =way_nodes[i];
-
-    for(j=1;j<i;j++)
-      {
-       node_t n1=way_nodes[j-1];
-       node_t n2=way_nodes[j];
-
-       if((n1==from && n2==to) || (n2==from && n1==to))
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",n1,n2,id);
-      }
-
-    AppendSegmentList(segments,id,from,to,area+oneway);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Process the tags associated with a relation.
-
-  TagList *tags The list of relation tags.
-
-  relation_t id The id of the relation.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static void process_relation_tags(TagList *tags,relation_t id)
-{
- transports_t routes=Transports_None;
- transports_t except=Transports_None;
- int relation_turn_restriction=0;
- TurnRestriction restriction=TurnRestrict_None;
- int i;
-
- /* Delete */
-
- if(mode==MODE_DELETE || mode==MODE_MODIFY)
-   {
-    AppendRouteRelationList(relations,id,RELATION_DELETED,
-                            relation_ways,relation_nways,
-                            relation_relations,relation_nrelations);
-
-    AppendTurnRelationList(relations,id,
-                           relation_from,relation_to,relation_via,
-                           restriction,RELATION_DELETED);
-   }
-
- if(mode==MODE_DELETE)
-    return;
-
- /* Sanity check */
-
- if(relation_nnodes==0 && relation_nways==0 && relation_nrelations==0)
-   {
-    logerror("Relation %"Prelation_t" has no nodes, ways or relations.\n",id);
-    return;
-   }
-
- /* Parse the tags */
-
- for(i=0;i<tags->ntags;i++)
-   {
-    int recognised=0;
-    char *k=tags->k[i];
-    char *v=tags->v[i];
-
-    switch(*k)
-      {
-      case 'b':
-       if(!strcmp(k,"bicycleroute"))
-         {
-          if(ISTRUE(v))
-             routes|=Transports_Bicycle;
-          else if(!ISFALSE(v))
-             logerror("Relation %"Prelation_t" has an unrecognised tag value 'bicycleroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'e':
-       if(!strcmp(k,"except"))
-         {
-          for(i=1;i<Transport_Count;i++)
-             if(strstr(v,TransportName(i)))
-                except|=TRANSPORTS(i);
-
-          if(except==Transports_None)
-             logerror("Relation %"Prelation_t" has an unrecognised tag value 'except' = '%s' (after tagging rules); ignoring it.\n",id,v);
-
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'f':
-       if(!strcmp(k,"footroute"))
-         {
-          if(ISTRUE(v))
-             routes|=Transports_Foot;
-          else if(!ISFALSE(v))
-             logerror("Relation %"Prelation_t" has an unrecognised tag value 'footroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
-          recognised=1; break;
-         }
-
-       break;
-
-      case 'r':
-       if(!strcmp(k,"restriction"))
-         {
-          if(!strcmp(v,"no_right_turn"   )) restriction=TurnRestrict_no_right_turn;
-          if(!strcmp(v,"no_left_turn"    )) restriction=TurnRestrict_no_left_turn;
-          if(!strcmp(v,"no_u_turn"       )) restriction=TurnRestrict_no_u_turn;
-          if(!strcmp(v,"no_straight_on"  )) restriction=TurnRestrict_no_straight_on;
-          if(!strcmp(v,"only_right_turn" )) restriction=TurnRestrict_only_right_turn;
-          if(!strcmp(v,"only_left_turn"  )) restriction=TurnRestrict_only_left_turn;
-          if(!strcmp(v,"only_straight_on")) restriction=TurnRestrict_only_straight_on;
-
-          if(restriction==TurnRestrict_None)
-             logerror("Relation %"Prelation_t" has an unrecognised tag value 'restriction' = '%s' (after tagging rules); ignoring it.\n",id,v);
-
-          recognised=1; break;
-         }
-
-       break;
-
-      case 't':
-       if(!strcmp(k,"type"))
-         {
-          if(!strcmp(v,"restriction"))
-             relation_turn_restriction=1;
-
-          /* Don't log an error for relations of types that we don't handle - there are so many */
-          recognised=1; break;
-         }
-
-       break;
-
-      default:
-       break;
-      }
-
-    if(!recognised)
-       logerror("Relation %"Prelation_t" has an unrecognised tag '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
-   }
-
- /* Create the route relation (must store all relations that have ways or
-    relations even if they are not routes because they might be referenced by
-    other relations that are routes) */
-
- if((relation_nways || relation_nrelations) && !relation_turn_restriction)
-    AppendRouteRelationList(relations,id,routes,
-                            relation_ways,relation_nways,
-                            relation_relations,relation_nrelations);
-
- /* Create the turn restriction relation. */
-
- if(relation_turn_restriction && restriction!=TurnRestrict_None)
-   {
-    if(relation_from==NO_WAY_ID)
-       logerror("Relation %"Prelation_t" is a turn restriction but has no 'from' way.\n",id);
-    else if(relation_to==NO_WAY_ID)
-       logerror("Relation %"Prelation_t" is a turn restriction but has no 'to' way.\n",id);
-    else if(relation_via==NO_NODE_ID)
-       logerror("Relation %"Prelation_t" is a turn restriction but has no 'via' node.\n",id);
-    else
-       AppendTurnRelationList(relations,id,
-                              relation_from,relation_to,relation_via,
-                              restriction,except);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Convert a string containing a speed into a double precision.
-
-  double parse_speed Returns the speed in km/h if it can be parsed.
-
-  way_t id The way being processed.
-
-  const char *k The tag key.
-
-  const char *v The tag value.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static double parse_speed(way_t id,const char *k,const char *v)
-{
- char *ev;
- double value=strtod(v,&ev);
-
- if(v==ev)
-    logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
- else
-   {
-    while(isspace(*ev)) ev++;
-
-    if(!strcmp(ev,"mph"))
-       return(1.609*value);
-
-    if(*ev==0 || !strcmp(ev,"kph"))
-       return(value);
-
-    logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Convert a string containing a weight into a double precision.
-
-  double parse_weight Returns the weight in tonnes if it can be parsed.
-
-  way_t id The way being processed.
-
-  const char *k The tag key.
-
-  const char *v The tag value.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static double parse_weight(way_t id,const char *k,const char *v)
-{
- char *ev;
- double value=strtod(v,&ev);
-
- if(v==ev)
-    logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
- else
-   {
-    while(isspace(*ev)) ev++;
-
-    if(!strcmp(ev,"kg"))
-       return(value/1000.0);
-
-    if(*ev==0 || !strcmp(ev,"T") || !strcmp(ev,"t")
-              || !strcmp(ev,"ton") || !strcmp(ev,"tons")
-              || !strcmp(ev,"tonne") || !strcmp(ev,"tonnes"))
-       return(value);
-
-    logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
-   }
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Convert a string containing a length into a double precision.
-
-  double parse_length Returns the length in metres if it can be parsed.
-
-  way_t id The way being processed.
-
-  const char *k The tag key.
-
-  const char *v The tag value.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static double parse_length(way_t id,const char *k,const char *v)
-{
- char *ev;
- double value=strtod(v,&ev);
-
- if(v==ev)
-    logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
- else
-   {
-    int en=0;
-    int feet=0,inches=0;
-
-    if(sscanf(v,"%d' %d\"%n",&feet,&inches,&en)==2 && en && !v[en])
-       return((feet+(double)inches/12.0)*0.254);
-
-    if(sscanf(v,"%d'%d\"%n",&feet,&inches,&en)==2 && en && !v[en])
-       return((feet+(double)inches/12.0)*0.254);
-
-    if(sscanf(v,"%d'-%d\"%n",&feet,&inches,&en)==2 && en && !v[en])
-       return((feet+(double)inches/12.0)*0.254);
-
-    if(sscanf(v,"%d - %d%n",&feet,&inches,&en)==2 && en && !v[en])
-       return((feet+(double)inches/12.0)*0.254);
-
-    if(sscanf(v,"%d ft %d in%n",&feet,&inches,&en)==2 && en && !v[en])
-       return((feet+(double)inches/12.0)*0.254);
-
-    if(sscanf(v,"%d feet %d inches%n",&feet,&inches,&en)==2 && en && !v[en])
-       return((feet+(double)inches/12.0)*0.254);
-
-    if(!strcmp(ev,"'"))
-       return(feet*0.254);
-
-    while(isspace(*ev)) ev++;
-
-    if(!strcmp(ev,"ft") || !strcmp(ev,"feet"))
-       return(value*0.254);
-
-    if(*ev==0 || !strcmp(ev,"m") || !strcmp(ev,"metre") || !strcmp(ev,"metres"))
-       return(value);
-
-    logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
    }
 
  return(0);
