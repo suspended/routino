@@ -246,16 +246,32 @@ if(!option_process_only)
             printf("\nParse OSC Data [%s]\n==============\n\n",argv[arg]);
             fflush(stdout);
 
-            if(ParseOSC(fd,Nodes,Segments,Ways,Relations))
-               exit(EXIT_FAILURE);
+            if((p=strstr(argv[arg],".pbf")) && !strcmp(p,".pbf"))
+              {
+               if(ParsePBFFile(fd,Nodes,Segments,Ways,Relations,option_changes))
+                  exit(EXIT_FAILURE);
+              }
+            else
+              {
+               if(ParseOSCFile(fd,Nodes,Segments,Ways,Relations))
+                  exit(EXIT_FAILURE);
+              }
            }
          else
            {
             printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
             fflush(stdout);
 
-            if(ParseOSM(fd,Nodes,Segments,Ways,Relations))
-               exit(EXIT_FAILURE);
+            if((p=strstr(argv[arg],".pbf")) && !strcmp(p,".pbf"))
+              {
+               if(ParsePBFFile(fd,Nodes,Segments,Ways,Relations,option_changes))
+                  exit(EXIT_FAILURE);
+              }
+            else
+              {
+               if(ParseOSMFile(fd,Nodes,Segments,Ways,Relations))
+                  exit(EXIT_FAILURE);
+              }
            }
 
          CloseFile(fd);
@@ -268,7 +284,7 @@ if(!option_process_only)
          printf("\nParse OSC Data\n==============\n\n");
          fflush(stdout);
 
-         if(ParseOSC(STDIN_FILENO,Nodes,Segments,Ways,Relations))
+         if(ParseOSCFile(STDIN_FILENO,Nodes,Segments,Ways,Relations))
             exit(EXIT_FAILURE);
         }
       else
@@ -276,7 +292,7 @@ if(!option_process_only)
          printf("\nParse OSM Data\n==============\n\n");
          fflush(stdout);
 
-         if(ParseOSM(STDIN_FILENO,Nodes,Segments,Ways,Relations))
+         if(ParseOSMFile(STDIN_FILENO,Nodes,Segments,Ways,Relations))
             exit(EXIT_FAILURE);
         }
      }
@@ -567,7 +583,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--prune-isolated=<len>]\n"
          "                      [--prune-short=<len>]\n"
          "                      [--prune-straight=<len>]\n"
-         "                      [<filename.osm> ... | <filename.osc> ..."
+         "                      [<filename.osm> ... | <filename.osc> ...\n"
+         "                       | <filename.osm.pbf> ..."
 #if defined(USE_BZIP2) && USE_BZIP2
          "\n                       | <filename.osm.bz2> ... | <filename.osc.bz2> ..."
 #endif
@@ -637,6 +654,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "<filename.osm> ...        The name(s) of the file(s) to process (defaults to\n"
             "<filename.osc> ...         reading data from standard input).\n"
+            "<filename.osm.pbf> ...    Filenames ending '.pbf' read as PBF, others as XML.\n"
 #if defined(USE_BZIP2) && USE_BZIP2
             "                          Filenames ending '.bz2' will be bzip2 uncompressed.\n"
 #endif

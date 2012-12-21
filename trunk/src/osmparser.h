@@ -24,13 +24,56 @@
 #define OSMPARSER_H    /*+ To stop multiple inclusions. +*/
 
 #include "typesx.h"
+#include "xmlparse.h"
+#include "tagging.h"
+
+
+/* Constants */
+
+#define MODE_NORMAL  3
+#define MODE_CREATE  2
+#define MODE_MODIFY  1
+#define MODE_DELETE -1
+
+
+/* Variables in osmxmlparse.c */
+
+extern xmltag *xml_osm_toplevel_tags[];
+extern xmltag *xml_osc_toplevel_tags[];
+
+
+/* Functions in osmpbfparse.c */
+
+int ParsePBF(int fd,int changes);
 
 
 /* Functions in osmparser.c */
 
-int ParseOSM(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
+int ParseOSMFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
 
-int ParseOSC(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
+int ParseOSCFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
+
+int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations,int changes);
+
+void ProcessNodeTags(TagList *tags,node_t id,double latitude,double longitude,int mode);
+void ProcessWayTags(TagList *tags,way_t id, int mode);
+void ProcessRelationTags(TagList *tags,relation_t id,int mode);
+
+
+/* Variables in osmparser.c */
+
+extern node_t *osmparser_way_nodes;
+extern int     osmparser_way_nnodes;
+
+extern node_t     *osmparser_relation_nodes;
+extern int         osmparser_relation_nnodes;
+extern way_t      *osmparser_relation_ways;
+extern int         osmparser_relation_nways;
+extern relation_t *osmparser_relation_relations;
+extern int         osmparser_relation_nrelations;
+extern way_t       osmparser_relation_from;
+extern way_t       osmparser_relation_to;
+extern node_t      osmparser_relation_via;
 
 
 #endif /* OSMPARSER_H */
