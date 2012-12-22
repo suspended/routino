@@ -154,11 +154,10 @@ Usage: planetsplitter [--help]
   <dd>Remove nodes in almost straight highways (defaults to removing nodes up to
     3m offset from a straight line).
   <dt>&lt;filename.osm&gt;, &lt;filename.osc&gt;, &lt;filename.osm.pbf&gt;
-  <dd>Specifies the filename(s) to read data from (defaults to reading data from
-    the standard input).  Filenames ending '.pbf' will be read as PBF, otherwise
-    as XML.  Filenames ending '.bz2' will be bzip2 uncompressed (if bzip2
-    support compiled in).  Filenames ending '.gz' will be gzip uncompressed (if
-    gzip support compiled in).
+  <dd>Specifies the filename(s) to read data from.  Filenames ending '.pbf' will
+    be read as PBF, otherwise as XML.  Filenames ending '.bz2' will be bzip2
+    uncompressed (if bzip2 support compiled in).  Filenames ending '.gz' will be
+    gzip uncompressed (if gzip support compiled in).
 </dl>
 
 <p>
@@ -174,6 +173,12 @@ database files are read as needed rather than being mapped into memory.  This
 allows a database size greater than 2 GB on 32-bit machines or usage with little
 or no virtual memory (e.g. some virtual machines).  The penalty for this is that
 the program takes about twice as long to run.</i>
+
+<p>
+<i>Note: In version 2.5 of Routino the ability to read data from the standard
+input has been removed.  This is because there is now the ability to read
+compressed files (bzip2 and gzip) and PBF files directly.  Also using standard
+input the file type cannot be auto-detected from the filename.</i>
 
 <p>
 Example usage 1:
@@ -204,7 +209,7 @@ read in must not use the --append option but the later ones must.
 Example usage 3:
 
 <pre class="boxed">
-planetsplitter --dir=data --prefix=gb --keep    great_britain_part.osm
+planetsplitter --dir=data --prefix=gb --keep    great_britain.osm
 
 planetsplitter --dir=data --prefix=gb --changes great_britain.osc
 </pre>
@@ -608,10 +613,9 @@ Usage: tagmodifier [--help]
   <dt>--errorlog[=<name>]
     <dd>Log parsing errors to 'error.log' or the specified file name.
   <dt>&lt;filename.osm&gt;
-  <dd>Specifies the filename(s) to read data from (defaults to reading data from
-    the standard input).  Filenames ending '.bz2' will be bzip2 uncompressed (if
-    bzip2 support compiled in).  Filenames ending '.gz' will be gzip
-    uncompressed (if gzip support compiled in).
+  <dd>Specifies the filename(s) to read data from.  Filenames ending '.bz2' will
+    be bzip2 uncompressed (if bzip2 support compiled in).  Filenames ending
+    '.gz' will be gzip uncompressed (if gzip support compiled in).
 </dl>
 
 </div>

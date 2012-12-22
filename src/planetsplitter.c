@@ -155,6 +155,9 @@ int main(int argc,char** argv)
  if(option_filenames && option_process_only)
     print_usage(0,NULL,"Cannot use '--process-only' and filenames at the same time.");
 
+ if(!option_filenames && !option_process_only)
+    print_usage(0,NULL,"File names must be specified unless using '--process-only'");
+
  if(!option_filesort_ramsize)
    {
 #if SLIM
@@ -223,78 +226,56 @@ int main(int argc,char** argv)
 
 if(!option_process_only)
   {
-   if(option_filenames)
+   for(arg=1;arg<argc;arg++)
      {
-      for(arg=1;arg<argc;arg++)
+      int fd;
+      char *p;
+
+      if(argv[arg][0]=='-' && argv[arg][1]=='-')
+         continue;
+
+      fd=ReOpenFile(argv[arg]);
+
+      if((p=strstr(argv[arg],".bz2")) && !strcmp(p,".bz2"))
+         fd=Uncompress_Bzip2(fd);
+
+      if((p=strstr(argv[arg],".gz")) && !strcmp(p,".gz"))
+         fd=Uncompress_Gzip(fd);
+
+      if(option_changes)
         {
-         int fd;
-         char *p;
+         printf("\nParse OSC Data [%s]\n==============\n\n",argv[arg]);
+         fflush(stdout);
 
-         if(argv[arg][0]=='-' && argv[arg][1]=='-')
-            continue;
-
-         fd=ReOpenFile(argv[arg]);
-
-         if((p=strstr(argv[arg],".bz2")) && !strcmp(p,".bz2"))
-            fd=Uncompress_Bzip2(fd);
-
-         if((p=strstr(argv[arg],".gz")) && !strcmp(p,".gz"))
-            fd=Uncompress_Gzip(fd);
-
-         if(option_changes)
+         if((p=strstr(argv[arg],".pbf")) && !strcmp(p,".pbf"))
            {
-            printf("\nParse OSC Data [%s]\n==============\n\n",argv[arg]);
-            fflush(stdout);
-
-            if((p=strstr(argv[arg],".pbf")) && !strcmp(p,".pbf"))
-              {
-               if(ParsePBFFile(fd,Nodes,Segments,Ways,Relations,option_changes))
-                  exit(EXIT_FAILURE);
-              }
-            else
-              {
-               if(ParseOSCFile(fd,Nodes,Segments,Ways,Relations))
-                  exit(EXIT_FAILURE);
-              }
+            if(ParsePBFFile(fd,Nodes,Segments,Ways,Relations,option_changes))
+               exit(EXIT_FAILURE);
            }
          else
            {
-            printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
-            fflush(stdout);
-
-            if((p=strstr(argv[arg],".pbf")) && !strcmp(p,".pbf"))
-              {
-               if(ParsePBFFile(fd,Nodes,Segments,Ways,Relations,option_changes))
-                  exit(EXIT_FAILURE);
-              }
-            else
-              {
-               if(ParseOSMFile(fd,Nodes,Segments,Ways,Relations))
-                  exit(EXIT_FAILURE);
-              }
+            if(ParseOSCFile(fd,Nodes,Segments,Ways,Relations))
+               exit(EXIT_FAILURE);
            }
-
-         CloseFile(fd);
-        }
-     }
-   else
-     {
-      if(option_changes)
-        {
-         printf("\nParse OSC Data\n==============\n\n");
-         fflush(stdout);
-
-         if(ParseOSCFile(STDIN_FILENO,Nodes,Segments,Ways,Relations))
-            exit(EXIT_FAILURE);
         }
       else
         {
-         printf("\nParse OSM Data\n==============\n\n");
+         printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
          fflush(stdout);
 
-         if(ParseOSMFile(STDIN_FILENO,Nodes,Segments,Ways,Relations))
-            exit(EXIT_FAILURE);
+         if((p=strstr(argv[arg],".pbf")) && !strcmp(p,".pbf"))
+           {
+            if(ParsePBFFile(fd,Nodes,Segments,Ways,Relations,option_changes))
+               exit(EXIT_FAILURE);
+           }
+         else
+           {
+            if(ParseOSMFile(fd,Nodes,Segments,Ways,Relations))
+               exit(EXIT_FAILURE);
+           }
         }
+
+      CloseFile(fd);
      }
 
    DeleteXMLTaggingRules();
@@ -652,9 +633,9 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--prune-straight=<len>    Remove nodes in almost straight highways (defaults to\n"
             "                          removing nodes up to 3m offset from a straight line).\n"
             "\n"
-            "<filename.osm> ...        The name(s) of the file(s) to process (defaults to\n"
-            "<filename.osc> ...         reading data from standard input).\n"
-            "<filename.osm.pbf> ...    Filenames ending '.pbf' read as PBF, others as XML.\n"
+            "<filename.osm>, <filename.osc>, <filename.osm.pbf>\n"
+            "                          The name(s) of the file(s) to read and parse.\n"
+            "                          Filenames ending '.pbf' read as PBF, others as XML.\n"
 #if defined(USE_BZIP2) && USE_BZIP2
             "                          Filenames ending '.bz2' will be bzip2 uncompressed.\n"
 #endif
