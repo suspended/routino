@@ -134,12 +134,11 @@ planetsplitter
           nodes up to 3m offset from a straight line).
 
    <filename.osm>, <filename.osc>, <filename.osm.pbf>
-          Specifies the filename(s) to read data from (defaults to reading
-          data from the standard input). Filenames ending '.pbf' will be
-          read as PBF, otherwise as XML. Filenames ending '.bz2' will be
-          bzip2 uncompressed (if bzip2 support compiled in). Filenames
-          ending '.gz' will be gzip uncompressed (if gzip support compiled
-          in).
+          Specifies the filename(s) to read data from. Filenames ending
+          '.pbf' will be read as PBF, otherwise as XML. Filenames ending
+          '.bz2' will be bzip2 uncompressed (if bzip2 support compiled
+          in). Filenames ending '.gz' will be gzip uncompressed (if gzip
+          support compiled in).
 
    Note: In version 1.4 of Routino the --transport, --not-highway and
    --not-property options have been removed. The same functionality can be
@@ -153,6 +152,12 @@ planetsplitter
    machines or usage with little or no virtual memory (e.g. some virtual
    machines). The penalty for this is that the program takes about twice
    as long to run.
+
+   Note: In version 2.5 of Routino the ability to read data from the
+   standard input has been removed. This is because there is now the
+   ability to read compressed files (bzip2 and gzip) and PBF files
+   directly. Also using standard input the file type cannot be
+   auto-detected from the filename.
 
    Example usage 1:
 
@@ -177,7 +182,7 @@ planetsplitter
 
    Example usage 3:
 
-   planetsplitter --dir=data --prefix=gb --keep    great_britain_part.osm
+   planetsplitter --dir=data --prefix=gb --keep    great_britain.osm
 
    planetsplitter --dir=data --prefix=gb --changes great_britain.osc
 
@@ -627,11 +632,10 @@ tagmodifier
           Log parsing errors to 'error.log' or the specified file name.
 
    <filename.osm>
-          Specifies the filename(s) to read data from (defaults to reading
-          data from the standard input). Filenames ending '.bz2' will be
-          bzip2 uncompressed (if bzip2 support compiled in). Filenames
-          ending '.gz' will be gzip uncompressed (if gzip support compiled
-          in).
+          Specifies the filename(s) to read data from. Filenames ending
+          '.bz2' will be bzip2 uncompressed (if bzip2 support compiled
+          in). Filenames ending '.gz' will be gzip uncompressed (if gzip
+          support compiled in).
 
 
 --------

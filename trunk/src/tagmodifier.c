@@ -45,7 +45,7 @@ TagList *current_tags=NULL;
 
 /* Local functions */
 
-static void print_usage(int detail);
+static void print_usage(int detail,const char *argerr,const char *err);
 
 
 /* The XML tag processing function prototypes */
@@ -575,7 +575,7 @@ int main(int argc,char **argv)
  for(arg=1;arg<argc;arg++)
    {
     if(!strcmp(argv[arg],"--help"))
-       print_usage(1);
+       print_usage(1,NULL,NULL);
     else if(!strncmp(argv[arg],"--tagging=",10))
        tagging=&argv[arg][10];
     else if(!strcmp(argv[arg],"--loggable"))
@@ -587,14 +587,17 @@ int main(int argc,char **argv)
     else if(!strncmp(argv[arg],"--errorlog=",11))
        errorlog=&argv[arg][11];
     else if(argv[arg][0]=='-' && argv[arg][1]=='-')
-       print_usage(0);
+       print_usage(0,argv[arg],NULL);
     else if(filename)
-       print_usage(0);
+       print_usage(0,argv[arg],"Only one file name can be specified on the command line.");
     else
        filename=argv[arg];
    }
 
  /* Check the specified command line options */
+
+ if(!filename)
+    print_usage(0,NULL,"A single file name must be specified on the command line.");
 
  if(tagging)
    {
@@ -623,10 +626,7 @@ int main(int argc,char **argv)
 
  /* Open the input file */
 
- if(filename)
-    fd=ReOpenFile(filename);
- else
-    fd=STDIN_FILENO;
+ fd=ReOpenFile(filename);
 
  if((p=strstr(filename,".bz2")) && !strcmp(p,".bz2"))
     fd=Uncompress_Bzip2(fd);
@@ -654,8 +654,7 @@ int main(int argc,char **argv)
 
  /* Tidy up */
 
- if(filename)
-    CloseFile(fd);
+ CloseFile(fd);
 
  return(retval);
 }
@@ -665,23 +664,37 @@ int main(int argc,char **argv)
   Print out the usage information.
 
   int detail The level of detail to use - 0 = low, 1 = high.
+
+  const char *argerr The argument that gave the error (if there is one).
+
+  const char *err Other error message (if there is one).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void print_usage(int detail)
+static void print_usage(int detail,const char *argerr,const char *err)
 {
  fprintf(stderr,
          "Usage: tagmodifier [--help]\n"
          "                   [--tagging=<filename>]\n"
          "                   [--loggable] [--logtime]\n"
          "                   [--errorlog[=<name>]]\n"
-         "                   [<filename.osm>"
+         "                   <filename.osm>"
 #if defined(USE_BZIP2) && USE_BZIP2
          " | <filename.osm.bz2>"
 #endif
 #if defined(USE_GZIP) && USE_GZIP
          " | <filename.osm.gz>"
 #endif
-         "]\n");
+         "\n");
+
+ if(argerr)
+    fprintf(stderr,
+            "\n"
+            "Error with command line parameter: %s\n",argerr);
+
+ if(err)
+    fprintf(stderr,
+            "\n"
+            "Error: %s\n",err);
 
  if(detail)
     fprintf(stderr,
@@ -695,8 +708,7 @@ static void print_usage(int detail)
             "--logtime                 Print the elapsed time for the processing.\n"
             "--errorlog[=<name>]       Log parsing errors to 'error.log' or the given name.\n"
             "\n"
-            "<filename.osm>            The name of the file to process (defaults to\n"
-            "                           reading data from standard input).\n"
+            "<filename.osm>            The name of the file to process.\n"
 #if defined(USE_BZIP2) && USE_BZIP2
             "                          Filenames ending '.bz2' will be bzip2 uncompressed.\n"
 #endif
