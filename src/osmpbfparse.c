@@ -394,8 +394,8 @@ int ParsePBF(int fd,int changes)
 
  string_table_allocated=16384;
  string_table_length=0;
- string_table=(unsigned char **)malloc(string_table_allocated);
- string_table_string_lengths=(uint32_t *)malloc(string_table_allocated);
+ string_table=(unsigned char **)malloc(string_table_allocated*sizeof(unsigned char *));
+ string_table_string_lengths=(uint32_t *)malloc(string_table_allocated*sizeof(uint32_t));
 
  zbuffer_allocated=0;
  zbuffer=NULL;
@@ -721,8 +721,9 @@ static void process_string_table(unsigned char *data,uint32_t length)
 
        if(string_table_length==string_table_allocated)
          {
-          string_table=(unsigned char **)realloc(string_table,string_table_allocated+=8192);
-          string_table_string_lengths=(uint32_t *)realloc(string_table_string_lengths,string_table_allocated);
+          string_table_allocated+=8192;
+          string_table=(unsigned char **)realloc(string_table,string_table_allocated*sizeof(unsigned char *));
+          string_table_string_lengths=(uint32_t *)realloc(string_table_string_lengths,string_table_allocated*sizeof(uint32_t));
          }
 
        string_table[string_table_length]=string;
