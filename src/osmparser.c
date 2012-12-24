@@ -184,11 +184,9 @@ int ParseOSCFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
   WaysX *OSMWays The data structure of ways to fill in.
 
   RelationsX *OSMRelations The data structure of relations to fill in.
-
-  int changes Set to 1 if this is a changes file otherwise 0.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations,int changes)
+int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
 {
  int retval;
 
@@ -207,7 +205,7 @@ int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  /* Parse the file */
 
- retval=ParsePBF(fd,changes);
+ retval=ParsePBF(fd);
 
  /* Free the variables */
 
