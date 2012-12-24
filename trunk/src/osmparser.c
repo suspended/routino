@@ -220,6 +220,104 @@ int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Parse an O5M format OSM file (from planet download).
+
+  int ParseO5MFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor of the file to read from.
+
+  NodesX *OSMNodes The data structure of nodes to fill in.
+
+  SegmentsX *OSMSegments The data structure of segments to fill in.
+
+  WaysX *OSMWays The data structure of ways to fill in.
+
+  RelationsX *OSMRelations The data structure of relations to fill in.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseO5MFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
+{
+ int retval;
+
+ /* Copy the function parameters and initialise the variables */
+
+ nodes=OSMNodes;
+ segments=OSMSegments;
+ ways=OSMWays;
+ relations=OSMRelations;
+
+ osmparser_way_nodes=(node_t*)malloc(256*sizeof(node_t));
+
+ osmparser_relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
+ osmparser_relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
+ osmparser_relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
+
+ /* Parse the file */
+
+ retval=ParseO5M(fd,0);
+
+ /* Free the variables */
+
+ free(osmparser_way_nodes);
+
+ free(osmparser_relation_nodes);
+ free(osmparser_relation_ways);
+ free(osmparser_relation_relations);
+
+ return(retval);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Parse an O5C format OSM file (from planet download).
+
+  int ParseO5CFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor of the file to read from.
+
+  NodesX *OSMNodes The data structure of nodes to fill in.
+
+  SegmentsX *OSMSegments The data structure of segments to fill in.
+
+  WaysX *OSMWays The data structure of ways to fill in.
+
+  RelationsX *OSMRelations The data structure of relations to fill in.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseO5CFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
+{
+ int retval;
+
+ /* Copy the function parameters and initialise the variables */
+
+ nodes=OSMNodes;
+ segments=OSMSegments;
+ ways=OSMWays;
+ relations=OSMRelations;
+
+ osmparser_way_nodes=(node_t*)malloc(256*sizeof(node_t));
+
+ osmparser_relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
+ osmparser_relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
+ osmparser_relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
+
+ /* Parse the file */
+
+ retval=ParseO5M(fd,1);
+
+ /* Free the variables */
+
+ free(osmparser_way_nodes);
+
+ free(osmparser_relation_nodes);
+ free(osmparser_relation_ways);
+ free(osmparser_relation_relations);
+
+ return(retval);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Process the tags associated with a node.
 
   TagList *tags The list of node tags.
