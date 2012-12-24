@@ -249,8 +249,7 @@ if(!option_process_only)
 
          if((p=strstr(argv[arg],".pbf")) && !strcmp(p,".pbf"))
            {
-            if(ParsePBFFile(fd,Nodes,Segments,Ways,Relations,option_changes))
-               exit(EXIT_FAILURE);
+            logassert(0,"Unable to read a PBF file to apply changes (format does not permit this)");
            }
          else
            {
@@ -265,7 +264,7 @@ if(!option_process_only)
 
          if((p=strstr(argv[arg],".pbf")) && !strcmp(p,".pbf"))
            {
-            if(ParsePBFFile(fd,Nodes,Segments,Ways,Relations,option_changes))
+            if(ParsePBFFile(fd,Nodes,Segments,Ways,Relations))
                exit(EXIT_FAILURE);
            }
          else

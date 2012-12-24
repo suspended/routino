@@ -44,7 +44,7 @@ extern xmltag *xml_osc_toplevel_tags[];
 
 /* Functions in osmpbfparse.c */
 
-int ParsePBF(int fd,int changes);
+int ParsePBF(int fd);
 
 
 /* Functions in osmparser.c */
@@ -53,7 +53,7 @@ int ParseOSMFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
 int ParseOSCFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
 
-int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations,int changes);
+int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
 
 void ProcessNodeTags(TagList *tags,node_t id,double latitude,double longitude,int mode);
 void ProcessWayTags(TagList *tags,way_t id, int mode);

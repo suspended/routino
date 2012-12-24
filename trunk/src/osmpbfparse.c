@@ -73,23 +73,17 @@
 
 #define PBF_VAL_STRING             1
 
-/* Inside an Info or DenseInfo message */
-
-#define PBF_VAL_VISIBLE            6
-
 /* Inside a Node message */
 
 #define PBF_VAL_NODE_ID            1
 #define PBF_VAL_NODE_KEYS          2
 #define PBF_VAL_NODE_VALS          3
-#define PBF_VAL_NODE_INFO          4
 #define PBF_VAL_NODE_LAT           8
 #define PBF_VAL_NODE_LON           9
 
 /* Inside a DenseNode message */
 
 #define PBF_VAL_DENSE_NODE_ID         1
-#define PBF_VAL_DENSE_NODE_INFO       5
 #define PBF_VAL_DENSE_NODE_LAT        8
 #define PBF_VAL_DENSE_NODE_LON        9
 #define PBF_VAL_DENSE_NODE_KEYS_VALS 10
@@ -99,7 +93,6 @@
 #define PBF_VAL_WAY_ID             1
 #define PBF_VAL_WAY_KEYS           2
 #define PBF_VAL_WAY_VALS           3
-#define PBF_VAL_WAY_INFO           4
 #define PBF_VAL_WAY_REFS           8
 
 /* Inside a Relation message */
@@ -107,7 +100,6 @@
 #define PBF_VAL_RELATION_ID        1
 #define PBF_VAL_RELATION_KEYS      2
 #define PBF_VAL_RELATION_VALS      3
-#define PBF_VAL_RELATION_INFO      4
 #define PBF_VAL_RELATION_ROLES     8
 #define PBF_VAL_RELATION_MEMIDS    9
 #define PBF_VAL_RELATION_TYPES    10
@@ -147,10 +139,6 @@ static uint32_t *string_table_string_lengths=NULL;
 
 static int32_t granularity=100;
 static int64_t lat_offset=0,lon_offset=0;
-
-static unsigned char *visibles=NULL;
-
-static int mode_visible=MODE_NORMAL;
 
 #define LENGTH_32M (32*1024*1024)
 
@@ -203,8 +191,6 @@ static void process_nodes(unsigned char *data,uint32_t length);
 static void process_dense_nodes(unsigned char *data,uint32_t length);
 static void process_ways(unsigned char *data,uint32_t length);
 static void process_relations(unsigned char *data,uint32_t length);
-static void process_info(unsigned char *data,uint32_t length);
-static void process_dense_info(unsigned char *data,uint32_t length);
 
 
 /* Macros to simplify the parser (and make it look more like the XML parser) */
@@ -373,11 +359,9 @@ static inline void pbf_skip(unsigned char **ptr,int type)
   int ParsePBF Returns 0 if OK or something else in case of an error.
 
   in fd The file descriptor of the file to parse.
-
-  int changes Set to 1 if this is a changes file otherwise 0.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParsePBF(int fd,int changes)
+int ParsePBF(int fd)
 {
  int state;
  unsigned char *error=NULL;
@@ -389,8 +373,6 @@ int ParsePBF(int fd,int changes)
  printf_first("Reading: Bytes=0 Nodes=0 Ways=0 Relations=0");
 
  /* The actual parser. */
-
- mode_visible=changes?MODE_MODIFY:MODE_NORMAL;
 
  string_table_allocated=16384;
  string_table_length=0;
@@ -537,8 +519,7 @@ int ParsePBF(int fd,int changes)
               feature=pbf_length_delimited(&buffer_ptr,&length);
 
               if(strncmp((char*)feature,"OsmSchema-V0.6",14) &&
-                 strncmp((char*)feature,"DenseNodes",10) &&
-                 strncmp((char*)feature,"HistoricalInformation",21))
+                 strncmp((char*)feature,"DenseNodes",10))
                 {
                  feature[length]=0;
                  error=feature;
@@ -807,14 +788,11 @@ static void process_nodes(unsigned char *data,uint32_t length)
  unsigned char *end=data+length;
  int64_t id=0;
  node_t node_id;
- unsigned char *keys=NULL,*vals=NULL,*infos=NULL;
+ unsigned char *keys=NULL,*vals=NULL;
  unsigned char *keys_end=NULL,*vals_end=NULL;
- uint32_t keylen=0,vallen=0,infolen;
+ uint32_t keylen=0,vallen=0;
  int64_t lat=0,lon=0;
  TagList *tags=NULL,*result=NULL;
- int visible=1;
-
- visibles=NULL;
 
  while(data<end)
    {
@@ -835,11 +813,6 @@ static void process_nodes(unsigned char *data,uint32_t length)
       case PBF_VAL_NODE_VALS:   /* packed int32 */
        vals=pbf_length_delimited(&data,&vallen);
        vals_end=vals+vallen;
-       break;
-
-      case PBF_VAL_NODE_INFO:   /* message */
-       infos=pbf_length_delimited(&data,&infolen);
-       process_info(infos,infolen);
        break;
 
       case PBF_VAL_NODE_LAT:    /* sint64 */
@@ -878,12 +851,9 @@ static void process_nodes(unsigned char *data,uint32_t length)
       }
    }
 
- if(visibles)
-    visible=pbf_int32(&visibles);
-
  result=ApplyNodeTaggingRules(tags,node_id);
 
- ProcessNodeTags(result,node_id,PBF_LATITUDE(lat),PBF_LONGITUDE(lon),visible?mode_visible:MODE_DELETE);
+ ProcessNodeTags(result,node_id,PBF_LATITUDE(lat),PBF_LONGITUDE(lon),MODE_NORMAL);
 
  DeleteTagList(tags);
  DeleteTagList(result);
@@ -901,16 +871,13 @@ static void process_nodes(unsigned char *data,uint32_t length)
 static void process_dense_nodes(unsigned char *data,uint32_t length)
 {
  unsigned char *end=data+length;
- unsigned char *ids=NULL,*infos,*keys_vals=NULL,*lats=NULL,*lons=NULL;
+ unsigned char *ids=NULL,*keys_vals=NULL,*lats=NULL,*lons=NULL;
  unsigned char *ids_end=NULL;
- uint32_t idlen=0,infolen=0;
+ uint32_t idlen=0;
  int64_t id=0;
  node_t node_id;
  int64_t lat=0,lon=0;
  TagList *tags=NULL,*result;
- int visible=1;
-
- visibles=NULL;
 
  while(data<end)
    {
@@ -922,11 +889,6 @@ static void process_dense_nodes(unsigned char *data,uint32_t length)
       case PBF_VAL_DENSE_NODE_ID: /* packed sint64 */
        ids=pbf_length_delimited(&data,&idlen);
        ids_end=ids+idlen;
-       break;
-
-      case PBF_VAL_DENSE_NODE_INFO: /* message */
-       infos=pbf_length_delimited(&data,&infolen);
-       process_dense_info(infos,infolen);
        break;
 
       case PBF_VAL_DENSE_NODE_LAT: /* packed sint64 */
@@ -986,12 +948,9 @@ static void process_dense_nodes(unsigned char *data,uint32_t length)
          }
       }
 
-    if(visibles)
-       visible=pbf_int32(&visibles);
-
     result=ApplyNodeTaggingRules(tags,node_id);
 
-    ProcessNodeTags(result,node_id,PBF_LATITUDE(lat),PBF_LONGITUDE(lon),visible?mode_visible:MODE_DELETE);
+    ProcessNodeTags(result,node_id,PBF_LATITUDE(lat),PBF_LONGITUDE(lon),MODE_NORMAL);
 
     DeleteTagList(tags);
     DeleteTagList(result);
@@ -1012,14 +971,11 @@ static void process_ways(unsigned char *data,uint32_t length)
  unsigned char *end=data+length;
  int64_t id=0;
  way_t way_id;
- unsigned char *keys=NULL,*vals=NULL,*infos=NULL,*refs=NULL;
+ unsigned char *keys=NULL,*vals=NULL,*refs=NULL;
  unsigned char *keys_end=NULL,*vals_end=NULL,*refs_end=NULL;
- uint32_t keylen=0,vallen=0,infolen=0,reflen=0;
+ uint32_t keylen=0,vallen=0,reflen=0;
  int64_t ref=0;
  TagList *tags=NULL,*result;
- int visible=1;
-
- visibles=NULL;
 
  while(data<end)
    {
@@ -1040,11 +996,6 @@ static void process_ways(unsigned char *data,uint32_t length)
       case PBF_VAL_WAY_VALS:    /* packed int32 */
        vals=pbf_length_delimited(&data,&vallen);
        vals_end=vals+vallen;
-       break;
-
-      case PBF_VAL_WAY_INFO:    /* message */
-       infos=pbf_length_delimited(&data,&infolen);
-       process_info(infos,infolen);
        break;
 
       case PBF_VAL_WAY_REFS:    /* packed sint64 */
@@ -1104,12 +1055,9 @@ static void process_ways(unsigned char *data,uint32_t length)
        osmparser_way_nodes[osmparser_way_nnodes++]=node_id;
       }
 
- if(visibles)
-    visible=pbf_int32(&visibles);
-
  result=ApplyWayTaggingRules(tags,way_id);
 
- ProcessWayTags(result,way_id,visible?mode_visible:MODE_DELETE);
+ ProcessWayTags(result,way_id,MODE_NORMAL);
 
  DeleteTagList(tags);
  DeleteTagList(result);
@@ -1129,14 +1077,11 @@ static void process_relations(unsigned char *data,uint32_t length)
  unsigned char *end=data+length;
  int64_t id=0;
  relation_t relation_id;
- unsigned char *keys=NULL,*vals=NULL,*infos=NULL,*roles=NULL,*memids=NULL,*types=NULL;
+ unsigned char *keys=NULL,*vals=NULL,*roles=NULL,*memids=NULL,*types=NULL;
  unsigned char *keys_end=NULL,*vals_end=NULL,*memids_end=NULL,*types_end=NULL;
- uint32_t keylen=0,vallen=0,infolen=0,rolelen=0,memidlen=0,typelen=0;
+ uint32_t keylen=0,vallen=0,rolelen=0,memidlen=0,typelen=0;
  int64_t memid=0;
  TagList *tags=NULL,*result;
- int visible=1;
-
- visibles=NULL;
 
  while(data<end)
    {
@@ -1157,11 +1102,6 @@ static void process_relations(unsigned char *data,uint32_t length)
       case PBF_VAL_RELATION_VALS: /* packed string */
        vals=pbf_length_delimited(&data,&vallen);
        vals_end=vals+vallen;
-       break;
-
-      case PBF_VAL_RELATION_INFO: /* message */
-       infos=pbf_length_delimited(&data,&infolen);
-       process_info(infos,infolen);
        break;
 
       case PBF_VAL_RELATION_ROLES: /* packed int32 */
@@ -1279,76 +1219,12 @@ static void process_relations(unsigned char *data,uint32_t length)
          }
       }
 
- if(visibles)
-    visible=pbf_int32(&visibles);
-
  result=ApplyRelationTaggingRules(tags,relation_id);
 
- ProcessRelationTags(result,relation_id,visible?mode_visible:MODE_DELETE);
+ ProcessRelationTags(result,relation_id,MODE_NORMAL);
 
  DeleteTagList(tags);
  DeleteTagList(result);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Process a PBF Info message.
-
-  unsigned char *data The data to process.
-
-  uint32_t length The length of the data.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static void process_info(unsigned char *data,uint32_t length)
-{
- unsigned char *end=data+length;
-
-  while(data<end)
-    {
-     int fieldtype=pbf_int32(&data);
-     int field=PBF_FIELD(fieldtype);
-
-     switch(field)
-       {
-       case PBF_VAL_VISIBLE:    /* bool */
-        visibles=data;
-        pbf_int32(&data);
-        break;
-
-       default:
-        pbf_skip(&data,PBF_TYPE(fieldtype));
-       }
-    }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Process a PBF DenseInfo message.
-
-  unsigned char *data The data to process.
-
-  uint32_t length The length of the data.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static void process_dense_info(unsigned char *data,uint32_t length)
-{
- unsigned char *end=data+length;
-
- while(data<end)
-   {
-    int fieldtype=pbf_int32(&data);
-    int field=PBF_FIELD(fieldtype);
-
-    switch(field)
-      {
-      case PBF_VAL_VISIBLE:     /* packed bool */
-       visibles=pbf_length_delimited(&data,NULL);
-       break;
-
-      default:
-       pbf_skip(&data,PBF_TYPE(fieldtype));
-      }
-   }
 }
 
 
