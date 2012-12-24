@@ -86,7 +86,8 @@ PLANETSPLITTER_OBJ=planetsplitter.o \
 	           ways.o types.o \
 	           files.o logging.o \
 	           results.o queue.o sorting.o \
-	           uncompress.o xmlparse.o osmxmlparse.o osmpbfparse.o tagging.o osmparser.o
+	           xmlparse.o tagging.o \
+	           uncompress.o osmxmlparse.o osmpbfparse.o osmo5mparse.o osmparser.o
 
 planetsplitter : $(PLANETSPLITTER_OBJ)
 	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
@@ -98,7 +99,8 @@ PLANETSPLITTER_SLIM_OBJ=planetsplitter-slim.o \
 	                ways.o types.o \
 	                files.o logging.o \
 	                results.o queue.o sorting.o \
-	           	uncompress.o xmlparse.o osmxmlparse.o osmpbfparse.o tagging.o osmparser.o
+	                xmlparse.o tagging.o \
+	                uncompress.o osmxmlparse.o osmpbfparse.o osmo5mparse.o osmparser.o
 
 planetsplitter-slim : $(PLANETSPLITTER_SLIM_OBJ)
 	$(LD) $(PLANETSPLITTER_SLIM_OBJ) -o $@ $(LDFLAGS)

@@ -32,9 +32,10 @@ planetsplitter
                          [--prune-short=<len>]
                          [--prune-straight=<len>]
                          [<filename.osm> ... | <filename.osc> ...
-                          | <filename.osm.pbf> ...
-                          | <filename.osm.bz2> ... | <filename.osc.bz2> ...
-                          | <filename.osm.gz> ... | <filename.osc.gz> ...]
+                          | <filename.pbf> ...
+                          | <filename.o5m> ... | <filename.o5c> ...
+                          | <filename.(osm|osc|o5m|o5c).bz2> ...
+                          | <filename.(osm|osc|o5m|o5c).gz> ...]
 
    --help
           Prints out the help information.
@@ -133,9 +134,11 @@ planetsplitter
           Remove nodes in almost straight highways (defaults to removing
           nodes up to 3m offset from a straight line).
 
-   <filename.osm>, <filename.osc>, <filename.osm.pbf>
+   <filename.osm>, <filename.osc>, <filename.pbf>, <filename.o5m>,
+          <filename.o5c>
           Specifies the filename(s) to read data from. Filenames ending
-          '.pbf' will be read as PBF, otherwise as XML. Filenames ending
+          '.pbf' will be read as PBF, filenames ending in '.o5m' or '.o5c'
+          will be read as O5M/O5C, otherwise as XML. Filenames ending
           '.bz2' will be bzip2 uncompressed (if bzip2 support compiled
           in). Filenames ending '.gz' will be gzip uncompressed (if gzip
           support compiled in).

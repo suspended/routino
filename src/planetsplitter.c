@@ -229,27 +229,40 @@ if(!option_process_only)
    for(arg=1;arg<argc;arg++)
      {
       int fd;
-      char *p;
+      char *filename,*p;
 
       if(argv[arg][0]=='-' && argv[arg][1]=='-')
          continue;
 
-      fd=ReOpenFile(argv[arg]);
+      filename=strcpy(malloc(strlen(argv[arg])+1),argv[arg]);
 
-      if((p=strstr(argv[arg],".bz2")) && !strcmp(p,".bz2"))
+      fd=ReOpenFile(filename);
+
+      if((p=strstr(filename,".bz2")) && !strcmp(p,".bz2"))
+        {
          fd=Uncompress_Bzip2(fd);
+         *p=0;
+        }
 
-      if((p=strstr(argv[arg],".gz")) && !strcmp(p,".gz"))
+      if((p=strstr(filename,".gz")) && !strcmp(p,".gz"))
+        {
          fd=Uncompress_Gzip(fd);
+         *p=0;
+        }
 
       if(option_changes)
         {
-         printf("\nParse OSC Data [%s]\n==============\n\n",argv[arg]);
+         printf("\nParse OSC Data [%s]\n==============\n\n",filename);
          fflush(stdout);
 
-         if((p=strstr(argv[arg],".pbf")) && !strcmp(p,".pbf"))
+         if((p=strstr(filename,".pbf")) && !strcmp(p,".pbf"))
            {
             logassert(0,"Unable to read a PBF file to apply changes (format does not permit this)");
+           }
+         else if((p=strstr(filename,".o5c")) && !strcmp(p,".o5c"))
+           {
+            if(ParseO5CFile(fd,Nodes,Segments,Ways,Relations))
+               exit(EXIT_FAILURE);
            }
          else
            {
@@ -259,12 +272,17 @@ if(!option_process_only)
         }
       else
         {
-         printf("\nParse OSM Data [%s]\n==============\n\n",argv[arg]);
+         printf("\nParse OSM Data [%s]\n==============\n\n",filename);
          fflush(stdout);
 
-         if((p=strstr(argv[arg],".pbf")) && !strcmp(p,".pbf"))
+         if((p=strstr(filename,".pbf")) && !strcmp(p,".pbf"))
            {
             if(ParsePBFFile(fd,Nodes,Segments,Ways,Relations))
+               exit(EXIT_FAILURE);
+           }
+         else if((p=strstr(filename,".o5m")) && !strcmp(p,".o5m"))
+           {
+            if(ParseO5MFile(fd,Nodes,Segments,Ways,Relations))
                exit(EXIT_FAILURE);
            }
          else
@@ -275,6 +293,8 @@ if(!option_process_only)
         }
 
       CloseFile(fd);
+
+      free(filename);
      }
 
    DeleteXMLTaggingRules();
@@ -564,12 +584,13 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--prune-short=<len>]\n"
          "                      [--prune-straight=<len>]\n"
          "                      [<filename.osm> ... | <filename.osc> ...\n"
-         "                       | <filename.osm.pbf> ..."
+         "                       | <filename.pbf> ...\n"
+         "                       | <filename.osm> ... | <filename.osc> ..."
 #if defined(USE_BZIP2) && USE_BZIP2
-         "\n                       | <filename.osm.bz2> ... | <filename.osc.bz2> ..."
+         "\n                       | <filename.(osm|osc|o5m|o5c).bz2> ..."
 #endif
 #if defined(USE_GZIP) && USE_GZIP
-         "\n                       | <filename.osm.gz> ... | <filename.osc.gz> ..."
+         "\n                       | <filename.(osm|osc|o5m|o5c).gz> ..."
 #endif
          "]\n");
 
@@ -632,9 +653,10 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--prune-straight=<len>    Remove nodes in almost straight highways (defaults to\n"
             "                          removing nodes up to 3m offset from a straight line).\n"
             "\n"
-            "<filename.osm>, <filename.osc>, <filename.osm.pbf>\n"
+            "<filename.osm>, <filename.osc>, <filename.pbf>, <filename.o5m>, <filename.o5c>\n"
             "                          The name(s) of the file(s) to read and parse.\n"
-            "                          Filenames ending '.pbf' read as PBF, others as XML.\n"
+            "                          Filenames ending '.pbf' read as PBF, filenames ending\n"
+            "                          '.o5m' or '.o5c' read as O5M/O5C, others as XML.\n"
 #if defined(USE_BZIP2) && USE_BZIP2
             "                          Filenames ending '.bz2' will be bzip2 uncompressed.\n"
 #endif
