@@ -160,6 +160,9 @@ static inline int buffer_refill(int fd,uint32_t bytes)
  if(bytes>buffer_allocated)
     buffer=(unsigned char *)realloc(buffer,buffer_allocated=bytes);
 
+ byteno+=bytes;
+
+ buffer_ptr=buffer;
  buffer_end=buffer;
 
  do
@@ -173,10 +176,6 @@ static inline int buffer_refill(int fd,uint32_t bytes)
     bytes-=n;
    }
  while(bytes>0);
-
- buffer_ptr=buffer;
-
- byteno+=bytes;
 
  return(0);
 }
@@ -358,7 +357,7 @@ static inline void pbf_skip(unsigned char **ptr,int type)
 
   int ParsePBF Returns 0 if OK or something else in case of an error.
 
-  in fd The file descriptor of the file to parse.
+  int fd The file descriptor of the file to parse.
   ++++++++++++++++++++++++++++++++++++++*/
 
 int ParsePBF(int fd)
