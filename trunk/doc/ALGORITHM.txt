@@ -341,26 +341,6 @@ Data Implementation
    this information.
 
 
-Practicalities
---------------
-
-   At the time of writing (April 2010) the OpenStreetMap data for Great
-   Britain (taken from GeoFabrik) contains:
-     * 14,675,098 nodes
-          + 8,767,521 are highway nodes
-          + 1,120,297 are super-nodes
-     * 1,876,822 ways
-          + 1,412,898 are highways
-               o 9,316,328 highway segments
-               o 1,641,009 are super-segments
-     * 60,572 relations
-
-   The database files when generated are 41.5 MB for nodes, 121.6 MB for
-   segments and 12.6 MB for ways and are stored uncompressed. By having at
-   least 200 MB or RAM available the routing can be performed with no disk
-   accesses (once the data has been read once).
-
-
 --------
 
 Copyright 2008-2012 Andrew M. Bishop.
