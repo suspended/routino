@@ -368,35 +368,6 @@ the restricted node itself.  Each node that has a turn restriction is marked in
 the main node storage with a flag to indicate this information.
 
 
-<h3><a name="H_1_1_8"></a>Practicalities</h3>
-
-At the time of writing (April 2010) the OpenStreetMap data for Great Britain
-(taken from
-<a class="ext" href="http://download.geofabrik.de/osm/europe/" title="GeoFabrik Mirror of OpenStreetMap Data">GeoFabrik</a>
-) contains:
-<ul>
-  <li>14,675,098 nodes
-  <ul>
-    <li>8,767,521 are highway nodes
-    <li>1,120,297 are super-nodes
-  </ul>
-  <li>1,876,822 ways
-  <ul>
-    <li>1,412,898 are highways
-    <ul>
-      <li>9,316,328 highway segments
-      <li>1,641,009 are super-segments
-    </ul>
-  </ul>
-  <li>60,572 relations
-</ul>
-
-The database files when generated are 41.5 MB for nodes, 121.6 MB for segments
-and 12.6 MB for ways and are stored uncompressed.  By having at least 200 MB or
-RAM available the routing can be performed with no disk accesses (once the data
-has been read once).
-
-
 </div>
 
 <!-- Content End -->
