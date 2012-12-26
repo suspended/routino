@@ -602,7 +602,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
                 ways++;
                }
              else
-                logerror("Route Relation %"Prelation_t" contains Way %"Pway_t" but it does not exist in the Routino database.\n",relationx.id,wayid);
+                logerror("Route Relation %"Prelation_t" contains Way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",relationx.id,wayid);
             }
          }
        while(wayid!=NO_WAY_ID);
@@ -718,13 +718,13 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,in
     to  =IndexWayX(waysx,relationx.to);
 
     if(via==NO_NODE)
-       logerror("Turn Relation %"Prelation_t" contains Node %"Pnode_t" but it does not exist in the Routino database.\n",relationx.id,relationx.via);
+       logerror("Turn Relation %"Prelation_t" contains Node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",relationx.id,relationx.via);
 
     if(from==NO_WAY)
-       logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" but it does not exist in the Routino database.\n",relationx.id,relationx.from);
+       logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",relationx.id,relationx.from);
 
     if(to==NO_WAY)
-       logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" but it does not exist in the Routino database.\n",relationx.id,relationx.to);
+       logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",relationx.id,relationx.to);
 
     relationx.via =via;
     relationx.from=from;

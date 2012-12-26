@@ -568,7 +568,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
 
     if(indexw==NO_WAY)
       {
-       logerror("Segment belongs to way %"Pway_t" but it doesn't exist.\n",segmentx.way);
+       logerror("Segment belongs to way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",segmentx.way);
 
        noway++;
       }
@@ -581,13 +581,13 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
     else if(index1==NO_NODE || index2==NO_NODE)
       {
        if(index1==NO_NODE && index2==NO_NODE)
-          logerror("Segment connects nodes %"Pnode_t" and %"Pnode_t" but neither exist.\n",segmentx.node1,segmentx.node2);
+          logerror("Segment connects nodes %"Pnode_t" and %"Pnode_t" that do not exist in the Routino database (not highway nodes?).\n",segmentx.node1,segmentx.node2);
 
        if(index1==NO_NODE && index2!=NO_NODE)
-          logerror("Segment connects nodes %"Pnode_t" and %"Pnode_t" but the first one does not exist.\n",segmentx.node1,segmentx.node2);
+          logerror("Segment contains node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",segmentx.node1);
 
        if(index1!=NO_NODE && index2==NO_NODE)
-          logerror("Segment connects nodes %"Pnode_t" and %"Pnode_t" but the second one does not exist.\n",segmentx.node1,segmentx.node2);
+          logerror("Segment connects nodes %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",segmentx.node2);
 
        nonode++;
       }
