@@ -28,6 +28,13 @@ while(<STDIN>)
       s%nodes [0-9]+ and [0-9]+ in way [0-9]+%nodes <node-id1> and <node-id2> in way <way-id>%;
      }
 
+   elsif(m%node ([0-9]+) in way ([0-9]+)%i) # Special case node and a way
+     {
+      $errorid="($1 $2)";
+      $errortype="NW";
+      s%Node [0-9]+ in way [0-9]+%Node <node-id> in way <way-id>%;
+     }
+
    elsif(m%nodes ([0-9]+) and ([0-9]+)%i) # Special case pair of nodes
      {
       $errorid="($1 $2)";
@@ -35,9 +42,9 @@ while(<STDIN>)
       s%nodes [0-9]+ and [0-9]+%nodes <node-id1> and <node-id2>%;
      }
 
-   elsif(m%Segment connects node ([0-9]+)%) # Special case segment
+   elsif(m%Segment (contains|connects) node ([0-9]+)%) # Special case node
      {
-      $errorid=$1;
+      $errorid=$2;
       $errortype="N";
       s%node [0-9]+%node <node-id>%;
      }
@@ -157,17 +164,19 @@ else
 
    %errortypeorder=(
                     "N"   , 1,
-                    "N2W" , 2,
-                    "N2"  , 3,
-                    "W"   , 4,
-                    "R"   , 5,
-                    "RN"  , 6,
-                    "RW"  , 7,
-                    "E"   , 8
+                    "NW"  , 2,
+                    "N2W" , 3,
+                    "N2"  , 4,
+                    "W"   , 5,
+                    "R"   , 6,
+                    "RN"  , 7,
+                    "RW"  , 8,
+                    "E"   , 9
                    );
 
    %errortypelabel=(
                     "N"   , "Nodes",
+                    "NW"  , "Node in a Way",
                     "N2W" , "Node Pairs in a Way",
                     "N2"  , "Node Pairs",
                     "W"   , "Ways",
@@ -224,9 +233,10 @@ else
             print "<a href=\"http://www.openstreetmap.org/browse/way/$id\">$id</a>" if($errortypes{$error} eq "W");
             print "<a href=\"http://www.openstreetmap.org/browse/relation/$id\">$id</a>" if($errortypes{$error} eq "R");
 
-            if($errortypes{$error} eq "N2" || $errortypes{$error} eq "RN" || $errortypes{$error} eq "RW")
+            if($errortypes{$error} eq "NW" || $errortypes{$error} eq "N2" || $errortypes{$error} eq "RN" || $errortypes{$error} eq "RW")
               {
                $id =~ m%\(([0-9]+) ([0-9]+)\)%;
+               print "(<a href=\"http://www.openstreetmap.org/browse/node/$1\">$1</a> <a href=\"http://www.openstreetmap.org/browse/way/$2\">$2</a>)" if($errortypes{$error} eq "NW");
                print "(<a href=\"http://www.openstreetmap.org/browse/node/$1\">$1</a> <a href=\"http://www.openstreetmap.org/browse/node/$2\">$2</a>)" if($errortypes{$error} eq "N2");
                print "(<a href=\"http://www.openstreetmap.org/browse/relation/$1\">$1</a> <a href=\"http://www.openstreetmap.org/browse/node/$2\">$2</a>)" if($errortypes{$error} eq "RN");
                print "(<a href=\"http://www.openstreetmap.org/browse/relation/$1\">$1</a> <a href=\"http://www.openstreetmap.org/browse/way/$2\">$2</a>)" if($errortypes{$error} eq "RW");

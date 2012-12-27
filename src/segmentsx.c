@@ -530,7 +530,7 @@ static int deduplicate(SegmentX *segmentx,index_t index)
 
 void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep)
 {
- index_t noway=0,loop=0,nonode=0,duplicate=0,good=0,total=0;
+ index_t noway=0,nonode=0,duplicate=0,good=0,total=0;
  node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
  way_t prevway=NO_WAY_ID;
  distance_t prevdist=0;
@@ -539,7 +539,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
 
  /* Print the start message */
 
- printf_first("Checking Segments: Segments=0 Loop=0 No-Way=0 No-Node=0 Duplicate=0");
+ printf_first("Checking Segments: Segments=0 No-Way=0 No-Node=0 Duplicate=0");
 
  /* Allocate the node usage bitmask */
 
@@ -572,12 +572,6 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
 
        noway++;
       }
-    else if(segmentx.node1==segmentx.node2)
-      {
-       logerror("Segment connects node %"Pnode_t" to itself.\n",segmentx.node1);
-
-       loop++;
-      }
     else if(index1==NO_NODE || index2==NO_NODE)
       {
        if(index1==NO_NODE && index2==NO_NODE)
@@ -587,7 +581,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
           logerror("Segment contains node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",segmentx.node1);
 
        if(index1!=NO_NODE && index2==NO_NODE)
-          logerror("Segment connects nodes %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",segmentx.node2);
+          logerror("Segment contains node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",segmentx.node2);
 
        nonode++;
       }
@@ -630,7 +624,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t" Duplicate=%"Pindex_t,total,loop,noway,nonode,duplicate);
+       printf_middle("Checking Segments: Segments=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t" Duplicate=%"Pindex_t,total,noway,nonode,duplicate);
    }
 
  segmentsx->number=good;
@@ -642,7 +636,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
 
  /* Print the final message */
 
- printf_last("Checked Segments: Segments=%"Pindex_t" Loop=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t" Duplicate=%"Pindex_t,total,loop,noway,nonode,duplicate);
+ printf_last("Checked Segments: Segments=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t" Duplicate=%"Pindex_t,total,noway,nonode,duplicate);
 }
 
 
