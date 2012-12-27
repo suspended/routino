@@ -867,16 +867,33 @@ void ProcessWayTags(TagList *tags,way_t id,int mode)
     node_t from=osmparser_way_nodes[i-1];
     node_t to  =osmparser_way_nodes[i];
 
-    for(j=1;j<i;j++)
+    if(from==to)
+       logerror("Node %"Pnode_t" in way %"Pway_t" is connected to itself.\n",from,id);
+    else
       {
-       node_t n1=osmparser_way_nodes[j-1];
-       node_t n2=osmparser_way_nodes[j];
+       int nto=1,duplicated=0;
 
-       if((n1==from && n2==to) || (n2==from && n1==to))
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",n1,n2,id);
+       for(j=1;j<i;j++)
+         {
+          node_t n1=osmparser_way_nodes[j-1];
+          node_t n2=osmparser_way_nodes[j];
+
+          if(n1==to && (i!=osmparser_way_nnodes-1 || j!=1))
+             nto++;
+
+          if((n1==from && n2==to) || (n2==from && n1==to))
+            {
+             duplicated=1;
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",n1,n2,id);
+            }
+         }
+
+       if(nto>=2 && !duplicated)
+          logerror("Node %"Pnode_t" in way %"Pway_t" appears more than once.\n",to,id);
+
+       if(!duplicated)
+          AppendSegmentList(segments,id,from,to,area+oneway);
       }
-
-    AppendSegmentList(segments,id,from,to,area+oneway);
    }
 }
 
