@@ -862,6 +862,9 @@ void ProcessWayTags(TagList *tags,way_t id,int mode)
  if(ref && name)
     free(refname);
 
+ if(area && osmparser_way_nodes[0]!=osmparser_way_nodes[osmparser_way_nnodes-1])
+    logerror("Way %"Pway_t" is an area but not closed.\n",id);
+
  for(i=1;i<osmparser_way_nnodes;i++)
    {
     node_t from=osmparser_way_nodes[i-1];
