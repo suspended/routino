@@ -836,6 +836,12 @@ void ProcessWayTags(TagList *tags,way_t id,int mode)
 
  /* Create the way */
 
+ if(area && oneway)
+   {
+    logerror("Way %"Pway_t" is an area and oneway; ignoring area tagging.\n",id);
+    area=0;
+   }
+
  if(!way.allow)
     return;
 
