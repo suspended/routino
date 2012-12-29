@@ -189,25 +189,25 @@ int main(int argc,char** argv)
 
     stat(nodes_filename,&buf);
 
-    printf("'%s%snodes.mem'     - %9lld Bytes\n",prefix?prefix:"",prefix?"-":"",(long long)buf.st_size);
+    printf("'%s%snodes.mem'     - %9"PRIu64" Bytes\n",prefix?prefix:"",prefix?"-":"",(uint64_t)buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
 
     stat(segments_filename,&buf);
 
-    printf("'%s%ssegments.mem'  - %9lld Bytes\n",prefix?prefix:"",prefix?"-":"",(long long)buf.st_size);
+    printf("'%s%ssegments.mem'  - %9"PRIu64" Bytes\n",prefix?prefix:"",prefix?"-":"",(uint64_t)buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
 
     stat(ways_filename,&buf);
 
-    printf("'%s%sways.mem'      - %9lld Bytes\n",prefix?prefix:"",prefix?"-":"",(long long)buf.st_size);
+    printf("'%s%sways.mem'      - %9"PRIu64" Bytes\n",prefix?prefix:"",prefix?"-":"",(uint64_t)buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
 
     stat(relations_filename,&buf);
 
-    printf("'%s%srelations.mem' - %9lld Bytes\n",prefix?prefix:"",prefix?"-":"",(long long)buf.st_size);
+    printf("'%s%srelations.mem' - %9"PRIu64" Bytes\n",prefix?prefix:"",prefix?"-":"",(uint64_t)buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
 

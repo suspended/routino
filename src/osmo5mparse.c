@@ -60,7 +60,7 @@
 
 /* Parsing variables and functions */
 
-static unsigned long long byteno;
+static uint64_t byteno=0;
 static uint64_t nnodes=0,nways=0,nrelations=0;
 
 static int64_t id=0;
@@ -458,7 +458,7 @@ int ParseO5M(int fd,int changes)
 
  /* Print the final message */
 
- printf_last("Read: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
+ printf_last("Read: Bytes=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  return(state);
 }
@@ -503,7 +503,7 @@ static void process_node(void)
  nnodes++;
 
  if(!(nnodes%10000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
+    printf_middle("Reading: Bytes=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  tags=NewTagList();
 
@@ -569,7 +569,7 @@ static void process_way(void)
  nways++;
 
  if(!(nways%1000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
+    printf_middle("Reading: Bytes=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  AddWayRefs(0);
 
@@ -648,7 +648,7 @@ static void process_relation()
  nrelations++;
 
  if(!(nrelations%1000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
+    printf_middle("Reading: Bytes=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  AddRelationRefs(0,0,0,NULL);
 

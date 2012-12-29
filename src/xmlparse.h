@@ -23,6 +23,8 @@
 #ifndef XMLPARSE_H
 #define XMLPARSE_H    /*+ To stop multiple inclusions. +*/
 
+#include <stdint.h>
+
 
 /*+ The maximum number of attributes per tag. +*/
 #define XMLPARSE_MAX_ATTRS   16
@@ -68,7 +70,7 @@ struct _xmltag
 
 int ParseXML(int fd,xmltag **tags,int options);
 
-unsigned long long ParseXML_LineNumber(void);
+uint64_t ParseXML_LineNumber(void);
 
 char *ParseXML_Decode_Entity_Ref(const char *string);
 char *ParseXML_Decode_Char_Ref(const char *string);

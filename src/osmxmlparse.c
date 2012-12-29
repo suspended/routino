@@ -232,7 +232,7 @@ static int osmType_function(const char *_tag_,int _type_,const char *version)
  /* Print the initial message */
 
  if(_type_&XMLPARSE_TAG_START)
-    printf_first("Read: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes=0,nways=0,nrelations=0);
+    printf_first("Read: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes=0,nways=0,nrelations=0);
 
  /* Check the tag values */
 
@@ -247,7 +247,7 @@ static int osmType_function(const char *_tag_,int _type_,const char *version)
  /* Print the final message */
 
  if(_type_&XMLPARSE_TAG_END)
-    printf_last("Read: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
+    printf_last("Read: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  return(0);
 }
@@ -270,7 +270,7 @@ static int osmChangeType_function(const char *_tag_,int _type_,const char *versi
  /* Print the initial message */
 
  if(_type_&XMLPARSE_TAG_START)
-    printf_first("Read: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes=0,nways=0,nrelations=0);
+    printf_first("Read: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes=0,nways=0,nrelations=0);
 
  /* Check the tag values */
 
@@ -283,7 +283,7 @@ static int osmChangeType_function(const char *_tag_,int _type_,const char *versi
  /* Print the final message */
 
  if(_type_&XMLPARSE_TAG_END)
-    printf_last("Read: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
+    printf_last("Read: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  return(0);
 }
@@ -422,7 +422,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
     nnodes++;
 
     if(!(nnodes%10000))
-       printf_middle("Reading: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
+       printf_middle("Reading: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
@@ -472,7 +472,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
     nways++;
 
     if(!(nways%1000))
-       printf_middle("Reading: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
+       printf_middle("Reading: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
@@ -518,7 +518,7 @@ static int relationType_function(const char *_tag_,int _type_,const char *id)
     nrelations++;
 
     if(!(nrelations%1000))
-       printf_middle("Reading: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
+       printf_middle("Reading: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 

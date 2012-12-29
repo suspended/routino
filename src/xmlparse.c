@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <strings.h>
 
@@ -84,7 +85,7 @@
 
 /* Parsing variables and functions */
 
-static unsigned long long lineno;
+static uint64_t lineno;
 
 static unsigned char buffer[2][16384];
 static unsigned char *buffer_token,*buffer_end,*buffer_ptr;
@@ -1162,10 +1163,10 @@ int ParseXML(int fd,xmltag **tags,int options)
 /*++++++++++++++++++++++++++++++++++++++
   Return the current parser line number.
 
-  unsigned long long ParseXML_LineNumber Returns the line number.
+  uint64_t ParseXML_LineNumber Returns the line number.
   ++++++++++++++++++++++++++++++++++++++*/
 
-unsigned long long ParseXML_LineNumber(void)
+uint64_t ParseXML_LineNumber(void)
 {
  return(lineno);
 }
