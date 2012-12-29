@@ -23,6 +23,8 @@
 #ifndef OSMPARSER_H
 #define OSMPARSER_H    /*+ To stop multiple inclusions. +*/
 
+#include <stdint.h>
+
 #include "typesx.h"
 #include "xmlparse.h"
 #include "tagging.h"
@@ -64,25 +66,12 @@ int ParseO5MFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
 int ParseO5CFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
 
-void ProcessNodeTags(TagList *tags,node_t id,double latitude,double longitude,int mode);
-void ProcessWayTags(TagList *tags,way_t id, int mode);
-void ProcessRelationTags(TagList *tags,relation_t id,int mode);
+void AddWayRefs(int64_t node_id);
+void AddRelationRefs(int64_t node_id,int64_t way_id,int64_t relation_id,const char *role);
 
-
-/* Variables in osmparser.c */
-
-extern node_t *osmparser_way_nodes;
-extern int     osmparser_way_nnodes;
-
-extern node_t     *osmparser_relation_nodes;
-extern int         osmparser_relation_nnodes;
-extern way_t      *osmparser_relation_ways;
-extern int         osmparser_relation_nways;
-extern relation_t *osmparser_relation_relations;
-extern int         osmparser_relation_nrelations;
-extern way_t       osmparser_relation_from;
-extern way_t       osmparser_relation_to;
-extern node_t      osmparser_relation_via;
+void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longitude,int mode);
+void ProcessWayTags(TagList *tags,int64_t way_id, int mode);
+void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode);
 
 
 #endif /* OSMPARSER_H */

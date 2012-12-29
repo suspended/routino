@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
+#include <stdint.h>
 
 #include "files.h"
 #include "tagging.h"
@@ -53,9 +55,7 @@ static int current_list_stack_depth=0;
 static TaggingRuleList **current_list_stack=NULL;
 static TaggingRuleList *current_list=NULL;
 
-static node_t     current_node_id;
-static way_t      current_way_id;
-static relation_t current_relation_id;
+static int64_t current_id;
 
 
 /* Local functions */
@@ -725,14 +725,14 @@ void DeleteTag(TagList *tags,const char *k)
 
   TagList *tags The tags to be modified.
 
-  node_t id The ID of the node.
+  int64_t id The ID of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-TagList *ApplyNodeTaggingRules(TagList *tags,node_t id)
+TagList *ApplyNodeTaggingRules(TagList *tags,int64_t id)
 {
  TagList *result=NewTagList();
 
- current_node_id=id;
+ current_id=id;
  current_list=&NodeRules;
 
  ApplyRules(current_list,tags,result,NULL,NULL);
@@ -748,14 +748,14 @@ TagList *ApplyNodeTaggingRules(TagList *tags,node_t id)
 
   TagList *tags The tags to be modified.
 
-  way_t id The ID of the way.
+  int64_t id The ID of the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-TagList *ApplyWayTaggingRules(TagList *tags,way_t id)
+TagList *ApplyWayTaggingRules(TagList *tags,int64_t id)
 {
  TagList *result=NewTagList();
 
- current_way_id=id;
+ current_id=id;
  current_list=&WayRules;
 
  ApplyRules(current_list,tags,result,NULL,NULL);
@@ -771,14 +771,14 @@ TagList *ApplyWayTaggingRules(TagList *tags,way_t id)
 
   TagList *tags The tags to be modified.
 
-  relation_t id The ID of the relation.
+  int64_t id The ID of the relation.
   ++++++++++++++++++++++++++++++++++++++*/
 
-TagList *ApplyRelationTaggingRules(TagList *tags,relation_t id)
+TagList *ApplyRelationTaggingRules(TagList *tags,int64_t id)
 {
  TagList *result=NewTagList();
 
- current_relation_id=id;
+ current_id=id;
  current_list=&RelationRules;
 
  ApplyRules(current_list,tags,result,NULL,NULL);
@@ -896,11 +896,11 @@ static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,con
 
       case TAGACTION_LOGERROR:
        if(current_list==&NodeRules)
-          logerror("Node %"Pnode_t" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_node_id,k,v);
+          logerror("Node %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_id,k,v);
        if(current_list==&WayRules)
-          logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_way_id,k,v);
+          logerror("Way %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_id,k,v);
        if(current_list==&RelationRules)
-          logerror("Relation %"Prelation_t" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_relation_id,k,v);
+          logerror("Relation %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_id,k,v);
       }
    }
 

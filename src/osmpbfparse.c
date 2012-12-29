@@ -23,15 +23,12 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
 
 #if defined(USE_GZIP) && USE_GZIP
 #include <zlib.h>
 #endif
-
-#include "types.h"
 
 #include "osmparser.h"
 #include "tagging.h"
@@ -125,9 +122,8 @@
 
 /* Parsing variables and functions */
 
-static index_t nnodes=0,nways=0,nrelations=0;
-
-static unsigned long long byteno;
+static unsigned long long byteno=0;
+static uint64_t nnodes=0,nways=0,nrelations=0;
 
 static int buffer_allocated,zbuffer_allocated;
 static unsigned char *buffer=NULL,*zbuffer=NULL;
@@ -667,7 +663,7 @@ int ParsePBF(int fd)
 
  /* Print the final message */
 
- printf_last("Read: Bytes=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,byteno,nnodes,nways,nrelations);
+ printf_last("Read: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  return(state);
 }
@@ -786,7 +782,6 @@ static void process_nodes(unsigned char *data,uint32_t length)
 {
  unsigned char *end=data+length;
  int64_t id=0;
- node_t node_id;
  unsigned char *keys=NULL,*vals=NULL;
  unsigned char *keys_end=NULL,*vals_end=NULL;
  uint32_t keylen=0,vallen=0;
@@ -832,10 +827,7 @@ static void process_nodes(unsigned char *data,uint32_t length)
  nnodes++;
 
  if(!(nnodes%10000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,byteno,nnodes,nways,nrelations);
-
- node_id=(node_t)id;
- logassert((long long)node_id==id,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
+    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  tags=NewTagList();
 
@@ -850,9 +842,9 @@ static void process_nodes(unsigned char *data,uint32_t length)
       }
    }
 
- result=ApplyNodeTaggingRules(tags,node_id);
+ result=ApplyNodeTaggingRules(tags,id);
 
- ProcessNodeTags(result,node_id,PBF_LATITUDE(lat),PBF_LONGITUDE(lon),MODE_NORMAL);
+ ProcessNodeTags(result,id,PBF_LATITUDE(lat),PBF_LONGITUDE(lon),MODE_NORMAL);
 
  DeleteTagList(tags);
  DeleteTagList(result);
@@ -874,7 +866,6 @@ static void process_dense_nodes(unsigned char *data,uint32_t length)
  unsigned char *ids_end=NULL;
  uint32_t idlen=0;
  int64_t id=0;
- node_t node_id;
  int64_t lat=0,lon=0;
  TagList *tags=NULL,*result;
 
@@ -925,10 +916,7 @@ static void process_dense_nodes(unsigned char *data,uint32_t length)
     nnodes++;
 
     if(!(nnodes%10000))
-       printf_middle("Reading: Bytes=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,byteno,nnodes,nways,nrelations);
-
-    node_id=(node_t)id;
-    logassert((long long)node_id==id,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
+       printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
     tags=NewTagList();
 
@@ -947,9 +935,9 @@ static void process_dense_nodes(unsigned char *data,uint32_t length)
          }
       }
 
-    result=ApplyNodeTaggingRules(tags,node_id);
+    result=ApplyNodeTaggingRules(tags,id);
 
-    ProcessNodeTags(result,node_id,PBF_LATITUDE(lat),PBF_LONGITUDE(lon),MODE_NORMAL);
+    ProcessNodeTags(result,id,PBF_LATITUDE(lat),PBF_LONGITUDE(lon),MODE_NORMAL);
 
     DeleteTagList(tags);
     DeleteTagList(result);
@@ -969,7 +957,6 @@ static void process_ways(unsigned char *data,uint32_t length)
 {
  unsigned char *end=data+length;
  int64_t id=0;
- way_t way_id;
  unsigned char *keys=NULL,*vals=NULL,*refs=NULL;
  unsigned char *keys_end=NULL,*vals_end=NULL,*refs_end=NULL;
  uint32_t keylen=0,vallen=0,reflen=0;
@@ -1012,10 +999,7 @@ static void process_ways(unsigned char *data,uint32_t length)
  nways++;
 
  if(!(nways%1000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,byteno,nnodes,nways,nrelations);
-
- way_id=(way_t)id;
- logassert((long long)way_id==id,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
+    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  tags=NewTagList();
 
@@ -1030,13 +1014,12 @@ static void process_ways(unsigned char *data,uint32_t length)
       }
    }
 
- osmparser_way_nnodes=0;
+ AddWayRefs(0);
 
  if(refs)
     while(refs<refs_end)
       {
        int64_t delta_ref;
-       node_t node_id;
 
        delta_ref=pbf_sint64(&refs);
 
@@ -1045,18 +1028,12 @@ static void process_ways(unsigned char *data,uint32_t length)
        if(ref==0)
           break;
 
-       if(osmparser_way_nnodes && (osmparser_way_nnodes%256)==0)
-          osmparser_way_nodes=(node_t*)realloc((void*)osmparser_way_nodes,(osmparser_way_nnodes+256)*sizeof(node_t));
-
-       node_id=(node_t)ref;
-       logassert((long long)node_id==ref,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
-
-       osmparser_way_nodes[osmparser_way_nnodes++]=node_id;
+       AddWayRefs(ref);
       }
 
- result=ApplyWayTaggingRules(tags,way_id);
+ result=ApplyWayTaggingRules(tags,id);
 
- ProcessWayTags(result,way_id,MODE_NORMAL);
+ ProcessWayTags(result,id,MODE_NORMAL);
 
  DeleteTagList(tags);
  DeleteTagList(result);
@@ -1075,7 +1052,6 @@ static void process_relations(unsigned char *data,uint32_t length)
 {
  unsigned char *end=data+length;
  int64_t id=0;
- relation_t relation_id;
  unsigned char *keys=NULL,*vals=NULL,*roles=NULL,*memids=NULL,*types=NULL;
  unsigned char *keys_end=NULL,*vals_end=NULL,*memids_end=NULL,*types_end=NULL;
  uint32_t keylen=0,vallen=0,rolelen=0,memidlen=0,typelen=0;
@@ -1127,16 +1103,9 @@ static void process_relations(unsigned char *data,uint32_t length)
  nrelations++;
 
  if(!(nrelations%1000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,byteno,nnodes,nways,nrelations);
+    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
- relation_id=(relation_t)id;
- logassert((long long)relation_id==id,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
-
- osmparser_relation_nnodes=osmparser_relation_nways=osmparser_relation_nrelations=0;
-
- osmparser_relation_from=NO_WAY_ID;
- osmparser_relation_to=NO_WAY_ID;
- osmparser_relation_via=NO_NODE_ID;
+ AddRelationRefs(0,0,0,NULL);
 
  tags=NewTagList();
 
@@ -1167,60 +1136,16 @@ static void process_relations(unsigned char *data,uint32_t length)
        memid+=delta_memid;
 
        if(type==0)
-         {
-          node_t node_id;
-
-          node_id=(node_t)memid;
-          logassert((long long)node_id==memid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
-
-          if(osmparser_relation_nnodes && (osmparser_relation_nnodes%256)==0)
-             osmparser_relation_nodes=(node_t*)realloc((void*)osmparser_relation_nodes,(osmparser_relation_nnodes+256)*sizeof(node_t));
-
-          osmparser_relation_nodes[osmparser_relation_nnodes++]=node_id;
-
-          if(role)
-            {
-             if(!strcmp((char*)role,"via"))
-                osmparser_relation_via=node_id;
-            }
-         }
+          AddRelationRefs(memid,0,0,(char*)role);
        else if(type==1)
-         {
-          way_t way_id;
-
-          way_id=(way_t)memid;
-          logassert((long long)way_id==memid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
-
-          if(osmparser_relation_nways && (osmparser_relation_nways%256)==0)
-             osmparser_relation_ways=(way_t*)realloc((void*)osmparser_relation_ways,(osmparser_relation_nways+256)*sizeof(way_t));
-
-          osmparser_relation_ways[osmparser_relation_nways++]=way_id;
-
-          if(role)
-            {
-             if(!strcmp((char*)role,"from"))
-                osmparser_relation_from=way_id;
-             if(!strcmp((char*)role,"to"))
-                osmparser_relation_to=way_id;
-            }
-         }
+          AddRelationRefs(0,memid,0,(char*)role);
        else if(type==2)
-         {
-          relation_t relation_id;
-
-          relation_id=(relation_t)memid;
-          logassert((long long)relation_id==memid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
-
-          if(osmparser_relation_nrelations && (osmparser_relation_nrelations%256)==0)
-             osmparser_relation_relations=(relation_t*)realloc((void*)osmparser_relation_relations,(osmparser_relation_nrelations+256)*sizeof(relation_t));
-
-          osmparser_relation_relations[osmparser_relation_nrelations++]=relation_id;
-         }
+          AddRelationRefs(0,0,memid,(char*)role);
       }
 
- result=ApplyRelationTaggingRules(tags,relation_id);
+ result=ApplyRelationTaggingRules(tags,id);
 
- ProcessRelationTags(result,relation_id,MODE_NORMAL);
+ ProcessRelationTags(result,id,MODE_NORMAL);
 
  DeleteTagList(tags);
  DeleteTagList(result);
