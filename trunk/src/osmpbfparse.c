@@ -122,7 +122,7 @@
 
 /* Parsing variables and functions */
 
-static unsigned long long byteno=0;
+static uint64_t byteno=0;
 static uint64_t nnodes=0,nways=0,nrelations=0;
 
 static int buffer_allocated,zbuffer_allocated;
@@ -663,7 +663,7 @@ int ParsePBF(int fd)
 
  /* Print the final message */
 
- printf_last("Read: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
+ printf_last("Read: Bytes=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  return(state);
 }
@@ -827,7 +827,7 @@ static void process_nodes(unsigned char *data,uint32_t length)
  nnodes++;
 
  if(!(nnodes%10000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
+    printf_middle("Reading: Bytes=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  tags=NewTagList();
 
@@ -916,7 +916,7 @@ static void process_dense_nodes(unsigned char *data,uint32_t length)
     nnodes++;
 
     if(!(nnodes%10000))
-       printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
+       printf_middle("Reading: Bytes=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
     tags=NewTagList();
 
@@ -999,7 +999,7 @@ static void process_ways(unsigned char *data,uint32_t length)
  nways++;
 
  if(!(nways%1000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
+    printf_middle("Reading: Bytes=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  tags=NewTagList();
 
@@ -1103,7 +1103,7 @@ static void process_relations(unsigned char *data,uint32_t length)
  nrelations++;
 
  if(!(nrelations%1000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
+    printf_middle("Reading: Bytes=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  AddRelationRefs(0,0,0,NULL);
 
