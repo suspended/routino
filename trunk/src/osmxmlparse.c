@@ -22,12 +22,10 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-
-#include "types.h"
+#include <inttypes.h>
+#include <stdint.h>
 
 #include "osmparser.h"
-
 #include "xmlparse.h"
 #include "tagging.h"
 #include "logging.h"
@@ -37,7 +35,7 @@
 
 static int current_mode=MODE_NORMAL;
 
-static index_t nnodes=0,nways=0,nrelations=0;
+static uint64_t nnodes=0,nways=0,nrelations=0;
 
 static TagList *current_tags=NULL;
 
@@ -234,7 +232,7 @@ static int osmType_function(const char *_tag_,int _type_,const char *version)
  /* Print the initial message */
 
  if(_type_&XMLPARSE_TAG_START)
-    printf_first("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes=0,nways=0,nrelations=0);
+    printf_first("Read: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes=0,nways=0,nrelations=0);
 
  /* Check the tag values */
 
@@ -249,7 +247,7 @@ static int osmType_function(const char *_tag_,int _type_,const char *version)
  /* Print the final message */
 
  if(_type_&XMLPARSE_TAG_END)
-    printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
+    printf_last("Read: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  return(0);
 }
@@ -272,7 +270,7 @@ static int osmChangeType_function(const char *_tag_,int _type_,const char *versi
  /* Print the initial message */
 
  if(_type_&XMLPARSE_TAG_START)
-    printf_first("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes=0,nways=0,nrelations=0);
+    printf_first("Read: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes=0,nways=0,nrelations=0);
 
  /* Check the tag values */
 
@@ -285,7 +283,7 @@ static int osmChangeType_function(const char *_tag_,int _type_,const char *versi
  /* Print the final message */
 
  if(_type_&XMLPARSE_TAG_END)
-    printf_last("Read: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
+    printf_last("Read: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  return(0);
 }
@@ -416,25 +414,21 @@ static int deleteType_function(const char *_tag_,int _type_)
 
 static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon)
 {
- static node_t node_id;
+ static int64_t llid;
  static double latitude,longitude;
 
  if(_type_&XMLPARSE_TAG_START)
    {
-    long long llid;
-
     nnodes++;
 
     if(!(nnodes%10000))
-       printf_middle("Reading: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
+       printf_middle("Reading: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
     /* Handle the node information */
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,id);   llid=atoll(id); /* need long long conversion */
-    node_id=(node_t)llid;
-    logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
+    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need int64_t conversion */
 
     if(current_mode!=MODE_DELETE)
       {
@@ -445,9 +439,9 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyNodeTaggingRules(current_tags,node_id);
+    TagList *result=ApplyNodeTaggingRules(current_tags,llid);
 
-    ProcessNodeTags(result,node_id,latitude,longitude,current_mode);
+    ProcessNodeTags(result,llid,latitude,longitude,current_mode);
 
     DeleteTagList(current_tags); current_tags=NULL;
     DeleteTagList(result);
@@ -471,34 +465,29 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
 static int wayType_function(const char *_tag_,int _type_,const char *id)
 {
- static way_t way_id;
+ static int64_t llid;
 
  if(_type_&XMLPARSE_TAG_START)
    {
-    long long llid;
-
     nways++;
 
     if(!(nways%1000))
-       printf_middle("Reading: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
+       printf_middle("Reading: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
-    osmparser_way_nnodes=0;
+    AddWayRefs(0);
 
     /* Handle the way information */
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
-
-    way_id=(way_t)llid;
-    logassert((long long)way_id==llid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
+    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need int64_t conversion */
    }
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyWayTaggingRules(current_tags,way_id);
+    TagList *result=ApplyWayTaggingRules(current_tags,llid);
 
-    ProcessWayTags(result,way_id,current_mode);
+    ProcessWayTags(result,llid,current_mode);
 
     DeleteTagList(current_tags); current_tags=NULL;
     DeleteTagList(result);
@@ -522,38 +511,29 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
 
 static int relationType_function(const char *_tag_,int _type_,const char *id)
 {
- static relation_t relation_id;
+ static int64_t llid;
 
  if(_type_&XMLPARSE_TAG_START)
    {
-    long long llid;
-
     nrelations++;
 
     if(!(nrelations%1000))
-       printf_middle("Reading: Lines=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,ParseXML_LineNumber(),nnodes,nways,nrelations);
+       printf_middle("Reading: Lines=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
-    osmparser_relation_nnodes=osmparser_relation_nways=osmparser_relation_nrelations=0;
-
-    osmparser_relation_from=NO_WAY_ID;
-    osmparser_relation_to=NO_WAY_ID;
-    osmparser_relation_via=NO_NODE_ID;
+    AddRelationRefs(0,0,0,NULL);
 
     /* Handle the relation information */
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
-
-    relation_id=(relation_t)llid;
-    logassert((long long)relation_id==llid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
+    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need int64_t conversion */
    }
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyRelationTaggingRules(current_tags,relation_id);
+    TagList *result=ApplyRelationTaggingRules(current_tags,llid);
 
-    ProcessRelationTags(result,relation_id,current_mode);
+    ProcessRelationTags(result,llid,current_mode);
 
     DeleteTagList(current_tags); current_tags=NULL;
     DeleteTagList(result);
@@ -607,17 +587,11 @@ static int ndType_function(const char *_tag_,int _type_,const char *ref)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    long long llid;
-    node_t node_id;
+    int64_t llid;
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,ref); llid=atoll(ref); /* need long long conversion */
-    node_id=(node_t)llid;
-    logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
+    XMLPARSE_ASSERT_INTEGER(_tag_,ref); llid=atoll(ref); /* need int64_t conversion */
 
-    if(osmparser_way_nnodes && (osmparser_way_nnodes%256)==0)
-       osmparser_way_nodes=(node_t*)realloc((void*)osmparser_way_nodes,(osmparser_way_nnodes+256)*sizeof(node_t));
-
-    osmparser_way_nodes[osmparser_way_nnodes++]=node_id;
+    AddWayRefs(llid);
    }
 
  return(0);
@@ -644,61 +618,17 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
 {
  if(_type_&XMLPARSE_TAG_START)
    {
-    long long llid;
+    int64_t llid;
 
     XMLPARSE_ASSERT_STRING(_tag_,type);
-    XMLPARSE_ASSERT_INTEGER(_tag_,ref); llid=atoll(ref); /* need long long conversion */
+    XMLPARSE_ASSERT_INTEGER(_tag_,ref); llid=atoll(ref); /* need int64_t conversion */
 
     if(!strcmp(type,"node"))
-      {
-       node_t node_id;
-
-       node_id=(node_t)llid;
-       logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
-
-       if(osmparser_relation_nnodes && (osmparser_relation_nnodes%256)==0)
-          osmparser_relation_nodes=(node_t*)realloc((void*)osmparser_relation_nodes,(osmparser_relation_nnodes+256)*sizeof(node_t));
-
-       osmparser_relation_nodes[osmparser_relation_nnodes++]=node_id;
-
-       if(role)
-         {
-          if(!strcmp(role,"via"))
-             osmparser_relation_via=node_id;
-         }
-      }
+       AddRelationRefs(llid,0,0,role);
     else if(!strcmp(type,"way"))
-      {
-       way_t way_id;
-
-       way_id=(way_t)llid;
-       logassert((long long)way_id==llid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
-
-       if(osmparser_relation_nways && (osmparser_relation_nways%256)==0)
-          osmparser_relation_ways=(way_t*)realloc((void*)osmparser_relation_ways,(osmparser_relation_nways+256)*sizeof(way_t));
-
-       osmparser_relation_ways[osmparser_relation_nways++]=way_id;
-
-       if(role)
-         {
-          if(!strcmp(role,"from"))
-             osmparser_relation_from=way_id;
-          if(!strcmp(role,"to"))
-             osmparser_relation_to=way_id;
-         }
-      }
+       AddRelationRefs(0,llid,0,role);
     else if(!strcmp(type,"relation"))
-      {
-       relation_t relation_id;
-
-       relation_id=(relation_t)llid;
-       logassert((long long)relation_id==llid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
-
-       if(osmparser_relation_nrelations && (osmparser_relation_nrelations%256)==0)
-          osmparser_relation_relations=(relation_t*)realloc((void*)osmparser_relation_relations,(osmparser_relation_nrelations+256)*sizeof(relation_t));
-
-       osmparser_relation_relations[osmparser_relation_nrelations++]=relation_id;
-      }
+       AddRelationRefs(0,0,llid,role);
    }
 
  return(0);

@@ -25,20 +25,20 @@
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
-#include <errno.h>
+#include <inttypes.h>
+#include <stdint.h>
+
+#include "xmlparse.h"
+#include "logging.h"
+#include "tagging.h"
 
 #include "files.h"
-#include "logging.h"
-#include "xmlparse.h"
-#include "tagging.h"
 #include "uncompress.h"
 
 
 /* Local variables */
 
-static unsigned long nnodes=0;
-static unsigned long nways=0;
-static unsigned long nrelations=0;
+static uint64_t nnodes=0,nways=0,nrelations=0;
 
 TagList *current_tags=NULL;
 
@@ -257,29 +257,25 @@ static int tagType_function(const char *_tag_,int _type_,const char *k,const cha
 
 static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon,const char *timestamp,const char *uid,const char *user,const char *visible,const char *version,const char *action)
 {
- static node_t node_id;
+ static int64_t llid;
 
  if(_type_&XMLPARSE_TAG_START)
    {
-    long long llid;
-
     nnodes++;
 
     if(!(nnodes%10000))
-       fprintf_middle(stderr,"Reading: Lines=%llu Nodes=%lu Ways=%lu Relations=%lu",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       fprintf_middle(stderr,"Reading: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
     /* Handle the node information */
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,id);   llid=atoll(id); /* need long long conversion */
-    node_id=(node_t)llid;
-    logassert((long long)node_id==llid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
+    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need int64_t conversion */
    }
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyNodeTaggingRules(current_tags,node_id);
+    TagList *result=ApplyNodeTaggingRules(current_tags,llid);
     int i;
 
     for(i=0;i<result->ntags;i++)
@@ -383,30 +379,25 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
 
 static int wayType_function(const char *_tag_,int _type_,const char *id,const char *timestamp,const char *uid,const char *user,const char *visible,const char *version,const char *action)
 {
- static way_t way_id;
+ static int64_t llid;
 
  if(_type_&XMLPARSE_TAG_START)
    {
-    long long llid;
-
     nways++;
 
     if(!(nways%1000))
-       fprintf_middle(stderr,"Reading: Lines=%llu Nodes=%lu Ways=%lu Relations=%lu",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       fprintf_middle(stderr,"Reading: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
     /* Handle the way information */
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
-
-    way_id=(way_t)llid;
-    logassert((long long)way_id==llid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
+    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need int64_t conversion */
    }
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyWayTaggingRules(current_tags,way_id);
+    TagList *result=ApplyWayTaggingRules(current_tags,llid);
     int i;
 
     for(i=0;i<result->ntags;i++)
@@ -460,30 +451,25 @@ static int wayType_function(const char *_tag_,int _type_,const char *id,const ch
 
 static int relationType_function(const char *_tag_,int _type_,const char *id,const char *timestamp,const char *uid,const char *user,const char *visible,const char *version,const char *action)
 {
- static relation_t relation_id;
+ static int64_t llid;
 
  if(_type_&XMLPARSE_TAG_START)
    {
-    long long llid;
-
     nrelations++;
 
     if(!(nrelations%1000))
-       fprintf_middle(stderr,"Reading: Lines=%llu Nodes=%lu Ways=%lu Relations=%lu",ParseXML_LineNumber(),nnodes,nways,nrelations);
+       fprintf_middle(stderr,"Reading: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
     current_tags=NewTagList();
 
     /* Handle the relation information */
 
-    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need long long conversion */
-
-    relation_id=(relation_t)llid;
-    logassert((long long)relation_id==llid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
+    XMLPARSE_ASSERT_INTEGER(_tag_,id); llid=atoll(id); /* need int64_t conversion */
    }
 
  if(_type_&XMLPARSE_TAG_END)
    {
-    TagList *result=ApplyRelationTaggingRules(current_tags,relation_id);
+    TagList *result=ApplyRelationTaggingRules(current_tags,llid);
     int i;
 
     for(i=0;i<result->ntags;i++)
@@ -645,7 +631,7 @@ int main(int argc,char **argv)
 
  retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
- fprintf_last(stderr,"Read: Lines=%llu Nodes=%lu Ways=%lu Relations=%lu",ParseXML_LineNumber(),nnodes,nways,nrelations);
+ fprintf_last(stderr,"Read: Lines=%"PRIu64" Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,ParseXML_LineNumber(),nnodes,nways,nrelations);
 
  /* Close the error log file */
 

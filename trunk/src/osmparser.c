@@ -22,9 +22,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <ctype.h>
 
+#include "types.h"
 #include "typesx.h"
+
 #include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
@@ -43,27 +46,25 @@
 /*+ Checks if a value in the XML is one of the allowed values for false. +*/
 #define ISFALSE(xx) (!strcmp(xx,"false") || !strcmp(xx,"no") || !strcmp(xx,"0"))
 
-/* Global variables */
-
-node_t *osmparser_way_nodes=NULL;
-int     osmparser_way_nnodes=0;
-
-node_t     *osmparser_relation_nodes=NULL;
-int         osmparser_relation_nnodes=0;
-way_t      *osmparser_relation_ways=NULL;
-int         osmparser_relation_nways=0;
-relation_t *osmparser_relation_relations=NULL;
-int         osmparser_relation_nrelations=0;
-way_t       osmparser_relation_from=NO_WAY_ID;
-way_t       osmparser_relation_to=NO_WAY_ID;
-node_t      osmparser_relation_via=NO_NODE_ID;
-
 /* Local variables */
 
 static NodesX     *nodes;
 static SegmentsX  *segments;
 static WaysX      *ways;
 static RelationsX *relations;
+
+static node_t *way_nodes=NULL;
+static int     way_nnodes=0;
+
+static node_t     *relation_nodes=NULL;
+static int         relation_nnodes=0;
+static way_t      *relation_ways=NULL;
+static int         relation_nways=0;
+static relation_t *relation_relations=NULL;
+static int         relation_nrelations=0;
+static way_t       relation_from=NO_WAY_ID;
+static way_t       relation_to=NO_WAY_ID;
+static node_t      relation_via=NO_NODE_ID;
 
 /* Local functions */
 
@@ -99,11 +100,11 @@ int ParseOSMFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
  ways=OSMWays;
  relations=OSMRelations;
 
- osmparser_way_nodes=(node_t*)malloc(256*sizeof(node_t));
+ way_nodes=(node_t*)malloc(256*sizeof(node_t));
 
- osmparser_relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- osmparser_relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- osmparser_relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
+ relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
+ relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
+ relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
 
  /* Parse the file */
 
@@ -111,11 +112,11 @@ int ParseOSMFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  /* Free the variables */
 
- free(osmparser_way_nodes);
+ free(way_nodes);
 
- free(osmparser_relation_nodes);
- free(osmparser_relation_ways);
- free(osmparser_relation_relations);
+ free(relation_nodes);
+ free(relation_ways);
+ free(relation_relations);
 
  return(retval);
 }
@@ -148,11 +149,11 @@ int ParseOSCFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
  ways=OSMWays;
  relations=OSMRelations;
 
- osmparser_way_nodes=(node_t*)malloc(256*sizeof(node_t));
+ way_nodes=(node_t*)malloc(256*sizeof(node_t));
 
- osmparser_relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- osmparser_relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- osmparser_relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
+ relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
+ relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
+ relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
 
  /* Parse the file */
 
@@ -160,11 +161,11 @@ int ParseOSCFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  /* Free the variables */
 
- free(osmparser_way_nodes);
+ free(way_nodes);
 
- free(osmparser_relation_nodes);
- free(osmparser_relation_ways);
- free(osmparser_relation_relations);
+ free(relation_nodes);
+ free(relation_ways);
+ free(relation_relations);
 
  return(retval);
 }
@@ -197,11 +198,11 @@ int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
  ways=OSMWays;
  relations=OSMRelations;
 
- osmparser_way_nodes=(node_t*)malloc(256*sizeof(node_t));
+ way_nodes=(node_t*)malloc(256*sizeof(node_t));
 
- osmparser_relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- osmparser_relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- osmparser_relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
+ relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
+ relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
+ relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
 
  /* Parse the file */
 
@@ -209,11 +210,11 @@ int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  /* Free the variables */
 
- free(osmparser_way_nodes);
+ free(way_nodes);
 
- free(osmparser_relation_nodes);
- free(osmparser_relation_ways);
- free(osmparser_relation_relations);
+ free(relation_nodes);
+ free(relation_ways);
+ free(relation_relations);
 
  return(retval);
 }
@@ -246,11 +247,11 @@ int ParseO5MFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
  ways=OSMWays;
  relations=OSMRelations;
 
- osmparser_way_nodes=(node_t*)malloc(256*sizeof(node_t));
+ way_nodes=(node_t*)malloc(256*sizeof(node_t));
 
- osmparser_relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- osmparser_relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- osmparser_relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
+ relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
+ relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
+ relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
 
  /* Parse the file */
 
@@ -258,11 +259,11 @@ int ParseO5MFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  /* Free the variables */
 
- free(osmparser_way_nodes);
+ free(way_nodes);
 
- free(osmparser_relation_nodes);
- free(osmparser_relation_ways);
- free(osmparser_relation_relations);
+ free(relation_nodes);
+ free(relation_ways);
+ free(relation_relations);
 
  return(retval);
 }
@@ -295,11 +296,11 @@ int ParseO5CFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
  ways=OSMWays;
  relations=OSMRelations;
 
- osmparser_way_nodes=(node_t*)malloc(256*sizeof(node_t));
+ way_nodes=(node_t*)malloc(256*sizeof(node_t));
 
- osmparser_relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- osmparser_relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- osmparser_relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
+ relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
+ relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
+ relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
 
  /* Parse the file */
 
@@ -307,13 +308,113 @@ int ParseO5CFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
  /* Free the variables */
 
- free(osmparser_way_nodes);
+ free(way_nodes);
 
- free(osmparser_relation_nodes);
- free(osmparser_relation_ways);
- free(osmparser_relation_relations);
+ free(relation_nodes);
+ free(relation_ways);
+ free(relation_relations);
 
  return(retval);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Add node references to a way.
+
+  int64_t node_id The node ID to add or zero to clear the list.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void AddWayRefs(int64_t node_id)
+{
+ if(node_id==0)
+    way_nnodes=0;
+ else
+   {
+    node_t id;
+
+    if(way_nnodes && (way_nnodes%256)==0)
+       way_nodes=(node_t*)realloc((void*)way_nodes,(way_nnodes+256)*sizeof(node_t));
+
+    id=(node_t)node_id;
+    logassert((int64_t)id==node_id,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
+
+    way_nodes[way_nnodes++]=id;
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Add node, way or relation references to a relation.
+
+  int64_t node_id The node ID to add or zero if it is not a node.
+
+  int64_t way_id The way ID to add or zero if it is not a way.
+
+  int64_t relation_id The relation ID to add or zero if it is not a relation.
+
+  const char *role The role played by this referenced item or NULL.
+
+  If all of node_id, way_id and relation_id are zero then the list is cleared.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void AddRelationRefs(int64_t node_id,int64_t way_id,int64_t relation_id,const char *role)
+{
+ if(node_id==0 && way_id==0 && relation_id==0)
+   {
+    relation_nnodes=0;
+    relation_nways=0;
+    relation_nrelations=0;
+   }
+ else if(node_id!=0)
+   {
+    node_t id;
+
+    id=(node_t)node_id;
+    logassert((int64_t)id==node_id,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
+
+    if(relation_nnodes && (relation_nnodes%256)==0)
+       relation_nodes=(node_t*)realloc((void*)relation_nodes,(relation_nnodes+256)*sizeof(node_t));
+
+    relation_nodes[relation_nnodes++]=id;
+
+    if(role)
+      {
+       if(!strcmp(role,"via"))
+          relation_via=id;
+      }
+   }
+ else if(way_id!=0)
+   {
+    way_t id;
+
+    id=(way_t)way_id;
+    logassert((int64_t)id==way_id,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
+
+    if(relation_nways && (relation_nways%256)==0)
+       relation_ways=(way_t*)realloc((void*)relation_ways,(relation_nways+256)*sizeof(way_t));
+
+    relation_ways[relation_nways++]=id;
+
+    if(role)
+      {
+       if(!strcmp(role,"from"))
+          relation_from=id;
+       else if(!strcmp(role,"to"))
+          relation_to=id;
+      }
+   }
+ else /* if(relation_id!=0) */
+   {
+    relation_t id;
+
+    id=(relation_t)relation_id;
+    logassert((int64_t)id==relation_id,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
+
+    if(relation_nrelations && (relation_nrelations%256)==0)
+       relation_relations=(relation_t*)realloc((void*)relation_relations,(relation_nrelations+256)*sizeof(relation_t));
+
+    relation_relations[relation_nrelations++]=relation_id;
+   }
 }
 
 
@@ -322,7 +423,7 @@ int ParseO5CFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
   TagList *tags The list of node tags.
 
-  node_t id The id of the node.
+  int64_t node_id The id of the node.
 
   double latitude The latitude of the node.
 
@@ -331,11 +432,17 @@ int ParseO5CFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
   int mode The mode of operation to take (create, modify, delete).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ProcessNodeTags(TagList *tags,node_t id,double latitude,double longitude,int mode)
+void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longitude,int mode)
 {
  transports_t allow=Transports_ALL;
  nodeflags_t flags=0;
+ node_t id;
  int i;
+
+ /* Convert id */
+
+ id=(node_t)node_id;
+ logassert((int64_t)id==node_id,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
 
  /* Delete */
 
@@ -493,18 +600,24 @@ void ProcessNodeTags(TagList *tags,node_t id,double latitude,double longitude,in
 
   TagList *tags The list of way tags.
 
-  way_t id The id of the way.
+  int64_t way_id The id of the way.
 
   int mode The mode of operation to take (create, modify, delete).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ProcessWayTags(TagList *tags,way_t id,int mode)
+void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 {
  Way way={0};
  distance_t oneway=0,area=0;
  int roundabout=0;
  char *name=NULL,*ref=NULL,*refname=NULL;
+ way_t id;
  int i,j;
+
+ /* Convert id */
+
+ id=(way_t)way_id;
+ logassert((int64_t)id==way_id,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
 
  /* Delete */
 
@@ -524,13 +637,13 @@ void ProcessWayTags(TagList *tags,way_t id,int mode)
 
  /* Sanity check */
 
- if(osmparser_way_nnodes==0)
+ if(way_nnodes==0)
    {
     logerror("Way %"Pway_t" has no nodes.\n",id);
     return;
    }
 
- if(osmparser_way_nnodes==1)
+ if(way_nnodes==1)
    {
     logerror("Way %"Pway_t" has only one node.\n",id);
     return;
@@ -868,13 +981,13 @@ void ProcessWayTags(TagList *tags,way_t id,int mode)
  if(ref && name)
     free(refname);
 
- if(area && osmparser_way_nodes[0]!=osmparser_way_nodes[osmparser_way_nnodes-1])
+ if(area && way_nodes[0]!=way_nodes[way_nnodes-1])
     logerror("Way %"Pway_t" is an area but not closed.\n",id);
 
- for(i=1;i<osmparser_way_nnodes;i++)
+ for(i=1;i<way_nnodes;i++)
    {
-    node_t from=osmparser_way_nodes[i-1];
-    node_t to  =osmparser_way_nodes[i];
+    node_t from=way_nodes[i-1];
+    node_t to  =way_nodes[i];
 
     if(from==to)
        logerror("Node %"Pnode_t" in way %"Pway_t" is connected to itself.\n",from,id);
@@ -884,10 +997,10 @@ void ProcessWayTags(TagList *tags,way_t id,int mode)
 
        for(j=1;j<i;j++)
          {
-          node_t n1=osmparser_way_nodes[j-1];
-          node_t n2=osmparser_way_nodes[j];
+          node_t n1=way_nodes[j-1];
+          node_t n2=way_nodes[j];
 
-          if(n1==to && (i!=osmparser_way_nnodes-1 || j!=1))
+          if(n1==to && (i!=way_nnodes-1 || j!=1))
              nto++;
 
           if((n1==from && n2==to) || (n2==from && n1==to))
@@ -912,29 +1025,35 @@ void ProcessWayTags(TagList *tags,way_t id,int mode)
 
   TagList *tags The list of relation tags.
 
-  relation_t id The id of the relation.
+  int64_t relation_id The id of the relation.
 
   int mode The mode of operation to take (create, modify, delete).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ProcessRelationTags(TagList *tags,relation_t id,int mode)
+void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode)
 {
  transports_t routes=Transports_None;
  transports_t except=Transports_None;
  int relation_turn_restriction=0;
  TurnRestriction restriction=TurnRestrict_None;
+ relation_t id;
  int i;
+
+ /* Convert id */
+
+ id=(relation_t)relation_id;
+ logassert((int64_t)id==relation_id,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
 
  /* Delete */
 
  if(mode==MODE_DELETE || mode==MODE_MODIFY)
    {
     AppendRouteRelationList(relations,id,RELATION_DELETED,
-                            osmparser_relation_ways,osmparser_relation_nways,
-                            osmparser_relation_relations,osmparser_relation_nrelations);
+                            relation_ways,relation_nways,
+                            relation_relations,relation_nrelations);
 
     AppendTurnRelationList(relations,id,
-                           osmparser_relation_from,osmparser_relation_to,osmparser_relation_via,
+                           relation_from,relation_to,relation_via,
                            restriction,RELATION_DELETED);
    }
 
@@ -943,7 +1062,7 @@ void ProcessRelationTags(TagList *tags,relation_t id,int mode)
 
  /* Sanity check */
 
- if(osmparser_relation_nnodes==0 && osmparser_relation_nways==0 && osmparser_relation_nrelations==0)
+ if(relation_nnodes==0 && relation_nways==0 && relation_nrelations==0)
    {
     logerror("Relation %"Prelation_t" has no nodes, ways or relations.\n",id);
     return;
@@ -1041,24 +1160,24 @@ void ProcessRelationTags(TagList *tags,relation_t id,int mode)
     relations even if they are not routes because they might be referenced by
     other relations that are routes) */
 
- if((osmparser_relation_nways || osmparser_relation_nrelations) && !relation_turn_restriction)
+ if((relation_nways || relation_nrelations) && !relation_turn_restriction)
     AppendRouteRelationList(relations,id,routes,
-                            osmparser_relation_ways,osmparser_relation_nways,
-                            osmparser_relation_relations,osmparser_relation_nrelations);
+                            relation_ways,relation_nways,
+                            relation_relations,relation_nrelations);
 
  /* Create the turn restriction relation. */
 
  if(relation_turn_restriction && restriction!=TurnRestrict_None)
    {
-    if(osmparser_relation_from==NO_WAY_ID)
+    if(relation_from==NO_WAY_ID)
        logerror("Relation %"Prelation_t" is a turn restriction but has no 'from' way.\n",id);
-    else if(osmparser_relation_to==NO_WAY_ID)
+    else if(relation_to==NO_WAY_ID)
        logerror("Relation %"Prelation_t" is a turn restriction but has no 'to' way.\n",id);
-    else if(osmparser_relation_via==NO_NODE_ID)
+    else if(relation_via==NO_NODE_ID)
        logerror("Relation %"Prelation_t" is a turn restriction but has no 'via' node.\n",id);
     else
        AppendTurnRelationList(relations,id,
-                              osmparser_relation_from,osmparser_relation_to,osmparser_relation_via,
+                              relation_from,relation_to,relation_via,
                               restriction,except);
    }
 }

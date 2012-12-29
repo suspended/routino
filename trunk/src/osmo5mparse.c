@@ -23,11 +23,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <inttypes.h>
 #include <stdint.h>
-#include <string.h>
-
-#include "types.h"
 
 #include "osmparser.h"
 #include "tagging.h"
@@ -62,9 +60,8 @@
 
 /* Parsing variables and functions */
 
-static index_t nnodes=0,nways=0,nrelations=0;
-
 static unsigned long long byteno;
+static uint64_t nnodes=0,nways=0,nrelations=0;
 
 static int64_t id=0;
 static int32_t lat=0;
@@ -461,7 +458,7 @@ int ParseO5M(int fd,int changes)
 
  /* Print the final message */
 
- printf_last("Read: Bytes=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,byteno,nnodes,nways,nrelations);
+ printf_last("Read: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  return(state);
 }
@@ -473,7 +470,6 @@ int ParseO5M(int fd,int changes)
 
 static void process_node(void)
 {
- node_t node_id;
  int64_t delta_id;
  int32_t delta_lat;
  int32_t delta_lon;
@@ -507,10 +503,7 @@ static void process_node(void)
  nnodes++;
 
  if(!(nnodes%10000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,byteno,nnodes,nways,nrelations);
-
- node_id=(node_t)id;
- logassert((long long)node_id==id,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
+    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
  tags=NewTagList();
 
@@ -523,9 +516,9 @@ static void process_node(void)
     AppendTag(tags,(char*)key,(char*)val);
    }
 
- result=ApplyNodeTaggingRules(tags,node_id);
+ result=ApplyNodeTaggingRules(tags,id);
 
- ProcessNodeTags(result,node_id,O5M_LATITUDE(lat),O5M_LONGITUDE(lon),mode);
+ ProcessNodeTags(result,id,O5M_LATITUDE(lat),O5M_LONGITUDE(lon),mode);
 
  DeleteTagList(tags);
  DeleteTagList(result);
@@ -538,7 +531,6 @@ static void process_node(void)
 
 static void process_way(void)
 {
- way_t way_id;
  int64_t delta_id;
  TagList *tags=NULL,*result=NULL;
  int mode=mode_change;
@@ -577,29 +569,19 @@ static void process_way(void)
  nways++;
 
  if(!(nways%1000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,byteno,nnodes,nways,nrelations);
+    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
- way_id=(way_t)id;
- logassert((long long)way_id==id,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
-
- osmparser_way_nnodes=0;
+ AddWayRefs(0);
 
  if(refs)
     while(refs<refs_end)
       {
        int64_t delta_ref;
-       node_t node_id;
 
        delta_ref=pbf_sint64(&refs);
        node_refid+=delta_ref;
 
-       if(osmparser_way_nnodes && (osmparser_way_nnodes%256)==0)
-          osmparser_way_nodes=(node_t*)realloc((void*)osmparser_way_nodes,(osmparser_way_nnodes+256)*sizeof(node_t));
-
-       node_id=(node_t)node_refid;
-       logassert((long long)node_id==node_refid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
-
-       osmparser_way_nodes[osmparser_way_nnodes++]=node_id;
+       AddWayRefs(node_refid);
       }
 
  tags=NewTagList();
@@ -613,9 +595,9 @@ static void process_way(void)
     AppendTag(tags,(char*)key,(char*)val);
    }
 
- result=ApplyWayTaggingRules(tags,way_id);
+ result=ApplyWayTaggingRules(tags,id);
 
- ProcessWayTags(result,way_id,mode);
+ ProcessWayTags(result,id,mode);
 
  DeleteTagList(tags);
  DeleteTagList(result);
@@ -628,7 +610,6 @@ static void process_way(void)
 
 static void process_relation()
 {
- relation_t relation_id;
  int64_t delta_id;
  TagList *tags=NULL,*result=NULL;
  int mode=mode_change;
@@ -667,16 +648,9 @@ static void process_relation()
  nrelations++;
 
  if(!(nrelations%1000))
-    printf_middle("Reading: Bytes=%llu Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,byteno,nnodes,nways,nrelations);
+    printf_middle("Reading: Bytes=%llu Nodes=%"PRIu64" Ways=%"PRIu64" Relations=%"PRIu64,byteno,nnodes,nways,nrelations);
 
- relation_id=(relation_t)id;
- logassert((long long)relation_id==id,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
-
- osmparser_relation_nnodes=osmparser_relation_nways=osmparser_relation_nrelations=0;
-
- osmparser_relation_from=NO_WAY_ID;
- osmparser_relation_to=NO_WAY_ID;
- osmparser_relation_via=NO_NODE_ID;
+ AddRelationRefs(0,0,0,NULL);
 
  if(refs)
     while(refs<refs_end)
@@ -690,53 +664,21 @@ static void process_relation()
 
        if(*typerole=='0')
          {
-          node_t node_id;
-
           node_refid+=delta_ref;
 
-          node_id=(node_t)node_refid;
-          logassert((long long)node_id==node_refid,"Node ID too large (change node_t to 64-bits?)"); /* check node id can be stored in node_t data type. */
-
-          if(osmparser_relation_nnodes && (osmparser_relation_nnodes%256)==0)
-             osmparser_relation_nodes=(node_t*)realloc((void*)osmparser_relation_nodes,(osmparser_relation_nnodes+256)*sizeof(node_t));
-
-          osmparser_relation_nodes[osmparser_relation_nnodes++]=node_id;
-
-          if(!strcmp((char*)typerole+1,"via"))
-             osmparser_relation_via=node_id;
+          AddRelationRefs(node_refid,0,0,(char*)(typerole+1));
          }
        else if(*typerole=='1')
          {
-          way_t way_id;
-
           way_refid+=delta_ref;
 
-          way_id=(way_t)way_refid;
-          logassert((long long)way_id==way_refid,"Way ID too large (change way_t to 64-bits?)"); /* check way id can be stored in way_t data type. */
-
-          if(osmparser_relation_nways && (osmparser_relation_nways%256)==0)
-             osmparser_relation_ways=(way_t*)realloc((void*)osmparser_relation_ways,(osmparser_relation_nways+256)*sizeof(way_t));
-
-          osmparser_relation_ways[osmparser_relation_nways++]=way_id;
-
-          if(!strcmp((char*)typerole+1,"from"))
-             osmparser_relation_from=way_id;
-          if(!strcmp((char*)typerole+1,"to"))
-             osmparser_relation_to=way_id;
+          AddRelationRefs(0,way_refid,0,(char*)(typerole+1));
          }
        else if(*typerole=='2')
          {
-          relation_t relation_id;
-
           relation_refid+=delta_ref;
 
-          relation_id=(relation_t)relation_refid;
-          logassert((long long)relation_id==relation_refid,"Relation ID too large (change relation_t to 64-bits?)"); /* check relation id can be stored in relation_t data type. */
-
-          if(osmparser_relation_nrelations && (osmparser_relation_nrelations%256)==0)
-             osmparser_relation_relations=(relation_t*)realloc((void*)osmparser_relation_relations,(osmparser_relation_nrelations+256)*sizeof(relation_t));
-
-          osmparser_relation_relations[osmparser_relation_nrelations++]=relation_id;
+          AddRelationRefs(0,0,relation_refid,(char*)(typerole+1));
          }
       }
 
@@ -751,9 +693,9 @@ static void process_relation()
     AppendTag(tags,(char*)key,(char*)val);
    }
 
- result=ApplyRelationTaggingRules(tags,relation_id);
+ result=ApplyRelationTaggingRules(tags,id);
 
- ProcessRelationTags(result,relation_id,mode);
+ ProcessRelationTags(result,id,mode);
 
  DeleteTagList(tags);
  DeleteTagList(result);
@@ -780,51 +722,6 @@ static void process_info(void)
     process_string(2,&buffer_ptr,NULL,NULL);  /* user */
    }
 }
-
-
-// /*++++++++++++++++++++++++++++++++++++++
-//   Process an O5M string and take care of maintaining the string table.
-// 
-//   unsigned char *process_string Returns a pointer to the string.
-// 
-//   unsigned char **buf_ptr The pointer to the buffer that is to be updated.
-//   ++++++++++++++++++++++++++++++++++++++*/
-// 
-// static unsigned char *process_string(unsigned char **buf_ptr)
-// {
-//  int lookup=0;
-//  unsigned char *string;
-//  unsigned char *p;
-// 
-//  if(**buf_ptr==0)
-//     string=*buf_ptr+1;
-//  else
-//    {
-//     uint32_t position=pbf_int32(buf_ptr);
-// 
-//     string=string_table[(string_table_start-position+STRING_TABLE_ALLOCATED)%STRING_TABLE_ALLOCATED];
-// 
-//     lookup=1;
-//    }
-// 
-//  p=string;
-// 
-//  while(*p) p++;
-// 
-//  if(!lookup)
-//    {
-//     if((p-string)<=250)
-//       {
-//        memcpy(string_table[string_table_start],string,p-string+1);
-// 
-//        string_table_start=(string_table_start+1)%STRING_TABLE_ALLOCATED;
-//       }
-// 
-//     *buf_ptr=p+1;
-//    }
-// 
-//  return(string);
-// }
 
 
 /*++++++++++++++++++++++++++++++++++++++

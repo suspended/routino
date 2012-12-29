@@ -22,7 +22,7 @@
 #ifndef TAGGING_H
 #define TAGGING_H    /*+ To stop multiple inclusions. +*/
 
-#include "typesx.h"
+#include <stdint.h>
 
 
 /* Data types */
@@ -72,9 +72,9 @@ void DeleteTagList(TagList *tags);
 
 void AppendTag(TagList *tags,const char *k,const char *v);
 
-TagList *ApplyNodeTaggingRules(TagList *tags,node_t id);
-TagList *ApplyWayTaggingRules(TagList *tags,way_t id);
-TagList *ApplyRelationTaggingRules(TagList *tags,relation_t id);
+TagList *ApplyNodeTaggingRules(TagList *tags,int64_t id);
+TagList *ApplyWayTaggingRules(TagList *tags,int64_t id);
+TagList *ApplyRelationTaggingRules(TagList *tags,int64_t id);
 
 
 #endif /* TAGGING_H */
