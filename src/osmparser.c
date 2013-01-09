@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -364,6 +364,10 @@ void AddRelationRefs(int64_t node_id,int64_t way_id,int64_t relation_id,const ch
     relation_nnodes=0;
     relation_nways=0;
     relation_nrelations=0;
+
+    relation_from=NO_WAY_ID;
+    relation_via=NO_NODE_ID;
+    relation_to=NO_WAY_ID;
    }
  else if(node_id!=0)
    {
