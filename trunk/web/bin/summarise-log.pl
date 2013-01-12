@@ -99,11 +99,11 @@ while(<STDIN>)
      {
       if(defined $errorids{$_})
         {
-         $errorids{$_}.=",$errorid";
+         push(@{$errorids{$_}},$errorid);
         }
       else
         {
-         $errorids{$_}="$errorid";
+         $errorids{$_}=[$errorid];
         }
      }
 
@@ -119,14 +119,16 @@ while(<STDIN>)
 if( ! $html )
   {
 
-   foreach $error (sort { if ( $errors{$b} == $errors{$a} ) { return $errorids{$a} cmp $errorids{$b} }
-                          else                              { return $errors{$b}   <=> $errors{$a}   } } (keys %errors))
+   foreach $error (sort { if ( $errors{$b} == $errors{$a} ) { return $errors{$a} cmp $errors{$b} }
+                          else                              { return $errors{$b} <=> $errors{$a} } } (keys %errors))
      {
       printf "%9d : $error\n",$errors{$error};
 
-      if($verbose && defined $errorids{$error})
+      if($verbose)
         {
-         print "            $errorids{$error}\n";
+         @ids=sort({ return $a <=> $b } @{$errorids{$error}});
+
+         print "            ".join(",",@idss)."\n";
         }
      }
 
@@ -189,8 +191,8 @@ else
    $lasterrortype="";
 
    foreach $error (sort { if    ( $errortypes{$b} ne $errortypes{$a} ) { return $errortypeorder{$errortypes{$a}} <=> $errortypeorder{$errortypes{$b}} }
-                          elsif ( $errors{$b}     == $errors{$a} )     { return $errorids{$a} cmp $errorids{$b} }
-                          else                                         { return $errors{$b}   <=> $errors{$a}   } } (keys %errors))
+                          elsif ( $errors{$b}     == $errors{$a} )     { return $errors{$a} cmp $errors{$b} }
+                          else                                         { return $errors{$b} <=> $errors{$a} } } (keys %errors))
      {
       $errorhtml=$error;
 
@@ -212,7 +214,7 @@ else
         }
       else
         {
-         @ids=split(",",$errorids{$error});
+         @ids=sort({ return $a <=> $b } @{$errorids{$error}});
 
          $first=1;
 
