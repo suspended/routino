@@ -128,7 +128,7 @@ if( ! $html )
         {
          @ids=sort({ return $a <=> $b } @{$errorids{$error}});
 
-         print "            ".join(",",@idss)."\n";
+         print "            ".join(",",@ids)."\n";
         }
      }
 
