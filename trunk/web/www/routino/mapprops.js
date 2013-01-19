@@ -23,17 +23,37 @@ var mapprops={ // contains all properties for the map to be displayed.
  // EDIT THIS above to change the visible map limits
 
 
- // EDIT THIS below to change the map URL(s)
+ // EDIT THIS below to change the map URL(s) and copyright notices
 
     mapdata: [
         {
-            label:    "OSM map",
-            baseurl:  "http://tile.openstreetmap.org/",
-            errorurl: "http://openstreetmap.org/openlayers/img/404.png"
+            label:    "OpenStreetMap",
+            tileurl:  ["http://a.tile.openstreetmap.org/${z}/${x}/${y}.png",
+                       "http://b.tile.openstreetmap.org/${z}/${x}/${y}.png",
+                       "http://c.tile.openstreetmap.org/${z}/${x}/${y}.png"],
+            attribution: {
+                          data_url:  "http://www.openstreetmap.org/copyright",
+                          data_text: "© OpenStreetMap contributors",
+                          tile_url:  "http://www.openstreetmap.org/copyright",
+                          tile_text: "© OpenStreetMap"
+                         }
+        },
+        {
+            label:    "MapQuest",
+            tileurl:  ["http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
+                       "http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
+                       "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
+                       "http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg"],
+            attribution: {
+                          data_url:  "http://www.openstreetmap.org/copyright",
+                          data_text: "© OpenStreetMap contributors",
+                          tile_url:  "http://www.mapquest.com/",
+                          tile_text: "© MapQuest <img src=\"http://developer.mapquest.com/content/osm/mq_logo.png\">"
+                         }
         }
     ],
 
- // EDIT THIS above to change the map URL(s)
+ // EDIT THIS above to change the map URL(s) and copyright notices
 
 
  // EDIT THIS below to change the maximum number of markers

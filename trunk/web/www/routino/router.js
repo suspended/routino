@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2012 Andrew M. Bishop
+// This file Copyright 2008-2013 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -676,10 +676,8 @@ function map_init()             // called from router.html
  for(var l=0;l < mapprops.mapdata.length;l++)
    {
     layerMap[l] = new OpenLayers.Layer.TMS(mapprops.mapdata[l].label,
-                                           mapprops.mapdata[l].baseurl,
+                                           mapprops.mapdata[l].tileurl,
                                            {
-                                            emptyUrl: mapprops.mapdata[l].errorurl,
-                                            type: 'png',
                                             getURL: limitedUrl,
                                             displayOutsideMaxExtent: true,
                                             buffer: 1
@@ -687,29 +685,54 @@ function map_init()             // called from router.html
     map.addLayer(layerMap[l]);
    }
 
- // Get a URL for the tile; limited to map restricted extent.
+ // Update the attribution if the layer changes
+
+ map.events.register("changelayer",layerMap,change_attribution_event);
+
+ function change_attribution_event(event)
+ {
+  for(var l=0;l < mapprops.mapdata.length;l++)
+     if(this[l] == event.layer)
+        change_attribution(l);
+ }
+
+ function change_attribution(l)
+ {
+  var data_url =mapprops.mapdata[l].attribution.data_url;
+  var data_text=mapprops.mapdata[l].attribution.data_text;
+  var tile_url =mapprops.mapdata[l].attribution.tile_url;
+  var tile_text=mapprops.mapdata[l].attribution.tile_text;
+
+  document.getElementById("attribution_data").innerHTML="<a href=\"" + data_url + "\" target=\"data_attribution\">" + data_text + "</a>";
+  document.getElementById("attribution_tile").innerHTML="<a href=\"" + tile_url + "\" target=\"tile_attribution\">" + tile_text + "</a>";
+ }
+
+ change_attribution(0);
+
+ // Get a URL for the tile (mostly copied from OpenLayers/Layer/XYZ.js).
 
  function limitedUrl(bounds)
  {
-  var z = map.getZoom() + map.minZoomLevel;
-
-  if (z>=7 && (bounds.right  < map.restrictedExtent.left ||
-               bounds.left   > map.restrictedExtent.right ||
-               bounds.top    < map.restrictedExtent.bottom ||
-               bounds.bottom > map.restrictedExtent.top))
-     return this.emptyUrl;
-
   var res = map.getResolution();
-  var y = Math.round((this.maxExtent.top - bounds.top) / (res * this.tileSize.h));
-  var limit = Math.pow(2, z);
-
-  if (y < 0 || y >= limit)
-    return this.emptyUrl;
+  var res = this.getServerResolution();
 
   var x = Math.round((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
+  var y = Math.round((this.maxExtent.top - bounds.top) / (res * this.tileSize.h));
+  var z = map.getZoom() + map.minZoomLevel;
 
+  var limit = Math.pow(2, z);
   x = ((x % limit) + limit) % limit;
-  return this.url + z + "/" + x + "/" + y + "." + this.type;
+
+  var xyz = {'x': x, 'y': y, 'z': z};
+  var url = this.url;
+
+  if (OpenLayers.Util.isArray(url))
+    {
+     var s = '' + xyz.x + xyz.y + xyz.z;
+     url = this.selectUrl(s, url);
+    }
+        
+  return OpenLayers.String.format(url, xyz);
  }
 
  // Define a GPX layer but don't add it yet

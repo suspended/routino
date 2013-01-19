@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  Dutch translation by Jan Jansen (August 2010).
 
@@ -487,9 +487,11 @@
     </noscript>
   </div>
   <div class="attribution">
-    <a target="other" href="http://www.routino.org/" title="Routino">Router: Routino</a>
+    Router: <a href="http://www.routino.org/" target="routino">Routino</a>
     |
-    <a target="other" href="http://www.openstreetmap.org/" title="Copyright: OpenStreetMap.org; License: Creative Commons Attribution-Share Alike 2.0">Geo Data: OpenStreetMap</a>
+    Geo Data: <span id="attribution_data"></span>
+    |
+    Tiles: <span id="attribution_tile"></span>
   </div>
 </div>
 
