@@ -255,7 +255,11 @@
 
       <if k="highway" v="proposed"    > <unset/> </if>
       <if k="highway" v="construction"> <unset/> </if>
+
+      <if k="highway" v="no"          > <unset/> </if>
       <if k="highway" v="abandoned"   > <unset/> </if>
+      <if k="highway" v="disused"     > <unset/> </if>
+
       <if k="highway" v="raceway"     > <unset/> </if>
 
       <!-- Highway types (includes default access and default properties) -->
