@@ -5,7 +5,7 @@
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010-2012 Andrew M. Bishop
+     This file Copyright 2010-2013 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -194,7 +194,7 @@
         <output k="psv"        v="no"/>
 
         <ifnot k="access" v="no">
-          <logerror k="access" message="assuming 'no'"/>
+          <logerror k="access" message="using 'no'"/>
         </ifnot>
       </ifnot>
 
@@ -214,7 +214,7 @@
         <output k="psv"        v="no"/>
 
         <ifnot k="vehicle" v="no">
-          <logerror k="vehicle" message="assuming 'no'"/>
+          <logerror k="vehicle" message="using 'no'"/>
         </ifnot>
       </ifnot>
 
@@ -231,7 +231,7 @@
         <output k="psv"        v="no"/>
 
         <ifnot k="motor_vehicle" v="no">
-          <logerror k="motor_vehicle" message="assuming 'no'"/>
+          <logerror k="motor_vehicle" message="using 'no'"/>
         </ifnot>
       </ifnot>
 
@@ -577,7 +577,7 @@
       <if v="private"    > <set v="no"/> </if>
       <if v="limited"    > <set v="no"/> </if>
 
-      <!-- Generic access permissions for all transport types (to override defaults) -->
+      <!-- Generic access restrictions for all transport types (to subtract from highway specific defaults) -->
 
       <if k="access">
 
@@ -593,14 +593,39 @@
           <output k="hgv"        v="no"/>
           <output k="psv"        v="no"/>
 
+          <if k="access" v="foot">
+            <set k="foot" v="yes"/>
+            <logerror k="access" message="using 'foot' = 'yes'"/>
+          </if>
+
+          <if k="access" v="wheelchair">
+            <set k="wheelchair" v="yes"/>
+            <logerror k="access" message="using 'wheelchair' = 'yes'"/>
+          </if>
+
+          <if k="access" v="motor_vehicle">
+            <set k="motor_vehicle" v="yes"/>
+            <logerror k="access" message="using 'motor_vehicle' = 'yes'"/>
+          </if>
+
+          <if k="access" v="hgv">
+            <set k="hgv" v="yes"/>
+            <logerror k="access" message="using 'hgv' = 'yes'"/>
+          </if>
+
+          <if k="access" v="psv">
+            <set k="psv" v="yes"/>
+            <logerror k="access" message="using 'psv' = 'yes'"/>
+          </if>
+
           <ifnot k="access" v="no">
-            <logerror k="access" message="assuming 'no'"/>
+            <logerror k="access" message="using 'no'"/>
           </ifnot>
         </ifnot>
 
       </if> <!-- k="access" -->
 
-      <!-- Generic access permissions for classes of transport types -->
+      <!-- Access restrictions for classes of transport types (to subtract from highway specific defaults) -->
 
       <if k="vehicle">
 
@@ -614,7 +639,7 @@
           <output k="psv"        v="no"/>
 
           <ifnot k="vehicle" v="no">
-            <logerror k="vehicle" message="assuming 'no'"/>
+            <logerror k="vehicle" message="using 'no'"/>
           </ifnot>
         </ifnot>
 
@@ -631,13 +656,13 @@
           <output k="psv"        v="no"/>
 
           <ifnot k="motor_vehicle" v="no">
-            <logerror k="motor_vehicle" message="assuming 'no'"/>
+            <logerror k="motor_vehicle" message="using 'no'"/>
           </ifnot>
         </ifnot>
 
       </if> <!-- k="motor_vehicle" -->
 
-      <!-- Other access permissions (e.g. UK) -->
+      <!-- Other access permissions (to add to highway specific defaults with generic restrictions) -->
 
       <if k="designation">
 
