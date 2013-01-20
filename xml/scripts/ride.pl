@@ -10,7 +10,7 @@ while(<STDIN>)
       print "      <output k=\"foot\"       v=\"no\"/>\n";
       print "      <output k=\"wheelchair\" v=\"no\"/>\n";
       print "      <output k=\"moped\"      v=\"no\"/>\n";
-      print "      <output k=\"motorbike\"  v=\"no\"/>\n";
+      print "      <output k=\"motorcycle\" v=\"no\"/>\n";
       print "      <output k=\"motorcar\"   v=\"no\"/>\n";
       print "      <output k=\"goods\"      v=\"no\"/>\n";
       print "      <output k=\"hgv\"        v=\"no\"/>\n";

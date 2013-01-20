@@ -35,7 +35,7 @@ Transport Specific Tags
 - - - - - - - - - - - -
 
    One tag is recognised for each of the different modes of transport:
-   foot, horse, bicycle, wheelchair, moped, motorbike, motorcar, goods,
+   foot, horse, bicycle, wheelchair, moped, motorcycle, motorcar, goods,
    hgv and psv. These indicate whether the specific type of transport is
    allowed to pass through the node or not.
 
@@ -90,7 +90,7 @@ Transport Specific Tags
 - - - - - - - - - - - -
 
    One tag is recognised for each of the different modes of transport:
-   foot, horse, bicycle, wheelchair, moped, motorbike, motorcar, goods,
+   foot, horse, bicycle, wheelchair, moped, motorcycle, motorcar, goods,
    hgv and psv. These indicate whether the specific type of transport is
    allowed on the highway or not.
 
@@ -271,19 +271,19 @@ Barrier Defaults
    each type of node. This uses the barrier tag in the OSM file and
    converts it into a default set of disallowed transport types.
 
-   Barrier       foot horse wheelchair bicycle moped motorbike motorcar goods hgv psv
-   -------       ---- ----- ---------- ------- ----- --------- -------- ----- --- ---
-   kissing_gate, footgate, stile, v_stile, turnstile, squeeze, squeeze_stile,
+   Barrier       foot horse wheelchair bicycle moped motorcycle motorcar goods hgv psv
+   -------       ---- ----- ---------- ------- ----- ---------- -------- ----- --- ---
+   kissing_gate, footgate, stile, v_stile, turnstile, squeeze,  squeeze_stile,
    cycle_barrier, bicycle_barrier
-                 yes  no    no         no      no    no        no       no    no  no
+                 yes  no    no         no      no    no         no       no    no  no
    horse_stile, horse_jump, step_over
-                 yes  yes   no         no      no    no        no       no    no  no
+                 yes  yes   no         no      no    no         no       no    no  no
    horse_barrier, cattle_grid
-                 yes  no    yes        yes     yes   yes       yes      yes   yes yes
+                 yes  no    yes        yes     yes   yes        yes      yes   yes yes
    motorcyle_barrier
-                 yes  yes   yes        yes     no    no        no       no    no  no
+                 yes  yes   yes        yes     no    no         no       no    no  no
    bollard, car_barrier, car_trap
-                 yes  yes   yes        yes     yes   yes       no       no    no  no
+                 yes  yes   yes        yes     yes   yes        no       no    no  no
 
 Generic Access Permissions
 - - - - - - - - - - - - -
@@ -296,7 +296,7 @@ Generic Access Permissions
 Other Access Permissions
 - - - - - - - - - - - -
 
-   A tag named vehicle means any of the bicycle, moped, motorbike,
+   A tag named vehicle means any of the bicycle, moped, motorcycle,
    motorcar, goods, hgv and psv transport types. A tag named motor_vehicle
    is transformed to mean any vehicle except a bicycle.
 
@@ -307,7 +307,7 @@ Specific Access Permissions
    transport type tags.
 
    One tag is recognised for each of the different modes of transport:
-   foot, horse, bicycle, wheelchair, moped, motorbike, motorcar, goods,
+   foot, horse, bicycle, wheelchair, moped, motorcycle, motorcar, goods,
    hgv and psv. These indicate whether the specific type of transport is
    allowed through the node or not; the values listed for the access tag
    are also accepted here.
@@ -354,20 +354,20 @@ Highway Defaults
    transport allowed on the highway. The default assumptions are as shown
    in the table below.
 
-   Highway      foot horse  wheelchair bicycle moped motorbike motorcar goods hgv psv
-   -------      ---- -----  ---------- ------- ----- --------- -------- ----- --- ---
-   motorway     no   no     no         no      no    yes       yes      yes   yes yes
-   trunk        no   no     no         yes     yes   yes       yes      yes   yes yes
-   primary      yes  yes    yes        yes     yes   yes       yes      yes   yes yes
-   secondary    yes  yes    yes        yes     yes   yes       yes      yes   yes yes
-   tertiary     yes  yes    yes        yes     yes   yes       yes      yes   yes yes
-   unclassified yes  yes    yes        yes     yes   yes       yes      yes   yes yes
-   residential  yes  yes    yes        yes     yes   yes       yes      yes   yes yes
-   service      yes  yes    yes        yes     yes   yes       yes      yes   yes yes
-   track        yes  yes    yes        yes     no    no        no       no    no  no
-   cycleway     yes  no     yes        yes     no    no        no       no    no  no
-   path         yes  yes(1) yes        yes(1)  no    no        no       no    no  no
-   steps        yes  no     no         no      no    no        no       no    no  no
+   Highway      foot horse  wheelchair bicycle moped motorcycle motorcar goods hgv psv
+   -------      ---- -----  ---------- ------- ----- ---------  -------- ----- --- ---
+   motorway     no   no     no         no      no    yes        yes      yes   yes yes
+   trunk        no   no     no         yes     yes   yes        yes      yes   yes yes
+   primary      yes  yes    yes        yes     yes   yes        yes      yes   yes yes
+   secondary    yes  yes    yes        yes     yes   yes        yes      yes   yes yes
+   tertiary     yes  yes    yes        yes     yes   yes        yes      yes   yes yes
+   unclassified yes  yes    yes        yes     yes   yes        yes      yes   yes yes
+   residential  yes  yes    yes        yes     yes   yes        yes      yes   yes yes
+   service      yes  yes    yes        yes     yes   yes        yes      yes   yes yes
+   track        yes  yes    yes        yes     no    no         no       no    no  no
+   cycleway     yes  no     yes        yes     no    no         no       no    no  no
+   path         yes  yes(1) yes        yes(1)  no    no         no       no    no  no
+   steps        yes  no     no         no      no    no         no       no    no  no
 
    Note 1: A path allows bicycle or horse access by default only if
    actually labelled as a highway of type "bridleway".
@@ -405,7 +405,7 @@ Generic Access Permissions
 Other Access Permissions
 - - - - - - - - - - - -
 
-   A tag named vehicle means any of the bicycle, moped, motorbike,
+   A tag named vehicle means any of the bicycle, moped, motorcycle,
    motorcar, goods, hgv and psv transport types. A tag named motor_vehicle
    is transformed to mean any vehicle except a bicycle.
 
@@ -419,7 +419,7 @@ Other Access Permissions
    restricted_byway          foot=yes, wheelchair=yes, horse=yes, bicycle=yes
    public_byway, byway,
    byway_open_to_all_traffic foot=yes, wheelchair=yes, horse=yes, bicycle=yes,
-                             moped=yes, motorbike=yes, motorcar=yes
+                             moped=yes, motorcycle=yes, motorcar=yes
    permissive_bridleway,
    public_bridleway,
    bridleway                 foot=yes, wheelchair=yes, horse=yes, bicycle=yes
@@ -435,7 +435,7 @@ Specific Access Permissions
    transport type tags.
 
    One tag is recognised for each of the different modes of transport:
-   foot, horse, bicycle, wheelchair, moped, motorbike, motorcar, goods,
+   foot, horse, bicycle, wheelchair, moped, motorcycle, motorcar, goods,
    hgv and psv. These indicate whether the specific type of transport is
    allowed on the highway or not.
 
@@ -510,4 +510,4 @@ Turn Restrictions
 
 --------
 
-Copyright 2008-2012 Andrew M. Bishop.
+Copyright 2008-2013 Andrew M. Bishop.

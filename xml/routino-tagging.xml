@@ -74,7 +74,7 @@
         <output k="wheelchair" v="no"/>
         <output k="bicycle"    v="no"/>
         <output k="moped"      v="no"/>
-        <output k="motorbike"  v="no"/>
+        <output k="motorcycle" v="no"/>
         <output k="motorcar"   v="no"/>
         <output k="goods"      v="no"/>
         <output k="hgv"        v="no"/>
@@ -99,7 +99,7 @@
         <output k="wheelchair" v="no"/>
         <output k="bicycle"    v="no"/>
         <output k="moped"      v="no"/>
-        <output k="motorbike"  v="no"/>
+        <output k="motorcycle" v="no"/>
         <output k="motorcar"   v="no"/>
         <output k="goods"      v="no"/>
         <output k="hgv"        v="no"/>
@@ -128,7 +128,7 @@
 
       <if k="barrier" v="no_motorised">
         <output k="moped"      v="no"/>
-        <output k="motorbike"  v="no"/>
+        <output k="motorcycle" v="no"/>
         <output k="motorcar"   v="no"/>
         <output k="goods"      v="no"/>
         <output k="hgv"        v="no"/>
@@ -187,7 +187,7 @@
         <output k="wheelchair" v="no"/>
         <output k="bicycle"    v="no"/>
         <output k="moped"      v="no"/>
-        <output k="motorbike"  v="no"/>
+        <output k="motorcycle" v="no"/>
         <output k="motorcar"   v="no"/>
         <output k="goods"      v="no"/>
         <output k="hgv"        v="no"/>
@@ -207,7 +207,7 @@
       <ifnot k="vehicle" v="yes">
         <output k="bicycle"    v="no"/>
         <output k="moped"      v="no"/>
-        <output k="motorbike"  v="no"/>
+        <output k="motorcycle" v="no"/>
         <output k="motorcar"   v="no"/>
         <output k="goods"      v="no"/>
         <output k="hgv"        v="no"/>
@@ -224,7 +224,7 @@
 
       <ifnot k="motor_vehicle" v="yes">
         <output k="moped"      v="no"/>
-        <output k="motorbike"  v="no"/>
+        <output k="motorcycle" v="no"/>
         <output k="motorcar"   v="no"/>
         <output k="goods"      v="no"/>
         <output k="hgv"        v="no"/>
@@ -244,7 +244,7 @@
     <if k="wheelchair"> <output/> </if>
     <if k="bicycle"   > <output/> </if>
     <if k="moped"     > <output/> </if>
-    <if k="motorbike" > <output/> </if>
+    <if k="motorcycle"> <output/> </if>
     <if k="motorcar"  > <output/> </if>
     <if k="goods"     > <output/> </if>
     <if k="hgv"       > <output/> </if>
@@ -291,7 +291,7 @@
       <if k="highway" v="motorway">
         <output k="highway"/>
 
-        <output k="motorbike"  v="yes"/>
+        <output k="motorcycle" v="yes"/>
         <output k="motorcar"   v="yes"/>
         <output k="goods"      v="yes"/>
         <output k="hgv"        v="yes"/>
@@ -313,7 +313,7 @@
 
         <output k="bicycle"    v="yes"/>
         <output k="moped"      v="yes"/>
-        <output k="motorbike"  v="yes"/>
+        <output k="motorcycle" v="yes"/>
         <output k="motorcar"   v="yes"/>
         <output k="goods"      v="yes"/>
         <output k="hgv"        v="yes"/>
@@ -336,7 +336,7 @@
         <output k="wheelchair" v="no"/>
         <output k="bicycle"    v="yes"/>
         <output k="moped"      v="yes"/>
-        <output k="motorbike"  v="yes"/>
+        <output k="motorcycle" v="yes"/>
         <output k="motorcar"   v="yes"/>
         <output k="goods"      v="yes"/>
         <output k="hgv"        v="yes"/>
@@ -359,7 +359,7 @@
         <output k="wheelchair" v="yes"/>
         <output k="bicycle"    v="yes"/>
         <output k="moped"      v="yes"/>
-        <output k="motorbike"  v="yes"/>
+        <output k="motorcycle" v="yes"/>
         <output k="motorcar"   v="yes"/>
         <output k="goods"      v="yes"/>
         <output k="hgv"        v="yes"/>
@@ -382,7 +382,7 @@
         <output k="wheelchair" v="yes"/>
         <output k="bicycle"    v="yes"/>
         <output k="moped"      v="yes"/>
-        <output k="motorbike"  v="yes"/>
+        <output k="motorcycle" v="yes"/>
         <output k="motorcar"   v="yes"/>
         <output k="goods"      v="yes"/>
         <output k="hgv"        v="yes"/>
@@ -409,7 +409,7 @@
         <output k="wheelchair" v="yes"/>
         <output k="bicycle"    v="yes"/>
         <output k="moped"      v="yes"/>
-        <output k="motorbike"  v="yes"/>
+        <output k="motorcycle" v="yes"/>
         <output k="motorcar"   v="yes"/>
         <output k="goods"      v="yes"/>
         <output k="hgv"        v="yes"/>
@@ -432,7 +432,7 @@
         <output k="wheelchair" v="yes"/>
         <output k="bicycle"    v="yes"/>
         <output k="moped"      v="yes"/>
-        <output k="motorbike"  v="yes"/>
+        <output k="motorcycle" v="yes"/>
         <output k="motorcar"   v="yes"/>
         <output k="goods"      v="yes"/>
         <output k="hgv"        v="yes"/>
@@ -463,7 +463,7 @@
         <output k="wheelchair" v="yes"/>
         <output k="bicycle"    v="yes"/>
         <output k="moped"      v="yes"/>
-        <output k="motorbike"  v="yes"/>
+        <output k="motorcycle" v="yes"/>
         <output k="motorcar"   v="yes"/>
         <output k="goods"      v="yes"/>
         <output k="hgv"        v="yes"/>
@@ -587,7 +587,7 @@
           <output k="wheelchair" v="no"/>
           <output k="bicycle"    v="no"/>
           <output k="moped"      v="no"/>
-          <output k="motorbike"  v="no"/>
+          <output k="motorcycle" v="no"/>
           <output k="motorcar"   v="no"/>
           <output k="goods"      v="no"/>
           <output k="hgv"        v="no"/>
@@ -607,7 +607,7 @@
         <ifnot k="vehicle" v="yes">
           <output k="bicycle"    v="no"/>
           <output k="moped"      v="no"/>
-          <output k="motorbike"  v="no"/>
+          <output k="motorcycle" v="no"/>
           <output k="motorcar"   v="no"/>
           <output k="goods"      v="no"/>
           <output k="hgv"        v="no"/>
@@ -624,7 +624,7 @@
 
         <ifnot k="motor_vehicle" v="yes">
           <output k="moped"      v="no"/>
-          <output k="motorbike"  v="no"/>
+          <output k="motorcycle" v="no"/>
           <output k="motorcar"   v="no"/>
           <output k="goods"      v="no"/>
           <output k="hgv"        v="no"/>
@@ -664,7 +664,7 @@
           <output k="wheelchair" v="yes"/>
           <output k="bicycle"    v="yes"/>
           <output k="moped"      v="yes"/>
-          <output k="motorbike"  v="yes"/>
+          <output k="motorcycle" v="yes"/>
           <output k="motorcar"   v="yes"/>
 
           <unset k="designation"/>
@@ -731,7 +731,7 @@
       <if k="wheelchair"> <output/> </if>
       <if k="bicycle"   > <output/> </if>
       <if k="moped"     > <output/> </if>
-      <if k="motorbike" > <output/> </if>
+      <if k="motorcycle"> <output/> </if>
       <if k="motorcar"  > <output/> </if>
       <if k="goods"     > <output/> </if>
       <if k="hgv"       > <output/> </if>

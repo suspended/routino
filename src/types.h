@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -279,7 +279,7 @@ typedef enum _Transport
   Transport_Wheelchair =  3,
   Transport_Bicycle    =  4,
   Transport_Moped      =  5,
-  Transport_Motorbike  =  6,
+  Transport_Motorcycle =  6,
   Transport_Motorcar   =  7,
   Transport_Goods      =  8,
   Transport_HGV        =  9,
@@ -305,7 +305,7 @@ typedef enum _Transports
   Transports_Wheelchair = TRANSPORTS(Transport_Wheelchair),
   Transports_Bicycle    = TRANSPORTS(Transport_Bicycle   ),
   Transports_Moped      = TRANSPORTS(Transport_Moped     ),
-  Transports_Motorbike  = TRANSPORTS(Transport_Motorbike ),
+  Transports_Motorcycle = TRANSPORTS(Transport_Motorcycle),
   Transports_Motorcar   = TRANSPORTS(Transport_Motorcar  ),
   Transports_Goods      = TRANSPORTS(Transport_Goods     ),
   Transports_HGV        = TRANSPORTS(Transport_HGV       ),

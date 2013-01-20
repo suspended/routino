@@ -834,7 +834,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
              if(IsOnewayFrom(segmentx,relationx.via))
                 oneway_from=1;  /* not allowed */
 
-             if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+             if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorcycle|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
                 vehicles_from=0;  /* not allowed */
             }
 
@@ -854,7 +854,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
              if(IsOnewayTo(segmentx,relationx.via))
                 oneway_to=1;  /* not allowed */
 
-             if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+             if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorcycle|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
                 vehicles_to=0;  /* not allowed */
             }
 
@@ -925,7 +925,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
              if(IsOnewayFrom(segmentx,relationx.via))
                 oneway_from=1;  /* not allowed */
 
-             if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+             if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorcycle|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
                 vehicles_from=0;  /* not allowed */
             }
 
@@ -947,7 +947,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
              if(IsOnewayTo(segmentx,relationx.via))
                 ;  /* not allowed */
-             else if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorbike|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
+             else if(!(wayx->way.allow&(Transports_Bicycle|Transports_Moped|Transports_Motorcycle|Transports_Motorcar|Transports_Goods|Transports_HGV|Transports_PSV)))
                 ;  /* not allowed */
              else
                {

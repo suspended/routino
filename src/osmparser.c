@@ -541,12 +541,12 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           recognised=1; break;
          }
 
-       if(!strcmp(k,"motorbike"))
+       if(!strcmp(k,"motorcycle"))
          {
           if(ISFALSE(v))
-             allow&=~Transports_Motorbike;
+             allow&=~Transports_Motorcycle;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'motorbike' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag value 'motorcycle' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -828,12 +828,12 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           recognised=1; break;
          }
 
-       if(!strcmp(k,"motorbike"))
+       if(!strcmp(k,"motorcycle"))
          {
           if(ISTRUE(v))
-             way.allow|=Transports_Motorbike;
+             way.allow|=Transports_Motorcycle;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'motorbike' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag value 'motorcycle' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 

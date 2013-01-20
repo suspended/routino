@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -119,8 +119,8 @@ Transport TransportType(const char *transport)
    case 'm':
     if(!strcmp(transport,"moped"))
        return(Transport_Moped);
-    if(!strcmp(transport,"motorbike"))
-       return(Transport_Motorbike);
+    if(!strcmp(transport,"motorcycle"))
+       return(Transport_Motorcycle);
     if(!strcmp(transport,"motorcar"))
        return(Transport_Motorcar);
     break;
@@ -271,8 +271,8 @@ const char *TransportName(Transport transport)
     return("bicycle");
    case Transport_Moped:
     return("moped");
-   case Transport_Motorbike:
-    return("motorbike");
+   case Transport_Motorcycle:
+    return("motorcycle");
    case Transport_Motorcar:
     return("motorcar");
    case Transport_Goods:
@@ -459,10 +459,10 @@ const char *AllowedNameList(transports_t allowed)
     strcat(string,"moped");
    }
 
- if(allowed & Transports_Motorbike)
+ if(allowed & Transports_Motorcycle)
    {
     if(*string) strcat(string,", ");
-    strcat(string,"motorbike");
+    strcat(string,"motorcycle");
    }
 
  if(allowed & Transports_Motorcar)
@@ -584,8 +584,8 @@ const char *TransportList(void)
         "    bicycle    = Bicycle\n"
         "    wheelchair = Wheelchair\n"
         "    horse      = Horse\n"
-        "    moped      = Moped     (Small motorbike, limited speed)\n"
-        "    motorbike  = Motorbike\n"
+        "    moped      = Moped     (Small motorcycle, limited speed)\n"
+        "    motorcycle = Motorcycle\n"
         "    motorcar   = Motorcar\n"
         "    goods      = Goods     (Small lorry, van)\n"
         "    hgv        = HGV       (Heavy Goods Vehicle - large lorry)\n"

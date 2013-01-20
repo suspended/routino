@@ -166,7 +166,7 @@
             <tr><td>Wheelchair<td><input name="transport" type="radio" value="wheelchair" onchange="formSetTransport('wheelchair')">
             <tr><td>Bicycle   <td><input name="transport" type="radio" value="bicycle"    onchange="formSetTransport('bicycle'   )">
             <tr><td>Moped     <td><input name="transport" type="radio" value="moped"      onchange="formSetTransport('moped'     )">
-            <tr><td>Motorbike <td><input name="transport" type="radio" value="motorbike"  onchange="formSetTransport('motorbike' )">
+            <tr><td>Motorcycle<td><input name="transport" type="radio" value="motorcycle" onchange="formSetTransport('motorcycle')">
             <tr><td>Motorcar  <td><input name="transport" type="radio" value="motorcar"   onchange="formSetTransport('motorcar'  )">
             <tr><td>Goods     <td><input name="transport" type="radio" value="goods"      onchange="formSetTransport('goods'     )">
             <tr><td>HGV       <td><input name="transport" type="radio" value="hgv"        onchange="formSetTransport('hgv'       )">

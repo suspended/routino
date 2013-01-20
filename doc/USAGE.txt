@@ -317,8 +317,8 @@ router
           + horse = Horse
           + wheelchair = Wheelchair
           + bicycle = Bicycle
-          + moped = Moped (Small motorbike, limited speed)
-          + motorbike = Motorbike
+          + moped = Moped (Small motorcycle, limited speed)
+          + motorcycle = Motorcycle
           + motorcar = Motorcar
           + goods = Goods (Small lorry, van)
           + hgv = HGV (Heavy Goods Vehicle - large lorry)
@@ -439,13 +439,13 @@ router
    preference for the highway type and all of the preferences for the
    highway properties.
 
-   Example usage (motorbike journey, scenic route, not very fast):
+   Example usage (motorcycle journey, scenic route, not very fast):
 
-   router --dir=data --prefix=gb --transport=motorbike --highway-motorway=0 \
+   router --dir=data --prefix=gb --transport=motorcycle --highway-motorway=0 \
           --highway-trunk=0 --speed-primary=80 --speed-secondary=80 --quickest
 
    This will use the files 'data/gb-nodes.mem', 'data/gb-segments.mem' and
-   'data/gb-ways.mem' to find the quickest route by motorbike not using
+   'data/gb-ways.mem' to find the quickest route by motorcycle not using
    motorways or trunk roads and not exceeding 80 km/hr.
 
 
@@ -643,4 +643,4 @@ tagmodifier
 
 --------
 
-Copyright 2008-2012 Andrew M. Bishop.
+Copyright 2008-2013 Andrew M. Bishop.
