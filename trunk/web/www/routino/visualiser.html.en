@@ -220,7 +220,7 @@
             <tr><td>Wheelchair<td><input name="transport" type="radio" value="wheelchair">
             <tr><td>Bicycle   <td><input name="transport" type="radio" value="bicycle"   >
             <tr><td>Moped     <td><input name="transport" type="radio" value="moped"     >
-            <tr><td>Motorbike <td><input name="transport" type="radio" value="motorbike" >
+            <tr><td>Motorcycle<td><input name="transport" type="radio" value="motorcycle">
             <tr><td>Motorcar  <td><input name="transport" type="radio" value="motorcar"  checked>
             <tr><td>Goods     <td><input name="transport" type="radio" value="goods"     >
             <tr><td>HGV       <td><input name="transport" type="radio" value="hgv"       >
@@ -243,7 +243,7 @@
             <tr><td>Wheelchair<td><input name="barrier" type="radio" value="wheelchair">
             <tr><td>Bicycle   <td><input name="barrier" type="radio" value="bicycle"   >
             <tr><td>Moped     <td><input name="barrier" type="radio" value="moped"     >
-            <tr><td>Motorbike <td><input name="barrier" type="radio" value="motorbike" >
+            <tr><td>Motorcycle<td><input name="barrier" type="radio" value="motorcycle">
             <tr><td>Motorcar  <td><input name="barrier" type="radio" value="motorcar"  checked>
             <tr><td>Goods     <td><input name="barrier" type="radio" value="goods"     >
             <tr><td>HGV       <td><input name="barrier" type="radio" value="hgv"       >

@@ -5,7 +5,7 @@
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010-2011 Andrew M. Bishop
+     This file Copyright 2010-2013 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -261,7 +261,7 @@
     </restrictions>
   </profile>
 
-  <profile name="motorbike" transport="motorbike">
+  <profile name="motorcycle" transport="motorcycle">
     <speeds>
       <speed highway="motorway"      kph="112" />
       <speed highway="trunk"         kph="96" />

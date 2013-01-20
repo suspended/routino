@@ -169,7 +169,7 @@
             <tr><td>Rolstoel         <td><input name="transport" type="radio" value="wheelchair" onchange="formSetTransport('wheelchair')">
             <tr><td>Fiets            <td><input name="transport" type="radio" value="bicycle"    onchange="formSetTransport('bicycle'   )">
             <tr><td>Brommer          <td><input name="transport" type="radio" value="moped"      onchange="formSetTransport('moped'     )">
-            <tr><td>Motorfiets       <td><input name="transport" type="radio" value="motorbike"  onchange="formSetTransport('motorbike' )">
+            <tr><td>Motorfiets       <td><input name="transport" type="radio" value="motorcycle" onchange="formSetTransport('motorcycle')">
             <tr><td>Auto             <td><input name="transport" type="radio" value="motorcar"   onchange="formSetTransport('motorcar'  )">
             <tr><td>Goederen         <td><input name="transport" type="radio" value="goods"      onchange="formSetTransport('goods'     )">
             <tr><td>Zwaar transport  <td><input name="transport" type="radio" value="hgv"        onchange="formSetTransport('hgv'       )">

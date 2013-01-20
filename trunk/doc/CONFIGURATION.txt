@@ -43,7 +43,7 @@ Tag Transformation Rules
     <if k="highway" v="motorway">
       <output k="highway"/>
 
-      <output k="motorbike"  v="yes"/>
+      <output k="motorcycle" v="yes"/>
       <output k="motorcar"   v="yes"/>
       <output k="goods"      v="yes"/>
       <output k="hgv"        v="yes"/>

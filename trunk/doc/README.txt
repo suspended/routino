@@ -13,7 +13,7 @@
    shortest or quickest) is determined. The route is calculated for
    OpenStreetMap highways (roads, paths etc) using one of the common forms
    of transport defined in OpenStreetMap (foot, bicycle, horse, motorcar,
-   motorbike etc).
+   motorcycle etc).
 
    When processing the OpenStreetMap data the types of highways are
    recorded and these set default limits on the types of traffic allowed.
@@ -164,4 +164,4 @@ Download
 
 --------
 
-Copyright 2008-2012 Andrew M. Bishop.
+Copyright 2008-2013 Andrew M. Bishop.

@@ -168,7 +168,7 @@
             <tr><td>Rollstuhl            <td><input name="transport" type="radio" value="wheelchair" onchange="formSetTransport('wheelchair')">
             <tr><td>Fahrrad              <td><input name="transport" type="radio" value="bicycle"    onchange="formSetTransport('bicycle'   )">
             <tr><td>Moped                <td><input name="transport" type="radio" value="moped"      onchange="formSetTransport('moped'     )">
-            <tr><td>Motorrad             <td><input name="transport" type="radio" value="motorbike"  onchange="formSetTransport('motorbike' )">
+            <tr><td>Motorrad             <td><input name="transport" type="radio" value="motorcycle" onchange="formSetTransport('motorcycle')">
             <tr><td>Auto                 <td><input name="transport" type="radio" value="motorcar"   onchange="formSetTransport('motorcar'  )">
             <tr><td>LKW                  <td><input name="transport" type="radio" value="goods"      onchange="formSetTransport('goods'     )">
             <tr><td>Schwertransport      <td><input name="transport" type="radio" value="hgv"        onchange="formSetTransport('hgv'       )">
