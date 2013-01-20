@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2012 Andrew M. Bishop
+ This file Copyright 2010-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -57,11 +57,13 @@ static TaggingRuleList *current_list=NULL;
 
 static int64_t current_id;
 
+static char *default_logerror_message="ignoring it";
+
 
 /* Local functions */
 
 static TaggingRuleList *AppendTaggingRule(TaggingRuleList *rules,const char *k,const char *v,int action);
-static void AppendTaggingAction(TaggingRuleList *rules,const char *k,const char *v,int action);
+static void AppendTaggingAction(TaggingRuleList *rules,const char *k,const char *v,int action,const char *message);
 static void DeleteTaggingRuleList(TaggingRuleList *rules);
 
 static void ModifyTag(TagList *tags,const char *k,const char *v);
@@ -82,7 +84,7 @@ static int IfNotType_function(const char *_tag_,int _type_,const char *k,const c
 static int SetType_function(const char *_tag_,int _type_,const char *k,const char *v);
 static int UnsetType_function(const char *_tag_,int _type_,const char *k);
 static int OutputType_function(const char *_tag_,int _type_,const char *k,const char *v);
-static int LogErrorType_function(const char *_tag_,int _type_,const char *k,const char *v);
+static int LogErrorType_function(const char *_tag_,int _type_,const char *k,const char *v,const char *message);
 
 
 /* The XML tag definitions (forward declarations) */
@@ -178,7 +180,7 @@ static xmltag OutputType_tag=
 /*+ The LogErrorType type tag. +*/
 static xmltag LogErrorType_tag=
               {"logerror",
-               2, {"k","v"},
+               3, {"k","v","message"},
                LogErrorType_function,
                {NULL}};
 
@@ -371,7 +373,7 @@ static int IfNotType_function(const char *_tag_,int _type_,const char *k,const c
 static int SetType_function(const char *_tag_,int _type_,const char *k,const char *v)
 {
  if(_type_&XMLPARSE_TAG_START)
-    AppendTaggingAction(current_list,k,v,TAGACTION_SET);
+    AppendTaggingAction(current_list,k,v,TAGACTION_SET,NULL);
 
  return(0);
 }
@@ -392,7 +394,7 @@ static int SetType_function(const char *_tag_,int _type_,const char *k,const cha
 static int UnsetType_function(const char *_tag_,int _type_,const char *k)
 {
  if(_type_&XMLPARSE_TAG_START)
-    AppendTaggingAction(current_list,k,NULL,TAGACTION_UNSET);
+    AppendTaggingAction(current_list,k,NULL,TAGACTION_UNSET,NULL);
 
  return(0);
 }
@@ -415,7 +417,7 @@ static int UnsetType_function(const char *_tag_,int _type_,const char *k)
 static int OutputType_function(const char *_tag_,int _type_,const char *k,const char *v)
 {
  if(_type_&XMLPARSE_TAG_START)
-    AppendTaggingAction(current_list,k,v,TAGACTION_OUTPUT);
+    AppendTaggingAction(current_list,k,v,TAGACTION_OUTPUT,NULL);
 
  return(0);
 }
@@ -433,12 +435,14 @@ static int OutputType_function(const char *_tag_,int _type_,const char *k,const 
   const char *k The contents of the 'k' attribute (or NULL if not defined).
 
   const char *v The contents of the 'v' attribute (or NULL if not defined).
+
+  const char *message The contents of the 'message' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int LogErrorType_function(const char *_tag_,int _type_,const char *k,const char *v)
+static int LogErrorType_function(const char *_tag_,int _type_,const char *k,const char *v,const char *message)
 {
  if(_type_&XMLPARSE_TAG_START)
-    AppendTaggingAction(current_list,k,v,TAGACTION_LOGERROR);
+    AppendTaggingAction(current_list,k,v,TAGACTION_LOGERROR,message);
 
  return(0);
 }
@@ -524,6 +528,8 @@ TaggingRuleList *AppendTaggingRule(TaggingRuleList *rules,const char *k,const ch
  else
     rules->rules[rules->nrules-1].v=NULL;
 
+ rules->rules[rules->nrules-1].message=NULL;
+
  rules->rules[rules->nrules-1].rulelist=(TaggingRuleList*)calloc(sizeof(TaggingRuleList),1);
 
  return(rules->rules[rules->nrules-1].rulelist);
@@ -540,9 +546,11 @@ TaggingRuleList *AppendTaggingRule(TaggingRuleList *rules,const char *k,const ch
   const char *v The tag value.
 
   int action Set to the type of action.
+
+  const char *message The message to use for the logerror action.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendTaggingAction(TaggingRuleList *rules,const char *k,const char *v,int action)
+static void AppendTaggingAction(TaggingRuleList *rules,const char *k,const char *v,int action,const char *message)
 {
  if((rules->nrules%16)==0)
     rules->rules=(TaggingRule*)realloc((void*)rules->rules,(rules->nrules+16)*sizeof(TaggingRule));
@@ -560,6 +568,11 @@ void AppendTaggingAction(TaggingRuleList *rules,const char *k,const char *v,int 
     rules->rules[rules->nrules-1].v=strcpy(malloc(strlen(v)+1),v);
  else
     rules->rules[rules->nrules-1].v=NULL;
+
+ if(message)
+    rules->rules[rules->nrules-1].message=strcpy(malloc(strlen(message)+1),message);
+ else
+    rules->rules[rules->nrules-1].message=default_logerror_message;
 
  rules->rules[rules->nrules-1].rulelist=NULL;
 }
@@ -581,6 +594,8 @@ void DeleteTaggingRuleList(TaggingRuleList *rules)
        free(rules->rules[i].k);
     if(rules->rules[i].v)
        free(rules->rules[i].v);
+    if(rules->rules[i].message && rules->rules[i].message!=default_logerror_message)
+       free(rules->rules[i].message);
 
     if(rules->rules[i].rulelist)
       {
@@ -860,26 +875,34 @@ static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,con
           for(j=0;j<input->ntags;j++)
              if(!strcmp(input->k[j],k) && !strcmp(input->v[j],v))
                 break;
+
+          if(j!=input->ntags)
+             break;
          }
        else if(k && !v)
          {
           for(j=0;j<input->ntags;j++)
              if(!strcmp(input->k[j],k))
                 break;
+
+          if(j!=input->ntags)
+             break;
          }
        else if(!k && v)
          {
           for(j=0;j<input->ntags;j++)
              if(!strcmp(input->v[j],v))
                 break;
+
+          if(j!=input->ntags)
+             break;
          }
        else /* if(!k && !v) */
          {
           break;
          }
 
-       if(j==input->ntags)
-          ApplyRules(rules->rules[i].rulelist,input,output,k,v);
+       ApplyRules(rules->rules[i].rulelist,input,output,k,v);
        break;
 
       case TAGACTION_SET:
@@ -895,12 +918,20 @@ static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,con
        break;
 
       case TAGACTION_LOGERROR:
+       if(rules->rules[i].k && !rules->rules[i].v)
+          for(j=0;j<input->ntags;j++)
+             if(!strcmp(input->k[j],rules->rules[i].k))
+               {
+                v=input->v[j];
+                break;
+               }
+
        if(current_list==&NodeRules)
-          logerror("Node %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_id,k,v);
+          logerror("Node %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); %s.\n",current_id,k,v,rules->rules[i].message);
        if(current_list==&WayRules)
-          logerror("Way %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_id,k,v);
+          logerror("Way %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); %s.\n",current_id,k,v,rules->rules[i].message);
        if(current_list==&RelationRules)
-          logerror("Relation %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); ignoring it.\n",current_id,k,v);
+          logerror("Relation %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); %s.\n",current_id,k,v,rules->rules[i].message);
       }
    }
 

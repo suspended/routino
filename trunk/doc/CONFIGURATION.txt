@@ -102,7 +102,17 @@ Tag Transformation Rules
 
    The logerror element will cause an error message to be added to the
    error log file that reports that the key and attribute combination are
-   not recognised.
+   not recognised. If the k attribute is specified but not the v attribute
+   then the tag value that matches the specified key is looked up and
+   used. An additional message attribute can be specified to be printed at
+   the end of the logged error.
+
+   The default logged error message is:
+
+   Node XXX has an unrecognised tag 'key' = 'value' (in tagging rules); ignoring it.
+
+   The specified message attribute will replace the final part of the
+   logged error.
 
 
 Routing Profiles
@@ -206,4 +216,4 @@ Output Translations
 
 --------
 
-Copyright 2010-2012 Andrew M. Bishop.
+Copyright 2010-2013 Andrew M. Bishop.
