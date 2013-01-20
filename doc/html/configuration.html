@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -167,7 +167,20 @@ properties.
 
 The <em>logerror</em> element will cause an error message to be added to the
 error log file that reports that the key and attribute combination are not
-recognised.
+recognised.  If the <em>k</em> attribute is specified but not the <em>v</em>
+attribute then the tag value that matches the specified key is looked up and
+used.  An additional <em>message</em> attribute can be specified to be printed
+at the end of the logged error.
+
+<p>
+The default logged error message is:
+<pre class="boxed">
+Node XXX has an unrecognised tag 'key' = 'value' (in tagging rules); ignoring it.
+</pre>
+
+<p>
+The specified <em>message</em> attribute will replace the final part of the
+logged error.
 
 
 <h3><a name="H_1_1_2" title="Profiles"></a>Routing Profiles</h3>

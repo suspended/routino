@@ -159,7 +159,7 @@
       </if>
 
       <if k="barrier">
-        <logerror/>
+        <logerror message="ignoring it"/>
       </if>
 
     </if> <!-- k="barrier" -->
@@ -192,30 +192,50 @@
         <output k="goods"      v="no"/>
         <output k="hgv"        v="no"/>
         <output k="psv"        v="no"/>
+
+        <ifnot k="access" v="no">
+          <logerror k="access" message="assuming 'no'"/>
+        </ifnot>
       </ifnot>
 
     </if> <!-- k="access" -->
 
     <!-- Generic access permissions for classes of transport types -->
 
-    <if k="motor_vehicle">
-      <output k="moped"/>
-      <output k="motorbike"/>
-      <output k="motorcar"/>
-      <output k="goods"/>
-      <output k="hgv"/>
-      <output k="psv"/>
-    </if>
-
     <if k="vehicle">
-      <output k="bicycle"/>
-      <output k="moped"/>
-      <output k="motorbike"/>
-      <output k="motorcar"/>
-      <output k="goods"/>
-      <output k="hgv"/>
-      <output k="psv"/>
-    </if>
+
+      <ifnot k="vehicle" v="yes">
+        <output k="bicycle"    v="no"/>
+        <output k="moped"      v="no"/>
+        <output k="motorbike"  v="no"/>
+        <output k="motorcar"   v="no"/>
+        <output k="goods"      v="no"/>
+        <output k="hgv"        v="no"/>
+        <output k="psv"        v="no"/>
+
+        <ifnot k="vehicle" v="no">
+          <logerror k="vehicle" message="assuming 'no'"/>
+        </ifnot>
+      </ifnot>
+
+    </if> <!-- k="vehicle" -->
+
+    <if k="motor_vehicle">
+
+      <ifnot k="motor_vehicle" v="yes">
+        <output k="moped"      v="no"/>
+        <output k="motorbike"  v="no"/>
+        <output k="motorcar"   v="no"/>
+        <output k="goods"      v="no"/>
+        <output k="hgv"        v="no"/>
+        <output k="psv"        v="no"/>
+
+        <ifnot k="motor_vehicle" v="no">
+          <logerror k="motor_vehicle" message="assuming 'no'"/>
+        </ifnot>
+      </ifnot>
+
+    </if> <!-- k="motor_vehicle" -->
 
     <!-- Specific access rules (to override the generic ones) -->
 
@@ -541,7 +561,7 @@
       <!-- Unrecognised highway type -->
 
       <if k="highway">
-        <logerror/>
+        <logerror message="ignoring it"/>
       </if>
 
       <!-- Normalisation of access tags -->
@@ -572,30 +592,50 @@
           <output k="goods"      v="no"/>
           <output k="hgv"        v="no"/>
           <output k="psv"        v="no"/>
+
+          <ifnot k="access" v="no">
+            <logerror k="access" message="assuming 'no'"/>
+          </ifnot>
         </ifnot>
 
-      </if>
+      </if> <!-- k="access" -->
 
       <!-- Generic access permissions for classes of transport types -->
 
-      <if k="motor_vehicle">
-        <output k="moped"/>
-        <output k="motorbike"/>
-        <output k="motorcar"/>
-        <output k="goods"/>
-        <output k="hgv"/>
-        <output k="psv"/>
-      </if>
-
       <if k="vehicle">
-        <output k="bicycle"/>
-        <output k="moped"/>
-        <output k="motorbike"/>
-        <output k="motorcar"/>
-        <output k="goods"/>
-        <output k="hgv"/>
-        <output k="psv"/>
-      </if>
+
+        <ifnot k="vehicle" v="yes">
+          <output k="bicycle"    v="no"/>
+          <output k="moped"      v="no"/>
+          <output k="motorbike"  v="no"/>
+          <output k="motorcar"   v="no"/>
+          <output k="goods"      v="no"/>
+          <output k="hgv"        v="no"/>
+          <output k="psv"        v="no"/>
+
+          <ifnot k="vehicle" v="no">
+            <logerror k="vehicle" message="assuming 'no'"/>
+          </ifnot>
+        </ifnot>
+
+      </if> <!-- k="vehicle" -->
+
+      <if k="motor_vehicle">
+
+        <ifnot k="motor_vehicle" v="yes">
+          <output k="moped"      v="no"/>
+          <output k="motorbike"  v="no"/>
+          <output k="motorcar"   v="no"/>
+          <output k="goods"      v="no"/>
+          <output k="hgv"        v="no"/>
+          <output k="psv"        v="no"/>
+
+          <ifnot k="motor_vehicle" v="no">
+            <logerror k="motor_vehicle" message="assuming 'no'"/>
+          </ifnot>
+        </ifnot>
+
+      </if> <!-- k="motor_vehicle" -->
 
       <!-- Other access permissions (e.g. UK) -->
 
@@ -671,7 +711,7 @@
         </if>
 
         <if k="designation">
-          <logerror/>
+          <logerror message="ignoring it"/>
         </if>
 
       </if> <!-- k="designation" -->
@@ -750,7 +790,7 @@
         <if k="surface" v="bark">         <set k="paved" v="no"/> <unset k="surface"/> </if>
 
         <if k="surface">
-          <logerror/>
+          <logerror message="ignoring it"/>
         </if>
 
       </if> <!-- k="surface" -->

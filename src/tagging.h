@@ -37,6 +37,7 @@ typedef struct _TaggingRule
 
  char *k;                       /*+ The tag key (or NULL). +*/
  char *v;                       /*+ The tag value (or NULL). +*/
+ char *message;                 /*+ The message string for logerror (or NULL). +*/
 
  TaggingRuleList *rulelist;     /*+ The sub-rules belonging to this rule. +*/
 }
