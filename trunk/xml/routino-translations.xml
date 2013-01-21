@@ -5,7 +5,7 @@
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010-2012 Andrew M. Bishop
+     This file Copyright 2010-2013 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -111,7 +111,7 @@
 
   </language>
 
-  <!-- German translation by Christoph Eckert (July 2010) -->
+  <!-- German translation by Christoph Eckert (July 2010) / Alex Treiber (Jan 2013) -->
 
   <language lang="de">
 
@@ -145,16 +145,16 @@
     <heading direction="4"  string="Süd" />
 
     <!-- Ordinals, 1 = first, 2 = second ... -->
-    <!-- TRANSLATION REQUIRED: ordinal number="1"  string="First" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="2"  string="Second" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="3"  string="Third" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="4"  string="Fourth" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="5"  string="Fifth" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="6"  string="Sixth" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="7"  string="Seventh" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="8"  string="Eighth" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="9"  string="Ninth" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="10" string="Tenth" / -->
+    <ordinal number="1"  string="Erste" />
+    <ordinal number="2"  string="Zweite" />
+    <ordinal number="3"  string="Dritte" />
+    <ordinal number="4"  string="Vierte" />
+    <ordinal number="5"  string="Fünfte" />
+    <ordinal number="6"  string="Sechste" />
+    <ordinal number="7"  string="Siebte" />
+    <ordinal number="8"  string="Achte" />
+    <ordinal number="9"  string="Neunte" />
+    <ordinal number="10" string="Zehnte" />
 
     <!-- Highway names -->
     <highway type="motorway"     string="Autobahn" />
@@ -169,7 +169,7 @@
     <highway type="cycleway"     string="Radweg" />
     <highway type="path"         string="Weg" />
     <highway type="steps"        string="Treppe" />
-    <highway type="ferry"        string="ferry" /> <!-- FIXME - needs translation -->
+    <highway type="ferry"        string="Fähre" /> 
 
     <!-- The type of route -->
     <route type="shortest" string="Kürzeste" />   <!-- For the description and route name -->
@@ -179,13 +179,13 @@
     <output-html>
       <waypoint type="waypoint"  string="Wegpunkt" />        <!-- For the chosen waypoints -->
       <waypoint type="junction"  string="Anschlussstelle" /> <!-- For the interesting junctions -->
-      <!-- TRANSLATION REQUIRED: waypoint type="roundabout" string="Roundabout" / --> <!-- For roundabouts -->
+      <waypoint type="roundabout" string="Kreisverkehr" /> <!-- For roundabouts -->
 
       <title text="%s Route" /> <!-- %s = [shortest|quickest] -->
 
       <start   string="Start"  text="Bei %s halten Sie sich Richtung %s" />          <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
       <node    string="Bei"    text="Bei %s wenden Sie sich nach %s Richtung %s" />  <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
-      <!-- TRANSLATION REQUIRED: rbnode  string="Leave"  text="%s, take the %s exit heading %s" / --> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
+      <rbnode  string="Verlassen Sie"  text="%s, nehmen Sie die %s Ausfahrt Richtung %s" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
       <segment string="Folgen" text="Folgen Sie der %s für %.3f km bzw. %.1f min" /> <!-- 1st %s = street name -->
       <stop    string="Stop"   text="Sie sind bei %s angekommen" />                  <!-- 1st %s = [waypoint|junction] -->
       <total   string="Gesamt" text="%.1f km, %.0f minuten" />
