@@ -473,7 +473,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           if(ISFALSE(v))
              allow&=~Transports_Bicycle;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'bicycle' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag 'bicycle' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -485,7 +485,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           if(ISFALSE(v))
              allow&=~Transports_Foot;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'foot' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag 'foot' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -497,7 +497,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           if(ISFALSE(v))
              allow&=~Transports_Goods;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'goods' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag 'goods' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -516,7 +516,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           if(ISFALSE(v))
              allow&=~Transports_Horse;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'horse' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag 'horse' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -525,7 +525,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           if(ISFALSE(v))
              allow&=~Transports_HGV;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'hgv' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag 'hgv' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -537,7 +537,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           if(ISFALSE(v))
              allow&=~Transports_Moped;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'moped' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag 'moped' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -546,7 +546,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           if(ISFALSE(v))
              allow&=~Transports_Motorcycle;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'motorcycle' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag 'motorcycle' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -555,7 +555,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           if(ISFALSE(v))
              allow&=~Transports_Motorcar;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'motorcar' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag 'motorcar' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -567,7 +567,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           if(ISFALSE(v))
              allow&=~Transports_PSV;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'psv' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag 'psv' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -579,7 +579,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
           if(ISFALSE(v))
              allow&=~Transports_Wheelchair;
           else if(!ISTRUE(v))
-             logerror("Node %"Pnode_t" has an unrecognised tag value 'wheelchair' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+             logerror("Node %"Pnode_t" has an unrecognised tag 'wheelchair' = '%s' (after tagging rules); using 'yes'.\n",id,v);
           recognised=1; break;
          }
 
@@ -692,7 +692,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              area=SEGMENT_AREA;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'area' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'area' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -704,7 +704,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.allow|=Transports_Bicycle;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'bicycle' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'bicycle' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -713,7 +713,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.props|=Properties_BicycleRoute;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'bicycleroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'bicycleroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -722,7 +722,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.props|=Properties_Bridge;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'bridge' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'bridge' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -734,7 +734,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.allow|=Transports_Foot;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'foot' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'foot' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -743,7 +743,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.props|=Properties_FootRoute;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'footroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'footroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -755,7 +755,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.allow|=Transports_Goods;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'goods' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'goods' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -770,7 +770,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.allow|=Transports_Horse;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'horse' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'horse' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -779,7 +779,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.allow|=Transports_HGV;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'hgv' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'hgv' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -824,7 +824,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.allow|=Transports_Moped;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'moped' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'moped' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -833,7 +833,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.allow|=Transports_Motorcycle;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'motorcycle' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'motorcycle' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -842,7 +842,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.allow|=Transports_Motorcar;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'motorcar' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'motorcar' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -851,7 +851,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.props|=Properties_Multilane;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'multilane' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'multilane' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -874,7 +874,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           else if(!strcmp(v,"-1"))
              oneway=ONEWAY_2TO1;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'oneway' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'oneway' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -886,7 +886,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.props|=Properties_Paved;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'paved' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'paved' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -895,7 +895,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.allow|=Transports_PSV;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'psv' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'psv' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -913,7 +913,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              roundabout=1;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'roundabout' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'roundabout' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -925,7 +925,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.props|=Properties_Tunnel;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'tunnel' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'tunnel' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -937,7 +937,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
           if(ISTRUE(v))
              way.allow|=Transports_Wheelchair;
           else if(!ISFALSE(v))
-             logerror("Way %"Pway_t" has an unrecognised tag value 'wheelchair' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Way %"Pway_t" has an unrecognised tag 'wheelchair' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -1088,7 +1088,7 @@ void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode)
           if(ISTRUE(v))
              routes|=Transports_Bicycle;
           else if(!ISFALSE(v))
-             logerror("Relation %"Prelation_t" has an unrecognised tag value 'bicycleroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Relation %"Prelation_t" has an unrecognised tag 'bicycleroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -1102,7 +1102,7 @@ void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode)
                 except|=TRANSPORTS(i);
 
           if(except==Transports_None)
-             logerror("Relation %"Prelation_t" has an unrecognised tag value 'except' = '%s' (after tagging rules); ignoring it.\n",id,v);
+             logerror("Relation %"Prelation_t" has an unrecognised tag 'except' = '%s' (after tagging rules); ignoring it.\n",id,v);
 
           recognised=1; break;
          }
@@ -1115,7 +1115,7 @@ void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode)
           if(ISTRUE(v))
              routes|=Transports_Foot;
           else if(!ISFALSE(v))
-             logerror("Relation %"Prelation_t" has an unrecognised tag value 'footroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
+             logerror("Relation %"Prelation_t" has an unrecognised tag 'footroute' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 
@@ -1133,7 +1133,7 @@ void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode)
           if(!strcmp(v,"only_straight_on")) restriction=TurnRestrict_only_straight_on;
 
           if(restriction==TurnRestrict_None)
-             logerror("Relation %"Prelation_t" has an unrecognised tag value 'restriction' = '%s' (after tagging rules); ignoring it.\n",id,v);
+             logerror("Relation %"Prelation_t" has an unrecognised tag 'restriction' = '%s' (after tagging rules); ignoring it.\n",id,v);
 
           recognised=1; break;
          }
@@ -1205,7 +1205,7 @@ static double parse_speed(way_t id,const char *k,const char *v)
  double value=strtod(v,&ev);
 
  if(v==ev)
-    logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
+    logerror("Way %"Pway_t" has an unrecognised tag '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
  else
    {
     while(isspace(*ev)) ev++;
@@ -1216,7 +1216,7 @@ static double parse_speed(way_t id,const char *k,const char *v)
     if(*ev==0 || !strcmp(ev,"kph"))
        return(value);
 
-    logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
+    logerror("Way %"Pway_t" has an un-parseable tag '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
    }
 
  return(0);
@@ -1241,7 +1241,7 @@ static double parse_weight(way_t id,const char *k,const char *v)
  double value=strtod(v,&ev);
 
  if(v==ev)
-    logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
+    logerror("Way %"Pway_t" has an unrecognised tag '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
  else
    {
     while(isspace(*ev)) ev++;
@@ -1254,7 +1254,7 @@ static double parse_weight(way_t id,const char *k,const char *v)
               || !strcmp(ev,"tonne") || !strcmp(ev,"tonnes"))
        return(value);
 
-    logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
+    logerror("Way %"Pway_t" has an un-parseable tag '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
    }
 
  return(0);
@@ -1279,7 +1279,7 @@ static double parse_length(way_t id,const char *k,const char *v)
  double value=strtod(v,&ev);
 
  if(v==ev)
-    logerror("Way %"Pway_t" has an unrecognised tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
+    logerror("Way %"Pway_t" has an unrecognised tag '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
  else
    {
     int en=0;
@@ -1314,7 +1314,7 @@ static double parse_length(way_t id,const char *k,const char *v)
     if(*ev==0 || !strcmp(ev,"m") || !strcmp(ev,"metre") || !strcmp(ev,"metres"))
        return(value);
 
-    logerror("Way %"Pway_t" has an un-parseable tag value '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
+    logerror("Way %"Pway_t" has an un-parseable tag '%s' = '%s' (after tagging rules); ignoring it.\n",id,k,v);
    }
 
  return(0);
