@@ -927,11 +927,11 @@ static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,con
                }
 
        if(current_list==&NodeRules)
-          logerror("Node %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); %s.\n",current_id,k,v,rules->rules[i].message);
+          logerror("Node %"PRIu64" has an unrecognised tag '%s' = '%s' (in tagging rules); %s.\n",current_id,k,v,rules->rules[i].message);
        if(current_list==&WayRules)
-          logerror("Way %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); %s.\n",current_id,k,v,rules->rules[i].message);
+          logerror("Way %"PRIu64" has an unrecognised tag '%s' = '%s' (in tagging rules); %s.\n",current_id,k,v,rules->rules[i].message);
        if(current_list==&RelationRules)
-          logerror("Relation %"PRIu64" has an unrecognised tag value '%s' = '%s' (in tagging rules); %s.\n",current_id,k,v,rules->rules[i].message);
+          logerror("Relation %"PRIu64" has an unrecognised tag '%s' = '%s' (in tagging rules); %s.\n",current_id,k,v,rules->rules[i].message);
       }
    }
 
