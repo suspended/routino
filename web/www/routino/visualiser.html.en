@@ -134,7 +134,10 @@
           <b>Processed # turn restrictions</b>
         </div>
         <div id="result_status_limit"     style="display: none;">
-          <b>Processed # limits</b>
+          <b>Processed # limit changes</b>
+        </div>
+        <div id="result_status_property"  style="display: none;">
+          <b>Processed # property segments</b>
         </div>
       </div>
     </div>
@@ -340,6 +343,25 @@
           <tr><td><img src="icons/limit-no.png"  alt="(no)"   ><td>No specified length limit
           <tr><td><img src="icons/limit-9.0.png" alt="(9.0)"  ><td>9.0 m length limit
         </table>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_property_show" onclick="hideshow_show('property');" class="hideshow_show">+</span>
+      <span id="hideshow_property_hide" onclick="hideshow_hide('property');" class="hideshow_hide">-</span>
+      <input type="button" id="property" onclick="displayData('property');" value="Display Highway Properties">
+      <div id="hideshow_property_div" style="display: none;">
+        Each segment of the highways with a particular property is drawn.
+        <form name="properties" id="properties" action="" method="get" onsubmit="return false;">
+          <table>
+            <tr><td>Paved:         <td><input name="property" type="radio" value="paved"       checked>
+            <tr><td>Multiple Lanes:<td><input name="property" type="radio" value="multilane"   >
+            <tr><td>Bridge:        <td><input name="property" type="radio" value="bridge"      >
+            <tr><td>Tunnel:        <td><input name="property" type="radio" value="tunnel"      >
+            <tr><td>Walking Route: <td><input name="property" type="radio" value="footroute"   >
+            <tr><td>Bicycle Route: <td><input name="property" type="radio" value="bicycleroute">
+          </table>
+        </form>
       </div>
     </div>
 

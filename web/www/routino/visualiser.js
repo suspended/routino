@@ -36,7 +36,8 @@ var data_types=[
                 "weight",
                 "height",
                 "width",
-                "length"
+                "length",
+                "property"
                ];
 
 
@@ -480,6 +481,14 @@ function displayData(datatype)  // called from visualiser.html
    case 'width':
    case 'length':
     OpenLayers.Request.GET({url: url, success: runLimitSuccess, failure: runFailure});
+    break;
+   case 'property':
+    var properties=document.forms["properties"].elements["property"];
+    for(var p in properties)
+       if(properties[p].checked)
+          property=properties[p].value;
+    url+="-" + property;
+    OpenLayers.Request.GET({url: url, success: runPropertySuccess, falure: runFailure});
     break;
    }
 }
@@ -930,6 +939,58 @@ function runLimitSuccess(response)
  layerVectors.addFeatures(features);
 
  displayStatus("data","limit",lines.length-2);
+}
+
+
+//
+// Success in getting the property data
+//
+
+function runPropertySuccess(response)
+{
+ var lines=response.responseText.split('\n');
+
+ var features=[];
+
+ for(var line=0;line<lines.length;line++)
+   {
+    var words=lines[line].split(' ');
+
+    if(line == 0)
+      {
+       var lat1=words[0];
+       var lon1=words[1];
+       var lat2=words[2];
+       var lon2=words[3];
+
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+
+       box = new OpenLayers.Marker.Box(bounds);
+
+       layerBoxes.addMarker(box);
+      }
+    else if(words[0] != "")
+      {
+       var lat1=words[0];
+       var lon1=words[1];
+       var lat2=words[2];
+       var lon2=words[3];
+
+       var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
+       var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
+
+       var point1 = new OpenLayers.Geometry.Point(lonlat1.lon,lonlat1.lat);
+       var point2 = new OpenLayers.Geometry.Point(lonlat2.lon,lonlat2.lat);
+
+       var segment = new OpenLayers.Geometry.LineString([point1,point2]);
+
+       features.push(new OpenLayers.Feature.Vector(segment,{},super_segment_style));
+      }
+   }
+
+ layerVectors.addFeatures(features);
+
+ displayStatus("data","property",lines.length-2);
 }
 
 
