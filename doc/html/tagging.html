@@ -6,7 +6,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -178,12 +178,11 @@ The <em>ref</em> tag is used to provide the label for the highway when printing
 the results.
 
 
-<h4><a name="H_1_2_2_5" title="multilane"></a>The multilane Tag</h4>
+<h4><a name="H_1_2_2_5" title="lanes"></a>The lanes Tag</h4>
 
-The <em>multilane</em> tag is used to identify whether a highway has multiple
-lanes for traffic and this sets one of the highway properties.  There is not
-normally a <em>multilane</em> tag but one needs to be added by the tag
-processing transformations.  Values of <em>yes</em> or <em>no</em> are expected.
+The <em>lanes</em> tag is used to identify whether a highway has multiple lanes
+for traffic and this is used to derive the <em>multilane</em> highway
+properties.
 
 
 <h4><a name="H_1_2_2_6" title="paved"></a>The paved Tag</h4>
@@ -690,13 +689,13 @@ below.
 
 <p>
 
-Finally for the highway tag a number of properties are added depending on the
-highway type.
+Finally for the highway tag a number of default properties are added depending
+on the highway type.
 
 <p>
 
 <table>
-  <caption>Properties on different highway types</caption>
+  <caption>Default properties on different highway types</caption>
   <tr>
     <th class="center">Highway
     <th class="center">Properties
@@ -705,10 +704,10 @@ highway type.
     <td class="center">paved, oneway, multilane
   <tr>
     <td class="center">trunk
-    <td class="center">paved
+    <td class="center">paved, multilane (1)
   <tr>
     <td class="center">primary
-    <td class="center">paved
+    <td class="center">paved, multilane (1)
   <tr>
     <td class="center">secondary
     <td class="center">paved
@@ -726,13 +725,13 @@ highway type.
     <td class="center">paved
   <tr>
     <td class="center">track
-    <td class="center">paved (1)
+    <td class="center">paved (2)
   <tr>
     <td class="center">cycleway
     <td class="center">paved
   <tr>
     <td class="center">path
-    <td class="center">paved (2)
+    <td class="center">paved (3)
   <tr>
     <td class="center">steps
     <td class="center">
@@ -741,9 +740,12 @@ highway type.
 <p>
 
 <i>
-  Note 1: A track is paved only if it is tagged as tracktype=grade1.
+  Note 1: A highway of this type has the multilane property by default if it is
+  oneway.
   <br>
-  Note 2: A path is paved only if it was originally tagged as highway=walkway or
+  Note 2: A track is paved only if it is tagged as tracktype=grade1.
+  <br>
+  Note 3: A path is paved only if it was originally tagged as highway=walkway or
   highway=pedestrian.
 </i>
 
@@ -821,9 +823,8 @@ paved if this is set to a true value.
 
 <p>
 
-The <em>lanes</em> tag is used to identify whether a highway has multiple lanes
-for traffic or not (the number of lanes is not important in this case, only
-whether it is more than one) this sets one of the highway properties.
+The <em>lanes</em> tag is passed through to be used to set
+the <em>multilane</em> highway property.
 
 <p>
 

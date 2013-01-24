@@ -110,13 +110,12 @@ The ref Tag
    The ref tag is used to provide the label for the highway when printing
    the results.
 
-The multilane Tag
-- - - - - - - - -
+The lanes Tag
+- - - - - - -
 
-   The multilane tag is used to identify whether a highway has multiple
-   lanes for traffic and this sets one of the highway properties. There is
-   not normally a multilane tag but one needs to be added by the tag
-   processing transformations. Values of yes or no are expected.
+   The lanes tag is used to identify whether a highway has multiple lanes
+   for traffic and this is used to derive the multilane highway
+   properties.
 
 The paved Tag
 - - - - - - -
@@ -372,26 +371,28 @@ Highway Defaults
    Note 1: A path allows bicycle or horse access by default only if
    actually labelled as a highway of type "bridleway".
 
-   Finally for the highway tag a number of properties are added depending
-   on the highway type.
+   Finally for the highway tag a number of default properties are added
+   depending on the highway type.
 
    Highway      Properties
    -------      ----------
    motorway     paved, oneway, multilane
-   trunk        paved
-   primary      paved
+   trunk        paved, multilane (1)
+   primary      paved, multilane (1)
    secondary    paved
    tertiary     paved
    unclassified paved
    residential  paved
    service      paved
-   track        paved (1)
+   track        paved (2)
    cycleway     paved
-   path         paved (2)
+   path         paved (3)
    steps
 
-   Note 1: A track is paved only if it is tagged as tracktype=grade1.
-   Note 2: A path is paved only if it was originally tagged as
+   Note 1: A highway of this type has the multilane property by default if
+   it is oneway.
+   Note 2: A track is paved only if it is tagged as tracktype=grade1.
+   Note 3: A path is paved only if it was originally tagged as
    highway=walkway or highway=pedestrian.
 
 Generic Access Permissions
@@ -449,10 +450,8 @@ Highway Properties
    Support for the obsolete paved tag is also provided and the highway is
    paved if this is set to a true value.
 
-   The lanes tag is used to identify whether a highway has multiple lanes
-   for traffic or not (the number of lanes is not important in this case,
-   only whether it is more than one) this sets one of the highway
-   properties.
+   The lanes tag is passed through to be used to set the multilane highway
+   property.
 
    The bridge and tunnel tags are copied directly from the input to the
    output.

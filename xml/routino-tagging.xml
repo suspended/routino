@@ -820,13 +820,7 @@
 
       </if> <!-- k="surface" -->
 
-      <if k="lanes">
-        <set k="multilane" v="yes"/>
-
-        <if k="lanes" v="1">
-          <set k="multilane" v="no"/>
-        </if>
-      </if>
+      <if k="lanes"> <output/> </if>
 
       <if k="junction" v="roundabout">
         <output k="oneway"     v="yes"/>
