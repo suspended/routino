@@ -140,6 +140,7 @@ int main(int argc,char** argv)
    {
     Highway highway;
     Transport transport;
+    Property property;
 
     if(coordcount!=4)
        print_usage(0,NULL,"The --visualiser option must have --latmin, --latmax, --lonmin, --lonmax.\n");
@@ -171,6 +172,8 @@ int main(int argc,char** argv)
        OutputWidthLimits(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"length"))
        OutputLengthLimits(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
+    else if(!strncmp(option_data,"property",8) && option_data[8]=='-' && (property=PropertyType(option_data+9))!=Property_None)
+       OutputProperty(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,property);
     else
        print_usage(0,option_data,NULL);
    }
@@ -909,6 +912,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "      height      = height limits.\n"
             "      width       = width limits.\n"
             "      length      = length limits.\n"
+            "      property-*  = segments with the specified property.\n"
             "\n"
             "--dump                    Dump selected contents of the database.\n"
             "  --node=<node>           * the node with the selected index.\n"

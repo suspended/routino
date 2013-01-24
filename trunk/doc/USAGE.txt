@@ -511,6 +511,8 @@ filedumper
                o height = height limits.
                o width = width limits.
                o length = length limits.
+               o property-* = segments having the specified property (e.g.
+                 property-paved to display segments of paved highway).
 
    --dump
           Selects a data dumping mode which allows looking at individual

@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2012 Andrew M. Bishop
+# This file Copyright 2008-2013 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,7 @@ $query=new CGI;
               "latmax" => "[-0-9.]+",
               "lonmin" => "[-0-9.]+",
               "lonmax" => "[-0-9.]+",
-              "data"   => "(junctions|super|oneway|highway-.*|transport-.*|barrier-.*|turns|speed|weight|height|width|length)"
+              "data"   => "(junctions|super|oneway|highway-.*|transport-.*|barrier-.*|turns|speed|weight|height|width|length|property-.*)"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -76,7 +76,8 @@ foreach my $key (@rawparams)
          "weight"    => 0.3,
          "height"    => 0.3,
          "width"     => 0.3,
-         "length"    => 0.3
+         "length"    => 0.3,
+         "property"  => 0.3
         );
 
 # Check the parameters
@@ -97,6 +98,7 @@ $subdata=$data;
 $subdata="highway"   if($data =~ m%highway-%);
 $subdata="transport" if($data =~ m%transport-%);
 $subdata="barrier"   if($data =~ m%barrier-%);
+$subdata="property"  if($data =~ m%property-%);
 
 if(($latmax-$latmin)>$limits{$subdata} || ($lonmax-$lonmin)>$limits{$subdata})
   {

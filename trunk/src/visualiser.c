@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -63,6 +63,7 @@ static double LonMax;
 static int limit_type=0;
 static Highway highways=Highway_None;
 static Transports transports=Transports_None;
+static Properties properties=Properties_None;
 
 /* Local functions */
 
@@ -75,6 +76,7 @@ static void output_transport(index_t node,double latitude,double longitude);
 static void output_barrier(index_t node,double latitude,double longitude);
 static void output_turnrestriction(index_t node,double latitude,double longitude);
 static void output_limits(index_t node,double latitude,double longitude);
+static void output_property(index_t node,double latitude,double longitude);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -408,7 +410,7 @@ static void output_highway(index_t node,double latitude,double longitude)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for segments allowed for a paticular type of traffic.
+  Output the data for segments allowed for a particular type of traffic.
 
   Nodes *nodes The set of nodes to use.
 
@@ -496,7 +498,7 @@ static void output_transport(index_t node,double latitude,double longitude)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for nodes disallowed for a paticular type of traffic.
+  Output the data for nodes disallowed for a particular type of traffic.
 
   Nodes *nodes The set of nodes to use.
 
@@ -953,6 +955,94 @@ static void output_limits(index_t node,double latitude,double longitude)
          }
       }
    }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Output the data for segments that have a particular property.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  Relations *relations The set of relations to use.
+
+  double latmin The minimum latitude.
+
+  double latmax The maximum latitude.
+
+  double lonmin The minimum longitude.
+
+  double lonmax The maximum longitude.
+
+  Property property The type of property.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void OutputProperty(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,double latmin,double latmax,double lonmin,double lonmax,Property property)
+{
+ /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
+
+ OSMNodes=nodes;
+ OSMSegments=segments;
+ OSMWays=ways;
+ OSMRelations=relations;
+
+ LatMin=latmin;
+ LatMax=latmax;
+ LonMin=lonmin;
+ LonMax=lonmax;
+
+ /* Iterate through the nodes and process them */
+
+ properties=PROPERTIES(property);
+
+ find_all_nodes(nodes,(callback_t)output_property);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Process a single node and all connected one-way segments (called as a callback).
+
+  index_t node The node to output.
+
+  double latitude The latitude of the node.
+
+  double longitude The longitude of the node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void output_property(index_t node,double latitude,double longitude)
+{
+ Node *nodep=LookupNode(OSMNodes,node,1);
+ Segment *segmentp;
+
+ segmentp=FirstSegment(OSMSegments,nodep,1);
+
+ do
+   {
+    if(IsNormalSegment(segmentp))
+      {
+       index_t othernode=OtherNode(segmentp,node);
+
+       if(node>othernode)
+         {
+          Way *wayp=LookupWay(OSMWays,segmentp->way,1);
+
+          if(wayp->props&properties)
+            {
+             double lat,lon;
+
+             GetLatLong(OSMNodes,othernode,&lat,&lon);
+
+             printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
+            }
+         }
+      }
+
+    segmentp=NextSegment(OSMSegments,segmentp,node);
+   }
+ while(segmentp);
 }
 
 
