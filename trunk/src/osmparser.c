@@ -613,7 +613,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 {
  Way way={0};
  distance_t oneway=0,area=0;
- int roundabout=0;
+ int roundabout=0,lanes=0;
  char *name=NULL,*ref=NULL,*refname=NULL;
  way_t id;
  int i,j;
@@ -780,6 +780,20 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
              way.allow|=Transports_HGV;
           else if(!ISFALSE(v))
              logerror("Way %"Pway_t" has an unrecognised tag 'hgv' = '%s' (after tagging rules); using 'no'.\n",id,v);
+          recognised=1; break;
+         }
+
+       break;
+
+      case 'l':
+       if(!strcmp(k,"lanes"))
+         {
+          int en=0;
+          float lanesf;
+          if(sscanf(v,"%f%n",&lanesf,&en)==1 && en && !v[en])
+             lanes=(int)lanesf;
+          else
+             logerror("Way %"Pway_t" has an unrecognised tag 'lanes' = '%s' (after tagging rules); ignoring it.\n",id,v);
           recognised=1; break;
          }
 
@@ -967,6 +981,15 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 
  if(roundabout)
     way.type|=Highway_Roundabout;
+
+ if(lanes)
+   {
+    if(oneway || (lanes/2)>1)
+       way.props|=Properties_Multilane;
+
+    if(oneway && lanes==1)
+       way.props&=~Properties_Multilane;
+   }
 
  if(ref && name)
    {
