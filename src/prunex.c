@@ -853,7 +853,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  logassert(lats,"Failed to allocate memory (try using slim mode?)");    /* Check malloc() worked */
  logassert(lons,"Failed to allocate memory (try using slim mode?)");    /* Check malloc() worked */
 
- /* Loop through the nodes and find stretchs of simple highway for possible modification */
+ /* Loop through the nodes and find stretches of simple highway for possible modification */
 
  for(i=0;i<nodesx->number;i++)
    {
@@ -899,7 +899,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
           /* Count the segments connected to the node */
 
-          segmentx=FirstSegmentX(segmentsx,nodes[current],1);
+          segmentx=FirstSegmentX(segmentsx,nodes[current],3);
 
           while(segmentx)
             {
@@ -973,6 +973,8 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
        if(segcount==2)
          {
+          /* Make space in the lists */
+
           if(upper==(nalloc-1))
             {
              nodes   =(index_t*)realloc(nodes   ,(nalloc+=1024)*sizeof(index_t));
@@ -1050,7 +1052,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
              upperbounded=1;
             }
          }
-       else
+       else /* if(segment!=2) */
          {
           if(current==upper)
              upperbounded=1;
