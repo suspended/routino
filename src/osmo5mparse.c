@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2012 Andrew M. Bishop
+ This file Copyright 2012-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -147,14 +147,14 @@ static unsigned char *process_string(int pair,unsigned char **buf_ptr,unsigned c
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Parse a PBF int32 data value.
+  Parse an O5M int32 data value.
 
-  uint32_t pbf_int32 Returns the integer value.
+  uint32_t o5m_int32 Returns the integer value.
 
   unsigned char **ptr The pointer to read the data from.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline uint32_t pbf_int32(unsigned char **ptr)
+static inline uint32_t o5m_int32(unsigned char **ptr)
 {
  uint32_t result=(**ptr)&0x7F;
 
@@ -170,14 +170,14 @@ static inline uint32_t pbf_int32(unsigned char **ptr)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Parse a PBF int32 data value.
+  Parse an O5M int32 data value.
 
-  int32_t pbf_sint32 Returns the integer value.
+  int32_t o5m_sint32 Returns the integer value.
 
   unsigned char **ptr The pointer to read the data from.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int32_t pbf_sint32(unsigned char **ptr)
+static inline int32_t o5m_sint32(unsigned char **ptr)
 {
  int64_t result=((**ptr)&0x7E)>>1;
  int sign=(**ptr)&0x01;
@@ -197,14 +197,14 @@ static inline int32_t pbf_sint32(unsigned char **ptr)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Parse a PBF int64 data value.
+  Parse an O5M int64 data value.
 
-  int64_t pbf_int64 Returns the integer value.
+  int64_t o5m_int64 Returns the integer value.
 
   unsigned char **ptr The pointer to read the data from.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int64_t pbf_int64(unsigned char **ptr)
+static inline int64_t o5m_int64(unsigned char **ptr)
 {
  uint64_t result=(**ptr)&0x7F;
 
@@ -225,14 +225,14 @@ static inline int64_t pbf_int64(unsigned char **ptr)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Parse a PBF sint64 data value.
+  Parse an O5M sint64 data value.
 
-  int64_t pbf_sint64 Returns the integer value.
+  int64_t o5m_sint64 Returns the integer value.
 
   unsigned char **ptr The pointer to read the data from.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int64_t pbf_sint64(unsigned char **ptr)
+static inline int64_t o5m_sint64(unsigned char **ptr)
 {
  int64_t result=((**ptr)&0x7E)>>1;
  int sign=(**ptr)&0x01;
@@ -315,7 +315,7 @@ int ParseO5M(int fd,int changes)
        BUFFER_CHARS(4);
 
        ptr=buffer_ptr;
-       dataset_length=pbf_int32(&buffer_ptr);
+       dataset_length=o5m_int32(&buffer_ptr);
 
        length=dataset_length-4+(buffer_ptr-ptr);
 
@@ -476,7 +476,7 @@ static void process_node(void)
  TagList *tags=NULL,*result=NULL;
  int mode=mode_change;
 
- delta_id=pbf_sint64(&buffer_ptr);
+ delta_id=o5m_sint64(&buffer_ptr);
  id+=delta_id;
 
  if(buffer_ptr<buffer_end)
@@ -489,10 +489,10 @@ static void process_node(void)
 
  if(buffer_ptr<buffer_end)
    {
-    delta_lon=pbf_sint32(&buffer_ptr);
+    delta_lon=o5m_sint32(&buffer_ptr);
     lon+=delta_lon;
 
-    delta_lat=pbf_sint32(&buffer_ptr);
+    delta_lat=o5m_sint32(&buffer_ptr);
     lat+=delta_lat;
    }
  else
@@ -536,7 +536,7 @@ static void process_way(void)
  int mode=mode_change;
  unsigned char *refs=NULL,*refs_end;
 
- delta_id=pbf_sint64(&buffer_ptr);
+ delta_id=o5m_sint64(&buffer_ptr);
  id+=delta_id;
 
  if(buffer_ptr<buffer_end)
@@ -551,7 +551,7 @@ static void process_way(void)
    {
     uint32_t length;
 
-    length=pbf_int32(&buffer_ptr);
+    length=o5m_int32(&buffer_ptr);
 
     if(length)
       {
@@ -578,7 +578,7 @@ static void process_way(void)
       {
        int64_t delta_ref;
 
-       delta_ref=pbf_sint64(&refs);
+       delta_ref=o5m_sint64(&refs);
        node_refid+=delta_ref;
 
        AddWayRefs(node_refid);
@@ -615,7 +615,7 @@ static void process_relation()
  int mode=mode_change;
  unsigned char *refs=NULL,*refs_end;
 
- delta_id=pbf_sint64(&buffer_ptr);
+ delta_id=o5m_sint64(&buffer_ptr);
  id+=delta_id;
 
  if(buffer_ptr<buffer_end)
@@ -630,7 +630,7 @@ static void process_relation()
    {
     uint32_t length;
 
-    length=pbf_int32(&buffer_ptr);
+    length=o5m_int32(&buffer_ptr);
 
     if(length)
       {
@@ -658,7 +658,7 @@ static void process_relation()
        int64_t delta_ref;
        unsigned char *typerole=NULL;
 
-       delta_ref=pbf_sint64(&refs);
+       delta_ref=o5m_sint64(&refs);
 
        typerole=process_string(1,&refs,NULL,NULL);
 
@@ -710,14 +710,14 @@ static void process_info(void)
 {
  int64_t timestamp_delta;
 
- pbf_int32(&buffer_ptr);        /* version */
+ o5m_int32(&buffer_ptr);        /* version */
 
- timestamp_delta=pbf_sint64(&buffer_ptr);
+ timestamp_delta=o5m_sint64(&buffer_ptr);
  timestamp+=timestamp_delta;
 
  if(timestamp!=0)
    {
-    pbf_sint32(&buffer_ptr);     /* changeset */
+    o5m_sint32(&buffer_ptr);     /* changeset */
 
     process_string(2,&buffer_ptr,NULL,NULL);  /* user */
    }
@@ -748,7 +748,7 @@ static unsigned char *process_string(int pair,unsigned char **buf_ptr,unsigned c
     string=*buf_ptr+1;
  else
    {
-    uint32_t position=pbf_int32(buf_ptr);
+    uint32_t position=o5m_int32(buf_ptr);
 
     string=string_table[(string_table_start-position+STRING_TABLE_ALLOCATED)%STRING_TABLE_ALLOCATED];
 
