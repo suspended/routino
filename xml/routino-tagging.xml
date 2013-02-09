@@ -166,16 +166,19 @@
 
     <!-- Normalisation of access tags -->
 
-    <if v="designated" > <set v="yes"/> </if>
-    <if v="permissive" > <set v="yes"/> </if>
-    <if v="destination"> <set v="yes"/> </if>
-    <if v="true"       > <set v="yes"/> </if>
-    <if v="public"     > <set v="yes"/> </if>
-    <if v="official"   > <set v="yes"/> </if>
-                         
-    <if v="unsuitable" > <set v="no"/> </if>
-    <if v="private"    > <set v="no"/> </if>
-    <if v="limited"    > <set v="no"/> </if>
+    <if v="designated"  > <set v="yes"/> </if>
+    <if v="permissive"  > <set v="yes"/> </if>
+    <if v="destination" > <set v="yes"/> </if>
+    <if v="true"        > <set v="yes"/> </if>
+    <if v="public"      > <set v="yes"/> </if>
+    <if v="official"    > <set v="yes"/> </if>
+                           
+    <if v="unsuitable"  > <set v="no"/> </if>
+    <if v="private"     > <set v="no"/> </if>
+    <if v="limited"     > <set v="no"/> </if>
+    <if v="restricted"  > <set v="no"/> </if>
+    <if v="agricultural"> <set v="no"/> </if>
+    <if v="forestry"    > <set v="no"/> </if>
 
     <!-- Generic access permissions for all transport types (to override defaults) -->
 
@@ -566,16 +569,19 @@
 
       <!-- Normalisation of access tags -->
 
-      <if v="designated" > <set v="yes"/> </if>
-      <if v="permissive" > <set v="yes"/> </if>
-      <if v="destination"> <set v="yes"/> </if>
-      <if v="true"       > <set v="yes"/> </if>
-      <if v="public"     > <set v="yes"/> </if>
-      <if v="official"   > <set v="yes"/> </if>
+      <if v="designated"  > <set v="yes"/> </if>
+      <if v="permissive"  > <set v="yes"/> </if>
+      <if v="destination" > <set v="yes"/> </if>
+      <if v="true"        > <set v="yes"/> </if>
+      <if v="public"      > <set v="yes"/> </if>
+      <if v="official"    > <set v="yes"/> </if>
                            
-      <if v="unsuitable" > <set v="no"/> </if>
-      <if v="private"    > <set v="no"/> </if>
-      <if v="limited"    > <set v="no"/> </if>
+      <if v="unsuitable"  > <set v="no"/> </if>
+      <if v="private"     > <set v="no"/> </if>
+      <if v="limited"     > <set v="no"/> </if>
+      <if v="restricted"  > <set v="no"/> </if>
+      <if v="agricultural"> <set v="no"/> </if>
+      <if v="forestry"    > <set v="no"/> </if>
 
       <!-- Generic access restrictions for all transport types (to subtract from highway specific defaults) -->
 
@@ -741,15 +747,48 @@
 
       </if> <!-- k="designation" -->
 
+      <!-- Derived access rules (to override the generic ones) -->
+
+      <if k="motorroad" v="yes">
+        <output k="foot"       v="no"/>
+        <output k="horse"      v="no"/>
+        <output k="wheelchair" v="no"/>
+        <output k="bicycle"    v="no"/>
+        <output k="moped"      v="no"/>
+      </if>
+
+      <if k="footway">
+
+        <!-- Tags from http://taginfo.openstreetmap.org/keys/footway#values on 2013-02-09 -->
+
+        <if k="footway" v="sidewalk"> <output k="foot" v="yes"/> <output k="wheelchair" v="yes"/> </if>
+        <if k="footway" v="both">     <output k="foot" v="yes"/> <output k="wheelchair" v="yes"/> </if>
+        <if k="footway" v="left">     <output k="foot" v="yes"/> <output k="wheelchair" v="yes"/> </if>
+        <if k="footway" v="right">    <output k="foot" v="yes"/> <output k="wheelchair" v="yes"/> </if>
+        <if k="footway" v="yes">      <output k="foot" v="yes"/> <output k="wheelchair" v="yes"/> </if>
+      </if>
+
+      <if k="sidewalk">
+
+        <!-- Tags from http://taginfo.openstreetmap.org/keys/sidewalk#values on 2013-02-09 -->
+
+        <if k="sidewalk" v="both">    <output k="foot" v="yes"/> <output k="wheelchair" v="yes"/> </if>
+        <if k="sidewalk" v="left">    <output k="foot" v="yes"/> <output k="wheelchair" v="yes"/> </if>
+        <if k="sidewalk" v="right">   <output k="foot" v="yes"/> <output k="wheelchair" v="yes"/> </if>
+        <if k="sidewalk" v="yes">     <output k="foot" v="yes"/> <output k="wheelchair" v="yes"/> </if>
+      </if>
+
+      <if k="cycleway">
+
+        <!-- Tags from http://taginfo.openstreetmap.org/keys/cycleway#values on 2013-02-09 -->
+
+        <if k="cycleway" v="lane">   <output k="bicycle" v="yes"/> </if>
+        <if k="cycleway" v="track">  <output k="bicycle" v="yes"/> </if>
+        <if k="cycleway" v="shared"> <output k="bicycle" v="yes"/> </if>
+        <if k="cycleway" v="yes">    <output k="bicycle" v="yes"/> </if>
+      </if>
+
       <!-- Specific access rules (to override the generic ones) -->
-
-      <if k="bicycle" v="pedestrianShared">
-        <set v="yes"/>
-      </if>
-
-      <if k="bicycle" v="shared">
-        <set v="yes"/>
-      </if>
 
       <if k="foot"      > <output/> </if>
       <if k="horse"     > <output/> </if>
