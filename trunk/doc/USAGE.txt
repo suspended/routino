@@ -633,7 +633,7 @@ tagmodifier
    --logtime
           Print the elapsed time for the processing.
 
-   --errorlog[=]
+   --errorlog[=<name>]
           Log parsing errors to 'error.log' or the specified file name.
 
    <filename.osm>
