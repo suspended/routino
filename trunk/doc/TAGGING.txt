@@ -288,9 +288,9 @@ Generic Access Permissions
 - - - - - - - - - - - - -
 
    The access tag is used to specify the default access restrictions
-   through the node. If the tag value is no or private or limited then all
-   transport types are denied access (later tag transformation rules may
-   add specific transport types back again).
+   through the node. If the tag value is no or private or a selection of
+   other values then all transport types are denied access (later tag
+   transformation rules may add specific transport types back again).
 
 Other Access Permissions
 - - - - - - - - - - - -
@@ -314,7 +314,8 @@ Specific Access Permissions
 Mini-roundabouts
 - - - - - - - -
 
-   The highway tag for mini_roundabout is passed through without change.
+   The highway tag for mini_roundabout is passed through without change
+   since it is required for the output route descriptions.
 
 
 Way Tag Transformations
@@ -329,8 +330,14 @@ Highway Defaults
    defining the default allowed transport types and adding a number of
    properties.
 
-   The first part of the transformation is to convert the highway tag into
-   one that is recognised by Routino.
+   The first part of the highway tag checking is to ignore the highway tag
+   if it has a value that indicates a non-highway. These are the proposed
+   and construction values for future highways, the no, abandoned and
+   disused values for previous highways and a small number of other
+   values.
+
+   The second part of the highway transformation is to convert the highway
+   tag into one that is recognised by Routino.
 
    Original tag                            Transformed tag
    ------------                            ---------------
@@ -353,22 +360,24 @@ Highway Defaults
    transport allowed on the highway. The default assumptions are as shown
    in the table below.
 
-   Highway      foot horse  wheelchair bicycle moped motorcycle motorcar goods hgv psv
-   -------      ---- -----  ---------- ------- ----- ---------  -------- ----- --- ---
-   motorway     no   no     no         no      no    yes        yes      yes   yes yes
-   trunk        no   no     no         yes     yes   yes        yes      yes   yes yes
-   primary      yes  yes    yes        yes     yes   yes        yes      yes   yes yes
-   secondary    yes  yes    yes        yes     yes   yes        yes      yes   yes yes
-   tertiary     yes  yes    yes        yes     yes   yes        yes      yes   yes yes
-   unclassified yes  yes    yes        yes     yes   yes        yes      yes   yes yes
-   residential  yes  yes    yes        yes     yes   yes        yes      yes   yes yes
-   service      yes  yes    yes        yes     yes   yes        yes      yes   yes yes
-   track        yes  yes    yes        yes     no    no         no       no    no  no
-   cycleway     yes  no     yes        yes     no    no         no       no    no  no
-   path         yes  yes(1) yes        yes(1)  no    no         no       no    no  no
-   steps        yes  no     no         no      no    no         no       no    no  no
+   Highway      foot  horse  wheelchair bicycle moped motorcycle motorcar goods hgv psv
+   -------      ----  -----  ---------- ------- ----- ---------  -------- ----- --- ---
+   motorway     no    no     no         no      no    yes        yes      yes   yes yes
+   trunk        no(1) no(1)  no(1)      yes     yes   yes        yes      yes   yes yes
+   primary      yes   yes    yes        yes     yes   yes        yes      yes   yes yes
+   secondary    yes   yes    yes        yes     yes   yes        yes      yes   yes yes
+   tertiary     yes   yes    yes        yes     yes   yes        yes      yes   yes yes
+   unclassified yes   yes    yes        yes     yes   yes        yes      yes   yes yes
+   residential  yes   yes    yes        yes     yes   yes        yes      yes   yes yes
+   service      yes   yes    yes        yes     yes   yes        yes      yes   yes yes
+   track        yes   yes    yes        yes     no    no         no       no    no  no
+   cycleway     yes   no     yes        yes     no    no         no       no    no  no
+   path         yes   yes(2) yes        yes(2)  no    no         no       no    no  no
+   steps        yes   no     no         no      no    no         no       no    no  no
 
-   Note 1: A path allows bicycle or horse access by default only if
+   Note 1: A trunk road may legally allow foot, horse or wheelchair access
+   but in the absence of other tags is considered to be too dangerous.
+   Note 2: A path allows bicycle or horse access by default only if
    actually labelled as a highway of type "bridleway".
 
    Finally for the highway tag a number of default properties are added
@@ -399,9 +408,9 @@ Generic Access Permissions
 - - - - - - - - - - - - -
 
    The access tag is used to specify the default access restrictions on
-   the highway. If the tag value is no or private then all transport types
-   are denied access (later tag transformation rules may add specific
-   transport types back again).
+   the highway. If the tag value is no or private or a selection of other
+   values then all transport types are denied access (later tag
+   transformation rules may add specific transport types back again).
 
 Other Access Permissions
 - - - - - - - - - - - -
@@ -428,6 +437,19 @@ Other Access Permissions
    permissive_footpath,
    public_footpath,
    footpath                  foot=yes, wheelchair=yes
+
+   In addition to these there are some other tags and values that will
+   modify the transport permissions on the highway.
+
+   A highway that is tagged as motorroad with a value of yes will deny
+   access to foot, horse, wheelchair, bicycle and moped transport.
+
+   A highway that is tagged with footway or sidewalk and one of a set of
+   popular values will allow foot and wheelchair access even if the road
+   type would not normally do so.
+
+   A highway that is tagged as cycleway with one of several values will
+   allow bicycle access.
 
 Specific Access Permissions
 - - - - - - - - - - - - - -
