@@ -414,8 +414,8 @@ a default set of disallowed transport types.
 <h4><a name="H_1_3_1_2" title="Generic access"></a>Generic Access Permissions</h4>
 
 The <em>access</em> tag is used to specify the default access restrictions
-through the node.  If the tag value is <em>no</em> or <em>private</em>
-or <em>limited</em> then all transport types are denied access (later tag
+through the node.  If the tag value is <em>no</em> or <em>private</em> or a
+selection of other values then all transport types are denied access (later tag
 transformation rules may add specific transport types back again).
 
 
@@ -445,7 +445,7 @@ are also accepted here.
 <h4><a name="H_1_3_1_5" title="Mini-roundabouts"></a>Mini-roundabouts</h4>
 
 The <em>highway</em> tag for <em>mini_roundabout</em> is passed through without
-change.
+change since it is required for the output route descriptions.
 
 
 <!-- ==================== Way Tag Transformations ==================== -->
@@ -461,9 +461,15 @@ one of the <em>highway</em> tags that are recognised by Routino, defining the
 default allowed transport types and adding a number of properties.
 
 <p>
+The first part of the highway tag checking is to ignore the <em>highway</em> tag
+if it has a value that indicates a non-highway.  These are the <em>proposed</em>
+and <em>construction</em> values for future highways, the <em>no</em>,
+<em>abandoned</em> and <em>disused</em> values for previous highways and a small
+number of other values.
 
-The first part of the transformation is to convert the highway tag into one that
-is recognised by Routino.
+<p>
+The second part of the highway transformation is to convert the <em>highway</em>
+tag into one that is recognised by Routino.
 
 <p>
 
@@ -513,7 +519,6 @@ is recognised by Routino.
 </i>
 
 <p>
-
 The type of highway also determines the defaults for the types of transport
 allowed on the highway.  The default assumptions are as shown in the table
 below.
@@ -548,9 +553,9 @@ below.
     <td class="center">yes
   <tr>
     <td class="left">trunk
-    <td class="center">no
-    <td class="center">no
-    <td class="center">no
+    <td class="center">no (1)
+    <td class="center">no (1)
+    <td class="center">no (1)
     <td class="center">yes
     <td class="center">yes
     <td class="center">yes
@@ -657,9 +662,9 @@ below.
   <tr>
     <td class="left">path
     <td class="center">yes
-    <td class="center">yes (1)
+    <td class="center">yes (2)
     <td class="center">yes
-    <td class="center">yes (1)
+    <td class="center">yes (2)
     <td class="center">no
     <td class="center">no
     <td class="center">no
@@ -683,12 +688,14 @@ below.
 <p>
 
 <i>
-  Note 1: A path allows bicycle or horse access by default only if actually
+  Note 1: A trunk road may legally allow foot, horse or wheelchair access but in
+  the absence of other tags is considered to be too dangerous.
+  <br>
+  Note 2: A path allows bicycle or horse access by default only if actually
   labelled as a highway of type "bridleway".
 </i>
 
 <p>
-
 Finally for the highway tag a number of default properties are added depending
 on the highway type.
 
@@ -753,9 +760,9 @@ on the highway type.
 <h4><a name="H_1_3_2_2" title="Generic access"></a>Generic Access Permissions</h4>
 
 The <em>access</em> tag is used to specify the default access restrictions on
-the highway.  If the tag value is <em>no</em> or <em>private</em> then all
-transport types are denied access (later tag transformation rules may add
-specific transport types back again).
+the highway.  If the tag value is <em>no</em> or <em>private</em> or a selection
+of other values then all transport types are denied access (later tag
+transformation rules may add specific transport types back again).
 
 
 <h4><a name="H_1_3_2_3" title="Other access"></a>Other Access Permissions</h4>
@@ -766,7 +773,6 @@ and <em>psv</em> transport types.  A tag named <em>motor_vehicle</em> is
 transformed to mean any vehicle except a <em>bicycle</em>.
 
 <p>
-
 The <em>designation</em> tag is used as an alternative method of identifying the
 legal right of way on a path (in the UK at least).  The tag transformations
 convert these tags into a set of allowed transport types as shown below.
@@ -794,6 +800,23 @@ convert these tags into a set of allowed transport types as shown below.
     <td class="left">permissive_footpath, public_footpath, footpath
     <td class="left">foot=yes, wheelchair=yes
 </table>
+
+<p>
+In addition to these there are some other tags and values that will modify the
+transport permissions on the highway.
+
+<p>
+A highway that is tagged as <em>motorroad</em> with a value of <em>yes</em> will
+deny access to foot, horse, wheelchair, bicycle and moped transport.
+
+<p>
+A highway that is tagged with <em>footway</em> or <em>sidewalk</em> and one of a
+set of popular values will allow foot and wheelchair access even if the road
+type would not normally do so.
+
+<p>
+A highway that is tagged as <em>cycleway</em> with one of several values will
+allow bicycle access.
 
 
 <h4><a name="H_1_3_2_4" title="Specific access"></a>Specific Access Permissions</h4>
