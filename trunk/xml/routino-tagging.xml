@@ -601,27 +601,32 @@
 
           <if k="access" v="foot">
             <set k="foot" v="yes"/>
-            <logerror k="access" message="using 'foot' = 'yes'"/>
+            <logerror k="access" message="using 'access' = 'no' ; 'foot' = 'yes'"/>
+            <set k="access" v="no"/>
           </if>
 
           <if k="access" v="wheelchair">
             <set k="wheelchair" v="yes"/>
-            <logerror k="access" message="using 'wheelchair' = 'yes'"/>
+            <logerror k="access" message="using 'access' = 'no' ; 'wheelchair' = 'yes'"/>
+            <set k="access" v="no"/>
           </if>
 
           <if k="access" v="motor_vehicle">
             <set k="motor_vehicle" v="yes"/>
-            <logerror k="access" message="using 'motor_vehicle' = 'yes'"/>
+            <logerror k="access" message="using 'access' = 'no' ; 'motor_vehicle' = 'yes'"/>
+            <set k="access" v="no"/>
           </if>
 
           <if k="access" v="hgv">
             <set k="hgv" v="yes"/>
-            <logerror k="access" message="using 'hgv' = 'yes'"/>
+            <logerror k="access" message="using 'access' = 'no' ; 'hgv' = 'yes'"/>
+            <set k="access" v="no"/>
           </if>
 
           <if k="access" v="psv">
             <set k="psv" v="yes"/>
-            <logerror k="access" message="using 'psv' = 'yes'"/>
+            <logerror k="access" message="using 'access' = 'no' ; 'psv' = 'yes'"/>
+            <set k="access" v="no"/>
           </if>
 
           <ifnot k="access" v="no">
