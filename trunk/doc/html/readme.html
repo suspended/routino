@@ -186,62 +186,59 @@ Version 2.3.2 of Routino was released on 6th October 2012.
 Version 2.4 of Routino was released on 8th December 2012.
 <br>
 Version 2.4.1 of Routino was released on 17th December 2012.
+<br>
+Version 2.5 of Routino was released on 9th February 2013.
 
 <p>
 
 The full version history is available in the NEWS file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.4/2.4.1</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.5</h3>
 
-In version 2.4.1 - bug fixes.
-
-<dl>
-  <dt>Bug fixes:
-  <dd>Fix error with finding routes with low preference values (router).
-  <dd>Fix error when searching for default profiles.xml (router).
-  <dd>Fix bug with printing log messages when output is not stdout (tagmodifier).
-  <dd>Stop various crashes if trying to process file with no data (planetsplitter).
-</dl>
-
-In version 2.4 - mostly new features.
+In version 2.5 - new features.
 
 <dl>
-  <dt>Bug fixes:
-  <dd>Fix pruning short segments in slim mode (gave different results to non-slim).
-  <br>Fix error with segment lengths for some segments from ways that are areas.
-  <br>Fix latent bug with route relations when compiled for 64-bit IDs.
+  <dt>General:
+  <dd>Replace 'motorbike' with 'motorcycle' everywhere.
 
-  <dt>router/planetsplitter:
-  <dd>Replace all debugging "assert" statements with fatal error messages.
+  <dt>planetsplitter/tagmodifier:
+  <dd>Major changes to source file reading:
+  <br>Faster XML parser.
+  <br>Reads PBF files natively (not for changes, not tagmodifier).
+  <br>Reads o5m/o5c files natively (not tagmodifier).
+  <br>Reads bzip2 or gzip compressed files natively (if compiled for them).
+  <br>Data can no longer be read from standard input.
 
   <dt>planetsplitter:
-  <dd>Delete ways that are not used from the output files (names remain though).
-  <br>Delete turn relations that are not used from the output files.
-  <br>Speed up the processing, mainly by reducing the number of I/O operations.
-  <br>Change the pruning of isolated regions to look at each transport type.
-  <br>Slim and normal mode now give identical results (sorting preserves order).
-  <br>Log some more error cases, clarify some existing ones.
-  <br>Added a --append option which must be used to append files to existing data.
-  <br>Added a --keep option which can be used to keep parsed, sorted data.
-  <br>Added a --changes option to allow appending OSM change files (.osc files).
+  <dd>Report errors with self-intersecting ways, clarify some other error messages.
 
   <dt>Configuration Files:
-  <dd>Accept some more tag values for OSM file parsing.
+  <dd>Tagging configuration can now use an &lt;ifnot&gt; rule.
+  <br>The tagging configuration &lt;if&gt; and &lt;ifnot&gt; rules can be nested.
+  <br>Change the way that the multilane property is derived from the lanes tag.
+  <br>Accept some more tag values for OSM file parsing.
+  <br>German translation now supports roundabouts.
 
-  <dt>summarise-log.pl:
-  <dd>Can now generate an HTML version with links to OSM information for each item.
+  <dt>Documentation:
+  <dd>Describe numerical limits (OSM identifiers and maximum database size).
 
-  <dt>Deleted obsoleted files:
-  <dd>The CGI scripts customrouter.cgi and customvisualiser.cgi have been removed.
-  <br>The noscript.cgi and noscript.html web pages have been removed.
+  <dt>Web pages:
+  <dd>Allow different data and tile attributions for each map source.
+  <br>Include MapQuest as an optional tile source.
+
+  <dt>Web pages (visualiser):
+  <dd>Allow plotting segments of highways that have a particular property.
 </dl>
 
 <p>
-<b>Note:</b> Files deprecated in version 2.3 have been removed in version 2.4.
+<b>Note:</b> Starting with this version the planetsplitter and tagmodifier programs will no longer read data from standard input.
 
 <p>
-<b>Note:</b> This version is not compatible with databases from previous versions.
+<b>Note:</b> Existing mapprops.js files need to be updated for this version.
+
+<p>
+<b>Note:</b> This version is compatible with databases from version 2.4 / 2.4.1.
 
 
 <h3><a name="H_1_5_2"></a>License</h3>
@@ -262,7 +259,7 @@ software.
 
 <h3><a name="H_1_5_3"></a>Copyright</h3>
 
-Routino is copyright Andrew M. Bishop 2008-2012.
+Routino is copyright Andrew M. Bishop 2008-2013.
 
 
 <h2><a name="H_1_6"></a>Download</h2>

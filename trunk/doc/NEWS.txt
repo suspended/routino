@@ -1,3 +1,46 @@
+Version 2.5 of Routino released : Sun Feb 9 2013
+------------------------------------------------
+
+General:
+  Replace 'motorbike' with 'motorcycle' everywhere.
+
+planetsplitter/tagmodifier:
+  Major changes to file reading:
+    Faster XML parser.
+    Reads PBF files natively (not for changes, not tagmodifier).
+    Reads o5m/o5c files natively (not tagmodifier).
+    Reads bzip2 or gzip compressed files natively (if compiled for them).
+    Data can no longer be read from standard input.
+
+planetsplitter:
+  Report errors with self-intersecting ways, clarify some other error messages.
+
+Configuration Files:
+  Tagging configuration can now use an <ifnot> rule.
+  The tagging configuration <if> and <ifnot> rules can be nested.
+  Change the way that the multilane property is derived from the lanes tag.
+  Accept some more tag values for OSM file parsing.
+  German translation now supports roundabouts.
+
+Documentation:
+  Describe numerical limits (OSM identifiers and maximum database size).
+
+Web pages:
+  Allow different data and tile attributions for each map source.
+  Include MapQuest as an optional tile source.
+
+Web pages (visualiser):
+  Allow plotting segments of highways that have a particular property.
+
+
+Note: Starting with this version the planetsplitter and tagmodifier programs
+      will no longer read data from standard input.
+
+Note: Existing mapprops.js files need to be updated for this version.
+
+Note: This version is compatible with databases from version 2.4 / 2.4.1.
+
+
 Version 2.4.1 of Routino released : Mon Dec 17 2012
 ---------------------------------------------------
 
@@ -6,6 +49,7 @@ Bug fixes:
   Fix error when searching for default profiles.xml (router).
   Fix bug with printing log messages when output is not stdout (tagmodifier).
   Stop various crashes if trying to process file with no data (planetsplitter).
+
 
 Note: This version is compatible with databases from version 2.4.
 
@@ -16,7 +60,7 @@ Version 2.4 of Routino released : Sat Dec 8 2012
 Bug fixes:
   Fix pruning short segments in slim mode (gave different results to non-slim).
   Fix error with segment lengths for some segments from ways that are areas.
-  Fix latent bug with route relations when compiled for 64-bit IDs.
+  Fix latent bug with route relations when compiled for 64-bit way/relation IDs.
 
 router/planetsplitter:
   Replace all debugging "assert" statements with fatal error messages.
