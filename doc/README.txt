@@ -84,8 +84,8 @@ Demonstration
 Documentation
 -------------
 
-   The algorithm used is described in the file ALGORITHM.txt and some
-   notes about the limitations of the data is in DATA.txt.
+   The algorithm used is described in the file ALGORITHM.txt with some notes
+   about the input data in DATA.txt and numerical limitations in LIMITS.txt.
 
    The configuration files and in particular the default set of rules for
    processing the OpenStreetMap data tags are described in detail in
@@ -120,6 +120,7 @@ Status
    Version 2.3.2 of Routino was released on 6th October 2012.
    Version 2.4 of Routino was released on 8th December 2012.
    Version 2.4.1 of Routino was released on 17th December 2012.
+   Version 2.5 of Routino was released on 9th February 2013.
 
    The full version history is available in the NEWS.txt file.
 
@@ -141,9 +142,9 @@ License
 Copyright
 ---------
 
-   Routino is copyright Andrew M. Bishop 2008-2012.
+   Routino is copyright Andrew M. Bishop 2008-2013.
 
-   Contact amb@gedanken.demon.co.uk for any questions or queries.
+   Contact amb@gedanken.demon.co.uk for any questions, queries or bug reports.
 
 
 Homepage
