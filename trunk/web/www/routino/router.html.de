@@ -1,6 +1,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
 
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="openstreetmap routing route planer">
+
+<title>Routino : Routen Planer f&uuml;r OpenStreetMap Daten</title>
+
 <!--
  Routino router web page.
 
@@ -24,11 +30,6 @@
  Deutsche UEbersetzung von Andreas Matthus
 -->
 
-<HEAD>
-<TITLE>Routino : Routen Planer f&uuml;r OpenStreetMap Daten</TITLE>
-<META name="keywords" content="openstreetmap routing route planer">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
 <!-- OpenLayers Javascript library -->
 <script src="../openlayers/OpenLayers.js" type="text/javascript"></script>
 
@@ -50,8 +51,8 @@
 <script src="mapprops.js" type="text/javascript"></script>
 <script src="router.js" type="text/javascript"></script>
 <link href="router.css" type="text/css" rel="stylesheet">
-
 </HEAD>
+
 <BODY onload="html_init();map_init();form_init();">
 
 <!-- Left hand side of window - data panel -->
@@ -485,4 +486,5 @@
 </div>
 
 </BODY>
+
 </HTML>
