@@ -134,8 +134,7 @@ function map_init()             // called from visualiser.html
  lat =args["lat"];
  zoom=args["zoom"];
 
- // Map properties (North/South and East/West limits and zoom in/out limits) are now in mapprops.js
- // Map URLs are now in mapprops.js
+ // Map URLs and limits are in mapprops.js.
 
  //
  // Create the map
