@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2012 Andrew M. Bishop
+ This file Copyright 2010-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -868,13 +868,13 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           logerror("Turn Relation %"Prelation_t" is not stored because the 'via' node is not part of the 'to' way.\n",relationx.id);
 
        if(oneway_from)
-          logerror("Turn Relation %"Prelation_t" is not stored because the 'from' way is oneway away from the 'via' node.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not needed because the 'from' way is oneway away from the 'via' node.\n",relationx.id);
 
        if(oneway_to)
           logerror("Turn Relation %"Prelation_t" is not needed because the 'to' way is oneway towards the 'via' node.\n",relationx.id);
 
        if(!vehicles_from)
-          logerror("Turn Relation %"Prelation_t" is not stored because the 'from' way does not allow vehicles.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not needed because the 'from' way does not allow vehicles.\n",relationx.id);
 
        if(!vehicles_to)
           logerror("Turn Relation %"Prelation_t" is not needed because the 'to' way does not allow vehicles.\n",relationx.id);
@@ -973,7 +973,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           logerror("Turn Relation %"Prelation_t" is not needed because the 'from' way is oneway away from the 'via' node.\n",relationx.id);
 
        if(!vehicles_from)
-          logerror("Turn Relation %"Prelation_t" is not stored because the 'from' way does not allow vehicles.\n",relationx.id);
+          logerror("Turn Relation %"Prelation_t" is not needed because the 'from' way does not allow vehicles.\n",relationx.id);
 
        if(oneway_from || !vehicles_from || node_from==NO_NODE || node_to==NO_NODE || nnodes_other==0)
          {
