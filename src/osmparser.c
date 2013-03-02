@@ -504,13 +504,6 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
        break;
 
       case 'h':
-       if(!strcmp(k,"highway"))
-          if(!strcmp(v,"mini_roundabout"))
-            {
-             flags|=NODE_MINIRNDBT;
-             recognised=1; break;
-            }
-
        if(!strcmp(k,"horse"))
          {
           if(ISFALSE(v))
@@ -568,6 +561,18 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
              allow&=~Transports_PSV;
           else if(!ISTRUE(v))
              logerror("Node %"Pnode_t" has an unrecognised tag 'psv' = '%s' (after tagging rules); using 'yes'.\n",id,v);
+          recognised=1; break;
+         }
+
+       break;
+
+      case 'r':
+       if(!strcmp(k,"roundabout"))
+         {
+          if(ISTRUE(v))
+             flags|=NODE_MINIRNDBT;
+          else
+             logerror("Node %"Pnode_t" has an unrecognised tag 'roundabout' = '%s' (after tagging rules); using 'no'.\n",id,v);
           recognised=1; break;
          }
 

@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -393,6 +393,8 @@ static void print_node(Nodes *nodes,index_t item)
  printf("  allow=%02x (%s)\n",nodep->allow,AllowedNameList(nodep->allow));
  if(IsSuperNode(nodep))
     printf("  Super-Node\n");
+ if(nodep->flags & NODE_MINIRNDBT)
+    printf("  Mini-roundabout\n");
 }
 
 
@@ -658,7 +660,7 @@ static void print_node_osm(Nodes *nodes,index_t item)
        printf("    <tag k='routino:uturn' v='yes' />\n");
 
     if(nodep->flags & NODE_MINIRNDBT)
-       printf("    <tag k='highway' v='mini_roundabout' />\n");
+       printf("    <tag k='junction' v='roundabout' />\n");
 
     if(nodep->flags & NODE_TURNRSTRCT)
        printf("    <tag k='routino:turnrestriction' v='yes' />\n");

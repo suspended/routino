@@ -260,7 +260,11 @@
     <!-- Mini-roundabouts  -->
 
     <if k="highway" v="mini_roundabout">
-      <output/>
+      <output k="roundabout" v="yes"/>
+    </if>
+
+    <if k="junction" v="roundabout">
+      <output k="roundabout" v="yes"/>
     </if>
 
   </node>
