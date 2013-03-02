@@ -21,7 +21,16 @@ fi
 # Pruned or non-pruned
 
 if [ "$2" = "prune" ]; then
-    prune=""
+
+echo "name=$name"
+
+    case $name in
+        prune-isolated) prune="--prune-none --prune-isolated=100";;
+        prune-short)    prune="--prune-none --prune-short=5";;
+        prune-straight) prune="--prune-none --prune-straight=5";;
+        *)              prune="";;
+    esac
+
     pruned="-pruned"
 else
     prune="--prune-none"

@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2011-2012 Andrew M. Bishop
+ This file Copyright 2011-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -453,8 +453,8 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
                        :     S2
 
                        :
-      Final state:   ..N3        N2 --
-                       :            S2
+      Final state:   ..N3
+                       :
 
       = OR =
 
@@ -463,14 +463,15 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
                        :     S1        S2        S3    :
 
                        :                               :
-      Final state:   ..N1 ------------ N3 ------------ N4..   N2 --
-                       :       S1               S3     :         S2
+      Final state:   ..N1 ------------ N3 ------------ N4..
+                       :       S1               S3     :
 
       Not if N1 is the same as N4.
-      Not if S2 has different one-way properties from S1 and S3.
+      Must not delete N2 (or N3) if S2 (or S3) has different one-way properties from S1.
+      Must not delete N2 (or N3) if S2 (or S3) has different highway properties from S1.
       Must combine N2, S2 and N3 disallowed transports into new N3.
-      Must not delete N2 or N3 if they are mini-roundabouts.
-      Must not delete N2 or N3 if they are part of turn relations.
+      Must not delete N2 (or N3) if it is a mini-roundabout.
+      Must not delete N2 (or N3) if it is involved in a turn restriction.
 
       = OR =
 
@@ -479,14 +480,14 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
                        :     S1        S2  :
 
                        :               :
-      Final state:   ..N1 ------------ N3..   N2 --
-                       :       S1      :         S2
+      Final state:   ..N1 ------------ N3..
+                       :       S1      :
 
       Not if N1 is the same as N3.
       Not if S1 has different one-way properties from S2.
       Not if S1 has different highway properties from S2.
       Not if N2 disallows transports allowed on S1 and S2.
-      Not if N2 is a mini-roundabouts.
+      Not if N2 is a mini-roundabout.
       Not if N2 is involved in a turn restriction.
      */
 
@@ -502,7 +503,7 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
        node2=segmentx2->node1;
        node3=segmentx2->node2;
 
-       /* Count the segments connected to N2 and N3 */
+       /* Count the segments connected to N2 */
 
        segmentx=FirstSegmentX(segmentsx,node2,4);
 
@@ -525,6 +526,8 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
 
           segmentx=NextSegmentX(segmentsx,segmentx,node2);
          }
+
+       /* Count the segments connected to N3 */
 
        segmentx=FirstSegmentX(segmentsx,node3,4);
 
@@ -605,6 +608,21 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
           if(!join12 && !join23)
              goto endloop;
 
+          /* Check if allowed due to highway properties */
+
+          wayx1=LookupWayX(waysx,segmentx1->way,1);
+          wayx2=LookupWayX(waysx,segmentx2->way,2);
+          wayx3=LookupWayX(waysx,segmentx3->way,3);
+
+          if(WaysCompare(&wayx1->way,&wayx2->way))
+             join12=0;
+
+          if(WaysCompare(&wayx3->way,&wayx2->way))
+             join23=0;
+
+          if(!join12 && !join23)
+             goto endloop;
+
           /* Check if allowed due to mini-roundabout and turn restriction */
 
           nodex2=LookupNodeX(nodesx,node2,2);
@@ -615,6 +633,9 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
 
           if(nodex3->flags&NODE_MINIRNDBT)
              join23=0;
+
+          if(!join12 && !join23)
+             goto endloop;
 
           if(nodex2->flags&NODE_TURNRSTRCT2 || nodex2->flags&NODE_TURNRSTRCT)
              join12=0;
@@ -637,10 +658,6 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
              newnode=node2;
              newnodex=nodex2;
             }
-
-          wayx1=LookupWayX(waysx,segmentx1->way,1);
-          wayx2=LookupWayX(waysx,segmentx2->way,2);
-          wayx3=LookupWayX(waysx,segmentx3->way,3);
 
           newnodex->allow=nodex2->allow&nodex3->allow; /* combine the restrictions of the two nodes */
           newnodex->allow&=~((~wayx2->way.allow)&wayx3->way.allow); /* disallow anything blocked by segment2 */
