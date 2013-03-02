@@ -101,9 +101,9 @@ By default for nodes all types of transport are allowed to pass through a node
 and specific tags must be used to remove the permissions for the transport.
 
 
-<h4><a name="H_1_2_1_2" title="highway (node)"></a>The highway Tag</h4>
+<h4><a name="H_1_2_1_2" title="roundabout (node)"></a>The roundabout Tag</h4>
 
-The <em>highway</em> tag for <em>mini_roundabout</em> is recognised and used to
+The <em>roundabout</em> tag for mini-roundabouts is recognised and used to
 improve the description of the route.
 
 
@@ -229,7 +229,7 @@ The <em>oneway</em> tag is used to specify that traffic is only allowed to
 travel in one direction.
 
 
-<h4><a name="H_1_2_2_12" title="roundabout"></a>The roundabout Tag</h4>
+<h4><a name="H_1_2_2_12" title="roundabout (way)"></a>The roundabout Tag</h4>
 
 The <em>roundabout</em> tag is used to specify that a highway is part of a
 roundabout to improve the description of the calculated route.
@@ -446,8 +446,9 @@ are also accepted here.
 
 <h4><a name="H_1_3_1_5" title="Mini-roundabouts"></a>Mini-roundabouts</h4>
 
-The <em>highway</em> tag for <em>mini_roundabout</em> is passed through without
-change since it is required for the output route descriptions.
+If the <em>highway</em> tag has the value <em>mini_roundabout</em> or
+the <em>junction</em> tag has the value <em>roundabout</em> then
+a <em>junction</em> tag with value <em>roundabout</em>is passed through.
 
 
 <!-- ==================== Way Tag Transformations ==================== -->
