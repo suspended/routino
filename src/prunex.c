@@ -1025,6 +1025,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
              nodes[upper]=node2;
              segments[upper-1]=segment2;
+             segments[upper]=NO_SEGMENT;
 
              current--;
             }
@@ -1060,11 +1061,24 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                 segments[upper-1]=segment2;
                }
 
+             segments[upper]=NO_SEGMENT;
+
              current++;
             }
 
           if(nodes[upper]==nodes[lower])
             {
+             if(!lowerbounded && !upperbounded)
+               {
+                nodex=LookupNodeX(nodesx,nodes[lower],1);
+
+                lats[lower]=latlong_to_radians(nodex->latitude);
+                lons[lower]=latlong_to_radians(nodex->longitude);
+               }
+
+             lats[upper]=lats[lower];
+             lons[upper]=lons[lower];
+
              lowerbounded=1;
              upperbounded=1;
             }
