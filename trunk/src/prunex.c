@@ -1104,12 +1104,12 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
     /* Check for straight highway */
 
-    while((upper-lower)>=2)
+    for(;lower<(upper-1);lower++)
       {
-       index_t bestc=lower;
-
-       for(current=lower+2;current<=upper;current++)
+       for(current=upper;current>(lower+1);current--)
          {
+          SegmentX *segmentx;
+          distance_t dist=0;
           double dist1,dist2,dist3,dist3a,dist3b,distp;
           index_t c;
 
@@ -1138,59 +1138,42 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
                 break;
             }
 
-          if(c>bestc)
-             bestc=c;
-
-          if(bestc>c)
-             c=bestc;
-
-          if(c==current && current!=upper) /* Can replace at least this far (not finished yet) */
+          if(c<current) /* not finished */
              continue;
 
-          if((c-lower)<2)       /* first three points are not straight */
+          /* Delete some segments and shift along */
+
+          for(c=lower+1;c<current;c++)
             {
-             lower=c;
-             break;
+             segmentx=LookupSegmentX(segmentsx,segments[c],1);
+
+             dist+=DISTANCE(segmentx->distance);
+
+             prune_segment(segmentsx,segmentx);
+
+             npruned++;
             }
-          else                  /* delete some segments and shift along */
+
+          segmentx=LookupSegmentX(segmentsx,segments[lower],1);
+
+          if(nodes[lower]==nodes[current]) /* loop; all within maximum distance */
             {
-             SegmentX *segmentx;
-             distance_t distance=0;
+             prune_segment(segmentsx,segmentx);
 
-             current=c;
-
-             for(c=lower+1;c<current;c++)
-               {
-                segmentx=LookupSegmentX(segmentsx,segments[c],1);
-
-                distance+=DISTANCE(segmentx->distance);
-
-                prune_segment(segmentsx,segmentx);
-
-                npruned++;
-               }
-
-             segmentx=LookupSegmentX(segmentsx,segments[lower],1);
-
-             if(nodes[lower]==nodes[current]) /* loop; all within maximum distance */
-               {
-                prune_segment(segmentsx,segmentx);
-
-                npruned++;
-               }
-             else
-               {
-                segmentx->distance+=distance;
-
-                if(segmentx->node1==nodes[lower])
-                   modify_segment(segmentsx,segmentx,nodes[lower],nodes[current]);
-                else /* if(segmentx->node2==nodes[lower]) */
-                   modify_segment(segmentsx,segmentx,nodes[current],nodes[lower]);
-               }
-
-             lower=current;
-             break;
+             npruned++;
             }
+          else
+            {
+             segmentx->distance+=dist;
+
+             if(segmentx->node1==nodes[lower])
+                modify_segment(segmentsx,segmentx,nodes[lower],nodes[current]);
+             else /* if(segmentx->node2==nodes[lower]) */
+                modify_segment(segmentsx,segmentx,nodes[current],nodes[lower]);
+            }
+
+          lower=current-1;
+          break;
          }
       }
 
