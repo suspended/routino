@@ -144,8 +144,6 @@ Copyright
 
    Routino is copyright Andrew M. Bishop 2008-2013.
 
-   Contact amb@gedanken.demon.co.uk for any questions, queries or bug reports.
-
 
 Homepage
 --------
