@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -386,14 +386,14 @@ if(!option_process_only)
 
     StartPruning(Nodes,Segments,Ways);
 
-    if(option_prune_straight)
-       PruneStraightHighwayNodes(Nodes,Segments,Ways,option_prune_straight);
-
     if(option_prune_isolated)
        PruneIsolatedRegions(Nodes,Segments,Ways,option_prune_isolated);
 
     if(option_prune_short)
        PruneShortSegments(Nodes,Segments,Ways,option_prune_short);
+
+    if(option_prune_straight)
+       PruneStraightHighwayNodes(Nodes,Segments,Ways,option_prune_straight);
 
     FinishPruning(Nodes,Segments,Ways);
 
