@@ -72,7 +72,7 @@ Demonstration
    A live demonstration of the router for the UK is available on the
    internet:
 
-   http://www.routino.org/uk/router.html
+   http://www.routino.org/uk/
 
    The source code download available also includes a set of files that can
    be used to create your own interactive map.
