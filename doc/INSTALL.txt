@@ -2,23 +2,43 @@
                            ======================
 
 
+Pre-Requisites
+--------------
+
+   The programs are written in standard C language with minimal external
+   requirements so only a small set of development tools are required
+   (gcc, make).
+
+   There is some support for multi-threading that uses pthreads and
+   additional development libraries for this may be required. The
+   mutli-threading can be disabled at compile time if required by
+   commenting out a couple of lines in the file 'src/Makefile'.
+
+   To use the built-in file decompression functions the zlib (or libz) and
+   bzip2 (or libbz2) development libraries are also required. These can
+   each be disabled by commenting out a couple of lines in the file
+   'src/Makefile'.
+
+   To use the web page interface an http server is required. Instructions
+   below are for Apache but any server that supports CGIs should work.
+
+   The web pages use the Perl scripting language and a number of the
+   default Perl modules. To use the search function on the router web page
+   the additional Perl module "JSON::PP" must be installed.
+
+
 Compilation
 -----------
 
+   To compile the programs just type 'make' at the top level of the source
+   tree.
+
    This program has been written to run on Linux, no cross-platform
    compatibility has been specifically included but on the other hand
-   nothing platform specific has been knowingly included either.
+   other platforms have not knowingly been excluded either.
 
    Any information on improving the compilation process on anything other
-   than 32-bit x86 Linux is welcome.
-
-   No external libraries are required and the programs are written in
-   standard C language.
-
-   To compile the programs just type 'make'.
-
-   To use the search function on the web page the perl module "JSON::PP"
-   must be installed.
+   than x86 Linux is welcome.
 
 
 Installation
@@ -51,7 +71,7 @@ Example Web Page
    that is accessible by a web server. After copying the files some of
    them need to be edited; search through the files for lines that contain
    the words "EDIT THIS" and make appropriate edits. The files that need
-   editing are 'paths.pl' (to set the directory paths) and 'mapprefs.js' (to
+   editing are 'paths.pl' (to set the directory paths) and 'mapprops.js' (to
    set the map properties).
 
 
@@ -88,7 +108,6 @@ Configuration of web files
             |
             + /documentation/  <- The HTML version of the Routino documentation.
 
-
    The directory 'bin' will be filled by running the compilation process.
    For a secure installation the 'bin' directory should be outside of the
    web server, the file 'www/routino/paths.pl' contains the path to the
@@ -118,12 +137,12 @@ Configuration of web files
    The directory 'www/openlayers' must be filled with the openlayers
    Javascript library that can be downloaded from
    http://www.openlayers.org/.  (This version of Routino has been tested
-   with OpenLayers library version 2.11). The files must be installed so
-   that the file 'www/openlayers/OpenLayers.js' and the directories
-   'www/openlayers/img/', 'www/openlayers/theme/' all exist. There is a
-   script in the directory that will automatically download the files,
-   create an optimised "OpenLayers.js" and copy the files to the required
-   locations.
+   with OpenLayers library versions 2.11 and 2.12). The files must be
+   installed so that the file 'www/openlayers/OpenLayers.js' and the
+   directories 'www/openlayers/img/', 'www/openlayers/theme/' all
+   exist. There is a script in the directory that will automatically
+   download the files, create an optimised "OpenLayers.js" and copy the
+   files to the required locations.
 
    The directory 'www/routino' contains the main HTML, Javascript and CSS
    files as well as the CGI scripts that perform the server-side routing
@@ -139,16 +158,15 @@ Configuration of web files
    mapprops.js
           The parameters in this file control the boundary of the visible
           map (defaults to UK), the minimum and maximum zoom levels
-          (defaults to between 4 and 15 inclusive), the source of map tiles
-          (defaults to the main OpenStreetMap tile server) and the number
-          of waypoints allowed (defaults to 9).
+          (defaults to between 4 and 15 inclusive), the source of map
+          tiles (defaults to the main OpenStreetMap tile server) and the
+          number of waypoints allowed (defaults to 9).
 
    The directory www/routino/documentation contains the HTML version of
    the Routino documentation.
 
 
 Configuration of web server
----------------------------
 
    The file 'www/routino/.htaccess' contains all of the Apache
    configuration options that are required to get the example web pages
