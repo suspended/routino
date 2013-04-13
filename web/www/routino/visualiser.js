@@ -209,7 +209,6 @@ function map_init()             // called from visualiser.html
  function limitedUrl(bounds)
  {
   var res = map.getResolution();
-  var res = this.getServerResolution();
 
   var x = Math.round((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
   var y = Math.round((this.maxExtent.top - bounds.top) / (res * this.tileSize.h));
