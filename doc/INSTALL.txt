@@ -50,15 +50,16 @@ Installation
    example web pages but is also a useful location to copy the files from
    for normal use.
 
-   The executable files are called 'planetsplitter', 'router' and
-   'filedumper' (also 'tagmodifier' for debugging tag modifications). They
-   can be copied to any location and need no special installation
-   environment.
+   The required executable files are 'planetsplitter', 'router' and
+   'filedumper' and the '*-slim' versions of the same files. They can be
+   copied to any location and need no special installation environment.
+   The 'filedumperx' and 'tagmodifier' executables are for debugging and
+   not required.
 
-   The default configuration files are called 'profiles.xml',
-   'tagging.xml' and 'translations.xml'. The names of the configuration
-   files can be specified on the command line but by default are also
-   looked for in the directory that contains the routing database.
+   The configuration files are called 'profiles.xml', 'tagging.xml' and
+   'translations.xml'. The names of the configuration files can be
+   specified on the command line but by default are also looked for in the
+   directory that contains the routing database.
 
 
 Example Web Page
