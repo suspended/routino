@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2012 Andrew M. Bishop
+ This file Copyright 2010-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -1277,9 +1277,7 @@ char *ParseXML_Encode_Safe_XML(const char *string)
  do
    {
     for(;j<len && string[i];i++)
-       if(string[i]>=32 && (unsigned char)string[i]<=127)
-          result[j++]=string[i];
-       else if(string[i]=='\'')
+       if(string[i]=='\'')
          {
           result[j++]='&';
           result[j++]='a';
@@ -1319,6 +1317,8 @@ char *ParseXML_Encode_Safe_XML(const char *string)
           result[j++]='t';
           result[j++]=';';
          }
+       else if(string[i]>=32 && (unsigned char)string[i]<=127)
+          result[j++]=string[i];
        else
          {
           unsigned int unicode;
