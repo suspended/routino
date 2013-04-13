@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2012 Andrew M. Bishop
+ This file Copyright 2010-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -165,11 +165,11 @@ static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
 static int boundsType_function(const char *_tag_,int _type_,const char *minlat,const char *minlon,const char *maxlat,const char *maxlon,const char *origin)
 {
  printf("  <%s%s",(_type_==XMLPARSE_TAG_END)?"/":"",_tag_);
- if(minlat) printf(" minlat=\"%s\"",ParseXML_Encode_Safe_XML(minlat));
- if(minlon) printf(" minlon=\"%s\"",ParseXML_Encode_Safe_XML(minlon));
- if(maxlat) printf(" maxlat=\"%s\"",ParseXML_Encode_Safe_XML(maxlat));
- if(maxlon) printf(" maxlon=\"%s\"",ParseXML_Encode_Safe_XML(maxlon));
- if(origin) printf(" origin=\"%s\"",ParseXML_Encode_Safe_XML(origin));
+ if(minlat) printf(" minlat='%s'",ParseXML_Encode_Safe_XML(minlat));
+ if(minlon) printf(" minlon='%s'",ParseXML_Encode_Safe_XML(minlon));
+ if(maxlat) printf(" maxlat='%s'",ParseXML_Encode_Safe_XML(maxlat));
+ if(maxlon) printf(" maxlon='%s'",ParseXML_Encode_Safe_XML(maxlon));
+ if(origin) printf(" origin='%s'",ParseXML_Encode_Safe_XML(origin));
  printf("%s>\n",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?" /":"");
  return(0);
 }
@@ -192,8 +192,8 @@ static int boundsType_function(const char *_tag_,int _type_,const char *minlat,c
 static int boundType_function(const char *_tag_,int _type_,const char *box,const char *origin)
 {
  printf("  <%s%s",(_type_==XMLPARSE_TAG_END)?"/":"",_tag_);
- if(box) printf(" box=\"%s\"",ParseXML_Encode_Safe_XML(box));
- if(origin) printf(" origin=\"%s\"",ParseXML_Encode_Safe_XML(origin));
+ if(box) printf(" box='%s'",ParseXML_Encode_Safe_XML(box));
+ if(origin) printf(" origin='%s'",ParseXML_Encode_Safe_XML(origin));
  printf("%s>\n",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?" /":"");
  return(0);
 }
@@ -281,8 +281,8 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
     for(i=0;i<result->ntags;i++)
       {
        printf("    <tag");
-       printf(" k=\"%s\"",ParseXML_Encode_Safe_XML(result->k[i]));
-       printf(" v=\"%s\"",ParseXML_Encode_Safe_XML(result->v[i]));
+       printf(" k='%s'",ParseXML_Encode_Safe_XML(result->k[i]));
+       printf(" v='%s'",ParseXML_Encode_Safe_XML(result->v[i]));
        printf(" />\n");
       }
 
@@ -291,15 +291,15 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
    }
 
  printf("  <%s%s",(_type_==XMLPARSE_TAG_END)?"/":"",_tag_);
- if(id) printf(" id=\"%s\"",ParseXML_Encode_Safe_XML(id));
- if(lat) printf(" lat=\"%s\"",ParseXML_Encode_Safe_XML(lat));
- if(lon) printf(" lon=\"%s\"",ParseXML_Encode_Safe_XML(lon));
- if(timestamp) printf(" timestamp=\"%s\"",ParseXML_Encode_Safe_XML(timestamp));
- if(uid) printf(" uid=\"%s\"",ParseXML_Encode_Safe_XML(uid));
- if(user) printf(" user=\"%s\"",ParseXML_Encode_Safe_XML(user));
- if(visible) printf(" visible=\"%s\"",ParseXML_Encode_Safe_XML(visible));
- if(version) printf(" version=\"%s\"",ParseXML_Encode_Safe_XML(version));
- if(action) printf(" action=\"%s\"",ParseXML_Encode_Safe_XML(action));
+ if(id) printf(" id='%s'",ParseXML_Encode_Safe_XML(id));
+ if(lat) printf(" lat='%s'",ParseXML_Encode_Safe_XML(lat));
+ if(lon) printf(" lon='%s'",ParseXML_Encode_Safe_XML(lon));
+ if(timestamp) printf(" timestamp='%s'",ParseXML_Encode_Safe_XML(timestamp));
+ if(uid) printf(" uid='%s'",ParseXML_Encode_Safe_XML(uid));
+ if(user) printf(" user='%s'",ParseXML_Encode_Safe_XML(user));
+ if(visible) printf(" visible='%s'",ParseXML_Encode_Safe_XML(visible));
+ if(version) printf(" version='%s'",ParseXML_Encode_Safe_XML(version));
+ if(action) printf(" action='%s'",ParseXML_Encode_Safe_XML(action));
  printf("%s>\n",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?" /":"");
  return(0);
 }
@@ -320,7 +320,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 static int ndType_function(const char *_tag_,int _type_,const char *ref)
 {
  printf("    <%s%s",(_type_==XMLPARSE_TAG_END)?"/":"",_tag_);
- if(ref) printf(" ref=\"%s\"",ParseXML_Encode_Safe_XML(ref));
+ if(ref) printf(" ref='%s'",ParseXML_Encode_Safe_XML(ref));
  printf("%s>\n",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?" /":"");
  return(0);
 }
@@ -345,9 +345,9 @@ static int ndType_function(const char *_tag_,int _type_,const char *ref)
 static int memberType_function(const char *_tag_,int _type_,const char *type,const char *ref,const char *role)
 {
  printf("    <%s%s",(_type_==XMLPARSE_TAG_END)?"/":"",_tag_);
- if(type) printf(" type=\"%s\"",ParseXML_Encode_Safe_XML(type));
- if(ref) printf(" ref=\"%s\"",ParseXML_Encode_Safe_XML(ref));
- if(role) printf(" role=\"%s\"",ParseXML_Encode_Safe_XML(role));
+ if(type) printf(" type='%s'",ParseXML_Encode_Safe_XML(type));
+ if(ref) printf(" ref='%s'",ParseXML_Encode_Safe_XML(ref));
+ if(role) printf(" role='%s'",ParseXML_Encode_Safe_XML(role));
  printf("%s>\n",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?" /":"");
  return(0);
 }
@@ -403,8 +403,8 @@ static int wayType_function(const char *_tag_,int _type_,const char *id,const ch
     for(i=0;i<result->ntags;i++)
       {
        printf("    <tag");
-       printf(" k=\"%s\"",ParseXML_Encode_Safe_XML(result->k[i]));
-       printf(" v=\"%s\"",ParseXML_Encode_Safe_XML(result->v[i]));
+       printf(" k='%s'",ParseXML_Encode_Safe_XML(result->k[i]));
+       printf(" v='%s'",ParseXML_Encode_Safe_XML(result->v[i]));
        printf(" />\n");
       }
 
@@ -413,13 +413,13 @@ static int wayType_function(const char *_tag_,int _type_,const char *id,const ch
    }
 
  printf("  <%s%s",(_type_==XMLPARSE_TAG_END)?"/":"",_tag_);
- if(id) printf(" id=\"%s\"",ParseXML_Encode_Safe_XML(id));
- if(timestamp) printf(" timestamp=\"%s\"",ParseXML_Encode_Safe_XML(timestamp));
- if(uid) printf(" uid=\"%s\"",ParseXML_Encode_Safe_XML(uid));
- if(user) printf(" user=\"%s\"",ParseXML_Encode_Safe_XML(user));
- if(visible) printf(" visible=\"%s\"",ParseXML_Encode_Safe_XML(visible));
- if(version) printf(" version=\"%s\"",ParseXML_Encode_Safe_XML(version));
- if(action) printf(" action=\"%s\"",ParseXML_Encode_Safe_XML(action));
+ if(id) printf(" id='%s'",ParseXML_Encode_Safe_XML(id));
+ if(timestamp) printf(" timestamp='%s'",ParseXML_Encode_Safe_XML(timestamp));
+ if(uid) printf(" uid='%s'",ParseXML_Encode_Safe_XML(uid));
+ if(user) printf(" user='%s'",ParseXML_Encode_Safe_XML(user));
+ if(visible) printf(" visible='%s'",ParseXML_Encode_Safe_XML(visible));
+ if(version) printf(" version='%s'",ParseXML_Encode_Safe_XML(version));
+ if(action) printf(" action='%s'",ParseXML_Encode_Safe_XML(action));
  printf("%s>\n",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?" /":"");
  return(0);
 }
@@ -475,8 +475,8 @@ static int relationType_function(const char *_tag_,int _type_,const char *id,con
     for(i=0;i<result->ntags;i++)
       {
        printf("    <tag");
-       printf(" k=\"%s\"",ParseXML_Encode_Safe_XML(result->k[i]));
-       printf(" v=\"%s\"",ParseXML_Encode_Safe_XML(result->v[i]));
+       printf(" k='%s'",ParseXML_Encode_Safe_XML(result->k[i]));
+       printf(" v='%s'",ParseXML_Encode_Safe_XML(result->v[i]));
        printf(" />\n");
       }
 
@@ -485,13 +485,13 @@ static int relationType_function(const char *_tag_,int _type_,const char *id,con
    }
 
  printf("  <%s%s",(_type_==XMLPARSE_TAG_END)?"/":"",_tag_);
- if(id) printf(" id=\"%s\"",ParseXML_Encode_Safe_XML(id));
- if(timestamp) printf(" timestamp=\"%s\"",ParseXML_Encode_Safe_XML(timestamp));
- if(uid) printf(" uid=\"%s\"",ParseXML_Encode_Safe_XML(uid));
- if(user) printf(" user=\"%s\"",ParseXML_Encode_Safe_XML(user));
- if(visible) printf(" visible=\"%s\"",ParseXML_Encode_Safe_XML(visible));
- if(version) printf(" version=\"%s\"",ParseXML_Encode_Safe_XML(version));
- if(action) printf(" action=\"%s\"",ParseXML_Encode_Safe_XML(action));
+ if(id) printf(" id='%s'",ParseXML_Encode_Safe_XML(id));
+ if(timestamp) printf(" timestamp='%s'",ParseXML_Encode_Safe_XML(timestamp));
+ if(uid) printf(" uid='%s'",ParseXML_Encode_Safe_XML(uid));
+ if(user) printf(" user='%s'",ParseXML_Encode_Safe_XML(user));
+ if(visible) printf(" visible='%s'",ParseXML_Encode_Safe_XML(visible));
+ if(version) printf(" version='%s'",ParseXML_Encode_Safe_XML(version));
+ if(action) printf(" action='%s'",ParseXML_Encode_Safe_XML(action));
  printf("%s>\n",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?" /":"");
  return(0);
 }
@@ -514,8 +514,8 @@ static int relationType_function(const char *_tag_,int _type_,const char *id,con
 static int osmType_function(const char *_tag_,int _type_,const char *version,const char *generator)
 {
  printf("<%s%s",(_type_==XMLPARSE_TAG_END)?"/":"",_tag_);
- if(version) printf(" version=\"%s\"",ParseXML_Encode_Safe_XML(version));
- if(generator) printf(" generator=\"%s\"",ParseXML_Encode_Safe_XML(generator));
+ if(version) printf(" version='%s'",ParseXML_Encode_Safe_XML(version));
+ if(generator) printf(" generator='%s'",ParseXML_Encode_Safe_XML(generator));
  printf("%s>\n",(_type_==(XMLPARSE_TAG_START|XMLPARSE_TAG_END))?" /":"");
  return(0);
 }
@@ -538,8 +538,8 @@ static int osmType_function(const char *_tag_,int _type_,const char *version,con
 static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding)
 {
  printf("<?%s",_tag_);
- if(version) printf(" version=\"%s\"",ParseXML_Encode_Safe_XML(version));
- if(encoding) printf(" encoding=\"%s\"",ParseXML_Encode_Safe_XML(encoding));
+ if(version) printf(" version='%s'",ParseXML_Encode_Safe_XML(version));
+ if(encoding) printf(" encoding='%s'",ParseXML_Encode_Safe_XML(encoding));
  printf(" ?>\n");
  return(0);
 }
