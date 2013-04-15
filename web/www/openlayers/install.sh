@@ -1,6 +1,6 @@
 #!/bin/sh -x
 
-version=2.11
+version=2.12
 
 # Download the file.
 
