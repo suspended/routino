@@ -1354,7 +1354,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
        comres2=InsertResult(combined,begres->node,begres->segment);
 
-       comres2->score=begres->score+comres1->score;
+       comres2->score=begres->score;
        comres2->prev=comres1;
 
        begres=begres->next;
@@ -1401,7 +1401,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
           comres2=InsertResult(combined,result->node,result->segment);
 
-          comres2->score=result->score+comres1->score;
+          comres2->score=midres->score+result->score;
           comres2->prev=comres1;
 
           result=result->next;
