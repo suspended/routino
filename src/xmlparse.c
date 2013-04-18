@@ -775,6 +775,9 @@ int ParseXML(int fd,xmltag **tags,int options)
           if(!U4a[1][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
+          if(!U4a[2][(int)*buffer_ptr])
+             BEGIN(LEX_ERROR_ATTR_VAL);
+          NEXT_CHAR;
           break;
 
          case 42:            /* U4b */
@@ -785,6 +788,9 @@ int ParseXML(int fd,xmltag **tags,int options)
           if(!U4b[1][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
+          if(!U4b[2][(int)*buffer_ptr])
+             BEGIN(LEX_ERROR_ATTR_VAL);
+          NEXT_CHAR;
           break;
 
          case 43:            /* U4c */
@@ -793,6 +799,9 @@ int ParseXML(int fd,xmltag **tags,int options)
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
           if(!U4c[1][(int)*buffer_ptr])
+             BEGIN(LEX_ERROR_ATTR_VAL);
+          NEXT_CHAR;
+          if(!U4c[2][(int)*buffer_ptr])
              BEGIN(LEX_ERROR_ATTR_VAL);
           NEXT_CHAR;
           break;
@@ -1559,7 +1568,7 @@ static const unsigned char U_90_BF[256]={ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 0xe0-0xef "                " */
                                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; /* 0xf0-0xff "                " */
 
-/* Table for checking for characters between 0xa0 and 0x9f. */
+/* Table for checking for characters between 0xa0 and 0xbf. */
 static const unsigned char U_A0_BF[256]={ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 0x00-0x0f "                " */
                                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 0x10-0x1f "                " */
                                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 0x20-0x2f " !"#$%&'()*+,-./" */
@@ -1577,28 +1586,28 @@ static const unsigned char U_A0_BF[256]={ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* 0xe0-0xef "                " */
                                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; /* 0xf0-0xff "                " */
 
-/* Table for checking for U2 characters. */
+/* Table for checking for U2 characters = C2-DF,80-BF = U+0080-U+07FF. */
 static const unsigned char *U2[1]={ U_80_BF };
 
-/* Table for checking for U3a characters. */
+/* Table for checking for U3a characters = E0,A0-BF,80-BF = U+0800-U+0FFF. */
 static const unsigned char *U3a[2]={ U_A0_BF, U_80_BF };
 
-/* Table for checking for U3b characters. */
+/* Table for checking for U3b characters = E1-EC,80-BF,80-BF = U+1000-U+CFFF. */
 static const unsigned char *U3b[2]={ U_80_BF, U_80_BF };
 
-/* Table for checking for U3c characters. */
+/* Table for checking for U3c characters = ED,80-9F,80-BF = U+D000-U+D7FF (U+D800-U+DFFF are not legal in XML). */
 static const unsigned char *U3c[2]={ U_80_9F, U_80_BF };
 
-/* Table for checking for U3d characters. */
+/* Table for checking for U3d characters = EE-EF,80-BF,80-BF = U+E000-U+FFFF (U+FFFE-U+FFFF are not legal in XML but handled). */
 static const unsigned char *U3d[2]={ U_80_BF, U_80_BF };
 
-/* Table for checking for U4a characters. */
+/* Table for checking for U4a characters = F0,90-BF,80-BF,80-BF = U+10000-U+3FFFF. */
 static const unsigned char *U4a[3]={ U_90_BF, U_80_BF, U_80_BF };
 
-/* Table for checking for U4b characters. */
+/* Table for checking for U4b characters = F1-F3,80-BF,80-BF,80-BF = U+40000-U+FFFFF. */
 static const unsigned char *U4b[3]={ U_80_BF, U_80_BF, U_80_BF };
 
-/* Table for checking for U4c characters. */
+/* Table for checking for U4c characters = F4,80-8F,80-BF,80-BF = U+100000-U+10FFFF (U+110000- are not legal in XML). */
 static const unsigned char *U4c[3]={ U_80_8F, U_80_BF, U_80_BF };
 
 /* Table for checking for namestart characters. */
