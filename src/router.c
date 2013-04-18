@@ -39,6 +39,9 @@
 #include "profiles.h"
 
 
+/*+ To help when debugging +*/
+#define DEBUG 0
+
 /*+ The maximum distance from the specified point to search for a node or segment (in km). +*/
 #define MAXSEARCH  1
 
@@ -436,12 +439,10 @@ int main(int argc,char** argv)
  for(point=1;point<=NWAYPOINTS;point++)
    {
     Results *begin,*end;
-    Result *finish_result;
     distance_t distmax=km_to_distance(MAXSEARCH);
     distance_t distmin;
     index_t segment=NO_SEGMENT;
     index_t node1,node2;
-    int     nsuper=0;
 
     if(point_used[point]!=3)
        continue;
@@ -500,31 +501,45 @@ int main(int argc,char** argv)
 
     /* Calculate the beginning of the route */
 
-    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node,&nsuper);
+    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node);
 
-    if(!begin && join_segment!=NO_SEGMENT)
+    if(begin)
       {
-       /* Try again but allow a U-turn at the start waypoint -
-          this solves the problem of facing a dead-end that contains no super-nodes. */
+       /* Check if the end of the route was reached */
 
-       join_segment=NO_SEGMENT;
+       if(FindResult1(begin,finish_node))
+          results[point]=ExtendStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,finish_node);
+      }
+    else
+      {
+       if(join_segment!=NO_SEGMENT)
+         {
+          /* Try again but allow a U-turn at the start waypoint -
+             this solves the problem of facing a dead-end that contains no super-nodes. */
 
-       begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node,&nsuper);
+          join_segment=NO_SEGMENT;
+
+          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node);
+         }
+
+       if(begin)
+         {
+          /* Check if the end of the route was reached */
+
+          if(FindResult1(begin,finish_node))
+             results[point]=ExtendStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,finish_node);
+         }
+       else
+         {
+          fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
+          return(1);
+         }
       }
 
-    if(!begin)
+    /* Calculate the rest of the route */
+
+    if(!results[point])
       {
-       fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
-       return(1);
-      }
-
-    finish_result=FindResult1(begin,finish_node);
-
-    if(nsuper || !finish_result)
-      {
-       /* The route may include super-nodes but there may also be a route
-          without passing any super-nodes to fall back on */
-
        Results *middle;
 
        /* Calculate the end of the route */
@@ -541,70 +556,52 @@ int main(int argc,char** argv)
 
        middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
 
-       if(!middle && join_segment!=NO_SEGMENT && !finish_result)
+       if(!middle && join_segment!=NO_SEGMENT)
          {
           /* Try again but allow a U-turn at the start waypoint -
              this solves the problem of facing a dead-end that contains some super-nodes. */
 
           FreeResultsList(begin);
 
-          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,NO_SEGMENT,finish_node,&nsuper);
+          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,NO_SEGMENT,finish_node);
 
-          middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
+          if(begin)
+             middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
          }
 
        FreeResultsList(end);
 
        if(!middle)
          {
-          if(!finish_result)
-            {
-             fprintf(stderr,"Error: Cannot find super-route compatible with profile.\n");
-             return(1);
-            }
+          fprintf(stderr,"Error: Cannot find super-route compatible with profile.\n");
+          return(1);
          }
-       else
+
+       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,middle);
+
+       if(!results[point])
          {
-          results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,middle);
-
-          if(!results[point])
-            {
-             if(!finish_result)
-               {
-                fprintf(stderr,"Error: Cannot create combined route following super-route.\n");
-                return(1);
-               }
-            }
-
-          if(results[point] && finish_result)
-            {
-             /* If the direct route without passing super-nodes is shorter than
-                the route that does pass super-nodes then fall back to it */
-
-             Result *last_result=FindResult(results[point],results[point]->finish_node,results[point]->last_segment);
-
-             if(last_result->score>finish_result->score)
-               {
-                FreeResultsList(results[point]);
-                results[point]=NULL;
-               }
-            }
-
-          FreeResultsList(middle);
+          fprintf(stderr,"Error: Cannot create combined route following super-route.\n");
+          return(1);
          }
-      }
 
-    if(finish_result && !results[point])
-      {
-       /* Use the direct route without passing any super-nodes if there was no
-          other route. */
-
-       FixForwardRoute(begin,finish_result);
-
-       results[point]=begin;
-      }
-    else
        FreeResultsList(begin);
+
+       FreeResultsList(middle);
+      }
+
+#if DEBUG
+    Result *r=FindResult(results[point],results[point]->start_node,results[point]->prev_segment);
+
+    printf("The final route is:\n");
+
+    while(r)
+      {
+       printf("  node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
+
+       r=r->next;
+      }
+#endif
 
     join_segment=results[point]->last_segment;
    }
