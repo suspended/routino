@@ -190,15 +190,39 @@ Version 2.4 of Routino was released on 8th December 2012.
 Version 2.4.1 of Routino was released on 17th December 2012.
 <br>
 Version 2.5 of Routino was released on 9th February 2013.
+<br>
+Version 2.5.1 of Routino was released on 20th April 2013.
 
 <p>
 
 The full version history is available in the NEWS.txt file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Version 2.5</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Versions 2.5.1 / 2.5</h3>
 
-In version 2.5 - new features.
+In version 2.5.1 - mostly bug fixes.
+
+<dl>
+  <dt>Bug fixes:
+  <dd>Stop contradictory log error messages about 'access=foot' etc.
+  <br>Move the HTML charset definition to within the first 1024 bytes of file.
+  <br>Don't prune short segments in some cases that would change routing.
+  <br>Fix bug with pruning straight highways around loops.
+  <br>Fix some bugs with installation documents and scripts.
+  <br>Fix Javascript to work with OpenLayers v2.11 again.
+  <br>Fix XML character quoting for special characters in 7-bit ASCII range.
+  <br>Fix bug with parsing XML containing UTF-8 characters four bytes long.
+  <br>Fix two bugs for simple routes with the option of not passing a super-node.
+
+  <dt>planetsplitter:
+  <dd>Improve the pruning of straight highways (detect larger straight sections).
+
+  <dt>Configuration Files:
+  <dd>Accept some more tag values for OSM file parsing.
+  <br>Handle alternate forms of mini roundabouts (junction=roundabout).
+</dl>
+
+In version 2.5 - mostly new features.
 
 <dl>
   <dt>General:
