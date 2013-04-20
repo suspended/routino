@@ -1,3 +1,28 @@
+Version 2.5.1 of Routino released : Sat Apr 20 2013
+---------------------------------------------------
+
+Bug fixes:
+  Stop contradictory log error messages about 'access=foot' etc.
+  Move the HTML charset definition to within the first 1024 bytes of file.
+  Don't prune short segments in some cases that would change routing.
+  Fix bug with pruning straight highways around loops.
+  Fix some bugs with installation documents and scripts.
+  Fix Javascript to work with OpenLayers v2.11 again.
+  Fix XML character quoting for special characters in 7-bit ASCII range.
+  Fix bug with parsing XML containing UTF-8 characters four bytes long.
+  Fix two bugs for simple routes with the option of not passing a super-node.
+
+planetsplitter:
+  Improve the pruning of straight highways (detect larger straight sections).
+
+Configuration Files:
+  Accept some more tag values for OSM file parsing.
+  Handle alternate forms of mini roundabouts (junction=roundabout).
+
+
+Note: This version is compatible with databases from version 2.4 / 2.4.1 / 2.5
+
+
 Version 2.5 of Routino released : Sun Feb 9 2013
 ------------------------------------------------
 
