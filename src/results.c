@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@
 
 
 /*+ The maximum number of collisions in a bin for the Results 'point' arrays before worrying. +*/
-#define MAX_COLLISIONS 32
+#define MAX_COLLISIONS 16
  
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -43,26 +43,26 @@
 Results *NewResultsList(int nbins)
 {
  Results *results;
+ int i;
 
  results=(Results*)malloc(sizeof(Results));
 
  results->nbins=1;
- results->mask=~0;
+ results->mask=0;
 
  while(nbins>>=1)
    {
-    results->mask<<=1;
     results->nbins<<=1;
+    results->mask=(results->mask<<1)|1;
    }
-
- results->mask=~results->mask;
 
  results->number=0;
 
- results->npoint1=0;
-
  results->count=(uint8_t*)calloc(results->nbins,sizeof(uint8_t));
  results->point=(Result***)malloc(MAX_COLLISIONS*sizeof(Result**));
+
+ for(i=0;i<MAX_COLLISIONS;i++)
+    results->point[i]=(Result**)malloc(results->nbins*sizeof(Result*));
 
  results->ndata1=0;
  results->ndata2=results->nbins;
@@ -88,16 +88,30 @@ Results *NewResultsList(int nbins)
 void FreeResultsList(Results *results)
 {
  int i;
+ int count[MAX_COLLISIONS];
 
  for(i=0;i<results->ndata1;i++)
     free(results->data[i]);
 
  free(results->data);
 
- for(i=0;i<results->npoint1;i++)
+ for(i=0;i<MAX_COLLISIONS;i++)
     free(results->point[i]);
 
  free(results->point);
+
+ for(i=0;i<MAX_COLLISIONS;i++)
+    count[i]=0;
+
+ for(i=0;i<results->nbins;i++)
+    count[results->count[i]]++;
+
+#if 2
+ printf("\nHash loading factor %5.2lf, %8d items %8d bins\n",(double)results->number/(double)results->nbins,results->number,results->nbins);
+
+ for(i=0;i<MAX_COLLISIONS;i++)
+    printf("%2d : %8d : %5.2lf%%\n",i,count[i],100*count[i]/(double)results->nbins);
+#endif
 
  free(results->count);
 
@@ -124,59 +138,36 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
  /* Check if we have hit the limit on the number of collisions per bin */
 
- if(results->count[bin]>MAX_COLLISIONS && results->count[bin]==results->npoint1)
+ while(results->count[bin]==MAX_COLLISIONS)
    {
-    int i,j,k;
+    int i,j;
 
     results->nbins<<=1;
     results->mask=(results->mask<<1)|1;
 
     results->count=(uint8_t*)realloc((void*)results->count,results->nbins*sizeof(uint8_t));
 
-    for(i=0;i<results->npoint1;i++)
+    for(i=0;i<MAX_COLLISIONS;i++)
        results->point[i]=(Result**)realloc((void*)results->point[i],results->nbins*sizeof(Result*));
 
     for(i=0;i<results->nbins/2;i++)
       {
        int c=results->count[i];
 
+       results->count[i                 ]=0;
        results->count[i+results->nbins/2]=0;
 
-       for(j=0,k=0;j<c;j++)
+       for(j=0;j<c;j++)
          {
           int newbin=results->point[j][i]->node&results->mask;
 
-          if(newbin==i)
-            {
-             if(k!=j)
-                results->point[k][i]=results->point[j][i];
-             k++;
-            }
-          else
-            {
-             results->point[results->count[newbin]][newbin]=results->point[j][i];
+          results->point[results->count[newbin]][newbin]=results->point[j][i];
 
-             results->count[newbin]++;
-             results->count[i]--;
-            }
+          results->count[newbin]++;
          }
       }
 
     bin=node&results->mask;
-   }
-
- /* Check that the arrays have enough space or allocate more. */
-
- if(results->count[bin]==results->npoint1)
-   {
-    logassert(results->npoint1<255,"Results are more numerous than expected (report a bug)");
-
-    results->npoint1++;
-
-    if(results->npoint1>MAX_COLLISIONS)
-       results->point=(Result***)realloc((void*)results->point,results->npoint1*sizeof(Result**));
-
-    results->point[results->npoint1-1]=(Result**)malloc(results->nbins*sizeof(Result*));
    }
 
  if((results->number%results->ndata2)==0)

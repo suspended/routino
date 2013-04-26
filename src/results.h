@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2011 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -60,9 +60,6 @@ typedef struct _Results
  uint32_t  mask;                /*+ A bit mask to select the bottom 'nbins' bits. +*/
 
  uint32_t  number;              /*+ The total number of occupied results. +*/
-
- uint8_t   npoint1;             /*+ The amount of space allocated for results
-                                    (the first dimension of the 'point' array). +*/
 
  uint8_t  *count;               /*+ An array of nbins counters of results in each array. +*/
  Result ***point;               /*+ An array of nbins arrays of pointers to actual results. +*/
