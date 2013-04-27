@@ -28,6 +28,9 @@
 #include "logging.h"
 
 
+#define HASH_NODE_SEGMENT(node,segment) ((node)^(segment<<4))
+
+
 /*++++++++++++++++++++++++++++++++++++++
   Allocate a new results list.
 
@@ -44,7 +47,7 @@ Results *NewResultsList(int nbins)
 
  results->nbins=1;
  results->mask=0;
- results->ncollisions=8;
+ results->ncollisions=0;
 
  while(nbins>>=1)
    {
@@ -94,33 +97,6 @@ void FreeResultsList(Results *results)
 
  free(results->point);
 
-#if 0
- int count[256];
-
- for(i=0;i<=results->ncollisions;i++)
-    count[i]=0;
-
- for(i=0;i<results->nbins;i++)
-    count[results->count[i]]++;
-
-#if 0
- printf("\nHash loading factor %5.2lf, %8d items %8d bins\n",(double)results->number/(double)results->nbins,results->number,results->nbins);
-
- for(i=0;i<=results->ncollisions;i++)
-    printf("%2d : %8d : %5.2lf%%\n",i,count[i],100*count[i]/(double)results->nbins);
-#else
-
- int max=0;
-
- for(i=0;i<=results->ncollisions;i++)
-    if(count[i])
-       max=i;
-
- printf("\nHash %d %d %d %d\n",results->ndata2,results->nbins,results->ncollisions,max);
-#endif
-
-#endif
-
  free(results->count);
 
  free(results);
@@ -142,7 +118,7 @@ void FreeResultsList(Results *results)
 Result *InsertResult(Results *results,index_t node,index_t segment)
 {
  Result *result;
- int bin=(node^segment)&results->mask;
+ int bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
 
  /* Check if we have hit the limit on the number of collisions per bin */
 
@@ -174,7 +150,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
        for(j=0;j<c;j++)
          {
-          int newbin=(results->point[j][i]->node^results->point[j][i]->segment)&results->mask;
+          int newbin=HASH_NODE_SEGMENT(results->point[j][i]->node,results->point[j][i]->segment)&results->mask;
 
           results->point[results->count[newbin]][newbin]=results->point[j][i];
 
@@ -182,7 +158,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
          }
       }
 
-    bin=(node^segment)&results->mask;
+    bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
    }
 
  if(!results->point[results->count[bin]])
@@ -239,7 +215,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
 Result *FindResult(Results *results,index_t node,index_t segment)
 {
- int bin=(node^segment)&results->mask;
+ int bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
  int i;
 
  for(i=results->count[bin]-1;i>=0;i--)
