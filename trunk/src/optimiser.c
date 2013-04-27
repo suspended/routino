@@ -99,7 +99,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Create the list of results and insert the first node into the queue */
 
- results=NewResultsList(64);
+ results=NewResultsList(8);
  queue=NewQueueList();
 
  results->start_node=start_node;
@@ -381,7 +381,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Create the list of results and insert the first node into the queue */
 
- results=NewResultsList(65536);
+ results=NewResultsList(20);
  queue=NewQueueList();
 
  results->start_node=begin->start_node;
@@ -773,7 +773,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
 
  /* Create the list of results and insert the first node into the queue */
 
- results=NewResultsList(64);
+ results=NewResultsList(8);
  queue=NewQueueList();
 
  results->start_node=start_node;
@@ -911,7 +911,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  /* Create the list of results and insert the first node into the queue */
 
- results=NewResultsList(64);
+ results=NewResultsList(8);
  queue=NewQueueList();
 
  results->start_node=start_node;
@@ -1445,7 +1445,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
  /* Create the results and insert the finish node into the queue */
 
- results=NewResultsList(64);
+ results=NewResultsList(8);
  queue=NewQueueList();
 
  results->finish_node=finish_node;
@@ -1627,7 +1627,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
  /* Create a results structure with the node at the end of the segment opposite the start */
 
- results2=NewResultsList(64);
+ results2=NewResultsList(8);
 
  results2->finish_node=results->finish_node;
 
@@ -1725,7 +1725,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
  printf("  CombineRoutes(...,[begin has %d nodes],[middle has %d nodes])\n",begin->number,middle->number);
 #endif
 
- combined=NewResultsList(256);
+ combined=NewResultsList(10);
 
  combined->start_node=begin->start_node;
  combined->prev_segment=begin->prev_segment;

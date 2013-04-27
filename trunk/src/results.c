@@ -36,25 +36,18 @@
 
   Results *NewResultsList Returns the results list.
 
-  int nbins The initial number of bins in the results array.
+  uint8_t log2bins The base 2 logarithm of the initial number of bins in the results array.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *NewResultsList(int nbins)
+Results *NewResultsList(uint8_t log2bins)
 {
  Results *results;
 
  results=(Results*)malloc(sizeof(Results));
 
- results->nbins=1;
- results->mask=0;
- results->ncollisions=0;
-
- while(nbins>>=1)
-   {
-    results->nbins<<=1;
-    results->mask=(results->mask<<1)|1;
-    results->ncollisions++;
-   }
+ results->nbins=1<<log2bins;
+ results->mask=results->nbins-1;
+ results->ncollisions=log2bins-4;
 
  results->number=0;
 
@@ -123,7 +116,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
     int i;
 
     results->nbins<<=1;
-    results->mask=(results->mask<<1)|1;
+    results->mask=results->nbins-1;
     results->ncollisions++;
 
     results->count=(uint8_t*)realloc((void*)results->count,results->nbins*sizeof(uint8_t));
