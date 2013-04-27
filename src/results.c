@@ -28,10 +28,6 @@
 #include "logging.h"
 
 
-/*+ The maximum number of collisions in a bin for the Results 'point' arrays before worrying. +*/
-#define MAX_COLLISIONS 16
- 
-
 /*++++++++++++++++++++++++++++++++++++++
   Allocate a new results list.
 
@@ -43,26 +39,24 @@
 Results *NewResultsList(int nbins)
 {
  Results *results;
- int i;
 
  results=(Results*)malloc(sizeof(Results));
 
  results->nbins=1;
  results->mask=0;
+ results->ncollisions=8;
 
  while(nbins>>=1)
    {
     results->nbins<<=1;
     results->mask=(results->mask<<1)|1;
+    results->ncollisions++;
    }
 
  results->number=0;
 
  results->count=(uint8_t*)calloc(results->nbins,sizeof(uint8_t));
- results->point=(Result***)malloc(MAX_COLLISIONS*sizeof(Result**));
-
- for(i=0;i<MAX_COLLISIONS;i++)
-    results->point[i]=(Result**)malloc(results->nbins*sizeof(Result*));
+ results->point=(Result***)calloc(results->ncollisions,sizeof(Result**));
 
  results->ndata1=0;
  results->ndata2=results->nbins;
@@ -88,29 +82,43 @@ Results *NewResultsList(int nbins)
 void FreeResultsList(Results *results)
 {
  int i;
- int count[MAX_COLLISIONS+1];
 
  for(i=0;i<results->ndata1;i++)
     free(results->data[i]);
 
  free(results->data);
 
- for(i=0;i<MAX_COLLISIONS;i++)
-    free(results->point[i]);
+ for(i=0;i<results->ncollisions;i++)
+    if(results->point[i])
+       free(results->point[i]);
 
  free(results->point);
 
 #if 0
- for(i=0;i<=MAX_COLLISIONS;i++)
+ int count[256];
+
+ for(i=0;i<=results->ncollisions;i++)
     count[i]=0;
 
  for(i=0;i<results->nbins;i++)
     count[results->count[i]]++;
 
+#if 0
  printf("\nHash loading factor %5.2lf, %8d items %8d bins\n",(double)results->number/(double)results->nbins,results->number,results->nbins);
 
- for(i=0;i<=MAX_COLLISIONS;i++)
+ for(i=0;i<=results->ncollisions;i++)
     printf("%2d : %8d : %5.2lf%%\n",i,count[i],100*count[i]/(double)results->nbins);
+#else
+
+ int max=0;
+
+ for(i=0;i<=results->ncollisions;i++)
+    if(count[i])
+       max=i;
+
+ printf("\nHash %d %d %d %d\n",results->ndata2,results->nbins,results->ncollisions,max);
+#endif
+
 #endif
 
  free(results->count);
@@ -138,7 +146,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
  /* Check if we have hit the limit on the number of collisions per bin */
 
- while(results->count[bin]==MAX_COLLISIONS)
+ if(results->count[bin]==results->ncollisions)
    {
     int i,j;
 
@@ -147,8 +155,15 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
     results->count=(uint8_t*)realloc((void*)results->count,results->nbins*sizeof(uint8_t));
 
-    for(i=0;i<MAX_COLLISIONS;i++)
-       results->point[i]=(Result**)realloc((void*)results->point[i],results->nbins*sizeof(Result*));
+    for(i=0;i<results->ncollisions;i++)
+       if(results->point[i])
+          results->point[i]=(Result**)realloc((void*)results->point[i],results->nbins*sizeof(Result*));
+
+    results->ncollisions++;
+
+    results->point=(Result***)realloc((void*)results->point,results->ncollisions*sizeof(Result**));
+
+    results->point[results->ncollisions-1]=NULL;
 
     for(i=0;i<results->nbins/2;i++)
       {
@@ -169,6 +184,11 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
     bin=(node^segment)&results->mask;
    }
+
+ if(!results->point[results->count[bin]])
+    results->point[results->count[bin]]=(Result**)malloc(results->nbins*sizeof(Result*));
+
+ /* Check if we need more data space allocated */
 
  if((results->number%results->ndata2)==0)
    {
