@@ -56,13 +56,15 @@ struct _Result
 /*+ A list of results. +*/
 typedef struct _Results
 {
- uint32_t  nbins;               /*+ The number of bins. +*/
- uint32_t  mask;                /*+ A bit mask to select the bottom 'nbins' bits. +*/
+ uint32_t  nbins;               /*+ The number of bins in the has table. +*/
+ uint32_t  mask;                /*+ A bit mask to select the bottom log2(nbins) bits. +*/
 
  uint32_t  number;              /*+ The total number of occupied results. +*/
 
- uint8_t  *count;               /*+ An array of nbins counters of results in each array. +*/
- Result ***point;               /*+ An array of nbins arrays of pointers to actual results. +*/
+ uint8_t   ncollisions;         /*+ The number of results allowed in each hash bin. +*/
+ uint8_t  *count;               /*+ An array of nbins counters of results in each hash bin. +*/
+
+ Result ***point;               /*+ An array of ncollisions arrays of pointers to arrays of nbins result pointers. +*/
 
  uint32_t  ndata1;              /*+ The size of the first dimension of the 'data' array. +*/
  uint32_t  ndata2;              /*+ The size of the second dimension of the 'data' array. +*/
