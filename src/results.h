@@ -92,7 +92,7 @@ typedef struct _Queue Queue;
 
 /* Results functions in results.c */
 
-Results *NewResultsList(int nbins);
+Results *NewResultsList(uint8_t log2bins);
 void FreeResultsList(Results *results);
 
 Result *InsertResult(Results *results,index_t node,index_t segment);
