@@ -617,6 +617,12 @@ int main(int argc,char** argv)
  if(!option_none)
     PrintRoute(results,NWAYPOINTS,OSMNodes,OSMSegments,OSMWays,profile);
 
+ /* Destroy the remaining results lists */
+
+ for(point=1;point<=NWAYPOINTS;point++)
+    if(results[point])
+       FreeResultsList(results[point]);
+
  return(0);
 }
 
