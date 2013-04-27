@@ -59,10 +59,10 @@ Results *NewResultsList(int nbins)
  results->number=0;
 
  results->count=(uint8_t*)calloc(results->nbins,sizeof(uint8_t));
- results->point=(Result***)calloc(results->ncollisions,sizeof(Result**));
+ results->point=(Result**)calloc(results->nbins,sizeof(Result*));
 
  results->ndata1=0;
- results->ndata2=results->nbins;
+ results->ndata2=results->nbins>>2;
 
  results->data=NULL;
 
@@ -90,10 +90,6 @@ void FreeResultsList(Results *results)
     free(results->data[i]);
 
  free(results->data);
-
- for(i=0;i<results->ncollisions;i++)
-    if(results->point[i])
-       free(results->point[i]);
 
  free(results->point);
 
@@ -124,45 +120,46 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
  if(results->count[bin]==results->ncollisions)
    {
-    int i,j;
+    int i;
 
     results->nbins<<=1;
     results->mask=(results->mask<<1)|1;
-
-    results->count=(uint8_t*)realloc((void*)results->count,results->nbins*sizeof(uint8_t));
-
-    for(i=0;i<results->ncollisions;i++)
-       if(results->point[i])
-          results->point[i]=(Result**)realloc((void*)results->point[i],results->nbins*sizeof(Result*));
-
     results->ncollisions++;
 
-    results->point=(Result***)realloc((void*)results->point,results->ncollisions*sizeof(Result**));
-
-    results->point[results->ncollisions-1]=NULL;
+    results->count=(uint8_t*)realloc((void*)results->count,results->nbins*sizeof(uint8_t));
+    results->point=(Result**)realloc((void*)results->point,results->nbins*sizeof(Result*));
 
     for(i=0;i<results->nbins/2;i++)
       {
-       int c=results->count[i];
+       Result *r=results->point[i];
+       Result **bin1,**bin2;
 
-       results->count[i                 ]=0;
+       results->count[i]                 =0;
        results->count[i+results->nbins/2]=0;
 
-       for(j=0;j<c;j++)
-         {
-          int newbin=HASH_NODE_SEGMENT(results->point[j][i]->node,results->point[j][i]->segment)&results->mask;
+       bin1=&results->point[i];
+       bin2=&results->point[i+results->nbins/2];
 
-          results->point[results->count[newbin]][newbin]=results->point[j][i];
+       while(r)
+         {
+          Result *rh=r->hashnext;
+          int newbin=HASH_NODE_SEGMENT(r->node,r->segment)&results->mask;
+
+          r->hashnext=NULL;
+
+          if(newbin==i)
+            { *bin1=r; bin1=&r->hashnext; }
+          else
+            { *bin2=r; bin2=&r->hashnext; }
 
           results->count[newbin]++;
+
+          r=rh;
          }
       }
 
     bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
    }
-
- if(!results->point[results->count[bin]])
-    results->point[results->count[bin]]=(Result**)malloc(results->nbins*sizeof(Result*));
 
  /* Check if we need more data space allocated */
 
@@ -176,15 +173,17 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
  /* Insert the new entry */
 
- results->point[results->count[bin]][bin]=&results->data[results->ndata1-1][results->number%results->ndata2];
+ result=&results->data[results->ndata1-1][results->number%results->ndata2];
 
- results->number++;
+ result->hashnext=results->point[bin];
+
+ results->point[bin]=result;
 
  results->count[bin]++;
 
- /* Initialise the result */
+ results->number++;
 
- result=results->point[results->count[bin]-1][bin];
+ /* Initialise the result */
 
  result->node=node;
  result->segment=segment;
@@ -215,14 +214,20 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
 Result *FindResult(Results *results,index_t node,index_t segment)
 {
+ Result *r;
  int bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
- int i;
 
- for(i=results->count[bin]-1;i>=0;i--)
-    if(results->point[i][bin]->segment==segment && results->point[i][bin]->node==node)
-       return(results->point[i][bin]);
+ r=results->point[bin];
 
- return(NULL);
+ while(r)
+   {
+    if(r->segment==segment && r->node==node)
+       break;
+
+    r=r->hashnext;
+   }
+
+ return(r);
 }
 
 
