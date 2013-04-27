@@ -88,7 +88,7 @@ Results *NewResultsList(int nbins)
 void FreeResultsList(Results *results)
 {
  int i;
- int count[MAX_COLLISIONS];
+ int count[MAX_COLLISIONS+1];
 
  for(i=0;i<results->ndata1;i++)
     free(results->data[i]);
@@ -100,16 +100,16 @@ void FreeResultsList(Results *results)
 
  free(results->point);
 
- for(i=0;i<MAX_COLLISIONS;i++)
+#if 0
+ for(i=0;i<=MAX_COLLISIONS;i++)
     count[i]=0;
 
  for(i=0;i<results->nbins;i++)
     count[results->count[i]]++;
 
-#if 2
  printf("\nHash loading factor %5.2lf, %8d items %8d bins\n",(double)results->number/(double)results->nbins,results->number,results->nbins);
 
- for(i=0;i<MAX_COLLISIONS;i++)
+ for(i=0;i<=MAX_COLLISIONS;i++)
     printf("%2d : %8d : %5.2lf%%\n",i,count[i],100*count[i]/(double)results->nbins);
 #endif
 
@@ -134,7 +134,7 @@ void FreeResultsList(Results *results)
 Result *InsertResult(Results *results,index_t node,index_t segment)
 {
  Result *result;
- int bin=node&results->mask;
+ int bin=(node^segment)&results->mask;
 
  /* Check if we have hit the limit on the number of collisions per bin */
 
@@ -159,7 +159,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
        for(j=0;j<c;j++)
          {
-          int newbin=results->point[j][i]->node&results->mask;
+          int newbin=(results->point[j][i]->node^results->point[j][i]->segment)&results->mask;
 
           results->point[results->count[newbin]][newbin]=results->point[j][i];
 
@@ -167,7 +167,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
          }
       }
 
-    bin=node&results->mask;
+    bin=(node^segment)&results->mask;
    }
 
  if((results->number%results->ndata2)==0)
@@ -206,34 +206,6 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Find a result; search by node only (don't care about the segment but find the shortest).
-
-  Result *FindResult1 Returns the result that has been found.
-
-  Results *results The results structure to search.
-
-  index_t node The node that is to be found.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-Result *FindResult1(Results *results,index_t node)
-{
- int bin=node&results->mask;
- score_t best_score=INF_SCORE;
- Result *best_result=NULL;
- int i;
-
- for(i=results->count[bin]-1;i>=0;i--)
-    if(results->point[i][bin]->node==node && results->point[i][bin]->score<best_score)
-      {
-       best_score=results->point[i][bin]->score;
-       best_result=results->point[i][bin];
-      }
-
- return(best_result);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Find a result; search by node and segment.
 
   Result *FindResult Returns the result that has been found.
@@ -247,7 +219,7 @@ Result *FindResult1(Results *results,index_t node)
 
 Result *FindResult(Results *results,index_t node,index_t segment)
 {
- int bin=node&results->mask;
+ int bin=(node^segment)&results->mask;
  int i;
 
  for(i=results->count[bin]-1;i>=0;i--)

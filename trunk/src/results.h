@@ -93,7 +93,6 @@ void FreeResultsList(Results *results);
 
 Result *InsertResult(Results *results,index_t node,index_t segment);
 
-Result *FindResult1(Results *results,index_t node);
 Result *FindResult(Results *results,index_t node,index_t segment);
 
 Result *FirstResult(Results *results);

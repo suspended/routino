@@ -1068,11 +1068,23 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
           if(node2==finish_node)
              nsuper++;
+
+          if(node2==finish_node)
+            {
+             results->finish_node=finish_node;
+             results->last_segment=seg2;
+            }
          }
        else if(cumulative_score<result2->score) /* New score for end node/segment combination is better */
          {
           result2->prev=result1;
           result2->score=cumulative_score;
+
+          if(node2==finish_node)
+            {
+             results->finish_node=finish_node;
+             results->last_segment=seg2;
+            }
          }
        else
           goto endloop;

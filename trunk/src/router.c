@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -507,7 +507,7 @@ int main(int argc,char** argv)
       {
        /* Check if the end of the route was reached */
 
-       if(FindResult1(begin,finish_node))
+       if(begin->finish_node!=NO_NODE)
           results[point]=ExtendStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,finish_node);
       }
     else
@@ -526,7 +526,7 @@ int main(int argc,char** argv)
          {
           /* Check if the end of the route was reached */
 
-          if(FindResult1(begin,finish_node))
+          if(begin->finish_node!=NO_NODE)
              results[point]=ExtendStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,finish_node);
          }
        else
