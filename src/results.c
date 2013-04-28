@@ -133,6 +133,9 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
        bin1=&results->point[i];
        bin2=&results->point[i+results->nbins/2];
 
+       *bin1=NULL;
+       *bin2=NULL;
+
        while(r)
          {
           Result *rh=r->hashnext;
