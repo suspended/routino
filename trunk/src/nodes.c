@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -372,7 +372,7 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
                       distance_t dist2,dist3;
                       double lat2,lon2,dist3a,dist3b,distp;
 
-                      GetLatLong(nodes,OtherNode(segmentp,i),&lat2,&lon2);
+                      GetLatLong(nodes,OtherNode(segmentp,i),NULL,&lat2,&lon2);
 
                       dist2=Distance(lat2,lon2,latitude,longitude);
 
@@ -510,14 +510,15 @@ static int valid_segment_for_profile(Ways *ways,Segment *segmentp,Profile *profi
 
   index_t index The node index.
 
+  Node *nodep A pointer to the node if already available.
+
   double *latitude Returns the latitude.
 
   double *longitude Returns the logitude.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
+void GetLatLong(Nodes *nodes,index_t index,Node *nodep,double *latitude,double *longitude)
 {
- Node *nodep=LookupNode(nodes,index,4);
  ll_bin_t latbin=-1,lonbin=-1;
  ll_bin_t start,end,mid;
  index_t offset;
@@ -602,6 +603,9 @@ void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude)
     latbin++;
 
  /* Return the values */
+
+ if(nodep==NULL)
+    nodep=LookupNode(nodes,index,4);
 
  *latitude =latlong_to_radians(bin_to_latlong(nodes->file.latzero+latbin)+off_to_latlong(nodep->latoffset));
  *longitude=latlong_to_radians(bin_to_latlong(nodes->file.lonzero+lonbin)+off_to_latlong(nodep->lonoffset));

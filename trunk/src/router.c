@@ -480,7 +480,7 @@ int main(int argc,char** argv)
        if(IsFakeNode(finish_node))
           GetFakeLatLong(finish_node,&lat,&lon);
        else
-          GetLatLong(OSMNodes,finish_node,&lat,&lon);
+          GetLatLong(OSMNodes,finish_node,NULL,&lat,&lon);
 
        if(IsFakeNode(finish_node))
           printf("Point %d is segment %"Pindex_t" (node %"Pindex_t" -> %"Pindex_t"): %3.6f %4.6f = %2.3f km\n",point,segment,node1,node2,

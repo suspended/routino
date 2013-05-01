@@ -95,7 +95,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  if(IsFakeNode(finish_node))
     GetFakeLatLong(finish_node,&finish_lat,&finish_lon);
  else
-    GetLatLong(nodes,finish_node,&finish_lat,&finish_lon);
+    GetLatLong(nodes,finish_node,NULL,&finish_lat,&finish_lon);
 
  /* Create the list of results and insert the first node into the queue */
 
@@ -374,7 +374,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  if(IsFakeNode(end->finish_node))
     GetFakeLatLong(end->finish_node,&finish_lat,&finish_lon);
  else
-    GetLatLong(nodes,end->finish_node,&finish_lat,&finish_lon);
+    GetLatLong(nodes,end->finish_node,NULL,&finish_lat,&finish_lon);
 
  /* Create the list of results and insert the first node into the queue */
 
@@ -597,7 +597,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           distance_t direct;
           score_t potential_score;
 
-          GetLatLong(nodes,node2,&lat,&lon); /* node2 cannot be a fake node (must be a super-node) */
+          GetLatLong(nodes,node2,node2p,&lat,&lon); /* node2 cannot be a fake node (must be a super-node) */
 
           direct=Distance(lat,lon,finish_lat,finish_lon);
 
