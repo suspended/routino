@@ -188,6 +188,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
  result->next=NULL;
 
  result->score=0;
+ result->sortby=0;
 
  result->queued=NOT_QUEUED;
 
