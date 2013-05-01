@@ -34,7 +34,6 @@ struct _Queue
  int      noccupied;            /*+ The number of entries occupied. +*/
 
  Result **results;              /*+ The queue of pointers to results. +*/
- score_t *scores;               /*+ The queue of scores. +*/
 };
 
 
@@ -58,7 +57,6 @@ Queue *NewQueueList(uint8_t log2bins)
  queue->noccupied=0;
 
  queue->results=(Result**)malloc(queue->nallocated*sizeof(Result*));
- queue->scores =(score_t*)malloc(queue->nallocated*sizeof(score_t));
 
  return(queue);
 }
@@ -73,7 +71,6 @@ Queue *NewQueueList(uint8_t log2bins)
 void FreeQueueList(Queue *queue)
 {
  free(queue->results);
- free(queue->scores);
 
  free(queue);
 }
@@ -105,36 +102,29 @@ void InsertInQueue(Queue *queue,Result *result,score_t score)
       {
        queue->nallocated=queue->nallocated+queue->nincrement;
        queue->results=(Result**)realloc((void*)queue->results,queue->nallocated*sizeof(Result*));
-       queue->scores=(score_t*)realloc((void*)queue->scores,queue->nallocated*sizeof(score_t));
       }
 
     queue->results[index]=result;
-
-    queue->scores[index]=score;
-
     queue->results[index]->queued=index;
    }
  else
     index=result->queued;
 
+ queue->results[index]->sortby=score;
+
  /* Bubble up the new value */
 
  while(index>1 &&
-       queue->scores[index]<queue->scores[index/2])
+       queue->results[index]->sortby<queue->results[index/2]->sortby)
    {
     int newindex;
-    Result *rtemp;
-    score_t stemp;
+    Result *temp;
 
     newindex=index/2;
 
-    rtemp=queue->results[index];
+    temp=queue->results[index];
     queue->results[index]=queue->results[newindex];
-    queue->results[newindex]=rtemp;
-
-    stemp=queue->scores[index];
-    queue->scores[index]=queue->scores[newindex];
-    queue->scores[newindex]=stemp;
+    queue->results[newindex]=temp;
 
     queue->results[index]->queued=index;
     queue->results[newindex]->queued=newindex;
@@ -169,32 +159,26 @@ Result *PopFromQueue(Queue *queue)
  index=1;
 
  queue->results[index]=queue->results[queue->noccupied];
- queue->scores [index]=queue->scores [queue->noccupied];
 
  queue->noccupied--;
 
  /* Bubble down the newly promoted value */
 
  while((2*index)<queue->noccupied &&
-       (queue->scores[index]>queue->scores[2*index  ] ||
-        queue->scores[index]>queue->scores[2*index+1]))
+       (queue->results[index]->sortby>queue->results[2*index  ]->sortby ||
+        queue->results[index]->sortby>queue->results[2*index+1]->sortby))
    {
     int newindex;
-    Result *rtemp;
-    score_t stemp;
+    Result *temp;
 
-    if(queue->scores[2*index]<queue->scores[2*index+1])
+    if(queue->results[2*index]->sortby<queue->results[2*index+1]->sortby)
        newindex=2*index;
     else
        newindex=2*index+1;
 
-    rtemp=queue->results[newindex];
+    temp=queue->results[newindex];
     queue->results[newindex]=queue->results[index];
-    queue->results[index]=rtemp;
-
-    stemp=queue->scores[newindex];
-    queue->scores[newindex]=queue->scores[index];
-    queue->scores[index]=stemp;
+    queue->results[index]=temp;
 
     queue->results[index]->queued=index;
     queue->results[newindex]->queued=newindex;
@@ -203,21 +187,16 @@ Result *PopFromQueue(Queue *queue)
    }
 
  if((2*index)==queue->noccupied &&
-    queue->scores[index]>queue->scores[2*index])
+    queue->results[index]->sortby>queue->results[2*index]->sortby)
    {
     int newindex;
-    Result *rtemp;
-    score_t stemp;
+    Result *temp;
 
     newindex=2*index;
 
-    rtemp=queue->results[newindex];
+    temp=queue->results[newindex];
     queue->results[newindex]=queue->results[index];
-    queue->results[index]=rtemp;
-
-    stemp=queue->scores[newindex];
-    queue->scores[newindex]=queue->scores[index];
-    queue->scores[index]=stemp;
+    queue->results[index]=temp;
 
     queue->results[index]->queued=index;
     queue->results[newindex]->queued=newindex;
