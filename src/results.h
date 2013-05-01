@@ -48,7 +48,6 @@ struct _Result
  Result   *next;                /*+ The next result following the best path from this node that was reached via the segment. +*/
 
  score_t   score;               /*+ The best actual weighted distance or duration score from the start to the node. +*/
- score_t   sortby;              /*+ The best possible weighted distance or duration score from the start to the finish. +*/
 
  uint32_t  queued;              /*+ The position of this result in the queue. +*/
 
@@ -105,10 +104,10 @@ Result *NextResult(Results *results,Result *result);
 
 /* Queue functions in queue.c */
 
-Queue *NewQueueList(void);
+Queue *NewQueueList(uint8_t log2bins);
 void FreeQueueList(Queue *queue);
 
-void InsertInQueue(Queue *queue,Result *result);
+void InsertInQueue(Queue *queue,Result *result,score_t score);
 Result *PopFromQueue(Queue *queue);
 
 

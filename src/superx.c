@@ -464,12 +464,11 @@ static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx
  /* Insert the first node into the queue */
 
  results=NewResultsList(8);
-
- queue=NewQueueList();
+ queue=NewQueueList(8);
 
  result1=InsertResult(results,start,NO_SEGMENT);
 
- InsertInQueue(queue,result1);
+ InsertInQueue(queue,result1,0);
 
  /* Loop across all nodes in the queue */
 
@@ -521,21 +520,19 @@ static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx
           result2=InsertResult(results,node2,seg2);
           result2->prev=result1;
           result2->score=cumulative_distance;
-          result2->sortby=cumulative_distance;
 
           /* don't route beyond a super-node. */
           if(!IsBitSet(nodesx->super,node2))
-             InsertInQueue(queue,result2);
+             InsertInQueue(queue,result2,cumulative_distance);
          }
        else if(cumulative_distance<result2->score)
          {
           result2->prev=result1;
           result2->score=cumulative_distance;
-          result2->sortby=cumulative_distance;
 
           /* don't route beyond a super-node. */
           if(!IsBitSet(nodesx->super,node2))
-             InsertInQueue(queue,result2);
+             InsertInQueue(queue,result2,cumulative_distance);
          }
 
       endloop:
