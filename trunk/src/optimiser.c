@@ -100,14 +100,14 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  /* Create the list of results and insert the first node into the queue */
 
  results=NewResultsList(8);
- queue=NewQueueList();
+ queue=NewQueueList(8);
 
  results->start_node=start_node;
  results->prev_segment=prev_segment;
 
  result1=InsertResult(results,results->start_node,results->prev_segment);
 
- InsertInQueue(queue,result1);
+ InsertInQueue(queue,result1,0);
 
  /* Check for barrier at start waypoint - must perform U-turn */
 
@@ -278,10 +278,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           finish_result=result2;
          }
        else
-         {
-          result2->sortby=result2->score;
-          InsertInQueue(queue,result2);
-         }
+          InsertInQueue(queue,result2,result2->score);
 
       endloop:
 
@@ -382,7 +379,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  /* Create the list of results and insert the first node into the queue */
 
  results=NewResultsList(20);
- queue=NewQueueList();
+ queue=NewQueueList(12);
 
  results->start_node=begin->start_node;
  results->prev_segment=begin->prev_segment;
@@ -427,9 +424,8 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           result2->prev=result5;
 
           result2->score=result3->score;
-          result2->sortby=result3->score;
 
-          InsertInQueue(queue,result2);
+          InsertInQueue(queue,result2,result3->score);
 
           if((result4=FindResult(end,result2->node,result2->segment)))
             {
@@ -446,7 +442,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    }
 
  if(begin->number==1)
-    InsertInQueue(queue,result1);
+    InsertInQueue(queue,result1,0);
 
  /* Check for barrier at start waypoint - must perform U-turn */
 
@@ -599,18 +595,19 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          {
           double lat,lon;
           distance_t direct;
+          score_t potential_score;
 
           GetLatLong(nodes,node2,&lat,&lon); /* node2 cannot be a fake node (must be a super-node) */
 
           direct=Distance(lat,lon,finish_lat,finish_lon);
 
           if(option_quickest==0)
-             result2->sortby=result2->score+(score_t)direct/profile->max_pref;
+             potential_score=result2->score+(score_t)direct/profile->max_pref;
           else
-             result2->sortby=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
+             potential_score=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-          if(result2->sortby<finish_score)
-             InsertInQueue(queue,result2);
+          if(potential_score<finish_score)
+             InsertInQueue(queue,result2,potential_score);
          }
 
 #if !DEBUG
@@ -774,14 +771,14 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
  /* Create the list of results and insert the first node into the queue */
 
  results=NewResultsList(8);
- queue=NewQueueList();
+ queue=NewQueueList(8);
 
  results->start_node=start_node;
  results->prev_segment=NO_SEGMENT;
 
  result1=InsertResult(results,results->start_node,results->prev_segment);
 
- InsertInQueue(queue,result1);
+ InsertInQueue(queue,result1,0);
 
  /* Loop across all nodes in the queue */
 
@@ -838,20 +835,18 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
           result2=InsertResult(results,node2,seg2);
           result2->prev=result1;
           result2->score=cumulative_score;
-          result2->sortby=result2->score;
          }
        else if(cumulative_score<result2->score) /* New score for end node/segment combination is better */
          {
           result2->prev=result1;
           result2->segment=seg2;
           result2->score=cumulative_score;
-          result2->sortby=result2->score;
          }
        else goto endloop;
 
        /* don't route beyond a super-node. */
        if(!IsSuperNode(node2p))
-          InsertInQueue(queue,result2);
+          InsertInQueue(queue,result2,result2->score);
 
       endloop:
 
@@ -912,14 +907,14 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  /* Create the list of results and insert the first node into the queue */
 
  results=NewResultsList(8);
- queue=NewQueueList();
+ queue=NewQueueList(8);
 
  results->start_node=start_node;
  results->prev_segment=prev_segment;
 
  result1=InsertResult(results,results->start_node,results->prev_segment);
 
- InsertInQueue(queue,result1);
+ InsertInQueue(queue,result1,0);
 
  /* Check for barrier at start waypoint - must perform U-turn */
 
@@ -1090,10 +1085,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        if(node2p && !IsSuperNode(node2p))
-         {
-          result2->sortby=result2->score;
-          InsertInQueue(queue,result2);
-         }
+          InsertInQueue(queue,result2,result2->score);
 
       endloop:
 
@@ -1205,7 +1197,7 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
 
  /* Check the list of results and insert the super nodes into the queue */
 
- queue=NewQueueList();
+ queue=NewQueueList(8);
 
  result3=FirstResult(begin);
 
@@ -1220,7 +1212,7 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
 
     if(!IsFakeNode(result3->node))
        if(IsSuperNode(LookupNode(nodes,result3->node,5)))
-          InsertInQueue(queue,result3);
+          InsertInQueue(queue,result3,result3->score);
 
     result3=NextResult(results,result3);
    }
@@ -1375,10 +1367,7 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
             }
          }
        else
-         {
-          result2->sortby=result2->score;
-          InsertInQueue(queue,result2);
-         }
+          InsertInQueue(queue,result2,result2->score);
 
       endloop:
 
@@ -1446,13 +1435,13 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
  /* Create the results and insert the finish node into the queue */
 
  results=NewResultsList(8);
- queue=NewQueueList();
+ queue=NewQueueList(8);
 
  results->finish_node=finish_node;
 
  result1=InsertResult(results,finish_node,NO_SEGMENT);
 
- InsertInQueue(queue,result1);
+ InsertInQueue(queue,result1,0);
 
  /* Loop across all nodes in the queue */
 
@@ -1597,10 +1586,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           goto endloop;
 
        if(IsFakeNode(node1) || !IsSuperNode(node1p))
-         {
-          result2->sortby=result2->score;
-          InsertInQueue(queue,result2);
-         }
+          InsertInQueue(queue,result2,result2->score);
 
       endloop:
 

@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -26,17 +26,15 @@
 #include "results.h"
 
 
-/*+ The size of the increment to the allocated memory. +*/
-#define QUEUE_INCREMENT 1024
-
-
 /*+ A queue of results. +*/
 struct _Queue
 {
+ int      nincrement;           /*+ The amount to increment the queue when full. +*/
  int      nallocated;           /*+ The number of entries allocated. +*/
  int      noccupied;            /*+ The number of entries occupied. +*/
 
- Result **data;                 /*+ The queue of pointers to results. +*/
+ Result **results;              /*+ The queue of pointers to results. +*/
+ score_t *scores;               /*+ The queue of scores. +*/
 };
 
 
@@ -44,18 +42,23 @@ struct _Queue
   Allocate a new queue.
 
   Queue *NewQueueList Returns the queue.
+
+  uint8_t log2bins The base 2 logarithm of the initial number of bins in the queue.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Queue *NewQueueList(void)
+Queue *NewQueueList(uint8_t log2bins)
 {
  Queue *queue;
 
  queue=(Queue*)malloc(sizeof(Queue));
 
- queue->nallocated=QUEUE_INCREMENT;
+ queue->nincrement=1<<log2bins;
+
+ queue->nallocated=queue->nincrement;
  queue->noccupied=0;
 
- queue->data=(Result**)malloc(queue->nallocated*sizeof(Result*));
+ queue->results=(Result**)malloc(queue->nallocated*sizeof(Result*));
+ queue->scores =(score_t*)malloc(queue->nallocated*sizeof(score_t));
 
  return(queue);
 }
@@ -69,7 +72,8 @@ Queue *NewQueueList(void)
 
 void FreeQueueList(Queue *queue)
 {
- free(queue->data);
+ free(queue->results);
+ free(queue->scores);
 
  free(queue);
 }
@@ -84,9 +88,11 @@ void FreeQueueList(Queue *queue)
   Queue *queue The queue to insert the result into.
 
   Result *result The result to insert into the queue.
+
+  score_t score The score to use for sorting the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void InsertInQueue(Queue *queue,Result *result)
+void InsertInQueue(Queue *queue,Result *result,score_t score)
 {
  int index;
 
@@ -97,34 +103,41 @@ void InsertInQueue(Queue *queue,Result *result)
 
     if(queue->noccupied==queue->nallocated)
       {
-       queue->nallocated=queue->nallocated+QUEUE_INCREMENT;
-       queue->data=(Result**)realloc((void*)queue->data,queue->nallocated*sizeof(Result*));
+       queue->nallocated=queue->nallocated+queue->nincrement;
+       queue->results=(Result**)realloc((void*)queue->results,queue->nallocated*sizeof(Result*));
+       queue->scores=(score_t*)realloc((void*)queue->scores,queue->nallocated*sizeof(score_t));
       }
 
-    queue->data[index]=result;
-    queue->data[index]->queued=index;
+    queue->results[index]=result;
+
+    queue->scores[index]=score;
+
+    queue->results[index]->queued=index;
    }
  else
-   {
     index=result->queued;
-   }
 
  /* Bubble up the new value */
 
  while(index>1 &&
-       queue->data[index]->sortby<queue->data[index/2]->sortby)
+       queue->scores[index]<queue->scores[index/2])
    {
     int newindex;
-    Result *temp;
+    Result *rtemp;
+    score_t stemp;
 
     newindex=index/2;
 
-    temp=queue->data[index];
-    queue->data[index]=queue->data[newindex];
-    queue->data[newindex]=temp;
+    rtemp=queue->results[index];
+    queue->results[index]=queue->results[newindex];
+    queue->results[newindex]=rtemp;
 
-    queue->data[index]->queued=index;
-    queue->data[newindex]->queued=newindex;
+    stemp=queue->scores[index];
+    queue->scores[index]=queue->scores[newindex];
+    queue->scores[newindex]=stemp;
+
+    queue->results[index]->queued=index;
+    queue->results[newindex]->queued=newindex;
 
     index=newindex;
    }
@@ -150,52 +163,64 @@ Result *PopFromQueue(Queue *queue)
  if(queue->noccupied==0)
     return(NULL);
 
- retval=queue->data[1];
+ retval=queue->results[1];
  retval->queued=NOT_QUEUED;
 
  index=1;
 
- queue->data[index]=queue->data[queue->noccupied];
+ queue->results[index]=queue->results[queue->noccupied];
+ queue->scores [index]=queue->scores [queue->noccupied];
+
  queue->noccupied--;
 
  /* Bubble down the newly promoted value */
 
  while((2*index)<queue->noccupied &&
-       (queue->data[index]->sortby>queue->data[2*index  ]->sortby ||
-        queue->data[index]->sortby>queue->data[2*index+1]->sortby))
+       (queue->scores[index]>queue->scores[2*index  ] ||
+        queue->scores[index]>queue->scores[2*index+1]))
    {
     int newindex;
-    Result *temp;
+    Result *rtemp;
+    score_t stemp;
 
-    if(queue->data[2*index]->sortby<queue->data[2*index+1]->sortby)
+    if(queue->scores[2*index]<queue->scores[2*index+1])
        newindex=2*index;
     else
        newindex=2*index+1;
 
-    temp=queue->data[newindex];
-    queue->data[newindex]=queue->data[index];
-    queue->data[index]=temp;
+    rtemp=queue->results[newindex];
+    queue->results[newindex]=queue->results[index];
+    queue->results[index]=rtemp;
 
-    queue->data[index]->queued=index;
-    queue->data[newindex]->queued=newindex;
+    stemp=queue->scores[newindex];
+    queue->scores[newindex]=queue->scores[index];
+    queue->scores[index]=stemp;
+
+    queue->results[index]->queued=index;
+    queue->results[newindex]->queued=newindex;
 
     index=newindex;
    }
 
  if((2*index)==queue->noccupied &&
-    queue->data[index]->sortby>queue->data[2*index]->sortby)
+    queue->scores[index]>queue->scores[2*index])
    {
     int newindex;
-    Result *temp;
+    Result *rtemp;
+    score_t stemp;
 
     newindex=2*index;
 
-    temp=queue->data[newindex];
-    queue->data[newindex]=queue->data[index];
-    queue->data[index]=temp;
+    rtemp=queue->results[newindex];
+    queue->results[newindex]=queue->results[index];
+    queue->results[index]=rtemp;
 
-    queue->data[index]->queued=index;
-    queue->data[newindex]->queued=newindex;
+    stemp=queue->scores[newindex];
+    queue->scores[newindex]=queue->scores[index];
+    queue->scores[index]=stemp;
+
+    queue->results[index]->queued=index;
+    queue->results[newindex]->queued=newindex;
    }
 
  return(retval);
