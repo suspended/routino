@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -102,7 +102,7 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
                            distance_t distance,Profile *profile, distance_t *bestdist,
                            index_t *bestnode1,index_t *bestnode2,distance_t *bestdist1,distance_t *bestdist2);
 
-void GetLatLong(Nodes *nodes,index_t index,double *latitude,double *longitude);
+void GetLatLong(Nodes *nodes,index_t index,Node *nodep,double *latitude,double *longitude);
 
 
 /* Macros and inline functions */

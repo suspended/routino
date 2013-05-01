@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -346,7 +346,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        if(IsFakeNode(result->node))
           GetFakeLatLong(result->node,&latitude,&longitude);
        else
-          GetLatLong(nodes,result->node,&latitude,&longitude);
+          GetLatLong(nodes,result->node,NULL,&latitude,&longitude);
 
        if(!IsFakeNode(result->node))
           resultnodep=LookupNode(nodes,result->node,6);

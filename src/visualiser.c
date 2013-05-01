@@ -227,7 +227,7 @@ static void output_super(index_t node,double latitude,double longitude)
        index_t othernode=OtherNode(segmentp,node);
        double lat,lon;
 
-       GetLatLong(OSMNodes,othernode,&lat,&lon);
+       GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
        if(node>othernode || (lat<LatMin || lat>LatMax || lon<LonMin || lon>LonMax))
           printf("%.6f %.6f s\n",radians_to_degrees(lat),radians_to_degrees(lon));
@@ -306,7 +306,7 @@ static void output_oneway(index_t node,double latitude,double longitude)
          {
           double lat,lon;
 
-          GetLatLong(OSMNodes,othernode,&lat,&lon);
+          GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
           if(IsOnewayFrom(segmentp,node))
              printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
@@ -396,7 +396,7 @@ static void output_highway(index_t node,double latitude,double longitude)
             {
              double lat,lon;
 
-             GetLatLong(OSMNodes,othernode,&lat,&lon);
+             GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
              printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
             }
@@ -484,7 +484,7 @@ static void output_transport(index_t node,double latitude,double longitude)
             {
              double lat,lon;
 
-             GetLatLong(OSMNodes,othernode,&lat,&lon);
+             GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
              printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
             }
@@ -633,10 +633,10 @@ static void output_turnrestriction(index_t node,double latitude,double longitude
     to_segmentp  =LookupSegment(OSMSegments,relation->to  ,2);
 
     from_node=OtherNode(from_segmentp,node);
-    to_node=OtherNode(to_segmentp,node);
+    to_node  =OtherNode(to_segmentp  ,node);
 
-    GetLatLong(OSMNodes,from_node,&from_lat,&from_lon);
-    GetLatLong(OSMNodes,to_node,&to_lat,&to_lon);
+    GetLatLong(OSMNodes,from_node,NULL,&from_lat,&from_lon);
+    GetLatLong(OSMNodes,to_node  ,NULL,&to_lat  ,&to_lon);
 
     printf("%.6f %.6f %.6f %.6f %.6f %.6f\n",radians_to_degrees(from_lat),radians_to_degrees(from_lon),
                                              radians_to_degrees(latitude),radians_to_degrees(longitude),
@@ -933,7 +933,7 @@ static void output_limits(index_t node,double latitude,double longitude)
       {
        double lat,lon;
 
-       GetLatLong(OSMNodes,OtherNode(&segmentps[i],node),&lat,&lon);
+       GetLatLong(OSMNodes,OtherNode(&segmentps[i],node),NULL,&lat,&lon);
 
        switch(limit_type)
          {
@@ -1033,7 +1033,7 @@ static void output_property(index_t node,double latitude,double longitude)
             {
              double lat,lon;
 
-             GetLatLong(OSMNodes,othernode,&lat,&lon);
+             GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
              printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
             }

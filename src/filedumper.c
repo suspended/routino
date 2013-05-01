@@ -385,7 +385,7 @@ static void print_node(Nodes *nodes,index_t item)
  Node *nodep=LookupNode(nodes,item,1);
  double latitude,longitude;
 
- GetLatLong(nodes,item,&latitude,&longitude);
+ GetLatLong(nodes,item,nodep,&latitude,&longitude);
 
  printf("Node %"Pindex_t"\n",item);
  printf("  firstseg=%"Pindex_t"\n",nodep->firstseg);
@@ -604,7 +604,7 @@ static void print_region_osm(Nodes *nodes,Segments *segments,Ways *ways,Relation
                 double olat,olon;
                 index_t oitem=OtherNode(segmentp,item);
 
-                GetLatLong(nodes,oitem,&olat,&olon);
+                GetLatLong(nodes,oitem,NULL,&olat,&olon);
 
                 if(olat>latmin && olat<latmax && olon>lonmin && olon<lonmax)
                    if(item>oitem)
@@ -645,7 +645,7 @@ static void print_node_osm(Nodes *nodes,index_t item)
  double latitude,longitude;
  int i;
 
- GetLatLong(nodes,item,&latitude,&longitude);
+ GetLatLong(nodes,item,nodep,&latitude,&longitude);
 
  if(nodep->allow==Transports_ALL && nodep->flags==0)
     printf("  <node id='%lu' lat='%.7f' lon='%.7f' version='1' />\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
