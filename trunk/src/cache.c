@@ -20,6 +20,9 @@
  ***************************************/
 
 
+#if SLIM
+
+#include <unistd.h>
 #include <stdlib.h>
 
 #include "types.h"
@@ -31,300 +34,130 @@
 #include "cache.h"
 
 
-#if SLIM
+#define CACHEWIDTH 2048         /*+ The width of the cache. +*/
+#define CACHEDEPTH   16         /*+ The depth of the cache. +*/
 
 
-#define CACHEWIDTH 2048
-#define CACHEDEPTH   16
-
-
-/*+ A cache of Nodes. +*/
-struct _NodeCache
-{
- int     first  [CACHEWIDTH];             /*+ The first entry to fill +*/
-
- Node    data   [CACHEWIDTH][CACHEDEPTH]; /*+ The array of nodes. +*/
- index_t indices[CACHEWIDTH][CACHEDEPTH]; /*+ The array of indexes. +*/
-
- index_t accesses;
- index_t cached;
-};
-
-/*+ A cache of Segments. +*/
-struct _SegmentCache
-{
- int     first  [CACHEWIDTH];             /*+ The first entry to fill +*/
-
- Segment data   [CACHEWIDTH][CACHEDEPTH]; /*+ The array of segments. +*/
- index_t indices[CACHEWIDTH][CACHEDEPTH]; /*+ The array of indexes. +*/
-
- index_t accesses;
- index_t cached;
-};
-
-/*+ A cache of Ways. +*/
-struct _WayCache
-{
- int     first  [CACHEWIDTH];             /*+ The first entry to fill +*/
-
- Way     data   [CACHEWIDTH][CACHEDEPTH]; /*+ The array of ways. +*/
- index_t indices[CACHEWIDTH][CACHEDEPTH]; /*+ The array of indexes. +*/
-
- index_t accesses;
- index_t cached;
-};
-
-/*+ A cache of Turn Relations. +*/
-struct _TurnRelationCache
-{
- int     first  [CACHEWIDTH];             /*+ The first entry to fill +*/
-
- TurnRelation data   [CACHEWIDTH][CACHEDEPTH]; /*+ The array of turn relations. +*/
- index_t      indices[CACHEWIDTH][CACHEDEPTH]; /*+ The array of indexes. +*/
-
- index_t accesses;
- index_t cached;
+/*+ A macro to create a cache structure. +*/
+#define CACHE_STRUCTURE(type) \
+                              \
+struct _##type##Cache                                                     \
+{                                                                         \
+ int     first  [CACHEWIDTH];             /*+ The first entry to fill +*/ \
+                                                                          \
+ type    data   [CACHEWIDTH][CACHEDEPTH]; /*+ The array of type##s. +*/   \
+ index_t indices[CACHEWIDTH][CACHEDEPTH]; /*+ The array of indexes. +*/   \
+                                                                          \
+ index_t accesses;                                                        \
+ index_t cached;                                                          \
 };
 
 
-
-NodeCache *NewNodeCache(void)
-{
- NodeCache *cache;
-
- cache=(NodeCache*)malloc(sizeof(NodeCache));
-
- InvalidateNodeCache(cache);
-
- return(cache);
+/*+ A macro to create a function that creates a new cache data structure. +*/
+#define CACHE_NEWCACHE(type) \
+                             \
+type##Cache *New##type##Cache(void)                     \
+{                                                       \
+ type##Cache *cache;                                    \
+                                                        \
+ cache=(type##Cache*)malloc(sizeof(type##Cache));       \
+                                                        \
+ Invalidate##type##Cache(cache);                        \
+                                                        \
+ return(cache);                                         \
 }
 
 
-void DeleteNodeCache(NodeCache *cache)
-{
- printf("DeleteNodeCache access=%ld cached=%ld hit-rate=%.1f%%\n",cache->accesses,cache->cached,100*(double)cache->cached/(double)cache->accesses);
-
- free(cache);
+/*+ A macro to create a function that deletes a cache data structure. +*/
+#define CACHE_DELETECACHE(type) \
+                                \
+void Delete##type##Cache(type##Cache *cache)      \
+{                                                 \
+ printf("Delete" #type "Cache access=%ld cached=%ld hit-rate=%.1f%%\n",cache->accesses,cache->cached,100*(double)cache->cached/(double)cache->accesses); \
+                                                  \
+ free(cache);                                     \
 }
 
 
-Node *FetchCachedNode(Nodes *nodes,index_t index)
-{
- int row=index%CACHEWIDTH;
- int col;
-
- nodes->cache->accesses++;
-
- for(col=0;col<CACHEDEPTH;col++)
-    if(nodes->cache->indices[row][col]==index)
-      {
-       nodes->cache->cached++;
-       return(&nodes->cache->data[row][col]);
-      }
-
- col=nodes->cache->first[row];
-
- nodes->cache->first[row]=(nodes->cache->first[row]+1)%CACHEDEPTH;
-
- SeekReadFile(nodes->fd,&nodes->cache->data[row][col],sizeof(Node),nodes->nodesoffset+(off_t)index*sizeof(Node));
-
- nodes->cache->indices[row][col]=index;
-
- return(&nodes->cache->data[row][col]);
+/*+ A macro to create a function that fetches an item from a cache data structure. +*/
+#define CACHE_FETCHCACHE(type) \
+                               \
+type *FetchCached##type(type##Cache *cache,index_t index,int fd,off_t offset) \
+{                                                                       \
+ int row=index%CACHEWIDTH;                                              \
+ int col;                                                               \
+                                                                        \
+ cache->accesses++;                                                     \
+                                                                        \
+ for(col=0;col<CACHEDEPTH;col++)                                        \
+    if(cache->indices[row][col]==index)                                 \
+      {                                                                 \
+       cache->cached++;                                                 \
+       return(&cache->data[row][col]);                                  \
+      }                                                                 \
+                                                                        \
+ col=cache->first[row];                                                 \
+                                                                        \
+ cache->first[row]=(cache->first[row]+1)%CACHEDEPTH;                    \
+                                                                        \
+ SeekReadFile(fd,&cache->data[row][col],sizeof(type),offset+(off_t)index*sizeof(type)); \
+                                                                        \
+ cache->indices[row][col]=index;                                        \
+                                                                        \
+ return(&cache->data[row][col]);                                        \
 }
 
 
-void InvalidateNodeCache(NodeCache *cache)
-{
- int row,col;
-
- for(row=0;row<CACHEWIDTH;row++)
-   {
-    cache->first[row]=0;
-
-    for(col=0;col<CACHEDEPTH;col++)
-       cache->indices[row][col]=NO_NODE;
-   }
+/*+ A macro to create a function that invalidates the contents of a cache data structure. +*/
+#define CACHE_INVALIDATECACHE(type) \
+                                    \
+void Invalidate##type##Cache(type##Cache *cache)       \
+{                                                      \
+ int row,col;                                          \
+                                                       \
+ for(row=0;row<CACHEWIDTH;row++)                       \
+   {                                                   \
+    cache->first[row]=0;                               \
+                                                       \
+    for(col=0;col<CACHEDEPTH;col++)                    \
+       cache->indices[row][col]=NO_NODE;               \
+   }                                                   \
 }
 
 
-SegmentCache *NewSegmentCache(void)
-{
- SegmentCache *cache;
-
- cache=(SegmentCache*)malloc(sizeof(SegmentCache));
-
- InvalidateSegmentCache(cache);
-
- return(cache);
-}
+/*+ Data structures to hold caches. +*/
+CACHE_STRUCTURE(Node)
+CACHE_STRUCTURE(Segment)
+CACHE_STRUCTURE(Way)
+CACHE_STRUCTURE(TurnRelation)
 
 
-void DeleteSegmentCache(SegmentCache *cache)
-{
- printf("DeleteSegmentCache access=%ld cached=%ld hit-rate=%.1f%%\n",cache->accesses,cache->cached,100*(double)cache->cached/(double)cache->accesses);
-
- free(cache);
-}
-
-
-Segment *FetchCachedSegment(Segments *segments,index_t index)
-{
- int row=index%CACHEWIDTH;
- int col;
-
- segments->cache->accesses++;
-
- for(col=0;col<CACHEDEPTH;col++)
-    if(segments->cache->indices[row][col]==index)
-      {
-       segments->cache->cached++;
-       return(&segments->cache->data[row][col]);
-      }
-
- col=segments->cache->first[row];
-
- segments->cache->first[row]=(segments->cache->first[row]+1)%CACHEDEPTH;
-
- SeekReadFile(segments->fd,&segments->cache->data[row][col],sizeof(Segment),sizeof(SegmentsFile)+(off_t)index*sizeof(Segment));
-
- segments->cache->indices[row][col]=index;
-
- return(&segments->cache->data[row][col]);
-}
+/*+ Functions to create a new cache data structure. +*/
+CACHE_NEWCACHE(Node)
+CACHE_NEWCACHE(Segment)
+CACHE_NEWCACHE(Way)
+CACHE_NEWCACHE(TurnRelation)
 
 
-void InvalidateSegmentCache(SegmentCache *cache)
-{
- int row,col;
-
- for(row=0;row<CACHEWIDTH;row++)
-   {
-    cache->first[row]=0;
-
-    for(col=0;col<CACHEDEPTH;col++)
-       cache->indices[row][col]=NO_SEGMENT;
-   }
-}
+/*+ Functions to delete a cache data structure. +*/
+CACHE_DELETECACHE(Node)
+CACHE_DELETECACHE(Segment)
+CACHE_DELETECACHE(Way)
+CACHE_DELETECACHE(TurnRelation)
 
 
-WayCache *NewWayCache(void)
-{
- WayCache *cache;
-
- cache=(WayCache*)malloc(sizeof(WayCache));
-
- InvalidateWayCache(cache);
-
- return(cache);
-}
+/*+ Functions to fetch an item from a cache data structure. +*/
+CACHE_FETCHCACHE(Node)
+CACHE_FETCHCACHE(Segment)
+CACHE_FETCHCACHE(Way)
+CACHE_FETCHCACHE(TurnRelation)
 
 
-void DeleteWayCache(WayCache *cache)
-{
- printf("DeleteWayCache access=%ld cached=%ld hit-rate=%.1f%%\n",cache->accesses,cache->cached,100*(double)cache->cached/(double)cache->accesses);
+/*+ Functions to invalidate the contents of a cache data structure. +*/
+CACHE_INVALIDATECACHE(Node)
+CACHE_INVALIDATECACHE(Segment)
+CACHE_INVALIDATECACHE(Way)
+CACHE_INVALIDATECACHE(TurnRelation)
 
- free(cache);
-}
-
-
-Way *FetchCachedWay(Ways *ways,index_t index)
-{
- int row=index%CACHEWIDTH;
- int col;
-
- ways->cache->accesses++;
-
- for(col=0;col<CACHEDEPTH;col++)
-    if(ways->cache->indices[row][col]==index)
-      {
-       ways->cache->cached++;
-       return(&ways->cache->data[row][col]);
-      }
-
- col=ways->cache->first[row];
-
- ways->cache->first[row]=(ways->cache->first[row]+1)%CACHEDEPTH;
-
- SeekReadFile(ways->fd,&ways->cache->data[row][col],sizeof(Way),sizeof(WaysFile)+(off_t)index*sizeof(Way));
-
- ways->cache->indices[row][col]=index;
-
- return(&ways->cache->data[row][col]);
-}
-
-
-void InvalidateWayCache(WayCache *cache)
-{
- int row,col;
-
- for(row=0;row<CACHEWIDTH;row++)
-   {
-    cache->first[row]=0;
-
-    for(col=0;col<CACHEDEPTH;col++)
-       cache->indices[row][col]=NO_WAY;
-   }
-}
-
-
-TurnRelationCache *NewTurnRelationCache(void)
-{
- TurnRelationCache *cache;
-
- cache=(TurnRelationCache*)malloc(sizeof(TurnRelationCache));
-
- InvalidateTurnRelationCache(cache);
-
- return(cache);
-}
-
-
-void DeleteTurnRelationCache(TurnRelationCache *cache)
-{
- printf("DeleteTurnRelationCache access=%ld cached=%ld hit-rate=%.1f%%\n",cache->accesses,cache->cached,100*(double)cache->cached/(double)cache->accesses);
-
- free(cache);
-}
-
-
-TurnRelation *FetchCachedTurnRelation(Relations *relations,index_t index)
-{
- int row=index%CACHEWIDTH;
- int col;
-
- relations->cache->accesses++;
-
- for(col=0;col<CACHEDEPTH;col++)
-    if(relations->cache->indices[row][col]==index)
-      {
-       relations->cache->cached++;
-       return(&relations->cache->data[row][col]);
-      }
-
- col=relations->cache->first[row];
-
- relations->cache->first[row]=(relations->cache->first[row]+1)%CACHEDEPTH;
-
- SeekReadFile(relations->fd,&relations->cache->data[row][col],sizeof(TurnRelation),relations->troffset+(off_t)index*sizeof(TurnRelation));
-
- relations->cache->indices[row][col]=index;
-
- return(&relations->cache->data[row][col]);
-}
-
-
-void InvalidateTurnRelationCache(TurnRelationCache *cache)
-{
- int row,col;
-
- for(row=0;row<CACHEWIDTH;row++)
-   {
-    cache->first[row]=0;
-
-    for(col=0;col<CACHEDEPTH;col++)
-       cache->indices[row][col]=NO_RELATION;
-   }
-}
 
 #endif

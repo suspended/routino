@@ -184,7 +184,7 @@ static index_t IndexSegment(Segments *segments,Segment *segmentp);
 
 static inline Segment *LookupSegment(Segments *segments,index_t index,int position)
 {
- segments->cached[position-1]=*FetchCachedSegment(segments,index);
+ segments->cached[position-1]=*FetchCachedSegment(segments->cache,index,segments->fd,sizeof(SegmentsFile));
 
  segments->incache[position-1]=index;
 

@@ -122,7 +122,7 @@ static TurnRelation *LookupTurnRelation(Relations *relations,index_t index,int p
 
 static inline TurnRelation *LookupTurnRelation(Relations *relations,index_t index,int position)
 {
- relations->cached[position-1]=*FetchCachedTurnRelation(relations,index);
+ relations->cached[position-1]=*FetchCachedTurnRelation(relations->cache,index,relations->fd,relations->troffset);
 
  return(&relations->cached[position-1]);
 }
