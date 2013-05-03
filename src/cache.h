@@ -20,54 +20,63 @@
  ***************************************/
 
 
+#if SLIM
+
 #ifndef CACHE_H
 #define CACHE_H    /*+ To stop multiple inclusions. +*/
+
+#include <unistd.h>
 
 #include "types.h"
 
 
-/* Node cache */
+#define CACHE_STRUCTURE_DEF(type) typedef struct _##type##Cache type##Cache;
 
-typedef struct _NodeCache NodeCache;
-typedef struct _SegmentCache SegmentCache;
-typedef struct _WayCache WayCache;
-typedef struct _TurnRelationCache TurnRelationCache;
+#define CACHE_NEWCACHE_PROTO(type) type##Cache *New##type##Cache(void);
 
+#define CACHE_DELETECACHE_PROTO(type) void Delete##type##Cache(type##Cache *cache);
 
-NodeCache *NewNodeCache(void);
+#define CACHE_FETCHCACHE_PROTO(type) type *FetchCached##type(type##Cache *cache,index_t index,int fd,off_t offset);
 
-void DeleteNodeCache(NodeCache *cache);
-
-Node *FetchCachedNode(Nodes *nodes,index_t id);
-
-void InvalidateNodeCache(NodeCache *cache);
+#define CACHE_INVALIDATECACHE_PROTO(type) void Invalidate##type##Cache(type##Cache *cache);
 
 
-SegmentCache *NewSegmentCache(void);
 
-void DeleteSegmentCache(SegmentCache *cache);
-
-Segment *FetchCachedSegment(Segments *nodes,index_t id);
-
-void InvalidateSegmentCache(SegmentCache *cache);
-
-
-WayCache *NewWayCache(void);
-
-void DeleteWayCache(WayCache *cache);
-
-Way *FetchCachedWay(Ways *nodes,index_t id);
-
-void InvalidateWayCache(WayCache *cache);
+/*+ Data structure definitions to hold caches. +*/
+CACHE_STRUCTURE_DEF(Node)
+CACHE_STRUCTURE_DEF(Segment)
+CACHE_STRUCTURE_DEF(Way)
+CACHE_STRUCTURE_DEF(TurnRelation)
 
 
-TurnRelationCache *NewTurnRelationCache(void);
+/*+ Function prototypes to create a new cache data structure. +*/
+CACHE_NEWCACHE_PROTO(Node)
+CACHE_NEWCACHE_PROTO(Segment)
+CACHE_NEWCACHE_PROTO(Way)
+CACHE_NEWCACHE_PROTO(TurnRelation)
 
-void DeleteTurnRelationCache(TurnRelationCache *cache);
 
-TurnRelation *FetchCachedTurnRelation(Relations *nodes,index_t id);
+/*+ Function prototypes to delete a cache data structure. +*/
+CACHE_DELETECACHE_PROTO(Node)
+CACHE_DELETECACHE_PROTO(Segment)
+CACHE_DELETECACHE_PROTO(Way)
+CACHE_DELETECACHE_PROTO(TurnRelation)
 
-void InvalidateTurnRelationCache(TurnRelationCache *cache);
+
+/*+ Function prototypes to fetch an item from a cache data structure. +*/
+CACHE_FETCHCACHE_PROTO(Node)
+CACHE_FETCHCACHE_PROTO(Segment)
+CACHE_FETCHCACHE_PROTO(Way)
+CACHE_FETCHCACHE_PROTO(TurnRelation)
+
+
+/*+ Function prototypes to invalidate the contents of a cache data structure. +*/
+CACHE_INVALIDATECACHE_PROTO(Node)
+CACHE_INVALIDATECACHE_PROTO(Segment)
+CACHE_INVALIDATECACHE_PROTO(Way)
+CACHE_INVALIDATECACHE_PROTO(TurnRelation)
 
 
 #endif /* CACHE_H */
+
+#endif  /* SLIM */

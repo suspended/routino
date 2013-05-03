@@ -132,7 +132,7 @@ static char *WayName(Ways *ways,Way *wayp);
 
 static inline Way *LookupWay(Ways *ways,index_t index,int position)
 {
- ways->cached[position-1]=*FetchCachedWay(ways,index);
+ ways->cached[position-1]=*FetchCachedWay(ways->cache,index,ways->fd,sizeof(WaysFile));
 
  return(&ways->cached[position-1]);
 }

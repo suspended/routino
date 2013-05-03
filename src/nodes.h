@@ -146,7 +146,7 @@ static Node *LookupNode(Nodes *nodes,index_t index,int position);
 
 static inline Node *LookupNode(Nodes *nodes,index_t index,int position)
 {
- nodes->cached[position-1]=*FetchCachedNode(nodes,index);
+ nodes->cached[position-1]=*FetchCachedNode(nodes->cache,index,nodes->fd,nodes->nodesoffset);
 
  return(&nodes->cached[position-1]);
 }
