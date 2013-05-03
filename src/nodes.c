@@ -28,6 +28,7 @@
 #include "segments.h"
 #include "ways.h"
 
+#include "cache.h"
 #include "files.h"
 #include "profiles.h"
 
@@ -50,7 +51,6 @@ Nodes *LoadNodeList(const char *filename)
  Nodes *nodes;
 #if SLIM
  size_t sizeoffsets;
- int i;
 #endif
 
  nodes=(Nodes*)malloc(sizeof(Nodes));
@@ -84,8 +84,7 @@ Nodes *LoadNodeList(const char *filename)
 
  nodes->nodesoffset=sizeof(NodesFile)+sizeoffsets;
 
- for(i=0;i<sizeof(nodes->cached)/sizeof(nodes->cached[0]);i++)
-    nodes->incache[i]=NO_NODE;
+ nodes->cache=NewNodeCache();
 
 #endif
 

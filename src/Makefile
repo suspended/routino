@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2012 Andrew M. Bishop
+# This file Copyright 2008-2013 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -121,7 +121,7 @@ router : $(ROUTER_OBJ)
 ROUTER_SLIM_OBJ=router-slim.o \
 	        nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes-slim.o \
 	        optimiser-slim.o output-slim.o \
-	        files.o logging.o profiles.o xmlparse.o \
+	        files.o logging.o profiles.o xmlparse.o cache-slim.o \
 	        results.o queue.o translations.o
 
 router-slim : $(ROUTER_SLIM_OBJ)
@@ -150,7 +150,7 @@ filedumper : $(FILEDUMPER_OBJ)
 FILEDUMPER_SLIM_OBJ=filedumper-slim.o \
 	       nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes-slim.o \
                visualiser-slim.o \
-	       files.o logging.o xmlparse.o
+	       files.o logging.o xmlparse.o cache-slim.o
 
 filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
 	$(LD) $(FILEDUMPER_SLIM_OBJ) -o $@ $(LDFLAGS)

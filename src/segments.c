@@ -28,6 +28,7 @@
 #include "segments.h"
 #include "ways.h"
 
+#include "cache.h"
 #include "fakes.h"
 #include "files.h"
 #include "profiles.h"
@@ -44,9 +45,6 @@
 Segments *LoadSegmentList(const char *filename)
 {
  Segments *segments;
-#if SLIM
- int i;
-#endif
 
  segments=(Segments*)malloc(sizeof(Segments));
 
@@ -70,8 +68,7 @@ Segments *LoadSegmentList(const char *filename)
 
  ReadFile(segments->fd,&segments->file,sizeof(SegmentsFile));
 
- for(i=0;i<sizeof(segments->cached)/sizeof(segments->cached[0]);i++)
-    segments->incache[i]=NO_SEGMENT;
+ segments->cache=NewSegmentCache();
 
 #endif
 

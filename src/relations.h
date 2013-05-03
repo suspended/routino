@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@
 
 #include "types.h"
 
+#include "cache.h"
 #include "files.h"
 #include "profiles.h"
 
@@ -72,7 +73,8 @@ struct _Relations
  off_t         troffset;        /*+ The offset of the turn relations in the file. +*/
 
  TurnRelation  cached[2];       /*+ Two cached relations read from the file in slim mode. +*/
- index_t       incache[2];      /*+ The indexes of the cached relations. +*/
+
+ TurnRelationCache *cache;      /*+ A RAM cache of turn relations read from the file. +*/
 
 #endif
 
@@ -120,12 +122,7 @@ static TurnRelation *LookupTurnRelation(Relations *relations,index_t index,int p
 
 static inline TurnRelation *LookupTurnRelation(Relations *relations,index_t index,int position)
 {
- if(relations->incache[position-1]!=index)
-   {
-    SeekReadFile(relations->fd,&relations->cached[position-1],sizeof(TurnRelation),relations->troffset+(off_t)index*sizeof(TurnRelation));
-
-    relations->incache[position-1]=index;
-   }
+ relations->cached[position-1]=*FetchCachedTurnRelation(relations,index);
 
  return(&relations->cached[position-1]);
 }
