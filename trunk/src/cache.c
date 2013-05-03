@@ -43,9 +43,10 @@
                               \
 struct _##type##Cache                                                     \
 {                                                                         \
+ int     first  [CACHEWIDTH];             /*+ The first entry to fill +*/ \
+                                                                          \
  type    data   [CACHEWIDTH][CACHEDEPTH]; /*+ The array of type##s. +*/   \
  index_t indices[CACHEWIDTH][CACHEDEPTH]; /*+ The array of indexes. +*/   \
- index_t when   [CACHEWIDTH][CACHEDEPTH]; /*+ The array of when used. +*/ \
                                                                           \
  index_t accesses;                                                        \
  index_t cached;                                                          \
@@ -72,6 +73,8 @@ type##Cache *New##type##Cache(void)                     \
                                 \
 void Delete##type##Cache(type##Cache *cache)      \
 {                                                 \
+ printf("Delete" #type "Cache access=%ld cached=%ld hit-rate=%.1f%%\n",cache->accesses,cache->cached,100*(double)cache->cached/(double)cache->accesses); \
+                                                  \
  free(cache);                                     \
 }
 
@@ -82,8 +85,7 @@ void Delete##type##Cache(type##Cache *cache)      \
 type *FetchCached##type(type##Cache *cache,index_t index,int fd,off_t offset) \
 {                                                                       \
  int row=index%CACHEWIDTH;                                              \
- int col,oldestcol;                                                     \
- index_t oldest=~0;                                                     \
+ int col;                                                               \
                                                                         \
  cache->accesses++;                                                     \
                                                                         \
@@ -91,22 +93,16 @@ type *FetchCached##type(type##Cache *cache,index_t index,int fd,off_t offset) \
     if(cache->indices[row][col]==index)                                 \
       {                                                                 \
        cache->cached++;                                                 \
-       cache->when[row][col]=cache->accesses;                           \
-                                                                        \
        return(&cache->data[row][col]);                                  \
       }                                                                 \
-    else if(cache->when[row][col]<oldest)                               \
-      {                                                                 \
-       oldest=cache->when[row][col];                                    \
-       oldestcol=col;                                                   \
-      }                                                                 \
                                                                         \
- col=oldestcol;                                                         \
+ col=cache->first[row];                                                 \
+                                                                        \
+ cache->first[row]=(cache->first[row]+1)%CACHEDEPTH;                    \
                                                                         \
  SeekReadFile(fd,&cache->data[row][col],sizeof(type),offset+(off_t)index*sizeof(type)); \
                                                                         \
  cache->indices[row][col]=index;                                        \
- cache->when   [row][col]=cache->accesses;                              \
                                                                         \
  return(&cache->data[row][col]);                                        \
 }
@@ -120,11 +116,12 @@ void Invalidate##type##Cache(type##Cache *cache)       \
  int row,col;                                          \
                                                        \
  for(row=0;row<CACHEWIDTH;row++)                       \
+   {                                                   \
+    cache->first[row]=0;                               \
+                                                       \
     for(col=0;col<CACHEDEPTH;col++)                    \
-      {                                                \
-       cache->indices[row][col]=~0;                    \
-       cache->when   [row][col]=cache->accesses;       \
-      }                                                \
+       cache->indices[row][col]=NO_NODE;               \
+   }                                                   \
 }
 
 
