@@ -27,6 +27,7 @@
 #include <sys/types.h>
 
 #include "types.h"
+#include "cache.h"
 
 #include "files.h"
 #include "profiles.h"
@@ -85,7 +86,8 @@ struct _Nodes
  off_t     nodesoffset;         /*+ The offset of the nodes within the file. +*/
 
  Node      cached[6];           /*+ Some cached nodes read from the file in slim mode. +*/
- index_t   incache[6];          /*+ The indexes of the cached nodes. +*/
+
+ NodeCache *cache;              /*+ A RAM cache of nodes read from the file. +*/
 
 #endif
 };
@@ -144,12 +146,7 @@ static Node *LookupNode(Nodes *nodes,index_t index,int position);
 
 static inline Node *LookupNode(Nodes *nodes,index_t index,int position)
 {
- if(nodes->incache[position-1]!=index)
-   {
-    SeekReadFile(nodes->fd,&nodes->cached[position-1],sizeof(Node),nodes->nodesoffset+(off_t)index*sizeof(Node));
-
-    nodes->incache[position-1]=index;
-   }
+ nodes->cached[position-1]=*FetchCachedNode(nodes,index);
 
  return(&nodes->cached[position-1]);
 }

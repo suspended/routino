@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@
 #include "relations.h"
 #include "fakes.h"
 
+#include "cache.h"
 #include "files.h"
 
 
@@ -40,9 +41,6 @@
 Relations *LoadRelationList(const char *filename)
 {
  Relations *relations;
-#if SLIM
- int i;
-#endif
 
  relations=(Relations*)malloc(sizeof(Relations));
 
@@ -68,8 +66,7 @@ Relations *LoadRelationList(const char *filename)
 
  relations->troffset=sizeof(RelationsFile);
 
- for(i=0;i<sizeof(relations->cached)/sizeof(relations->cached[0]);i++)
-    relations->incache[i]=NO_RELATION;
+ relations->cache=NewTurnRelationCache();
 
 #endif
 

@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@
 
 #include "types.h"
 
+#include "cache.h"
 #include "files.h"
 #include "profiles.h"
 
@@ -77,6 +78,8 @@ struct _Segments
 
  Segment      cached[3];        /*+ Three cached segments read from the file in slim mode. +*/
  index_t      incache[3];       /*+ The indexes of the cached segments. +*/
+
+ SegmentCache *cache;           /*+ A RAM cache of segments read from the file. +*/
 
 #endif
 };
@@ -181,12 +184,9 @@ static index_t IndexSegment(Segments *segments,Segment *segmentp);
 
 static inline Segment *LookupSegment(Segments *segments,index_t index,int position)
 {
- if(segments->incache[position-1]!=index)
-   {
-    SeekReadFile(segments->fd,&segments->cached[position-1],sizeof(Segment),sizeof(SegmentsFile)+(off_t)index*sizeof(Segment));
+ segments->cached[position-1]=*FetchCachedSegment(segments,index);
 
-    segments->incache[position-1]=index;
-   }
+ segments->incache[position-1]=index;
 
  return(&segments->cached[position-1]);
 }

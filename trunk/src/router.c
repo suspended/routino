@@ -623,6 +623,13 @@ int main(int argc,char** argv)
     if(results[point])
        FreeResultsList(results[point]);
 
+#if SLIM
+ DeleteNodeCache(OSMNodes->cache);
+ DeleteSegmentCache(OSMSegments->cache);
+ DeleteWayCache(OSMWays->cache);
+ DeleteTurnRelationCache(OSMRelations->cache);
+#endif
+
  return(0);
 }
 
