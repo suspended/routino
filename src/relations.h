@@ -105,7 +105,23 @@ int IsTurnAllowed(Relations *relations,index_t index,index_t via,index_t from,in
 
 #else
 
-static TurnRelation *LookupTurnRelation(Relations *relations,index_t index,int position);
+/* Prototypes */
+
+static inline TurnRelation *LookupTurnRelation(Relations *relations,index_t index,int position);
+
+CACHE_NEWCACHE_PROTO(TurnRelation)
+CACHE_DELETECACHE_PROTO(TurnRelation)
+CACHE_FETCHCACHE_PROTO(TurnRelation)
+CACHE_INVALIDATECACHE_PROTO(TurnRelation)
+
+
+/* Inline functions */
+
+CACHE_STRUCTURE(TurnRelation)
+CACHE_NEWCACHE(TurnRelation)
+CACHE_DELETECACHE(TurnRelation)
+CACHE_FETCHCACHE(TurnRelation)
+CACHE_INVALIDATECACHE(TurnRelation)
 
 
 /*++++++++++++++++++++++++++++++++++++++

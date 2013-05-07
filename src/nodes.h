@@ -129,7 +129,23 @@ void GetLatLong(Nodes *nodes,index_t index,Node *nodep,double *latitude,double *
 
 #else
 
-static Node *LookupNode(Nodes *nodes,index_t index,int position);
+/* Prototypes */
+
+static inline Node *LookupNode(Nodes *nodes,index_t index,int position);
+
+CACHE_NEWCACHE_PROTO(Node)
+CACHE_DELETECACHE_PROTO(Node)
+CACHE_FETCHCACHE_PROTO(Node)
+CACHE_INVALIDATECACHE_PROTO(Node)
+
+
+/* Inline functions */
+
+CACHE_STRUCTURE(Node)
+CACHE_NEWCACHE(Node)
+CACHE_DELETECACHE(Node)
+CACHE_FETCHCACHE(Node)
+CACHE_INVALIDATECACHE(Node)
 
 
 /*++++++++++++++++++++++++++++++++++++++
