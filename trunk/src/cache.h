@@ -64,6 +64,8 @@ struct _##type##Cache                                                     \
 
 #define CACHE_FETCHCACHE_PROTO(type) static inline type *FetchCached##type(type##Cache *cache,index_t index,int fd,off_t offset);
 
+#define CACHE_REPLACECACHE_PROTO(type) static inline void ReplaceCached##type(type##Cache *cache,type *value,index_t index,int fd,off_t offset);
+
 #define CACHE_INVALIDATECACHE_PROTO(type) static inline void Invalidate##type##Cache(type##Cache *cache);
 
 
@@ -93,7 +95,7 @@ static inline void Delete##type##Cache(type##Cache *cache)      \
 }
 
 
-/*+ A macro to create a function that fetches an item from a cache data structure. +*/
+/*+ A macro to create a function that fetches an item from a cache data structure or reads from file. +*/
 #define CACHE_FETCHCACHE(type) \
                                \
 static inline type *FetchCached##type(type##Cache *cache,index_t index,int fd,off_t offset) \
@@ -117,6 +119,33 @@ static inline type *FetchCached##type(type##Cache *cache,index_t index,int fd,of
 }
 
 
+/*+ A macro to create a function that replaces an item in a cache data structure and writes to file. +*/
+#define CACHE_REPLACECACHE(type) \
+                                 \
+static inline void ReplaceCached##type(type##Cache *cache,type *value,index_t index,int fd,off_t offset) \
+{                                                                                                        \
+ int row=index%CACHEWIDTH;                                                                               \
+ int col;                                                                                                \
+                                                                                                         \
+ for(col=0;col<CACHEDEPTH;col++)                                                                         \
+    if(cache->indices[row][col]==index)                                                                  \
+       break;                                                                                            \
+                                                                                                         \
+ if(col==CACHEDEPTH)                                                                                     \
+   {                                                                                                     \
+    col=cache->first[row];                                                                               \
+                                                                                                         \
+    cache->first[row]=(cache->first[row]+1)%CACHEDEPTH;                                                  \
+   }                                                                                                     \
+                                                                                                         \
+ cache->indices[row][col]=index;                                                                         \
+                                                                                                         \
+ cache->data[row][col]=*value;                                                                           \
+                                                                                                         \
+ SeekWriteFile(fd,&cache->data[row][col],sizeof(type),offset+(off_t)index*sizeof(type));                 \
+}
+
+
 /*+ A macro to create a function that invalidates the contents of a cache data structure. +*/
 #define CACHE_INVALIDATECACHE(type) \
                                     \
@@ -134,7 +163,12 @@ static inline void Invalidate##type##Cache(type##Cache *cache) \
 }
 
 
-/*+ Cache data structure forward declarations. +*/
+/*+ Cache data structure forward declarations (for planetsplitter). +*/
+CACHE_STRUCTURE_FWD(NodeX)
+CACHE_STRUCTURE_FWD(SegmentX)
+CACHE_STRUCTURE_FWD(WayX)
+
+/*+ Cache data structure forward declarations (for router). +*/
 CACHE_STRUCTURE_FWD(Node)
 CACHE_STRUCTURE_FWD(Segment)
 CACHE_STRUCTURE_FWD(Way)

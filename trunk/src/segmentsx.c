@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -110,6 +110,10 @@ SegmentsX *NewSegmentList(int append,int readonly)
  else
     segmentsx->fd=-1;
 
+#if SLIM
+ segmentsx->cache=NewSegmentXCache();
+#endif
+
  return(segmentsx);
 }
 
@@ -140,6 +144,10 @@ void FreeSegmentList(SegmentsX *segmentsx,int keep)
 
  if(segmentsx->usednode)
     free(segmentsx->usednode);
+
+#if SLIM
+ DeleteSegmentXCache(segmentsx->cache);
+#endif
 
  free(segmentsx);
 }
@@ -669,6 +677,8 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  nodesx->data=MapFile(nodesx->filename_tmp);
 #else
  nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+
+ InvalidateNodeXCache(nodesx->cache);
 #endif
 
  /* Allocate the way usage bitmask */
@@ -785,6 +795,8 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
 #else
  segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
+
+ InvalidateSegmentXCache(segmentsx->cache);
 #endif
 
  /* Read through the segments in reverse order */
@@ -943,6 +955,8 @@ void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx)
  waysx->data=MapFile(waysx->filename_tmp);
 #else
  waysx->fd=ReOpenFile(waysx->filename_tmp);
+
+ InvalidateWayXCache(waysx->cache);
 #endif
 
  /* Re-open the file read-only and a new file writeable */

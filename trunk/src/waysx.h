@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@
 #include "typesx.h"
 #include "ways.h"
 
+#include "cache.h"
 #include "files.h"
 
 
@@ -63,6 +64,8 @@ struct _WaysX
 
  WayX     cached[3];            /*+ Three cached extended ways read from the file in slim mode. +*/
  index_t  incache[3];           /*+ The indexes of the cached extended ways. +*/
+
+ WayXCache *cache;              /*+ A RAM cache of extended ways read from the file. +*/
 
 #endif
 
@@ -108,9 +111,27 @@ void SaveWayList(WaysX *waysx,const char *filename);
 
 #else
 
-static WayX *LookupWayX(WaysX *waysx,index_t index,int position);
+/* Prototypes */
 
-static void PutBackWayX(WaysX *waysx,WayX *wayx);
+static inline WayX *LookupWayX(WaysX *waysx,index_t index,int position);
+
+static inline void PutBackWayX(WaysX *waysx,WayX *wayx);
+
+CACHE_NEWCACHE_PROTO(WayX)
+CACHE_DELETECACHE_PROTO(WayX)
+CACHE_FETCHCACHE_PROTO(WayX)
+CACHE_REPLACECACHE_PROTO(WayX)
+CACHE_INVALIDATECACHE_PROTO(WayX)
+
+
+/* Inline functions */
+
+CACHE_STRUCTURE(WayX)
+CACHE_NEWCACHE(WayX)
+CACHE_DELETECACHE(WayX)
+CACHE_FETCHCACHE(WayX)
+CACHE_REPLACECACHE(WayX)
+CACHE_INVALIDATECACHE(WayX)
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -127,7 +148,7 @@ static void PutBackWayX(WaysX *waysx,WayX *wayx);
 
 static inline WayX *LookupWayX(WaysX *waysx,index_t index,int position)
 {
- SeekReadFile(waysx->fd,&waysx->cached[position-1],sizeof(WayX),(off_t)index*sizeof(WayX));
+ waysx->cached[position-1]=*FetchCachedWayX(waysx->cache,index,waysx->fd,0);
 
  waysx->incache[position-1]=index;
 
@@ -147,7 +168,7 @@ static inline void PutBackWayX(WaysX *waysx,WayX *wayx)
 {
  int position1=wayx-&waysx->cached[0];
 
- SeekWriteFile(waysx->fd,&waysx->cached[position1],sizeof(WayX),(off_t)waysx->incache[position1]*sizeof(WayX));
+ ReplaceCachedWayX(waysx->cache,wayx,waysx->incache[position1],waysx->fd,0);
 }
 
 #endif /* SLIM */

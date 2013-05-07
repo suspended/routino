@@ -501,6 +501,8 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
  waysx->data=MapFileWriteable(waysx->filename_tmp);
 #else
  waysx->fd=ReOpenFileWriteable(waysx->filename_tmp);
+
+ InvalidateWayXCache(waysx->cache);
 #endif
 
  /* Re-open the file read-only */
@@ -787,6 +789,10 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  nodesx->fd=ReOpenFileWriteable(nodesx->filename_tmp);
  segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
  waysx->fd=ReOpenFile(waysx->filename_tmp);
+
+ InvalidateNodeXCache(nodesx->cache);
+ InvalidateSegmentXCache(segmentsx->cache);
+ InvalidateWayXCache(waysx->cache);
 #endif
 
  /* Re-open the file read-only and a new file writeable */
@@ -1136,6 +1142,8 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
  segmentsx->data=MapFile(segmentsx->filename_tmp);
 #else
  segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+
+ InvalidateSegmentXCache(segmentsx->cache);
 #endif
 
  /* Re-open the file read-only and a new file writeable */

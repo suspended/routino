@@ -85,6 +85,10 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  nodesx->fd=ReOpenFile(nodesx->filename_tmp);
  segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
  waysx->fd=ReOpenFile(waysx->filename_tmp);
+
+ InvalidateNodeXCache(nodesx->cache);
+ InvalidateSegmentXCache(segmentsx->cache);
+ InvalidateWayXCache(waysx->cache);
 #endif
 
  /* Find super-nodes */
@@ -232,6 +236,10 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  nodesx->fd=ReOpenFile(nodesx->filename_tmp);
  segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
  waysx->fd=ReOpenFile(waysx->filename_tmp);
+
+ InvalidateNodeXCache(nodesx->cache);
+ InvalidateSegmentXCache(segmentsx->cache);
+ InvalidateWayXCache(waysx->cache);
 #endif
 
  /* Create super-segments for each super-node. */
@@ -366,6 +374,10 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
  segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
  if(supersegmentsx->number>0)
     supersegmentsx->fd=ReOpenFile(supersegmentsx->filename_tmp);
+
+ InvalidateSegmentXCache(segmentsx->cache);
+ if(supersegmentsx->number>0)
+    InvalidateSegmentXCache(supersegmentsx->cache);
 #endif
 
  /* Loop through and create a new list of combined segments */

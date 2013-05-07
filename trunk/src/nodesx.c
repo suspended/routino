@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -99,6 +99,10 @@ NodesX *NewNodeList(int append,int readonly)
  else
     nodesx->fd=-1;
 
+#if SLIM
+ nodesx->cache=NewNodeXCache();
+#endif
+
  return(nodesx);
 }
 
@@ -132,6 +136,10 @@ void FreeNodeList(NodesX *nodesx,int keep)
 
  if(nodesx->super)
     free(nodesx->super);
+
+#if SLIM
+ DeleteNodeXCache(nodesx->cache);
+#endif
 
  free(nodesx);
 }
