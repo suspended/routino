@@ -113,9 +113,23 @@ int WaysCompare(Way *way1p,Way *way2p);
 
 #else
 
-static Way *LookupWay(Ways *ways,index_t index,int position);
+static inline Way *LookupWay(Ways *ways,index_t index,int position);
 
-static char *WayName(Ways *ways,Way *wayp);
+static inline char *WayName(Ways *ways,Way *wayp);
+
+CACHE_NEWCACHE_PROTO(Way)
+CACHE_DELETECACHE_PROTO(Way)
+CACHE_FETCHCACHE_PROTO(Way)
+CACHE_INVALIDATECACHE_PROTO(Way)
+
+
+/* Inline functions */
+
+CACHE_STRUCTURE(Way)
+CACHE_NEWCACHE(Way)
+CACHE_DELETECACHE(Way)
+CACHE_FETCHCACHE(Way)
+CACHE_INVALIDATECACHE(Way)
 
 
 /*++++++++++++++++++++++++++++++++++++++

@@ -122,6 +122,7 @@ static inline Segment *NextSegment(Segments *segments,Segment *segmentp,index_t 
 /*+ Return the other node in the segment that is not the specified node. +*/
 #define OtherNode(xxx,yyy)     ((xxx)->node1==(yyy)?(xxx)->node2:(xxx)->node1)
 
+
 #if !SLIM
 
 /*+ Return a segment pointer given a set of segments and an index. +*/
@@ -165,9 +166,25 @@ static inline Segment *NextSegment(Segments *segments,Segment *segmentp,index_t 
 
 #else
 
-static Segment *LookupSegment(Segments *segments,index_t index,int position);
+/* Prototypes */
 
-static index_t IndexSegment(Segments *segments,Segment *segmentp);
+static inline Segment *LookupSegment(Segments *segments,index_t index,int position);
+
+static inline index_t IndexSegment(Segments *segments,Segment *segmentp);
+
+CACHE_NEWCACHE_PROTO(Segment)
+CACHE_DELETECACHE_PROTO(Segment)
+CACHE_FETCHCACHE_PROTO(Segment)
+CACHE_INVALIDATECACHE_PROTO(Segment)
+
+
+/* Inline functions */
+
+CACHE_STRUCTURE(Segment)
+CACHE_NEWCACHE(Segment)
+CACHE_DELETECACHE(Segment)
+CACHE_FETCHCACHE(Segment)
+CACHE_INVALIDATECACHE(Segment)
 
 
 /*++++++++++++++++++++++++++++++++++++++

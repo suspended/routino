@@ -26,55 +26,119 @@
 #define CACHE_H    /*+ To stop multiple inclusions. +*/
 
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "types.h"
 
 
-#define CACHE_STRUCTURE_DEF(type) typedef struct _##type##Cache type##Cache;
+/* Macros for constants */
 
-#define CACHE_NEWCACHE_PROTO(type) type##Cache *New##type##Cache(void);
-
-#define CACHE_DELETECACHE_PROTO(type) void Delete##type##Cache(type##Cache *cache);
-
-#define CACHE_FETCHCACHE_PROTO(type) type *FetchCached##type(type##Cache *cache,index_t index,int fd,off_t offset);
-
-#define CACHE_INVALIDATECACHE_PROTO(type) void Invalidate##type##Cache(type##Cache *cache);
+#define CACHEWIDTH 2048         /*+ The width of the cache. +*/
+#define CACHEDEPTH   16         /*+ The depth of the cache. +*/
 
 
+/* Macro for structure forward declaration */
 
-/*+ Data structure definitions to hold caches. +*/
-CACHE_STRUCTURE_DEF(Node)
-CACHE_STRUCTURE_DEF(Segment)
-CACHE_STRUCTURE_DEF(Way)
-CACHE_STRUCTURE_DEF(TurnRelation)
+#define CACHE_STRUCTURE_FWD(type) typedef struct _##type##Cache type##Cache;
 
 
-/*+ Function prototypes to create a new cache data structure. +*/
-CACHE_NEWCACHE_PROTO(Node)
-CACHE_NEWCACHE_PROTO(Segment)
-CACHE_NEWCACHE_PROTO(Way)
-CACHE_NEWCACHE_PROTO(TurnRelation)
+/* Macro for structure declaration */
+
+/*+ A macro to create a cache structure. +*/
+#define CACHE_STRUCTURE(type) \
+                              \
+struct _##type##Cache                                                     \
+{                                                                         \
+ int     first  [CACHEWIDTH];             /*+ The first entry to fill +*/ \
+                                                                          \
+ type    data   [CACHEWIDTH][CACHEDEPTH]; /*+ The array of type##s. +*/   \
+ index_t indices[CACHEWIDTH][CACHEDEPTH]; /*+ The array of indexes. +*/   \
+};
 
 
-/*+ Function prototypes to delete a cache data structure. +*/
-CACHE_DELETECACHE_PROTO(Node)
-CACHE_DELETECACHE_PROTO(Segment)
-CACHE_DELETECACHE_PROTO(Way)
-CACHE_DELETECACHE_PROTO(TurnRelation)
+/* Macros for function prototypes */
+
+#define CACHE_NEWCACHE_PROTO(type) static inline type##Cache *New##type##Cache(void);
+
+#define CACHE_DELETECACHE_PROTO(type) static inline void Delete##type##Cache(type##Cache *cache);
+
+#define CACHE_FETCHCACHE_PROTO(type) static inline type *FetchCached##type(type##Cache *cache,index_t index,int fd,off_t offset);
+
+#define CACHE_INVALIDATECACHE_PROTO(type) static inline void Invalidate##type##Cache(type##Cache *cache);
 
 
-/*+ Function prototypes to fetch an item from a cache data structure. +*/
-CACHE_FETCHCACHE_PROTO(Node)
-CACHE_FETCHCACHE_PROTO(Segment)
-CACHE_FETCHCACHE_PROTO(Way)
-CACHE_FETCHCACHE_PROTO(TurnRelation)
+/* Macros for function definitions */
+
+/*+ A macro to create a function that creates a new cache data structure. +*/
+#define CACHE_NEWCACHE(type) \
+                             \
+static inline type##Cache *New##type##Cache(void)       \
+{                                                       \
+ type##Cache *cache;                                    \
+                                                        \
+ cache=(type##Cache*)malloc(sizeof(type##Cache));       \
+                                                        \
+ Invalidate##type##Cache(cache);                        \
+                                                        \
+ return(cache);                                         \
+}
 
 
-/*+ Function prototypes to invalidate the contents of a cache data structure. +*/
-CACHE_INVALIDATECACHE_PROTO(Node)
-CACHE_INVALIDATECACHE_PROTO(Segment)
-CACHE_INVALIDATECACHE_PROTO(Way)
-CACHE_INVALIDATECACHE_PROTO(TurnRelation)
+/*+ A macro to create a function that deletes a cache data structure. +*/
+#define CACHE_DELETECACHE(type) \
+                                \
+static inline void Delete##type##Cache(type##Cache *cache)      \
+{                                                               \
+ free(cache);                                                   \
+}
+
+
+/*+ A macro to create a function that fetches an item from a cache data structure. +*/
+#define CACHE_FETCHCACHE(type) \
+                               \
+static inline type *FetchCached##type(type##Cache *cache,index_t index,int fd,off_t offset) \
+{                                                                                           \
+ int row=index%CACHEWIDTH;                                                                  \
+ int col;                                                                                   \
+                                                                                            \
+ for(col=0;col<CACHEDEPTH;col++)                                                            \
+    if(cache->indices[row][col]==index)                                                     \
+       return(&cache->data[row][col]);                                                      \
+                                                                                            \
+ col=cache->first[row];                                                                     \
+                                                                                            \
+ cache->first[row]=(cache->first[row]+1)%CACHEDEPTH;                                        \
+                                                                                            \
+ SeekReadFile(fd,&cache->data[row][col],sizeof(type),offset+(off_t)index*sizeof(type));     \
+                                                                                            \
+ cache->indices[row][col]=index;                                                            \
+                                                                                            \
+ return(&cache->data[row][col]);                                                            \
+}
+
+
+/*+ A macro to create a function that invalidates the contents of a cache data structure. +*/
+#define CACHE_INVALIDATECACHE(type) \
+                                    \
+static inline void Invalidate##type##Cache(type##Cache *cache) \
+{                                                              \
+ int row,col;                                                  \
+                                                               \
+ for(row=0;row<CACHEWIDTH;row++)                               \
+   {                                                           \
+    cache->first[row]=0;                                       \
+                                                               \
+    for(col=0;col<CACHEDEPTH;col++)                            \
+       cache->indices[row][col]=NO_NODE;                       \
+   }                                                           \
+}
+
+
+/*+ Cache data structure forward declarations. +*/
+CACHE_STRUCTURE_FWD(Node)
+CACHE_STRUCTURE_FWD(Segment)
+CACHE_STRUCTURE_FWD(Way)
+CACHE_STRUCTURE_FWD(TurnRelation)
 
 
 #endif /* CACHE_H */
