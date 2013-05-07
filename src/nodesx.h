@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@
 
 #include "typesx.h"
 
+#include "cache.h"
 #include "files.h"
 
 
@@ -66,6 +67,8 @@ struct _NodesX
 
  NodeX     cached[3];           /*+ Three cached extended nodes read from the file in slim mode. +*/
  index_t   incache[3];          /*+ The indexes of the cached extended nodes. +*/
+
+ NodeXCache *cache;             /*+ A RAM cache of extended nodes read from the file. +*/
 
 #endif
 
@@ -116,9 +119,27 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx);
 
 #else
 
-static NodeX *LookupNodeX(NodesX *nodesx,index_t index,int position);
+/* Prototypes */
 
-static void PutBackNodeX(NodesX *nodesx,NodeX *nodex);
+static inline NodeX *LookupNodeX(NodesX *nodesx,index_t index,int position);
+
+static inline void PutBackNodeX(NodesX *nodesx,NodeX *nodex);
+
+CACHE_NEWCACHE_PROTO(NodeX)
+CACHE_DELETECACHE_PROTO(NodeX)
+CACHE_FETCHCACHE_PROTO(NodeX)
+CACHE_REPLACECACHE_PROTO(NodeX)
+CACHE_INVALIDATECACHE_PROTO(NodeX)
+
+
+/* Inline functions */
+
+CACHE_STRUCTURE(NodeX)
+CACHE_NEWCACHE(NodeX)
+CACHE_DELETECACHE(NodeX)
+CACHE_FETCHCACHE(NodeX)
+CACHE_REPLACECACHE(NodeX)
+CACHE_INVALIDATECACHE(NodeX)
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -135,7 +156,7 @@ static void PutBackNodeX(NodesX *nodesx,NodeX *nodex);
 
 static inline NodeX *LookupNodeX(NodesX *nodesx,index_t index,int position)
 {
- SeekReadFile(nodesx->fd,&nodesx->cached[position-1],sizeof(NodeX),(off_t)index*sizeof(NodeX));
+ nodesx->cached[position-1]=*FetchCachedNodeX(nodesx->cache,index,nodesx->fd,0);
 
  nodesx->incache[position-1]=index;
 
@@ -155,7 +176,7 @@ static inline void PutBackNodeX(NodesX *nodesx,NodeX *nodex)
 {
  int position1=nodex-&nodesx->cached[0];
 
- SeekWriteFile(nodesx->fd,&nodesx->cached[position1],sizeof(NodeX),(off_t)nodesx->incache[position1]*sizeof(NodeX));
+ ReplaceCachedNodeX(nodesx->cache,nodex,nodesx->incache[position1],nodesx->fd,0);
 }
 
 #endif /* SLIM */

@@ -170,6 +170,10 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  nodesx->fd=ReOpenFile(nodesx->filename_tmp);
  segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
  waysx->fd=ReOpenFile(waysx->filename_tmp);
+
+ InvalidateNodeXCache(nodesx->cache);
+ InvalidateSegmentXCache(segmentsx->cache);
+ InvalidateWayXCache(waysx->cache);
 #endif
 
  fd=ReOpenFileWriteable(waysx->filename_tmp);
@@ -436,6 +440,10 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
  nodesx->fd=ReOpenFileWriteable(nodesx->filename_tmp);
  segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
  waysx->fd=ReOpenFile(waysx->filename_tmp);
+
+ InvalidateNodeXCache(nodesx->cache);
+ InvalidateSegmentXCache(segmentsx->cache);
+ InvalidateWayXCache(waysx->cache);
 #endif
 
  /* Loop through the segments and find the short ones for possible modification */
@@ -852,6 +860,10 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  nodesx->fd=ReOpenFile(nodesx->filename_tmp);
  segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
  waysx->fd=ReOpenFile(waysx->filename_tmp);
+
+ InvalidateNodeXCache(nodesx->cache);
+ InvalidateSegmentXCache(segmentsx->cache);
+ InvalidateWayXCache(waysx->cache);
 #endif
 
  checked=AllocBitMask(nodesx->number);
