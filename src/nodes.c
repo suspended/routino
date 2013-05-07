@@ -517,8 +517,9 @@ static int valid_segment_for_profile(Ways *ways,Segment *segmentp,Profile *profi
 
 void GetLatLong(Nodes *nodes,index_t index,Node *nodep,double *latitude,double *longitude)
 {
- ll_bin_t latbin=-1,lonbin=-1;
- ll_bin_t start,end,mid;
+ ll_bin_t latbin,lonbin;
+ ll_bin2_t bin=-1;
+ ll_bin2_t start,end,mid;
  index_t offset;
 
  /* Binary search - search key nearest match below is required.
@@ -532,73 +533,42 @@ void GetLatLong(Nodes *nodes,index_t index,Node *nodep,double *latitude,double *
   *  # <- end    |  start or end is the wanted one.
   */
 
- /* Search for longitude */
+ /* Search for offset */
 
  start=0;
- end=nodes->file.lonbins-1;
+ end=nodes->file.lonbins*nodes->file.latbins;
 
  do
    {
     mid=(start+end)/2;                  /* Choose mid point */
 
-    offset=LookupNodeOffset(nodes,nodes->file.latbins*mid);
+    offset=LookupNodeOffset(nodes,mid);
 
     if(offset<index)                    /* Mid point is too low for an exact match but could be lower bound */
        start=mid;
     else if(offset>index)               /* Mid point is too high */
        end=mid?(mid-1):mid;
     else                                /* Mid point is correct */
-      {lonbin=mid;break;}
+      {bin=mid;break;}
    }
  while((end-start)>1);
 
- if(lonbin==-1)
+ if(bin==-1)
    {
-    offset=LookupNodeOffset(nodes,nodes->file.latbins*end);
+    offset=LookupNodeOffset(nodes,end);
 
     if(offset>index)
-       lonbin=start;
+       bin=start;
     else
-       lonbin=end;
+       bin=end;
    }
 
- while(lonbin<nodes->file.lonbins && 
-       LookupNodeOffset(nodes,lonbin*nodes->file.latbins)==LookupNodeOffset(nodes,(lonbin+1)*nodes->file.latbins))
-    lonbin++;
+ while(bin<=(nodes->file.lonbins*nodes->file.latbins) && 
+       LookupNodeOffset(nodes,bin)==LookupNodeOffset(nodes,bin+1))
+    bin++;
 
- /* Search for latitude */
-
- start=0;
- end=nodes->file.latbins-1;
-
- do
-   {
-    mid=(start+end)/2;                  /* Choose mid point */
-
-    offset=LookupNodeOffset(nodes,lonbin*nodes->file.latbins+mid);
-
-    if(offset<index)                    /* Mid point is too low for an exact match but could be lower bound */
-       start=mid;
-    else if(offset>index)               /* Mid point is too high */
-       end=mid?(mid-1):mid;
-    else                                /* Mid point is correct */
-      {latbin=mid;break;}
-   }
- while((end-start)>1);
-
- if(latbin==-1)
-   {
-    offset=LookupNodeOffset(nodes,lonbin*nodes->file.latbins+end);
-
-    if(offset>index)
-       latbin=start;
-    else
-       latbin=end;
-   }
-
- while(latbin<nodes->file.latbins &&
-       LookupNodeOffset(nodes,lonbin*nodes->file.latbins+latbin)==LookupNodeOffset(nodes,lonbin*nodes->file.latbins+latbin+1))
-    latbin++;
+ latbin=bin%nodes->file.latbins;
+ lonbin=bin/nodes->file.latbins;
 
  /* Return the values */
 
