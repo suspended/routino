@@ -71,7 +71,7 @@ static int64_t node_refid=0,way_refid=0,relation_refid=0;
 
 static int mode_change=MODE_NORMAL;
 
-static int buffer_allocated;
+static uint32_t buffer_allocated;
 static unsigned char *buffer=NULL;
 static unsigned char *buffer_ptr,*buffer_end;
 
@@ -424,27 +424,27 @@ int ParseO5M(int fd,int changes)
 
 
    case O5M_ERROR_UNEXP_EOF:
-    fprintf(stderr,"O5M Parser: Error at byte %llu: unexpected end of file seen.\n",byteno);
+    fprintf(stderr,"O5M Parser: Error at byte %"PRIu64": unexpected end of file seen.\n",byteno);
     break;
 
    case O5M_ERROR_RESET_NOT_FIRST:
-    fprintf(stderr,"O5M Parser: Error at byte %llu: Reset was not the first byte.\n",byteno);
+    fprintf(stderr,"O5M Parser: Error at byte %"PRIu64": Reset was not the first byte.\n",byteno);
     break;
 
    case O5M_ERROR_HEADER_NOT_FIRST:
-    fprintf(stderr,"O5M Parser: Error at byte %llu: Header was not the first section.\n",byteno);
+    fprintf(stderr,"O5M Parser: Error at byte %"PRIu64": Header was not the first section.\n",byteno);
     break;
 
    case O5M_ERROR_EXPECTED_O5M:
-    fprintf(stderr,"O5M Parser: Error at byte %llu: Expected O5M format but header disagrees.\n",byteno);
+    fprintf(stderr,"O5M Parser: Error at byte %"PRIu64": Expected O5M format but header disagrees.\n",byteno);
     break;
 
    case O5M_ERROR_EXPECTED_O5C:
-    fprintf(stderr,"O5M Parser: Error at byte %llu: Expected O5C format but header disagrees.\n",byteno);
+    fprintf(stderr,"O5M Parser: Error at byte %"PRIu64": Expected O5C format but header disagrees.\n",byteno);
     break;
 
    case O5M_ERROR_FILE_LEVEL:
-    fprintf(stderr,"O5M Parser: Error at byte %llu: Unexpected dataset type %02x.\n",byteno,error);
+    fprintf(stderr,"O5M Parser: Error at byte %"PRIu64": Unexpected dataset type %02x.\n",byteno,error);
     break;
    }
 

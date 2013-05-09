@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2012 Andrew M. Bishop
+ This file Copyright 2012, 2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -125,7 +125,7 @@
 static uint64_t byteno=0;
 static uint64_t nnodes=0,nways=0,nrelations=0;
 
-static int buffer_allocated,zbuffer_allocated;
+static uint32_t buffer_allocated,zbuffer_allocated;
 static unsigned char *buffer=NULL,*zbuffer=NULL;
 static unsigned char *buffer_ptr,*buffer_end;
 
@@ -538,7 +538,7 @@ int ParsePBF(int fd)
       {
        unsigned char *primitive_group[8]={NULL};
        uint32_t primitive_group_length[8]={0};
-       int nprimitive_groups=0,i;
+       uint32_t nprimitive_groups=0,i;
 
        granularity=100;
        lat_offset=lon_offset=0;
@@ -600,55 +600,55 @@ int ParsePBF(int fd)
 
 
    case PBF_ERROR_UNEXP_EOF:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: unexpected end of file seen.\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": unexpected end of file seen.\n",byteno);
     break;
 
    case PBF_ERROR_BLOB_HEADER_LEN:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: BlobHeader length is wrong (0<x<=32M).\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": BlobHeader length is wrong (0<x<=32M).\n",byteno);
     break;
 
    case PBF_ERROR_BLOB_LEN:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: Blob length is wrong (0<x<=32M).\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": Blob length is wrong (0<x<=32M).\n",byteno);
     break;
 
    case PBF_ERROR_NOT_OSM:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: BlobHeader is neither 'OSMData' or 'OSMHeader'.\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": BlobHeader is neither 'OSMData' or 'OSMHeader'.\n",byteno);
     break;
 
    case PBF_ERROR_BLOB_BOTH:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: Blob has both zlib compressed and raw uncompressed data.\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": Blob has both zlib compressed and raw uncompressed data.\n",byteno);
     break;
 
    case PBF_ERROR_BLOB_NEITHER:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: Blob has neither zlib compressed or raw uncompressed data.\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": Blob has neither zlib compressed or raw uncompressed data.\n",byteno);
     break;
 
    case PBF_ERROR_NO_GZIP:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: Blob is compressed but no gzip support is available.\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": Blob is compressed but no gzip support is available.\n",byteno);
     break;
 
    case PBF_ERROR_GZIP_INIT:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: Blob is compressed but failed to initialise decompression.\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": Blob is compressed but failed to initialise decompression.\n",byteno);
     break;
 
    case PBF_ERROR_GZIP_INFLATE:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: Blob is compressed but failed to uncompress it.\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": Blob is compressed but failed to uncompress it.\n",byteno);
     break;
 
    case PBF_ERROR_GZIP_WRONG_LEN:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: Blob is compressed and wrong size when uncompressed.\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": Blob is compressed and wrong size when uncompressed.\n",byteno);
     break;
 
    case PBF_ERROR_GZIP_END:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: Blob is compressed but failed to finalise decompression.\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": Blob is compressed but failed to finalise decompression.\n",byteno);
     break;
 
    case PBF_ERROR_UNSUPPORTED:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: Unsupported required feature '%s'.\n",byteno,error);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": Unsupported required feature '%s'.\n",byteno,error);
     break;
 
    case PBF_ERROR_TOO_MANY_GROUPS:
-    fprintf(stderr,"PBF Parser: Error at byte %llu: OsmData message contains too many PrimitiveGroup messages.\n",byteno);
+    fprintf(stderr,"PBF Parser: Error at byte %"PRIu64": OsmData message contains too many PrimitiveGroup messages.\n",byteno);
     break;
    }
 
