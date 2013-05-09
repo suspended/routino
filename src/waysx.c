@@ -712,7 +712,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
 {
  index_t i;
  int fd;
- int position=0;
+ index_t position=0;
  WayX wayx;
  WaysFile waysfile={0};
  highways_t   highways=0;
@@ -754,7 +754,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  while(position<waysx->nlength)
    {
-    int len=1024;
+    size_t len=1024;
     char temp[1024];
 
     if((waysx->nlength-position)<1024)

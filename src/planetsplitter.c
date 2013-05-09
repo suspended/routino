@@ -410,7 +410,7 @@ if(!option_process_only)
 
  do
    {
-    int nsuper;
+    index_t nsuper;
 
     printf("\nProcess Super-Data (iteration %d)\n================================%s\n\n",iteration,iteration>9?"=":"");
     fflush(stdout);
