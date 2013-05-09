@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -86,7 +86,7 @@ static inline int WriteFile(int fd,const void *address,size_t length)
 
  /* Write the data */
 
- if(write(fd,address,length)!=length)
+ if(write(fd,address,length)!=(ssize_t)length)
     return(-1);
 
  return(0);
@@ -111,7 +111,7 @@ static inline int ReadFile(int fd,void *address,size_t length)
 
  /* Read the data */
 
- if(read(fd,address,length)!=length)
+ if(read(fd,address,length)!=(ssize_t)length)
     return(-1);
 
  return(0);
@@ -163,7 +163,7 @@ static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t p
 
 #if HAVE_PREAD_PWRITE
 
- if(pwrite(fd,address,length,position)!=length)
+ if(pwrite(fd,address,length,position)!=(ssize_t)length)
     return(-1);
 
 #else
@@ -202,7 +202,7 @@ static inline int SeekReadFile(int fd,void *address,size_t length,off_t position
 
 #if HAVE_PREAD_PWRITE
 
- if(pread(fd,address,length,position)!=length)
+ if(pread(fd,address,length,position)!=(ssize_t)length)
     return(-1);
 
 #else
