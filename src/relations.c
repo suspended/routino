@@ -103,7 +103,7 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
  index_t start=0;
  index_t end=relations->file.trnumber-1;
  index_t mid;
- index_t match=-1;
+ index_t match=NO_RELATION;
 
  /* Binary search - search key any exact match is required.
   *
@@ -134,7 +134,7 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
    }
  while((end-start)>1);
 
- if(match==-1)                      /* Check if start matches */
+ if(match==NO_RELATION)             /* Check if start matches */
    {
     relation=LookupTurnRelation(relations,start,1);
 
@@ -142,7 +142,7 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
        match=start;
    }
 
- if(match==-1)                      /* Check if end matches */
+ if(match==NO_RELATION)             /* Check if end matches */
    {
     relation=LookupTurnRelation(relations,end,1);
 
@@ -150,8 +150,8 @@ index_t FindFirstTurnRelation1(Relations *relations,index_t via)
        match=end;
    }
 
- if(match==-1)
-    return(NO_RELATION);
+ if(match==NO_RELATION)
+    return(match);
 
  while(match>0)                     /* Search backwards for the first match */
    {
@@ -218,7 +218,7 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
  index_t start=0;
  index_t end=relations->file.trnumber-1;
  index_t mid;
- index_t match=-1;
+ index_t match=NO_RELATION;
 
  if(IsFakeSegment(from))
     from=IndexRealSegment(from);
@@ -259,7 +259,7 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
    }
  while((end-start)>1);
 
- if(match==-1)                      /* Check if start matches */
+ if(match==NO_RELATION)             /* Check if start matches */
    {
     relation=LookupTurnRelation(relations,start,1);
 
@@ -267,7 +267,7 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
        match=start;
    }
 
- if(match==-1)                      /* Check if end matches */
+ if(match==NO_RELATION)             /* Check if end matches */
    {
     relation=LookupTurnRelation(relations,end,1);
 
@@ -275,8 +275,8 @@ index_t FindFirstTurnRelation2(Relations *relations,index_t via,index_t from)
        match=end;
    }
 
- if(match==-1)
-    return(NO_RELATION);
+ if(match==NO_RELATION)
+    return(match);
 
  while(match>0)                     /* Search backwards for the first match */
    {
