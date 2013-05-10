@@ -30,7 +30,9 @@ LD=gcc
 # Compilation program options
 
 CFLAGS=-Wall -Wmissing-prototypes -std=c99
-#CFLAGS+=-Wextra -pedantic
+CFLAGS+=-Wextra -Wno-unused-parameter
+#CFLAGS+=-pedantic
+
 LDFLAGS=-lm
 
 CFLAGS+=-O3
