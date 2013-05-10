@@ -290,7 +290,7 @@ int main(int argc,char** argv)
          {
           item=atoi(&argv[arg][7]);
 
-          if(item>=0 && item<OSMNodes->file.number)
+          if(item<OSMNodes->file.number)
              print_node(OSMNodes,item);
           else
              printf("Invalid node number; minimum=0, maximum=%"Pindex_t".\n",OSMNodes->file.number-1);
@@ -304,7 +304,7 @@ int main(int argc,char** argv)
          {
           item=atoi(&argv[arg][10]);
 
-          if(item>=0 && item<OSMSegments->file.number)
+          if(item<OSMSegments->file.number)
              print_segment(OSMSegments,item);
           else
              printf("Invalid segment number; minimum=0, maximum=%"Pindex_t".\n",OSMSegments->file.number-1);
@@ -318,7 +318,7 @@ int main(int argc,char** argv)
          {
           item=atoi(&argv[arg][6]);
 
-          if(item>=0 && item<OSMWays->file.number)
+          if(item<OSMWays->file.number)
              print_way(OSMWays,item);
           else
              printf("Invalid way number; minimum=0, maximum=%"Pindex_t".\n",OSMWays->file.number-1);
@@ -332,7 +332,7 @@ int main(int argc,char** argv)
          {
           item=atoi(&argv[arg][16]);
 
-          if(item>=0 && item<OSMRelations->file.trnumber)
+          if(item<OSMRelations->file.trnumber)
              print_turn_relation(OSMRelations,item,OSMSegments,OSMNodes);
           else
              printf("Invalid turn relation number; minimum=0, maximum=%"Pindex_t".\n",OSMRelations->file.trnumber-1);
