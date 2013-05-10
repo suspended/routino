@@ -107,7 +107,7 @@ void SaveWayList(WaysX *waysx,const char *filename);
 
 #define LookupWayX(waysx,index,position)  &(waysx)->data[index]
   
-#define PutBackWayX(waysx,wayx)           /* nop */
+#define PutBackWayX(waysx,wayx)           while(0) { /* nop */ }
 
 #else
 

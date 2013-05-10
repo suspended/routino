@@ -125,9 +125,9 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
 #define IndexSegmentX(segmentsx,segmentx)                (index_t)((segmentx)-&(segmentsx)->data[0])
 
-#define PutBackSegmentX(segmentsx,segmentx)              /* nop */
+#define PutBackSegmentX(segmentsx,segmentx)              while(0) { /* nop */ }
 
-#define ReLookupSegmentX(segmentsx,segmentx)             /* nop */
+#define ReLookupSegmentX(segmentsx,segmentx)             while(0) { /* nop */ }
   
 #else
 

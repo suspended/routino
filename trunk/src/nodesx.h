@@ -115,7 +115,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx);
 
 #define LookupNodeX(nodesx,index,position)      &(nodesx)->data[index]
   
-#define PutBackNodeX(nodesx,nodex)              /* nop */
+#define PutBackNodeX(nodesx,nodex)              while(0) { /* nop */ }
 
 #else
 
