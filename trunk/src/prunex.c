@@ -153,7 +153,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  transport_t transport;
  BitMask *connected,*region;
  index_t *regionsegments,*othersegments;
- int nallocregionsegments,nallocothersegments;
+ index_t nallocregionsegments,nallocothersegments;
  index_t nnewways=0;
  int fd;
 
@@ -210,7 +210,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
     for(i=0;i<segmentsx->number;i++)
       {
-       int nregionsegments=0,nothersegments=0;
+       index_t nregionsegments=0,nothersegments=0;
        distance_t total=0;
        SegmentX *segmentx;
        WayX *wayx,tmpwayx;
@@ -835,8 +835,8 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 {
  index_t i;
  index_t npruned=0;
+ index_t nalloc;
  BitMask *checked;
- int nalloc;
  index_t *nodes,*segments;
  double *lats,*lons;
  double maximumf;
