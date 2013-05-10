@@ -114,13 +114,15 @@ void InsertInQueue(Queue *queue,Result *result,score_t score)
 
  /* Bubble up the new value */
 
- while(index>1 &&
-       queue->results[index]->sortby<queue->results[index/2]->sortby)
+ while(index>1)
    {
     int newindex;
     Result *temp;
 
     newindex=index/2;
+
+    if(queue->results[index]->sortby>=queue->results[newindex]->sortby)
+       break;
 
     temp=queue->results[index];
     queue->results[index]=queue->results[newindex];
@@ -164,17 +166,18 @@ Result *PopFromQueue(Queue *queue)
 
  /* Bubble down the newly promoted value */
 
- while((2*index)<queue->noccupied &&
-       (queue->results[index]->sortby>queue->results[2*index  ]->sortby ||
-        queue->results[index]->sortby>queue->results[2*index+1]->sortby))
+ while((2*index)<queue->noccupied)
    {
     int newindex;
     Result *temp;
 
-    if(queue->results[2*index]->sortby<queue->results[2*index+1]->sortby)
-       newindex=2*index;
-    else
-       newindex=2*index+1;
+    newindex=2*index;
+
+    if(queue->results[newindex]->sortby>queue->results[newindex+1]->sortby)
+       newindex=newindex+1;
+
+    if(queue->results[index]->sortby<=queue->results[newindex]->sortby)
+       break;
 
     temp=queue->results[newindex];
     queue->results[newindex]=queue->results[index];
@@ -186,20 +189,24 @@ Result *PopFromQueue(Queue *queue)
     index=newindex;
    }
 
- if((2*index)==queue->noccupied &&
-    queue->results[index]->sortby>queue->results[2*index]->sortby)
+ if((2*index)==queue->noccupied)
    {
     int newindex;
     Result *temp;
 
     newindex=2*index;
 
-    temp=queue->results[newindex];
-    queue->results[newindex]=queue->results[index];
-    queue->results[index]=temp;
+    if(queue->results[index]->sortby<=queue->results[newindex]->sortby)
+       ; /* break */
+    else
+      {
+       temp=queue->results[newindex];
+       queue->results[newindex]=queue->results[index];
+       queue->results[index]=temp;
 
-    queue->results[index]->queued=index;
-    queue->results[newindex]->queued=newindex;
+       queue->results[index]->queued=index;
+       queue->results[newindex]->queued=newindex;
+      }
    }
 
  return(retval);
