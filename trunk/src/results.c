@@ -254,15 +254,16 @@ Result *FirstResult(Results *results)
 Result *NextResult(Results *results,Result *result)
 {
  uint32_t i;
- ssize_t j=0;
+ size_t j=0;
 
  for(i=0;i<results->ndata1;i++)
-   {
-    j=result-results->data[i];
+    if(result>=results->data[i])
+      {
+       j=result-results->data[i];
 
-    if(j>=0 && j<results->ndata2)
-       break;
-   }
+       if(j<results->ndata2)
+          break;
+      }
 
  if(++j>=results->ndata2)
    {i++;j=0;}
