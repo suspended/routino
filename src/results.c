@@ -77,7 +77,7 @@ Results *NewResultsList(uint8_t log2bins)
 
 void FreeResultsList(Results *results)
 {
- int i;
+ uint32_t i;
 
  for(i=0;i<results->ndata1;i++)
     free(results->data[i]);
@@ -107,13 +107,13 @@ void FreeResultsList(Results *results)
 Result *InsertResult(Results *results,index_t node,index_t segment)
 {
  Result *result;
- int bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
+ uint32_t bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
 
  /* Check if we have hit the limit on the number of collisions per bin */
 
  if(results->count[bin]==results->ncollisions)
    {
-    int i;
+    uint32_t i;
 
     results->nbins<<=1;
     results->mask=results->nbins-1;
@@ -139,7 +139,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
        while(r)
          {
           Result *rh=r->hashnext;
-          int newbin=HASH_NODE_SEGMENT(r->node,r->segment)&results->mask;
+          uint32_t newbin=HASH_NODE_SEGMENT(r->node,r->segment)&results->mask;
 
           r->hashnext=NULL;
 
@@ -211,7 +211,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 Result *FindResult(Results *results,index_t node,index_t segment)
 {
  Result *r;
- int bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
+ uint32_t bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
 
  r=results->point[bin];
 
@@ -253,7 +253,8 @@ Result *FirstResult(Results *results)
 
 Result *NextResult(Results *results,Result *result)
 {
- int i,j=0;
+ uint32_t i;
+ ssize_t j=0;
 
  for(i=0;i<results->ndata1;i++)
    {
