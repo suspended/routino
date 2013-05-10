@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2009-2012 Andrew M. Bishop
+ This file Copyright 2009-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -124,6 +124,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
  size_t nitems=option_filesort_ramsize/(option_filesort_threads*(itemsize+sizeof(void*)));
  void *data,**datap;
  thread_data *threads;
+ size_t item;
  int i,more=1;
 #if defined(USE_PTHREADS) && USE_PTHREADS
  int nthreads=0;
@@ -171,26 +172,26 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
 
     /* Read in the data and create pointers */
 
-    for(i=0;i<nitems;)
+    for(item=0;item<nitems;)
       {
-       threads[thread].datap[i]=threads[thread].data+i*itemsize;
+       threads[thread].datap[item]=threads[thread].data+item*itemsize;
 
-       if(ReadFile(fd_in,threads[thread].datap[i],itemsize))
+       if(ReadFile(fd_in,threads[thread].datap[item],itemsize))
          {
           more=0;
           break;
          }
 
-       if(!pre_sort_function || pre_sort_function(threads[thread].datap[i],count_in))
+       if(!pre_sort_function || pre_sort_function(threads[thread].datap[item],count_in))
          {
-          i++;
+          item++;
           total++;
          }
 
        count_in++;
       }
 
-    threads[thread].n=i;
+    threads[thread].n=item;
 
     /* Shortcut if there is no previous data and no more data (i.e. no data at all) */
 
@@ -283,11 +284,11 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
 
  if(nfiles==1)
    {
-    for(i=0;i<threads[0].n;i++)
+    for(item=0;item<threads[0].n;item++)
       {
-       if(!post_sort_function || post_sort_function(threads[0].datap[i],count_out))
+       if(!post_sort_function || post_sort_function(threads[0].datap[item],count_out))
          {
-          WriteFile(fd_out,threads[0].datap[i],itemsize);
+          WriteFile(fd_out,threads[0].datap[item],itemsize);
           count_out++;
          }
       }
@@ -299,7 +300,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
 
  /* Check that number of files is less than file size */
 
- logassert(nfiles<nitems,"Too many temporary files (use more sorting memory?)");
+ logassert((unsigned)nfiles<nitems,"Too many temporary files (use more sorting memory?)");
 
  /* Open all of the temporary files */
 
@@ -485,6 +486,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
  FILESORT_VARINT nextitemsize,largestitemsize=0;
  void *data,**datap;
  thread_data *threads;
+ size_t item;
  int i,more=1;
 #if defined(USE_PTHREADS) && USE_PTHREADS
  int nthreads=0;
@@ -539,7 +541,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
     /* Read in the data and create pointers */
 
-    while((ramused+FILESORT_VARSIZE+nextitemsize)<=((void*)threads[thread].datap-sizeof(void*)-threads[thread].data))
+    while((ramused+FILESORT_VARSIZE+nextitemsize)<=(unsigned)((void*)threads[thread].datap-sizeof(void*)-threads[thread].data))
       {
        FILESORT_VARINT itemsize=nextitemsize;
 
@@ -663,13 +665,13 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
  if(nfiles==1)
    {
-    for(i=0;i<threads[0].n;i++)
+    for(item=0;item<threads[0].n;item++)
       {
-       if(!post_sort_function || post_sort_function(threads[0].datap[i],count_out))
+       if(!post_sort_function || post_sort_function(threads[0].datap[item],count_out))
          {
-          FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(threads[0].datap[i]-FILESORT_VARSIZE);
+          FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(threads[0].datap[item]-FILESORT_VARSIZE);
 
-          WriteFile(fd_out,threads[0].datap[i]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
+          WriteFile(fd_out,threads[0].datap[item]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
           count_out++;
          }
       }
@@ -683,7 +685,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
  largestitemsize=FILESORT_VARALIGN*(1+(largestitemsize+FILESORT_VARALIGN-FILESORT_VARSIZE)/FILESORT_VARALIGN);
 
- logassert(nfiles<((datasize-nfiles*sizeof(void*))/largestitemsize),"Too many temporary files (use more sorting memory?)");
+ logassert((unsigned)nfiles<((datasize-nfiles*sizeof(void*))/largestitemsize),"Too many temporary files (use more sorting memory?)");
 
  /* Open all of the temporary files */
 
@@ -851,7 +853,8 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
 static void *filesort_fixed_heapsort_thread(thread_data *thread)
 {
- int fd,i;
+ int fd;
+ size_t item;
 
  /* Sort the data pointers using a heap sort */
 
@@ -861,8 +864,8 @@ static void *filesort_fixed_heapsort_thread(thread_data *thread)
 
  fd=OpenFileNew(thread->filename);
 
- for(i=0;i<thread->n;i++)
-    WriteFile(fd,thread->datap[i],thread->itemsize);
+ for(item=0;item<thread->n;item++)
+    WriteFile(fd,thread->datap[item],thread->itemsize);
 
  CloseFile(fd);
 
@@ -895,7 +898,8 @@ static void *filesort_fixed_heapsort_thread(thread_data *thread)
 
 static void *filesort_vary_heapsort_thread(thread_data *thread)
 {
- int fd,i;
+ int fd;
+ size_t item;
 
  /* Sort the data pointers using a heap sort */
 
@@ -905,11 +909,11 @@ static void *filesort_vary_heapsort_thread(thread_data *thread)
 
  fd=OpenFileNew(thread->filename);
 
- for(i=0;i<thread->n;i++)
+ for(item=0;item<thread->n;item++)
    {
-    FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(thread->datap[i]-FILESORT_VARSIZE);
+    FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(thread->datap[item]-FILESORT_VARSIZE);
 
-    WriteFile(fd,thread->datap[i]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
+    WriteFile(fd,thread->datap[item]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
    }
 
  CloseFile(fd);
@@ -951,13 +955,13 @@ static void *filesort_vary_heapsort_thread(thread_data *thread)
 void filesort_heapsort(void **datap,size_t nitems,int(*compare_function)(const void*, const void*))
 {
  void **datap1=&datap[-1];
- int i;
+ size_t item;
 
  /* Fill the heap by pretending to insert the data that is already there */
 
- for(i=2;i<=nitems;i++)
+ for(item=2;item<=nitems;item++)
    {
-    int index=i;
+    size_t index=item;
 
     /* Bubble up the new value (upside-down, put largest at top) */
 
@@ -981,18 +985,18 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare_function)(const v
 
  /* Repeatedly pull out the root of the heap and swap with the bottom item */
 
- for(i=nitems;i>1;i--)
+ for(item=nitems;item>1;item--)
    {
-    int index=1;
+    size_t index=1;
     void *temp;
 
     temp=datap1[index];
-    datap1[index]=datap1[i];
-    datap1[i]=temp;
+    datap1[index]=datap1[item];
+    datap1[item]=temp;
 
     /* Bubble down the new value (upside-down, put largest at top) */
 
-    while((2*index)<(i-1))
+    while((2*index)<(item-1))
       {
        int newindex;
        void *temp;
@@ -1012,7 +1016,7 @@ void filesort_heapsort(void **datap,size_t nitems,int(*compare_function)(const v
        index=newindex;
       }
 
-    if((2*index)==(i-1))
+    if((2*index)==(item-1))
       {
        int newindex;
        void *temp;
