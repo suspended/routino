@@ -77,6 +77,30 @@ Segments *LoadSegmentList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Destroy the segment list.
+
+  Segments *segments The segment list to destroy.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void DestroySegmentList(Segments *segments)
+{
+#if !SLIM
+
+ segments->data=UnmapFile(segments->data);
+
+#else
+
+ segments->fd=CloseFile(segments->fd);
+
+ DeleteSegmentCache(segments->cache);
+
+#endif
+
+ free(segments);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Find the closest segment from a specified node heading in a particular direction and optionally profile.
 
   index_t FindClosestSegmentHeading Returns the closest heading segment index.

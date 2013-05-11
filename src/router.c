@@ -617,17 +617,19 @@ int main(int argc,char** argv)
  if(!option_none)
     PrintRoute(results,NWAYPOINTS,OSMNodes,OSMSegments,OSMWays,profile);
 
- /* Destroy the remaining results lists */
+ /* Destroy the remaining results lists and data structures */
+
+#if 0
 
  for(point=1;point<=NWAYPOINTS;point++)
     if(results[point])
        FreeResultsList(results[point]);
 
-#if SLIM
- DeleteNodeCache(OSMNodes->cache);
- DeleteSegmentCache(OSMSegments->cache);
- DeleteWayCache(OSMWays->cache);
- DeleteTurnRelationCache(OSMRelations->cache);
+ DestroyNodeList(OSMNodes);
+ DestroySegmentList(OSMSegments);
+ DestroyWayList(OSMWays);
+ DestroyRelationList(OSMRelations);
+
 #endif
 
  return(0);

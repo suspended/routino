@@ -89,6 +89,8 @@ struct _Segments
 
 Segments *LoadSegmentList(const char *filename);
 
+void DestroySegmentList(Segments *segments);
+
 index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,index_t node1,double heading,Profile *profile);
 
 distance_t Distance(double lat1,double lon1,double lat2,double lon2);

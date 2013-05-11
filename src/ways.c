@@ -74,6 +74,30 @@ Ways *LoadWayList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Destroy the way list.
+
+  Ways *ways The way list to destroy.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void DestroyWayList(Ways *ways)
+{
+#if !SLIM
+
+ ways->data=UnmapFile(ways->data);
+
+#else
+
+ ways->fd=CloseFile(ways->fd);
+
+ DeleteWayCache(ways->cache);
+
+#endif
+
+ free(ways);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Return 0 if the two ways are the same (in respect of their types and limits),
            otherwise return positive or negative to allow sorting.
 
