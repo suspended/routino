@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -59,25 +59,10 @@ void fprintf_last(FILE *file,const char *format, ...);
 
 void fprintf_elapsed_time(FILE *file,struct timeval *start);
 
-/* Parsing/processing error logging functions in logging.c */
-
-void open_errorlog(const char *filename,int append);
-void close_errorlog(void);
-
-#ifdef __GNUC__
-
-void logerror(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
-
-#else
-
-void logerror(const char *format, ...);
-
-#endif
-
 
 /* Runtime fatal error assertion */
 
-#define logassert(xx,yy) do{ if(!(xx)) _logassert(yy,__FILE__,__LINE__); } while(0);
+#define logassert(xx,yy) do { if(!(xx)) _logassert(yy,__FILE__,__LINE__); } while(0)
 
 void _logassert(const char *message,const char *file,int line);
 
