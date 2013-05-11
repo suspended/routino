@@ -92,6 +92,32 @@ Nodes *LoadNodeList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Destroy the node list.
+
+  Nodes *nodes The node list to destroy.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void DestroyNodeList(Nodes *nodes)
+{
+#if !SLIM
+
+ nodes->data=UnmapFile(nodes->data);
+
+#else
+
+ nodes->fd=CloseFile(nodes->fd);
+
+ free(nodes->offsets);
+
+ DeleteNodeCache(nodes->cache);
+
+#endif
+
+ free(nodes);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Find the closest node given its latitude, longitude and the profile of the
   mode of transport that must be able to move to/from this node.
 

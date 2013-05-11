@@ -88,6 +88,30 @@ Relations *LoadRelationList(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Destroy the relation list.
+
+  Relations *relations The relation list to destroy.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void DestroyRelationList(Relations *relations)
+{
+#if !SLIM
+
+ relations->data=UnmapFile(relations->data);
+
+#else
+
+ relations->fd=CloseFile(relations->fd);
+
+ DeleteTurnRelationCache(relations->cache);
+
+#endif
+
+ free(relations);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Find the first turn relation in the file whose 'via' matches a specific node.
 
   index_t FindFirstTurnRelation1 Returns the index of the first turn relation matching.

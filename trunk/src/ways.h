@@ -98,6 +98,8 @@ struct _Ways
 
 Ways *LoadWayList(const char *filename);
 
+void DestroyWayList(Ways *ways);
+
 int WaysCompare(Way *way1p,Way *way2p);
 
 

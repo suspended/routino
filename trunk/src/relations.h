@@ -87,6 +87,8 @@ struct _Relations
 
 Relations *LoadRelationList(const char *filename);
 
+void DestroyRelationList(Relations *relations);
+
 index_t FindFirstTurnRelation1(Relations *relations,index_t via);
 index_t FindNextTurnRelation1(Relations *relations,index_t current);
 

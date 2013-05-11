@@ -97,6 +97,8 @@ struct _Nodes
 
 Nodes *LoadNodeList(const char *filename);
 
+void DestroyNodeList(Nodes *nodes);
+
 index_t FindClosestNode(Nodes *nodes,Segments *segments,Ways *ways,double latitude,double longitude,
                         distance_t distance,Profile *profile,distance_t *bestdist);
 
