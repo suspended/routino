@@ -29,7 +29,7 @@
 #include <stdint.h>
 
 #include "xmlparse.h"
-#include "logging.h"
+#include "logerror.h"
 #include "tagging.h"
 
 #include "files.h"
@@ -623,7 +623,7 @@ int main(int argc,char **argv)
  /* Create the error log file */
 
  if(errorlog)
-    open_errorlog(errorlog,0);
+    open_errorlog(errorlog,0,0);
 
  /* Parse the file */
 

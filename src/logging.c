@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -53,9 +53,6 @@ static struct timeval start_time;
 
 /*+ The length of the string printed out last time. +*/
 static int printed_length=0;
-
-/*+ The file handle for the error log file. +*/
-static FILE *errorlogfile;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -315,60 +312,6 @@ void fprintf_elapsed_time(FILE *file,struct timeval *start)
    }
 
  fprintf(file,"[%2ld:%02ld.%03ld] ",elapsed.tv_sec/60,elapsed.tv_sec%60,elapsed.tv_usec/10000);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Create the error log file.
-
-  const char *filename The name of the file to create.
-
-  int append The option to append to an existing file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void open_errorlog(const char *filename,int append)
-{
- errorlogfile=fopen(filename,append?"a":"w");
-
- if(!errorlogfile)
-   {
-    fprintf(stderr,"Cannot open file '%s' for writing [%s].\n",filename,strerror(errno));
-    exit(EXIT_FAILURE);
-   }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Close the error log file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void close_errorlog(void)
-{
- if(errorlogfile)
-    fclose(errorlogfile);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Log a message to the error log file.
-
-  const char *format The format string.
-
-  ... The other arguments.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void logerror(const char *format, ...)
-{
- va_list ap;
-
- if(!errorlogfile)
-    return;
-
- va_start(ap,format);
-
- vfprintf(errorlogfile,format,ap);
-
- va_end(ap);
 }
 
 

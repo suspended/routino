@@ -86,7 +86,7 @@ all: $(EXE)
 PLANETSPLITTER_OBJ=planetsplitter.o \
 	           nodesx.o segmentsx.o waysx.o relationsx.o superx.o prunex.o \
 	           ways.o types.o \
-	           files.o logging.o \
+	           files.o logging.o logerror.o \
 	           results.o queue.o sorting.o \
 	           xmlparse.o tagging.o \
 	           uncompress.o osmxmlparse.o osmpbfparse.o osmo5mparse.o osmparser.o
@@ -99,7 +99,7 @@ planetsplitter : $(PLANETSPLITTER_OBJ)
 PLANETSPLITTER_SLIM_OBJ=planetsplitter-slim.o \
 	                nodesx-slim.o segmentsx-slim.o waysx-slim.o relationsx-slim.o superx-slim.o prunex-slim.o \
 	                ways.o types.o \
-	                files.o logging.o \
+	                files.o logging.o logerror-slim.o \
 	                results.o queue.o sorting.o \
 	                xmlparse.o tagging.o \
 	                uncompress.o osmxmlparse.o osmpbfparse.o osmo5mparse.o osmparser.o
@@ -160,8 +160,8 @@ filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
 ########
 
 TAGMODIFIER_OBJ=tagmodifier.o \
-	        files.o logging.o \
-                uncompress.o xmlparse.o tagging.o
+	        files.o logging.o logerror.o \
+	        uncompress.o xmlparse.o tagging.o
 
 tagmodifier : $(TAGMODIFIER_OBJ)
 	$(LD) $(TAGMODIFIER_OBJ) -o $@ $(LDFLAGS)

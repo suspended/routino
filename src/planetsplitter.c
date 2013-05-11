@@ -40,6 +40,7 @@
 
 #include "files.h"
 #include "logging.h"
+#include "logerror.h"
 #include "functions.h"
 #include "osmparser.h"
 #include "tagging.h"
@@ -220,7 +221,7 @@ int main(int argc,char** argv)
  /* Create the error log file */
 
  if(errorlog)
-    open_errorlog(FileName(dirname,prefix,errorlog),option_append||option_changes||option_process_only);
+    open_errorlog(FileName(dirname,prefix,errorlog),option_append||option_changes||option_process_only,option_keep);
 
  /* Parse the file */
 

@@ -35,6 +35,7 @@
 
 #include "files.h"
 #include "logging.h"
+#include "logerror.h"
 #include "sorting.h"
 
 
@@ -576,20 +577,20 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
 
     if(indexw==NO_WAY)
       {
-       logerror("Segment belongs to way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",segmentx.way);
+       logerror("Segment belongs to way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",logerror_way(segmentx.way));
 
        noway++;
       }
     else if(index1==NO_NODE || index2==NO_NODE)
       {
        if(index1==NO_NODE && index2==NO_NODE)
-          logerror("Segment connects nodes %"Pnode_t" and %"Pnode_t" that do not exist in the Routino database (not highway nodes?).\n",segmentx.node1,segmentx.node2);
+          logerror("Segment connects nodes %"Pnode_t" and %"Pnode_t" that do not exist in the Routino database (not highway nodes?).\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2));
 
        if(index1==NO_NODE && index2!=NO_NODE)
-          logerror("Segment contains node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",segmentx.node1);
+          logerror("Segment contains node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",logerror_node(segmentx.node1));
 
        if(index1!=NO_NODE && index2==NO_NODE)
-          logerror("Segment contains node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",segmentx.node2);
+          logerror("Segment contains node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",logerror_node(segmentx.node2));
 
        nonode++;
       }
@@ -600,16 +601,16 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
        else
          {
           if(!(prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",segmentx.node1,segmentx.node2);
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2));
 
           if(!(prevdist&SEGMENT_AREA) && (segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",segmentx.node1,segmentx.node2);
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2));
 
           if((prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",segmentx.node1,segmentx.node2);
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2));
 
           if((prevdist&SEGMENT_AREA) && (segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",segmentx.node1,segmentx.node2);
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2));
          }
 
        duplicate++;
