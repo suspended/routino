@@ -55,6 +55,7 @@ struct _WaysX
  int      fd;                   /*+ The file descriptor of the open file (for the WaysX). +*/
 
  index_t  number;               /*+ The number of extended ways still being considered. +*/
+ index_t  knumber;              /*+ The number of extended ways kept for next time. +*/
 
 #if !SLIM
 
@@ -70,6 +71,7 @@ struct _WaysX
 #endif
 
  way_t   *idata;                /*+ The extended way IDs (sorted by ID). +*/
+ off_t   *odata;                /*+ The offset of the way in the file (used for error log). +*/
 
  index_t *cdata;                /*+ The compacted way IDs (same order as sorted ways). +*/
 

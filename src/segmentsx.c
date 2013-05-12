@@ -565,6 +565,8 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
  else
     DeleteFile(segmentsx->filename_tmp);
 
+ segmentsx->knumber=segmentsx->number;
+
  fd=OpenFileNew(segmentsx->filename_tmp);
 
  /* Modify the on-disk image */

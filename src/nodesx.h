@@ -58,6 +58,7 @@ struct _NodesX
  int       fd;                  /*+ The file descriptor of the open file (for the NodesX). +*/
 
  index_t   number;              /*+ The number of extended nodes still being considered. +*/
+ index_t   knumber;             /*+ The number of extended nodes kept for next time. +*/
 
 #if !SLIM
 

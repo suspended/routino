@@ -28,19 +28,21 @@
 
 #include "files.h"
 #include "logerror.h"
-#include "sorting.h"
+
+
+/* Global variables */
+
+/*+ The name of the error log file. +*/
+char *errorlogfilename=NULL;
+
+/*+ The name of the binary error log file. +*/
+char *errorbinfilename=NULL;
 
 
 /* Local variables */
 
-/*+ The name of the error log file. +*/
-static char *errorlogfilename=NULL;
-
 /*+ The file handle for the error log file. +*/
 static FILE *errorlogfile=NULL;
-
-/*+ The name of the binary error log file. +*/
-static char *errorbinfilename=NULL;
 
 /*+ The file descriptor for the binary error log file. +*/
 static int errorbinfile=-1;

@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2012 Andrew M. Bishop
+ This file Copyright 2010-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -67,6 +67,7 @@ struct _RelationsX
  int        rfd;               /*+ The file descriptor of the open file (for the RouteRelX). +*/
 
  index_t    rnumber;           /*+ The number of extended route relations. +*/
+ index_t    rknumber;          /*+ The number of extended route relations kept for next time. +*/
 
  /* Turn restriction relations */
 
@@ -76,6 +77,7 @@ struct _RelationsX
  int        trfd;              /*+ The file descriptor of the temporary file (for the TurnRelX). +*/
 
  index_t    trnumber;          /*+ The number of extended turn restriction relations. +*/
+ index_t    trknumber;         /*+ The number of extended turn relations kept for next time. +*/
 };
 
 

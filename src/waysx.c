@@ -149,6 +149,9 @@ void FreeWayList(WaysX *waysx,int keep)
  if(waysx->idata)
     free(waysx->idata);
 
+ if(waysx->odata)
+    free(waysx->odata);
+
  if(waysx->cdata)
     free(waysx->cdata);
 
@@ -391,6 +394,8 @@ void ExtractWayNames(WaysX *waysx,int keep)
     RenameFile(waysx->filename_tmp,waysx->filename);
  else
     DeleteFile(waysx->filename_tmp);
+
+ waysx->knumber=waysx->number;
 
  fd=OpenFileNew(waysx->filename_tmp);
 

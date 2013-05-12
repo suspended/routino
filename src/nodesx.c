@@ -386,6 +386,8 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int keep)
  else
     DeleteFile(nodesx->filename_tmp);
 
+ nodesx->knumber=nodesx->number;
+
  fd=OpenFileNew(nodesx->filename_tmp);
 
  /* Modify the on-disk image */

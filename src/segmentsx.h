@@ -59,6 +59,7 @@ struct _SegmentsX
  int        fd;                 /*+ The file descriptor of the open file (for the SegmentsX). +*/
 
  index_t    number;             /*+ The number of extended segments still being considered. +*/
+ index_t    knumber;            /*+ The number of extended segments kept for next time. +*/
 
 #if !SLIM
 
