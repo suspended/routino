@@ -665,6 +665,8 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
  if(keep)
     RenameFile(relationsx->rfilename_tmp,relationsx->rfilename);
 
+ relationsx->rknumber=relationsx->rnumber;
+
  /* Unmap from memory / close the files */
 
 #if !SLIM
@@ -704,6 +706,8 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,in
     RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
  else
     DeleteFile(relationsx->trfilename_tmp);
+
+ relationsx->trknumber=relationsx->trnumber;
 
  trfd=OpenFileNew(relationsx->trfilename_tmp);
 

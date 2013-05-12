@@ -36,7 +36,7 @@ CFLAGS+=-Wextra -Wno-unused-parameter
 LDFLAGS=-lm
 
 CFLAGS+=-O3
-#CFLAGS+=-O0 -g
+CFLAGS+=-O0 -g
 #CFLAGS+=-pg
 #CFLAGS+=-fprofile-arcs -ftest-coverage
 
@@ -86,7 +86,7 @@ all: $(EXE)
 PLANETSPLITTER_OBJ=planetsplitter.o \
 	           nodesx.o segmentsx.o waysx.o relationsx.o superx.o prunex.o \
 	           ways.o types.o \
-	           files.o logging.o logerror.o \
+	           files.o logging.o logerror.o logerrorx.o \
 	           results.o queue.o sorting.o \
 	           xmlparse.o tagging.o \
 	           uncompress.o osmxmlparse.o osmpbfparse.o osmo5mparse.o osmparser.o
@@ -99,7 +99,7 @@ planetsplitter : $(PLANETSPLITTER_OBJ)
 PLANETSPLITTER_SLIM_OBJ=planetsplitter-slim.o \
 	                nodesx-slim.o segmentsx-slim.o waysx-slim.o relationsx-slim.o superx-slim.o prunex-slim.o \
 	                ways.o types.o \
-	                files.o logging.o logerror-slim.o \
+	                files.o logging.o logerror-slim.o logerrorx-slim.o \
 	                results.o queue.o sorting.o \
 	                xmlparse.o tagging.o \
 	                uncompress.o osmxmlparse.o osmpbfparse.o osmo5mparse.o osmparser.o

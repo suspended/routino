@@ -526,21 +526,31 @@ if(!option_process_only)
 
  SaveRelationList(OSMRelations,FileName(dirname,prefix,"relations.mem"));
 
- /* Close the error log file */
+ /* Close the error log file and process the data */
 
  if(errorlog)
+   {
     close_errorlog();
 
- /* Free the memory (delete the temporary files) */
+    if(option_keep)
+      {
+       printf("\nCreate Error Log\n================\n\n");
+       fflush(stdout);
 
-#if 0
+       ProcessErrorLogs(OSMNodes,OSMWays,OSMRelations);
+
+       SortErrorLogsGeographically();
+
+       SaveErrorLogs(OSMNodes,FileName(dirname,prefix,"errors.mem"));
+      }
+   }
+
+ /* Free the memory (delete the temporary files) */
 
  FreeNodeList(OSMNodes,0);
  FreeSegmentList(OSMSegments,0);
  FreeWayList(OSMWays,0);
  FreeRelationList(OSMRelations,0);
-
-#endif
 
  /* Print the total time */
 
