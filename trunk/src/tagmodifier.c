@@ -29,7 +29,6 @@
 #include <stdint.h>
 
 #include "xmlparse.h"
-#include "logerror.h"
 #include "tagging.h"
 
 #include "files.h"

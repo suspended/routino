@@ -34,7 +34,6 @@
 
 #include "files.h"
 #include "logging.h"
-#include "logerror.h"
 #include "sorting.h"
 
 

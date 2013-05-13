@@ -29,7 +29,7 @@
 #include "files.h"
 #include "tagging.h"
 #include "xmlparse.h"
-#include "logerror.h"
+#include "logging.h"
 
 
 /* Constants */
