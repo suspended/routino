@@ -1,5 +1,5 @@
 /***************************************
- Header file for error logging function prototypes
+ Header file for error log file data types and processing function prototypes.
 
  Part of the Routino routing software.
  ******************/ /******************
@@ -20,8 +20,8 @@
  ***************************************/
 
 
-#ifndef LOGERROR_H
-#define LOGERROR_H    /*+ To stop multiple inclusions. +*/
+#ifndef ERRORLOGX_H
+#define ERRORLOGX_H    /*+ To stop multiple inclusions. +*/
 
 #include <stdint.h>
 
@@ -108,4 +108,4 @@ void SortErrorLogsGeographically(void);
 void SaveErrorLogs(NodesX *nodesx,char *filename);
 
 
-#endif /* LOGERROR_H */
+#endif /* ERRORLOGX_H */
