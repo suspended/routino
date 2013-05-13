@@ -27,7 +27,7 @@
 #include "typesx.h"
 
 #include "files.h"
-#include "logerror.h"
+#include "logging.h"
 
 
 /* Global variables */

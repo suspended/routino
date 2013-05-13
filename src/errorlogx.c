@@ -1,5 +1,5 @@
 /***************************************
- Error log processing functions
+ Error log processing functions.
 
  Part of the Routino routing software.
  ******************/ /******************
@@ -26,7 +26,7 @@
 #include "relationsx.h"
 
 #include "files.h"
-#include "logerror.h"
+#include "errorlogx.h"
 #include "sorting.h"
 
 

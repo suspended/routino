@@ -40,7 +40,7 @@
 
 #include "files.h"
 #include "logging.h"
-#include "logerror.h"
+#include "errorlogx.h"
 #include "functions.h"
 #include "osmparser.h"
 #include "tagging.h"
