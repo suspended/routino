@@ -36,7 +36,6 @@
 #include "osmparser.h"
 #include "tagging.h"
 #include "logging.h"
-#include "logerror.h"
 
 
 /* Macros */

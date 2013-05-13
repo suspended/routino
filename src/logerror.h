@@ -29,18 +29,6 @@
 #include "typesx.h"
 
 
-/* Data structures */
-
-/*+ A structure containing a single object as written by the logerror_*() functions. +*/
-typedef struct _ErrorLogObject
-{
- uint64_t  type_id;          /*+ The type and id of the object. +*/
-
- uint32_t  offset;           /*+ The offset of the error message from the beginning of the text file. +*/
-}
- ErrorLogObject;
-
-
 /*+ A structure containing information for an error message during processing. +*/
 typedef struct _ErrorLogX
 {
@@ -111,26 +99,6 @@ struct _ErrorLogs
 #endif
 }
  ErrorLogs;
-
-
-/* Error logging functions in logerror.c */
-
-void open_errorlog(const char *filename,int append,int bin);
-void close_errorlog(void);
-
-#ifdef __GNUC__
-
-void logerror(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
-
-#else
-
-void logerror(const char *format, ...);
-
-#endif
-
-node_t     logerror_node    (node_t     id);
-way_t      logerror_way     (way_t      id);
-relation_t logerror_relation(relation_t id);
 
 
 /* Error log processing functions in logerrorx.c */
