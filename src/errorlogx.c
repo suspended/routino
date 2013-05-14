@@ -25,8 +25,10 @@
 #include "waysx.h"
 #include "relationsx.h"
 
-#include "files.h"
 #include "errorlogx.h"
+#include "errorlog.h"
+
+#include "files.h"
 #include "sorting.h"
 
 
