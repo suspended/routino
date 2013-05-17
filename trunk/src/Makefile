@@ -140,7 +140,7 @@ filedumperx : $(FILEDUMPERX_OBJ)
 ########
 
 FILEDUMPER_OBJ=filedumper.o \
-	       nodes.o segments.o ways.o relations.o types.o fakes.o \
+	       nodes.o segments.o ways.o relations.o types.o fakes.o errorlog.o \
                visualiser.o \
 	       files.o logging.o xmlparse.o
 
@@ -150,7 +150,7 @@ filedumper : $(FILEDUMPER_OBJ)
 ########
 
 FILEDUMPER_SLIM_OBJ=filedumper-slim.o \
-	       nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes-slim.o \
+	       nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes-slim.o errorlog-slim.o \
                visualiser-slim.o \
 	       files.o logging.o xmlparse.o
 

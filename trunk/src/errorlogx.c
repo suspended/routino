@@ -490,10 +490,15 @@ void SaveErrorLogs(NodesX *nodesx,char *filename)
 
  while(size)
    {
-    char *buffer[4096];
+    int i;
+    char buffer[4096];
     off_t chunksize=(size>sizeof(buffer)?sizeof(buffer):size);
 
     ReadFile(oldfd,buffer,chunksize);
+
+    for(i=0;i<chunksize;i++)
+       if(buffer[i]=='\n')
+          buffer[i]=0;
 
     WriteFile(newfd,buffer,chunksize);
 

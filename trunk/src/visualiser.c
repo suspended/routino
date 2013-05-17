@@ -29,6 +29,7 @@
 #include "segments.h"
 #include "ways.h"
 #include "relations.h"
+#include "errorlog.h"
 
 #include "visualiser.h"
 
@@ -68,6 +69,7 @@ static Properties properties=Properties_None;
 /* Local functions */
 
 static void find_all_nodes(Nodes *nodes,callback_t callback);
+
 static void output_junctions(index_t node,double latitude,double longitude);
 static void output_super(index_t node,double latitude,double longitude);
 static void output_oneway(index_t node,double latitude,double longitude);
@@ -1085,6 +1087,60 @@ static void find_all_nodes(Nodes *nodes,callback_t callback)
 
           if(lat>LatMin && lat<LatMax && lon>LonMin && lon<LonMax)
              (*callback)(i,lat,lon);
+         }
+      }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Output the data for error logs within the region.
+
+  ErrorLogs *errorlogs The set of error logs to use.
+
+  double latmin The minimum latitude.
+
+  double latmax The maximum latitude.
+
+  double lonmin The minimum longitude.
+
+  double lonmax The maximum longitude.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void OutputErrorLog(ErrorLogs *errorlogs,double latmin,double latmax,double lonmin,double lonmax)
+{
+ ll_bin_t latminbin=latlong_to_bin(radians_to_latlong(latmin))-errorlogs->file.latzero;
+ ll_bin_t latmaxbin=latlong_to_bin(radians_to_latlong(latmax))-errorlogs->file.latzero;
+ ll_bin_t lonminbin=latlong_to_bin(radians_to_latlong(lonmin))-errorlogs->file.lonzero;
+ ll_bin_t lonmaxbin=latlong_to_bin(radians_to_latlong(lonmax))-errorlogs->file.lonzero;
+ ll_bin_t latb,lonb;
+ index_t i,index1,index2;
+
+ /* Loop through all of the error logs. */
+
+ for(latb=latminbin;latb<=latmaxbin;latb++)
+    for(lonb=lonminbin;lonb<=lonmaxbin;lonb++)
+      {
+       ll_bin2_t llbin=lonb*errorlogs->file.latbins+latb;
+
+       if(llbin<0 || llbin>(errorlogs->file.latbins*errorlogs->file.lonbins))
+          continue;
+
+       index1=LookupErrorLogOffset(errorlogs,llbin);
+       index2=LookupErrorLogOffset(errorlogs,llbin+1);
+
+       for(i=index1;i<index2;i++)
+         {
+          ErrorLog *errorlogp=LookupErrorLog(errorlogs,i,1);
+
+          double lat=latlong_to_radians(bin_to_latlong(errorlogs->file.latzero+latb)+off_to_latlong(errorlogp->latoffset));
+          double lon=latlong_to_radians(bin_to_latlong(errorlogs->file.lonzero+lonb)+off_to_latlong(errorlogp->lonoffset));
+
+          if(lat>latmin && lat<latmax && lon>lonmin && lon<lonmax)
+            {
+             char *string=LookupErrorLogString(errorlogs,i);
+
+             printf("%.6f %.6f %s\n",radians_to_degrees(lat),radians_to_degrees(lon),string);
+            }
          }
       }
 }

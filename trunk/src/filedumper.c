@@ -33,6 +33,7 @@
 #include "segments.h"
 #include "ways.h"
 #include "relations.h"
+#include "errorlog.h"
 
 #include "files.h"
 #include "visualiser.h"
@@ -45,6 +46,7 @@ static void print_node(Nodes *nodes,index_t item);
 static void print_segment(Segments *segments,index_t item);
 static void print_way(Ways *ways,index_t item);
 static void print_turn_relation(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
+static void print_errorlog(ErrorLogs *errorlogs,index_t item);
 
 static void print_head_osm(int coordcount,double latmin,double latmax,double lonmin,double lonmax);
 static void print_region_osm(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,
@@ -69,9 +71,10 @@ int main(int argc,char** argv)
  Segments *OSMSegments;
  Ways     *OSMWays;
  Relations*OSMRelations;
+ ErrorLogs*OSMErrorLogs=NULL;
  int       arg;
  char     *dirname=NULL,*prefix=NULL;
- char     *nodes_filename,*segments_filename,*ways_filename,*relations_filename;
+ char     *nodes_filename,*segments_filename,*ways_filename,*relations_filename,*errorlogs_filename;
  int       option_statistics=0;
  int       option_visualiser=0,coordcount=0;
  double    latmin=0,latmax=0,lonmin=0,lonmax=0;
@@ -117,6 +120,8 @@ int main(int argc,char** argv)
        ;
     else if(!strncmp(argv[arg],"--turn-relation=",16))
        ;
+    else if(!strncmp(argv[arg],"--errorlog=",11))
+       ;
     else
        print_usage(0,argv[arg],NULL);
    }
@@ -133,6 +138,11 @@ int main(int argc,char** argv)
  OSMWays=LoadWayList(ways_filename=FileName(dirname,prefix,"ways.mem"));
 
  OSMRelations=LoadRelationList(relations_filename=FileName(dirname,prefix,"relations.mem"));
+
+ if(ExistsFile(errorlogs_filename=FileName(dirname,prefix,"errorlogs.mem")))
+    OSMErrorLogs=LoadErrorLogs(errorlogs_filename);
+ else
+    errorlogs_filename=NULL;
 
  /* Write out the visualiser data */
 
@@ -174,6 +184,8 @@ int main(int argc,char** argv)
        OutputLengthLimits(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strncmp(option_data,"property",8) && option_data[8]=='-' && (property=PropertyType(option_data+9))!=Property_None)
        OutputProperty(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,property);
+    else if(!strcmp(option_data,"errorlogs"))
+       OutputErrorLog(OSMErrorLogs,latmin,latmax,lonmin,lonmax);
     else
        print_usage(0,option_data,NULL);
    }
@@ -213,6 +225,15 @@ int main(int argc,char** argv)
     printf("'%s%srelations.mem' - %9"PRIu64" Bytes\n",prefix?prefix:"",prefix?"-":"",(uint64_t)buf.st_size);
     printf("%s\n",RFC822Date(buf.st_mtime));
     printf("\n");
+
+    if(errorlogs_filename)
+      {
+       stat(errorlogs_filename,&buf);
+
+       printf("'%s%serrorlogs.mem' - %9"PRIu64" Bytes\n",prefix?prefix:"",prefix?"-":"",(uint64_t)buf.st_size);
+       printf("%s\n",RFC822Date(buf.st_mtime));
+       printf("\n");
+      }
 
     /* Examine the nodes */
 
@@ -272,6 +293,26 @@ int main(int argc,char** argv)
 
     printf("sizeof(TurnRelation)=%9lu Bytes\n",(unsigned long)sizeof(TurnRelation));
     printf("Number              =%9"Pindex_t"\n",OSMRelations->file.trnumber);
+
+    if(errorlogs_filename)
+      {
+       printf("\n");
+       printf("Error Logs\n");
+       printf("----------\n");
+       printf("\n");
+
+       printf("Number(total)           =%9"Pindex_t"\n",OSMErrorLogs->file.number);
+       printf("Number(geographical)    =%9"Pindex_t"\n",OSMErrorLogs->file.number_geo);
+       printf("Number(non-geographical)=%9"Pindex_t"\n",OSMErrorLogs->file.number_nongeo);
+
+       printf("\n");
+       stat(errorlogs_filename,&buf);
+#if !SLIM
+       printf("Total strings=%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)(OSMErrorLogs->strings-(char*)OSMErrorLogs->data));
+#else
+       printf("Total strings=%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)OSMErrorLogs->stringsoffset);
+#endif
+      }
    }
 
  /* Print out internal data (in plain text format) */
@@ -336,6 +377,20 @@ int main(int argc,char** argv)
              print_turn_relation(OSMRelations,item,OSMSegments,OSMNodes);
           else
              printf("Invalid turn relation number; minimum=0, maximum=%"Pindex_t".\n",OSMRelations->file.trnumber-1);
+         }
+       else if(!strcmp(argv[arg],"--errorlog=all"))
+         {
+          for(item=0;item<OSMErrorLogs->file.number;item++)
+             print_errorlog(OSMErrorLogs,item);
+         }
+       else if(!strncmp(argv[arg],"--errorlog=",11))
+         {
+          item=atoi(&argv[arg][11]);
+
+          if(item<OSMErrorLogs->file.number)
+             print_errorlog(OSMErrorLogs,item);
+          else
+             printf("Invalid error log number; minimum=0, maximum=%"Pindex_t".\n",OSMErrorLogs->file.number-1);
          }
    }
 
@@ -507,6 +562,35 @@ static void print_turn_relation(Relations *relations,index_t item,Segments *segm
  printf("  to=%"Pindex_t" (segment) = %"Pindex_t" (way) = %"Pindex_t" (node)\n",relationp->to,to_way,to_node);
  if(relationp->except)
     printf("  except=%02x (%s)\n",relationp->except,AllowedNameList(relationp->except));
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of an error log from the routing database (as plain text).
+
+  ErrorLogs *errorlogs The set of error logs to use.
+
+  index_t item The error log index to print.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_errorlog(ErrorLogs *errorlogs,index_t item)
+{
+ ErrorLog *errorlogp=LookupErrorLog(errorlogs,item,1);
+
+ printf("Error Log %"Pindex_t"\n",item);
+
+ if(item<errorlogs->file.number_geo)
+   {
+    double latitude,longitude;
+
+    GetErrorLogLatLong(errorlogs,item,errorlogp,&latitude,&longitude);
+
+    printf("  latoffset=%d lonoffset=%d (latitude=%.6f longitude=%.6f)\n",errorlogp->latoffset,errorlogp->lonoffset,radians_to_degrees(latitude),radians_to_degrees(longitude));
+   }
+ else
+    printf("  No geographical information\n");
+
+ printf("  '%s'\n",LookupErrorLogString(errorlogs,item));
 }
 
 
@@ -915,12 +999,14 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "      width       = width limits.\n"
             "      length      = length limits.\n"
             "      property-*  = segments with the specified property.\n"
+            "      errorlogs   = errors logged during parsing.\n"
             "\n"
             "--dump                    Dump selected contents of the database.\n"
             "  --node=<node>           * the node with the selected index.\n"
             "  --segment=<segment>     * the segment with the selected index.\n"
             "  --way=<way>             * the way with the selected index.\n"
             "  --turn-relation=<rel>   * the turn relation with the selected index.\n"
+            "  --errorlog=<rel>        * the error log with the selected index.\n"
             "                          Use 'all' instead of a number to get all of them.\n"
             "\n"
             "--dump-osm                Dump all or part of the database as an XML file.\n"
