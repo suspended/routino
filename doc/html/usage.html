@@ -464,7 +464,8 @@ Usage: filedumper [--help]
                   [--dump [--node=&lt;node&gt; ...]
                           [--segment=&lt;segment&gt; ...]
                           [--way=&lt;way&gt; ...]
-                          [--turn-relation=&lt;relation&gt; ...]]
+                          [--turn-relation=&lt;relation&gt; ...]
+                          [--error-log=&lt;number&gt; ...]]
                   [--dump-osm [--no-super]
                               [--latmin=&lt;latmin&gt; --latmax=&lt;latmax&gt;
                                --lonmin=&lt;lonmin&gt; --lonmax=&lt;lonmax&gt;]]
@@ -506,6 +507,7 @@ Usage: filedumper [--help]
           <li>length      = length limits.
           <li>property-*  = segments having the specified property
           (e.g. property-paved to display segments of paved highway).
+          <li>errorlogs   = errors logged during parsing.
         </ul>
     </dl>
   <dt>--dump
@@ -526,6 +528,9 @@ Usage: filedumper [--help]
       <dd>Prints the information about the selected turn relation number
         (internal number, not the relation id number in the original source
         file).
+      <dt>--errorlog=&lt;number&gt;
+      <dd>Prints the information about the selected error log that was stored
+        when the data was parsed.
     </dl>
   <dt>--osm-dump
   <dd>Dumps the contents of the database as an OSM format XML file, the whole
