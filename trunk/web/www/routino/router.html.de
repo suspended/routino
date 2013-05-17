@@ -96,19 +96,19 @@
             <tr>
               <td><a id="lang_de_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);"  href="router.html.de" title="Deutsche Webseite">German</a>
               <td>(DE)
-              <td><input name="language" type="radio" value="de" onchange="formSetLanguage()" checked>
+              <td><input name="language" type="radio" value="de" onchange="formSetLanguage();" checked>
 	    <tr>
               <td><a id="lang_en_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);"  href="router.html.en" title="English language web page">English</a>
               <td>(EN)
-              <td><input name="language" type="radio" value="en" onchange="formSetLanguage()">
+              <td><input name="language" type="radio" value="en" onchange="formSetLanguage();">
             <tr>
               <td><a id="lang_nl_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);"  href="router.html.nl" title="Dutch language web page">Dutch</a>
               <td>(NL)
-              <td><input name="language" type="radio" value="nl" onchange="formSetLanguage()">
+              <td><input name="language" type="radio" value="nl" onchange="formSetLanguage();">
             <tr>
               <td>Russian
               <td>(RU)
-              <td><input name="language" type="radio" value="ru" onchange="formSetLanguage()">
+              <td><input name="language" type="radio" value="ru" onchange="formSetLanguage();">
           </table>
         </div>
       </div>
@@ -126,7 +126,7 @@
             </colgroup>
             <tr id="waypointXXX" style="display: none;">
               <td>
-                <img name="waypointXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click to add/remove on map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX)">&nbsp;
+                <img name="waypointXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click to add/remove on map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX);">&nbsp;
               <td>
                 <span id="coordsXXX">
                   <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E
@@ -164,16 +164,16 @@
         <span class="hideshow_title">Fortbewegungsart</span>
         <div id="hideshow_transport_div">
           <table>
-            <tr><td>Fu&szlig;g&auml;nger <td><input name="transport" type="radio" value="foot"       onchange="formSetTransport('foot'      )">
-            <tr><td>Reiter               <td><input name="transport" type="radio" value="horse"      onchange="formSetTransport('horse'     )">
-            <tr><td>Rollstuhl            <td><input name="transport" type="radio" value="wheelchair" onchange="formSetTransport('wheelchair')">
-            <tr><td>Fahrrad              <td><input name="transport" type="radio" value="bicycle"    onchange="formSetTransport('bicycle'   )">
-            <tr><td>Moped                <td><input name="transport" type="radio" value="moped"      onchange="formSetTransport('moped'     )">
-            <tr><td>Motorrad             <td><input name="transport" type="radio" value="motorcycle" onchange="formSetTransport('motorcycle')">
-            <tr><td>Auto                 <td><input name="transport" type="radio" value="motorcar"   onchange="formSetTransport('motorcar'  )">
-            <tr><td>LKW                  <td><input name="transport" type="radio" value="goods"      onchange="formSetTransport('goods'     )">
-            <tr><td>Schwertransport      <td><input name="transport" type="radio" value="hgv"        onchange="formSetTransport('hgv'       )">
-            <tr><td>Personenverkehr      <td><input name="transport" type="radio" value="psv"        onchange="formSetTransport('psv'       )">
+            <tr><td>Fu&szlig;g&auml;nger <td><input name="transport" type="radio" value="foot"       onchange="formSetTransport('foot'      );">
+            <tr><td>Reiter               <td><input name="transport" type="radio" value="horse"      onchange="formSetTransport('horse'     );">
+            <tr><td>Rollstuhl            <td><input name="transport" type="radio" value="wheelchair" onchange="formSetTransport('wheelchair');">
+            <tr><td>Fahrrad              <td><input name="transport" type="radio" value="bicycle"    onchange="formSetTransport('bicycle'   );">
+            <tr><td>Moped                <td><input name="transport" type="radio" value="moped"      onchange="formSetTransport('moped'     );">
+            <tr><td>Motorrad             <td><input name="transport" type="radio" value="motorcycle" onchange="formSetTransport('motorcycle');">
+            <tr><td>Auto                 <td><input name="transport" type="radio" value="motorcar"   onchange="formSetTransport('motorcar'  );">
+            <tr><td>LKW                  <td><input name="transport" type="radio" value="goods"      onchange="formSetTransport('goods'     );">
+            <tr><td>Schwertransport      <td><input name="transport" type="radio" value="hgv"        onchange="formSetTransport('hgv'       );">
+            <tr><td>Personenverkehr      <td><input name="transport" type="radio" value="psv"        onchange="formSetTransport('psv'       );">
           </table>
         </div>
       </div>
@@ -184,19 +184,19 @@
         <span class="hideshow_title">Vorgaben zur Wegnutzung</span>
         <div id="hideshow_highway_div" style="display: none;">
           <table>
-            <tr><td>Autobahn:            <td><input name="highway-motorway"     type="text" size=3 onchange="formSetHighway('motorway'    )"><td>%
-            <tr><td>Schnellstra&szlig;e: <td><input name="highway-trunk"        type="text" size=3 onchange="formSetHighway('trunk'       )"><td>%
-            <tr><td>Bundesstra&szlig;e:  <td><input name="highway-primary"      type="text" size=3 onchange="formSetHighway('primary'     )"><td>%
-            <tr><td>Landesstra&szlig;e:  <td><input name="highway-secondary"    type="text" size=3 onchange="formSetHighway('secondary'   )"><td>%
-            <tr><td>Hauptstra&szlig;e:   <td><input name="highway-tertiary"     type="text" size=3 onchange="formSetHighway('tertiary'    )"><td>%
-            <tr><td>Stra&szlig;e:        <td><input name="highway-unclassified" type="text" size=3 onchange="formSetHighway('unclassified')"><td>%
-            <tr><td>Wohnstra&szlig;e:    <td><input name="highway-residential"  type="text" size=3 onchange="formSetHighway('residential' )"><td>%
-            <tr><td>Zufahrtsweg:         <td><input name="highway-service"      type="text" size=3 onchange="formSetHighway('service'     )"><td>%
-            <tr><td>Feld-(Wald-)weg:     <td><input name="highway-track"        type="text" size=3 onchange="formSetHighway('track'       )"><td>%
-            <tr><td>Fahrradweg:          <td><input name="highway-cycleway"     type="text" size=3 onchange="formSetHighway('cycleway'    )"><td>%
-            <tr><td>Weg:                 <td><input name="highway-path"         type="text" size=3 onchange="formSetHighway('path'        )"><td>%
-            <tr><td>Fu&szlig;weg:        <td><input name="highway-steps"        type="text" size=3 onchange="formSetHighway('steps'       )"><td>%
-            <tr><td>F&auml;hre:          <td><input name="highway-ferry"        type="text" size=3 onchange="formSetHighway('ferry'       )"><td>%
+            <tr><td>Autobahn:            <td><input name="highway-motorway"     type="text" size=3 onchange="formSetHighway('motorway'    );"><td>%
+            <tr><td>Schnellstra&szlig;e: <td><input name="highway-trunk"        type="text" size=3 onchange="formSetHighway('trunk'       );"><td>%
+            <tr><td>Bundesstra&szlig;e:  <td><input name="highway-primary"      type="text" size=3 onchange="formSetHighway('primary'     );"><td>%
+            <tr><td>Landesstra&szlig;e:  <td><input name="highway-secondary"    type="text" size=3 onchange="formSetHighway('secondary'   );"><td>%
+            <tr><td>Hauptstra&szlig;e:   <td><input name="highway-tertiary"     type="text" size=3 onchange="formSetHighway('tertiary'    );"><td>%
+            <tr><td>Stra&szlig;e:        <td><input name="highway-unclassified" type="text" size=3 onchange="formSetHighway('unclassified');"><td>%
+            <tr><td>Wohnstra&szlig;e:    <td><input name="highway-residential"  type="text" size=3 onchange="formSetHighway('residential' );"><td>%
+            <tr><td>Zufahrtsweg:         <td><input name="highway-service"      type="text" size=3 onchange="formSetHighway('service'     );"><td>%
+            <tr><td>Feld-(Wald-)weg:     <td><input name="highway-track"        type="text" size=3 onchange="formSetHighway('track'       );"><td>%
+            <tr><td>Fahrradweg:          <td><input name="highway-cycleway"     type="text" size=3 onchange="formSetHighway('cycleway'    );"><td>%
+            <tr><td>Weg:                 <td><input name="highway-path"         type="text" size=3 onchange="formSetHighway('path'        );"><td>%
+            <tr><td>Fu&szlig;weg:        <td><input name="highway-steps"        type="text" size=3 onchange="formSetHighway('steps'       );"><td>%
+            <tr><td>F&auml;hre:          <td><input name="highway-ferry"        type="text" size=3 onchange="formSetHighway('ferry'       );"><td>%
           </table>
         </div>
       </div>
@@ -207,19 +207,19 @@
         <span class="hideshow_title">Geschwindigkeitsvorgaben</span>
         <div id="hideshow_speed_div" style="display: none;">
           <table>
-            <tr><td>Autobahn:            <td><input name="speed-motorway"     type="text" size=3 onchange="formSetSpeed('motorway'    )"><td>km/hr
-            <tr><td>Schnellstra&szlig;e: <td><input name="speed-trunk"        type="text" size=3 onchange="formSetSpeed('trunk'       )"><td>km/hr
-            <tr><td>Bundesstra&szlig;e:  <td><input name="speed-primary"      type="text" size=3 onchange="formSetSpeed('primary'     )"><td>km/hr
-            <tr><td>Landesstra&szlig;e:  <td><input name="speed-secondary"    type="text" size=3 onchange="formSetSpeed('secondary'   )"><td>km/hr
-            <tr><td>Hauptstra&szlig;e:   <td><input name="speed-tertiary"     type="text" size=3 onchange="formSetSpeed('tertiary'    )"><td>km/hr
-            <tr><td>Stra&szlig;e:        <td><input name="speed-unclassified" type="text" size=3 onchange="formSetSpeed('unclassified')"><td>km/hr
-            <tr><td>Wohnstra&szlig;e:    <td><input name="speed-residential"  type="text" size=3 onchange="formSetSpeed('residential' )"><td>km/hr
-            <tr><td>Zufahrtsweg:         <td><input name="speed-service"      type="text" size=3 onchange="formSetSpeed('service'     )"><td>km/hr
-            <tr><td>Feld-(Wald-)weg:     <td><input name="speed-track"        type="text" size=3 onchange="formSetSpeed('track'       )"><td>km/hr
-            <tr><td>Fahrradweg:          <td><input name="speed-cycleway"     type="text" size=3 onchange="formSetSpeed('cycleway'    )"><td>km/hr
-            <tr><td>Weg:                 <td><input name="speed-path"         type="text" size=3 onchange="formSetSpeed('path'        )"><td>km/hr
-            <tr><td>Fu&szlig;weg:        <td><input name="speed-steps"        type="text" size=3 onchange="formSetSpeed('steps'       )"><td>km/hr
-            <tr><td>F&auml;hre:          <td><input name="speed-ferry"        type="text" size=3 onchange="formSetSpeed('ferry'       )"><td>km/hr
+            <tr><td>Autobahn:            <td><input name="speed-motorway"     type="text" size=3 onchange="formSetSpeed('motorway'    );"><td>km/hr
+            <tr><td>Schnellstra&szlig;e: <td><input name="speed-trunk"        type="text" size=3 onchange="formSetSpeed('trunk'       );"><td>km/hr
+            <tr><td>Bundesstra&szlig;e:  <td><input name="speed-primary"      type="text" size=3 onchange="formSetSpeed('primary'     );"><td>km/hr
+            <tr><td>Landesstra&szlig;e:  <td><input name="speed-secondary"    type="text" size=3 onchange="formSetSpeed('secondary'   );"><td>km/hr
+            <tr><td>Hauptstra&szlig;e:   <td><input name="speed-tertiary"     type="text" size=3 onchange="formSetSpeed('tertiary'    );"><td>km/hr
+            <tr><td>Stra&szlig;e:        <td><input name="speed-unclassified" type="text" size=3 onchange="formSetSpeed('unclassified');"><td>km/hr
+            <tr><td>Wohnstra&szlig;e:    <td><input name="speed-residential"  type="text" size=3 onchange="formSetSpeed('residential' );"><td>km/hr
+            <tr><td>Zufahrtsweg:         <td><input name="speed-service"      type="text" size=3 onchange="formSetSpeed('service'     );"><td>km/hr
+            <tr><td>Feld-(Wald-)weg:     <td><input name="speed-track"        type="text" size=3 onchange="formSetSpeed('track'       );"><td>km/hr
+            <tr><td>Fahrradweg:          <td><input name="speed-cycleway"     type="text" size=3 onchange="formSetSpeed('cycleway'    );"><td>km/hr
+            <tr><td>Weg:                 <td><input name="speed-path"         type="text" size=3 onchange="formSetSpeed('path'        );"><td>km/hr
+            <tr><td>Fu&szlig;weg:        <td><input name="speed-steps"        type="text" size=3 onchange="formSetSpeed('steps'       );"><td>km/hr
+            <tr><td>F&auml;hre:          <td><input name="speed-ferry"        type="text" size=3 onchange="formSetSpeed('ferry'       );"><td>km/hr
           </table>
         </div>
       </div>
@@ -230,12 +230,12 @@
         <span class="hideshow_title">Vorgaben zur Wegbeschaffenheit</span>
         <div id="hideshow_property_div" style="display: none;">
           <table>
-            <tr><td>befestigt:    <td><input name="property-paved"        type="text" size=3 onchange="formSetProperty('paved'       )"><td>%
-            <tr><td>mehrspurig:   <td><input name="property-multilane"    type="text" size=3 onchange="formSetProperty('multilane'   )"><td>%
-            <tr><td>Br&uuml;cken: <td><input name="property-bridge"       type="text" size=3 onchange="formSetProperty('bridge'      )"><td>%
-            <tr><td>Tunnel:       <td><input name="property-tunnel"       type="text" size=3 onchange="formSetProperty('tunnel'      )"><td>%
-            <tr><td>Wanderweg:    <td><input name="property-footroute"    type="text" size=3 onchange="formSetProperty('footroute'   )"><td>%
-            <tr><td>Radweg:       <td><input name="property-bicycleroute" type="text" size=3 onchange="formSetProperty('bicycleroute')"><td>%
+            <tr><td>befestigt:    <td><input name="property-paved"        type="text" size=3 onchange="formSetProperty('paved'       );"><td>%
+            <tr><td>mehrspurig:   <td><input name="property-multilane"    type="text" size=3 onchange="formSetProperty('multilane'   );"><td>%
+            <tr><td>Br&uuml;cken: <td><input name="property-bridge"       type="text" size=3 onchange="formSetProperty('bridge'      );"><td>%
+            <tr><td>Tunnel:       <td><input name="property-tunnel"       type="text" size=3 onchange="formSetProperty('tunnel'      );"><td>%
+            <tr><td>Wanderweg:    <td><input name="property-footroute"    type="text" size=3 onchange="formSetProperty('footroute'   );"><td>%
+            <tr><td>Radweg:       <td><input name="property-bicycleroute" type="text" size=3 onchange="formSetProperty('bicycleroute');"><td>%
           </table>
         </div>
       </div>
@@ -246,12 +246,12 @@
         <span class="hideshow_title">andere Vorgaben</span>
         <div id="hideshow_restriction_div" style="display: none;">
           <table>
-            <tr><td>beachte Einbahnstra&szlig;en:<td><input name="restrict-oneway" type="checkbox"    onchange="formSetRestriction('oneway')"><td>
-            <tr><td>beachte Abbiegeverbot:       <td><input name="restrict-turns"  type="checkbox"    onchange="formSetRestriction('turns' )"><td>
-            <tr><td>Gewicht:                     <td><input name="restrict-weight" type="text" size=3 onchange="formSetRestriction('weight')"><td>Tonnen
-            <tr><td>H&ouml;he:                   <td><input name="restrict-height" type="text" size=3 onchange="formSetRestriction('height')"><td>Meter
-            <tr><td>Breite:                      <td><input name="restrict-width"  type="text" size=3 onchange="formSetRestriction('width' )"><td>Meter
-            <tr><td>L&auml;nge:                  <td><input name="restrict-length" type="text" size=3 onchange="formSetRestriction('length')"><td>Meter
+            <tr><td>beachte Einbahnstra&szlig;en:<td><input name="restrict-oneway" type="checkbox"    onchange="formSetRestriction('oneway');"><td>
+            <tr><td>beachte Abbiegeverbot:       <td><input name="restrict-turns"  type="checkbox"    onchange="formSetRestriction('turns' );"><td>
+            <tr><td>Gewicht:                     <td><input name="restrict-weight" type="text" size=3 onchange="formSetRestriction('weight');"><td>Tonnen
+            <tr><td>H&ouml;he:                   <td><input name="restrict-height" type="text" size=3 onchange="formSetRestriction('height');"><td>Meter
+            <tr><td>Breite:                      <td><input name="restrict-width"  type="text" size=3 onchange="formSetRestriction('width' );"><td>Meter
+            <tr><td>L&auml;nge:                  <td><input name="restrict-length" type="text" size=3 onchange="formSetRestriction('length');"><td>Meter
           </table>
         </div>
       </div>
