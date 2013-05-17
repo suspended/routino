@@ -196,19 +196,19 @@
         Each segment of the chosen type of highway is drawn.
         <form name="highways" id="highways" action="" method="get" onsubmit="return false;">
           <table>
-            <tr><td>Motorway:    <td><input name="highway" type="radio" value="motorway"    >
-            <tr><td>Trunk:       <td><input name="highway" type="radio" value="trunk"       >
-            <tr><td>Primary:     <td><input name="highway" type="radio" value="primary"     checked>
-            <tr><td>Secondary:   <td><input name="highway" type="radio" value="secondary"   >
-            <tr><td>Tertiary:    <td><input name="highway" type="radio" value="tertiary"    >
-            <tr><td>Unclassified:<td><input name="highway" type="radio" value="unclassified">
-            <tr><td>Residential: <td><input name="highway" type="radio" value="residential" >
-            <tr><td>Service:     <td><input name="highway" type="radio" value="service"     >
-            <tr><td>Track:       <td><input name="highway" type="radio" value="track"       >
-            <tr><td>Cycleway:    <td><input name="highway" type="radio" value="cycleway"    >
-            <tr><td>Path:        <td><input name="highway" type="radio" value="path"        >
-            <tr><td>Steps:       <td><input name="highway" type="radio" value="steps"       >
-            <tr><td>Ferry:       <td><input name="highway" type="radio" value="ferry"       >
+            <tr><td>Motorway:    <td><input name="highway" type="radio" value="motorway"     onchange="displayData('highway');">
+            <tr><td>Trunk:       <td><input name="highway" type="radio" value="trunk"        onchange="displayData('highway');">
+            <tr><td>Primary:     <td><input name="highway" type="radio" value="primary"      onchange="displayData('highway');" checked>
+            <tr><td>Secondary:   <td><input name="highway" type="radio" value="secondary"    onchange="displayData('highway');">
+            <tr><td>Tertiary:    <td><input name="highway" type="radio" value="tertiary"     onchange="displayData('highway');">
+            <tr><td>Unclassified:<td><input name="highway" type="radio" value="unclassified" onchange="displayData('highway');">
+            <tr><td>Residential: <td><input name="highway" type="radio" value="residential"  onchange="displayData('highway');">
+            <tr><td>Service:     <td><input name="highway" type="radio" value="service"      onchange="displayData('highway');">
+            <tr><td>Track:       <td><input name="highway" type="radio" value="track"        onchange="displayData('highway');">
+            <tr><td>Cycleway:    <td><input name="highway" type="radio" value="cycleway"     onchange="displayData('highway');">
+            <tr><td>Path:        <td><input name="highway" type="radio" value="path"         onchange="displayData('highway');">
+            <tr><td>Steps:       <td><input name="highway" type="radio" value="steps"        onchange="displayData('highway');">
+            <tr><td>Ferry:       <td><input name="highway" type="radio" value="ferry"        onchange="displayData('highway');">
           </table>
         </form>
       </div>
@@ -222,16 +222,16 @@
         Each segment allowed for the chosen type of transport is drawn.
         <form name="transports" id="transports" action="" method="get" onsubmit="return false;">
           <table>
-            <tr><td>Foot      <td><input name="transport" type="radio" value="foot"      >
-            <tr><td>Horse     <td><input name="transport" type="radio" value="horse"     >
-            <tr><td>Wheelchair<td><input name="transport" type="radio" value="wheelchair">
-            <tr><td>Bicycle   <td><input name="transport" type="radio" value="bicycle"   >
-            <tr><td>Moped     <td><input name="transport" type="radio" value="moped"     >
-            <tr><td>Motorcycle<td><input name="transport" type="radio" value="motorcycle">
-            <tr><td>Motorcar  <td><input name="transport" type="radio" value="motorcar"  checked>
-            <tr><td>Goods     <td><input name="transport" type="radio" value="goods"     >
-            <tr><td>HGV       <td><input name="transport" type="radio" value="hgv"       >
-            <tr><td>PSV       <td><input name="transport" type="radio" value="psv"       >
+            <tr><td>Foot      <td><input name="transport" type="radio" value="foot"       onchange="displayData('transport');">
+            <tr><td>Horse     <td><input name="transport" type="radio" value="horse"      onchange="displayData('transport');">
+            <tr><td>Wheelchair<td><input name="transport" type="radio" value="wheelchair" onchange="displayData('transport');">
+            <tr><td>Bicycle   <td><input name="transport" type="radio" value="bicycle"    onchange="displayData('transport');">
+            <tr><td>Moped     <td><input name="transport" type="radio" value="moped"      onchange="displayData('transport');">
+            <tr><td>Motorcycle<td><input name="transport" type="radio" value="motorcycle" onchange="displayData('transport');">
+            <tr><td>Motorcar  <td><input name="transport" type="radio" value="motorcar"   onchange="displayData('transport');" checked>
+            <tr><td>Goods     <td><input name="transport" type="radio" value="goods"      onchange="displayData('transport');">
+            <tr><td>HGV       <td><input name="transport" type="radio" value="hgv"        onchange="displayData('transport');">
+            <tr><td>PSV       <td><input name="transport" type="radio" value="psv"        onchange="displayData('transport');">
           </table>
         </form>
       </div>
@@ -245,16 +245,16 @@
         Each barrier blocking the chosen type of transport is drawn.
         <form name="barriers" id="barriers" action="" method="get" onsubmit="return false;">
           <table>
-            <tr><td>Foot      <td><input name="barrier" type="radio" value="foot"      >
-            <tr><td>Horse     <td><input name="barrier" type="radio" value="horse"     >
-            <tr><td>Wheelchair<td><input name="barrier" type="radio" value="wheelchair">
-            <tr><td>Bicycle   <td><input name="barrier" type="radio" value="bicycle"   >
-            <tr><td>Moped     <td><input name="barrier" type="radio" value="moped"     >
-            <tr><td>Motorcycle<td><input name="barrier" type="radio" value="motorcycle">
-            <tr><td>Motorcar  <td><input name="barrier" type="radio" value="motorcar"  checked>
-            <tr><td>Goods     <td><input name="barrier" type="radio" value="goods"     >
-            <tr><td>HGV       <td><input name="barrier" type="radio" value="hgv"       >
-            <tr><td>PSV       <td><input name="barrier" type="radio" value="psv"       >
+            <tr><td>Foot      <td><input name="barrier" type="radio" value="foot"       onchange="displayData('barrier');">
+            <tr><td>Horse     <td><input name="barrier" type="radio" value="horse"      onchange="displayData('barrier');">
+            <tr><td>Wheelchair<td><input name="barrier" type="radio" value="wheelchair" onchange="displayData('barrier');">
+            <tr><td>Bicycle   <td><input name="barrier" type="radio" value="bicycle"    onchange="displayData('barrier');">
+            <tr><td>Moped     <td><input name="barrier" type="radio" value="moped"      onchange="displayData('barrier');">
+            <tr><td>Motorcycle<td><input name="barrier" type="radio" value="motorcycle" onchange="displayData('barrier');">
+            <tr><td>Motorcar  <td><input name="barrier" type="radio" value="motorcar"   onchange="displayData('barrier');" checked>
+            <tr><td>Goods     <td><input name="barrier" type="radio" value="goods"      onchange="displayData('barrier');">
+            <tr><td>HGV       <td><input name="barrier" type="radio" value="hgv"        onchange="displayData('barrier');">
+            <tr><td>PSV       <td><input name="barrier" type="radio" value="psv"        onchange="displayData('barrier');">
           </table>
         </form>
       </div>
@@ -358,12 +358,12 @@
         Each segment of the highways with a particular property is drawn.
         <form name="properties" id="properties" action="" method="get" onsubmit="return false;">
           <table>
-            <tr><td>Paved:         <td><input name="property" type="radio" value="paved"       checked>
-            <tr><td>Multiple Lanes:<td><input name="property" type="radio" value="multilane"   >
-            <tr><td>Bridge:        <td><input name="property" type="radio" value="bridge"      >
-            <tr><td>Tunnel:        <td><input name="property" type="radio" value="tunnel"      >
-            <tr><td>Walking Route: <td><input name="property" type="radio" value="footroute"   >
-            <tr><td>Bicycle Route: <td><input name="property" type="radio" value="bicycleroute">
+            <tr><td>Paved:         <td><input name="property" type="radio" value="paved"        onchange="displayData('property');" checked>
+            <tr><td>Multiple Lanes:<td><input name="property" type="radio" value="multilane"    onchange="displayData('property');">
+            <tr><td>Bridge:        <td><input name="property" type="radio" value="bridge"       onchange="displayData('property');">
+            <tr><td>Tunnel:        <td><input name="property" type="radio" value="tunnel"       onchange="displayData('property');">
+            <tr><td>Walking Route: <td><input name="property" type="radio" value="footroute"    onchange="displayData('property');">
+            <tr><td>Bicycle Route: <td><input name="property" type="radio" value="bicycleroute" onchange="displayData('property');">
           </table>
         </form>
       </div>
