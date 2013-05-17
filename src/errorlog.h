@@ -89,6 +89,8 @@ typedef struct _ErrorLogs
 
  ErrorLog  cached[2];           /*+ Some cached error logs read from the file in slim mode. +*/
 
+ char      cachestring[1024];   /*+ A cached copy of the error string read from the file in slim mode. +*/
+
 #endif
 }
  ErrorLogs;
@@ -100,19 +102,31 @@ ErrorLogs *LoadErrorLogs(const char *filename);
 
 void DestroyErrorLogs(ErrorLogs *errorlogs);
 
+void GetErrorLogLatLong(ErrorLogs *errorlogs,index_t index,ErrorLog *errorlogp,double *latitude,double *longitude);
+
 
 /* Macros and inline functions */
 
 #if !SLIM
 
 /*+ Return an ErrorLog pointer given a set of errorlogs and an index. +*/
-#define LookupErrorLog(xxx,yyy,ggg,ppp)     ((ggg)?(&(xxx)->errorlogs_geo[yyy]):(&(xxx)->errorlogs_nongeo[yyy]))
+#define LookupErrorLog(xxx,yyy,ppp)     (&(xxx)->errorlogs_geo[yyy])
+
+/*+ Return the offset of a geographical region given a set of errorlogs. +*/
+#define LookupErrorLogOffset(xxx,yyy)   ((xxx)->offsets[yyy])
+
+/*+ Return the string for an error log. +*/
+#define LookupErrorLogString(xxx,yyy)   (&(xxx)->strings[(xxx)->errorlogs_geo[yyy].offset])
 
 #else
 
 /* Prototypes */
 
-static inline ErrorLog *LookupErrorLog(ErrorLogs *errorlogs,index_t index,int geo,int position);
+static inline ErrorLog *LookupErrorLog(ErrorLogs *errorlogs,index_t index,int position);
+
+static inline index_t LookupErrorLogOffset(ErrorLogs *errorlogs,index_t index);
+
+static inline char *LookupErrorLogString(ErrorLogs *errorlogs,index_t index);
 
 /* Inline functions */
 
@@ -125,19 +139,54 @@ static inline ErrorLog *LookupErrorLog(ErrorLogs *errorlogs,index_t index,int ge
 
   index_t index The index of the error log.
 
-  int geo Set to true if a geographical error log is required.
-
   int position The position in the cache to store the value.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline ErrorLog *LookupErrorLog(ErrorLogs *errorlogs,index_t index,int geo,int position)
+static inline ErrorLog *LookupErrorLog(ErrorLogs *errorlogs,index_t index,int position)
 {
- if(geo)
-    SeekReadFile(errorlogs->fd,&errorlogs->cached[position-1],sizeof(ErrorLog),errorlogs->errorlogsoffset_geo   +(off_t)index*sizeof(ErrorLog));
- else
-    SeekReadFile(errorlogs->fd,&errorlogs->cached[position-1],sizeof(ErrorLog),errorlogs->errorlogsoffset_nongeo+(off_t)index*sizeof(ErrorLog));
+ SeekReadFile(errorlogs->fd,&errorlogs->cached[position-1],sizeof(ErrorLog),errorlogs->errorlogsoffset_geo+(off_t)index*sizeof(ErrorLog));
 
  return(&errorlogs->cached[position-1]);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the offset of error logs in a geographical region.
+
+  index_t LookupErrorLogOffset Returns the index offset.
+
+  ErrorLogs *errorlogs The set of error logs to use.
+
+  index_t index The index of the offset.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline index_t LookupErrorLogOffset(ErrorLogs *errorlogs,index_t index)
+{
+ index_t offset;
+
+ SeekReadFile(errorlogs->fd,&offset,sizeof(index_t),errorlogs->offsetsoffset+(off_t)index*sizeof(index_t));
+
+ return(offset);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the string associated with a particular error log.
+
+  char *LookupErrorString Returns the error string.
+
+  ErrorLogs *errorlogs The set of error logs to use.
+
+  index_t index The index of the string.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline char *LookupErrorLogString(ErrorLogs *errorlogs,index_t index)
+{
+ ErrorLog *errorlog=LookupErrorLog(errorlogs,index,2);
+
+ SeekReadFile(errorlogs->fd,errorlogs->cachestring,errorlog->length,errorlogs->stringsoffset+errorlog->offset);
+
+ return(errorlogs->cachestring);
 }
 
 #endif

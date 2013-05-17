@@ -108,9 +108,9 @@
         <div id="result_status_no_data">
           <b><i>No data displayed</i></b>
         </div>
-        <div id="result_status_data" style="display: none;">
+        <div id="result_status_data"      style="display: none;">
         </div>
-        <div id="result_status_error" style="display: none;">
+        <div id="result_status_failed"    style="display: none;">
           <b>Failed to get visualiser data!</b>
         </div>
         <div id="result_status_junctions" style="display: none;">
@@ -139,6 +139,9 @@
         </div>
         <div id="result_status_property"  style="display: none;">
           <b>Processed # property segments</b>
+        </div>
+        <div id="result_status_errorlogs" style="display: none;">
+          <b>Processed # error logs</b>
         </div>
       </div>
     </div>
@@ -363,6 +366,15 @@
             <tr><td>Bicycle Route: <td><input name="property" type="radio" value="bicycleroute">
           </table>
         </form>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_errorlogs_show" onclick="hideshow_show('errorlogs');" class="hideshow_show">+</span>
+      <span id="hideshow_errorlogs_hide" onclick="hideshow_hide('errorlogs');" class="hideshow_hide">-</span>
+      <input type="button" id="errorlogs" onclick="displayData('errorlogs');" value="Display Error Logs">
+      <div id="hideshow_errorlogs_div" style="display: none;">
+        Potential problems found by Routino when processing the input data.
       </div>
     </div>
 

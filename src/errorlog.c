@@ -97,3 +97,82 @@ void DestroyErrorLogs(ErrorLogs *errorlogs)
 
  free(errorlogs);
 }
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Get the latitude and longitude associated with an error log.
+
+  ErrorLog *errorlogs The set of error logs to use.
+
+  index_t index The errorlog index.
+
+  ErrorLog *errorlogp A pointer to the error log.
+
+  double *latitude Returns the latitude.
+
+  double *longitude Returns the logitude.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void GetErrorLogLatLong(ErrorLogs *errorlogs,index_t index,ErrorLog *errorlogp,double *latitude,double *longitude)
+{
+ ll_bin_t latbin,lonbin;
+ ll_bin2_t bin=-1;
+ ll_bin2_t start,end,mid;
+ index_t offset;
+
+ /* Binary search - search key nearest match below is required.
+  *
+  *  # <- start  |  Check mid and move start or end if it doesn't match
+  *  #           |
+  *  #           |  A lower bound match is wanted we can set end=mid-1 or
+  *  # <- mid    |  start=mid because we know that mid doesn't match.
+  *  #           |
+  *  #           |  Eventually either end=start or end=start+1 and one of
+  *  # <- end    |  start or end is the wanted one.
+  */
+
+ /* Search for offset */
+
+ start=0;
+ end=errorlogs->file.lonbins*errorlogs->file.latbins;
+
+ do
+   {
+    mid=(start+end)/2;                  /* Choose mid point */
+
+    offset=LookupErrorLogOffset(errorlogs,mid);
+
+    if(offset<index)                    /* Mid point is too low for an exact match but could be lower bound */
+       start=mid;
+    else if(offset>index)               /* Mid point is too high */
+       end=mid?(mid-1):mid;
+    else                                /* Mid point is correct */
+      {bin=mid;break;}
+   }
+ while((end-start)>1);
+
+ if(bin==-1)
+   {
+    offset=LookupErrorLogOffset(errorlogs,end);
+
+    if(offset>index)
+       bin=start;
+    else
+       bin=end;
+   }
+
+ while(bin<=(errorlogs->file.lonbins*errorlogs->file.latbins) && 
+       LookupErrorLogOffset(errorlogs,bin)==LookupErrorLogOffset(errorlogs,bin+1))
+    bin++;
+
+ latbin=bin%errorlogs->file.latbins;
+ lonbin=bin/errorlogs->file.latbins;
+
+ /* Return the values */
+
+ if(errorlogp==NULL)
+    errorlogp=LookupErrorLog(errorlogs,index,2);
+
+ *latitude =latlong_to_radians(bin_to_latlong(errorlogs->file.latzero+latbin)+off_to_latlong(errorlogp->latoffset));
+ *longitude=latlong_to_radians(bin_to_latlong(errorlogs->file.lonzero+lonbin)+off_to_latlong(errorlogp->lonoffset));
+}

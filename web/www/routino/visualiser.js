@@ -37,12 +37,13 @@ var data_types=[
                 "height",
                 "width",
                 "length",
-                "property"
+                "property",
+                "errorlogs"
                ];
 
 
 //
-// Junction styles
+// Styles
 //
 
 var junction_colours={
@@ -60,22 +61,7 @@ var junction_colours={
 
 var junction_styles={};
 
-
-//
-// Super styles
-//
-
-var super_node_style,super_segment_style;
-
-
-//
-// Oneway and turn restriction styles
-//
-
-var hex={0: "00", 1: "11",  2: "22",  3: "33",  4: "44",  5: "55",  6: "66",  7: "77",
-         8: "88", 9: "99", 10: "AA", 11: "BB", 12: "CC", 13: "DD", 14: "EE", 15: "FF"};
-
-var turn_restriction_style;
+var selectable_node_style,node_style,segment_style;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,6 +109,7 @@ var layerMap=[], layerVectors, layerBoxes;
 var epsg4326, epsg900913;
 
 var box;
+var select;
 
 // 
 // Initialise the 'map' object
@@ -237,10 +224,15 @@ function map_init()             // called from visualiser.html
  for(var colour in junction_colours)
     junction_styles[colour]=new OpenLayers.Style({},{stroke: false, pointRadius: 2,fillColor: junction_colours[colour]});
 
- super_node_style   =new OpenLayers.Style({},{stroke: false, pointRadius: 3,fillColor  : "#FF0000"});
- super_segment_style=new OpenLayers.Style({},{fill: false  , strokeWidth: 2,strokeColor: "#FF0000"});
+ node_style     = new OpenLayers.Style({},{stroke: false, pointRadius: 3,fillColor  : "#FF0000"});
+ segment_style  = new OpenLayers.Style({},{fill: false  , strokeWidth: 2,strokeColor: "#FF0000"});
+ selectable_node_style= new OpenLayers.Style({},{stroke: false, pointRadius: 3,fillColor: "#FF0000",cursor: "pointer"});
 
- turn_restriction_style=new OpenLayers.Style({},{fill: false, strokeWidth: 2,strokeColor: "#FF0000"});
+ select = new OpenLayers.Control.SelectFeature(layerVectors,
+                                               {onSelect: selectFeature, onUnselect: unselectFeature});
+
+ map.addControl(select);
+ select.activate();
 
  // Add a boxes layer
 
@@ -334,6 +326,44 @@ function updateURL(element)     // called from visualiser.html
 }
 
 
+//
+// Select or unselect a feature
+//
+
+var popup=null;
+
+function selectFeature(feature)
+{
+ popup = new OpenLayers.Popup.FramedCloud(null, 
+                                          feature.geometry.getBounds().getCenterLonLat(),
+                                          new OpenLayers.Size(250,75),
+                                          feature.errorstring,
+                                          null,
+                                          true, popupClose);
+
+ popup.autoSize=false;
+ popup.keepInMap=true;
+
+ feature.popup=popup;
+
+ map.addPopup(popup);
+}
+
+function unselectFeature(feature)
+{
+ map.removePopup(feature.popup);
+ feature.popup.destroy();
+
+ feature.popup=null;
+}
+
+function popupClose(evt)
+{
+ map.removePopup(popup);
+ popup.destroy();
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// Server handling ////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -404,6 +434,12 @@ function displayData(datatype)  // called from visualiser.html
     hideshow_show(datatype);
 
  // Delete the old data
+
+ if(popup!=null)
+   {
+    map.removePopup(popup);
+    popup.destroy();
+   }
 
  layerVectors.destroyFeatures();
 
@@ -487,6 +523,9 @@ function displayData(datatype)  // called from visualiser.html
           property=properties[p].value;
     url+="-" + property;
     OpenLayers.Request.GET({url: url, success: runPropertySuccess, falure: runFailure});
+    break;
+   case 'errorlogs':
+    OpenLayers.Request.GET({url: url, success: runErrorlogSuccess, falure: runFailure});
     break;
    }
 }
@@ -582,13 +621,13 @@ function runSuperSuccess(response)
          {
           nodepoint=point;
 
-          features.push(new OpenLayers.Feature.Vector(point,{},super_node_style));
+          features.push(new OpenLayers.Feature.Vector(point,{},node_style));
          }
        else
          {
           var segment = new OpenLayers.Geometry.LineString([nodepoint,point]);
 
-          features.push(new OpenLayers.Feature.Vector(segment,{},super_segment_style));
+          features.push(new OpenLayers.Feature.Vector(segment,{},segment_style));
          }
       }
    }
@@ -605,6 +644,9 @@ function runSuperSuccess(response)
 
 function runOnewaySuccess(response)
 {
+ var hex={0: "00", 1: "11",  2: "22",  3: "33",  4: "44",  5: "55",  6: "66",  7: "77",
+          8: "88", 9: "99", 10: "AA", 11: "BB", 12: "CC", 13: "DD", 14: "EE", 15: "FF"};
+
  var lines=response.responseText.split('\n');
 
  var features=[];
@@ -708,7 +750,7 @@ function runHighwaySuccess(response)
 
        var segment = new OpenLayers.Geometry.LineString([point1,point2]);
 
-       features.push(new OpenLayers.Feature.Vector(segment,{},super_segment_style));
+       features.push(new OpenLayers.Feature.Vector(segment,{},segment_style));
       }
    }
 
@@ -760,7 +802,7 @@ function runTransportSuccess(response)
 
        var segment = new OpenLayers.Geometry.LineString([point1,point2]);
 
-       features.push(new OpenLayers.Feature.Vector(segment,{},super_segment_style));
+       features.push(new OpenLayers.Feature.Vector(segment,{},segment_style));
       }
    }
 
@@ -806,7 +848,7 @@ function runBarrierSuccess(response)
 
        var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
 
-       features.push(new OpenLayers.Feature.Vector(point,{},super_node_style));
+       features.push(new OpenLayers.Feature.Vector(point,{},node_style));
       }
    }
 
@@ -862,7 +904,7 @@ function runTurnsSuccess(response)
 
        var segments = new OpenLayers.Geometry.LineString([point1,point2,point3]);
 
-       features.push(new OpenLayers.Feature.Vector(segments,{},turn_restriction_style));
+       features.push(new OpenLayers.Feature.Vector(segments,{},segment_style));
       }
    }
 
@@ -915,7 +957,7 @@ function runLimitSuccess(response)
 
           nodelonlat=lonlat;
 
-          features.push(new OpenLayers.Feature.Vector(point,{},junction_styles[1]));
+          features.push(new OpenLayers.Feature.Vector(point,{},node_style));
          }
        else
          {
@@ -982,7 +1024,7 @@ function runPropertySuccess(response)
 
        var segment = new OpenLayers.Geometry.LineString([point1,point2]);
 
-       features.push(new OpenLayers.Feature.Vector(segment,{},super_segment_style));
+       features.push(new OpenLayers.Feature.Vector(segment,{},segment_style));
       }
    }
 
@@ -993,10 +1035,61 @@ function runPropertySuccess(response)
 
 
 //
+// Success in getting the error log data
+//
+
+function runErrorlogSuccess(response)
+{
+ var lines=response.responseText.split('\n');
+
+ var features=[];
+
+ for(var line=0;line<lines.length;line++)
+   {
+    var words=lines[line].split(' ');
+
+    if(line == 0)
+      {
+       var lat1=words[0];
+       var lon1=words[1];
+       var lat2=words[2];
+       var lon2=words[3];
+
+       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+
+       box = new OpenLayers.Marker.Box(bounds);
+
+       layerBoxes.addMarker(box);
+      }
+    else if(words[0] != "")
+      {
+       var lat=words[0];
+       var lon=words[1];
+       var string=words.slice(2).join(" ");
+
+       var lonlat = new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
+
+       var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
+
+       feature = new OpenLayers.Feature.Vector(point,{},selectable_node_style);
+
+       features.push(feature);
+
+       feature.errorstring=string;
+      }
+   }
+
+ layerVectors.addFeatures(features);
+
+ displayStatus("data","errorlogs",lines.length-2);
+}
+
+
+//
 // Failure in getting data.
 //
 
 function runFailure(response)
 {
- displayStatus("error");
+ displayStatus("failed");
 }

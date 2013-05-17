@@ -541,7 +541,7 @@ if(!option_process_only)
 
        SortErrorLogsGeographically();
 
-       SaveErrorLogs(OSMNodes,FileName(dirname,prefix,"errors.mem"));
+       SaveErrorLogs(OSMNodes,FileName(dirname,prefix,"errorlogs.mem"));
       }
    }
 

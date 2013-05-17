@@ -24,6 +24,7 @@
 #define VISUALISER_H    /*+ To stop multiple inclusions. +*/
 
 #include "types.h"
+#include "errorlog.h"
 
 
 /* Functions in visualiser.c */
@@ -51,6 +52,8 @@ void OutputWidthLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,double latmin,double latmax,double lonmin,double lonmax);
 
 void OutputProperty(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,double latmin,double latmax,double lonmin,double lonmax,Property property);
+
+void OutputErrorLog(ErrorLogs *errorlogs,double latmin,double latmax,double lonmin,double lonmax);
 
 
 #endif /* VISUALISER_H */
