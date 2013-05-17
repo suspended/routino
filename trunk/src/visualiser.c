@@ -30,6 +30,7 @@
 #include "ways.h"
 #include "relations.h"
 #include "errorlog.h"
+#include "xmlparse.h"
 
 #include "visualiser.h"
 
@@ -1128,6 +1129,9 @@ void OutputErrorLog(ErrorLogs *errorlogs,double latmin,double latmax,double lonm
        index1=LookupErrorLogOffset(errorlogs,llbin);
        index2=LookupErrorLogOffset(errorlogs,llbin+1);
 
+       if(index2>errorlogs->file.number_geo)
+          index2=errorlogs->file.number_geo;
+
        for(i=index1;i<index2;i++)
          {
           ErrorLog *errorlogp=LookupErrorLog(errorlogs,i,1);
@@ -1139,7 +1143,7 @@ void OutputErrorLog(ErrorLogs *errorlogs,double latmin,double latmax,double lonm
             {
              char *string=LookupErrorLogString(errorlogs,i);
 
-             printf("%.6f %.6f %s\n",radians_to_degrees(lat),radians_to_degrees(lon),string);
+             printf("%.6f %.6f %s\n",radians_to_degrees(lat),radians_to_degrees(lon),ParseXML_Encode_Safe_XML(string));
             }
          }
       }
