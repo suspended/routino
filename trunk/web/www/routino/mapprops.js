@@ -56,6 +56,13 @@ var mapprops={ // contains all properties for the map to be displayed.
  // EDIT THIS above to change the map URL(s) and copyright notices
 
 
+ // EDIT THIS below to change the map source data editing URL (or leave blank for no link)
+
+    editurl: "http://www.openstreetmap.org/edit",
+
+ // EDIT THIS above to change the map source data editing URL (or leave blank for no link)
+
+
  // EDIT THIS below to change the maximum number of markers
 
  // The number of waypoints to include in the HTML

@@ -160,7 +160,8 @@ Configuration of web files
           The parameters in this file control the boundary of the visible
           map (defaults to UK), the minimum and maximum zoom levels
           (defaults to between 4 and 15 inclusive), the source of map
-          tiles (defaults to the main OpenStreetMap tile server) and the
+          tiles (defaults to the main OpenStreetMap tile server), the data
+          editing URL (defaults to the OpenStreetMap website) and the
           number of waypoints allowed (defaults to 9).
 
    The directory www/routino/documentation contains the HTML version of

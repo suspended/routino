@@ -266,7 +266,7 @@
         <span class="hideshow_title">Links</span>
         <a id="permalink_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html">Dauerhafter Link zu diesen Vorgaben</a>
         <br>
-        <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="http://www.openstreetmap.org/" target="edit">Bearbeitet die OSM-Daten in Potlatch</a>
+        <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" target="edit" style="display: none;">Bearbeitet die OSM-Daten</a>
       </div>
 
       <div class="hideshow_box">

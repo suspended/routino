@@ -267,7 +267,7 @@
         <span class="hideshow_title">Links</span>
         <a id="permalink_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html">Permanente link naar deze parameters</a>
         <br>
-        <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="http://wiki.openstreetmap.org/wiki/NL:Mapper" target="edit">Lees hoe je OSM data kan inbrengen met Potlatch</a>
+        <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" target="edit" style="display: none;">Lees hoe je OSM data kan inbrengen</a>
       </div>
 
       <div class="hideshow_box">

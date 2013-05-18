@@ -242,6 +242,16 @@ function map_init()             // called from visualiser.html
 
     map.moveTo(lonlat,zoom-map.minZoomLevel);
    }
+
+ // Unhide editing URL if variable set
+
+ if(mapprops.editurl != undefined && mapprops.editurl != "")
+   {
+    edit_url=document.getElementById("edit_url");
+
+    edit_url.style.display="";
+    edit_url.href=mapprops.editurl;
+   }
 }
 
 
@@ -297,7 +307,7 @@ function updateURL(element)     // called from visualiser.html
     element.href="router.html" + "?" + buildMapArguments();
 
  if(element.id == "edit_url")
-    element.href="http://www.openstreetmap.org/edit" + "?" + buildMapArguments();
+    element.href=mapprops.editurl + "?" + buildMapArguments();
 
  if(element.id.match(/^lang_([a-zA-Z-]+)_url$/))
     element.href="visualiser.html" + "." + RegExp.$1 + "?" + buildMapArguments();
