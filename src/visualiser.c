@@ -30,7 +30,6 @@
 #include "ways.h"
 #include "relations.h"
 #include "errorlog.h"
-#include "xmlparse.h"
 
 #include "visualiser.h"
 
