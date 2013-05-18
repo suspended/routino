@@ -61,7 +61,7 @@ var junction_colours={
 
 var junction_styles={};
 
-var selectable_node_style,node_style,segment_style;
+var selectable_node_style,node_style,segment_style,highlight_style;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ if(location.search.length>1)
 ////////////////////////////////////////////////////////////////////////////////
 
 var map;
-var layerMap=[], layerVectors, layerBoxes;
+var layerMap=[], layerHighlights, layerVectors, layerBoxes;
 var epsg4326, epsg900913;
 
 var box;
@@ -216,8 +216,11 @@ function map_init()             // called from visualiser.html
   return OpenLayers.String.format(url, xyz);
  }
 
- // Add a vectors layer
+ // Add two vectors layers (one for highlights that display behind the vectors)
  
+ layerHighlights = new OpenLayers.Layer.Vector("Highlights");
+ map.addLayer(layerHighlights);
+
  layerVectors = new OpenLayers.Layer.Vector("Markers");
  map.addLayer(layerVectors);
 
@@ -228,11 +231,18 @@ function map_init()             // called from visualiser.html
  segment_style  = new OpenLayers.Style({},{fill: false  , strokeWidth: 2,strokeColor: "#FF0000"});
  selectable_node_style= new OpenLayers.Style({},{stroke: false, pointRadius: 3,fillColor: "#FF0000",cursor: "pointer"});
 
+ highlight_style = new OpenLayers.Style({},{strokeColor: "#F0F000",strokeWidth: 8,
+                                            fillColor: "#F0F000",pointRadius: 6});
+
+ // Handle feature selection and popup
+
  select = new OpenLayers.Control.SelectFeature(layerVectors,
                                                {onSelect: selectFeature, onUnselect: unselectFeature});
 
  map.addControl(select);
  select.activate();
+
+ createPopup();
 
  // Add a boxes layer
 
@@ -326,41 +336,92 @@ function updateURL(element)     // called from visualiser.html
 }
 
 
-//
-// Select or unselect a feature
-//
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////// Popup and selection handling /////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 var popup=null;
 
+//
+// Create a popup - not using OpenLayers because want it fixed on screen not fixed on map.
+//
+
+function createPopup()
+{
+ popup=document.createElement('div');
+
+ popup.className = "popup";
+
+ popup.innerHTML = "<span></span>";
+
+ popup.style.display = "none";
+
+ popup.style.position = "fixed";
+ popup.style.top = "-4000px";
+ popup.style.left = "-4000px";
+ popup.style.zIndex = "100";
+
+ popup.style.padding = "5px";
+
+ popup.style.opacity=0.85;
+ popup.style.border="4px solid";
+
+ document.body.appendChild(popup);
+}
+
+
+//
+// Draw a popup - not using OpenLayers because want it fixed on screen not fixed on map.
+//
+
+function drawPopup(html)
+{
+ if(html==null)
+   {
+    popup.style.display="none";
+    return;
+   }
+
+ if(popup.style.display=="none")
+   {
+    var map_div=document.getElementById("map");
+
+    popup.style.left  =map_div.offsetParent.offsetLeft+map_div.offsetLeft+60 + "px";
+    popup.style.top   =                                map_div.offsetTop +30 + "px";
+    popup.style.width =map_div.clientWidth-100 + "px";
+
+    popup.style.display="";
+   }
+
+ popup.innerHTML=html;
+}
+
+
+//
+// Select a feature
+//
+
 function selectFeature(feature)
 {
- popup = new OpenLayers.Popup.FramedCloud(null, 
-                                          feature.geometry.getBounds().getCenterLonLat(),
-                                          new OpenLayers.Size(250,75),
-                                          feature.errorstring,
-                                          null,
-                                          true, popupClose);
+ drawPopup(feature.errorstring);
 
- popup.autoSize=false;
- popup.keepInMap=true;
+ layerHighlights.destroyFeatures();
 
- feature.popup=popup;
+ highlight = new OpenLayers.Feature.Vector(feature.geometry.clone(),{},highlight_style);
 
- map.addPopup(popup);
+ layerHighlights.addFeatures([highlight]);
 }
+
+
+//
+// Un-select a feature
+//
 
 function unselectFeature(feature)
 {
- map.removePopup(feature.popup);
- feature.popup.destroy();
+ layerHighlights.destroyFeatures();
 
- feature.popup=null;
-}
-
-function popupClose(evt)
-{
- map.removePopup(popup);
- popup.destroy();
+ drawPopup(null);
 }
 
 
@@ -435,13 +496,12 @@ function displayData(datatype)  // called from visualiser.html
 
  // Delete the old data
 
- if(popup!=null)
-   {
-    map.removePopup(popup);
-    popup.destroy();
-   }
+ unselectFeature();
+
+ select.deactivate();
 
  layerVectors.destroyFeatures();
+ layerHighlights.destroyFeatures();
 
  if(box != null)
     layerBoxes.removeMarker(box);
@@ -1078,6 +1138,8 @@ function runErrorlogSuccess(response)
        feature.errorstring=string;
       }
    }
+
+ select.activate();
 
  layerVectors.addFeatures(features);
 
