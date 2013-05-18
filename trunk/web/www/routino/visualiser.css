@@ -76,7 +76,6 @@ DIV#tab_visualiser_div INPUT
 
 DIV.popup
 {
- background: #C0C0C0;
-
- border-color: #404040;
+ font-family: monospace;
+ font-size:   10px;
 }

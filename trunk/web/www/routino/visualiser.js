@@ -332,7 +332,8 @@ function createPopup()
  popup.style.padding = "5px";
 
  popup.style.opacity=0.85;
- popup.style.border="4px solid";
+ popup.style.backgroundColor="#C0C0C0";
+ popup.style.border="4px solid #404040";
 
  document.body.appendChild(popup);
 }
