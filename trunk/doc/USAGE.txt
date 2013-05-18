@@ -466,10 +466,14 @@ filedumper
                              [--segment=<segment> ...]
                              [--way=<way> ...]
                              [--turn-relation=<relation> ...]
-                             [--error-log=<number> ...]]
+                             [--errorlog=<number> ...]]
                      [--dump-osm [--no-super]
                                  [--latmin=<latmin> --latmax=<latmax>
                                   --lonmin=<lonmin> --lonmax=<lonmax>]]
+                     [--dump--visualiser [--data=node<node>]
+                                         [--data=segment<segment>]
+                                         [--data=turn-relation<rel>]
+                                         [--data=errorlog<number>]]
 
    --help
           Prints out the help information.
@@ -557,6 +561,28 @@ filedumper
 
         --lonmin=<lonmin> --lonmax=<lonmax>
                 The range of longitudes to dump the data for.
+
+   --dump-visualiser
+          Dumps the contents of the database as HTML formatted items for
+          display in the visualiser web page.
+
+        --data=node<node>
+                Prints the information about the selected node number
+                (internal node number, not from the original source file).
+
+        --data=segment<segment>
+                Prints the information about the selected segment number
+                as if it was a way (internal segment number, unrelated to
+                original source file).
+
+        --data=turn-relation<relation>
+                Prints the information about the selected turn relation
+                number (internal turn relation number, not from the
+                original source file).
+
+        --data=errorlog<number>
+                Prints the information about the selected error log that
+                was stored when the data was parsed.
 
    Note: In version 1.5 of Routino a slim option has been added and at
    compilation time a separate program called filedumper-slim is created

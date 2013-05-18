@@ -41,7 +41,7 @@ $query=new CGI;
               "lonmin" => "[-0-9.]+",
               "lonmax" => "[-0-9.]+",
               "data"   => "(junctions|super|oneway|highway-.*|transport-.*|barrier-.*|turns|speed|weight|height|width|length|property-.*|errorlogs)",
-              "dump"   => "(node|segment|way|turn-relation|errorlog)[0-9]+"
+              "dump"   => "(node|segment|turn-relation|errorlog)[0-9]+"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -127,25 +127,13 @@ if(defined $data && !defined $dump)
   }
 else
   {
-   $type="node"         ,$number=$1 if($dump =~ m%node([0-9]+)%);
-   $type="segment"      ,$number=$1 if($dump =~ m%segment([0-9]+)%);
-   $type="way"          ,$number=$1 if($dump =~ m%way([0-9]+)%);
-   $type="turn-relation",$number=$1 if($dump =~ m%turn-relation([0-9]+)%);
-   $type="errorlog"     ,$number=$1 if($dump =~ m%errorlog([0-9]+)%);
-
-   if($type eq "" || $number eq "")
-     {
-      print header(-status => '500 Invalid CGI parameters');
-      exit;
-     }
-
    # Print the output
 
    print header('text/plain');
 
    # Set the parameters
 
-   $params.=" --dump --$type=$number";
+   $params.=" --dump-visualiser --data=$dump";
   }
 
 # Run the filedumper
