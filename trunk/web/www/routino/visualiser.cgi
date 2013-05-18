@@ -40,7 +40,8 @@ $query=new CGI;
               "latmax" => "[-0-9.]+",
               "lonmin" => "[-0-9.]+",
               "lonmax" => "[-0-9.]+",
-              "data"   => "(junctions|super|oneway|highway-.*|transport-.*|barrier-.*|turns|speed|weight|height|width|length|property-.*|errorlogs)"
+              "data"   => "(junctions|super|oneway|highway-.*|transport-.*|barrier-.*|turns|speed|weight|height|width|length|property-.*|errorlogs)",
+              "dump"   => "(node|segment|way|turn-relation|errorlog)[0-9]+"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -62,62 +63,94 @@ foreach my $key (@rawparams)
      }
   }
 
-# Parameters to limit range selected
+# Data or dump?
 
-%limits=(
-         "junctions" => 0.2,
-         "speed"     => 0.2,
-         "super"     => 0.2,
-         "oneway"    => 0.2,
-         "highway"   => 0.2,
-         "transport" => 0.2,
-         "barrier"   => 0.2,
-         "turns"     => 0.3,
-         "weight"    => 0.3,
-         "height"    => 0.3,
-         "width"     => 0.3,
-         "length"    => 0.3,
-         "property"  => 0.3,
-         "errorlogs" => 0.5
-        );
+$data=$cgiparams{"data"};
+$dump=$cgiparams{"dump"};
 
-# Check the parameters
-
-$latmin=$cgiparams{"latmin"};
-$latmax=$cgiparams{"latmax"};
-$lonmin=$cgiparams{"lonmin"};
-$lonmax=$cgiparams{"lonmax"};
-$data  =$cgiparams{"data"};
-
-if($latmin eq "" || $latmax eq "" || $lonmin eq "" || $lonmax eq "" || $data eq "")
+if(defined $data && !defined $dump)
   {
-   print header(-status => '500 Invalid CGI parameters');
-   exit;
+   # Parameters to limit range selected
+
+   %limits=(
+            "junctions" => 0.2,
+            "speed"     => 0.2,
+            "super"     => 0.2,
+            "oneway"    => 0.2,
+            "highway"   => 0.2,
+            "transport" => 0.2,
+            "barrier"   => 0.2,
+            "turns"     => 0.3,
+            "weight"    => 0.3,
+            "height"    => 0.3,
+            "width"     => 0.3,
+            "length"    => 0.3,
+            "property"  => 0.3,
+            "errorlogs" => 0.5
+           );
+
+   # Check the parameters
+
+   $latmin=$cgiparams{"latmin"};
+   $latmax=$cgiparams{"latmax"};
+   $lonmin=$cgiparams{"lonmin"};
+   $lonmax=$cgiparams{"lonmax"};
+
+   if($latmin eq "" || $latmax eq "" || $lonmin eq "" || $lonmax eq "" || $data eq "")
+     {
+      print header(-status => '500 Invalid CGI parameters');
+      exit;
+     }
+
+   $subdata=$data;
+   $subdata="highway"   if($data =~ m%highway-%);
+   $subdata="transport" if($data =~ m%transport-%);
+   $subdata="barrier"   if($data =~ m%barrier-%);
+   $subdata="property"  if($data =~ m%property-%);
+
+   if(($latmax-$latmin)>$limits{$subdata} || ($lonmax-$lonmin)>$limits{$subdata})
+     {
+      print header(-status => '500 Selected area too large');
+      exit;
+     }
+
+   # Print the output
+
+   print header('text/plain');
+
+   print "$latmin $lonmin $latmax $lonmax\n";
+
+   # Set the parameters
+
+   $params.=" --visualiser --data=$data";
+   $params.=" --latmin=$latmin --latmax=$latmax --lonmin=$lonmin --lonmax=$lonmax";
   }
-
-$subdata=$data;
-$subdata="highway"   if($data =~ m%highway-%);
-$subdata="transport" if($data =~ m%transport-%);
-$subdata="barrier"   if($data =~ m%barrier-%);
-$subdata="property"  if($data =~ m%property-%);
-
-if(($latmax-$latmin)>$limits{$subdata} || ($lonmax-$lonmin)>$limits{$subdata})
+else
   {
-   print header(-status => '500 Selected area too large');
-   exit;
+   $type="node"         ,$number=$1 if($dump =~ m%node([0-9]+)%);
+   $type="segment"      ,$number=$1 if($dump =~ m%segment([0-9]+)%);
+   $type="way"          ,$number=$1 if($dump =~ m%way([0-9]+)%);
+   $type="turn-relation",$number=$1 if($dump =~ m%turn-relation([0-9]+)%);
+   $type="errorlog"     ,$number=$1 if($dump =~ m%errorlog([0-9]+)%);
+
+   if($type eq "" || $number eq "")
+     {
+      print header(-status => '500 Invalid CGI parameters');
+      exit;
+     }
+
+   # Print the output
+
+   print header('text/plain');
+
+   # Set the parameters
+
+   $params.=" --dump --$type=$number";
   }
-
-# Print the output
-
-print header('text/plain');
-
-print "$latmin $lonmin $latmax $lonmax\n";
 
 # Run the filedumper
 
 $params.=" --dir=$data_dir" if($data_dir);
 $params.=" --prefix=$data_prefix" if($data_prefix);
-$params.=" --visualiser --data=$data";
-$params.=" --latmin=$latmin --latmax=$latmax --lonmin=$lonmin --lonmax=$lonmax";
 
 system "$bin_dir/$filedumper_exe $params 2>&1";
