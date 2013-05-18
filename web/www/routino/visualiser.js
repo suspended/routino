@@ -42,28 +42,6 @@ var data_types=[
                ];
 
 
-//
-// Styles
-//
-
-var junction_colours={
-                      0: "#FFFFFF",
-                      1: "#FF0000",
-                      2: "#FFFF00",
-                      3: "#00FF00",
-                      4: "#8B4513",
-                      5: "#00BFFF",
-                      6: "#FF69B4",
-                      7: "#000000",
-                      8: "#000000",
-                      9: "#000000"
-                     };
-
-var junction_styles={};
-
-var selectable_node_style,node_style,segment_style,highlight_style;
-
-
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// Initialisation /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -223,16 +201,6 @@ function map_init()             // called from visualiser.html
 
  layerVectors = new OpenLayers.Layer.Vector("Markers",{displayInLayerSwitcher: false});
  map.addLayer(layerVectors);
-
- for(var colour in junction_colours)
-    junction_styles[colour]=new OpenLayers.Style({},{stroke: false, pointRadius: 2,fillColor: junction_colours[colour]});
-
- node_style     = new OpenLayers.Style({},{stroke: false, pointRadius: 3,fillColor  : "#FF0000"});
- segment_style  = new OpenLayers.Style({},{fill: false  , strokeWidth: 2,strokeColor: "#FF0000"});
- selectable_node_style= new OpenLayers.Style({},{stroke: false, pointRadius: 3,fillColor: "#FF0000",cursor: "pointer"});
-
- highlight_style = new OpenLayers.Style({},{strokeColor: "#F0F000",strokeWidth: 8,
-                                            fillColor: "#F0F000",pointRadius: 6});
 
  // Handle feature selection and popup
 
@@ -403,9 +371,13 @@ function drawPopup(html)
 
 function selectFeature(feature)
 {
- drawPopup(feature.attributes.errorstring);
+ if(feature.attributes.dump)
+    OpenLayers.Request.GET({url: "visualiser.cgi?dump=" + feature.attributes.dump, success: runDumpSuccess});
 
  layerHighlights.destroyFeatures();
+
+ highlight_style = new OpenLayers.Style({},{strokeColor: "#F0F000",strokeWidth: 8,
+                                            fillColor: "#F0F000",pointRadius: 6});
 
  highlight = new OpenLayers.Feature.Vector(feature.geometry.clone(),{},highlight_style);
 
@@ -422,6 +394,16 @@ function unselectFeature(feature)
  layerHighlights.destroyFeatures();
 
  drawPopup(null);
+}
+
+
+//
+// Display the dump data
+//
+
+function runDumpSuccess(response)
+{
+ drawPopup(response.responseText.split("\n").join("<br>"));
 }
 
 
@@ -599,6 +581,26 @@ function runJunctionsSuccess(response)
 {
  var lines=response.responseText.split('\n');
 
+ var junction_colours={
+                       0: "#FFFFFF",
+                       1: "#FF0000",
+                       2: "#FFFF00",
+                       3: "#00FF00",
+                       4: "#8B4513",
+                       5: "#00BFFF",
+                       6: "#FF69B4",
+                       7: "#000000",
+                       8: "#000000",
+                       9: "#000000"
+                      };
+
+ var styles={};
+
+ for(var colour in junction_colours)
+    styles[colour]=new OpenLayers.Style({},{stroke: false,
+                                            pointRadius: 2,fillColor: junction_colours[colour],
+                                            cursor: "pointer"});
+
  var features=[];
 
  for(var line=0;line<lines.length;line++)
@@ -620,17 +622,20 @@ function runJunctionsSuccess(response)
       }
     else if(words[0] != "")
       {
-       var lat=words[0];
-       var lon=words[1];
-       var count=words[2];
+       var dump=words[0];
+       var lat=words[1];
+       var lon=words[2];
+       var count=words[3];
 
        var lonlat= new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
 
        var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
 
-       features.push(new OpenLayers.Feature.Vector(point,{},junction_styles[count]));
+       features.push(new OpenLayers.Feature.Vector(point,{dump: dump},styles[count]));
       }
    }
+
+ select.activate();
 
  layerVectors.addFeatures(features);
 
@@ -645,6 +650,14 @@ function runJunctionsSuccess(response)
 function runSuperSuccess(response)
 {
  var lines=response.responseText.split('\n');
+
+ var node_style = new OpenLayers.Style({},{stroke: false,
+                                           pointRadius: 3,fillColor: "#FF0000",
+                                           cursor: "pointer"});
+
+ var segment_style = new OpenLayers.Style({},{fill: false,
+                                              strokeWidth: 2,strokeColor: "#FF0000",
+                                              cursor: "pointer"});
 
  var features=[];
 
@@ -669,28 +682,30 @@ function runSuperSuccess(response)
       }
     else if(words[0] != "")
       {
-       var lat=words[0];
-       var lon=words[1];
-       var type=words[2];
+       var dump=words[0];
+       var lat=words[1];
+       var lon=words[2];
 
        var lonlat= new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
 
        var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
 
-       if(type == "n")
+       if(dump.charAt(0) == "n")
          {
           nodepoint=point;
 
-          features.push(new OpenLayers.Feature.Vector(point,{},node_style));
+          features.push(new OpenLayers.Feature.Vector(point,{dump: dump},node_style));
          }
        else
          {
           var segment = new OpenLayers.Geometry.LineString([nodepoint,point]);
 
-          features.push(new OpenLayers.Feature.Vector(segment,{},segment_style));
+          features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},segment_style));
          }
       }
    }
+
+ select.activate();
 
  layerVectors.addFeatures(features);
 
@@ -730,10 +745,11 @@ function runOnewaySuccess(response)
       }
     else if(words[0] != "")
       {
-       var lat1=words[0];
-       var lon1=words[1];
-       var lat2=words[2];
-       var lon2=words[3];
+       var dump=words[0];
+       var lat1=words[1];
+       var lon1=words[2];
+       var lat2=words[3];
+       var lon2=words[4];
 
        var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
        var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
@@ -756,11 +772,13 @@ function runOnewaySuccess(response)
        var b=Math.round(7.5+7.9*Math.cos(ang-2.0943951));
        var colour = "#" + hex[r] + hex[g] + hex[b];
 
-       var style=new OpenLayers.Style({},{strokeWidth: 2,strokeColor: colour});
+       var style=new OpenLayers.Style({},{strokeWidth: 2,strokeColor: colour, cursor: "pointer"});
 
-       features.push(new OpenLayers.Feature.Vector(segment,{},style));
+       features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},style));
       }
    }
+
+ select.activate();
 
  layerVectors.addFeatures(features);
 
@@ -776,6 +794,10 @@ function runHighwaySuccess(response)
 {
  var lines=response.responseText.split('\n');
 
+ var style = new OpenLayers.Style({},{fill: false,
+                                      strokeWidth: 2,strokeColor: "#FF0000",
+                                      cursor: "pointer"});
+
  var features=[];
 
  for(var line=0;line<lines.length;line++)
@@ -797,10 +819,11 @@ function runHighwaySuccess(response)
       }
     else if(words[0] != "")
       {
-       var lat1=words[0];
-       var lon1=words[1];
-       var lat2=words[2];
-       var lon2=words[3];
+       var dump=words[0];
+       var lat1=words[1];
+       var lon1=words[2];
+       var lat2=words[3];
+       var lon2=words[4];
 
        var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
        var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
@@ -810,9 +833,11 @@ function runHighwaySuccess(response)
 
        var segment = new OpenLayers.Geometry.LineString([point1,point2]);
 
-       features.push(new OpenLayers.Feature.Vector(segment,{},segment_style));
+       features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},style));
       }
    }
+
+ select.activate();
 
  layerVectors.addFeatures(features);
 
@@ -828,6 +853,10 @@ function runTransportSuccess(response)
 {
  var lines=response.responseText.split('\n');
 
+ var style = new OpenLayers.Style({},{fill: false,
+                                      strokeWidth: 2,strokeColor: "#FF0000",
+                                      cursor: "pointer"});
+
  var features=[];
 
  for(var line=0;line<lines.length;line++)
@@ -849,10 +878,11 @@ function runTransportSuccess(response)
       }
     else if(words[0] != "")
       {
-       var lat1=words[0];
-       var lon1=words[1];
-       var lat2=words[2];
-       var lon2=words[3];
+       var dump=words[0];
+       var lat1=words[1];
+       var lon1=words[2];
+       var lat2=words[3];
+       var lon2=words[4];
 
        var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
        var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
@@ -862,9 +892,11 @@ function runTransportSuccess(response)
 
        var segment = new OpenLayers.Geometry.LineString([point1,point2]);
 
-       features.push(new OpenLayers.Feature.Vector(segment,{},segment_style));
+       features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},style));
       }
    }
+
+ select.activate();
 
  layerVectors.addFeatures(features);
 
@@ -880,6 +912,10 @@ function runBarrierSuccess(response)
 {
  var lines=response.responseText.split('\n');
 
+ var style = new OpenLayers.Style({},{stroke: false,
+                                      pointRadius: 3,fillColor: "#FF0000",
+                                      cursor: "pointer"});
+
  var features=[];
 
  for(var line=0;line<lines.length;line++)
@@ -901,16 +937,19 @@ function runBarrierSuccess(response)
       }
     else if(words[0] != "")
       {
-       var lat=words[0];
-       var lon=words[1];
+       var dump=words[0];
+       var lat=words[1];
+       var lon=words[2];
 
        var lonlat= new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
 
        var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
 
-       features.push(new OpenLayers.Feature.Vector(point,{},node_style));
+       features.push(new OpenLayers.Feature.Vector(point,{dump: dump},style));
       }
    }
+
+ select.activate();
 
  layerVectors.addFeatures(features);
 
@@ -926,6 +965,10 @@ function runTurnsSuccess(response)
 {
  var lines=response.responseText.split('\n');
 
+ var style = new OpenLayers.Style({},{fill: false,
+                                      strokeWidth: 2,strokeColor: "#FF0000",
+                                      cursor: "pointer"});
+
  var features=[];
 
  for(var line=0;line<lines.length;line++)
@@ -947,12 +990,13 @@ function runTurnsSuccess(response)
       }
     else if(words[0] != "")
       {
-       var lat1=words[0];
-       var lon1=words[1];
-       var lat2=words[2];
-       var lon2=words[3];
-       var lat3=words[4];
-       var lon3=words[5];
+       var dump=words[0];
+       var lat1=words[1];
+       var lon1=words[2];
+       var lat2=words[3];
+       var lon2=words[4];
+       var lat3=words[5];
+       var lon3=words[6];
 
        var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
        var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
@@ -964,9 +1008,11 @@ function runTurnsSuccess(response)
 
        var segments = new OpenLayers.Geometry.LineString([point1,point2,point3]);
 
-       features.push(new OpenLayers.Feature.Vector(segments,{},segment_style));
+       features.push(new OpenLayers.Feature.Vector(segments,{dump: dump},style));
       }
    }
+
+ select.activate();
 
  layerVectors.addFeatures(features);
 
@@ -982,8 +1028,17 @@ function runLimitSuccess(response)
 {
  var lines=response.responseText.split('\n');
 
+ var node_style = new OpenLayers.Style({},{stroke: false,
+                                           pointRadius: 3,fillColor: "#FF0000",
+                                           cursor: "pointer"});
+
+ var segment_style = new OpenLayers.Style({},{fill: false,
+                                              strokeWidth: 2,strokeColor: "#FF0000",
+                                              cursor: "pointer"});
+
  var features=[];
 
+ var nodepoint;
  var nodelonlat;
 
  for(var line=0;line<lines.length;line++)
@@ -1005,9 +1060,10 @@ function runLimitSuccess(response)
       }
     else if(words[0] != "")
       {
-       var lat=words[0];
-       var lon=words[1];
-       var number=words[2];
+       var dump=words[0];
+       var lat=words[1];
+       var lon=words[2];
+       var number=words[3];
 
        var lonlat= new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
 
@@ -1016,18 +1072,25 @@ function runLimitSuccess(response)
           var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
 
           nodelonlat=lonlat;
+          nodepoint = point;
 
-          features.push(new OpenLayers.Feature.Vector(point,{},node_style));
+          features.push(new OpenLayers.Feature.Vector(point,{dump: dump},node_style));
          }
        else
          {
+          var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
+
+          var segment = new OpenLayers.Geometry.LineString([nodepoint,point]);
+
+          features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},segment_style));
+
           var dlat = lonlat.lat-nodelonlat.lat;
           var dlon = lonlat.lon-nodelonlat.lon;
-          var dist = Math.sqrt(dlat*dlat+dlon*dlon)/60;
+          var dist = Math.sqrt(dlat*dlat+dlon*dlon)/120;
 
           var point = new OpenLayers.Geometry.Point(nodelonlat.lon+dlon/dist,nodelonlat.lat+dlat/dist);
 
-          features.push(new OpenLayers.Feature.Vector(point,{},
+          features.push(new OpenLayers.Feature.Vector(point,{dump: dump},
                                                       new OpenLayers.Style({},{externalGraphic: 'icons/limit-' + number + '.png',
                                                                                graphicYOffset: -9,
                                                                                graphicWidth: 19,
@@ -1035,6 +1098,8 @@ function runLimitSuccess(response)
          }
       }
    }
+
+ select.activate();
 
  layerVectors.addFeatures(features);
 
@@ -1050,6 +1115,10 @@ function runPropertySuccess(response)
 {
  var lines=response.responseText.split('\n');
 
+ var style = new OpenLayers.Style({},{fill: false,
+                                      strokeWidth: 2,strokeColor: "#FF0000",
+                                      cursor: "pointer"});
+
  var features=[];
 
  for(var line=0;line<lines.length;line++)
@@ -1071,10 +1140,11 @@ function runPropertySuccess(response)
       }
     else if(words[0] != "")
       {
-       var lat1=words[0];
-       var lon1=words[1];
-       var lat2=words[2];
-       var lon2=words[3];
+       var dump=words[0];
+       var lat1=words[1];
+       var lon1=words[2];
+       var lat2=words[3];
+       var lon2=words[4];
 
        var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
        var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
@@ -1084,9 +1154,11 @@ function runPropertySuccess(response)
 
        var segment = new OpenLayers.Geometry.LineString([point1,point2]);
 
-       features.push(new OpenLayers.Feature.Vector(segment,{},segment_style));
+       features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},style));
       }
    }
+
+ select.activate();
 
  layerVectors.addFeatures(features);
 
@@ -1102,6 +1174,10 @@ function runErrorlogSuccess(response)
 {
  var lines=response.responseText.split('\n');
 
+ var style = new OpenLayers.Style({},{stroke: false,
+                                      pointRadius: 3,fillColor: "#FF0000",
+                                      cursor: "pointer"});
+
  var features=[];
 
  for(var line=0;line<lines.length;line++)
@@ -1123,15 +1199,15 @@ function runErrorlogSuccess(response)
       }
     else if(words[0] != "")
       {
-       var lat=words[0];
-       var lon=words[1];
-       var string=words.slice(2).join(" ");
+       var dump=words[0];
+       var lat=words[1];
+       var lon=words[2];
 
        var lonlat = new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
 
        var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
 
-       features.push(new OpenLayers.Feature.Vector(point,{errorstring: string},selectable_node_style));
+       features.push(new OpenLayers.Feature.Vector(point,{dump: dump},style));
       }
    }
 

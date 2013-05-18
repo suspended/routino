@@ -157,7 +157,7 @@ static void output_junctions(index_t node,double latitude,double longitude)
  while(segmentp);
 
  if(count!=2 || difference)
-    printf("%.6f %.6f %d\n",radians_to_degrees(latitude),radians_to_degrees(longitude),count);
+    printf("node%"Pindex_t" %.6f %.6f %d\n",node,radians_to_degrees(latitude),radians_to_degrees(longitude),count);
 }
 
 
@@ -219,7 +219,7 @@ static void output_super(index_t node,double latitude,double longitude)
  if(!IsSuperNode(nodep))
     return;
 
- printf("%.6f %.6f n\n",radians_to_degrees(latitude),radians_to_degrees(longitude));
+ printf("node%"Pindex_t" %.6f %.6f\n",node,radians_to_degrees(latitude),radians_to_degrees(longitude));
 
  segmentp=FirstSegment(OSMSegments,nodep,1);
 
@@ -233,7 +233,7 @@ static void output_super(index_t node,double latitude,double longitude)
        GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
        if(node>othernode || (lat<LatMin || lat>LatMax || lon<LonMin || lon>LonMax))
-          printf("%.6f %.6f s\n",radians_to_degrees(lat),radians_to_degrees(lon));
+          printf("segment%"Pindex_t" %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(lat),radians_to_degrees(lon));
       }
 
     segmentp=NextSegment(OSMSegments,segmentp,node);
@@ -312,9 +312,9 @@ static void output_oneway(index_t node,double latitude,double longitude)
           GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
           if(IsOnewayFrom(segmentp,node))
-             printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
+             printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
           else if(IsOnewayFrom(segmentp,othernode))
-             printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(lat),radians_to_degrees(lon),radians_to_degrees(latitude),radians_to_degrees(longitude));
+             printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(lat),radians_to_degrees(lon),radians_to_degrees(latitude),radians_to_degrees(longitude));
          }
       }
 
@@ -401,7 +401,7 @@ static void output_highway(index_t node,double latitude,double longitude)
 
              GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
-             printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
+             printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
             }
          }
       }
@@ -489,7 +489,7 @@ static void output_transport(index_t node,double latitude,double longitude)
 
              GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
-             printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
+             printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
             }
          }
       }
@@ -559,7 +559,7 @@ static void output_barrier(index_t node,double latitude,double longitude)
  Node *nodep=LookupNode(OSMNodes,node,1);
 
  if(!(nodep->allow&transports))
-    printf("%.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude));
+    printf("node%"Pindex_t" %.6f %.6f\n",node,radians_to_degrees(latitude),radians_to_degrees(longitude));
 }
 
 
@@ -641,9 +641,11 @@ static void output_turnrestriction(index_t node,double latitude,double longitude
     GetLatLong(OSMNodes,from_node,NULL,&from_lat,&from_lon);
     GetLatLong(OSMNodes,to_node  ,NULL,&to_lat  ,&to_lon);
 
-    printf("%.6f %.6f %.6f %.6f %.6f %.6f\n",radians_to_degrees(from_lat),radians_to_degrees(from_lon),
-                                             radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                             radians_to_degrees(to_lat),radians_to_degrees(to_lon));
+    printf("turn-relation%"Pindex_t" %.6f %.6f %.6f %.6f %.6f %.6f\n",
+           turnrelation,
+           radians_to_degrees(from_lat),radians_to_degrees(from_lon),
+           radians_to_degrees(latitude),radians_to_degrees(longitude),
+           radians_to_degrees(to_lat),radians_to_degrees(to_lon));
 
     turnrelation=FindNextTurnRelation1(OSMRelations,turnrelation);
    }
@@ -875,6 +877,7 @@ static void output_limits(index_t node,double latitude,double longitude)
 {
  Node *nodep=LookupNode(OSMNodes,node,1);
  Segment *segmentp,segmentps[MAX_SEG_PER_NODE];
+ index_t segments[MAX_SEG_PER_NODE];
  int limits[MAX_SEG_PER_NODE];
  int count=0;
  int i,j,same=0;
@@ -888,6 +891,7 @@ static void output_limits(index_t node,double latitude,double longitude)
        Way *wayp=LookupWay(OSMWays,segmentp->way,1);
 
        segmentps[count]=*segmentp;
+       segments [count]=IndexSegment(OSMSegments,segmentp);
 
        switch(limit_type)
          {
@@ -923,7 +927,7 @@ static void output_limits(index_t node,double latitude,double longitude)
 
  /* Display the interesting limits */
 
- printf("%.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude));
+ printf("node%"Pindex_t" %.6f %.6f\n",node,radians_to_degrees(latitude),radians_to_degrees(longitude));
 
  for(i=0;i<count;i++)
    {
@@ -941,19 +945,19 @@ static void output_limits(index_t node,double latitude,double longitude)
        switch(limit_type)
          {
          case SPEED_LIMIT:
-          printf("%.6f %.6f %d\n",radians_to_degrees(lat),radians_to_degrees(lon),speed_to_kph(limits[i]));
+          printf("segment%"Pindex_t" %.6f %.6f %d\n",segments[i],radians_to_degrees(lat),radians_to_degrees(lon),speed_to_kph(limits[i]));
           break;
          case WEIGHT_LIMIT:
-          printf("%.6f %.6f %.1f\n",radians_to_degrees(lat),radians_to_degrees(lon),weight_to_tonnes(limits[i]));
+          printf("segment%"Pindex_t" %.6f %.6f %.1f\n",segments[i],radians_to_degrees(lat),radians_to_degrees(lon),weight_to_tonnes(limits[i]));
           break;
          case HEIGHT_LIMIT:
-          printf("%.6f %.6f %.1f\n",radians_to_degrees(lat),radians_to_degrees(lon),height_to_metres(limits[i]));
+          printf("segment%"Pindex_t" %.6f %.6f %.1f\n",segments[i],radians_to_degrees(lat),radians_to_degrees(lon),height_to_metres(limits[i]));
           break;
          case WIDTH_LIMIT:
-          printf("%.6f %.6f %.1f\n",radians_to_degrees(lat),radians_to_degrees(lon),width_to_metres(limits[i]));
+          printf("segment%"Pindex_t" %.6f %.6f %.1f\n",segments[i],radians_to_degrees(lat),radians_to_degrees(lon),width_to_metres(limits[i]));
           break;
          case LENGTH_LIMIT:
-          printf("%.6f %.6f %.1f\n",radians_to_degrees(lat),radians_to_degrees(lon),length_to_metres(limits[i]));
+          printf("segment%"Pindex_t" %.6f %.6f %.1f\n",segments[i],radians_to_degrees(lat),radians_to_degrees(lon),length_to_metres(limits[i]));
           break;
          }
       }
@@ -1038,7 +1042,7 @@ static void output_property(index_t node,double latitude,double longitude)
 
              GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
-             printf("%.6f %.6f %.6f %.6f\n",radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
+             printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
             }
          }
       }
@@ -1140,11 +1144,7 @@ void OutputErrorLog(ErrorLogs *errorlogs,double latmin,double latmax,double lonm
           double lon=latlong_to_radians(bin_to_latlong(errorlogs->file.lonzero+lonb)+off_to_latlong(errorlogp->lonoffset));
 
           if(lat>latmin && lat<latmax && lon>lonmin && lon<lonmax)
-            {
-             char *string=LookupErrorLogString(errorlogs,i);
-
-             printf("%.6f %.6f %s\n",radians_to_degrees(lat),radians_to_degrees(lon),ParseXML_Encode_Safe_XML(string));
-            }
+             printf("errorlog%"Pindex_t" %.6f %.6f\n",i,radians_to_degrees(lat),radians_to_degrees(lon));
          }
       }
 }
