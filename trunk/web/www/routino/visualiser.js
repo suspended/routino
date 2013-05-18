@@ -403,7 +403,7 @@ function drawPopup(html)
 
 function selectFeature(feature)
 {
- drawPopup(feature.errorstring);
+ drawPopup(feature.attributes.errorstring);
 
  layerHighlights.destroyFeatures();
 
@@ -1131,11 +1131,7 @@ function runErrorlogSuccess(response)
 
        var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
 
-       feature = new OpenLayers.Feature.Vector(point,{},selectable_node_style);
-
-       features.push(feature);
-
-       feature.errorstring=string;
+       features.push(new OpenLayers.Feature.Vector(point,{errorstring: string},selectable_node_style));
       }
    }
 
