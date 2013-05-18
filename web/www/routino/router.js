@@ -742,7 +742,7 @@ function map_init()             // called from router.html
 
  // Add a vectors layer
 
- layerVectors = new OpenLayers.Layer.Vector("Markers");
+ layerVectors = new OpenLayers.Layer.Vector("Markers",{displayInLayerSwitcher: false});
  map.addLayer(layerVectors);
 
  // A set of markers

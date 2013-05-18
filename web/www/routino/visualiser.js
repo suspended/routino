@@ -218,10 +218,10 @@ function map_init()             // called from visualiser.html
 
  // Add two vectors layers (one for highlights that display behind the vectors)
  
- layerHighlights = new OpenLayers.Layer.Vector("Highlights");
+ layerHighlights = new OpenLayers.Layer.Vector("Highlights",{displayInLayerSwitcher: false});
  map.addLayer(layerHighlights);
 
- layerVectors = new OpenLayers.Layer.Vector("Markers");
+ layerVectors = new OpenLayers.Layer.Vector("Markers",{displayInLayerSwitcher: false});
  map.addLayer(layerVectors);
 
  for(var colour in junction_colours)
@@ -246,7 +246,7 @@ function map_init()             // called from visualiser.html
 
  // Add a boxes layer
 
- layerBoxes = new OpenLayers.Layer.Boxes("Boundary");
+ layerBoxes = new OpenLayers.Layer.Boxes("Boundary",{displayInLayerSwitcher: false});
  map.addLayer(layerBoxes);
 
  box=null;
