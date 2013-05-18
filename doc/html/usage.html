@@ -465,10 +465,14 @@ Usage: filedumper [--help]
                           [--segment=&lt;segment&gt; ...]
                           [--way=&lt;way&gt; ...]
                           [--turn-relation=&lt;relation&gt; ...]
-                          [--error-log=&lt;number&gt; ...]]
+                          [--errorlog=&lt;number&gt; ...]]
                   [--dump-osm [--no-super]
                               [--latmin=&lt;latmin&gt; --latmax=&lt;latmax&gt;
                                --lonmin=&lt;lonmin&gt; --lonmax=&lt;lonmax&gt;]]
+                  [--dump--visualiser [--data=node&lt;node&gt;]
+                                      [--data=segment&lt;segment&gt;]
+                                      [--data=turn-relation&lt;rel&gt;]
+                                      [--data=errorlog&lt;number&gt;]]
 </pre>
 
 <dl>
@@ -543,6 +547,23 @@ Usage: filedumper [--help]
       <dd>The range of latitudes to dump the data for.
       <dt>--lonmin=&lt;lonmin&gt; --lonmax=&lt;lonmax&gt;
       <dd>The range of longitudes to dump the data for.
+    </dl>
+  <dt>--dump-visualiser
+  <dd>Dumps the contents of the database as HTML formatted items for display in
+    the visualiser web page.
+    <dl>
+      <dt>--data=node&lt;node&gt;
+      <dd>Prints the information about the selected node number (internal
+        node number, not from the original source file).
+      <dt>--data=segment&lt;segment&gt;
+      <dd>Prints the information about the selected segment number as if it was
+        a way (internal segment number, unrelated to original source file).
+      <dt>--data=turn-relation&lt;relation&gt;
+      <dd>Prints the information about the selected turn relation number
+        (internal turn relation number, not from the original source file).
+      <dt>--data=errorlog&lt;number&gt;
+      <dd>Prints the information about the selected error log that was stored
+        when the data was parsed.
     </dl>
 </dl>
 

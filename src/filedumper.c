@@ -56,6 +56,11 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways);
 static void print_turn_relation_osm(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
 static void print_tail_osm(void);
 
+static void print_node_visualiser(Nodes *nodes,index_t item);
+static void print_segment_visualiser(Segments *segments,index_t item,Ways *ways);
+static void print_turn_relation_visualiser(Relations *relations,index_t item,Segments *segments,Nodes *nodes);
+static void print_errorlog_visualiser(ErrorLogs *errorlogs,index_t item);
+
 static char *RFC822Date(time_t t);
 
 static void print_usage(int detail,const char *argerr,const char *err);
@@ -81,6 +86,7 @@ int main(int argc,char** argv)
  char     *option_data=NULL;
  int       option_dump=0;
  int       option_dump_osm=0,option_no_super=0;
+ int       option_dump_visualiser=0;
 
  /* Parse the command line arguments */
 
@@ -100,6 +106,8 @@ int main(int argc,char** argv)
        option_dump=1;
     else if(!strcmp(argv[arg],"--dump-osm"))
        option_dump_osm=1;
+    else if(!strcmp(argv[arg],"--dump-visualiser"))
+       option_dump_visualiser=1;
     else if(!strncmp(argv[arg],"--latmin",8) && argv[arg][8]=='=')
       {latmin=degrees_to_radians(atof(&argv[arg][9]));coordcount++;}
     else if(!strncmp(argv[arg],"--latmax",8) && argv[arg][8]=='=')
@@ -126,8 +134,8 @@ int main(int argc,char** argv)
        print_usage(0,argv[arg],NULL);
    }
 
- if((option_statistics + option_visualiser + option_dump + option_dump_osm)!=1)
-    print_usage(0,NULL,"Must choose --visualiser, --statistics, --dump or --dump-osm.");
+ if((option_statistics + option_visualiser + option_dump + option_dump_osm + option_dump_visualiser)!=1)
+    print_usage(0,NULL,"Must choose --visualiser, --statistics, --dump, --dump-osm or --dump-visualiser.");
 
  /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
 
@@ -421,6 +429,54 @@ int main(int argc,char** argv)
       }
 
     print_tail_osm();
+   }
+
+ /* Print out internal data (in HTML format for the visualiser) */
+
+ if(option_dump_visualiser)
+   {
+    index_t item;
+
+    if(!option_data)
+       print_usage(0,NULL,"The --dump-visualiser option must have --data.\n");
+
+    for(arg=1;arg<argc;arg++)
+       if(!strncmp(argv[arg],"--data=node",11))
+         {
+          item=atoi(&argv[arg][11]);
+
+          if(item<OSMNodes->file.number)
+             print_node_visualiser(OSMNodes,item);
+          else
+             printf("Invalid node number; minimum=0, maximum=%"Pindex_t".\n",OSMNodes->file.number-1);
+         }
+       else if(!strncmp(argv[arg],"--data=segment",14))
+         {
+          item=atoi(&argv[arg][14]);
+
+          if(item<OSMSegments->file.number)
+             print_segment_visualiser(OSMSegments,item,OSMWays);
+          else
+             printf("Invalid segment number; minimum=0, maximum=%"Pindex_t".\n",OSMSegments->file.number-1);
+         }
+       else if(!strncmp(argv[arg],"--data=turn-relation",20))
+         {
+          item=atoi(&argv[arg][20]);
+
+          if(item<OSMRelations->file.trnumber)
+             print_turn_relation_visualiser(OSMRelations,item,OSMSegments,OSMNodes);
+          else
+             printf("Invalid turn relation number; minimum=0, maximum=%"Pindex_t".\n",OSMRelations->file.trnumber-1);
+         }
+       else if(!strncmp(argv[arg],"--data=errorlog",15))
+         {
+          item=atoi(&argv[arg][15]);
+
+          if(item<OSMErrorLogs->file.number)
+             print_errorlog_visualiser(OSMErrorLogs,item);
+          else
+             printf("Invalid error log number; minimum=0, maximum=%"Pindex_t".\n",OSMErrorLogs->file.number-1);
+         }
    }
 
  return(0);
@@ -887,6 +943,184 @@ static void print_tail_osm(void)
 }
 
 
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of a node from the routing database (in visualiser format).
+
+  Nodes *nodes The set of nodes to use.
+
+  index_t item The node index to print.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_node_visualiser(Nodes *nodes,index_t item)
+{
+ Node *nodep=LookupNode(nodes,item,1);
+ double latitude,longitude;
+ int i;
+
+ GetLatLong(nodes,item,nodep,&latitude,&longitude);
+
+ if(nodep->allow==Transports_ALL && nodep->flags==0)
+    printf("&lt;node id='%lu' lat='%.7f' lon='%.7f' /&gt;\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+ else
+   {
+    printf("&lt;node id='%lu' lat='%.7f' lon='%.7f'&gt;\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+
+    if(nodep->flags & NODE_SUPER)
+       printf("&nbsp;&nbsp;&nbsp;&lt;tag k='routino:super' v='yes' /&gt;\n");
+
+    if(nodep->flags & NODE_UTURN)
+       printf("&nbsp;&nbsp;&nbsp;&lt;tag k='routino:uturn' v='yes' /&gt;\n");
+
+    if(nodep->flags & NODE_MINIRNDBT)
+       printf("&nbsp;&nbsp;&nbsp;&lt;tag k='junction' v='roundabout' /&gt;\n");
+
+    if(nodep->flags & NODE_TURNRSTRCT)
+       printf("&nbsp;&nbsp;&nbsp;&lt;tag k='routino:turnrestriction' v='yes' /&gt;\n");
+
+    for(i=1;i<Transport_Count;i++)
+       if(!(nodep->allow & TRANSPORTS(i)))
+          printf("&nbsp;&nbsp;&nbsp;&lt;tag k='%s' v='no' /&gt;\n",TransportName(i));
+
+    printf("&lt;/node&gt;\n");
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of a segment from the routing database (as a way in visualiser format).
+
+  Segments *segments The set of segments to use.
+
+  index_t item The segment index to print.
+
+  Ways *ways The set of ways to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_segment_visualiser(Segments *segments,index_t item,Ways *ways)
+{
+ Segment *segmentp=LookupSegment(segments,item,1);
+ Way *wayp=LookupWay(ways,segmentp->way,1);
+ char *name=WayName(ways,wayp);
+ int i;
+
+ printf("&lt;way id='%lu'&gt;\n",(unsigned long)item+1);
+
+ if(IsOnewayTo(segmentp,segmentp->node1))
+   {
+    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%lu' /&gt;\n",(unsigned long)segmentp->node2+1);
+    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%lu' /&gt;\n",(unsigned long)segmentp->node1+1);
+   }
+ else
+   {
+    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%lu' /&gt;\n",(unsigned long)segmentp->node1+1);
+    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%lu' /&gt;\n",(unsigned long)segmentp->node2+1);
+   }
+
+ if(IsSuperSegment(segmentp))
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='routino:super' v='yes' /&gt;\n");
+ if(IsNormalSegment(segmentp))
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='routino:normal' v='yes' /&gt;\n");
+
+ printf("&nbsp;&nbsp;&nbsp;&lt;tag k='routino:distance' v='%.3f km' /&gt;\n",distance_to_km(DISTANCE(segmentp->distance)));
+
+ if(wayp->type & Highway_OneWay)
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='oneway' v='yes' /&gt;\n");
+
+ if(wayp->type & Highway_Roundabout)
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='roundabout' v='yes' /&gt;\n");
+
+ printf("&nbsp;&nbsp;&nbsp;&lt;tag k='highway' v='%s' /&gt;\n",HighwayName(HIGHWAY(wayp->type)));
+
+ if(IsNormalSegment(segmentp) && *name)
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='name' v='%s' /&gt;\n",ParseXML_Encode_Safe_XML(name));
+
+ for(i=1;i<Transport_Count;i++)
+    if(wayp->allow & TRANSPORTS(i))
+       printf("&nbsp;&nbsp;&nbsp;&lt;tag k='%s' v='yes' /&gt;\n",TransportName(i));
+
+ for(i=1;i<Property_Count;i++)
+    if(wayp->props & PROPERTIES(i))
+       printf("&nbsp;&nbsp;&nbsp;&lt;tag k='%s' v='yes' /&gt;\n",PropertyName(i));
+
+ if(wayp->speed)
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='maxspeed' v='%d kph' /&gt;\n",speed_to_kph(wayp->speed));
+
+ if(wayp->weight)
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='maxweight' v='%.1f t' /&gt;\n",weight_to_tonnes(wayp->weight));
+ if(wayp->height)
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='maxheight' v='%.1f m' /&gt;\n",height_to_metres(wayp->height));
+ if(wayp->width)
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='maxwidth' v='%.1f m' /&gt;\n",width_to_metres(wayp->width));
+ if(wayp->length)
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='maxlength' v='%.1f m' /&gt;\n",length_to_metres(wayp->length));
+
+ printf("&lt;/way&gt;\n");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out the contents of a turn relation from the routing database (in visualiser format).
+
+  Relations *relations The set of relations to use.
+
+  index_t item The relation index to print.
+
+  Segments *segments The set of segments to use.
+
+  Nodes *nodes The set of nodes to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_turn_relation_visualiser(Relations *relations,index_t item,Segments *segments,Nodes *nodes)
+{
+ TurnRelation *relationp=LookupTurnRelation(relations,item,1);
+
+ Segment *segmentp_from=LookupSegment(segments,relationp->from,1);
+ Segment *segmentp_to  =LookupSegment(segments,relationp->to  ,2);
+
+ double angle=TurnAngle(nodes,segmentp_from,segmentp_to,relationp->via);
+
+ char *restriction;
+
+ if(angle>150 || angle<-150)
+    restriction="no_u_turn";
+ else if(angle>30)
+    restriction="no_right_turn";
+ else if(angle<-30)
+    restriction="no_left_turn";
+ else
+    restriction="no_straight_on";
+
+ printf("&lt;relation id='%lu'&gt;\n",(unsigned long)item+1);
+ printf("&nbsp;&nbsp;&nbsp;&lt;tag k='type' v='restriction' /&gt;\n");
+ printf("&nbsp;&nbsp;&nbsp;&lt;tag k='restriction' v='%s'/&gt;\n",restriction);
+
+ if(relationp->except)
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='except' v='%s' /&gt;\n",AllowedNameList(relationp->except));
+
+ printf("&nbsp;&nbsp;&nbsp;&lt;member type='way' ref='%lu' role='from' /&gt;\n",(unsigned long)relationp->from+1);
+ printf("&nbsp;&nbsp;&nbsp;&lt;member type='node' ref='%lu' role='via' /&gt;\n",(unsigned long)relationp->via+1);
+ printf("&nbsp;&nbsp;&nbsp;&lt;member type='way' ref='%lu' role='to' /&gt;\n",(unsigned long)relationp->to+1);
+
+ printf("&lt;/relation&gt;\n");
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Print out an error log entry from the database (in visualiser format).
+
+  ErrorLogs *errorlogs The set of error logs to use.
+
+  index_t item The error log index to print.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void print_errorlog_visualiser(ErrorLogs *errorlogs,index_t item)
+{
+ char *string=LookupErrorLogString(errorlogs,item);
+
+ printf("%s\n",ParseXML_Encode_Safe_XML(string));
+}
+
+
 /*+ Conversion from time_t to date string (day of week). +*/
 static const char* const weekdays[7]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 
@@ -953,10 +1187,15 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                  [--dump [--node=<node> ...]\n"
          "                          [--segment=<segment> ...]\n"
          "                          [--way=<way> ...]\n"
-         "                          [--turn-relation=<rel> ...]]\n"
+         "                          [--turn-relation=<rel> ...]\n"
+         "                          [--errorlog=<number> ...]]\n"
          "                  [--dump-osm [--no-super]\n"
          "                              [--latmin=<latmin> --latmax=<latmax>\n"
-         "                               --lonmin=<lonmin> --lonmax=<lonmax>]]\n");
+         "                               --lonmin=<lonmin> --lonmax=<lonmax>]]\n"
+         "                  [--dump--visualiser [--data=node<node>]\n"
+         "                                      [--data=segment<segment>]\n"
+         "                                      [--data=turn-relation<rel>]\n"
+         "                                      [--data=errorlog<number>]]\n");
 
  if(argerr)
     fprintf(stderr,
@@ -1002,19 +1241,25 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "      errorlogs   = errors logged during parsing.\n"
             "\n"
             "--dump                    Dump selected contents of the database.\n"
-            "  --node=<node>           * the node with the selected index.\n"
-            "  --segment=<segment>     * the segment with the selected index.\n"
-            "  --way=<way>             * the way with the selected index.\n"
-            "  --turn-relation=<rel>   * the turn relation with the selected index.\n"
-            "  --errorlog=<rel>        * the error log with the selected index.\n"
+            "  --node=<node>             * the node with the selected index.\n"
+            "  --segment=<segment>       * the segment with the selected index.\n"
+            "  --way=<way>               * the way with the selected index.\n"
+            "  --turn-relation=<rel>     * the turn relation with the selected index.\n"
+            "  --errorlog=<number>       * the error log with the selected index.\n"
             "                          Use 'all' instead of a number to get all of them.\n"
             "\n"
             "--dump-osm                Dump all or part of the database as an XML file.\n"
-            "  --no-super              * exclude the super-segments.\n"
-            "  --latmin=<latmin>       * the minimum latitude (degrees N).\n"
-            "  --latmax=<latmax>       * the maximum latitude (degrees N).\n"
-            "  --lonmin=<lonmin>       * the minimum longitude (degrees E).\n"
-            "  --lonmax=<lonmax>       * the maximum longitude (degrees E).\n");
+            "  --no-super                * exclude the super-segments.\n"
+            "  --latmin=<latmin>         * the minimum latitude (degrees N).\n"
+            "  --latmax=<latmax>         * the maximum latitude (degrees N).\n"
+            "  --lonmin=<lonmin>         * the minimum longitude (degrees E).\n"
+            "  --lonmax=<lonmax>         * the maximum longitude (degrees E).\n"
+            "\n"
+            "--dump-visualiser         Dump selected contents of the database in HTML.\n"
+            "  --data=node<node>         * the node with the selected index.\n"
+            "  --data=segment<segment>   * the segment with the selected index.\n"
+            "  --data=turn-relation<rel> * the turn relation with the selected index.\n"
+            "  --data=errorlog<number>   * the error log with the selected index.\n");
 
  exit(!detail);
 }
