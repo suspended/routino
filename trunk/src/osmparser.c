@@ -654,6 +654,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 
  if(way_nnodes==1)
    {
+    logerror_node(way_nodes[0]); /* Extra logerror information since way isn't stored */
     logerror("Way %"Pway_t" has only one node.\n",logerror_way(id));
     return;
    }
@@ -1202,12 +1203,28 @@ void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode)
  if(relation_turn_restriction && restriction!=TurnRestrict_None)
    {
     if(relation_from==NO_WAY_ID)
+      {
+       /* Extra logerror information since relation isn't stored */
+       if(relation_to!=NO_WAY_ID) logerror_way(relation_to);
+       if(relation_via!=NO_NODE_ID) logerror_node(relation_via);
        logerror("Relation %"Prelation_t" is a turn restriction but has no 'from' way.\n",logerror_relation(id));
-    else if(relation_to==NO_WAY_ID)
+      }
+    if(relation_to==NO_WAY_ID)
+      {
+       /* Extra logerror information since relation isn't stored */
+       if(relation_via!=NO_NODE_ID) logerror_node(relation_via);
+       if(relation_from!=NO_WAY_ID) logerror_way(relation_from);
        logerror("Relation %"Prelation_t" is a turn restriction but has no 'to' way.\n",logerror_relation(id));
-    else if(relation_via==NO_NODE_ID)
+      }
+    if(relation_via==NO_NODE_ID)
+      {
+       /* Extra logerror information since relation isn't stored */
+       if(relation_to!=NO_WAY_ID) logerror_way(relation_to);
+       if(relation_from!=NO_WAY_ID) logerror_way(relation_from);
        logerror("Relation %"Prelation_t" is a turn restriction but has no 'via' node.\n",logerror_relation(id));
-    else
+      }
+
+    if(relation_from!=NO_WAY_ID && relation_to!=NO_WAY_ID && relation_via!=NO_NODE_ID)
        AppendTurnRelationList(relations,id,
                               relation_from,relation_to,relation_via,
                               restriction,except);
