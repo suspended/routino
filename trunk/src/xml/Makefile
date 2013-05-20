@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2010-2012 Andrew M. Bishop
+# This file Copyright 2010-2013 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,10 @@ LD=gcc
 # Program options
 
 CFLAGS=-Wall -Wmissing-prototypes -std=c99
-#CFLAGS+=-Wextra -pedantic
-LDFLAGS=-lm -lc
+CFLAGS+=-Wextra -Wno-unused-parameter
+#CFLAGS+=-pedantic
+
+LDFLAGS=-lm
 
 CFLAGS+=-O3
 
