@@ -545,9 +545,6 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
       {
        FILESORT_VARINT itemsize=nextitemsize;
 
-       if(itemsize>largestitemsize)
-          largestitemsize=itemsize;
-
        *(FILESORT_VARINT*)(threads[thread].data+ramused)=itemsize;
 
        ramused+=FILESORT_VARSIZE;
@@ -558,6 +555,9 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
          {
           *--threads[thread].datap=threads[thread].data+ramused; /* points to real data */
 
+          if(itemsize>largestitemsize)
+             largestitemsize=itemsize;
+
           ramused+=itemsize;
 
           ramused =FILESORT_VARALIGN*((ramused+FILESORT_VARSIZE-1)/FILESORT_VARALIGN);
@@ -566,6 +566,8 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
           total++;
           threads[thread].n++;
          }
+       else
+          ramused-=FILESORT_VARSIZE;
 
        count_in++;
 
