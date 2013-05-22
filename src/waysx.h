@@ -89,7 +89,7 @@ struct _WaysX
 WaysX *NewWayList(int append,int readonly);
 void FreeWayList(WaysX *waysx,int keep);
 
-void AppendWayList(WaysX *waysx,way_t id,Way *way,const char *name);
+void AppendWayList(WaysX *waysx,way_t id,Way *way,node_t *nodes,int nnodes,const char *name);
 void FinishWayList(WaysX *waysx);
 
 index_t IndexWayX(WaysX *waysx,way_t id);

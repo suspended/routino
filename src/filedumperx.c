@@ -219,22 +219,43 @@ static void print_ways(const char *filename)
    {
     FILESORT_VARINT waysize;
     WayX wayx;
+    node_t node;
     char *name=NULL;
     size_t malloced=0;
+    int first=1;
 
     ReadFile(fd,&waysize,FILESORT_VARSIZE);
 
+    position+=waysize+FILESORT_VARSIZE;
+
     ReadFile(fd,&wayx,sizeof(WayX));
 
-    if(malloced<(waysize-sizeof(WayX)))
+    printf("Way %"Pway_t"\n",wayx.id);
+
+    while(!ReadFile(fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
       {
-       malloced=(waysize-sizeof(WayX));
+       if(first)
+          printf("  nodes=%"Pnode_t,node);
+       else
+          printf(",%"Pnode_t,node);
+
+       waysize-=sizeof(node_t);
+
+       first=0;
+      }
+
+    printf("\n");
+
+    waysize-=sizeof(node_t)+sizeof(WayX);
+
+    if(malloced<waysize)
+      {
+       malloced=waysize;
        name=(char*)realloc((void*)name,malloced);
       }
 
-    ReadFile(fd,name,(waysize-sizeof(WayX)));
+    ReadFile(fd,name,waysize);
 
-    printf("Way %"Pway_t"\n",wayx.id);
     if(*name)
        printf("  name=%s\n",name);
     printf("  type=%02x\n",wayx.way.type);
@@ -251,8 +272,6 @@ static void print_ways(const char *filename)
        printf("  width=%d\n",wayx.way.width);
     if(wayx.way.length)
        printf("  length=%d\n",wayx.way.length);
-
-    position+=waysize+FILESORT_VARSIZE;
    }
 
  CloseFile(fd);

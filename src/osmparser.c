@@ -634,7 +634,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
    {
     way.type=WAY_DELETED;
 
-    AppendWayList(ways,id,&way,"");
+    AppendWayList(ways,id,&way,way_nodes,way_nnodes,"");
 
     way.type=Highway_None;
 
@@ -1009,7 +1009,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
  else /* if(!ref && !name) */
     refname="";
 
- AppendWayList(ways,id,&way,refname);
+ AppendWayList(ways,id,&way,way_nodes,way_nnodes,refname);
 
  if(ref && name)
     free(refname);
