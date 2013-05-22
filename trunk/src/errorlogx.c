@@ -93,14 +93,13 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 
 #if !SLIM
  nodesx->data=MapFile(nodesx->filename);
- waysx->data=MapFile(waysx->filename);
 #else
  nodesx->fd=ReOpenFile(nodesx->filename);
- waysx->fd=ReOpenFile(waysx->filename);
 
  InvalidateNodeXCache(nodesx->cache);
- InvalidateWayXCache(waysx->cache);
 #endif
+
+ waysx->fd=ReOpenFile(waysx->filename);
 
  /* Open the binary log file read-only and a new file writeable */
 
@@ -127,12 +126,17 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
       {
        ErrorLogX errorlogx;
        int i;
-       latlong_t latitude=NO_LATLONG,longitude=NO_LATLONG;
+       int nnodes=0;
+       latlong_t latitude[8],longitude[8];
+       latlong_t errorlat,errorlon;
 
        /* Calculate suitable coordinates */
 
        for(i=0;i<nerrorlogobjects;i++)
          {
+          latitude[i] =NO_LATLONG;
+          longitude[i]=NO_LATLONG;
+
           if(((errorlogobjects[i].type_id>>56)&0xff)=='N')
             {
              index_t node=IndexNodeX(nodesx,errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
@@ -141,21 +145,52 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
                {
                 NodeX *nodex=LookupNodeX(nodesx,node,1);
 
-                latitude =nodex->latitude;
-                longitude=nodex->longitude;
+                latitude[i] =nodex->latitude;
+                longitude[i]=nodex->longitude;
+
+                nnodes++;
                }
             }
+          else if(((errorlogobjects[i].type_id>>56)&0xff)=='W')
+            {
+             index_t way=IndexWayX(waysx,errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
+
+             if(way!=NO_WAY)
+               {
+                off_t offset=waysx->odata[way];
+                node_t node_id;
+                index_t node;
+
+                SeekReadFile(waysx->fd,&node_id,sizeof(node_t),offset);
+
+                node=IndexNodeX(nodesx,node_id);
+
+                if(node!=NO_NODE)
+                  {
+                   NodeX *nodex=LookupNodeX(nodesx,node,1);
+
+                   latitude[i] =nodex->latitude;
+                   longitude[i]=nodex->longitude;
+
+                   nnodes++;
+                  }
+               }
+            }
+          else if(((errorlogobjects[i].type_id>>56)&0xff)=='R')
+            {
+            }
          }
+
+       errorlat=latitude[0];
+       errorlon=longitude[0];
 
        /* Write to file */
 
        errorlogx.offset=offset;
        errorlogx.length=errorlogobject.offset-offset;
 
-       errorlogx.latitude =latitude;
-       errorlogx.longitude=longitude;
-
-       //       printf("errorlogx.lat=%ld (%f) .lon=%ld (%f)\n",errorlogx.latitude,radians_to_degrees(latlong_to_radians(errorlogx.latitude)),errorlogx.longitude,radians_to_degrees(latlong_to_radians(errorlogx.longitude)));
+       errorlogx.latitude =errorlat;
+       errorlogx.longitude=errorlon;
 
        WriteFile(newfd,&errorlogx,sizeof(ErrorLogX));
 
@@ -182,11 +217,11 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 
 #if !SLIM
  nodesx->data=UnmapFile(nodesx->data);
- waysx->data=UnmapFile(waysx->data);
 #else
  nodesx->fd=CloseFile(nodesx->fd);
- waysx->fd=CloseFile(waysx->fd);
 #endif
+
+ waysx->fd=CloseFile(waysx->fd);
 
  CloseFile(oldfd);
  CloseFile(newfd);
@@ -239,7 +274,6 @@ static void reindex_ways(WaysX *waysx)
  int fd;
  off_t size,position=0;
  index_t index=0;
- WayX wayx;
 
  waysx->number=waysx->knumber;
 
@@ -254,13 +288,14 @@ static void reindex_ways(WaysX *waysx)
 
  while(position<size)
    {
+    WayX wayx;
     FILESORT_VARINT waysize;
 
     SeekReadFile(fd,&waysize,FILESORT_VARSIZE,position);
-    ReadFile(fd,&wayx,sizeof(WayX));
+    SeekReadFile(fd,&wayx,sizeof(WayX),position+FILESORT_VARSIZE);
 
     waysx->idata[index]=wayx.id;
-    waysx->odata[index]=position;
+    waysx->odata[index]=position+FILESORT_VARSIZE+sizeof(WayX);
 
     index++;
 

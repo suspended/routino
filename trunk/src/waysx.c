@@ -176,21 +176,30 @@ void FreeWayList(WaysX *waysx,int keep)
 
   Way *way The way data itself.
 
+  node_t *nodes The list of nodes for this way.
+
+  int nnodes The number of nodes for this way.
+
   const char *name The name or reference of the way.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendWayList(WaysX *waysx,way_t id,Way *way,const char *name)
+void AppendWayList(WaysX *waysx,way_t id,Way *way,node_t *nodes,int nnodes,const char *name)
 {
  WayX wayx;
  FILESORT_VARINT size;
+ node_t nonode=NO_NODE_ID;
 
  wayx.id=id;
  wayx.way=*way;
 
- size=sizeof(WayX)+strlen(name)+1;
+ size=sizeof(WayX)+(nnodes+1)*sizeof(node_t)+strlen(name)+1;
 
  WriteFile(waysx->fd,&size,FILESORT_VARSIZE);
  WriteFile(waysx->fd,&wayx,sizeof(WayX));
+
+ WriteFile(waysx->fd,nodes  ,nnodes*sizeof(node_t));
+ WriteFile(waysx->fd,&nonode,       sizeof(node_t));
+
  WriteFile(waysx->fd,name,strlen(name)+1);
 
  waysx->number++;
@@ -435,21 +444,28 @@ void ExtractWayNames(WaysX *waysx,int keep)
    {
     WayX wayx;
     FILESORT_VARINT size;
+    node_t node;
 
     ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
+
+    ReadFile(waysx->fd,&wayx,sizeof(WayX));
+
+    while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
+       size-=sizeof(node_t);
+
+    size-=sizeof(node_t)+sizeof(WayX);
 
     if(namelen[nnames%2]<size)
        names[nnames%2]=(char*)realloc((void*)names[nnames%2],namelen[nnames%2]=size);
 
-    ReadFile(waysx->fd,&wayx,sizeof(WayX));
-    ReadFile(waysx->fd,names[nnames%2],size-sizeof(WayX));
+    ReadFile(waysx->fd,names[nnames%2],size);
 
     if(nnames==0 || strcmp(names[0],names[1]))
       {
-       WriteFile(waysx->nfd,names[nnames%2],size-sizeof(WayX));
+       WriteFile(waysx->nfd,names[nnames%2],size);
 
        lastlength=waysx->nlength;
-       waysx->nlength+=size-sizeof(WayX);
+       waysx->nlength+=size;
 
        nnames++;
       }
