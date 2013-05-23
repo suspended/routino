@@ -42,10 +42,10 @@ Function name (in order)      :      :   .   .   .   .   :   .   .   .   .   .  
 v                             :      :   .   .   .   .   :   .   .   .   .   .   :   .   .   : v :
                               :......:...................:.......................:...........:...:
 SortNodeList                  :      : C .   .   .   . U :   .   .   .   . | . | :   .   . | : | :
-ApplySegmentChanges           :      : | .   .   .   .   :   .   .   .   . U . U :   .   . | : | : - Changes
-SortSegmentList               :      : | .   .   .   .   :   .   .   .   . U . | :   .   . | : | :
 SortWayList                   :      : | .   .   .   .   :   .   .   .   . | . | :   .   . | : | :
 SortRelationList              :      : | .   .   .   .   :   .   .   .   . | . | :   .   . | : U :
+GenerateSegments              :      : | .   .   .   .   :   .   .   .   . | . | :   .   . U : | :
+SortSegmentList               :      : | .   .   .   .   :   .   .   .   . U . | :   .   . | : | :
 ExtractWayNames               :      : | .   .   .   .   :   .   .   .   . | . | : C .   . U : | :
 RemoveBadSegments             :      : U .   .   .   .   :   .   . C .   . U . U : U .   .   : | :
 RemoveNonHighwayNodes         :      : M .   .   .   . R :   .   . D .   . | . | : | .   .   : | :

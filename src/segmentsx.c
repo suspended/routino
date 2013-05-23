@@ -52,9 +52,6 @@ static WaysX *sortwaysx;
 
 /* Local functions */
 
-static int sort_by_way_id(SegmentX *a,SegmentX *b);
-static int apply_changes(SegmentX *segmentx,index_t index);
-
 static int sort_by_id(SegmentX *a,SegmentX *b);
 static int deduplicate(SegmentX *segmentx,index_t index);
 
@@ -71,13 +68,9 @@ static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
   Allocate a new segment list (create a new file or open an existing one).
 
   SegmentsX *NewSegmentList Returns the segment list.
-
-  int append Set to 1 if the file is to be opened for appending.
-
-  int readonly Set to 1 if the file is to be opened for reading.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsX *NewSegmentList(int append,int readonly)
+SegmentsX *NewSegmentList(void)
 {
  SegmentsX *segmentsx;
 
@@ -85,30 +78,11 @@ SegmentsX *NewSegmentList(int append,int readonly)
 
  logassert(segmentsx,"Failed to allocate memory (try using slim mode?)"); /* Check calloc() worked */
 
- segmentsx->filename    =(char*)malloc(strlen(option_tmpdirname)+32);
  segmentsx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
 
- sprintf(segmentsx->filename    ,"%s/segmentsx.parsed.mem",option_tmpdirname);
- sprintf(segmentsx->filename_tmp,"%s/segmentsx.%p.tmp"    ,option_tmpdirname,(void*)segmentsx);
+ sprintf(segmentsx->filename_tmp,"%s/segmentsx.%p.tmp",option_tmpdirname,(void*)segmentsx);
 
- if(append || readonly)
-    if(ExistsFile(segmentsx->filename))
-      {
-       off_t size;
-
-       size=SizeFile(segmentsx->filename);
-
-       segmentsx->number=size/sizeof(SegmentX);
-
-       RenameFile(segmentsx->filename,segmentsx->filename_tmp);
-      }
-
- if(append)
-    segmentsx->fd=OpenFileAppend(segmentsx->filename_tmp);
- else if(!readonly)
-    segmentsx->fd=OpenFileNew(segmentsx->filename_tmp);
- else
-    segmentsx->fd=-1;
+ segmentsx->fd=OpenFileNew(segmentsx->filename_tmp);
 
 #if SLIM
  segmentsx->cache=NewSegmentXCache();
@@ -122,18 +96,12 @@ SegmentsX *NewSegmentList(int append,int readonly)
   Free a segment list.
 
   SegmentsX *segmentsx The set of segments to be freed.
-
-  int keep If set then the results file is to be kept.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FreeSegmentList(SegmentsX *segmentsx,int keep)
+void FreeSegmentList(SegmentsX *segmentsx)
 {
- if(keep)
-    RenameFile(segmentsx->filename_tmp,segmentsx->filename);
- else
-    DeleteFile(segmentsx->filename_tmp);
+ DeleteFile(segmentsx->filename_tmp);
 
- free(segmentsx->filename);
  free(segmentsx->filename_tmp);
 
  if(segmentsx->firstnode)
@@ -301,104 +269,6 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
  
  
 /*++++++++++++++++++++++++++++++++++++++
-  Apply the changes to the segments (no unique id to use).
-
-  SegmentsX *segmentsx The set of segments to sort and modify.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void ApplySegmentChanges(SegmentsX *segmentsx)
-{
- int fd;
- index_t xnumber;
-
- /* Print the start message */
-
- printf_first("Applying Segment Changes");
-
- /* Re-open the file read-only and a new file writeable */
-
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileNew(segmentsx->filename_tmp);
-
- /* Sort by node indexes */
-
- xnumber=segmentsx->number;
-
- segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
-                                                                    (int (*)(const void*,const void*))sort_by_way_id,
-                                                                    (int (*)(void*,index_t))apply_changes);
-
- /* Close the files */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Applying Segment Changes: Segments=%"Pindex_t" Changed=%"Pindex_t,xnumber,xnumber-segmentsx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Sort the segments into way id order.
-
-  int sort_by_way_id Returns the comparison of the way fields.
-
-  SegmentX *a The first segment.
-
-  SegmentX *b The second segment.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int sort_by_way_id(SegmentX *a,SegmentX *b)
-{
- way_t a_id=a->way;
- way_t b_id=b->way;
-
- if(a_id<b_id)
-    return(-1);
- else if(a_id>b_id)
-    return(1);
- else /* if(a_id==b_id) */
-    return(-FILESORT_PRESERVE_ORDER(a,b)); /* latest version first */
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Apply the changes to the segments.
-
-  int apply_changes Return 1 if the value is to be kept, otherwise 0.
-
-  SegmentX *segmentx The extended segment.
-
-  index_t index The number of sorted segments that have already been written to the output file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int apply_changes(SegmentX *segmentx,index_t index)
-{
- static way_t prevway=NO_WAY_ID;
- static int deleted=0;
-
- if(prevway!=segmentx->way)
-   {
-    prevway=segmentx->way;
-    deleted=0;
-   }
-
- if(!deleted)
-    if(segmentx->node1==NO_NODE_ID)
-       deleted=1;
-
- if(deleted)
-    return(0);
- else
-    return(1);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Sort the segment list and deduplicate it.
 
   SegmentsX *segmentsx The set of segments to sort and modify.
@@ -532,11 +402,9 @@ static int deduplicate(SegmentX *segmentx,index_t index)
   NodesX *nodesx The set of nodes to use.
 
   WaysX *waysx The set of ways to use.
-
-  int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep)
+void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  index_t noway=0,nonode=0,duplicate=0,good=0,total=0;
  node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
@@ -559,10 +427,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep
 
  segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
- if(keep)
-    RenameFile(segmentsx->filename_tmp,segmentsx->filename);
- else
-    DeleteFile(segmentsx->filename_tmp);
+ DeleteFile(segmentsx->filename_tmp);
 
  segmentsx->knumber=segmentsx->number;
 

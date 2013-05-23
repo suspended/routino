@@ -96,7 +96,9 @@ index_t IndexWayX(WaysX *waysx,way_t id);
 
 void SortWayList(WaysX *waysx);
 
-void ExtractWayNames(WaysX *waysx,int keep);
+SegmentsX *GenerateSegments(WaysX *waysx,NodesX *nodesx,int keep);
+
+void ExtractWayNames(WaysX *waysx);
 
 void CompactWayList(WaysX *waysx,SegmentsX *segmentsx);
 

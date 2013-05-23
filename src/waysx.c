@@ -27,6 +27,7 @@
 #include "ways.h"
 
 #include "typesx.h"
+#include "nodesx.h"
 #include "segmentsx.h"
 #include "waysx.h"
 
@@ -375,14 +376,114 @@ static int deduplicate_by_id(WayX *wayx,index_t index)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Extract the way names from the ways and reference the list of names from the ways.
+  Generate the segments from the ways.
 
   WaysX *waysx The set of ways to process.
+
+  NodesX *nodesx The set of nodes to use for creating the segments.
 
   int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ExtractWayNames(WaysX *waysx,int keep)
+SegmentsX *GenerateSegments(WaysX *waysx,NodesX *nodesx,int keep)
+{
+ SegmentsX *segmentsx;
+ index_t i;
+ int fd;
+ char *name=NULL;
+ int namelen=0;
+
+ /* Print the start message */
+
+ printf_first("Generating Segments: Ways=0 Segments=0");
+
+ segmentsx=NewSegmentList();
+
+ /* Re-open the file read-only and a new file writeable */
+
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
+
+ if(keep)
+    RenameFile(waysx->filename_tmp,waysx->filename);
+ else
+    DeleteFile(waysx->filename_tmp);
+
+ waysx->knumber=waysx->number;
+
+ fd=OpenFileNew(waysx->filename_tmp);
+
+ /* Loop through the ways and create the segments */
+
+ for(i=0;i<waysx->number;i++)
+   {
+    WayX wayx;
+    FILESORT_VARINT size;
+    node_t node,prevnode=NO_NODE_ID;
+
+    ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
+
+    ReadFile(waysx->fd,&wayx,sizeof(WayX));
+
+    while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
+      {
+       if(prevnode!=NO_NODE_ID && prevnode!=node)
+         {
+          distance_t segment_flags=0;
+
+          if(wayx.way.type&Highway_OneWay)
+             segment_flags|=ONEWAY_1TO2;
+
+          if(wayx.way.type&Highway_Area)
+             segment_flags|=SEGMENT_AREA;
+
+          AppendSegmentList(segmentsx,wayx.id,prevnode,node,segment_flags);
+         }
+
+       prevnode=node;
+
+       size-=sizeof(node_t);
+      }
+
+    size-=sizeof(node_t);
+
+    if(namelen<size)
+       name=(char*)realloc((void*)name,namelen=size);
+
+    ReadFile(waysx->fd,name,size-sizeof(WayX));
+
+    WriteFile(fd,&size,FILESORT_VARSIZE);
+    WriteFile(fd,&wayx,sizeof(WayX));
+    WriteFile(fd,name,size-sizeof(WayX));
+
+    if(!((i+1)%1000))
+       printf_middle("Generating Segments: Ways=%"Pindex_t" Segments=%"Pindex_t,i+1,segmentsx->number);
+   }
+
+ FinishSegmentList(segmentsx);
+
+ if(name) free(name);
+
+ /* Close the files */
+
+ waysx->fd=CloseFile(waysx->fd);
+ CloseFile(fd);
+
+ /* Print the final message */
+
+ printf_last("Generated Segments: Ways=%"Pindex_t" Segments=%"Pindex_t,waysx->number,segmentsx->number);
+
+ return(segmentsx);
+}
+
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Extract the way names from the ways and reference the list of names from the ways.
+
+  WaysX *waysx The set of ways to process.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void ExtractWayNames(WaysX *waysx)
 {
  index_t i;
  int fd;
@@ -395,16 +496,11 @@ void ExtractWayNames(WaysX *waysx,int keep)
 
  printf_first("Sorting Ways by Name");
 
- /* Re-open the file read-only and a new file writeable */
+ /* Re-open the file read-only and new files writeable */
 
  waysx->fd=ReOpenFile(waysx->filename_tmp);
 
- if(keep)
-    RenameFile(waysx->filename_tmp,waysx->filename);
- else
-    DeleteFile(waysx->filename_tmp);
-
- waysx->knumber=waysx->number;
+ DeleteFile(waysx->filename_tmp);
 
  fd=OpenFileNew(waysx->filename_tmp);
 
@@ -444,28 +540,21 @@ void ExtractWayNames(WaysX *waysx,int keep)
    {
     WayX wayx;
     FILESORT_VARINT size;
-    node_t node;
 
     ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
-
-    ReadFile(waysx->fd,&wayx,sizeof(WayX));
-
-    while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
-       size-=sizeof(node_t);
-
-    size-=sizeof(node_t)+sizeof(WayX);
 
     if(namelen[nnames%2]<size)
        names[nnames%2]=(char*)realloc((void*)names[nnames%2],namelen[nnames%2]=size);
 
-    ReadFile(waysx->fd,names[nnames%2],size);
+    ReadFile(waysx->fd,&wayx,sizeof(WayX));
+    ReadFile(waysx->fd,names[nnames%2],size-sizeof(WayX));
 
     if(nnames==0 || strcmp(names[0],names[1]))
       {
-       WriteFile(waysx->nfd,names[nnames%2],size);
+       WriteFile(waysx->nfd,names[nnames%2],size-sizeof(WayX));
 
        lastlength=waysx->nlength;
-       waysx->nlength+=size;
+       waysx->nlength+=size-sizeof(WayX);
 
        nnames++;
       }
