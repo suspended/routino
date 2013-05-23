@@ -599,13 +599,12 @@ filedumperx
    for test purposes only and gives no useful information about the
    routing database.
 
-   Usage: filedumper [--help]
-                     [--dir=<dirname>] [--prefix=<name>]
-                     [--dump [--nodes]
-                             [--segments]
-                             [--ways]
-                             [--route-relations]
-                             [--turn-relations]]
+   Usage: filedumperx [--help]
+                      [--dir=<dirname>] [--prefix=<name>]
+                      [--dump [--nodes]
+                              [--ways]
+                              [--route-relations]
+                              [--turn-relations]]
 
    --help
           Prints out the help information.
@@ -624,9 +623,6 @@ filedumperx
 
         --nodes
                 Dumps the node data.
-
-        --segments
-                Dumps the segment data.
 
         --ways
                 Dumps the way data.

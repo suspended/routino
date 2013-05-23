@@ -27,7 +27,6 @@
 
 #include "typesx.h"
 #include "nodesx.h"
-#include "segmentsx.h"
 #include "waysx.h"
 #include "relationsx.h"
 
@@ -38,7 +37,6 @@
 /* Local functions */
 
 static void print_nodes(const char *filename);
-static void print_segments(const char *filename);
 static void print_ways(const char *filename);
 static void print_route_relations(const char *filename);
 static void print_turn_relations(const char *filename);
@@ -54,7 +52,7 @@ int main(int argc,char** argv)
 {
  int   arg;
  char *dirname=NULL,*prefix=NULL;
- char *nodes_filename,*segments_filename,*ways_filename,*route_relations_filename,*turn_relations_filename;
+ char *nodes_filename,*ways_filename,*route_relations_filename,*turn_relations_filename;
  int   option_dump;
 
  /* Parse the command line arguments */
@@ -70,8 +68,6 @@ int main(int argc,char** argv)
     else if(!strcmp(argv[arg],"--dump"))
        option_dump=1;
     else if(!strcmp(argv[arg],"--nodes"))
-       ;
-    else if(!strcmp(argv[arg],"--segments"))
        ;
     else if(!strcmp(argv[arg],"--ways"))
        ;
@@ -90,8 +86,6 @@ int main(int argc,char** argv)
 
  nodes_filename=FileName(dirname,prefix,"nodesx.parsed.mem");
 
- segments_filename=FileName(dirname,prefix,"segmentsx.parsed.mem");
-
  ways_filename=FileName(dirname,prefix,"waysx.parsed.mem");
 
  route_relations_filename=FileName(dirname,prefix,"relationsx.route.parsed.mem");
@@ -106,10 +100,6 @@ int main(int argc,char** argv)
        if(!strcmp(argv[arg],"--nodes"))
          {
           print_nodes(nodes_filename);
-         }
-       else if(!strcmp(argv[arg],"--segments"))
-         {
-          print_segments(segments_filename);
          }
        else if(!strcmp(argv[arg],"--ways"))
          {
@@ -156,44 +146,6 @@ static void print_nodes(const char *filename)
     printf("  flags=%02x\n",nodex.flags);
 
     position+=sizeof(NodeX);
-   }
-
- CloseFile(fd);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Print out all of the segments.
-
-  const char *filename The name of the file containing the data.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static void print_segments(const char *filename)
-{
- off_t size,position=0;
- int fd;
-
- size=SizeFile(filename);
-
- fd=ReOpenFile(filename);
-
- while(position<size)
-   {
-    SegmentX segmentx;
-
-    ReadFile(fd,&segmentx,sizeof(SegmentX));
-
-    printf("Segment\n");
-    printf("  node1=%"Pnode_t" node2=%"Pnode_t"\n",segmentx.node1,segmentx.node2);
-    printf("  way=%"Pway_t"\n",segmentx.way);
-    if(segmentx.distance&SEGMENT_AREA)
-       printf("  Part of area\n");
-    if(segmentx.distance&ONEWAY_1TO2)
-       printf("  One-way (forward)\n");
-    if(segmentx.distance&ONEWAY_2TO1)
-       printf("  One-way (reverse)\n");
-
-    position+=sizeof(SegmentX);
    }
 
  CloseFile(fd);
@@ -379,13 +331,12 @@ static void print_turn_relations(const char *filename)
 static void print_usage(int detail,const char *argerr,const char *err)
 {
  fprintf(stderr,
-         "Usage: filedumper [--help]\n"
-         "                  [--dir=<dirname>] [--prefix=<name>]\n"
-         "                  [--dump [--nodes]\n"
-         "                          [--segments]\n"
-         "                          [--ways]\n"
-         "                          [--route-relations]\n"
-         "                          [--turn-relations]]\n");
+         "Usage: filedumperx [--help]\n"
+         "                   [--dir=<dirname>] [--prefix=<name>]\n"
+         "                   [--dump [--nodes]\n"
+         "                           [--ways]\n"
+         "                           [--route-relations]\n"
+         "                           [--turn-relations]]\n");
 
  if(argerr)
     fprintf(stderr,
@@ -407,7 +358,6 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "--dump                    Dump the intermediate files after parsing.\n"
             "  --nodes                 * all of the nodes.\n"
-            "  --segments              * all of the segments.\n"
             "  --ways                  * all of the ways.\n"
             "  --route-relations       * all of the route relations.\n"
             "  --turn-relations        * all of the turn relations.\n");
