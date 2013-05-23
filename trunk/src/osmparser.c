@@ -29,7 +29,6 @@
 #include "typesx.h"
 
 #include "nodesx.h"
-#include "segmentsx.h"
 #include "waysx.h"
 #include "relationsx.h"
 
@@ -49,7 +48,6 @@
 /* Local variables */
 
 static NodesX     *nodes;
-static SegmentsX  *segments;
 static WaysX      *ways;
 static RelationsX *relations;
 
@@ -82,21 +80,18 @@ static double parse_length(way_t id,const char *k,const char *v);
 
   NodesX *OSMNodes The data structure of nodes to fill in.
 
-  SegmentsX *OSMSegments The data structure of segments to fill in.
-
   WaysX *OSMWays The data structure of ways to fill in.
 
   RelationsX *OSMRelations The data structure of relations to fill in.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseOSMFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
+int ParseOSMFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
 {
  int retval;
 
  /* Copy the function parameters and initialise the variables */
 
  nodes=OSMNodes;
- segments=OSMSegments;
  ways=OSMWays;
  relations=OSMRelations;
 
@@ -131,21 +126,18 @@ int ParseOSMFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
   NodesX *OSMNodes The data structure of nodes to fill in.
 
-  SegmentsX *OSMSegments The data structure of segments to fill in.
-
   WaysX *OSMWays The data structure of ways to fill in.
 
   RelationsX *OSMRelations The data structure of relations to fill in.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseOSCFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
+int ParseOSCFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
 {
  int retval;
 
  /* Copy the function parameters and initialise the variables */
 
  nodes=OSMNodes;
- segments=OSMSegments;
  ways=OSMWays;
  relations=OSMRelations;
 
@@ -180,21 +172,18 @@ int ParseOSCFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
   NodesX *OSMNodes The data structure of nodes to fill in.
 
-  SegmentsX *OSMSegments The data structure of segments to fill in.
-
   WaysX *OSMWays The data structure of ways to fill in.
 
   RelationsX *OSMRelations The data structure of relations to fill in.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
+int ParsePBFFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
 {
  int retval;
 
  /* Copy the function parameters and initialise the variables */
 
  nodes=OSMNodes;
- segments=OSMSegments;
  ways=OSMWays;
  relations=OSMRelations;
 
@@ -229,21 +218,18 @@ int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
   NodesX *OSMNodes The data structure of nodes to fill in.
 
-  SegmentsX *OSMSegments The data structure of segments to fill in.
-
   WaysX *OSMWays The data structure of ways to fill in.
 
   RelationsX *OSMRelations The data structure of relations to fill in.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseO5MFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
+int ParseO5MFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
 {
  int retval;
 
  /* Copy the function parameters and initialise the variables */
 
  nodes=OSMNodes;
- segments=OSMSegments;
  ways=OSMWays;
  relations=OSMRelations;
 
@@ -278,21 +264,18 @@ int ParseO5MFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,R
 
   NodesX *OSMNodes The data structure of nodes to fill in.
 
-  SegmentsX *OSMSegments The data structure of segments to fill in.
-
   WaysX *OSMWays The data structure of ways to fill in.
 
   RelationsX *OSMRelations The data structure of relations to fill in.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseO5CFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations)
+int ParseO5CFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
 {
  int retval;
 
  /* Copy the function parameters and initialise the variables */
 
  nodes=OSMNodes;
- segments=OSMSegments;
  ways=OSMWays;
  relations=OSMRelations;
 
@@ -617,7 +600,7 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
 void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 {
  Way way={0};
- distance_t oneway=0,area=0;
+ int oneway=0,area=0;
  int roundabout=0,lanes=0;
  char *name=NULL,*ref=NULL,*refname=NULL;
  way_t id;
@@ -635,10 +618,6 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
     way.type=WAY_DELETED;
 
     AppendWayList(ways,id,&way,way_nodes,way_nnodes,"");
-
-    way.type=Highway_None;
-
-    AppendSegmentList(segments,id,NO_NODE_ID,NO_NODE_ID,0);
    }
 
  if(mode==MODE_DELETE)
@@ -696,7 +675,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
        if(!strcmp(k,"area"))
          {
           if(ISTRUE(v))
-             area=SEGMENT_AREA;
+             area=1;
           else if(!ISFALSE(v))
              logerror("Way %"Pway_t" has an unrecognised tag 'area' = '%s' (after tagging rules); using 'no'.\n",logerror_way(id),v);
           recognised=1; break;
@@ -890,9 +869,9 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
        if(!strcmp(k,"oneway"))
          {
           if(ISTRUE(v))
-             oneway=ONEWAY_1TO2;
+             oneway=1;
           else if(!strcmp(v,"-1"))
-             oneway=ONEWAY_2TO1;
+             oneway=-1;
           else if(!ISFALSE(v))
              logerror("Way %"Pway_t" has an unrecognised tag 'oneway' = '%s' (after tagging rules); using 'no'.\n",logerror_way(id),v);
           recognised=1; break;
@@ -983,10 +962,25 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
     return;
 
  if(oneway)
+   {
     way.type|=Highway_OneWay;
+
+    if(oneway==-1)
+       for(i=0;i<way_nnodes/2;i++)
+         {
+          node_t temp;
+
+          temp=way_nodes[i];
+          way_nodes[i]=way_nodes[way_nnodes-i-1];
+          way_nodes[way_nnodes-i-1]=temp;
+         }
+   }
 
  if(roundabout)
     way.type|=Highway_Roundabout;
+
+ if(area)
+    way.type|=Highway_Area;
 
  if(lanes)
    {
@@ -1045,9 +1039,6 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 
        if(nto>=2 && !duplicated)
           logerror("Node %"Pnode_t" in way %"Pway_t" appears more than once.\n",logerror_node(to),logerror_way(id));
-
-       if(!duplicated)
-          AppendSegmentList(segments,id,from,to,area+oneway);
       }
    }
 }

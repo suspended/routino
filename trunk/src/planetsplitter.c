@@ -212,8 +212,6 @@ int main(int argc,char** argv)
 
  OSMNodes=NewNodeList(option_append||option_changes,option_process_only);
 
- OSMSegments=NewSegmentList(option_append||option_changes,option_process_only);
-
  OSMWays=NewWayList(option_append||option_changes,option_process_only);
 
  OSMRelations=NewRelationList(option_append||option_changes,option_process_only);
@@ -262,12 +260,12 @@ if(!option_process_only)
            }
          else if((p=strstr(filename,".o5c")) && !strcmp(p,".o5c"))
            {
-            if(ParseO5CFile(fd,OSMNodes,OSMSegments,OSMWays,OSMRelations))
+            if(ParseO5CFile(fd,OSMNodes,OSMWays,OSMRelations))
                exit(EXIT_FAILURE);
            }
          else
            {
-            if(ParseOSCFile(fd,OSMNodes,OSMSegments,OSMWays,OSMRelations))
+            if(ParseOSCFile(fd,OSMNodes,OSMWays,OSMRelations))
                exit(EXIT_FAILURE);
            }
         }
@@ -278,17 +276,17 @@ if(!option_process_only)
 
          if((p=strstr(filename,".pbf")) && !strcmp(p,".pbf"))
            {
-            if(ParsePBFFile(fd,OSMNodes,OSMSegments,OSMWays,OSMRelations))
+            if(ParsePBFFile(fd,OSMNodes,OSMWays,OSMRelations))
                exit(EXIT_FAILURE);
            }
          else if((p=strstr(filename,".o5m")) && !strcmp(p,".o5m"))
            {
-            if(ParseO5MFile(fd,OSMNodes,OSMSegments,OSMWays,OSMRelations))
+            if(ParseO5MFile(fd,OSMNodes,OSMWays,OSMRelations))
                exit(EXIT_FAILURE);
            }
          else
            {
-            if(ParseOSMFile(fd,OSMNodes,OSMSegments,OSMWays,OSMRelations))
+            if(ParseOSMFile(fd,OSMNodes,OSMWays,OSMRelations))
                exit(EXIT_FAILURE);
            }
         }
@@ -302,14 +300,12 @@ if(!option_process_only)
   }
 
  FinishNodeList(OSMNodes);
- FinishSegmentList(OSMSegments);
  FinishWayList(OSMWays);
  FinishRelationList(OSMRelations);
 
  if(option_parse_only)
    {
     FreeNodeList(OSMNodes,1);
-    FreeSegmentList(OSMSegments,1);
     FreeWayList(OSMWays,1);
     FreeRelationList(OSMRelations,1);
 
@@ -326,11 +322,6 @@ if(!option_process_only)
 
  SortNodeList(OSMNodes);
 
- if(option_changes)
-    ApplySegmentChanges(OSMSegments);
-
- SortSegmentList(OSMSegments);
-
  SortWayList(OSMWays);
 
  SortRelationList(OSMRelations);
@@ -340,13 +331,19 @@ if(!option_process_only)
  printf("\nProcess OSM Data\n================\n\n");
  fflush(stdout);
 
+ /* Generate the segments and sort them. */
+
+ OSMSegments=GenerateSegments(OSMWays,OSMNodes,option_keep||option_changes);
+
+ SortSegmentList(OSMSegments);
+
  /* Extract the way names (must be before using the ways) */
 
- ExtractWayNames(OSMWays,option_keep||option_changes);
+ ExtractWayNames(OSMWays);
 
  /* Remove bad segments (must be after sorting the nodes, segments and ways) */
 
- RemoveBadSegments(OSMSegments,OSMNodes,OSMWays,option_keep||option_changes);
+ RemoveBadSegments(OSMSegments,OSMNodes,OSMWays);
 
  /* Remove non-highway nodes (must be after removing the bad segments) */
 
@@ -442,7 +439,7 @@ if(!option_process_only)
 
        nsuper=SuperSegments->number;
 
-       FreeSegmentList(SuperSegments,0);
+       FreeSegmentList(SuperSegments);
 
        SuperSegments=SuperSegments2;
       }
@@ -476,9 +473,9 @@ if(!option_process_only)
 
  MergedSegments=MergeSuperSegments(OSMSegments,SuperSegments);
 
- FreeSegmentList(OSMSegments,0);
+ FreeSegmentList(OSMSegments);
 
- FreeSegmentList(SuperSegments,0);
+ FreeSegmentList(SuperSegments);
 
  OSMSegments=MergedSegments;
 
@@ -548,9 +545,10 @@ if(!option_process_only)
  /* Free the memory (delete the temporary files) */
 
  FreeNodeList(OSMNodes,0);
- FreeSegmentList(OSMSegments,0);
  FreeWayList(OSMWays,0);
  FreeRelationList(OSMRelations,0);
+
+ FreeSegmentList(OSMSegments);
 
  /* Print the total time */
 

@@ -240,6 +240,8 @@ const char *HighwayName(Highway highway)
     ;
    case Highway_Roundabout:
     ;
+   case Highway_Area:
+    ;
    }
 
  return(NULL);

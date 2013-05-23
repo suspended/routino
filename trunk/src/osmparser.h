@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -56,15 +56,15 @@ int ParseO5M(int fd,int changes);
 
 /* Functions in osmparser.c */
 
-int ParseOSMFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
+int ParseOSMFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
 
-int ParseOSCFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
+int ParseOSCFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
 
-int ParsePBFFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
+int ParsePBFFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
 
-int ParseO5MFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
+int ParseO5MFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
 
-int ParseO5CFile(int fd,NodesX *OSMNodes,SegmentsX *OSMSegments,WaysX *OSMWays,RelationsX *OSMRelations);
+int ParseO5CFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
 
 void AddWayRefs(int64_t node_id);
 void AddRelationRefs(int64_t node_id,int64_t way_id,int64_t relation_id,const char *role);

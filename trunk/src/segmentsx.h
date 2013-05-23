@@ -53,7 +53,6 @@ struct _SegmentX
 /*+ A structure containing a set of segments (memory format). +*/
 struct _SegmentsX
 {
- char      *filename;           /*+ The name of the intermediate file (for the SegmentsX). +*/
  char      *filename_tmp;       /*+ The name of the temporary file (for the SegmentsX). +*/
 
  int        fd;                 /*+ The file descriptor of the open file (for the SegmentsX). +*/
@@ -86,8 +85,8 @@ struct _SegmentsX
 
 /* Functions in segmentsx.c */
 
-SegmentsX *NewSegmentList(int append,int readonly);
-void FreeSegmentList(SegmentsX *segmentsx,int keep);
+SegmentsX *NewSegmentList(void);
+void FreeSegmentList(SegmentsX *segmentsx);
 
 void AppendSegmentList(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
 void FinishSegmentList(SegmentsX *segmentsx);
@@ -95,13 +94,11 @@ void FinishSegmentList(SegmentsX *segmentsx);
 SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t nodeindex,int position);
 SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex);
 
-void ApplySegmentChanges(SegmentsX *segmentsx);
-
 void SortSegmentList(SegmentsX *segmentsx);
 
 void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
-void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx,int keep);
+void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
