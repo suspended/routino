@@ -61,23 +61,28 @@ struct _RelationsX
 {
  /* Route relations */
 
- char      *rfilename;         /*+ The name of the intermediate file (for the RouteRelX). +*/
- char      *rfilename_tmp;     /*+ The name of the temporary file (for the RouteRelX). +*/
+ char       *rfilename;        /*+ The name of the intermediate file (for the RouteRelX). +*/
+ char       *rfilename_tmp;    /*+ The name of the temporary file (for the RouteRelX). +*/
 
- int        rfd;               /*+ The file descriptor of the open file (for the RouteRelX). +*/
+ int         rfd;              /*+ The file descriptor of the open file (for the RouteRelX). +*/
 
- index_t    rnumber;           /*+ The number of extended route relations. +*/
- index_t    rknumber;          /*+ The number of extended route relations kept for next time. +*/
+ index_t     rnumber;          /*+ The number of extended route relations. +*/
+ index_t     rknumber;         /*+ The number of extended route relations kept for next time. +*/
+
+ relation_t *ridata;           /*+ The extended relation IDs (sorted by ID). +*/
+ off_t      *rodata;           /*+ The offset of the route relation in the file (used for error log). +*/
 
  /* Turn restriction relations */
 
- char      *trfilename;        /*+ The name of the intermediate file (for the TurnRelX). +*/
- char      *trfilename_tmp;    /*+ The name of the temporary file (for the TurnRelX). +*/
+ char       *trfilename;       /*+ The name of the intermediate file (for the TurnRelX). +*/
+ char       *trfilename_tmp;   /*+ The name of the temporary file (for the TurnRelX). +*/
 
- int        trfd;              /*+ The file descriptor of the temporary file (for the TurnRelX). +*/
+ int         trfd;             /*+ The file descriptor of the temporary file (for the TurnRelX). +*/
 
- index_t    trnumber;          /*+ The number of extended turn restriction relations. +*/
- index_t    trknumber;         /*+ The number of extended turn relations kept for next time. +*/
+ index_t     trnumber;         /*+ The number of extended turn restriction relations. +*/
+ index_t     trknumber;        /*+ The number of extended turn relations kept for next time. +*/
+
+ relation_t *tridata;          /*+ The extended relation IDs (sorted by ID). +*/
 };
 
 
@@ -94,6 +99,9 @@ void AppendTurnRelationList(RelationsX* relationsx,relation_t id,
                             way_t from,way_t to,node_t via,
                             TurnRestriction restriction,transports_t except);
 void FinishRelationList(RelationsX *relationsx);
+
+index_t IndexRouteRelX(RelationsX *relationsx,relation_t id);
+index_t IndexTurnRelX(RelationsX *relationsx,relation_t id);
 
 void SortRelationList(RelationsX *relationsx);
 
