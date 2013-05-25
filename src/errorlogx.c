@@ -87,7 +87,7 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 
  reindex_relations(relationsx);
 
- printf_last("Re-indexed the Data: Nodes=%"Pindex_t" Ways=%"Pindex_t" Route-Relations=%"Pindex_t" Turn-Relations=%"Pindex_t,nodesx->number,waysx->number,relationsx->rnumber,relationsx->trnumber);
+ printf_last("Re-indexed the Data: Nodes=%"Pindex_t" Ways=%"Pindex_t" Route-Relations=%"Pindex_t" Turn-Relations=%"Pindex_t,nodesx->number,waysx->number,relationsx->rrnumber,relationsx->trnumber);
 
 
  /* Print the start message */
@@ -105,7 +105,7 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 #endif
 
  waysx->fd=ReOpenFile(waysx->filename);
- relationsx->rfd=ReOpenFile(relationsx->rfilename);
+ relationsx->rrfd=ReOpenFile(relationsx->rrfilename);
  relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
  /* Open the binary log file read-only and a new file writeable */
@@ -269,7 +269,7 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 #endif
 
  waysx->fd=CloseFile(waysx->fd);
- relationsx->rfd=CloseFile(relationsx->rfd);
+ relationsx->rrfd=CloseFile(relationsx->rrfd);
  relationsx->trfd=CloseFile(relationsx->trfd);
 
  CloseFile(oldfd);
@@ -370,16 +370,16 @@ static void reindex_relations(RelationsX *relationsx)
 
  /* Route relations */
 
- relationsx->rnumber=relationsx->rknumber;
+ relationsx->rrnumber=relationsx->rrknumber;
 
- relationsx->ridata=(relation_t*)malloc(relationsx->rnumber*sizeof(relation_t));
- relationsx->rodata=(off_t*)malloc(relationsx->rnumber*sizeof(off_t));
+ relationsx->rridata=(relation_t*)malloc(relationsx->rrnumber*sizeof(relation_t));
+ relationsx->rrodata=(off_t*)malloc(relationsx->rrnumber*sizeof(off_t));
 
  /* Get the relation id and the offset for each relation in the file */
 
- size=SizeFile(relationsx->rfilename);
+ size=SizeFile(relationsx->rrfilename);
 
- fd=ReOpenFile(relationsx->rfilename);
+ fd=ReOpenFile(relationsx->rrfilename);
 
  index=0;
 
@@ -391,8 +391,8 @@ static void reindex_relations(RelationsX *relationsx)
     SeekReadFile(fd,&relationsize,FILESORT_VARSIZE,position);
     SeekReadFile(fd,&routerelx,sizeof(RouteRelX),position+FILESORT_VARSIZE);
 
-    relationsx->ridata[index]=routerelx.id;
-    relationsx->rodata[index]=position+FILESORT_VARSIZE+sizeof(RouteRelX);
+    relationsx->rridata[index]=routerelx.id;
+    relationsx->rrodata[index]=position+FILESORT_VARSIZE+sizeof(RouteRelX);
 
     index++;
 
@@ -578,15 +578,15 @@ static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *
  else
    {
     int count=0;
-    off_t offset=relationsx->rodata[index];
+    off_t offset=relationsx->rrodata[index];
     way_t way=NO_WAY_ID,tempway;
     relation_t relation=NO_RELATION_ID,temprelation;
 
-    SeekFile(relationsx->rfd,offset);
+    SeekFile(relationsx->rrfd,offset);
 
     /* Choose a random way */
 
-    while(!ReadFile(relationsx->rfd,&tempway,sizeof(way_t)) && tempway!=NO_WAY_ID)
+    while(!ReadFile(relationsx->rrfd,&tempway,sizeof(way_t)) && tempway!=NO_WAY_ID)
       {
        count++;
 
@@ -599,7 +599,7 @@ static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *
 
     /* Choose a random relation */
 
-    while(!ReadFile(relationsx->rfd,&temprelation,sizeof(relation_t)) && temprelation!=NO_RELATION_ID)
+    while(!ReadFile(relationsx->rrfd,&temprelation,sizeof(relation_t)) && temprelation!=NO_RELATION_ID)
       {
        count++;
 
