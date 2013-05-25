@@ -81,44 +81,44 @@ RelationsX *NewRelationList(int append,int readonly)
 
  /* Route Relations */
 
- relationsx->rfilename    =(char*)malloc(strlen(option_tmpdirname)+32);
- relationsx->rfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
+ relationsx->rrfilename    =(char*)malloc(strlen(option_tmpdirname)+32);
+ relationsx->rrfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
 
- sprintf(relationsx->rfilename    ,"%s/relationsx.route.parsed.mem",option_tmpdirname);
- sprintf(relationsx->rfilename_tmp,"%s/relationsx.route.%p.tmp"    ,option_tmpdirname,(void*)relationsx);
+ sprintf(relationsx->rrfilename    ,"%s/relationsx.route.parsed.mem",option_tmpdirname);
+ sprintf(relationsx->rrfilename_tmp,"%s/relationsx.route.%p.tmp"    ,option_tmpdirname,(void*)relationsx);
 
  if(append || readonly)
-    if(ExistsFile(relationsx->rfilename))
+    if(ExistsFile(relationsx->rrfilename))
       {
        off_t size,position=0;
-       int rfd;
+       int rrfd;
 
-       size=SizeFile(relationsx->rfilename);
+       size=SizeFile(relationsx->rrfilename);
 
-       rfd=ReOpenFile(relationsx->rfilename);
+       rrfd=ReOpenFile(relationsx->rrfilename);
 
        while(position<size)
          {
           FILESORT_VARINT relationsize;
 
-          SeekReadFile(rfd,&relationsize,FILESORT_VARSIZE,position);
+          SeekReadFile(rrfd,&relationsize,FILESORT_VARSIZE,position);
 
-          relationsx->rnumber++;
+          relationsx->rrnumber++;
 
           position+=relationsize+FILESORT_VARSIZE;
          }
 
-       CloseFile(rfd);
+       CloseFile(rrfd);
 
-       RenameFile(relationsx->rfilename ,relationsx->rfilename_tmp);
+       RenameFile(relationsx->rrfilename,relationsx->rrfilename_tmp);
       }
 
  if(append)
-    relationsx->rfd=OpenFileAppend(relationsx->rfilename_tmp);
+    relationsx->rrfd=OpenFileAppend(relationsx->rrfilename_tmp);
  else if(!readonly)
-    relationsx->rfd=OpenFileNew(relationsx->rfilename_tmp);
+    relationsx->rrfd=OpenFileNew(relationsx->rrfilename_tmp);
  else
-    relationsx->rfd=-1;
+    relationsx->rrfd=-1;
 
 
  /* Turn Restriction Relations */
@@ -165,18 +165,18 @@ void FreeRelationList(RelationsX *relationsx,int keep)
  /* Route relations */
 
  if(keep)
-    RenameFile(relationsx->rfilename_tmp,relationsx->rfilename);
+    RenameFile(relationsx->rrfilename_tmp,relationsx->rrfilename);
  else
-    DeleteFile(relationsx->rfilename_tmp);
+    DeleteFile(relationsx->rrfilename_tmp);
 
- free(relationsx->rfilename);
- free(relationsx->rfilename_tmp);
+ free(relationsx->rrfilename);
+ free(relationsx->rrfilename_tmp);
 
- if(relationsx->ridata)
-    free(relationsx->ridata);
+ if(relationsx->rridata)
+    free(relationsx->rridata);
 
- if(relationsx->rodata)
-    free(relationsx->rodata);
+ if(relationsx->rrodata)
+    free(relationsx->rrodata);
 
 
  /* Turn Restriction relations */
@@ -230,18 +230,18 @@ void AppendRouteRelationList(RelationsX* relationsx,relation_t id,
 
  size=sizeof(RouteRelX)+(nways+1)*sizeof(way_t)+(nrelations+1)*sizeof(relation_t);
 
- WriteFile(relationsx->rfd,&size,FILESORT_VARSIZE);
- WriteFile(relationsx->rfd,&relationx,sizeof(RouteRelX));
+ WriteFile(relationsx->rrfd,&size,FILESORT_VARSIZE);
+ WriteFile(relationsx->rrfd,&relationx,sizeof(RouteRelX));
 
- WriteFile(relationsx->rfd,ways  ,nways*sizeof(way_t));
- WriteFile(relationsx->rfd,&noway,      sizeof(way_t));
+ WriteFile(relationsx->rrfd,ways  ,nways*sizeof(way_t));
+ WriteFile(relationsx->rrfd,&noway,      sizeof(way_t));
 
- WriteFile(relationsx->rfd,relations  ,nrelations*sizeof(relation_t));
- WriteFile(relationsx->rfd,&norelation,           sizeof(relation_t));
+ WriteFile(relationsx->rrfd,relations  ,nrelations*sizeof(relation_t));
+ WriteFile(relationsx->rrfd,&norelation,           sizeof(relation_t));
 
- relationsx->rnumber++;
+ relationsx->rrnumber++;
 
- logassert(relationsx->rnumber!=0,"Too many route relations (change index_t to 64-bits?)"); /* Zero marks the high-water mark for relations. */
+ logassert(relationsx->rrnumber!=0,"Too many route relations (change index_t to 64-bits?)"); /* Zero marks the high-water mark for relations. */
 }
 
 
@@ -292,8 +292,8 @@ void AppendTurnRelationList(RelationsX* relationsx,relation_t id,
 
 void FinishRelationList(RelationsX *relationsx)
 {
- if(relationsx->rfd!=-1)
-    relationsx->rfd =CloseFile(relationsx->rfd);
+ if(relationsx->rrfd!=-1)
+    relationsx->rrfd =CloseFile(relationsx->rrfd);
 
  if(relationsx->trfd!=-1)
     relationsx->trfd=CloseFile(relationsx->trfd);
@@ -313,16 +313,16 @@ void FinishRelationList(RelationsX *relationsx)
 index_t IndexRouteRelX(RelationsX *relationsx,relation_t id)
 {
  index_t start=0;
- index_t end=relationsx->rnumber-1;
+ index_t end=relationsx->rrnumber-1;
  index_t mid;
 
- if(relationsx->rnumber==0)             /* There are no route relations */
+ if(relationsx->rrnumber==0)             /* There are no route relations */
     return(NO_RELATION);
 
- if(id<relationsx->ridata[start])       /* Key is before start */
+ if(id<relationsx->rridata[start])       /* Key is before start */
     return(NO_RELATION);
 
- if(id>relationsx->ridata[end])         /* Key is after end */
+ if(id>relationsx->rridata[end])         /* Key is after end */
     return(NO_RELATION);
 
  /* Binary search - search key exact match only is required.
@@ -340,19 +340,19 @@ index_t IndexRouteRelX(RelationsX *relationsx,relation_t id)
    {
     mid=(start+end)/2;                  /* Choose mid point */
 
-    if(relationsx->ridata[mid]<id)      /* Mid point is too low */
+    if(relationsx->rridata[mid]<id)      /* Mid point is too low */
        start=mid+1;
-    else if(relationsx->ridata[mid]>id) /* Mid point is too high */
+    else if(relationsx->rridata[mid]>id) /* Mid point is too high */
        end=mid?(mid-1):mid;
     else                                /* Mid point is correct */
        return(mid);
    }
  while((end-start)>1);
 
- if(relationsx->ridata[start]==id)      /* Start is correct */
+ if(relationsx->rridata[start]==id)      /* Start is correct */
     return(start);
 
- if(relationsx->ridata[end]==id)        /* End is correct */
+ if(relationsx->rridata[end]==id)        /* End is correct */
     return(end);
 
  return(NO_RELATION);
@@ -428,10 +428,10 @@ void SortRelationList(RelationsX* relationsx)
 {
  /* Route Relations */
 
- if(relationsx->rnumber)
+ if(relationsx->rrnumber)
    {
-    index_t rxnumber;
-    int rfd;
+    index_t rrxnumber;
+    int rrfd;
 
     /* Print the start message */
 
@@ -439,28 +439,28 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Re-open the file read-only and a new file writeable */
 
-    relationsx->rfd=ReOpenFile(relationsx->rfilename_tmp);
+    relationsx->rrfd=ReOpenFile(relationsx->rrfilename_tmp);
 
-    DeleteFile(relationsx->rfilename_tmp);
+    DeleteFile(relationsx->rrfilename_tmp);
 
-    rfd=OpenFileNew(relationsx->rfilename_tmp);
+    rrfd=OpenFileNew(relationsx->rrfilename_tmp);
 
     /* Sort the relations */
 
-    rxnumber=relationsx->rnumber;
+    rrxnumber=relationsx->rrnumber;
 
-    relationsx->rnumber=filesort_vary(relationsx->rfd,rfd,NULL,
-                                                          (int (*)(const void*,const void*))sort_route_by_id,
-                                                          (int (*)(void*,index_t))deduplicate_route_by_id);
+    relationsx->rrnumber=filesort_vary(relationsx->rrfd,rrfd,NULL,
+                                                           (int (*)(const void*,const void*))sort_route_by_id,
+                                                           (int (*)(void*,index_t))deduplicate_route_by_id);
 
     /* Close the files */
 
-    relationsx->rfd=CloseFile(relationsx->rfd);
-    CloseFile(rfd);
+    relationsx->rrfd=CloseFile(relationsx->rrfd);
+    CloseFile(rrfd);
 
     /* Print the final message */
 
-    printf_last("Sorted Route Relations: Relations=%"Pindex_t" Duplicates=%"Pindex_t,rxnumber,rxnumber-relationsx->rnumber);
+    printf_last("Sorted Route Relations: Relations=%"Pindex_t" Duplicates=%"Pindex_t,rrxnumber,rrxnumber-relationsx->rrnumber);
    }
 
  /* Turn Restriction Relations. */
@@ -636,7 +636,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 
  /* Re-open the file read-only */
 
- relationsx->rfd=ReOpenFile(relationsx->rfilename_tmp);
+ relationsx->rrfd=ReOpenFile(relationsx->rrfilename_tmp);
 
  /* Read through the file. */
 
@@ -645,13 +645,13 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
     int ways=0,relations=0;
     index_t i;
 
-    SeekFile(relationsx->rfd,0);
+    SeekFile(relationsx->rrfd,0);
 
     /* Print the start message */
 
     printf_first("Processing Route Relations (%d): Relations=0 Modified Ways=0",iteration);
 
-    for(i=0;i<relationsx->rnumber;i++)
+    for(i=0;i<relationsx->rrnumber;i++)
       {
        FILESORT_VARINT size;
        RouteRelX relationx;
@@ -661,8 +661,8 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 
        /* Read each route relation */
 
-       ReadFile(relationsx->rfd,&size,FILESORT_VARSIZE);
-       ReadFile(relationsx->rfd,&relationx,sizeof(RouteRelX));
+       ReadFile(relationsx->rrfd,&size,FILESORT_VARSIZE);
+       ReadFile(relationsx->rrfd,&relationx,sizeof(RouteRelX));
 
        /* Decide what type of route it is */
 
@@ -693,7 +693,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 
        do
          {
-          ReadFile(relationsx->rfd,&wayid,sizeof(way_t));
+          ReadFile(relationsx->rrfd,&wayid,sizeof(way_t));
 
           /* Update the ways that are listed for the relation */
 
@@ -742,7 +742,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 
        do
          {
-          ReadFile(relationsx->rfd,&relationid,sizeof(relation_t));
+          ReadFile(relationsx->rrfd,&relationid,sizeof(relation_t));
 
           /* Add the relations that are listed for this relation to the list for next time */
 
@@ -788,12 +788,12 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 
  /* Close the file */
 
- relationsx->rfd=CloseFile(relationsx->rfd);
+ relationsx->rrfd=CloseFile(relationsx->rrfd);
 
  if(keep)
-    RenameFile(relationsx->rfilename_tmp,relationsx->rfilename);
+    RenameFile(relationsx->rrfilename_tmp,relationsx->rrfilename);
 
- relationsx->rknumber=relationsx->rnumber;
+ relationsx->rrknumber=relationsx->rrnumber;
 
  /* Unmap from memory / close the files */
 
