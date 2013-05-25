@@ -104,6 +104,7 @@ RelationsX *NewRelationList(int append,int readonly)
           SeekReadFile(rfd,&relationsize,FILESORT_VARSIZE,position);
 
           relationsx->rnumber++;
+
           position+=relationsize+FILESORT_VARSIZE;
          }
 
@@ -171,6 +172,12 @@ void FreeRelationList(RelationsX *relationsx,int keep)
  free(relationsx->rfilename);
  free(relationsx->rfilename_tmp);
 
+ if(relationsx->ridata)
+    free(relationsx->ridata);
+
+ if(relationsx->rodata)
+    free(relationsx->rodata);
+
 
  /* Turn Restriction relations */
 
@@ -181,6 +188,10 @@ void FreeRelationList(RelationsX *relationsx,int keep)
 
  free(relationsx->trfilename);
  free(relationsx->trfilename_tmp);
+
+ if(relationsx->tridata)
+    free(relationsx->tridata);
+
 
  free(relationsx);
 }
@@ -286,6 +297,124 @@ void FinishRelationList(RelationsX *relationsx)
 
  if(relationsx->trfd!=-1)
     relationsx->trfd=CloseFile(relationsx->trfd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find a particular route relation index.
+
+  index_t IndexRouteRelX Returns the index of the route relation with the specified id.
+
+  Relationsx *relationsx The set of relations to process.
+
+  relation_t id The relation id to look for.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexRouteRelX(RelationsX *relationsx,relation_t id)
+{
+ index_t start=0;
+ index_t end=relationsx->rnumber-1;
+ index_t mid;
+
+ if(relationsx->rnumber==0)             /* There are no route relations */
+    return(NO_RELATION);
+
+ if(id<relationsx->ridata[start])       /* Key is before start */
+    return(NO_RELATION);
+
+ if(id>relationsx->ridata[end])         /* Key is after end */
+    return(NO_RELATION);
+
+ /* Binary search - search key exact match only is required.
+  *
+  *  # <- start  |  Check mid and move start or end if it doesn't match
+  *  #           |
+  *  #           |  Since an exact match is wanted we can set end=mid-1
+  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
+  *  #           |
+  *  #           |  Eventually either end=start or end=start+1 and one of
+  *  # <- end    |  start or end is the wanted one.
+  */
+
+ do
+   {
+    mid=(start+end)/2;                  /* Choose mid point */
+
+    if(relationsx->ridata[mid]<id)      /* Mid point is too low */
+       start=mid+1;
+    else if(relationsx->ridata[mid]>id) /* Mid point is too high */
+       end=mid?(mid-1):mid;
+    else                                /* Mid point is correct */
+       return(mid);
+   }
+ while((end-start)>1);
+
+ if(relationsx->ridata[start]==id)      /* Start is correct */
+    return(start);
+
+ if(relationsx->ridata[end]==id)        /* End is correct */
+    return(end);
+
+ return(NO_RELATION);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find a particular route relation index.
+
+  index_t IndexTurnRelX Returns the index of the turn relation with the specified id.
+
+  Relationsx *relationsx The set of relations to process.
+
+  relation_t id The relation id to look for.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t IndexTurnRelX(RelationsX *relationsx,relation_t id)
+{
+ index_t start=0;
+ index_t end=relationsx->trnumber-1;
+ index_t mid;
+
+ if(relationsx->trnumber==0)            /* There are no route relations */
+    return(NO_RELATION);
+
+ if(id<relationsx->tridata[start])      /* Key is before start */
+    return(NO_RELATION);
+
+ if(id>relationsx->tridata[end])        /* Key is after end */
+    return(NO_RELATION);
+
+ /* Binary search - search key exact match only is required.
+  *
+  *  # <- start  |  Check mid and move start or end if it doesn't match
+  *  #           |
+  *  #           |  Since an exact match is wanted we can set end=mid-1
+  *  # <- mid    |  or start=mid+1 because we know that mid doesn't match.
+  *  #           |
+  *  #           |  Eventually either end=start or end=start+1 and one of
+  *  # <- end    |  start or end is the wanted one.
+  */
+
+ do
+   {
+    mid=(start+end)/2;                   /* Choose mid point */
+
+    if(relationsx->tridata[mid]<id)      /* Mid point is too low */
+       start=mid+1;
+    else if(relationsx->tridata[mid]>id) /* Mid point is too high */
+       end=mid?(mid-1):mid;
+    else                                 /* Mid point is correct */
+       return(mid);
+   }
+ while((end-start)>1);
+
+ if(relationsx->tridata[start]==id)      /* Start is correct */
+    return(start);
+
+ if(relationsx->tridata[end]==id)        /* End is correct */
+    return(end);
+
+ return(NO_RELATION);
 }
 
 

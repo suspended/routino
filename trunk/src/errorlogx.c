@@ -46,6 +46,11 @@ extern char *errorbinfilename;
 static void reindex_nodes(NodesX *nodesx);
 static void reindex_ways(WaysX *waysx);
 static void reindex_relations(RelationsX *relationsx);
+
+static int lookup_lat_long_node(NodesX *nodesx,node_t node,latlong_t *latitude,latlong_t *longitude);
+static int lookup_lat_long_way(WaysX *waysx,NodesX *nodesx,way_t way,latlong_t *latitude,latlong_t *longitude,index_t error);
+static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *nodesx,relation_t relation,latlong_t *latitude,latlong_t *longitude,index_t error);
+
 static int sort_by_lat_long(ErrorLogX *a,ErrorLogX *b);
 
 
@@ -70,19 +75,19 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 
  /* Re-index the nodes, ways and relations */
 
- printf_first("Re-indexing the Nodes, Ways and Relations: Nodes=0 Ways=0 Relations=0");
+ printf_first("Re-indexing the Data: Nodes=0 Ways=0 Route-Relations=0 Turn-Relations=0");
 
  reindex_nodes(nodesx);
 
- printf_middle("Re-indexing the Nodes, Ways and Relations: Nodes=%"Pindex_t" Ways=0 Relations=0",nodesx->number);
+ printf_middle("Re-indexing the Data: Nodes=%"Pindex_t" Ways=0 Route-Relations=0 Turn-Relations=0",nodesx->number);
 
  reindex_ways(waysx);
 
- printf_middle("Re-indexing the Nodes, Ways and Relations: Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=0",nodesx->number,waysx->number);
+ printf_middle("Re-indexing the Data: Nodes=%"Pindex_t" Ways=%"Pindex_t" Route-Relations=0 Turn-Relations=0",nodesx->number,waysx->number);
 
  reindex_relations(relationsx);
 
- printf_last("Re-indexed the Nodes, Ways and Relations: Nodes=%"Pindex_t" Ways=%"Pindex_t" Relations=%"Pindex_t,nodesx->number,waysx->number,relationsx->trnumber);
+ printf_last("Re-indexed the Data: Nodes=%"Pindex_t" Ways=%"Pindex_t" Route-Relations=%"Pindex_t" Turn-Relations=%"Pindex_t,nodesx->number,waysx->number,relationsx->rnumber,relationsx->trnumber);
 
 
  /* Print the start message */
@@ -100,6 +105,8 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 #endif
 
  waysx->fd=ReOpenFile(waysx->filename);
+ relationsx->rfd=ReOpenFile(relationsx->rfilename);
+ relationsx->trfd=ReOpenFile(relationsx->trfilename);
 
  /* Open the binary log file read-only and a new file writeable */
 
@@ -125,64 +132,104 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
     if(offset!=errorlogobject.offset)
       {
        ErrorLogX errorlogx;
-       int i;
-       int nnodes=0;
-       latlong_t latitude[8],longitude[8];
-       latlong_t errorlat,errorlon;
+       latlong_t errorlat=NO_LATLONG,errorlon=NO_LATLONG;
 
        /* Calculate suitable coordinates */
 
-       for(i=0;i<nerrorlogobjects;i++)
+       if(nerrorlogobjects==1)
          {
-          latitude[i] =NO_LATLONG;
-          longitude[i]=NO_LATLONG;
-
-          if(((errorlogobjects[i].type_id>>56)&0xff)=='N')
+          if(((errorlogobjects[0].type_id>>56)&0xff)=='N')
             {
-             index_t node=IndexNodeX(nodesx,errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
+             node_t node=(node_t)(errorlogobjects[0].type_id&(uint64_t)0x00ffffffffffffff);
 
-             if(node!=NO_NODE)
+             lookup_lat_long_node(nodesx,node,&errorlat,&errorlon);
+            }
+          else if(((errorlogobjects[0].type_id>>56)&0xff)=='W')
+            {
+             way_t way=(way_t)(errorlogobjects[0].type_id&(uint64_t)0x00ffffffffffffff);
+
+             lookup_lat_long_way(waysx,nodesx,way,&errorlat,&errorlon,number);
+            }
+          else if(((errorlogobjects[0].type_id>>56)&0xff)=='R')
+            {
+             relation_t relation=(relation_t)(errorlogobjects[0].type_id&(uint64_t)0x00ffffffffffffff);
+
+             lookup_lat_long_relation(relationsx,waysx,nodesx,relation,&errorlat,&errorlon,number);
+            }
+         }
+       else
+         {
+          latlong_t latitude[8],longitude[8];
+          int i;
+          int ncoords=0,nnodes=0,nways=0,nrelations=0;
+
+          for(i=0;i<nerrorlogobjects;i++)
+            {
+             if(((errorlogobjects[i].type_id>>56)&0xff)=='N')
                {
-                NodeX *nodex=LookupNodeX(nodesx,node,1);
+                node_t node=(node_t)(errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
 
-                latitude[i] =nodex->latitude;
-                longitude[i]=nodex->longitude;
+                if(lookup_lat_long_node(nodesx,node,&latitude[ncoords],&longitude[ncoords]))
+                   ncoords++;
 
                 nnodes++;
                }
+             else if(((errorlogobjects[i].type_id>>56)&0xff)=='W') nways++;
+             else if(((errorlogobjects[i].type_id>>56)&0xff)=='R') nrelations++;
             }
-          else if(((errorlogobjects[i].type_id>>56)&0xff)=='W')
+
+          if(nways==0 && nrelations==0) /* only nodes */
+             ;
+          else if(ncoords)      /* some good nodes, possibly ways and/or relations */
+             ;
+          else if(nways)        /* no good nodes, possibly some good ways */
             {
-             index_t way=IndexWayX(waysx,errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
-
-             if(way!=NO_WAY)
-               {
-                off_t offset=waysx->odata[way];
-                node_t node_id;
-                index_t node;
-
-                SeekReadFile(waysx->fd,&node_id,sizeof(node_t),offset);
-
-                node=IndexNodeX(nodesx,node_id);
-
-                if(node!=NO_NODE)
+             for(i=0;i<nerrorlogobjects;i++)
+                if(((errorlogobjects[i].type_id>>56)&0xff)=='W')
                   {
-                   NodeX *nodex=LookupNodeX(nodesx,node,1);
+                   way_t way=(way_t)(errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
 
-                   latitude[i] =nodex->latitude;
-                   longitude[i]=nodex->longitude;
-
-                   nnodes++;
+                   if(lookup_lat_long_way(waysx,nodesx,way,&latitude[ncoords],&longitude[ncoords],number))
+                      ncoords++;
                   }
-               }
             }
-          else if(((errorlogobjects[i].type_id>>56)&0xff)=='R')
+
+          if(nrelations==0) /* only nodes and/or ways */
+             ;
+          else if(ncoords)  /* some good nodes and/or ways, possibly relations */
+             ;
+          else /* if(nrelations) */
             {
+             for(i=0;i<nerrorlogobjects;i++)
+                if(((errorlogobjects[i].type_id>>56)&0xff)=='R')
+                  {
+                   relation_t relation=(relation_t)(errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
+
+                   if(lookup_lat_long_relation(relationsx,waysx,nodesx,relation,&latitude[ncoords],&longitude[ncoords],number))
+                      ncoords++;
+                  }
+            }
+
+          if(ncoords)
+            {
+             errorlat=0;
+             errorlon=0;
+
+             for(i=0;i<ncoords;i++)
+               {
+                errorlat+=latitude[i];
+                errorlon+=longitude[i];
+               }
+
+             errorlat/=ncoords;
+             errorlon/=ncoords;
+            }
+          else
+            {
+             errorlat=NO_LATLONG;
+             errorlon=NO_LATLONG;
             }
          }
-
-       errorlat=latitude[0];
-       errorlon=longitude[0];
 
        /* Write to file */
 
@@ -222,6 +269,8 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 #endif
 
  waysx->fd=CloseFile(waysx->fd);
+ relationsx->rfd=CloseFile(relationsx->rfd);
+ relationsx->trfd=CloseFile(relationsx->trfd);
 
  CloseFile(oldfd);
  CloseFile(newfd);
@@ -309,11 +358,257 @@ static void reindex_ways(WaysX *waysx)
 /*++++++++++++++++++++++++++++++++++++++
   Re-index the relations that were kept.
 
-  RelationsX *relationsx The set of relations to process (contains the filename and number of relations).
+  RelationsX *relationsx The set of relations to process (contains the filenames and numbers of relations).
   ++++++++++++++++++++++++++++++++++++++*/
 
 static void reindex_relations(RelationsX *relationsx)
 {
+ int fd;
+ off_t size,position=0;
+ index_t index;
+ TurnRelX turnrelx;
+
+ /* Route relations */
+
+ relationsx->rnumber=relationsx->rknumber;
+
+ relationsx->ridata=(relation_t*)malloc(relationsx->rnumber*sizeof(relation_t));
+ relationsx->rodata=(off_t*)malloc(relationsx->rnumber*sizeof(off_t));
+
+ /* Get the relation id and the offset for each relation in the file */
+
+ size=SizeFile(relationsx->rfilename);
+
+ fd=ReOpenFile(relationsx->rfilename);
+
+ index=0;
+
+ while(position<size)
+   {
+    FILESORT_VARINT relationsize;
+    RouteRelX routerelx;
+
+    SeekReadFile(fd,&relationsize,FILESORT_VARSIZE,position);
+    SeekReadFile(fd,&routerelx,sizeof(RouteRelX),position+FILESORT_VARSIZE);
+
+    relationsx->ridata[index]=routerelx.id;
+    relationsx->rodata[index]=position+FILESORT_VARSIZE+sizeof(RouteRelX);
+
+    index++;
+
+    position+=relationsize+FILESORT_VARSIZE;
+   }
+
+ CloseFile(fd);
+
+
+ /* Turn relations */
+
+ relationsx->trnumber=relationsx->trknumber;
+
+ relationsx->tridata=(relation_t*)malloc(relationsx->trnumber*sizeof(relation_t));
+
+ /* Get the relation id and the offset for each relation in the file */
+
+ fd=ReOpenFile(relationsx->trfilename);
+
+ index=0;
+
+ while(!ReadFile(fd,&turnrelx,sizeof(TurnRelX)))
+   {
+    relationsx->tridata[index]=turnrelx.id;
+
+    index++;
+   }
+
+ CloseFile(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a node's latitude and longitude.
+
+  int lookup_lat_long_node Returns 1 if a node was found.
+
+  NodesX *nodesx The set of nodes to use.
+
+  node_t node The node number.
+
+  latlong_t *latitude Returns the latitude.
+
+  latlong_t *longitude Returns the longitude.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int lookup_lat_long_node(NodesX *nodesx,node_t node,latlong_t *latitude,latlong_t *longitude)
+{
+ index_t index=IndexNodeX(nodesx,node);
+
+ if(index==NO_NODE)
+    return 0;
+ else
+   {
+    NodeX *nodex=LookupNodeX(nodesx,index,1);
+
+    *latitude =nodex->latitude;
+    *longitude=nodex->longitude;
+
+    return 1;
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a way's latitude and longitude.
+
+  int lookup_lat_long_way Returns 1 if a way was found.
+
+  WaysX *waysx The set of ways to use.
+
+  NodesX *nodesx The set of nodes to use.
+
+  way_t way The way number.
+
+  latlong_t *latitude Returns the latitude.
+
+  latlong_t *longitude Returns the longitude.
+
+  index_t error The index of the error in the complete set of errors.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int lookup_lat_long_way(WaysX *waysx,NodesX *nodesx,way_t way,latlong_t *latitude,latlong_t *longitude,index_t error)
+{
+ index_t index=IndexWayX(waysx,way);
+
+ if(index==NO_WAY)
+    return 0;
+ else
+   {
+    int count=1;
+    off_t offset=waysx->odata[index];
+    node_t node1,node2,prevnode,node;
+    latlong_t latitude1,longitude1,latitude2,longitude2;
+
+    SeekFile(waysx->fd,offset);
+
+    /* Choose a random pair of adjacent nodes */
+
+    if(ReadFile(waysx->fd,&node1,sizeof(node_t)) || node1==NO_NODE_ID)
+       return 0;
+
+    if(ReadFile(waysx->fd,&node2,sizeof(node_t)) || node2==NO_NODE_ID)
+       return lookup_lat_long_node(nodesx,node1,latitude,longitude);
+
+    prevnode=node2;
+
+    while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
+      {
+       count++;
+
+       if((error%count)==0)     /* A 1/count chance */
+         {
+          node1=prevnode;
+          node2=node;
+         }
+
+       prevnode=node;
+      }
+
+    if(!lookup_lat_long_node(nodesx,node1,&latitude1,&longitude1))
+       return lookup_lat_long_node(nodesx,node2,latitude,longitude);
+
+    if(!lookup_lat_long_node(nodesx,node2,&latitude2,&longitude2))
+       return lookup_lat_long_node(nodesx,node1,latitude,longitude);
+
+    *latitude =(latitude1 +latitude2 )/2;
+    *longitude=(longitude1+longitude2)/2;
+
+    return 1;
+   }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Lookup a relation's latitude and longitude.
+
+  int lookup_lat_long_relation Returns 1 if a relation was found.
+
+  RelationsX *relationsx The set of relations to use.
+
+  WaysX *waysx The set of ways to use.
+
+  NodesX *nodesx The set of nodes to use.
+
+  relation_t relation The relation number.
+
+  latlong_t *latitude Returns the latitude.
+
+  latlong_t *longitude Returns the longitude.
+
+  index_t error The index of the error in the complete set of errors.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *nodesx,relation_t relation,latlong_t *latitude,latlong_t *longitude,index_t error)
+{
+ index_t index=IndexRouteRelX(relationsx,relation);
+
+ if(index==NO_RELATION)
+   {
+    index=IndexTurnRelX(relationsx,relation);
+
+    if(index==NO_RELATION)
+       return 0;
+    else
+      {
+       TurnRelX turnrelx;
+
+       SeekReadFile(relationsx->trfd,&turnrelx,sizeof(TurnRelX),index*sizeof(TurnRelX));
+
+       if(lookup_lat_long_node(nodesx,turnrelx.via,latitude,longitude))
+          return 1;
+
+       if(lookup_lat_long_way(waysx,nodesx,turnrelx.from,latitude,longitude,error))
+          return 1;
+
+       if(lookup_lat_long_way(waysx,nodesx,turnrelx.to,latitude,longitude,error))
+          return 1;
+
+       return 0;
+      }
+   }
+ else
+   {
+    int count=0;
+    off_t offset=relationsx->rodata[index];
+    way_t way=NO_WAY_ID,tempway;
+    relation_t relation=NO_RELATION_ID,temprelation;
+
+    SeekFile(relationsx->rfd,offset);
+
+    /* Choose a random way */
+
+    while(!ReadFile(relationsx->rfd,&tempway,sizeof(way_t)) && tempway!=NO_WAY_ID)
+      {
+       count++;
+
+       if((error%count)==0)     /* A 1/count chance */
+          way=tempway;
+      }
+
+    if(lookup_lat_long_way(waysx,nodesx,way,latitude,longitude,error))
+       return 1;
+
+    /* Choose a random relation */
+
+    while(!ReadFile(relationsx->rfd,&temprelation,sizeof(relation_t)) && temprelation!=NO_RELATION_ID)
+      {
+       count++;
+
+       if((error%count)==0)     /* A 1/count chance */
+          relation=temprelation;
+      }
+
+    return lookup_lat_long_relation(relationsx,waysx,nodesx,relation,latitude,longitude,error);
+   }
 }
 
 
@@ -324,6 +619,7 @@ static void reindex_relations(RelationsX *relationsx)
 void SortErrorLogsGeographically(void)
 {
  int oldfd,newfd;
+ index_t number;
 
  /* Print the start message */
 
@@ -339,9 +635,9 @@ void SortErrorLogsGeographically(void)
 
  /* Sort errors geographically */
 
- filesort_fixed(oldfd,newfd,sizeof(ErrorLogX),NULL,
-                                              (int (*)(const void*,const void*))sort_by_lat_long,
-                                              NULL);
+ number=filesort_fixed(oldfd,newfd,sizeof(ErrorLogX),NULL,
+                                                     (int (*)(const void*,const void*))sort_by_lat_long,
+                                                     NULL);
 
  /* Close the files */
 
@@ -350,7 +646,7 @@ void SortErrorLogsGeographically(void)
 
  /* Print the final message */
 
- printf_last("Sorted Errors Geographically");
+ printf_last("Sorted Errors Geographically: Error=%"Pindex_t,number);
 }
 
 
