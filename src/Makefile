@@ -47,7 +47,7 @@ SUBDIRS=$(foreach f,$(SUBFILES),$(dir $f))
 C=$(wildcard *.c)
 D=$(wildcard .deps/*.d)
 
-EXE=planetsplitter planetsplitter-slim router router-slim filedumperx filedumper filedumper-slim tagmodifier
+EXE=planetsplitter planetsplitter-slim router router-slim filedumperx filedumper filedumper-slim
 
 ########
 
@@ -140,15 +140,6 @@ FILEDUMPER_SLIM_OBJ=filedumper-slim.o \
 
 filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
 	$(LD) $(FILEDUMPER_SLIM_OBJ) -o $@ $(LDFLAGS)
-
-########
-
-TAGMODIFIER_OBJ=tagmodifier.o \
-	        files.o logging.o logerror.o \
-	        uncompress.o xmlparse.o tagging.o
-
-tagmodifier : $(TAGMODIFIER_OBJ)
-	$(LD) $(TAGMODIFIER_OBJ) -o $@ $(LDFLAGS)
 
 ########
 

@@ -54,8 +54,7 @@ Installation
    The required executable files are 'planetsplitter', 'router' and
    'filedumper' and the '*-slim' versions of the same files. They can be
    copied to any location and need no special installation environment.
-   The 'filedumperx' and 'tagmodifier' executables are for debugging and
-   not required.
+   The 'filedumperx' executable is for debugging and not required.
 
    The configuration files are called 'profiles.xml', 'tagging.xml' and
    'translations.xml'. The names of the configuration files can be
