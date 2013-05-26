@@ -16,3 +16,5 @@ them will be installed when Routino is installed.
 tagmodifier - A program to read an OSM XML file and process it using a Routino
               tagging rules file to create a modified output XML file.
 
+errorlog    - Scripts for processing the error log file (created by running
+              planetsplitter with the --errorlog option).
