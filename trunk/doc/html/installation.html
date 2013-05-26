@@ -52,19 +52,21 @@
 
 The programs are written in standard C language with minimal external
 requirements so only a small set of development tools are required (gcc, make).
+The compilation tools to use and the command line options are defined in the
+file <tt>Makefile.conf</tt>.
 
 <p>
 
 There is some support for multi-threading that uses pthreads and additional
-development libraries for this may be required.  The mutli-threading can be
+development libraries for this may be required.  The multi-threading can be
 disabled at compile time if required by commenting out a couple of lines in the
-file 'src/Makefile'.
+file <tt>Makefile.conf</tt>.
 
 <p>
 
 To use the built-in file decompression functions the zlib (or libz) and bzip2
 (or libbz2) development libraries are also required.  These can each be disabled
-by commenting out a couple of lines in the file 'src/Makefile'.
+by commenting out a couple of lines in the file <tt>Makefile.conf</tt>.
 
 <p>
 
@@ -80,7 +82,8 @@ module "JSON::PP" must be installed.
 
 <h2><a name="H_1_2"></a>Compilation</h2>
 
-To compile the programs just type 'make' at the top level of the source tree.
+To compile the programs just type <tt>make</tt> at the top level of the source
+tree.
 
 <p>
 

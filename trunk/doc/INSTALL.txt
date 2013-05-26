@@ -7,17 +7,18 @@ Pre-Requisites
 
    The programs are written in standard C language with minimal external
    requirements so only a small set of development tools are required
-   (gcc, make).
+   (gcc, make). The compilation tools to use and the command line options
+   are defined in the file 'Makefile.conf'.
 
    There is some support for multi-threading that uses pthreads and
    additional development libraries for this may be required. The
-   mutli-threading can be disabled at compile time if required by
-   commenting out a couple of lines in the file 'src/Makefile'.
+   multi-threading can be disabled at compile time if required by
+   commenting out a couple of lines in the file 'Makefile.conf'.
 
    To use the built-in file decompression functions the zlib (or libz) and
    bzip2 (or libbz2) development libraries are also required. These can
    each be disabled by commenting out a couple of lines in the file
-   'src/Makefile'.
+   'Makefile.conf'.
 
    To use the web page interface an http server is required. Instructions
    below are for Apache but any server that supports CGIs should work.

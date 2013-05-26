@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2010-2011 Andrew M. Bishop
+# This file Copyright 2010-2013 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# All configuration is in the top-level Makefile.conf
+
+include ../Makefile.conf
+
 # Web file paths
 
-WEBDIR=../web/www/routino/documentation
+WEBDOCDIR=../$(webdocdir)
 
 # Files to install
 
@@ -31,11 +35,11 @@ TOP_FILES=../agpl-3.0.txt
 ########
 
 all:
-	-@[ -d $(WEBDIR) ] && \
+	-@[ -d $(WEBDOCDIR) ] && \
 	  for file in $(HTML_FILES); do \
-	     if [ ! -f $(WEBDIR)/`basename $$file` ] || [ $$file -nt $(WEBDIR)/`basename $$file` ]; then \
-	        echo cp $$file $(WEBDIR) ;\
-	        cp -f $$file $(WEBDIR) ;\
+	     if [ ! -f $(WEBDOCDIR)/`basename $$file` ] || [ $$file -nt $(WEBDOCDIR)/`basename $$file` ]; then \
+	        echo cp $$file $(WEBDOCDIR) ;\
+	        cp -f $$file $(WEBDOCDIR) ;\
 	     fi ;\
 	  done
 
@@ -69,14 +73,13 @@ install: all
 clean:
 	rm -f *~
 	rm -f html/*~
-	rm -f $(WEBDIR)/*~
+	rm -f $(WEBDOCDIR)/*~
 
 ########
 
 distclean: clean
-	rm -f $(WEBDIR)/*
+	rm -f $(WEBDOCDIR)/*
 
 ########
 
-top=-top
-include ../Makefile
+.PHONY:: all test install clean distclean

@@ -18,24 +18,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# All configuration is in the top-level Makefile.conf
+
+include ../Makefile.conf
+
 # Web file paths
 
-WEBDIR=../web/bin
+WEBBINDIR=../$(webbindir)
 
-# Compilation programs
+# Debugging options
 
-CC=gcc
-LD=gcc
-
-# Compilation program options
-
-CFLAGS=-Wall -Wmissing-prototypes -std=c99
-CFLAGS+=-Wextra -Wno-unused-parameter
 #CFLAGS+=-pedantic
 
-LDFLAGS=-lm
-
-CFLAGS+=-O3
 #CFLAGS+=-O0 -g
 #CFLAGS+=-pg
 #CFLAGS+=-fprofile-arcs -ftest-coverage
@@ -43,23 +37,10 @@ CFLAGS+=-O3
 #LDFLAGS+=-pg -static
 #LDFLAGS+=-fprofile-arcs -ftest-coverage
 
-# Required for multi-threaded support
-CFLAGS+=-pthread -DUSE_PTHREADS
-LDFLAGS+=-pthread -lpthread
+# Sub-directories and sub-makefiles
 
-# Required for bzip2 support
-CFLAGS+=-DUSE_BZIP2
-LDFLAGS+=-lbz2
-
-# Required for gzip support
-CFLAGS+=-DUSE_GZIP
-LDFLAGS+=-lz
-
-# Required to use stdio with files > 2GiB on 32-bit system.
-CFLAGS+=-D_FILE_OFFSET_BITS=64
-
-# Required to compile on Linux without a warning about pread() and pwrite() functions.
-CFLAGS+=-D_POSIX_C_SOURCE=200809L
+SUBFILES=$(wildcard */Makefile)
+SUBDIRS=$(foreach f,$(SUBFILES),$(dir $f))
 
 # Compilation targets
 
@@ -70,16 +51,19 @@ EXE=planetsplitter planetsplitter-slim router router-slim filedumperx filedumper
 
 ########
 
-all: $(EXE)
-	-@[ -d $(WEBDIR) ] && \
+all: all-local
+	for dir in $(SUBDIRS); do \
+	   ( cd $$dir && $(MAKE) $@ ); \
+	done
+
+all-local: $(EXE)
+	-@[ -d $(WEBBINDIR) ] && \
 	  for file in $(EXE); do \
-	     if [ ! -f $(WEBDIR)/$$file ] || [ $$file -nt $(WEBDIR)/$$file ]; then \
-	        echo cp $$file $(WEBDIR) ;\
-	        cp -f $$file $(WEBDIR) ;\
+	     if [ ! -f $(WEBBINDIR)/$$file ] || [ $$file -nt $(WEBBINDIR)/$$file ]; then \
+	        echo cp $$file $(WEBBINDIR) ;\
+	        cp -f $$file $(WEBBINDIR) ;\
 	     fi ;\
 	  done
-	@cd xml  && $(MAKE) CC="$(CC)" LD="$(LD)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
-	@cd test && $(MAKE) CC="$(CC)" LD="$(LD)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 ########
 
@@ -179,12 +163,18 @@ tagmodifier : $(TAGMODIFIER_OBJ)
 ########
 
 test:
-	cd xml  && $(MAKE) test
-	cd test && $(MAKE) test
+	for dir in $(SUBDIRS); do \
+	   ( cd $$dir && $(MAKE) $@ ); \
+	done
 
 ########
 
-install: all
+install: install-local
+	for dir in $(SUBDIRS); do \
+	   ( cd $$dir && $(MAKE) $@ ); \
+	done
+
+install-local: all
 	-[ -d $(DESTDIR)$(bindir) ] || mkdir -p $(DESTDIR)$(bindir)
 	@[ -d $(DESTDIR)$(bindir) ] && \
 	  for file in $(EXE); do \
@@ -194,23 +184,29 @@ install: all
 
 ########
 
-clean:
+clean: clean-local
+	for dir in $(SUBDIRS); do \
+	   ( cd $$dir && $(MAKE) $@ ); \
+	done
+
+clean-local:
 	rm -f *~
 	rm -f *.o
 	rm -f core
 	rm -f *.gcda *.gcno *.gcov gmon.out
-	cd xml  && $(MAKE) clean
-	cd test && $(MAKE) clean
 
 ########
 
-distclean: clean
+distclean: distclean-local clean-local
+	for dir in $(SUBDIRS); do \
+	   ( cd $$dir && $(MAKE) $@ ); \
+	done
+
+distclean-local:
 	-[ -d ../web/bin ] && cd ../web/bin/ && rm -f $(EXE)
 	-rm -f $(EXE)
 	-rm -f $(D)
 	-rm -fr .deps
-	cd xml  && $(MAKE) distclean
-	cd test && $(MAKE) distclean
 
 ########
 
@@ -218,5 +214,6 @@ include $(D)
 
 ########
 
-top=-top
-include ../Makefile
+.PHONY:: all test install clean distclean
+
+.PHONY:: all-local install-local clean-local distclean-local
