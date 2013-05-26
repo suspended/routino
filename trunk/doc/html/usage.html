@@ -613,40 +613,6 @@ Usage: filedumperx [--help]
     </dl>
 </dl>
 
-
-<h3><a name="H_1_1_5"></a>tagmodifier</h3>
-
-This program is used to run the tag transformation process on an OSM XML file
-for test purposes.
-
-<pre class="boxed">
-Usage: tagmodifier [--help]
-                   [--tagging=&lt;filename&gt;]
-                   [--loggable] [--logtime]
-                   [--errorlog[&lt;name&gt;]]
-                   [&lt;filename.osm&gt; | &lt;filename.osm.bz2&gt; | &lt;filename.osm.gz&gt;]
-</pre>
-
-<dl>
-  <dt>--help
-  <dd>Prints out the help information.
-  <dt>--tagging=&lt;filename&gt;
-  <dd>The name of the XML file containing the tagging rules (defaults to
-    'tagging.xml' in the current directory).
-  <dt>--loggable
-  <dd>Print progress messages that are suitable for logging to a file; normally
-    an incrementing counter is printed which is more suitable for real-time
-    display than logging.
-  <dt>--logtime
-    <dd>Print the elapsed time for the processing.
-  <dt>--errorlog[=&lt;name&gt;]
-    <dd>Log parsing errors to 'error.log' or the specified file name.
-  <dt>&lt;filename.osm&gt;
-  <dd>Specifies the filename(s) to read data from.  Filenames ending '.bz2' will
-    be bzip2 uncompressed (if bzip2 support compiled in).  Filenames ending
-    '.gz' will be gzip uncompressed (if gzip support compiled in).
-</dl>
-
 </div>
 
 <!-- Content End -->

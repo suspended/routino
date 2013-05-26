@@ -11,3 +11,8 @@ Each program or script has its own directory which contains all of the necessary
 source code, documentation and/or web pages for that program or script.  None of
 them will be installed when Routino is installed.
 
+--------------------------------------------------------------------------------
+
+tagmodifier - A program to read an OSM XML file and process it using a Routino
+              tagging rules file to create a modified output XML file.
+
