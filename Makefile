@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2009-2011 Andrew M. Bishop
+# This file Copyright 2009-2013 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -18,56 +18,51 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Installation locations
+# All configuration is in the top-level Makefile.conf
 
-prefix=/usr/local
-bindir=$(prefix)/bin
-docdir=$(prefix)/doc/routino
-datadir=$(prefix)/share/routino
+include Makefile.conf
 
 # Sub-directories and sub-makefiles
 
-TOPFILES=$(wildcard */Makefile)
-TOPDIRS=$(foreach f,$(TOPFILES),$(dir $f))
+SUBFILES=$(wildcard */Makefile)
+SUBDIRS=$(foreach f,$(SUBFILES),$(dir $f))
 
 ########
 
-all$(top):
-	for dir in $(TOPDIRS); do \
+all:
+	for dir in $(SUBDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
 ########
 
-test$(top):
-	for dir in $(TOPDIRS); do \
+test:
+	for dir in $(SUBDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
 ########
 
-install$(top): all$(top)
-	for dir in $(TOPDIRS); do \
+install: all
+	for dir in $(SUBDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 	@echo "Note: web directory is not installed automatically"
 
 ########
 
-clean$(top):
-	for dir in $(TOPDIRS); do \
+clean:
+	for dir in $(SUBDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
 ########
 
-distclean$(top): clean$(top)
-	for dir in $(TOPDIRS); do \
+distclean:
+	for dir in $(SUBDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
 ########
-
-.PHONY:: all$(top) test$(top) install$(top) clean$(top) distclean$(top)
 
 .PHONY:: all test install clean distclean

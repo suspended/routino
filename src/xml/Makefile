@@ -18,23 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Programs
+# All configuration is in the top-level Makefile.conf
 
-CC=gcc
-LD=gcc
-
-# Program options
-
-CFLAGS=-Wall -Wmissing-prototypes -std=c99
-CFLAGS+=-Wextra -Wno-unused-parameter
-#CFLAGS+=-pedantic
-
-LDFLAGS=-lm
-
-CFLAGS+=-O3
-
-# Required to use stdio with files > 2GiB on 32-bit system.
-CFLAGS+=-D_FILE_OFFSET_BITS=64
+include ../../Makefile.conf
 
 # Compilation targets
 

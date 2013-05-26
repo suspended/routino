@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2010-2011 Andrew M. Bishop
+# This file Copyright 2010-2013 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# All configuration is in the top-level Makefile.conf
+
+include ../Makefile.conf
+
 # Web file paths
 
-WEBDATADIR=../web/data
-WEBWWWDIR=../web/www/routino
+WEBDATADIR=../$(webdatadir)
+WEBWWWDIR=../$(webwwwdir)
 
 # Files to install
 
@@ -100,5 +104,4 @@ distclean: clean
 
 ########
 
-top=-top
-include ../Makefile
+.PHONY:: all test install clean distclean
