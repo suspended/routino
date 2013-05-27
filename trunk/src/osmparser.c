@@ -604,7 +604,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
  int roundabout=0,lanes=0;
  char *name=NULL,*ref=NULL,*refname=NULL;
  way_t id;
- int i,j;
+ int i;
 
  /* Convert id */
 
@@ -980,7 +980,12 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
     way.type|=Highway_Roundabout;
 
  if(area)
+   {
     way.type|=Highway_Area;
+
+    if(way_nodes[0]!=way_nodes[way_nnodes-1])
+       logerror("Way %"Pway_t" is an area but not closed.\n",logerror_way(id));
+   }
 
  if(lanes)
    {
@@ -1007,40 +1012,6 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 
  if(ref && name)
     free(refname);
-
- if(area && way_nodes[0]!=way_nodes[way_nnodes-1])
-    logerror("Way %"Pway_t" is an area but not closed.\n",logerror_way(id));
-
- for(i=1;i<way_nnodes;i++)
-   {
-    node_t from=way_nodes[i-1];
-    node_t to  =way_nodes[i];
-
-    if(from==to)
-       logerror("Node %"Pnode_t" in way %"Pway_t" is connected to itself.\n",from,logerror_way(id));
-    else
-      {
-       int nto=1,duplicated=0;
-
-       for(j=1;j<i;j++)
-         {
-          node_t n1=way_nodes[j-1];
-          node_t n2=way_nodes[j];
-
-          if(n1==to && (i!=way_nnodes-1 || j!=1))
-             nto++;
-
-          if((n1==from && n2==to) || (n2==from && n1==to))
-            {
-             duplicated=1;
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",logerror_node(n1),logerror_node(n2),logerror_way(id));
-            }
-         }
-
-       if(nto>=2 && !duplicated)
-          logerror("Node %"Pnode_t" in way %"Pway_t" appears more than once.\n",logerror_node(to),logerror_way(id));
-      }
-   }
 }
 
 
