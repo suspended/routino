@@ -331,15 +331,13 @@ if(!option_process_only)
  printf("\nProcess OSM Data\n================\n\n");
  fflush(stdout);
 
- /* Generate the segments and sort them. */
+ /* Separate the segments and way names and sort them. */
 
- OSMSegments=GenerateSegments(OSMWays,OSMNodes,option_keep||option_changes);
+ OSMSegments=SplitWays(OSMWays,option_keep||option_changes);
+
+ SortWayNames(OSMWays);
 
  SortSegmentList(OSMSegments);
-
- /* Extract the way names (must be before using the ways) */
-
- ExtractWayNames(OSMWays);
 
  /* Remove bad segments (must be after sorting the nodes, segments and ways) */
 

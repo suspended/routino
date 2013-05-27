@@ -50,10 +50,9 @@ static SegmentsX *sortsegmentsx;
 /* Local functions */
 
 static int sort_by_id(WayX *a,WayX *b);
-static int deduplicate_by_id(WayX *wayx,index_t index);
+static int deduplicate_and_index_by_id(WayX *wayx,index_t index);
 
-static int sort_by_name(WayX *a,WayX *b);
-static int index_by_id(WayX *wayx,index_t index);
+static int sort_by_name(char *a,char *b);
 
 static int delete_unused(WayX *wayx,index_t index);
 static int sort_by_name_and_prop_and_id(WayX *a,WayX *b);
@@ -305,13 +304,21 @@ void SortWayList(WaysX *waysx)
 
  fd=OpenFileNew(waysx->filename_tmp);
 
+ /* Allocate the array of indexes */
+
+ waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
+
+ logassert(waysx->idata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
+
  /* Sort the ways by ID and index them */
+
+ sortwaysx=waysx;
 
  xnumber=waysx->number;
 
  waysx->number=filesort_vary(waysx->fd,fd,NULL,
                                           (int (*)(const void*,const void*))sort_by_id,
-                                          (int (*)(void*,index_t))deduplicate_by_id);
+                                          (int (*)(void*,index_t))deduplicate_and_index_by_id);
 
  /* Close the files */
 
@@ -349,7 +356,7 @@ static int sort_by_id(WayX *a,WayX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Discard duplicate ways.
+  Discard duplicate ways and create and index of ids.
 
   int deduplicate_by_id Return 1 if the value is to be kept, otherwise 0.
 
@@ -358,7 +365,7 @@ static int sort_by_id(WayX *a,WayX *b)
   index_t index The number of sorted ways that have already been written to the output file.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int deduplicate_by_id(WayX *wayx,index_t index)
+static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 {
  static way_t previd=NO_WAY_ID;
 
@@ -369,7 +376,11 @@ static int deduplicate_by_id(WayX *wayx,index_t index)
     if(wayx->way.type==WAY_DELETED)
        return(0);
     else
+      {
+       sortwaysx->idata[index]=wayx->id;
+
        return(1);
+      }
    }
  else
     return(0);
@@ -377,26 +388,24 @@ static int deduplicate_by_id(WayX *wayx,index_t index)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Generate the segments from the ways.
+  Split the ways into segments and way names.
 
   WaysX *waysx The set of ways to process.
-
-  NodesX *nodesx The set of nodes to use for creating the segments.
 
   int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsX *GenerateSegments(WaysX *waysx,NodesX *nodesx,int keep)
+SegmentsX *SplitWays(WaysX *waysx,int keep)
 {
  SegmentsX *segmentsx;
  index_t i;
- int fd;
+ int fd,nfd;
  char *name=NULL;
  int namelen=0;
 
  /* Print the start message */
 
- printf_first("Generating Segments: Ways=0 Segments=0");
+ printf_first("Splitting Ways: Ways=0 Segments=0");
 
  segmentsx=NewSegmentList();
 
@@ -413,7 +422,9 @@ SegmentsX *GenerateSegments(WaysX *waysx,NodesX *nodesx,int keep)
 
  fd=OpenFileNew(waysx->filename_tmp);
 
- /* Loop through the ways and create the segments */
+ nfd=OpenFileNew(waysx->nfilename_tmp);
+
+ /* Loop through the ways and create the segments and way names */
 
  for(i=0;i<waysx->number;i++)
    {
@@ -449,19 +460,23 @@ SegmentsX *GenerateSegments(WaysX *waysx,NodesX *nodesx,int keep)
        size-=sizeof(node_t);
       }
 
-    size-=sizeof(node_t);
+    size-=sizeof(node_t)+sizeof(WayX);
 
     if(namelen<size)
        name=(char*)realloc((void*)name,namelen=size);
 
-    ReadFile(waysx->fd,name,size-sizeof(WayX));
+    ReadFile(waysx->fd,name,size);
 
-    WriteFile(fd,&size,FILESORT_VARSIZE);
     WriteFile(fd,&wayx,sizeof(WayX));
-    WriteFile(fd,name,size-sizeof(WayX));
+
+    size+=sizeof(index_t);
+
+    WriteFile(nfd,&size,FILESORT_VARSIZE);
+    WriteFile(nfd,&i,sizeof(index_t));
+    WriteFile(nfd,name,size-sizeof(index_t));
 
     if(!((i+1)%1000))
-       printf_middle("Generating Segments: Ways=%"Pindex_t" Segments=%"Pindex_t,i+1,segmentsx->number);
+       printf_middle("Splitting Ways: Ways=%"Pindex_t" Segments=%"Pindex_t,i+1,segmentsx->number);
    }
 
  FinishSegmentList(segmentsx);
@@ -473,9 +488,11 @@ SegmentsX *GenerateSegments(WaysX *waysx,NodesX *nodesx,int keep)
  waysx->fd=CloseFile(waysx->fd);
  CloseFile(fd);
 
+ close(nfd);
+
  /* Print the final message */
 
- printf_last("Generated Segments: Ways=%"Pindex_t" Segments=%"Pindex_t,waysx->number,segmentsx->number);
+ printf_last("Splitting Ways: Ways=%"Pindex_t" Segments=%"Pindex_t,waysx->number,segmentsx->number);
 
  return(segmentsx);
 }
@@ -483,15 +500,15 @@ SegmentsX *GenerateSegments(WaysX *waysx,NodesX *nodesx,int keep)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Extract the way names from the ways and reference the list of names from the ways.
+  Sort the way names and assign the offsets to the ways.
 
   WaysX *waysx The set of ways to process.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ExtractWayNames(WaysX *waysx)
+void SortWayNames(WaysX *waysx)
 {
  index_t i;
- int fd;
+ int nfd;
  char *names[2]={NULL,NULL};
  int namelen[2]={0,0};
  int nnames=0;
@@ -499,77 +516,86 @@ void ExtractWayNames(WaysX *waysx)
 
  /* Print the start message */
 
- printf_first("Sorting Ways by Name");
+ printf_first("Sorting Way Names");
 
- /* Re-open the file read-only and new files writeable */
+ /* Re-open the file read-only and new file writeable */
 
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ waysx->nfd=ReOpenFile(waysx->nfilename_tmp);
 
- DeleteFile(waysx->filename_tmp);
+ DeleteFile(waysx->nfilename_tmp);
 
- fd=OpenFileNew(waysx->filename_tmp);
+ nfd=OpenFileNew(waysx->nfilename_tmp);
 
- /* Sort the ways to allow separating the names */
+ /* Sort the way names */
 
- filesort_vary(waysx->fd,fd,NULL,
-                            (int (*)(const void*,const void*))sort_by_name,
-                            NULL);
+ waysx->nlength=0;
+
+ filesort_vary(waysx->nfd,nfd,NULL,
+                              (int (*)(const void*,const void*))sort_by_name,
+                              NULL);
 
  /* Close the files */
 
- waysx->fd=CloseFile(waysx->fd);
- CloseFile(fd);
+ waysx->nfd=CloseFile(waysx->nfd);
+ CloseFile(nfd);
 
  /* Print the final message */
 
- printf_last("Sorted Ways by Name: Ways=%"Pindex_t,waysx->number);
+ printf_last("Sorted Way Names: Ways=%"Pindex_t,waysx->number);
 
+
+#if !SLIM
+ waysx->data=MapFileWriteable(waysx->filename_tmp);
+#else
+ waysx->fd=ReOpenFileWriteable(waysx->filename_tmp);
+#endif
 
  /* Print the start message */
 
- printf_first("Separating Way Names: Ways=0 Names=0");
+ printf_first("Updating Ways with Names: Ways=0 Names=0");
 
- /* Re-open the file read-only and new files writeable */
+ /* Re-open the file read-only and new file writeable */
 
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ waysx->nfd=ReOpenFile(waysx->nfilename_tmp);
 
- DeleteFile(waysx->filename_tmp);
+ DeleteFile(waysx->nfilename_tmp);
 
- fd=OpenFileNew(waysx->filename_tmp);
-
- waysx->nfd=OpenFileNew(waysx->nfilename_tmp);
+ nfd=OpenFileNew(waysx->nfilename_tmp);
 
  /* Copy from the single file into two files */
 
  for(i=0;i<waysx->number;i++)
    {
-    WayX wayx;
+    WayX *wayx;
+    index_t index;
     FILESORT_VARINT size;
 
-    ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
+    ReadFile(waysx->nfd,&size,FILESORT_VARSIZE);
 
     if(namelen[nnames%2]<size)
        names[nnames%2]=(char*)realloc((void*)names[nnames%2],namelen[nnames%2]=size);
 
-    ReadFile(waysx->fd,&wayx,sizeof(WayX));
-    ReadFile(waysx->fd,names[nnames%2],size-sizeof(WayX));
+    ReadFile(waysx->nfd,&index,sizeof(index_t));
+    ReadFile(waysx->nfd,names[nnames%2],size-sizeof(index_t));
 
     if(nnames==0 || strcmp(names[0],names[1]))
       {
-       WriteFile(waysx->nfd,names[nnames%2],size-sizeof(WayX));
+       WriteFile(nfd,names[nnames%2],size-sizeof(index_t));
 
        lastlength=waysx->nlength;
-       waysx->nlength+=size-sizeof(WayX);
+       waysx->nlength+=size-sizeof(index_t);
 
        nnames++;
       }
 
-    wayx.way.name=lastlength;
+    wayx=LookupWayX(waysx,index,1);
 
-    WriteFile(fd,&wayx,sizeof(WayX));
+    wayx->way.name=lastlength;
+
+    PutBackWayX(waysx,wayx);
 
     if(!((i+1)%1000))
-       printf_middle("Separating Way Names: Ways=%"Pindex_t" Names=%"Pindex_t,i+1,nnames);
+       printf_middle("Updating Ways with Names: Ways=%"Pindex_t" Names=%"Pindex_t,i+1,nnames);
    }
 
  if(names[0]) free(names[0]);
@@ -577,68 +603,39 @@ void ExtractWayNames(WaysX *waysx)
 
  /* Close the files */
 
- waysx->fd=CloseFile(waysx->fd);
- CloseFile(fd);
-
  waysx->nfd=CloseFile(waysx->nfd);
+ CloseFile(nfd);
 
  /* Print the final message */
 
- printf_last("Separated Way Names: Ways=%"Pindex_t" Names=%"Pindex_t,waysx->number,nnames);
+ printf_last("Updated Ways with Names: Ways=%"Pindex_t" Names=%"Pindex_t,waysx->number,nnames);
 
 
- /* Print the start message */
+ /* Unmap from memory / close the files */
 
- printf_first("Sorting Ways");
-
- /* Re-open the file read-only and a new file writeable */
-
- waysx->fd=ReOpenFile(waysx->filename_tmp);
-
- DeleteFile(waysx->filename_tmp);
-
- fd=OpenFileNew(waysx->filename_tmp);
-
- /* Allocate the array of indexes */
-
- waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
-
- logassert(waysx->idata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
-
- /* Sort the ways by ID */
-
- sortwaysx=waysx;
-
- filesort_fixed(waysx->fd,fd,sizeof(WayX),NULL,
-                                          (int (*)(const void*,const void*))sort_by_id,
-                                          (int (*)(void*,index_t))index_by_id);
-
- /* Close the files */
-
+#if !SLIM
+ waysx->data=UnmapFile(waysx->data);
+#else
  waysx->fd=CloseFile(waysx->fd);
- CloseFile(fd);
-
- /* Print the final message */
-
- printf_last("Sorted Ways: Ways=%"Pindex_t,waysx->number);
+#endif
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the ways into name order and then id order.
+  Sort the ways into name order.
 
   int sort_by_name Returns the comparison of the name fields.
 
-  WayX *a The first extended Way.
+  char *a The first way name.
 
-  WayX *b The second extended Way.
+  char *b The second way name.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int sort_by_name(WayX *a,WayX *b)
+static int sort_by_name(char *a,char *b)
 {
  int compare;
- char *a_name=(char*)a+sizeof(WayX);
- char *b_name=(char*)b+sizeof(WayX);
+ char *a_name=a+sizeof(index_t);
+ char *b_name=b+sizeof(index_t);
 
  compare=strcmp(a_name,b_name);
 
@@ -646,24 +643,6 @@ static int sort_by_name(WayX *a,WayX *b)
     return(compare);
  else
     return(FILESORT_PRESERVE_ORDER(a,b));
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Create the index of identifiers.
-
-  int index_by_id Return 1 if the value is to be kept, otherwise 0.
-
-  WayX *wayx The extended way.
-
-  index_t index The number of sorted ways that have already been written to the output file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int index_by_id(WayX *wayx,index_t index)
-{
- sortwaysx->idata[index]=wayx->id;
-
- return(1);
 }
 
 
