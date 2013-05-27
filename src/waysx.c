@@ -101,6 +101,7 @@ WaysX *NewWayList(int append,int readonly)
           SeekReadFile(fd,&waysize,FILESORT_VARSIZE,position);
 
           waysx->number++;
+
           position+=waysize+FILESORT_VARSIZE;
          }
 
@@ -426,7 +427,11 @@ SegmentsX *GenerateSegments(WaysX *waysx,NodesX *nodesx,int keep)
 
     while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
       {
-       if(prevnode!=NO_NODE_ID && prevnode!=node)
+       if(prevnode==NO_NODE_ID)
+          ;
+       else if(prevnode==node)
+          logerror("Node %"Pnode_t" in way %"Pway_t" is connected to itself.\n",logerror_node(node),logerror_way(wayx.id));
+       else
          {
           distance_t segment_flags=0;
 

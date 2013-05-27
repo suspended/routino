@@ -463,7 +463,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     else if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
       {
        if(prevway==segmentx.way)
-          ; /* already logged an error - only possible to get here for oneway opposite direction segments */
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2),logerror_way(segmentx.way));
        else
          {
           if(!(prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
