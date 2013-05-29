@@ -39,12 +39,12 @@
 /*+ An extended structure used for processing. +*/
 struct _SegmentX
 {
- node_t     node1;              /*+ The id of the starting node; initially the OSM value, later the NodeX index. +*/
- node_t     node2;              /*+ The id of the finishing node; initially the OSM value, later the NodeX index. +*/
+ index_t    node1;              /*+ The NodeX index of the starting node. +*/
+ index_t    node2;              /*+ The NodeX index of the finishing node. +*/
 
  index_t    next2;              /*+ The index of the next segment with the same node2. +*/
 
- way_t      way;                /*+ The id of the way; initially the OSM value, later the WayX index. +*/
+ index_t    way;                /*+ The WayX index of the way. +*/
 
  distance_t distance;           /*+ The distance between the nodes. +*/
 };
@@ -88,7 +88,7 @@ struct _SegmentsX
 SegmentsX *NewSegmentList(void);
 void FreeSegmentList(SegmentsX *segmentsx);
 
-void AppendSegmentList(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance);
+void AppendSegmentList(SegmentsX *segmentsx,index_t way,index_t node1,index_t node2,distance_t distance);
 void FinishSegmentList(SegmentsX *segmentsx);
 
 SegmentX *FirstSegmentX(SegmentsX *segmentsx,index_t nodeindex,int position);

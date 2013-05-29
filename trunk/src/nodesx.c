@@ -399,7 +399,8 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int keep)
     else
       {
        nodex.id=highway;
-       nodesx->idata[highway]=nodesx->idata[total];
+
+       nodesx->idata[total]=highway;
 
        WriteFile(fd,&nodex,sizeof(NodeX));
 

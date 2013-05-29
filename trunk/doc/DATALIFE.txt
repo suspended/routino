@@ -44,16 +44,16 @@ v                             :      :   .   .   .   .   :   .   .   .   .   .  
 SortNodeList                  :      : C .   .   .   . U :   .   .   .   .   .   :   .   . | : | :
 SortWayList                   :      : | .   .   .   .   :   .   .   .   .   .   : C .   . | : | :
 SortRelationList              :      : | .   .   .   .   :   .   .   .   .   .   : | .   . | : U :
-SplitWays                     :      : | .   .   .   .   :   .   .   .   . C . C : | .   . U : | :
+SplitWays                     :      : U .   .   .   .   :   .   .   .   . C . C : | .   . U : | :
 SortWayNames                  :   W  : | .   .   .   .   :   .   .   .   . | . | : | .   . | : | :
 SortSegmentList               :      : | .   .   .   .   :   .   .   .   . U . | : | .   . | : | :
-RemoveBadSegments             :      : U .   .   .   .   :   .   . C .   . U . U : U .   . | : | :
-RemoveNonHighwayNodes         :      : M .   .   .   . R :   .   . D .   . | . | : | .   . | : | :
+RemoveBadSegments             : n w  : | .   .   .   . U :   .   . C .   . U . U : | .   . U : | :
 ProcessRouteRelations         :   W  : | .   .   .   . | :   .   .   .   . | . | : U .   . | : U :
-ProcessTurnRelations1         :      : U .   .   .   . | :   .   .   .   . | . | : U .   . | : U :
-MeasureSegments               : n    : D .   .   .   . | :   .   .   . C . M . M : D .   . | : | :
-IndexSegments                 :  S   :   .   .   .   . | : C .   .   . | . M . | :   .   . | : | :
-ProcessTurnRelations2         : Nsw  :   .   .   .   . | : U .   .   . | . U . | :   .   . | : U :
+ProcessTurnRelations1         :      : U .   .   .   . | :   .   .   .   . | . | : D .   . | : U :
+RemoveNonHighwayNodes         :      : M .   .   .   . R :   .   . D .   . | . | :   .   . | : | :
+MeasureSegments               : n    : U .   .   .   . | :   .   .   . C . M . | :   .   . | : | :
+IndexSegments                 :  S   : | .   .   .   . | : C .   .   . | . M . | :   .   . | : | :
+ProcessTurnRelations2         : Nsw  : D .   .   .   . | : U .   .   . | . U . | :   .   . | : U :
 CompactWayList                :      :   .   .   .   . | :   .   .   . D . | . | :   . C . M :   :
 IndexSegments                 :  S   :   .   .   .   . | : R .   .   .   . M . | :   . D . | :   :
                               :......:...................:.......................:...........:...:
