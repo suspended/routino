@@ -96,7 +96,7 @@ index_t IndexWayX(WaysX *waysx,way_t id);
 
 void SortWayList(WaysX *waysx);
 
-SegmentsX *SplitWays(WaysX *waysx,int keep);
+SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep);
 
 void SortWayNames(WaysX *waysx);
 

@@ -333,7 +333,7 @@ if(!option_process_only)
 
  /* Separate the segments and way names and sort them. */
 
- OSMSegments=SplitWays(OSMWays,option_keep||option_changes);
+ OSMSegments=SplitWays(OSMWays,OSMNodes,option_keep||option_changes);
 
  SortWayNames(OSMWays);
 
@@ -343,15 +343,15 @@ if(!option_process_only)
 
  RemoveBadSegments(OSMSegments,OSMNodes,OSMWays);
 
- /* Remove non-highway nodes (must be after removing the bad segments) */
-
- RemoveNonHighwayNodes(OSMNodes,OSMSegments,option_keep||option_changes);
-
  /* Process the route relations and first part of turn relations (must be before compacting the ways) */
 
  ProcessRouteRelations(OSMRelations,OSMWays,option_keep||option_changes);
 
  ProcessTurnRelations1(OSMRelations,OSMNodes,OSMWays,option_keep||option_changes);
+
+ /* Remove non-highway nodes (must be after removing the bad segments) */
+
+ RemoveNonHighwayNodes(OSMNodes,OSMSegments,option_keep||option_changes);
 
  /* Measure the segments and replace node/way id with index (must be after removing non-highway nodes) */
 

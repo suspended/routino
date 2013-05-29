@@ -392,10 +392,12 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
   WaysX *waysx The set of ways to process.
 
+  NodesX *nodesx The set of nodes to use.
+
   int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-SegmentsX *SplitWays(WaysX *waysx,int keep)
+SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
 {
  SegmentsX *segmentsx;
  index_t i;
@@ -431,6 +433,7 @@ SegmentsX *SplitWays(WaysX *waysx,int keep)
     WayX wayx;
     FILESORT_VARINT size;
     node_t node,prevnode=NO_NODE_ID;
+    index_t index,previndex=NO_NODE;
 
     ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
 
@@ -438,10 +441,18 @@ SegmentsX *SplitWays(WaysX *waysx,int keep)
 
     while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
       {
-       if(prevnode==NO_NODE_ID)
+       index=IndexNodeX(nodesx,node);
+
+       if(prevnode==node)
+         {
+          logerror("Way %"Pway_t" contains node %"Pnode_t" that is connected to itself.\n",logerror_way(wayx.id),logerror_node(node));
+         }
+       else if(index==NO_NODE)
+         {
+          logerror("Way %"Pway_t" contains node %"Pnode_t" that does not exist in the Routino database.\n",logerror_way(wayx.id),logerror_node(node));
+         }
+       else if(previndex==NO_NODE)
           ;
-       else if(prevnode==node)
-          logerror("Node %"Pnode_t" in way %"Pway_t" is connected to itself.\n",logerror_node(node),logerror_way(wayx.id));
        else
          {
           distance_t segment_flags=0;
@@ -452,10 +463,11 @@ SegmentsX *SplitWays(WaysX *waysx,int keep)
           if(wayx.way.type&Highway_Area)
              segment_flags|=SEGMENT_AREA;
 
-          AppendSegmentList(segmentsx,wayx.id,prevnode,node,segment_flags);
+          AppendSegmentList(segmentsx,i,previndex,index,segment_flags);
          }
 
        prevnode=node;
+       previndex=index;
 
        size-=sizeof(node_t);
       }

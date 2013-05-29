@@ -126,22 +126,22 @@ void FreeSegmentList(SegmentsX *segmentsx)
 
   SegmentsX *segmentsx The set of segments to modify.
 
-  way_t way The way that the segment belongs to.
+  index_t way The index of the way that the segment belongs to.
 
-  node_t node1 The first node in the segment.
+  index_t node1 The index of the first node in the segment.
 
-  node_t node2 The second node in the segment.
+  index_t node2 The index of the second node in the segment.
 
   distance_t distance The distance between the nodes (or just the flags).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendSegmentList(SegmentsX *segmentsx,way_t way,node_t node1,node_t node2,distance_t distance)
+void AppendSegmentList(SegmentsX *segmentsx,index_t way,index_t node1,index_t node2,distance_t distance)
 {
  SegmentX segmentx;
 
  if(node1>node2)
    {
-    node_t temp;
+    index_t temp;
 
     temp=node1;
     node1=node2;
@@ -322,8 +322,8 @@ void SortSegmentList(SegmentsX *segmentsx)
 
 static int sort_by_id(SegmentX *a,SegmentX *b)
 {
- node_t a_id1=a->node1;
- node_t b_id1=b->node1;
+ index_t a_id1=a->node1;
+ index_t b_id1=b->node1;
 
  if(a_id1<b_id1)
     return(-1);
@@ -331,8 +331,8 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
     return(1);
  else /* if(a_id1==b_id1) */
    {
-    node_t a_id2=a->node2;
-    node_t b_id2=b->node2;
+    index_t a_id2=a->node2;
+    index_t b_id2=b->node2;
 
     if(a_id2<b_id2)
        return(-1);
@@ -376,8 +376,8 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
 
 static int deduplicate(SegmentX *segmentx,index_t index)
 {
- static node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
- static way_t prevway=NO_WAY_ID;
+ static index_t prevnode1=NO_NODE,prevnode2=NO_NODE;
+ static index_t prevway=NO_WAY;
  static distance_t prevdist=0;
 
  if(prevnode1!=segmentx->node1 || prevnode2!=segmentx->node2 || prevway!=segmentx->way || prevdist!=segmentx->distance)
@@ -406,16 +406,29 @@ static int deduplicate(SegmentX *segmentx,index_t index)
 
 void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
- index_t noway=0,nonode=0,duplicate=0,good=0,total=0;
- node_t prevnode1=NO_NODE_ID,prevnode2=NO_NODE_ID;
- way_t prevway=NO_WAY_ID;
+ index_t duplicate=0,good=0,total=0;
+ index_t prevnode1=NO_NODE,prevnode2=NO_NODE;
+ index_t prevway=NO_WAY;
  distance_t prevdist=0;
  SegmentX segmentx;
  int fd;
 
  /* Print the start message */
 
- printf_first("Checking Segments: Segments=0 No-Way=0 No-Node=0 Duplicate=0");
+ printf_first("Checking Segments: Segments=0 Duplicate=0");
+
+ /* Map into memory /  open the file */
+
+#if !SLIM
+ nodesx->data=MapFile(nodesx->filename_tmp);
+ waysx->data=MapFile(waysx->filename_tmp);
+#else
+ nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
+
+ InvalidateNodeXCache(nodesx->cache);
+ InvalidateWayXCache(waysx->cache);
+#endif
 
  /* Allocate the node usage bitmask */
 
@@ -437,46 +450,30 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
-    index_t index1=IndexNodeX(nodesx,segmentx.node1);
-    index_t index2=IndexNodeX(nodesx,segmentx.node2);
-    index_t indexw=IndexWayX(waysx,segmentx.way);
-
-    if(indexw==NO_WAY)
+    if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
       {
-       logerror("Segment belongs to way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",logerror_way(segmentx.way));
+       NodeX *nodex1=LookupNodeX(nodesx,segmentx.node1,1);
+       NodeX *nodex2=LookupNodeX(nodesx,segmentx.node2,2);
 
-       noway++;
-      }
-    else if(index1==NO_NODE || index2==NO_NODE)
-      {
-       if(index1==NO_NODE && index2==NO_NODE)
-          logerror("Segment connects nodes %"Pnode_t" and %"Pnode_t" that do not exist in the Routino database (not highway nodes?).\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2));
-
-       if(index1==NO_NODE && index2!=NO_NODE)
-          logerror("Segment contains node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",logerror_node(segmentx.node1));
-
-       if(index1!=NO_NODE && index2==NO_NODE)
-          logerror("Segment contains node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",logerror_node(segmentx.node2));
-
-       nonode++;
-      }
-    else if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
-      {
        if(prevway==segmentx.way)
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2),logerror_way(segmentx.way));
+         {
+          WayX *wayx=LookupWayX(waysx,segmentx.way,1);
+
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",logerror_node(nodex1->id),logerror_node(nodex2->id),logerror_way(wayx->id));
+         }
        else
          {
           if(!(prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2));
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",logerror_node(nodex1->id),logerror_node(nodex2->id));
 
           if(!(prevdist&SEGMENT_AREA) && (segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2));
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",logerror_node(nodex1->id),logerror_node(nodex2->id));
 
           if((prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2));
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",logerror_node(nodex1->id),logerror_node(nodex2->id));
 
           if((prevdist&SEGMENT_AREA) && (segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",logerror_node(segmentx.node1),logerror_node(segmentx.node2));
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",logerror_node(nodex1->id),logerror_node(nodex2->id));
          }
 
        duplicate++;
@@ -485,8 +482,8 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
       {
        WriteFile(fd,&segmentx,sizeof(SegmentX));
 
-       SetBit(segmentsx->usednode,index1);
-       SetBit(segmentsx->usednode,index2);
+       SetBit(segmentsx->usednode,segmentx.node1);
+       SetBit(segmentsx->usednode,segmentx.node2);
 
        prevnode1=segmentx.node1;
        prevnode2=segmentx.node2;
@@ -499,7 +496,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking Segments: Segments=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t" Duplicate=%"Pindex_t,total,noway,nonode,duplicate);
+       printf_middle("Checking Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t,total,duplicate);
    }
 
  segmentsx->number=good;
@@ -509,9 +506,19 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  segmentsx->fd=CloseFile(segmentsx->fd);
  CloseFile(fd);
 
+ /* Unmap from memory / close the file */
+
+#if !SLIM
+ nodesx->data=UnmapFile(nodesx->data);
+ waysx->data=UnmapFile(waysx->data);
+#else
+ nodesx->fd=CloseFile(nodesx->fd);
+ waysx->fd=CloseFile(waysx->fd);
+#endif
+
  /* Print the final message */
 
- printf_last("Checked Segments: Segments=%"Pindex_t" No-Way=%"Pindex_t" No-Node=%"Pindex_t" Duplicate=%"Pindex_t,total,noway,nonode,duplicate);
+ printf_last("Checked Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t,total,duplicate);
 }
 
 
@@ -566,18 +573,17 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
-    index_t node1=IndexNodeX(nodesx,segmentx.node1);
-    index_t node2=IndexNodeX(nodesx,segmentx.node2);
-    index_t way  =IndexWayX (waysx ,segmentx.way);
+    NodeX *nodex1,*nodex2;
 
-    NodeX *nodex1=LookupNodeX(nodesx,node1,1);
-    NodeX *nodex2=LookupNodeX(nodesx,node2,2);
+    /* Update segment node indexes now that non-highway nodes have been removed */
 
-    /* Replace the node and way ids with their indexes */
+    segmentx.node1=nodesx->idata[segmentx.node1];
+    segmentx.node2=nodesx->idata[segmentx.node2];
 
-    segmentx.node1=node1;
-    segmentx.node2=node2;
-    segmentx.way  =way;
+    nodex1=LookupNodeX(nodesx,segmentx.node1,1);
+    nodex2=LookupNodeX(nodesx,segmentx.node2,2);
+
+    /* Mark the ways which are used */
 
     SetBit(segmentsx->usedway,segmentx.way);
 
@@ -600,14 +606,6 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  segmentsx->fd=CloseFile(segmentsx->fd);
  CloseFile(fd);
-
- /* Free the other now-unneeded indexes */
-
- free(nodesx->idata);
- nodesx->idata=NULL;
-
- free(waysx->idata);
- waysx->idata=NULL;
 
  /* Unmap from memory / close the file */
 
