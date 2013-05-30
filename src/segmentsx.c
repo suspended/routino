@@ -53,7 +53,6 @@ static WaysX *sortwaysx;
 /* Local functions */
 
 static int sort_by_id(SegmentX *a,SegmentX *b);
-static int deduplicate(SegmentX *segmentx,index_t index);
 
 static int delete_pruned(SegmentX *segmentx,index_t index);
 
@@ -266,9 +265,9 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
  
  
 /*++++++++++++++++++++++++++++++++++++++
-  Sort the segment list and deduplicate it.
+  Sort the segment list.
 
-  SegmentsX *segmentsx The set of segments to sort and modify.
+  SegmentsX *segmentsx The set of segments to sort.
   ++++++++++++++++++++++++++++++++++++++*/
 
 void SortSegmentList(SegmentsX *segmentsx)
@@ -290,11 +289,9 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Sort by node indexes */
 
- xnumber=segmentsx->number;
-
  segmentsx->number=filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),NULL,
                                                                     (int (*)(const void*,const void*))sort_by_id,
-                                                                    (int (*)(void*,index_t))deduplicate);
+                                                                    NULL);
 
  /* Close the files */
 
@@ -303,7 +300,7 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Sorted Segments: Segments=%"Pindex_t" Duplicates=%"Pindex_t,xnumber,xnumber-segmentsx->number);
+ printf_last("Sorted Segments: Segments=%"Pindex_t,xnumber);
 }
 
 
@@ -358,36 +355,6 @@ static int sort_by_id(SegmentX *a,SegmentX *b)
          }
       }
    }
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Discard duplicate segments.
-
-  int deduplicate Return 1 if the value is to be kept, otherwise 0.
-
-  SegmentX *segmentx The extended segment.
-
-  index_t index The number of sorted segments that have already been written to the output file.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static int deduplicate(SegmentX *segmentx,index_t index)
-{
- static index_t prevnode1=NO_NODE,prevnode2=NO_NODE;
- static index_t prevway=NO_WAY;
- static distance_t prevdist=0;
-
- if(prevnode1!=segmentx->node1 || prevnode2!=segmentx->node2 || prevway!=segmentx->way || prevdist!=segmentx->distance)
-   {
-    prevnode1=segmentx->node1;
-    prevnode2=segmentx->node2;
-    prevway=segmentx->way;
-    prevdist=segmentx->distance;
-
-    return(1);
-   }
- else
-    return(0);
 }
 
 
