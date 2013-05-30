@@ -343,19 +343,17 @@ if(!option_process_only)
 
  SortSegmentList(OSMSegments);
 
- /* Process the segments (must be after sorting the nodes, segments and ways) */
+ /* Process the segments and index them */
 
  ProcessSegments(OSMSegments,OSMNodes,OSMWays);
+
+ IndexSegments(OSMSegments,OSMNodes,OSMWays);
 
  /* Process the route relations and first part of turn relations (must be before compacting the ways) */
 
  ProcessRouteRelations(OSMRelations,OSMWays,option_keep||option_changes);
 
  ProcessTurnRelations1(OSMRelations,OSMNodes,OSMWays,option_keep||option_changes);
-
- /* Index the segments */
-
- IndexSegments(OSMSegments,OSMNodes,OSMWays);
 
  /* Convert the turn relations from ways into nodes */
 

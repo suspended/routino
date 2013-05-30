@@ -48,12 +48,12 @@ SplitWays                     :      : U .   .   .   .   :   .   .   . C . C : |
 SortWayNames                  :   W  : | .   .   .   .   :   .   .   . | . | : | .   . | : | :
 SortSegmentList               :      : | .   .   .   .   :   .   .   . U . | : | .   . | : | :
 ProcessSegments               : n w  : | .   .   .   . U :   .   . C . U . U : | .   . U : | :
+IndexSegments                 :  S   :   .   .   .   .   : C .   . | . U . | :   .   . | : | :
 ProcessRouteRelations         :   W  : | .   .   .   .   :   .   . | . | . | : U .   . | : U :
 ProcessTurnRelations1         :      : D .   .   .   .   :   .   . | . | . | : D .   . | : U :
-IndexSegments                 :  S   :   .   .   .   .   : C .   . | . M . | :   .   . | : | :
 ProcessTurnRelations2         : Nsw  :   .   .   .   .   : U .   . | . U . | :   .   . | : U :
 CompactWayList                :      :   .   .   .   .   :   .   . D . | . | :   . C . M :   :
-IndexSegments                 :  S   :   .   .   .   .   : R .   .   . M . | :   . D . | :   :
+IndexSegments                 :  S   :   .   .   .   .   : R .   .   . U . | :   . D . | :   :
                               :......:...................:...................:...........:...:
 StartPruning                  :      :   .   .   .   .   : | . C .   . U . | :   .   . | :   : \
 PruneStraightHighwayNodes     : nSw  :   .   .   .   .   : U . U .   . U . | :   .   . | :   :  | O
