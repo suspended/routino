@@ -48,10 +48,9 @@ SplitWays                     :      : U .   .   .   .   :   .   .   . C . C : |
 SortWayNames                  :   W  : | .   .   .   .   :   .   .   . | . | : | .   . | : | :
 SortSegmentList               :      : | .   .   .   .   :   .   .   . U . | : | .   . | : | :
 ProcessSegments               : n w  : | .   .   .   . U :   .   . C . U . U : | .   . U : | :
-IndexSegments                 :  S   :   .   .   .   .   : C .   . | . U . | :   .   . | : | :
+IndexSegments                 :  S   : | .   .   .   .   : C .   . | . U . | : | .   . | : | :
 ProcessRouteRelations         :   W  : | .   .   .   .   :   .   . | . | . | : U .   . | : U :
-ProcessTurnRelations1         :      : D .   .   .   .   :   .   . | . | . | : D .   . | : U :
-ProcessTurnRelations2         : Nsw  :   .   .   .   .   : U .   . | . U . | :   .   . | : U :
+ProcessTurnRelations          : Nsw  : D .   .   .   .   : U .   . | . U . | : D .   . | : U :
 CompactWayList                :      :   .   .   .   .   :   .   . D . | . | :   . C . M :   :
 IndexSegments                 :  S   :   .   .   .   .   : R .   .   . U . | :   . D . | :   :
                               :......:...................:...................:...........:...:

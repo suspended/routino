@@ -47,9 +47,9 @@ struct _TurnRelX
 {
  relation_t      id;           /*+ The relation identifier. +*/
 
- way_t           from;         /*+ The id of the starting way; initially the OSM value, later the NodeX index then the SegmentX index. +*/
+ way_t           from;         /*+ The id of the starting way; initially the OSM value, later the SegmentX index. +*/
  node_t          via;          /*+ The id of the via node; initially the OSM value, later the NodeX index. +*/
- way_t           to;           /*+ The id of the ending way; initially the OSM value, later the NodeX index then the SegmentX index. +*/
+ way_t           to;           /*+ The id of the ending way; initially the OSM value, later the SegmentX index. +*/
 
  TurnRestriction restriction;  /*+ The type of restriction. +*/
  transports_t    except;       /*+ The types of transports that that this relation does not apply to. +*/
@@ -107,8 +107,7 @@ void SortRelationList(RelationsX *relationsx);
 
 void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep);
 
-void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,int keep);
-void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
+void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int keep);
 
 void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx);
 
