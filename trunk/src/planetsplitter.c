@@ -349,17 +349,13 @@ if(!option_process_only)
 
  IndexSegments(OSMSegments,OSMNodes,OSMWays);
 
- /* Process the route relations and first part of turn relations (must be before compacting the ways) */
+ /* Process the route relations and turn relations (must be before compacting the ways) */
 
  ProcessRouteRelations(OSMRelations,OSMWays,option_keep||option_changes);
 
- ProcessTurnRelations1(OSMRelations,OSMNodes,OSMWays,option_keep||option_changes);
+ ProcessTurnRelations(OSMRelations,OSMNodes,OSMSegments,OSMWays,option_keep||option_changes);
 
- /* Convert the turn relations from ways into nodes */
-
- ProcessTurnRelations2(OSMRelations,OSMNodes,OSMSegments,OSMWays);
-
- /* Compact the ways (must be after turn relations 2) */
+ /* Compact the ways (must be after processing turn relations) */
 
  CompactWayList(OSMWays,OSMSegments);
 

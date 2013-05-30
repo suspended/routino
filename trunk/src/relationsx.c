@@ -806,97 +806,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process the turn relations (first part) to update them with the node/way information.
-
-  RelationsX *relationsx The set of relations to modify.
-
-  NodesX *nodesx The set of nodes to use.
-
-  WaysX *waysx The set of ways to use.
-
-  int keep If set to 1 then keep the old data file otherwise delete it.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,int keep)
-{
- int trfd;
- index_t i,deleted=0;
-
- /* Print the start message */
-
- printf_first("Processing Turn Relations (1): Relations=0");
-
- /* Re-open the file read-only and a new file writeable */
-
- relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
-
- if(keep)
-    RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
- else
-    DeleteFile(relationsx->trfilename_tmp);
-
- relationsx->trknumber=relationsx->trnumber;
-
- trfd=OpenFileNew(relationsx->trfilename_tmp);
-
- /* Process all of the relations */
-
- for(i=0;i<relationsx->trnumber;i++)
-   {
-    TurnRelX relationx;
-    index_t via,from,to;
-
-    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRelX));
-
-    via =IndexNodeX(nodesx,relationx.via);
-    from=IndexWayX(waysx,relationx.from);
-    to  =IndexWayX(waysx,relationx.to);
-
-    if(via==NO_NODE)
-       logerror("Turn Relation %"Prelation_t" contains Node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",logerror_relation(relationx.id),logerror_node(relationx.via));
-
-    if(from==NO_WAY)
-       logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",logerror_relation(relationx.id),logerror_way(relationx.from));
-
-    if(to==NO_WAY)
-       logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",logerror_relation(relationx.id),logerror_way(relationx.to));
-
-    relationx.via =via;
-    relationx.from=from;
-    relationx.to  =to;
-
-    if(relationx.via==NO_NODE || relationx.from==NO_WAY || relationx.to==NO_WAY)
-       deleted++;
-    else
-       WriteFile(trfd,&relationx,sizeof(TurnRelX));
-
-    if(!((i+1)%1000))
-       printf_middle("Processing Turn Relations (1): Relations=%"Pindex_t" Deleted=%"Pindex_t,i+1,deleted);
-   }
-
- /* Close the files */
-
- relationsx->trfd=CloseFile(relationsx->trfd);
- CloseFile(trfd);
-
- /* Free the now-unneeded indexes */
-
- free(nodesx->idata);
- nodesx->idata=NULL;
-
- free(waysx->idata);
- waysx->idata=NULL;
-
- /* Print the final message */
-
- printf_last("Processed Turn Relations (1): Relations=%"Pindex_t" Deleted=%"Pindex_t,relationsx->trnumber,deleted);
-
- relationsx->trnumber-=deleted;
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Process the turn relations (second part) to convert them to nodes.
+  Process the turn relations to update them with node/segment information.
 
   RelationsX *relationsx The set of relations to modify.
 
@@ -905,20 +815,21 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,in
   SegmentsX *segmentsx The set of segments to use.
 
   WaysX *waysx The set of ways to use.
+
+  int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
+void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,int keep)
 {
- TurnRelX relationx;
  int trfd;
- index_t total=0,deleted=0;
+ index_t i,total=0,deleted=0;
 
  if(nodesx->number==0 || segmentsx->number==0)
     return;
 
  /* Print the start message */
 
- printf_first("Processing Turn Relations (2): Relations=0");
+ printf_first("Processing Turn Relations: Relations=0 Deleted=0 Added=0");
 
  /* Map into memory / open the files */
 
@@ -940,16 +851,54 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
 
- DeleteFile(relationsx->trfilename_tmp);
+ if(keep)
+    RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
+ else
+    DeleteFile(relationsx->trfilename_tmp);
+
+ relationsx->trknumber=relationsx->trnumber;
 
  trfd=OpenFileNew(relationsx->trfilename_tmp);
 
  /* Process all of the relations */
 
- while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRelX)))
+ for(i=0;i<relationsx->trnumber;i++)
    {
+    TurnRelX relationx;
     NodeX *nodex;
     SegmentX *segmentx;
+    index_t via,from,to;
+
+    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRelX));
+
+    via =IndexNodeX(nodesx,relationx.via);
+    from=IndexWayX(waysx,relationx.from);
+    to  =IndexWayX(waysx,relationx.to);
+
+    if(via==NO_NODE)
+      {
+       logerror("Turn Relation %"Prelation_t" contains Node %"Pnode_t" that does not exist in the Routino database (not a highway node?).\n",logerror_relation(relationx.id),logerror_node(relationx.via));
+       deleted++;
+       goto endloop;
+      }
+
+    if(from==NO_WAY)
+      {
+       logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",logerror_relation(relationx.id),logerror_way(relationx.from));
+       deleted++;
+       goto endloop;
+      }
+
+    if(to==NO_WAY)
+      {
+       logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",logerror_relation(relationx.id),logerror_way(relationx.to));
+       deleted++;
+       goto endloop;
+      }
+
+    relationx.via =via;
+    relationx.from=from;
+    relationx.to  =to;
 
     if(relationx.restriction==TurnRestrict_no_right_turn ||
        relationx.restriction==TurnRestrict_no_left_turn ||
@@ -1040,9 +989,6 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        WriteFile(trfd,&relationx,sizeof(TurnRelX));
 
        total++;
-
-       if(!(total%1000))
-          printf_middle("Processing Turn Relations (2): Relations=%"Pindex_t" Deleted=%"Pindex_t" Added=%"Pindex_t,total,deleted,total-relationsx->trnumber+deleted);
       }
     else
       {
@@ -1138,9 +1084,6 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
           WriteFile(trfd,&relationx,sizeof(TurnRelX));
 
           total++;
-
-          if(!(total%1000))
-             printf_middle("Processing Turn Relations (2): Relations=%"Pindex_t" Deleted=%"Pindex_t" Added=%"Pindex_t,total,deleted,total-relationsx->trnumber+deleted);
          }
       }
 
@@ -1163,13 +1106,24 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
        segmentx=NextSegmentX(segmentsx,segmentx,relationx.via);
       }
 
-   endloop: ;
+   endloop:
+
+    if(!((i+1)%1000))
+       printf_middle("Processing Turn Relations: Relations=%"Pindex_t" Deleted=%"Pindex_t" Added=%"Pindex_t,i+1,deleted,total-relationsx->trnumber+deleted);
    }
 
  /* Close the files */
 
  relationsx->trfd=CloseFile(relationsx->trfd);
  CloseFile(trfd);
+
+ /* Free the now-unneeded indexes */
+
+ free(nodesx->idata);
+ nodesx->idata=NULL;
+
+ free(waysx->idata);
+ waysx->idata=NULL;
 
  /* Unmap from memory / close the files */
 
@@ -1185,7 +1139,7 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
 
  /* Print the final message */
 
- printf_last("Processed Turn Relations (2): Relations=%"Pindex_t" Deleted=%"Pindex_t" Added=%"Pindex_t,total,deleted,total-relationsx->trnumber+deleted);
+ printf_last("Processed Turn Relations: Relations=%"Pindex_t" Deleted=%"Pindex_t" Added=%"Pindex_t,total,deleted,total-relationsx->trnumber+deleted);
 
  relationsx->trnumber=total;
 }
