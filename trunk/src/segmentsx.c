@@ -392,7 +392,7 @@ static int deduplicate(SegmentX *segmentx,index_t index)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Remove bad segments (duplicated, zero length or with missing nodes).
+  Process segments (non-trivial duplicates).
 
   SegmentsX *segmentsx The set of segments to modify.
 
@@ -401,7 +401,7 @@ static int deduplicate(SegmentX *segmentx,index_t index)
   WaysX *waysx The set of ways to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
+void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
  index_t duplicate=0,good=0,total=0;
  index_t prevnode1=NO_NODE,prevnode2=NO_NODE;
@@ -412,7 +412,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the start message */
 
- printf_first("Checking Segments: Segments=0 Duplicate=0");
+ printf_first("Processing Segments: Segments=0 Duplicates=0");
 
  /* Map into memory /  open the file */
 
@@ -427,13 +427,17 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  InvalidateWayXCache(waysx->cache);
 #endif
 
+ /* Allocate the way usage bitmask */
+
+ segmentsx->usedway=AllocBitMask(waysx->number);
+
+ logassert(segmentsx->usedway,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
+
  /* Re-open the file read-only and a new file writeable */
 
  segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
 
  DeleteFile(segmentsx->filename_tmp);
-
- segmentsx->knumber=segmentsx->number;
 
  fd=OpenFileNew(segmentsx->filename_tmp);
 
@@ -441,11 +445,11 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
+    NodeX *nodex1=LookupNodeX(nodesx,segmentx.node1,1);
+    NodeX *nodex2=LookupNodeX(nodesx,segmentx.node2,2);
+
     if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
       {
-       NodeX *nodex1=LookupNodeX(nodesx,segmentx.node1,1);
-       NodeX *nodex2=LookupNodeX(nodesx,segmentx.node2,2);
-
        if(prevway==segmentx.way)
          {
           WayX *wayx=LookupWayX(waysx,segmentx.way,1);
@@ -471,12 +475,23 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
       }
     else
       {
-       WriteFile(fd,&segmentx,sizeof(SegmentX));
-
        prevnode1=segmentx.node1;
        prevnode2=segmentx.node2;
        prevway=segmentx.way;
        prevdist=DISTANCE(segmentx.distance);
+
+       /* Mark the ways which are used */
+
+       SetBit(segmentsx->usedway,segmentx.way);
+
+       /* Set the distance but keep the other flags except for area */
+
+       segmentx.distance=DISTANCE(DistanceX(nodex1,nodex2))|DISTFLAG(segmentx.distance);
+       segmentx.distance&=~SEGMENT_AREA;
+
+       /* Write the modified segment */
+
+       WriteFile(fd,&segmentx,sizeof(SegmentX));
 
        good++;
       }
@@ -484,7 +499,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t,total,duplicate);
+       printf_middle("Processing Segments: Segments=%"Pindex_t" Duplicates=%"Pindex_t,total,duplicate);
    }
 
  segmentsx->number=good;
@@ -506,99 +521,7 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Print the final message */
 
- printf_last("Checked Segments: Segments=%"Pindex_t" Duplicate=%"Pindex_t,total,duplicate);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Measure the segments and replace node/way ids with indexes.
-
-  SegmentsX *segmentsx The set of segments to process.
-
-  NodesX *nodesx The set of nodes to use.
-
-  WaysX *waysx The set of ways to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
-{
- index_t index=0;
- int fd;
- SegmentX segmentx;
-
- if(segmentsx->number==0)
-    return;
-
- /* Print the start message */
-
- printf_first("Measuring Segments: Segments=0");
-
- /* Map into memory /  open the file */
-
-#if !SLIM
- nodesx->data=MapFile(nodesx->filename_tmp);
-#else
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
-
- InvalidateNodeXCache(nodesx->cache);
-#endif
-
- /* Allocate the way usage bitmask */
-
- segmentsx->usedway=AllocBitMask(waysx->number);
-
- logassert(segmentsx->usedway,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
-
- /* Re-open the file read-only and a new file writeable */
-
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileNew(segmentsx->filename_tmp);
-
- /* Modify the on-disk image */
-
- while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
-   {
-    NodeX *nodex1=LookupNodeX(nodesx,segmentx.node1,1);
-    NodeX *nodex2=LookupNodeX(nodesx,segmentx.node2,2);
-
-    /* Mark the ways which are used */
-
-    SetBit(segmentsx->usedway,segmentx.way);
-
-    /* Set the distance but keep the other flags except for area */
-
-    segmentx.distance=DISTANCE(DistanceX(nodex1,nodex2))|DISTFLAG(segmentx.distance);
-    segmentx.distance&=~SEGMENT_AREA;
-
-    /* Write the modified segment */
-
-    WriteFile(fd,&segmentx,sizeof(SegmentX));
-
-    index++;
-
-    if(!(index%10000))
-       printf_middle("Measuring Segments: Segments=%"Pindex_t,index);
-   }
-
- /* Close the files */
-
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
-
- /* Unmap from memory / close the file */
-
-#if !SLIM
- nodesx->data=UnmapFile(nodesx->data);
-#else
- nodesx->fd=CloseFile(nodesx->fd);
-#endif
-
- /* Print the final message */
-
- printf_last("Measured Segments: Segments=%"Pindex_t,segmentsx->number);
+ printf_last("Processed Segments: Segments=%"Pindex_t" Duplicates=%"Pindex_t,total,duplicate);
 }
 
 
