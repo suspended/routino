@@ -58,7 +58,6 @@ struct _SegmentsX
  int        fd;                 /*+ The file descriptor of the open file (for the SegmentsX). +*/
 
  index_t    number;             /*+ The number of extended segments still being considered. +*/
- index_t    knumber;            /*+ The number of extended segments kept for next time. +*/
 
 #if !SLIM
 
@@ -96,9 +95,7 @@ void SortSegmentList(SegmentsX *segmentsx);
 
 void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
-void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
-
-void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
+void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx);
 
 void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx);
 

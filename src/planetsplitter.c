@@ -343,11 +343,9 @@ if(!option_process_only)
 
  SortSegmentList(OSMSegments);
 
- /* Remove bad segments (must be after sorting the nodes, segments and ways) */
+ /* Process the segments (must be after sorting the nodes, segments and ways) */
 
- RemoveBadSegments(OSMSegments,OSMNodes,OSMWays);
-
- MeasureSegments(OSMSegments,OSMNodes,OSMWays);
+ ProcessSegments(OSMSegments,OSMNodes,OSMWays);
 
  /* Process the route relations and first part of turn relations (must be before compacting the ways) */
 
