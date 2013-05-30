@@ -110,9 +110,6 @@ void FreeSegmentList(SegmentsX *segmentsx)
  if(segmentsx->next1)
     free(segmentsx->next1);
 
- if(segmentsx->usednode)
-    free(segmentsx->usednode);
-
 #if SLIM
  DeleteSegmentXCache(segmentsx->cache);
 #endif
@@ -430,12 +427,6 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  InvalidateWayXCache(waysx->cache);
 #endif
 
- /* Allocate the node usage bitmask */
-
- segmentsx->usednode=AllocBitMask(nodesx->number);
-
- logassert(segmentsx->usednode,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
-
  /* Re-open the file read-only and a new file writeable */
 
  segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
@@ -481,9 +472,6 @@ void RemoveBadSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     else
       {
        WriteFile(fd,&segmentx,sizeof(SegmentX));
-
-       SetBit(segmentsx->usednode,segmentx.node1);
-       SetBit(segmentsx->usednode,segmentx.node2);
 
        prevnode1=segmentx.node1;
        prevnode2=segmentx.node2;
@@ -573,15 +561,8 @@ void MeasureSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
-    NodeX *nodex1,*nodex2;
-
-    /* Update segment node indexes now that non-highway nodes have been removed */
-
-    segmentx.node1=nodesx->idata[segmentx.node1];
-    segmentx.node2=nodesx->idata[segmentx.node2];
-
-    nodex1=LookupNodeX(nodesx,segmentx.node1,1);
-    nodex2=LookupNodeX(nodesx,segmentx.node2,2);
+    NodeX *nodex1=LookupNodeX(nodesx,segmentx.node1,1);
+    NodeX *nodex2=LookupNodeX(nodesx,segmentx.node2,2);
 
     /* Mark the ways which are used */
 

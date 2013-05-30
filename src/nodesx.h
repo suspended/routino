@@ -101,7 +101,7 @@ index_t IndexNodeX(NodesX *nodesx,node_t id);
 
 void SortNodeList(NodesX *nodesx);
 
-void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int keep);
+void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep);
 
 void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx);
 

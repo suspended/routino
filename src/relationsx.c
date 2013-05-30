@@ -879,7 +879,10 @@ void ProcessTurnRelations1(RelationsX *relationsx,NodesX *nodesx,WaysX *waysx,in
  relationsx->trfd=CloseFile(relationsx->trfd);
  CloseFile(trfd);
 
- /* Free the now-unneeded index */
+ /* Free the now-unneeded indexes */
+
+ free(nodesx->idata);
+ nodesx->idata=NULL;
 
  free(waysx->idata);
  waysx->idata=NULL;
@@ -947,10 +950,6 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
    {
     NodeX *nodex;
     SegmentX *segmentx;
-
-    /* Update via node index now that non-highway nodes have been removed */
-
-    relationx.via=nodesx->idata[relationx.via];
 
     if(relationx.restriction==TurnRestrict_no_right_turn ||
        relationx.restriction==TurnRestrict_no_left_turn ||
@@ -1183,11 +1182,6 @@ void ProcessTurnRelations2(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segm
  segmentsx->fd=CloseFile(segmentsx->fd);
  waysx->fd=CloseFile(waysx->fd);
 #endif
-
- /* Free the now-unneeded index */
-
- free(nodesx->idata);
- nodesx->idata=NULL;
 
  /* Print the final message */
 
