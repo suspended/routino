@@ -362,20 +362,74 @@ static int deduplicate_and_index_by_id(NodeX *nodex,index_t index)
 
   NodesX *nodesx The set of nodes to modify.
 
-  SegmentsX *segmentsx The set of segments to use.
+  WaysX *waysx The set of ways to use.
 
   int keep If set to 1 then keep the old data file otherwise delete it.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int keep)
+void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
 {
+ BitMask *usednode;
  NodeX nodex;
- index_t total=0,highway=0,nothighway=0;
+ index_t i,total=0,highway=0,nothighway=0;
+ off_t position=0;
  int fd;
+
 
  /* Print the start message */
 
- printf_first("Checking Nodes: Nodes=0");
+ printf_first("Checking Ways for unused Nodes: Ways=0");
+
+ /* Allocate the node usage bitmask */
+
+ usednode=AllocBitMask(nodesx->number);
+
+ logassert(usednode,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
+
+ /* Re-open the file read-only */
+
+ waysx->fd=ReOpenFile(waysx->filename_tmp);
+
+ /* Loop through the ways and mark the used nodes */
+
+ for(i=0;i<waysx->number;i++)
+   {
+    WayX wayx;
+    FILESORT_VARINT size;
+    node_t node;
+
+    SeekFile(waysx->fd,position);
+
+    ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
+
+    position+=size+FILESORT_VARSIZE;
+
+    ReadFile(waysx->fd,&wayx,sizeof(WayX));
+
+    while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
+      {
+       index_t index=IndexNodeX(nodesx,node);
+
+       if(index!=NO_NODE)
+          SetBit(usednode,index);
+      }
+
+    if(!((i+1)%1000))
+       printf_middle("Checking Ways for unused Nodes: Ways=%"Pindex_t,i+1);
+   }
+
+ /* Close the file */
+
+ waysx->fd=CloseFile(waysx->fd);
+
+ /* Print the final message */
+
+ printf_last("Checked Ways for unused Nodes: Ways=%"Pindex_t,waysx->number);
+
+
+ /* Print the start message */
+
+ printf_first("Removing unused Nodes: Nodes=0");
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -394,13 +448,11 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int keep)
 
  while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
    {
-    if(!IsBitSet(segmentsx->usednode,total))
+    if(!IsBitSet(usednode,total))
        nothighway++;
     else
       {
-       nodex.id=highway;
-
-       nodesx->idata[total]=highway;
+       nodesx->idata[highway]=nodex.id;
 
        WriteFile(fd,&nodex,sizeof(NodeX));
 
@@ -410,7 +462,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int keep)
     total++;
 
     if(!(total%10000))
-       printf_middle("Checking Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
+       printf_middle("Removing unused Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
    }
 
  nodesx->number=highway;
@@ -422,12 +474,11 @@ void RemoveNonHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,int keep)
 
  /* Free the now-unneeded index */
 
- free(segmentsx->usednode);
- segmentsx->usednode=NULL;
+ free(usednode);
 
  /* Print the final message */
 
- printf_last("Checked Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
+ printf_last("Removed unused Nodes: Nodes=%"Pindex_t" Highway=%"Pindex_t" not-Highway=%"Pindex_t,total,highway,nothighway);
 }
 
 
