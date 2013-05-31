@@ -38,33 +38,33 @@
 #define MODE_DELETE -1
 
 
-/* Variables in osmxmlparse.c */
+/* Functions in osmxmlparse.c */
 
-extern xmltag *xml_osm_toplevel_tags[];
-extern xmltag *xml_osc_toplevel_tags[];
+int ParseOSMFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
+
+int ParseOSCFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
 
 
 /* Functions in osmpbfparse.c */
 
 int ParsePBF(int fd);
 
+int ParsePBFFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
+
 
 /* Functions in osmo5mparse.c */
 
 int ParseO5M(int fd,int changes);
 
-
-/* Functions in osmparser.c */
-
-int ParseOSMFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
-
-int ParseOSCFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
-
-int ParsePBFFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
-
 int ParseO5MFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
 
 int ParseO5CFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
+
+
+/* Functions in osmparser.c */
+
+void InitialiseParser(NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
+void CleanupParser(void);
 
 void AddWayRefs(int64_t node_id);
 void AddRelationRefs(int64_t node_id,int64_t way_id,int64_t relation_id,const char *role);
