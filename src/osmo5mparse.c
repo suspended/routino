@@ -786,3 +786,71 @@ static unsigned char *process_string(int pair,unsigned char **buf_ptr,unsigned c
 
  return(string);
 }
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Parse an O5M format OSM file (from planet download).
+
+  int ParseO5MFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor of the file to read from.
+
+  NodesX *OSMNodes The data structure of nodes to fill in.
+
+  WaysX *OSMWays The data structure of ways to fill in.
+
+  RelationsX *OSMRelations The data structure of relations to fill in.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseO5MFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
+{
+ int retval;
+
+ /* Initialise the parser */
+
+ InitialiseParser(OSMNodes,OSMWays,OSMRelations);
+
+ /* Parse the file */
+
+ retval=ParseO5M(fd,0);
+
+ /* Cleanup the parser */
+
+ CleanupParser();
+
+ return(retval);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Parse an O5C format OSM file (from planet download).
+
+  int ParseO5CFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor of the file to read from.
+
+  NodesX *OSMNodes The data structure of nodes to fill in.
+
+  WaysX *OSMWays The data structure of ways to fill in.
+
+  RelationsX *OSMRelations The data structure of relations to fill in.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseO5CFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
+{
+ int retval;
+
+ /* Initialise the parser */
+
+ InitialiseParser(OSMNodes,OSMWays,OSMRelations);
+
+ /* Parse the file */
+
+ retval=ParseO5M(fd,1);
+
+ /* Cleanup the parser */
+
+ CleanupParser();
+
+ return(retval);
+}

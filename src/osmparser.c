@@ -72,11 +72,7 @@ static double parse_length(way_t id,const char *k,const char *v);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Parse an OSM XML file (from JOSM or planet download).
-
-  int ParseOSMFile Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor of the file to read from.
+  Initialise the OSM parser by initialising the local variables.
 
   NodesX *OSMNodes The data structure of nodes to fill in.
 
@@ -85,10 +81,8 @@ static double parse_length(way_t id,const char *k,const char *v);
   RelationsX *OSMRelations The data structure of relations to fill in.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseOSMFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
+void InitialiseParser(NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
 {
- int retval;
-
  /* Copy the function parameters and initialise the variables */
 
  nodes=OSMNodes;
@@ -100,57 +94,15 @@ int ParseOSMFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations
  relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
  relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
  relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
-
- /* Parse the file */
-
- retval=ParseXML(fd,xml_osm_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
-
- /* Free the variables */
-
- free(way_nodes);
-
- free(relation_nodes);
- free(relation_ways);
- free(relation_relations);
-
- return(retval);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Parse an OSC XML file (from planet download).
-
-  int ParseOSCFile Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor of the file to read from.
-
-  NodesX *OSMNodes The data structure of nodes to fill in.
-
-  WaysX *OSMWays The data structure of ways to fill in.
-
-  RelationsX *OSMRelations The data structure of relations to fill in.
+  Clean up the memory after parsing.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseOSCFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
+void CleanupParser(void)
 {
- int retval;
-
- /* Copy the function parameters and initialise the variables */
-
- nodes=OSMNodes;
- ways=OSMWays;
- relations=OSMRelations;
-
- way_nodes=(node_t*)malloc(256*sizeof(node_t));
-
- relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
-
- /* Parse the file */
-
- retval=ParseXML(fd,xml_osc_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
-
  /* Free the variables */
 
  free(way_nodes);
@@ -158,146 +110,6 @@ int ParseOSCFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations
  free(relation_nodes);
  free(relation_ways);
  free(relation_relations);
-
- return(retval);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Parse a PBF format OSM file (from planet download).
-
-  int ParsePBFFile Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor of the file to read from.
-
-  NodesX *OSMNodes The data structure of nodes to fill in.
-
-  WaysX *OSMWays The data structure of ways to fill in.
-
-  RelationsX *OSMRelations The data structure of relations to fill in.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int ParsePBFFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
-{
- int retval;
-
- /* Copy the function parameters and initialise the variables */
-
- nodes=OSMNodes;
- ways=OSMWays;
- relations=OSMRelations;
-
- way_nodes=(node_t*)malloc(256*sizeof(node_t));
-
- relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
-
- /* Parse the file */
-
- retval=ParsePBF(fd);
-
- /* Free the variables */
-
- free(way_nodes);
-
- free(relation_nodes);
- free(relation_ways);
- free(relation_relations);
-
- return(retval);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Parse an O5M format OSM file (from planet download).
-
-  int ParseO5MFile Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor of the file to read from.
-
-  NodesX *OSMNodes The data structure of nodes to fill in.
-
-  WaysX *OSMWays The data structure of ways to fill in.
-
-  RelationsX *OSMRelations The data structure of relations to fill in.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int ParseO5MFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
-{
- int retval;
-
- /* Copy the function parameters and initialise the variables */
-
- nodes=OSMNodes;
- ways=OSMWays;
- relations=OSMRelations;
-
- way_nodes=(node_t*)malloc(256*sizeof(node_t));
-
- relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
-
- /* Parse the file */
-
- retval=ParseO5M(fd,0);
-
- /* Free the variables */
-
- free(way_nodes);
-
- free(relation_nodes);
- free(relation_ways);
- free(relation_relations);
-
- return(retval);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Parse an O5C format OSM file (from planet download).
-
-  int ParseO5CFile Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor of the file to read from.
-
-  NodesX *OSMNodes The data structure of nodes to fill in.
-
-  WaysX *OSMWays The data structure of ways to fill in.
-
-  RelationsX *OSMRelations The data structure of relations to fill in.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int ParseO5CFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
-{
- int retval;
-
- /* Copy the function parameters and initialise the variables */
-
- nodes=OSMNodes;
- ways=OSMWays;
- relations=OSMRelations;
-
- way_nodes=(node_t*)malloc(256*sizeof(node_t));
-
- relation_nodes    =(node_t    *)malloc(256*sizeof(node_t));
- relation_ways     =(way_t     *)malloc(256*sizeof(way_t));
- relation_relations=(relation_t*)malloc(256*sizeof(relation_t));
-
- /* Parse the file */
-
- retval=ParseO5M(fd,1);
-
- /* Free the variables */
-
- free(way_nodes);
-
- free(relation_nodes);
- free(relation_ways);
- free(relation_relations);
-
- return(retval);
 }
 
 

@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -81,10 +81,10 @@ static xmltag memberType_tag;
 /* The XML tag definition values */
 
 /*+ The complete set of tags at the top level for OSM. +*/
-xmltag *xml_osm_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
+static xmltag *xml_osm_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
 
 /*+ The complete set of tags at the top level for OSC. +*/
-xmltag *xml_osc_toplevel_tags[]={&xmlDeclaration_tag,&osmChangeType_tag,NULL};
+static xmltag *xml_osc_toplevel_tags[]={&xmlDeclaration_tag,&osmChangeType_tag,NULL};
 
 /*+ The xmlDeclaration type tag. +*/
 static xmltag xmlDeclaration_tag=
@@ -632,4 +632,72 @@ static int memberType_function(const char *_tag_,int _type_,const char *type,con
    }
 
  return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Parse an OSM XML file (from JOSM or planet download).
+
+  int ParseOSMFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor of the file to read from.
+
+  NodesX *OSMNodes The data structure of nodes to fill in.
+
+  WaysX *OSMWays The data structure of ways to fill in.
+
+  RelationsX *OSMRelations The data structure of relations to fill in.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseOSMFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
+{
+ int retval;
+
+ /* Initialise the parser */
+
+ InitialiseParser(OSMNodes,OSMWays,OSMRelations);
+
+ /* Parse the file */
+
+ retval=ParseXML(fd,xml_osm_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
+
+ /* Cleanup the parser */
+
+ CleanupParser();
+
+ return(retval);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Parse an OSC XML file (from planet download).
+
+  int ParseOSCFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor of the file to read from.
+
+  NodesX *OSMNodes The data structure of nodes to fill in.
+
+  WaysX *OSMWays The data structure of ways to fill in.
+
+  RelationsX *OSMRelations The data structure of relations to fill in.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParseOSCFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
+{
+ int retval;
+
+ /* Initialise the parser */
+
+ InitialiseParser(OSMNodes,OSMWays,OSMRelations);
+
+ /* Parse the file */
+
+ retval=ParseXML(fd,xml_osc_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
+
+ /* Cleanup the parser */
+
+ CleanupParser();
+
+ return(retval);
 }

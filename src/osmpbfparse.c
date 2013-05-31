@@ -1198,3 +1198,37 @@ static int uncompress_pbf(unsigned char *data,uint32_t compressed,uint32_t uncom
 }
 
 #endif /* USE_GZIP */
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Parse a PBF format OSM file (from planet download).
+
+  int ParsePBFFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor of the file to read from.
+
+  NodesX *OSMNodes The data structure of nodes to fill in.
+
+  WaysX *OSMWays The data structure of ways to fill in.
+
+  RelationsX *OSMRelations The data structure of relations to fill in.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ParsePBFFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations)
+{
+ int retval;
+
+ /* Initialise the parser */
+
+ InitialiseParser(OSMNodes,OSMWays,OSMRelations);
+
+ /* Parse the file */
+
+ retval=ParsePBF(fd);
+
+ /* Cleanup the parser */
+
+ CleanupParser();
+
+ return(retval);
+}
