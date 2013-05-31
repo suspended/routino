@@ -185,7 +185,7 @@ int main(int argc,char** argv)
        if(!ExistsFile(tagging))
          {
           fprintf(stderr,"Error: The '--tagging' option specifies a file that does not exist.\n");
-          return(1);
+          exit(EXIT_FAILURE);
          }
       }
     else
@@ -197,14 +197,14 @@ int main(int argc,char** argv)
        else
          {
           fprintf(stderr,"Error: The '--tagging' option was not used and the default 'tagging.xml' does not exist.\n");
-          return(1);
+          exit(EXIT_FAILURE);
          }
       }
 
     if(ParseXMLTaggingRules(tagging))
       {
        fprintf(stderr,"Error: Cannot read the tagging rules in the file '%s'.\n",tagging);
-       return(1);
+       exit(EXIT_FAILURE);
       }
    }
 
