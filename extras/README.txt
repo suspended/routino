@@ -18,3 +18,7 @@ tagmodifier - A program to read an OSM XML file and process it using a Routino
 
 errorlog    - Scripts for processing the error log file (created by running
               planetsplitter with the --errorlog option).
+
+plot-time   - Plots the output of 'planetsplitter --loggable --logtime' to show
+              how long each part of the processing takes.
+
