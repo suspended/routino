@@ -273,7 +273,6 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 void SortSegmentList(SegmentsX *segmentsx)
 {
  int fd;
- index_t xnumber;
 
  /* Print the start message */
 
@@ -300,7 +299,7 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Print the final message */
 
- printf_last("Sorted Segments: Segments=%"Pindex_t,xnumber);
+ printf_last("Sorted Segments: Segments=%"Pindex_t,segmentsx->number);
 }
 
 

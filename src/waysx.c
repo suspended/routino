@@ -504,7 +504,7 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
 
  /* Print the final message */
 
- printf_last("Splitting Ways: Ways=%"Pindex_t" Segments=%"Pindex_t,waysx->number,segmentsx->number);
+ printf_last("Split Ways: Ways=%"Pindex_t" Segments=%"Pindex_t,waysx->number,segmentsx->number);
 
  return(segmentsx);
 }
@@ -574,7 +574,7 @@ void SortWayNames(WaysX *waysx)
 
  nfd=OpenFileNew(waysx->nfilename_tmp);
 
- /* Copy from the single file into two files */
+ /* Update the ways and de-duplicate the names */
 
  for(i=0;i<waysx->number;i++)
    {

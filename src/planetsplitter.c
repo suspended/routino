@@ -318,7 +318,7 @@ if(!option_process_only)
  printf("\nSort OSM Data\n=============\n\n");
  fflush(stdout);
 
- /* Sort the nodes, segments, ways and relations */
+ /* Sort the nodes, ways and relations */
 
  SortNodeList(OSMNodes);
 
@@ -383,12 +383,13 @@ if(!option_process_only)
 
     FinishPruning(OSMNodes,OSMSegments,OSMWays);
 
-    /* Remove the pruned nodes and segments and update the indexes */
+    /* Remove the pruned nodes, segments, ways and relations and update the indexes */
 
     RemovePrunedNodes(OSMNodes,OSMSegments);
     RemovePrunedSegments(OSMSegments,OSMWays);
     CompactWayList(OSMWays,OSMSegments);
     RemovePrunedTurnRelations(OSMRelations,OSMNodes);
+
     IndexSegments(OSMSegments,OSMNodes,OSMWays);
    }
 
