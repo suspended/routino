@@ -160,7 +160,7 @@ int main(int argc,char** argv)
     if(!ExistsFile(profiles))
       {
        fprintf(stderr,"Error: The '--profiles' option specifies a file that does not exist.\n");
-       return(1);
+       exit(EXIT_FAILURE);
       }
    }
  else
@@ -172,14 +172,14 @@ int main(int argc,char** argv)
     else
       {
        fprintf(stderr,"Error: The '--profiles' option was not used and the default 'profiles.xml' does not exist.\n");
-       return(1);
+       exit(EXIT_FAILURE);
       }
    }
 
  if(ParseXMLProfiles(profiles))
    {
     fprintf(stderr,"Error: Cannot read the profiles in the file '%s'.\n",profiles);
-    return(1);
+    exit(EXIT_FAILURE);
    }
 
  /* Choose the selected profile. */
@@ -191,7 +191,7 @@ int main(int argc,char** argv)
     if(!profile)
       {
        fprintf(stderr,"Error: Cannot find a profile called '%s' in '%s'.\n",profilename,profiles);
-       return(1);
+       exit(EXIT_FAILURE);
       }
    }
  else
@@ -395,7 +395,7 @@ int main(int argc,char** argv)
        if(!ExistsFile(translations))
          {
           fprintf(stderr,"Error: The '--translations' option specifies a file that does not exist.\n");
-          return(1);
+          exit(EXIT_FAILURE);
          }
       }
     else
@@ -407,14 +407,14 @@ int main(int argc,char** argv)
        else
          {
           fprintf(stderr,"Error: The '--translations' option was not used and the default 'translations.xml' does not exist.\n");
-          return(1);
+          exit(EXIT_FAILURE);
          }
       }
 
     if(ParseXMLTranslations(translations,language))
       {
        fprintf(stderr,"Error: Cannot read the translations in the file '%s'.\n",translations);
-       return(1);
+       exit(EXIT_FAILURE);
       }
    }
 
@@ -431,7 +431,7 @@ int main(int argc,char** argv)
  if(UpdateProfile(profile,OSMWays))
    {
     fprintf(stderr,"Error: Profile is invalid or not compatible with database.\n");
-    return(1);
+    exit(EXIT_FAILURE);
    }
 
  /* Loop through all pairs of points */
@@ -470,7 +470,7 @@ int main(int argc,char** argv)
     if(finish_node==NO_NODE)
       {
        fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",point);
-       return(1);
+       exit(EXIT_FAILURE);
       }
 
     if(!option_quiet)
@@ -532,7 +532,7 @@ int main(int argc,char** argv)
        else
          {
           fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
-          return(1);
+          exit(EXIT_FAILURE);
          }
       }
 
@@ -549,7 +549,7 @@ int main(int argc,char** argv)
        if(!end)
          {
           fprintf(stderr,"Error: Cannot find final section of route compatible with profile.\n");
-          return(1);
+          exit(EXIT_FAILURE);
          }
 
        /* Calculate the middle of the route */
@@ -574,7 +574,7 @@ int main(int argc,char** argv)
        if(!middle)
          {
           fprintf(stderr,"Error: Cannot find super-route compatible with profile.\n");
-          return(1);
+          exit(EXIT_FAILURE);
          }
 
        results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,middle);
@@ -582,7 +582,7 @@ int main(int argc,char** argv)
        if(!results[point])
          {
           fprintf(stderr,"Error: Cannot create combined route following super-route.\n");
-          return(1);
+          exit(EXIT_FAILURE);
          }
 
        FreeResultsList(begin);
