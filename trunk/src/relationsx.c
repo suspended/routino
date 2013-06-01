@@ -453,6 +453,8 @@ void SortRelationList(RelationsX* relationsx)
                                                            (int (*)(const void*,const void*))sort_route_by_id,
                                                            (int (*)(void*,index_t))deduplicate_route_by_id);
 
+    relationsx->rrknumber=relationsx->rrnumber;
+
     /* Close the files */
 
     relationsx->rrfd=CloseFile(relationsx->rrfd);
@@ -489,6 +491,8 @@ void SortRelationList(RelationsX* relationsx)
     relationsx->trnumber=filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRelX),NULL,
                                                                                (int (*)(const void*,const void*))sort_turn_by_id,
                                                                                (int (*)(void*,index_t))deduplicate_turn_by_id);
+
+    relationsx->trknumber=relationsx->trnumber;
 
     /* Close the files */
 
@@ -793,8 +797,6 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
  if(keep)
     RenameFile(relationsx->rrfilename_tmp,relationsx->rrfilename);
 
- relationsx->rrknumber=relationsx->rrnumber;
-
  /* Unmap from memory / close the files */
 
 #if !SLIM
@@ -855,8 +857,6 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
     RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
  else
     DeleteFile(relationsx->trfilename_tmp);
-
- relationsx->trknumber=relationsx->trnumber;
 
  trfd=OpenFileNew(relationsx->trfilename_tmp);
 

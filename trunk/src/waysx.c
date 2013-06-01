@@ -320,6 +320,8 @@ void SortWayList(WaysX *waysx)
                                           (int (*)(const void*,const void*))sort_by_id,
                                           (int (*)(void*,index_t))deduplicate_and_index_by_id);
 
+ waysx->knumber=waysx->number;
+
  /* Close the files */
 
  waysx->fd=CloseFile(waysx->fd);
@@ -419,8 +421,6 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
     RenameFile(waysx->filename_tmp,waysx->filename);
  else
     DeleteFile(waysx->filename_tmp);
-
- waysx->knumber=waysx->number;
 
  fd=OpenFileNew(waysx->filename_tmp);
 

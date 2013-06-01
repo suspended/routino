@@ -290,6 +290,8 @@ void SortNodeList(NodesX *nodesx)
                                                            (int (*)(const void*,const void*))sort_by_id,
                                                            (int (*)(void*,index_t))deduplicate_and_index_by_id);
 
+ nodesx->knumber=nodesx->number;
+
  /* Close the files */
 
  nodesx->fd=CloseFile(nodesx->fd);
@@ -440,8 +442,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
  else
     DeleteFile(nodesx->filename_tmp);
 
- nodesx->knumber=nodesx->number;
-
  fd=OpenFileNew(nodesx->filename_tmp);
 
  /* Modify the on-disk image */
@@ -570,16 +570,16 @@ void SortNodeListGeographically(NodesX *nodesx)
  if(nodesx->number==0)
     return;
 
- /* While we are here we can work out the range of data */
+ /* Print the start message */
+
+ printf_first("Sorting Nodes Geographically");
+
+ /* Work out the range of data */
 
  lat_min=radians_to_latlong( 2);
  lat_max=radians_to_latlong(-2);
  lon_min=radians_to_latlong( 4);
  lon_max=radians_to_latlong(-4);
-
- /* Print the start message */
-
- printf_first("Sorting Nodes Geographically");
 
  /* Allocate the memory for the geographical index array */
 
