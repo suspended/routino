@@ -68,7 +68,13 @@ foreach my $key (@rawparams)
 $data=$cgiparams{"data"};
 $dump=$cgiparams{"dump"};
 
-if(defined $data && !defined $dump)
+if(!defined $data && !defined $dump)
+  {
+   print header(-status => '500 Invalid CGI parameters');
+   exit;
+  }
+
+if(defined $data)
   {
    # Parameters to limit range selected
 
