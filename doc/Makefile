@@ -28,7 +28,7 @@ WEBDOCDIR=../$(webdocdir)
 
 # Files to install
 
-HTML_FILES=html/*
+HTML_FILES=$(notdir $(wildcard html/*.html))
 TXT_FILES=*.txt
 TOP_FILES=../agpl-3.0.txt
 
@@ -37,9 +37,9 @@ TOP_FILES=../agpl-3.0.txt
 all:
 	-@[ -d $(WEBDOCDIR) ] && \
 	  for file in $(HTML_FILES); do \
-	     if [ ! -f $(WEBDOCDIR)/`basename $$file` ] || [ $$file -nt $(WEBDOCDIR)/`basename $$file` ]; then \
-	        echo cp $$file $(WEBDOCDIR) ;\
-	        cp -f $$file $(WEBDOCDIR) ;\
+	     if [ ! -f $(WEBDOCDIR)/$$file ] || [ html/$$file -nt $(WEBDOCDIR)/$$file ]; then \
+	        echo cp html/$$file $(WEBDOCDIR) ;\
+	        cp -f html/$$file $(WEBDOCDIR) ;\
 	     fi ;\
 	  done
 
@@ -73,12 +73,11 @@ install: all
 clean:
 	rm -f *~
 	rm -f html/*~
-	rm -f $(WEBDOCDIR)/*~
 
 ########
 
 distclean: clean
-	rm -f $(WEBDOCDIR)/*
+	-cd $(WEBDOCDIR) && rm -f $(HTML_FILES)
 
 ########
 
