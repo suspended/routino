@@ -41,11 +41,30 @@ typedef struct _ErrorLogX
  ErrorLogX;
 
 
+/*+ A structure containing a set of error logs (memory format). +*/
+typedef struct _ErrorLogsX
+{
+ index_t   number;              /*+ The number of error logs. +*/
+
+ index_t   latbins;             /*+ The number of bins containing latitude. +*/
+ index_t   lonbins;             /*+ The number of bins containing longitude. +*/
+
+ ll_bin_t  latzero;             /*+ The bin number of the furthest south bin. +*/
+ ll_bin_t  lonzero;             /*+ The bin number of the furthest west bin. +*/
+}
+ ErrorLogsX;
+
+
 /* Error log processing functions in errorlogx.c */
 
-void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx);
-void SortErrorLogsGeographically(void);
-void SaveErrorLogs(NodesX *nodesx,char *filename);
+ErrorLogsX *NewErrorLogList(void);
+void FreeErrorLogList(ErrorLogsX *errorlogsx);
+
+void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,RelationsX *relationsx);
+
+void SortErrorLogsGeographically(ErrorLogsX *errorlogsx);
+
+void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename);
 
 
 #endif /* ERRORLOGX_H */
