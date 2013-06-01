@@ -1,10 +1,14 @@
+                      Planetsplitter Execution Time Analysis
+                      ======================================
+
+A Perl script that uses Gnuplot to plot a graph of the time taken by the
+planetsplitter program to run.
+
+
 plot-planetsplitter-time.pl
 ---------------------------
 
-A Perl script that uses Gnuplot to plot a graph of the time taken by
-planetsplitter to run.
-
-Example:
+Example usage:
 
 planetsplitter --loggable --logtime ... > planetsplitter.log
 

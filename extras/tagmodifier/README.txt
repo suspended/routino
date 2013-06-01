@@ -1,8 +1,13 @@
-tagmodifier
------------
+                        Tagging Rule Tester / Tag Modifier
+                        ==================================
 
 This program is used to run the tag transformation process on an OSM XML file
-for test purposes.
+for test purposes.  This allows it to be used to test new tagging rules or to
+make automatic rule-based modifications to tags within an XML file.
+
+
+tagmodifier
+-----------
 
 Usage: tagmodifier [--help]
                    [--tagging=<filename>]

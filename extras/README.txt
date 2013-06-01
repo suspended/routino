@@ -22,3 +22,6 @@ errorlog    - Scripts for processing the error log file (created by running
 plot-time   - Plots the output of 'planetsplitter --loggable --logtime' to show
               how long each part of the processing takes.
 
+find-fixme -  A modified version of the Routino planetsplitter and filedumper
+              programs to scan an OSM file for "fixme" tags and create a
+              database so that web pages provided can display them.
