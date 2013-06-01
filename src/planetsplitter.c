@@ -592,7 +592,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                      [--prune-straight=<len>]\n"
          "                      [<filename.osm> ... | <filename.osc> ...\n"
          "                       | <filename.pbf> ...\n"
-         "                       | <filename.osm> ... | <filename.osc> ..."
+         "                       | <filename.o5m> ... | <filename.o5c> ..."
 #if defined(USE_BZIP2) && USE_BZIP2
          "\n                       | <filename.(osm|osc|o5m|o5c).bz2> ..."
 #endif
