@@ -520,14 +520,20 @@ if(!option_process_only)
 
     if(option_keep)
       {
+       ErrorLogsX *OSMErrorLogs;
+
        printf("\nCreate Error Log\n================\n\n");
        fflush(stdout);
 
-       ProcessErrorLogs(OSMNodes,OSMWays,OSMRelations);
+       OSMErrorLogs=NewErrorLogList();
 
-       SortErrorLogsGeographically();
+       ProcessErrorLogs(OSMErrorLogs,OSMNodes,OSMWays,OSMRelations);
 
-       SaveErrorLogs(OSMNodes,FileName(dirname,prefix,"errorlogs.mem"));
+       SortErrorLogsGeographically(OSMErrorLogs);
+
+       SaveErrorLogs(OSMErrorLogs,FileName(dirname,prefix,"errorlogs.mem"));
+
+       FreeErrorLogList(OSMErrorLogs);
       }
    }
 

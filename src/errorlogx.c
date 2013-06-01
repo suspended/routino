@@ -32,7 +32,7 @@
 #include "sorting.h"
 
 
-/* Local variables */
+/* Global variables */
 
 /*+ The name of the error log file. +*/
 extern char *errorlogfilename;
@@ -40,6 +40,10 @@ extern char *errorlogfilename;
 /*+ The name of the binary error log file. +*/
 extern char *errorbinfilename;
 
+/* Local variables */
+
+/*+ Temporary file-local variables for use by the sort functions. +*/
+static latlong_t lat_min,lat_max,lon_min,lon_max;
 
 /* Local functions */
 
@@ -52,10 +56,43 @@ static int lookup_lat_long_way(WaysX *waysx,NodesX *nodesx,way_t way,latlong_t *
 static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *nodesx,relation_t relation,latlong_t *latitude,latlong_t *longitude,index_t error);
 
 static int sort_by_lat_long(ErrorLogX *a,ErrorLogX *b);
+static int measure_lat_long(ErrorLogX *errorlogx,index_t index);
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Allocate a new error log list (create a new file).
+
+  ErrorLogsX *NewErrorLogList Returns a pointer to the error log list.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+ErrorLogsX *NewErrorLogList(void)
+{
+ ErrorLogsX *errorlogsx;
+
+ errorlogsx=(ErrorLogsX*)calloc(1,sizeof(ErrorLogsX));
+
+ logassert(errorlogsx,"Failed to allocate memory (try using slim mode?)"); /* Check calloc() worked */
+
+ return(errorlogsx);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Free an error log list.
+
+  ErrorLogsX *errorlogsx The set of error logs to be freed.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FreeErrorLogList(ErrorLogsX *errorlogsx)
+{
+ free(errorlogsx);
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
   Process the binary error log.
+
+  ErrorLogsX *errorlogsx The set of error logs to update.
 
   NodesX *nodesx The set of nodes.
 
@@ -64,14 +101,13 @@ static int sort_by_lat_long(ErrorLogX *a,ErrorLogX *b);
   RelationsX *relationsx The set of relations.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
+void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 {
  int oldfd,newfd;
  uint32_t offset=0;
  int nerrorlogobjects=0;
  int finished;
  ErrorLogObject errorlogobjects[8];
- index_t number;
 
  /* Re-index the nodes, ways and relations */
 
@@ -118,7 +154,7 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 
  /* Loop through the file and merge the raw data into coordinates */
 
- number=0;
+ errorlogsx->number=0;
 
  do
    {
@@ -148,13 +184,13 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
             {
              way_t way=(way_t)(errorlogobjects[0].type_id&(uint64_t)0x00ffffffffffffff);
 
-             lookup_lat_long_way(waysx,nodesx,way,&errorlat,&errorlon,number);
+             lookup_lat_long_way(waysx,nodesx,way,&errorlat,&errorlon,errorlogsx->number);
             }
           else if(((errorlogobjects[0].type_id>>56)&0xff)=='R')
             {
              relation_t relation=(relation_t)(errorlogobjects[0].type_id&(uint64_t)0x00ffffffffffffff);
 
-             lookup_lat_long_relation(relationsx,waysx,nodesx,relation,&errorlat,&errorlon,number);
+             lookup_lat_long_relation(relationsx,waysx,nodesx,relation,&errorlat,&errorlon,errorlogsx->number);
             }
          }
        else
@@ -189,7 +225,7 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
                   {
                    way_t way=(way_t)(errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
 
-                   if(lookup_lat_long_way(waysx,nodesx,way,&latitude[ncoords],&longitude[ncoords],number))
+                   if(lookup_lat_long_way(waysx,nodesx,way,&latitude[ncoords],&longitude[ncoords],errorlogsx->number))
                       ncoords++;
                   }
             }
@@ -205,7 +241,7 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
                   {
                    relation_t relation=(relation_t)(errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
 
-                   if(lookup_lat_long_relation(relationsx,waysx,nodesx,relation,&latitude[ncoords],&longitude[ncoords],number))
+                   if(lookup_lat_long_relation(relationsx,waysx,nodesx,relation,&latitude[ncoords],&longitude[ncoords],errorlogsx->number))
                       ncoords++;
                   }
             }
@@ -241,13 +277,13 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 
        WriteFile(newfd,&errorlogx,sizeof(ErrorLogX));
 
-       number++;
+       errorlogsx->number++;
 
        offset=errorlogobject.offset;
        nerrorlogobjects=0;
 
-       if(!(number%10000))
-          printf_middle("Calculating Coordinates: Errors=%"Pindex_t,number);
+       if(!(errorlogsx->number%10000))
+          printf_middle("Calculating Coordinates: Errors=%"Pindex_t,errorlogsx->number);
       }
 
     /* Store for later */
@@ -277,7 +313,7 @@ void ProcessErrorLogs(NodesX *nodesx,WaysX *waysx,RelationsX *relationsx)
 
  /* Print the final message */
 
- printf_last("Calculated Coordinates: Errors=%"Pindex_t,number);
+ printf_last("Calculated Coordinates: Errors=%"Pindex_t,errorlogsx->number);
 }
 
 
@@ -614,16 +650,25 @@ static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *
 
 /*++++++++++++++++++++++++++++++++++++++
   Sort the error logs geographically.
+
+  ErrorLogsX *errorlogsx The set of error logs to sort.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortErrorLogsGeographically(void)
+void SortErrorLogsGeographically(ErrorLogsX *errorlogsx)
 {
  int oldfd,newfd;
- index_t number;
+ ll_bin_t lat_min_bin,lat_max_bin,lon_min_bin,lon_max_bin;
 
  /* Print the start message */
 
  printf_first("Sorting Errors Geographically");
+
+ /* Work out the range of data */
+
+ lat_min=radians_to_latlong( 2);
+ lat_max=radians_to_latlong(-2);
+ lon_min=radians_to_latlong( 4);
+ lon_max=radians_to_latlong(-4);
 
  /* Re-open the file read-only and a new file writeable */
 
@@ -635,18 +680,31 @@ void SortErrorLogsGeographically(void)
 
  /* Sort errors geographically */
 
- number=filesort_fixed(oldfd,newfd,sizeof(ErrorLogX),NULL,
-                                                     (int (*)(const void*,const void*))sort_by_lat_long,
-                                                     NULL);
+ filesort_fixed(oldfd,newfd,sizeof(ErrorLogX),NULL,
+                                              (int (*)(const void*,const void*))sort_by_lat_long,
+                                              (int (*)(void*,index_t))measure_lat_long);
 
  /* Close the files */
 
  CloseFile(oldfd);
  CloseFile(newfd);
 
+ /* Work out the number of bins */
+
+ lat_min_bin=latlong_to_bin(lat_min);
+ lon_min_bin=latlong_to_bin(lon_min);
+ lat_max_bin=latlong_to_bin(lat_max);
+ lon_max_bin=latlong_to_bin(lon_max);
+
+ errorlogsx->latzero=lat_min_bin;
+ errorlogsx->lonzero=lon_min_bin;
+
+ errorlogsx->latbins=(lat_max_bin-lat_min_bin)+1;
+ errorlogsx->lonbins=(lon_max_bin-lon_min_bin)+1;
+
  /* Print the final message */
 
- printf_last("Sorted Errors Geographically: Error=%"Pindex_t,number);
+ printf_last("Sorted Errors Geographically: Error=%"Pindex_t,errorlogsx->number);
 }
 
 
@@ -701,14 +759,42 @@ static int sort_by_lat_long(ErrorLogX *a,ErrorLogX *b)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Measure the extent of the data.
+
+  int measure_lat_long Return 1 if the value is to be kept, otherwise 0.
+
+  ErrorLogX *errorlogx The error location.
+
+  index_t index The number of sorted error locations that have already been written to the output file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int measure_lat_long(ErrorLogX *errorlogx,index_t index)
+{
+ if(errorlogx->latitude!=NO_LATLONG)
+   {
+    if(errorlogx->latitude<lat_min)
+       lat_min=errorlogx->latitude;
+    if(errorlogx->latitude>lat_max)
+       lat_max=errorlogx->latitude;
+    if(errorlogx->longitude<lon_min)
+       lon_min=errorlogx->longitude;
+    if(errorlogx->longitude>lon_max)
+       lon_max=errorlogx->longitude;
+   }
+
+ return(1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Save the binary error log.
 
-  NodesX *nodesx The set of nodes to copy some data from.
+  ErrorLogsX *errorlogsx The set of error logs to write.
 
   char *filename The name of the final file to write.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SaveErrorLogs(NodesX *nodesx,char *filename)
+void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
 {
  ErrorLogsFile errorlogsfile;
  ErrorLogX errorlogx;
@@ -724,7 +810,7 @@ void SaveErrorLogs(NodesX *nodesx,char *filename)
 
  /* Allocate the memory for the geographical offsets array */
 
- offsets=(index_t*)malloc((nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+ offsets=(index_t*)malloc((errorlogsx->latbins*errorlogsx->lonbins+1)*sizeof(index_t));
 
  logassert(offsets,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
@@ -738,7 +824,7 @@ void SaveErrorLogs(NodesX *nodesx,char *filename)
 
  /* Write out the geographical errors */
 
- SeekFile(newfd,sizeof(ErrorLogsFile)+(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+ SeekFile(newfd,sizeof(ErrorLogsFile)+(errorlogsx->latbins*errorlogsx->lonbins+1)*sizeof(index_t));
 
  while(!ReadFile(oldfd,&errorlogx,sizeof(ErrorLogX)))
    {
@@ -759,9 +845,9 @@ void SaveErrorLogs(NodesX *nodesx,char *filename)
 
     /* Work out the offsets */
 
-    latbin=latlong_to_bin(errorlogx.latitude )-nodesx->latzero;
-    lonbin=latlong_to_bin(errorlogx.longitude)-nodesx->lonzero;
-    llbin=lonbin*nodesx->latbins+latbin;
+    latbin=latlong_to_bin(errorlogx.latitude )-errorlogsx->latzero;
+    lonbin=latlong_to_bin(errorlogx.longitude)-errorlogsx->lonzero;
+    llbin=lonbin*errorlogsx->latbins+latbin;
 
     for(;latlonbin<=llbin;latlonbin++)
        offsets[latlonbin]=number_geo;
@@ -840,13 +926,13 @@ void SaveErrorLogs(NodesX *nodesx,char *filename)
 
  /* Finish off the offset indexing and write them out */
 
- maxlatlonbins=nodesx->latbins*nodesx->lonbins;
+ maxlatlonbins=errorlogsx->latbins*errorlogsx->lonbins;
 
  for(;latlonbin<=maxlatlonbins;latlonbin++)
     offsets[latlonbin]=number_geo;
 
  SeekFile(newfd,sizeof(ErrorLogsFile));
- WriteFile(newfd,offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+ WriteFile(newfd,offsets,(errorlogsx->latbins*errorlogsx->lonbins+1)*sizeof(index_t));
 
  free(offsets);
 
@@ -856,11 +942,11 @@ void SaveErrorLogs(NodesX *nodesx,char *filename)
  errorlogsfile.number_geo   =number_geo;
  errorlogsfile.number_nongeo=number_nongeo;
 
- errorlogsfile.latbins=nodesx->latbins;
- errorlogsfile.lonbins=nodesx->lonbins;
+ errorlogsfile.latbins=errorlogsx->latbins;
+ errorlogsfile.lonbins=errorlogsx->lonbins;
 
- errorlogsfile.latzero=nodesx->latzero;
- errorlogsfile.lonzero=nodesx->lonzero;
+ errorlogsfile.latzero=errorlogsx->latzero;
+ errorlogsfile.lonzero=errorlogsx->lonzero;
 
  SeekFile(newfd,0);
  WriteFile(newfd,&errorlogsfile,sizeof(ErrorLogsFile));
