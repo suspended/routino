@@ -194,7 +194,7 @@ distclean: distclean-local clean-local
 	done
 
 distclean-local:
-	-[ -d ../web/bin ] && cd ../web/bin/ && rm -f $(EXE)
+	-cd $(WEBBINDIR) && rm -f $(EXE)
 	-rm -f $(EXE)
 	-rm -f $(D)
 	-rm -fr .deps
