@@ -36,6 +36,11 @@ EXE=tagmodifier
 all: $(EXE)
 	@true
 
+$(EXE) : all-routino
+
+all-routino:
+	cd $(ROUTINO) && $(MAKE) all
+
 ########
 
 TAGMODIFIER_OBJ=tagmodifier.o \
