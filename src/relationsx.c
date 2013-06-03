@@ -206,6 +206,10 @@ void FreeRelationList(RelationsX *relationsx,int keep)
 
   transports_t routes The types of routes that this relation is for.
 
+  node_t *nodes The array of nodes that are members of the relation.
+
+  int nnodes The number of nodes that are members of the relation.
+
   way_t *ways The array of ways that are members of the relation.
 
   int nways The number of ways that are members of the relation.
@@ -217,21 +221,26 @@ void FreeRelationList(RelationsX *relationsx,int keep)
 
 void AppendRouteRelationList(RelationsX* relationsx,relation_t id,
                              transports_t routes,
+                             node_t *nodes,int nnodes,
                              way_t *ways,int nways,
                              relation_t *relations,int nrelations)
 {
  RouteRelX relationx={0};
  FILESORT_VARINT size;
+ node_t nonode=NO_NODE_ID;
  way_t noway=NO_WAY_ID;
  relation_t norelation=NO_RELATION_ID;
 
  relationx.id=id;
  relationx.routes=routes;
 
- size=sizeof(RouteRelX)+(nways+1)*sizeof(way_t)+(nrelations+1)*sizeof(relation_t);
+ size=sizeof(RouteRelX)+(nnodes+1)*sizeof(node_t)+(nways+1)*sizeof(way_t)+(nrelations+1)*sizeof(relation_t);
 
  WriteFile(relationsx->rrfd,&size,FILESORT_VARSIZE);
  WriteFile(relationsx->rrfd,&relationx,sizeof(RouteRelX));
+
+ WriteFile(relationsx->rrfd,nodes  ,nnodes*sizeof(node_t));
+ WriteFile(relationsx->rrfd,&nonode,       sizeof(node_t));
 
  WriteFile(relationsx->rrfd,ways  ,nways*sizeof(way_t));
  WriteFile(relationsx->rrfd,&noway,      sizeof(way_t));
@@ -660,6 +669,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
        FILESORT_VARINT size;
        RouteRelX relationx;
        way_t wayid;
+       node_t nodeid;
        relation_t relationid;
        transports_t routes=Transports_None;
 
@@ -692,6 +702,14 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
                 break;
                }
          }
+
+       /* Skip the nodes */
+
+       do
+         {
+          ReadFile(relationsx->rrfd,&nodeid,sizeof(node_t));
+         }
+       while(nodeid!=NO_NODE_ID);
 
        /* Loop through the ways */
 

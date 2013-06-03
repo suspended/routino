@@ -613,14 +613,32 @@ static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *
    }
  else
    {
-    int count=0;
+    int count;
     off_t offset=relationsx->rrodata[index];
+    node_t node=NO_NODE_ID,tempnode;
     way_t way=NO_WAY_ID,tempway;
     relation_t relation=NO_RELATION_ID,temprelation;
 
     SeekFile(relationsx->rrfd,offset);
 
+    /* Choose a random node */
+
+    count=0;
+
+    while(!ReadFile(relationsx->rrfd,&tempnode,sizeof(node_t)) && tempnode!=NO_NODE_ID)
+      {
+       count++;
+
+       if((error%count)==0)     /* A 1/count chance */
+          node=tempnode;
+      }
+
+    if(lookup_lat_long_node(nodesx,node,latitude,longitude))
+       return 1;
+
     /* Choose a random way */
+
+    count=0;
 
     while(!ReadFile(relationsx->rrfd,&tempway,sizeof(way_t)) && tempway!=NO_WAY_ID)
       {
@@ -634,6 +652,8 @@ static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *
        return 1;
 
     /* Choose a random relation */
+
+    count=0;
 
     while(!ReadFile(relationsx->rrfd,&temprelation,sizeof(relation_t)) && temprelation!=NO_RELATION_ID)
       {

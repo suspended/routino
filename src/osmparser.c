@@ -856,6 +856,7 @@ void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode)
  if(mode==MODE_DELETE || mode==MODE_MODIFY)
    {
     AppendRouteRelationList(relations,id,RELATION_DELETED,
+                            relation_nodes,relation_nnodes,
                             relation_ways,relation_nways,
                             relation_relations,relation_nrelations);
 
@@ -969,6 +970,7 @@ void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode)
 
  if((relation_nways || relation_nrelations) && !relation_turn_restriction)
     AppendRouteRelationList(relations,id,routes,
+                            relation_nodes,relation_nnodes,
                             relation_ways,relation_nways,
                             relation_relations,relation_nrelations);
 
