@@ -8,6 +8,9 @@ extend this to finding all "fixme" tags.  The files in this directory provide a
 complete set of executables and web pages for extracting and displaying all
 items with "fixme" tags on a map.
 
+Editing fixme.xml and changing the rules for selecting tags allows for creating
+custom databases to display items containing any desired tag(s).
+
 
 fixme-finder
 ------------
