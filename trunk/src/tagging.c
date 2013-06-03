@@ -66,9 +66,6 @@ static TaggingRuleList *AppendTaggingRule(TaggingRuleList *rules,const char *k,c
 static void AppendTaggingAction(TaggingRuleList *rules,const char *k,const char *v,int action,const char *message);
 static void DeleteTaggingRuleList(TaggingRuleList *rules);
 
-static void ModifyTag(TagList *tags,const char *k,const char *v);
-static void DeleteTag(TagList *tags,const char *k);
-
 static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,const char *match_k,const char *match_v);
 
 
@@ -730,6 +727,36 @@ void DeleteTag(TagList *tags,const char *k)
 
        return;
       }
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Create a string containing all of the tags formatted as if HTML.
+
+  char *StringifyTag Returns a static pointer to the created string.
+
+  TagList *tags The list of tags to convert.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+char *StringifyTag(TagList *tags)
+{
+ static char *string=NULL;
+ int i,length=0,used=0;
+
+ for(i=0;i<tags->ntags;i++)
+   {
+    length+=strlen(tags->k[i]);
+    length+=strlen(tags->v[i]);
+
+    length+=16;
+   }
+
+ string=realloc((char*)string,length);
+
+ for(i=0;i<tags->ntags;i++)
+    used+=sprintf(string+used,"<tag k='%s' v='%s'>",tags->k[i],tags->v[i]);
+
+ return(string);
 }
 
 

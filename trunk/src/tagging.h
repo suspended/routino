@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2012 Andrew M. Bishop
+ This file Copyright 2010-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -72,6 +72,10 @@ TagList *NewTagList(void);
 void DeleteTagList(TagList *tags);
 
 void AppendTag(TagList *tags,const char *k,const char *v);
+void ModifyTag(TagList *tags,const char *k,const char *v);
+void DeleteTag(TagList *tags,const char *k);
+
+char *StringifyTag(TagList *tags);
 
 TagList *ApplyNodeTaggingRules(TagList *tags,int64_t id);
 TagList *ApplyWayTaggingRules(TagList *tags,int64_t id);
