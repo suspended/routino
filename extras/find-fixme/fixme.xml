@@ -21,7 +21,13 @@
 
   <node>
 
-    <!-- Copy everything from input to output -->
+    <!-- Add a marker for those nodes that match the wanted tag(s) -->
+
+    <if k="fixme">
+      <output k="fixme-finder:keep" v="yes" />
+    </if>
+
+    <!-- Copy all tags from input to output -->
 
     <if>
       <output />
@@ -33,7 +39,13 @@
 
   <way>
 
-    <!-- Copy everything from input to output -->
+    <!-- Add a marker for those ways that match the wanted tag(s) -->
+
+    <if k="fixme">
+      <output k="fixme-finder:keep" v="yes" />
+    </if>
+
+    <!-- Copy all tags from input to output -->
 
     <if>
       <output />
@@ -45,7 +57,13 @@
 
   <relation>
 
-    <!-- Copy everything from input to output -->
+    <!-- Add a marker for those relations that match the wanted tag(s) -->
+
+    <if k="fixme">
+      <output k="fixme-finder:keep" v="yes" />
+    </if>
+
+    <!-- Copy all tags from input to output -->
 
     <if>
       <output />
