@@ -66,6 +66,7 @@ by the web page CGI to display the information on a map.
 
 Usage: fixme-dumper [--help]
                     [--dir=<dirname>]
+                    [--statistics]
                     [--visualiser --latmin=<latmin> --latmax=<latmax>
                                   --lonmin=<lonmin> --lonmax=<lonmax>
                                   --data=<data-type>]
@@ -73,9 +74,11 @@ Usage: fixme-dumper [--help]
 
 --help                    Prints this information.
 
---dir=<dirname>           The directory containing the routing database.
+--dir=<dirname>           The directory containing the fixme database.
 
---visualiser              Extract selected data from the routing database:
+--statistics              Print statistics about the fixme database.
+
+--visualiser              Extract selected data from the fixme database:
   --latmin=<latmin>       * the minimum latitude (degrees N).
   --latmax=<latmax>       * the maximum latitude (degrees N).
   --lonmin=<lonmin>       * the minimum longitude (degrees E).
@@ -83,7 +86,7 @@ Usage: fixme-dumper [--help]
   --data=<data-type>      * the type of data to select.
 
   <data-type> can be selected from:
-      fixmes      = fixme tags extracted from the data.
+      fixmes              = fixme tags extracted from the data.
 
 --dump-visualiser         Dump selected contents of the database in HTML.
   --data=fixme<number>    * the fixme with the selected index.

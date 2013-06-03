@@ -41,6 +41,8 @@ static void OutputErrorLog(ErrorLogs *errorlogs,double latmin,double latmax,doub
 
 static void print_errorlog_visualiser(ErrorLogs *errorlogs,index_t item);
 
+static char *RFC822Date(time_t t);
+
 static void print_usage(int detail,const char *argerr,const char *err);
 
 
@@ -54,6 +56,7 @@ int main(int argc,char** argv)
  int       arg;
  char     *dirname=NULL,*prefix=NULL;
  char     *errorlogs_filename;
+ int       option_statistics=0;
  int       option_visualiser=0,coordcount=0;
  double    latmin=0,latmax=0,lonmin=0,lonmax=0;
  char     *option_data=NULL;
@@ -67,6 +70,8 @@ int main(int argc,char** argv)
        print_usage(1,NULL,NULL);
     else if(!strncmp(argv[arg],"--dir=",6))
        dirname=&argv[arg][6];
+    else if(!strcmp(argv[arg],"--statistics"))
+       option_statistics=1;
     else if(!strcmp(argv[arg],"--visualiser"))
        option_visualiser=1;
     else if(!strcmp(argv[arg],"--dump-visualiser"))
@@ -87,8 +92,8 @@ int main(int argc,char** argv)
        print_usage(0,argv[arg],NULL);
    }
 
- if((option_visualiser + option_dump_visualiser)!=1)
-    print_usage(0,NULL,"Must choose --visualiser, --statistics, --dump, --dump-osm or --dump-visualiser.");
+ if((option_statistics + option_visualiser + option_dump_visualiser)!=1)
+    print_usage(0,NULL,"Must choose --visualiser, --statistics or --dump-visualiser.");
 
  /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
 
@@ -108,6 +113,42 @@ int main(int argc,char** argv)
        OutputErrorLog(OSMErrorLogs,latmin,latmax,lonmin,lonmax);
     else
        print_usage(0,option_data,NULL);
+   }
+
+ /* Print out statistics */
+
+ if(option_statistics)
+   {
+    struct stat buf;
+
+    /* Examine the files */
+
+    printf("Files\n");
+    printf("-----\n");
+    printf("\n");
+
+    stat(errorlogs_filename,&buf);
+
+    printf("'%s%sfixme.mem' - %9"PRIu64" Bytes\n",prefix?prefix:"",prefix?"-":"",(uint64_t)buf.st_size);
+    printf("%s\n",RFC822Date(buf.st_mtime));
+    printf("\n");
+
+    printf("\n");
+    printf("Error Logs\n");
+    printf("----------\n");
+    printf("\n");
+
+    printf("Number(total)           =%9"Pindex_t"\n",OSMErrorLogs->file.number);
+    printf("Number(geographical)    =%9"Pindex_t"\n",OSMErrorLogs->file.number_geo);
+    printf("Number(non-geographical)=%9"Pindex_t"\n",OSMErrorLogs->file.number_nongeo);
+
+    printf("\n");
+    stat(errorlogs_filename,&buf);
+#if !SLIM
+    printf("Total strings=%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)(OSMErrorLogs->strings-(char*)OSMErrorLogs->data));
+#else
+    printf("Total strings=%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)OSMErrorLogs->stringsoffset);
+#endif
    }
 
  /* Print out internal data (in HTML format for the visualiser) */
@@ -204,6 +245,50 @@ static void print_errorlog_visualiser(ErrorLogs *errorlogs,index_t item)
 }
 
 
+/*+ Conversion from time_t to date string (day of week). +*/
+static const char* const weekdays[7]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
+
+/*+ Conversion from time_t to date string (month of year). +*/
+static const char* const months[12]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Convert the time into an RFC 822 compliant date.
+
+  char *RFC822Date Returns a pointer to a fixed string containing the date.
+
+  time_t t The time.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static char *RFC822Date(time_t t)
+{
+ static char value[32];
+ char weekday[4];
+ char month[4];
+ struct tm *tim;
+
+ tim=gmtime(&t);
+
+ strcpy(weekday,weekdays[tim->tm_wday]);
+ strcpy(month,months[tim->tm_mon]);
+
+ /* Sun, 06 Nov 1994 08:49:37 GMT    ; RFC 822, updated by RFC 1123 */
+
+ sprintf(value,"%3s, %02d %3s %4d %02d:%02d:%02d %s",
+         weekday,
+         tim->tm_mday,
+         month,
+         tim->tm_year+1900,
+         tim->tm_hour,
+         tim->tm_min,
+         tim->tm_sec,
+         "GMT"
+         );
+
+ return(value);
+}
+
+
 /*++++++++++++++++++++++++++++++++++++++
   Print out the usage information.
 
@@ -219,6 +304,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
  fprintf(stderr,
          "Usage: fixme-dumper [--help]\n"
          "                    [--dir=<dirname>]\n"
+         "                    [--statistics]\n"
          "                    [--visualiser --latmin=<latmin> --latmax=<latmax>\n"
          "                                  --lonmin=<lonmin> --lonmax=<lonmax>\n"
          "                                  --data=<data-type>]\n"
@@ -239,9 +325,11 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "--help                    Prints this information.\n"
             "\n"
-            "--dir=<dirname>           The directory containing the routing database.\n"
+            "--dir=<dirname>           The directory containing the fixme database.\n"
             "\n"
-            "--visualiser              Extract selected data from the routing database:\n"
+            "--statistics              Print statistics about the fixme database.\n"
+            "\n"
+            "--visualiser              Extract selected data from the fixme database:\n"
             "  --latmin=<latmin>       * the minimum latitude (degrees N).\n"
             "  --latmax=<latmax>       * the maximum latitude (degrees N).\n"
             "  --lonmin=<lonmin>       * the minimum longitude (degrees E).\n"
