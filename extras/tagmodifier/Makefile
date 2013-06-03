@@ -33,10 +33,8 @@ EXE=tagmodifier
 
 ########
 
-all: $(EXE)
+all: all-routino $(EXE)
 	@true
-
-$(EXE) : all-routino
 
 all-routino:
 	cd $(ROUTINO) && $(MAKE) all
@@ -89,4 +87,4 @@ include $(D)
 
 ########
 
-.PHONY:: all test install clean distclean
+.PHONY:: all all-routino test install clean distclean

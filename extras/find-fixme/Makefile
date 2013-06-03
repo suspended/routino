@@ -41,7 +41,7 @@ WWW_COPY=$(notdir $(wildcard ../../$(webwwwdir)/maplayout*.css)) $(notdir $(wild
 
 ########
 
-all: $(EXE)
+all: all-routino $(EXE)
 	-@[ -d $(WEBBINDIR) ] && \
 	  for file in $(EXE); do \
 	     if [ ! -f $(WEBBINDIR)/$$file ] || [ $$file -nt $(WEBBINDIR)/$$file ]; then \
@@ -63,8 +63,6 @@ all: $(EXE)
 	        cp -f ../../$(webwwwdir)/$$file $(WEBWWWDIR) ;\
 	     fi ;\
 	  done
-
-$(EXE) : all-routino
 
 all-routino:
 	cd $(ROUTINO) && $(MAKE) all
@@ -162,4 +160,4 @@ include $(D)
 
 ########
 
-.PHONY:: all test install clean distclean
+.PHONY:: all all-routino test install clean distclean
