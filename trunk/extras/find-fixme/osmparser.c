@@ -218,10 +218,12 @@ void ProcessNodeTags(TagList *tags,int64_t node_id,double latitude,double longit
  for(i=0;i<tags->ntags;i++)
    {
     char *k=tags->k[i];
-    char *v=tags->v[i];
 
-    if(!strcmp(k,"fixme"))
-       logerror("Node %"Pnode_t": %s\n",logerror_node(id),v);
+    if(!strcmp(k,"fixme-finder:keep"))
+      {
+       DeleteTag(tags,"fixme-finder:keep");
+       logerror("<node id='%"Pnode_t"'>%s</node>\n",logerror_node(id),StringifyTag(tags));
+      }
    }
 
  /* Store the node */
@@ -256,10 +258,12 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
  for(i=0;i<tags->ntags;i++)
    {
     char *k=tags->k[i];
-    char *v=tags->v[i];
 
-    if(!strcmp(k,"fixme"))
-       logerror("Way %"Pway_t": %s\n",logerror_way(id),v);
+    if(!strcmp(k,"fixme-finder:keep"))
+      {
+       DeleteTag(tags,"fixme-finder:keep");
+       logerror("<way id='%"Pway_t"'>%s</way>\n",logerror_way(id),StringifyTag(tags));
+      }
    }
 
  /* Store the way */
@@ -293,10 +297,12 @@ void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode)
  for(i=0;i<tags->ntags;i++)
    {
     char *k=tags->k[i];
-    char *v=tags->v[i];
 
-    if(!strcmp(k,"fixme"))
-       logerror("Relation %"Prelation_t": %s\n",logerror_relation(id),v);
+    if(!strcmp(k,"fixme-finder:keep"))
+      {
+       DeleteTag(tags,"fixme-finder:keep");
+       logerror("<relation id='%"Prelation_t"'>%s</relation>\n",logerror_relation(id),StringifyTag(tags));
+      }
    }
 
  /* Store the relation */
