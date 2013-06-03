@@ -94,6 +94,7 @@ void FreeRelationList(RelationsX *relationsx,int keep);
 void AppendRouteRelationList(RelationsX* relationsx,relation_t id,
                              transports_t routes,
                              way_t *ways,int nways,
+                             node_t *nodes,int nnodes,
                              relation_t *relations,int nrelations);
 void AppendTurnRelationList(RelationsX* relationsx,relation_t id,
                             way_t from,way_t to,node_t via,

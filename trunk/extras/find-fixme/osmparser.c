@@ -302,6 +302,7 @@ void ProcessRelationTags(TagList *tags,int64_t relation_id,int mode)
  /* Store the relation */
 
  AppendRouteRelationList(relations,id,0,
+                         relation_nodes,relation_nnodes,
                          relation_ways,relation_nways,
                          relation_relations,relation_nrelations);
 }
