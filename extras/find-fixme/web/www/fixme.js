@@ -386,7 +386,7 @@ function unselectFeature(feature)
 
 function runDumpSuccess(response)
 {
- drawPopup(response.responseText.split("\n").join("<br>"));
+ drawPopup(response.responseText.split("&gt;&lt;").join("&gt;<br>&lt;").split("<br>&lt;tag").join("<br>&nbsp;&nbsp;&lt;tag"));
 }
 
 
