@@ -891,8 +891,11 @@ static void ApplyRules(TaggingRuleList *rules,TagList *input,TagList *output,con
          }
        else /* if(!k && !v) */
          {
-          for(j=0;j<input->ntags;j++)
-             ApplyRules(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
+          if(!input->ntags)
+             ApplyRules(rules->rules[i].rulelist,input,output,"","");
+          else
+             for(j=0;j<input->ntags;j++)
+                ApplyRules(rules->rules[i].rulelist,input,output,input->k[j],input->v[j]);
          }
        break;
 
