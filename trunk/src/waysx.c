@@ -439,6 +439,8 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
 
     ReadFile(waysx->fd,&wayx,sizeof(WayX));
 
+    waysx->allow|=wayx.way.allow;
+
     while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
       {
        index=IndexNodeX(nodesx,node);

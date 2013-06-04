@@ -57,6 +57,8 @@ struct _WaysX
  index_t  number;               /*+ The number of extended ways still being considered. +*/
  index_t  knumber;              /*+ The number of extended ways kept for next time. +*/
 
+ transports_t allow;            /*+ The types of traffic that were seen when parsing. +*/
+
 #if !SLIM
 
  WayX    *data;                 /*+ The extended ways data (when mapped into memory). +*/

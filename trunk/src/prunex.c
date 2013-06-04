@@ -199,6 +199,9 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
     const char *transport_str=TransportName(transport);
     transports_t transports=TRANSPORTS(transport);
 
+    if(!(waysx->allow&transports))
+       continue;
+
     /* Print the start message */
 
     printf_first("Pruning Isolated Regions (%s): Segments=0 Adjusted=0 Pruned=0",transport_str);
