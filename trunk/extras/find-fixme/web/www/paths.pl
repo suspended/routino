@@ -28,7 +28,7 @@ $root_dir="..";
 $bin_dir="$root_dir/bin";
 $data_dir="$root_dir/data";
 
-# EDIT THIS to change the names of the executables (enables easy selection of slim mode).
+# EDIT THIS to change the name of the executable (enables easy selection of slim mode).
 $fixme_dumper_exe="fixme-dumper";
 
 1;
