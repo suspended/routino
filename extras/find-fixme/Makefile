@@ -38,6 +38,7 @@ ROUTINO=../../src
 EXE=fixme-finder fixme-finder-slim fixme-dumper fixme-dumper-slim
 DATA=fixme.xml
 WWW_COPY=$(notdir $(wildcard ../../$(webwwwdir)/maplayout*.css)) $(notdir $(wildcard ../../$(webwwwdir)/page-elements.*)) mapprops.js
+DOC_COPY=$(notdir $(wildcard ../../doc/html/*.css))
 
 ########
 
@@ -61,6 +62,13 @@ all: all-routino $(EXE)
 	     if [ ! -f $(WEBWWWDIR)/$$file ] || [ ../../$(webwwwdir)/$$file -nt $(WEBWWWDIR)/$$file ]; then \
 	        echo cp ../../$(webwwwdir)/$$file $(WEBWWWDIR) ;\
 	        cp -f ../../$(webwwwdir)/$$file $(WEBWWWDIR) ;\
+	     fi ;\
+	  done
+	-@[ -d $(WEBWWWDIR) ] && \
+	  for file in $(DOC_COPY); do \
+	     if [ ! -f $(WEBWWWDIR)/$$file ] || [ ../../doc/html/$$file -nt $(WEBWWWDIR)/$$file ]; then \
+	        echo cp ../../doc/html/$$file $(WEBWWWDIR) ;\
+	        cp -f ../../doc/html/$$file $(WEBWWWDIR) ;\
 	     fi ;\
 	  done
 
@@ -150,6 +158,7 @@ distclean: clean
 	-cd $(WEBBINDIR) && rm -f $(EXE)
 	-cd $(WEBDATADIR) && rm -f $(DATA)
 	-cd $(WEBWWWDIR) && rm -f $(WWW_COPY)
+	-cd $(WEBWWWDIR) && rm -f $(DOC_COPY)
 	-rm -f $(EXE)
 	-rm -f $(D)
 	-rm -fr .deps
