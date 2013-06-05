@@ -28,7 +28,7 @@ WEBDOCDIR=../$(webdocdir)
 
 # Files to install
 
-HTML_FILES=$(notdir $(wildcard html/*.html))
+HTML_FILES=$(notdir $(wildcard html/*.html)) $(notdir $(wildcard html/*.css))
 TXT_FILES=*.txt
 TOP_FILES=../agpl-3.0.txt
 
