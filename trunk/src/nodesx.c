@@ -52,6 +52,7 @@ static latlong_t lat_min,lat_max,lon_min,lon_max;
 static int sort_by_id(NodeX *a,NodeX *b);
 static int deduplicate_and_index_by_id(NodeX *nodex,index_t index);
 
+static int update_id(NodeX *nodex,index_t index);
 static int sort_by_lat_long(NodeX *a,NodeX *b);
 static int index_by_lat_long(NodeX *nodex,index_t index);
 
@@ -529,7 +530,6 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
       }
     else
       {
-       nodex.id=notpruned;
        nodesx->pdata[total]=notpruned;
 
        WriteFile(fd,&nodex,sizeof(NodeX));
@@ -599,7 +599,7 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  sortnodesx=nodesx;
 
- filesort_fixed(nodesx->fd,fd,sizeof(NodeX),NULL,
+ filesort_fixed(nodesx->fd,fd,sizeof(NodeX),(int (*)(void*,index_t))update_id,
                                             (int (*)(const void*,const void*))sort_by_lat_long,
                                             (int (*)(void*,index_t))index_by_lat_long);
 
@@ -629,6 +629,24 @@ void SortNodeListGeographically(NodesX *nodesx)
  /* Print the final message */
 
  printf_last("Sorted Nodes Geographically: Nodes=%"Pindex_t,nodesx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Update the node ids.
+
+  int update_id Return 1 if the value is to be kept, otherwise 0.
+
+  NodeX *nodex The extended node.
+
+  index_t index The number of unsorted nodes that have been read from the input file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int update_id(NodeX *nodex,index_t index)
+{
+ nodex->id=index;
+
+ return(1);
 }
 
 
