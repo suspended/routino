@@ -22,8 +22,6 @@ fi
 
 if [ "$2" = "prune" ]; then
 
-echo "name=$name"
-
     case $name in
         prune-isolated) prune="--prune-none --prune-isolated=100";;
         prune-short)    prune="--prune-none --prune-short=5";;
