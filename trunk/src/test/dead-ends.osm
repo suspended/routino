@@ -8,7 +8,6 @@
   <node id='263' visible='true' version='1' lat='-0.2199233360272462' lon='-0.5191790778221413'>
     <tag k='name' v='WP02' />
   </node>
-  <node id='265' visible='true' version='1' lat='-0.21887734290530528' lon='-0.5193788335075634' />
   <node id='267' visible='true' version='1' lat='-0.21923442817890232' lon='-0.519554450499408' />
   <node id='269' visible='true' version='1' lat='-0.21955455458130574' lon='-0.5193510859959124'>
     <tag k='name' v='WP03' />
@@ -45,7 +44,7 @@
     <tag k='name' v='WP05' />
   </node>
   <node id='325' visible='true' version='1' lat='-0.22022296242215664' lon='-0.5210519045762619' />
-  <node id='329' visible='true' version='1' lat='-0.218492980018636' lon='-0.5157886455630277' >
+  <node id='329' visible='true' version='1' lat='-0.218492980018636' lon='-0.5157886455630277'>
     <tag k='name' v='WP11' />
   </node>
   <node id='331' visible='true' version='1' lat='-0.21934091992851262' lon='-0.5162056682348201' />
@@ -76,7 +75,6 @@
     <nd ref='261' />
     <nd ref='263' />
     <nd ref='267' />
-    <nd ref='265' />
     <nd ref='271' />
     <tag k='highway' v='residential' />
     <tag k='name' v='dead-end 1' />
