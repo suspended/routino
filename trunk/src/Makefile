@@ -28,8 +28,6 @@ WEBBINDIR=../$(webbindir)
 
 # Debugging options
 
-#CFLAGS+=-pedantic
-
 #CFLAGS+=-O0 -g
 #CFLAGS+=-pg
 #CFLAGS+=-fprofile-arcs -ftest-coverage
