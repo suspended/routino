@@ -92,11 +92,12 @@ for waypoint in $waypoints; do
 
     mv shortest* $dir/$name-$waypoint
 
-    if [ "$pruned" = "" ]; then
+    echo diff -u expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt >> $log
 
-        echo diff -u expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt >> $log
+    if ./is-fast-math; then
+        diff -U 0 expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt | 2>&1 egrep '^[-+] ' || true
+    else
         diff -u expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt >> $log
-
     fi
 
 done

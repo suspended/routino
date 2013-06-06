@@ -26,7 +26,8 @@ include ../../Makefile.conf
 
 EXE=../planetsplitter ../planetsplitter-slim \
     ../router ../router-slim \
-    ../filedumper ../filedumper-slim
+    ../filedumper ../filedumper-slim \
+    is-fast-math
 
 # Compilation targets
 
@@ -45,8 +46,10 @@ exe :
 
 ########
 
-test : exe
+test : exe is-fast-math
 	@status=true ;\
+	echo ""; \
+	./is-fast-math message; \
 	for script in $(S); do \
 	   echo "" ;\
 	   echo "Testing: $$script (non-slim, no pruning) ... " ;\
@@ -87,6 +90,14 @@ test : exe
 
 ########
 
+is-fast-math : is-fast-math.o
+	$(LD) $< -o $@ $(LDFLAGS)
+
+is-fast-math.o : is-fast-math.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+########
+
 clean:
 	rm -rf fat
 	rm -rf slim
@@ -94,14 +105,15 @@ clean:
 	rm -rf slim-pruned
 	rm -f *.log
 	rm -f *~
+	rm -f *.o
 	rm -f core
 	rm -f *.gcda *.gcno *.gcov gmon.out
 
 ########
 
 distclean: clean
-	@true
+	rm -f is-fast-math
 
 ########
 
-.PHONY:: all test install clean distclean
+.PHONY:: all exe test install clean distclean
