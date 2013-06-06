@@ -404,26 +404,37 @@ index_t FindClosestSegment(Nodes *nodes,Segments *segments,Ways *ways,double lat
 
                       /* Use law of cosines (assume flat Earth) */
 
-                      dist3a=((double)dist1*(double)dist1-(double)dist2*(double)dist2+(double)dist3*(double)dist3)/(2.0*(double)dist3);
-                      dist3b=(double)dist3-dist3a;
-
-                      if((dist1+dist2)<dist3)
+                      if(dist3==0)
+                        {
+                         distp=dist1;  /* == dist2 */
+                         dist3a=dist1; /* == dist2 */
+                         dist3b=dist2; /* == dist1 */
+                        }
+                      else if((dist1+dist2)<dist3)
                         {
                          distp=0;
+                         dist3a=dist1;
+                         dist3b=dist2;
                         }
-                      else if(dist3a>=0 && dist3b>=0)
-                         distp=sqrt((double)dist1*(double)dist1-dist3a*dist3a);
-                      else if(dist3a>0)
+                      else
                         {
-                         distp=dist2;
-                         dist3a=dist3;
-                         dist3b=0;
-                        }
-                      else /* if(dist3b>0) */
-                        {
-                         distp=dist1;
-                         dist3a=0;
-                         dist3b=dist3;
+                         dist3a=((double)dist1*(double)dist1-(double)dist2*(double)dist2+(double)dist3*(double)dist3)/(2.0*(double)dist3);
+                         dist3b=(double)dist3-dist3a;
+
+                         if(dist3a>=0 && dist3b>=0)
+                            distp=sqrt((double)dist1*(double)dist1-dist3a*dist3a);
+                         else if(dist3a>0)
+                           {
+                            distp=dist2;
+                            dist3a=dist3;
+                            dist3b=0;
+                           }
+                         else /* if(dist3b>0) */
+                           {
+                            distp=dist1;
+                            dist3a=0;
+                            dist3b=dist3;
+                           }
                         }
 
                       if(distp<(double)bestd)

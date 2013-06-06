@@ -1125,7 +1125,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
          {
           SegmentX *segmentx;
           distance_t dist=0;
-          double dist1,dist2,dist3,dist3a,dist3b,distp;
+          double dist1,dist2,dist3,distp;
           index_t c;
 
           dist3=distance(lats[lower],lons[lower],lats[current],lons[current]);
@@ -1137,17 +1137,22 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
              /* Use law of cosines (assume flat Earth) */
 
-             dist3a=(dist1*dist1-dist2*dist2+dist3*dist3)/(2.0*dist3);
-             dist3b=dist3-dist3a;
-
-             if((dist1+dist2)<dist3)
+             if(dist3==0)
+                distp=dist1; /* == dist2 */
+             else if((dist1+dist2)<dist3)
                 distp=0;
-             else if(dist3a>=0 && dist3b>=0)
-                distp=sqrt(dist1*dist1-dist3a*dist3a);
-             else if(dist3a>0)
-                distp=dist2;
-             else /* if(dist3b>0) */
-                distp=dist1;
+             else
+               {
+                double dist3a=(dist1*dist1-dist2*dist2+dist3*dist3)/(2.0*dist3);
+                double dist3b=dist3-dist3a;
+
+                if(dist3a>=0 && dist3b>=0)
+                   distp=sqrt(dist1*dist1-dist3a*dist3a);
+                else if(dist3a>0)
+                   distp=dist2;
+                else /* if(dist3b>0) */
+                   distp=dist1;
+               }
 
              if(distp>maximumf) /* gone too far */
                 break;

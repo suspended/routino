@@ -89,19 +89,19 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segmentp,
 
  /* Check if we are actually close enough to an existing node */
 
- if(dist1<km_to_distance(MINSEGMENT) && dist2>km_to_distance(MINSEGMENT))
+ if(dist1<=km_to_distance(MINSEGMENT) && dist2>km_to_distance(MINSEGMENT))
    {
     prevpoint=point;
     return(node1);
    }
 
- if(dist2<km_to_distance(MINSEGMENT) && dist1>km_to_distance(MINSEGMENT))
+ if(dist2<=km_to_distance(MINSEGMENT) && dist1>km_to_distance(MINSEGMENT))
    {
     prevpoint=point;
     return(node2);
    }
 
- if(dist1<km_to_distance(MINSEGMENT) && dist2<km_to_distance(MINSEGMENT))
+ if(dist1<=km_to_distance(MINSEGMENT) && dist2<=km_to_distance(MINSEGMENT))
    {
     prevpoint=point;
 
@@ -123,8 +123,8 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segmentp,
  else if(lat1<-3 && lat2>3)
     lat1+=2*M_PI;
 
- fake_lat[point]=lat1+(lat2-lat1)*(double)dist1/(double)(dist1+dist2);
- fake_lon[point]=lon1+(lon2-lon1)*(double)dist1/(double)(dist1+dist2);
+ fake_lat[point]=lat1+(lat2-lat1)*(double)dist1/(double)(dist1+dist2); /* (dist1+dist2) must be > 0 */
+ fake_lon[point]=lon1+(lon2-lon1)*(double)dist1/(double)(dist1+dist2); /* (dist1+dist2) must be > 0 */
 
  if(fake_lat[point]>M_PI) fake_lat[point]-=2*M_PI;
 
