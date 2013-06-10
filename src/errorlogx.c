@@ -724,7 +724,7 @@ void SortErrorLogsGeographically(ErrorLogsX *errorlogsx)
 
  /* Print the final message */
 
- printf_last("Sorted Errors Geographically: Error=%"Pindex_t,errorlogsx->number);
+ printf_last("Sorted Errors Geographically: Errors=%"Pindex_t,errorlogsx->number);
 }
 
 
