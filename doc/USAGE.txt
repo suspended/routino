@@ -123,7 +123,7 @@ planetsplitter
    --prune-isolated=<length>
           Remove the access permissions for a transport type from small
           disconnected groups of segments and remove the segments if they
-          nd up with no access permission (defaults to removing groups
+          end up with no access permission (defaults to removing groups
           under 500m).
 
    --prune-short=<length>
