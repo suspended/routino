@@ -36,12 +36,13 @@ $query=new CGI;
 # Legal CGI parameters with regexp validity check
 
 %legalparams=(
-              "latmin" => "[-0-9.]+",
-              "latmax" => "[-0-9.]+",
-              "lonmin" => "[-0-9.]+",
-              "lonmax" => "[-0-9.]+",
-              "data"   => "fixmes",
-              "dump"   => "fixme[0-9]+"
+              "latmin"     => "[-0-9.]+",
+              "latmax"     => "[-0-9.]+",
+              "lonmin"     => "[-0-9.]+",
+              "lonmax"     => "[-0-9.]+",
+              "data"       => "fixmes",
+              "dump"       => "fixme[0-9]+",
+              "statistics" => "yes"
              );
 
 # Validate the CGI parameters, ignore invalid ones
@@ -63,18 +64,29 @@ foreach my $key (@rawparams)
      }
   }
 
-# Data or dump?
+# Data, dump or statistics?
 
-$data=$cgiparams{"data"};
-$dump=$cgiparams{"dump"};
+$data      =$cgiparams{"data"};
+$dump      =$cgiparams{"dump"};
+$statistics=$cgiparams{"statistics"};
 
-if(!defined $data && !defined $dump)
+if(!defined $data && !defined $dump && !defined $statistics)
   {
    print header(-status => '500 Invalid CGI parameters');
    exit;
   }
 
-if(defined $data)
+if(defined $statistics)
+  {
+   # Print the output
+
+   print header('text/plain');
+
+   # Set the parameters
+
+   $params.=" --statistics";
+  }
+elsif(defined $data)
   {
    # Parameters to limit range selected
 
