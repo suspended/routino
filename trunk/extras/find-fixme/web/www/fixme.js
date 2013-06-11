@@ -425,6 +425,29 @@ function displayStatus(type,subtype,content)
 
 
 //
+// Display data statistics
+//
+
+function displayStatistics()
+{
+ // Use AJAX to get the statistics
+
+ OpenLayers.Request.GET({url: "fixme.cgi?statistics=yes", success: runStatisticsSuccess});
+}
+
+
+//
+// Success in running data statistics generation.
+//
+
+function runStatisticsSuccess(response)
+{
+ document.getElementById("statistics_data").innerHTML="<pre>" + response.responseText + "</pre>";
+ document.getElementById("statistics_link").style.display="none";
+}
+
+
+//
 // Get the requested data
 //
 
