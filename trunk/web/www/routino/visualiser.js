@@ -414,7 +414,32 @@ function unselectFeature(feature)
 
 function runDumpSuccess(response)
 {
- drawPopup(response.responseText.split("\n").join("<br>"));
+ var string=response.responseText;
+
+ if(mapprops.editurl != undefined && mapprops.editurl != "")
+   {
+    var types=["node", "way", "relation"];
+    var Types=["Node", "Way", "Relation"];
+
+    for(var t in types)
+      {
+       var Type=Types[t];
+       var type=types[t];
+
+       var regexp=RegExp(Type + " [0-9]+");
+
+       while((match=string.match(regexp)) != null)
+         {
+          match=String(match);
+
+          var id=match.slice(1+type.length,match.length);
+
+          string=string.replace(regexp,Type + " <a href='" + mapprops.browseurl + "/" + type + "/" + id + "' target='" + type + id + "'>" + id + "</a>");
+         }
+      }
+   }
+
+ drawPopup(string.split("\n").join("<br>"));
 }
 
 

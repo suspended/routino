@@ -386,7 +386,32 @@ function unselectFeature(feature)
 
 function runDumpSuccess(response)
 {
- drawPopup(response.responseText.split("&gt;&lt;").join("&gt;<br>&lt;").split("<br>&lt;tag").join("<br>&nbsp;&nbsp;&lt;tag"));
+ var string=response.responseText;
+
+ if(mapprops.editurl != undefined && mapprops.editurl != "")
+   {
+    var types=["node", "way", "relation"];
+
+    for(var t in types)
+      {
+       var type=types[t];
+
+       var regexp=RegExp(type + " id=&apos;[0-9]+&apos;");
+
+       var match=string.match(regexp);
+
+       if(match != null)
+         {
+          match=String(match);
+
+          var id=match.slice(10+type.length,match.length-6);
+
+          string=string.replace(regexp,type + " id=&apos;<a href='" + mapprops.browseurl + "/" + type + "/" + id + "' target='" + type + id + "'>" + id + "</a>&apos;");
+         }
+      }
+   }
+
+ drawPopup(string.split("&gt;&lt;").join("&gt;<br>&lt;").split("<br>&lt;tag").join("<br>&nbsp;&nbsp;&lt;tag"));
 }
 
 
