@@ -63,11 +63,17 @@ var mapprops={ // contains all properties for the map to be displayed.
  // EDIT THIS above to change the map source data editing URL (or leave blank for no link)
 
 
- // EDIT THIS below to change the maximum number of markers
+ // EDIT THIS below to change the map source data browsing URL (or leave blank for no link)
 
- // The number of waypoints to include in the HTML
+    browseurl: "http://www.openstreetmap.org/browse",
+
+ // EDIT THIS above to change the map source data browsing URL (or leave blank for no link)
+
+
+ // EDIT THIS below to change the maximum number of markers to include in the HTML
+
     maxmarkers: 9
 
- // EDIT THIS above to change the maximum number of markers
+ // EDIT THIS above to change the maximum number of markers to include in the HTML
 
 }; // end of map properties
