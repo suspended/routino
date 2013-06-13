@@ -34,7 +34,9 @@
 /*+ A structure containing a single object as written by the logerror_*() functions. +*/
 typedef struct _ErrorLogObject
 {
- uint64_t  type_id;          /*+ The type and id of the object. +*/
+ char      type;             /*+ The type of the object. +*/
+
+ uint64_t  id;               /*+ The id of the object. +*/
 
  uint32_t  offset;           /*+ The offset of the error message from the beginning of the text file. +*/
 }

@@ -154,8 +154,8 @@ node_t logerror_node(node_t id)
    {
     ErrorLogObject error;
 
-    error.type_id=id;
-    error.type_id|=((uint64_t)'N')<<56;
+    error.id=id;
+    error.type='N';
 
     error.offset=errorfileoffset;
 
@@ -180,8 +180,8 @@ way_t logerror_way(way_t id)
    {
     ErrorLogObject error;
 
-    error.type_id=id;
-    error.type_id|=((uint64_t)'W')<<56;
+    error.id=id;
+    error.type='W';
 
     error.offset=errorfileoffset;
 
@@ -206,8 +206,8 @@ relation_t logerror_relation(relation_t id)
    {
     ErrorLogObject error;
 
-    error.type_id=id;
-    error.type_id|=((uint64_t)'R')<<56;
+    error.id=id;
+    error.type='R';
 
     error.offset=errorfileoffset;
 
