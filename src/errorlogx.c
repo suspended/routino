@@ -174,21 +174,21 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
 
        if(nerrorlogobjects==1)
          {
-          if(((errorlogobjects[0].type_id>>56)&0xff)=='N')
+          if(errorlogobjects[0].type=='N')
             {
-             node_t node=(node_t)(errorlogobjects[0].type_id&(uint64_t)0x00ffffffffffffff);
+             node_t node=(node_t)errorlogobjects[0].id;
 
              lookup_lat_long_node(nodesx,node,&errorlat,&errorlon);
             }
-          else if(((errorlogobjects[0].type_id>>56)&0xff)=='W')
+          else if(errorlogobjects[0].type=='W')
             {
-             way_t way=(way_t)(errorlogobjects[0].type_id&(uint64_t)0x00ffffffffffffff);
+             way_t way=(way_t)errorlogobjects[0].id;
 
              lookup_lat_long_way(waysx,nodesx,way,&errorlat,&errorlon,errorlogsx->number);
             }
-          else if(((errorlogobjects[0].type_id>>56)&0xff)=='R')
+          else if(errorlogobjects[0].type=='R')
             {
-             relation_t relation=(relation_t)(errorlogobjects[0].type_id&(uint64_t)0x00ffffffffffffff);
+             relation_t relation=(relation_t)errorlogobjects[0].type;
 
              lookup_lat_long_relation(relationsx,waysx,nodesx,relation,&errorlat,&errorlon,errorlogsx->number);
             }
@@ -201,17 +201,19 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
 
           for(i=0;i<nerrorlogobjects;i++)
             {
-             if(((errorlogobjects[i].type_id>>56)&0xff)=='N')
+             if(errorlogobjects[i].type=='N')
                {
-                node_t node=(node_t)(errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
+                node_t node=(node_t)errorlogobjects[i].id;
 
                 if(lookup_lat_long_node(nodesx,node,&latitude[ncoords],&longitude[ncoords]))
                    ncoords++;
 
                 nnodes++;
                }
-             else if(((errorlogobjects[i].type_id>>56)&0xff)=='W') nways++;
-             else if(((errorlogobjects[i].type_id>>56)&0xff)=='R') nrelations++;
+             else if(errorlogobjects[i].type=='W')
+                nways++;
+             else if(errorlogobjects[i].type=='R')
+                nrelations++;
             }
 
           if(nways==0 && nrelations==0) /* only nodes */
@@ -221,9 +223,9 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
           else if(nways)        /* no good nodes, possibly some good ways */
             {
              for(i=0;i<nerrorlogobjects;i++)
-                if(((errorlogobjects[i].type_id>>56)&0xff)=='W')
+                if(errorlogobjects[i].type=='W')
                   {
-                   way_t way=(way_t)(errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
+                   way_t way=(way_t)errorlogobjects[i].id;
 
                    if(lookup_lat_long_way(waysx,nodesx,way,&latitude[ncoords],&longitude[ncoords],errorlogsx->number))
                       ncoords++;
@@ -237,9 +239,9 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
           else /* if(nrelations) */
             {
              for(i=0;i<nerrorlogobjects;i++)
-                if(((errorlogobjects[i].type_id>>56)&0xff)=='R')
+                if(errorlogobjects[i].type=='R')
                   {
-                   relation_t relation=(relation_t)(errorlogobjects[i].type_id&(uint64_t)0x00ffffffffffffff);
+                   relation_t relation=(relation_t)errorlogobjects[i].id;
 
                    if(lookup_lat_long_relation(relationsx,waysx,nodesx,relation,&latitude[ncoords],&longitude[ncoords],errorlogsx->number))
                       ncoords++;
