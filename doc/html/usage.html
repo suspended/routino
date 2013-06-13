@@ -120,7 +120,8 @@ Usage: planetsplitter [--help]
   <dd>Log OSM parsing and processing errors to 'error.log' or the specified file
     name (the '--dir' and '--prefix' options are applied).  If the --append
     option is used then the existing log file will be appended, otherwise a new
-    one will be created.
+    one will be created.  If the --keep option is also used a geographically
+    searchable database of error logs is created for use in the visualiser.
   <dt>--parse-only
   <dd>Parse the input files and store the data in intermediate files but don't
     process the data into a routing database.  This option must be used with the
@@ -163,20 +164,6 @@ Usage: planetsplitter [--help]
     uncompressed (if bzip2 support compiled in).  Filenames ending '.gz' will be
     gzip uncompressed (if gzip support compiled in).
 </dl>
-
-<p>
-<i>Note: In version 1.4 of Routino the --transport, --not-highway and
---not-property options have been removed.  The same functionality can be
-achieved by editing the tagging rules file to not output unwanted data.</i>
-
-<p>
-<i>Note: In version 1.5 of Routino the --slim option has been removed but at
-compilation time a separate program called <em>planetsplitter-slim</em> is
-created that operates in slim mode.  In slim mode the temporary files and
-database files are read as needed rather than being mapped into memory.  This
-allows a database size greater than 2 GB on 32-bit machines or usage with little
-or no virtual memory (e.g. some virtual machines).  The penalty for this is that
-the program takes about twice as long to run.</i>
 
 <p>
 <i>Note: In version 2.5 of Routino the ability to read data from the standard
@@ -416,12 +403,6 @@ Usage: router [--help | --help-profile | --help-profile-xml |
 </dl>
 
 <p>
-<i>Note: In version 1.5 of Routino a slim option has been added and at
-compilation time a separate program called <em>router-slim</em> is created that
-operates in slim mode.  In slim mode the database files are read as needed
-rather than being mapped into memory.</i>
-
-<p>
 The meaning of the &lt;preference&gt; parameter in the command line options is
 slightly different for the highway preferences and the property preferences.
 For the highway preference consider the choice between two possible highways
@@ -566,12 +547,6 @@ Usage: filedumper [--help]
         when the data was parsed.
     </dl>
 </dl>
-
-<p>
-<i>Note: In version 1.5 of Routino a slim option has been added and at
-compilation time a separate program called <em>filedumper-slim</em> is created
-that operates in slim mode.  In slim mode the database files are read as needed
-rather than being mapped into memory.</i>
 
 
 <h3><a name="H_1_1_4"></a>filedumperx</h3>
