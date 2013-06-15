@@ -27,13 +27,15 @@
 
       <!-- Not useful barrier types (too generic) -->
 
-      <if k="barrier" v="gate"     > <unset/> </if>
-      <if k="barrier" v="lift_gate"> <unset/> </if>
+      <if k="barrier" v="gate"      > <unset/> </if>
+      <if k="barrier" v="lift_gate" > <unset/> </if>
+      <if k="barrier" v="block"     > <unset/> </if>
 
       <!-- Not useful barrier types (generic entrances through barrier ways) -->
 
       <if k="barrier" v="entrance"  > <unset/> </if>
       <if k="barrier" v="sally_port"> <unset/> </if>
+      <if k="barrier" v="toll_booth"> <unset/> </if>
 
       <!-- Barrier types -->
 
@@ -126,7 +128,7 @@
         <unset k="barrier"/>
       </if>
 
-      <if k="barrier" v="motorcyle_barrier">
+      <if k="barrier" v="motorcycle_barrier">
         <set v="no_motorised"/>
       </if>
 
