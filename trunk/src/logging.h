@@ -51,6 +51,10 @@ extern int option_logtime;
 
 /* Runtime progress logging functions in logging.c */
 
+void printf_program_start(void);
+void printf_program_end(void);
+
+
 #ifdef __GNUC__
 
 void printf_first(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
