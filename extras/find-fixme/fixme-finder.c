@@ -67,7 +67,6 @@ static void print_usage(int detail,const char *argerr,const char *err);
 
 int main(int argc,char** argv)
 {
- struct timeval start_time;
  NodesX     *OSMNodes;
  WaysX      *OSMWays;
  RelationsX *OSMRelations;
@@ -77,7 +76,7 @@ int main(int argc,char** argv)
  int         option_filenames=0;
  int         arg;
 
- gettimeofday(&start_time,NULL);
+ printf_program_start();
 
  /* Parse the command line arguments */
 
@@ -263,15 +262,7 @@ int main(int argc,char** argv)
  FreeWayList(OSMWays,0);
  FreeRelationList(OSMRelations,0);
 
- /* Print the total time */
-
- if(option_logtime)
-   {
-    printf("\n");
-    fprintf_elapsed_time(stdout,&start_time);
-    printf("Complete\n");
-    fflush(stdout);
-   }
+ printf_program_end();
 
  return(0);
 }

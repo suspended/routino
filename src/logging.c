@@ -48,11 +48,41 @@ static void vfprintf_last(FILE *file,const char *format,va_list ap);
 
 /* Local variables */
 
-/*+ The time that printf_first was called. +*/
-static struct timeval start_time;
+/*+ The time that program_start() was called. +*/
+static struct timeval program_start_time;
+
+/*+ The time that printf_first() was called. +*/
+static struct timeval function_start_time;
 
 /*+ The length of the string printed out last time. +*/
 static int printed_length=0;
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Record the time that the program started.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void printf_program_start(void)
+{
+ if(option_logtime)
+    gettimeofday(&program_start_time,NULL);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Record the time that the program started.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void printf_program_end(void)
+{
+ if(option_logtime)
+   {
+    printf("\n");
+    fprintf_elapsed_time(stdout,&program_start_time);
+    printf("Complete\n");
+    fflush(stdout);
+   }
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -68,7 +98,7 @@ void printf_first(const char *format, ...)
  va_list ap;
 
  if(option_logtime)
-    gettimeofday(&start_time,NULL);
+    gettimeofday(&function_start_time,NULL);
 
  if(option_loggable)
     return;
@@ -139,7 +169,7 @@ void fprintf_first(FILE *file,const char *format, ...)
  va_list ap;
 
  if(option_logtime)
-    gettimeofday(&start_time,NULL);
+    gettimeofday(&function_start_time,NULL);
 
  if(option_loggable)
     return;
@@ -214,7 +244,7 @@ static void vfprintf_first(FILE *file,const char *format,va_list ap)
  int retval;
 
  if(option_logtime)
-    fprintf_elapsed_time(file,&start_time);
+    fprintf_elapsed_time(file,&function_start_time);
 
  retval=vfprintf(file,format,ap);
  fflush(file);
@@ -241,7 +271,7 @@ static void vfprintf_middle(FILE *file,const char *format,va_list ap)
  fputc('\r',file);
 
  if(option_logtime)
-    fprintf_elapsed_time(file,&start_time);
+    fprintf_elapsed_time(file,&function_start_time);
 
  retval=vfprintf(file,format,ap);
  fflush(file);
@@ -276,7 +306,7 @@ static void vfprintf_last(FILE *file,const char *format,va_list ap)
     fputc('\r',file);
 
  if(option_logtime)
-    fprintf_elapsed_time(file,&start_time);
+    fprintf_elapsed_time(file,&function_start_time);
 
  retval=vfprintf(file,format,ap);
 

@@ -70,7 +70,6 @@ static void print_usage(int detail,const char *argerr,const char *err);
 
 int main(int argc,char** argv)
 {
- struct timeval start_time;
  NodesX     *OSMNodes;
  SegmentsX  *OSMSegments,*SuperSegments=NULL,*MergedSegments=NULL;
  WaysX      *OSMWays;
@@ -84,7 +83,7 @@ int main(int argc,char** argv)
  int         option_prune_isolated=500,option_prune_short=5,option_prune_straight=3;
  int         arg;
 
- gettimeofday(&start_time,NULL);
+ printf_program_start();
 
  /* Parse the command line arguments */
 
@@ -545,15 +544,7 @@ if(!option_process_only)
 
  FreeSegmentList(OSMSegments);
 
- /* Print the total time */
-
- if(option_logtime)
-   {
-    printf("\n");
-    fprintf_elapsed_time(stdout,&start_time);
-    printf("Complete\n");
-    fflush(stdout);
-   }
+ printf_program_end();
 
  return(0);
 }
