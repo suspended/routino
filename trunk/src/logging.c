@@ -64,8 +64,7 @@ static int printed_length=0;
 
 void printf_program_start(void)
 {
- if(option_logtime)
-    gettimeofday(&program_start_time,NULL);
+ gettimeofday(&program_start_time,NULL);
 }
 
 

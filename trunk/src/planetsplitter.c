@@ -25,7 +25,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/time.h>
 
 #include "types.h"
 #include "ways.h"
