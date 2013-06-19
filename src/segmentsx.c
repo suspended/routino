@@ -81,7 +81,7 @@ SegmentsX *NewSegmentList(void)
 
  sprintf(segmentsx->filename_tmp,"%s/segmentsx.%p.tmp",option_tmpdirname,(void*)segmentsx);
 
- segmentsx->fd=OpenFileNew(segmentsx->filename_tmp);
+ segmentsx->fd=OpenFileBufferedNew(segmentsx->filename_tmp);
 
 #if SLIM
  segmentsx->cache=NewSegmentXCache();
@@ -153,7 +153,7 @@ void AppendSegmentList(SegmentsX *segmentsx,index_t way,index_t node1,index_t no
  segmentx.way=way;
  segmentx.distance=distance;
 
- WriteFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
+ WriteFileBuffered(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
  segmentsx->number++;
 
@@ -170,7 +170,7 @@ void AppendSegmentList(SegmentsX *segmentsx,index_t way,index_t node1,index_t no
 void FinishSegmentList(SegmentsX *segmentsx)
 {
  if(segmentsx->fd!=-1)
-    segmentsx->fd=CloseFile(segmentsx->fd);
+    segmentsx->fd=CloseFileBuffered(segmentsx->fd);
 }
 
 

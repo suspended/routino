@@ -114,9 +114,9 @@ RelationsX *NewRelationList(int append,int readonly)
       }
 
  if(append)
-    relationsx->rrfd=OpenFileAppend(relationsx->rrfilename_tmp);
+    relationsx->rrfd=OpenFileBufferedAppend(relationsx->rrfilename_tmp);
  else if(!readonly)
-    relationsx->rrfd=OpenFileNew(relationsx->rrfilename_tmp);
+    relationsx->rrfd=OpenFileBufferedNew(relationsx->rrfilename_tmp);
  else
     relationsx->rrfd=-1;
 
@@ -142,9 +142,9 @@ RelationsX *NewRelationList(int append,int readonly)
       }
 
  if(append)
-    relationsx->trfd=OpenFileAppend(relationsx->trfilename_tmp);
+    relationsx->trfd=OpenFileBufferedAppend(relationsx->trfilename_tmp);
  else if(!readonly)
-    relationsx->trfd=OpenFileNew(relationsx->trfilename_tmp);
+    relationsx->trfd=OpenFileBufferedNew(relationsx->trfilename_tmp);
  else
     relationsx->trfd=-1;
 
@@ -236,17 +236,17 @@ void AppendRouteRelationList(RelationsX* relationsx,relation_t id,
 
  size=sizeof(RouteRelX)+(nnodes+1)*sizeof(node_t)+(nways+1)*sizeof(way_t)+(nrelations+1)*sizeof(relation_t);
 
- WriteFile(relationsx->rrfd,&size,FILESORT_VARSIZE);
- WriteFile(relationsx->rrfd,&relationx,sizeof(RouteRelX));
+ WriteFileBuffered(relationsx->rrfd,&size,FILESORT_VARSIZE);
+ WriteFileBuffered(relationsx->rrfd,&relationx,sizeof(RouteRelX));
 
- WriteFile(relationsx->rrfd,nodes  ,nnodes*sizeof(node_t));
- WriteFile(relationsx->rrfd,&nonode,       sizeof(node_t));
+ WriteFileBuffered(relationsx->rrfd,nodes  ,nnodes*sizeof(node_t));
+ WriteFileBuffered(relationsx->rrfd,&nonode,       sizeof(node_t));
 
- WriteFile(relationsx->rrfd,ways  ,nways*sizeof(way_t));
- WriteFile(relationsx->rrfd,&noway,      sizeof(way_t));
+ WriteFileBuffered(relationsx->rrfd,ways  ,nways*sizeof(way_t));
+ WriteFileBuffered(relationsx->rrfd,&noway,      sizeof(way_t));
 
- WriteFile(relationsx->rrfd,relations  ,nrelations*sizeof(relation_t));
- WriteFile(relationsx->rrfd,&norelation,           sizeof(relation_t));
+ WriteFileBuffered(relationsx->rrfd,relations  ,nrelations*sizeof(relation_t));
+ WriteFileBuffered(relationsx->rrfd,&norelation,           sizeof(relation_t));
 
  relationsx->rrnumber++;
 
@@ -285,7 +285,7 @@ void AppendTurnRelationList(RelationsX* relationsx,relation_t id,
  relationx.restriction=restriction;
  relationx.except=except;
 
- WriteFile(relationsx->trfd,&relationx,sizeof(TurnRelX));
+ WriteFileBuffered(relationsx->trfd,&relationx,sizeof(TurnRelX));
 
  relationsx->trnumber++;
 
@@ -302,10 +302,10 @@ void AppendTurnRelationList(RelationsX* relationsx,relation_t id,
 void FinishRelationList(RelationsX *relationsx)
 {
  if(relationsx->rrfd!=-1)
-    relationsx->rrfd =CloseFile(relationsx->rrfd);
+    relationsx->rrfd =CloseFileBuffered(relationsx->rrfd);
 
  if(relationsx->trfd!=-1)
-    relationsx->trfd=CloseFile(relationsx->trfd);
+    relationsx->trfd=CloseFileBuffered(relationsx->trfd);
 }
 
 
