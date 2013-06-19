@@ -94,9 +94,9 @@ NodesX *NewNodeList(int append,int readonly)
       }
 
  if(append)
-    nodesx->fd=OpenFileAppend(nodesx->filename_tmp);
+    nodesx->fd=OpenFileBufferedAppend(nodesx->filename_tmp);
  else if(!readonly)
-    nodesx->fd=OpenFileNew(nodesx->filename_tmp);
+    nodesx->fd=OpenFileBufferedNew(nodesx->filename_tmp);
  else
     nodesx->fd=-1;
 
@@ -172,7 +172,7 @@ void AppendNodeList(NodesX *nodesx,node_t id,double latitude,double longitude,tr
  nodex.allow=allow;
  nodex.flags=flags;
 
- WriteFile(nodesx->fd,&nodex,sizeof(NodeX));
+ WriteFileBuffered(nodesx->fd,&nodex,sizeof(NodeX));
 
  nodesx->number++;
 
@@ -189,7 +189,7 @@ void AppendNodeList(NodesX *nodesx,node_t id,double latitude,double longitude,tr
 void FinishNodeList(NodesX *nodesx)
 {
  if(nodesx->fd!=-1)
-    nodesx->fd=CloseFile(nodesx->fd);
+    nodesx->fd=CloseFileBuffered(nodesx->fd);
 }
 
 

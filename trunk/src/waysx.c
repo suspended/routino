@@ -110,9 +110,9 @@ WaysX *NewWayList(int append,int readonly)
       }
 
  if(append)
-    waysx->fd=OpenFileAppend(waysx->filename_tmp);
+    waysx->fd=OpenFileBufferedAppend(waysx->filename_tmp);
  else if(!readonly)
-    waysx->fd=OpenFileNew(waysx->filename_tmp);
+    waysx->fd=OpenFileBufferedNew(waysx->filename_tmp);
  else
     waysx->fd=-1;
 
@@ -195,13 +195,13 @@ void AppendWayList(WaysX *waysx,way_t id,Way *way,node_t *nodes,int nnodes,const
 
  size=sizeof(WayX)+(nnodes+1)*sizeof(node_t)+strlen(name)+1;
 
- WriteFile(waysx->fd,&size,FILESORT_VARSIZE);
- WriteFile(waysx->fd,&wayx,sizeof(WayX));
+ WriteFileBuffered(waysx->fd,&size,FILESORT_VARSIZE);
+ WriteFileBuffered(waysx->fd,&wayx,sizeof(WayX));
 
- WriteFile(waysx->fd,nodes  ,nnodes*sizeof(node_t));
- WriteFile(waysx->fd,&nonode,       sizeof(node_t));
+ WriteFileBuffered(waysx->fd,nodes  ,nnodes*sizeof(node_t));
+ WriteFileBuffered(waysx->fd,&nonode,       sizeof(node_t));
 
- WriteFile(waysx->fd,name,strlen(name)+1);
+ WriteFileBuffered(waysx->fd,name,strlen(name)+1);
 
  waysx->number++;
 
@@ -218,7 +218,7 @@ void AppendWayList(WaysX *waysx,way_t id,Way *way,node_t *nodes,int nnodes,const
 void FinishWayList(WaysX *waysx)
 {
  if(waysx->fd!=-1)
-    waysx->fd=CloseFile(waysx->fd);
+    waysx->fd=CloseFileBuffered(waysx->fd);
 }
 
 
