@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -47,6 +47,28 @@ static struct mmapinfo *mappedfiles;
 
 /*+ The number of mapped files. +*/
 static int nmappedfiles=0;
+
+
+#define BUFFLEN 1024
+
+/*+ A structure to contain the list of file buffers. +*/
+struct filebuffer
+{
+ int    fd;                     /*+ The file descriptor used when it was opened. +*/
+ char   buffer[BUFFLEN];        /*+ The data buffer. +*/
+ size_t pointer;                /*+ The read/write pointer for the file buffer. +*/
+ size_t length;                 /*+ The read pointer for the file buffer. +*/
+ int    reading;                /*+ A flag to indicate if the file is for reading. +*/
+};
+
+/*+ The list of file buffers. +*/
+static struct filebuffer **filebuffers=NULL;
+
+/*+ The number of allocated file buffer pointers. +*/
+static int nfilebuffers=0;
+
+
+static void CreateFileBuffer(int fd,int reading);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -233,6 +255,26 @@ int OpenFileNew(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Open a new file on disk for writing (with buffering).
+
+  int OpenFileBufferedNew Returns the file descriptor if OK or exits in case of an error.
+
+  const char *filename The name of the file to create.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int OpenFileBufferedNew(const char *filename)
+{
+ int fd;
+
+ fd=OpenFileNew(filename);
+
+ CreateFileBuffer(fd,0);
+
+ return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Open a new or existing file on disk for reading and appending.
 
   int OpenFileAppend Returns the file descriptor if OK or exits in case of an error.
@@ -253,6 +295,26 @@ int OpenFileAppend(const char *filename)
     fprintf(stderr,"Cannot open file '%s' for appending [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
+
+ return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open a new or existing file on disk for reading and appending (with buffering).
+
+  int OpenFileBufferedAppend Returns the file descriptor if OK or exits in case of an error.
+
+  const char *filename The name of the file to create or open.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int OpenFileBufferedAppend(const char *filename)
+{
+ int fd;
+
+ fd=OpenFileAppend(filename);
+
+ CreateFileBuffer(fd,0);
 
  return(fd);
 }
@@ -311,6 +373,126 @@ int ReOpenFileWriteable(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Write data to a file descriptor (via a buffer).
+
+  int WriteFileBuffered Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor to write to.
+
+  const void *address The address of the data to be written.
+
+  size_t length The length of data to write.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int WriteFileBuffered(int fd,const void *address,size_t length)
+{
+ logassert(fd!=-1,"File descriptor is in error - report a bug");
+
+ logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
+
+ logassert(!filebuffers[fd]->reading,"File descriptor was not opened for writing - report a bug");
+
+ /* Write the data */
+
+ if((filebuffers[fd]->pointer+length)>BUFFLEN)
+   {
+    if(write(fd,filebuffers[fd]->buffer,filebuffers[fd]->pointer)!=(ssize_t)filebuffers[fd]->pointer)
+       return(-1);
+
+    filebuffers[fd]->pointer=0;
+   }
+
+ while(length>BUFFLEN)
+   {
+    if(write(fd,address,BUFFLEN)!=(ssize_t)BUFFLEN)
+       return(-1);
+
+    address+=BUFFLEN;
+    length-=BUFFLEN;
+   }
+
+ if(length>0)
+   {
+    memcpy(filebuffers[fd]->buffer+filebuffers[fd]->pointer,address,length);
+
+    filebuffers[fd]->pointer+=length;
+   }
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Read data from a file descriptor (via a buffer).
+
+  int ReadFileBuffered Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor to read from.
+
+  void *address The address the data is to be read into.
+
+  size_t length The length of data to read.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ReadFileBuffered(int fd,void *address,size_t length)
+{
+ logassert(fd!=-1,"File descriptor is in error - report a bug");
+
+ logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
+
+ logassert(filebuffers[fd]->reading,"File descriptor was not opened for reading - report a bug");
+
+ /* Read the data */
+
+ if(length>BUFFLEN)
+   {
+    if(filebuffers[fd]->pointer<filebuffers[fd]->length)
+      {
+       memcpy(address,filebuffers[fd]->buffer+filebuffers[fd]->pointer,filebuffers[fd]->length-filebuffers[fd]->pointer);
+
+       address+=filebuffers[fd]->length-filebuffers[fd]->pointer;
+       length-=filebuffers[fd]->length-filebuffers[fd]->pointer;
+
+       filebuffers[fd]->pointer=0;
+       filebuffers[fd]->length=0;
+      }
+
+    while(length>BUFFLEN)
+      {
+       if(read(fd,address,BUFFLEN)!=(ssize_t)BUFFLEN)
+          return(-1);
+
+       address+=BUFFLEN;
+       length-=BUFFLEN;
+      }
+
+    if(length==0)
+       return(0);
+   }
+
+ if((filebuffers[fd]->pointer+length)>filebuffers[fd]->length)
+   {
+    if(filebuffers[fd]->pointer<filebuffers[fd]->length)
+       memcpy(filebuffers[fd]->buffer,filebuffers[fd]->buffer+filebuffers[fd]->pointer,filebuffers[fd]->length-filebuffers[fd]->pointer);
+
+    filebuffers[fd]->pointer=0;
+    filebuffers[fd]->length=filebuffers[fd]->length-filebuffers[fd]->pointer;
+
+    filebuffers[fd]->length+=read(fd,filebuffers[fd]->buffer+filebuffers[fd]->length,BUFFLEN-filebuffers[fd]->length);
+   }
+
+ if(filebuffers[fd]->length==0)
+    return(-1);
+
+ memcpy(address,filebuffers[fd]->buffer+filebuffers[fd]->pointer,length);
+
+ filebuffers[fd]->pointer+=length;
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Get the size of a file.
 
   off_t SizeFile Returns the file size if OK or exits in case of an error.
@@ -361,7 +543,34 @@ int ExistsFile(const char *filename)
 
 int CloseFile(int fd)
 {
+ logassert(fd>nfilebuffers || !filebuffers[fd],"File descriptor has a buffer - report a bug");
+
  close(fd);
+
+ return(-1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Close a file on disk (and flush the buffer).
+
+  int CloseFileBuffered returns -1 (for similarity to the *OpenFile* functions).
+
+  int fd The file descriptor to close.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int CloseFileBuffered(int fd)
+{
+ logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
+
+ if(!filebuffers[fd]->reading)
+    write(fd,filebuffers[fd]->buffer,filebuffers[fd]->pointer);
+
+ close(fd);
+
+ free(filebuffers[fd]);
+
+ filebuffers[fd]=NULL;
 
  return(-1);
 }
@@ -398,4 +607,32 @@ int RenameFile(const char *oldfilename,const char *newfilename)
  rename(oldfilename,newfilename);
 
  return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Create a file buffer.
+
+  int fd The file descriptor.
+
+  int reading A flag set if the file descriptor is to be used for reading.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void CreateFileBuffer(int fd,int reading)
+{
+ if(nfilebuffers<=fd)
+   {
+    int i;
+
+    filebuffers=(struct filebuffer**)realloc((void*)filebuffers,(fd+1)*sizeof(struct filebuffer*));
+
+    for(i=nfilebuffers;i<=fd;i++)
+       filebuffers[i]=NULL;
+
+    nfilebuffers=fd+1;
+   }
+
+ filebuffers[fd]=(struct filebuffer*)calloc(sizeof(struct filebuffer),1);
+
+ filebuffers[fd]->reading=reading;
 }

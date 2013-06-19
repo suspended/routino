@@ -47,10 +47,17 @@ void *UnmapFile(const void *address);
 int OpenFileNew(const char *filename);
 int OpenFileAppend(const char *filename);
 
+int OpenFileBufferedNew(const char *filename);
+int OpenFileBufferedAppend(const char *filename);
+
 int ReOpenFile(const char *filename);
 int ReOpenFileWriteable(const char *filename);
 
+int WriteFileBuffered(int fd,const void *address,size_t length);
+int ReadFileBuffered(int fd,void *address,size_t length);
+
 int CloseFile(int fd);
+int CloseFileBuffered(int fd);
 
 off_t SizeFile(const char *filename);
 int ExistsFile(const char *filename);
@@ -61,13 +68,13 @@ int RenameFile(const char *oldfilename,const char *newfilename);
 
 /* Functions in files.h */
 
-static int WriteFile(int fd,const void *address,size_t length);
-static int ReadFile(int fd,void *address,size_t length);
+static inline int WriteFile(int fd,const void *address,size_t length);
+static inline int ReadFile(int fd,void *address,size_t length);
 
-static int SeekWriteFile(int fd,const void *address,size_t length,off_t position);
-static int SeekReadFile(int fd,void *address,size_t length,off_t position);
+static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t position);
+static inline int SeekReadFile(int fd,void *address,size_t length,off_t position);
 
-static int SeekFile(int fd,off_t position);
+static inline int SeekFile(int fd,off_t position);
 
 
 /* Inline the frequently called functions */
