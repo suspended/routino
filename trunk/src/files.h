@@ -41,12 +41,25 @@ char *FileName(const char *dirname,const char *prefix, const char *name);
 
 void *MapFile(const char *filename);
 void *MapFileWriteable(const char *filename);
+
 void *UnmapFile(const void *address);
 
 int OpenFileNew(const char *filename);
 int OpenFileAppend(const char *filename);
+
 int ReOpenFile(const char *filename);
 int ReOpenFileWriteable(const char *filename);
+
+int CloseFile(int fd);
+
+off_t SizeFile(const char *filename);
+int ExistsFile(const char *filename);
+
+int DeleteFile(const char *filename);
+
+int RenameFile(const char *oldfilename,const char *newfilename);
+
+/* Functions in files.h */
 
 static int WriteFile(int fd,const void *address,size_t length);
 static int ReadFile(int fd,void *address,size_t length);
@@ -54,16 +67,7 @@ static int ReadFile(int fd,void *address,size_t length);
 static int SeekWriteFile(int fd,const void *address,size_t length,off_t position);
 static int SeekReadFile(int fd,void *address,size_t length,off_t position);
 
-off_t SizeFile(const char *filename);
-int ExistsFile(const char *filename);
-
 static int SeekFile(int fd,off_t position);
-
-int CloseFile(int fd);
-
-int DeleteFile(const char *filename);
-
-int RenameFile(const char *oldfilename,const char *newfilename);
 
 
 /* Inline the frequently called functions */
