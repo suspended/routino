@@ -402,21 +402,17 @@ int WriteFileBuffered(int fd,const void *address,size_t length)
     filebuffers[fd]->pointer=0;
    }
 
- while(length>BUFFLEN)
+ if(length>=BUFFLEN)
    {
-    if(write(fd,address,BUFFLEN)!=(ssize_t)BUFFLEN)
+    if(write(fd,address,length)!=(ssize_t)length)
        return(-1);
 
-    address+=BUFFLEN;
-    length-=BUFFLEN;
+    return(0);
    }
 
- if(length>0)
-   {
-    memcpy(filebuffers[fd]->buffer+filebuffers[fd]->pointer,address,length);
+ memcpy(filebuffers[fd]->buffer+filebuffers[fd]->pointer,address,length);
 
-    filebuffers[fd]->pointer+=length;
-   }
+ filebuffers[fd]->pointer+=length;
 
  return(0);
 }
@@ -444,8 +440,7 @@ int ReadFileBuffered(int fd,void *address,size_t length)
 
  /* Read the data */
 
- if(length>BUFFLEN)
-   {
+ if((filebuffers[fd]->pointer+length)>filebuffers[fd]->length)
     if(filebuffers[fd]->pointer<filebuffers[fd]->length)
       {
        memcpy(address,filebuffers[fd]->buffer+filebuffers[fd]->pointer,filebuffers[fd]->length-filebuffers[fd]->pointer);
@@ -457,28 +452,18 @@ int ReadFileBuffered(int fd,void *address,size_t length)
        filebuffers[fd]->length=0;
       }
 
-    while(length>BUFFLEN)
-      {
-       if(read(fd,address,BUFFLEN)!=(ssize_t)BUFFLEN)
-          return(-1);
+ if(length>=BUFFLEN)
+   {
+    if(read(fd,address,length)!=(ssize_t)length)
+       return(-1);
 
-       address+=BUFFLEN;
-       length-=BUFFLEN;
-      }
-
-    if(length==0)
-       return(0);
+    return(0);
    }
 
- if((filebuffers[fd]->pointer+length)>filebuffers[fd]->length)
+ if(filebuffers[fd]->pointer==filebuffers[fd]->length)
    {
-    if(filebuffers[fd]->pointer<filebuffers[fd]->length)
-       memcpy(filebuffers[fd]->buffer,filebuffers[fd]->buffer+filebuffers[fd]->pointer,filebuffers[fd]->length-filebuffers[fd]->pointer);
-
+    filebuffers[fd]->length=read(fd,filebuffers[fd]->buffer,BUFFLEN);
     filebuffers[fd]->pointer=0;
-    filebuffers[fd]->length=filebuffers[fd]->length-filebuffers[fd]->pointer;
-
-    filebuffers[fd]->length+=read(fd,filebuffers[fd]->buffer+filebuffers[fd]->length,BUFFLEN-filebuffers[fd]->length);
    }
 
  if(filebuffers[fd]->length==0)
@@ -543,7 +528,7 @@ int ExistsFile(const char *filename)
 
 int CloseFile(int fd)
 {
- logassert(fd>nfilebuffers || !filebuffers[fd],"File descriptor has a buffer - report a bug");
+ logassert(fd>=nfilebuffers || !filebuffers[fd],"File descriptor has a buffer - report a bug");
 
  close(fd);
 
@@ -554,7 +539,7 @@ int CloseFile(int fd)
 /*++++++++++++++++++++++++++++++++++++++
   Close a file on disk (and flush the buffer).
 
-  int CloseFileBuffered returns -1 (for similarity to the *OpenFile* functions).
+  int CloseFileBuffered returns -1 (for similarity to the *OpenFileBuffered* functions).
 
   int fd The file descriptor to close.
   ++++++++++++++++++++++++++++++++++++++*/
