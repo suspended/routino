@@ -86,25 +86,19 @@ WaysX *NewWayList(int append,int readonly)
  if(append || readonly)
     if(ExistsFile(waysx->filename))
       {
-       off_t size,position=0;
+       FILESORT_VARINT waysize;
        int fd;
 
-       size=SizeFile(waysx->filename);
+       fd=ReOpenFileBuffered(waysx->filename);
 
-       fd=ReOpenFile(waysx->filename);
-
-       while(position<size)
+       while(!ReadFileBuffered(fd,&waysize,FILESORT_VARSIZE))
          {
-          FILESORT_VARINT waysize;
-
-          SeekReadFile(fd,&waysize,FILESORT_VARSIZE,position);
+          SeekFileBuffered(fd,waysize);
 
           waysx->number++;
-
-          position+=waysize+FILESORT_VARSIZE;
          }
 
-       CloseFile(fd);
+       CloseFileBuffered(fd);
 
        RenameFile(waysx->filename,waysx->filename_tmp);
       }
@@ -415,16 +409,16 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
 
  /* Re-open the file read-only and a new file writeable */
 
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ waysx->fd=ReOpenFileBuffered(waysx->filename_tmp);
 
  if(keep)
     RenameFile(waysx->filename_tmp,waysx->filename);
  else
     DeleteFile(waysx->filename_tmp);
 
- fd=OpenFileNew(waysx->filename_tmp);
+ fd=OpenFileBufferedNew(waysx->filename_tmp);
 
- nfd=OpenFileNew(waysx->nfilename_tmp);
+ nfd=OpenFileBufferedNew(waysx->nfilename_tmp);
 
  /* Loop through the ways and create the segments and way names */
 
@@ -435,13 +429,13 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
     node_t node,prevnode=NO_NODE_ID;
     index_t index,previndex=NO_NODE;
 
-    ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
+    ReadFileBuffered(waysx->fd,&size,FILESORT_VARSIZE);
 
-    ReadFile(waysx->fd,&wayx,sizeof(WayX));
+    ReadFileBuffered(waysx->fd,&wayx,sizeof(WayX));
 
     waysx->allow|=wayx.way.allow;
 
-    while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
+    while(!ReadFileBuffered(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
       {
        index=IndexNodeX(nodesx,node);
 
@@ -479,15 +473,15 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
     if(namelen<size)
        name=(char*)realloc((void*)name,namelen=size);
 
-    ReadFile(waysx->fd,name,size);
+    ReadFileBuffered(waysx->fd,name,size);
 
-    WriteFile(fd,&wayx,sizeof(WayX));
+    WriteFileBuffered(fd,&wayx,sizeof(WayX));
 
     size+=sizeof(index_t);
 
-    WriteFile(nfd,&size,FILESORT_VARSIZE);
-    WriteFile(nfd,&i,sizeof(index_t));
-    WriteFile(nfd,name,size-sizeof(index_t));
+    WriteFileBuffered(nfd,&size,FILESORT_VARSIZE);
+    WriteFileBuffered(nfd,&i,sizeof(index_t));
+    WriteFileBuffered(nfd,name,size-sizeof(index_t));
 
     if(!((i+1)%1000))
        printf_middle("Splitting Ways: Ways=%"Pindex_t" Segments=%"Pindex_t,i+1,segmentsx->number);
@@ -499,10 +493,10 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
 
  /* Close the files */
 
- waysx->fd=CloseFile(waysx->fd);
- CloseFile(fd);
+ waysx->fd=CloseFileBuffered(waysx->fd);
+ CloseFileBuffered(fd);
 
- close(nfd);
+ CloseFileBuffered(nfd);
 
  /* Print the final message */
 
@@ -570,11 +564,11 @@ void SortWayNames(WaysX *waysx)
 
  /* Re-open the file read-only and new file writeable */
 
- waysx->nfd=ReOpenFile(waysx->nfilename_tmp);
+ waysx->nfd=ReOpenFileBuffered(waysx->nfilename_tmp);
 
  DeleteFile(waysx->nfilename_tmp);
 
- nfd=OpenFileNew(waysx->nfilename_tmp);
+ nfd=OpenFileBufferedNew(waysx->nfilename_tmp);
 
  /* Update the ways and de-duplicate the names */
 
@@ -584,17 +578,17 @@ void SortWayNames(WaysX *waysx)
     index_t index;
     FILESORT_VARINT size;
 
-    ReadFile(waysx->nfd,&size,FILESORT_VARSIZE);
+    ReadFileBuffered(waysx->nfd,&size,FILESORT_VARSIZE);
 
     if(namelen[nnames%2]<size)
        names[nnames%2]=(char*)realloc((void*)names[nnames%2],namelen[nnames%2]=size);
 
-    ReadFile(waysx->nfd,&index,sizeof(index_t));
-    ReadFile(waysx->nfd,names[nnames%2],size-sizeof(index_t));
+    ReadFileBuffered(waysx->nfd,&index,sizeof(index_t));
+    ReadFileBuffered(waysx->nfd,names[nnames%2],size-sizeof(index_t));
 
     if(nnames==0 || strcmp(names[0],names[1]))
       {
-       WriteFile(nfd,names[nnames%2],size-sizeof(index_t));
+       WriteFileBuffered(nfd,names[nnames%2],size-sizeof(index_t));
 
        lastlength=waysx->nlength;
        waysx->nlength+=size-sizeof(index_t);
@@ -617,8 +611,8 @@ void SortWayNames(WaysX *waysx)
 
  /* Close the files */
 
- waysx->nfd=CloseFile(waysx->nfd);
- CloseFile(nfd);
+ waysx->nfd=CloseFileBuffered(waysx->nfd);
+ CloseFileBuffered(nfd);
 
  /* Print the final message */
 

@@ -90,25 +90,19 @@ RelationsX *NewRelationList(int append,int readonly)
  if(append || readonly)
     if(ExistsFile(relationsx->rrfilename))
       {
-       off_t size,position=0;
+       FILESORT_VARINT relationsize;
        int rrfd;
 
-       size=SizeFile(relationsx->rrfilename);
+       rrfd=ReOpenFileBuffered(relationsx->rrfilename);
 
-       rrfd=ReOpenFile(relationsx->rrfilename);
-
-       while(position<size)
+       while(!ReadFileBuffered(rrfd,&relationsize,FILESORT_VARSIZE))
          {
-          FILESORT_VARINT relationsize;
-
-          SeekReadFile(rrfd,&relationsize,FILESORT_VARSIZE,position);
+          SeekFileBuffered(rrfd,relationsize);
 
           relationsx->rrnumber++;
-
-          position+=relationsize+FILESORT_VARSIZE;
          }
 
-       CloseFile(rrfd);
+       CloseFileBuffered(rrfd);
 
        RenameFile(relationsx->rrfilename,relationsx->rrfilename_tmp);
       }
@@ -647,10 +641,6 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
  InvalidateWayXCache(waysx->cache);
 #endif
 
- /* Re-open the file read-only */
-
- relationsx->rrfd=ReOpenFile(relationsx->rrfilename_tmp);
-
  /* Read through the file. */
 
  do
@@ -658,7 +648,9 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
     int ways=0,relations=0;
     index_t i;
 
-    SeekFile(relationsx->rrfd,0);
+    /* Re-open the file read-only */
+
+    relationsx->rrfd=ReOpenFileBuffered(relationsx->rrfilename_tmp);
 
     /* Print the start message */
 
@@ -675,8 +667,8 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 
        /* Read each route relation */
 
-       ReadFile(relationsx->rrfd,&size,FILESORT_VARSIZE);
-       ReadFile(relationsx->rrfd,&relationx,sizeof(RouteRelX));
+       ReadFileBuffered(relationsx->rrfd,&size,FILESORT_VARSIZE);
+       ReadFileBuffered(relationsx->rrfd,&relationx,sizeof(RouteRelX));
 
        /* Decide what type of route it is */
 
@@ -705,22 +697,14 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 
        /* Skip the nodes */
 
-       do
-         {
-          ReadFile(relationsx->rrfd,&nodeid,sizeof(node_t));
-         }
-       while(nodeid!=NO_NODE_ID);
+       while(!ReadFileBuffered(relationsx->rrfd,&nodeid,sizeof(node_t)) && nodeid!=NO_NODE_ID)
+          ;
 
        /* Loop through the ways */
 
-       do
+       while(!ReadFileBuffered(relationsx->rrfd,&wayid,sizeof(way_t)) && wayid!=NO_WAY_ID)
          {
-          ReadFile(relationsx->rrfd,&wayid,sizeof(way_t));
-
           /* Update the ways that are listed for the relation */
-
-          if(wayid==NO_WAY_ID)
-             continue;
 
           if(routes)
             {
@@ -758,18 +742,12 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
                 logerror("Route Relation %"Prelation_t" contains Way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",logerror_relation(relationx.id),logerror_way(wayid));
             }
          }
-       while(wayid!=NO_WAY_ID);
 
        /* Loop through the relations */
 
-       do
+       while(!ReadFileBuffered(relationsx->rrfd,&relationid,sizeof(relation_t)) && relationid!=NO_RELATION_ID)
          {
-          ReadFile(relationsx->rrfd,&relationid,sizeof(relation_t));
-
           /* Add the relations that are listed for this relation to the list for next time */
-
-          if(relationid==NO_RELATION_ID)
-             continue;
 
           if(relationid==relationx.id)
              logerror("Relation %"Prelation_t" contains itself.\n",logerror_relation(relationx.id));
@@ -784,7 +762,6 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
              nunmatched++;
             }
          }
-       while(relationid!=NO_RELATION_ID);
 
        if(!((i+1)%1000))
           printf_middle("Processing Route Relations (%d): Relations=%"Pindex_t" Modified Ways=%"Pindex_t,iteration,relations,ways);
@@ -799,6 +776,10 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
     unmatched=NULL;
     nunmatched=0;
 
+    /* Close the file */
+
+    relationsx->rrfd=CloseFileBuffered(relationsx->rrfd);
+
     /* Print the final message */
 
     printf_last("Processed Route Relations (%d): Relations=%"Pindex_t" Modified Ways=%"Pindex_t,iteration,relations,ways);
@@ -807,10 +788,6 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 
  if(lastunmatched)
     free(lastunmatched);
-
- /* Close the file */
-
- relationsx->rrfd=CloseFile(relationsx->rrfd);
 
  if(keep)
     RenameFile(relationsx->rrfilename_tmp,relationsx->rrfilename);
