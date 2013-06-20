@@ -97,7 +97,7 @@ RelationsX *NewRelationList(int append,int readonly)
 
        while(!ReadFileBuffered(rrfd,&relationsize,FILESORT_VARSIZE))
          {
-          SeekFileBuffered(rrfd,relationsize);
+          SkipFileBuffered(rrfd,relationsize);
 
           relationsx->rrnumber++;
          }

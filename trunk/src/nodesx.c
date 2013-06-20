@@ -416,7 +416,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
 
     waysize-=sizeof(node_t)+sizeof(WayX);
 
-    SeekFileBuffered(waysx->fd,waysize);
+    SkipFileBuffered(waysx->fd,waysize);
 
     if(!((i+1)%1000))
        printf_middle("Checking Ways for unused Nodes: Ways=%"Pindex_t,i+1);

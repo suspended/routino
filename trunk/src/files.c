@@ -498,16 +498,16 @@ int ReadFileBuffered(int fd,void *address,size_t length)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Seek forward by an offset in a file descriptor (that uses a buffer).
+  Skip forward by an offset in a file descriptor that uses a buffer.
 
-  int SeekFileBuffered Returns 0 if OK or something else in case of an error.
+  int SkipFileBuffered Returns 0 if OK or something else in case of an error.
 
-  int fd The file descriptor to seek within.
+  int fd The file descriptor to skip within.
 
-  off_t offset The forward offset to seek to.
+  off_t skip The amount to skip forward.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int SeekFileBuffered(int fd,off_t offset)
+int SkipFileBuffered(int fd,off_t skip)
 {
  logassert(fd!=-1,"File descriptor is in error - report a bug");
 
@@ -517,18 +517,18 @@ int SeekFileBuffered(int fd,off_t offset)
 
  /* Read the data */
 
- if((filebuffers[fd]->pointer+offset)>filebuffers[fd]->length)
+ if((filebuffers[fd]->pointer+skip)>filebuffers[fd]->length)
    {
-    offset-=filebuffers[fd]->length-filebuffers[fd]->pointer;
+    skip-=filebuffers[fd]->length-filebuffers[fd]->pointer;
 
     filebuffers[fd]->pointer=0;
     filebuffers[fd]->length=0;
 
-    if(lseek(fd,offset,SEEK_CUR)==-1)
+    if(lseek(fd,skip,SEEK_CUR)==-1)
        return(-1);
    }
  else
-    filebuffers[fd]->pointer+=offset;
+    filebuffers[fd]->pointer+=skip;
 
  return(0);
 }
