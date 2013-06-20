@@ -242,7 +242,7 @@ int OpenFileNew(const char *filename)
 
  /* Open the file */
 
- fd=open(filename,O_RDWR|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+ fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 
  if(fd<0)
    {
@@ -275,7 +275,7 @@ int OpenFileBufferedNew(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a new or existing file on disk for reading and appending.
+  Open a new or existing file on disk for appending.
 
   int OpenFileAppend Returns the file descriptor if OK or exits in case of an error.
 
@@ -288,7 +288,7 @@ int OpenFileAppend(const char *filename)
 
  /* Open the file */
 
- fd=open(filename,O_RDWR|O_CREAT|O_APPEND,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+ fd=open(filename,O_WRONLY|O_CREAT|O_APPEND,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 
  if(fd<0)
    {
@@ -301,7 +301,7 @@ int OpenFileAppend(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a new or existing file on disk for reading and appending (with buffering).
+  Open a new or existing file on disk for appending (with buffering).
 
   int OpenFileBufferedAppend Returns the file descriptor if OK or exits in case of an error.
 
@@ -341,6 +341,26 @@ int ReOpenFile(const char *filename)
     fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
+
+ return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open an existing file on disk for reading (with buffering).
+
+  int ReOpenFileBuffered Returns the file descriptor if OK or exits in case of an error.
+
+  const char *filename The name of the file to open.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ReOpenFileBuffered(const char *filename)
+{
+ int fd;
+
+ fd=ReOpenFile(filename);
+
+ CreateFileBuffer(fd,1);
 
  return(fd);
 }
@@ -472,6 +492,43 @@ int ReadFileBuffered(int fd,void *address,size_t length)
  memcpy(address,filebuffers[fd]->buffer+filebuffers[fd]->pointer,length);
 
  filebuffers[fd]->pointer+=length;
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Seek forward by an offset in a file descriptor (that uses a buffer).
+
+  int SeekFileBuffered Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor to seek within.
+
+  off_t offset The forward offset to seek to.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int SeekFileBuffered(int fd,off_t offset)
+{
+ logassert(fd!=-1,"File descriptor is in error - report a bug");
+
+ logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
+
+ logassert(filebuffers[fd]->reading,"File descriptor was not opened for reading - report a bug");
+
+ /* Read the data */
+
+ if((filebuffers[fd]->pointer+offset)>filebuffers[fd]->length)
+   {
+    offset-=filebuffers[fd]->length-filebuffers[fd]->pointer;
+
+    filebuffers[fd]->pointer=0;
+    filebuffers[fd]->length=0;
+
+    if(lseek(fd,offset,SEEK_CUR)==-1)
+       return(-1);
+   }
+ else
+    filebuffers[fd]->pointer+=offset;
 
  return(0);
 }

@@ -53,8 +53,12 @@ int OpenFileBufferedAppend(const char *filename);
 int ReOpenFile(const char *filename);
 int ReOpenFileWriteable(const char *filename);
 
+int ReOpenFileBuffered(const char *filename);
+
 int WriteFileBuffered(int fd,const void *address,size_t length);
 int ReadFileBuffered(int fd,void *address,size_t length);
+
+int SeekFileBuffered(int fd,off_t offset);
 
 int CloseFile(int fd);
 int CloseFileBuffered(int fd);
