@@ -358,8 +358,9 @@ static void reindex_nodes(NodesX *nodesx)
 
 static void reindex_ways(WaysX *waysx)
 {
+ FILESORT_VARINT waysize;
  int fd;
- off_t size,position=0;
+ off_t position=0;
  index_t index=0;
 
  waysx->number=waysx->knumber;
@@ -369,27 +370,25 @@ static void reindex_ways(WaysX *waysx)
 
  /* Get the way id and the offset for each way in the file */
 
- size=SizeFile(waysx->filename);
+ fd=ReOpenFileBuffered(waysx->filename);
 
- fd=ReOpenFile(waysx->filename);
-
- while(position<size)
+ while(!ReadFileBuffered(fd,&waysize,FILESORT_VARSIZE))
    {
     WayX wayx;
-    FILESORT_VARINT waysize;
 
-    SeekReadFile(fd,&waysize,FILESORT_VARSIZE,position);
-    SeekReadFile(fd,&wayx,sizeof(WayX),position+FILESORT_VARSIZE);
+    ReadFileBuffered(fd,&wayx,sizeof(WayX));
 
     waysx->idata[index]=wayx.id;
     waysx->odata[index]=position+FILESORT_VARSIZE+sizeof(WayX);
 
     index++;
 
+    SeekFileBuffered(fd,waysize-sizeof(WayX));
+
     position+=waysize+FILESORT_VARSIZE;
    }
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 }
 
 
@@ -401,8 +400,9 @@ static void reindex_ways(WaysX *waysx)
 
 static void reindex_relations(RelationsX *relationsx)
 {
+ FILESORT_VARINT relationsize;
  int fd;
- off_t size,position=0;
+ off_t position=0;
  index_t index;
  TurnRelX turnrelx;
 
@@ -415,29 +415,27 @@ static void reindex_relations(RelationsX *relationsx)
 
  /* Get the relation id and the offset for each relation in the file */
 
- size=SizeFile(relationsx->rrfilename);
-
- fd=ReOpenFile(relationsx->rrfilename);
+ fd=ReOpenFileBuffered(relationsx->rrfilename);
 
  index=0;
 
- while(position<size)
+ while(!ReadFileBuffered(fd,&relationsize,FILESORT_VARSIZE))
    {
-    FILESORT_VARINT relationsize;
     RouteRelX routerelx;
 
-    SeekReadFile(fd,&relationsize,FILESORT_VARSIZE,position);
-    SeekReadFile(fd,&routerelx,sizeof(RouteRelX),position+FILESORT_VARSIZE);
+    ReadFileBuffered(fd,&routerelx,sizeof(RouteRelX));
 
     relationsx->rridata[index]=routerelx.id;
     relationsx->rrodata[index]=position+FILESORT_VARSIZE+sizeof(RouteRelX);
 
     index++;
 
+    SeekFileBuffered(fd,relationsize-sizeof(RouteRelX));
+
     position+=relationsize+FILESORT_VARSIZE;
    }
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 
 
  /* Turn relations */
@@ -448,18 +446,18 @@ static void reindex_relations(RelationsX *relationsx)
 
  /* Get the relation id and the offset for each relation in the file */
 
- fd=ReOpenFile(relationsx->trfilename);
+ fd=ReOpenFileBuffered(relationsx->trfilename);
 
  index=0;
 
- while(!ReadFile(fd,&turnrelx,sizeof(TurnRelX)))
+ while(!ReadFileBuffered(fd,&turnrelx,sizeof(TurnRelX)))
    {
     relationsx->tridata[index]=turnrelx.id;
 
     index++;
    }
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 }
 
 

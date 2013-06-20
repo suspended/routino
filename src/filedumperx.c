@@ -160,31 +160,24 @@ static void print_nodes(const char *filename)
 
 static void print_ways(const char *filename)
 {
- off_t size,position=0;
+ FILESORT_VARINT waysize;
  int fd;
 
- size=SizeFile(filename);
+ fd=ReOpenFileBuffered(filename);
 
- fd=ReOpenFile(filename);
-
- while(position<size)
+ while(!ReadFileBuffered(fd,&waysize,FILESORT_VARSIZE))
    {
-    FILESORT_VARINT waysize;
     WayX wayx;
     node_t node;
     char *name=NULL;
     size_t malloced=0;
     int first=1;
 
-    ReadFile(fd,&waysize,FILESORT_VARSIZE);
-
-    position+=waysize+FILESORT_VARSIZE;
-
-    ReadFile(fd,&wayx,sizeof(WayX));
+    ReadFileBuffered(fd,&wayx,sizeof(WayX));
 
     printf("Way %"Pway_t"\n",wayx.id);
 
-    while(!ReadFile(fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
+    while(!ReadFileBuffered(fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
       {
        if(first)
           printf("  nodes=%"Pnode_t,node);
@@ -206,7 +199,7 @@ static void print_ways(const char *filename)
        name=(char*)realloc((void*)name,malloced);
       }
 
-    ReadFile(fd,name,waysize);
+    ReadFileBuffered(fd,name,waysize);
 
     if(*name)
        printf("  name=%s\n",name);
@@ -226,7 +219,7 @@ static void print_ways(const char *filename)
        printf("  length=%d\n",wayx.way.length);
    }
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 }
 
 
@@ -238,47 +231,34 @@ static void print_ways(const char *filename)
 
 static void print_route_relations(const char *filename)
 {
- off_t size,position=0;
+ FILESORT_VARINT relationsize;
  int fd;
 
- size=SizeFile(filename);
+ fd=ReOpenFileBuffered(filename);
 
- fd=ReOpenFile(filename);
-
- while(position<size)
+ while(!ReadFileBuffered(fd,&relationsize,FILESORT_VARSIZE))
    {
-    FILESORT_VARINT relationsize;
     RouteRelX relationx;
+    node_t nodeid;
     way_t wayid;
     relation_t relationid;
 
-    ReadFile(fd,&relationsize,FILESORT_VARSIZE);
-
-    ReadFile(fd,&relationx,sizeof(RouteRelX));
+    ReadFileBuffered(fd,&relationx,sizeof(RouteRelX));
 
     printf("Relation %"Prelation_t"\n",relationx.id);
     printf("  routes=%02x\n",relationx.routes);
 
-    do
-      {
-       ReadFile(fd,&wayid,sizeof(way_t));
+    while(!ReadFileBuffered(fd,&nodeid,sizeof(node_t)) && nodeid!=NO_NODE_ID)
+       printf("  node=%"Pnode_t"\n",nodeid);
 
+    while(!ReadFileBuffered(fd,&wayid,sizeof(way_t)) && wayid!=NO_WAY_ID);
        printf("  way=%"Pway_t"\n",wayid);
-      }
-    while(wayid!=NO_WAY_ID);
 
-    do
-      {
-       ReadFile(fd,&relationid,sizeof(relation_t));
-
+    while(!ReadFileBuffered(fd,&relationid,sizeof(relation_t)) && relationid!=NO_RELATION_ID);
        printf("  relation=%"Prelation_t"\n",relationid);
-      }
-    while(relationid!=NO_RELATION_ID);
-
-    position+=relationsize+FILESORT_VARSIZE;
    }
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 }
 
 

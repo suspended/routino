@@ -375,7 +375,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
  BitMask *usednode;
  NodeX nodex;
  index_t i,total=0,highway=0,nothighway=0;
- off_t position=0;
  int fd;
 
 
@@ -391,31 +390,33 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
 
  /* Re-open the file read-only */
 
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ waysx->fd=ReOpenFileBuffered(waysx->filename_tmp);
 
  /* Loop through the ways and mark the used nodes */
 
  for(i=0;i<waysx->number;i++)
    {
     WayX wayx;
-    FILESORT_VARINT size;
+    FILESORT_VARINT waysize;
     node_t node;
 
-    SeekFile(waysx->fd,position);
+    ReadFileBuffered(waysx->fd,&waysize,FILESORT_VARSIZE);
 
-    ReadFile(waysx->fd,&size,FILESORT_VARSIZE);
+    ReadFileBuffered(waysx->fd,&wayx,sizeof(WayX));
 
-    position+=size+FILESORT_VARSIZE;
-
-    ReadFile(waysx->fd,&wayx,sizeof(WayX));
-
-    while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
+    while(!ReadFileBuffered(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
       {
        index_t index=IndexNodeX(nodesx,node);
+
+       waysize-=sizeof(node_t);
 
        if(index!=NO_NODE)
           SetBit(usednode,index);
       }
+
+    waysize-=sizeof(node_t)+sizeof(WayX);
+
+    SeekFileBuffered(waysx->fd,waysize);
 
     if(!((i+1)%1000))
        printf_middle("Checking Ways for unused Nodes: Ways=%"Pindex_t,i+1);
@@ -423,7 +424,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
 
  /* Close the file */
 
- waysx->fd=CloseFile(waysx->fd);
+ waysx->fd=CloseFileBuffered(waysx->fd);
 
  /* Print the final message */
 
