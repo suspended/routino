@@ -93,7 +93,7 @@ WaysX *NewWayList(int append,int readonly)
 
        while(!ReadFileBuffered(fd,&waysize,FILESORT_VARSIZE))
          {
-          SeekFileBuffered(fd,waysize);
+          SkipFileBuffered(fd,waysize);
 
           waysx->number++;
          }

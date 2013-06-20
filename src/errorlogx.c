@@ -383,7 +383,7 @@ static void reindex_ways(WaysX *waysx)
 
     index++;
 
-    SeekFileBuffered(fd,waysize-sizeof(WayX));
+    SkipFileBuffered(fd,waysize-sizeof(WayX));
 
     position+=waysize+FILESORT_VARSIZE;
    }
@@ -430,7 +430,7 @@ static void reindex_relations(RelationsX *relationsx)
 
     index++;
 
-    SeekFileBuffered(fd,relationsize-sizeof(RouteRelX));
+    SkipFileBuffered(fd,relationsize-sizeof(RouteRelX));
 
     position+=relationsize+FILESORT_VARSIZE;
    }
