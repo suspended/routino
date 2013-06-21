@@ -280,11 +280,11 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
 
  DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename_tmp);
+ fd=OpenFileBufferedNew(segmentsx->filename_tmp);
 
  /* Sort by node indexes */
 
@@ -294,8 +294,8 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Close the files */
 
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
+ segmentsx->fd=CloseFileBuffered(segmentsx->fd);
+ CloseFileBuffered(fd);
 
  /* Print the final message */
 
@@ -616,11 +616,11 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
 
  DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename_tmp);
+ fd=OpenFileBufferedNew(segmentsx->filename_tmp);
 
  /* Sort by node indexes */
 
@@ -634,8 +634,8 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Close the files */
 
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
+ segmentsx->fd=CloseFileBuffered(segmentsx->fd);
+ CloseFileBuffered(fd);
 
  /* Print the final message */
 
@@ -696,11 +696,11 @@ void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
 
  DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename_tmp);
+ fd=OpenFileBufferedNew(segmentsx->filename_tmp);
 
  /* Sort by node indexes */
 
@@ -715,8 +715,8 @@ void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Close the files */
 
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
+ segmentsx->fd=CloseFileBuffered(segmentsx->fd);
+ CloseFileBuffered(fd);
 
  /* Unmap from memory / close the file */
 
@@ -820,11 +820,11 @@ void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
 
  DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename_tmp);
+ fd=OpenFileBufferedNew(segmentsx->filename_tmp);
 
  /* Update the segments with geographically sorted node indexes and sort them */
 
@@ -835,8 +835,8 @@ void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
                                                   NULL);
  /* Close the files */
 
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
+ segmentsx->fd=CloseFileBuffered(segmentsx->fd);
+ CloseFileBuffered(fd);
 
  /* Print the final message */
 
