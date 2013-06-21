@@ -82,11 +82,11 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  /* Open the file read-only */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
 
  /* Read the on-disk image */
 
- while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
+ while(!ReadFileBuffered(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
     index_t node1=segmentx.node1;
 
@@ -108,7 +108,7 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  /* Close the file */
 
- segmentsx->fd=CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFileBuffered(segmentsx->fd);
 
  /* Print the final message */
 

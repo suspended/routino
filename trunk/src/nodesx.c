@@ -437,18 +437,18 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+ nodesx->fd=ReOpenFileBuffered(nodesx->filename_tmp);
 
  if(keep)
     RenameFile(nodesx->filename_tmp,nodesx->filename);
  else
     DeleteFile(nodesx->filename_tmp);
 
- fd=OpenFileNew(nodesx->filename_tmp);
+ fd=OpenFileBufferedNew(nodesx->filename_tmp);
 
  /* Modify the on-disk image */
 
- while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
+ while(!ReadFileBuffered(nodesx->fd,&nodex,sizeof(NodeX)))
    {
     if(!IsBitSet(usednode,total))
        nothighway++;
@@ -456,7 +456,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
       {
        nodesx->idata[highway]=nodex.id;
 
-       WriteFile(fd,&nodex,sizeof(NodeX));
+       WriteFileBuffered(fd,&nodex,sizeof(NodeX));
 
        highway++;
       }
@@ -471,8 +471,8 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
 
  /* Close the files */
 
- nodesx->fd=CloseFile(nodesx->fd);
- CloseFile(fd);
+ nodesx->fd=CloseFileBuffered(nodesx->fd);
+ CloseFileBuffered(fd);
 
  /* Free the now-unneeded index */
 
@@ -513,15 +513,15 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+ nodesx->fd=ReOpenFileBuffered(nodesx->filename_tmp);
 
  DeleteFile(nodesx->filename_tmp);
 
- fd=OpenFileNew(nodesx->filename_tmp);
+ fd=OpenFileBufferedNew(nodesx->filename_tmp);
 
  /* Modify the on-disk image */
 
- while(!ReadFile(nodesx->fd,&nodex,sizeof(NodeX)))
+ while(!ReadFileBuffered(nodesx->fd,&nodex,sizeof(NodeX)))
    {
     if(segmentsx->firstnode[total]==NO_SEGMENT)
       {
@@ -533,7 +533,7 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
       {
        nodesx->pdata[total]=notpruned;
 
-       WriteFile(fd,&nodex,sizeof(NodeX));
+       WriteFileBuffered(fd,&nodex,sizeof(NodeX));
 
        notpruned++;
       }
@@ -548,8 +548,8 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Close the files */
 
- nodesx->fd=CloseFile(nodesx->fd);
- CloseFile(fd);
+ nodesx->fd=CloseFileBuffered(nodesx->fd);
+ CloseFileBuffered(fd);
 
  /* Print the final message */
 
@@ -764,13 +764,13 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
 
  /* Re-open the file */
 
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+ nodesx->fd=ReOpenFileBuffered(nodesx->filename_tmp);
 
  /* Write out the nodes data */
 
- fd=OpenFileNew(filename);
+ fd=OpenFileBufferedNew(filename);
 
- SeekFile(fd,sizeof(NodesFile)+(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+ SeekFileBuffered(fd,sizeof(NodesFile)+(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
  for(i=0;i<nodesx->number;i++)
    {
@@ -779,7 +779,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
     ll_bin_t latbin,lonbin;
     ll_bin2_t llbin;
 
-    ReadFile(nodesx->fd,&nodex,sizeof(NodeX));
+    ReadFileBuffered(nodesx->fd,&nodex,sizeof(NodeX));
 
     /* Create the Node */
 
@@ -803,7 +803,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
 
     /* Write the data */
 
-    WriteFile(fd,&node,sizeof(Node));
+    WriteFileBuffered(fd,&node,sizeof(Node));
 
     if(!((i+1)%10000))
        printf_middle("Writing Nodes: Nodes=%"Pindex_t,i+1);
@@ -811,7 +811,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
 
  /* Close the file */
 
- nodesx->fd=CloseFile(nodesx->fd);
+ nodesx->fd=CloseFileBuffered(nodesx->fd);
 
  /* Finish off the offset indexing and write them out */
 
@@ -820,8 +820,8 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
  for(;latlonbin<=maxlatlonbins;latlonbin++)
     offsets[latlonbin]=nodesx->number;
 
- SeekFile(fd,sizeof(NodesFile));
- WriteFile(fd,offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
+ SeekFileBuffered(fd,sizeof(NodesFile));
+ WriteFileBuffered(fd,offsets,(nodesx->latbins*nodesx->lonbins+1)*sizeof(index_t));
 
  free(offsets);
 
@@ -836,10 +836,10 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
  nodesfile.latzero=nodesx->latzero;
  nodesfile.lonzero=nodesx->lonzero;
 
- SeekFile(fd,0);
- WriteFile(fd,&nodesfile,sizeof(NodesFile));
+ SeekFileBuffered(fd,0);
+ WriteFileBuffered(fd,&nodesfile,sizeof(NodesFile));
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 
  /* Print the final message */
 

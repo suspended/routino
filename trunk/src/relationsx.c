@@ -641,6 +641,10 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
  InvalidateWayXCache(waysx->cache);
 #endif
 
+ /* Re-open the file read-only */
+
+ relationsx->rrfd=ReOpenFileBuffered(relationsx->rrfilename_tmp);
+
  /* Read through the file. */
 
  do
@@ -648,9 +652,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
     int ways=0,relations=0;
     index_t i;
 
-    /* Re-open the file read-only */
-
-    relationsx->rrfd=ReOpenFileBuffered(relationsx->rrfilename_tmp);
+    SeekFileBuffered(relationsx->rrfd,0);
 
     /* Print the start message */
 
@@ -776,10 +778,6 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
     unmatched=NULL;
     nunmatched=0;
 
-    /* Close the file */
-
-    relationsx->rrfd=CloseFileBuffered(relationsx->rrfd);
-
     /* Print the final message */
 
     printf_last("Processed Route Relations (%d): Relations=%"Pindex_t" Modified Ways=%"Pindex_t,iteration,relations,ways);
@@ -788,6 +786,10 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 
  if(lastunmatched)
     free(lastunmatched);
+
+ /* Close the file */
+
+ relationsx->rrfd=CloseFileBuffered(relationsx->rrfd);
 
  if(keep)
     RenameFile(relationsx->rrfilename_tmp,relationsx->rrfilename);
@@ -846,14 +848,14 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
 
  /* Re-open the file read-only and a new file writeable */
 
- relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
+ relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename_tmp);
 
  if(keep)
     RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
  else
     DeleteFile(relationsx->trfilename_tmp);
 
- trfd=OpenFileNew(relationsx->trfilename_tmp);
+ trfd=OpenFileBufferedNew(relationsx->trfilename_tmp);
 
  /* Process all of the relations */
 
@@ -864,7 +866,7 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
     SegmentX *segmentx;
     index_t via,from,to;
 
-    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRelX));
+    ReadFileBuffered(relationsx->trfd,&relationx,sizeof(TurnRelX));
 
     via =IndexNodeX(nodesx,relationx.via);
     from=IndexWayX(waysx,relationx.from);
@@ -981,7 +983,7 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
        relationx.from=node_from;
        relationx.to  =node_to;
 
-       WriteFile(trfd,&relationx,sizeof(TurnRelX));
+       WriteFileBuffered(trfd,&relationx,sizeof(TurnRelX));
 
        total++;
       }
@@ -1076,7 +1078,7 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
           relationx.from=node_from;
           relationx.to  =node_other[i];
 
-          WriteFile(trfd,&relationx,sizeof(TurnRelX));
+          WriteFileBuffered(trfd,&relationx,sizeof(TurnRelX));
 
           total++;
          }
@@ -1109,8 +1111,8 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
 
  /* Close the files */
 
- relationsx->trfd=CloseFile(relationsx->trfd);
- CloseFile(trfd);
+ relationsx->trfd=CloseFileBuffered(relationsx->trfd);
+ CloseFileBuffered(trfd);
 
  /* Free the now-unneeded indexes */
 
@@ -1163,15 +1165,15 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
+ relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename_tmp);
 
  DeleteFile(relationsx->trfilename_tmp);
 
- trfd=OpenFileNew(relationsx->trfilename_tmp);
+ trfd=OpenFileBufferedNew(relationsx->trfilename_tmp);
 
  /* Process all of the relations */
 
- while(!ReadFile(relationsx->trfd,&relationx,sizeof(TurnRelX)))
+ while(!ReadFileBuffered(relationsx->trfd,&relationx,sizeof(TurnRelX)))
    {
     relationx.from=nodesx->pdata[relationx.from];
     relationx.via =nodesx->pdata[relationx.via];
@@ -1181,7 +1183,7 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
        pruned++;
     else
       {
-       WriteFile(trfd,&relationx,sizeof(TurnRelX));
+       WriteFileBuffered(trfd,&relationx,sizeof(TurnRelX));
 
        notpruned++;
       }
@@ -1196,8 +1198,8 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 
  /* Close the files */
 
- relationsx->trfd=CloseFile(relationsx->trfd);
- CloseFile(trfd);
+ relationsx->trfd=CloseFileBuffered(relationsx->trfd);
+ CloseFileBuffered(trfd);
 
  /* Print the final message */
 
@@ -1375,27 +1377,27 @@ void SaveRelationList(RelationsX* relationsx,const char *filename)
 
  /* Re-open the file read-only */
 
- relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
+ relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename_tmp);
 
  /* Write out the relations data */
 
- fd=OpenFileNew(filename);
+ fd=OpenFileBufferedNew(filename);
 
- SeekFile(fd,sizeof(RelationsFile));
+ SeekFileBuffered(fd,sizeof(RelationsFile));
 
  for(i=0;i<relationsx->trnumber;i++)
    {
     TurnRelX relationx;
     TurnRelation relation={0};
 
-    ReadFile(relationsx->trfd,&relationx,sizeof(TurnRelX));
+    ReadFileBuffered(relationsx->trfd,&relationx,sizeof(TurnRelX));
 
     relation.from=relationx.from;
     relation.via=relationx.via;
     relation.to=relationx.to;
     relation.except=relationx.except;
 
-    WriteFile(fd,&relation,sizeof(TurnRelation));
+    WriteFileBuffered(fd,&relation,sizeof(TurnRelation));
 
     if(!((i+1)%1000))
        printf_middle("Writing Relations: Turn Relations=%"Pindex_t,i+1);
@@ -1405,14 +1407,14 @@ void SaveRelationList(RelationsX* relationsx,const char *filename)
 
  relationsfile.trnumber=relationsx->trnumber;
 
- SeekFile(fd,0);
- WriteFile(fd,&relationsfile,sizeof(RelationsFile));
+ SeekFileBuffered(fd,0);
+ WriteFileBuffered(fd,&relationsfile,sizeof(RelationsFile));
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 
  /* Close the file */
 
- relationsx->trfd=CloseFile(relationsx->trfd);
+ relationsx->trfd=CloseFileBuffered(relationsx->trfd);
 
  /* Print the final message */
 

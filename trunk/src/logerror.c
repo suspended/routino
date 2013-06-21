@@ -92,10 +92,10 @@ void open_errorlog(const char *filename,int append,int bin)
        if(ExistsFile(filename))
           errorfileoffset=SizeFile(filename);
 
-       errorbinfile=OpenFileAppend(errorbinfilename);
+       errorbinfile=OpenFileBufferedAppend(errorbinfilename);
       }
     else
-       errorbinfile=OpenFileNew(errorbinfilename);
+       errorbinfile=OpenFileBufferedNew(errorbinfilename);
    }
  else
     errorbinfile=-1;
@@ -112,7 +112,7 @@ void close_errorlog(void)
    {
     fclose(errorlogfile);
 
-    CloseFile(errorbinfile);
+    CloseFileBuffered(errorbinfile);
    }
 }
 
@@ -159,7 +159,7 @@ node_t logerror_node(node_t id)
 
     error.offset=errorfileoffset;
 
-    WriteFile(errorbinfile,&error,sizeof(ErrorLogObject));
+    WriteFileBuffered(errorbinfile,&error,sizeof(ErrorLogObject));
    }
 
  return(id);
@@ -185,7 +185,7 @@ way_t logerror_way(way_t id)
 
     error.offset=errorfileoffset;
 
-    WriteFile(errorbinfile,&error,sizeof(ErrorLogObject));
+    WriteFileBuffered(errorbinfile,&error,sizeof(ErrorLogObject));
    }
 
  return(id);
@@ -211,7 +211,7 @@ relation_t logerror_relation(relation_t id)
 
     error.offset=errorfileoffset;
 
-    WriteFile(errorbinfile,&error,sizeof(ErrorLogObject));
+    WriteFileBuffered(errorbinfile,&error,sizeof(ErrorLogObject));
    }
 
  return(id);

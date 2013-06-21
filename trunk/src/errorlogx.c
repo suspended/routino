@@ -146,11 +146,11 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
 
  /* Open the binary log file read-only and a new file writeable */
 
- oldfd=ReOpenFile(errorbinfilename);
+ oldfd=ReOpenFileBuffered(errorbinfilename);
 
  DeleteFile(errorbinfilename);
 
- newfd=OpenFileNew(errorbinfilename);
+ newfd=OpenFileBufferedNew(errorbinfilename);
 
  /* Loop through the file and merge the raw data into coordinates */
 
@@ -160,7 +160,7 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
    {
     ErrorLogObject errorlogobject;
 
-    finished=ReadFile(oldfd,&errorlogobject,sizeof(ErrorLogObject));
+    finished=ReadFileBuffered(oldfd,&errorlogobject,sizeof(ErrorLogObject));
 
     if(finished)
        errorlogobject.offset=SizeFile(errorlogfilename);
@@ -277,7 +277,7 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
        errorlogx.latitude =errorlat;
        errorlogx.longitude=errorlon;
 
-       WriteFile(newfd,&errorlogx,sizeof(ErrorLogX));
+       WriteFileBuffered(newfd,&errorlogx,sizeof(ErrorLogX));
 
        errorlogsx->number++;
 
@@ -310,8 +310,8 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
  relationsx->rrfd=CloseFile(relationsx->rrfd);
  relationsx->trfd=CloseFile(relationsx->trfd);
 
- CloseFile(oldfd);
- CloseFile(newfd);
+ CloseFileBuffered(oldfd);
+ CloseFileBuffered(newfd);
 
  /* Print the final message */
 
@@ -337,16 +337,16 @@ static void reindex_nodes(NodesX *nodesx)
 
  /* Get the node id for each node in the file. */
 
- fd=ReOpenFile(nodesx->filename);
+ fd=ReOpenFileBuffered(nodesx->filename);
 
- while(!ReadFile(fd,&nodex,sizeof(NodeX)))
+ while(!ReadFileBuffered(fd,&nodex,sizeof(NodeX)))
    {
     nodesx->idata[index]=nodex.id;
 
     index++;
    }
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 }
 
 
@@ -838,15 +838,15 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
 
  /* Re-open the file */
 
- oldfd=ReOpenFile(errorbinfilename);
+ oldfd=ReOpenFileBuffered(errorbinfilename);
 
- newfd=OpenFileNew(filename);
+ newfd=OpenFileBufferedNew(filename);
 
  /* Write out the geographical errors */
 
- SeekFile(newfd,sizeof(ErrorLogsFile)+(errorlogsx->latbins*errorlogsx->lonbins+1)*sizeof(index_t));
+ SeekFileBuffered(newfd,sizeof(ErrorLogsFile)+(errorlogsx->latbins*errorlogsx->lonbins+1)*sizeof(index_t));
 
- while(!ReadFile(oldfd,&errorlogx,sizeof(ErrorLogX)))
+ while(!ReadFileBuffered(oldfd,&errorlogx,sizeof(ErrorLogX)))
    {
     ErrorLog errorlog={0};
     ll_bin_t latbin,lonbin;
@@ -874,7 +874,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
 
     /* Write the data */
 
-    WriteFile(newfd,&errorlog,sizeof(ErrorLog));
+    WriteFileBuffered(newfd,&errorlog,sizeof(ErrorLog));
 
     number_geo++;
     number++;
@@ -885,9 +885,9 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
 
  /* Write out the non-geographical errors */
 
- SeekFile(oldfd,0);
+ SeekFileBuffered(oldfd,0);
 
- while(!ReadFile(oldfd,&errorlogx,sizeof(ErrorLogX)))
+ while(!ReadFileBuffered(oldfd,&errorlogx,sizeof(ErrorLogX)))
    {
     ErrorLog errorlog={0};
 
@@ -904,7 +904,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
 
     /* Write the data */
 
-    WriteFile(newfd,&errorlog,sizeof(ErrorLog));
+    WriteFileBuffered(newfd,&errorlog,sizeof(ErrorLog));
 
     number_nongeo++;
     number++;
@@ -915,7 +915,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
 
  /* Close the input file */
 
- CloseFile(oldfd);
+ CloseFileBuffered(oldfd);
 
  DeleteFile(errorbinfilename);
 
@@ -937,7 +937,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
        if(buffer[i]=='\n')
           buffer[i]=0;
 
-    WriteFile(newfd,buffer,chunksize);
+    WriteFileBuffered(newfd,buffer,chunksize);
 
     size-=chunksize;
    }
@@ -951,8 +951,8 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
  for(;latlonbin<=maxlatlonbins;latlonbin++)
     offsets[latlonbin]=number_geo;
 
- SeekFile(newfd,sizeof(ErrorLogsFile));
- WriteFile(newfd,offsets,(errorlogsx->latbins*errorlogsx->lonbins+1)*sizeof(index_t));
+ SeekFileBuffered(newfd,sizeof(ErrorLogsFile));
+ WriteFileBuffered(newfd,offsets,(errorlogsx->latbins*errorlogsx->lonbins+1)*sizeof(index_t));
 
  free(offsets);
 
@@ -968,10 +968,10 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
  errorlogsfile.latzero=errorlogsx->latzero;
  errorlogsfile.lonzero=errorlogsx->lonzero;
 
- SeekFile(newfd,0);
- WriteFile(newfd,&errorlogsfile,sizeof(ErrorLogsFile));
+ SeekFileBuffered(newfd,0);
+ WriteFileBuffered(newfd,&errorlogsfile,sizeof(ErrorLogsFile));
 
- CloseFile(newfd);
+ CloseFileBuffered(newfd);
 
  /* Print the final message */
 

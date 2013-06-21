@@ -127,25 +127,17 @@ int main(int argc,char** argv)
 
 static void print_nodes(const char *filename)
 {
- off_t size,position=0;
  int fd;
+ NodeX nodex;
 
- size=SizeFile(filename);
+ fd=ReOpenFileBuffered(filename);
 
- fd=ReOpenFile(filename);
-
- while(position<size)
+ while(!ReadFileBuffered(fd,&nodex,sizeof(NodeX)))
    {
-    NodeX nodex;
-
-    ReadFile(fd,&nodex,sizeof(NodeX));
-
     printf("Node %"Pnode_t"\n",nodex.id);
     printf("  lat=%d lon=%d\n",nodex.latitude,nodex.longitude);
     printf("  allow=%02x\n",nodex.allow);
     printf("  flags=%02x\n",nodex.flags);
-
-    position+=sizeof(NodeX);
    }
 
  CloseFile(fd);
@@ -270,19 +262,13 @@ static void print_route_relations(const char *filename)
 
 static void print_turn_relations(const char *filename)
 {
- off_t size,position=0;
  int fd;
+ TurnRelX relationx;
 
- size=SizeFile(filename);
+ fd=ReOpenFileBuffered(filename);
 
- fd=ReOpenFile(filename);
-
- while(position<size)
+ while(!ReadFileBuffered(fd,&relationx,sizeof(TurnRelX)))
    {
-    TurnRelX relationx;
-
-    ReadFile(fd,&relationx,sizeof(TurnRelX));
-
     printf("Relation %"Prelation_t"\n",relationx.id);
     printf("  from=%"Pway_t"\n",relationx.from);
     printf("  via=%"Pnode_t"\n",relationx.via);
@@ -290,11 +276,9 @@ static void print_turn_relations(const char *filename)
     printf("  type=%d\n",relationx.restriction);
     if(relationx.except)
        printf("  except=%02x\n",relationx.except);
-
-    position+=sizeof(TurnRelX);
    }
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 }
 
 
