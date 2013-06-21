@@ -58,6 +58,9 @@ int ReOpenFileBuffered(const char *filename);
 int WriteFileBuffered(int fd,const void *address,size_t length);
 int ReadFileBuffered(int fd,void *address,size_t length);
 
+int SeekFile(int fd,off_t position);
+
+int SeekFileBuffered(int fd,off_t position);
 int SkipFileBuffered(int fd,off_t skip);
 
 int CloseFile(int fd);
@@ -77,8 +80,6 @@ static inline int ReadFile(int fd,void *address,size_t length);
 
 static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t position);
 static inline int SeekReadFile(int fd,void *address,size_t length,off_t position);
-
-static inline int SeekFile(int fd,off_t position);
 
 
 /* Inline the frequently called functions */
@@ -127,29 +128,6 @@ static inline int ReadFile(int fd,void *address,size_t length)
  /* Read the data */
 
  if(read(fd,address,length)!=(ssize_t)length)
-    return(-1);
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Seek to a position in a file descriptor.
-
-  int SeekFile Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor to seek within.
-
-  off_t position The position to seek to.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static inline int SeekFile(int fd,off_t position)
-{
- logassert(fd!=-1,"File descriptor is in error - report a bug");
-
- /* Seek the data */
-
- if(lseek(fd,position,SEEK_SET)!=position)
     return(-1);
 
  return(0);
