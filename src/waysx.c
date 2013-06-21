@@ -292,11 +292,11 @@ void SortWayList(WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ waysx->fd=ReOpenFileBuffered(waysx->filename_tmp);
 
  DeleteFile(waysx->filename_tmp);
 
- fd=OpenFileNew(waysx->filename_tmp);
+ fd=OpenFileBufferedNew(waysx->filename_tmp);
 
  /* Allocate the array of indexes */
 
@@ -318,8 +318,8 @@ void SortWayList(WaysX *waysx)
 
  /* Close the files */
 
- waysx->fd=CloseFile(waysx->fd);
- CloseFile(fd);
+ waysx->fd=CloseFileBuffered(waysx->fd);
+ CloseFileBuffered(fd);
 
  /* Print the final message */
 
@@ -528,11 +528,11 @@ void SortWayNames(WaysX *waysx)
 
  /* Re-open the file read-only and new file writeable */
 
- waysx->nfd=ReOpenFile(waysx->nfilename_tmp);
+ waysx->nfd=ReOpenFileBuffered(waysx->nfilename_tmp);
 
  DeleteFile(waysx->nfilename_tmp);
 
- nfd=OpenFileNew(waysx->nfilename_tmp);
+ nfd=OpenFileBufferedNew(waysx->nfilename_tmp);
 
  /* Sort the way names */
 
@@ -544,8 +544,8 @@ void SortWayNames(WaysX *waysx)
 
  /* Close the files */
 
- waysx->nfd=CloseFile(waysx->nfd);
- CloseFile(nfd);
+ waysx->nfd=CloseFileBuffered(waysx->nfd);
+ CloseFileBuffered(nfd);
 
  /* Print the final message */
 
@@ -682,11 +682,11 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ waysx->fd=ReOpenFileBuffered(waysx->filename_tmp);
 
  DeleteFile(waysx->filename_tmp);
 
- fd=OpenFileNew(waysx->filename_tmp);
+ fd=OpenFileBufferedNew(waysx->filename_tmp);
 
  /* Sort the ways to allow compacting according to the properties */
 
@@ -699,8 +699,8 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
 
  /* Close the files */
 
- waysx->fd=CloseFile(waysx->fd);
- CloseFile(fd);
+ waysx->fd=CloseFileBuffered(waysx->fd);
+ CloseFileBuffered(fd);
 
  /* Print the final message */
 

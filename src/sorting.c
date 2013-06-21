@@ -176,7 +176,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
       {
        threads[thread].datap[item]=threads[thread].data+item*itemsize;
 
-       if(ReadFile(fd_in,threads[thread].datap[item],itemsize))
+       if(ReadFileBuffered(fd_in,threads[thread].datap[item],itemsize))
          {
           more=0;
           break;
@@ -288,7 +288,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
       {
        if(!post_sort_function || post_sort_function(threads[0].datap[item],count_out))
          {
-          WriteFile(fd_out,threads[0].datap[item],itemsize);
+          WriteFileBuffered(fd_out,threads[0].datap[item],itemsize);
           count_out++;
          }
       }
@@ -312,7 +312,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
 
     sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,i);
 
-    fds[i]=ReOpenFile(filename);
+    fds[i]=ReOpenFileBuffered(filename);
 
     DeleteFile(filename);
    }
@@ -332,7 +332,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
 
     datap[i]=data+i*itemsize;
 
-    ReadFile(fds[i],datap[i],itemsize);
+    ReadFileBuffered(fds[i],datap[i],itemsize);
 
     index=i+1;
 
@@ -368,11 +368,11 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
 
     if(!post_sort_function || post_sort_function(datap[heap[index]],count_out))
       {
-       WriteFile(fd_out,datap[heap[index]],itemsize);
+       WriteFileBuffered(fd_out,datap[heap[index]],itemsize);
        count_out++;
       }
 
-    if(ReadFile(fds[heap[index]],datap[heap[index]],itemsize))
+    if(ReadFileBuffered(fds[heap[index]],datap[heap[index]],itemsize))
       {
        heap[index]=heap[ndata];
        ndata--;
@@ -426,7 +426,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
  if(fds)
    {
     for(i=0;i<nfiles;i++)
-       CloseFile(fds[i]);
+       CloseFileBuffered(fds[i]);
     free(fds);
    }
 
@@ -510,7 +510,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
  /* Loop around, fill the buffer, sort the data and write a temporary file */
 
- if(ReadFile(fd_in,&nextitemsize,FILESORT_VARSIZE))    /* Always have the next item size known in advance */
+ if(ReadFileBuffered(fd_in,&nextitemsize,FILESORT_VARSIZE))    /* Always have the next item size known in advance */
     goto tidy_and_exit;
 
  do
@@ -549,7 +549,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
        ramused+=FILESORT_VARSIZE;
 
-       ReadFile(fd_in,threads[thread].data+ramused,itemsize);
+       ReadFileBuffered(fd_in,threads[thread].data+ramused,itemsize);
 
        if(!pre_sort_function || pre_sort_function(threads[thread].data+ramused,count_in))
          {
@@ -571,7 +571,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
        count_in++;
 
-       if(ReadFile(fd_in,&nextitemsize,FILESORT_VARSIZE))
+       if(ReadFileBuffered(fd_in,&nextitemsize,FILESORT_VARSIZE))
          {
           more=0;
           break;
@@ -673,7 +673,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
          {
           FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(threads[0].datap[item]-FILESORT_VARSIZE);
 
-          WriteFile(fd_out,threads[0].datap[item]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
+          WriteFileBuffered(fd_out,threads[0].datap[item]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
           count_out++;
          }
       }
@@ -699,7 +699,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
     sprintf(filename,"%s/filesort.%d.tmp",option_tmpdirname,i);
 
-    fds[i]=ReOpenFile(filename);
+    fds[i]=ReOpenFileBuffered(filename);
 
     DeleteFile(filename);
    }
@@ -720,11 +720,11 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
     datap[i]=data+FILESORT_VARALIGN-FILESORT_VARSIZE+i*largestitemsize;
 
-    ReadFile(fds[i],&itemsize,FILESORT_VARSIZE);
+    ReadFileBuffered(fds[i],&itemsize,FILESORT_VARSIZE);
 
     *(FILESORT_VARINT*)(datap[i]-FILESORT_VARSIZE)=itemsize;
 
-    ReadFile(fds[i],datap[i],itemsize);
+    ReadFileBuffered(fds[i],datap[i],itemsize);
 
     index=i+1;
 
@@ -763,11 +763,11 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
       {
        itemsize=*(FILESORT_VARINT*)(datap[heap[index]]-FILESORT_VARSIZE);
 
-       WriteFile(fd_out,datap[heap[index]]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
+       WriteFileBuffered(fd_out,datap[heap[index]]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
        count_out++;
       }
 
-    if(ReadFile(fds[heap[index]],&itemsize,FILESORT_VARSIZE))
+    if(ReadFileBuffered(fds[heap[index]],&itemsize,FILESORT_VARSIZE))
       {
        heap[index]=heap[ndata];
        ndata--;
@@ -776,7 +776,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
       {
        *(FILESORT_VARINT*)(datap[heap[index]]-FILESORT_VARSIZE)=itemsize;
 
-       ReadFile(fds[heap[index]],datap[heap[index]],itemsize);
+       ReadFileBuffered(fds[heap[index]],datap[heap[index]],itemsize);
       }
 
     /* Bubble down the new value */
@@ -827,7 +827,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
  if(fds)
    {
     for(i=0;i<nfiles;i++)
-       CloseFile(fds[i]);
+       CloseFileBuffered(fds[i]);
     free(fds);
    }
 
@@ -864,12 +864,12 @@ static void *filesort_fixed_heapsort_thread(thread_data *thread)
 
  /* Create a temporary file and write the result */
 
- fd=OpenFileNew(thread->filename);
+ fd=OpenFileBufferedNew(thread->filename);
 
  for(item=0;item<thread->n;item++)
-    WriteFile(fd,thread->datap[item],thread->itemsize);
+    WriteFileBuffered(fd,thread->datap[item],thread->itemsize);
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
@@ -909,16 +909,16 @@ static void *filesort_vary_heapsort_thread(thread_data *thread)
 
  /* Create a temporary file and write the result */
 
- fd=OpenFileNew(thread->filename);
+ fd=OpenFileBufferedNew(thread->filename);
 
  for(item=0;item<thread->n;item++)
    {
     FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(thread->datap[item]-FILESORT_VARSIZE);
 
-    WriteFile(fd,thread->datap[item]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
+    WriteFileBuffered(fd,thread->datap[item]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
    }
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 
 #if defined(USE_PTHREADS) && USE_PTHREADS
 

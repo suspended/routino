@@ -269,11 +269,11 @@ void SortNodeList(NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+ nodesx->fd=ReOpenFileBuffered(nodesx->filename_tmp);
 
  DeleteFile(nodesx->filename_tmp);
 
- fd=OpenFileNew(nodesx->filename_tmp);
+ fd=OpenFileBufferedNew(nodesx->filename_tmp);
 
  /* Allocate the array of indexes */
 
@@ -295,8 +295,8 @@ void SortNodeList(NodesX *nodesx)
 
  /* Close the files */
 
- nodesx->fd=CloseFile(nodesx->fd);
- CloseFile(fd);
+ nodesx->fd=CloseFileBuffered(nodesx->fd);
+ CloseFileBuffered(fd);
 
  /* Print the final message */
 
@@ -590,11 +590,11 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
+ nodesx->fd=ReOpenFileBuffered(nodesx->filename_tmp);
 
  DeleteFile(nodesx->filename_tmp);
 
- fd=OpenFileNew(nodesx->filename_tmp);
+ fd=OpenFileBufferedNew(nodesx->filename_tmp);
 
  /* Sort nodes geographically and index them */
 
@@ -606,8 +606,8 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  /* Close the files */
 
- nodesx->fd=CloseFile(nodesx->fd);
- CloseFile(fd);
+ nodesx->fd=CloseFileBuffered(nodesx->fd);
+ CloseFileBuffered(fd);
 
  /* Free the memory */
 

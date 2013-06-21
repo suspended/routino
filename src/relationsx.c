@@ -442,11 +442,11 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Re-open the file read-only and a new file writeable */
 
-    relationsx->rrfd=ReOpenFile(relationsx->rrfilename_tmp);
+    relationsx->rrfd=ReOpenFileBuffered(relationsx->rrfilename_tmp);
 
     DeleteFile(relationsx->rrfilename_tmp);
 
-    rrfd=OpenFileNew(relationsx->rrfilename_tmp);
+    rrfd=OpenFileBufferedNew(relationsx->rrfilename_tmp);
 
     /* Sort the relations */
 
@@ -460,8 +460,8 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Close the files */
 
-    relationsx->rrfd=CloseFile(relationsx->rrfd);
-    CloseFile(rrfd);
+    relationsx->rrfd=CloseFileBuffered(relationsx->rrfd);
+    CloseFileBuffered(rrfd);
 
     /* Print the final message */
 
@@ -481,11 +481,11 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Re-open the file read-only and a new file writeable */
 
-    relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
+    relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename_tmp);
 
     DeleteFile(relationsx->trfilename_tmp);
 
-    trfd=OpenFileNew(relationsx->trfilename_tmp);
+    trfd=OpenFileBufferedNew(relationsx->trfilename_tmp);
 
     /* Sort the relations */
 
@@ -499,8 +499,8 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Close the files */
 
-    relationsx->trfd=CloseFile(relationsx->trfd);
-    CloseFile(trfd);
+    relationsx->trfd=CloseFileBuffered(relationsx->trfd);
+    CloseFileBuffered(trfd);
 
     /* Print the final message */
 
@@ -1240,11 +1240,11 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 
  /* Re-open the file read-only and a new file writeable */
 
- relationsx->trfd=ReOpenFile(relationsx->trfilename_tmp);
+ relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename_tmp);
 
  DeleteFile(relationsx->trfilename_tmp);
 
- trfd=OpenFileNew(relationsx->trfilename_tmp);
+ trfd=OpenFileBufferedNew(relationsx->trfilename_tmp);
 
  /* Update the segments with geographically sorted node indexes and sort them */
 
@@ -1257,8 +1257,8 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 
  /* Close the files */
 
- relationsx->trfd=CloseFile(relationsx->trfd);
- CloseFile(trfd);
+ relationsx->trfd=CloseFileBuffered(relationsx->trfd);
+ CloseFileBuffered(trfd);
 
  /* Unmap from memory / close the files */
 

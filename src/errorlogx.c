@@ -692,11 +692,11 @@ void SortErrorLogsGeographically(ErrorLogsX *errorlogsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- oldfd=ReOpenFile(errorbinfilename);
+ oldfd=ReOpenFileBuffered(errorbinfilename);
 
  DeleteFile(errorbinfilename);
 
- newfd=OpenFileNew(errorbinfilename);
+ newfd=OpenFileBufferedNew(errorbinfilename);
 
  /* Sort errors geographically */
 
@@ -706,8 +706,8 @@ void SortErrorLogsGeographically(ErrorLogsX *errorlogsx)
 
  /* Close the files */
 
- CloseFile(oldfd);
- CloseFile(newfd);
+ CloseFileBuffered(oldfd);
+ CloseFileBuffered(newfd);
 
  /* Work out the number of bins */
 
