@@ -498,6 +498,63 @@ int ReadFileBuffered(int fd,void *address,size_t length)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Seek to a position in a file descriptor.
+
+  int SeekFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor to seek within.
+
+  off_t position The position to seek to.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int SeekFile(int fd,off_t position)
+{
+ logassert(fd!=-1,"File descriptor is in error - report a bug");
+
+ logassert(fd>=nfilebuffers || !filebuffers[fd],"File descriptor has a buffer - report a bug");
+
+ /* Seek the data */
+
+ if(lseek(fd,position,SEEK_SET)!=position)
+    return(-1);
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Seek to a position in a file descriptor.
+
+  int SeekFile Returns 0 if OK or something else in case of an error.
+
+  int fd The file descriptor to seek within.
+
+  off_t position The position to seek to.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int SeekFileBuffered(int fd,off_t position)
+{
+ logassert(fd!=-1,"File descriptor is in error - report a bug");
+
+ logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
+
+ /* Seek the data - doesn't need to be highly optimised */
+
+ if(!filebuffers[fd]->reading)
+    if(write(fd,filebuffers[fd]->buffer,filebuffers[fd]->pointer)!=(ssize_t)filebuffers[fd]->pointer)
+       return(-1);
+
+ filebuffers[fd]->pointer=0;
+ filebuffers[fd]->length=0;
+
+ if(lseek(fd,position,SEEK_SET)!=position)
+    return(-1);
+
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Skip forward by an offset in a file descriptor that uses a buffer.
 
   int SkipFileBuffered Returns 0 if OK or something else in case of an error.
@@ -515,7 +572,7 @@ int SkipFileBuffered(int fd,off_t skip)
 
  logassert(filebuffers[fd]->reading,"File descriptor was not opened for reading - report a bug");
 
- /* Read the data */
+ /* Skip the data - needs to be optimised */
 
  if((filebuffers[fd]->pointer+skip)>filebuffers[fd]->length)
    {
