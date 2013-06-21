@@ -135,14 +135,14 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
 #if !SLIM
  nodesx->data=MapFile(nodesx->filename);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename);
+ nodesx->fd=ReOpenFileUnbuffered(nodesx->filename);
 
  InvalidateNodeXCache(nodesx->cache);
 #endif
 
- waysx->fd=ReOpenFile(waysx->filename);
- relationsx->rrfd=ReOpenFile(relationsx->rrfilename);
- relationsx->trfd=ReOpenFile(relationsx->trfilename);
+ waysx->fd=ReOpenFileBuffered(waysx->filename);
+ relationsx->rrfd=ReOpenFileBuffered(relationsx->rrfilename);
+ relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename);
 
  /* Open the binary log file read-only and a new file writeable */
 
@@ -303,12 +303,12 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
 #if !SLIM
  nodesx->data=UnmapFile(nodesx->data);
 #else
- nodesx->fd=CloseFile(nodesx->fd);
+ nodesx->fd=CloseFileUnbuffered(nodesx->fd);
 #endif
 
- waysx->fd=CloseFile(waysx->fd);
- relationsx->rrfd=CloseFile(relationsx->rrfd);
- relationsx->trfd=CloseFile(relationsx->trfd);
+ waysx->fd=CloseFileBuffered(waysx->fd);
+ relationsx->rrfd=CloseFileBuffered(relationsx->rrfd);
+ relationsx->trfd=CloseFileBuffered(relationsx->trfd);
 
  CloseFileBuffered(oldfd);
  CloseFileBuffered(newfd);
@@ -524,19 +524,19 @@ static int lookup_lat_long_way(WaysX *waysx,NodesX *nodesx,way_t way,latlong_t *
     node_t node1,node2,prevnode,node;
     latlong_t latitude1,longitude1,latitude2,longitude2;
 
-    SeekFile(waysx->fd,offset);
+    SeekFileBuffered(waysx->fd,offset);
 
     /* Choose a random pair of adjacent nodes */
 
-    if(ReadFile(waysx->fd,&node1,sizeof(node_t)) || node1==NO_NODE_ID)
+    if(ReadFileBuffered(waysx->fd,&node1,sizeof(node_t)) || node1==NO_NODE_ID)
        return 0;
 
-    if(ReadFile(waysx->fd,&node2,sizeof(node_t)) || node2==NO_NODE_ID)
+    if(ReadFileBuffered(waysx->fd,&node2,sizeof(node_t)) || node2==NO_NODE_ID)
        return lookup_lat_long_node(nodesx,node1,latitude,longitude);
 
     prevnode=node2;
 
-    while(!ReadFile(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
+    while(!ReadFileBuffered(waysx->fd,&node,sizeof(node_t)) && node!=NO_NODE_ID)
       {
        count++;
 
@@ -597,7 +597,8 @@ static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *
       {
        TurnRelX turnrelx;
 
-       SeekReadFile(relationsx->trfd,&turnrelx,sizeof(TurnRelX),index*sizeof(TurnRelX));
+       SeekFileBuffered(relationsx->trfd,index*sizeof(TurnRelX));
+       ReadFileBuffered(relationsx->trfd,&turnrelx,sizeof(TurnRelX));
 
        if(lookup_lat_long_node(nodesx,turnrelx.via,latitude,longitude))
           return 1;
@@ -619,13 +620,13 @@ static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *
     way_t way=NO_WAY_ID,tempway;
     relation_t relation=NO_RELATION_ID,temprelation;
 
-    SeekFile(relationsx->rrfd,offset);
+    SeekFileBuffered(relationsx->rrfd,offset);
 
     /* Choose a random node */
 
     count=0;
 
-    while(!ReadFile(relationsx->rrfd,&tempnode,sizeof(node_t)) && tempnode!=NO_NODE_ID)
+    while(!ReadFileBuffered(relationsx->rrfd,&tempnode,sizeof(node_t)) && tempnode!=NO_NODE_ID)
       {
        count++;
 
@@ -640,7 +641,7 @@ static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *
 
     count=0;
 
-    while(!ReadFile(relationsx->rrfd,&tempway,sizeof(way_t)) && tempway!=NO_WAY_ID)
+    while(!ReadFileBuffered(relationsx->rrfd,&tempway,sizeof(way_t)) && tempway!=NO_WAY_ID)
       {
        count++;
 
@@ -655,7 +656,7 @@ static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *
 
     count=0;
 
-    while(!ReadFile(relationsx->rrfd,&temprelation,sizeof(relation_t)) && temprelation!=NO_RELATION_ID)
+    while(!ReadFileBuffered(relationsx->rrfd,&temprelation,sizeof(relation_t)) && temprelation!=NO_RELATION_ID)
       {
        count++;
 
@@ -923,7 +924,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
 
  size=SizeFile(errorlogfilename);
 
- oldfd=ReOpenFile(errorlogfilename);
+ oldfd=ReOpenFileUnbuffered(errorlogfilename);
 
  while(size)
    {
@@ -931,7 +932,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
     char buffer[4096];
     off_t chunksize=(size>sizeof(buffer)?sizeof(buffer):size);
 
-    ReadFile(oldfd,buffer,chunksize);
+    ReadFileUnbuffered(oldfd,buffer,chunksize);
 
     for(i=0;i<chunksize;i++)
        if(buffer[i]=='\n')
@@ -942,7 +943,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
     size-=chunksize;
    }
 
- CloseFile(oldfd);
+ CloseFileUnbuffered(oldfd);
 
  /* Finish off the offset indexing and write them out */
 

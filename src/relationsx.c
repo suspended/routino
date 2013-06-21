@@ -636,7 +636,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 #if !SLIM
  waysx->data=MapFileWriteable(waysx->filename_tmp);
 #else
- waysx->fd=ReOpenFileWriteable(waysx->filename_tmp);
+ waysx->fd=ReOpenFileUnbufferedWriteable(waysx->filename_tmp);
 
  InvalidateWayXCache(waysx->cache);
 #endif
@@ -799,7 +799,7 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
 #if !SLIM
  waysx->data=UnmapFile(waysx->data);
 #else
- waysx->fd=CloseFile(waysx->fd);
+ waysx->fd=CloseFileUnbuffered(waysx->fd);
 #endif
 }
 
@@ -837,9 +837,9 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
  segmentsx->data=MapFile(segmentsx->filename_tmp);
  waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFileWriteable(nodesx->filename_tmp);
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ nodesx->fd=ReOpenFileUnbufferedWriteable(nodesx->filename_tmp);
+ segmentsx->fd=ReOpenFileUnbuffered(segmentsx->filename_tmp);
+ waysx->fd=ReOpenFileUnbuffered(waysx->filename_tmp);
 
  InvalidateNodeXCache(nodesx->cache);
  InvalidateSegmentXCache(segmentsx->cache);
@@ -1129,9 +1129,9 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
  segmentsx->data=UnmapFile(segmentsx->data);
  waysx->data=UnmapFile(waysx->data);
 #else
- nodesx->fd=CloseFile(nodesx->fd);
- segmentsx->fd=CloseFile(segmentsx->fd);
- waysx->fd=CloseFile(waysx->fd);
+ nodesx->fd=CloseFileUnbuffered(nodesx->fd);
+ segmentsx->fd=CloseFileUnbuffered(segmentsx->fd);
+ waysx->fd=CloseFileUnbuffered(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -1233,7 +1233,7 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 #if !SLIM
  segmentsx->data=MapFile(segmentsx->filename_tmp);
 #else
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ segmentsx->fd=ReOpenFileUnbuffered(segmentsx->filename_tmp);
 
  InvalidateSegmentXCache(segmentsx->cache);
 #endif
@@ -1265,7 +1265,7 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 #if !SLIM
  segmentsx->data=UnmapFile(segmentsx->data);
 #else
- segmentsx->fd=CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFileUnbuffered(segmentsx->fd);
 #endif
 
  /* Print the final message */

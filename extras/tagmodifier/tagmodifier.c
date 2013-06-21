@@ -611,7 +611,7 @@ int main(int argc,char **argv)
 
  /* Open the input file */
 
- fd=ReOpenFile(filename);
+ fd=ReOpenFileUnbuffered(filename);
 
  if((p=strstr(filename,".bz2")) && !strcmp(p,".bz2"))
     fd=Uncompress_Bzip2(fd);
@@ -639,7 +639,7 @@ int main(int argc,char **argv)
 
  /* Tidy up */
 
- CloseFile(fd);
+ CloseFileUnbuffered(fd);
 
  return(retval);
 }

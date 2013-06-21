@@ -44,26 +44,26 @@ void *MapFileWriteable(const char *filename);
 
 void *UnmapFile(const void *address);
 
-int OpenFileNew(const char *filename);
-int OpenFileAppend(const char *filename);
+int OpenFileUnbufferedNew(const char *filename);
+int OpenFileUnbufferedAppend(const char *filename);
 
 int OpenFileBufferedNew(const char *filename);
 int OpenFileBufferedAppend(const char *filename);
 
-int ReOpenFile(const char *filename);
-int ReOpenFileWriteable(const char *filename);
+int ReOpenFileUnbuffered(const char *filename);
+int ReOpenFileUnbufferedWriteable(const char *filename);
 
 int ReOpenFileBuffered(const char *filename);
 
 int WriteFileBuffered(int fd,const void *address,size_t length);
 int ReadFileBuffered(int fd,void *address,size_t length);
 
-int SeekFile(int fd,off_t position);
+int SeekFileUnbuffered(int fd,off_t position);
 
 int SeekFileBuffered(int fd,off_t position);
 int SkipFileBuffered(int fd,off_t skip);
 
-int CloseFile(int fd);
+int CloseFileUnbuffered(int fd);
 int CloseFileBuffered(int fd);
 
 off_t SizeFile(const char *filename);
@@ -75,11 +75,11 @@ int RenameFile(const char *oldfilename,const char *newfilename);
 
 /* Functions in files.h */
 
-static inline int WriteFile(int fd,const void *address,size_t length);
-static inline int ReadFile(int fd,void *address,size_t length);
+static inline int WriteFileUnbuffered(int fd,const void *address,size_t length);
+static inline int ReadFileUnbuffered(int fd,void *address,size_t length);
 
-static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t position);
-static inline int SeekReadFile(int fd,void *address,size_t length,off_t position);
+static inline int SeekWriteFileUnbuffered(int fd,const void *address,size_t length,off_t position);
+static inline int SeekReadFileUnbuffered(int fd,void *address,size_t length,off_t position);
 
 
 /* Inline the frequently called functions */
@@ -87,7 +87,7 @@ static inline int SeekReadFile(int fd,void *address,size_t length,off_t position
 /*++++++++++++++++++++++++++++++++++++++
   Write data to a file descriptor.
 
-  int WriteFile Returns 0 if OK or something else in case of an error.
+  int WriteFileUnbuffered Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to write to.
 
@@ -96,7 +96,7 @@ static inline int SeekReadFile(int fd,void *address,size_t length,off_t position
   size_t length The length of data to write.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int WriteFile(int fd,const void *address,size_t length)
+static inline int WriteFileUnbuffered(int fd,const void *address,size_t length)
 {
  logassert(fd!=-1,"File descriptor is in error - report a bug");
 
@@ -112,7 +112,7 @@ static inline int WriteFile(int fd,const void *address,size_t length)
 /*++++++++++++++++++++++++++++++++++++++
   Read data from a file descriptor.
 
-  int ReadFile Returns 0 if OK or something else in case of an error.
+  int ReadFileUnbuffered Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to read from.
 
@@ -121,7 +121,7 @@ static inline int WriteFile(int fd,const void *address,size_t length)
   size_t length The length of data to read.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int ReadFile(int fd,void *address,size_t length)
+static inline int ReadFileUnbuffered(int fd,void *address,size_t length)
 {
  logassert(fd!=-1,"File descriptor is in error - report a bug");
 
@@ -137,7 +137,7 @@ static inline int ReadFile(int fd,void *address,size_t length)
 /*++++++++++++++++++++++++++++++++++++++
   Write data to a file descriptor after seeking to a position.
 
-  int SeekWriteFile Returns 0 if OK or something else in case of an error.
+  int SeekWriteFileUnbuffered Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to write to.
 
@@ -148,7 +148,7 @@ static inline int ReadFile(int fd,void *address,size_t length)
   off_t position The position to seek to.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t position)
+static inline int SeekWriteFileUnbuffered(int fd,const void *address,size_t length,off_t position)
 {
  logassert(fd!=-1,"File descriptor is in error - report a bug");
 
@@ -176,7 +176,7 @@ static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t p
 /*++++++++++++++++++++++++++++++++++++++
   Read data from a file descriptor after seeking to a position.
 
-  int SeekReadFile Returns 0 if OK or something else in case of an error.
+  int SeekReadFileUnbuffered Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to read from.
 
@@ -187,7 +187,7 @@ static inline int SeekWriteFile(int fd,const void *address,size_t length,off_t p
   off_t position The position to seek to.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int SeekReadFile(int fd,void *address,size_t length,off_t position)
+static inline int SeekReadFileUnbuffered(int fd,void *address,size_t length,off_t position)
 {
  logassert(fd!=-1,"File descriptor is in error - report a bug");
 

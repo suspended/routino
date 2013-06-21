@@ -68,7 +68,9 @@ static struct filebuffer **filebuffers=NULL;
 static int nfilebuffers=0;
 
 
-static void CreateFileBuffer(int fd,int reading);
+/* Local functions */
+
+static void CreateFileBuffer(int fd,int read_write);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -109,7 +111,7 @@ void *MapFile(const char *filename)
 
  /* Open the file and get its size */
 
- fd=ReOpenFile(filename);
+ fd=ReOpenFileUnbuffered(filename);
 
  size=SizeFile(filename);
 
@@ -156,7 +158,7 @@ void *MapFileWriteable(const char *filename)
 
  /* Open the file and get its size */
 
- fd=ReOpenFileWriteable(filename);
+ fd=ReOpenFileUnbufferedWriteable(filename);
 
  size=SizeFile(filename);
 
@@ -211,7 +213,7 @@ void *UnmapFile(const void *address)
 
  /* Close the file */
 
- close(mappedfiles[i].fd);
+ CloseFileUnbuffered(mappedfiles[i].fd);
 
  /* Unmap the file */
 
@@ -231,12 +233,12 @@ void *UnmapFile(const void *address)
 /*++++++++++++++++++++++++++++++++++++++
   Open a new file on disk for writing.
 
-  int OpenFileNew Returns the file descriptor if OK or exits in case of an error.
+  int OpenFileUnbufferedNew Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to create.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int OpenFileNew(const char *filename)
+int OpenFileUnbufferedNew(const char *filename)
 {
  int fd;
 
@@ -249,6 +251,8 @@ int OpenFileNew(const char *filename)
     fprintf(stderr,"Cannot open file '%s' for writing [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
+
+ CreateFileBuffer(fd,0);
 
  return(fd);
 }
@@ -266,9 +270,9 @@ int OpenFileBufferedNew(const char *filename)
 {
  int fd;
 
- fd=OpenFileNew(filename);
+ fd=OpenFileUnbufferedNew(filename);
 
- CreateFileBuffer(fd,0);
+ CreateFileBuffer(fd,-1);
 
  return(fd);
 }
@@ -277,12 +281,12 @@ int OpenFileBufferedNew(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Open a new or existing file on disk for appending.
 
-  int OpenFileAppend Returns the file descriptor if OK or exits in case of an error.
+  int OpenFileUnbufferedAppend Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to create or open.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int OpenFileAppend(const char *filename)
+int OpenFileUnbufferedAppend(const char *filename)
 {
  int fd;
 
@@ -295,6 +299,8 @@ int OpenFileAppend(const char *filename)
     fprintf(stderr,"Cannot open file '%s' for appending [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
+
+ CreateFileBuffer(fd,0);
 
  return(fd);
 }
@@ -312,9 +318,9 @@ int OpenFileBufferedAppend(const char *filename)
 {
  int fd;
 
- fd=OpenFileAppend(filename);
+ fd=OpenFileUnbufferedAppend(filename);
 
- CreateFileBuffer(fd,0);
+ CreateFileBuffer(fd,-1);
 
  return(fd);
 }
@@ -323,12 +329,12 @@ int OpenFileBufferedAppend(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Open an existing file on disk for reading.
 
-  int ReOpenFile Returns the file descriptor if OK or exits in case of an error.
+  int ReOpenFileUnbuffered Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to open.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ReOpenFile(const char *filename)
+int ReOpenFileUnbuffered(const char *filename)
 {
  int fd;
 
@@ -341,6 +347,8 @@ int ReOpenFile(const char *filename)
     fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
+
+ CreateFileBuffer(fd,0);
 
  return(fd);
 }
@@ -358,7 +366,7 @@ int ReOpenFileBuffered(const char *filename)
 {
  int fd;
 
- fd=ReOpenFile(filename);
+ fd=ReOpenFileUnbuffered(filename);
 
  CreateFileBuffer(fd,1);
 
@@ -369,12 +377,12 @@ int ReOpenFileBuffered(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Open an existing file on disk for reading or writing.
 
-  int ReOpenFileWriteable Returns the file descriptor if OK or exits in case of an error.
+  int ReOpenFileUnbufferedWriteable Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to open.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ReOpenFileWriteable(const char *filename)
+int ReOpenFileUnbufferedWriteable(const char *filename)
 {
  int fd;
 
@@ -387,6 +395,8 @@ int ReOpenFileWriteable(const char *filename)
     fprintf(stderr,"Cannot open file '%s' for reading and writing [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
+
+ CreateFileBuffer(fd,0);
 
  return(fd);
 }
@@ -500,14 +510,14 @@ int ReadFileBuffered(int fd,void *address,size_t length)
 /*++++++++++++++++++++++++++++++++++++++
   Seek to a position in a file descriptor.
 
-  int SeekFile Returns 0 if OK or something else in case of an error.
+  int SeekFileUnbuffered Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to seek within.
 
   off_t position The position to seek to.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int SeekFile(int fd,off_t position)
+int SeekFileUnbuffered(int fd,off_t position)
 {
  logassert(fd!=-1,"File descriptor is in error - report a bug");
 
@@ -523,9 +533,9 @@ int SeekFile(int fd,off_t position)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Seek to a position in a file descriptor.
+  Seek to a position in a file descriptor that uses a buffer.
 
-  int SeekFile Returns 0 if OK or something else in case of an error.
+  int SeekFileBuffered Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to seek within.
 
@@ -635,12 +645,12 @@ int ExistsFile(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Close a file on disk.
 
-  int CloseFile returns -1 (for similarity to the *OpenFile* functions).
+  int CloseFileUnbuffered returns -1 (for similarity to the *OpenFileUnbuffered* functions).
 
   int fd The file descriptor to close.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int CloseFile(int fd)
+int CloseFileUnbuffered(int fd)
 {
  logassert(fd>=nfilebuffers || !filebuffers[fd],"File descriptor has a buffer - report a bug");
 
@@ -714,10 +724,10 @@ int RenameFile(const char *oldfilename,const char *newfilename)
 
   int fd The file descriptor.
 
-  int reading A flag set if the file descriptor is to be used for reading.
+  int read_write A flag set to 1 for reading, -1 for writing and 0 for unbuffered.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void CreateFileBuffer(int fd,int reading)
+static void CreateFileBuffer(int fd,int read_write)
 {
  if(nfilebuffers<=fd)
    {
@@ -731,7 +741,10 @@ static void CreateFileBuffer(int fd,int reading)
     nfilebuffers=fd+1;
    }
 
- filebuffers[fd]=(struct filebuffer*)calloc(sizeof(struct filebuffer),1);
+ if(read_write)
+   {
+    filebuffers[fd]=(struct filebuffer*)calloc(sizeof(struct filebuffer),1);
 
- filebuffers[fd]->reading=reading;
+    filebuffers[fd]->reading=(read_write==1);
+   }
 }

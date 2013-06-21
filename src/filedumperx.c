@@ -140,7 +140,7 @@ static void print_nodes(const char *filename)
     printf("  flags=%02x\n",nodex.flags);
    }
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 }
 
 
