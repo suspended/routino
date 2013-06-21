@@ -555,7 +555,7 @@ void SortWayNames(WaysX *waysx)
 #if !SLIM
  waysx->data=MapFileWriteable(waysx->filename_tmp);
 #else
- waysx->fd=ReOpenFileWriteable(waysx->filename_tmp);
+ waysx->fd=ReOpenFileUnbufferedWriteable(waysx->filename_tmp);
 #endif
 
  /* Print the start message */
@@ -624,7 +624,7 @@ void SortWayNames(WaysX *waysx)
 #if !SLIM
  waysx->data=UnmapFile(waysx->data);
 #else
- waysx->fd=CloseFile(waysx->fd);
+ waysx->fd=CloseFileUnbuffered(waysx->fd);
 #endif
 }
 

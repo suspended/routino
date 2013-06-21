@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -643,11 +643,11 @@ int ParseXMLProfiles(const char *filename)
     return(1);
    }
 
- fd=ReOpenFile(filename);
+ fd=ReOpenFileUnbuffered(filename);
 
  retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
 
- CloseFile(fd);
+ CloseFileUnbuffered(fd);
 
  if(retval)
    {

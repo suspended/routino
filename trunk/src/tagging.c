@@ -464,11 +464,11 @@ int ParseXMLTaggingRules(const char *filename)
     return(1);
    }
 
- fd=ReOpenFile(filename);
+ fd=ReOpenFileUnbuffered(filename);
 
  retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
 
- CloseFile(fd);
+ CloseFileUnbuffered(fd);
 
  if(current_list_stack)
     free(current_list_stack);

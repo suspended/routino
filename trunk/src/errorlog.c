@@ -60,11 +60,11 @@ ErrorLogs *LoadErrorLogs(const char *filename)
 
 #else
 
- errorlogs->fd=ReOpenFile(filename);
+ errorlogs->fd=ReOpenFileUnbuffered(filename);
 
  /* Copy the ErrorLogsFile header structure from the loaded data */
 
- ReadFile(errorlogs->fd,&errorlogs->file,sizeof(ErrorLogsFile));
+ ReadFileUnbuffered(errorlogs->fd,&errorlogs->file,sizeof(ErrorLogsFile));
 
  errorlogs->offsetsoffset         =sizeof(ErrorLogsFile);
  errorlogs->errorlogsoffset_geo   =sizeof(ErrorLogsFile)+(errorlogs->file.latbins*errorlogs->file.lonbins+1)*sizeof(index_t);
@@ -91,7 +91,7 @@ void DestroyErrorLogs(ErrorLogs *errorlogs)
 
 #else
 
- errorlogs->fd=CloseFile(errorlogs->fd);
+ errorlogs->fd=CloseFileUnbuffered(errorlogs->fd);
 
 #endif
 

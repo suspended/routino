@@ -233,7 +233,7 @@ if(!option_process_only)
 
       filename=strcpy(malloc(strlen(argv[arg])+1),argv[arg]);
 
-      fd=ReOpenFile(filename);
+      fd=ReOpenFileUnbuffered(filename);
 
       if((p=strstr(filename,".bz2")) && !strcmp(p,".bz2"))
         {
@@ -289,7 +289,7 @@ if(!option_process_only)
            }
         }
 
-      CloseFile(fd);
+      CloseFileUnbuffered(fd);
 
       free(filename);
      }

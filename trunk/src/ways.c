@@ -57,11 +57,11 @@ Ways *LoadWayList(const char *filename)
 
 #else
 
- ways->fd=ReOpenFile(filename);
+ ways->fd=ReOpenFileUnbuffered(filename);
 
  /* Copy the WaysFile header structure from the loaded data */
 
- ReadFile(ways->fd,&ways->file,sizeof(WaysFile));
+ ReadFileUnbuffered(ways->fd,&ways->file,sizeof(WaysFile));
 
  ways->namesoffset=sizeof(WaysFile)+ways->file.number*sizeof(Way);
 
@@ -87,7 +87,7 @@ void DestroyWayList(Ways *ways)
 
 #else
 
- ways->fd=CloseFile(ways->fd);
+ ways->fd=CloseFileUnbuffered(ways->fd);
 
  DeleteWayCache(ways->cache);
 

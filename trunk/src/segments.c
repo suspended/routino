@@ -62,11 +62,11 @@ Segments *LoadSegmentList(const char *filename)
 
 #else
 
- segments->fd=ReOpenFile(filename);
+ segments->fd=ReOpenFileUnbuffered(filename);
 
  /* Copy the SegmentsFile header structure from the loaded data */
 
- ReadFile(segments->fd,&segments->file,sizeof(SegmentsFile));
+ ReadFileUnbuffered(segments->fd,&segments->file,sizeof(SegmentsFile));
 
  segments->cache=NewSegmentCache();
 
@@ -90,7 +90,7 @@ void DestroySegmentList(Segments *segments)
 
 #else
 
- segments->fd=CloseFile(segments->fd);
+ segments->fd=CloseFileUnbuffered(segments->fd);
 
  DeleteSegmentCache(segments->cache);
 

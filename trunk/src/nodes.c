@@ -69,17 +69,17 @@ Nodes *LoadNodeList(const char *filename)
 
 #else
 
- nodes->fd=ReOpenFile(filename);
+ nodes->fd=ReOpenFileUnbuffered(filename);
 
  /* Copy the NodesFile header structure from the loaded data */
 
- ReadFile(nodes->fd,&nodes->file,sizeof(NodesFile));
+ ReadFileUnbuffered(nodes->fd,&nodes->file,sizeof(NodesFile));
 
  sizeoffsets=(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t);
 
  nodes->offsets=(index_t*)malloc(sizeoffsets);
 
- ReadFile(nodes->fd,nodes->offsets,sizeoffsets);
+ ReadFileUnbuffered(nodes->fd,nodes->offsets,sizeoffsets);
 
  nodes->nodesoffset=sizeof(NodesFile)+sizeoffsets;
 
@@ -105,7 +105,7 @@ void DestroyNodeList(Nodes *nodes)
 
 #else
 
- nodes->fd=CloseFile(nodes->fd);
+ nodes->fd=CloseFileUnbuffered(nodes->fd);
 
  free(nodes->offsets);
 

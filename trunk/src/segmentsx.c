@@ -386,8 +386,8 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  nodesx->data=MapFile(nodesx->filename_tmp);
  waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ nodesx->fd=ReOpenFileUnbuffered(nodesx->filename_tmp);
+ waysx->fd=ReOpenFileUnbuffered(waysx->filename_tmp);
 
  InvalidateNodeXCache(nodesx->cache);
  InvalidateWayXCache(waysx->cache);
@@ -481,8 +481,8 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  nodesx->data=UnmapFile(nodesx->data);
  waysx->data=UnmapFile(waysx->data);
 #else
- nodesx->fd=CloseFile(nodesx->fd);
- waysx->fd=CloseFile(waysx->fd);
+ nodesx->fd=CloseFileUnbuffered(nodesx->fd);
+ waysx->fd=CloseFileUnbuffered(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -529,7 +529,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 #if !SLIM
  segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
 #else
- segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
+ segmentsx->fd=ReOpenFileUnbufferedWriteable(segmentsx->filename_tmp);
 
  InvalidateSegmentXCache(segmentsx->cache);
 #endif
@@ -565,7 +565,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 #if !SLIM
  segmentsx->data=UnmapFile(segmentsx->data);
 #else
- segmentsx->fd=CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFileUnbuffered(segmentsx->fd);
 #endif
 
  /* Free the memory */
@@ -689,7 +689,7 @@ void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx)
 #if !SLIM
  waysx->data=MapFile(waysx->filename_tmp);
 #else
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ waysx->fd=ReOpenFileUnbuffered(waysx->filename_tmp);
 
  InvalidateWayXCache(waysx->cache);
 #endif
@@ -723,7 +723,7 @@ void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx)
 #if !SLIM
  waysx->data=UnmapFile(waysx->data);
 #else
- waysx->fd=CloseFile(waysx->fd);
+ waysx->fd=CloseFileUnbuffered(waysx->fd);
 #endif
 
  /* Print the final message */

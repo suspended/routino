@@ -167,16 +167,16 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
  waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
- segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ nodesx->fd=ReOpenFileUnbuffered(nodesx->filename_tmp);
+ segmentsx->fd=ReOpenFileUnbufferedWriteable(segmentsx->filename_tmp);
+ waysx->fd=ReOpenFileUnbuffered(waysx->filename_tmp);
 
  InvalidateNodeXCache(nodesx->cache);
  InvalidateSegmentXCache(segmentsx->cache);
  InvalidateWayXCache(waysx->cache);
 #endif
 
- fd=ReOpenFileWriteable(waysx->filename_tmp);
+ fd=ReOpenFileUnbufferedWriteable(waysx->filename_tmp);
 
  connected=AllocBitMask(segmentsx->number);
  region   =AllocBitMask(segmentsx->number);
@@ -229,7 +229,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
        if(segmentx->way<waysx->number)
           wayx=LookupWayX(waysx,segmentx->way,1);
        else
-          SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),segmentx->way*sizeof(WayX));
+          SeekReadFileUnbuffered(fd,(wayx=&tmpwayx),sizeof(WayX),segmentx->way*sizeof(WayX));
 
        if(!(wayx->way.allow&transports))
           goto endloop;
@@ -272,7 +272,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
                    if(segmentx->way<waysx->number)
                       wayx=LookupWayX(waysx,segmentx->way,1);
                    else
-                      SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),segmentx->way*sizeof(WayX));
+                      SeekReadFileUnbuffered(fd,(wayx=&tmpwayx),sizeof(WayX),segmentx->way*sizeof(WayX));
 
                    if(wayx->way.allow&transports)
                      {
@@ -324,7 +324,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
              if(segmentx->way<waysx->number)
                 wayx=LookupWayX(waysx,segmentx->way,1);
              else
-                SeekReadFile(fd,(wayx=&tmpwayx),sizeof(WayX),segmentx->way*sizeof(WayX));
+                SeekReadFileUnbuffered(fd,(wayx=&tmpwayx),sizeof(WayX),segmentx->way*sizeof(WayX));
 
              if(wayx->way.allow==transports)
                {
@@ -342,7 +342,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 
                    segmentx->way=waysx->number+nnewways;
 
-                   SeekWriteFile(fd,&tmpwayx,sizeof(WayX),segmentx->way*sizeof(WayX));
+                   SeekWriteFileUnbuffered(fd,&tmpwayx,sizeof(WayX),segmentx->way*sizeof(WayX));
 
                    nnewways++;
 
@@ -352,7 +352,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
                   {
                    tmpwayx.way.allow&=~transports;
 
-                   SeekWriteFile(fd,&tmpwayx,sizeof(WayX),segmentx->way*sizeof(WayX));
+                   SeekWriteFileUnbuffered(fd,&tmpwayx,sizeof(WayX),segmentx->way*sizeof(WayX));
                   }
 
                 nadjusted++;
@@ -398,12 +398,12 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  segmentsx->data=UnmapFile(segmentsx->data);
  waysx->data=UnmapFile(waysx->data);
 #else
- nodesx->fd=CloseFile(nodesx->fd);
- segmentsx->fd=CloseFile(segmentsx->fd);
- waysx->fd=CloseFile(waysx->fd);
+ nodesx->fd=CloseFileUnbuffered(nodesx->fd);
+ segmentsx->fd=CloseFileUnbuffered(segmentsx->fd);
+ waysx->fd=CloseFileUnbuffered(waysx->fd);
 #endif
 
- CloseFile(fd);
+ CloseFileUnbuffered(fd);
 
  waysx->number+=nnewways;
 }
@@ -440,9 +440,9 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
  segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
  waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFileWriteable(nodesx->filename_tmp);
- segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ nodesx->fd=ReOpenFileUnbufferedWriteable(nodesx->filename_tmp);
+ segmentsx->fd=ReOpenFileUnbufferedWriteable(segmentsx->filename_tmp);
+ waysx->fd=ReOpenFileUnbuffered(waysx->filename_tmp);
 
  InvalidateNodeXCache(nodesx->cache);
  InvalidateSegmentXCache(segmentsx->cache);
@@ -811,9 +811,9 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
  segmentsx->data=UnmapFile(segmentsx->data);
  waysx->data=UnmapFile(waysx->data);
 #else
- nodesx->fd=CloseFile(nodesx->fd);
- segmentsx->fd=CloseFile(segmentsx->fd);
- waysx->fd=CloseFile(waysx->fd);
+ nodesx->fd=CloseFileUnbuffered(nodesx->fd);
+ segmentsx->fd=CloseFileUnbuffered(segmentsx->fd);
+ waysx->fd=CloseFileUnbuffered(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -860,9 +860,9 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
  waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFile(nodesx->filename_tmp);
- segmentsx->fd=ReOpenFileWriteable(segmentsx->filename_tmp);
- waysx->fd=ReOpenFile(waysx->filename_tmp);
+ nodesx->fd=ReOpenFileUnbuffered(nodesx->filename_tmp);
+ segmentsx->fd=ReOpenFileUnbufferedWriteable(segmentsx->filename_tmp);
+ waysx->fd=ReOpenFileUnbuffered(waysx->filename_tmp);
 
  InvalidateNodeXCache(nodesx->cache);
  InvalidateSegmentXCache(segmentsx->cache);
@@ -1218,9 +1218,9 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  segmentsx->data=UnmapFile(segmentsx->data);
  waysx->data=UnmapFile(waysx->data);
 #else
- nodesx->fd=CloseFile(nodesx->fd);
- segmentsx->fd=CloseFile(segmentsx->fd);
- waysx->fd=CloseFile(waysx->fd);
+ nodesx->fd=CloseFileUnbuffered(nodesx->fd);
+ segmentsx->fd=CloseFileUnbuffered(segmentsx->fd);
+ waysx->fd=CloseFileUnbuffered(waysx->fd);
 #endif
 
  /* Print the final message */

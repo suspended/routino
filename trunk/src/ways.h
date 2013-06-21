@@ -170,7 +170,7 @@ static inline char *WayName(Ways *ways,Way *wayp)
 
  int n=0;
 
- SeekFile(ways->fd,ways->namesoffset+wayp->name);
+ SeekFileUnbuffered(ways->fd,ways->namesoffset+wayp->name);
 
  if(!ways->ncached[position-1])
     ways->ncached[position-1]=(char*)malloc(32);
@@ -178,7 +178,7 @@ static inline char *WayName(Ways *ways,Way *wayp)
  while(1)
    {
     int i;
-    int m=ReadFile(ways->fd,ways->ncached[position-1]+n,32);
+    int m=ReadFileUnbuffered(ways->fd,ways->ncached[position-1]+n,32);
 
     if(m<0)
        break;
