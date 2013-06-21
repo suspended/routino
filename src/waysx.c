@@ -827,24 +827,24 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  /* Re-open the files */
 
- waysx->fd=ReOpenFile(waysx->filename_tmp);
- waysx->nfd=ReOpenFile(waysx->nfilename_tmp);
+ waysx->fd=ReOpenFileBuffered(waysx->filename_tmp);
+ waysx->nfd=ReOpenFileBuffered(waysx->nfilename_tmp);
 
  /* Write out the ways data */
 
- fd=OpenFileNew(filename);
+ fd=OpenFileBufferedNew(filename);
 
- SeekFile(fd,sizeof(WaysFile));
+ SeekFileBuffered(fd,sizeof(WaysFile));
 
  for(i=0;i<waysx->number;i++)
    {
-    ReadFile(waysx->fd,&wayx,sizeof(WayX));
+    ReadFileBuffered(waysx->fd,&wayx,sizeof(WayX));
 
     highways|=HIGHWAYS(wayx.way.type);
     allow   |=wayx.way.allow;
     props   |=wayx.way.props;
 
-    WriteFile(fd,&wayx.way,sizeof(Way));
+    WriteFileBuffered(fd,&wayx.way,sizeof(Way));
 
     if(!((i+1)%1000))
        printf_middle("Writing Ways: Ways=%"Pindex_t,i+1);
@@ -852,7 +852,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  /* Write out the ways names */
 
- SeekFile(fd,sizeof(WaysFile)+(off_t)waysx->number*sizeof(Way));
+ SeekFileBuffered(fd,sizeof(WaysFile)+(off_t)waysx->number*sizeof(Way));
 
  while(position<waysx->nlength)
    {
@@ -862,17 +862,17 @@ void SaveWayList(WaysX *waysx,const char *filename)
     if((waysx->nlength-position)<1024)
        len=waysx->nlength-position;
 
-    ReadFile(waysx->nfd,temp,len);
+    ReadFileBuffered(waysx->nfd,temp,len);
 
-    WriteFile(fd,temp,len);
+    WriteFileBuffered(fd,temp,len);
 
     position+=len;
    }
 
  /* Close the files */
 
- waysx->fd=CloseFile(waysx->fd);
- waysx->nfd=CloseFile(waysx->nfd);
+ waysx->fd=CloseFileBuffered(waysx->fd);
+ waysx->nfd=CloseFileBuffered(waysx->nfd);
 
  /* Write out the header structure */
 
@@ -882,10 +882,10 @@ void SaveWayList(WaysX *waysx,const char *filename)
  waysfile.allow   =allow;
  waysfile.props   =props;
 
- SeekFile(fd,0);
- WriteFile(fd,&waysfile,sizeof(WaysFile));
+ SeekFileBuffered(fd,0);
+ WriteFileBuffered(fd,&waysfile,sizeof(WaysFile));
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 
  /* Print the final message */
 

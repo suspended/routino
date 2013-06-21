@@ -401,15 +401,15 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
 
  DeleteFile(segmentsx->filename_tmp);
 
- fd=OpenFileNew(segmentsx->filename_tmp);
+ fd=OpenFileBufferedNew(segmentsx->filename_tmp);
 
  /* Modify the on-disk image */
 
- while(!ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX)))
+ while(!ReadFileBuffered(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
     NodeX *nodex1=LookupNodeX(nodesx,segmentx.node1,1);
     NodeX *nodex2=LookupNodeX(nodesx,segmentx.node2,2);
@@ -457,7 +457,7 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
        /* Write the modified segment */
 
-       WriteFile(fd,&segmentx,sizeof(SegmentX));
+       WriteFileBuffered(fd,&segmentx,sizeof(SegmentX));
 
        good++;
       }
@@ -472,8 +472,8 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Close the files */
 
- segmentsx->fd=CloseFile(segmentsx->fd);
- CloseFile(fd);
+ segmentsx->fd=CloseFileBuffered(segmentsx->fd);
+ CloseFileBuffered(fd);
 
  /* Unmap from memory / close the file */
 
@@ -896,20 +896,20 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
 
  /* Re-open the file */
 
- segmentsx->fd=ReOpenFile(segmentsx->filename_tmp);
+ segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
 
  /* Write out the segments data */
 
- fd=OpenFileNew(filename);
+ fd=OpenFileBufferedNew(filename);
 
- SeekFile(fd,sizeof(SegmentsFile));
+ SeekFileBuffered(fd,sizeof(SegmentsFile));
 
  for(i=0;i<segmentsx->number;i++)
    {
     SegmentX segmentx;
     Segment  segment={0};
 
-    ReadFile(segmentsx->fd,&segmentx,sizeof(SegmentX));
+    ReadFileBuffered(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
     segment.node1   =segmentx.node1;
     segment.node2   =segmentx.node2;
@@ -922,7 +922,7 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
     if(IsNormalSegment(&segment))
        normal_number++;
 
-    WriteFile(fd,&segment,sizeof(Segment));
+    WriteFileBuffered(fd,&segment,sizeof(Segment));
 
     if(!((i+1)%10000))
        printf_middle("Writing Segments: Segments=%"Pindex_t,i+1);
@@ -934,14 +934,14 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
  segmentsfile.snumber=super_number;
  segmentsfile.nnumber=normal_number;
 
- SeekFile(fd,0);
- WriteFile(fd,&segmentsfile,sizeof(SegmentsFile));
+ SeekFileBuffered(fd,0);
+ WriteFileBuffered(fd,&segmentsfile,sizeof(SegmentsFile));
 
- CloseFile(fd);
+ CloseFileBuffered(fd);
 
  /* Close the file */
 
- segmentsx->fd=CloseFile(segmentsx->fd);
+ segmentsx->fd=CloseFileBuffered(segmentsx->fd);
 
  /* Print the final message */
 
