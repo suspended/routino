@@ -106,14 +106,29 @@ char *FileName(const char *dirname,const char *prefix, const char *name)
 void *MapFile(const char *filename)
 {
  int fd;
+ struct stat buf;
  off_t size;
  void *address;
 
- /* Open the file and get its size */
+ /* Open the file */
 
- fd=ReOpenFileUnbuffered(filename);
+ fd=open(filename,O_RDONLY);
 
- size=SizeFile(filename);
+ if(fd<0)
+   {
+    fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ /* Get its size */
+
+ if(stat(filename,&buf))
+   {
+    fprintf(stderr,"Cannot stat file '%s' [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ size=buf.st_size;
 
  /* Map the file */
 
@@ -153,14 +168,29 @@ void *MapFile(const char *filename)
 void *MapFileWriteable(const char *filename)
 {
  int fd;
+ struct stat buf;
  off_t size;
  void *address;
 
- /* Open the file and get its size */
+ /* Open the file */
 
- fd=ReOpenFileUnbufferedWriteable(filename);
+ fd=open(filename,O_RDWR);
 
- size=SizeFile(filename);
+ if(fd<0)
+   {
+    fprintf(stderr,"Cannot open file '%s' for reading and writing [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ /* Get its size */
+
+ if(stat(filename,&buf))
+   {
+    fprintf(stderr,"Cannot stat file '%s' [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ size=buf.st_size;
 
  /* Map the file */
 
@@ -213,7 +243,7 @@ void *UnmapFile(const void *address)
 
  /* Close the file */
 
- CloseFileUnbuffered(mappedfiles[i].fd);
+ close(mappedfiles[i].fd);
 
  /* Unmap the file */
 
@@ -231,110 +261,14 @@ void *UnmapFile(const void *address)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open a new file on disk for writing.
-
-  int OpenFileUnbufferedNew Returns the file descriptor if OK or exits in case of an error.
-
-  const char *filename The name of the file to create.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int OpenFileUnbufferedNew(const char *filename)
-{
- int fd;
-
- /* Open the file */
-
- fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
-
- if(fd<0)
-   {
-    fprintf(stderr,"Cannot open file '%s' for writing [%s].\n",filename,strerror(errno));
-    exit(EXIT_FAILURE);
-   }
-
- CreateFileBuffer(fd,0);
-
- return(fd);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Open a new file on disk for writing (with buffering).
-
-  int OpenFileBufferedNew Returns the file descriptor if OK or exits in case of an error.
-
-  const char *filename The name of the file to create.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int OpenFileBufferedNew(const char *filename)
-{
- int fd;
-
- fd=OpenFileUnbufferedNew(filename);
-
- CreateFileBuffer(fd,-1);
-
- return(fd);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Open a new or existing file on disk for appending.
-
-  int OpenFileUnbufferedAppend Returns the file descriptor if OK or exits in case of an error.
-
-  const char *filename The name of the file to create or open.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int OpenFileUnbufferedAppend(const char *filename)
-{
- int fd;
-
- /* Open the file */
-
- fd=open(filename,O_WRONLY|O_CREAT|O_APPEND,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
-
- if(fd<0)
-   {
-    fprintf(stderr,"Cannot open file '%s' for appending [%s].\n",filename,strerror(errno));
-    exit(EXIT_FAILURE);
-   }
-
- CreateFileBuffer(fd,0);
-
- return(fd);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Open a new or existing file on disk for appending (with buffering).
-
-  int OpenFileBufferedAppend Returns the file descriptor if OK or exits in case of an error.
-
-  const char *filename The name of the file to create or open.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int OpenFileBufferedAppend(const char *filename)
-{
- int fd;
-
- fd=OpenFileUnbufferedAppend(filename);
-
- CreateFileBuffer(fd,-1);
-
- return(fd);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Open an existing file on disk for reading.
 
-  int ReOpenFileUnbuffered Returns the file descriptor if OK or exits in case of an error.
+  int SlimMapFile Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to open.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ReOpenFileUnbuffered(const char *filename)
+int SlimMapFile(const char *filename)
 {
  int fd;
 
@@ -355,34 +289,14 @@ int ReOpenFileUnbuffered(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Open an existing file on disk for reading (with buffering).
-
-  int ReOpenFileBuffered Returns the file descriptor if OK or exits in case of an error.
-
-  const char *filename The name of the file to open.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int ReOpenFileBuffered(const char *filename)
-{
- int fd;
-
- fd=ReOpenFileUnbuffered(filename);
-
- CreateFileBuffer(fd,1);
-
- return(fd);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Open an existing file on disk for reading or writing.
 
-  int ReOpenFileUnbufferedWriteable Returns the file descriptor if OK or exits in case of an error.
+  int SlimMapFileWriteable Returns the file descriptor if OK or exits in case of an error.
 
   const char *filename The name of the file to open.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ReOpenFileUnbufferedWriteable(const char *filename)
+int SlimMapFileWriteable(const char *filename)
 {
  int fd;
 
@@ -397,6 +311,106 @@ int ReOpenFileUnbufferedWriteable(const char *filename)
    }
 
  CreateFileBuffer(fd,0);
+
+ return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Close a file on disk.
+
+  int SlimUnmapFile returns -1 (for similarity to the UnmapFile function).
+
+  int fd The file descriptor to close.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int SlimUnmapFile(int fd)
+{
+ close(fd);
+
+ return(-1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open a new file on disk for writing (with buffering).
+
+  int OpenFileBufferedNew Returns the file descriptor if OK or exits in case of an error.
+
+  const char *filename The name of the file to create.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int OpenFileBufferedNew(const char *filename)
+{
+ int fd;
+
+ /* Open the file */
+
+ fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+
+ if(fd<0)
+   {
+    fprintf(stderr,"Cannot open file '%s' for writing [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ CreateFileBuffer(fd,-1);
+
+ return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open a new or existing file on disk for appending (with buffering).
+
+  int OpenFileBufferedAppend Returns the file descriptor if OK or exits in case of an error.
+
+  const char *filename The name of the file to create or open.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int OpenFileBufferedAppend(const char *filename)
+{
+ int fd;
+
+ /* Open the file */
+
+ fd=open(filename,O_WRONLY|O_CREAT|O_APPEND,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+
+ if(fd<0)
+   {
+    fprintf(stderr,"Cannot open file '%s' for appending [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ CreateFileBuffer(fd,-1);
+
+ return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open an existing file on disk for reading (with buffering).
+
+  int ReOpenFileBuffered Returns the file descriptor if OK or exits in case of an error.
+
+  const char *filename The name of the file to open.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ReOpenFileBuffered(const char *filename)
+{
+ int fd;
+
+ /* Open the file */
+
+ fd=open(filename,O_RDONLY);
+
+ if(fd<0)
+   {
+    fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ CreateFileBuffer(fd,1);
 
  return(fd);
 }
@@ -492,7 +506,13 @@ int ReadFileBuffered(int fd,void *address,size_t length)
 
  if(filebuffers[fd]->pointer==filebuffers[fd]->length)
    {
-    filebuffers[fd]->length=read(fd,filebuffers[fd]->buffer,BUFFLEN);
+    ssize_t len=read(fd,filebuffers[fd]->buffer,BUFFLEN);
+
+    if(len<=0)
+       return(-1);
+
+
+    filebuffers[fd]->length=len;
     filebuffers[fd]->pointer=0;
    }
 
@@ -502,31 +522,6 @@ int ReadFileBuffered(int fd,void *address,size_t length)
  memcpy(address,filebuffers[fd]->buffer+filebuffers[fd]->pointer,length);
 
  filebuffers[fd]->pointer+=length;
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Seek to a position in a file descriptor.
-
-  int SeekFileUnbuffered Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor to seek within.
-
-  off_t position The position to seek to.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int SeekFileUnbuffered(int fd,off_t position)
-{
- logassert(fd!=-1,"File descriptor is in error - report a bug");
-
- logassert(fd>=nfilebuffers || !filebuffers[fd],"File descriptor has a buffer - report a bug");
-
- /* Seek the data */
-
- if(lseek(fd,position,SEEK_SET)!=position)
-    return(-1);
 
  return(0);
 }
@@ -643,24 +638,6 @@ int ExistsFile(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Close a file on disk.
-
-  int CloseFileUnbuffered returns -1 (for similarity to the *OpenFileUnbuffered* functions).
-
-  int fd The file descriptor to close.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-int CloseFileUnbuffered(int fd)
-{
- logassert(fd>=nfilebuffers || !filebuffers[fd],"File descriptor has a buffer - report a bug");
-
- close(fd);
-
- return(-1);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Close a file on disk (and flush the buffer).
 
   int CloseFileBuffered returns -1 (for similarity to the *OpenFileBuffered* functions).
@@ -682,6 +659,44 @@ int CloseFileBuffered(int fd)
  filebuffers[fd]=NULL;
 
  return(-1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open an existing file on disk for reading (in a simple mode).
+
+  int OpenFile Returns the file descriptor if OK or exits in case of an error.
+
+  const char *filename The name of the file to open.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int OpenFile(const char *filename)
+{
+ int fd;
+
+ /* Open the file */
+
+ fd=open(filename,O_RDONLY);
+
+ if(fd<0)
+   {
+    fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Close a file on disk (that was opened in simple mode).
+
+  int fd The file descriptor to close.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void CloseFile(int fd)
+{
+ close(fd);
 }
 
 
