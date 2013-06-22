@@ -924,7 +924,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
 
  size=SizeFile(errorlogfilename);
 
- oldfd=ReOpenFileUnbuffered(errorlogfilename);
+ oldfd=ReOpenFileBuffered(errorlogfilename);
 
  while(size)
    {
@@ -932,7 +932,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
     char buffer[4096];
     off_t chunksize=(size>sizeof(buffer)?sizeof(buffer):size);
 
-    ReadFileUnbuffered(oldfd,buffer,chunksize);
+    ReadFileBuffered(oldfd,buffer,chunksize);
 
     for(i=0;i<chunksize;i++)
        if(buffer[i]=='\n')
@@ -943,7 +943,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
     size-=chunksize;
    }
 
- CloseFileUnbuffered(oldfd);
+ CloseFileBuffered(oldfd);
 
  /* Finish off the offset indexing and write them out */
 
