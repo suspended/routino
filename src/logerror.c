@@ -112,7 +112,8 @@ void close_errorlog(void)
    {
     fclose(errorlogfile);
 
-    CloseFileBuffered(errorbinfile);
+    if(errorbinfile!=-1)
+       CloseFileBuffered(errorbinfile);
    }
 }
 
