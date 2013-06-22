@@ -643,11 +643,11 @@ int ParseXMLProfiles(const char *filename)
     return(1);
    }
 
- fd=ReOpenFileUnbuffered(filename);
+ fd=OpenFile(filename);
 
  retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
 
- CloseFileUnbuffered(fd);
+ CloseFile(fd);
 
  if(retval)
    {

@@ -176,7 +176,7 @@ int main(int argc,char** argv)
 
     filename=strcpy(malloc(strlen(argv[arg])+1),argv[arg]);
 
-    fd=ReOpenFileUnbuffered(filename);
+    fd=OpenFile(filename);
 
     if((p=strstr(filename,".bz2")) && !strcmp(p,".bz2"))
       {
@@ -209,7 +209,7 @@ int main(int argc,char** argv)
           exit(EXIT_FAILURE);
       }
 
-    CloseFileUnbuffered(fd);
+    CloseFile(fd);
 
     free(filename);
    }

@@ -1239,11 +1239,11 @@ int ParseXMLTranslations(const char *filename,const char *language)
     return(1);
    }
 
- fd=ReOpenFileUnbuffered(filename);
+ fd=OpenFile(filename);
 
  retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME|XMLPARSE_RETURN_ATTR_ENCODED);
 
- CloseFileUnbuffered(fd);
+ CloseFile(fd);
 
  if(retval)
     return(1);
