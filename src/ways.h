@@ -167,32 +167,23 @@ static inline Way *LookupWay(Ways *ways,index_t index,int position)
 static inline char *WayName(Ways *ways,Way *wayp)
 {
  int position=wayp-&ways->cached[-1];
-
  int n=0;
 
- SeekFileUnbuffered(ways->fd,ways->namesoffset+wayp->name);
-
  if(!ways->ncached[position-1])
-    ways->ncached[position-1]=(char*)malloc(32);
+    ways->ncached[position-1]=(char*)malloc(64);
 
- while(1)
+ while(!SlimFetch(ways->fd,ways->ncached[position-1]+n,64,ways->namesoffset+wayp->name+n))
    {
     int i;
-    int m=ReadFileUnbuffered(ways->fd,ways->ncached[position-1]+n,32);
 
-    if(m<0)
-       break;
-    
-    for(i=n;i<n+32;i++)
+    for(i=n;i<n+64;i++)
        if(ways->ncached[position-1][i]==0)
-          goto exitloop;
+          break;
 
-    n+=32;
+    n+=64;
 
-    ways->ncached[position-1]=(char*)realloc((void*)ways->ncached[position-1],n+32);
+    ways->ncached[position-1]=(char*)realloc((void*)ways->ncached[position-1],n+64);
    }
-
- exitloop:
 
  return(ways->ncached[position-1]);
 }
