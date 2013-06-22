@@ -58,11 +58,11 @@ Relations *LoadRelationList(const char *filename)
 
 #else
 
- relations->fd=ReOpenFileUnbuffered(filename);
+ relations->fd=SlimMapFile(filename);
 
  /* Copy the RelationsFile header structure from the loaded data */
 
- ReadFileUnbuffered(relations->fd,&relations->file,sizeof(RelationsFile));
+ SlimFetch(relations->fd,&relations->file,sizeof(RelationsFile),0);
 
  relations->troffset=sizeof(RelationsFile);
 
@@ -101,7 +101,7 @@ void DestroyRelationList(Relations *relations)
 
 #else
 
- relations->fd=CloseFileUnbuffered(relations->fd);
+ relations->fd=SlimUnmapFile(relations->fd);
 
  DeleteTurnRelationCache(relations->cache);
 

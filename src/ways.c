@@ -57,11 +57,11 @@ Ways *LoadWayList(const char *filename)
 
 #else
 
- ways->fd=ReOpenFileUnbuffered(filename);
+ ways->fd=SlimMapFile(filename);
 
  /* Copy the WaysFile header structure from the loaded data */
 
- ReadFileUnbuffered(ways->fd,&ways->file,sizeof(WaysFile));
+ SlimFetch(ways->fd,&ways->file,sizeof(WaysFile),0);
 
  ways->namesoffset=sizeof(WaysFile)+ways->file.number*sizeof(Way);
 
@@ -87,7 +87,7 @@ void DestroyWayList(Ways *ways)
 
 #else
 
- ways->fd=CloseFileUnbuffered(ways->fd);
+ ways->fd=SlimUnmapFile(ways->fd);
 
  DeleteWayCache(ways->cache);
 

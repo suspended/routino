@@ -69,17 +69,17 @@ Nodes *LoadNodeList(const char *filename)
 
 #else
 
- nodes->fd=ReOpenFileUnbuffered(filename);
+ nodes->fd=SlimMapFile(filename);
 
  /* Copy the NodesFile header structure from the loaded data */
 
- ReadFileUnbuffered(nodes->fd,&nodes->file,sizeof(NodesFile));
+ SlimFetch(nodes->fd,&nodes->file,sizeof(NodesFile),0);
 
  sizeoffsets=(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t);
 
  nodes->offsets=(index_t*)malloc(sizeoffsets);
 
- ReadFileUnbuffered(nodes->fd,nodes->offsets,sizeoffsets);
+ SlimFetch(nodes->fd,nodes->offsets,sizeoffsets,sizeof(NodesFile));
 
  nodes->nodesoffset=sizeof(NodesFile)+sizeoffsets;
 
@@ -105,7 +105,7 @@ void DestroyNodeList(Nodes *nodes)
 
 #else
 
- nodes->fd=CloseFileUnbuffered(nodes->fd);
+ nodes->fd=SlimUnmapFile(nodes->fd);
 
  free(nodes->offsets);
 
