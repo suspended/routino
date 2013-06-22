@@ -82,9 +82,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  segmentsx->data=MapFile(segmentsx->filename_tmp);
  waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFileUnbuffered(nodesx->filename_tmp);
- segmentsx->fd=ReOpenFileUnbuffered(segmentsx->filename_tmp);
- waysx->fd=ReOpenFileUnbuffered(waysx->filename_tmp);
+ nodesx->fd=SlimMapFile(nodesx->filename_tmp);
+ segmentsx->fd=SlimMapFile(segmentsx->filename_tmp);
+ waysx->fd=SlimMapFile(waysx->filename_tmp);
 
  InvalidateNodeXCache(nodesx->cache);
  InvalidateSegmentXCache(segmentsx->cache);
@@ -184,9 +184,9 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  segmentsx->data=UnmapFile(segmentsx->data);
  waysx->data=UnmapFile(waysx->data);
 #else
- nodesx->fd=CloseFileUnbuffered(nodesx->fd);
- segmentsx->fd=CloseFileUnbuffered(segmentsx->fd);
- waysx->fd=CloseFileUnbuffered(waysx->fd);
+ nodesx->fd=SlimUnmapFile(nodesx->fd);
+ segmentsx->fd=SlimUnmapFile(segmentsx->fd);
+ waysx->fd=SlimUnmapFile(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -233,9 +233,9 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  segmentsx->data=MapFile(segmentsx->filename_tmp);
  waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=ReOpenFileUnbuffered(nodesx->filename_tmp);
- segmentsx->fd=ReOpenFileUnbuffered(segmentsx->filename_tmp);
- waysx->fd=ReOpenFileUnbuffered(waysx->filename_tmp);
+ nodesx->fd=SlimMapFile(nodesx->filename_tmp);
+ segmentsx->fd=SlimMapFile(segmentsx->filename_tmp);
+ waysx->fd=SlimMapFile(waysx->filename_tmp);
 
  InvalidateNodeXCache(nodesx->cache);
  InvalidateSegmentXCache(segmentsx->cache);
@@ -320,9 +320,9 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  segmentsx->data=UnmapFile(segmentsx->data);
  waysx->data=UnmapFile(waysx->data);
 #else
- nodesx->fd=CloseFileUnbuffered(nodesx->fd);
- segmentsx->fd=CloseFileUnbuffered(segmentsx->fd);
- waysx->fd=CloseFileUnbuffered(waysx->fd);
+ nodesx->fd=SlimUnmapFile(nodesx->fd);
+ segmentsx->fd=SlimUnmapFile(segmentsx->fd);
+ waysx->fd=SlimUnmapFile(waysx->fd);
 #endif
 
  /* Print the final message */
@@ -371,9 +371,9 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
  if(supersegmentsx->number>0)
     supersegmentsx->data=MapFile(supersegmentsx->filename_tmp);
 #else
- segmentsx->fd=ReOpenFileUnbuffered(segmentsx->filename_tmp);
+ segmentsx->fd=SlimMapFile(segmentsx->filename_tmp);
  if(supersegmentsx->number>0)
-    supersegmentsx->fd=ReOpenFileUnbuffered(supersegmentsx->filename_tmp);
+    supersegmentsx->fd=SlimMapFile(supersegmentsx->filename_tmp);
 
  InvalidateSegmentXCache(segmentsx->cache);
  if(supersegmentsx->number>0)
@@ -435,9 +435,9 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
  if(supersegmentsx->number>0)
     supersegmentsx->data=UnmapFile(supersegmentsx->data);
 #else
- segmentsx->fd=CloseFileUnbuffered(segmentsx->fd);
+ segmentsx->fd=SlimUnmapFile(segmentsx->fd);
  if(supersegmentsx->number>0)
-    supersegmentsx->fd=CloseFileUnbuffered(supersegmentsx->fd);
+    supersegmentsx->fd=SlimUnmapFile(supersegmentsx->fd);
 #endif
 
  /* Print the final message */

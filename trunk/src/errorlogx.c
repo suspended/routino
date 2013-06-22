@@ -135,7 +135,7 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
 #if !SLIM
  nodesx->data=MapFile(nodesx->filename);
 #else
- nodesx->fd=ReOpenFileUnbuffered(nodesx->filename);
+ nodesx->fd=SlimMapFile(nodesx->filename);
 
  InvalidateNodeXCache(nodesx->cache);
 #endif
@@ -303,7 +303,7 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
 #if !SLIM
  nodesx->data=UnmapFile(nodesx->data);
 #else
- nodesx->fd=CloseFileUnbuffered(nodesx->fd);
+ nodesx->fd=SlimUnmapFile(nodesx->fd);
 #endif
 
  waysx->fd=CloseFileBuffered(waysx->fd);
