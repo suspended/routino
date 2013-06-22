@@ -144,7 +144,7 @@ static inline char *LookupErrorLogString(ErrorLogs *errorlogs,index_t index);
 
 static inline ErrorLog *LookupErrorLog(ErrorLogs *errorlogs,index_t index,int position)
 {
- SeekReadFileUnbuffered(errorlogs->fd,&errorlogs->cached[position-1],sizeof(ErrorLog),errorlogs->errorlogsoffset_geo+(off_t)index*sizeof(ErrorLog));
+ SlimFetch(errorlogs->fd,&errorlogs->cached[position-1],sizeof(ErrorLog),errorlogs->errorlogsoffset_geo+(off_t)index*sizeof(ErrorLog));
 
  return(&errorlogs->cached[position-1]);
 }
@@ -164,7 +164,7 @@ static inline index_t LookupErrorLogOffset(ErrorLogs *errorlogs,index_t index)
 {
  index_t offset;
 
- SeekReadFileUnbuffered(errorlogs->fd,&offset,sizeof(index_t),errorlogs->offsetsoffset+(off_t)index*sizeof(index_t));
+ SlimFetch(errorlogs->fd,&offset,sizeof(index_t),errorlogs->offsetsoffset+(off_t)index*sizeof(index_t));
 
  return(offset);
 }
@@ -184,7 +184,7 @@ static inline char *LookupErrorLogString(ErrorLogs *errorlogs,index_t index)
 {
  ErrorLog *errorlog=LookupErrorLog(errorlogs,index,2);
 
- SeekReadFileUnbuffered(errorlogs->fd,errorlogs->cachestring,errorlog->length,errorlogs->stringsoffset+errorlog->offset);
+ SlimFetch(errorlogs->fd,errorlogs->cachestring,errorlog->length,errorlogs->stringsoffset+errorlog->offset);
 
  return(errorlogs->cachestring);
 }

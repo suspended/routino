@@ -62,11 +62,11 @@ Segments *LoadSegmentList(const char *filename)
 
 #else
 
- segments->fd=ReOpenFileUnbuffered(filename);
+ segments->fd=SlimMapFile(filename);
 
  /* Copy the SegmentsFile header structure from the loaded data */
 
- ReadFileUnbuffered(segments->fd,&segments->file,sizeof(SegmentsFile));
+ SlimFetch(segments->fd,&segments->file,sizeof(SegmentsFile),0);
 
  segments->cache=NewSegmentCache();
 
@@ -90,7 +90,7 @@ void DestroySegmentList(Segments *segments)
 
 #else
 
- segments->fd=CloseFileUnbuffered(segments->fd);
+ segments->fd=SlimUnmapFile(segments->fd);
 
  DeleteSegmentCache(segments->cache);
 
