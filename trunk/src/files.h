@@ -44,27 +44,27 @@ void *MapFileWriteable(const char *filename);
 
 void *UnmapFile(const void *address);
 
-int OpenFileUnbufferedNew(const char *filename);
-int OpenFileUnbufferedAppend(const char *filename);
+int SlimMapFile(const char *filename);
+int SlimMapFileWriteable(const char *filename);
+
+int SlimUnmapFile(int fd);
 
 int OpenFileBufferedNew(const char *filename);
 int OpenFileBufferedAppend(const char *filename);
-
-int ReOpenFileUnbuffered(const char *filename);
-int ReOpenFileUnbufferedWriteable(const char *filename);
 
 int ReOpenFileBuffered(const char *filename);
 
 int WriteFileBuffered(int fd,const void *address,size_t length);
 int ReadFileBuffered(int fd,void *address,size_t length);
 
-int SeekFileUnbuffered(int fd,off_t position);
-
 int SeekFileBuffered(int fd,off_t position);
 int SkipFileBuffered(int fd,off_t skip);
 
-int CloseFileUnbuffered(int fd);
 int CloseFileBuffered(int fd);
+
+int OpenFile(const char *filename);
+
+void CloseFile(int fd);
 
 off_t SizeFile(const char *filename);
 int ExistsFile(const char *filename);
@@ -75,69 +75,16 @@ int RenameFile(const char *oldfilename,const char *newfilename);
 
 /* Functions in files.h */
 
-static inline int WriteFileUnbuffered(int fd,const void *address,size_t length);
-static inline int ReadFileUnbuffered(int fd,void *address,size_t length);
-
-static inline int SeekWriteFileUnbuffered(int fd,const void *address,size_t length,off_t position);
-static inline int SeekReadFileUnbuffered(int fd,void *address,size_t length,off_t position);
+static inline int SlimReplace(int fd,const void *address,size_t length,off_t position);
+static inline int SlimFetch(int fd,void *address,size_t length,off_t position);
 
 
 /* Inline the frequently called functions */
 
 /*++++++++++++++++++++++++++++++++++++++
-  Write data to a file descriptor.
+  Write data to a file that has been opened for slim mode access.
 
-  int WriteFileUnbuffered Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor to write to.
-
-  const void *address The address of the data to be written.
-
-  size_t length The length of data to write.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static inline int WriteFileUnbuffered(int fd,const void *address,size_t length)
-{
- logassert(fd!=-1,"File descriptor is in error - report a bug");
-
- /* Write the data */
-
- if(write(fd,address,length)!=(ssize_t)length)
-    return(-1);
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Read data from a file descriptor.
-
-  int ReadFileUnbuffered Returns 0 if OK or something else in case of an error.
-
-  int fd The file descriptor to read from.
-
-  void *address The address the data is to be read into.
-
-  size_t length The length of data to read.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-static inline int ReadFileUnbuffered(int fd,void *address,size_t length)
-{
- logassert(fd!=-1,"File descriptor is in error - report a bug");
-
- /* Read the data */
-
- if(read(fd,address,length)!=(ssize_t)length)
-    return(-1);
-
- return(0);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Write data to a file descriptor after seeking to a position.
-
-  int SeekWriteFileUnbuffered Returns 0 if OK or something else in case of an error.
+  int SlimReplace Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to write to.
 
@@ -145,13 +92,11 @@ static inline int ReadFileUnbuffered(int fd,void *address,size_t length)
 
   size_t length The length of data to write.
 
-  off_t position The position to seek to.
+  off_t position The position in the file to seek to.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int SeekWriteFileUnbuffered(int fd,const void *address,size_t length,off_t position)
+static inline int SlimReplace(int fd,const void *address,size_t length,off_t position)
 {
- logassert(fd!=-1,"File descriptor is in error - report a bug");
-
  /* Seek and write the data */
 
 #if HAVE_PREAD_PWRITE
@@ -174,9 +119,9 @@ static inline int SeekWriteFileUnbuffered(int fd,const void *address,size_t leng
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Read data from a file descriptor after seeking to a position.
+  Read data from a file that has been opened for slim mode access.
 
-  int SeekReadFileUnbuffered Returns 0 if OK or something else in case of an error.
+  int SlimFetch Returns 0 if OK or something else in case of an error.
 
   int fd The file descriptor to read from.
 
@@ -184,13 +129,11 @@ static inline int SeekWriteFileUnbuffered(int fd,const void *address,size_t leng
 
   size_t length The length of data to read.
 
-  off_t position The position to seek to.
+  off_t position The position in the file to seek to.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int SeekReadFileUnbuffered(int fd,void *address,size_t length,off_t position)
+static inline int SlimFetch(int fd,void *address,size_t length,off_t position)
 {
- logassert(fd!=-1,"File descriptor is in error - report a bug");
-
  /* Seek and read the data */
 
 #if HAVE_PREAD_PWRITE
