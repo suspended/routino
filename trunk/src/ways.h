@@ -178,12 +178,14 @@ static inline char *WayName(Ways *ways,Way *wayp)
 
     for(i=n;i<n+64;i++)
        if(ways->ncached[position-1][i]==0)
-          break;
+          goto exitloop;
 
     n+=64;
 
     ways->ncached[position-1]=(char*)realloc((void*)ways->ncached[position-1],n+64);
    }
+
+ exitloop:
 
  return(ways->ncached[position-1]);
 }
