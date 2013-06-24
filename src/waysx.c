@@ -552,15 +552,17 @@ void SortWayNames(WaysX *waysx)
  printf_last("Sorted Way Names: Ways=%"Pindex_t,waysx->number);
 
 
+ /* Print the start message */
+
+ printf_first("Updating Ways with Names: Ways=0 Names=0");
+
+ /* Map into memory /  open the file */
+
 #if !SLIM
  waysx->data=MapFileWriteable(waysx->filename_tmp);
 #else
  waysx->fd=SlimMapFileWriteable(waysx->filename_tmp);
 #endif
-
- /* Print the start message */
-
- printf_first("Updating Ways with Names: Ways=0 Names=0");
 
  /* Re-open the file read-only and new file writeable */
 
@@ -614,11 +616,6 @@ void SortWayNames(WaysX *waysx)
  waysx->nfd=CloseFileBuffered(waysx->nfd);
  CloseFileBuffered(nfd);
 
- /* Print the final message */
-
- printf_last("Updated Ways with Names: Ways=%"Pindex_t" Names=%"Pindex_t,waysx->number,nnames);
-
-
  /* Unmap from memory / close the files */
 
 #if !SLIM
@@ -626,6 +623,10 @@ void SortWayNames(WaysX *waysx)
 #else
  waysx->fd=SlimUnmapFile(waysx->fd);
 #endif
+
+ /* Print the final message */
+
+ printf_last("Updated Ways with Names: Ways=%"Pindex_t" Names=%"Pindex_t,waysx->number,nnames);
 }
 
 
@@ -702,13 +703,15 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
  waysx->fd=CloseFileBuffered(waysx->fd);
  CloseFileBuffered(fd);
 
+ /* Free the data */
+
+ free(segmentsx->usedway);
+ segmentsx->usedway=NULL;
+
  /* Print the final message */
 
  printf_last("Sorted and Compacted Ways: Ways=%"Pindex_t" Unique=%"Pindex_t,waysx->number,cnumber);
  waysx->number=cnumber;
-
- free(segmentsx->usedway);
- segmentsx->usedway=NULL;
 }
 
 

@@ -861,8 +861,6 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  if(nodesx->number==0 || segmentsx->number==0 || waysx->number==0)
     return;
 
- maximumf=distance_to_km(maximum);
-
  /* Print the start message */
 
  printf_first("Pruning Straight Highway Nodes: Nodes=0 Pruned=0");
@@ -900,6 +898,8 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
  logassert(lons,"Failed to allocate memory (try using slim mode?)");    /* Check malloc() worked */
 
  /* Loop through the nodes and find stretches of simple highway for possible modification */
+
+ maximumf=distance_to_km(maximum);
 
  for(i=0;i<nodesx->number;i++)
    {
