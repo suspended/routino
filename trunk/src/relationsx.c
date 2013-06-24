@@ -652,11 +652,11 @@ void ProcessRouteRelations(RelationsX *relationsx,WaysX *waysx,int keep)
     int ways=0,relations=0;
     index_t i;
 
-    SeekFileBuffered(relationsx->rrfd,0);
-
     /* Print the start message */
 
     printf_first("Processing Route Relations (%d): Relations=0 Modified Ways=0",iteration);
+
+    SeekFileBuffered(relationsx->rrfd,0);
 
     for(i=0;i<relationsx->rrnumber;i++)
       {

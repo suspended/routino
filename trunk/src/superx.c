@@ -313,6 +313,8 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
       }
    }
 
+ FinishSegmentList(supersegmentsx);
+
  /* Unmap from memory / close the files */
 
 #if !SLIM
@@ -328,8 +330,6 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Print the final message */
 
  printf_last("Created Super-Segments: Super-Nodes=%"Pindex_t" Super-Segments=%"Pindex_t,sn,ss);
-
- FinishSegmentList(supersegmentsx);
 
  return(supersegmentsx);
 }
@@ -428,6 +428,8 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
        printf_middle("Merging Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,i+1,j,merged,added);
    }
 
+ FinishSegmentList(mergedsegmentsx);
+
  /* Unmap from memory / close the files */
 
 #if !SLIM
@@ -443,8 +445,6 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
  /* Print the final message */
 
  printf_last("Merged Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,segmentsx->number,supersegmentsx->number,merged,added);
-
- FinishSegmentList(mergedsegmentsx);
 
  return(mergedsegmentsx);
 }

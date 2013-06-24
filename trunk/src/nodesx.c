@@ -377,7 +377,6 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
  index_t i,total=0,highway=0,nothighway=0;
  int fd;
 
-
  /* Print the start message */
 
  printf_first("Checking Ways for unused Nodes: Ways=0");

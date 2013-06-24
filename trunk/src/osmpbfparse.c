@@ -363,11 +363,11 @@ int ParsePBF(int fd)
 
  /* Print the initial message */
 
- nnodes=0,nways=0,nrelations=0;
-
  printf_first("Reading: Bytes=0 Nodes=0 Ways=0 Relations=0");
 
  /* The actual parser. */
+
+ nnodes=0,nways=0,nrelations=0;
 
  string_table_allocated=16384;
  string_table_length=0;
