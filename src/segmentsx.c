@@ -503,7 +503,11 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
 void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
- index_t index,i;
+ index_t index,start=0,i;
+ SegmentX *segmentx_list=NULL;
+#if SLIM
+ index_t length=0;
+#endif
 
  if(segmentsx->number==0)
     return;
@@ -531,14 +535,29 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 #else
  segmentsx->fd=SlimMapFileWriteable(segmentsx->filename_tmp);
 
- InvalidateSegmentXCache(segmentsx->cache);
+ segmentx_list=(SegmentX*)malloc(1024*sizeof(SegmentX));
 #endif
 
- /* Read through the segments in reverse order */
+ /* Read through the segments in reverse order (in chunks to help slim mode) */
 
  for(index=segmentsx->number-1;index!=NO_SEGMENT;index--)
    {
-    SegmentX *segmentx=LookupSegmentX(segmentsx,index,1);
+    SegmentX *segmentx;
+
+    if((index%1024)==1023 || index==(segmentsx->number-1))
+      {
+       start=1024*(index/1024);
+
+#if !SLIM
+       segmentx_list=LookupSegmentX(segmentsx,start,1);
+#else
+       length=index-start+1;
+
+       SlimFetch(segmentsx->fd,segmentx_list,length*sizeof(SegmentX),start*sizeof(SegmentX));
+#endif
+      }
+
+    segmentx=segmentx_list+(index-start);
 
     if(nodesx->pdata)
       {
@@ -551,13 +570,16 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
     segmentx->next2=segmentsx->firstnode[segmentx->node2];
 
-    PutBackSegmentX(segmentsx,segmentx);
-
     segmentsx->firstnode[segmentx->node1]=index;
     segmentsx->firstnode[segmentx->node2]=index;
 
     if(!(index%10000))
        printf_middle("Indexing Segments: Segments=%"Pindex_t,segmentsx->number-index);
+
+#if SLIM
+    if(index==start)
+       SlimReplace(segmentsx->fd,segmentx_list,length*sizeof(SegmentX),start*sizeof(SegmentX));
+#endif
    }
 
  /* Unmap from memory / close the files */
@@ -566,6 +588,8 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  segmentsx->data=UnmapFile(segmentsx->data);
 #else
  segmentsx->fd=SlimUnmapFile(segmentsx->fd);
+
+ free(segmentx_list);
 #endif
 
  /* Free the memory */
