@@ -49,7 +49,7 @@ static struct mmapinfo *mappedfiles;
 static int nmappedfiles=0;
 
 
-#define BUFFLEN 1024
+#define BUFFLEN 4096
 
 /*+ A structure to contain the list of file buffers. +*/
 struct filebuffer
