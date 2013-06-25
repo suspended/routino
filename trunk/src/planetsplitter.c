@@ -466,10 +466,6 @@ if(!option_process_only)
 
  OSMSegments=MergedSegments;
 
- /* Re-index the merged segments */
-
- IndexSegments(OSMSegments,OSMNodes,OSMWays);
-
  /* Cross reference the nodes and segments */
 
  printf("\nCross-Reference Nodes and Segments\n==================================\n\n");

@@ -1268,6 +1268,14 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
  segmentsx->fd=SlimUnmapFile(segmentsx->fd);
 #endif
 
+ /* Free the memory */
+
+ if(nodesx->gdata)
+   {
+    free(nodesx->gdata);
+    nodesx->gdata=NULL;
+   }
+
  /* Print the final message */
 
  printf_last("Sorted Turn Relations Geographically: Turn Relations=%"Pindex_t,relationsx->trnumber);
