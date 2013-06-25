@@ -77,16 +77,15 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  /* Map into memory / open the files */
 
+ nodesx->fd=ReOpenFileBuffered(nodesx->filename_tmp);
+
 #if !SLIM
- nodesx->data=MapFile(nodesx->filename_tmp);
  segmentsx->data=MapFile(segmentsx->filename_tmp);
  waysx->data=MapFile(waysx->filename_tmp);
 #else
- nodesx->fd=SlimMapFile(nodesx->filename_tmp);
  segmentsx->fd=SlimMapFile(segmentsx->filename_tmp);
  waysx->fd=SlimMapFile(waysx->filename_tmp);
 
- InvalidateNodeXCache(nodesx->cache);
  InvalidateSegmentXCache(segmentsx->cache);
  InvalidateWayXCache(waysx->cache);
 #endif
@@ -95,12 +94,15 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  for(i=0;i<nodesx->number;i++)
    {
+    NodeX nodex;
+
+    ReadFileBuffered(nodesx->fd,&nodex,sizeof(NodeX));
+
     if(IsBitSet(nodesx->super,i))
       {
        int issuper=0;
-       NodeX *nodex=LookupNodeX(nodesx,i,1);
 
-       if(nodex->flags&(NODE_TURNRSTRCT|NODE_TURNRSTRCT2))
+       if(nodex.flags&(NODE_TURNRSTRCT|NODE_TURNRSTRCT2))
           issuper=1;
        else
          {
@@ -127,7 +129,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
              /* If the node allows less traffic types than any connecting way then it is super if it allows anything */
 
-             if((wayx->way.allow&nodex->allow)!=wayx->way.allow && nodex->allow!=Transports_None)
+             if((wayx->way.allow&nodex.allow)!=wayx->way.allow && nodex.allow!=Transports_None)
                {
                 issuper=1;
                 break;
@@ -180,14 +182,14 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Unmap from memory / close the files */
 
 #if !SLIM
- nodesx->data=UnmapFile(nodesx->data);
  segmentsx->data=UnmapFile(segmentsx->data);
  waysx->data=UnmapFile(waysx->data);
 #else
- nodesx->fd=SlimUnmapFile(nodesx->fd);
  segmentsx->fd=SlimUnmapFile(segmentsx->fd);
  waysx->fd=SlimUnmapFile(waysx->fd);
 #endif
+
+ nodesx->fd=CloseFileBuffered(nodesx->fd);
 
  /* Print the final message */
 
@@ -347,7 +349,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
 SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 {
- index_t i,j;
+ index_t i,j,lastj;
  index_t merged=0,added=0;
  SegmentsX *mergedsegmentsx;
 
@@ -364,36 +366,37 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 
  printf_first("Merging Segments: Segments=0 Super=0 Merged=0 Added=0");
 
- /* Map into memory / open the files */
+ /* Open the files */
 
-#if !SLIM
- segmentsx->data=MapFile(segmentsx->filename_tmp);
+ segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
  if(supersegmentsx->number>0)
-    supersegmentsx->data=MapFile(supersegmentsx->filename_tmp);
-#else
- segmentsx->fd=SlimMapFile(segmentsx->filename_tmp);
- if(supersegmentsx->number>0)
-    supersegmentsx->fd=SlimMapFile(supersegmentsx->filename_tmp);
-
- InvalidateSegmentXCache(segmentsx->cache);
- if(supersegmentsx->number>0)
-    InvalidateSegmentXCache(supersegmentsx->cache);
-#endif
+    supersegmentsx->fd=ReOpenFileBuffered(supersegmentsx->filename_tmp);
 
  /* Loop through and create a new list of combined segments */
 
- for(i=0,j=0;i<segmentsx->number;i++)
+ lastj=-1;
+ j=0;
+
+ for(i=0;i<segmentsx->number;i++)
    {
     int super=0;
-    SegmentX *segmentx=LookupSegmentX(segmentsx,i,1);
+    SegmentX segmentx;
+
+    ReadFileBuffered(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
     while(j<supersegmentsx->number)
       {
-       SegmentX *supersegmentx=LookupSegmentX(supersegmentsx,j,1);
+       SegmentX supersegmentx;
 
-       if(segmentx->node1   ==supersegmentx->node1 &&
-          segmentx->node2   ==supersegmentx->node2 &&
-          segmentx->distance==supersegmentx->distance)
+       if(j!=lastj)
+         {
+          ReadFileBuffered(supersegmentsx->fd,&supersegmentx,sizeof(SegmentX));
+          lastj=j;
+         }
+
+       if(segmentx.node1   ==supersegmentx.node1 &&
+          segmentx.node2   ==supersegmentx.node2 &&
+          segmentx.distance==supersegmentx.distance)
          {
           merged++;
           j++;
@@ -401,14 +404,14 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
           super=1;
           break;
          }
-       else if((segmentx->node1==supersegmentx->node1 &&
-                segmentx->node2==supersegmentx->node2) ||
-               (segmentx->node1==supersegmentx->node1 &&
-                segmentx->node2>supersegmentx->node2) ||
-               (segmentx->node1>supersegmentx->node1))
+       else if((segmentx.node1==supersegmentx.node1 &&
+                segmentx.node2==supersegmentx.node2) ||
+               (segmentx.node1==supersegmentx.node1 &&
+                segmentx.node2>supersegmentx.node2) ||
+               (segmentx.node1>supersegmentx.node1))
          {
           /* mark as super-segment */
-          AppendSegmentList(mergedsegmentsx,supersegmentx->way,supersegmentx->node1,supersegmentx->node2,supersegmentx->distance|SEGMENT_SUPER);
+          AppendSegmentList(mergedsegmentsx,supersegmentx.way,supersegmentx.node1,supersegmentx.node2,supersegmentx.distance|SEGMENT_SUPER);
           added++;
           j++;
          }
@@ -420,9 +423,9 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
       }
 
     if(super)
-       AppendSegmentList(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_SUPER|SEGMENT_NORMAL);
+       AppendSegmentList(mergedsegmentsx,segmentx.way,segmentx.node1,segmentx.node2,segmentx.distance|SEGMENT_SUPER|SEGMENT_NORMAL);
     else
-       AppendSegmentList(mergedsegmentsx,segmentx->way,segmentx->node1,segmentx->node2,segmentx->distance|SEGMENT_NORMAL);
+       AppendSegmentList(mergedsegmentsx,segmentx.way,segmentx.node1,segmentx.node2,segmentx.distance|SEGMENT_NORMAL);
 
     if(!((i+1)%10000))
        printf_middle("Merging Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,i+1,j,merged,added);
@@ -430,17 +433,11 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 
  FinishSegmentList(mergedsegmentsx);
 
- /* Unmap from memory / close the files */
+ /* Close the files */
 
-#if !SLIM
- segmentsx->data=UnmapFile(segmentsx->data);
+ segmentsx->fd=CloseFileBuffered(segmentsx->fd);
  if(supersegmentsx->number>0)
-    supersegmentsx->data=UnmapFile(supersegmentsx->data);
-#else
- segmentsx->fd=SlimUnmapFile(segmentsx->fd);
- if(supersegmentsx->number>0)
-    supersegmentsx->fd=SlimUnmapFile(supersegmentsx->fd);
-#endif
+    supersegmentsx->fd=CloseFileBuffered(supersegmentsx->fd);
 
  /* Print the final message */
 
