@@ -16,9 +16,10 @@ Pre-Requisites
    commenting out a couple of lines in the file 'Makefile.conf'.
 
    To use the built-in file decompression functions the zlib (or libz) and
-   bzip2 (or libbz2) development libraries are also required. These can
-   each be disabled by commenting out a couple of lines in the file
-   'Makefile.conf'.
+   bzip2 (or libbz2) development libraries are also required. (On Linux
+   systems these might be in packages called libz-dev and libbz2-dev). If
+   these are not available the function be disabled by commenting out a
+   couple of lines in the file 'Makefile.conf'.
 
    To use the web page interface an http server is required. Instructions
    below are for Apache but any server that supports CGIs should work.
@@ -177,7 +178,15 @@ Configuration of web server
    commented out. This must be enabled in the main Apache server
    configuration file.
 
+   If you have copied the routino 'web' directory into '/var/www' then the
+   entry that you need in your Apache configuration file is this one:
+  
+     <Directory /var/www/web/www/routino>
+         AllowOverride All
+         Options +ExecCGI
+     </Directory>
+
 
 --------
 
-Copyright 2008-2012 Andrew M. Bishop.
+Copyright 2008-2013 Andrew M. Bishop.

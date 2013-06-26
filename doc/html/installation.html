@@ -65,8 +65,10 @@ file <tt>Makefile.conf</tt>.
 <p>
 
 To use the built-in file decompression functions the zlib (or libz) and bzip2
-(or libbz2) development libraries are also required.  These can each be disabled
-by commenting out a couple of lines in the file <tt>Makefile.conf</tt>.
+(or libbz2) development libraries are also required.  (On Linux systems these
+might be in packages called libz-dev and libbz2-dev).  If these are not
+available the function be disabled by commenting out a couple of lines in the
+file <tt>Makefile.conf</tt>.
 
 <p>
 
@@ -250,6 +252,17 @@ problem is that because of the way that the <tt>AllowOverride</tt> option works
 one of the configuration options has been commented out.  This must be enabled
 in the main Apache server configuration file.
 
+<p>
+
+If you have copied the routino <tt>web</tt> directory into <tt>/var/www</tt>
+then the entry that you need in your Apache configuration file is this one:
+
+<pre>
+     &lt;Directory /var/www/web/www/routino&gt;
+         AllowOverride All
+         Options +ExecCGI
+     &lt;/Directory&gt;
+</pre>
 
 </div>
 
