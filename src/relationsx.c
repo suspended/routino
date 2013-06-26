@@ -46,7 +46,6 @@ extern char *option_tmpdirname;
 
 /*+ Temporary file-local variables for use by the sort functions. +*/
 static SegmentsX *sortsegmentsx;
-static NodesX *sortnodesx;
 
 /* Local functions */
 
@@ -879,6 +878,8 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
        goto endloop;
       }
 
+    via=nodesx->gdata[via];
+
     if(from==NO_WAY)
       {
        logerror("Turn Relation %"Prelation_t" contains Way %"Pway_t" that does not exist in the Routino database (not a highway?).\n",logerror_relation(relationx.id),logerror_way(relationx.from));
@@ -1122,6 +1123,9 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
  free(waysx->idata);
  waysx->idata=NULL;
 
+ free(nodesx->gdata);
+ nodesx->gdata=NULL;
+
  /* Unmap from memory / close the files */
 
 #if !SLIM
@@ -1212,12 +1216,10 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 
   RelationsX *relationsx The set of relations to modify.
 
-  NodesX *nodesx The set of nodes to use.
-
   SegmentsX *segmentsx The set of segments to use.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
+void ReindexAndSortTurnRelationList(RelationsX *relationsx,SegmentsX *segmentsx)
 {
  int trfd;
 
@@ -1226,7 +1228,7 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 
  /* Print the start message */
 
- printf_first("Sorting Turn Relations Geographically");
+ printf_first("Reindexing and Sorting Turn Relations");
 
  /* Map into memory / open the files */
 
@@ -1248,7 +1250,6 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 
  /* Update the segments with geographically sorted node indexes and sort them */
 
- sortnodesx=nodesx;
  sortsegmentsx=segmentsx;
 
  filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRelX),(int (*)(void*,index_t))geographically_index,
@@ -1268,17 +1269,9 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
  segmentsx->fd=SlimUnmapFile(segmentsx->fd);
 #endif
 
- /* Free the memory */
-
- if(nodesx->gdata)
-   {
-    free(nodesx->gdata);
-    nodesx->gdata=NULL;
-   }
-
  /* Print the final message */
 
- printf_last("Sorted Turn Relations Geographically: Turn Relations=%"Pindex_t,relationsx->trnumber);
+ printf_last("Reindexed and Sorted Turn Relations: Turn Relations=%"Pindex_t,relationsx->trnumber);
 }
 
 
@@ -1297,9 +1290,9 @@ static int geographically_index(TurnRelX *relationx,index_t index)
  SegmentX *segmentx;
  index_t from_node,via_node,to_node;
 
- from_node=sortnodesx->gdata[relationx->from];
- via_node =sortnodesx->gdata[relationx->via];
- to_node  =sortnodesx->gdata[relationx->to];
+ from_node=relationx->from;
+ via_node =relationx->via;
+ to_node  =relationx->to;
 
  segmentx=FirstSegmentX(sortsegmentsx,via_node,1);
 

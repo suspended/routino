@@ -45,13 +45,14 @@ SortNodeList                  :      : C .   .   .   . U :   .   .   .   .   .  
 SortWayList                   :      : | .   .   .   . | :   .   .   .   .   .   : C .   . | : | :
 SortRelationList              :      : | .   .   .   . | :   .   .   .   .   .   : | .   . | : U :
 RemoveNonHighwayNodes         :      : M .   .   .   . U :   .   .   .   .   .   : | .   . | : | :
-SplitWays                     :      : U .   .   .   . | :   .   .   . C .   . C : | .   . U : | :
-SortWayNames                  :   W  : | .   .   .   . | :   .   .   . | .   . | : | .   . | : | :
-SortSegmentList               :      : | .   .   .   . | :   .   .   . U .   . | : | .   . | : | :
-ProcessSegments               : n w  : | .   .   .   . U :   .   . C . U .   . U : | .   . U : | :
-IndexSegments                 :  S   : | .   .   .   .   : C .   . | . U . C . | : | .   . | : | :
-ProcessRouteRelations         :   W  : | .   .   .   .   : | .   . | . | . | . | : U .   . | : U :
-ProcessTurnRelations          : Nsw  : D .   .   .   .   : U .   . | . U . U . | : D .   . | : U :
+SortNodeListGeographically    :      : | . C .   .   . U :   .   .   .   .   .   : | .   . | : | :
+SplitWays                     :      : U . U .   .   . | :   .   .   . C .   . C : | .   . U : | :
+SortWayNames                  :   W  : | . | .   .   . | :   .   .   . | .   . | : | .   . | : | :
+SortSegmentList               :      : | . | .   .   . | :   .   .   . U .   . | : | .   . | : | :
+ProcessSegments               : n w  : | . | .   .   . U :   .   . C . U .   . U : | .   . U : | :
+IndexSegments                 :  S   : | . | .   .   .   : C .   . | . U . C . | : | .   . | : | :
+ProcessRouteRelations         :   W  : | . | .   .   .   : | .   . | . | . | . | : U .   . | : U :
+ProcessTurnRelations          : Nsw  : D . D .   .   .   : U .   . | . U . U . | : D .   . | : U :
 CompactWayList                :      :   .   .   .   .   :   .   . D . | .   . | :   . C . M :   :
 IndexSegments                 :  S   :   .   .   .   .   : R .   .   . U . R . M :   . D . | :   :
                               :......:...................:.......................:...........:...:
@@ -66,19 +67,16 @@ CompactWayList                :      :   .   . | .   .   :   .   . D . | .   . |
 RemovePrunedTurnRelations     :      :   .   . U .   .   :   .   .   . | .   . | :   . | .   :   :  | l
 IndexSegments                 :  S   :   .   . D .   .   : R .   .   . M . R . | :   . D .   :   : /
                               :......:...................:.......................:...........:...:
-ChooseSuperNodes              :  sw  :   .   .   . C .   : U .   .   . | . U*. | :   .   .   :   : <-+ L
+ChooseSuperNodes              :  sw  :   .   .   . M .   : U .   .   . | . U*. | :   .   .   :   : <-+ L
 CreateSuperSegments           : nsw  :   .   .   . U .   : U .   .   . R*. U*. | :   .   .   :   :   | o
 DeduplicateSuperSegments      :   w  :   .   .   . | .   :   .   .   . U*.   . | :   .   .   :   :   | o
 IndexSegments                 :  S   :   .   .   . | .   : C*.   .   . U*. C*. | :   .   .   :   :   | p
                               :......:...................:.......................:...........:...: --+
 MergeSuperSegments            :      :   .   .   . | .   :   .   .   . U .   . | :   .   .   :   :
+IndexSegments                 :  S   :   .   .   . | .   : R .   .   . U . R . | :   .   .   :   :
+ReindexAndSortTurnRelationList:  s   :   .   .   . | .   : U .   .   . U . U . | :   .   .   :   :
                               :......:...................:.......................:...........:...:
-SortNodeListGeographically    :      :   . C .   . D . R :   .   .   . | .   . | :   .   .   :   :
-SortSegmentListGeographically :      :   . U .   .   .   :   .   .   . U .   . | :   .   .   :   :
-IndexSegments                 :  S   :   . | .   .   .   : R .   .   . U . R . | :   .   .   :   :
-SortTurnRelationListGeogra... :  s   :   . D .   .   .   : U .   .   . U . U . | :   .   .   :   :
-                              :......:...................:.......................:...........:...:
-SaveNodeList                  :      :   .   .   .   .   : D .   .   . | . | . | :   .   .   :   :
+SaveNodeList                  :      :   .   .   . D .   : D .   .   . | . | . | :   .   .   :   :
 SaveSegmentList               :      :   .   .   .   .   :   .   .   . U . U . U :   .   .   :   :
 SaveWayList                   :      :   .   .   .   .   :   .   .   .   .   .   :   .   .   :   :
 SaveRelationList              :      :   .   .   .   .   :   .   .   .   .   .   :   .   .   :   :

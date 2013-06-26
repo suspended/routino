@@ -101,8 +101,6 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx);
 
 void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx);
 
-void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx);
-
 void SaveSegmentList(SegmentsX *segmentsx,const char *filename);
 
 
