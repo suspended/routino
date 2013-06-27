@@ -46,6 +46,7 @@ extern char *option_tmpdirname;
 /* Local variables */
 
 /*+ Temporary file-local variables for use by the sort functions. +*/
+static NodesX *sortnodesx;
 static SegmentsX *sortsegmentsx;
 static WaysX *sortwaysx;
 
@@ -56,6 +57,8 @@ static int sort_by_id(SegmentX *a,SegmentX *b);
 static int delete_pruned(SegmentX *segmentx,index_t index);
 
 static int deduplicate_super(SegmentX *segmentx,index_t index);
+
+static int geographically_index(SegmentX *segmentx,index_t index);
 
 static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2);
 
@@ -817,6 +820,82 @@ static int deduplicate_super(SegmentX *segmentx,index_t index)
    }
 
  return(!isduplicate);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Sort the segments geographically after updating the node indexes.
+
+  SegmentsX *segmentsx The set of segments to modify.
+
+  NodesX *nodesx The set of nodes to use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
+{
+ int fd;
+
+ if(segmentsx->number==0)
+    return;
+
+ /* Print the start message */
+
+ printf_first("Sorting Segments Geographically");
+
+ /* Re-open the file read-only and a new file writeable */
+
+ segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
+
+ DeleteFile(segmentsx->filename_tmp);
+
+ fd=OpenFileBufferedNew(segmentsx->filename_tmp);
+
+ /* Update the segments with geographically sorted node indexes and sort them */
+
+ sortnodesx=nodesx;
+
+ filesort_fixed(segmentsx->fd,fd,sizeof(SegmentX),(int (*)(void*,index_t))geographically_index,
+                                                  (int (*)(const void*,const void*))sort_by_id,
+                                                  NULL);
+ /* Close the files */
+
+ segmentsx->fd=CloseFileBuffered(segmentsx->fd);
+ CloseFileBuffered(fd);
+
+ /* Print the final message */
+
+ printf_last("Sorted Segments Geographically: Segments=%"Pindex_t,segmentsx->number);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Update the segment indexes.
+
+  int geographically_index Return 1 if the value is to be kept, otherwise 0.
+
+  SegmentX *segmentx The extended segment.
+
+  index_t index The number of unsorted segments that have been read from the input file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int geographically_index(SegmentX *segmentx,index_t index)
+{
+ segmentx->node1=sortnodesx->gdata[segmentx->node1];
+ segmentx->node2=sortnodesx->gdata[segmentx->node2];
+
+ if(segmentx->node1>segmentx->node2)
+   {
+    index_t temp;
+
+    temp=segmentx->node1;
+    segmentx->node1=segmentx->node2;
+    segmentx->node2=temp;
+
+    if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
+       segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+   }
+
+ return(1);
 }
 
 

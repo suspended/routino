@@ -459,7 +459,7 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
           if(wayx.way.type&Highway_Area)
              segment_flags|=SEGMENT_AREA;
 
-          AppendSegmentList(segmentsx,i,nodesx->gdata[previndex],nodesx->gdata[index],segment_flags);
+          AppendSegmentList(segmentsx,i,previndex,index,segment_flags);
          }
 
        prevnode=node;
