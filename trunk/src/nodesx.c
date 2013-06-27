@@ -646,6 +646,9 @@ static int update_id(NodeX *nodex,index_t index)
 {
  nodex->id=index;
 
+ if(IsBitSet(sortnodesx->super,index))
+    nodex->flags|=NODE_SUPER;
+
  return(1);
 }
 
@@ -713,8 +716,6 @@ static int sort_by_lat_long(NodeX *a,NodeX *b)
 static int index_by_lat_long(NodeX *nodex,index_t index)
 {
  sortnodesx->gdata[nodex->id]=index;
-
- nodex->id=sortnodesx->idata[nodex->id];
 
  if(nodex->latitude<lat_min)
     lat_min=nodex->latitude;
@@ -787,11 +788,8 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
     node.allow=nodex.allow;
     node.flags=nodex.flags;
 
-    if(IsBitSet(nodesx->super,i))
-      {
-       node.flags|=NODE_SUPER;
+    if(node.flags&NODE_SUPER)
        super_number++;
-      }
 
     /* Work out the offsets */
 

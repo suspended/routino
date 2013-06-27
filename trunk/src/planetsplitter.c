@@ -333,10 +333,6 @@ if(!option_process_only)
 
  RemoveNonHighwayNodes(OSMNodes,OSMWays,option_keep||option_changes);
 
- /* Sort the nodes geographically */
-
- SortNodeListGeographically(OSMNodes);
-
  /* Separate the segments and way names and sort them. */
 
  OSMSegments=SplitWays(OSMWays,OSMNodes,option_keep||option_changes);
@@ -457,7 +453,7 @@ if(!option_process_only)
 
  /* Combine the super-segments */
 
- printf("\nRecombine Segments and Reindex\n==============================\n\n");
+ printf("\nCombine Segments and Super-Segments\n===================================\n\n");
  fflush(stdout);
 
  /* Merge the super-segments */
@@ -470,13 +466,24 @@ if(!option_process_only)
 
  OSMSegments=MergedSegments;
 
- /* Index the segments */
+ /* Cross reference the nodes and segments */
+
+ printf("\nCross-Reference Nodes and Segments\n==================================\n\n");
+ fflush(stdout);
+
+ /* Sort the nodes and segments geographically */
+
+ SortNodeListGeographically(OSMNodes);
+
+ SortSegmentListGeographically(OSMSegments,OSMNodes);
+
+ /* Re-index the segments */
 
  IndexSegments(OSMSegments,OSMNodes,OSMWays);
 
  /* Sort the turn relations geographically */
 
- ReindexAndSortTurnRelationList(OSMRelations,OSMSegments);
+ SortTurnRelationListGeographically(OSMRelations,OSMNodes,OSMSegments);
 
  /* Output the results */
 
