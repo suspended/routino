@@ -537,6 +537,7 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
     if(waysx->cdata)
        segmentx->way=waysx->cdata[segmentx->way];
 
+    segmentx->next1=segmentsx->firstnode[segmentx->node1];
     segmentx->next2=segmentsx->firstnode[segmentx->node2];
 
     segmentsx->firstnode[segmentx->node1]=index;
