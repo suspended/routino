@@ -368,8 +368,6 @@ if(!option_process_only)
     printf("\nPrune Unneeded Data\n===================\n\n");
     fflush(stdout);
 
-    StartPruning(OSMNodes,OSMSegments,OSMWays);
-
     if(option_prune_isolated)
        PruneIsolatedRegions(OSMNodes,OSMSegments,OSMWays,option_prune_isolated);
 
@@ -378,8 +376,6 @@ if(!option_process_only)
 
     if(option_prune_straight)
        PruneStraightHighwayNodes(OSMNodes,OSMSegments,OSMWays,option_prune_straight);
-
-    FinishPruning(OSMNodes,OSMSegments,OSMWays);
 
     /* Remove the pruned nodes, segments, ways and relations and update the indexes */
 

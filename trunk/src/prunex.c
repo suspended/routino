@@ -53,89 +53,6 @@ static double distance(double lat1,double lon1,double lat2,double lon2);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Initialise the data structures needed for pruning.
-
-  NodesX *nodesx The set of nodes to use.
-
-  SegmentsX *segmentsx The set of segments to use.
-
-  WaysX *waysx The set of ways to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
-{
- SegmentX segmentx;
- index_t index=0,lastnode1=NO_NODE;
-
- if(segmentsx->number==0)
-    return;
-
- /* Print the start message */
-
- printf_first("Adding Extra Segment Indexes: Segments=0");
-
- /* Allocate the array of next segment */
-
- segmentsx->next1=(index_t*)calloc(segmentsx->number,sizeof(index_t));
-
- logassert(segmentsx->next1,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
-
- /* Open the file read-only */
-
- segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
-
- /* Read the on-disk image */
-
- while(!ReadFileBuffered(segmentsx->fd,&segmentx,sizeof(SegmentX)))
-   {
-    index_t node1=segmentx.node1;
-
-    if(index==0)
-       ;
-    else if(lastnode1==node1)
-       segmentsx->next1[index-1]=index;
-    else
-       segmentsx->next1[index-1]=NO_SEGMENT;
-
-    lastnode1=node1;
-    index++;
-
-    if(!(index%10000))
-       printf_middle("Added Extra Segment Indexes: Segments=%"Pindex_t,index);
-   }
-
- segmentsx->next1[index-1]=NO_SEGMENT;
-
- /* Close the file */
-
- segmentsx->fd=CloseFileBuffered(segmentsx->fd);
-
- /* Print the final message */
-
- printf_last("Added Extra Segment Indexes: Segments=%"Pindex_t,segmentsx->number);
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
-  Delete the data structures needed for pruning.
-
-  NodesX *nodesx The set of nodes to use.
-
-  SegmentsX *segmentsx The set of segments to use.
-
-  WaysX *waysx The set of ways to use.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
-{
- if(segmentsx->next1)
-    free(segmentsx->next1);
-
- segmentsx->next1=NULL;
-}
-
-
-/*++++++++++++++++++++++++++++++++++++++
   Prune out any groups of nodes and segments whose total length is less than a
   specified minimum.
 
@@ -1303,7 +1220,7 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
    {
     segmentx->node1=newnode1;
 
-    segmentsx->next1[thissegment]=segmentsx->firstnode[newnode1];
+    segmentx->next1=segmentsx->firstnode[newnode1];
     segmentsx->firstnode[newnode1]=thissegment;
    }
 
@@ -1336,7 +1253,7 @@ static void unlink_segment_node1_refs(SegmentsX *segmentsx,SegmentX *segmentx)
  segment=segmentsx->firstnode[segmentx->node1];
 
  if(segment==thissegment)
-    segmentsx->firstnode[segmentx->node1]=segmentsx->next1[thissegment];
+    segmentsx->firstnode[segmentx->node1]=segmentx->next1;
  else
    {
     do
@@ -1346,10 +1263,14 @@ static void unlink_segment_node1_refs(SegmentsX *segmentsx,SegmentX *segmentx)
 
        if(segx->node1==segmentx->node1)
          {
-          nextsegment=segmentsx->next1[segment];
+          nextsegment=segx->next1;
 
           if(nextsegment==thissegment)
-             segmentsx->next1[segment]=segmentsx->next1[thissegment];
+            {
+             segx->next1=segmentx->next1;
+
+             PutBackSegmentX(segmentsx,segx);
+            }
          }
        else /* if(segx->node2==segmentx->node1) */
          {
@@ -1357,7 +1278,7 @@ static void unlink_segment_node1_refs(SegmentsX *segmentsx,SegmentX *segmentx)
 
           if(nextsegment==thissegment)
             {
-             segx->next2=segmentsx->next1[thissegment];
+             segx->next2=segmentx->next1;
 
              PutBackSegmentX(segmentsx,segx);
             }
@@ -1397,10 +1318,14 @@ static void unlink_segment_node2_refs(SegmentsX *segmentsx,SegmentX *segmentx)
 
        if(segx->node1==segmentx->node2)
          {
-          nextsegment=segmentsx->next1[segment];
+          nextsegment=segx->next1;
 
           if(nextsegment==thissegment)
-             segmentsx->next1[segment]=segmentx->next2;
+            {
+             segx->next1=segmentx->next2;
+
+             PutBackSegmentX(segmentsx,segx);
+            }
          }
        else /* if(segx->node2==segmentx->node2) */
          {
