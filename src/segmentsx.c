@@ -106,9 +106,6 @@ void FreeSegmentList(SegmentsX *segmentsx)
  if(segmentsx->firstnode)
     free(segmentsx->firstnode);
 
- if(segmentsx->next1)
-    free(segmentsx->next1);
-
 #if SLIM
  DeleteSegmentXCache(segmentsx->cache);
 #endif
@@ -149,6 +146,7 @@ void AppendSegmentList(SegmentsX *segmentsx,index_t way,index_t node1,index_t no
 
  segmentx.node1=node1;
  segmentx.node2=node2;
+ segmentx.next1=NO_SEGMENT;
  segmentx.next2=NO_SEGMENT;
  segmentx.way=way;
  segmentx.distance=distance;
@@ -220,39 +218,10 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
  if(segmentx->node1==nodeindex)
    {
-    if(segmentsx->next1)
-      {
-       index_t index=IndexSegmentX(segmentsx,segmentx);
+    if(segmentx->next1==NO_SEGMENT)
+       return(NULL);
 
-       if(segmentsx->next1[index]==NO_SEGMENT)
-          return(NULL);
-
-       segmentx=LookupSegmentX(segmentsx,segmentsx->next1[index],position);
-
-       return(segmentx);
-      }
-    else
-      {
-#if SLIM
-       index_t index=IndexSegmentX(segmentsx,segmentx);
-       index++;
-
-       if(index>=segmentsx->number)
-          return(NULL);
-
-       segmentx=LookupSegmentX(segmentsx,index,position);
-#else
-       segmentx++;
-
-       if(IndexSegmentX(segmentsx,segmentx)>=segmentsx->number)
-          return(NULL);
-#endif
-
-       if(segmentx->node1!=nodeindex)
-          return(NULL);
-
-       return(segmentx);
-      }
+    return(LookupSegmentX(segmentsx,segmentx->next1,position));
    }
  else
    {
@@ -492,7 +461,7 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Index the segments by creating the firstnode index and filling in the segment next2 parameter.
+  Index the segments by creating the firstnode index and filling in the segment next1,next2 parameter.
 
   SegmentsX *segmentsx The set of segments to modify.
 

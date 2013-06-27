@@ -42,6 +42,7 @@ struct _SegmentX
  index_t    node1;              /*+ The NodeX index of the starting node. +*/
  index_t    node2;              /*+ The NodeX index of the finishing node. +*/
 
+ index_t    next1;              /*+ The index of the next segment with the same node1. +*/
  index_t    next2;              /*+ The index of the next segment with the same node2. +*/
 
  index_t    way;                /*+ The WayX index of the way. +*/
@@ -73,8 +74,6 @@ struct _SegmentsX
 #endif
 
  index_t   *firstnode;          /*+ The first segment index for each node. +*/
-
- index_t   *next1;              /*+ The index of the next segment with the same node1 (used while pruning). +*/
 
  BitMask   *usedway;            /*+ A flag to indicate if a way is used (used for removing pruned ways). +*/
 };
