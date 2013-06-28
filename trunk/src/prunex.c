@@ -80,6 +80,10 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  logassert(segmentsx->next1,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
+ segmentsx->next2=(index_t*)calloc(segmentsx->number,sizeof(index_t));
+
+ logassert(segmentsx->next2,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
+
  /* Open the file read-only */
 
  segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
@@ -96,6 +100,8 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
        segmentsx->next1[index-1]=index;
     else
        segmentsx->next1[index-1]=NO_SEGMENT;
+
+    segmentsx->next2[index]=segmentx.next2;
 
     lastnode1=node1;
     index++;
@@ -131,7 +137,11 @@ void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  if(segmentsx->next1)
     free(segmentsx->next1);
 
+ if(segmentsx->next2)
+    free(segmentsx->next2);
+
  segmentsx->next1=NULL;
+ segmentsx->next2=NULL;
 }
 
 
@@ -1259,7 +1269,6 @@ static void prune_segment(SegmentsX *segmentsx,SegmentX *segmentx)
 
  segmentx->node1=NO_NODE;
  segmentx->node2=NO_NODE;
- segmentx->next2=NO_SEGMENT;
 
  PutBackSegmentX(segmentsx,segmentx);
 }
@@ -1311,7 +1320,7 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
    {
     segmentx->node2=newnode2;
 
-    segmentx->next2=segmentsx->firstnode[newnode2];
+    segmentsx->next2[thissegment]=segmentsx->firstnode[newnode2];
     segmentsx->firstnode[newnode2]=thissegment;
    }
 
@@ -1353,14 +1362,10 @@ static void unlink_segment_node1_refs(SegmentsX *segmentsx,SegmentX *segmentx)
          }
        else /* if(segx->node2==segmentx->node1) */
          {
-          nextsegment=segx->next2;
+          nextsegment=segmentsx->next2[segment];
 
           if(nextsegment==thissegment)
-            {
-             segx->next2=segmentsx->next1[thissegment];
-
-             PutBackSegmentX(segmentsx,segx);
-            }
+             segmentsx->next2[segment]=segmentsx->next1[thissegment];
          }
 
        segment=nextsegment;
@@ -1387,7 +1392,7 @@ static void unlink_segment_node2_refs(SegmentsX *segmentsx,SegmentX *segmentx)
  segment=segmentsx->firstnode[segmentx->node2];
 
  if(segment==thissegment)
-    segmentsx->firstnode[segmentx->node2]=segmentx->next2;
+    segmentsx->firstnode[segmentx->node2]=segmentsx->next2[thissegment];
  else
    {
     do
@@ -1400,18 +1405,14 @@ static void unlink_segment_node2_refs(SegmentsX *segmentsx,SegmentX *segmentx)
           nextsegment=segmentsx->next1[segment];
 
           if(nextsegment==thissegment)
-             segmentsx->next1[segment]=segmentx->next2;
+             segmentsx->next1[segment]=segmentsx->next2[thissegment];
          }
        else /* if(segx->node2==segmentx->node2) */
          {
-          nextsegment=segx->next2;
+          nextsegment=segmentsx->next2[segment];
 
           if(nextsegment==thissegment)
-            {
-             segx->next2=segmentx->next2;
-
-             PutBackSegmentX(segmentsx,segx);
-            }
+             segmentsx->next2[segment]=segmentsx->next2[thissegment];
          }
 
        segment=nextsegment;

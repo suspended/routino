@@ -109,6 +109,9 @@ void FreeSegmentList(SegmentsX *segmentsx)
  if(segmentsx->next1)
     free(segmentsx->next1);
 
+ if(segmentsx->next2)
+    free(segmentsx->next2);
+
 #if SLIM
  DeleteSegmentXCache(segmentsx->cache);
 #endif
@@ -228,8 +231,6 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
           return(NULL);
 
        segmentx=LookupSegmentX(segmentsx,segmentsx->next1[index],position);
-
-       return(segmentx);
       }
     else
       {
@@ -250,16 +251,30 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
        if(segmentx->node1!=nodeindex)
           return(NULL);
-
-       return(segmentx);
       }
+
+    return(segmentx);
    }
  else
    {
-    if(segmentx->next2==NO_SEGMENT)
-       return(NULL);
+    if(segmentsx->next2)
+      {
+       index_t index=IndexSegmentX(segmentsx,segmentx);
 
-    return(LookupSegmentX(segmentsx,segmentx->next2,position));
+       if(segmentsx->next2[index]==NO_SEGMENT)
+          return(NULL);
+
+       segmentx=LookupSegmentX(segmentsx,segmentsx->next2[index],position);
+      }
+    else
+      {
+       if(segmentx->next2==NO_SEGMENT)
+          return(NULL);
+
+       segmentx=LookupSegmentX(segmentsx,segmentx->next2,position);
+      }
+
+    return(segmentx);
    }
 }
  
