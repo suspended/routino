@@ -106,6 +106,9 @@ void FreeSegmentList(SegmentsX *segmentsx)
  if(segmentsx->firstnode)
     free(segmentsx->firstnode);
 
+ if(segmentsx->next1)
+    free(segmentsx->next1);
+
 #if SLIM
  DeleteSegmentXCache(segmentsx->cache);
 #endif
@@ -146,7 +149,6 @@ void AppendSegmentList(SegmentsX *segmentsx,index_t way,index_t node1,index_t no
 
  segmentx.node1=node1;
  segmentx.node2=node2;
- segmentx.next1=NO_SEGMENT;
  segmentx.next2=NO_SEGMENT;
  segmentx.way=way;
  segmentx.distance=distance;
@@ -218,10 +220,39 @@ SegmentX *NextSegmentX(SegmentsX *segmentsx,SegmentX *segmentx,index_t nodeindex
 
  if(segmentx->node1==nodeindex)
    {
-    if(segmentx->next1==NO_SEGMENT)
-       return(NULL);
+    if(segmentsx->next1)
+      {
+       index_t index=IndexSegmentX(segmentsx,segmentx);
 
-    return(LookupSegmentX(segmentsx,segmentx->next1,position));
+       if(segmentsx->next1[index]==NO_SEGMENT)
+          return(NULL);
+
+       segmentx=LookupSegmentX(segmentsx,segmentsx->next1[index],position);
+
+       return(segmentx);
+      }
+    else
+      {
+#if SLIM
+       index_t index=IndexSegmentX(segmentsx,segmentx);
+       index++;
+
+       if(index>=segmentsx->number)
+          return(NULL);
+
+       segmentx=LookupSegmentX(segmentsx,index,position);
+#else
+       segmentx++;
+
+       if(IndexSegmentX(segmentsx,segmentx)>=segmentsx->number)
+          return(NULL);
+#endif
+
+       if(segmentx->node1!=nodeindex)
+          return(NULL);
+
+       return(segmentx);
+      }
    }
  else
    {
@@ -461,7 +492,7 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Index the segments by creating the firstnode index and filling in the segment next1,next2 parameter.
+  Index the segments by creating the firstnode index and filling in the segment next2 parameter.
 
   SegmentsX *segmentsx The set of segments to modify.
 
@@ -472,8 +503,11 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
 void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 {
- index_t index;
- int fd;
+ index_t index,start=0,i;
+ SegmentX *segmentx_list=NULL;
+#if SLIM
+ index_t length=0;
+#endif
 
  if(segmentsx->number==0)
     return;
@@ -491,50 +525,72 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  logassert(segmentsx->firstnode,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
- for(index=0;index<nodesx->number;index++)
-    segmentsx->firstnode[index]=NO_SEGMENT;
+ for(i=0;i<nodesx->number;i++)
+    segmentsx->firstnode[i]=NO_SEGMENT;
 
- /* Re-open the file read-only and a new file writeable */
+ /* Map into memory / open the files */
 
- segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
+#if !SLIM
+ segmentsx->data=MapFileWriteable(segmentsx->filename_tmp);
+#else
+ segmentsx->fd=SlimMapFileWriteable(segmentsx->filename_tmp);
 
- DeleteFile(segmentsx->filename_tmp);
+ segmentx_list=(SegmentX*)malloc(1024*sizeof(SegmentX));
+#endif
 
- fd=OpenFileBufferedNew(segmentsx->filename_tmp);
+ /* Read through the segments in reverse order (in chunks to help slim mode) */
 
- /* Read through the segments and update them */
-
- for(index=0;index<segmentsx->number;index++)
+ for(index=segmentsx->number-1;index!=NO_SEGMENT;index--)
    {
-    SegmentX segmentx;
+    SegmentX *segmentx;
 
-    ReadFileBuffered(segmentsx->fd,&segmentx,sizeof(SegmentX));
+    if((index%1024)==1023 || index==(segmentsx->number-1))
+      {
+       start=1024*(index/1024);
+
+#if !SLIM
+       segmentx_list=LookupSegmentX(segmentsx,start,1);
+#else
+       length=index-start+1;
+
+       SlimFetch(segmentsx->fd,segmentx_list,length*sizeof(SegmentX),start*sizeof(SegmentX));
+#endif
+      }
+
+    segmentx=segmentx_list+(index-start);
 
     if(nodesx->pdata)
       {
-       segmentx.node1=nodesx->pdata[segmentx.node1];
-       segmentx.node2=nodesx->pdata[segmentx.node2];
+       segmentx->node1=nodesx->pdata[segmentx->node1];
+       segmentx->node2=nodesx->pdata[segmentx->node2];
       }
 
     if(waysx->cdata)
-       segmentx.way=waysx->cdata[segmentx.way];
+       segmentx->way=waysx->cdata[segmentx->way];
 
-    segmentx.next1=segmentsx->firstnode[segmentx.node1];
-    segmentx.next2=segmentsx->firstnode[segmentx.node2];
+    segmentx->next2=segmentsx->firstnode[segmentx->node2];
 
-    segmentsx->firstnode[segmentx.node1]=index;
-    segmentsx->firstnode[segmentx.node2]=index;
+    segmentsx->firstnode[segmentx->node1]=index;
+    segmentsx->firstnode[segmentx->node2]=index;
 
     if(!(index%10000))
        printf_middle("Indexing Segments: Segments=%"Pindex_t,segmentsx->number-index);
 
-    WriteFileBuffered(fd,&segmentx,sizeof(SegmentX));
+#if SLIM
+    if(index==start)
+       SlimReplace(segmentsx->fd,segmentx_list,length*sizeof(SegmentX),start*sizeof(SegmentX));
+#endif
    }
 
  /* Unmap from memory / close the files */
 
- segmentsx->fd=CloseFileBuffered(segmentsx->fd);
- CloseFileBuffered(fd);
+#if !SLIM
+ segmentsx->data=UnmapFile(segmentsx->data);
+#else
+ segmentsx->fd=SlimUnmapFile(segmentsx->fd);
+
+ free(segmentx_list);
+#endif
 
  /* Free the memory */
 

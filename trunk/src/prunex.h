@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2011-2013 Andrew M. Bishop
+ This file Copyright 2011-2012 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,9 @@
 
 
 /* Functions in prunex.c */
+
+void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
+void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx);
 
 void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distance_t minimum);
 
