@@ -276,7 +276,6 @@
         <span class="hideshow_title">Help</span>
         <div id="hideshow_help_options_div">
           <div class="scrollable">
-            <p>
             <b>Quick Start</b>
             <br>
             Click op marker-icoontje (Waypoints) om ze op de map te plaatsen (rechts).

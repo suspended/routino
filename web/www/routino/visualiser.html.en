@@ -388,6 +388,30 @@
       <br>
       <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" target="edit" style="display: none;">Edit OSM source data</a>
     </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_help_options_show" onclick="hideshow_show('help_options');" class="hideshow_hide">+</span>
+      <span id="hideshow_help_options_hide" onclick="hideshow_hide('help_options');" class="hideshow_show">-</span>
+      <span class="hideshow_title">Help</span>
+      <div id="hideshow_help_options_div">
+        <div class="scrollable">
+          <b>Quick Start</b>
+          <br>
+          Zoom to an area and select one of the buttons to display that type of
+          data.
+          <br>
+          More data options can be found by expanding the details below each
+          button.
+          <p>
+          <b>Data Failure</b>
+          <br>
+          If the area selected is too large (depends on the data type) then the
+          status will say "Failed to get visualiser data" - zoom in and try
+          again.
+          <br>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="tab_content" id="tab_router_div" style="display: none;">
