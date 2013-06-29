@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <strings.h>
+#include <ctype.h>
 
 #include "xmlparse.h"
 
@@ -944,15 +945,16 @@ int ParseXML(int fd,xmltag **tags,int options)
     tag=NULL;
 
     for(i=0;tags[i];i++)
-       if(!strcasecmp((char*)buffer_token,tags[i]->name))
-         {
-          tag=tags[i];
+       if(buffer_token[0]==tolower(tags[i]->name[0]) || buffer_token[0]==toupper(tags[i]->name[0]))
+          if(!strcasecmp((char*)buffer_token+1,tags[i]->name+1))
+            {
+             tag=tags[i];
 
-          for(i=0;i<tag->nattributes;i++)
-             attributes[i]=NULL;
+             for(i=0;i<tag->nattributes;i++)
+                attributes[i]=NULL;
 
-          break;
-         }
+             break;
+            }
 
     if(tag==NULL)
        BEGIN(LEX_ERROR_UNEXP_TAG);
@@ -1041,12 +1043,13 @@ int ParseXML(int fd,xmltag **tags,int options)
     attribute=-1;
 
     for(i=0;i<tag->nattributes;i++)
-       if(!strcasecmp((char*)buffer_token,tag->attributes[i]))
-         {
-          attribute=i;
+       if(buffer_token[0]==tolower(tag->attributes[i][0]) || buffer_token[0]==toupper(tag->attributes[i][0]))
+          if(!strcasecmp((char*)buffer_token+1,tag->attributes[i]+1))
+            {
+             attribute=i;
 
-          break;
-         }
+             break;
+            }
 
     if(attribute==-1)
       {
