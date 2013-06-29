@@ -153,7 +153,7 @@ node_t logerror_node(node_t id)
 {
  if(errorbinfile!=-1)
    {
-    ErrorLogObject error;
+    ErrorLogObject error={0};
 
     error.id=id;
     error.type='N';
@@ -179,7 +179,7 @@ way_t logerror_way(way_t id)
 {
  if(errorbinfile!=-1)
    {
-    ErrorLogObject error;
+    ErrorLogObject error={0};
 
     error.id=id;
     error.type='W';
@@ -205,7 +205,7 @@ relation_t logerror_relation(relation_t id)
 {
  if(errorbinfile!=-1)
    {
-    ErrorLogObject error;
+    ErrorLogObject error={0};
 
     error.id=id;
     error.type='R';
