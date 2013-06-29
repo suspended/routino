@@ -273,7 +273,6 @@
         <span class="hideshow_title">Help</span>
         <div id="hideshow_help_options_div">
           <div class="scrollable">
-            <p>
             <b>Quick Start</b>
             <br>
             Click on marker icons (above) to place them on the map (right).  Then
