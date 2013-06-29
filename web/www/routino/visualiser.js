@@ -388,7 +388,7 @@ function selectFeature(feature)
  layerHighlights.destroyFeatures();
 
  highlight_style = new OpenLayers.Style({},{strokeColor: "#F0F000",strokeWidth: 8,
-                                            fillColor: "#F0F000",pointRadius: 6});
+                                            fillColor: "#F0F000",pointRadius: 4});
 
  highlight = new OpenLayers.Feature.Vector(feature.geometry.clone(),{},highlight_style);
 
