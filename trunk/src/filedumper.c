@@ -960,10 +960,10 @@ static void print_node_visualiser(Nodes *nodes,index_t item)
  GetLatLong(nodes,item,nodep,&latitude,&longitude);
 
  if(nodep->allow==Transports_ALL && nodep->flags==0)
-    printf("&lt;node id='%lu' lat='%.7f' lon='%.7f' /&gt;\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+    printf("&lt;routino:node id='%lu' lat='%.7f' lon='%.7f' /&gt;\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
  else
    {
-    printf("&lt;node id='%lu' lat='%.7f' lon='%.7f'&gt;\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+    printf("&lt;routino:node id='%lu' lat='%.7f' lon='%.7f'&gt;\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
 
     if(nodep->flags & NODE_SUPER)
        printf("&nbsp;&nbsp;&nbsp;&lt;tag k='routino:super' v='yes' /&gt;\n");
@@ -981,7 +981,7 @@ static void print_node_visualiser(Nodes *nodes,index_t item)
        if(!(nodep->allow & TRANSPORTS(i)))
           printf("&nbsp;&nbsp;&nbsp;&lt;tag k='%s' v='no' /&gt;\n",TransportName(i));
 
-    printf("&lt;/node&gt;\n");
+    printf("&lt;/routino:node&gt;\n");
    }
 }
 
@@ -1003,7 +1003,7 @@ static void print_segment_visualiser(Segments *segments,index_t item,Ways *ways)
  char *name=WayName(ways,wayp);
  int i;
 
- printf("&lt;way id='%lu'&gt;\n",(unsigned long)item+1);
+ printf("&lt;routino:way id='%lu'&gt;\n",(unsigned long)item+1);
 
  if(IsOnewayTo(segmentp,segmentp->node1))
    {
@@ -1054,7 +1054,7 @@ static void print_segment_visualiser(Segments *segments,index_t item,Ways *ways)
  if(wayp->length)
     printf("&nbsp;&nbsp;&nbsp;&lt;tag k='maxlength' v='%.1f m' /&gt;\n",length_to_metres(wayp->length));
 
- printf("&lt;/way&gt;\n");
+ printf("&lt;/routino:way&gt;\n");
 }
 
 
@@ -1090,7 +1090,7 @@ static void print_turn_relation_visualiser(Relations *relations,index_t item,Seg
  else
     restriction="no_straight_on";
 
- printf("&lt;relation id='%lu'&gt;\n",(unsigned long)item+1);
+ printf("&lt;routino:relation id='%lu'&gt;\n",(unsigned long)item+1);
  printf("&nbsp;&nbsp;&nbsp;&lt;tag k='type' v='restriction' /&gt;\n");
  printf("&nbsp;&nbsp;&nbsp;&lt;tag k='restriction' v='%s'/&gt;\n",restriction);
 
@@ -1101,7 +1101,7 @@ static void print_turn_relation_visualiser(Relations *relations,index_t item,Seg
  printf("&nbsp;&nbsp;&nbsp;&lt;member type='node' ref='%lu' role='via' /&gt;\n",(unsigned long)relationp->via+1);
  printf("&nbsp;&nbsp;&nbsp;&lt;member type='way' ref='%lu' role='to' /&gt;\n",(unsigned long)relationp->to+1);
 
- printf("&lt;/relation&gt;\n");
+ printf("&lt;/routino:relation&gt;\n");
 }
 
 
