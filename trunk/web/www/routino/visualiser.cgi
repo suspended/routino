@@ -80,13 +80,13 @@ if(defined $data)
 
    %limits=(
             "junctions" => 0.2,
-            "speed"     => 0.2,
             "super"     => 0.2,
             "oneway"    => 0.2,
             "highway"   => 0.2,
             "transport" => 0.2,
-            "barrier"   => 0.2,
+            "barrier"   => 0.3,
             "turns"     => 0.3,
+            "speed"     => 0.3,
             "weight"    => 0.3,
             "height"    => 0.3,
             "width"     => 0.3,
