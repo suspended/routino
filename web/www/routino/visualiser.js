@@ -688,7 +688,7 @@ function runSuperSuccess(response)
  var lines=response.responseText.split('\n');
 
  var node_style = new OpenLayers.Style({},{stroke: false,
-                                           pointRadius: 3,fillColor: "#FF0000",
+                                           pointRadius: 4,fillColor: "#FF0000",
                                            cursor: "pointer"});
 
  var segment_style = new OpenLayers.Style({},{fill: false,
