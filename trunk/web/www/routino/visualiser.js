@@ -555,7 +555,7 @@ function displayData(datatype)  // called from visualiser.html
     OpenLayers.Request.GET({url: url, success: runJunctionsSuccess, failure: runFailure});
     break;
    case 'super':
-    OpenLayers.Request.GET({url: url, success: runSuperSuccess, faliure: runFailure});
+    OpenLayers.Request.GET({url: url, success: runSuperSuccess, failure: runFailure});
     break;
    case 'oneway':
     OpenLayers.Request.GET({url: url, success: runOnewaySuccess, failure: runFailure});
@@ -566,7 +566,7 @@ function displayData(datatype)  // called from visualiser.html
        if(highways[h].checked)
           highway=highways[h].value;
     url+="-" + highway;
-    OpenLayers.Request.GET({url: url, success: runHighwaySuccess, falure: runFailure});
+    OpenLayers.Request.GET({url: url, success: runHighwaySuccess, failure: runFailure});
     break;
    case 'transport':
     var transports=document.forms["transports"].elements["transport"];
@@ -600,10 +600,10 @@ function displayData(datatype)  // called from visualiser.html
        if(properties[p].checked)
           property=properties[p].value;
     url+="-" + property;
-    OpenLayers.Request.GET({url: url, success: runPropertySuccess, falure: runFailure});
+    OpenLayers.Request.GET({url: url, success: runPropertySuccess, failure: runFailure});
     break;
    case 'errorlogs':
-    OpenLayers.Request.GET({url: url, success: runErrorlogSuccess, falure: runFailure});
+    OpenLayers.Request.GET({url: url, success: runErrorlogSuccess, failure: runFailure});
     break;
    }
 }
