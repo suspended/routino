@@ -441,6 +441,8 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
     free(threads[i].filename);
    }
 
+ free(threads);
+
  return(count_out);
 }
 
@@ -840,6 +842,8 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
     free(threads[i].filename);
    }
+
+ free(threads);
 
  return(count_out);
 }
