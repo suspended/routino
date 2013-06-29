@@ -187,6 +187,7 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
 #endif
 
  newwaysx=NewWayList(0,0);
+ CloseFileBuffered(newwaysx->fd);
 
  newwaysx->fd=SlimMapFileWriteable(newwaysx->filename_tmp);
 
