@@ -63,6 +63,18 @@ Queue *NewQueueList(uint8_t log2bins)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Re-use an existing queue.
+
+  Queue *queue The queue to reset for re-use.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void ResetQueueList(Queue *queue)
+{
+ queue->noccupied=0;
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Free a queue.
 
   Queue *queue The queue to be freed.
