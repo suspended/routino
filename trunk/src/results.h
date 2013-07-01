@@ -71,6 +71,8 @@ typedef struct _Results
  uint32_t  ndata1;              /*+ The size of the first dimension of the 'data' array. +*/
  uint32_t  ndata2;              /*+ The size of the second dimension of the 'data' array. +*/
 
+ uint32_t  nallocdata1;         /*+ The amount of allocated space in the first dimension of the 'data' array. +*/
+
  Result  **data;                /*+ An array of arrays containing the actual results, the first
                                     dimension is reallocated but the second dimension is not.
                                     Most importantly pointers into the real data don't change
@@ -93,6 +95,7 @@ typedef struct _Queue Queue;
 /* Results functions in results.c */
 
 Results *NewResultsList(uint8_t log2bins);
+void ResetResultsList(Results *results);
 void FreeResultsList(Results *results);
 
 Result *InsertResult(Results *results,index_t node,index_t segment);
@@ -106,6 +109,7 @@ Result *NextResult(Results *results,Result *result);
 /* Queue functions in queue.c */
 
 Queue *NewQueueList(uint8_t log2bins);
+void ResetQueueList(Queue *queue);
 void FreeQueueList(Queue *queue);
 
 void InsertInQueue(Queue *queue,Result *result,score_t score);

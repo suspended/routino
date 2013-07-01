@@ -301,8 +301,6 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
                 result=NextResult(results,result);
                }
-
-             FreeResultsList(results);
             }
 
           segmentx=NextSegmentX(segmentsx,segmentx,i);
@@ -465,15 +463,22 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 
 static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,node_t start,Way *match)
 {
- Results *results;
- Queue *queue;
+ static Results *results=NULL;
+ static Queue *queue=NULL;
  Result *result1,*result2;
  WayX *wayx;
 
  /* Insert the first node into the queue */
 
- results=NewResultsList(8);
- queue=NewQueueList(8);
+ if(!results)
+    results=NewResultsList(8);
+ else
+    ResetResultsList(results);
+
+ if(!queue)
+    queue=NewQueueList(8);
+ else
+    ResetQueueList(queue);
 
  result1=InsertResult(results,start,NO_SEGMENT);
 
@@ -549,8 +554,6 @@ static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx
        segmentx=NextSegmentX(segmentsx,segmentx,node1);
       }
    }
-
- FreeQueueList(queue);
 
  return(results);
 }

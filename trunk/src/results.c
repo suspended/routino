@@ -55,6 +55,7 @@ Results *NewResultsList(uint8_t log2bins)
  results->point=(Result**)calloc(results->nbins,sizeof(Result*));
 
  results->ndata1=0;
+ results->nallocdata1=0;
  results->ndata2=results->nbins>>2;
 
  results->data=NULL;
@@ -70,6 +71,33 @@ Results *NewResultsList(uint8_t log2bins)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Allocate a new results list.
+
+  Results *results The results list to be reset.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void ResetResultsList(Results *results)
+{
+ uint32_t i;
+
+ results->number=0;
+ results->ndata1=0;
+
+ for(i=0;i<results->nbins;i++)
+   {
+    results->point[i]=NULL;
+    results->count[i]=0;
+   }
+
+ results->start_node=NO_NODE;
+ results->prev_segment=NO_SEGMENT;
+
+ results->finish_node=NO_NODE;
+ results->last_segment=NO_SEGMENT;
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Free a results list.
 
   Results *results The results list to be destroyed.
@@ -79,7 +107,7 @@ void FreeResultsList(Results *results)
 {
  uint32_t i;
 
- for(i=0;i<results->ndata1;i++)
+ for(i=0;i<results->nallocdata1;i++)
     free(results->data[i]);
 
  free(results->data);
@@ -163,8 +191,12 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
    {
     results->ndata1++;
 
-    results->data=(Result**)realloc((void*)results->data,results->ndata1*sizeof(Result*));
-    results->data[results->ndata1-1]=(Result*)malloc(results->ndata2*sizeof(Result));
+    if(results->ndata1>=results->nallocdata1)
+      {
+       results->nallocdata1++;
+       results->data=(Result**)realloc((void*)results->data,results->nallocdata1*sizeof(Result*));
+       results->data[results->nallocdata1-1]=(Result*)malloc(results->ndata2*sizeof(Result));
+      }
    }
 
  /* Insert the new entry */
