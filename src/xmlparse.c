@@ -945,7 +945,7 @@ int ParseXML(int fd,xmltag **tags,int options)
     tag=NULL;
 
     for(i=0;tags[i];i++)
-       if(buffer_token[0]==tolower(tags[i]->name[0]) || buffer_token[0]==toupper(tags[i]->name[0]))
+       if(buffer_token[0]==tags[i]->name[0] || tolower(buffer_token[0])==tags[i]->name[0])
           if(!strcasecmp((char*)buffer_token+1,tags[i]->name+1))
             {
              tag=tags[i];
@@ -1043,7 +1043,7 @@ int ParseXML(int fd,xmltag **tags,int options)
     attribute=-1;
 
     for(i=0;i<tag->nattributes;i++)
-       if(buffer_token[0]==tolower(tag->attributes[i][0]) || buffer_token[0]==toupper(tag->attributes[i][0]))
+       if(buffer_token[0]==tag->attributes[i][0] || tolower(buffer_token[0])==tag->attributes[i][0])
           if(!strcasecmp((char*)buffer_token+1,tag->attributes[i]+1))
             {
              attribute=i;
