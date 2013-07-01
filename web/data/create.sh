@@ -4,7 +4,7 @@
 
 
 # EDIT THIS to set the names of the files to download from GeoFabrik.
-files="europe/great_britain.osm.bz2 europe/ireland.osm.bz2 europe/isle_of_man.osm.bz2"
+files="europe/great_britain.osm.bz2 europeireland-and-northern-ireland.osm.bz2"
 server="download.geofabrik.de/openstreetmap"
 
 ## EDIT THIS to set the names of the files to download from Cloudmade.
