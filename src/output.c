@@ -346,10 +346,11 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        if(IsFakeNode(result->node))
           GetFakeLatLong(result->node,&latitude,&longitude);
        else
-          GetLatLong(nodes,result->node,NULL,&latitude,&longitude);
-
-       if(!IsFakeNode(result->node))
+         {
           resultnodep=LookupNode(nodes,result->node,6);
+
+          GetLatLong(nodes,result->node,resultnodep,&latitude,&longitude);
+         }
 
        /* Calculate the next result */
 
