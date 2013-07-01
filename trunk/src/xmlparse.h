@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2012 Andrew M. Bishop
+ This file Copyright 2010-2013 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,7 @@ typedef struct _xmltag xmltag;
 /*+ A structure to hold the definition of a tag. +*/
 struct _xmltag
 {
- char *name;                            /*+ The name of the tag. +*/
+ char *name;                            /*+ The name of the tag - must be in lower case. +*/
 
  int  nattributes;                      /*+ The number of valid attributes for the tag. +*/
  char *attributes[XMLPARSE_MAX_ATTRS];  /*+ The valid attributes for the tag. +*/
