@@ -340,7 +340,7 @@ void fprintf_elapsed_time(FILE *file,struct timeval *start)
     elapsed.tv_usec+=1000000;
    }
 
- fprintf(file,"[%2ld:%02ld.%03ld] ",elapsed.tv_sec/60,elapsed.tv_sec%60,elapsed.tv_usec/10000);
+ fprintf(file,"[%2ld:%02ld.%03ld] ",elapsed.tv_sec/60,elapsed.tv_sec%60,elapsed.tv_usec/1000);
 }
 
 
