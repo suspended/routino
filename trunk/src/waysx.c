@@ -354,7 +354,7 @@ static int sort_by_id(WayX *a,WayX *b)
 /*++++++++++++++++++++++++++++++++++++++
   Discard duplicate ways and create and index of ids.
 
-  int deduplicate_by_id Return 1 if the value is to be kept, otherwise 0.
+  int deduplicate_and_index_by_id Return 1 if the value is to be kept, otherwise 0.
 
   WayX *wayx The extended way.
 
@@ -385,6 +385,8 @@ static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 
 /*++++++++++++++++++++++++++++++++++++++
   Split the ways into segments and way names.
+
+  SegmentsX *SplitWays Returns the set of segments that have been created.
 
   WaysX *waysx The set of ways to process.
 

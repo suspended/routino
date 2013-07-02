@@ -308,7 +308,7 @@ void FinishRelationList(RelationsX *relationsx)
 
   index_t IndexRouteRelX Returns the index of the route relation with the specified id.
 
-  Relationsx *relationsx The set of relations to process.
+  RelationsX *relationsx The set of relations to process.
 
   relation_t id The relation id to look for.
   ++++++++++++++++++++++++++++++++++++++*/
@@ -367,7 +367,7 @@ index_t IndexRouteRelX(RelationsX *relationsx,relation_t id)
 
   index_t IndexTurnRelX Returns the index of the turn relation with the specified id.
 
-  Relationsx *relationsx The set of relations to process.
+  RelationsX *relationsx The set of relations to process.
 
   relation_t id The relation id to look for.
   ++++++++++++++++++++++++++++++++++++++*/
