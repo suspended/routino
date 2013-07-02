@@ -250,7 +250,7 @@ static inline int call_callback(const char *name,int (*callback)(),int type,int 
 
   int ParseXML Returns 0 if OK or something else in case of an error.
 
-  in fd The file descriptor of the file to parse.
+  int fd The file descriptor of the file to parse.
 
   xmltag **tags The array of pointers to tags for the top level.
 

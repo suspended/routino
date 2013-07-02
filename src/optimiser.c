@@ -1178,7 +1178,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
 
-  Results *being The partial set of routes already computed.
+  Results *begin The partial set of routes already computed.
 
   index_t finish_node The finish node.
   ++++++++++++++++++++++++++++++++++++++*/

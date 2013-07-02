@@ -146,7 +146,7 @@ void logerror(const char *format, ...)
 
   node_t logerror_node Returns the node identifier.
 
-  node_t The node identifier.
+  node_t id The node identifier.
   ++++++++++++++++++++++++++++++++++++++*/
 
 node_t logerror_node(node_t id)
@@ -172,7 +172,7 @@ node_t logerror_node(node_t id)
 
   way_t logerror_way Returns the way identifier.
 
-  way_t The way identifier.
+  way_t id The way identifier.
   ++++++++++++++++++++++++++++++++++++++*/
 
 way_t logerror_way(way_t id)
@@ -198,7 +198,7 @@ way_t logerror_way(way_t id)
 
   relation_t logerror_relation Returns the relation identifier.
 
-  relation_t The relation identifier.
+  relation_t id The relation identifier.
   ++++++++++++++++++++++++++++++++++++++*/
 
 relation_t logerror_relation(relation_t id)

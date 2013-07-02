@@ -102,7 +102,7 @@ void DestroyErrorLogs(ErrorLogs *errorlogs)
 /*++++++++++++++++++++++++++++++++++++++
   Get the latitude and longitude associated with an error log.
 
-  ErrorLog *errorlogs The set of error logs to use.
+  ErrorLogs *errorlogs The set of error logs to use.
 
   index_t index The errorlog index.
 
