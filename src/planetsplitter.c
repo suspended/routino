@@ -370,14 +370,14 @@ if(!option_process_only)
 
     StartPruning(OSMNodes,OSMSegments,OSMWays);
 
+    if(option_prune_straight)
+       PruneStraightHighwayNodes(OSMNodes,OSMSegments,OSMWays,option_prune_straight);
+
     if(option_prune_isolated)
        PruneIsolatedRegions(OSMNodes,OSMSegments,OSMWays,option_prune_isolated);
 
     if(option_prune_short)
        PruneShortSegments(OSMNodes,OSMSegments,OSMWays,option_prune_short);
-
-    if(option_prune_straight)
-       PruneStraightHighwayNodes(OSMNodes,OSMSegments,OSMWays,option_prune_straight);
 
     FinishPruning(OSMNodes,OSMSegments,OSMWays);
 
