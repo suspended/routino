@@ -48,7 +48,103 @@
 <div class="content">
 
 
-<h2><a name="H_1_1"></a>Pre-Requisites</h2>
+<h2><a name="H_1_1"></a>Quick Start Guide</h2>
+
+The instructions below are a complete list of the minimum required to get
+Routino installed and running under Apache on Debian Linux (other Linux versions
+will be similar).
+
+<p>
+
+<em>These instructions should not be considered as complete or a secure
+installation for the reasons given in more detail in
+the <a href="H_1_5_1">Configuration of Web Files</a> section below.</em>
+
+<p>
+
+The starting point for the installation is in the Routino source code directory
+after it has been uncompressed.  Most of the steps will need to be run as the
+root user.
+
+<p>
+The first thing to do is to install the packages which are required for
+compilation of Routino as described in the <a href="H_1_2">Pre-Requisites</a>
+section below.
+
+<pre class="boxed">
+apt-get install gcc make libc6-dev libz-dev libbz2-dev
+</pre>
+
+After this the programs can be compiled:
+
+<pre class="boxed">
+make
+</pre>
+
+The files for the web interface can now be copied to the web server directory.
+On Debian this is <tt>/var/www</tt> and the files changed to be owned by the
+user Apache runs as.
+
+<pre class="boxed">
+cp -a web /var/www/routino
+chown -R www-data:www-data /var/www/routino
+</pre>
+
+To be able to use Routino some data will need to be processed and a script is
+provided for this.  This will download the data for the UK which may take a
+while and then process it.
+
+<pre class="boxed">
+cd /var/www/routino/data
+sh -x create.sh
+</pre>
+
+The routino web pages also requires the OpenLayers Javascript to be downloaded
+and installed and a script is also provided for this.
+
+<pre class="boxed">
+cd /var/www/routino/www/openlayers
+sh -x install.sh
+</pre>
+
+To make full use of the location search feature on the Routino web page you will
+need to install one extra perl package.
+
+<pre class="boxed">
+apt-get install libjson-pp-perl
+</pre>
+
+Finally to make the web pages work you will need to add the extra lines to the
+Apache configuration file as described in the <a href="H_1_5_2">Configuration of
+Web Server</a> section below.  You don't have to use <tt>vi</tt> and can use any
+text editor.
+
+<pre class="boxed">
+vi /etc/apache2/sites-enabled/000-default
+apache2ctl restart
+</pre>
+
+Now everything should be set up and the web page should work if accessed at
+http://localhost/routino/www/routino/router.html.
+
+<p>
+
+When everything is working you should read the rest of this document carefully
+and make the following changes:
+
+<ul>
+  <li>Download your choice of OSM data - edit the file <tt>data/create.sh</tt>
+    and run it again.
+  <li>Edit the <tt>www/routino/mapprops.js</tt> file to match the downloaded
+    data and personal map preferences.
+  <li>Move the files in the web server directory so that only the contents of
+    the <tt>www</tt> directory are accessible by the web server.
+  <li>Edit the file <tt>www/routino/paths.pl</tt> to reference the new file
+    locations.
+</ul>
+
+
+<h2><a name="H_1_2"></a>Pre-Requisites</h2>
 
 The programs are written in standard C language with minimal external
 requirements so only a small set of development tools are required (gcc, make).
@@ -82,7 +178,7 @@ modules.  To use the search function on the router web page the additional Perl
 module "JSON::PP" must be installed.
 
 
-<h2><a name="H_1_2"></a>Compilation</h2>
+<h2><a name="H_1_3"></a>Compilation</h2>
 
 To compile the programs just type <tt>make</tt> at the top level of the source
 tree.
@@ -99,7 +195,7 @@ Any information on improving the compilation process on anything other than x86
 Linux is welcome.
 
 
-<h2><a name="H_1_3"></a>Installation</h2>
+<h2><a name="H_1_4"></a>Installation</h2>
 
 After compilation the executable files are copied into the directory
 <tt>web/bin</tt> and the default XML configuration files are copied into the
@@ -122,7 +218,7 @@ specified on the command line but by default are also looked for in the
 directory that contains the routing database with these names.
 
 
-<h2><a name="H_1_4"></a>Example Web Page</h2>
+<h2><a name="H_1_5"></a>Example Web Page</h2>
 
 The directory <tt>web</tt> contains a set of files that can be used to create a
 working set of web pages with interfaces to the routing algorithm.
@@ -132,12 +228,10 @@ working set of web pages with interfaces to the routing algorithm.
 The files in the <tt>web</tt> directory will require copying to a location that
 is accessible by a web server.  After copying the files some of them need to be
 edited; search through the files for lines that contain the words "EDIT THIS"
-and make appropriate edits.  The files that need editing are <tt>paths.pl</tt>
-(to set the directory paths) and <tt>mapprops.js</tt> (to set the map
-properties).
+and make appropriate edits (more details below).
 
 
-<h3><a name="H_1_4_1"></a>Configuration of web files</h3>
+<h3><a name="H_1_5_1"></a>Configuration of Web Files</h3>
 
 The assumption in this description is that the whole of the directory called
 <tt>web</tt> is copied into a directory that is accessible by an Apache web
@@ -148,7 +242,6 @@ server.
 <em>This is not a secure configuration but an easy one to configure.</em>
 <br>
 <em>Only the directory <tt>www</tt> should be accessible by the web server.</em>
-<br>
 <em>Do not use this configuration unmodified in a public web server.</em>
 
 <p>
@@ -225,11 +318,11 @@ files as well as the CGI scripts that perform the server-side routing functions.
 The description below lists all of the files that contain editable information.
 
 <dl>
-  <dt>paths.pl
+  <dt><tt>paths.pl</tt>
   <dd>This contains the names of the directories that contain the executable
       files, router database and temporary results; the prefix for the routing
       database; and the names of the executables.
-  <dt>mapprops.js
+  <dt><tt>mapprops.js</tt>
   <dd>The parameters in this file control the boundary of the visible map
       (defaults to UK), the minimum and maximum zoom levels (defaults to between
       4 and 15 inclusive), the source of map tiles (defaults to the main
@@ -244,7 +337,7 @@ The directory <tt>www/routino/documentation</tt> contains the HTML version of
 the Routino documentation.
 
 
-<h3><a name="H_1_4_2"></a>Configuration of web server</h3>
+<h3><a name="H_1_5_2"></a>Configuration of Web Server</h3>
 
 The file <tt>www/routino/.htaccess</tt> contains all of the Apache configuration
 options that are required to get the example web pages running.  The only
@@ -254,15 +347,20 @@ in the main Apache server configuration file.
 
 <p>
 
-If you have copied the routino <tt>web</tt> directory into <tt>/var/www</tt>
-then the entry that you need in your Apache configuration file is this one:
+If you have copied the routino <tt>web</tt> directory into <tt>/var/www</tt> and
+named it <tt>routino</tt> then the entry that you need in your Apache
+configuration file is this one:
 
 <pre>
-     &lt;Directory /var/www/web/www/routino&gt;
+     &lt;Directory /var/www/routino&gt;
          AllowOverride All
          Options +ExecCGI
      &lt;/Directory&gt;
 </pre>
+
+This can be placed anywhere between the <tt>&lt;VirtualHost *:80&gt;</tt>
+and <tt>&lt;/VirtualHost&gt;</tt> tags which should be at the start and end of
+the file.
 
 </div>
 

@@ -2,6 +2,80 @@
                            ======================
 
 
+Quick Start Guide
+-----------------
+
+   The instructions below are a complete list of the minimum required to
+   get Routino installed and running under Apache on Debian Linux (other
+   Linux versions will be similar).
+
+   ***********************************************************************
+   *** These instructions should not be considered as complete or a    ***
+   *** secure installation for the reasons given in more detail below. ***
+   ***********************************************************************
+
+   The starting point for the installation is in the Routino source code
+   directory after it has been uncompressed. Most of the steps will need
+   to be run as the root user.
+
+   The first thing to do is to install the packages which are required for
+   compilation of Routino as described in the Pre-Requisites section
+   below.
+
+        apt-get install gcc make libc6-dev libz-dev libbz2-dev
+
+   After this the programs can be compiled:
+
+        make
+
+   The files for the web interface can now be copied to the web server
+   directory. On Debian this is '/var/www' and the files changed to be
+   owned by the user Apache runs as.
+
+        cp -a web /var/www/routino
+        chown -R www-data:www-data /var/www/routino
+
+   To be able to use Routino some data will need to be processed and a
+   script is provided for this. This will download the data for the UK
+   which may take a while and then process it.
+
+        cd /var/www/routino/data
+        sh -x create.sh
+
+   The routino web pages also requires the OpenLayers Javascript to be
+   downloaded and installed and a script is also provided for this.
+
+        cd /var/www/routino/www/openlayers
+        sh -x install.sh
+
+   To make full use of the location search feature on the Routino web page
+   you will need to install one extra perl package.
+
+        apt-get install libjson-pp-perl
+
+   Finally to make the web pages work you will need to add the extra lines
+   to the Apache configuration file as described in the Configuration of
+   Web Server section below.  You don't have to use 'vi' and can use any
+   text editor.
+
+        vi /etc/apache2/sites-enabled/000-default
+        apache2ctl restart
+
+   Now everything should be set up and the web page should work if
+   accessed at 'http://localhost/routino/www/routino/router.html'.
+
+   When everything is working you should read the rest of this document
+   carefully and make the following changes:
+     * Download your choice of OSM data - edit the file data/create.sh and
+       run it again.
+     * Edit the www/routino/mapprops.js file to match the downloaded data
+       and personal map preferences.
+     * Move the files in the web server directory so that only the
+       contents of the www directory are accessible by the web server.
+     * Edit the file www/routino/paths.pl to reference the new file
+       locations.
+
+
 Pre-Requisites
 --------------
 
@@ -60,7 +134,7 @@ Installation
    The configuration files are called 'profiles.xml', 'tagging.xml' and
    'translations.xml'. The names of the configuration files can be
    specified on the command line but by default are also looked for in the
-   directory that contains the routing database.
+   directory that contains the routing database with these names.
 
 
 Example Web Page
@@ -178,13 +252,17 @@ Configuration of web server
    commented out. This must be enabled in the main Apache server
    configuration file.
 
-   If you have copied the routino 'web' directory into '/var/www' then the
-   entry that you need in your Apache configuration file is this one:
+   If you have copied the routino 'web' directory into '/var/www' and named
+   it 'routino' then the entry that you need in your Apache configuration
+   file is this one:
   
-     <Directory /var/www/web/www/routino>
+     <Directory /var/www/routino>
          AllowOverride All
          Options +ExecCGI
      </Directory>
+
+   This can be placed anywhere between the <VirtualHost *:80> and
+   </VirtualHost> tags which should be at the start and end of the file.
 
 
 --------
