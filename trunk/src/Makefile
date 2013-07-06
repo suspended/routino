@@ -151,7 +151,7 @@ filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
 
 ########
 
-test:
+test: all-local
 	for dir in $(SUBDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
@@ -163,7 +163,7 @@ install: install-local
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
-install-local: all
+install-local: all-local
 	-[ -d $(DESTDIR)$(bindir) ] || mkdir -p $(DESTDIR)$(bindir)
 	@[ -d $(DESTDIR)$(bindir) ] && \
 	  for file in $(EXE); do \

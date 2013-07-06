@@ -137,7 +137,7 @@ $(ROUTINO)/%-slim.o :
 
 ########
 
-test:
+test: all
 	@true
 
 ########

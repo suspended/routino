@@ -59,7 +59,7 @@ $(ROUTINO)/%.o :
 
 ########
 
-test:
+test: all
 	@true
 
 ########

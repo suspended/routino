@@ -75,7 +75,7 @@ tagging-walk.xml : routino-tagging.xml scripts/walk.pl
 
 ########
 
-test:
+test: all
 
 ########
 
