@@ -43,7 +43,7 @@ test:
 
 ########
 
-install: all
+install:
 	for dir in $(SUBDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done

@@ -24,10 +24,9 @@ include ../../Makefile.conf
 
 # Routino executables
 
-EXE=../planetsplitter ../planetsplitter-slim \
-    ../router ../router-slim \
-    ../filedumper ../filedumper-slim \
-    is-fast-math
+EXE=planetsplitter planetsplitter-slim \
+    router router-slim \
+    filedumper filedumper-slim
 
 # Compilation targets
 
@@ -42,7 +41,7 @@ all :
 ########
 
 exe :
-	cd .. && $(MAKE)
+	cd .. && $(MAKE) $(EXE)
 
 ########
 
