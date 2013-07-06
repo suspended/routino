@@ -8,10 +8,12 @@ routino-2.6/xml
 routino-2.6/ChangeLog
 !routino-2.6/FILES
 routino-2.6/Makefile
+routino-2.6/Makefile.conf
 routino-2.6/INSTALL.txt
 routino-2.6/README.txt
 routino-2.6/NEWS.txt
 routino-2.6/agpl-3.0.txt
+routino-2.6/extras
 !routino-2.6/test
 !routino-2.6/.svn
 !routino-2.6/xml/.svn
@@ -32,6 +34,7 @@ routino-2.6/agpl-3.0.txt
 !routino-2.6/web/www/openlayers/.svn
 !routino-2.6/web/bin/.svn
 !routino-2.6/web/data/.svn
+!routino-2.6/extras/.svn
 !routino-2.6/extras/find-fixme/web/bin/.svn
 !routino-2.6/extras/find-fixme/web/data/.svn
 !routino-2.6/extras/find-fixme/web/www/.svn
