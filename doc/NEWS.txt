@@ -1,3 +1,41 @@
+Version 2.6 of Routino released : Sat Jul 6 2013
+------------------------------------------------
+
+Bug fixes:
+  Force '<if>...</if>' in tagging rules to match even with no input tags.
+  Built-in translations for GPX-route file gave nonsense durations.
+  Handle some cases that potentially caused divide by zero (not crashes).
+
+Compilation:
+  All configuration is now contained in the top level file Makefile.conf.
+  Default to using -ffast-math option for faster maths and glibc workaround.
+
+Code improvements:
+  Improve router internal data structures to increase performance.
+  Add another layer of caching to significantly speed up slim mode operation.
+  Add a layer of file buffering to significantly speed up reading/writing.
+  Enable more compile-time warnings and fix them.
+
+planetsplitter:
+  Create a binary log file to allow searching for errors geographically.
+  Simplify processing for changes (segment files not kept).
+  Don't prune isolated regions for transport types we don't have.
+
+Web pages (visualiser):
+  Allow displaying the error logs on the map.
+  Allow selecting any item displayed and showing more information about it.
+
+Extras:
+  Create a separate directory to put extra (non-essential) programs and scripts.
+  * tagmodifier - a tagging rule testing program.
+  * errorlog - a script to summarise the planetsplitter error log.
+  * plot-time - a script to plot a graph of the planetsplitter execution time.
+  * find-fixme - search an OSM file for "fixme" tags and display them on a map.
+
+
+Note: This version is not compatible with databases from previous versions.
+
+
 Version 2.5.1 of Routino released : Sat Apr 20 2013
 ---------------------------------------------------
 

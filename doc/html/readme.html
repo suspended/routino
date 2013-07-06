@@ -192,79 +192,55 @@ Version 2.4.1 of Routino was released on 17th December 2012.
 Version 2.5 of Routino was released on 9th February 2013.
 <br>
 Version 2.5.1 of Routino was released on 20th April 2013.
+<br>
+Version 2.6 of Routino was released on 6th July 2013.
 
 <p>
 
 The full version history is available in the NEWS.txt file.
 
 
-<h3><a name="H_1_5_1" title="Changes"></a>Changes in Versions 2.5.1 / 2.5</h3>
+<h3><a name="H_1_5_1" title="Changes"></a>Changes in Versions 2.6</h3>
 
-In version 2.5.1 - mostly bug fixes.
-
-<dl>
-  <dt>Bug fixes:
-  <dd>Stop contradictory log error messages about 'access=foot' etc.
-  <br>Move the HTML charset definition to within the first 1024 bytes of file.
-  <br>Don't prune short segments in some cases that would change routing.
-  <br>Fix bug with pruning straight highways around loops.
-  <br>Fix some bugs with installation documents and scripts.
-  <br>Fix Javascript to work with OpenLayers v2.11 again.
-  <br>Fix XML character quoting for special characters in 7-bit ASCII range.
-  <br>Fix bug with parsing XML containing UTF-8 characters four bytes long.
-  <br>Fix two bugs for simple routes with the option of not passing a super-node.
-
-  <dt>planetsplitter:
-  <dd>Improve the pruning of straight highways (detect larger straight sections).
-
-  <dt>Configuration Files:
-  <dd>Accept some more tag values for OSM file parsing.
-  <br>Handle alternate forms of mini roundabouts (junction=roundabout).
-</dl>
-
-In version 2.5 - mostly new features.
+Version 2.6 - mostly faster operation.
 
 <dl>
   <dt>General:
-  <dd>Replace 'motorbike' with 'motorcycle' everywhere.
+  <dd>Force '&lt;if&gt;...&lt;/if&gt;' in tagging rules to match even with no input tags.
+  <br>Built-in translations for GPX-route file gave nonsense durations.
+  <br>Handle some cases that potentially caused divide by zero (not crashes).
 
-  <dt>planetsplitter/tagmodifier:
-  <dd>Major changes to source file reading:
-  <br>Faster XML parser.
-  <br>Reads PBF files natively (not for changes, not tagmodifier).
-  <br>Reads o5m/o5c files natively (not tagmodifier).
-  <br>Reads bzip2 or gzip compressed files natively (if compiled for them).
-  <br>Data can no longer be read from standard input.
+  <dt>Compilation:
+  <dd>All configuration is now contained in the top level file Makefile.conf.
+  <br>Default to using -ffast-math option for faster maths and glibc workaround.
+
+  <dt>Code improvements:
+  <dd>Improve router internal data structures to increase performance.
+  <br>Add another layer of caching to significantly speed up slim mode operation.
+  <br>Add a layer of file buffering to significantly speed up reading/writing.
+  <br>Enable more compile-time warnings and fix them.
 
   <dt>planetsplitter:
-  <dd>Report errors with self-intersecting ways, clarify some other error messages.
-
-  <dt>Configuration Files:
-  <dd>Tagging configuration can now use an &lt;ifnot&gt; rule.
-  <br>The tagging configuration &lt;if&gt; and &lt;ifnot&gt; rules can be nested.
-  <br>Change the way that the multilane property is derived from the lanes tag.
-  <br>Accept some more tag values for OSM file parsing.
-  <br>German translation now supports roundabouts.
-
-  <dt>Documentation:
-  <dd>Describe numerical limits (OSM identifiers and maximum database size).
-
-  <dt>Web pages:
-  <dd>Allow different data and tile attributions for each map source.
-  <br>Include MapQuest as an optional tile source.
+  <dd>Create a binary log file to allow searching for errors geographically.
+  <br>Simplify processing for changes (segment files not kept).
+  <br>Don't prune isolated regions for transport types we don't have.
 
   <dt>Web pages (visualiser):
-  <dd>Allow plotting segments of highways that have a particular property.
+  <dd>Allow displaying the error logs on the map.
+  <br>Allow selecting any item displayed and showing more information about it.
+
+  <dt>Extras:
+  <dd>Create a separate directory to put extra (non-essential) programs and scripts.
+    <ul>
+      <li>tagmodifier - a tagging rule testing program.
+      <li>errorlog - a script to summarise the planetsplitter error log.
+      <li>plot-time - a script to plot a graph of the planetsplitter execution time.
+      <li>find-fixme - search an OSM file for "fixme" tags and display them on a map.
+    </ul>
 </dl>
 
 <p>
-<b>Note:</b> Starting with this version the planetsplitter and tagmodifier programs will no longer read data from standard input.
-
-<p>
-<b>Note:</b> Existing mapprops.js files need to be updated for this version.
-
-<p>
-<b>Note:</b> This version is compatible with databases from version 2.4 / 2.4.1.
+<b>Note:</b> This version is not compatible with databases from previous versions.
 
 
 <h3><a name="H_1_5_2"></a>License</h3>
@@ -288,7 +264,13 @@ software.
 Routino is copyright Andrew M. Bishop 2008-2013.
 
 
-<h2><a name="H_1_6"></a>Download</h2>
+<h2><a name="H_1_6"></a>Homepage</h2>
+
+The <a title="Homepage" href="http://www.routino.org/">Routino homepage</a>
+has the latest news about the program.
+
+
+<h2><a name="H_1_7"></a>Download</h2>
 
 The <a title="Download directory" href="http://www.routino.org/download/">download directory</a>
 contains the latest version of the source code.
