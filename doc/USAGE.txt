@@ -11,6 +11,7 @@
    parsed data for test purposes and the fifth is a test program for the
    tag transformations.
 
+
 planetsplitter
 --------------
 
@@ -188,6 +189,7 @@ planetsplitter
    was in example 2 with the --keep option used with --process-only for
    the initial OSM file(s) and the --changes option used with --parse-only
    or --process-only for every OSC file.
+
 
 router
 ------
@@ -454,10 +456,10 @@ filedumper
                      [--dump-osm [--no-super]
                                  [--latmin=<latmin> --latmax=<latmax>
                                   --lonmin=<lonmin> --lonmax=<lonmax>]]
-                     [--dump--visualiser [--data=node<node>]
-                                         [--data=segment<segment>]
-                                         [--data=turn-relation<rel>]
-                                         [--data=errorlog<number>]]
+                     [--dump-visualiser [--data=node<node>]
+                                        [--data=segment<segment>]
+                                        [--data=turn-relation<rel>]
+                                        [--data=errorlog<number>]]
 
    --help
           Prints out the help information.
@@ -567,6 +569,7 @@ filedumper
         --data=errorlog<number>
                 Prints the information about the selected error log that
                 was stored when the data was parsed.
+
 
 filedumperx
 -----------
