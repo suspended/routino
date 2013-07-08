@@ -1192,10 +1192,10 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "                  [--dump-osm [--no-super]\n"
          "                              [--latmin=<latmin> --latmax=<latmax>\n"
          "                               --lonmin=<lonmin> --lonmax=<lonmax>]]\n"
-         "                  [--dump--visualiser [--data=node<node>]\n"
-         "                                      [--data=segment<segment>]\n"
-         "                                      [--data=turn-relation<rel>]\n"
-         "                                      [--data=errorlog<number>]]\n");
+         "                  [--dump-visualiser [--data=node<node>]\n"
+         "                                     [--data=segment<segment>]\n"
+         "                                     [--data=turn-relation<rel>]\n"
+         "                                     [--data=errorlog<number>]]\n");
 
  if(argerr)
     fprintf(stderr,
