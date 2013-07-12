@@ -118,9 +118,8 @@ Final Algorithm
    handling in the algorithm but it gives mode flexibility for the start,
    finish and intermediate points in a route.
 
-
 Algorithm Evolution
--------------------
+- - - - - - - - - -
 
    In Routino versions 1.0 to 1.4 the algorithm used to select a
    super-node was the same as above except that node properties were not
@@ -131,6 +130,29 @@ Algorithm Evolution
    addition of turn restrictions (described in more detail below) requires
    the original algorithm since the super-segments more accurately reflect
    the underlying topology.
+
+Algorithm Implementation
+- - - - - - - - - - - -
+
+   The algorithm that is used for finding the route between the
+   super-nodes using super-segments is the A* algorithm (or a slight
+   variation of it). This was not a deliberate design decision, but
+   evolved into it during development. This algorithm relies on
+   calculating the lowest score (shortest distance or quickest time) to
+   each node from the starting node. The remaining score for the path to
+   the destination node is estimated (based on a straight line using the
+   fastest type of highway) and added to the current score and the result
+   recorded. At each step the unvisited node that has the lowest current
+   score is examined and all nodes connected to it have their scores
+   calculated. When the destination node has been reached all remaining
+   unvisited nodes with scores higher than the destination node's score
+   can be discarded and the few remaining nodes examined.
+
+   The algorithm used to find the route between super-nodes using normal
+   segments is Dijkstra's algorithm (although it is implemented as the
+   same algorithm as above but with no estimated cost). Since these routes
+   tend to be short and the CPU time for calculating the heuristic cost
+   function is relatively large this tends to give a quicker solution.
 
 
 Routing Preferences
@@ -230,6 +252,7 @@ Data Pruning
        segments) but again care is taken not to remove node access
        permissions or changes in way properties.
 
+
 Turn Restrictions
 -----------------
 
@@ -262,7 +285,9 @@ Turn Restrictions
    exist more than once along a route between two points. With turn
    restrictions the route is defined by a node and the segment used to get
    there; no route between two points will ever need to follow the same
-   segment in the same direction more than once.
+   segment in the same direction more than once. This means that the
+   optimisation algorithm calculates scores for directed segments (indexed
+   by segment and end node) rather than for nodes.
 
    A side-effect of this is that a route that works around a turn
    restriction must be calculable using the super-segments that are stored
@@ -343,4 +368,4 @@ Data Implementation
 
 --------
 
-Copyright 2008-2012 Andrew M. Bishop.
+Copyright 2008-2013 Andrew M. Bishop.
