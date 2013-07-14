@@ -228,13 +228,10 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        for(i=1;i<Property_Count;i++)
-          if(ways->file.props & PROPERTIES(i))
-            {
-             if(wayp->props & PROPERTIES(i))
-                segment_pref*=profile->props_yes[i];
-             else
-                segment_pref*=profile->props_no[i];
-            }
+          if(wayp->props & PROPERTIES(i))
+             segment_pref*=profile->props_yes[i];
+          else
+             segment_pref*=profile->props_no[i];
 
        /* profile preferences must allow this highway */
        if(segment_pref==0)
@@ -536,13 +533,10 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        for(i=1;i<Property_Count;i++)
-          if(ways->file.props & PROPERTIES(i))
-            {
-             if(wayp->props & PROPERTIES(i))
-                segment_pref*=profile->props_yes[i];
-             else
-                segment_pref*=profile->props_no[i];
-            }
+          if(wayp->props & PROPERTIES(i))
+             segment_pref*=profile->props_yes[i];
+          else
+             segment_pref*=profile->props_no[i];
 
        /* profile preferences must allow this highway */
        if(segment_pref==0)
@@ -1024,13 +1018,10 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           goto endloop;
 
        for(i=1;i<Property_Count;i++)
-          if(ways->file.props & PROPERTIES(i))
-            {
-             if(wayp->props & PROPERTIES(i))
-                segment_pref*=profile->props_yes[i];
-             else
-                segment_pref*=profile->props_no[i];
-            }
+          if(wayp->props & PROPERTIES(i))
+             segment_pref*=profile->props_yes[i];
+          else
+             segment_pref*=profile->props_no[i];
 
        /* profile preferences must allow this highway */
        if(segment_pref==0)
@@ -1312,13 +1303,10 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
           goto endloop;
 
        for(i=1;i<Property_Count;i++)
-          if(ways->file.props & PROPERTIES(i))
-            {
-             if(wayp->props & PROPERTIES(i))
-                segment_pref*=profile->props_yes[i];
-             else
-                segment_pref*=profile->props_no[i];
-            }
+          if(wayp->props & PROPERTIES(i))
+             segment_pref*=profile->props_yes[i];
+          else
+             segment_pref*=profile->props_no[i];
 
        /* profile preferences must allow this highway */
        if(segment_pref==0)
@@ -1543,13 +1531,10 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
           goto endloop;
 
        for(i=1;i<Property_Count;i++)
-          if(ways->file.props & PROPERTIES(i))
-            {
-             if(wayp->props & PROPERTIES(i))
-                segment_pref*=profile->props_yes[i];
-             else
-                segment_pref*=profile->props_no[i];
-            }
+          if(wayp->props & PROPERTIES(i))
+             segment_pref*=profile->props_yes[i];
+          else
+             segment_pref*=profile->props_no[i];
 
        /* profile preferences must allow this highway */
        if(segment_pref==0)
