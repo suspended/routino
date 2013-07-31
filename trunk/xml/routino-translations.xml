@@ -206,14 +206,14 @@
 
   </language>
 
-  <!-- Dutch translation by Jan Jansen (August 2010) -->
+  <!-- Dutch translation by Jan Jansen (August 2010) / Glenn Plas (August 2013) -->
 
   <language lang="nl">
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>
       <creator string="Creator" text="Routino - http://www.routino.org/" />
-      <source  string="Source"  text="Basierend auf OpenStreetMap-Daten, erhältlich via http://www.openstreetmap.org/" />
+      <source  string="Source"  text="Gebouwd op OpenStreetMap data van http://www.openstreetmap.org/" />
       <license string="License" text="http://www.openstreetmap.org/copyright" />
     </copyright>
 
@@ -240,16 +240,16 @@
     <heading direction="4"  string="Zuid" />
 
     <!-- Ordinals, 1 = first, 2 = second ... -->
-    <!-- TRANSLATION REQUIRED: ordinal number="1"  string="First" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="2"  string="Second" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="3"  string="Third" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="4"  string="Fourth" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="5"  string="Fifth" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="6"  string="Sixth" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="7"  string="Seventh" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="8"  string="Eighth" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="9"  string="Ninth" / -->
-    <!-- TRANSLATION REQUIRED: ordinal number="10" string="Tenth" / -->
+    <ordinal number="1"  string="Eerste" />
+    <ordinal number="2"  string="Tweede" />
+    <ordinal number="3"  string="Derde" />
+    <ordinal number="4"  string="Vierde" />
+    <ordinal number="5"  string="Vijfde" />
+    <ordinal number="6"  string="Zesde" />
+    <ordinal number="7"  string="Zevende" />
+    <ordinal number="8"  string="Achtste" />
+    <ordinal number="9"  string="Negende" />
+    <ordinal number="10" string="Tiende" />
 
     <!-- Highway names -->
     <highway type="motorway"     string="Autostrade" />
@@ -258,13 +258,13 @@
     <highway type="secondary"    string="Nationale weg" />
     <highway type="tertiary"     string="Doorgangsweg" />
     <highway type="unclassified" string="Niet geclassificeerd" />
-    <highway type="residential"  string="Woongebiet" />
+    <highway type="residential"  string="Woongebied" />
     <highway type="service"      string="Toegangsweg" />
     <highway type="track"        string="Veldweg" />
     <highway type="cycleway"     string="Fietspad" />
     <highway type="path"         string="Pad" />
     <highway type="steps"        string="Trap" />
-    <highway type="ferry"        string="Fähre" />
+    <highway type="ferry"        string="Veerboot" />
 
     <!-- The type of route -->
     <route type="shortest" string="Kortste" /> <!-- For the description and route name -->
@@ -274,13 +274,13 @@
     <output-html>
       <waypoint type="waypoint"  string="Punt" />         <!-- For the chosen waypoints -->
       <waypoint type="junction"  string="de splitsing" /> <!-- For the interesting junctions -->
-      <!-- TRANSLATION REQUIRED: waypoint type="roundabout" string="Roundabout" / --> <!-- For roundabouts -->
+      <waypoint type="roundabout" string="rotonde" /> <!-- For roundabouts -->
 
       <title text="%s Route" /> <!-- %s = [shortest|quickest] -->
 
       <start   string="Start"  text="Bij %s neemt u de richting %s" />       <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
       <node    string="Bij"    text="Bij %s gaat u %s richting %s" />        <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
-      <!-- TRANSLATION REQUIRED: rbnode  string="Leave"  text="%s, take the %s exit heading %s" / --> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
+      <rbnode  string="Leave"  text="Aan de %s, neem de %s afslag richting %s" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
       <segment string="Volg"   text="Volgt u de %s voor %.3f km %.1f min" /> <!-- 1st %s = street name -->
       <stop    string="Stop"   text="U bent bij  %s aangekomen" />           <!-- 1st %s = [waypoint|junction] -->
       <total   string="Totaal" text="%.1f km, %.0f minuten" />
