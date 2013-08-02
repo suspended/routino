@@ -232,7 +232,7 @@ Usage: router [--help | --help-profile | --help-profile-xml |
               [--output-html]
               [--output-gpx-track] [--output-gpx-route]
               [--output-text] [--output-text-all]
-              [--output-none]
+              [--output-none] [--output-stdout]
               [--profile=&lt;name&gt;]
               [--transport=&lt;transport&gt;]
               [--shortest | --quickest]
@@ -307,6 +307,9 @@ Usage: router [--help | --help-profile | --help-profile-xml |
   not specified.
   <dt>--output-none
   <dd>Do not generate any output or read in any translations files.
+  <dt>--output-stdout
+  <dd>Write to stdout instead of a file (requires exactly one output format
+    option, implies '--quiet').
   <dt>--profile=&lt;name&gt;
   <dd>Specifies the name of the profile to use.
   <dt>--transport=&lt;transport&gt;
