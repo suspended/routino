@@ -61,7 +61,7 @@
 extern int option_quickest;
 
 /*+ The options to select the format of the output. +*/
-extern int option_html,option_gpx_track,option_gpx_route,option_text,option_text_all;
+extern int option_html,option_gpx_track,option_gpx_route,option_text,option_text_all,option_stdout;
 
 
 /* Local variables */
@@ -116,57 +116,73 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
  /* Open the files */
 
- if(option_quickest==0)
+ if(option_stdout)
    {
-    /* Print the result for the shortest route */
-
     if(option_html)
-       htmlfile    =fopen("shortest.html","w");
+       htmlfile    =stdout;
     if(option_gpx_track)
-       gpxtrackfile=fopen("shortest-track.gpx","w");
+       gpxtrackfile=stdout;
     if(option_gpx_route)
-       gpxroutefile=fopen("shortest-route.gpx","w");
+       gpxroutefile=stdout;
     if(option_text)
-       textfile    =fopen("shortest.txt","w");
+       textfile    =stdout;
     if(option_text_all)
-       textallfile =fopen("shortest-all.txt","w");
-
-    if(option_html && !htmlfile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest.html' for writing [%s].\n",strerror(errno));
-    if(option_gpx_track && !gpxtrackfile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest-track.gpx' for writing [%s].\n",strerror(errno));
-    if(option_gpx_route && !gpxroutefile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest-route.gpx' for writing [%s].\n",strerror(errno));
-    if(option_text && !textfile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest.txt' for writing [%s].\n",strerror(errno));
-    if(option_text_all && !textallfile)
-       fprintf(stderr,"Warning: Cannot open file 'shortest-all.txt' for writing [%s].\n",strerror(errno));
+       textallfile =stdout;
    }
  else
    {
-    /* Print the result for the quickest route */
+    if(option_quickest==0)
+      {
+       /* Print the result for the shortest route */
 
-    if(option_html)
-       htmlfile    =fopen("quickest.html","w");
-    if(option_gpx_track)
-       gpxtrackfile=fopen("quickest-track.gpx","w");
-    if(option_gpx_route)
-       gpxroutefile=fopen("quickest-route.gpx","w");
-    if(option_text)
-       textfile    =fopen("quickest.txt","w");
-    if(option_text_all)
-       textallfile =fopen("quickest-all.txt","w");
+       if(option_html)
+          htmlfile    =fopen("shortest.html","w");
+       if(option_gpx_track)
+          gpxtrackfile=fopen("shortest-track.gpx","w");
+       if(option_gpx_route)
+          gpxroutefile=fopen("shortest-route.gpx","w");
+       if(option_text)
+          textfile    =fopen("shortest.txt","w");
+       if(option_text_all)
+          textallfile =fopen("shortest-all.txt","w");
 
-    if(option_html && !htmlfile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest.html' for writing [%s].\n",strerror(errno));
-    if(option_gpx_track && !gpxtrackfile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest-track.gpx' for writing [%s].\n",strerror(errno));
-    if(option_gpx_route && !gpxroutefile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest-route.gpx' for writing [%s].\n",strerror(errno));
-    if(option_text && !textfile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest.txt' for writing [%s].\n",strerror(errno));
-    if(option_text_all && !textallfile)
-       fprintf(stderr,"Warning: Cannot open file 'quickest-all.txt' for writing [%s].\n",strerror(errno));
+       if(option_html && !htmlfile)
+          fprintf(stderr,"Warning: Cannot open file 'shortest.html' for writing [%s].\n",strerror(errno));
+       if(option_gpx_track && !gpxtrackfile)
+          fprintf(stderr,"Warning: Cannot open file 'shortest-track.gpx' for writing [%s].\n",strerror(errno));
+       if(option_gpx_route && !gpxroutefile)
+          fprintf(stderr,"Warning: Cannot open file 'shortest-route.gpx' for writing [%s].\n",strerror(errno));
+       if(option_text && !textfile)
+          fprintf(stderr,"Warning: Cannot open file 'shortest.txt' for writing [%s].\n",strerror(errno));
+       if(option_text_all && !textallfile)
+          fprintf(stderr,"Warning: Cannot open file 'shortest-all.txt' for writing [%s].\n",strerror(errno));
+      }
+    else
+      {
+       /* Print the result for the quickest route */
+
+       if(option_html)
+          htmlfile    =fopen("quickest.html","w");
+       if(option_gpx_track)
+          gpxtrackfile=fopen("quickest-track.gpx","w");
+       if(option_gpx_route)
+          gpxroutefile=fopen("quickest-route.gpx","w");
+       if(option_text)
+          textfile    =fopen("quickest.txt","w");
+       if(option_text_all)
+          textallfile =fopen("quickest-all.txt","w");
+
+       if(option_html && !htmlfile)
+          fprintf(stderr,"Warning: Cannot open file 'quickest.html' for writing [%s].\n",strerror(errno));
+       if(option_gpx_track && !gpxtrackfile)
+          fprintf(stderr,"Warning: Cannot open file 'quickest-track.gpx' for writing [%s].\n",strerror(errno));
+       if(option_gpx_route && !gpxroutefile)
+          fprintf(stderr,"Warning: Cannot open file 'quickest-route.gpx' for writing [%s].\n",strerror(errno));
+       if(option_text && !textfile)
+          fprintf(stderr,"Warning: Cannot open file 'quickest.txt' for writing [%s].\n",strerror(errno));
+       if(option_text_all && !textallfile)
+          fprintf(stderr,"Warning: Cannot open file 'quickest-all.txt' for writing [%s].\n",strerror(errno));
+      }
    }
 
  /* Print the head of the files */
@@ -834,14 +850,17 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
  /* Close the files */
 
- if(htmlfile)
-    fclose(htmlfile);
- if(gpxtrackfile)
-    fclose(gpxtrackfile);
- if(gpxroutefile)
-    fclose(gpxroutefile);
- if(textfile)
-    fclose(textfile);
- if(textallfile)
-    fclose(textallfile);
+ if(!option_stdout)
+   {
+    if(htmlfile)
+       fclose(htmlfile);
+    if(gpxtrackfile)
+       fclose(gpxtrackfile);
+    if(gpxroutefile)
+       fclose(gpxroutefile);
+    if(textfile)
+       fclose(textfile);
+    if(textallfile)
+       fclose(textallfile);
+   }
 }

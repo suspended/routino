@@ -52,7 +52,7 @@
 int option_quiet=0;
 
 /*+ The options to select the format of the output. +*/
-int option_html=0,option_gpx_track=0,option_gpx_route=0,option_text=0,option_text_all=0,option_none=0;
+int option_html=0,option_gpx_track=0,option_gpx_route=0,option_text=0,option_text_all=0,option_none=0,option_stdout=0;
 
 /*+ The option to calculate the quickest route insted of the shortest. +*/
 int option_quickest=0;
@@ -133,6 +133,8 @@ int main(int argc,char** argv)
        option_text_all=1;
     else if(!strcmp(argv[arg],"--output-none"))
        option_none=1;
+    else if(!strcmp(argv[arg],"--output-stdout"))
+      { option_stdout=1; option_quiet=1; }
     else if(!strncmp(argv[arg],"--profile=",10))
        profilename=&argv[arg][10];
     else if(!strncmp(argv[arg],"--language=",11))
@@ -148,6 +150,12 @@ int main(int argc,char** argv)
        continue;
 
     argv[arg]=NULL;
+   }
+
+ if(option_stdout && (option_html+option_gpx_track+option_gpx_route+option_text+option_text_all)!=1)
+   {
+    fprintf(stderr,"Error: The '--output-stdout' option requires exactly one other output option (but not '--output-none').\n");
+    exit(EXIT_FAILURE);
    }
 
  /* Load in the profiles */
@@ -659,7 +667,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "              [--output-html]\n"
          "              [--output-gpx-track] [--output-gpx-route]\n"
          "              [--output-text] [--output-text-all]\n"
-         "              [--output-none]\n"
+         "              [--output-none] [--output-stdout]\n"
          "              [--profile=<name>]\n"
          "              [--transport=<transport>]\n"
          "              [--shortest | --quickest]\n"
@@ -716,6 +724,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--output-text-all       Write a plain test file with all route points.\n"
             "--output-none           Don't write any output files or read any translations.\n"
             "                        (If no output option is given then all are written.)\n"
+            "--output-stdout         Write to stdout instead of a file (requires exactly\n"
+            "                        one output format option, implies '--quiet').\n"
             "\n"
             "--profile=<name>        Select the loaded profile with this name.\n"
             "--transport=<transport> Select the transport to use (selects the profile\n"

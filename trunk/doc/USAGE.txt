@@ -206,7 +206,7 @@ router
                  [--output-html]
                  [--output-gpx-track] [--output-gpx-route]
                  [--output-text] [--output-text-all]
-                 [--output-none]
+                 [--output-none] [--output-stdout]
                  [--profile=<name>]
                  [--transport=<transport>]
                  [--shortest | --quickest]
@@ -297,6 +297,10 @@ router
 
    --output-none
           Do not generate any output or read in any translations files.
+
+   --output-stdout
+          Write to stdout instead of a file (requires exactly one output
+          format option, implies '--quiet').
 
    --profile=<name>
           Specifies the name of the profile to use.
