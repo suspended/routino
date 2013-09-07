@@ -202,6 +202,12 @@
         <output k="hgv"        v="no"/>
         <output k="psv"        v="no"/>
 
+        <if k="access" v="foot">
+          <set k="foot" v="yes"/>
+          <logerror k="access" message="using 'access' = 'no' ; 'foot' = 'yes'"/>
+          <set k="access" v="no"/>
+        </if>
+
         <ifnot k="access" v="no">
           <logerror k="access" message="using 'no'"/>
         </ifnot>
