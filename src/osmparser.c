@@ -1031,11 +1031,17 @@ static double parse_speed(way_t id,const char *k,const char *v)
    {
     while(isspace(*ev)) ev++;
 
+    if(*ev==0)
+       return(value);
+
+    if(!strcmp(ev,"km/h") || !strcmp(ev,"kph") || !strcmp(ev,"kmph"))
+       return(value);
+
     if(!strcmp(ev,"mph"))
        return(1.609*value);
 
-    if(*ev==0 || !strcmp(ev,"kph"))
-       return(value);
+    if(!strcmp(ev,"knots"))
+       return(1.852*value);
 
     logerror("Way %"Pway_t" has an un-parseable tag '%s' = '%s' (after tagging rules); ignoring it.\n",logerror_way(id),k,v);
    }
@@ -1067,12 +1073,15 @@ static double parse_weight(way_t id,const char *k,const char *v)
    {
     while(isspace(*ev)) ev++;
 
+    if(*ev==0)
+       return(value);
+
     if(!strcmp(ev,"kg"))
        return(value/1000.0);
 
-    if(*ev==0 || !strcmp(ev,"T") || !strcmp(ev,"t")
-              || !strcmp(ev,"ton") || !strcmp(ev,"tons")
-              || !strcmp(ev,"tonne") || !strcmp(ev,"tonnes"))
+    if(!strcmp(ev,"T") || !strcmp(ev,"t") ||
+       !strcmp(ev,"ton") || !strcmp(ev,"tons") ||
+       !strcmp(ev,"tonne") || !strcmp(ev,"tonnes"))
        return(value);
 
     logerror("Way %"Pway_t" has an un-parseable tag '%s' = '%s' (after tagging rules); ignoring it.\n",logerror_way(id),k,v);
@@ -1106,6 +1115,23 @@ static double parse_length(way_t id,const char *k,const char *v)
     int en=0;
     int feet=0,inches=0;
 
+    while(isspace(*ev)) ev++;
+
+    if(*ev==0)
+       return(value);
+
+    if(!strcmp(ev,"m") || !strcmp(ev,"metre") || !strcmp(ev,"metres") || !strcmp(ev,"meter") || !strcmp(ev,"meters"))
+       return(value);
+
+    if(!strcmp(ev,"'"))
+       return(value*0.254);
+
+    if(!strcmp(ev,"′"))
+       return(value*0.254);
+
+    if(!strcmp(ev,"ft") || !strcmp(ev,"feet"))
+       return(value*0.254);
+
     if(sscanf(v,"%d' %d\"%n",&feet,&inches,&en)==2 && en && !v[en])
        return((feet+(double)inches/12.0)*0.254);
 
@@ -1113,6 +1139,15 @@ static double parse_length(way_t id,const char *k,const char *v)
        return((feet+(double)inches/12.0)*0.254);
 
     if(sscanf(v,"%d'-%d\"%n",&feet,&inches,&en)==2 && en && !v[en])
+       return((feet+(double)inches/12.0)*0.254);
+
+    if(sscanf(v,"%d′ %d″%n",&feet,&inches,&en)==2 && en && !v[en])
+       return((feet+(double)inches/12.0)*0.254);
+
+    if(sscanf(v,"%d′%d″%n",&feet,&inches,&en)==2 && en && !v[en])
+       return((feet+(double)inches/12.0)*0.254);
+
+    if(sscanf(v,"%d′-%d″%n",&feet,&inches,&en)==2 && en && !v[en])
        return((feet+(double)inches/12.0)*0.254);
 
     if(sscanf(v,"%d - %d%n",&feet,&inches,&en)==2 && en && !v[en])
@@ -1123,17 +1158,6 @@ static double parse_length(way_t id,const char *k,const char *v)
 
     if(sscanf(v,"%d feet %d inches%n",&feet,&inches,&en)==2 && en && !v[en])
        return((feet+(double)inches/12.0)*0.254);
-
-    if(!strcmp(ev,"'"))
-       return(feet*0.254);
-
-    while(isspace(*ev)) ev++;
-
-    if(!strcmp(ev,"ft") || !strcmp(ev,"feet"))
-       return(value*0.254);
-
-    if(*ev==0 || !strcmp(ev,"m") || !strcmp(ev,"metre") || !strcmp(ev,"metres"))
-       return(value);
 
     logerror("Way %"Pway_t" has an un-parseable tag '%s' = '%s' (after tagging rules); ignoring it.\n",logerror_way(id),k,v);
    }
