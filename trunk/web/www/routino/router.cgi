@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2012 Andrew M. Bishop
+# This file Copyright 2008-2013 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -36,8 +36,8 @@ $query=new CGI;
 # Legal CGI parameters with regexp validity check
 
 %legalparams=(
-              "lon[1-9]"        => "[-0-9.]+",
-              "lat[1-9]"        => "[-0-9.]+",
+              "lon[1-9][0-9]*"  => "[-0-9.]+",
+              "lat[1-9][0-9]*"  => "[-0-9.]+",
               "heading"         => "[-0-9.]+",
               "transport"       => "[a-z]+",
               "highway-[a-z]+"  => "[0-9.]+",
