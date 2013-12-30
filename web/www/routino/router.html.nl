@@ -53,7 +53,7 @@
 <link href="router.css" type="text/css" rel="stylesheet">
 </head>
 
-<BODY onload="html_init();map_init();form_init();">
+<body onload="html_init();map_init();form_init();">
 
 <!-- Left hand side of window - data panel -->
 
