@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2010 Andrew M. Bishop
+// This file Copyright 2008-2013 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -81,6 +81,10 @@ DIV.header
 
  margin: 0;
 
+ /* text alignment */
+
+ text-align: center;
+
  /* floats */
 
  clear: left;
@@ -132,6 +136,10 @@ DIV.footer
  border-top-width:  thin;
 
  margin: 0;
+
+ /* text alignment */
+
+ text-align: center;
 
  /* floats */
 
@@ -215,6 +223,13 @@ DIV.content H4
 
  margin-top:    0.5em;
  margin-bottom: 0.125em;
+}
+
+DIV.content P.center
+{
+ /* text alignment */
+
+ text-align: center;
 }
 
 DIV.content OL, DIV.content UL, DIV.content DIR, DIV.content MENU, DIV.content DL
@@ -306,6 +321,13 @@ DIV.content TABLE
  border-collapse: collapse;
 }
 
+DIV.content TABLE.center
+{
+ /* text alignment */
+
+ text-align: center;
+}
+
 DIV.content TABLE.noborder
 {
  /* margins, borders, padding and sizes */
@@ -381,6 +403,16 @@ DIV.content TD.right, DIV.content TH.right, DIV.content TR.right
  /* text alignment */
 
  text-align: right;
+}
+
+DIV.content IMG.center
+{
+ display: block;
+
+ /* margins, borders, padding and sizes */
+
+ margin-left:  auto;
+ margin-right: auto;
 }
 
 DIV.content IMG
