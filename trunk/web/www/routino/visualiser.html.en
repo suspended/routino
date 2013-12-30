@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<HTML>
+<html>
 
-<HEAD>
+<head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="keywords" content="openstreetmap routino verifier">
 
@@ -48,7 +48,7 @@
 <script src="mapprops.js" type="text/javascript"></script>
 <script src="visualiser.js" type="text/javascript"></script>
 <link href="visualiser.css" type="text/css" rel="stylesheet">
-</HEAD>
+</head>
 
 <BODY onload="map_init();">
 
@@ -438,8 +438,9 @@
 <div class="right_panel">
   <div class="map" id="map">
     <noscript>
-      Javascript is <em>required</em> to use this web page because of the
-      interactive map.
+      <p>
+        Javascript is <em>required</em> to use this web page because of the
+        interactive map.
     </noscript>
   </div>
   <div class="attribution">
@@ -451,6 +452,6 @@
   </div>
 </div>
 
-</BODY>
+</body>
 
-</HTML>
+</html>
