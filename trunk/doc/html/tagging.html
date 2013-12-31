@@ -47,7 +47,7 @@
 
 <div class="content">
 
-<h2><a name="H_1_1"></a>Tags And Attributes</h2>
+<h2 id="H_1_1">Tags And Attributes</h2>
 
 The different tags and attributes in the 
 <a class="ext" title="OpenStreetMap" href="http://www.openstreetmap.org/">OSM</a>
@@ -65,7 +65,7 @@ the default tagging configuration file.
 <!-- ==================== Tags Recognised After Processing ==================== -->
 
 
-<h2><a name="H_1_2" title="After Processing"></a>Tags Recognised After Processing</h2>
+<h2 id="H_1_2" title="After Processing">Tags Recognised After Processing</h2>
 
 This section describes the tags that are recognised by Routino after the tag
 transformations have been applied.  This is therefore a much reduced set of tags
@@ -80,14 +80,14 @@ are recognised as being affirmative and any other value is negative.
 
 <!-- ========================= Routino Node Tags ========================= -->
 
-<h3><a name="H_1_2_1" title="Nodes"></a>Node Tags And Attributes</h3>
+<h3 id="H_1_2_1" title="Nodes">Node Tags And Attributes</h3>
 
 The node attributes <em>id</em>, <em>latitude</em> and <em>longitude</em> are
 used.  The id attribute is required to associate the node with the ways and the
 position attributes are required to locate the node.
 
 
-<h4><a name="H_1_2_1_1" title="transport tags"></a>Transport Specific Tags</h4>
+<h4 id="H_1_2_1_1" title="transport tags">Transport Specific Tags</h4>
 
 One tag is recognised for each of the different modes of transport: <em>foot</em>,
 <em>horse</em>, <em>bicycle</em>, <em>wheelchair</em>, <em>moped</em>,
@@ -101,7 +101,7 @@ By default for nodes all types of transport are allowed to pass through a node
 and specific tags must be used to remove the permissions for the transport.
 
 
-<h4><a name="H_1_2_1_2" title="roundabout (node)"></a>The roundabout Tag</h4>
+<h4 id="H_1_2_1_2" title="roundabout (node)">The roundabout Tag</h4>
 
 The <em>roundabout</em> tag for mini-roundabouts is recognised and used to
 improve the description of the route.
@@ -109,7 +109,7 @@ improve the description of the route.
 
 <!-- ========================= Routino Way Tags ========================= -->
 
-<h3><a name="H_1_2_2" title="Ways"></a>Way Tags And Attributes</h3>
+<h3 id="H_1_2_2" title="Ways">Way Tags And Attributes</h3>
 
 The tags from the ways in the data are the ones that provide most of the
 information for routing.  The <em>id</em> attribute is used only so that the
@@ -117,7 +117,7 @@ many segments associated with a way can share a set of tags taken from the way.
 The <em>nd</em> information is used to identify the nodes that make up the way.
 
 
-<h4><a name="H_1_2_2_1" title="highway (way)"></a>The highway Tag</h4>
+<h4 id="H_1_2_2_1" title="highway (way)">The highway Tag</h4>
 
 The most important tag that is used from a way is the <em>highway</em> tag.
 This defines the type of highway that the way represents.  Any way that does not
@@ -154,7 +154,7 @@ that the router uses are:
 </i>
 
 
-<h4><a name="H_1_2_2_2" title="transport tags"></a>Transport Specific Tags</h4>
+<h4 id="H_1_2_2_2" title="transport tags">Transport Specific Tags</h4>
 
 One tag is recognised for each of the different modes of transport: <em>foot</em>,
 <em>horse</em>, <em>bicycle</em>, <em>wheelchair</em>, <em>moped</em>,
@@ -168,26 +168,26 @@ By default for ways no types of transport are allowed to pass along a highway
 and specific tags must be used to add the permissions for the transport.
 
 
-<h4><a name="H_1_2_2_3" title="name"></a>The name Tag</h4>
+<h4 id="H_1_2_2_3" title="name">The name Tag</h4>
 
 The <em>name</em> tag is used to provide the label for the highway when printing
 the results.
 
 
-<h4><a name="H_1_2_2_4" title="ref"></a>The ref Tag</h4>
+<h4 id="H_1_2_2_4" title="ref">The ref Tag</h4>
 
 The <em>ref</em> tag is used to provide the label for the highway when printing
 the results.
 
 
-<h4><a name="H_1_2_2_5" title="lanes"></a>The lanes Tag</h4>
+<h4 id="H_1_2_2_5" title="lanes">The lanes Tag</h4>
 
 The <em>lanes</em> tag is used to identify whether a highway has multiple lanes
 for traffic and this is used to derive the <em>multilane</em> highway
 properties.
 
 
-<h4><a name="H_1_2_2_6" title="paved"></a>The paved Tag</h4>
+<h4 id="H_1_2_2_6" title="paved">The paved Tag</h4>
 
 The <em>paved</em> tag is used to identify whether a highway is paved or not,
 this is one of the available highway properties.  A <em>paved</em> tag may exist
@@ -195,19 +195,19 @@ in the original data but normally the <em>surface</em> tag needs to be
 transformed into the <em>paved</em> tag.
 
 
-<h4><a name="H_1_2_2_7" title="bridge"></a>The bridge Tag</h4>
+<h4 id="H_1_2_2_7" title="bridge">The bridge Tag</h4>
 
 The <em>bridge</em> tag is used to identify whether a highway is a bridge and
 therefore set one of the available properties.
 
 
-<h4><a name="H_1_2_2_8" title="tunnel"></a>The tunnel Tag</h4>
+<h4 id="H_1_2_2_8" title="tunnel">The tunnel Tag</h4>
 
 The <em>tunnel</em> tag is used to identify whether a highway is a tunnel and
 therefore set one of the available properties.
 
 
-<h4><a name="H_1_2_2_9" title="footroute"></a>The footroute Tag</h4>
+<h4 id="H_1_2_2_9" title="footroute">The footroute Tag</h4>
 
 The <em>footroute</em> tag is used to identify whether a highway is part of a
 walking route and therefore set one of the available properties.  This is not a
@@ -215,7 +215,7 @@ standard OSM tag and is normally added to the individual highways by looking for
 route relations that are designated for foot access.
 
 
-<h4><a name="H_1_2_2_10" title="bicycleroute"></a>The bicycleroute Tag</h4>
+<h4 id="H_1_2_2_10" title="bicycleroute">The bicycleroute Tag</h4>
 
 The <em>bicycleroute</em> tag is used to identify whether a highway is part of a
 bicycle route and therefore set one of the available properties.  This is not a
@@ -223,19 +223,19 @@ standard OSM tag and is normally added to the individual highways by looking for
 route relations that are designated for bicycle access.
 
 
-<h4><a name="H_1_2_2_11" title="oneway"></a>The oneway Tag</h4>
+<h4 id="H_1_2_2_11" title="oneway">The oneway Tag</h4>
 
 The <em>oneway</em> tag is used to specify that traffic is only allowed to
 travel in one direction.
 
 
-<h4><a name="H_1_2_2_12" title="roundabout (way)"></a>The roundabout Tag</h4>
+<h4 id="H_1_2_2_12" title="roundabout (way)">The roundabout Tag</h4>
 
 The <em>roundabout</em> tag is used to specify that a highway is part of a
 roundabout to improve the description of the calculated route.
 
 
-<h4><a name="H_1_2_2_13" title="maxspeed"></a>The maxspeed Tag</h4>
+<h4 id="H_1_2_2_13" title="maxspeed">The maxspeed Tag</h4>
 
 The <em>maxspeed</em> tag is used to specify the maximum speed limit on the
 highway; this is always measured in km/hr in OpenStreetMap data.  If the tag
@@ -243,7 +243,7 @@ value contains "mph" then it is assumed to be a value in those units and
 converted to km/hr.
 
 
-<h4><a name="H_1_2_2_14" title="maxweight"></a>The maxweight Tag</h4>
+<h4 id="H_1_2_2_14" title="maxweight">The maxweight Tag</h4>
 
 The <em>maxweight</em> tag is used to specify the maximum weight of any traffic
 on the highway.  In other words this must be set to the heaviest weight allowed
@@ -251,7 +251,7 @@ on the highway (for example a bridge) in tonnes.  If the tag value contains "kg"
 then it is assumed that the value is in these units and converted to tonnes.
 
 
-<h4><a name="H_1_2_2_15" title="maxheight"></a>The maxheight Tag</h4>
+<h4 id="H_1_2_2_15" title="maxheight">The maxheight Tag</h4>
 
 The <em>maxheight</em> tag is used to specify the maximum height of any traffic
 on the highway.  In other words this must be set to the lowest height of
@@ -260,7 +260,7 @@ a measurement in feet or feet and inches then attempts are made to convert this
 to metres.
 
 
-<h4><a name="H_1_2_2_16" title="maxwidth"></a>The maxwidth Tag</h4>
+<h4 id="H_1_2_2_16" title="maxwidth">The maxwidth Tag</h4>
 
 The <em>maxwidth</em> tag is used to specify the maximum width of any traffic on
 the highway.  This must be set to the minimum width of the constraints at the
@@ -268,7 +268,7 @@ wayside in metres.  If the tag value contains a measurement in feet or feet and
 inches then attempts are made to convert this to metres.
 
 
-<h4><a name="H_1_2_2_17" title="maxlength"></a>The maxlength Tag</h4>
+<h4 id="H_1_2_2_17" title="maxlength">The maxlength Tag</h4>
 
 The <em>maxlength</em> tag is used to specify the maximum length of any traffic
 on the highway (usually from a traffic sign) in metres.  If the tag value
@@ -276,7 +276,7 @@ contains a measurement in feet or feet and inches then attempts are made to
 convert this to metres.
 
 
-<h4><a name="H_1_2_2_18" title="area"></a>The area Tag</h4>
+<h4 id="H_1_2_2_18" title="area">The area Tag</h4>
 
 The <em>area</em> tag is used to specify that a way defines an area.  This is
 used only so that in the case of duplicated segments those belonging to an area
@@ -285,7 +285,7 @@ can be discarded in preference to those that are not.
 
 <!-- ========================= Routino Relation Tags ========================= -->
 
-<h3><a name="H_1_2_3" title="Relations"></a>Relation Tags And Attributes</h3>
+<h3 id="H_1_2_3" title="Relations">Relation Tags And Attributes</h3>
 
 The tags from the relations are used to associate more properties with the
 highways that are part of that relation.  The <em>id</em> attribute is used so
@@ -294,19 +294,19 @@ The <em>member</em> information is used to identify the nodes and ways that make
 up the relation.
 
 
-<h4><a name="H_1_2_3_1" title="footroute"></a>The footroute Tag</h4>
+<h4 id="H_1_2_3_1" title="footroute">The footroute Tag</h4>
 
 The <em>footroute</em> tag is used to identify whether a relation defines a
 walking route and therefore should be applied to the individual member highways.
 
 
-<h4><a name="H_1_2_3_2" title="bicycleroute"></a>The bicycleroute Tag</h4>
+<h4 id="H_1_2_3_2" title="bicycleroute">The bicycleroute Tag</h4>
 
 The <em>bicycleroute</em> tag is used to identify whether a relation defines a
 bicycle route and therefore should be applied to the individual member highways.
 
 
-<h4><a name="H_1_2_3_3" title="type, restriction, except"></a>The type, restriction & except Tags</h4>
+<h4 id="H_1_2_3_3" title="type, restriction, except">The type, restriction & except Tags</h4>
 
 For turn relations the information about the allowed or disallowed turns are
 stored in the <em>type</em>, <em>restriction</em> and <em>except</em> tags.  For
@@ -318,7 +318,7 @@ restriction.
 
 <!-- ==================== Tag Transformations ==================== -->
 
-<h2><a name="H_1_3" title="Tag Transformations"></a>Tag Transformations</h2>
+<h2 id="H_1_3">Tag Transformations</h2>
 
 This section describes the set of tag transformations that are contained in the
 default configuration file.  The configuration file tagging rules are applied in
@@ -327,9 +327,9 @@ sequence and this section of the document is arranged in the same order.
 
 <!-- ==================== Node Tag Transformations ==================== -->
 
-<h3><a name="H_1_3_1" title="Nodes"></a>Node Tag Transformations</h3>
+<h3 id="H_1_3_1" title="Nodes">Node Tag Transformations</h3>
 
-<h4><a name="H_1_3_1_1" title="Barrier Defaults"></a>Barrier Defaults</h4>
+<h4 id="H_1_3_1_1">Barrier Defaults</h4>
 
 The first part of the tag transformations is to decide on defaults for each type
 of node.  This uses the <em>barrier</em> tag in the OSM file and converts it into
@@ -413,7 +413,7 @@ a default set of disallowed transport types.
     <td class="center">no
 </table>
 
-<h4><a name="H_1_3_1_2" title="Generic access"></a>Generic Access Permissions</h4>
+<h4 id="H_1_3_1_2" title="Generic access">Generic Access Permissions</h4>
 
 The <em>access</em> tag is used to specify the default access restrictions
 through the node.  If the tag value is <em>no</em> or <em>private</em> or a
@@ -421,7 +421,7 @@ selection of other values then all transport types are denied access (later tag
 transformation rules may add specific transport types back again).
 
 
-<h4><a name="H_1_3_1_3" title="Other access"></a>Other Access Permissions</h4>
+<h4 id="H_1_3_1_3" title="Other access">Other Access Permissions</h4>
 
 A tag named <em>vehicle</em> means any of the <em>bicycle</em>, <em>moped</em>,
 <em>motorcycle</em>, <em>motorcar</em>, <em>goods</em>, <em>hgv</em>
@@ -429,7 +429,7 @@ and <em>psv</em> transport types.  A tag named <em>motor_vehicle</em> is
 transformed to mean any vehicle except a <em>bicycle</em>.
 
 
-<h4><a name="H_1_3_1_4" title="Specific access"></a>Specific Access Permissions</h4>
+<h4 id="H_1_3_1_4" title="Specific access">Specific Access Permissions</h4>
 
 The final part of the access permissions is to use the specific transport type
 tags.
@@ -444,7 +444,7 @@ allowed through the node or not; the values listed for the <em>access</em> tag
 are also accepted here.
 
 
-<h4><a name="H_1_3_1_5" title="Mini-roundabouts"></a>Mini-roundabouts</h4>
+<h4 id="H_1_3_1_5">Mini-roundabouts</h4>
 
 If the <em>highway</em> tag has the value <em>mini_roundabout</em> or
 the <em>junction</em> tag has the value <em>roundabout</em> then
@@ -453,10 +453,10 @@ a <em>junction</em> tag with value <em>roundabout</em>is passed through.
 
 <!-- ==================== Way Tag Transformations ==================== -->
 
-<h3><a name="H_1_3_2" title="Ways"></a>Way Tag Transformations</h3>
+<h3 id="H_1_3_2" title="Ways">Way Tag Transformations</h3>
 
 
-<h4><a name="H_1_3_2_1" title="Highway Defaults"></a>Highway Defaults</h4>
+<h4 id="H_1_3_2_1">Highway Defaults</h4>
 
 The first part of the tag transformations is to decide on defaults for each type
 of highway.  This uses the <em>highway</em> tag in the OSM file and maps it into
@@ -760,7 +760,7 @@ on the highway type.
 </i>
 
 
-<h4><a name="H_1_3_2_2" title="Generic access"></a>Generic Access Permissions</h4>
+<h4 id="H_1_3_2_2" title="Generic access">Generic Access Permissions</h4>
 
 The <em>access</em> tag is used to specify the default access restrictions on
 the highway.  If the tag value is <em>no</em> or <em>private</em> or a selection
@@ -768,7 +768,7 @@ of other values then all transport types are denied access (later tag
 transformation rules may add specific transport types back again).
 
 
-<h4><a name="H_1_3_2_3" title="Other access"></a>Other Access Permissions</h4>
+<h4 id="H_1_3_2_3" title="Other access">Other Access Permissions</h4>
 
 A tag named <em>vehicle</em> means any of the <em>bicycle</em>, <em>moped</em>,
 <em>motorcycle</em>, <em>motorcar</em>, <em>goods</em>, <em>hgv</em>
@@ -822,7 +822,7 @@ A highway that is tagged as <em>cycleway</em> with one of several values will
 allow bicycle access.
 
 
-<h4><a name="H_1_3_2_4" title="Specific access"></a>Specific Access Permissions</h4>
+<h4 id="H_1_3_2_4" title="Specific access">Specific Access Permissions</h4>
 
 The final part of the access permissions is to use the specific transport type
 tags.
@@ -836,7 +836,7 @@ and <em>psv</em>.  These indicate whether the specific type of transport is
 allowed on the highway or not.
 
 
-<h4><a name="H_1_3_2_5" title="Properties"></a>Highway Properties</h4>
+<h4 id="H_1_3_2_5" title="Properties">Highway Properties</h4>
 
 If there is a surface tag then the highway is assumed to be unpaved unless the
 tag value matches one of the following: <em>paved</em>, <em>asphalt</em>,
@@ -858,38 +858,38 @@ The <em>bridge</em> and <em>tunnel</em> tags are copied directly from the input
 to the output.
 
 
-<h4><a name="H_1_3_2_6" title="Restrictions"></a>Highway Restrictions</h4>
+<h4 id="H_1_3_2_6" title="Restrictions">Highway Restrictions</h4>
 
 The <em>oneway</em>, <em>maxspeed</em>, <em>maxweight</em>, <em>maxheight</em>,
 <em>maxwidth</em> and <em>maxlength</em> are copied directly from the input to
 the output without modification.
 
 
-<h4><a name="H_1_3_2_7" title="Roundabouts"></a>Roundabouts</h4>
+<h4 id="H_1_3_2_7">Roundabouts</h4>
 
 If a highway is tagged as <em>junction=roundabout</em> then
 a <em>roundabout=yes</em> tag created on the output.
 
 
-<h4><a name="H_1_3_2_8" title="Names and Refs"></a>Highway Names and References</h4>
+<h4 id="H_1_3_2_8" title="Names and Refs">Highway Names and References</h4>
 
 The <em>name</em> and <em>ref</em> tags are copied directly from the input to
 the output.
 
 
-<h4><a name="H_1_3_2_9" title="Areas"></a>Highway Areas</h4>
+<h4 id="H_1_3_2_9" title="Areas">Highway Areas</h4>
 
 The <em>area</em> tag is copied directly from the input to the output.
 
 
 <!-- ==================== Relation Tag Transformations ==================== -->
 
-<h3><a name="H_1_3_3" title="Relations"></a>Relation Tag Transformations</h3>
+<h3 id="H_1_3_3" title="Relations">Relation Tag Transformations</h3>
 
 The <em>type</em> tag is passed through without change.
 
 
-<h4><a name="H_1_3_3_1" title="Routes"></a>Routes</h4>
+<h4 id="H_1_3_3_1">Routes</h4>
 
 The <em>route</em> tag can be used to determine whether a relation is part of a
 walking of bicycle route so that the footroute and bicycleroute properties can
@@ -923,7 +923,7 @@ table below.
 </table>
 
 
-<h4><a name="H_1_3_3_2" title="Turn Restrictions"></a>Turn Restrictions</h4>
+<h4 id="H_1_3_3_2">Turn Restrictions</h4>
 
 No tag transformations are defined for turn restriction relations but
 the <em>restriction</em> and <em>except</em> tags are passed through without
