@@ -48,6 +48,11 @@ DIV#tab_fixme_div INPUT:hover
  background: #F0F0C0;
 }
 
+DIV#tab_fixme_div DIV.center
+{
+ text-align: center;
+}
+
 DIV#tab_fixme_div TABLE
 {
  padding: 0;

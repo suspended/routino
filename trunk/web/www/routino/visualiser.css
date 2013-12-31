@@ -55,6 +55,11 @@ DIV#tab_visualiser_div TABLE
  margin:  0;
 }
 
+DIV#tab_visualiser_div DIV.center
+{
+ text-align: center;
+}
+
 DIV#tab_visualiser_div TABLE TD
 {
  padding: 0;
