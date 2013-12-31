@@ -1106,18 +1106,18 @@ function updateIcon(marker)
  if(routino.point[marker].home)
    {
     if(routino.point[marker].active)
-       document.images["waypoint" + marker].src="icons/marker-home-red.png";
+       document.getElementById("icon" + marker).src="icons/marker-home-red.png";
     else
-       document.images["waypoint" + marker].src="icons/marker-home-grey.png";
+       document.getElementById("icon" + marker).src="icons/marker-home-grey.png";
 
     markers[marker].style.externalGraphic="icons/marker-home-red.png";
    }
  else
    {
     if(routino.point[marker].active)
-       document.images["waypoint" + marker].src="icons/marker-" + marker + "-red.png";
+       document.getElementById("icon" + marker).src="icons/marker-" + marker + "-red.png";
     else
-       document.images["waypoint" + marker].src="icons/marker-" + marker + "-grey.png";
+       document.getElementById("icon" + marker).src="icons/marker-" + marker + "-grey.png";
 
     markers[marker].style.externalGraphic="icons/marker-" + marker + "-red.png";
    }

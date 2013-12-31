@@ -73,7 +73,7 @@
         Zoom naar straatniveau.
         Selecteer start- and eindpunten onder Coordinaten. (click op het marker
         icoon links, schuif het op map naar gewenste positie).
-        <div align="center">
+        <div class="center">
           <a target="other" href="http://www.routino.org/">Routino Website</a>
           |
           <a target="other" href="documentation/">Documentation</a>
@@ -127,7 +127,7 @@
             </colgroup>
             <tr id="waypointXXX" style="display: none;">
               <td>
-                <img name="waypointXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX);">&nbsp;
+                <img id="iconXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX);">&nbsp;
               <td>
                 <span id="coordsXXX">
                   <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E
@@ -152,7 +152,7 @@
               <td colspan="3">
             <!-- The waypoints are inserted by the JavaScript, see the "maxmarkers" variable in router.js.  -->
             <tr>
-              <td colspan="3" align="center">
+              <td colspan="3" class="center">
                 <input type="button" title="Keer volgorde punten om" value="Keer volgorde punten om" onmousedown="markersReverse();">
                 <input type="button" title="Add a new waypoint to make a loop" value="Close loop"    onmousedown="markersLoop();">
           </table>

@@ -68,7 +68,7 @@
       <span class="hideshow_title">Routino Data Visualiser</span>
       This web page allows visualisation of the data that Routino uses for routing.
       Only data relevant for routing is displayed and some will therefore be excluded.
-      <div align="center">
+      <div class="center">
         <a target="other" href="http://www.routino.org/">Routino Website</a>
         |
         <a target="other" href="documentation/">Documentation</a>
