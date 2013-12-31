@@ -4,6 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="keywords" content="openstreetmap routing route planner">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
 
 <title>Routino : Route Planner for OpenStreetMap Data</title>
 
