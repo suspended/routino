@@ -173,11 +173,11 @@ function map_init()             // called from visualiser.html
 
  function limitedUrl(bounds)
  {
-  var res = map.getResolution();
+  var res = this.map.getResolution();
 
   var x = Math.round((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
   var y = Math.round((this.maxExtent.top - bounds.top) / (res * this.tileSize.h));
-  var z = map.getZoom() + map.minZoomLevel;
+  var z = this.map.getZoom() + this.map.minZoomLevel;
 
   var limit = Math.pow(2, z);
   x = ((x % limit) + limit) % limit;
