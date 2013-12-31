@@ -67,7 +67,7 @@
 
   <div class="tab_content" id="tab_options_div">
 
-    <form name="form" id="form" action="" method="get" onsubmit="return false;">
+    <form name="form" id="form" action="#" method="get" onsubmit="return false;">
       <div class="hideshow_box">
         <span class="hideshow_title">Routino OpenStreetMap Router</span>
         Zoom naar straatniveau.
