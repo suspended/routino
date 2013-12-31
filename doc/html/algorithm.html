@@ -47,12 +47,12 @@
 
 <div class="content">
 
-<h2><a name="H_1_1"></a>Algorithms</h2>
+<h2 id="H_1_1">Algorithms</h2>
 
 This page describes the development of the algorithm that is used in Routino for
 finding routes.
 
-<h3><a name="H_1_1_1"></a>Simplest Algorithm</h3>
+<h3 id="H_1_1_1">Simplest Algorithm</h3>
 
 The algorithm to find a route is fundamentally simple: Start at the beginning,
 follow all possible routes and keep going until you reach the end.
@@ -61,7 +61,7 @@ While this method does work, it isn't fast.  To be able to find a route quickly
 needs a different algorithm, one that can find the correct answer without
 wasting time on routes that lead nowhere.
 
-<h3><a name="H_1_1_2"></a>Improved Algorithm</h3>
+<h3 id="H_1_1_2">Improved Algorithm</h3>
 
 The simplest way to do this is to follow all possible segments from the starting
 node to the next nearest node (an intermediate node in the complete journey).
@@ -97,7 +97,7 @@ complexity is proportional to the number of nodes or segments in all routes
 examined between the start and end nodes.  Maintaining the list of intermediate
 nodes in order is the most complex part.
 
-<h3><a name="H_1_1_3"></a>Final Algorithm</h3>
+<h3 id="H_1_1_3">Final Algorithm</h3>
 
 The final algorithm that is implemented in the router is basically the one above
 but with an important difference.  Instead of finding a long route among a data
@@ -174,7 +174,7 @@ node is added to an existing segment.  This requires special handling in the
 algorithm but it gives mode flexibility for the start, finish and intermediate
 points in a route.
 
-<h4><a name="H_1_1_3_1"></a>Algorithm Evolution</h4>
+<h4 id="H_1_1_3_1">Algorithm Evolution</h4>
 
 In Routino versions 1.0 to 1.4 the algorithm used to select a super-node was the
 same as above except that node properties were not included.  Routino versions
@@ -185,7 +185,7 @@ restriction that is different from connecting segments in versions 1.5 and
 requires the original algorithm since the super-segments more accurately reflect
 the underlying topology.
 
-<h4><a name="H_1_1_3_2"></a>Algorithm Implementation</h4>
+<h4 id="H_1_1_3_2">Algorithm Implementation</h4>
 
 The algorithm that is used for finding the route between the super-nodes using
 super-segments is the A* algorithm (or a slight variation of it).  This was not
@@ -206,7 +206,7 @@ CPU time for calculating the heuristic cost function is relatively large this
 tends to give a quicker solution.
 
 
-<h3><a name="H_1_1_4"></a>Routing Preferences</h3>
+<h3 id="H_1_1_4">Routing Preferences</h3>
 
 One of the important features of Routino is the ability to select a route that
 is optimum for a set of criteria such as preferences for each type of highway,
@@ -248,7 +248,7 @@ minimising the length.
   property preferences close to 50% do not cause large variations in routes.
 </dl>
 
-<h3><a name="H_1_1_5"></a>Data Pruning</h3>
+<h3 id="H_1_1_5">Data Pruning</h3>
 
 From version 2.2 there are options to "prune" nodes and segments from the input
 data which means to remove nodes and/or segments without significantly changing
@@ -292,7 +292,7 @@ The pruning options that are available are:
   taken not to remove node access permissions or changes in way properties.
 </ul>
 
-<h3><a name="H_1_1_6"></a>Turn Restrictions</h3>
+<h3 id="H_1_1_6">Turn Restrictions</h3>
 
 The addition of turn restrictions in version 2.0 adds a set of further
 complications because it introduces a set of constraints that are far more
@@ -353,7 +353,7 @@ section is itself optimum based on the start conditions.
 Overall the presence of turn restrictions in the database makes the routing
 slower even for regions of the map that have no turn restrictions.
 
-<h3><a name="H_1_1_7"></a>Data Implementation</h3>
+<h3 id="H_1_1_7">Data Implementation</h3>
 
 The hardest part of implementing this router is the data organisation.  The
 arrangement of the data to minimise the number of operations required to follow

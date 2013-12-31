@@ -48,7 +48,7 @@
 <div class="content">
 
 
-<h2><a name="H_1_1"></a>Quick Start Guide</h2>
+<h2 id="H_1_1">Quick Start Guide</h2>
 
 The instructions below are a complete list of the minimum required to get
 Routino installed and running under Apache on Debian Linux (other Linux versions
@@ -144,7 +144,7 @@ and make the following changes:
 </ul>
 
 
-<h2><a name="H_1_2"></a>Pre-Requisites</h2>
+<h2 id="H_1_2">Pre-Requisites</h2>
 
 The programs are written in standard C language with minimal external
 requirements so only a small set of development tools are required (gcc, make).
@@ -178,7 +178,7 @@ modules.  To use the search function on the router web page the additional Perl
 module "JSON::PP" must be installed.
 
 
-<h2><a name="H_1_3"></a>Compilation</h2>
+<h2 id="H_1_3">Compilation</h2>
 
 To compile the programs just type <tt>make</tt> at the top level of the source
 tree.
@@ -195,7 +195,7 @@ Any information on improving the compilation process on anything other than x86
 Linux is welcome.
 
 
-<h2><a name="H_1_4"></a>Installation</h2>
+<h2 id="H_1_4">Installation</h2>
 
 After compilation the executable files are copied into the directory
 <tt>web/bin</tt> and the default XML configuration files are copied into the
@@ -218,7 +218,7 @@ specified on the command line but by default are also looked for in the
 directory that contains the routing database with these names.
 
 
-<h2><a name="H_1_5"></a>Example Web Page</h2>
+<h2 id="H_1_5">Example Web Page</h2>
 
 The directory <tt>web</tt> contains a set of files that can be used to create a
 working set of web pages with interfaces to the routing algorithm.
@@ -231,7 +231,7 @@ edited; search through the files for lines that contain the words "EDIT THIS"
 and make appropriate edits (more details below).
 
 
-<h3><a name="H_1_5_1"></a>Configuration of Web Files</h3>
+<h3 id="H_1_5_1">Configuration of Web Files</h3>
 
 The assumption in this description is that the whole of the directory called
 <tt>web</tt> is copied into a directory that is accessible by an Apache web
@@ -337,7 +337,7 @@ The directory <tt>www/routino/documentation</tt> contains the HTML version of
 the Routino documentation.
 
 
-<h3><a name="H_1_5_2"></a>Configuration of Web Server</h3>
+<h3 id="H_1_5_2">Configuration of Web Server</h3>
 
 The file <tt>www/routino/.htaccess</tt> contains all of the Apache configuration
 options that are required to get the example web pages running.  The only
