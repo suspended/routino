@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2013 Andrew M. Bishop
+ This file Copyright 2010-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -93,8 +93,8 @@ void FreeRelationList(RelationsX *relationsx,int keep);
 
 void AppendRouteRelationList(RelationsX* relationsx,relation_t id,
                              transports_t routes,
-                             way_t *ways,int nways,
                              node_t *nodes,int nnodes,
+                             way_t *ways,int nways,
                              relation_t *relations,int nrelations);
 void AppendTurnRelationList(RelationsX* relationsx,relation_t id,
                             way_t from,way_t to,node_t via,
