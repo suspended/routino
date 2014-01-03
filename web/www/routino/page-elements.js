@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2012 Andrew M. Bishop
+// This file Copyright 2008-2014 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -78,4 +78,17 @@ function hideshow_hide(name)
  document.getElementById("hideshow_" + name + "_show").className="hideshow_show";
  document.getElementById("hideshow_" + name + "_hide").className="hideshow_hide";
  document.getElementById("hideshow_" + name + "_div").style.display="none";
+}
+
+
+//
+// Toggle the associated DIV
+//
+
+function hideshow_toggle(name)
+{
+ if(document.getElementById("hideshow_" + name + "_div").style.display=="none")
+    hideshow_show(name);
+ else
+    hideshow_hide(name);
 }
