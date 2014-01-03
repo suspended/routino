@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2013 Andrew M. Bishop
+// This file Copyright 2008-2014 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,13 +32,13 @@ var homelat=null, homelon=null;
 
 var routino_default={};
 for(var l1 in routino)
-   if(typeof(routino[l1])!='object')
+   if(typeof(routino[l1])!="object")
       routino_default[l1]=routino[l1];
    else
      {
       routino_default[l1]={};
       for(var l2 in routino[l1])
-         if(typeof(routino[l1][l2])!='object')
+         if(typeof(routino[l1][l2])!="object")
             routino_default[l1][l2]=Number(routino[l1][l2]);
          else
            {
@@ -92,15 +92,15 @@ if(location.search.length>1)
    var query,queries;
 
    query=location.search.replace(/^\?/,"");
-   query=query.replace(/;/g,'&');
-   queries=query.split('&');
+   query=query.replace(/;/g,"&");
+   queries=query.split("&");
 
    for(var i=0;i<queries.length;i++)
      {
       queries[i].match(/^([^=]+)(=(.*))?$/);
 
-      k=RegExp.$1;
-      v=unescape(RegExp.$3);
+      var k=RegExp.$1;
+      var v=unescape(RegExp.$3);
 
       for(var l in legal)
         {
@@ -131,13 +131,13 @@ function html_init()            // called from router.html
 
     searchresults.style.display="none";
     searchresults.id="searchresults" + marker;
-    searchresults.innerHTML=searchresults_html.split('XXX').join(marker);
+    searchresults.innerHTML=searchresults_html.split("XXX").join(marker);
 
     var waypoint=waypoints.insertRow(0);
 
     waypoint.style.display="none";
     waypoint.id="waypoint" + marker;
-    waypoint.innerHTML=waypoint_html.split('XXX').join(marker);
+    waypoint.innerHTML=waypoint_html.split("XXX").join(marker);
    }
 }
 
@@ -209,9 +209,9 @@ function form_init()            // called from router.html
     var searchfield=document.forms["form"].elements["search" + marker];
 
     if(searchfield.addEventListener)
-       searchfield.addEventListener('keyup', searchOnReturnKey, false);
+       searchfield.addEventListener("keyup", searchOnReturnKey, false);
     else if(searchfield.attachEvent)
-       searchfield.attachEvent('keyup', searchOnReturnKey); // Internet Explorer
+       searchfield.attachEvent("keyup", searchOnReturnKey); // Internet Explorer
    }
 
  // Update the transport type with the URL settings which updates all HTML forms to defaults.
@@ -256,7 +256,7 @@ function form_init()            // called from router.html
 
  // Get the home location cookie and compare to each waypoint
 
- var cookies=document.cookie.split('; ');
+ var cookies=document.cookie.split("; ");
 
  for(var cookie=0;cookie<cookies.length;cookie++)
     if(cookies[cookie].substr(0,"Routino-home".length)=="Routino-home")
@@ -453,13 +453,15 @@ function formSetCoords(marker,lon,lat) // called from router.html (with one argu
     document.forms["form"].elements["lat" + marker].value="";
 
     routino.point[marker].lon="";
-    routino.point[marker].lat=""
+    routino.point[marker].lat="";
    }
  else
    {
+    var lonlat;
+
     if(lon=="")
       {
-       var lonlat=map.getCenter().clone();
+       lonlat=map.getCenter().clone();
        lonlat.transform(epsg900913,epsg4326);
 
        lon=lonlat.lon;
@@ -470,7 +472,7 @@ function formSetCoords(marker,lon,lat) // called from router.html (with one argu
 
     if(lat=="")
       {
-       var lonlat=map.getCenter().clone();
+       lonlat=map.getCenter().clone();
        lonlat.transform(epsg900913,epsg4326);
 
        lat=lonlat.lat;
@@ -479,7 +481,7 @@ function formSetCoords(marker,lon,lat) // called from router.html (with one argu
     if(lat<-90 ) lat=-90 ;
     if(lat>+90 ) lat=+90 ;
 
-    var lonlat = new OpenLayers.LonLat(lon,lat);
+    lonlat = new OpenLayers.LonLat(lon,lat);
     lonlat.transform(epsg4326,epsg900913);
 
     markers[marker].move(lonlat);
@@ -634,9 +636,9 @@ var epsg4326, epsg900913;
 
 function map_init()             // called from router.html
 {
- lon =args["lon"];
- lat =args["lat"];
- zoom=args["zoom"];
+ var lon =args["lon"];
+ var lat =args["lat"];
+ var zoom=args["zoom"];
 
  // Map URLs and limits are in mapprops.js.
 
@@ -721,12 +723,12 @@ function map_init()             // called from router.html
   var limit = Math.pow(2, z);
   x = ((x % limit) + limit) % limit;
 
-  var xyz = {'x': x, 'y': y, 'z': z};
+  var xyz = {"x": x, "y": y, "z": z};
   var url = this.url;
 
   if (OpenLayers.Util.isArray(url))
     {
-     var s = '' + xyz.x + xyz.y + xyz.z;
+     var s = "" + xyz.x + xyz.y + xyz.z;
      url = this.selectUrl(s, url);
     }
         
@@ -754,7 +756,7 @@ function map_init()             // called from router.html
  for(var marker=1;marker<=mapprops.maxmarkers;marker++)
    {
     markers[marker] = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(0,0),{},
-                                                    new OpenLayers.Style({},{externalGraphic: 'icons/marker-' + marker + '-red.png',
+                                                    new OpenLayers.Style({},{externalGraphic: "icons/marker-" + marker + "-red.png",
                                                                              fillColor: "white",
                                                                              graphicYOffset: -25,
                                                                              graphicWidth: 21,
@@ -820,7 +822,7 @@ function map_init()             // called from router.html
 
  if(mapprops.editurl != undefined && mapprops.editurl != "")
    {
-    edit_url=document.getElementById("edit_url");
+    var edit_url=document.getElementById("edit_url");
 
     edit_url.style.display="";
     edit_url.href=mapprops.editurl;
@@ -993,8 +995,8 @@ function markerRecentre(marker) // called from router.html
 
  clearSearchResult(marker);
 
- lon=routino.point[marker].lon;
- lat=routino.point[marker].lat;
+ var lon=routino.point[marker].lon;
+ var lat=routino.point[marker].lat;
 
  var lonlat = new OpenLayers.LonLat(lon,lat);
  lonlat.transform(epsg4326,epsg900913);
@@ -1179,7 +1181,7 @@ function markerSetClearHome(marker,home)
 
  updateIcon(marker);
 
- for(m=1;m<=mapprops.maxmarkers;m++)
+ for(var m=1;m<=mapprops.maxmarkers;m++)
     markerCheckHome(m);
 }
 
@@ -1405,7 +1407,7 @@ function highlight(type,line)
 
     highlights[type].move(lonlat);
 
-    if(highlights[type].style.display = "none")
+    if(highlights[type].style.display == "none")
        highlights[type].style.display = "";
 
     // Popup
@@ -1423,7 +1425,7 @@ function highlight(type,line)
 
 function createPopup(type)
 {
- var popup=document.createElement('div');
+ var popup=document.createElement("div");
 
  popup.className = "popup";
 
@@ -1499,6 +1501,8 @@ function removeGPXTrace(type)
 /////////////////////////////// Server handling ////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+var routing_type;
+
 //
 // Display data statistics
 //
@@ -1530,9 +1534,9 @@ function findRoute(type) // called from router.html
 {
  tab_select("results");
 
- hideshow_hide('help_options');
- hideshow_hide('shortest');
- hideshow_hide('quickest');
+ hideshow_hide("help_options");
+ hideshow_hide("shortest");
+ hideshow_hide("quickest");
 
  displayStatus("result","running");
 
@@ -1566,7 +1570,7 @@ function findRoute(type) // called from router.html
 
 function runRouterSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var uuid=lines[0];
  var success=lines[1];
@@ -1578,7 +1582,7 @@ function runRouterSuccess(response)
  if(success=="ERROR")
    {
     displayStatus("result","error");
-    hideshow_show('help_route');
+    hideshow_show("help_route");
 
     link=document.getElementById("router_log_error");
     link.href="results.cgi?uuid=" + uuid + ";type=router;format=log";
@@ -1588,7 +1592,7 @@ function runRouterSuccess(response)
  else
    {
     displayStatus("result","complete");
-    hideshow_hide('help_route');
+    hideshow_hide("help_route");
 
     link=document.getElementById("router_log_complete");
     link.href="results.cgi?uuid=" + uuid + ";type=router;format=log";
@@ -1611,7 +1615,7 @@ function runRouterSuccess(response)
  link=document.getElementById(routing_type + "_text");
  link.href="results.cgi?uuid=" + uuid + ";type=" + routing_type + ";format=text";
 
- links=document.getElementById(routing_type + "_links").style.display = "";
+ var links=document.getElementById(routing_type + "_links").style.display = "";
 
  // Add a GPX layer
 
@@ -1693,7 +1697,7 @@ function displayResult(type,uuid)
 
 function getRouteSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  routepoints[routing_type]=[];
 
@@ -1709,56 +1713,56 @@ function getRouteSuccess(response)
 
     if(table==0)
       {
-       if(thisline.match('<table>'))
+       if(thisline.match("<table>"))
           table=1;
        else
           continue;
       }
 
-    if(thisline.match('</table>'))
+    if(thisline.match("</table>"))
        break;
 
-    if(thisline.match('<tr class=\'([a-z])\'>'))
+    if(thisline.match("<tr class='([a-z])'>"))
       {
        var rowtype=RegExp.$1;
 
-       if(rowtype=='c')
+       if(rowtype=="c")
          {
-          thisline.match('<td class=\'r\'> *([-0-9.]+) *([-0-9.]+)');
+          thisline.match("<td class='r'> *([-0-9.]+) *([-0-9.]+)");
           points[point]={lat: Number(RegExp.$1), lon: Number(RegExp.$2), html: "", highway: "", distance: "", total: ""};
 
           point++;
          }
-       else if(rowtype=='n')
+       else if(rowtype=="n")
          {
           points[point-1].html += thisline;
          }
-       else if(rowtype=='s')
+       else if(rowtype=="s")
          {
-          thisline.match('<span class=\'h\'>([^<]+)</span>');
+          thisline.match("<span class='h'>([^<]+)</span>");
           points[point-1].highway = RegExp.$1;
 
-          thisline.match('<span class=\'d\'>([^<]+)</span>');
+          thisline.match("<span class='d'>([^<]+)</span>");
           points[point-1].distance = RegExp.$1;
 
-          thisline.match('(<span class=\'j\'>[^<]+</span>)');
+          thisline.match("(<span class='j'>[^<]+</span>)");
           points[point-1].total = RegExp.$1;
 
-          thisline.match('^(.*).<span class=\'j\'>');
+          thisline.match("^(.*).<span class='j'>");
 
           points[point-1].html += RegExp.$1;
          }
-       else if(rowtype=='t')
+       else if(rowtype=="t")
          {
           points[point-1].html += thisline;
 
-          thisline.match('^(.*<td class=\'r\'>)');
+          thisline.match("^(.*<td class='r'>)");
           total_table = RegExp.$1;
 
-          thisline.match('<td class=\'l\'>([^<]+)<');
+          thisline.match("<td class='l'>([^<]+)<");
           total_word = RegExp.$1;
 
-          thisline.match('<span class=\'j\'>([^<]+)</span>');
+          thisline.match("<span class='j'>([^<]+)</span>");
           points[point-1].total = RegExp.$1;
          }
       }
@@ -1830,11 +1834,11 @@ var searchresults=[];
 
 function runSearchSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var marker=lines[0];
  var cpuinfo=lines[1];  // not used
- var message=lines[2];  // not used
+ var message=lines[2];
 
  if(message != "")
    {
@@ -1851,7 +1855,7 @@ function runSearchSuccess(response)
     if(thisline=="")
        break;
 
-    thisline.match('([-.0-9]+) ([-.0-9]+) (.*)');
+    thisline.match("([-.0-9]+) ([-.0-9]+) (.*)");
 
     searchresults[marker][searchresults[marker].length]={lat: Number(RegExp.$1), lon: Number(RegExp.$2), name: RegExp.$3};
    }
