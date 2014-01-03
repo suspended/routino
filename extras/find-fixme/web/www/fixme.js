@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2013 Andrew M. Bishop
+// This file Copyright 2008-2014 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -37,15 +37,15 @@ if(location.search.length>1)
    var query,queries;
 
    query=location.search.replace(/^\?/,"");
-   query=query.replace(/;/g,'&');
-   queries=query.split('&');
+   query=query.replace(/;/g,"&");
+   queries=query.split("&");
 
    for(var i=0;i<queries.length;i++)
      {
       queries[i].match(/^([^=]+)(=(.*))?$/);
 
-      k=RegExp.$1;
-      v=unescape(RegExp.$3);
+      var k=RegExp.$1;
+      var v=unescape(RegExp.$3);
 
       for(var l in legal)
         {
@@ -73,9 +73,9 @@ var select;
 
 function map_init()             // called from fixme.html
 {
- lon =args["lon"];
- lat =args["lat"];
- zoom=args["zoom"];
+ var lon =args["lon"];
+ var lat =args["lat"];
+ var zoom=args["zoom"];
 
  // Map URLs and limits are in mapprops.js.
 
@@ -160,12 +160,12 @@ function map_init()             // called from fixme.html
   var limit = Math.pow(2, z);
   x = ((x % limit) + limit) % limit;
 
-  var xyz = {'x': x, 'y': y, 'z': z};
+  var xyz = {"x": x, "y": y, "z": z};
   var url = this.url;
 
   if (OpenLayers.Util.isArray(url))
     {
-     var s = '' + xyz.x + xyz.y + xyz.z;
+     var s = "" + xyz.x + xyz.y + xyz.z;
      url = this.selectUrl(s, url);
     }
         
@@ -225,7 +225,7 @@ function map_init()             // called from fixme.html
 
  if(mapprops.editurl != undefined && mapprops.editurl != "")
    {
-    edit_url=document.getElementById("edit_url");
+    var edit_url=document.getElementById("edit_url");
 
     edit_url.style.display="";
     edit_url.href=mapprops.editurl;
@@ -298,7 +298,7 @@ var popup=null;
 
 function createPopup()
 {
- popup=document.createElement('div');
+ popup=document.createElement("div");
 
  popup.className = "popup";
 
@@ -359,10 +359,10 @@ function selectFeature(feature)
 
  layerHighlights.destroyFeatures();
 
- highlight_style = new OpenLayers.Style({},{strokeColor: "#F0F000",strokeWidth: 8,
-                                            fillColor: "#F0F000",pointRadius: 4});
+ var highlight_style = new OpenLayers.Style({},{strokeColor: "#F0F000",strokeWidth: 8,
+                                                fillColor: "#F0F000",pointRadius: 4});
 
- highlight = new OpenLayers.Feature.Vector(feature.geometry.clone(),{},highlight_style);
+ var highlight = new OpenLayers.Feature.Vector(feature.geometry.clone(),{},highlight_style);
 
  layerHighlights.addFeatures([highlight]);
 }
@@ -444,7 +444,7 @@ function displayStatus(type,subtype,content)
    {
     var format_status=document.getElementById("result_status_" + subtype).innerHTML;
 
-    chosen_status.innerHTML=format_status.replace('#',String(content));
+    chosen_status.innerHTML=format_status.replace("#",String(content));
    }
 }
 
@@ -525,7 +525,7 @@ function displayData(datatype)  // called from fixme.html
 
 function runFixmeSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var style = new OpenLayers.Style({},{stroke: false,
                                       pointRadius: 3,fillColor: "#FF0000",
@@ -535,7 +535,7 @@ function runFixmeSuccess(response)
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {

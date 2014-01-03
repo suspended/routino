@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2013 Andrew M. Bishop
+// This file Copyright 2008-2014 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -59,15 +59,15 @@ if(location.search.length>1)
    var query,queries;
 
    query=location.search.replace(/^\?/,"");
-   query=query.replace(/;/g,'&');
-   queries=query.split('&');
+   query=query.replace(/;/g,"&");
+   queries=query.split("&");
 
    for(var i=0;i<queries.length;i++)
      {
       queries[i].match(/^([^=]+)(=(.*))?$/);
 
-      k=RegExp.$1;
-      v=unescape(RegExp.$3);
+      var k=RegExp.$1;
+      var v=unescape(RegExp.$3);
 
       for(var l in legal)
         {
@@ -95,9 +95,9 @@ var select;
 
 function map_init()             // called from visualiser.html
 {
- lon =args["lon"];
- lat =args["lat"];
- zoom=args["zoom"];
+ var lon =args["lon"];
+ var lat =args["lat"];
+ var zoom=args["zoom"];
 
  // Map URLs and limits are in mapprops.js.
 
@@ -182,12 +182,12 @@ function map_init()             // called from visualiser.html
   var limit = Math.pow(2, z);
   x = ((x % limit) + limit) % limit;
 
-  var xyz = {'x': x, 'y': y, 'z': z};
+  var xyz = {"x": x, "y": y, "z": z};
   var url = this.url;
 
   if (OpenLayers.Util.isArray(url))
     {
-     var s = '' + xyz.x + xyz.y + xyz.z;
+     var s = "" + xyz.x + xyz.y + xyz.z;
      url = this.selectUrl(s, url);
     }
         
@@ -247,7 +247,7 @@ function map_init()             // called from visualiser.html
 
  if(mapprops.editurl != undefined && mapprops.editurl != "")
    {
-    edit_url=document.getElementById("edit_url");
+    var edit_url=document.getElementById("edit_url");
 
     edit_url.style.display="";
     edit_url.href=mapprops.editurl;
@@ -326,7 +326,7 @@ var popup=null;
 
 function createPopup()
 {
- popup=document.createElement('div');
+ popup=document.createElement("div");
 
  popup.className = "popup";
 
@@ -387,10 +387,10 @@ function selectFeature(feature)
 
  layerHighlights.destroyFeatures();
 
- highlight_style = new OpenLayers.Style({},{strokeColor: "#F0F000",strokeWidth: 8,
-                                            fillColor: "#F0F000",pointRadius: 4});
+ var highlight_style = new OpenLayers.Style({},{strokeColor: "#F0F000",strokeWidth: 8,
+                                                fillColor: "#F0F000",pointRadius: 4});
 
- highlight = new OpenLayers.Feature.Vector(feature.geometry.clone(),{},highlight_style);
+ var highlight = new OpenLayers.Feature.Vector(feature.geometry.clone(),{},highlight_style);
 
  layerHighlights.addFeatures([highlight]);
 }
@@ -427,6 +427,8 @@ function runDumpSuccess(response)
        var type=types[t];
 
        var regexp=RegExp(Type + " [0-9]+");
+
+       var match;
 
        while((match=string.match(regexp)) != null)
          {
@@ -472,7 +474,7 @@ function displayStatus(type,subtype,content)
    {
     var format_status=document.getElementById("result_status_" + subtype).innerHTML;
 
-    chosen_status.innerHTML=format_status.replace('#',String(content));
+    chosen_status.innerHTML=format_status.replace("#",String(content));
    }
 }
 
@@ -551,16 +553,17 @@ function displayData(datatype)  // called from visualiser.html
 
  switch(datatype)
    {
-   case 'junctions':
+   case "junctions":
     OpenLayers.Request.GET({url: url, success: runJunctionsSuccess, failure: runFailure});
     break;
-   case 'super':
+   case "super":
     OpenLayers.Request.GET({url: url, success: runSuperSuccess, failure: runFailure});
     break;
-   case 'oneway':
+   case "oneway":
     OpenLayers.Request.GET({url: url, success: runOnewaySuccess, failure: runFailure});
     break;
-   case 'highway':
+   case "highway":
+    var highway;
     var highways=document.forms["highways"].elements["highway"];
     for(var h in highways)
        if(highways[h].checked)
@@ -568,7 +571,8 @@ function displayData(datatype)  // called from visualiser.html
     url+="-" + highway;
     OpenLayers.Request.GET({url: url, success: runHighwaySuccess, failure: runFailure});
     break;
-   case 'transport':
+   case "transport":
+    var transport;
     var transports=document.forms["transports"].elements["transport"];
     for(var t in transports)
        if(transports[t].checked)
@@ -576,7 +580,8 @@ function displayData(datatype)  // called from visualiser.html
     url+="-" + transport;
     OpenLayers.Request.GET({url: url, success: runTransportSuccess, failure: runFailure});
     break;
-   case 'barrier':
+   case "barrier":
+    var transport;
     var transports=document.forms["barriers"].elements["barrier"];
     for(var t in transports)
        if(transports[t].checked)
@@ -584,17 +589,18 @@ function displayData(datatype)  // called from visualiser.html
     url+="-" + transport;
     OpenLayers.Request.GET({url: url, success: runBarrierSuccess, failure: runFailure});
     break;
-   case 'turns':
+   case "turns":
     OpenLayers.Request.GET({url: url, success: runTurnsSuccess, failure: runFailure});
     break;
-   case 'speed':
-   case 'weight':
-   case 'height':
-   case 'width':
-   case 'length':
+   case "speed":
+   case "weight":
+   case "height":
+   case "width":
+   case "length":
     OpenLayers.Request.GET({url: url, success: runLimitSuccess, failure: runFailure});
     break;
-   case 'property':
+   case "property":
+    var property;
     var properties=document.forms["properties"].elements["property"];
     for(var p in properties)
        if(properties[p].checked)
@@ -602,7 +608,7 @@ function displayData(datatype)  // called from visualiser.html
     url+="-" + property;
     OpenLayers.Request.GET({url: url, success: runPropertySuccess, failure: runFailure});
     break;
-   case 'errorlogs':
+   case "errorlogs":
     OpenLayers.Request.GET({url: url, success: runErrorlogSuccess, failure: runFailure});
     break;
    }
@@ -615,7 +621,7 @@ function displayData(datatype)  // called from visualiser.html
 
 function runJunctionsSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var junction_colours={
                        0: "#FFFFFF",
@@ -641,7 +647,7 @@ function runJunctionsSuccess(response)
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {
@@ -685,7 +691,7 @@ function runJunctionsSuccess(response)
 
 function runSuperSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var node_style = new OpenLayers.Style({},{stroke: false,
                                            pointRadius: 4,fillColor: "#FF0000",
@@ -701,7 +707,7 @@ function runSuperSuccess(response)
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {
@@ -758,13 +764,13 @@ function runOnewaySuccess(response)
  var hex={0: "00", 1: "11",  2: "22",  3: "33",  4: "44",  5: "55",  6: "66",  7: "77",
           8: "88", 9: "99", 10: "AA", 11: "BB", 12: "CC", 13: "DD", 14: "EE", 15: "FF"};
 
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var features=[];
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {
@@ -828,7 +834,7 @@ function runOnewaySuccess(response)
 
 function runHighwaySuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var style = new OpenLayers.Style({},{fill: false,
                                       strokeWidth: 2,strokeColor: "#FF0000",
@@ -838,7 +844,7 @@ function runHighwaySuccess(response)
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {
@@ -887,7 +893,7 @@ function runHighwaySuccess(response)
 
 function runTransportSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var style = new OpenLayers.Style({},{fill: false,
                                       strokeWidth: 2,strokeColor: "#FF0000",
@@ -897,7 +903,7 @@ function runTransportSuccess(response)
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {
@@ -946,7 +952,7 @@ function runTransportSuccess(response)
 
 function runBarrierSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var style = new OpenLayers.Style({},{stroke: false,
                                       pointRadius: 3,fillColor: "#FF0000",
@@ -956,7 +962,7 @@ function runBarrierSuccess(response)
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {
@@ -999,7 +1005,7 @@ function runBarrierSuccess(response)
 
 function runTurnsSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var style = new OpenLayers.Style({},{fill: false,
                                       strokeWidth: 2,strokeColor: "#FF0000",
@@ -1009,7 +1015,7 @@ function runTurnsSuccess(response)
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {
@@ -1062,7 +1068,7 @@ function runTurnsSuccess(response)
 
 function runLimitSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var node_style = new OpenLayers.Style({},{stroke: false,
                                            pointRadius: 3,fillColor: "#FF0000",
@@ -1079,7 +1085,7 @@ function runLimitSuccess(response)
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {
@@ -1124,10 +1130,10 @@ function runLimitSuccess(response)
           var dlon = lonlat.lon-nodelonlat.lon;
           var dist = Math.sqrt(dlat*dlat+dlon*dlon)/120;
 
-          var point = new OpenLayers.Geometry.Point(nodelonlat.lon+dlon/dist,nodelonlat.lat+dlat/dist);
+          point = new OpenLayers.Geometry.Point(nodelonlat.lon+dlon/dist,nodelonlat.lat+dlat/dist);
 
           features.push(new OpenLayers.Feature.Vector(point,{dump: dump},
-                                                      new OpenLayers.Style({},{externalGraphic: 'icons/limit-' + number + '.png',
+                                                      new OpenLayers.Style({},{externalGraphic: "icons/limit-" + number + ".png",
                                                                                graphicYOffset: -9,
                                                                                graphicWidth: 19,
                                                                                graphicHeight: 19})));
@@ -1149,7 +1155,7 @@ function runLimitSuccess(response)
 
 function runPropertySuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var style = new OpenLayers.Style({},{fill: false,
                                       strokeWidth: 2,strokeColor: "#FF0000",
@@ -1159,7 +1165,7 @@ function runPropertySuccess(response)
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {
@@ -1208,7 +1214,7 @@ function runPropertySuccess(response)
 
 function runErrorlogSuccess(response)
 {
- var lines=response.responseText.split('\n');
+ var lines=response.responseText.split("\n");
 
  var style = new OpenLayers.Style({},{stroke: false,
                                       pointRadius: 3,fillColor: "#FF0000",
@@ -1218,7 +1224,7 @@ function runErrorlogSuccess(response)
 
  for(var line=0;line<lines.length;line++)
    {
-    var words=lines[line].split(' ');
+    var words=lines[line].split(" ");
 
     if(line == 0)
       {
