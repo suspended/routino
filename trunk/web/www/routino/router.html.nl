@@ -13,7 +13,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  Dutch translation by Jan Jansen (August 2010).
 
@@ -122,13 +122,13 @@
         <div id="hideshow_waypoint_div">
           <table id="waypoints">
             <colgroup>
-              <col style="width: 25px;">
+              <col style="width: 22px;">
               <col>
               <col style="width: 76px;">
             </colgroup>
             <tr id="waypointXXX" style="display: none;">
               <td>
-                <img id="iconXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX);">&nbsp;
+                <img id="iconXXX" src="icons/marker-XXX-grey.png" title="Waypoint XXX Position - (click voor plaatsen/verwijderen op map)" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX);">
               <td>
                 <span id="coordsXXX">
                   <input name="lonXXX" type="text" size="7" title="Waypoint XXX Longitude" onchange="formSetCoords(XXX);">E
