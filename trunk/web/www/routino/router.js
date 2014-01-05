@@ -100,7 +100,7 @@ if(location.search.length>1)
       queries[i].match(/^([^=]+)(=(.*))?$/);
 
       var k=RegExp.$1;
-      var v=unescape(RegExp.$3);
+      var v=decodeURIComponent(RegExp.$3);
 
       for(var l in legal)
         {
