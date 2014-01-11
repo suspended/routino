@@ -520,10 +520,10 @@ function displayData(datatype)  // called from fixme.html
 
  var url="fixme.cgi";
 
- url=url + "?lonmin=" + mapbounds.left;
- url=url + ";latmin=" + mapbounds.bottom;
- url=url + ";lonmax=" + mapbounds.right;
- url=url + ";latmax=" + mapbounds.top;
+ url=url + "?lonmin=" + format5f(mapbounds.left);
+ url=url + ";latmin=" + format5f(mapbounds.bottom);
+ url=url + ";lonmax=" + format5f(mapbounds.right);
+ url=url + ";latmax=" + format5f(mapbounds.top);
  url=url + ";data=" + datatype;
 
  // Use AJAX to get the data

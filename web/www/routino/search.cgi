@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2012 Andrew M. Bishop
+# This file Copyright 2012-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -38,10 +38,10 @@ $query=new CGI;
 %legalparams=(
               "marker"  => "[0-9]+",
 
-              "left"    => "[-0-9.]+",
-              "right"   => "[-0-9.]+",
-              "top"     => "[-0-9.]+",
-              "bottom"  => "[-0-9.]+",
+              "lonmin"  => "[-0-9.]+",
+              "lonmax"  => "[-0-9.]+",
+              "latmax"  => "[-0-9.]+",
+              "latmin"  => "[-0-9.]+",
 
               "search"  => ".+"
              );
@@ -70,14 +70,14 @@ foreach my $key (@rawparams)
 $marker=$cgiparams{marker};
 $search=$cgiparams{search};
 
-$left  =$cgiparams{left};
-$right =$cgiparams{right};
-$top   =$cgiparams{top};
-$bottom=$cgiparams{bottom};
+$lonmin=$cgiparams{lonmin};
+$lonmax=$cgiparams{lonmax};
+$latmax=$cgiparams{latmax};
+$latmin=$cgiparams{latmin};
 
 # Run the search
 
-($search_time,$search_message,@places)=RunSearch($search,$left,$right,$top,$bottom);
+($search_time,$search_message,@places)=RunSearch($search,$lonmin,$lonmax,$latmax,$latmin);
 
 # Return the output
 
