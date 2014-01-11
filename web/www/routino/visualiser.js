@@ -226,6 +226,8 @@ function map_init()             // called from visualiser.html
 
  // Move the map
 
+ map.events.register("moveend", map, updateURLs);
+
  if(lon != undefined && lat != undefined && zoom != undefined)
    {
     if(lon<mapprops.westedge) lon=mapprops.westedge;
@@ -252,6 +254,8 @@ function map_init()             // called from visualiser.html
     edit_url.style.display="";
     edit_url.href=mapprops.editurl;
    }
+
+ updateURLs();
 }
 
 
@@ -295,22 +299,31 @@ function buildMapArguments()
 
 
 //
-// Update a URL
+// Update the URLs
 //
 
-function updateURL(element)     // called from visualiser.html
+function updateURLs()
 {
- if(element.id == "permalink_url")
-    element.href=location.pathname + "?" + buildMapArguments();
+ var mapargs=buildMapArguments();
 
- if(element.id == "router_url")
-    element.href="router.html" + "?" + buildMapArguments();
+ var links=document.getElementsByTagName("a");
 
- if(element.id == "edit_url")
-    element.href=mapprops.editurl + "?" + buildMapArguments();
+ for(var i=0; i<links.length; i++)
+   {
+    var element=links[i];
 
- if(element.id.match(/^lang_([a-zA-Z-]+)_url$/))
-    element.href="visualiser.html" + "." + RegExp.$1 + "?" + buildMapArguments();
+    if(element.id == "permalink_url")
+       element.href=location.pathname + "?" + mapargs;
+
+    if(element.id == "router_url")
+       element.href="router.html" + "?" + mapargs;
+
+    if(element.id == "edit_url")
+       element.href=mapprops.editurl + "?" + mapargs;
+
+    if(element.id.match(/^lang_([a-zA-Z-]+)_url$/))
+       element.href="visualiser.html" + "." + RegExp.$1 + "?" + mapargs;
+   }
 }
 
 

@@ -277,6 +277,8 @@ function form_init()            // called from router.html
     if(!routino.point[1].used)
        markerMoveHome(1);
    }
+
+ updateURLs();
 }
 
 
@@ -317,6 +319,8 @@ function formSetLanguage(value) // called from router.html (with no arguments)
 
     routino.language=value;
    }
+
+ updateURLs();
 }
 
 
@@ -349,6 +353,8 @@ function formSetTransport(value) // called from router.html
    }
 
  paramschanged=true;
+
+ updateURLs();
 }
 
 
@@ -367,6 +373,8 @@ function formSetHighway(type,value) // called from router.html (with one argumen
    }
 
  paramschanged=true;
+
+ updateURLs();
 }
 
 
@@ -385,6 +393,8 @@ function formSetSpeed(type,value) // called from router.html (with one argument)
    }
 
  paramschanged=true;
+
+ updateURLs();
 }
 
 
@@ -403,6 +413,8 @@ function formSetProperty(type,value) // called from router.html (with one argume
    }
 
  paramschanged=true;
+
+ updateURLs();
 }
 
 
@@ -430,6 +442,8 @@ function formSetRestriction(type,value) // called from router.html (with one arg
    }
 
  paramschanged=true;
+
+ updateURLs();
 }
 
 
@@ -454,6 +468,8 @@ function formSetCoords(marker,lon,lat) // called from router.html (with one argu
 
     routino.point[marker].lon="";
     routino.point[marker].lat="";
+
+    updateURLs();
    }
  else
    {
@@ -603,22 +619,33 @@ function buildMapArguments()
 
 
 //
-// Update a URL
+// Update the URLs
 //
 
-function updateURL(element)     // called from router.html
+function updateURLs()
 {
- if(element.id == "permalink_url")
-    element.href=location.pathname + "?" + buildURLArguments(true) + ";" + buildMapArguments();
+ var urlargs1=buildURLArguments(true);
+ var urlargs2=buildURLArguments(false);
+ var mapargs=buildMapArguments();
 
- if(element.id == "visualiser_url")
-    element.href="visualiser.html" + "?" + buildMapArguments();
+ var links=document.getElementsByTagName("a");
 
- if(element.id == "edit_url")
-    element.href=mapprops.editurl + "?" + buildMapArguments();
+ for(var i=0; i<links.length; i++)
+   {
+    var element=links[i];
 
- if(element.id.match(/^lang_([a-zA-Z-]+)_url$/))
-    element.href="router.html" + "." + RegExp.$1 + "?" + buildURLArguments(false) + ";" + buildMapArguments();
+    if(element.id == "permalink_url")
+       element.href=location.pathname + "?" + urlargs1 + ";" + mapargs;
+
+    if(element.id == "visualiser_url")
+       element.href="visualiser.html" + "?" + mapargs;
+
+    if(element.id == "edit_url")
+       element.href=mapprops.editurl + "?" + mapargs;
+
+    if(element.id.match(/^lang_([a-zA-Z-]+)_url$/))
+       element.href="router.html" + "." + RegExp.$1 + "?" + urlargs2 + ";" + mapargs;
+   }
 }
 
 
@@ -801,6 +828,8 @@ function map_init()             // called from router.html
 
  // Move the map
 
+ map.events.register("moveend", map, updateURLs);
+
  if(lon != undefined && lat != undefined && zoom != undefined)
    {
     if(lon<mapprops.westedge) lon=mapprops.westedge;
@@ -827,6 +856,8 @@ function map_init()             // called from router.html
     edit_url.style.display="";
     edit_url.href=mapprops.editurl;
    }
+
+ updateURLs();
 }
 
 
@@ -851,6 +882,8 @@ function dragComplete(feature,pixel)
  for(var marker in markers)
     if(feature==markers[marker])
        dragSetForm(marker);
+
+ updateURLs();
 }
 
 
@@ -920,6 +953,8 @@ function markerAddMap(marker)
  updateIcon(marker);
 
  markersmoved=true;
+
+ updateURLs();
 }
 
 
@@ -937,6 +972,8 @@ function markerRemoveMap(marker)
  updateIcon(marker);
 
  markersmoved=true;
+
+ updateURLs();
 }
 
 
@@ -980,7 +1017,7 @@ function markerCentre(marker)   // called from router.html
  var lonlat=map.getCenter().clone();
  lonlat.transform(epsg900913,epsg4326);
 
- formSetCoords(marker,lonlat.lon,lonlat.lat);
+ formSetCoords(marker,format5f(lonlat.lon),format5f(lonlat.lat));
 }
 
 
