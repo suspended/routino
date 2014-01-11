@@ -3,7 +3,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2012 Andrew M. Bishop
+# This file Copyright 2012-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,7 @@ $t0 = [gettimeofday];
 
 sub RunSearch
   {
-   my($search,$left,$right,$top,$bottom)=@_;
+   my($search,$lonmin,$lonmax,$latmax,$latmin)=@_;
 
    # Perform the search based on the type
 
@@ -51,7 +51,7 @@ sub RunSearch
 
    if($search_type eq "nominatim")
      {
-      ($message,@places)=DoNominatimSearch($search,$left,$right,$top,$bottom);
+      ($message,@places)=DoNominatimSearch($search,$lonmin,$lonmax,$latmax,$latmin);
      }
    else
      {
@@ -73,15 +73,15 @@ sub RunSearch
 
 sub DoNominatimSearch
   {
-   my($search,$left,$right,$top,$bottom)=@_;
+   my($search,$lonmin,$lonmax,$latmax,$latmin)=@_;
 
    $search = uri_escape($search);
 
    my $url;
 
-   if($left && $right && $top && $bottom)
+   if($lonmin && $lonmax && $latmax && $latmin)
      {
-      $url="$search_baseurl?format=json&viewbox=$left,$top,$right,$bottom&q=$search";
+      $url="$search_baseurl?format=json&viewbox=$lonmin,$latmax,$lonmax,$latmin&q=$search";
      }
    else
      {

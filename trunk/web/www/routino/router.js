@@ -1852,12 +1852,14 @@ function DoSearch(marker)
  var bounds=map.getExtent().clone();
  bounds.transform(epsg900913,epsg4326);
 
- var url="search.cgi?marker=" + marker +
-         ";left=" + format5f(bounds.left) +
-         ";top="  + format5f(bounds.top) +
-         ";right="  + format5f(bounds.right) +
-         ";bottom=" + format5f(bounds.bottom) +
-         ";search=" + encodeURIComponent(search);
+ var url="search.cgi";
+
+ url=url + "?marker=" + marker;
+ url=url + ";lonmin=" + format5f(mapbounds.left);
+ url=url + ";latmin=" + format5f(mapbounds.bottom);
+ url=url + ";lonmax=" + format5f(mapbounds.right);
+ url=url + ";latmax=" + format5f(mapbounds.top);
+ url=url + ";search=" + encodeURIComponent(search);
 
  OpenLayers.Request.GET({url: url, success: runSearchSuccess});
 }
