@@ -90,15 +90,15 @@
         <div id="hideshow_language_div" style="display: none;">
           <table>
             <tr>
-              <td><a id="lang_nl_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html.nl" title="Nederlandse web pagina">Nederlands</a>
+              <td><a id="lang_nl_url" href="router.html.nl" title="Nederlandse web pagina">Nederlands</a>
               <td>(NL)
               <td><input name="language" type="radio" value="nl" onchange="formSetLanguage();" checked>
             <tr>
-              <td><a id="lang_en_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html.en" title="Engelstalige web pagina">English</a>
+              <td><a id="lang_en_url" href="router.html.en" title="Engelstalige web pagina">English</a>
               <td>(EN)
               <td><input name="language" type="radio" value="en" onchange="formSetLanguage();">
             <tr>
-              <td><a id="lang_de_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html.de" title="Deutsche Webseite">German</a>
+              <td><a id="lang_de_url" href="router.html.de" title="Deutsche Webseite">German</a>
               <td>(DE)
               <td><input name="language" type="radio" value="de" onchange="formSetLanguage();">
             <tr>
@@ -260,9 +260,9 @@
 
       <div class="hideshow_box">
         <span class="hideshow_title">Links</span>
-        <a id="permalink_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html">Permanente link naar deze parameters</a>
+        <a id="permalink_url" href="router.html">Permanente link naar deze parameters</a>
         <br>
-        <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" target="edit" style="display: none;">Lees hoe je OSM data kan inbrengen</a>
+        <a id="edit_url" target="edit" style="display: none;">Lees hoe je OSM data kan inbrengen</a>
       </div>
 
       <div class="hideshow_box">
@@ -466,7 +466,7 @@
       <span class="hideshow_title">Visualiser</span>
       Om te kijken hoe routino omgaat met de basisdata, is er een tooltje dat de onderliggende data toont op verschillende manieren.
       <br>
-      <a id="visualiser_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="visualiser.html" target="visualiser">Custom link to this map view</a>
+      <a id="visualiser_url" href="visualiser.html" target="visualiser">Custom link to this map view</a>
     </div>
   </div>
 

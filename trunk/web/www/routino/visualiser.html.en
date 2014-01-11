@@ -85,7 +85,7 @@
       <div id="hideshow_language_div" style="display: none;">
         <table>
           <tr>
-            <td><a id="lang_en_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="visualiser.html.en" title="English language web page">English</a>
+            <td><a id="lang_en_url" href="visualiser.html.en" title="English language web page">English</a>
             <td>(EN)
         </table>
       </div>
@@ -379,9 +379,9 @@
 
     <div class="hideshow_box">
       <span class="hideshow_title">Links</span>
-      <a id="permalink_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="visualiser.html">Permanent link to this view</a>
+      <a id="permalink_url" href="visualiser.html">Permanent link to this view</a>
       <br>
-      <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" target="edit" style="display: none;">Edit OSM source data</a>
+      <a id="edit_url" target="edit" style="display: none;">Edit OSM source data</a>
     </div>
 
     <div class="hideshow_box">
@@ -414,7 +414,7 @@
       <span class="hideshow_title">Router</span>
       To perform routing on the map use the link below.
       <br>
-      <a id="router_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html" target="router">Custom link to this map view</a>
+      <a id="router_url" href="router.html" target="router">Custom link to this map view</a>
     </div>
   </div>
 
