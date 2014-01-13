@@ -98,6 +98,10 @@
               <td>(EN)
               <td><input name="language" type="radio" value="en" onchange="formSetLanguage();">
             <tr>
+              <td><a id="lang_fr_url" href="router.html.fr" title="French language web page">French</a>
+              <td>(FR)
+              <td><input name="language" type="radio" value="fr" onchange="formSetLanguage();">
+            <tr>
               <td><a id="lang_de_url" href="router.html.de" title="Deutsche Webseite">German</a>
               <td>(DE)
               <td><input name="language" type="radio" value="de" onchange="formSetLanguage();">
