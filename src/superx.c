@@ -429,6 +429,17 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
        printf_middle("Merging Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,i+1,j,merged,added);
    }
 
+ while(j<supersegmentsx->number)
+   {
+    SegmentX supersegmentx;
+
+    ReadFileBuffered(supersegmentsx->fd,&supersegmentx,sizeof(SegmentX));
+
+    AppendSegmentList(mergedsegmentsx,supersegmentx.way,supersegmentx.node1,supersegmentx.node2,supersegmentx.distance|SEGMENT_SUPER);
+    added++;
+    j++;
+   }
+
  FinishSegmentList(mergedsegmentsx);
 
  /* Close the files */
