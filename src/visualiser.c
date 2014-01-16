@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -1070,6 +1070,12 @@ static void find_all_nodes(Nodes *nodes,callback_t callback)
  index_t i,index1,index2;
 
  /* Loop through all of the nodes. */
+
+ if(latminbin<0)                   latminbin=0;
+ if(latmaxbin>nodes->file.latbins) latmaxbin=nodes->file.latbins-1;
+
+ if(lonminbin<0)                   lonminbin=0;
+ if(lonmaxbin>nodes->file.lonbins) lonmaxbin=nodes->file.lonbins-1;
 
  for(latb=latminbin;latb<=latmaxbin;latb++)
     for(lonb=lonminbin;lonb<=lonmaxbin;lonb++)
