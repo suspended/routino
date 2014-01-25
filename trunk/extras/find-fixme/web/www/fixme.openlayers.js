@@ -67,21 +67,13 @@ var epsg4326, epsg900913;
 var box;
 var select;
 
-// 
+//
 // Initialise the 'map' object
 //
 
 function map_init()             // called from fixme.html
 {
- var lon =args["lon"];
- var lat =args["lat"];
- var zoom=args["zoom"];
-
- // Map URLs and limits are in mapprops.js.
-
- //
- // Create the map
- //
+ // Create the map (Map URLs and limits are in mapprops.js)
 
  epsg4326=new OpenLayers.Projection("EPSG:4326");
  epsg900913=new OpenLayers.Projection("EPSG:900913");
@@ -109,44 +101,6 @@ function map_init()             // called from fixme.html
                             restrictedExtent: new OpenLayers.Bounds(mapprops.westedge,mapprops.southedge,mapprops.eastedge,mapprops.northedge).transform(epsg4326,epsg900913)
                            });
 
- // Add map tile layers
-
- for(var l=0;l < mapprops.mapdata.length;l++)
-   {
-    layerMap[l] = new OpenLayers.Layer.TMS(mapprops.mapdata[l].label,
-                                           mapprops.mapdata[l].tileurl,
-                                           {
-                                            getURL: limitedUrl,
-                                            displayOutsideMaxExtent: true,
-                                            buffer: 1
-                                           });
-    map.addLayer(layerMap[l]);
-   }
-
- // Update the attribution if the layer changes
-
- map.events.register("changelayer",layerMap,change_attribution_event);
-
- function change_attribution_event(event)
- {
-  for(var l=0;l < mapprops.mapdata.length;l++)
-     if(this[l] == event.layer)
-        change_attribution(l);
- }
-
- function change_attribution(l)
- {
-  var data_url =mapprops.mapdata[l].attribution.data_url;
-  var data_text=mapprops.mapdata[l].attribution.data_text;
-  var tile_url =mapprops.mapdata[l].attribution.tile_url;
-  var tile_text=mapprops.mapdata[l].attribution.tile_text;
-
-  document.getElementById("attribution_data").innerHTML="<a href=\"" + data_url + "\" target=\"data_attribution\">" + data_text + "</a>";
-  document.getElementById("attribution_tile").innerHTML="<a href=\"" + tile_url + "\" target=\"tile_attribution\">" + tile_text + "</a>";
- }
-
- change_attribution(0);
-
  // Get a URL for the tile (mostly copied from OpenLayers/Layer/XYZ.js).
 
  function limitedUrl(bounds)
@@ -168,12 +122,62 @@ function map_init()             // called from fixme.html
      var s = "" + xyz.x + xyz.y + xyz.z;
      url = this.selectUrl(s, url);
     }
-        
+
   return OpenLayers.String.format(url, xyz);
  }
 
+ // Add map tile layers
+
+ for(var l=0; l<mapprops.mapdata.length; l++)
+   {
+    var urls;
+
+    if(OpenLayers.Util.isArray(mapprops.mapdata[l].tiles.subdomains))
+      {
+       urls=[];
+
+       for(var s=0; s<mapprops.mapdata[l].tiles.subdomains.length; s++)
+          urls.push(mapprops.mapdata[l].tiles.url.replace(/\${s}/,mapprops.mapdata[l].tiles.subdomains[s]));
+      }
+    else
+       urls=mapprops.mapdata[l].tiles.url;
+
+    layerMap[l] = new OpenLayers.Layer.TMS(mapprops.mapdata[l].label,
+                                           urls,
+                                           {
+                                            getURL: limitedUrl,
+                                            displayOutsideMaxExtent: true,
+                                            buffer: 1
+                                           });
+    map.addLayer(layerMap[l]);
+   }
+
+ // Update the attribution if the layer changes
+
+ function change_attribution_event(event)
+ {
+  for(var l=0; l<mapprops.mapdata.length; l++)
+     if(layerMap[l] == event.layer)
+        change_attribution(l);
+ }
+
+ map.events.register("changelayer",layerMap,change_attribution_event);
+
+ function change_attribution(l)
+ {
+  var data_url =mapprops.mapdata[l].attribution.data_url;
+  var data_text=mapprops.mapdata[l].attribution.data_text;
+  var tile_url =mapprops.mapdata[l].attribution.tile_url;
+  var tile_text=mapprops.mapdata[l].attribution.tile_text;
+
+  document.getElementById("attribution_data").innerHTML="<a href=\"" + data_url + "\" target=\"data_attribution\">" + data_text + "</a>";
+  document.getElementById("attribution_tile").innerHTML="<a href=\"" + tile_url + "\" target=\"tile_attribution\">" + tile_text + "</a>";
+ }
+
+ change_attribution(0);
+
  // Add two vectors layers (one for highlights that display behind the vectors)
- 
+
  layerHighlights = new OpenLayers.Layer.Vector("Highlights",{displayInLayerSwitcher: false});
  map.addLayer(layerHighlights);
 
@@ -197,14 +201,13 @@ function map_init()             // called from fixme.html
 
  box=null;
 
- // Set the map centre to the limited range specified
-
- map.setCenter(map.restrictedExtent.getCenterLonLat(), map.getZoomForExtent(map.restrictedExtent,true));
- map.maxResolution = map.getResolution();
-
  // Move the map
 
  map.events.register("moveend", map, updateURLs);
+
+ var lon =args["lon"];
+ var lat =args["lat"];
+ var zoom=args["zoom"];
 
  if(lon != undefined && lat != undefined && zoom != undefined)
    {
@@ -221,6 +224,11 @@ function map_init()             // called from fixme.html
     lonlat.transform(epsg4326,epsg900913);
 
     map.moveTo(lonlat,zoom-map.minZoomLevel);
+   }
+ else
+   {
+    map.setCenter(map.restrictedExtent.getCenterLonLat(), map.getZoomForExtent(map.restrictedExtent,true));
+    map.maxResolution = map.getResolution();
    }
 
  // Unhide editing URL if variable set
@@ -289,7 +297,7 @@ function updateURLs()
  for(var i=0; i<links.length; i++)
    {
     var element=links[i];
- 
+
     if(element.id == "permalink_url")
        element.href=location.pathname + "?" + mapargs;
 
@@ -306,7 +314,7 @@ function updateURLs()
 var popup=null;
 
 //
-// Create a popup - not using OpenLayers because want it fixed on screen not fixed on map.
+// Create a popup - independent of map because want it fixed on screen not fixed on map.
 //
 
 function createPopup()
@@ -335,7 +343,7 @@ function createPopup()
 
 
 //
-// Draw a popup - not using OpenLayers because want it fixed on screen not fixed on map.
+// Draw a popup - independent of map because want it fixed on screen not fixed on map.
 //
 
 function drawPopup(html)
@@ -368,7 +376,7 @@ function drawPopup(html)
 function selectFeature(feature)
 {
  if(feature.attributes.dump)
-    OpenLayers.Request.GET({url: "fixme.cgi?dump=" + feature.attributes.dump, success: runDumpSuccess});
+    ajaxGET("fixme.cgi?dump=" + feature.attributes.dump, runDumpSuccess);
 
  layerHighlights.destroyFeatures();
 
@@ -433,6 +441,28 @@ function runDumpSuccess(response)
 ////////////////////////////////////////////////////////////////////////////////
 
 //
+// Define an AJAX request object
+//
+
+function ajaxGET(url,success,failure,state)
+{
+ var ajaxRequest=new XMLHttpRequest();
+
+ function ajaxGOT(options) {
+  if(this.readyState==4)
+     if(this.status==200)
+       { if(typeof(options.success)=="function") options.success(this,options.state); }
+     else
+       { if(typeof(options.failure)=="function") options.failure(this,options.state); }
+ }
+
+ ajaxRequest.onreadystatechange = function(){ ajaxGOT.call(ajaxRequest,{success: success, failure: failure, state: state}); };
+ ajaxRequest.open("GET", url, true);
+ ajaxRequest.send(null);
+}
+
+
+//
 // Display the status
 //
 
@@ -470,7 +500,7 @@ function displayStatistics()
 {
  // Use AJAX to get the statistics
 
- OpenLayers.Request.GET({url: "fixme.cgi?statistics=yes", success: runStatisticsSuccess});
+ ajaxGET("fixme.cgi?statistics=yes", runStatisticsSuccess);
 }
 
 
@@ -528,7 +558,7 @@ function displayData(datatype)  // called from fixme.html
 
  // Use AJAX to get the data
 
- OpenLayers.Request.GET({url: url, success: runFixmeSuccess, falure: runFailure});
+ ajaxGET(url, runFixmeSuccess, runFailure);
 }
 
 

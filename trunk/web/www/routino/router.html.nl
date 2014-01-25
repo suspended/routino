@@ -31,9 +31,6 @@
  along with this program.  If not, see http://www.gnu.org/licenses/.
 -->
 
-<!-- OpenLayers Javascript library -->
-<script src="../openlayers/OpenLayers.js" type="text/javascript"></script>
-
 <!-- Page elements -->
 <script src="page-elements.js" type="text/javascript"></script>
 <link href="page-elements.css" type="text/css" rel="stylesheet">
@@ -43,12 +40,16 @@
 
 <!-- Router specific features -->
 <script src="profiles.js" type="text/javascript"></script>
-<script src="mapprops.js" type="text/javascript"></script>
-<script src="router.js" type="text/javascript"></script>
 <link href="router.css" type="text/css" rel="stylesheet">
-</head>
 
-<body onload="html_init();map_init();form_init();">
+<!-- Map parameters -->
+<script src="mapprops.js" type="text/javascript"></script>
+
+<!-- Map loader -->
+<script src="maploader.js" type="text/javascript"></script>
+
+</head>
+<body onload="map_load('html_init();map_init();form_init();');">
 
 <!-- Left hand side of window - data panel -->
 
