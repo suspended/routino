@@ -39,13 +39,14 @@ Quick Start Guide
    script is provided for this. This will download the data for the UK
    which may take a while and then process it.
 
-        cd /var/www/routino/data
-        sh -x create.sh
-
-   The routino web pages also requires the OpenLayers Javascript to be
-   downloaded and installed and a script is also provided for this.
+   The routino web pages also requires either the OpenLayers or Leaflet
+   Javascript library to be downloaded and installed and scripts are
+   provided for this.
 
         cd /var/www/routino/www/openlayers
+        sh -x install.sh
+
+        cd /var/www/routino/www/leaflet
         sh -x install.sh
 
    To make full use of the location search feature on the Routino web page
@@ -178,7 +179,11 @@ Configuration of web files
     + /www/                    <- The files that must be available to the web
         |                         server are below this level.
         |
-        + /openlayers/         <- A directory to hold the OpenLayers scripts.
+        + /openlayers/         <- A directory to hold the OpenLayers library
+        |                         (optional; leaflet can be used instead).
+        |
+        + /leaflet/            <- A directory to hold the Leaflet library.
+        |                         (optional; openlayers can be used instead).
         |
         + /routino/            <- The main HTML, Javascript, CSS and CGI files.
             |
@@ -210,15 +215,25 @@ Configuration of web files
    The directory 'www' and its sub-directories are the only ones that need
    to be within the web server accessible directory.
 
-   The directory 'www/openlayers' must be filled with the openlayers
-   Javascript library that can be downloaded from
-   http://www.openlayers.org/.  (This version of Routino has been tested
-   with OpenLayers library versions 2.11 and 2.12). The files must be
-   installed so that the file 'www/openlayers/OpenLayers.js' and the
-   directories 'www/openlayers/img/', 'www/openlayers/theme/' all
-   exist. There is a script in the directory that will automatically
-   download the files, create an optimised "OpenLayers.js" and copy the
+   A Javascript map drawing library is required and either OpenLayers or
+   Leaflet can be used. The library is loaded dynamically when the HTML is
+   opened based on the value that is selected in 'mapprops.js'.
+
+   The directory 'www/openlayers' is for the OpenLayers Javascript library
+   that can be downloaded from 'http://www.openlayers.org/'.  (This version
+   of Routino has been tested with OpenLayers library versions 2.11 and
+   2.12). The file 'www/openlayers/OpenLayers.js' and the directories
+   'www/openlayers/img/' and 'www/openlayers/theme/' must all exist. There
+   is a script in the 'www/openlayers' directory that will automatically
+   download the files, create an optimised 'OpenLayers.js' and copy the
    files to the required locations.
+
+   The directory 'www/leaflet' is for the Leaflet Javascript library that
+   can be downloaded from 'http://leafletjs.com/'. (This version of Routino
+   has been tested with Leaflet library versions 0.7.1 and 0.7.2). The files
+   'www/leaflet/leaflet.js' and 'www/leaflet/leaflet.css' and the directory
+   'www/leaflet/images/' must all exist. There is a script in the
+   'www/leaflet' directory that will automatically download the files.
 
    The directory 'www/routino' contains the main HTML, Javascript and CSS
    files as well as the CGI scripts that perform the server-side routing
@@ -232,10 +247,11 @@ Configuration of web files
           executables.
 
    mapprops.js
-          The parameters in this file control the boundary of the visible
-          map (defaults to UK), the minimum and maximum zoom levels
-          (defaults to between 4 and 15 inclusive), the source of map
-          tiles (defaults to the main OpenStreetMap tile server), the data
+          The parameters in this file control the Javascript map library
+          (defaults to OpenLayers), the boundary of the visible map
+          (defaults to UK), the minimum and maximum zoom levels (defaults
+          to between 4 and 15 inclusive), the source of map tiles
+          (defaults to the main OpenStreetMap tile server), the data
           editing and browsing URLs (default to the OpenStreetMap website)
           and the number of waypoints allowed (defaults to 9).
 

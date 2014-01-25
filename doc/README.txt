@@ -77,8 +77,9 @@ Demonstration
    The source code download available also includes a set of files that can
    be used to create your own interactive map.
 
-   The interactive map is made possible by use of the OpenLayers Javascript
-   library from http://www.openlayers.org/.
+   The interactive map is made possible by use of the OpenLayers or
+   Leaflet Javascript library from http://www.openlayers.org/ or
+   http://leafletjs.com/.
 
 
 Documentation
