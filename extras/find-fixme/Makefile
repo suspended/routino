@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2013 Andrew M. Bishop
+# This file Copyright 2013-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -37,8 +37,8 @@ ROUTINO=../../src
 
 EXE=fixme-finder fixme-finder-slim fixme-dumper fixme-dumper-slim
 DATA=fixme.xml
-WWW_COPY=$(notdir $(wildcard ../../$(webwwwdir)/maplayout*.css)) $(notdir $(wildcard ../../$(webwwwdir)/page-elements.*)) mapprops.js
-DOC_COPY=$(notdir $(wildcard ../../doc/html/*.css))
+WWW_COPY=page-elements.css page-elements.js maplayout.css mapprops.js maploader.js
+DOC_COPY=style.css
 
 ########
 

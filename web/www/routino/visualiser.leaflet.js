@@ -84,77 +84,62 @@ if(location.search.length>1)
 
 var map;
 var layerMap=[], layerHighlights, layerVectors, layerBoxes;
-var epsg4326, epsg900913;
-
 var box;
-var select;
 
-// 
+//
 // Initialise the 'map' object
 //
 
 function map_init()             // called from visualiser.html
 {
- var lon =args["lon"];
- var lat =args["lat"];
- var zoom=args["zoom"];
+ // Create the map (Map URLs and limits are in mapprops.js)
 
- // Map URLs and limits are in mapprops.js.
+ map = L.map("map",
+             {
+              attributionControl: false,
+              zoomControl: false,
 
- //
- // Create the map
- //
+              minZoom: mapprops.zoomout,
+              maxZoom: mapprops.zoomin,
 
- epsg4326=new OpenLayers.Projection("EPSG:4326");
- epsg900913=new OpenLayers.Projection("EPSG:900913");
-
- map = new OpenLayers.Map ("map",
-                           {
-                            controls:[
-                                      new OpenLayers.Control.Navigation(),
-                                      new OpenLayers.Control.PanZoomBar(),
-                                      new OpenLayers.Control.ScaleLine(),
-                                      new OpenLayers.Control.LayerSwitcher()
-                                      ],
-
-                            projection: epsg900913,
-                            displayProjection: epsg4326,
-
-                            minZoomLevel: mapprops.zoomout,
-                            numZoomLevels: mapprops.zoomin-mapprops.zoomout+1,
-                            maxResolution: 156543.03390625 / Math.pow(2,mapprops.zoomout),
-
-                            // These two lines are not needed with OpenLayers 2.12
-                            units: "m",
-                            maxExtent:        new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34),
-
-                            restrictedExtent: new OpenLayers.Bounds(mapprops.westedge,mapprops.southedge,mapprops.eastedge,mapprops.northedge).transform(epsg4326,epsg900913)
-                           });
+              maxBounds: L.latLngBounds(L.latLng(mapprops.southedge,mapprops.westedge),L.latLng(mapprops.northedge,mapprops.eastedge))
+              });
 
  // Add map tile layers
 
- for(var l=0;l < mapprops.mapdata.length;l++)
+ var baselayers={};
+
+ for(var l=0; l<mapprops.mapdata.length; l++)
    {
-    layerMap[l] = new OpenLayers.Layer.TMS(mapprops.mapdata[l].label,
-                                           mapprops.mapdata[l].tileurl,
-                                           {
-                                            getURL: limitedUrl,
-                                            displayOutsideMaxExtent: true,
-                                            buffer: 1
-                                           });
-    map.addLayer(layerMap[l]);
+    var urls=mapprops.mapdata[l].tiles.url.replace(/\${/g,"{");
+
+    if(mapprops.mapdata[l].tiles.subdomains===undefined)
+       layerMap[l] = L.tileLayer(urls);
+    else
+       layerMap[l] = L.tileLayer(urls, {subdomains: mapprops.mapdata[l].tiles.subdomains});
+
+    baselayers[mapprops.mapdata[l].label]=layerMap[l];
+
+    if(l===0)
+       map.addLayer(layerMap[l]);
    }
+
+ // Add the controls
+
+ map.addControl(L.control.zoom());
+ map.addControl(L.control.scale());
+ map.addControl(L.control.layers(baselayers));
 
  // Update the attribution if the layer changes
 
- map.events.register("changelayer",layerMap,change_attribution_event);
-
  function change_attribution_event(event)
  {
-  for(var l=0;l < mapprops.mapdata.length;l++)
-     if(this[l] == event.layer)
+  for(var l=0; l<mapprops.mapdata.length; l++)
+     if(layerMap[l] == event.layer)
         change_attribution(l);
  }
+
+ map.on("baselayerchange",change_attribution_event);
 
  function change_attribution(l)
  {
@@ -169,64 +154,34 @@ function map_init()             // called from visualiser.html
 
  change_attribution(0);
 
- // Get a URL for the tile (mostly copied from OpenLayers/Layer/XYZ.js).
-
- function limitedUrl(bounds)
- {
-  var res = this.map.getResolution();
-
-  var x = Math.round((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
-  var y = Math.round((this.maxExtent.top - bounds.top) / (res * this.tileSize.h));
-  var z = this.map.getZoom() + this.map.minZoomLevel;
-
-  var limit = Math.pow(2, z);
-  x = ((x % limit) + limit) % limit;
-
-  var xyz = {"x": x, "y": y, "z": z};
-  var url = this.url;
-
-  if (OpenLayers.Util.isArray(url))
-    {
-     var s = "" + xyz.x + xyz.y + xyz.z;
-     url = this.selectUrl(s, url);
-    }
-        
-  return OpenLayers.String.format(url, xyz);
- }
-
  // Add two vectors layers (one for highlights that display behind the vectors)
- 
- layerHighlights = new OpenLayers.Layer.Vector("Highlights",{displayInLayerSwitcher: false});
- map.addLayer(layerHighlights);
 
- layerVectors = new OpenLayers.Layer.Vector("Markers",{displayInLayerSwitcher: false});
+ layerVectors = L.layerGroup();
  map.addLayer(layerVectors);
 
- // Handle feature selection and popup
+ layerHighlights = L.layerGroup();
+ map.addLayer(layerHighlights);
 
- select = new OpenLayers.Control.SelectFeature(layerVectors,
-                                               {onSelect: selectFeature, onUnselect: unselectFeature});
-
- map.addControl(select);
- select.activate();
+ // Handle popup
 
  createPopup();
 
  // Add a boxes layer
 
- layerBoxes = new OpenLayers.Layer.Boxes("Boundary",{displayInLayerSwitcher: false});
+ layerBoxes = L.rectangle(map.options.maxBounds,{stroke: false, color: "#f00", weight: 1, opacity: 1.0,
+                                                 fill: false});
+
  map.addLayer(layerBoxes);
 
- box=null;
-
- // Set the map centre to the limited range specified
-
- map.setCenter(map.restrictedExtent.getCenterLonLat(), map.getZoomForExtent(map.restrictedExtent,true));
- map.maxResolution = map.getResolution();
+ box=false;
 
  // Move the map
 
- map.events.register("moveend", map, updateURLs);
+ map.on("moveend", updateURLs);
+
+ var lon =args["lon"];
+ var lat =args["lat"];
+ var zoom=args["zoom"];
 
  if(lon != undefined && lat != undefined && zoom != undefined)
    {
@@ -239,10 +194,12 @@ function map_init()             // called from visualiser.html
     if(zoom<mapprops.zoomout) zoom=mapprops.zoomout;
     if(zoom>mapprops.zoomin)  zoom=mapprops.zoomin;
 
-    var lonlat = new OpenLayers.LonLat(lon,lat);
-    lonlat.transform(epsg4326,epsg900913);
-
-    map.moveTo(lonlat,zoom-map.minZoomLevel);
+    map.setView(L.latLng(lat,lon),zoom);
+   }
+ else
+   {
+    map.setView(map.options.maxBounds.getCenter());
+    map.fitBounds(map.options.maxBounds);
    }
 
  // Unhide editing URL if variable set
@@ -289,12 +246,11 @@ function format5f(number)
 
 function buildMapArguments()
 {
- var lonlat = map.getCenter().clone();
- lonlat.transform(epsg900913,epsg4326);
+ var lonlat = map.getCenter();
 
- var zoom = map.getZoom() + map.minZoomLevel;
+ var zoom = map.getZoom();
 
- return "lat=" + format5f(lonlat.lat) + ";lon=" + format5f(lonlat.lon) + ";zoom=" + zoom;
+ return "lat=" + format5f(lonlat.lat) + ";lon=" + format5f(lonlat.lng) + ";zoom=" + zoom;
 }
 
 
@@ -334,7 +290,7 @@ function updateURLs()
 var popup=null;
 
 //
-// Create a popup - not using OpenLayers because want it fixed on screen not fixed on map.
+// Create a popup - independent of map because want it fixed on screen not fixed on map.
 //
 
 function createPopup()
@@ -363,7 +319,7 @@ function createPopup()
 
 
 //
-// Draw a popup - not using OpenLayers because want it fixed on screen not fixed on map.
+// Draw a popup - independent of map because want it fixed on screen not fixed on map.
 //
 
 function drawPopup(html)
@@ -390,22 +346,62 @@ function drawPopup(html)
 
 
 //
-// Select a feature
+// Select a circleMarker feature
 //
 
-function selectFeature(feature)
+function selectCircleMarkerFeature(feature,dump,event)
 {
- if(feature.attributes.dump)
-    OpenLayers.Request.GET({url: "visualiser.cgi?dump=" + feature.attributes.dump, success: runDumpSuccess});
+ if(dump)
+    ajaxGET("visualiser.cgi?dump=" + dump, runDumpSuccess);
 
- layerHighlights.destroyFeatures();
+ layerHighlights.clearLayers();
 
- var highlight_style = new OpenLayers.Style({},{strokeColor: "#F0F000",strokeWidth: 8,
-                                                fillColor: "#F0F000",pointRadius: 4});
+ var highlight = L.circleMarker(feature.getLatLng(),{radius: 2*feature.getRadius(), fill: true, fillColor: "#F0F000", fillOpacity: 1.0,
+                                                     stroke: false});
 
- var highlight = new OpenLayers.Feature.Vector(feature.geometry.clone(),{},highlight_style);
+ layerHighlights.addLayer(highlight);
 
- layerHighlights.addFeatures([highlight]);
+ highlight.bringToBack();
+}
+
+
+//
+// Select a Polyline feature
+//
+
+function selectPolylineFeature(feature,dump,event)
+{
+ if(dump)
+    ajaxGET("visualiser.cgi?dump=" + dump, runDumpSuccess);
+
+ layerHighlights.clearLayers();
+
+ var highlight = L.polyline(feature.getLatLngs(),{weight: 8, stroke: true, color: "#F0F000", opacity: 1.0,
+                                                  fill: false});
+
+ layerHighlights.addLayer(highlight);
+
+ highlight.bringToBack();
+}
+
+
+//
+// Select a Polygon feature
+//
+
+function selectPolygonFeature(feature,dump,event)
+{
+ if(dump)
+    ajaxGET("visualiser.cgi?dump=" + dump, runDumpSuccess);
+
+ layerHighlights.clearLayers();
+
+ var highlight = L.polygon(feature.getLatLngs(),{weight: 8, stroke: true, color: "#F0F000", opacity: 1.0,
+                                                 fill: false});
+
+ layerHighlights.addLayer(highlight);
+
+ highlight.bringToBack();
 }
 
 
@@ -415,7 +411,7 @@ function selectFeature(feature)
 
 function unselectFeature(feature)
 {
- layerHighlights.destroyFeatures();
+ layerHighlights.clearLayers();
 
  drawPopup(null);
 }
@@ -463,6 +459,28 @@ function runDumpSuccess(response)
 ////////////////////////////////////////////////////////////////////////////////
 
 //
+// Define an AJAX request object
+//
+
+function ajaxGET(url,success,failure,state)
+{
+ var ajaxRequest=new XMLHttpRequest();
+
+ function ajaxGOT(options) {
+  if(this.readyState==4)
+     if(this.status==200)
+       { if(typeof(options.success)=="function") options.success(this,options.state); }
+     else
+       { if(typeof(options.failure)=="function") options.failure(this,options.state); }
+ }
+
+ ajaxRequest.onreadystatechange = function(){ ajaxGOT.call(ajaxRequest,{success: success, failure: failure, state: state}); };
+ ajaxRequest.open("GET", url, true);
+ ajaxRequest.send(null);
+}
+
+
+//
 // Display the status
 //
 
@@ -500,7 +518,7 @@ function displayStatistics()
 {
  // Use AJAX to get the statistics
 
- OpenLayers.Request.GET({url: "statistics.cgi", success: runStatisticsSuccess});
+ ajaxGET("statistics.cgi", runStatisticsSuccess);
 }
 
 
@@ -531,14 +549,11 @@ function displayData(datatype)  // called from visualiser.html
 
  unselectFeature();
 
- select.deactivate();
+ layerVectors.clearLayers();
+ layerHighlights.clearLayers();
 
- layerVectors.destroyFeatures();
- layerHighlights.destroyFeatures();
-
- if(box != null)
-    layerBoxes.removeMarker(box);
- box=null;
+ layerBoxes.setStyle({stroke:false});
+ box=false;
 
  // Print the status
 
@@ -551,15 +566,14 @@ function displayData(datatype)  // called from visualiser.html
 
  // Get the new data
 
- var mapbounds=map.getExtent().clone();
- mapbounds.transform(epsg900913,epsg4326);
+ var mapbounds=map.getBounds();
 
  var url="visualiser.cgi";
 
- url=url + "?lonmin=" + format5f(mapbounds.left);
- url=url + ";latmin=" + format5f(mapbounds.bottom);
- url=url + ";lonmax=" + format5f(mapbounds.right);
- url=url + ";latmax=" + format5f(mapbounds.top);
+ url=url + "?lonmin=" + format5f(mapbounds.getWest());
+ url=url + ";latmin=" + format5f(mapbounds.getSouth());
+ url=url + ";lonmax=" + format5f(mapbounds.getEast());
+ url=url + ";latmax=" + format5f(mapbounds.getNorth());
  url=url + ";data=" + datatype;
 
  // Use AJAX to get the data
@@ -567,13 +581,13 @@ function displayData(datatype)  // called from visualiser.html
  switch(datatype)
    {
    case "junctions":
-    OpenLayers.Request.GET({url: url, success: runJunctionsSuccess, failure: runFailure});
+    ajaxGET(url, runJunctionsSuccess, runFailure);
     break;
    case "super":
-    OpenLayers.Request.GET({url: url, success: runSuperSuccess, failure: runFailure});
+    ajaxGET(url, runSuperSuccess, runFailure);
     break;
    case "oneway":
-    OpenLayers.Request.GET({url: url, success: runOnewaySuccess, failure: runFailure});
+    ajaxGET(url, runOnewaySuccess, runFailure);
     break;
    case "highway":
     var highway;
@@ -582,7 +596,7 @@ function displayData(datatype)  // called from visualiser.html
        if(highways[h].checked)
           highway=highways[h].value;
     url+="-" + highway;
-    OpenLayers.Request.GET({url: url, success: runHighwaySuccess, failure: runFailure});
+    ajaxGET(url, runHighwaySuccess, runFailure);
     break;
    case "transport":
     var transport;
@@ -591,7 +605,7 @@ function displayData(datatype)  // called from visualiser.html
        if(transports[t].checked)
           transport=transports[t].value;
     url+="-" + transport;
-    OpenLayers.Request.GET({url: url, success: runTransportSuccess, failure: runFailure});
+    ajaxGET(url, runTransportSuccess, runFailure);
     break;
    case "barrier":
     var transport;
@@ -600,17 +614,17 @@ function displayData(datatype)  // called from visualiser.html
        if(transports[t].checked)
           transport=transports[t].value;
     url+="-" + transport;
-    OpenLayers.Request.GET({url: url, success: runBarrierSuccess, failure: runFailure});
+    ajaxGET(url, runBarrierSuccess, runFailure);
     break;
    case "turns":
-    OpenLayers.Request.GET({url: url, success: runTurnsSuccess, failure: runFailure});
+    ajaxGET(url, runTurnsSuccess, runFailure);
     break;
    case "speed":
    case "weight":
    case "height":
    case "width":
    case "length":
-    OpenLayers.Request.GET({url: url, success: runLimitSuccess, failure: runFailure});
+    ajaxGET(url, runLimitSuccess, runFailure);
     break;
    case "property":
     var property;
@@ -619,10 +633,10 @@ function displayData(datatype)  // called from visualiser.html
        if(properties[p].checked)
           property=properties[p].value;
     url+="-" + property;
-    OpenLayers.Request.GET({url: url, success: runPropertySuccess, failure: runFailure});
+    ajaxGET(url, runPropertySuccess, runFailure);
     break;
    case "errorlogs":
-    OpenLayers.Request.GET({url: url, success: runErrorlogSuccess, failure: runFailure});
+    ajaxGET(url, runErrorlogSuccess, runFailure);
     break;
    }
 }
@@ -649,15 +663,6 @@ function runJunctionsSuccess(response)
                        9: "#000000"
                       };
 
- var styles={};
-
- for(var colour in junction_colours)
-    styles[colour]=new OpenLayers.Style({},{stroke: false,
-                                            pointRadius: 2,fillColor: junction_colours[colour],
-                                            cursor: "pointer"});
-
- var features=[];
-
  for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(" ");
@@ -669,11 +674,12 @@ function runJunctionsSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+       var bounds = L.latLngBounds(L.latLng(lat1,lon1),L.latLng(lat2,lon2));
 
-       box = new OpenLayers.Marker.Box(bounds);
+       layerBoxes.setBounds(bounds);
 
-       layerBoxes.addMarker(box);
+       layerBoxes.setStyle({stroke: true});
+       box=true;
       }
     else if(words[0] != "")
       {
@@ -682,17 +688,16 @@ function runJunctionsSuccess(response)
        var lon=words[2];
        var count=words[3];
 
-       var lonlat= new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
+       var lonlat = L.latLng(lat,lon);
 
-       var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
+       var feature = L.circleMarker(lonlat,{radius: 2, fill: true, fillColor: junction_colours[count], fillOpacity: 1.0,
+                                            stroke: false});
 
-       features.push(new OpenLayers.Feature.Vector(point,{dump: dump},styles[count]));
+       feature.on("click", (function(f,d) { return function(evt) { selectCircleMarkerFeature(f,d,evt); }; }(feature,dump)));
+
+       layerVectors.addLayer(feature);
       }
    }
-
- select.activate();
-
- layerVectors.addFeatures(features);
 
  displayStatus("data","junctions",lines.length-2);
 }
@@ -706,17 +711,7 @@ function runSuperSuccess(response)
 {
  var lines=response.responseText.split("\n");
 
- var node_style = new OpenLayers.Style({},{stroke: false,
-                                           pointRadius: 4,fillColor: "#FF0000",
-                                           cursor: "pointer"});
-
- var segment_style = new OpenLayers.Style({},{fill: false,
-                                              strokeWidth: 2,strokeColor: "#FF0000",
-                                              cursor: "pointer"});
-
- var features=[];
-
- var nodepoint;
+ var nodelonlat;
 
  for(var line=0;line<lines.length;line++)
    {
@@ -729,11 +724,12 @@ function runSuperSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+       var bounds = L.latLngBounds(L.latLng(lat1,lon1),L.latLng(lat2,lon2));
 
-       box = new OpenLayers.Marker.Box(bounds);
+       layerBoxes.setBounds(bounds);
 
-       layerBoxes.addMarker(box);
+       layerBoxes.setStyle({stroke: true});
+       box=true;
       }
     else if(words[0] != "")
       {
@@ -741,28 +737,30 @@ function runSuperSuccess(response)
        var lat=words[1];
        var lon=words[2];
 
-       var lonlat= new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
-
-       var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
+       var lonlat = L.latLng(lat,lon);
 
        if(dump.charAt(0) == "n")
          {
-          nodepoint=point;
+          nodelonlat=lonlat;
 
-          features.push(new OpenLayers.Feature.Vector(point,{dump: dump},node_style));
+          var feature = L.circleMarker(lonlat,{radius: 4, fill: true, fillColor: "#FF0000", fillOpacity: 1.0,
+                                               stroke: false});
+
+          feature.on("click", (function(f,d) { return function(evt) { selectCircleMarkerFeature(f,d,evt); }; }(feature,dump)));
+
+          layerVectors.addLayer(feature);
          }
        else
          {
-          var segment = new OpenLayers.Geometry.LineString([nodepoint,point]);
+          var feature = L.polyline([nodelonlat,lonlat],{weight: 2, stroke: true, color: "#FF0000", opacity: 1.0,
+                                                        fill: false});
 
-          features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},segment_style));
+          feature.on("click", (function(f,d) { return function(evt) { selectPolylineFeature(f,d,evt); }; }(feature,dump)));
+
+          layerVectors.addLayer(feature);
          }
       }
    }
-
- select.activate();
-
- layerVectors.addFeatures(features);
 
  displayStatus("data","super",lines.length-2);
 }
@@ -779,8 +777,6 @@ function runOnewaySuccess(response)
 
  var lines=response.responseText.split("\n");
 
- var features=[];
-
  for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(" ");
@@ -792,11 +788,12 @@ function runOnewaySuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+       var bounds = L.latLngBounds(L.latLng(lat1,lon1),L.latLng(lat2,lon2));
 
-       box = new OpenLayers.Marker.Box(bounds);
+       layerBoxes.setBounds(bounds);
 
-       layerBoxes.addMarker(box);
+       layerBoxes.setStyle({stroke: true});
+       box=true;
       }
     else if(words[0] != "")
       {
@@ -806,36 +803,36 @@ function runOnewaySuccess(response)
        var lat2=words[3];
        var lon2=words[4];
 
-       var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
-       var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
+       var lonlat1 = L.latLng(lat1,lon1);
+       var lonlat2 = L.latLng(lat2,lon2);
 
-     //var point1 = new OpenLayers.Geometry.Point(lonlat1.lon,lonlat1.lat);
-       var point2 = new OpenLayers.Geometry.Point(lonlat2.lon,lonlat2.lat);
+       var point1 = map.options.crs.latLngToPoint(lonlat1,15);
+       var point2 = map.options.crs.latLngToPoint(lonlat2,15);
 
-       var dlat = lonlat2.lat-lonlat1.lat;
-       var dlon = lonlat2.lon-lonlat1.lon;
-       var dist = Math.sqrt(dlat*dlat+dlon*dlon)/10;
-       var ang  = Math.atan2(dlat,dlon);
+       var dy = point2.y-point1.y;
+       var dx = point2.x-point1.x;
+       var dist = Math.sqrt(dx*dx+dy*dy)/2;
+       var ang  = Math.atan2(-dy,dx);
 
-       var point3 = new OpenLayers.Geometry.Point(lonlat1.lon+dlat/dist,lonlat1.lat-dlon/dist);
-       var point4 = new OpenLayers.Geometry.Point(lonlat1.lon-dlat/dist,lonlat1.lat+dlon/dist);
+       var point3 = L.point(point1.x-dy/dist,point1.y+dx/dist);
+       var point4 = L.point(point1.x+dy/dist,point1.y-dx/dist);
 
-       var segment = new OpenLayers.Geometry.LineString([point2,point3,point4,point2]);
+       var lonlat3 = map.options.crs.pointToLatLng(point3,15);
+       var lonlat4 = map.options.crs.pointToLatLng(point4,15);
 
        var r=Math.round(7.5+7.9*Math.cos(ang));
        var g=Math.round(7.5+7.9*Math.cos(ang+2.0943951));
        var b=Math.round(7.5+7.9*Math.cos(ang-2.0943951));
        var colour = "#" + hex[r] + hex[g] + hex[b];
 
-       var style=new OpenLayers.Style({},{strokeWidth: 2,strokeColor: colour, cursor: "pointer"});
+       var feature = L.polygon([lonlat2,lonlat3,lonlat4],{weight: 2, stroke: true, color: colour, opacity: 1.0,
+                                                          fill: false});
 
-       features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},style));
+       feature.on("click", (function(f,d) { return function(evt) { selectPolygonFeature(f,d,evt); }; }(feature,dump)));
+
+       layerVectors.addLayer(feature);
       }
    }
-
- select.activate();
-
- layerVectors.addFeatures(features);
 
  displayStatus("data","oneway",lines.length-2);
 }
@@ -849,12 +846,6 @@ function runHighwaySuccess(response)
 {
  var lines=response.responseText.split("\n");
 
- var style = new OpenLayers.Style({},{fill: false,
-                                      strokeWidth: 2,strokeColor: "#FF0000",
-                                      cursor: "pointer"});
-
- var features=[];
-
  for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(" ");
@@ -866,11 +857,12 @@ function runHighwaySuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+       var bounds = L.latLngBounds(L.latLng(lat1,lon1),L.latLng(lat2,lon2));
 
-       box = new OpenLayers.Marker.Box(bounds);
+       layerBoxes.setBounds(bounds);
 
-       layerBoxes.addMarker(box);
+       layerBoxes.setStyle({stroke: true});
+       box=true;
       }
     else if(words[0] != "")
       {
@@ -880,21 +872,17 @@ function runHighwaySuccess(response)
        var lat2=words[3];
        var lon2=words[4];
 
-       var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
-       var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
+       var lonlat1 = L.latLng(lat1,lon1);
+       var lonlat2 = L.latLng(lat2,lon2);
 
-       var point1 = new OpenLayers.Geometry.Point(lonlat1.lon,lonlat1.lat);
-       var point2 = new OpenLayers.Geometry.Point(lonlat2.lon,lonlat2.lat);
+       var feature = L.polyline([lonlat1,lonlat2],{weight: 2, stroke: true, color: "#FF0000", opacity: 1.0,
+                                                   fill: false});
 
-       var segment = new OpenLayers.Geometry.LineString([point1,point2]);
+       feature.on("click", (function(f,d) { return function(evt) { selectPolylineFeature(f,d,evt); }; }(feature,dump)));
 
-       features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},style));
+       layerVectors.addLayer(feature);
       }
    }
-
- select.activate();
-
- layerVectors.addFeatures(features);
 
  displayStatus("data","highway",lines.length-2);
 }
@@ -908,12 +896,6 @@ function runTransportSuccess(response)
 {
  var lines=response.responseText.split("\n");
 
- var style = new OpenLayers.Style({},{fill: false,
-                                      strokeWidth: 2,strokeColor: "#FF0000",
-                                      cursor: "pointer"});
-
- var features=[];
-
  for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(" ");
@@ -925,11 +907,12 @@ function runTransportSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+       var bounds = L.latLngBounds(L.latLng(lat1,lon1),L.latLng(lat2,lon2));
 
-       box = new OpenLayers.Marker.Box(bounds);
+       layerBoxes.setBounds(bounds);
 
-       layerBoxes.addMarker(box);
+       layerBoxes.setStyle({stroke: true});
+       box=true;
       }
     else if(words[0] != "")
       {
@@ -939,21 +922,17 @@ function runTransportSuccess(response)
        var lat2=words[3];
        var lon2=words[4];
 
-       var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
-       var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
+       var lonlat1 = L.latLng(lat1,lon1);
+       var lonlat2 = L.latLng(lat2,lon2);
 
-       var point1 = new OpenLayers.Geometry.Point(lonlat1.lon,lonlat1.lat);
-       var point2 = new OpenLayers.Geometry.Point(lonlat2.lon,lonlat2.lat);
+       var feature = L.polyline([lonlat1,lonlat2],{weight: 2, stroke: true, color: "#FF0000", opacity: 1.0,
+                                                   fill: false});
 
-       var segment = new OpenLayers.Geometry.LineString([point1,point2]);
+       feature.on("click", (function(f,d) { return function(evt) { selectPolylineFeature(f,d,evt); }; }(feature,dump)));
 
-       features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},style));
+       layerVectors.addLayer(feature);
       }
    }
-
- select.activate();
-
- layerVectors.addFeatures(features);
 
  displayStatus("data","transport",lines.length-2);
 }
@@ -967,12 +946,6 @@ function runBarrierSuccess(response)
 {
  var lines=response.responseText.split("\n");
 
- var style = new OpenLayers.Style({},{stroke: false,
-                                      pointRadius: 3,fillColor: "#FF0000",
-                                      cursor: "pointer"});
-
- var features=[];
-
  for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(" ");
@@ -984,11 +957,12 @@ function runBarrierSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+       var bounds = L.latLngBounds(L.latLng(lat1,lon1),L.latLng(lat2,lon2));
 
-       box = new OpenLayers.Marker.Box(bounds);
+       layerBoxes.setBounds(bounds);
 
-       layerBoxes.addMarker(box);
+       layerBoxes.setStyle({stroke: true});
+       box=true;
       }
     else if(words[0] != "")
       {
@@ -996,17 +970,16 @@ function runBarrierSuccess(response)
        var lat=words[1];
        var lon=words[2];
 
-       var lonlat= new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
+       var lonlat = L.latLng(lat,lon);
 
-       var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
+       var feature = L.circleMarker(lonlat,{radius: 2, fill: true, fillColor: "#FF0000", fillOpacity: 1.0,
+                                            stroke: false});
 
-       features.push(new OpenLayers.Feature.Vector(point,{dump: dump},style));
+       feature.on("click", (function(f,d) { return function(evt) { selectCircleMarkerFeature(f,d,evt); }; }(feature,dump)));
+
+       layerVectors.addLayer(feature);
       }
    }
-
- select.activate();
-
- layerVectors.addFeatures(features);
 
  displayStatus("data","barrier",lines.length-2);
 }
@@ -1020,12 +993,6 @@ function runTurnsSuccess(response)
 {
  var lines=response.responseText.split("\n");
 
- var style = new OpenLayers.Style({},{fill: false,
-                                      strokeWidth: 2,strokeColor: "#FF0000",
-                                      cursor: "pointer"});
-
- var features=[];
-
  for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(" ");
@@ -1037,11 +1004,12 @@ function runTurnsSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+       var bounds = L.latLngBounds(L.latLng(lat1,lon1),L.latLng(lat2,lon2));
 
-       box = new OpenLayers.Marker.Box(bounds);
+       layerBoxes.setBounds(bounds);
 
-       layerBoxes.addMarker(box);
+       layerBoxes.setStyle({stroke: true});
+       box=true;
       }
     else if(words[0] != "")
       {
@@ -1053,23 +1021,18 @@ function runTurnsSuccess(response)
        var lat3=words[5];
        var lon3=words[6];
 
-       var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
-       var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
-       var lonlat3= new OpenLayers.LonLat(lon3,lat3).transform(epsg4326,epsg900913);
+       var lonlat1 = L.latLng(lat1,lon1);
+       var lonlat2 = L.latLng(lat2,lon2);
+       var lonlat3 = L.latLng(lat3,lon3);
 
-       var point1 = new OpenLayers.Geometry.Point(lonlat1.lon,lonlat1.lat);
-       var point2 = new OpenLayers.Geometry.Point(lonlat2.lon,lonlat2.lat);
-       var point3 = new OpenLayers.Geometry.Point(lonlat3.lon,lonlat3.lat);
+       var feature = L.polygon([lonlat1,lonlat2,lonlat3],{weight: 2, stroke: true, color: "#FF0000", opacity: 1.0,
+                                                          fill: false});
 
-       var segments = new OpenLayers.Geometry.LineString([point1,point2,point3]);
+       feature.on("click", (function(f,d) { return function(evt) { selectPolygonFeature(f,d,evt); }; }(feature,dump)));
 
-       features.push(new OpenLayers.Feature.Vector(segments,{dump: dump},style));
+       layerVectors.addLayer(feature);
       }
    }
-
- select.activate();
-
- layerVectors.addFeatures(features);
 
  displayStatus("data","turns",lines.length-2);
 }
@@ -1083,17 +1046,6 @@ function runLimitSuccess(response)
 {
  var lines=response.responseText.split("\n");
 
- var node_style = new OpenLayers.Style({},{stroke: false,
-                                           pointRadius: 3,fillColor: "#FF0000",
-                                           cursor: "pointer"});
-
- var segment_style = new OpenLayers.Style({},{fill: false,
-                                              strokeWidth: 2,strokeColor: "#FF0000",
-                                              cursor: "pointer"});
-
- var features=[];
-
- var nodepoint;
  var nodelonlat;
 
  for(var line=0;line<lines.length;line++)
@@ -1107,11 +1059,12 @@ function runLimitSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+       var bounds = L.latLngBounds(L.latLng(lat1,lon1),L.latLng(lat2,lon2));
 
-       box = new OpenLayers.Marker.Box(bounds);
+       layerBoxes.setBounds(bounds);
 
-       layerBoxes.addMarker(box);
+       layerBoxes.setStyle({stroke: true});
+       box=true;
       }
     else if(words[0] != "")
       {
@@ -1120,43 +1073,48 @@ function runLimitSuccess(response)
        var lon=words[2];
        var number=words[3];
 
-       var lonlat= new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
+       var lonlat = L.latLng(lat,lon);
 
        if(number == undefined)
          {
-          var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
-
           nodelonlat=lonlat;
-          nodepoint = point;
 
-          features.push(new OpenLayers.Feature.Vector(point,{dump: dump},node_style));
+          var feature = L.circleMarker(lonlat,{radius: 3, fill: true, fillColor: "#FF0000", fillOpacity: 1.0,
+                                               stroke: false});
+
+          feature.on("click", (function(f,d) { return function(evt) { selectCircleMarkerFeature(f,d,evt); }; }(feature,dump)));
+
+          layerVectors.addLayer(feature);
          }
        else
          {
-          var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
+          var lonlat = L.latLng(lat,lon);
 
-          var segment = new OpenLayers.Geometry.LineString([nodepoint,point]);
+          var feature = L.polyline([nodelonlat,lonlat],{weight: 2, stroke: true, color: "#FF0000", opacity: 1.0,
+                                                        fill: false});
 
-          features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},segment_style));
+          feature.on("click", (function(f,d) { return function(evt) { selectPolylineFeature(f,d,evt); }; }(feature,dump)));
 
-          var dlat = lonlat.lat-nodelonlat.lat;
-          var dlon = lonlat.lon-nodelonlat.lon;
-          var dist = Math.sqrt(dlat*dlat+dlon*dlon)/120;
+          layerVectors.addLayer(feature);
 
-          point = new OpenLayers.Geometry.Point(nodelonlat.lon+dlon/dist,nodelonlat.lat+dlat/dist);
+          var point1 = map.options.crs.latLngToPoint(nodelonlat,15);
+          var point2 = map.options.crs.latLngToPoint(lonlat    ,15);
 
-          features.push(new OpenLayers.Feature.Vector(point,{dump: dump},
-                                                      new OpenLayers.Style({},{externalGraphic: "icons/limit-" + number + ".png",
-                                                                               graphicYOffset: -9,
-                                                                               graphicWidth: 19,
-                                                                               graphicHeight: 19})));
+          var dy = point2.y-point1.y;
+          var dx = point2.x-point1.x;
+          var dist = Math.sqrt(dx*dx+dy*dy)/24;
+
+          var point = L.point(point1.x+dx/dist,point1.y+dy/dist);
+
+          feature=L.marker(map.options.crs.pointToLatLng(point,15), {clickable: false,
+                                                                     icon: L.icon({iconUrl: "icons/limit-" + number + ".png",
+                                                                                   iconSize: L.point(19,19),
+                                                                                   iconAnchor: L.point(9,10)})});
+
+          layerVectors.addLayer(feature);
          }
       }
    }
-
- select.activate();
-
- layerVectors.addFeatures(features);
 
  displayStatus("data","limit",lines.length-2);
 }
@@ -1170,12 +1128,6 @@ function runPropertySuccess(response)
 {
  var lines=response.responseText.split("\n");
 
- var style = new OpenLayers.Style({},{fill: false,
-                                      strokeWidth: 2,strokeColor: "#FF0000",
-                                      cursor: "pointer"});
-
- var features=[];
-
  for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(" ");
@@ -1187,11 +1139,12 @@ function runPropertySuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+       var bounds = L.latLngBounds(L.latLng(lat1,lon1),L.latLng(lat2,lon2));
 
-       box = new OpenLayers.Marker.Box(bounds);
+       layerBoxes.setBounds(bounds);
 
-       layerBoxes.addMarker(box);
+       layerBoxes.setStyle({stroke: true});
+       box=true;
       }
     else if(words[0] != "")
       {
@@ -1201,21 +1154,17 @@ function runPropertySuccess(response)
        var lat2=words[3];
        var lon2=words[4];
 
-       var lonlat1= new OpenLayers.LonLat(lon1,lat1).transform(epsg4326,epsg900913);
-       var lonlat2= new OpenLayers.LonLat(lon2,lat2).transform(epsg4326,epsg900913);
+       var lonlat1 = L.latLng(lat1,lon1);
+       var lonlat2 = L.latLng(lat2,lon2);
 
-       var point1 = new OpenLayers.Geometry.Point(lonlat1.lon,lonlat1.lat);
-       var point2 = new OpenLayers.Geometry.Point(lonlat2.lon,lonlat2.lat);
+       var feature = L.polyline([lonlat1,lonlat2],{weight: 2, stroke: true, color: "#FF0000", opacity: 1.0,
+                                                   fill: false});
 
-       var segment = new OpenLayers.Geometry.LineString([point1,point2]);
+       feature.on("click", (function(f,d) { return function(evt) { selectPolylineFeature(f,d,evt); }; }(feature,dump)));
 
-       features.push(new OpenLayers.Feature.Vector(segment,{dump: dump},style));
+       layerVectors.addLayer(feature);
       }
    }
-
- select.activate();
-
- layerVectors.addFeatures(features);
 
  displayStatus("data","property",lines.length-2);
 }
@@ -1229,12 +1178,6 @@ function runErrorlogSuccess(response)
 {
  var lines=response.responseText.split("\n");
 
- var style = new OpenLayers.Style({},{stroke: false,
-                                      pointRadius: 3,fillColor: "#FF0000",
-                                      cursor: "pointer"});
-
- var features=[];
-
  for(var line=0;line<lines.length;line++)
    {
     var words=lines[line].split(" ");
@@ -1246,11 +1189,12 @@ function runErrorlogSuccess(response)
        var lat2=words[2];
        var lon2=words[3];
 
-       var bounds = new OpenLayers.Bounds(lon1,lat1,lon2,lat2).transform(epsg4326,epsg900913);
+       var bounds = L.latLngBounds(L.latLng(lat1,lon1),L.latLng(lat2,lon2));
 
-       box = new OpenLayers.Marker.Box(bounds);
+       layerBoxes.setBounds(bounds);
 
-       layerBoxes.addMarker(box);
+       layerBoxes.setStyle({stroke: true});
+       box=true;
       }
     else if(words[0] != "")
       {
@@ -1258,17 +1202,16 @@ function runErrorlogSuccess(response)
        var lat=words[1];
        var lon=words[2];
 
-       var lonlat = new OpenLayers.LonLat(lon,lat).transform(epsg4326,epsg900913);
+       var lonlat = L.latLng(lat,lon);
 
-       var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
+       var feature = L.circleMarker(lonlat,{radius: 3, fill: true, fillColor: "#FF0000", fillOpacity: 1.0,
+                                            stroke: false});
 
-       features.push(new OpenLayers.Feature.Vector(point,{dump: dump},style));
+       feature.on("click", (function(f,d) { return function(evt) { selectCircleMarkerFeature(f,d,evt); }; }(feature,dump)));
+
+       layerVectors.addLayer(feature);
       }
    }
-
- select.activate();
-
- layerVectors.addFeatures(features);
 
  displayStatus("data","errorlogs",lines.length-2);
 }

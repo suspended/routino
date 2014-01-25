@@ -29,9 +29,6 @@
  along with this program.  If not, see http://www.gnu.org/licenses/.
 -->
 
-<!-- OpenLayers Javascript library -->
-<script src="../openlayers/OpenLayers.js" type="text/javascript"></script>
-
 <!-- Page elements -->
 <script src="page-elements.js" type="text/javascript"></script>
 <link href="page-elements.css" type="text/css" rel="stylesheet">
@@ -39,13 +36,17 @@
 <!-- Router and visualiser shared features -->
 <link href="maplayout.css" type="text/css" rel="stylesheet">
 
-<!-- Visualiser specific features -->
-<script src="mapprops.js" type="text/javascript"></script>
-<script src="fixme.js" type="text/javascript"></script>
+<!-- Fixme specific features -->
 <link href="fixme.css" type="text/css" rel="stylesheet">
-</head>
 
-<body onload="map_init();">
+<!-- Map parameters -->
+<script src="mapprops.js" type="text/javascript"></script>
+
+<!-- Map loader -->
+<script src="maploader.js" type="text/javascript"></script>
+
+</head>
+<body onload="map_load('map_init();');">
 
 <!-- Left hand side of window - data panel -->
 
