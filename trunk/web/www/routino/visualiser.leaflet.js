@@ -197,10 +197,7 @@ function map_init()             // called from visualiser.html
     map.setView(L.latLng(lat,lon),zoom);
    }
  else
-   {
-    map.setView(map.options.maxBounds.getCenter());
     map.fitBounds(map.options.maxBounds);
-   }
 
  // Unhide editing URL if variable set
 
