@@ -209,7 +209,7 @@ function map_init()             // called from fixme.html
  var lat =args["lat"];
  var zoom=args["zoom"];
 
- if(lon != undefined && lat != undefined && zoom != undefined)
+ if(lon !== undefined && lat !== undefined && zoom !== undefined)
    {
     if(lon<mapprops.westedge) lon=mapprops.westedge;
     if(lon>mapprops.eastedge) lon=mapprops.eastedge;
@@ -233,7 +233,7 @@ function map_init()             // called from fixme.html
 
  // Unhide editing URL if variable set
 
- if(mapprops.editurl != undefined && mapprops.editurl != "")
+ if(mapprops.editurl !== undefined && mapprops.editurl !== "")
    {
     var edit_url=document.getElementById("edit_url");
 
@@ -348,7 +348,7 @@ function createPopup()
 
 function drawPopup(html)
 {
- if(html==null)
+ if(html===null)
    {
     popup.style.display="none";
     return;
@@ -409,7 +409,7 @@ function runDumpSuccess(response)
 {
  var string=response.responseText;
 
- if(mapprops.editurl != undefined && mapprops.editurl != "")
+ if(mapprops.editurl !== undefined && mapprops.editurl !== "")
    {
     var types=["node", "way", "relation"];
 
@@ -421,7 +421,7 @@ function runDumpSuccess(response)
 
        var match=string.match(regexp);
 
-       if(match != null)
+       if(match !== null)
          {
           match=String(match);
 
@@ -472,18 +472,18 @@ function displayStatus(type,subtype,content)
 
  do
    {
-    if(child.id != undefined)
+    if(child.id !== undefined)
        child.style.display="none";
 
     child=child.nextSibling;
    }
- while(child != undefined);
+ while(child !== undefined);
 
  var chosen_status=document.getElementById("result_status_" + type);
 
  chosen_status.style.display="";
 
- if(subtype != null)
+ if(subtype !== null)
    {
     var format_status=document.getElementById("result_status_" + subtype).innerHTML;
 
@@ -530,7 +530,7 @@ function displayData(datatype)  // called from fixme.html
  layerVectors.destroyFeatures();
  layerHighlights.destroyFeatures();
 
- if(box != null)
+ if(box !== null)
     layerBoxes.removeMarker(box);
  box=null;
 
@@ -540,7 +540,7 @@ function displayData(datatype)  // called from fixme.html
 
  // Return if just here to clear the data
 
- if(datatype == "")
+ if(datatype === "")
     return;
 
  // Get the new data
@@ -580,7 +580,7 @@ function runFixmeSuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -593,7 +593,7 @@ function runFixmeSuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat=words[1];

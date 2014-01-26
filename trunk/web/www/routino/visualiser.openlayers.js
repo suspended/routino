@@ -230,7 +230,7 @@ function map_init()             // called from visualiser.html
  var lat =args["lat"];
  var zoom=args["zoom"];
 
- if(lon != undefined && lat != undefined && zoom != undefined)
+ if(lon !== undefined && lat !== undefined && zoom !== undefined)
    {
     if(lon<mapprops.westedge) lon=mapprops.westedge;
     if(lon>mapprops.eastedge) lon=mapprops.eastedge;
@@ -254,7 +254,7 @@ function map_init()             // called from visualiser.html
 
  // Unhide editing URL if variable set
 
- if(mapprops.editurl != undefined && mapprops.editurl != "")
+ if(mapprops.editurl !== undefined && mapprops.editurl !== "")
    {
     var edit_url=document.getElementById("edit_url");
 
@@ -375,7 +375,7 @@ function createPopup()
 
 function drawPopup(html)
 {
- if(html==null)
+ if(html===null)
    {
     popup.style.display="none";
     return;
@@ -436,7 +436,7 @@ function runDumpSuccess(response)
 {
  var string=response.responseText;
 
- if(mapprops.editurl != undefined && mapprops.editurl != "")
+ if(mapprops.editurl !== undefined && mapprops.editurl !== "")
    {
     var types=["node", "way", "relation"];
     var Types=["Node", "Way", "Relation"];
@@ -450,7 +450,7 @@ function runDumpSuccess(response)
 
        var match;
 
-       while((match=string.match(regexp)) != null)
+       while((match=string.match(regexp)) !== null)
          {
           match=String(match);
 
@@ -501,18 +501,18 @@ function displayStatus(type,subtype,content)
 
  do
    {
-    if(child.id != undefined)
+    if(child.id !== undefined)
        child.style.display="none";
 
     child=child.nextSibling;
    }
- while(child != undefined);
+ while(child !== undefined);
 
  var chosen_status=document.getElementById("result_status_" + type);
 
  chosen_status.style.display="";
 
- if(subtype != null)
+ if(subtype !== null)
    {
     var format_status=document.getElementById("result_status_" + subtype).innerHTML;
 
@@ -553,7 +553,7 @@ function displayData(datatype)  // called from visualiser.html
  for(var data in data_types)
     hideshow_hide(data_types[data]);
 
- if(datatype != "")
+ if(datatype !== "")
     hideshow_show(datatype);
 
  // Delete the old data
@@ -565,7 +565,7 @@ function displayData(datatype)  // called from visualiser.html
  layerVectors.destroyFeatures();
  layerHighlights.destroyFeatures();
 
- if(box != null)
+ if(box !== null)
     layerBoxes.removeMarker(box);
  box=null;
 
@@ -575,7 +575,7 @@ function displayData(datatype)  // called from visualiser.html
 
  // Return if just here to clear the data
 
- if(datatype == "")
+ if(datatype === "")
     return;
 
  // Get the new data
@@ -691,7 +691,7 @@ function runJunctionsSuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -704,7 +704,7 @@ function runJunctionsSuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat=words[1];
@@ -751,7 +751,7 @@ function runSuperSuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -764,7 +764,7 @@ function runSuperSuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat=words[1];
@@ -814,7 +814,7 @@ function runOnewaySuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -827,7 +827,7 @@ function runOnewaySuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat1=words[1];
@@ -888,7 +888,7 @@ function runHighwaySuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -901,7 +901,7 @@ function runHighwaySuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat1=words[1];
@@ -947,7 +947,7 @@ function runTransportSuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -960,7 +960,7 @@ function runTransportSuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat1=words[1];
@@ -1006,7 +1006,7 @@ function runBarrierSuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -1019,7 +1019,7 @@ function runBarrierSuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat=words[1];
@@ -1059,7 +1059,7 @@ function runTurnsSuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -1072,7 +1072,7 @@ function runTurnsSuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat1=words[1];
@@ -1129,7 +1129,7 @@ function runLimitSuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -1142,7 +1142,7 @@ function runLimitSuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat=words[1];
@@ -1153,7 +1153,7 @@ function runLimitSuccess(response)
 
        var point = new OpenLayers.Geometry.Point(lonlat.lon,lonlat.lat);
 
-       if(number == undefined)
+       if(number === undefined)
          {
           nodelonlat=lonlat;
           nodepoint = point;
@@ -1207,7 +1207,7 @@ function runPropertySuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -1220,7 +1220,7 @@ function runPropertySuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat1=words[1];
@@ -1266,7 +1266,7 @@ function runErrorlogSuccess(response)
    {
     var words=lines[line].split(" ");
 
-    if(line == 0)
+    if(line === 0)
       {
        var lat1=words[0];
        var lon1=words[1];
@@ -1279,7 +1279,7 @@ function runErrorlogSuccess(response)
 
        layerBoxes.addMarker(box);
       }
-    else if(words[0] != "")
+    else if(words[0] !== "")
       {
        var dump=words[0];
        var lat=words[1];
