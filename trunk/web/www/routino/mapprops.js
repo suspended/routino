@@ -6,29 +6,29 @@ var mapprops={ // contains all properties for the map to be displayed.
 
  // EDIT THIS below to change the map library (either 'openlayers' or 'leaflet').
 
-    library: "openlayers",
-  //   library: "leaflet",
+  library: "openlayers",
+  //library: "leaflet",
 
  // EDIT THIS above to change the map library (either 'openlayers' or 'leaflet').
 
 
  // EDIT THIS below to change the visible map limits
 
-    westedge:  -11.0,          // Minimum longitude (degrees)
-    eastedge:    2.0,          // Maximum longitude (degrees)
+  westedge:  -11.0,          // Minimum longitude (degrees)
+  eastedge:    2.0,          // Maximum longitude (degrees)
 
-    southedge:  49.5,          // Minimum latitude (degrees)
-    northedge:  61.0,          // Maximum latitude (degrees)
+  southedge:  49.5,          // Minimum latitude (degrees)
+  northedge:  61.0,          // Maximum latitude (degrees)
 
-    zoomout:       4,          // Minimum zoom
-    zoomin:       15,          // Maximum zoom
+  zoomout:       4,          // Minimum zoom
+  zoomin:       15,          // Maximum zoom
 
  // EDIT THIS above to change the visible map limits
 
 
  // EDIT THIS below to change the map URL(s) and copyright notices
 
-    mapdata: [
+  mapdata: [
            {
             label: "OpenStreetMap",
             tiles: {
@@ -55,28 +55,28 @@ var mapprops={ // contains all properties for the map to be displayed.
                           tile_text: "© MapQuest <img src=\"http://developer.mapquest.com/content/osm/mq_logo.png\">"
                          }
            }
-    ],
+           ],
 
  // EDIT THIS above to change the map URL(s) and copyright notices
 
 
  // EDIT THIS below to change the map source data editing URL (or leave blank for no link)
 
-    editurl: "http://www.openstreetmap.org/edit",
+  editurl: "http://www.openstreetmap.org/edit",
 
  // EDIT THIS above to change the map source data editing URL (or leave blank for no link)
 
 
  // EDIT THIS below to change the map source data browsing URL (or leave blank for no link)
 
-    browseurl: "http://www.openstreetmap.org/browse",
+  browseurl: "http://www.openstreetmap.org/browse",
 
  // EDIT THIS above to change the map source data browsing URL (or leave blank for no link)
 
 
  // EDIT THIS below to change the maximum number of markers to include in the HTML
 
-    maxmarkers: 9
+  maxmarkers: 9
 
  // EDIT THIS above to change the maximum number of markers to include in the HTML
 
