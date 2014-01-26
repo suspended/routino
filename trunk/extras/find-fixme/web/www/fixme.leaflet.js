@@ -423,13 +423,13 @@ function displayStatus(type,subtype,content)
 
     child=child.nextSibling;
    }
- while(child !== undefined);
+ while(child !== null);
 
  var chosen_status=document.getElementById("result_status_" + type);
 
  chosen_status.style.display="";
 
- if(subtype !== null)
+ if(subtype !== undefined)
    {
     var format_status=document.getElementById("result_status_" + subtype).innerHTML;
 

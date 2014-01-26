@@ -1729,13 +1729,13 @@ function displayStatus(type,subtype,content)
 
     child=child.nextSibling;
    }
- while(child !== undefined);
+ while(child !== null);
 
  var chosen_status=document.getElementById(type + "_status_" + subtype);
 
  chosen_status.style.display="";
 
- if(content !== null)
+ if(content !== undefined)
     chosen_status.innerHTML=content;
 }
 
