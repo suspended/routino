@@ -162,7 +162,7 @@ function form_init()            // called from router.html
     var lat=args["lat" + marker];
     var search=args["search" + marker];
 
-    if(lon != undefined && lat != undefined && search != undefined && lon != "" && lat != "" && search != "")
+    if(lon !== undefined && lat !== undefined && search !== undefined && lon !== "" && lat !== "" && search !== "")
       {
        markerAddForm(marker);
 
@@ -175,7 +175,7 @@ function form_init()            // called from router.html
 
        vismarkers++;
       }
-    else if(lon != undefined && lat != undefined && lon != "" && lat != "")
+    else if(lon !== undefined && lat !== undefined && lon !== "" && lat !== "")
       {
        markerAddForm(marker);
 
@@ -187,7 +187,7 @@ function form_init()            // called from router.html
 
        vismarkers++;
       }
-    else if(search != undefined && search != "")
+    else if(search !== undefined && search !== "")
       {
        markerAddForm(marker);
 
@@ -218,38 +218,38 @@ function form_init()            // called from router.html
 
  var transport=routino.transport;
 
- if(args["transport"] != undefined)
+ if(args["transport"] !== undefined)
     transport=args["transport"];
 
  formSetTransport(transport);
 
  // Update the HTML with the URL settings
 
- if(args["language"] != undefined)
+ if(args["language"] !== undefined)
     formSetLanguage(args["language"]);
 
  for(var key in routino.profile_highway)
-    if(args["highway-" + key] != undefined)
+    if(args["highway-" + key] !== undefined)
        formSetHighway(key,args["highway-" + key]);
 
  for(var key in routino.profile_speed)
-    if(args["speed-" + key] != undefined)
+    if(args["speed-" + key] !== undefined)
        formSetSpeed(key,args["speed-" + key]);
 
  for(var key in routino.profile_property)
-    if(args["property-" + key] != undefined)
+    if(args["property-" + key] !== undefined)
        formSetProperty(key,args["property-" + key]);
 
  for(var key in routino.restrictions)
    {
     if(key=="oneway" || key=="turns")
       {
-       if(args[key] != undefined)
+       if(args[key] !== undefined)
           formSetRestriction(key,args[key]);
       }
     else
       {
-       if(args["restrict-" + key] != undefined)
+       if(args["restrict-" + key] !== undefined)
           formSetRestriction(key,args["restrict-" + key]);
       }
    }
@@ -267,7 +267,7 @@ function form_init()            // called from router.html
        if(data[3]=="lat") homelat=Number(data[4]);
       }
 
- if(homelon!=null && homelat!=null)
+ if(homelon!==null && homelat!==null)
    {
     for(var m=1;m<=vismarkers;m++)
        markerCheckHome(m);
@@ -303,7 +303,7 @@ function searchOnReturnKey(ev)
 
 function formSetLanguage(value) // called from router.html (with no arguments)
 {
- if(value == undefined)
+ if(value === undefined)
    {
     for(var lang=0;lang<document.forms["form"].elements["language"].length;lang++)
        if(document.forms["form"].elements["language"][lang].checked)
@@ -364,7 +364,7 @@ function formSetTransport(value) // called from router.html
 
 function formSetHighway(type,value) // called from router.html (with one argument)
 {
- if(value == undefined)
+ if(value === undefined)
     routino.profile_highway[type][routino.transport]=document.forms["form"].elements["highway-" + type].value;
  else
    {
@@ -384,7 +384,7 @@ function formSetHighway(type,value) // called from router.html (with one argumen
 
 function formSetSpeed(type,value) // called from router.html (with one argument)
 {
- if(value == undefined)
+ if(value === undefined)
     routino.profile_speed[type][routino.transport]=document.forms["form"].elements["speed-" + type].value;
  else
    {
@@ -404,7 +404,7 @@ function formSetSpeed(type,value) // called from router.html (with one argument)
 
 function formSetProperty(type,value) // called from router.html (with one argument)
 {
- if(value == undefined)
+ if(value === undefined)
     routino.profile_property[type][routino.transport]=document.forms["form"].elements["property-" + type].value;
  else
    {
@@ -424,7 +424,7 @@ function formSetProperty(type,value) // called from router.html (with one argume
 
 function formSetRestriction(type,value) // called from router.html (with one argument)
 {
- if(value == undefined)
+ if(value === undefined)
    {
     if(type=="oneway" || type=="turns")
        routino.profile_restrictions[type][routino.transport]=document.forms["form"].elements["restrict-" + type].checked;
@@ -455,13 +455,13 @@ function formSetCoords(marker,lon,lat) // called from router.html (with one argu
 {
  clearSearchResult(marker);
 
- if(lon == undefined && lat == undefined)
+ if(lon === undefined && lat === undefined)
    {
     lon=document.forms["form"].elements["lon" + marker].value;
     lat=document.forms["form"].elements["lat" + marker].value;
    }
 
- if(lon == "" && lat == "")
+ if(lon === "" && lat === "")
    {
     document.forms["form"].elements["lon" + marker].value="";
     document.forms["form"].elements["lat" + marker].value="";
@@ -475,7 +475,7 @@ function formSetCoords(marker,lon,lat) // called from router.html (with one argu
    {
     var lonlat;
 
-    if(lon=="")
+    if(lon==="")
       {
        lonlat=map.getCenter();
 
@@ -485,7 +485,7 @@ function formSetCoords(marker,lon,lat) // called from router.html (with one argu
     if(lon<-180) lon=-180;
     if(lon>+180) lon=+180;
 
-    if(lat=="")
+    if(lat==="")
       {
        lonlat=map.getCenter();
 
@@ -521,7 +521,7 @@ function formSetSearch(marker,search) // called from event handler linked to rou
 {
  clearSearchResult(marker);
 
- if(search == undefined)
+ if(search === undefined)
    {
     routino.point[marker].search=document.forms["form"].elements["search" + marker].value;
 
@@ -573,7 +573,7 @@ function buildURLArguments(lang)
       {
        url=url + ";lon" + marker + "=" + routino.point[marker].lon;
        url=url + ";lat" + marker + "=" + routino.point[marker].lat;
-       if(routino.point[marker].search != "")
+       if(routino.point[marker].search !== "")
           url=url + ";search" + marker + "=" + encodeURIComponent(routino.point[marker].search);
       }
 
@@ -774,7 +774,7 @@ function map_init()             // called from router.html
  var lat =args["lat"];
  var zoom=args["zoom"];
 
- if(lon != undefined && lat != undefined && zoom != undefined)
+ if(lon !== undefined && lat !== undefined && zoom !== undefined)
    {
     if(lon<mapprops.westedge) lon=mapprops.westedge;
     if(lon>mapprops.eastedge) lon=mapprops.eastedge;
@@ -795,7 +795,7 @@ function map_init()             // called from router.html
 
  // Unhide editing URL if variable set
 
- if(mapprops.editurl != undefined && mapprops.editurl != "")
+ if(mapprops.editurl !== undefined && mapprops.editurl !== "")
    {
     var edit_url=document.getElementById("edit_url");
 
@@ -1110,7 +1110,7 @@ function updateIcon(marker)
 
 function markerMoveHome(marker)
 {
- if(homelon==null || homelat==null)
+ if(homelon===null || homelat===null)
     return;
 
  routino.point[marker].home=true;
@@ -1428,7 +1428,7 @@ function createPopup(type)
 
 function drawPopup(popup,html)
 {
- if(html==null)
+ if(html===null)
    {
     popup.style.display="none";
     return;
@@ -1537,14 +1537,14 @@ function findRoute(type) // called from router.html
 
  if(markersmoved || paramschanged)
    {
-    if(layerGPX.shortest!=null)
+    if(layerGPX.shortest!==null)
        removeGPXTrace("shortest");
-    if(layerGPX.quickest!=null)
+    if(layerGPX.quickest!==null)
        removeGPXTrace("quickest");
     markersmoved=false;
     paramschanged=false;
    }
- else if(layerGPX[type]!=null)
+ else if(layerGPX[type]!==null)
     removeGPXTrace(type);
 
  // Use AJAX to run the router
@@ -1681,18 +1681,18 @@ function displayStatus(type,subtype,content)
 
  do
    {
-    if(child.id != undefined)
+    if(child.id !== undefined)
        child.style.display="none";
 
     child=child.nextSibling;
    }
- while(child != undefined);
+ while(child !== undefined);
 
  var chosen_status=document.getElementById(type + "_status_" + subtype);
 
  chosen_status.style.display="";
 
- if(content != null)
+ if(content !== null)
     chosen_status.innerHTML=content;
 }
 
@@ -1735,7 +1735,7 @@ function getRouteSuccess(response)
    {
     var thisline=lines[line];
 
-    if(table==0)
+    if(table===0)
       {
        if(thisline.match("<table>"))
           table=1;
@@ -1865,7 +1865,7 @@ function runSearchSuccess(response)
  var cpuinfo=lines[1];  // not used
  var message=lines[2];
 
- if(message != "")
+ if(message !== "")
    {
     alert(message);
     return;
@@ -1877,7 +1877,7 @@ function runSearchSuccess(response)
    {
     var thisline=lines[line];
 
-    if(thisline=="")
+    if(thisline==="")
        break;
 
     thisline.match("([-.0-9]+) ([-.0-9]+) (.*)");

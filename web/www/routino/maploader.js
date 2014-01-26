@@ -15,7 +15,7 @@ function map_load(callbacks)
   script.src = url;
   script.type = "text/javascript";
 
-  if(sync==true)
+  if(sync===true)
      script.onload = function() {eval(callbacks);};
 
   head.appendChild(script);

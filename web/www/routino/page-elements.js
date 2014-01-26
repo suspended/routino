@@ -48,7 +48,7 @@ function tab_select(name)
 
     child=child.nextSibling;
    }
- while(child!=null);
+ while(child!==null);
 
  // Display the newly selected tab and DIV
 
