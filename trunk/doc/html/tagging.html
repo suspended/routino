@@ -11,7 +11,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -195,19 +195,25 @@ in the original data but normally the <em>surface</em> tag needs to be
 transformed into the <em>paved</em> tag.
 
 
-<h4 id="H_1_2_2_7" title="bridge">The bridge Tag</h4>
+<h4 id="H_1_2_2_7" title="multilane">The multilane Tag</h4>
+
+The <em>multilane</em> tag is used to indicate that a highway has multiple lanes
+for traffic.
+
+
+<h4 id="H_1_2_2_8" title="bridge">The bridge Tag</h4>
 
 The <em>bridge</em> tag is used to identify whether a highway is a bridge and
 therefore set one of the available properties.
 
 
-<h4 id="H_1_2_2_8" title="tunnel">The tunnel Tag</h4>
+<h4 id="H_1_2_2_9" title="tunnel">The tunnel Tag</h4>
 
 The <em>tunnel</em> tag is used to identify whether a highway is a tunnel and
 therefore set one of the available properties.
 
 
-<h4 id="H_1_2_2_9" title="footroute">The footroute Tag</h4>
+<h4 id="H_1_2_2_10" title="footroute">The footroute Tag</h4>
 
 The <em>footroute</em> tag is used to identify whether a highway is part of a
 walking route and therefore set one of the available properties.  This is not a
@@ -215,7 +221,7 @@ standard OSM tag and is normally added to the individual highways by looking for
 route relations that are designated for foot access.
 
 
-<h4 id="H_1_2_2_10" title="bicycleroute">The bicycleroute Tag</h4>
+<h4 id="H_1_2_2_11" title="bicycleroute">The bicycleroute Tag</h4>
 
 The <em>bicycleroute</em> tag is used to identify whether a highway is part of a
 bicycle route and therefore set one of the available properties.  This is not a
@@ -223,19 +229,25 @@ standard OSM tag and is normally added to the individual highways by looking for
 route relations that are designated for bicycle access.
 
 
-<h4 id="H_1_2_2_11" title="oneway">The oneway Tag</h4>
+<h4 id="H_1_2_2_12" title="cyclebothways">The cyclebothways Tag</h4>
+
+The <em>cyclebothways</em> tag is used to identify whether a highway allows
+cycling in the opposite direction to a signposted oneway restriction.
+
+
+<h4 id="H_1_2_2_13" title="oneway">The oneway Tag</h4>
 
 The <em>oneway</em> tag is used to specify that traffic is only allowed to
 travel in one direction.
 
 
-<h4 id="H_1_2_2_12" title="roundabout (way)">The roundabout Tag</h4>
+<h4 id="H_1_2_2_14" title="roundabout (way)">The roundabout Tag</h4>
 
 The <em>roundabout</em> tag is used to specify that a highway is part of a
 roundabout to improve the description of the calculated route.
 
 
-<h4 id="H_1_2_2_13" title="maxspeed">The maxspeed Tag</h4>
+<h4 id="H_1_2_2_15" title="maxspeed">The maxspeed Tag</h4>
 
 The <em>maxspeed</em> tag is used to specify the maximum speed limit on the
 highway; this is always measured in km/hr in OpenStreetMap data.  If the tag
@@ -243,7 +255,7 @@ value contains "mph" then it is assumed to be a value in those units and
 converted to km/hr.
 
 
-<h4 id="H_1_2_2_14" title="maxweight">The maxweight Tag</h4>
+<h4 id="H_1_2_2_16" title="maxweight">The maxweight Tag</h4>
 
 The <em>maxweight</em> tag is used to specify the maximum weight of any traffic
 on the highway.  In other words this must be set to the heaviest weight allowed
@@ -251,7 +263,7 @@ on the highway (for example a bridge) in tonnes.  If the tag value contains "kg"
 then it is assumed that the value is in these units and converted to tonnes.
 
 
-<h4 id="H_1_2_2_15" title="maxheight">The maxheight Tag</h4>
+<h4 id="H_1_2_2_17" title="maxheight">The maxheight Tag</h4>
 
 The <em>maxheight</em> tag is used to specify the maximum height of any traffic
 on the highway.  In other words this must be set to the lowest height of
@@ -260,7 +272,7 @@ a measurement in feet or feet and inches then attempts are made to convert this
 to metres.
 
 
-<h4 id="H_1_2_2_16" title="maxwidth">The maxwidth Tag</h4>
+<h4 id="H_1_2_2_18" title="maxwidth">The maxwidth Tag</h4>
 
 The <em>maxwidth</em> tag is used to specify the maximum width of any traffic on
 the highway.  This must be set to the minimum width of the constraints at the
@@ -268,7 +280,7 @@ wayside in metres.  If the tag value contains a measurement in feet or feet and
 inches then attempts are made to convert this to metres.
 
 
-<h4 id="H_1_2_2_17" title="maxlength">The maxlength Tag</h4>
+<h4 id="H_1_2_2_19" title="maxlength">The maxlength Tag</h4>
 
 The <em>maxlength</em> tag is used to specify the maximum length of any traffic
 on the highway (usually from a traffic sign) in metres.  If the tag value
@@ -276,7 +288,7 @@ contains a measurement in feet or feet and inches then attempts are made to
 convert this to metres.
 
 
-<h4 id="H_1_2_2_18" title="area">The area Tag</h4>
+<h4 id="H_1_2_2_20" title="area">The area Tag</h4>
 
 The <em>area</em> tag is used to specify that a way defines an area.  This is
 used only so that in the case of duplicated segments those belonging to an area
@@ -819,7 +831,8 @@ type would not normally do so.
 
 <p>
 A highway that is tagged as <em>cycleway</em> with one of several values will
-allow bicycle access.
+allow bicycle access.  If the value of the <em>cycleway</em> tag
+is <em>opposite_lane</em> then the <em>cyclebothways</em> tag is set.
 
 
 <h4 id="H_1_3_2_4" title="Specific access">Specific Access Permissions</h4>

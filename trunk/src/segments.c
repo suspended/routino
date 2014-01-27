@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -144,9 +144,6 @@ index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,ind
     if(!IsNormalSegment(segmentp))
        goto endloop;
 
-    if(profile->oneway && IsOnewayFrom(segmentp,node1))
-       goto endloop;
-
     if(IsFakeNode(node1) || IsFakeNode(node2))
        seg2=IndexFakeSegment(segmentp);
     else
@@ -156,6 +153,15 @@ index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,ind
 
     if(!(wayp->allow&profile->allow))
        goto endloop;
+
+    if(profile->oneway && IsOnewayFrom(segmentp,node1))
+      {
+       if(profile->allow!=Transports_Bicycle)
+          goto endloop;
+
+       if(!(wayp->props&Properties_CycleBothWays))
+          goto endloop;
+      }
 
     bearing=BearingAngle(nodes,segmentp,node1);
 

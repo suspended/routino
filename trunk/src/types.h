@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -331,8 +331,9 @@ typedef enum _Property
   Property_Tunnel       = 4,
   Property_FootRoute    = 5,
   Property_BicycleRoute = 6,
+  Property_CycleBothWays= 7,
 
-  Property_Count        = 7       /* One more than the number of property types. */
+  Property_Count        = 8       /* One more than the number of property types. */
  }
  Property;
 
@@ -347,14 +348,15 @@ typedef enum _Properties
  {
   Properties_None         = 0,
 
-  Properties_Paved        = PROPERTIES(Property_Paved       ),
-  Properties_Multilane    = PROPERTIES(Property_Multilane   ),
-  Properties_Bridge       = PROPERTIES(Property_Bridge      ),
-  Properties_Tunnel       = PROPERTIES(Property_Tunnel      ),
-  Properties_FootRoute    = PROPERTIES(Property_FootRoute   ),
-  Properties_BicycleRoute = PROPERTIES(Property_BicycleRoute),
+  Properties_Paved        = PROPERTIES(Property_Paved        ),
+  Properties_Multilane    = PROPERTIES(Property_Multilane    ),
+  Properties_Bridge       = PROPERTIES(Property_Bridge       ),
+  Properties_Tunnel       = PROPERTIES(Property_Tunnel       ),
+  Properties_FootRoute    = PROPERTIES(Property_FootRoute    ),
+  Properties_BicycleRoute = PROPERTIES(Property_BicycleRoute ),
+  Properties_CycleBothWays= PROPERTIES(Property_CycleBothWays),
 
-  Properties_ALL          = PROPERTIES(Property_Count       )-1
+  Properties_ALL          = PROPERTIES(Property_Count        )-1
  }
  Properties;
 

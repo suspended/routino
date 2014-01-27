@@ -125,6 +125,12 @@ The paved Tag
    in the original data but normally the surface tag needs to be
    transformed into the paved tag.
 
+The multilane Tag
+- - - - - - - - -
+
+   The multilane tag is used to indicate that a highway has multiple lanes
+   for traffic.
+
 The bridge Tag
 - - - - - - -
 
@@ -154,6 +160,12 @@ The bicycleroute Tag
    is not a standard OSM tag and is normally added to the individual
    highways by looking for route relations that are designated for bicycle
    access.
+
+The cyclebothways Tag
+- - - - - - - - - - -
+
+   The cyclebothways tag is used to identify whether a highway allows
+   cycling in the opposite direction to a signposted oneway restriction.
 
 The oneway Tag
 - - - - - - -
@@ -450,7 +462,8 @@ Other Access Permissions
    type would not normally do so.
 
    A highway that is tagged as cycleway with one of several values will
-   allow bicycle access.
+   allow bicycle access. If the value of the cycleway tag is opposite_lane
+   then the cyclebothways tag is set.
 
 Specific Access Permissions
 - - - - - - - - - - - - - -
