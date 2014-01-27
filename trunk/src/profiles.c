@@ -947,7 +947,7 @@ void PrintProfilesJSON(void)
  printf("  profile_property: {\n");
  for(i=1;i<Property_Count;i++)
    {
-    printf("    %12s: { ",PropertyName(i));
+    printf("    %13s: { ",PropertyName(i));
     for(j=0;j<nloaded_profiles;j++)
        printf("%s%s: %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->props_yes[i]);
     printf(" }%s\n",i==(Property_Count-1)?"":",");
@@ -1056,7 +1056,7 @@ void PrintProfilesPerl(void)
  printf("  profile_property => {\n");
  for(i=1;i<Property_Count;i++)
    {
-    printf("  %12s => {",PropertyName(i));
+    printf("  %13s => {",PropertyName(i));
     for(j=0;j<nloaded_profiles;j++)
        printf("%s %s => %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->props_yes[i]);
     printf(" }%s\n",i==(Property_Count-1)?"":",");

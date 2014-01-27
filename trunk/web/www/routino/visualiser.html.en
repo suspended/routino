@@ -355,12 +355,13 @@
         Each segment of the highways with a particular property is drawn.
         <form name="properties" id="properties" action="#" method="get" onsubmit="return false;">
           <table>
-            <tr><td>Paved:         <td><input name="property" type="radio" value="paved"        onchange="displayData('property');" checked>
-            <tr><td>Multiple Lanes:<td><input name="property" type="radio" value="multilane"    onchange="displayData('property');">
-            <tr><td>Bridge:        <td><input name="property" type="radio" value="bridge"       onchange="displayData('property');">
-            <tr><td>Tunnel:        <td><input name="property" type="radio" value="tunnel"       onchange="displayData('property');">
-            <tr><td>Walking Route: <td><input name="property" type="radio" value="footroute"    onchange="displayData('property');">
-            <tr><td>Bicycle Route: <td><input name="property" type="radio" value="bicycleroute" onchange="displayData('property');">
+            <tr><td>Paved:          <td><input name="property" type="radio" value="paved"         onchange="displayData('property');" checked>
+            <tr><td>Multiple Lanes: <td><input name="property" type="radio" value="multilane"     onchange="displayData('property');">
+            <tr><td>Bridge:         <td><input name="property" type="radio" value="bridge"        onchange="displayData('property');">
+            <tr><td>Tunnel:         <td><input name="property" type="radio" value="tunnel"        onchange="displayData('property');">
+            <tr><td>Walking Route:  <td><input name="property" type="radio" value="footroute"     onchange="displayData('property');">
+            <tr><td>Bicycle Route:  <td><input name="property" type="radio" value="bicycleroute"  onchange="displayData('property');">
+            <tr><td>Cycle Both Ways:<td><input name="property" type="radio" value="cyclebothways" onchange="displayData('property');">
           </table>
         </form>
       </div>
