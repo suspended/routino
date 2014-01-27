@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -525,6 +525,17 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 
        break;
 
+      case 'c':
+       if(!strcmp(k,"cyclebothways"))
+         {
+          if(ISTRUE(v))
+             way.props|=Properties_CycleBothWays;
+          else if(!ISFALSE(v))
+             logerror("Way %"Pway_t" has an unrecognised tag 'cyclebothways' = '%s' (after tagging rules); using 'no'.\n",logerror_way(id),v);
+          recognised=1; break;
+         }
+       break;
+
       case 'f':
        if(!strcmp(k,"foot"))
          {
@@ -768,6 +779,12 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
    {
     logerror("Way %"Pway_t" is an area and oneway; ignoring area tagging.\n",logerror_way(id));
     area=0;
+   }
+
+ if(!oneway && way.props&Properties_CycleBothWays)
+   {
+    logerror("Way %"Pway_t" is not oneway and cyclebothways; ignoring cyclebothways tagging.\n",logerror_way(id));
+    way.props&=~Properties_CycleBothWays;
    }
 
  if(!way.allow)

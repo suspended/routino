@@ -5,7 +5,7 @@
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010-2013 Andrew M. Bishop
+     This file Copyright 2010-2014 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -48,12 +48,13 @@
       <preference highway="ferry"         percent="20" />
     </preferences>
     <properties>
-      <property type="paved"        percent="50" />
-      <property type="multilane"    percent="25" />
-      <property type="bridge"       percent="50" />
-      <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="55" />
-      <property type="bicycleroute" percent="55" />
+      <property type="paved"         percent="50" />
+      <property type="multilane"     percent="25" />
+      <property type="bridge"        percent="50" />
+      <property type="tunnel"        percent="50" />
+      <property type="footroute"     percent="55" />
+      <property type="bicycleroute"  percent="55" />
+      <property type="cyclebothways" percent="50" />
     </properties>
     <restrictions>
       <oneway obey="0" /> 
@@ -97,12 +98,13 @@
       <preference highway="ferry"         percent="20" />
     </preferences>
     <properties>
-      <property type="paved"        percent="20" />
-      <property type="multilane"    percent="25" />
-      <property type="bridge"       percent="50" />
-      <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="50" />
-      <property type="bicycleroute" percent="50" />
+      <property type="paved"         percent="20" />
+      <property type="multilane"     percent="25" />
+      <property type="bridge"        percent="50" />
+      <property type="tunnel"        percent="50" />
+      <property type="footroute"     percent="50" />
+      <property type="bicycleroute"  percent="50" />
+      <property type="cyclebothways" percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -146,12 +148,13 @@
       <preference highway="ferry"         percent="20" />
     </preferences>
     <properties>
-      <property type="paved"        percent="90" />
-      <property type="multilane"    percent="25" />
-      <property type="bridge"       percent="50" />
-      <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="55" />
-      <property type="bicycleroute" percent="55" />
+      <property type="paved"         percent="90" />
+      <property type="multilane"     percent="25" />
+      <property type="bridge"        percent="50" />
+      <property type="tunnel"        percent="50" />
+      <property type="footroute"     percent="55" />
+      <property type="bicycleroute"  percent="55" />
+      <property type="cyclebothways" percent="50" />
     </properties>
     <restrictions>
       <oneway obey="0" /> 
@@ -195,12 +198,13 @@
       <preference highway="ferry"         percent="20" />
     </preferences>
     <properties>
-      <property type="paved"        percent="50" />
-      <property type="multilane"    percent="25" />
-      <property type="bridge"       percent="50" />
-      <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="50" />
-      <property type="bicycleroute" percent="60" />
+      <property type="paved"         percent="50" />
+      <property type="multilane"     percent="25" />
+      <property type="bridge"        percent="50" />
+      <property type="tunnel"        percent="50" />
+      <property type="footroute"     percent="50" />
+      <property type="bicycleroute"  percent="60" />
+      <property type="cyclebothways" percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -244,12 +248,13 @@
       <preference highway="ferry"         percent="20" />
     </preferences>
     <properties>
-      <property type="paved"        percent="100" />
-      <property type="multilane"    percent="35" />
-      <property type="bridge"       percent="50" />
-      <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="50" />
-      <property type="bicycleroute" percent="50" />
+      <property type="paved"         percent="100" />
+      <property type="multilane"     percent="35" />
+      <property type="bridge"        percent="50" />
+      <property type="tunnel"        percent="50" />
+      <property type="footroute"     percent="50" />
+      <property type="bicycleroute"  percent="50" />
+      <property type="cyclebothways" percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -293,12 +298,13 @@
       <preference highway="ferry"         percent="20" />
     </preferences>
     <properties>
-      <property type="paved"        percent="100" />
-      <property type="multilane"    percent="60" />
-      <property type="bridge"       percent="50" />
-      <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="50" />
-      <property type="bicycleroute" percent="50" />
+      <property type="paved"         percent="100" />
+      <property type="multilane"     percent="60" />
+      <property type="bridge"        percent="50" />
+      <property type="tunnel"        percent="50" />
+      <property type="footroute"     percent="50" />
+      <property type="bicycleroute"  percent="50" />
+      <property type="cyclebothways" percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -342,12 +348,13 @@
       <preference highway="ferry"         percent="20" />
     </preferences>
     <properties>
-      <property type="paved"        percent="100" />
-      <property type="multilane"    percent="60" />
-      <property type="bridge"       percent="50" />
-      <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="45" />
-      <property type="bicycleroute" percent="45" />
+      <property type="paved"         percent="100" />
+      <property type="multilane"     percent="60" />
+      <property type="bridge"        percent="50" />
+      <property type="tunnel"        percent="50" />
+      <property type="footroute"     percent="45" />
+      <property type="bicycleroute"  percent="45" />
+      <property type="cyclebothways" percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -391,12 +398,13 @@
       <preference highway="ferry"         percent="20" />
     </preferences>
     <properties>
-      <property type="paved"        percent="100" />
-      <property type="multilane"    percent="60" />
-      <property type="bridge"       percent="50" />
-      <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="45" />
-      <property type="bicycleroute" percent="45" />
+      <property type="paved"         percent="100" />
+      <property type="multilane"     percent="60" />
+      <property type="bridge"        percent="50" />
+      <property type="tunnel"        percent="50" />
+      <property type="footroute"     percent="45" />
+      <property type="bicycleroute"  percent="45" />
+      <property type="cyclebothways" percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -440,12 +448,13 @@
       <preference highway="ferry"         percent="20" />
     </preferences>
     <properties>
-      <property type="paved"        percent="100" />
-      <property type="multilane"    percent="60" />
-      <property type="bridge"       percent="50" />
-      <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="45" />
-      <property type="bicycleroute" percent="45" />
+      <property type="paved"         percent="100" />
+      <property type="multilane"     percent="60" />
+      <property type="bridge"        percent="50" />
+      <property type="tunnel"        percent="50" />
+      <property type="footroute"     percent="45" />
+      <property type="bicycleroute"  percent="45" />
+      <property type="cyclebothways" percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -489,12 +498,13 @@
       <preference highway="ferry"         percent="20" />
     </preferences>
     <properties>
-      <property type="paved"        percent="100" />
-      <property type="multilane"    percent="60" />
-      <property type="bridge"       percent="50" />
-      <property type="tunnel"       percent="50" />
-      <property type="footroute"    percent="45" />
-      <property type="bicycleroute" percent="45" />
+      <property type="paved"         percent="100" />
+      <property type="multilane"     percent="60" />
+      <property type="bridge"        percent="50" />
+      <property type="tunnel"        percent="50" />
+      <property type="footroute"     percent="45" />
+      <property type="bicycleroute"  percent="45" />
+      <property type="cyclebothways" percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 

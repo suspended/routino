@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -161,6 +161,11 @@ Property PropertyType(const char *property)
 
     if(!strcmp(property,"bridge"))
        return(Property_Bridge);
+    break;
+
+   case 'c':
+    if(!strcmp(property,"cyclebothways"))
+       return(Property_CycleBothWays);
     break;
 
    case 'f':
@@ -324,6 +329,9 @@ const char *PropertyName(Property property)
 
    case Property_BicycleRoute:
     return("bicycleroute");
+
+   case Property_CycleBothWays:
+    return("cyclebothways");
 
    case Property_Count:
     ;

@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -47,8 +47,8 @@ extern int option_quickest;
 
 /* Local functions */
 
-static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish_node,index_t finish_segment);
-static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t finish_node);
+static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node,index_t finish_segment);
+static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t finish_node);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -170,7 +170,15 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayTo(segmentp,node1))
-          goto endloop;
+         {
+          if(profile->allow!=Transports_Bicycle)
+             goto endloop;
+
+          wayp=LookupWay(ways,segmentp->way,1);
+
+          if(!(wayp->props&Properties_CycleBothWays))
+             goto endloop;
+         }
 
        if(IsFakeNode(node1) || IsFakeNode(node2))
          {
@@ -387,7 +395,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        results->prev_segment=NO_SEGMENT;
     else
       {
-       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,begin->start_node,begin->prev_segment);
+       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
 
        results->prev_segment=superseg;
       }
@@ -406,7 +414,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        !IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,5)))
       {
        Result *result5=result1;
-       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,result3->node,result3->segment);
+       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,result3->node,result3->segment);
 
        if(superseg!=result3->segment)
          {
@@ -491,7 +499,15 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayTo(segmentp,node1))
-          goto endloop;
+         {
+          if(profile->allow!=Transports_Bicycle)
+             goto endloop;
+
+          wayp=LookupWay(ways,segmentp->way,1);
+
+          if(!(wayp->props&Properties_CycleBothWays))
+             goto endloop;
+         }
 
        seg2=IndexSegment(segments,segmentp); /* segment cannot be a fake segment (must be a super-segment) */
 
@@ -676,12 +692,14 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
   Relations *relations The set of relations to use.
 
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
+
   index_t finish_node The super-node that the route ends at.
 
   index_t finish_segment The segment that the route ends with.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t finish_node,index_t finish_segment)
+static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node,index_t finish_segment)
 {
  Node *supernodep;
  Segment *supersegmentp;
@@ -709,7 +727,7 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
        start_node=OtherNode(supersegmentp,finish_node);
 
-       results=FindSuperRoute(nodes,segments,ways,relations,start_node,finish_node);
+       results=FindSuperRoute(nodes,segments,ways,relations,profile,start_node,finish_node);
 
        if(!results)
           continue;
@@ -747,12 +765,14 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
   Relations *relations The set of relations to use.
 
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
+
   index_t start_node The start node.
 
   index_t finish_node The finish node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,index_t start_node,index_t finish_node)
+static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t finish_node)
 {
  Results *results;
  Queue   *queue;
@@ -803,7 +823,17 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
 
        /* must obey one-way restrictions */
        if(IsOnewayTo(segmentp,node1))
-          goto endloop;
+         {
+          Way *wayp;
+
+          if(profile->allow!=Transports_Bicycle)
+             goto endloop;
+
+          wayp=LookupWay(ways,segmentp->way,1);
+
+          if(!(wayp->props&Properties_CycleBothWays))
+             goto endloop;
+         }
 
        seg2=IndexSegment(segments,segmentp);
 
@@ -967,7 +997,15 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayTo(segmentp,node1))
-          goto endloop;
+         {
+          if(profile->allow!=Transports_Bicycle)
+             goto endloop;
+
+          wayp=LookupWay(ways,segmentp->way,1);
+
+          if(!(wayp->props&Properties_CycleBothWays))
+             goto endloop;
+         }
 
        if(IsFakeNode(node1) || IsFakeNode(node2))
          {
@@ -1259,7 +1297,15 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
 
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayTo(segmentp,node1))
-          goto endloop;
+         {
+          if(profile->allow!=Transports_Bicycle)
+             goto endloop;
+
+          wayp=LookupWay(ways,segmentp->way,1);
+
+          if(!(wayp->props&Properties_CycleBothWays))
+             goto endloop;
+         }
 
        if(IsFakeNode(node1) || IsFakeNode(node2))
          {
@@ -1480,7 +1526,15 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayFrom(segmentp,node1)) /* working backwards => disallow oneway *from* node1 */
-          goto endloop;
+         {
+          if(profile->allow!=Transports_Bicycle)
+             goto endloop;
+
+          wayp=LookupWay(ways,segmentp->way,1);
+
+          if(!(wayp->props&Properties_CycleBothWays))
+             goto endloop;
+         }
 
        node2=OtherNode(segmentp,node1);
 
