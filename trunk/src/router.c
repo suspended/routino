@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -221,49 +221,30 @@ int main(int argc,char** argv)
        option_quickest=0;
     else if(!strcmp(argv[arg],"--quickest"))
        option_quickest=1;
-    else if(isdigit(argv[arg][0]) ||
-       ((argv[arg][0]=='-' || argv[arg][0]=='+') && isdigit(argv[arg][1])))
+    else if(!strncmp(argv[arg],"--lon",5) && isdigit(argv[arg][5]))
       {
-       for(point=1;point<=NWAYPOINTS;point++)
-          if(point_used[point]!=3)
-            {
-             if(point_used[point]==0)
-               {
-                point_lon[point]=degrees_to_radians(atof(argv[arg]));
-                point_used[point]=1;
-               }
-             else /* if(point_used[point]==1) */
-               {
-                point_lat[point]=degrees_to_radians(atof(argv[arg]));
-                point_used[point]=3;
-               }
-             break;
-            }
-      }
-     else if(!strncmp(argv[arg],"--lon",5) && isdigit(argv[arg][5]))
-       {
-        char *p=&argv[arg][6];
-        while(isdigit(*p)) p++;
-        if(*p++!='=')
-           print_usage(0,argv[arg],NULL);
+       char *p=&argv[arg][6];
+       while(isdigit(*p)) p++;
+       if(*p++!='=')
+          print_usage(0,argv[arg],NULL);
  
-        point=atoi(&argv[arg][5]);
-        if(point>NWAYPOINTS || point_used[point]&1)
-           print_usage(0,argv[arg],NULL);
+       point=atoi(&argv[arg][5]);
+       if(point>NWAYPOINTS || point_used[point]&1)
+          print_usage(0,argv[arg],NULL);
  
        point_lon[point]=degrees_to_radians(atof(p));
        point_used[point]+=1;
       }
-     else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]))
-       {
-        char *p=&argv[arg][6];
-        while(isdigit(*p)) p++;
-        if(*p++!='=')
-           print_usage(0,argv[arg],NULL);
+    else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]))
+      {
+       char *p=&argv[arg][6];
+       while(isdigit(*p)) p++;
+       if(*p++!='=')
+          print_usage(0,argv[arg],NULL);
  
-        point=atoi(&argv[arg][5]);
-        if(point>NWAYPOINTS || point_used[point]&2)
-           print_usage(0,argv[arg],NULL);
+       point=atoi(&argv[arg][5]);
+       if(point>NWAYPOINTS || point_used[point]&2)
+          print_usage(0,argv[arg],NULL);
  
        point_lat[point]=degrees_to_radians(atof(p));
        point_used[point]+=2;
