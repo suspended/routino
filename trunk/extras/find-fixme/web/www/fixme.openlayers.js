@@ -360,12 +360,14 @@ function drawPopup(html)
 
     popup.style.left  =map_div.offsetParent.offsetLeft+map_div.offsetLeft+60 + "px";
     popup.style.top   =                                map_div.offsetTop +30 + "px";
-    popup.style.width =map_div.clientWidth-100 + "px";
+    popup.style.width =map_div.clientWidth-120 + "px";
 
     popup.style.display="";
    }
 
- popup.innerHTML=html;
+ var close="<span style='float: right; cursor: pointer;' onclick='drawPopup(null)'>X</span>";
+
+ popup.innerHTML=close+html;
 }
 
 
