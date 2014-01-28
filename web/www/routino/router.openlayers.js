@@ -1442,7 +1442,7 @@ function highlight(type,line)
    {
     highlights[type].style.display = "none";
 
-    drawPopup(popups[type],null);
+    drawPopup(type,null);
    }
  else
    {
@@ -1458,7 +1458,7 @@ function highlight(type,line)
 
     // Popup
 
-    drawPopup(popups[type],"<table>" + routepoints[type][line].html + "</table>");
+    drawPopup(type,"<table>" + routepoints[type][line].html + "</table>");
    }
 
  layerVectors.drawFeature(highlights[type]);
@@ -1500,8 +1500,10 @@ function createPopup(type)
 // Draw a popup - independent of map because want it fixed on screen not fixed on map.
 //
 
-function drawPopup(popup,html)
+function drawPopup(type,html)
 {
+ var popup=popups[type];
+
  if(html===null)
    {
     popup.style.display="none";
@@ -1514,12 +1516,14 @@ function drawPopup(popup,html)
 
     popup.style.left  =map_div.offsetParent.offsetLeft+map_div.offsetLeft+60 + "px";
     popup.style.top   =                                map_div.offsetTop +30 + "px";
-    popup.style.width =map_div.clientWidth-100 + "px";
+    popup.style.width =map_div.clientWidth-120 + "px";
 
     popup.style.display="";
    }
 
- popup.innerHTML=html;
+ var close="<span style='float: right; cursor: pointer;' onclick='drawPopup("+type+",null)'>X</span>";
+
+ popup.innerHTML=close+html;
 }
 
 
