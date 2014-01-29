@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -88,7 +88,7 @@ static char junction_other_way[Highway_Count][Highway_Count]=
 /*++++++++++++++++++++++++++++++++++++++
   Print the optimum route between two nodes.
 
-  Results **results The set of results to print (some may be NULL - ignore them).
+  Results **results The set of results to print (consecutive in array even if not consecutive waypoints).
 
   int nresults The number of results in the list.
 
@@ -109,7 +109,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
  distance_t cum_distance=0;
  duration_t cum_duration=0;
 
- int point=1;
+ int point=0;
  int segment_count=0,route_count=0;
  int point_count=0;
  int roundabout=0;
@@ -321,10 +321,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
  /* Loop through all the sections of the route and print them */
 
- while(!results[point])
-    point++;
-
- while(point<=nresults)
+ do
    {
     int next_point=point;
     distance_t junc_distance=0;
@@ -373,13 +370,15 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        next_result=result->next;
 
        if(!next_result)
-          for(next_point=point+1;next_point<=nresults;next_point++)
-             if(results[next_point])
-               {
-                next_result=FindResult(results[next_point],results[next_point]->start_node,results[next_point]->prev_segment);
-                next_result=next_result->next;
-                break;
-               }
+         {
+          next_point++;
+
+          if(next_point<nresults)
+            {
+             next_result=FindResult(results[next_point],results[next_point]->start_node,results[next_point]->prev_segment);
+             next_result=next_result->next;
+            }
+         }
 
        /* Calculate the information about this segment */
 
@@ -810,6 +809,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
     point=next_point;
    }
+ while(point<nresults);
 
  /* Print the tail of the files */
 
