@@ -69,24 +69,25 @@ static void print_usage(int detail,const char *argerr,const char *err);
 
 int main(int argc,char** argv)
 {
- Nodes    *OSMNodes;
- Segments *OSMSegments;
- Ways     *OSMWays;
- Relations*OSMRelations;
- Results  *results[NWAYPOINTS+1]={NULL};
- int       point_used[NWAYPOINTS+1]={0};
- double    point_lon[NWAYPOINTS+1],point_lat[NWAYPOINTS+1];
- double    heading=-999;
- int       help_profile=0,help_profile_xml=0,help_profile_json=0,help_profile_pl=0;
- char     *dirname=NULL,*prefix=NULL;
- char     *profiles=NULL,*profilename=NULL;
- char     *translations=NULL,*language=NULL;
- int       exactnodes=0;
- Transport transport=Transport_None;
- Profile  *profile=NULL;
- index_t   start_node=NO_NODE,finish_node=NO_NODE;
- index_t   join_segment=NO_SEGMENT;
- int       arg,point;
+ Nodes     *OSMNodes;
+ Segments  *OSMSegments;
+ Ways      *OSMWays;
+ Relations *OSMRelations;
+ Results   *results[NWAYPOINTS+1]={NULL};
+ int        point_used[NWAYPOINTS+1]={0};
+ double     point_lon[NWAYPOINTS+1],point_lat[NWAYPOINTS+1];
+ double     heading=-999;
+ int        help_profile=0,help_profile_xml=0,help_profile_json=0,help_profile_pl=0;
+ char      *dirname=NULL,*prefix=NULL;
+ char      *profiles=NULL,*profilename=NULL;
+ char      *translations=NULL,*language=NULL;
+ int        exactnodes=0;
+ Transport  transport=Transport_None;
+ Profile   *profile=NULL;
+ index_t    start_node,finish_node=NO_NODE;
+ index_t    join_segment=NO_SEGMENT;
+ int        arg,nresults=0;
+ waypoint_t start_waypoint,finish_waypoint=NO_WAYPOINT,waypoint;
 
  /* Parse the command line arguments */
 
@@ -223,7 +224,9 @@ int main(int argc,char** argv)
        option_quickest=1;
     else if(!strncmp(argv[arg],"--lon",5) && isdigit(argv[arg][5]))
       {
+       int point;
        char *p=&argv[arg][6];
+
        while(isdigit(*p)) p++;
        if(*p++!='=')
           print_usage(0,argv[arg],NULL);
@@ -237,7 +240,9 @@ int main(int argc,char** argv)
       }
     else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]))
       {
+       int point;
        char *p=&argv[arg][6];
+
        while(isdigit(*p)) p++;
        if(*p++!='=')
           print_usage(0,argv[arg],NULL);
@@ -341,8 +346,8 @@ int main(int argc,char** argv)
        print_usage(0,argv[arg],NULL);
    }
 
- for(point=1;point<=NWAYPOINTS;point++)
-    if(point_used[point]==1 || point_used[point]==2)
+ for(waypoint=1;waypoint<=NWAYPOINTS;waypoint++)
+    if(point_used[waypoint]==1 || point_used[waypoint]==2)
        print_usage(0,NULL,"All waypoints must have latitude and longitude.");
 
  /* Print one of the profiles if requested */
@@ -425,42 +430,45 @@ int main(int argc,char** argv)
 
  /* Loop through all pairs of points */
 
- for(point=1;point<=NWAYPOINTS;point++)
+ for(waypoint=1;waypoint<=NWAYPOINTS;waypoint++)
    {
-    Results *begin,*end;
+    Results *begin,*end,*complete=NULL;
     distance_t distmax=km_to_distance(MAXSEARCH);
     distance_t distmin;
     index_t segment=NO_SEGMENT;
     index_t node1,node2;
 
-    if(point_used[point]!=3)
+    if(point_used[waypoint]!=3)
        continue;
 
     /* Find the closest point */
 
     start_node=finish_node;
+    start_waypoint=finish_waypoint;
 
     if(exactnodes)
       {
-       finish_node=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin);
+       finish_node=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[waypoint],point_lon[waypoint],distmax,profile,&distmin);
       }
     else
       {
        distance_t dist1,dist2;
 
-       segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[point],point_lon[point],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2);
+       segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[waypoint],point_lon[waypoint],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2);
 
        if(segment!=NO_SEGMENT)
-          finish_node=CreateFakes(OSMNodes,OSMSegments,point,LookupSegment(OSMSegments,segment,1),node1,node2,dist1,dist2);
+          finish_node=CreateFakes(OSMNodes,OSMSegments,waypoint,LookupSegment(OSMSegments,segment,1),node1,node2,dist1,dist2);
        else
           finish_node=NO_NODE;
       }
 
     if(finish_node==NO_NODE)
       {
-       fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",point);
+       fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",waypoint);
        exit(EXIT_FAILURE);
       }
+
+    finish_waypoint=waypoint;
 
     if(!option_quiet)
       {
@@ -472,10 +480,10 @@ int main(int argc,char** argv)
           GetLatLong(OSMNodes,finish_node,NULL,&lat,&lon);
 
        if(IsFakeNode(finish_node))
-          printf("Point %d is segment %"Pindex_t" (node %"Pindex_t" -> %"Pindex_t"): %3.6f %4.6f = %2.3f km\n",point,segment,node1,node2,
+          printf("Waypoint %d is segment %"Pindex_t" (node %"Pindex_t" -> %"Pindex_t"): %3.6f %4.6f = %2.3f km\n",waypoint,segment,node1,node2,
                  radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
        else
-          printf("Point %d is node %"Pindex_t": %3.6f %4.6f = %2.3f km\n",point,finish_node,
+          printf("Waypoint %d is node %"Pindex_t": %3.6f %4.6f = %2.3f km\n",waypoint,finish_node,
                  radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
       }
 
@@ -497,7 +505,7 @@ int main(int argc,char** argv)
        /* Check if the end of the route was reached */
 
        if(begin->finish_node!=NO_NODE)
-          results[point]=ExtendStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,finish_node);
+          complete=ExtendStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,finish_node);
       }
     else
       {
@@ -516,7 +524,7 @@ int main(int argc,char** argv)
           /* Check if the end of the route was reached */
 
           if(begin->finish_node!=NO_NODE)
-             results[point]=ExtendStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,finish_node);
+             complete=ExtendStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,finish_node);
          }
        else
          {
@@ -527,7 +535,7 @@ int main(int argc,char** argv)
 
     /* Calculate the rest of the route */
 
-    if(!results[point])
+    if(!complete)
       {
        Results *middle;
 
@@ -566,9 +574,9 @@ int main(int argc,char** argv)
           exit(EXIT_FAILURE);
          }
 
-       results[point]=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,middle);
+       complete=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,middle);
 
-       if(!results[point])
+       if(!complete)
          {
           fprintf(stderr,"Error: Cannot create combined route following super-route.\n");
           exit(EXIT_FAILURE);
@@ -580,7 +588,7 @@ int main(int argc,char** argv)
       }
 
 #if DEBUG
-    Result *r=FindResult(results[point],results[point]->start_node,results[point]->prev_segment);
+    Result *r=FindResult(complete,complete->start_node,complete->prev_segment);
 
     printf("The final route is:\n");
 
@@ -592,7 +600,12 @@ int main(int argc,char** argv)
       }
 #endif
 
-    join_segment=results[point]->last_segment;
+    complete->start_waypoint=start_waypoint;
+    complete->finish_waypoint=finish_waypoint;
+
+    join_segment=complete->last_segment;
+
+    results[nresults++]=complete;
    }
 
  if(!option_quiet)
@@ -604,15 +617,14 @@ int main(int argc,char** argv)
  /* Print out the combined route */
 
  if(!option_none)
-    PrintRoute(results,NWAYPOINTS,OSMNodes,OSMSegments,OSMWays,profile);
+    PrintRoute(results,nresults,OSMNodes,OSMSegments,OSMWays,profile);
 
  /* Destroy the remaining results lists and data structures */
 
 #if 0
 
- for(point=1;point<=NWAYPOINTS;point++)
-    if(results[point])
-       FreeResultsList(results[point]);
+ for(waypoint=0;waypoint<=nresults;waypoint++)
+    FreeResultsList(results[waypoint]);
 
  DestroyNodeList(OSMNodes);
  DestroySegmentList(OSMSegments);

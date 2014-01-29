@@ -39,6 +39,9 @@
 #define NWAYPOINTS 99
 
 
+/*+ An undefined waypoint index. +*/
+#define NO_WAYPOINT    ((waypoint_t)~0)
+
 /*+ An undefined node index. +*/
 #define NO_NODE        ((index_t)~0)
 
@@ -126,6 +129,10 @@
 
 
 /* Simple Types */
+
+
+/*+ A waypoint index. +*/
+typedef uint16_t waypoint_t;
 
 
 /*+ A node, segment, way or relation index. +*/

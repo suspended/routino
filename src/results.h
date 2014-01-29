@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -83,6 +83,9 @@ typedef struct _Results
 
  index_t finish_node;           /*+ The finish node. +*/
  index_t last_segment;          /*+ The last segment (to arrive at the finish node). +*/
+
+ waypoint_t start_waypoint;     /*+ The number of the starting waypoint. +*/
+ waypoint_t finish_waypoint;    /*+ The number of the finish waypoint. +*/
 }
  Results;
 
