@@ -213,7 +213,7 @@ router
                  --lon1=<longitude> --lat1=<latitude>
                  --lon2=<longitude> --lon2=<latitude>
                  [ ... --lon99=<longitude> --lon99=<latitude>]
-                 [--reverse]
+                 [--reverse] [--loop]
                  [--heading=<bearing>]
                  [--highway-<highway>=<preference> ...]
                  [--speed-<highway>=<speed> ...]
@@ -341,6 +341,10 @@ router
 
    --reverse
           Find a route between the waypoints in reverse order.
+
+   --loop
+          Find a route that returns to the first waypoint after the last
+          one.
 
    --heading=<bearing>
           Specifies the initial direction of travel at the start of the

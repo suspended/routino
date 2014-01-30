@@ -61,6 +61,7 @@ int option_quickest=0;
 /* Local functions */
 
 static void print_usage(int detail,const char *argerr,const char *err);
+static Results *CalculateRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -81,10 +82,10 @@ int main(int argc,char** argv)
  char      *dirname=NULL,*prefix=NULL;
  char      *profiles=NULL,*profilename=NULL;
  char      *translations=NULL,*language=NULL;
- int        exactnodes=0,reverse=0;
+ int        exactnodes=0,reverse=0,loop=0;
  Transport  transport=Transport_None;
  Profile   *profile=NULL;
- index_t    start_node,finish_node=NO_NODE;
+ index_t    start_node,finish_node=NO_NODE,first_node=NO_NODE;
  index_t    join_segment=NO_SEGMENT;
  int        arg,nresults=0;
  waypoint_t start_waypoint,finish_waypoint=NO_WAYPOINT;
@@ -121,6 +122,8 @@ int main(int argc,char** argv)
        exactnodes=1;
     else if(!strcmp(argv[arg],"--reverse"))
        reverse=1;
+    else if(!strcmp(argv[arg],"--loop"))
+       loop=1;
     else if(!strcmp(argv[arg],"--quiet"))
        option_quiet=1;
     else if(!strcmp(argv[arg],"--loggable"))
@@ -462,11 +465,10 @@ int main(int argc,char** argv)
     inc_dec_waypoint=1;
    }
 
- /* Loop through all pairs of points */
+ /* Loop through all pairs of waypoints */
 
  for(waypoint=first_waypoint;waypoint!=last_waypoint;waypoint+=inc_dec_waypoint)
    {
-    Results *begin,*end,*complete=NULL;
     distance_t distmax=km_to_distance(MAXSEARCH);
     distance_t distmin;
     index_t segment=NO_SEGMENT;
@@ -521,125 +523,42 @@ int main(int argc,char** argv)
                  radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
       }
 
+    /* Check the nodes */
+
     if(start_node==NO_NODE)
        continue;
 
     if(start_node==finish_node)
        continue;
 
+    if(first_node==NO_NODE)
+       first_node=start_node;
+
     if(heading!=-999 && join_segment==NO_SEGMENT)
        join_segment=FindClosestSegmentHeading(OSMNodes,OSMSegments,OSMWays,start_node,heading,profile);
 
-    /* Calculate the beginning of the route */
+    /* Calculate the route */
 
-    begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node);
+    results[nresults]=CalculateRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node);
 
-    if(begin)
-      {
-       /* Check if the end of the route was reached */
+    results[nresults]->start_waypoint=start_waypoint;
+    results[nresults]->finish_waypoint=finish_waypoint;
 
-       if(begin->finish_node!=NO_NODE)
-          complete=ExtendStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,finish_node);
-      }
-    else
-      {
-       if(join_segment!=NO_SEGMENT)
-         {
-          /* Try again but allow a U-turn at the start waypoint -
-             this solves the problem of facing a dead-end that contains no super-nodes. */
+    join_segment=results[nresults]->last_segment;
 
-          join_segment=NO_SEGMENT;
+    nresults++;
+   }
 
-          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,join_segment,finish_node);
-         }
+ /* Finish the loop */
 
-       if(begin)
-         {
-          /* Check if the end of the route was reached */
+ if(loop && finish_node!=NO_NODE)
+   {
+    results[nresults]=CalculateRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,finish_node,join_segment,first_node);
 
-          if(begin->finish_node!=NO_NODE)
-             complete=ExtendStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,finish_node);
-         }
-       else
-         {
-          fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
-          exit(EXIT_FAILURE);
-         }
-      }
+    results[nresults]->start_waypoint=last_waypoint;
+    results[nresults]->finish_waypoint=first_waypoint;
 
-    /* Calculate the rest of the route */
-
-    if(!complete)
-      {
-       Results *middle;
-
-       /* Calculate the end of the route */
-
-       end=FindFinishRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,finish_node);
-
-       if(!end)
-         {
-          fprintf(stderr,"Error: Cannot find final section of route compatible with profile.\n");
-          exit(EXIT_FAILURE);
-         }
-
-       /* Calculate the middle of the route */
-
-       middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
-
-       if(!middle && join_segment!=NO_SEGMENT)
-         {
-          /* Try again but allow a U-turn at the start waypoint -
-             this solves the problem of facing a dead-end that contains some super-nodes. */
-
-          FreeResultsList(begin);
-
-          begin=FindStartRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,start_node,NO_SEGMENT,finish_node);
-
-          if(begin)
-             middle=FindMiddleRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,end);
-         }
-
-       FreeResultsList(end);
-
-       if(!middle)
-         {
-          fprintf(stderr,"Error: Cannot find super-route compatible with profile.\n");
-          exit(EXIT_FAILURE);
-         }
-
-       complete=CombineRoutes(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,begin,middle);
-
-       if(!complete)
-         {
-          fprintf(stderr,"Error: Cannot create combined route following super-route.\n");
-          exit(EXIT_FAILURE);
-         }
-
-       FreeResultsList(begin);
-
-       FreeResultsList(middle);
-      }
-
-#if DEBUG
-    Result *r=FindResult(complete,complete->start_node,complete->prev_segment);
-
-    printf("The final route is:\n");
-
-    while(r)
-      {
-       printf("  node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
-
-       r=r->next;
-      }
-#endif
-
-    complete->start_waypoint=start_waypoint;
-    complete->finish_waypoint=finish_waypoint;
-
-    join_segment=complete->last_segment;
-
-    results[nresults++]=complete;
+    nresults++;
    }
 
  if(!option_quiet)
@@ -668,6 +587,140 @@ int main(int argc,char** argv)
 #endif
 
  return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find a complete route from a specified node to another node.
+
+  Results *CalculateRoute Returns a set of results.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  Relations *relations The set of relations to use.
+
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
+
+  index_t start_node The start node.
+
+  index_t prev_segment The previous segment before the start node.
+
+  index_t finish_node The finish node.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static Results *CalculateRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node)
+{
+ Results *begin,*end,*complete=NULL;
+
+ /* Calculate the beginning of the route */
+
+ begin=FindStartRoutes(nodes,segments,ways,relations,profile,start_node,prev_segment,finish_node);
+
+ if(begin)
+   {
+    /* Check if the end of the route was reached */
+
+    if(begin->finish_node!=NO_NODE)
+       complete=ExtendStartRoutes(nodes,segments,ways,relations,profile,begin,finish_node);
+   }
+ else
+   {
+    if(prev_segment!=NO_SEGMENT)
+      {
+       /* Try again but allow a U-turn at the start waypoint -
+          this solves the problem of facing a dead-end that contains no super-nodes. */
+
+       prev_segment=NO_SEGMENT;
+
+       begin=FindStartRoutes(nodes,segments,ways,relations,profile,start_node,prev_segment,finish_node);
+      }
+
+    if(begin)
+      {
+       /* Check if the end of the route was reached */
+
+       if(begin->finish_node!=NO_NODE)
+          complete=ExtendStartRoutes(nodes,segments,ways,relations,profile,begin,finish_node);
+      }
+    else
+      {
+       fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
+       exit(EXIT_FAILURE);
+      }
+   }
+
+ /* Calculate the rest of the route */
+
+ if(!complete)
+   {
+    Results *middle;
+
+    /* Calculate the end of the route */
+
+    end=FindFinishRoutes(nodes,segments,ways,relations,profile,finish_node);
+
+    if(!end)
+      {
+       fprintf(stderr,"Error: Cannot find final section of route compatible with profile.\n");
+       exit(EXIT_FAILURE);
+      }
+
+    /* Calculate the middle of the route */
+
+    middle=FindMiddleRoute(nodes,segments,ways,relations,profile,begin,end);
+
+    if(!middle && prev_segment!=NO_SEGMENT)
+      {
+       /* Try again but allow a U-turn at the start waypoint -
+          this solves the problem of facing a dead-end that contains some super-nodes. */
+
+       FreeResultsList(begin);
+
+       begin=FindStartRoutes(nodes,segments,ways,relations,profile,start_node,NO_SEGMENT,finish_node);
+
+       if(begin)
+          middle=FindMiddleRoute(nodes,segments,ways,relations,profile,begin,end);
+      }
+
+    FreeResultsList(end);
+
+    if(!middle)
+      {
+       fprintf(stderr,"Error: Cannot find super-route compatible with profile.\n");
+       exit(EXIT_FAILURE);
+      }
+
+    complete=CombineRoutes(nodes,segments,ways,relations,profile,begin,middle);
+
+    if(!complete)
+      {
+       fprintf(stderr,"Error: Cannot create combined route following super-route.\n");
+       exit(EXIT_FAILURE);
+      }
+
+    FreeResultsList(begin);
+
+    FreeResultsList(middle);
+   }
+
+#if DEBUG
+ Result *r=FindResult(complete,complete->start_node,complete->prev_segment);
+
+ printf("The final route is:\n");
+
+ while(r)
+   {
+    printf("  node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
+
+    r=r->next;
+   }
+#endif
+
+ return(complete);
 }
 
 
@@ -701,7 +754,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "              --lon1=<longitude> --lat1=<latitude>\n"
          "              --lon2=<longitude> --lon2=<latitude>\n"
          "              [ ... --lon99=<longitude> --lon99=<latitude>]\n"
-         "              [--reverse]\n"
+         "              [--reverse] [--loop]\n"
          "              [--highway-<highway>=<preference> ...]\n"
          "              [--speed-<highway>=<speed> ...]\n"
          "              [--property-<property>=<preference> ...]\n"
@@ -766,6 +819,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--lat<n>=<latitude>     Specify the latitude of the n'th waypoint.\n"
             "\n"
             "--reverse               Find a route between the waypoints in reverse order.\n"
+            "--loop                  Find a route that returns to the first waypoint.\n"
             "\n"
             "--heading=<bearing>     Initial compass bearing at lowest numbered waypoint.\n"
             "\n"
