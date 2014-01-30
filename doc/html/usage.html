@@ -11,7 +11,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -239,6 +239,7 @@ Usage: router [--help | --help-profile | --help-profile-xml |
               --lon1=&lt;longitude&gt; --lat1=&lt;latitude&gt;
               --lon2=&lt;longitude&gt; --lon2=&lt;latitude&gt;
               [ ... --lon99=&lt;longitude&gt; --lon99=&lt;latitude&gt;]
+              [--reverse]
               [--heading=&lt;bearing&gt;]
               [--highway-&lt;highway&gt;=&lt;preference&gt; ...]
               [--speed-&lt;highway&gt;=&lt;speed&gt; ...]
@@ -341,6 +342,8 @@ Usage: router [--help | --help-profile | --help-profile-xml |
   pass through each of the specified ones in sequence.  The algorithm will use
   the closest node or point within a segment that allows the specified traffic
   type.
+  <dt>--reverse
+  <dd>Find a route between the waypoints in reverse order.
   <dt>--heading=&lt;bearing&gt;
   <dd>Specifies the initial direction of travel at the start of the route (from
   the lowest numbered waypoint) as a compass bearing from 0 to 360 degrees.

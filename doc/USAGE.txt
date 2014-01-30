@@ -213,6 +213,7 @@ router
                  --lon1=<longitude> --lat1=<latitude>
                  --lon2=<longitude> --lon2=<latitude>
                  [ ... --lon99=<longitude> --lon99=<latitude>]
+                 [--reverse]
                  [--heading=<bearing>]
                  [--highway-<highway>=<preference> ...]
                  [--speed-<highway>=<speed> ...]
@@ -337,6 +338,9 @@ router
           the route will pass through each of the specified ones in
           sequence. The algorithm will use the closest node or point
           within a segment that allows the specified traffic type.
+
+   --reverse
+          Find a route between the waypoints in reverse order.
 
    --heading=<bearing>
           Specifies the initial direction of travel at the start of the
@@ -621,4 +625,4 @@ filedumperx
 
 --------
 
-Copyright 2008-2013 Andrew M. Bishop.
+Copyright 2008-2014 Andrew M. Bishop.
