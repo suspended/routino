@@ -81,13 +81,14 @@ int main(int argc,char** argv)
  char      *dirname=NULL,*prefix=NULL;
  char      *profiles=NULL,*profilename=NULL;
  char      *translations=NULL,*language=NULL;
- int        exactnodes=0;
+ int        exactnodes=0,reverse=0;
  Transport  transport=Transport_None;
  Profile   *profile=NULL;
  index_t    start_node,finish_node=NO_NODE;
  index_t    join_segment=NO_SEGMENT;
  int        arg,nresults=0;
- waypoint_t start_waypoint,finish_waypoint=NO_WAYPOINT,waypoint;
+ waypoint_t start_waypoint,finish_waypoint=NO_WAYPOINT;
+ waypoint_t first_waypoint=NWAYPOINTS,last_waypoint=1,inc_dec_waypoint,waypoint;
 
  /* Parse the command line arguments */
 
@@ -118,6 +119,8 @@ int main(int argc,char** argv)
        translations=&argv[arg][15];
     else if(!strcmp(argv[arg],"--exact-nodes-only"))
        exactnodes=1;
+    else if(!strcmp(argv[arg],"--reverse"))
+       reverse=1;
     else if(!strcmp(argv[arg],"--quiet"))
        option_quiet=1;
     else if(!strcmp(argv[arg],"--loggable"))
@@ -237,6 +240,11 @@ int main(int argc,char** argv)
  
        point_lon[point]=degrees_to_radians(atof(p));
        point_used[point]+=1;
+
+       if(point<first_waypoint)
+          first_waypoint=point;
+       if(point>last_waypoint)
+          last_waypoint=point;
       }
     else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]))
       {
@@ -253,6 +261,11 @@ int main(int argc,char** argv)
  
        point_lat[point]=degrees_to_radians(atof(p));
        point_used[point]+=2;
+
+       if(point<first_waypoint)
+          first_waypoint=point;
+       if(point>last_waypoint)
+          last_waypoint=point;
       }
     else if(!strncmp(argv[arg],"--heading=",10))
       {
@@ -428,9 +441,30 @@ int main(int argc,char** argv)
     exit(EXIT_FAILURE);
    }
 
+ /* Check for reverse direction */
+
+ if(reverse)
+   {
+    waypoint_t temp;
+
+    temp=first_waypoint;
+    first_waypoint=last_waypoint;
+    last_waypoint=temp;
+
+    last_waypoint--;
+
+    inc_dec_waypoint=-1;
+   }
+ else
+   {
+    last_waypoint++;
+
+    inc_dec_waypoint=1;
+   }
+
  /* Loop through all pairs of points */
 
- for(waypoint=1;waypoint<=NWAYPOINTS;waypoint++)
+ for(waypoint=first_waypoint;waypoint!=last_waypoint;waypoint+=inc_dec_waypoint)
    {
     Results *begin,*end,*complete=NULL;
     distance_t distmax=km_to_distance(MAXSEARCH);
@@ -667,6 +701,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "              --lon1=<longitude> --lat1=<latitude>\n"
          "              --lon2=<longitude> --lon2=<latitude>\n"
          "              [ ... --lon99=<longitude> --lon99=<latitude>]\n"
+         "              [--reverse]\n"
          "              [--highway-<highway>=<preference> ...]\n"
          "              [--speed-<highway>=<speed> ...]\n"
          "              [--property-<property>=<preference> ...]\n"
@@ -729,6 +764,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "--lon<n>=<longitude>    Specify the longitude of the n'th waypoint.\n"
             "--lat<n>=<latitude>     Specify the latitude of the n'th waypoint.\n"
+            "\n"
+            "--reverse               Find a route between the waypoints in reverse order.\n"
             "\n"
             "--heading=<bearing>     Initial compass bearing at lowest numbered waypoint.\n"
             "\n"
