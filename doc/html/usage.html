@@ -239,7 +239,7 @@ Usage: router [--help | --help-profile | --help-profile-xml |
               --lon1=&lt;longitude&gt; --lat1=&lt;latitude&gt;
               --lon2=&lt;longitude&gt; --lon2=&lt;latitude&gt;
               [ ... --lon99=&lt;longitude&gt; --lon99=&lt;latitude&gt;]
-              [--reverse]
+              [--reverse] [--loop]
               [--heading=&lt;bearing&gt;]
               [--highway-&lt;highway&gt;=&lt;preference&gt; ...]
               [--speed-&lt;highway&gt;=&lt;speed&gt; ...]
@@ -344,6 +344,8 @@ Usage: router [--help | --help-profile | --help-profile-xml |
   type.
   <dt>--reverse
   <dd>Find a route between the waypoints in reverse order.
+  <dt>--loop
+  <dd>Find a route that returns to the first waypoint after the last one.
   <dt>--heading=&lt;bearing&gt;
   <dd>Specifies the initial direction of travel at the start of the route (from
   the lowest numbered waypoint) as a compass bearing from 0 to 360 degrees.
