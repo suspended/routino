@@ -385,36 +385,36 @@ typedef uint8_t length_t;
 
 
 /*+ Conversion of km/hr to speed_t - simple inline function with error checking. +*/
-inline speed_t kph_to_speed(double xxx);
-inline speed_t kph_to_speed(double xxx) { if(xxx>255) return(255); if(xxx<0) return(0); return((speed_t)xxx); }
+inline static speed_t kph_to_speed(double xxx);
+inline static speed_t kph_to_speed(double xxx) { if(xxx>255) return(255); if(xxx<0) return(0); return((speed_t)xxx); }
 
 /*+ Conversion of speed_t to km/hr. +*/
 #define speed_to_kph(xxx)      (int)(xxx)
 
 /*+ Conversion of tonnes to weight_t - simple inline function with error checking. +*/
-inline weight_t tonnes_to_weight(double xxx);
-inline weight_t tonnes_to_weight(double xxx) { if(xxx>51) return(255); if(xxx<0) return(0); return((weight_t)(xxx*5)); }
+inline static weight_t tonnes_to_weight(double xxx);
+inline static weight_t tonnes_to_weight(double xxx) { if(xxx>51) return(255); if(xxx<0) return(0); return((weight_t)(xxx*5)); }
 
 /*+ Conversion of weight_t to tonnes. +*/
 #define weight_to_tonnes(xxx)  ((double)(xxx)/5.0)
 
 /*+ Conversion of metres to height_t - simple inline function with error checking. +*/
-inline height_t metres_to_height(double xxx);
-inline height_t metres_to_height(double xxx) { if(xxx>25.5) return(255); if(xxx<0) return(0); return((height_t)(xxx*10)); }
+inline static height_t metres_to_height(double xxx);
+inline static height_t metres_to_height(double xxx) { if(xxx>25.5) return(255); if(xxx<0) return(0); return((height_t)(xxx*10)); }
 
 /*+ Conversion of height_t to metres. +*/
 #define height_to_metres(xxx)  ((double)(xxx)/10.0)
 
 /*+ Conversion of metres to width_t - simple inline function with error checking. +*/
-inline width_t metres_to_width(double xxx);
-inline width_t metres_to_width(double xxx) { if(xxx>25.5) return(255); if(xxx<0) return(0); return((width_t)(xxx*10)); }
+inline static width_t metres_to_width(double xxx);
+inline static width_t metres_to_width(double xxx) { if(xxx>25.5) return(255); if(xxx<0) return(0); return((width_t)(xxx*10)); }
 
 /*+ Conversion of width_t to metres. +*/
 #define width_to_metres(xxx)   ((double)(xxx)/10.0)
 
 /*+ Conversion of metres to length_t - simple inline function with error checking. +*/
-inline length_t metres_to_length(double xxx);
-inline length_t metres_to_length(double xxx) { if(xxx>25.5) return(255); if(xxx<0) return(0); return((length_t)(xxx*10)); }
+inline static length_t metres_to_length(double xxx);
+inline static length_t metres_to_length(double xxx) { if(xxx>25.5) return(255); if(xxx<0) return(0); return((length_t)(xxx*10)); }
 
 /*+ Conversion of length_t to metres. +*/
 #define length_to_metres(xxx)  ((double)(xxx)/10.0)
