@@ -189,20 +189,20 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
  if(htmlfile)
    {
-    fprintf(htmlfile,"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n");
-    fprintf(htmlfile,"<HTML>\n");
+    fprintf(htmlfile,"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n");
+    fprintf(htmlfile,"<html>\n");
     if(translate_xml_copyright_creator[0] && translate_xml_copyright_creator[1])
        fprintf(htmlfile,"<!-- %s : %s -->\n",translate_xml_copyright_creator[0],translate_xml_copyright_creator[1]);
     if(translate_xml_copyright_source[0] && translate_xml_copyright_source[1])
        fprintf(htmlfile,"<!-- %s : %s -->\n",translate_xml_copyright_source[0],translate_xml_copyright_source[1]);
     if(translate_xml_copyright_license[0] && translate_xml_copyright_license[1])
        fprintf(htmlfile,"<!-- %s : %s -->\n",translate_xml_copyright_license[0],translate_xml_copyright_license[1]);
-    fprintf(htmlfile,"<HEAD>\n");
-    fprintf(htmlfile,"<TITLE>");
+    fprintf(htmlfile,"<head>\n");
+    fprintf(htmlfile,"<title>");
     fprintf(htmlfile,translate_html_title,option_quickest?translate_xml_route_quickest:translate_xml_route_shortest);
-    fprintf(htmlfile,"</TITLE>\n");
-    fprintf(htmlfile,"<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
-    fprintf(htmlfile,"<STYLE type=\"text/css\">\n");
+    fprintf(htmlfile,"</title>\n");
+    fprintf(htmlfile,"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
+    fprintf(htmlfile,"<style type=\"text/css\">\n");
     fprintf(htmlfile,"<!--\n");
     fprintf(htmlfile,"   table   {table-layout: fixed; border: none; border-collapse: collapse;}\n");
     fprintf(htmlfile,"   table.c {color: grey; font-size: x-small;} /* copyright */\n");
@@ -220,12 +220,12 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     fprintf(htmlfile,"   span.t  {font-variant: small-caps;} /* turn */\n");
     fprintf(htmlfile,"   span.b  {font-variant: small-caps;} /* bearing */\n");
     fprintf(htmlfile,"-->\n");
-    fprintf(htmlfile,"</STYLE>\n");
-    fprintf(htmlfile,"</HEAD>\n");
-    fprintf(htmlfile,"<BODY>\n");
-    fprintf(htmlfile,"<H1>");
+    fprintf(htmlfile,"</style>\n");
+    fprintf(htmlfile,"</head>\n");
+    fprintf(htmlfile,"<body>\n");
+    fprintf(htmlfile,"<h1>");
     fprintf(htmlfile,translate_html_title,option_quickest?translate_xml_route_quickest:translate_xml_route_shortest);
-    fprintf(htmlfile,"</H1>\n");
+    fprintf(htmlfile,"</h1>\n");
     fprintf(htmlfile,"<table>\n");
    }
 
@@ -832,8 +832,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        fprintf(htmlfile,"</table>\n");
       }
 
-    fprintf(htmlfile,"</BODY>\n");
-    fprintf(htmlfile,"</HTML>\n");
+    fprintf(htmlfile,"</body>\n");
+    fprintf(htmlfile,"</html>\n");
    }
 
  if(gpxtrackfile)
