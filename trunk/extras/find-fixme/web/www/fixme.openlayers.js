@@ -419,7 +419,7 @@ function runDumpSuccess(response)
       {
        var type=types[t];
 
-       var regexp=RegExp(type + " id=&apos;[0-9]+&apos;");
+       var regexp=RegExp(type + " id=&#39;[0-9]+&#39;");
 
        var match=string.match(regexp);
 
@@ -429,7 +429,7 @@ function runDumpSuccess(response)
 
           var id=match.slice(10+type.length,match.length-6);
 
-          string=string.replace(regexp,type + " id=&apos;<a href='" + mapprops.browseurl + "/" + type + "/" + id + "' target='" + type + id + "'>" + id + "</a>&apos;");
+          string=string.replace(regexp,type + " id=&#39;<a href='" + mapprops.browseurl + "/" + type + "/" + id + "' target='" + type + id + "'>" + id + "</a>&#39;");
          }
       }
    }
