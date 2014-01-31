@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2013 Andrew M. Bishop
+ This file Copyright 2010-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -1293,11 +1293,11 @@ char *ParseXML_Encode_Safe_XML(const char *string)
     for(;j<len && string[i];i++)
        if(string[i]=='\'')
          {
+          /* XML, HTML5 and XHTML1 allow &apos; but HTML4 doesn't. */
           result[j++]='&';
-          result[j++]='a';
-          result[j++]='p';
-          result[j++]='o';
-          result[j++]='s';
+          result[j++]='#';
+          result[j++]='3';
+          result[j++]='9';
           result[j++]=';';
          }
        else if(string[i]=='&')
