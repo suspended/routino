@@ -12,7 +12,8 @@ function map_load(callbacks)
 
  function call_callbacks()
  {
-  eval(callbacks);
+  if(!--pending)
+     eval(callbacks);
  }
 
  /* Javascript loader */
@@ -23,7 +24,7 @@ function map_load(callbacks)
   script.src = url;
   script.type = "text/javascript";
 
-  script.onload = function() { if(!--pending) call_callbacks(); };
+  script.onload = call_callbacks;
 
   pending++;
 
@@ -58,5 +59,5 @@ function map_load(callbacks)
     load_js(location.pathname.replace(/\.html.*/,".openlayers.js"));
    }
 
- if(!--pending) call_callbacks();
+ call_callbacks();
 }
