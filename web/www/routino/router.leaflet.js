@@ -1271,6 +1271,10 @@ function markersReverse()       // called from router.html
 {
  for(var marker=1;marker<=vismarkers/2;marker++)
     markerSwap(marker,vismarkers+1-marker);
+
+ markersmoved=true;
+
+ updateURLs();
 }
 
 
@@ -1290,6 +1294,10 @@ function markersLoop()          // called from router.html
     markerAddForm(++vismarkers);
 
  markerCopy(vismarkers,1);
+
+ markersmoved=true;
+
+ updateURLs();
 }
 
 
@@ -1346,28 +1354,22 @@ var popups={shortest: null, quickest: null};
 var routepoints={shortest: {}, quickest: {}};
 
 //
-// Zoom to a specific item in the route
-//
-
-function zoomTo(type,line)
-{
- var lonlat = L.latLng(routepoints[type][line].lat,routepoints[type][line].lon);
-
- map.setView(lonlat,mapprops.zoomin-2);
-}
-
-
-//
 // Highlight a specific item in the route
 //
 
-function highlight(type,line)
+function highlight(type,line,action)
 {
- if(line==-1)
+ if(action == "clear")
    {
     layerVectors.removeLayer(highlights[type]);
 
     drawPopup(type,null);
+   }
+ else if(action == "zoom")
+   {
+    var lonlat = L.latLng(routepoints[type][line].lat,routepoints[type][line].lon);
+
+    map.setView(lonlat,mapprops.zoomin-2);
    }
  else
    {
@@ -1444,7 +1446,7 @@ function drawPopup(type,html)
     popup.style.display="";
    }
 
- var close="<span style='float: right; cursor: pointer;' onclick='drawPopup("+type+",null)'>X</span>";
+ var close="<span style='float: right; cursor: pointer;' onclick='highlight(\""+type+"\",-1,\"clear\")'>X</span>";
 
  popup.innerHTML=close+html;
 }
@@ -1535,6 +1537,9 @@ function findRoute(type) // called from router.html
  var url="router.cgi" + "?" + buildURLArguments(true) + ";type=" + type;
 
  // Destroy the existing layer(s)
+
+ highlight("shortest",-1,"clear");
+ highlight("quickest",-1,"clear");
 
  if(markersmoved || paramschanged)
    {
@@ -1795,21 +1800,22 @@ function getRouteSuccess(response)
 
  displayStatus(routing_type,"info",points[point-1].total.bold());
 
- var result="<table onmouseout='highlight(\"" + routing_type + "\",-1)'>";
+ var result="<table onmouseout='highlight(\"" + routing_type + "\",-1,\"clear\")'>";
 
  for(var p=0;p<point-1;p++)
    {
     points[p].html += total_table + points[p].total;
 
-    result=result + "<tr onclick='zoomTo(\"" + routing_type + "\"," + p + ")'" +
-                    " onmouseover='highlight(\"" + routing_type + "\"," + p + ")'>" +
-                    "<td class='distance' title='" + points[p].distance + "'>#" + (p+1) +
+    result=result + "<tr onmouseover='highlight(\"" + routing_type + "\"," + p + ",\"show\")'>" +
+                    "<td onclick='highlight(\"" + routing_type + "\"," + p + ",\"zoom\")'" +
+                    " class='distance' title='" + points[p].distance + "'>#" + (p+1) +
                     "<td class='highway'>" + points[p].highway;
    }
 
- result=result + "<tr onclick='zoomTo(\"" + routing_type + "\"," + p + ")'" +
-                 " onmouseover='highlight(\"" + routing_type + "\"," + p + ")'>" +
-                 "<td colspan='2'>" + total_word + " " + points[p].total;
+ result=result + "<tr onmouseover='highlight(\"" + routing_type + "\"," + p + ",\"show\")'>" + 
+                 "<td onclick='highlight(\"" + routing_type + "\"," + p + ",\"zoom\")'" +
+                 " class='distance'>#" + (p+1) +
+                 "<td class='highway'>" + total_word + " " + points[p].total;
 
  result=result + "</table>";
 
@@ -1848,7 +1854,7 @@ function DoSearch(marker)
  url=url + ";latmax=" + format5f(mapbounds.getNorth());
  url=url + ";search=" + encodeURIComponent(search);
 
- ajaxGET(url, runSearchSuccess);
+ ajaxGET(url,runSearchSuccess);
 }
 
 
