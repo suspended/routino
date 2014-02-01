@@ -5,18 +5,27 @@
 
 function map_load(callbacks)
 {
+ var pending=1;
  var head = document.getElementsByTagName("head")[0];
+
+ /* Call the callbacks when everything is loaded. */
+
+ function call_callbacks()
+ {
+  eval(callbacks);
+ }
 
  /* Javascript loader */
 
- function load_js(url,sync)
+ function load_js(url)
  {
   var script = document.createElement("script");
   script.src = url;
   script.type = "text/javascript";
 
-  if(sync===true)
-     script.onload = function() {eval(callbacks);};
+  script.onload = function() { if(!--pending) call_callbacks(); };
+
+  pending++;
 
   head.appendChild(script);
  }
@@ -40,12 +49,14 @@ function map_load(callbacks)
     load_css("../leaflet/leaflet.css");
     load_js("../leaflet/leaflet.js");
 
-    load_js(location.pathname.replace(/\.html.*/,".leaflet.js"),true);
+    load_js(location.pathname.replace(/\.html.*/,".leaflet.js"));
    }
  else
    {
     load_js("../openlayers/OpenLayers.js");
 
-    load_js(location.pathname.replace(/\.html.*/,".openlayers.js"),true);
+    load_js(location.pathname.replace(/\.html.*/,".openlayers.js"));
    }
+
+ if(!--pending) call_callbacks();
 }
