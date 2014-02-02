@@ -833,6 +833,21 @@
           <output k="bicycle" v="yes"/>
           <output k="cyclebothways" v="yes"/>
         </if>
+
+        <if k="cycleway" v="opposite_track">
+          <output k="bicycle" v="yes"/>
+          <output k="cyclebothways" v="yes"/>
+        </if>
+
+        <if k="cycleway" v="opposite">
+          <output k="bicycle" v="yes"/>
+          <output k="cyclebothways" v="yes"/>
+        </if>
+      </if>
+
+      <if k="oneway:bicycle" v="no">
+        <output k="bicycle" v="yes"/>
+        <output k="cyclebothways" v="yes"/>
       </if>
 
       <!-- Specific access rules (to override the generic ones) -->
