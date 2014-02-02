@@ -656,6 +656,10 @@
             <set k="access" v="no"/>
           </if>
 
+          <if k="access" v="bus">
+            <set v="psv" />
+          </if>
+
           <if k="access" v="psv">
             <set k="psv" v="yes"/>
             <logerror k="access" message="using 'access' = 'no' ; 'psv' = 'yes'"/>
