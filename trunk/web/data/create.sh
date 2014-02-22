@@ -1,15 +1,11 @@
 #!/bin/sh -x
 
-# This script can download either from GeoFabrik or Cloudmade.
+# This script can download from the GeoFabrik server.
 
 
 # EDIT THIS to set the names of the files to download from GeoFabrik.
-files="europe/great_britain.osm.bz2 europe/ireland-and-northern-ireland.osm.bz2"
-server="download.geofabrik.de/openstreetmap"
-
-## EDIT THIS to set the names of the files to download from Cloudmade.
-#files="europe/northern_europe/united_kingdom/united_kingdom.osm.bz2 europe/northern_europe/ireland/ireland.osm.bz2"
-#server="downloads.cloudmade.com"
+files="europe/great-britain-latest.osm.bz2 europe/ireland-and-northern-ireland-latest.osm.bz2"
+server="download.geofabrik.de"
 
 
 # Download the files
