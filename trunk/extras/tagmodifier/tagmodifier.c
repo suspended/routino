@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2013 Andrew M. Bishop
+ This file Copyright 2010-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -619,6 +619,9 @@ int main(int argc,char **argv)
  if((p=strstr(filename,".gz")) && !strcmp(p,".gz"))
     fd=Uncompress_Gzip(fd);
 
+ if((p=strstr(filename,".xz")) && !strcmp(p,".xz"))
+    fd=Uncompress_Xz(fd);
+
  /* Create the error log file */
 
  if(errorlog)
@@ -669,6 +672,9 @@ static void print_usage(int detail,const char *argerr,const char *err)
 #if defined(USE_GZIP) && USE_GZIP
          " | <filename.osm.gz>"
 #endif
+#if defined(USE_XZ) && USE_XZ
+         " | <filename.osm.xz>"
+#endif
          "\n");
 
  if(argerr)
@@ -699,6 +705,9 @@ static void print_usage(int detail,const char *argerr,const char *err)
 #endif
 #if defined(USE_GZIP) && USE_GZIP
             "                          Filenames ending '.gz' will be gzip uncompressed.\n"
+#endif
+#if defined(USE_XZ) && USE_XZ
+            "                          Filenames ending '.xz' will be xz uncompressed.\n"
 #endif
             );
 

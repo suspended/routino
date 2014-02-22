@@ -13,7 +13,8 @@ Usage: tagmodifier [--help]
                    [--tagging=<filename>]
                    [--loggable] [--logtime]
                    [--errorlog[<name>]]
-                   [<filename.osm> | <filename.osm.bz2> | <filename.osm.gz>]
+                   [<filename.osm> | <filename.osm.bz2> |
+                    <filename.osm.gz> | <filename.osm.xz>]
 
 --help
        Prints out the help information.
@@ -37,4 +38,5 @@ Usage: tagmodifier [--help]
        Specifies the filename(s) to read data from. Filenames ending
        '.bz2' will be bzip2 uncompressed (if bzip2 support compiled
        in). Filenames ending '.gz' will be gzip uncompressed (if gzip
-       support compiled in).
+       support compiled in). Filenames ending '.xz' will be xz
+       uncompressed (if xz support compiled in).
