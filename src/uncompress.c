@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2012 Andrew M. Bishop
+ This file Copyright 2012-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,10 @@
 #include <zlib.h>
 #endif
 
+#if defined(USE_XZ) && USE_XZ
+#include <lzma.h>
+#endif
+
 #include "logging.h"
 #include "uncompress.h"
 
@@ -47,6 +51,10 @@ static void uncompress_bzip2_pipe(int filefd,int pipefd);
 
 #if defined(USE_GZIP) && USE_GZIP
 static void uncompress_gzip_pipe(int filefd,int pipefd);
+#endif
+
+#if defined(USE_XZ) && USE_XZ
+static void uncompress_xz_pipe(int filefd,int pipefd);
 #endif
 
 
@@ -109,6 +117,37 @@ int Uncompress_Gzip(int filefd)
  return(0);
 
 #endif /* USE_GZIP */
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Create a child process to uncompress data on a file descriptor as if it were a pipe.
+
+  int Uncompress_Xz Returns the file descriptor of the uncompressed end of the pipe.
+
+  int filefd The file descriptor of the compressed end of the pipe.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int Uncompress_Xz(int filefd)
+{
+#if defined(USE_XZ) && USE_XZ
+
+ int pipefd=-1;
+
+ if(pipe_and_fork(filefd,&pipefd))
+    return(pipefd);
+
+ uncompress_xz_pipe(filefd,pipefd);
+
+ exit(EXIT_SUCCESS);
+
+#else /* USE_XZ */
+
+ logassert(0,"No xz compression support available (re-compile and try again)");
+
+ return(0);
+
+#endif /* USE_XZ */
 }
 
 
@@ -334,3 +373,78 @@ static void uncompress_gzip_pipe(int filefd,int pipefd)
 }
 
 #endif /* USE_GZIP */
+
+
+#if defined(USE_XZ) && USE_XZ
+
+/*++++++++++++++++++++++++++++++++++++++
+  Uncompress a file using xz as a pipeline.
+
+  int filefd The incoming, compressed, data.
+
+  int pipefd The outgoing, uncompressed, data.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void uncompress_xz_pipe(int filefd,int pipefd)
+{
+ lzma_stream lzma=LZMA_STREAM_INIT;
+ unsigned char inbuffer[16384],outbuffer[16384];
+ int infinished=0;
+ lzma_ret retval;
+
+ if(lzma_stream_decoder(&lzma,UINT64_MAX,0)!=LZMA_OK)
+    exit(EXIT_FAILURE);
+
+ do
+   {
+    if(lzma.avail_in==0 && !infinished)
+      {
+       ssize_t n=read(filefd,inbuffer,sizeof(inbuffer));
+
+       if(n<=0)
+          infinished=1;
+       else
+         {
+          lzma.next_in=inbuffer;
+          lzma.avail_in=n;
+         }
+      }
+
+    lzma.next_out=outbuffer;
+    lzma.avail_out=sizeof(outbuffer);
+
+    retval=lzma_code(&lzma,LZMA_RUN);
+
+    if(retval!=LZMA_OK && retval!=LZMA_STREAM_END)
+      {
+       exit(EXIT_FAILURE);
+      }
+
+    if(lzma.avail_out<sizeof(outbuffer))
+      {
+       unsigned char *p;
+       ssize_t n,m;
+
+       p=outbuffer;
+       n=sizeof(outbuffer)-lzma.avail_out;
+
+       while(n>0)
+         {
+          m=write(pipefd,p,n);
+
+          if(m<=0)
+             exit(EXIT_FAILURE);
+
+          p+=m;
+          n-=m;
+         }
+      }
+   }
+ while(retval!=LZMA_STREAM_END);
+
+ lzma_end(&lzma);
+
+ exit(EXIT_SUCCESS);
+}
+
+#endif /* USE_XZ */

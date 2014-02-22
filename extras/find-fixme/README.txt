@@ -30,7 +30,8 @@ Usage: fixme-finder [--help]
                      | <filename.pbf> ...
                      | <filename.o5m> ...
                      | <filename.(osm|o5m).bz2> ...
-                     | <filename.(osm|o5m).gz> ...]
+                     | <filename.(osm|o5m).gz> ...
+                     | <filename.(osm|o5m).xz> ...]
 
 --help                    Prints this information.
 
@@ -53,8 +54,11 @@ Usage: fixme-finder [--help]
                           The name(s) of the file(s) to read and parse.
                           Filenames ending '.pbf' read as PBF, filenames ending
                           '.o5m' read as O5M, others as XML.
-                          Filenames ending '.bz2' will be bzip2 uncompressed.
-                          Filenames ending '.gz' will be gzip uncompressed.
+                          Filenames ending '.bz2' will be bzip2 uncompressed (if
+                          bzip2 support compiled in). Filenames ending '.gz'
+                          will be gzip uncompressed (if gzip  support compiled
+                          in). Filenames ending '.xz' will be xz uncompressed
+                          (if xz support compiled in).
 
 
 fixme-dumper

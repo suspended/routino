@@ -89,7 +89,7 @@ Pre-Requisites
    additional development libraries for this may be required (on Linux
    this might be part of the standard C language development files). The
    multi-threading is enabled by default but can be disabled at compile
-   time by commenting out two lines in the file Makefile.conf.
+   time by commenting out two lines in the file 'Makefile.conf'.
 
    To use the built-in gzip file decompression function and to process all
    PBF format files the zlib (or libz) development library is required (on
@@ -102,6 +102,11 @@ Pre-Requisites
    package called libbz2-dev). The bzip2 function is enabled by default
    but can be disabled by commenting out two lines in the file
    'Makefile.conf'.
+
+   To use the built-in xz file decompression functions the liblzma
+   development library is required (on Linux this might be in a package
+   called liblzma-dev). The xz function is not enabled by default but can
+   be enabled by uncommenting two lines in the file 'Makefile.conf'.
 
    To use the web page interface an http server is required. Instructions
    below are for Apache but any server that supports CGIs should work.

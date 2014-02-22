@@ -36,7 +36,8 @@ planetsplitter
                           | <filename.pbf> ...
                           | <filename.o5m> ... | <filename.o5c> ...
                           | <filename.(osm|osc|o5m|o5c).bz2> ...
-                          | <filename.(osm|osc|o5m|o5c).gz> ...]
+                          | <filename.(osm|osc|o5m|o5c).gz> ...
+                          | <filename.(osm|osc|o5m|o5c).xz> ...]
 
    --help
           Prints out the help information.
@@ -144,11 +145,12 @@ planetsplitter
           will be read as O5M/O5C, otherwise as XML. Filenames ending
           '.bz2' will be bzip2 uncompressed (if bzip2 support compiled
           in). Filenames ending '.gz' will be gzip uncompressed (if gzip
-          support compiled in).
+          support compiled in). Filenames ending '.xz' will be xz
+          uncompressed (if xz support compiled in).
 
    Note: In version 2.5 of Routino the ability to read data from the
    standard input has been removed. This is because there is now the
-   ability to read compressed files (bzip2 and gzip) and PBF files
+   ability to read compressed files (bzip2, gzip, xz) and PBF files
    directly. Also using standard input the file type cannot be
    auto-detected from the filename.
 

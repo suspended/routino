@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2012 Andrew M. Bishop
+ This file Copyright 2012-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -26,5 +26,7 @@
 int Uncompress_Bzip2(int filefd);
 
 int Uncompress_Gzip(int filefd);
+
+int Uncompress_Xz(int filefd);
 
 #endif /* UNCOMPRESS_H */
