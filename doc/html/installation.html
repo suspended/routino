@@ -159,17 +159,25 @@ file <tt>Makefile.conf</tt>.
 <p>
 
 There is some support for multi-threading that uses pthreads and additional
-development libraries for this may be required.  The multi-threading can be
-disabled at compile time if required by commenting out a couple of lines in the
+development libraries for this may be required (on Linux this might be part of
+the standard C language development files).  The multi-threading is enabled by
+default but can be disabled at compile time by commenting out two lines in the
 file <tt>Makefile.conf</tt>.
 
 <p>
 
-To use the built-in file decompression functions the zlib (or libz) and bzip2
-(or libbz2) development libraries are also required.  (On Linux systems these
-might be in packages called libz-dev and libbz2-dev).  If these are not
-available the function be disabled by commenting out a couple of lines in the
+To use the built-in gzip file decompression function and to process all PBF
+format files the zlib (or libz) development library is required (on Linux this
+might be in a package called libz-dev).  The gzip function is enabled by default
+but can be disabled by commenting out two lines in the
 file <tt>Makefile.conf</tt>.
+
+<p>
+
+To use the built-in bzip2 file decompression functions the bzip2 (or libbz2)
+development library is required (on Linux this might be in a package called
+libbz2-dev).  The bzip2 function is enabled by default but can be disabled by
+commenting out two lines in the file <tt>Makefile.conf</tt>.
 
 <p>
 
