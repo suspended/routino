@@ -364,13 +364,26 @@ function formSetTransport(value) // called from router.html
 
 function formSetHighway(type,value) // called from router.html (with one argument)
 {
- if(value === undefined)
-    routino.profile_highway[type][routino.transport]=document.forms["form"].elements["highway-" + type].value;
- else
+ if(value == '+')
    {
-    document.forms["form"].elements["highway-" + type].value=value;
-    routino.profile_highway[type][routino.transport]=value;
+    value=routino.profile_highway[type][routino.transport];
+    value=10*Math.floor(value/10)+10;
    }
+ else if(value == '-')
+   {
+    value=routino.profile_highway[type][routino.transport]-10;
+    value=10*Math.ceil(value/10)-10;
+   }
+ else if(value == '=')
+    value=document.forms["form"].elements["highway-" + type].value;
+
+ value=Number(value);
+ if(isNaN(value)) value= 50;
+ if(value>100)    value=100;
+ if(value<  0)    value=  0;
+
+ document.forms["form"].elements["highway-" + type].value=value;
+ routino.profile_highway[type][routino.transport]=value;
 
  paramschanged=true;
 
@@ -384,13 +397,30 @@ function formSetHighway(type,value) // called from router.html (with one argumen
 
 function formSetSpeed(type,value) // called from router.html (with one argument)
 {
- if(value === undefined)
-    routino.profile_speed[type][routino.transport]=document.forms["form"].elements["speed-" + type].value;
- else
+ if(value == '+')
    {
-    document.forms["form"].elements["speed-" + type].value=value;
-    routino.profile_speed[type][routino.transport]=value;
+    value=routino.profile_speed[type][routino.transport];
+    if(value<10) value=2*Math.floor(value/2)+2;
+    else if(value<30) value=5*Math.floor(value/5)+5;
+    else value=10*Math.floor(value/10)+10;
    }
+ else if(value == '-')
+   {
+    value=routino.profile_speed[type][routino.transport];
+    if(value<=10) value=2*Math.ceil(value/2)-2;
+    else if(value<=30) value=5*Math.ceil(value/5)-5;
+    else value=10*Math.ceil(value/10)-10;
+   }
+ else if(value == '=')
+    value=document.forms["form"].elements["speed-" + type].value;
+
+ value=Number(value);
+ if(isNaN(value)) value= 60;
+ if(value>150)    value=150;
+ if(value<  0)    value=  0;
+
+ document.forms["form"].elements["speed-" + type].value=value;
+ routino.profile_speed[type][routino.transport]=value;
 
  paramschanged=true;
 
@@ -404,13 +434,28 @@ function formSetSpeed(type,value) // called from router.html (with one argument)
 
 function formSetProperty(type,value) // called from router.html (with one argument)
 {
- if(value === undefined)
-    routino.profile_property[type][routino.transport]=document.forms["form"].elements["property-" + type].value;
- else
+ if(value == '+')
    {
-    document.forms["form"].elements["property-" + type].value=value;
-    routino.profile_property[type][routino.transport]=value;
+    value=routino.profile_property[type][routino.transport];
+    if(value>=40 && value<60) value=2*Math.floor(value/2)+2;
+    else value=5*Math.floor(value/5)+5;
    }
+ else if(value == '-')
+   {
+    value=routino.profile_property[type][routino.transport];
+    if(value>40 && value<=60) value=2*Math.ceil(value/2)-2;
+    else value=5*Math.ceil(value/5)-5;
+   }
+ else if(value == '=')
+    value=document.forms["form"].elements["property-" + type].value;
+
+ value=Number(value);
+ if(isNaN(value)) value= 50;
+ if(value>100)    value=100;
+ if(value<  0)    value=  0;
+
+ document.forms["form"].elements["property-" + type].value=value;
+ routino.profile_property[type][routino.transport]=value;
 
  paramschanged=true;
 
@@ -424,20 +469,47 @@ function formSetProperty(type,value) // called from router.html (with one argume
 
 function formSetRestriction(type,value) // called from router.html (with one argument)
 {
- if(value === undefined)
+ if(type=="oneway" || type=="turns")
    {
-    if(type=="oneway" || type=="turns")
+    if(value === undefined)
        routino.profile_restrictions[type][routino.transport]=document.forms["form"].elements["restrict-" + type].checked;
     else
-       routino.profile_restrictions[type][routino.transport]=document.forms["form"].elements["restrict-" + type].value;
-   }
- else
-   {
-    if(type=="oneway" || type=="turns")
        document.forms["form"].elements["restrict-" + type].checked=value;
-    else
-       document.forms["form"].elements["restrict-" + type].value=value;
 
+    routino.profile_restrictions[type][routino.transport]=value;
+   }
+ else if(type=="weight")
+   {
+    if(value == '+')
+       value=routino.profile_restrictions[type][routino.transport]+5;
+    else if(value == '-')
+       value=routino.profile_restrictions[type][routino.transport]-5;
+    else if(value == '=')
+       value=document.forms["form"].elements["restrict-" + type].value;
+
+    value=Number(value);
+    if(isNaN(value)) value= 0;
+    if(value>50)     value=50;
+    if(value< 0)     value= 0;
+
+    document.forms["form"].elements["restrict-" + type].value=value;
+    routino.profile_restrictions[type][routino.transport]=value;
+   }
+ else /* if(type=="height" || type=="width" || type=="length") */
+   {
+    if(value == '+')
+       value=routino.profile_restrictions[type][routino.transport]+1;
+    else if(value == '-')
+       value=routino.profile_restrictions[type][routino.transport]-1;
+    else if(value == '=')
+       value=document.forms["form"].elements["restrict-" + type].value;
+
+    value=Number(value);
+    if(isNaN(value)) value= 0;
+    if(value>25)     value=25;
+    if(value< 0)     value= 0;
+
+    document.forms["form"].elements["restrict-" + type].value=value;
     routino.profile_restrictions[type][routino.transport]=value;
    }
 

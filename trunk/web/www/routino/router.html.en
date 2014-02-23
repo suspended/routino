@@ -182,19 +182,19 @@
         <span class="hideshow_title">Highway Preferences</span>
         <div id="hideshow_highway_div" style="display: none;">
           <table>
-            <tr><td>Motorway:    <td><input name="highway-motorway"     type="text" size=3 onchange="formSetHighway('motorway'    );"><td>%
-            <tr><td>Trunk:       <td><input name="highway-trunk"        type="text" size=3 onchange="formSetHighway('trunk'       );"><td>%
-            <tr><td>Primary:     <td><input name="highway-primary"      type="text" size=3 onchange="formSetHighway('primary'     );"><td>%
-            <tr><td>Secondary:   <td><input name="highway-secondary"    type="text" size=3 onchange="formSetHighway('secondary'   );"><td>%
-            <tr><td>Tertiary:    <td><input name="highway-tertiary"     type="text" size=3 onchange="formSetHighway('tertiary'    );"><td>%
-            <tr><td>Unclassified:<td><input name="highway-unclassified" type="text" size=3 onchange="formSetHighway('unclassified');"><td>%
-            <tr><td>Residential: <td><input name="highway-residential"  type="text" size=3 onchange="formSetHighway('residential' );"><td>%
-            <tr><td>Service:     <td><input name="highway-service"      type="text" size=3 onchange="formSetHighway('service'     );"><td>%
-            <tr><td>Track:       <td><input name="highway-track"        type="text" size=3 onchange="formSetHighway('track'       );"><td>%
-            <tr><td>Cycleway:    <td><input name="highway-cycleway"     type="text" size=3 onchange="formSetHighway('cycleway'    );"><td>%
-            <tr><td>Path:        <td><input name="highway-path"         type="text" size=3 onchange="formSetHighway('path'        );"><td>%
-            <tr><td>Steps:       <td><input name="highway-steps"        type="text" size=3 onchange="formSetHighway('steps'       );"><td>%
-            <tr><td>Ferry:       <td><input name="highway-ferry"        type="text" size=3 onchange="formSetHighway('ferry'       );"><td>%
+            <tr><td>Motorway:    <td><input name="highway-motorway"     type="text" size="3" onchange="formSetHighway('motorway'    ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('motorway'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('motorway'    ,'+');">
+            <tr><td>Trunk:       <td><input name="highway-trunk"        type="text" size="3" onchange="formSetHighway('trunk'       ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('trunk'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('trunk'       ,'+');">
+            <tr><td>Primary:     <td><input name="highway-primary"      type="text" size="3" onchange="formSetHighway('primary'     ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('primary'     ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('primary'     ,'+');">
+            <tr><td>Secondary:   <td><input name="highway-secondary"    type="text" size="3" onchange="formSetHighway('secondary'   ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('secondary'   ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('secondary'   ,'+');">
+            <tr><td>Tertiary:    <td><input name="highway-tertiary"     type="text" size="3" onchange="formSetHighway('tertiary'    ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('tertiary'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('tertiary'    ,'+');">
+            <tr><td>Unclassified:<td><input name="highway-unclassified" type="text" size="3" onchange="formSetHighway('unclassified','=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('unclassified','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('unclassified','+');">
+            <tr><td>Residential: <td><input name="highway-residential"  type="text" size="3" onchange="formSetHighway('residential' ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('residential' ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('residential' ,'+');">
+            <tr><td>Service:     <td><input name="highway-service"      type="text" size="3" onchange="formSetHighway('service'     ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('service'     ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('service'     ,'+');">
+            <tr><td>Track:       <td><input name="highway-track"        type="text" size="3" onchange="formSetHighway('track'       ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('track'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('track'       ,'+');">
+            <tr><td>Cycleway:    <td><input name="highway-cycleway"     type="text" size="3" onchange="formSetHighway('cycleway'    ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('cycleway'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('cycleway'    ,'+');">
+            <tr><td>Path:        <td><input name="highway-path"         type="text" size="3" onchange="formSetHighway('path'        ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('path'        ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('path'        ,'+');">
+            <tr><td>Steps:       <td><input name="highway-steps"        type="text" size="3" onchange="formSetHighway('steps'       ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('steps'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('steps'       ,'+');">
+            <tr><td>Ferry:       <td><input name="highway-ferry"        type="text" size="3" onchange="formSetHighway('ferry'       ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('ferry'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('ferry'       ,'+');">
           </table>
         </div>
       </div>
@@ -205,19 +205,19 @@
         <span class="hideshow_title">Speed Limits</span>
         <div id="hideshow_speed_div" style="display: none;">
           <table>
-            <tr><td>Motorway:    <td><input name="speed-motorway"     type="text" size=3 onchange="formSetSpeed('motorway'    );"><td>km/hr
-            <tr><td>Trunk:       <td><input name="speed-trunk"        type="text" size=3 onchange="formSetSpeed('trunk'       );"><td>km/hr
-            <tr><td>Primary:     <td><input name="speed-primary"      type="text" size=3 onchange="formSetSpeed('primary'     );"><td>km/hr
-            <tr><td>Secondary:   <td><input name="speed-secondary"    type="text" size=3 onchange="formSetSpeed('secondary'   );"><td>km/hr
-            <tr><td>Tertiary:    <td><input name="speed-tertiary"     type="text" size=3 onchange="formSetSpeed('tertiary'    );"><td>km/hr
-            <tr><td>Unclassified:<td><input name="speed-unclassified" type="text" size=3 onchange="formSetSpeed('unclassified');"><td>km/hr
-            <tr><td>Residential: <td><input name="speed-residential"  type="text" size=3 onchange="formSetSpeed('residential' );"><td>km/hr
-            <tr><td>Service:     <td><input name="speed-service"      type="text" size=3 onchange="formSetSpeed('service'     );"><td>km/hr
-            <tr><td>Track:       <td><input name="speed-track"        type="text" size=3 onchange="formSetSpeed('track'       );"><td>km/hr
-            <tr><td>Cycleway:    <td><input name="speed-cycleway"     type="text" size=3 onchange="formSetSpeed('cycleway'    );"><td>km/hr
-            <tr><td>Path:        <td><input name="speed-path"         type="text" size=3 onchange="formSetSpeed('path'        );"><td>km/hr
-            <tr><td>Steps:       <td><input name="speed-steps"        type="text" size=3 onchange="formSetSpeed('steps'       );"><td>km/hr
-            <tr><td>Ferry:       <td><input name="speed-ferry"        type="text" size=3 onchange="formSetSpeed('ferry'       );"><td>km/hr
+            <tr><td>Motorway:    <td><input name="speed-motorway"     type="text" size="3" onchange="formSetSpeed('motorway'    ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('motorway'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('motorway'    ,'+');">
+            <tr><td>Trunk:       <td><input name="speed-trunk"        type="text" size="3" onchange="formSetSpeed('trunk'       ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('trunk'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('trunk'       ,'+');">
+            <tr><td>Primary:     <td><input name="speed-primary"      type="text" size="3" onchange="formSetSpeed('primary'     ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('primary'     ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('primary'     ,'+');">
+            <tr><td>Secondary:   <td><input name="speed-secondary"    type="text" size="3" onchange="formSetSpeed('secondary'   ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('secondary'   ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('secondary'   ,'+');">
+            <tr><td>Tertiary:    <td><input name="speed-tertiary"     type="text" size="3" onchange="formSetSpeed('tertiary'    ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('tertiary'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('tertiary'    ,'+');">
+            <tr><td>Unclassified:<td><input name="speed-unclassified" type="text" size="3" onchange="formSetSpeed('unclassified','=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('unclassified','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('unclassified','+');">
+            <tr><td>Residential: <td><input name="speed-residential"  type="text" size="3" onchange="formSetSpeed('residential' ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('residential' ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('residential' ,'+');">
+            <tr><td>Service:     <td><input name="speed-service"      type="text" size="3" onchange="formSetSpeed('service'     ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('service'     ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('service'     ,'+');">
+            <tr><td>Track:       <td><input name="speed-track"        type="text" size="3" onchange="formSetSpeed('track'       ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('track'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('track'       ,'+');">
+            <tr><td>Cycleway:    <td><input name="speed-cycleway"     type="text" size="3" onchange="formSetSpeed('cycleway'    ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('cycleway'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('cycleway'    ,'+');">
+            <tr><td>Path:        <td><input name="speed-path"         type="text" size="3" onchange="formSetSpeed('path'        ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('path'        ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('path'        ,'+');">
+            <tr><td>Steps:       <td><input name="speed-steps"        type="text" size="3" onchange="formSetSpeed('steps'       ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('steps'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('steps'       ,'+');">
+            <tr><td>Ferry:       <td><input name="speed-ferry"        type="text" size="3" onchange="formSetSpeed('ferry'       ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('ferry'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('ferry'       ,'+');">
           </table>
         </div>
       </div>
@@ -228,12 +228,12 @@
         <span class="hideshow_title">Property Preferences</span>
         <div id="hideshow_property_div" style="display: none;">
           <table>
-            <tr><td>Paved:         <td><input name="property-paved"        type="text" size=3 onchange="formSetProperty('paved'       );"><td>%
-            <tr><td>Multiple Lanes:<td><input name="property-multilane"    type="text" size=3 onchange="formSetProperty('multilane'   );"><td>%
-            <tr><td>Bridge:        <td><input name="property-bridge"       type="text" size=3 onchange="formSetProperty('bridge'      );"><td>%
-            <tr><td>Tunnel:        <td><input name="property-tunnel"       type="text" size=3 onchange="formSetProperty('tunnel'      );"><td>%
-            <tr><td>Walking Route: <td><input name="property-footroute"    type="text" size=3 onchange="formSetProperty('footroute'   );"><td>%
-            <tr><td>Bicycle Route: <td><input name="property-bicycleroute" type="text" size=3 onchange="formSetProperty('bicycleroute');"><td>%
+            <tr><td>Paved:         <td><input name="property-paved"        type="text" size="3" onchange="formSetProperty('paved'       ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('paved'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('paved'       ,'+');">
+            <tr><td>Multiple Lanes:<td><input name="property-multilane"    type="text" size="3" onchange="formSetProperty('multilane'   ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('multilane'   ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('multilane'   ,'+');">
+            <tr><td>Bridge:        <td><input name="property-bridge"       type="text" size="3" onchange="formSetProperty('bridge'      ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('bridge'      ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('bridge'      ,'+');">
+            <tr><td>Tunnel:        <td><input name="property-tunnel"       type="text" size="3" onchange="formSetProperty('tunnel'      ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('tunnel'      ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('tunnel'      ,'+');">
+            <tr><td>Walking Route: <td><input name="property-footroute"    type="text" size="3" onchange="formSetProperty('footroute'   ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('footroute'   ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('footroute'   ,'+');">
+            <tr><td>Bicycle Route: <td><input name="property-bicycleroute" type="text" size="3" onchange="formSetProperty('bicycleroute','=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('bicycleroute','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('bicycleroute','+');">
           </table>
         </div>
       </div>
@@ -244,12 +244,14 @@
         <span class="hideshow_title">Other Restrictions</span>
         <div id="hideshow_restriction_div" style="display: none;">
           <table>
-            <tr><td>Obey oneway:<td><input name="restrict-oneway" type="checkbox"    onchange="formSetRestriction('oneway');"><td>
-            <tr><td>Obey turns: <td><input name="restrict-turns"  type="checkbox"    onchange="formSetRestriction('turns' );"><td>
-            <tr><td>Weight:     <td><input name="restrict-weight" type="text" size=3 onchange="formSetRestriction('weight');"><td>tonnes
-            <tr><td>Height:     <td><input name="restrict-height" type="text" size=3 onchange="formSetRestriction('height');"><td>metres
-            <tr><td>Width:      <td><input name="restrict-width"  type="text" size=3 onchange="formSetRestriction('width' );"><td>metres
-            <tr><td>Length:     <td><input name="restrict-length" type="text" size=3 onchange="formSetRestriction('length');"><td>metres
+            <tr><td>Obey oneway streets:   <td><input name="restrict-oneway" type="checkbox" onchange="formSetRestriction('oneway');">
+            <tr><td>Obey turn restrictions:<td><input name="restrict-turns"  type="checkbox" onchange="formSetRestriction('turns' );">
+          </table>
+          <table>
+            <tr><td>Weight:<td><input name="restrict-weight" type="text" size="3" onchange="formSetRestriction('weight','=');"><td>tonnes<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetRestriction('weight','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetRestriction('weight','+');">
+            <tr><td>Height:<td><input name="restrict-height" type="text" size="3" onchange="formSetRestriction('height','=');"><td>metres<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetRestriction('height','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetRestriction('height','+');">
+            <tr><td>Width: <td><input name="restrict-width"  type="text" size="3" onchange="formSetRestriction('width' ,'=');"><td>metres<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetRestriction('width' ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetRestriction('width' ,'+');">
+            <tr><td>Length:<td><input name="restrict-length" type="text" size="3" onchange="formSetRestriction('length','=');"><td>metres<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetRestriction('length','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetRestriction('length','+');">
           </table>
         </div>
       </div>
