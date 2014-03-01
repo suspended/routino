@@ -115,10 +115,6 @@ function map_init()             // called from visualiser.html
                             numZoomLevels: mapprops.zoomin-mapprops.zoomout+1,
                             maxResolution: 156543.03390625 / Math.pow(2,mapprops.zoomout),
 
-                            // These two lines are not needed with OpenLayers 2.12
-                            units: "m",
-                            maxExtent:        new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34),
-
                             restrictedExtent: new OpenLayers.Bounds(mapprops.westedge,mapprops.southedge,mapprops.eastedge,mapprops.northedge).transform(epsg4326,epsg900913)
                            });
 
