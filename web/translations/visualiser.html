@@ -1,0 +1,424 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="openstreetmap routino verifier">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+
+<title>Routino : @@VISUALISER-TITLE@@</title>
+
+<!--
+ Routino data visualiser web page.
+
+ Part of the Routino routing software.
+
+ This file Copyright 2008-2014 Andrew M. Bishop
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see http://www.gnu.org/licenses/.
+-->
+
+<!-- Page elements -->
+<script src="page-elements.js" type="text/javascript"></script>
+<link href="page-elements.css" type="text/css" rel="stylesheet">
+
+<!-- Router and visualiser shared features -->
+<link href="maplayout.css" type="text/css" rel="stylesheet">
+
+<!-- Visualiser specific features -->
+<script src="mapprops.js" type="text/javascript"></script>
+<link href="visualiser.css" type="text/css" rel="stylesheet">
+
+<!-- Map parameters -->
+<script src="mapprops.js" type="text/javascript"></script>
+
+<!-- Map loader -->
+<script src="maploader.js" type="text/javascript"></script>
+
+</head>
+<body onload="map_load('map_init();');">
+
+<!-- Left hand side of window - data panel -->
+
+<div class="left_panel">
+
+  <div class="tab_box">
+    <span id="tab_visualiser" onclick="tab_select('visualiser');" class="tab_selected"   title="Select data options">Visualiser</span>
+    <span id="tab_router"     onclick="tab_select('router');"     class="tab_unselected" title="Plan a route">Router</span>
+    <span id="tab_data"       onclick="tab_select('data');"       class="tab_unselected" title="View database information">Data</span>
+  </div>
+
+  <div class="tab_content" id="tab_visualiser_div">
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">@@VISUALISER-BOX@@</span>
+      @@VISUALISER-INFO@@
+      <div class="center">
+        <a target="other" href="http://www.routino.org/">@@ROUTINO-WEBSITE@@</a>
+        |
+        <a target="other" href="documentation/">@@DOCUMENTATION@@</a>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_language_show" onclick="hideshow_show('language');" class="hideshow_show">+</span>
+      <span id="hideshow_language_hide" onclick="hideshow_hide('language');" class="hideshow_hide">-</span>
+      <span class="hideshow_title">@@LANGUAGE-BOX@@</span>
+
+      <div id="hideshow_language_div" style="display: none;">
+        <table>
+          $$LANGUAGES-META$$
+          <tr>
+            <td><a id="lang_xx_url" href="visualiser.html.xx" title="@@LANGUAGE-WEBPAGE@@">@@LANGUAGE@@</a>
+            <td>(XX)
+          $$LANGUAGES-META$$
+        </table>
+        <a target="translation" href="http://www.routino.org/translations/">Routino Translations</a>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">@@INSTRUCTIONS-BOX@@</span>
+      @@VISUALISER-INSTRUCTIONS@@
+    </div>
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">@@STATUS-BOX@@</span>
+      <div id="result_status">
+        <div id="result_status_no_data">
+          <b><i>@@NO-DATA-DISPLAYED@@</i></b>
+        </div>
+        <div id="result_status_data"      style="display: none;">
+        </div>
+        <div id="result_status_failed"    style="display: none;">
+          <b>@@VISUALISER-FAILED@@</b>
+        </div>
+        <div id="result_status_junctions" style="display: none;">
+          <b>@@VISUALISER-NUM-JUNCTIONS@@</b>
+        </div>
+        <div id="result_status_super"     style="display: none;">
+          <b>@@VISUALISER-NUM-SUPER@@</b>
+        </div>
+        <div id="result_status_oneway"    style="display: none;">
+          <b>@@VISUALISER-NUM-ONEWAY@@</b>
+        </div>
+        <div id="result_status_highway"   style="display: none;">
+          <b>@@VISUALISER-NUM-SEGMENTS@@</b>
+        </div>
+        <div id="result_status_transport" style="display: none;">
+          <b>@@VISUALISER-NUM-SEGMENTS@@</b>
+        </div>
+        <div id="result_status_barrier"   style="display: none;">
+          <b>@@VISUALISER-NUM-NODES@@</b>
+        </div>
+        <div id="result_status_turns"     style="display: none;">
+          <b>@@VISUALISER-NUM-TURNS@@</b>
+        </div>
+        <div id="result_status_limit"     style="display: none;">
+          <b>@@VISUALISER-NUM-LIMITS@@</b>
+        </div>
+        <div id="result_status_property"  style="display: none;">
+          <b>@@VISUALISER-NUM-SEGMENTS@@</b>
+        </div>
+        <div id="result_status_errorlogs" style="display: none;">
+          <b>@@VISUALISER-NUM-ERRORS@@</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_junctions_show" onclick="hideshow_show('junctions');" class="hideshow_show">+</span>
+      <span id="hideshow_junctions_hide" onclick="hideshow_hide('junctions');" class="hideshow_hide">-</span>
+      <input type="button" id="junctions" onclick="displayData('junctions');" value="@@JUNCTIONS-BUTTON@@">
+      <div id="hideshow_junctions_div" style="display: none;">
+        @@JUNCTIONS-INFO@@
+        <br>
+        <table>
+          <tr><td><img src="icons/ball-1.png" alt="1" ><td>@@JUNCTIONS-1@@
+          <tr><td><img src="icons/ball-2.png" alt="2" ><td>@@JUNCTIONS-2@@
+          <tr><td><img src="icons/ball-3.png" alt="3" ><td>@@JUNCTIONS-3@@
+          <tr><td><img src="icons/ball-4.png" alt="4" ><td>@@JUNCTIONS-4@@
+          <tr><td><img src="icons/ball-5.png" alt="5" ><td>@@JUNCTIONS-5@@
+          <tr><td><img src="icons/ball-6.png" alt="6" ><td>@@JUNCTIONS-6@@
+          <tr><td><img src="icons/ball-7.png" alt="7+"><td>@@JUNCTIONS-MORE@@
+        </table>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_super_show" onclick="hideshow_show('super');" class="hideshow_show">+</span>
+      <span id="hideshow_super_hide" onclick="hideshow_hide('super');" class="hideshow_hide">-</span>
+      <input type="button" id="super" onclick="displayData('super');" value="@@SUPER-BUTTON@@">
+      <div id="hideshow_super_div" style="display: none;">
+        @@SUPER-INFO@@
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_oneway_show" onclick="hideshow_show('oneway');" class="hideshow_show">+</span>
+      <span id="hideshow_oneway_hide" onclick="hideshow_hide('oneway');" class="hideshow_hide">-</span>
+      <input type="button" id="oneway" onclick="displayData('oneway');" value="@@ONEWAY-BUTTON@@">
+      <div id="hideshow_oneway_div" style="display: none;">
+        @@ONEWAY-INFO@@
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_highway_show" onclick="hideshow_show('highway');" class="hideshow_show">+</span>
+      <span id="hideshow_highway_hide" onclick="hideshow_hide('highway');" class="hideshow_hide">-</span>
+      <input type="button" id="highway" onclick="displayData('highway');" value="@@HIGHWAY-BUTTON@@">
+      <div id="hideshow_highway_div" style="display: none;">
+        @@HIGHWAY-INFO@@
+        <form name="highways" id="highways" action="#" method="get" onsubmit="return false;">
+          <table>
+            <tr><td>@@HIGHWAY-MOTORWAY@@:    <td><input name="highway" type="radio" value="motorway"     onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-TRUNK@@:       <td><input name="highway" type="radio" value="trunk"        onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-PRIMARY@@:     <td><input name="highway" type="radio" value="primary"      onchange="displayData('highway');" checked>
+            <tr><td>@@HIGHWAY-SECONDARY@@:   <td><input name="highway" type="radio" value="secondary"    onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-TERTIARY@@:    <td><input name="highway" type="radio" value="tertiary"     onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-UNCLASSIFIED@@:<td><input name="highway" type="radio" value="unclassified" onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-RESIDENTIAL@@: <td><input name="highway" type="radio" value="residential"  onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-SERVICE@@:     <td><input name="highway" type="radio" value="service"      onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-TRACK@@:       <td><input name="highway" type="radio" value="track"        onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-CYCLEWAY@@:    <td><input name="highway" type="radio" value="cycleway"     onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-PATH@@:        <td><input name="highway" type="radio" value="path"         onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-STEPS@@:       <td><input name="highway" type="radio" value="steps"        onchange="displayData('highway');">
+            <tr><td>@@HIGHWAY-FERRY@@:       <td><input name="highway" type="radio" value="ferry"        onchange="displayData('highway');">
+          </table>
+        </form>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_transport_show" onclick="hideshow_show('transport');" class="hideshow_show">+</span>
+      <span id="hideshow_transport_hide" onclick="hideshow_hide('transport');" class="hideshow_hide">-</span>
+      <input type="button" id="transport" onclick="displayData('transport');" value="@@TRANSPORT-BUTTON@@">
+      <div id="hideshow_transport_div" style="display: none;">
+        @@TRANSPORT-INFO@@
+        <form name="transports" id="transports" action="#" method="get" onsubmit="return false;">
+          <table>
+            <tr><td>@@TRANSPORT-FOOT@@:      <td><input name="transport" type="radio" value="foot"       onchange="displayData('transport');">
+            <tr><td>@@TRANSPORT-HORSE@@:     <td><input name="transport" type="radio" value="horse"      onchange="displayData('transport');">
+            <tr><td>@@TRANSPORT-WHEELCHAIR@@:<td><input name="transport" type="radio" value="wheelchair" onchange="displayData('transport');">
+            <tr><td>@@TRANSPORT-BICYCLE@@:   <td><input name="transport" type="radio" value="bicycle"    onchange="displayData('transport');">
+            <tr><td>@@TRANSPORT-MOPED@@:     <td><input name="transport" type="radio" value="moped"      onchange="displayData('transport');">
+            <tr><td>@@TRANSPORT-MOTORCYCLE@@:<td><input name="transport" type="radio" value="motorcycle" onchange="displayData('transport');">
+            <tr><td>@@TRANSPORT-MOTORCAR@@:  <td><input name="transport" type="radio" value="motorcar"   onchange="displayData('transport');" checked>
+            <tr><td>@@TRANSPORT-GOODS@@:     <td><input name="transport" type="radio" value="goods"      onchange="displayData('transport');">
+            <tr><td>@@TRANSPORT-HGV@@:       <td><input name="transport" type="radio" value="hgv"        onchange="displayData('transport');">
+            <tr><td>@@TRANSPORT-PSV@@:       <td><input name="transport" type="radio" value="psv"        onchange="displayData('transport');">
+          </table>
+        </form>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_barrier_show" onclick="hideshow_show('barrier');" class="hideshow_show">+</span>
+      <span id="hideshow_barrier_hide" onclick="hideshow_hide('barrier');" class="hideshow_hide">-</span>
+      <input type="button" id="barrier" onclick="displayData('barrier');" value="@@BARRIER-BUTTON@@">
+      <div id="hideshow_barrier_div" style="display: none;">
+        @@BARRIER-INFO@@
+        <form name="barriers" id="barriers" action="#" method="get" onsubmit="return false;">
+          <table>
+            <tr><td>@@TRANSPORT-FOOT@@:      <td><input name="barrier" type="radio" value="foot"       onchange="displayData('barrier');">
+            <tr><td>@@TRANSPORT-HORSE@@:     <td><input name="barrier" type="radio" value="horse"      onchange="displayData('barrier');">
+            <tr><td>@@TRANSPORT-WHEELCHAIR@@:<td><input name="barrier" type="radio" value="wheelchair" onchange="displayData('barrier');">
+            <tr><td>@@TRANSPORT-BICYCLE@@:   <td><input name="barrier" type="radio" value="bicycle"    onchange="displayData('barrier');">
+            <tr><td>@@TRANSPORT-MOPED@@:     <td><input name="barrier" type="radio" value="moped"      onchange="displayData('barrier');">
+            <tr><td>@@TRANSPORT-MOTORCYCLE@@:<td><input name="barrier" type="radio" value="motorcycle" onchange="displayData('barrier');">
+            <tr><td>@@TRANSPORT-MOTORCAR@@:  <td><input name="barrier" type="radio" value="motorcar"   onchange="displayData('barrier');" checked>
+            <tr><td>@@TRANSPORT-GOODS@@:     <td><input name="barrier" type="radio" value="goods"      onchange="displayData('barrier');">
+            <tr><td>@@TRANSPORT-HGV@@:       <td><input name="barrier" type="radio" value="hgv"        onchange="displayData('barrier');">
+            <tr><td>@@TRANSPORT-PSV@@:       <td><input name="barrier" type="radio" value="psv"        onchange="displayData('barrier');">
+          </table>
+        </form>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_turns_show" onclick="hideshow_show('turns');" class="hideshow_show">+</span>
+      <span id="hideshow_turns_hide" onclick="hideshow_hide('turns');" class="hideshow_hide">-</span>
+      <input type="button" id="turns" onclick="displayData('turns');" value="@@TURNS-BUTTON@@">
+      <div id="hideshow_turns_div" style="display: none;">
+        @@TURNS-INFO@@
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_speed_show" onclick="hideshow_show('speed');" class="hideshow_show">+</span>
+      <span id="hideshow_speed_hide" onclick="hideshow_hide('speed');" class="hideshow_hide">-</span>
+      <input type="button" id="speed" onclick="displayData('speed');" value="@@SPEED-BUTTON@@">
+      <div id="hideshow_speed_div" style="display: none;">
+        @@SPEED-INFO@@
+        <br>
+        <table>
+          <tr><td><img src="icons/ball-1.png"   alt="."   ><td>@@LIMIT-CHANGE@@
+          <tr><td><img src="icons/limit-no.png" alt="()"  ><td>@@LIMIT-NONE@@
+          <tr><td><img src="icons/limit-80.png" alt="(80)"><td>@@SPEED-LIMIT-80@@
+        </table>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_weight_show" onclick="hideshow_show('weight');" class="hideshow_show">+</span>
+      <span id="hideshow_weight_hide" onclick="hideshow_hide('weight');" class="hideshow_hide">-</span>
+      <input type="button" id="weight" onclick="displayData('weight');" value="@@WEIGHT-BUTTON@@">
+      <div id="hideshow_weight_div" style="display: none;">
+        @@WEIGHT-INFO@@
+        <br>
+        <table>
+          <tr><td><img src="icons/ball-1.png"    alt="."    ><td>@@LIMIT-CHANGE@@
+          <tr><td><img src="icons/limit-no.png"  alt="()"   ><td>@@LIMIT-NONE@@
+          <tr><td><img src="icons/limit-8.0.png" alt="(8.0)"><td>@@WEIGHT-LIMIT-8@@
+        </table>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_height_show" onclick="hideshow_show('height');" class="hideshow_show">+</span>
+      <span id="hideshow_height_hide" onclick="hideshow_hide('height');" class="hideshow_hide">-</span>
+      <input type="button" id="height" onclick="displayData('height');" value="@@HEIGHT-BUTTON@@">
+      <div id="hideshow_height_div" style="display: none;">
+        @@HEIGHT-INFO@@
+        <br>
+        <table>
+          <tr><td><img src="icons/ball-1.png"    alt="."    ><td>@@LIMIT-CHANGE@@
+          <tr><td><img src="icons/limit-no.png"  alt="()"   ><td>@@LIMIT-NONE@@
+          <tr><td><img src="icons/limit-4.0.png" alt="(4.0)"><td>@@HEIGHT-LIMIT-4@@
+        </table>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_width_show" onclick="hideshow_show('width');" class="hideshow_show">+</span>
+      <span id="hideshow_width_hide" onclick="hideshow_hide('width');" class="hideshow_hide">-</span>
+      <input type="button" id="width" onclick="displayData('width');" value="@@WIDTH-BUTTON@@">
+      <div id="hideshow_width_div" style="display: none;">
+        @@WIDTH-INFO@@
+        <br>
+        <table>
+          <tr><td><img src="icons/ball-1.png"    alt="."    ><td>@@LIMIT-CHANGE@@
+          <tr><td><img src="icons/limit-no.png"  alt="()"   ><td>@@LIMIT-NONE@@
+          <tr><td><img src="icons/limit-3.0.png" alt="(3.0)"><td>@@WIDTH-LIMIT-3@@
+        </table>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_length_show" onclick="hideshow_show('length');" class="hideshow_show">+</span>
+      <span id="hideshow_length_hide" onclick="hideshow_hide('length');" class="hideshow_hide">-</span>
+      <input type="button" id="length" onclick="displayData('length');" value="@@LENGTH-BUTTON@@">
+      <div id="hideshow_length_div" style="display: none;">
+        @@LENGTH-INFO@@
+        <br>
+        <table>
+          <tr><td><img src="icons/ball-1.png"    alt="."    ><td>@@LIMIT-CHANGE@@
+          <tr><td><img src="icons/limit-no.png"  alt="()"   ><td>@@LIMIT-NONE@@
+          <tr><td><img src="icons/limit-9.0.png" alt="(9.0)"><td>@@LENGTH-LIMIT-9@@
+        </table>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_property_show" onclick="hideshow_show('property');" class="hideshow_show">+</span>
+      <span id="hideshow_property_hide" onclick="hideshow_hide('property');" class="hideshow_hide">-</span>
+      <input type="button" id="property" onclick="displayData('property');" value="@@PROPERTY-BUTTON@@">
+      <div id="hideshow_property_div" style="display: none;">
+        @@PROPERTY-INFO@@
+        <form name="properties" id="properties" action="#" method="get" onsubmit="return false;">
+          <table>
+            <tr><td>@@PROPERTY-PAVED@@:         <td><input name="property" type="radio" value="paved"         onchange="displayData('property');" checked>
+            <tr><td>@@PROPERTY-MULTILANE@@:     <td><input name="property" type="radio" value="multilane"     onchange="displayData('property');">
+            <tr><td>@@PROPERTY-BRIDGE@@:        <td><input name="property" type="radio" value="bridge"        onchange="displayData('property');">
+            <tr><td>@@PROPERTY-TUNNEL@@:        <td><input name="property" type="radio" value="tunnel"        onchange="displayData('property');">
+            <tr><td>@@PROPERTY-WALKINGROUTE@@:  <td><input name="property" type="radio" value="footroute"     onchange="displayData('property');">
+            <tr><td>@@PROPERTY-BICYCLEROUTE@@:  <td><input name="property" type="radio" value="bicycleroute"  onchange="displayData('property');">
+            <tr><td>@@PROPERTY-CYCLE-BOTHWAYS@@:<td><input name="property" type="radio" value="cyclebothways" onchange="displayData('property');">
+          </table>
+        </form>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_errorlogs_show" onclick="hideshow_show('errorlogs');" class="hideshow_show">+</span>
+      <span id="hideshow_errorlogs_hide" onclick="hideshow_hide('errorlogs');" class="hideshow_hide">-</span>
+      <input type="button" id="errorlogs" onclick="displayData('errorlogs');" value="@@ERROR-LOG-BUTTON@@">
+      <div id="hideshow_errorlogs_div" style="display: none;">
+        @@ERROR-LOG-INFO@@
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <input type="button" id="clear" onclick="displayData('');" value="@@CLEAR-DATA-BUTTON@@">
+    </div>
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">@@LINKS-BOX@@</span>
+      <a id="permalink_url" href="visualiser.html">@@MAP-VIEW-LINK@@</a>
+      <br>
+      <a id="edit_url" target="edit" style="display: none;">@@EDIT-OSM-DATA@@</a>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_help_options_show" onclick="hideshow_show('help_options');" class="hideshow_hide">+</span>
+      <span id="hideshow_help_options_hide" onclick="hideshow_hide('help_options');" class="hideshow_show">-</span>
+      <span class="hideshow_title">@@HELP-BOX@@</span>
+      <div id="hideshow_help_options_div">
+        <div class="scrollable">
+          @@VISUALISER-HELP@@
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab_content" id="tab_router_div" style="display: none;">
+    <div class="hideshow_box">
+      <span class="hideshow_title">@@ROUTER-BOX@@</span>
+      @@VISUALISER-ROUTER-INFO@@
+      <br>
+      <a id="router_url" href="router.html" target="router">@@MAP-VIEW-LINK@@</a>
+    </div>
+  </div>
+
+  <div class="tab_content" id="tab_data_div" style="display: none;">
+    <div class="hideshow_box">
+      <span class="hideshow_title">@@STATISTICS-BOX@@</span>
+      <div id="statistics_data"></div>
+      <a id="statistics_link" href="statistics.cgi" onclick="displayStatistics();return(false);">@@DISPLAY-STATISTICS@@</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Right hand side of window - map -->
+
+<div class="right_panel">
+  <div class="map" id="map">
+    <noscript>
+      <p>
+        @@JAVASCRIPT-REQUIRED@@
+    </noscript>
+  </div>
+  <div class="attribution">
+    @@ROUTER@@: <a href="http://www.routino.org/" target="routino">Routino</a>
+    |
+    @@GEO-DATA@@: <span id="attribution_data"></span>
+    |
+    @@TILES@@: <span id="attribution_tile"></span>
+  </div>
+</div>
+
+</body>
+
+</html>

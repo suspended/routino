@@ -1,0 +1,206 @@
+#
+# Dutch language web-page translation phrases
+#
+
+@@LANGUAGE@@	Nederlands
+@@LANGUAGE-WEBPAGE@@	Nederlandse web pagina
+
+#
+# Router (and some shared) translations
+#
+
+@@OPTION-TAB@@	Opties
+
+@@RESULTS-TAB@@	Resultaten
+
+@@DATA-TAB@@	Data
+
+@@LANGUAGE-BOX@@	Taal
+@@WAYPOINTS-BOX@@	Coordinaten
+@@TRANSPORT-TYPE-BOX@@	Transport Type
+@@HIGHWAY-PREFERENCES-BOX@@	Voorkeur Wegtype
+@@SPEED-LIMITS-BOX@@	Snelheidslimieten
+@@PROPERTY-PREFERENCES-BOX@@	Weg Eigenschappen
+@@OTHER-RESTRICTIONS-BOX@@	Andere Beperkingen
+@@FIND-BOX@@	Zoek Route
+@@LINKS-BOX@@	Links
+@@HELP-BOX@@	Help
+
+@@STATUS-BOX@@	Status
+@@SHORTEST-ROUTE@@	Kortste Route
+@@QUICKEST-ROUTE@@	Snelste Route
+
+@@WAYPOINT-POSITION@@	Waypoint XXX Position - (click voor plaatsen/verwijderen op map)
+@@WAYPOINT-UP@@	Beweeg dit punt naar boven
+@@WAYPOINT-ADD@@	Voeg hierna punt toe
+@@WAYPOINT-HOME@@	Toggle als thuis locatie
+@@WAYPOINT-CENTRE2@@	Centreer dit punt op map
+@@WAYPOINT-DOWN@@	Beweeg dit punt naar beneden
+@@WAYPOINT-REMOVE@@	Verwijder dit punt
+@@WAYPOINT-REVERSE@@	Keer volgorde punten om
+@@WAYPOINT-REVERSE-BUTTON@@	Keer volgorde punten om
+
+@@TRANSPORT-FOOT@@	Te voet
+@@TRANSPORT-HORSE@@	Paard
+@@TRANSPORT-WHEELCHAIR@@	Rolstoel
+@@TRANSPORT-BICYCLE@@	Fiets
+@@TRANSPORT-MOPED@@	Brommer
+@@TRANSPORT-MOTORCYCLE@@	Motorfiets
+@@TRANSPORT-MOTORCAR@@	Auto
+@@TRANSPORT-GOODS@@	Goederen
+@@TRANSPORT-HGV@@	Zwaar transport
+@@TRANSPORT-PSV@@	Publiek transport
+
+@@HIGHWAY-MOTORWAY@@	Autostrade
+@@HIGHWAY-TRUNK@@	Autoweg
+@@HIGHWAY-PRIMARY@@	Provinciale wegen
+@@HIGHWAY-SECONDARY@@	Nationale wegen
+@@HIGHWAY-TERTIARY@@	Doorgangsweg
+@@HIGHWAY-UNCLASSIFIED@@	Niet geclassificeerd
+@@HIGHWAY-RESIDENTIAL@@	Woongebied
+@@HIGHWAY-SERVICE@@	Toegangsweg
+@@HIGHWAY-TRACK@@	Veldweg
+@@HIGHWAY-CYCLEWAY@@	Fietspad
+@@HIGHWAY-PATH@@	Pad
+@@HIGHWAY-STEPS@@	Trap
+@@HIGHWAY-FERRY@@	Ferry
+
+@@PROPERTY-PAVED@@	Verhard
+@@PROPERTY-MULTILANE@@	Meerdere Stroken
+@@PROPERTY-BRIDGE@@	Brug
+@@PROPERTY-TUNNEL@@	Tunnel
+
+@@RESTRICT-ONEWAY@@	Volg Eenrichtingsverkeer
+@@RESTRICT-WEIGHT@@	Gewicht
+@@RESTRICT-HEIGHT@@	Hoogte
+@@RESTRICT-WIDTH@@	Breedte
+@@RESTRICT-LENGTH@@	Lengte
+
+@@FIND-SHORTEST-ROUTE@@	Zoek de kortste route
+@@FIND-QUICKEST-ROUTE@@	Zoek de snelste route
+
+@@EDIT-OSM-DATA@@	Lees hoe je OSM data kan inbrengen
+
+@@ROUTER-NOT-RUN@@	Router niet in gebruik
+@@ROUTER-RUNNING@@	Router werkt...
+@@ROUTER-COMPLETED@@	Routing voltooid
+@@ROUTER-ERROR@@	Router error
+@@ROUTER-FAILED@@	Router werkt niet
+
+@@HTML-ROUTE@@	HTML directions
+@@GPX-TRACK-ROUTE@@	GPX track bestand
+@@GPX-ROUTE@@	GPX route bestand
+@@FULL-TEXT-ROUTE@@	Full text bestand
+@@TEXT-ROUTE@@	Text bestand
+
+#
+# Visualiser specific translations
+#
+
+#
+# Multi-line descriptive translations (router)
+#
+
+$$ROUTER-INFO$$
+Zoom naar straatniveau.
+Selecteer start- and eindpunten onder Coordinaten. (click op het marker
+icoon links, schuif het op map naar gewenste positie).
+$$ROUTER-INFO$$
+
+$$ROUTER-OPTIONS-HELP$$
+<b>Quick Start</b>
+<br>
+Click op marker-icoontje (Waypoints) om ze op de map te plaatsen (rechts).
+Sleep ze vervolgens naar de gewenste positie. 
+Het is best om eerst naar straat niveau te zoomen op de kaart. 
+Selecteer het transport type, toegestane weg-types,
+snelheidslimieten, wegeigenschappen en andere restricties uit de
+opties.
+Selecteer  "Kortste" of "Snelste" om de route te berekenen en te tekenen op de map. 
+<p>
+<b>Coordinaten (Waypoints)</b>
+<br>
+Click op het marker icoontje, nog eens clicken voor aan/uit.
+Wanneer de route berekend wordt, zal dit nauwkeurig aansluiten bij de volgorde van deze punten. (rekening houdend met transport type)
+<p>
+<b>Transport Type</b>
+<br>
+Wanneer je een bepaald transport type kiest wordt bij berekenen
+route hiermede rekening gehouden.
+Het transport type bestaat uit een lijst met default waarden voor
+ieder wegtype.
+Deze percentages kunnen ook nog eens manueel aangepast worden.
+<p>
+<b>Voorkeur Wegtype</b>
+<br>
+De voorkeur voor een bepaald type weg wordt uitgedrukt in een percentage.  
+Bijvoorbeeld wanneer u het Transport Type "Fiets" kiest, dan zal er
+voor Autostrade 0% staan, en voor Fietspad 100%.
+Wanneer u Autowegen, Nationale wegen wil vermijden of beperken bij
+het maken van een fietsroute, kan u percentage naar beneden
+aanpassen.
+<p>
+<b>Snelheid limieten</b>
+<br>
+De snelheidslimieten worden afgeleid van het type weg. Het is
+mogelijk dat er voor een bepaalde weg andere beperkingen gelden. In
+dat geval worden die gekoezen. (het geval dat deze lager zijn dan de
+default)
+<p>
+<b>Weg Eigenschappen</b>
+<br>
+Voor het berekenen van de route, kan de de voorkeur gegeven worden
+aan een bepaalde wegeigenschap.
+Wanneer u kiest voor 25% verhard, zal er automatisch de voorkeur aan
+75% onverhard worden gegeven.
+Ook al is het onverharde stuk 3 X langer, toch kan er dan de
+voorkeur aan gegeven worden.
+<p>
+<b>Andere Beperkingen</b>
+<br>
+Deze zullen toelaten dat er een route berekend wordt die rekening
+houdt met gewicht, hoogte, breedte of lengte.
+Het is ook mogelijk geen rekening te houden met eenrichtingsverkeer
+(bijvoorbeeld als voetganger of fietser)
+$$ROUTER-OPTIONS-HELP$$
+
+$$ROUTER-RESULTS-HELP$$
+<b>Quick Start</b>
+<br>
+Na het berekenen van een route, kan het GPX bestand, of de beschrijving als tekstbestand downloaden.
+Door met muis over de beschrijving te bewegen, ziet u die ook op de kaart gesitueerd.
+<p>
+<b>Problem Solving</b>
+<br>
+Als de router eindigt met een fout, dan is de meest waarschijnlijke
+oorzaak, dat er geen route mogelijk is tussen de gekozen punten.
+Het verplaatsen van de punten, of het aanpassen van weg-eigenschappen
+of voertuigtype kan een oplossing bieden.
+<p>
+<b>Output Formats</b>
+<br>
+<dl>
+  <dt>HTML instructies
+  <dd>Een beschrijving van de route, met de te nemen afslag aan iedere splitsing.
+  <dt>GPX track bestand
+  <dd>Dezelfde informatie die op de kaart wordt weergegeven. Met
+    coordinaten voor ieder knooppunt, en een track voor ieder segment.
+  <dt>GPX route bestand
+  <dd>Dezelfde informatie dat is opgenomen in de tekst van de route,
+    met een coordinaat voor iedere belangrijke splitsing.
+  <dt>Full text bestand
+  <dd>Een lijst met alle coordinaten, met de afstand hier tussen. En
+    een cumulatieve afstand voor iedere stap op de route.
+  <dt>Text bestand
+  <dd>Dezelfde informatie als wordt weergegeven in de tekst voor de route.
+</dl>
+$$ROUTER-RESULTS-HELP$$
+
+$$ROUTER-VISUALISER-INFO$$
+Om te kijken hoe Routino omgaat met de basisdata,
+is er een tooltje dat de onderliggende data toont op verschillende manieren.
+$$ROUTER-VISUALISER-INFO$$
+
+#
+# Multi-line descriptive translations (visualiser)
+#

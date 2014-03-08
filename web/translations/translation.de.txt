@@ -1,0 +1,204 @@
+#
+# German language web-page translation phrases
+#
+
+@@LANGUAGE@@	Deutsche
+@@LANGUAGE-WEBPAGE@@	Deutsche Webseite
+
+#
+# Router (and some shared) translations
+#
+
+@@ROUTER-TITLE@@	Routen Planer f&uuml;r OpenStreetMap Daten
+
+@@OPTION-TAB@@	Optionen
+@@OPTION-TAB-HELP@@	Setze Routing-Optionen
+
+@@RESULTS-TAB@@	Ergebnisse
+@@RESULTS-TAB-HELP@@	Sieh die Ergebnisse
+
+@@DATA-TAB@@	Daten
+@@DATA-TAB-HELP@@	Sieh die Datenbankinformationen
+
+@@ROUTINO-ROUTER@@	Routino OpenStreetMap Router
+@@ROUTINO-WEBSITE@@	Routino Website
+@@DOCUMENTATION@@	Dokumentation
+
+@@LANGUAGE-BOX@@	Sprache
+@@WAYPOINTS-BOX@@	Wegpunkte
+@@TRANSPORT-TYPE-BOX@@	Fortbewegungsart
+@@HIGHWAY-PREFERENCES-BOX@@	Vorgaben zur Wegnutzung
+@@SPEED-LIMITS-BOX@@	Geschwindigkeitsvorgaben
+@@PROPERTY-PREFERENCES-BOX@@	Vorgaben zur Wegbeschaffenheit
+@@OTHER-RESTRICTIONS-BOX@@	andere Vorgaben
+@@FIND-BOX@@	Suche
+@@LINKS-BOX@@	Links
+@@HELP-BOX@@	Hilfe
+
+@@STATUS-BOX@@	Status
+@@SHORTEST-ROUTE@@	k&uuml;rzester Weg
+@@QUICKEST-ROUTE@@	schnellste Route
+@@STATISTICS-BOX@@	Routino Statistik
+@@VISUALISER-BOX@@	Routino Ansichten
+
+@@WAYPOINT-REVERSE@@	R&uuml;ckw&auml;rts
+@@WAYPOINT-REVERSE-BUTTON@@	R&uuml;ckw&auml;rts
+
+@@TRANSPORT-FOOT@@	Fu&szlig;g&auml;nger
+@@TRANSPORT-HORSE@@	Reiter
+@@TRANSPORT-WHEELCHAIR@@	Rollstuhl
+@@TRANSPORT-BICYCLE@@	Fahrrad
+@@TRANSPORT-MOPED@@	Moped
+@@TRANSPORT-MOTORCYCLE@@	Motorrad
+@@TRANSPORT-MOTORCAR@@	Auto
+@@TRANSPORT-GOODS@@	LKW
+@@TRANSPORT-HGV@@	Schwertransport
+@@TRANSPORT-PSV@@	Personenverkehr
+
+@@HIGHWAY-MOTORWAY@@	Autobahn
+@@HIGHWAY-TRUNK@@	Schnellstra&szlig;e
+@@HIGHWAY-PRIMARY@@	Bundesstra&szlig;e
+@@HIGHWAY-SECONDARY@@	Landesstra&szlig;e
+@@HIGHWAY-TERTIARY@@	Hauptstra&szlig;e
+@@HIGHWAY-UNCLASSIFIED@@	Stra&szlig;e
+@@HIGHWAY-RESIDENTIAL@@	Wohnstra&szlig;e
+@@HIGHWAY-SERVICE@@	Zufahrtsweg
+@@HIGHWAY-TRACK@@	Feld-(Wald-)weg
+@@HIGHWAY-CYCLEWAY@@	Fahrradweg
+@@HIGHWAY-PATH@@	Weg
+@@HIGHWAY-STEPS@@	Fu&szlig;weg
+@@HIGHWAY-FERRY@@	F&auml;hre
+
+@@PROPERTY-PAVED@@	befestigt
+@@PROPERTY-MULTILANE@@	mehrspurig
+@@PROPERTY-BRIDGE@@	Br&uuml;cken
+@@PROPERTY-TUNNEL@@	Tunnel
+@@PROPERTY-WALKINGROUTE@@	Wanderweg
+@@PROPERTY-BICYCLEROUTE@@	Radweg
+
+@@RESTRICT-ONEWAY@@	beachte Einbahnstra&szlig;en
+@@RESTRICT-TURNS@@	beachte Abbiegeverbot
+@@RESTRICT-WEIGHT@@	Gewicht
+@@RESTRICT-HEIGHT@@	H&ouml;he
+@@RESTRICT-WIDTH@@	Breite
+@@RESTRICT-LENGTH@@	L&auml;nge
+
+@@MAP-VIEW-LINK@@	anpassen dieser Kartenansicht
+@@EDIT-OSM-DATA@@	Bearbeitet die OSM-Daten
+
+@@ROUTER-NOT-RUN@@	Router l&auml;uft nicht
+@@ROUTER-RUNNING@@	Router l&auml;uft...
+@@ROUTER-COMPLETED@@	Routing fertig
+@@ROUTER-ERROR@@	Router Fehler
+@@ROUTER-FAILED@@	Router funktioniert nicht
+@@VIEW-DETAILS@@	zeige Details
+
+@@NO-INFORMATION@@	keine Information
+@@HTML-ROUTE@@	HTML
+@@GPX-TRACK-ROUTE@@	GPX Track-Datei
+@@GPX-ROUTE@@	GPX Routen-Datei
+@@FULL-TEXT-ROUTE@@	Volltext-Datei
+@@TEXT-ROUTE@@	Text-Datei
+@@OPEN-POPUP@@	&ouml;ffne Popup
+
+@@DISPLAY-STATISTICS@@	zeige die Statistik
+
+#
+# Visualiser specific translations
+#
+
+#
+# Multi-line descriptive translations (router)
+#
+
+$$ROUTER-INFO$$
+Diese Website erlaubt Routing mit den Daten, die OpenStreetMap gesammelt hat.
+W&auml;hle Start- und Endpunkt (klicke auf die Marker-Symbole unten), w&auml;hle die Routing-Vorgaben und dann finde den Weg.
+$$ROUTER-INFO$$
+
+$$ROUTER-OPTIONS-HELP$$
+<b>Schnellanleitung</b>
+<br>
+Klicke auf die Marker-Bildchen (oben), um sie in der Mitte der Karte (rechts) zu positionieren. Dann 
+ziehe das Bildchen auf die genaue Position. Das Zoomen der Karte vor der Patzierung ist vermutlich am einfachsten.
+Alternativ kann man die geografische Breite und L&auml;nge in den K&auml;stchen eintragen.
+<p>
+W&auml;hle die Fortbewegungsart, die Vorgaben zur Wegnutzung, die Geschwindigkeitsvorgaben, 
+die Vorgaben zur Wegbeschaffenheit und die anderen Vorgaben von den obigen Auswahlfeldern.
+Ein Klick auf "k&uuml;rzeste" oder "schnellste" ermittelt die entsprechende Verbindung und zeigt sie in der Karte an.
+<p>
+<b>Wegpunkte</b>
+<br>
+Ein Klick auf das Marker-Bildchen (oben) schaltet die Sichbarkeit in der Karte ein bzw. aus.
+Die Berechnung Route erfolgt in der Reihenfolge der Wegpunkte (so gut, wie es f&uuml;r die 
+gew&auml;hlte Fortbewegungsart m&ouml;glich ist).
+<p>
+<b>Fortbewegungsart</b>
+<br>
+Die Auswahl der Fortbewegungsart bestimmt die bei der Routenberechnung erlaubten Wegtypen und die 
+Vorgabeeinstellungen aller anderen Parameter.
+<p>
+<b>Vorgaben zur Wegnutzung</b>
+<br>
+Die Vorgaben zur Wegnutzung bestimmen die Priorisierung von Wegarten.
+Wenn z. B. Schnellstra&szlig;en mit 110% und Bundesstra&szlig;en mit 100% angegeben werden, wird 
+bei zwei m&ouml;glichen Wegwahlen die Schnellstra&szlig;e solange bevorzugt wird, wie der 
+L&auml;ngen(oder Zeit-)unterschied 10% nicht &uuml;berschreitet.
+<p>
+<b>Geschwindigkeitsvorgaben</b>
+<br>
+Die hier geannten Geschwindigkeiten werden f&uuml;r den jeweiligen Wegtyp finden Anwendung wenn keine
+andere Geschwindkeitsbegrenzung mit geringerem Wert bekannt ist.
+<p>
+<b>Vorgaben zur Wegbeschaffenheit</b>
+<br>
+Die Vorgaben zur Wegbeschaffenheit werden als Prozentangaben verwendet, um die Verh&auml;ltnisse 
+der Wegbenutzung zu steuern.
+Wenn z. B. befestigte Wege mit 75% angegeben sind, werden unbefestigte automatisch mit 25% angenommen, so
+werden Wege ausgew&auml;hlt, die mindestens drei mal l&auml;nger auf befestigten Wegen verlaufen.
+<p>
+<b>andere Vorgaben</b>
+<br>
+Die Ber&uuml;cksichtigung von Benutzungs-Begrenzungen durch Gewicht, H&ouml;he, L&auml;nge und 
+Breite ist m&ouml;glich. Genauso k&ouml;nnen Einbahnstra&szlig;enbeschr&auml;kungen ignoriert werden 
+(z. B. als Fu&szlig;g&auml;nger). 
+$$ROUTER-OPTIONS-HELP$$
+
+$$ROUTER-RESULTS-HELP$$
+<b>Schnellanleitung</b>
+<br>
+Nach der Routenberechnung kann man eine GPX oder eine einfache Textdatei (Kurz- oder Langfassung)
+herunterladen. Ebenso kann man die Routenbeschreibung ansehen und in ausgew&auml;lte Bereiche zoomen.
+<p>
+<b>Probleml&ouml;sung</b>
+<br>
+Wenn der Router einen Fehler meldet liegt es meistens daran, dass kein Weg zwischen den gew&auml;lten Punkten unter
+Beachtung der Vorgaben gefunden werden kann. Das Bewegen eines oder mehrere Punkte oder das ver&auml;ndern von
+Vorgaben sollte es erlauben eine Route zu finden.
+<p>
+<b>Ausgabe-Formate</b>
+<br>
+<dl>
+  <dt>HTMLs
+  <dd>Eine Beschreibung der Route mit Anweisungen f&uuml;r jede wichtige Abzweigung.
+  <dt>GPX Track-Datei
+  <dd>Die gleichen Informationen, die in der Karte angezeigt werden mit Punkten f&uuml;r jeden Abzweig 
+  und Linien f&uuml;r jedes Teilst&uuml;ck.
+  <dt>GPX Routen-Datei
+  <dd>Die gleichen Informationen, die im Text angezeigt werden mit einem Wegpunkt f&uuml;r 
+  jede wichtige Richtungs&auml;nderung.
+  <dt>Volltext-Datei
+  <dd>Eine aller Knoten und die Abst&auml;nde zwischen ihnen, sowie die Gesamtentfernung vom i
+      Startpunkt zum jeweiligen Konten.
+  <dt>Text-Datei
+  <dd>Die gleiche Information, die als Text angezeigt wird.
+</dl>
+$$ROUTER-RESULTS-HELP$$
+
+$$ROUTER-VISUALISER-INFO$$
+Die Anzeige der Daten kann auf verschiedene Weise angepasst werden.	
+$$ROUTER-VISUALISER-INFO$$
+
+#
+# Multi-line descriptive translations (visualiser)
+#

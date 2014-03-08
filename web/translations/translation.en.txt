@@ -1,0 +1,390 @@
+#
+# English language web-page translation phrases
+#
+
+@@LANGUAGE@@	English
+@@LANGUAGE-WEBPAGE@@	English language webpage
+
+#
+# Router (and some shared) translations
+#
+
+@@ROUTER-TITLE@@	Route Planner for OpenStreetMap Data
+
+@@OPTION-TAB@@	Options
+@@OPTION-TAB-HELP@@	Set routing options
+
+@@RESULTS-TAB@@	Results
+@@RESULTS-TAB-HELP@@	See routing results
+
+@@DATA-TAB@@	Data
+@@DATA-TAB-HELP@@	View database information
+
+@@ROUTINO-ROUTER@@	Routino OpenStreetMap Router
+@@ROUTINO-WEBSITE@@	Routino Website
+@@DOCUMENTATION@@	Documentation
+
+@@LANGUAGE-BOX@@	Language
+@@WAYPOINTS-BOX@@	Waypoints
+@@TRANSPORT-TYPE-BOX@@	Transport Type
+@@HIGHWAY-PREFERENCES-BOX@@	Highway Preferences
+@@SPEED-LIMITS-BOX@@	Speed Limits
+@@PROPERTY-PREFERENCES-BOX@@	Property Preferences
+@@OTHER-RESTRICTIONS-BOX@@	Other Restrictions
+@@FIND-BOX@@	Find
+@@LINKS-BOX@@	Links
+@@HELP-BOX@@	Help
+
+@@STATUS-BOX@@	Status
+@@SHORTEST-ROUTE@@	Shortest Route
+@@QUICKEST-ROUTE@@	Quickest Route
+
+@@STATISTICS-BOX@@	Routino Statistics
+@@VISUALISER-BOX@@	Routino Visualiser
+
+@@WAYPOINT-POSITION@@	Waypoint XXX Position - (click to add/remove on map)
+@@WAYPOINT-LONGITUDE@@	Waypoint XXX Longitude
+@@WAYPOINT-LATITUDE@@	Waypoint XXX Latitude
+@@WAYPOINT-LOCATION@@	Waypoint XXX Location
+@@WAYPOINT-SEARCH@@	Search for location
+@@WAYPOINT-GET@@	Get current location
+@@WAYPOINT-CENTRE1@@	Centre map on this waypoint
+@@WAYPOINT-UP@@	Move this waypoint up
+@@WAYPOINT-ADD@@	Add waypoint after this one
+@@WAYPOINT-COORDS@@	Coordinates for location
+@@WAYPOINT-HOME@@	Toggle as home location
+@@WAYPOINT-CENTRE2@@	Centre this waypoint on map
+@@WAYPOINT-DOWN@@	Move this waypoint down
+@@WAYPOINT-REMOVE@@	Remove this waypoint
+@@WAYPOINT-REVERSE@@	Reverse order of waypoints
+@@WAYPOINT-REVERSE-BUTTON@@	Reverse order
+@@WAYPOINT-LOOP@@	Add a new waypoint to make a loop
+@@WAYPOINT-LOOP-BUTTON@@	Close loop
+
+@@TRANSPORT-FOOT@@	Foot
+@@TRANSPORT-HORSE@@	Horse
+@@TRANSPORT-WHEELCHAIR@@	Wheelchair
+@@TRANSPORT-BICYCLE@@	Bicycle
+@@TRANSPORT-MOPED@@	Moped
+@@TRANSPORT-MOTORCYCLE@@	Motorcycle
+@@TRANSPORT-MOTORCAR@@	Motorcar
+@@TRANSPORT-GOODS@@	Goods
+@@TRANSPORT-HGV@@	HGV
+@@TRANSPORT-PSV@@	PSV
+
+@@HIGHWAY-MOTORWAY@@	Motorway
+@@HIGHWAY-TRUNK@@	Trunk
+@@HIGHWAY-PRIMARY@@	Primary
+@@HIGHWAY-SECONDARY@@	Secondary
+@@HIGHWAY-TERTIARY@@	Tertiary
+@@HIGHWAY-UNCLASSIFIED@@	Unclassified
+@@HIGHWAY-RESIDENTIAL@@	Residential
+@@HIGHWAY-SERVICE@@	Service
+@@HIGHWAY-TRACK@@	Track
+@@HIGHWAY-CYCLEWAY@@	Cycleway
+@@HIGHWAY-PATH@@	Path
+@@HIGHWAY-STEPS@@	Steps
+@@HIGHWAY-FERRY@@	Ferry
+
+@@PROPERTY-PAVED@@	Paved
+@@PROPERTY-MULTILANE@@	Multiple Lanes
+@@PROPERTY-BRIDGE@@	Bridge
+@@PROPERTY-TUNNEL@@	Tunnel
+@@PROPERTY-WALKINGROUTE@@	Walking Route
+@@PROPERTY-BICYCLEROUTE@@	Bicycle Route
+@@PROPERTY-CYCLE-BOTHWAYS@@	Cycle Both Ways
+
+@@RESTRICT-ONEWAY@@	Obey oneway streets
+@@RESTRICT-TURNS@@	Obey turn restrictions
+@@RESTRICT-WEIGHT@@	Weight
+@@RESTRICT-HEIGHT@@	Height
+@@RESTRICT-WIDTH@@	Width
+@@RESTRICT-LENGTH@@	Length
+
+@@FIND-SHORTEST-ROUTE@@	Find shortest route
+@@FIND-QUICKEST-ROUTE@@	Find quickest route
+
+@@MAP-VIEW-LINK@@	Link to this map view
+@@EDIT-OSM-DATA@@	Edit this OSM data
+
+@@ROUTER-NOT-RUN@@	Router not run
+@@ROUTER-RUNNING@@	Router running...
+@@ROUTER-COMPLETED@@	Routing completed
+@@ROUTER-ERROR@@	Router error
+@@ROUTER-FAILED@@	Router failed to run
+@@VIEW-DETAILS@@	View Details
+
+@@NO-INFORMATION@@	No Information
+@@HTML-ROUTE@@	HTML directions
+@@GPX-TRACK-ROUTE@@	GPX track file
+@@GPX-ROUTE@@	GPX route file
+@@FULL-TEXT-ROUTE@@	Full text file
+@@TEXT-ROUTE@@	Text file
+@@OPEN-POPUP@@	Open Popup
+
+@@DISPLAY-STATISTICS@@	Display data statistics
+
+@@JAVASCRIPT-REQUIRED@@	Javascript is <em>required</em> to use this web page because of the interactive map.
+@@ROUTER@@	Router
+@@GEO-DATA@@	Geo Data
+@@TILES@@	Tiles
+
+#
+# Visualiser specific translations
+#
+
+@@VISUALISER-TITLE@@	Data Visualiser for Routing Data
+
+@@INSTRUCTIONS-BOX@@	Instructions
+@@ROUTER-BOX@@	Routino Router
+
+@@NO-DATA-DISPLAYED@@	No data displayed
+
+@@VISUALISER-FAILED@@	Failed to get visualiser data!
+@@VISUALISER-NUM-JUNCTIONS@@	Processed # junctions
+@@VISUALISER-NUM-SUPER@@	Processed # super-nodes/segments
+@@VISUALISER-NUM-ONEWAY@@	Processed # oneway segments
+@@VISUALISER-NUM-SEGMENTS@@	Processed # segments
+@@VISUALISER-NUM-NODES@@	Processed # nodes
+@@VISUALISER-NUM-TURNS@@	Processed # turn restrictions
+@@VISUALISER-NUM-LIMITS@@	Processed # limit changes
+@@VISUALISER-NUM-ERRORS@@	Processed # error logs
+
+@@JUNCTIONS-BUTTON@@	Display Junctions
+$$JUNCTIONS-INFO$$
+Each node that is a dead-end, a junction of two highways of different
+types (or different properties) or a junction where more than two segments
+join are shown colour-coded:
+$$JUNCTIONS-INFO$$
+@@JUNCTIONS-1@@	only one highway - a dead-end.
+@@JUNCTIONS-2@@	two highways of different types meet.
+@@JUNCTIONS-3@@	three highways meet.
+@@JUNCTIONS-4@@	four highways meet.
+@@JUNCTIONS-5@@	five highways meet.
+@@JUNCTIONS-6@@	six highways meet.
+@@JUNCTIONS-MORE@@	seven (or more) highways meet.
+
+@@SUPER-BUTTON@@	Display Super Segments
+$$SUPER-INFO$$
+Each super-node and the associated super-segments are shown (see
+algorithm page for description).
+$$SUPER-INFO$$
+
+@@ONEWAY-BUTTON@@	Display One-way Segments
+$$ONEWAY-INFO$$
+Each one-way segment is shown with a coloured triangle indicating the
+allowed direction.  The colours of the triangles depend on the bearing
+of the highway segment.
+$$ONEWAY-INFO$$
+
+@@HIGHWAY-BUTTON@@	Display Highway Segments
+$$HIGHWAY-INFO$$
+Each segment of the chosen type of highway is drawn.
+$$HIGHWAY-INFO$$
+
+@@TRANSPORT-BUTTON@@	Display Transport Segments
+$$TRANSPORT-INFO$$
+Each segment allowed for the chosen type of transport is drawn.
+$$TRANSPORT-INFO$$
+
+@@BARRIER-BUTTON@@	Display Barrier Nodes
+$$BARRIER-INFO$$
+Each barrier blocking the chosen type of transport is drawn.
+$$BARRIER-INFO$$
+
+@@TURNS-BUTTON@@	Display Turn Restrictions
+$$TURNS-INFO$$
+Each turn restrictions is shown with a line indicating the disallowed turn.
+$$TURNS-INFO$$
+
+@@SPEED-BUTTON@@	Display Speed Limits
+$$SPEED-INFO$$
+Each node that joins segments with different speed limits is shown
+along with the speed limit on relevant segments.
+$$SPEED-INFO$$
+
+@@LIMIT-CHANGE@@	Change of limit
+@@LIMIT-NONE@@	No specified limit
+@@SPEED-LIMIT-80@@	80 km/hour speed limit
+
+@@WEIGHT-BUTTON@@	Display Weight Limits
+$$WEIGHT-INFO$$
+Each node that joins segments with different weight limits is shown
+along with the weight limit on relevant segments.
+$$WEIGHT-INFO$$
+
+@@WEIGHT-LIMIT-8@@	8.0 tonnes weight limit
+
+@@HEIGHT-BUTTON@@	Display Height Limits
+$$HEIGHT-INFO$$
+Each node that joins segments with different height limits is shown
+along with the height limit on relevant segments.
+$$HEIGHT-INFO$$
+
+@@HEIGHT-LIMIT-4@@	4.0 m height limit
+
+@@WIDTH-BUTTON@@	Display Width Limits
+$$WIDTH-INFO$$
+Each node that joins segments with different width limits is shown
+along with the width limit on relevant segments.
+$$WIDTH-INFO$$
+
+@@WIDTH-LIMIT-3@@	3.0 m width limit
+
+@@LENGTH-BUTTON@@	Display Length Limits
+$$LENGTH-INFO$$
+Each node that joins segments with different length limits is shown
+along with the length limit on relevant segments.
+$$LENGTH-INFO$$
+
+@@LENGTH-LIMIT-9@@	9.0 m length limit
+
+@@PROPERTY-BUTTON@@	Display Highway Properties
+$$PROPERTY-INFO$$
+Each segment of the highways with a particular property is drawn.
+$$PROPERTY-INFO$$
+
+@@ERROR-LOG-BUTTON@@	Display Error Logs
+$$ERROR-LOG-INFO$$
+Potential problems found by Routino when processing the input data.
+$$ERROR-LOG-INFO$$
+
+@@CLEAR-DATA-BUTTON@@	Clear data
+
+#
+# Multi-line descriptive translations (router)
+#
+
+$$ROUTER-INFO$$
+This web page allows routing within the data collected by OpenStreetMap.
+Select start and end points (click on the marker icons below), select routing preferences then find a route.
+$$ROUTER-INFO$$
+
+$$ROUTER-OPTIONS-HELP$$
+<b>Quick Start</b>
+<br>
+Click on marker icons (above) to place them on the map (right).  Then
+drag them to the correct position.  Zooming the map before placing the
+markers is probably easiest.  Alternatively type the latitude and
+longitude into the boxes above.
+<p>
+Select the transport type, allowed highway types, speed limits, highway
+properties and other restrictions from the options above.
+Select "Shortest" or "Quickest" to calculate the route and display it
+on the map.
+<p>
+<b>Waypoints</b>
+<br>
+Clicking on the marker icons will toggle the display of them on the map.
+When a route is calculated it will visit (as close as possible
+for the selected transport type) each of the waypoints that have
+markers on the map in the order given.
+<p>
+<b>Transport Type</b>
+<br>
+Selecting a transport type will restrict the chosen route to
+those on which it is allowed and set default values for the
+other parameters.
+<p>
+<b>Highway Preferences</b>
+<br>
+The highway preference is selected as a percentage and routes are chosen that
+try to follow the preferred highways.
+For example if a "Primary" road is given a "110%" preference and a "Secondary"
+road is given a "100%" preference then it means that a route on a Primary road
+can be up to 10% longer than on a secondary road and still be selected.
+<p>
+<b>Speed Limits</b>
+<br>
+The speed limits chosen here for the different types of highway apply if the
+highway has no other speed limit marked or it is higher than the chosen one.
+<p>
+<b>Property Preferences</b>
+<br>
+The property preference is selected as a percentage and routes are chosen that
+try to follow highways with the preferred property.
+For example if a "Paved" highway is given a "75%" preference then it means that
+an unpaved highway is automatically given a "25%" preference so that a route on
+a paved highway can be 3 times the length of an unpaved one and still be
+selected.
+<p>
+<b>Other Restrictions</b>
+<br>
+These allow a route to be found that avoids marked limits on
+weight, height, width or length.  It is also possible to ignore
+one-way restrictions (e.g. if walking).
+$$ROUTER-OPTIONS-HELP$$
+
+$$ROUTER-RESULTS-HELP$$
+<b>Quick Start</b>
+<br>
+After calculating a route you can download the GPX file or plain
+text route description (summary or detailed version). Also you
+can view the route description and zoom in to selected parts.
+<p>
+<b>Problem Solving</b>
+<br>
+If the router completes with an error then the most likely cause is
+that it is not possible to find a route between the selected points.
+Moving one or more markers or changing the routing options should
+allow a route to be found.
+<p>
+<b>Output Formats</b>
+<br>
+<dl>
+  <dt>HTML instructions
+  <dd>A description of the route to take with directions at each
+    important junction.
+  <dt>GPX track file
+  <dd>The same information that is displayed on the map with points
+    for every node and lines for every segment.
+  <dt>GPX route file
+  <dd>The same information that is displayed in text for the route
+    with a waypoint for each important junction in the route.
+  <dt>Full text file
+  <dd>A list of all of the nodes visited as well as the distance
+    between them and the cumulative distance for each step of the
+    route.
+  <dt>Text file
+  <dd>The same information that is displayed in text for the route.
+</dl>
+$$ROUTER-RESULTS-HELP$$
+
+$$ROUTER-VISUALISER-INFO$$
+To see Routino's view of the data there is a data visualiser that allows
+displaying of the underlying data in various ways.
+$$ROUTER-VISUALISER-INFO$$
+
+#
+# Multi-line descriptive translations (visualiser)
+#
+
+$$VISUALISER-INFO$$
+This web page allows visualisation of the data that Routino uses for routing.
+Only data relevant for routing is displayed and some will therefore be excluded.
+$$VISUALISER-INFO$$
+
+$$VISUALISER-INSTRUCTIONS$$
+Zoom in and then use the buttons below to download the data.  The
+server will only return data if the selected area is small enough.
+$$VISUALISER-INSTRUCTIONS$$
+
+$$VISUALISER-HELP$$
+<b>Quick Start</b>
+<br>
+Zoom to an area and select one of the buttons to display that type of
+data.
+<br>
+More data options can be found by expanding the details below each
+button.
+<p>
+<b>Data Failure</b>
+<br>
+If the area selected is too large (depends on the data type) then the
+status will say "Failed to get visualiser data" - zoom in and try
+again.
+$$VISUALISER-HELP$$
+
+$$VISUALISER-ROUTER-INFO$$
+To perform routing on the map use the link below.
+$$VISUALISER-ROUTER-INFO$$
