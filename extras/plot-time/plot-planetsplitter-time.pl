@@ -1,13 +1,35 @@
 #!/usr/bin/perl
+#
+# Routino execution log plotter.
+#
+# Part of the Routino routing software.
+#
+# This file Copyright 2013-2014 Andrew M. Bishop
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+use strict;
 
 # Read the planetsplitter log file
 
 open(SECTION   ,">gnuplot.section.tmp");
 open(SUBSECTION,">gnuplot.subsection.tmp");
 
-$count=1;
-$startcount=0;
-$totaltime=0;
+my $count=1;
+my $startcount=0;
+my $totaltime=0;
 
 while(<STDIN>)
   {
@@ -19,8 +41,8 @@ while(<STDIN>)
 
    if( m%^\[ *([0-9]+):([0-9.]+)\] ([^:]+)% && ! m%Complete$% )
      {
-      $time=(60.0*$1)+$2;
-      $description=$3;
+      my $time=(60.0*$1)+$2;
+      my $description=$3;
 
       print SUBSECTION "$count $time \"$description\"\n";
 
@@ -30,8 +52,8 @@ while(<STDIN>)
      {
       if($startcount>0)
         {
-         $boxcentre=($count+$startcount+0.5)/2;
-         $boxwidth=$count-$startcount-1;
+         my $boxcentre=($count+$startcount+0.5)/2;
+         my $boxwidth=$count-$startcount-1;
 
          print SECTION "$boxcentre $totaltime $boxwidth\n";
         }

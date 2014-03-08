@@ -3,7 +3,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2012 Andrew M. Bishop
+# This file Copyright 2008-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+use strict;
+
 # Use the directory paths script
 require "paths.pl";
 
@@ -28,7 +30,7 @@ require "profiles.pl";
 # Use the perl Time::HiRes module
 use Time::HiRes qw(gettimeofday tv_interval);
 
-$t0 = [gettimeofday];
+my $t0 = [gettimeofday];
 
 
 #
@@ -39,25 +41,25 @@ sub FillInDefaults
   {
    my(%params)=@_;
 
-   $params{transport}=$routino->{transport} if(!defined $params{transport});
+   $params{transport}=$main::routino->{transport} if(!defined $params{transport});
 
    my $transport=$params{transport};
 
-   foreach my $highway (keys %{$routino->{highways}})
+   foreach my $highway (keys %{$main::routino->{highways}})
      {
       my $key="highway-$highway";
-      my $value=$routino->{profile_highway}->{$highway}->{$transport};
+      my $value=$main::routino->{profile_highway}->{$highway}->{$transport};
       $params{$key}=$value if(!defined $params{$key});
 
       $key="speed-$highway";
-      $value=$routino->{profile_speed}->{$highway}->{$transport};
+      $value=$main::routino->{profile_speed}->{$highway}->{$transport};
       $params{$key}=$value if(!defined $params{$key});
      }
 
-   foreach my $property (keys %{$routino->{properties}})
+   foreach my $property (keys %{$main::routino->{properties}})
      {
       my $key="property-$property";
-      my $value=$routino->{profile_property}->{$property}->{$transport};
+      my $value=$main::routino->{profile_property}->{$property}->{$transport};
       $params{$key}=$value if(!defined $params{$key});
      }
 
@@ -67,10 +69,10 @@ sub FillInDefaults
    $params{turns} =~ s/(true|on)/1/;
    $params{turns} =~ s/(false|off)/0/;
 
-   foreach my $restriction (keys %{$routino->{restrictions}})
+   foreach my $restriction (keys %{$main::routino->{restrictions}})
      {
       my $key="$restriction";
-      my $value=$routino->{profile_restrictions}->{$restriction}->{$transport};
+      my $value=$main::routino->{profile_restrictions}->{$restriction}->{$transport};
       $params{$key}=$value if(!defined $params{$key});
      }
 
@@ -97,8 +99,8 @@ sub RunRouter
 
    # Change directory
 
-   mkdir $results_dir,0755 if(! -d $results_dir);
-   chdir $results_dir;
+   mkdir $main::results_dir,0755 if(! -d $main::results_dir);
+   chdir $main::results_dir;
 
    # Create a unique output directory
 
@@ -119,25 +121,25 @@ sub RunRouter
 
    # Run the router
 
-   my($safe_params)="";
-   if($data_dir)
+   my $safe_params ="";
+   if($main::data_dir)
      {
-      my(@pathparts)=split('/',$data_dir);
+      my @pathparts=split('/',$main::data_dir);
       $safe_params.=" --dir=".pop(@pathparts);
      }
    # This works in newer Perl versions, but not older ones.
-   #$safe_params.=" --dir=".pop([split('/',$data_dir)]) if($data_dir);
-   $safe_params.=" --prefix=$data_prefix" if($data_prefix);
+   #$safe_params.=" --dir=".pop([split('/',$main::data_dir)]) if($main::data_dir);
+   $safe_params.=" --prefix=$main::data_prefix" if($main::data_prefix);
 
    open(LOG,">router.log");
-   print LOG "$router_exe $params$safe_params\n\n"; # Don't put the full pathnames in the logfile.
+   print LOG "$main::router_exe $params$safe_params\n\n"; # Don't put the full pathnames in the logfile.
    close(LOG);
 
-   $params.=" --dir=$data_dir" if($data_dir);
-   $params.=" --prefix=$data_prefix" if($data_prefix);
+   $params.=" --dir=$main::data_dir" if($main::data_dir);
+   $params.=" --prefix=$main::data_prefix" if($main::data_prefix);
    $params.=" --loggable";
 
-   system "$bin_dir/$router_exe $params >> router.log 2>&1";
+   system "$main::bin_dir/$main::router_exe $params >> router.log 2>&1";
 
    my $status="OK";
    $status="ERROR" if($? != 0);
@@ -160,7 +162,7 @@ sub RunRouter
 
 # Possible file formats
 
-%suffixes=(
+my %suffixes=(
            "html"      => ".html",
            "gpx-route" => "-route.gpx",
            "gpx-track" => "-track.gpx",
@@ -171,7 +173,7 @@ sub RunRouter
 
 # Possible MIME types
 
-%mimetypes=(
+my %mimetypes=(
             "html"      => "text/html",
             "gpx-route" => "text/xml",
             "gpx-track" => "text/xml",
@@ -189,7 +191,7 @@ sub ReturnOutput
    my $suffix=$suffixes{$format};
    my $mime  =$mimetypes{$format};
 
-   my $file="$results_dir/$uuid/$type$suffix";
+   my $file="$main::results_dir/$uuid/$type$suffix";
 
    # Return the output
 

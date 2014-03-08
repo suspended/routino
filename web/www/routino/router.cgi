@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2013 Andrew M. Bishop
+# This file Copyright 2008-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+use strict;
+
 # Use the generic router script
 require "router.pl";
 
@@ -29,13 +31,13 @@ use CGI ':cgi';
 
 # Create the query and get the parameters
 
-$query=new CGI;
+my $query=new CGI;
 
-@rawparams=$query->param;
+my @rawparams=$query->param;
 
 # Legal CGI parameters with regexp validity check
 
-%legalparams=(
+my %legalparams=(
               "lon[1-9][0-9]*"  => "[-0-9.]+",
               "lat[1-9][0-9]*"  => "[-0-9.]+",
               "heading"         => "[-0-9.]+",
@@ -53,10 +55,15 @@ $query=new CGI;
 
               "language"        => "[-a-zA-Z]+",
               "type"            => "(shortest|quickest)",
-              "format"          => "(html|gpx-route|gpx-track|text|text-all)"
+              "format"          => "(html|gpx-route|gpx-track|text|text-all)",
+
+              "reverse"         => "(1|0|true|false|on|off)",
+              "loop"            => "(1|0|true|false|on|off)"
              );
 
 # Validate the CGI parameters, ignore invalid ones
+
+my %cgiparams=();
 
 foreach my $key (@rawparams)
   {
@@ -77,6 +84,9 @@ foreach my $key (@rawparams)
 
 # Get the important parameters
 
+my $type;
+my $format;
+
 $type=$cgiparams{type};
 delete $cgiparams{type};
 
@@ -87,7 +97,7 @@ delete $cgiparams{format};
 
 # Fill in the default parameters
 
-%fullparams=FillInDefaults(%cgiparams);
+my %fullparams=FillInDefaults(%cgiparams);
 
 # Run the router
 

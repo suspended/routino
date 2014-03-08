@@ -1,9 +1,33 @@
 #!/usr/bin/perl
+#
+# Routino log summary tool.
+#
+# Part of the Routino routing software.
+#
+# This file Copyright 2011-2014 Andrew M. Bishop
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 
-$verbose=0;
+use strict;
+
+# Command line
+
+my $verbose=0;
 $verbose=1 if($#ARGV==0 && $ARGV[0] eq "-v");
 
-$html=0;
+my $html=0;
 $html=1 if($#ARGV==0 && $ARGV[0] eq "-html");
 
 die "Usage: $0 [-v | -html] < <error-log-file>\n" if($#ARGV>0 || ($#ARGV==0 && !$verbose && !$html));
@@ -11,15 +35,16 @@ die "Usage: $0 [-v | -html] < <error-log-file>\n" if($#ARGV>0 || ($#ARGV==0 && !
 
 # Read in each line from the error log and store them
 
-%errors=();
-%errorids=();
-%errortypes=();
+my %errors=();
+my %errorids=();
+my %errortypes=();
 
 while(<STDIN>)
   {
    s%\r*\n%%;
 
-   undef $errorid;
+   my $errorid="";
+   my $errortype="";
 
    if(m%nodes ([0-9]+) and ([0-9]+) in way ([0-9]+)%i) # Special case pair of nodes and a way
      {
@@ -125,20 +150,18 @@ while(<STDIN>)
 
 if( ! $html )
   {
-
-   foreach $error (sort { if ( $errors{$b} == $errors{$a} ) { return $errors{$a} cmp $errors{$b} }
-                          else                              { return $errors{$b} <=> $errors{$a} } } (keys %errors))
+   foreach my $error (sort { if ( $errors{$b} == $errors{$a} ) { return $errors{$a} cmp $errors{$b} }
+                             else                              { return $errors{$b} <=> $errors{$a} } } (keys %errors))
      {
       printf "%9d : $error\n",$errors{$error};
 
       if($verbose)
         {
-         @ids=sort({ return $a <=> $b } @{$errorids{$error}});
+         my @ids=sort({ return $a <=> $b } @{$errorids{$error}});
 
          print "            ".join(",",@ids)."\n";
         }
      }
-
   }
 
 # Print out the results as HTML
@@ -171,39 +194,39 @@ else
          "that are responsible for the error messages.\n".
          "\n";
 
-   %errortypeorder=(
-                    "N"   , 1,
-                    "NW"  , 2,
-                    "WN"  , 3,
-                    "N2W" , 4,
-                    "N2"  , 5,
-                    "W"   , 6,
-                    "R"   , 7,
-                    "RN"  , 8,
-                    "RW"  , 9,
-                    "E"   , 10
-                   );
+   my %errortypeorder=(
+                       "N"   , 1,
+                       "NW"  , 2,
+                       "WN"  , 3,
+                       "N2W" , 4,
+                       "N2"  , 5,
+                       "W"   , 6,
+                       "R"   , 7,
+                       "RN"  , 8,
+                       "RW"  , 9,
+                       "E"   , 10
+                      );
 
-   %errortypelabel=(
-                    "N"   , "Nodes",
-                    "NW"  , "Node in a Way",
-                    "WN"  , "Way contains Node",
-                    "N2W" , "Node Pairs in a Way",
-                    "N2"  , "Node Pairs",
-                    "W"   , "Ways",
-                    "R"   , "Relations",
-                    "RN"  , "Relations/Nodes",
-                    "RW"  , "Relations/Ways",
-                    "E"   , "ERROR"
-                   );
+   my %errortypelabel=(
+                       "N"   , "Nodes",
+                       "NW"  , "Node in a Way",
+                       "WN"  , "Way contains Node",
+                       "N2W" , "Node Pairs in a Way",
+                       "N2"  , "Node Pairs",
+                       "W"   , "Ways",
+                       "R"   , "Relations",
+                       "RN"  , "Relations/Nodes",
+                       "RW"  , "Relations/Ways",
+                       "E"   , "ERROR"
+                      );
 
-   $lasterrortype="";
+   my $lasterrortype="";
 
-   foreach $error (sort { if    ( $errortypes{$b} ne $errortypes{$a} ) { return $errortypeorder{$errortypes{$a}} <=> $errortypeorder{$errortypes{$b}} }
-                          elsif ( $errors{$b}     == $errors{$a} )     { return $errors{$a} cmp $errors{$b} }
-                          else                                         { return $errors{$b} <=> $errors{$a} } } (keys %errors))
+   foreach my $error (sort { if    ( $errortypes{$b} ne $errortypes{$a} ) { return $errortypeorder{$errortypes{$a}} <=> $errortypeorder{$errortypes{$b}} }
+                             elsif ( $errors{$b}     == $errors{$a} )     { return $errors{$a} cmp $errors{$b} }
+                             else                                         { return $errors{$b} <=> $errors{$a} } } (keys %errors))
      {
-      $errorhtml=$error;
+      my $errorhtml=$error;
 
       $errorhtml =~ s/&/&amp;/g;
       $errorhtml =~ s/</&lt;/g;
@@ -223,11 +246,11 @@ else
         }
       else
         {
-         @ids=sort({ return $a <=> $b } @{$errorids{$error}});
+         my @ids=sort({ return $a <=> $b } @{$errorids{$error}});
 
-         $first=1;
+         my $first=1;
 
-         foreach $id (@ids)
+         foreach my $id (@ids)
            {
             if($first)
               {
@@ -269,5 +292,4 @@ else
          "</BODY>\n".
          "\n".
          "</HTML>\n";
-
 }

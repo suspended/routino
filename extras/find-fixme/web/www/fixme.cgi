@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2013 Andrew M. Bishop
+# This file Copyright 2008-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+use strict;
+
 # Use the directory paths script
 require "paths.pl";
 
@@ -29,23 +31,25 @@ use CGI ':cgi';
 
 # Create the query and get the parameters
 
-$query=new CGI;
+my $query=new CGI;
 
-@rawparams=$query->param;
+my @rawparams=$query->param;
 
 # Legal CGI parameters with regexp validity check
 
-%legalparams=(
-              "latmin"     => "[-0-9.]+",
-              "latmax"     => "[-0-9.]+",
-              "lonmin"     => "[-0-9.]+",
-              "lonmax"     => "[-0-9.]+",
-              "data"       => "fixmes",
-              "dump"       => "fixme[0-9]+",
-              "statistics" => "yes"
-             );
+my %legalparams=(
+                 "latmin"     => "[-0-9.]+",
+                 "latmax"     => "[-0-9.]+",
+                 "lonmin"     => "[-0-9.]+",
+                 "lonmax"     => "[-0-9.]+",
+                 "data"       => "fixmes",
+                 "dump"       => "fixme[0-9]+",
+                 "statistics" => "yes"
+                );
 
 # Validate the CGI parameters, ignore invalid ones
+
+my %cgiparams=();
 
 foreach my $key (@rawparams)
   {
@@ -66,9 +70,11 @@ foreach my $key (@rawparams)
 
 # Data, dump or statistics?
 
-$data      =$cgiparams{"data"};
-$dump      =$cgiparams{"dump"};
-$statistics=$cgiparams{"statistics"};
+my $params="";
+
+my $data      =$cgiparams{"data"};
+my $dump      =$cgiparams{"dump"};
+my $statistics=$cgiparams{"statistics"};
 
 if(!defined $data && !defined $dump && !defined $statistics)
   {
@@ -90,14 +96,14 @@ elsif(defined $data)
   {
    # Parameters to limit range selected
 
-   $limits=0.5;
+   my $limits=0.5;
 
    # Check the parameters
 
-   $latmin=$cgiparams{"latmin"};
-   $latmax=$cgiparams{"latmax"};
-   $lonmin=$cgiparams{"lonmin"};
-   $lonmax=$cgiparams{"lonmax"};
+   my $latmin=$cgiparams{"latmin"};
+   my $latmax=$cgiparams{"latmax"};
+   my $lonmin=$cgiparams{"lonmin"};
+   my $lonmax=$cgiparams{"lonmax"};
 
    if($latmin eq "" || $latmax eq "" || $lonmin eq "" || $lonmax eq "" || $data eq "")
      {
@@ -135,7 +141,7 @@ else
 
 # Run the filedumper
 
-$params.=" --dir=$data_dir" if($data_dir);
-$params.=" --prefix=$data_prefix" if($data_prefix);
+$params.=" --dir=$main::data_dir" if($main::data_dir);
+$params.=" --prefix=$main::data_prefix" if($main::data_prefix);
 
-system "$bin_dir/$fixme_dumper_exe $params 2>&1";
+system "$main::bin_dir/$main::fixme_dumper_exe $params 2>&1";

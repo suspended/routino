@@ -20,6 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+use strict;
+
 # Use the generic search script
 require "search.pl";
 
@@ -29,13 +31,13 @@ use CGI ':cgi';
 
 # Create the query and get the parameters
 
-$query=new CGI;
+my $query=new CGI;
 
-@rawparams=$query->param;
+my @rawparams=$query->param;
 
 # Legal CGI parameters with regexp validity check
 
-%legalparams=(
+my %legalparams=(
               "marker"  => "[0-9]+",
 
               "lonmin"  => "[-0-9.]+",
@@ -47,6 +49,8 @@ $query=new CGI;
              );
 
 # Validate the CGI parameters, ignore invalid ones
+
+my %cgiparams=();
 
 foreach my $key (@rawparams)
   {
@@ -67,17 +71,17 @@ foreach my $key (@rawparams)
 
 # Parse the parameters
 
-$marker=$cgiparams{marker};
-$search=$cgiparams{search};
+my $marker=$cgiparams{marker};
+my $search=$cgiparams{search};
 
-$lonmin=$cgiparams{lonmin};
-$lonmax=$cgiparams{lonmax};
-$latmax=$cgiparams{latmax};
-$latmin=$cgiparams{latmin};
+my $lonmin=$cgiparams{lonmin};
+my $lonmax=$cgiparams{lonmax};
+my $latmax=$cgiparams{latmax};
+my $latmin=$cgiparams{latmin};
 
 # Run the search
 
-($search_time,$search_message,@places)=RunSearch($search,$lonmin,$lonmax,$latmax,$latmin);
+my($search_time,$search_message,@places)=RunSearch($search,$lonmin,$lonmax,$latmax,$latmin);
 
 # Return the output
 
@@ -86,7 +90,7 @@ print header('text/plain');
 print "$marker\n";
 print "$search_time\n";
 print "$search_message\n";
-foreach $place (@places)
+foreach my $place (@places)
   {
    print "$place\n";
   }
