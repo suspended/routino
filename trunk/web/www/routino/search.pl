@@ -19,6 +19,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+use strict;
+
 # Use the directory paths script
 require "paths.pl";
 
@@ -34,7 +36,7 @@ use JSON::PP;
 # Use the perl Time::HiRes module
 use Time::HiRes qw(gettimeofday tv_interval);
 
-$t0 = [gettimeofday];
+my $t0 = [gettimeofday];
 
 
 #
@@ -47,15 +49,16 @@ sub RunSearch
 
    # Perform the search based on the type
 
-   my(@places)=[];
+   my $message="";
+   my @places=[];
 
-   if($search_type eq "nominatim")
+   if($main::search_type eq "nominatim")
      {
       ($message,@places)=DoNominatimSearch($search,$lonmin,$lonmax,$latmax,$latmin);
      }
    else
      {
-      $message="Unknown search type '$search_type'";
+      $message="Unknown search type '$main::search_type'";
      }
 
    my(undef,undef,$cuser,$csystem) = times;
@@ -81,11 +84,11 @@ sub DoNominatimSearch
 
    if($lonmin && $lonmax && $latmax && $latmin)
      {
-      $url="$search_baseurl?format=json&viewbox=$lonmin,$latmax,$lonmax,$latmin&q=$search";
+      $url="$main::search_baseurl?format=json&viewbox=$lonmin,$latmax,$lonmax,$latmin&q=$search";
      }
    else
      {
-      $url="$search_baseurl?format=json&q=$search";
+      $url="$main::search_baseurl?format=json&q=$search";
      }
 
    my $ua=LWP::UserAgent->new;
@@ -97,15 +100,15 @@ sub DoNominatimSearch
       return($res->status_line);
      }
 
-   my($result)=decode_json($res->content);
+   my $result=decode_json($res->content);
 
-   my(@places);
+   my @places=();
 
    foreach my $place (@$result)
      {
-      my($lat)=$place->{"lat"};
-      my($lon)=$place->{"lon"};
-      my($name)=$place->{"display_name"};
+      my $lat=$place->{"lat"};
+      my $lon=$place->{"lon"};
+      my $name=$place->{"display_name"};
 
       push(@places,"$lat $lon $name");
      }

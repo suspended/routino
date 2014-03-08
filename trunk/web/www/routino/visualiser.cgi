@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2013 Andrew M. Bishop
+# This file Copyright 2008-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+use strict;
+
 # Use the directory paths script
 require "paths.pl";
 
@@ -29,22 +31,24 @@ use CGI ':cgi';
 
 # Create the query and get the parameters
 
-$query=new CGI;
+my $query=new CGI;
 
-@rawparams=$query->param;
+my @rawparams=$query->param;
 
 # Legal CGI parameters with regexp validity check
 
-%legalparams=(
-              "latmin" => "[-0-9.]+",
-              "latmax" => "[-0-9.]+",
-              "lonmin" => "[-0-9.]+",
-              "lonmax" => "[-0-9.]+",
-              "data"   => "(junctions|super|oneway|highway-.*|transport-.*|barrier-.*|turns|speed|weight|height|width|length|property-.*|errorlogs)",
-              "dump"   => "(node|segment|turn-relation|errorlog)[0-9]+"
-             );
+my %legalparams=(
+                 "latmin" => "[-0-9.]+",
+                 "latmax" => "[-0-9.]+",
+                 "lonmin" => "[-0-9.]+",
+                 "lonmax" => "[-0-9.]+",
+                 "data"   => "(junctions|super|oneway|highway-.*|transport-.*|barrier-.*|turns|speed|weight|height|width|length|property-.*|errorlogs)",
+                 "dump"   => "(node|segment|turn-relation|errorlog)[0-9]+"
+                );
 
 # Validate the CGI parameters, ignore invalid ones
+
+my %cgiparams=();
 
 foreach my $key (@rawparams)
   {
@@ -65,8 +69,10 @@ foreach my $key (@rawparams)
 
 # Data or dump?
 
-$data=$cgiparams{"data"};
-$dump=$cgiparams{"dump"};
+my $params="";
+
+my $data=$cgiparams{"data"};
+my $dump=$cgiparams{"dump"};
 
 if(!defined $data && !defined $dump)
   {
@@ -78,29 +84,29 @@ if(defined $data)
   {
    # Parameters to limit range selected
 
-   %limits=(
-            "junctions" => 0.2,
-            "super"     => 0.2,
-            "oneway"    => 0.2,
-            "highway"   => 0.2,
-            "transport" => 0.2,
-            "barrier"   => 0.3,
-            "turns"     => 0.3,
-            "speed"     => 0.3,
-            "weight"    => 0.3,
-            "height"    => 0.3,
-            "width"     => 0.3,
-            "length"    => 0.3,
-            "property"  => 0.3,
-            "errorlogs" => 0.5
-           );
+   my %limits=(
+               "junctions" => 0.2,
+               "super"     => 0.2,
+               "oneway"    => 0.2,
+               "highway"   => 0.2,
+               "transport" => 0.2,
+               "barrier"   => 0.3,
+               "turns"     => 0.3,
+               "speed"     => 0.3,
+               "weight"    => 0.3,
+               "height"    => 0.3,
+               "width"     => 0.3,
+               "length"    => 0.3,
+               "property"  => 0.3,
+               "errorlogs" => 0.5
+              );
 
    # Check the parameters
 
-   $latmin=$cgiparams{"latmin"};
-   $latmax=$cgiparams{"latmax"};
-   $lonmin=$cgiparams{"lonmin"};
-   $lonmax=$cgiparams{"lonmax"};
+   my $latmin=$cgiparams{"latmin"};
+   my $latmax=$cgiparams{"latmax"};
+   my $lonmin=$cgiparams{"lonmin"};
+   my $lonmax=$cgiparams{"lonmax"};
 
    if($latmin eq "" || $latmax eq "" || $lonmin eq "" || $lonmax eq "" || $data eq "")
      {
@@ -108,7 +114,7 @@ if(defined $data)
       exit;
      }
 
-   $subdata=$data;
+   my $subdata=$data;
    $subdata="highway"   if($data =~ m%highway-%);
    $subdata="transport" if($data =~ m%transport-%);
    $subdata="barrier"   if($data =~ m%barrier-%);
@@ -144,7 +150,7 @@ else
 
 # Run the filedumper
 
-$params.=" --dir=$data_dir" if($data_dir);
-$params.=" --prefix=$data_prefix" if($data_prefix);
+$params.=" --dir=$main::data_dir" if($main::data_dir);
+$params.=" --prefix=$main::data_prefix" if($main::data_prefix);
 
-system "$bin_dir/$filedumper_exe $params 2>&1";
+system "$main::bin_dir/$main::filedumper_exe $params 2>&1";

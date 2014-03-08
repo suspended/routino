@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2012 Andrew M. Bishop
+# This file Copyright 2008-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+use strict;
+
 # Use the directory paths script
 require "paths.pl";
 
@@ -33,8 +35,10 @@ print header('text/plain');
 
 # Run the filedumper
 
-$params.=" --dir=$data_dir" if($data_dir);
-$params.=" --prefix=$data_prefix" if($data_prefix);
+my $params="";
+
+$params.=" --dir=$main::data_dir" if($main::data_dir);
+$params.=" --prefix=$main::data_prefix" if($main::data_prefix);
 $params.=" --statistics";
 
-system "$bin_dir/$filedumper_exe $params 2>&1";
+system "$main::bin_dir/$main::filedumper_exe $params 2>&1";

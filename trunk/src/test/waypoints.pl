@@ -1,4 +1,26 @@
 #!/usr/bin/perl
+#
+# Routing test case generator tool.
+#
+# Part of the Routino routing software.
+#
+# This file Copyright 2011-2014 Andrew M. Bishop
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+use strict;
 
 # Command line
 
@@ -12,11 +34,11 @@ if($#ARGV<1 || $ARGV>2 || ! -f $ARGV[0])
 
 open(FILE,"<$ARGV[0]") || die "Cannot open '$ARGV[0]'\n";
 
-%waypoints=();
-@waypoints=();
-@waypoint_lat=();
-@waypoint_lon=();
-$innode=0;
+my %waypoints=();
+my @waypoints=();
+my @waypoint_lat=();
+my @waypoint_lon=();
+my $innode=0;
 
 while(<FILE>)
   {

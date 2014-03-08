@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2012 Andrew M. Bishop
+# This file Copyright 2008-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+use strict;
+
 # Use the generic router script
 require "router.pl";
 
@@ -29,13 +31,13 @@ use CGI ':cgi';
 
 # Create the query and get the parameters
 
-$query=new CGI;
+my $query=new CGI;
 
-@rawparams=$query->param;
+my @rawparams=$query->param;
 
 # Legal CGI parameters with regexp validity check
 
-%legalparams=(
+my %legalparams=(
               "type"   => "(shortest|quickest|router)",
               "format" => "(html|gpx-route|gpx-track|text|text-all|log)",
 
@@ -43,6 +45,8 @@ $query=new CGI;
              );
 
 # Validate the CGI parameters, ignore invalid ones
+
+my %cgiparams=();
 
 foreach my $key (@rawparams)
   {
@@ -63,9 +67,9 @@ foreach my $key (@rawparams)
 
 # Parse the parameters
 
-$uuid  =$cgiparams{"uuid"};
-$type  =$cgiparams{"type"};
-$format=$cgiparams{"format"};
+my $uuid  =$cgiparams{"uuid"};
+my $type  =$cgiparams{"type"};
+my $format=$cgiparams{"format"};
 
 # Return the file
 
