@@ -1,0 +1,240 @@
+#
+# French language web-page translation phrases
+#
+
+@@LANGUAGE@@	Francais
+@@LANGUAGE-WEBPAGE@@	Francais
+
+#
+# Router (and some shared) translations
+#
+
+@@ROUTER-TITLE@@	Calculateur d'itinéraire pour OpenStreetMap
+
+@@OPTION-TAB@@	Options
+@@OPTION-TAB-HELP@@	définir les options
+
+@@RESULTS-TAB@@	Résultats
+@@RESULTS-TAB-HELP@@	Voir les resultats
+
+@@DATA-TAB@@	Données
+@@DATA-TAB-HELP@@	Voir les informations de la base de donnée
+
+@@ROUTINO-ROUTER@@	Itinéraires pour Openstreetmap Routino
+@@ROUTINO-WEBSITE@@	site web Routino
+
+@@DOCUMENTATION@@	Documentation
+
+@@LANGUAGE-BOX@@	Langue
+@@WAYPOINTS-BOX@@	Etapes de l'itinéraire
+@@TRANSPORT-TYPE-BOX@@	Mode de déplacement
+@@HIGHWAY-PREFERENCES-BOX@@	Préférences routières
+@@SPEED-LIMITS-BOX@@	Limitations de vitesse
+@@PROPERTY-PREFERENCES-BOX@@	Préférences des propriétés
+@@OTHER-RESTRICTIONS-BOX@@	Autres Restrictions
+@@FIND-BOX@@	Rechercher
+@@LINKS-BOX@@	Liens
+@@HELP-BOX@@	Aide
+
+@@SHORTEST-ROUTE@@	Le plus court
+@@QUICKEST-ROUTE@@	Le plus rapide
+
+@@STATISTICS-BOX@@	Routino Statistiques
+@@VISUALISER-BOX@@	Routino Visualiser
+
+@@WAYPOINT-POSITION@@	Etape XXX de l'itinéraire - (cliquer pour ajouter/enlever de la carte)
+@@WAYPOINT-LONGITUDE@@	Etape XXX Longitude
+@@WAYPOINT-LATITUDE@@	Etape XXX Latitude
+@@WAYPOINT-LOCATION@@	position de l'étape XXX
+@@WAYPOINT-SEARCH@@	Rechercher la position
+@@WAYPOINT-GET@@	obtenir la position actuelle
+@@WAYPOINT-CENTRE1@@	Centrer la carte sur cette étape
+@@WAYPOINT-UP@@	Placer cette étape avant
+@@WAYPOINT-ADD@@	Ajouter une étape après celle-ci
+@@WAYPOINT-COORDS@@	Coordonnées de position
+@@WAYPOINT-HOME@@	Changer en position de départ
+@@WAYPOINT-CENTRE2@@	Centrer cette étape sur la carte
+@@WAYPOINT-DOWN@@	Placer cette étape après
+@@WAYPOINT-REMOVE@@	supprimer cette étape
+@@WAYPOINT-REVERSE-BUTTON@@	Inverser l'ordre
+@@WAYPOINT-REVERSE@@	Inverser l'ordre des étapes
+@@WAYPOINT-LOOP-BUTTON@@	Faire une boucle
+@@WAYPOINT-LOOP@@	Ajouter une nouvelle étape pour faire une boucle
+
+@@TRANSPORT-FOOT@@	À pied
+@@TRANSPORT-HORSE@@	À cheval
+@@TRANSPORT-WHEELCHAIR@@	Fauteuil roulant
+@@TRANSPORT-BICYCLE@@	Bicyclette
+@@TRANSPORT-MOPED@@	Mobilette
+@@TRANSPORT-MOTORCYCLE@@	Moto
+@@TRANSPORT-MOTORCAR@@	Voiture
+@@TRANSPORT-GOODS@@	Camionette
+@@TRANSPORT-HGV@@	Camion(15t)
+@@TRANSPORT-PSV@@	Camion(10t)
+
+@@HIGHWAY-MOTORWAY@@	Autoroute
+@@HIGHWAY-TRUNK@@	Trunk
+@@HIGHWAY-PRIMARY@@	Primaire
+@@HIGHWAY-SECONDARY@@	Secondaire
+@@HIGHWAY-TERTIARY@@	Tertiaire
+@@HIGHWAY-UNCLASSIFIED@@	Non classée
+@@HIGHWAY-RESIDENTIAL@@	Résidentiel
+@@HIGHWAY-SERVICE@@	Service
+@@HIGHWAY-TRACK@@	Chemin
+@@HIGHWAY-CYCLEWAY@@	Voie cyclable
+@@HIGHWAY-PATH@@	Sentier
+@@HIGHWAY-STEPS@@	Escaliers
+@@HIGHWAY-FERRY@@	Ferry
+
+@@PROPERTY-PAVED@@	Pavée
+@@PROPERTY-MULTILANE@@	Voies multiples
+@@PROPERTY-BRIDGE@@	Pont
+@@PROPERTY-TUNNEL@@	Tunnel
+@@PROPERTY-WALKINGROUTE@@	Itinér. piéton
+@@PROPERTY-BICYCLEROUTE@@	Itinér. cycle
+
+@@RESTRICT-ONEWAY@@	Respecter les sens uniques
+@@RESTRICT-TURNS@@	Respecter les obligations de tourner
+@@RESTRICT-WEIGHT@@	Poids
+@@RESTRICT-HEIGHT@@	Hauteur
+@@RESTRICT-WIDTH@@	Largeur
+@@RESTRICT-LENGTH@@	Longueur
+
+@@FIND-SHORTEST-ROUTE@@	Chercher l'itinéraire le plus court
+@@FIND-QUICKEST-ROUTE@@	Chercher l'itinéraire le plus rapide
+
+@@MAP-VIEW-LINK@@	Lien vers cet outil de visualisation
+@@EDIT-OSM-DATA@@	Editer cette donnée OSM
+
+@@ROUTER-NOT-RUN@@	Routage non lancé
+@@ROUTER-RUNNING@@	Routage en cours...
+@@ROUTER-COMPLETED@@	Routage terminé
+@@ROUTER-ERROR@@	Erreur de Routage
+@@ROUTER-FAILED@@	Le Routage n'a pas été lancé correctement
+@@VIEW-DETAILS@@	Voir les Détails
+
+@@NO-INFORMATION@@	Pas d'information
+@@HTML-ROUTE@@	Itinéraire HTML
+@@GPX-TRACK-ROUTE@@	Fichier chemin GPX
+@@GPX-ROUTE@@	Fichier route GPX
+@@FULL-TEXT-ROUTE@@	Fichier texte complet
+@@TEXT-ROUTE@@	Fichier texte
+@@OPEN-POPUP@@	Ouvrir Popup
+
+@@DISPLAY-STATISTICS@@	Afficher les données statistiques
+
+@@JAVASCRIPT-REQUIRED@@	Javascript est <em>nécessaire</em> pour cette page web à cause de la carte intéractive.
+@@ROUTER@@	Routeur
+@@GEO-DATA@@	Geo Data
+@@TILES@@	Tuiles
+
+#
+# Visualiser specific translations
+#
+
+#
+# Multi-line descriptive translations (router)
+#
+
+$$ROUTER-INFO$$
+Cette page web permet de calculer des itinéraires à l'aide des données collectées par OpenStreetMap.
+Sélectionner les points de départ et d'arrivée (cliquer sur les icones ci-dessous), sélectionner les préférences, puis rechercher un itinéraire.
+$$ROUTER-INFO$$
+
+$$ROUTER-OPTIONS-HELP$$
+<b>Aide simplifiée</b>
+<br>
+Cliquer sur les icones de balises (ci-dessus) pour les placer sur la carte (droite).  Puis
+les déplacer à la position choisie. Il sera sûrement plus facile de zoomer sur la carte 
+avant de placer les balises.  Autre solution, taper la latitude et
+la longitude dans les cases ci-dessus.
+<p>
+Selectionner le mode de déplacement, les types de voies autorisées, les limitations de vitesse, 
+les propriétés des voies et les autres restrictions dans les options ci-dessus.
+Selectionner "Le plus court" ou "Le plus rapide" pour calculer l'itinéraire et le visualiser
+sur la carte.
+<p>
+<b>Etapes</b>
+<br>
+Cliquer sur les balises affichera ou supprimera leur apparition sur la carte.
+Quand un itinéraire est calculé, il affichera (le plus près possible
+pour le mode de déplacement sélectionné) chacune des étapes qui ont une
+balise sur la carte dans l'ordre défini.
+<p>
+<b>Mode de déplacement</b>
+<br>
+Selectionner un mode de déplacement restreindra l'itinéraire choisi aux
+voies sur lesquelles il est autorisé et définira les valeurs par défaut pour
+les autres paramètres.
+<p>
+<b>Préferences des voies</b>
+<br>
+La préférence de voies est définie par un pourcentage et des itinéraires sont choisis 
+qui essaient de suivre les voies préferrées.
+Par exemple, si une voie "Primaire" a une préférence de "110%" et une voie "Secondaire"
+une préférence de "100%", alors cela signifie qu'un itinéraire sur une voie primaire
+peut être jusqu'à 10% plus long que sur une voie secondaire et être sélectionné.
+<p>
+<b>Limites de vitesse</b>
+<br>
+Les limites de vitesse choisies ici pour les differents types de voies s'appliquent si la
+voie n'a pas d'autre limite de vitesse définie ou si celle-ci est supérieure à celle choisie.
+<p>
+<b>Préférences de propriétés</b>
+<br>
+La préférence de propriété est définie par un pourcentage et des itinéraires sont choisis
+qui essaient de suivre les voies ayant cette propriété préférée.
+Par exemple, si une voie goudronnée a une préférence de "75%", alors cela signifie que
+une voie non goudronnée obtient automatiquement une préférence de "25%" ce qui fait que 
+un itinéraire sur une voie goudronnée peut avoir 3 fois la longueur d'une non goudronnée 
+et être sélectionnée.
+<p>
+<b>Autres restrictions</b>
+<br>
+Celles-ci permettent de touver un itinéraire qui respecte les limites définies pour
+le poids, la hauteur, la largeur ou la longueur.  Il est également possible d'ignorer
+les restrictions de sens unique (e. pour la marche).
+$$ROUTER-OPTIONS-HELP$$
+
+$$ROUTER-RESULTS-HELP$$
+<b>Aide rapide</b>
+<br>
+Après le calcul de l'itinéraire, vous pouvez télécharger le fichier GPX ou
+la description au format texte (résumé ou version détaillée). Vous pouvez également
+visualiser la description de l'itinéraire et zoomer sur des tronçons sélectionnés.
+<p>
+<b>Résoudre un problème</b>
+<br>
+Si le calculateur aboutie à une erreur, la cause la plus probable est que
+il n'est pas possible de trouver un itinéraire entre les points sélectionnés.
+Por permettre de trouver un itinéraire, déplacer une ou des balises 
+ou changer les options de recherche.
+<p>
+<b>Formats d'affichage</b>
+<br>
+<dl>
+  <dt>Instructions HTML
+  <dd>une description de l'itinéraire à prendre 
+    à chaque intersection importante.
+  <dt>Fichier chemin GPX
+  <dd>La même information qui est affichée sur la carte avec des points
+    pour chaque noeud et des lignes pour tous les sègments.
+  <dt>Fichier route GPX
+  <dd>La même information qui est affichée en texte pour l'itinéraire
+    avec une étape pour chaque intersection importante.
+  <dt>Fichier texte complet
+  <dd>Une liste de tous les noeuds traversés ainsi que la distance 
+    entre eux et la distance cumulée pour chaque étape de l'itinéraire.
+  <dt>Fichier texte
+  <dd>La même information qui est affichée en texte pour l'itinéraire.
+</dl>
+$$ROUTER-RESULTS-HELP$$
+
+$$ROUTER-VISUALISER-INFO$$
+Pour comprendre comment Routino voit les données, il y a un outil de visualisation
+qui permet d'afficher les données soujacentes de multiples manières.
+$$ROUTER-VISUALISER-INFO$$
+
+#
+# Multi-line descriptive translations (visualiser)
+#

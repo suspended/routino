@@ -1,0 +1,396 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="openstreetmap routing route planner">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+
+<title>Routino : @@ROUTER-TITLE@@</title>
+
+<!--
+ Routino router web page.
+
+ Part of the Routino routing software.
+
+ This file Copyright 2008-2014 Andrew M. Bishop
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see http://www.gnu.org/licenses/.
+-->
+
+<!-- Page elements -->
+<script src="page-elements.js" type="text/javascript"></script>
+<link href="page-elements.css" type="text/css" rel="stylesheet">
+
+<!-- Router and visualiser shared features -->
+<link href="maplayout.css" type="text/css" rel="stylesheet">
+
+<!-- Router specific features -->
+<script src="profiles.js" type="text/javascript"></script>
+<link href="router.css" type="text/css" rel="stylesheet">
+
+<!-- Map parameters -->
+<script src="mapprops.js" type="text/javascript"></script>
+
+<!-- Map loader -->
+<script src="maploader.js" type="text/javascript"></script>
+
+</head>
+<body onload="map_load('html_init();map_init();form_init();');">
+
+<!-- Left hand side of window - data panel -->
+
+<div class="left_panel">
+
+  <div class="tab_box">
+    <span id="tab_options" onclick="tab_select('options');" class="tab_selected"   title="@@OPTION-TAB-HELP@@">@@OPTION-TAB@@</span>
+    <span id="tab_results" onclick="tab_select('results');" class="tab_unselected" title="@@RESULTS-TAB-HELP@@">@@RESULTS-TAB@@</span>
+    <span id="tab_data"    onclick="tab_select('data');"    class="tab_unselected" title="@@DATA-TAB-HELP@@">@@DATA-TAB@@</span>
+  </div>
+
+  <div class="tab_content" id="tab_options_div">
+
+    <form name="form" id="form" action="#" method="get" onsubmit="return false;">
+      <div class="hideshow_box">
+        <span class="hideshow_title">@@ROUTINO-ROUTER@@</span>
+        @@ROUTER-INFO@@
+        <div class="center">
+          <a target="other" href="http://www.routino.org/">@@ROUTINO-WEBSITE@@</a>
+          |
+          <a target="other" href="documentation/">@@DOCUMENTATION@@</a>
+        </div>
+      </div>
+
+      <div class="hideshow_box">
+        <span id="hideshow_language_show" onclick="hideshow_show('language');" class="hideshow_show">+</span>
+        <span id="hideshow_language_hide" onclick="hideshow_hide('language');" class="hideshow_hide">-</span>
+        <span class="hideshow_title">@@LANGUAGE-BOX@@</span>
+
+        <div id="hideshow_language_div" style="display: none;">
+          <table>
+           $$LANGUAGES-META$$
+            <tr>
+              <td><a id="lang_xx_url" href="router.html.xx" title="@@LANGUAGE-WEBPAGE@@">@@LANGUAGE@@</a>
+              <td>(XX)
+              <td><input name="language" type="radio" value="xx" onchange="formSetLanguage();" CHECKED-XX>
+           $$LANGUAGES-META$$
+          </table>
+          <a target="translation" href="http://www.routino.org/translations/">Routino Translations</a>
+        </div>
+      </div>
+
+      <div class="hideshow_box">
+        <span id="hideshow_waypoint_show" onclick="hideshow_show('waypoint');" class="hideshow_hide">+</span>
+        <span id="hideshow_waypoint_hide" onclick="hideshow_hide('waypoint');" class="hideshow_show">-</span>
+        <span class="hideshow_title">@@WAYPOINTS-BOX@@</span>
+        <div id="hideshow_waypoint_div">
+          <table id="waypoints">
+            <colgroup>
+              <col style="width: 22px;">
+              <col>
+              <col style="width: 76px;">
+            </colgroup>
+            <tr id="waypointXXX" style="display: none;">
+              <td>
+                <img id="iconXXX" src="icons/marker-XXX-grey.png" title="@@WAYPOINT-POSITION@@" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX);">
+              <td>
+                <span id="coordsXXX">
+                  <input name="lonXXX" type="text" size="7" title="@@WAYPOINT-LONGITUDE@@" onchange="formSetCoords(XXX);">E
+                  <input name="latXXX" type="text" size="7" title="@@WAYPOINT-LATITUDE@@"  onchange="formSetCoords(XXX);">N
+                </span>
+                <span id="searchXXX" style="display: none;">
+                  <input name="searchXXX" type="text" size="18" title="@@WAYPOINT-LOCATION@@"> <!-- uses Javascript event for triggering -->
+                </span>
+              <td>
+                <img alt="?" src="icons/waypoint-search.png"   title="@@WAYPOINT-SEARCH@@"  onmousedown="markerSearch(XXX);"  >
+                <img alt="G" src="icons/waypoint-locate.png"   title="@@WAYPOINT-GET@@"     onmousedown="markerLocate(XXX);"  >
+                <img alt="O" src="icons/waypoint-recentre.png" title="@@WAYPOINT-CENTRE1@@" onmousedown="markerRecentre(XXX);">
+                <img alt="^" src="icons/waypoint-up.png"       title="@@WAYPOINT-UP@@"      onmousedown="markerMoveUp(XXX);"  >
+                <img alt="+" src="icons/waypoint-add.png"      title="@@WAYPOINT-ADD@@"     onmousedown="markerAddAfter(XXX);">
+                <br>
+                <img alt="#" src="icons/waypoint-coords.png"   title="@@WAYPOINT-COORDS@@"  onmousedown="markerCoords(XXX);"  >
+                <img alt="~" src="icons/waypoint-home.png"     title="@@WAYPOINT-HOME@@"    onmousedown="markerHome(XXX);"    >
+                <img alt="o" src="icons/waypoint-centre.png"   title="@@WAYPOINT-CENTRE2@@" onmousedown="markerCentre(XXX);"  >
+                <img alt="v" src="icons/waypoint-down.png"     title="@@WAYPOINT-DOWN@@"    onmousedown="markerMoveDown(XXX);">
+                <img alt="-" src="icons/waypoint-remove.png"   title="@@WAYPOINT-REMOVE@@"  onmousedown="markerRemove(XXX);"  >
+            <tr id="searchresultsXXX" style="display: none;">
+              <td colspan="3">
+            <!-- The waypoints are inserted by the JavaScript, see the "maxmarkers" variable in router.js.  -->
+            <tr>
+              <td colspan="3" class="center">
+                <input type="button" title="@@WAYPOINT-REVERSE@@" value="@@WAYPOINT-REVERSE-BUTTON@@" onmousedown="markersReverse();">
+                <input type="button" title="@@WAYPOINT-LOOP@@"    value="@@WAYPOINT-LOOP-BUTTON@@"    onmousedown="markersLoop();">
+          </table>
+        </div>
+      </div>
+
+      <div class="hideshow_box">
+        <span id="hideshow_transport_show" onclick="hideshow_show('transport');" class="hideshow_hide">+</span>
+        <span id="hideshow_transport_hide" onclick="hideshow_hide('transport');" class="hideshow_show">-</span>
+        <span class="hideshow_title">@@TRANSPORT-TYPE-BOX@@</span>
+        <div id="hideshow_transport_div">
+          <table>
+            <tr><td>@@TRANSPORT-FOOT@@:      <td><input name="transport" type="radio" value="foot"       onchange="formSetTransport('foot'      );">
+            <tr><td>@@TRANSPORT-HORSE@@:     <td><input name="transport" type="radio" value="horse"      onchange="formSetTransport('horse'     );">
+            <tr><td>@@TRANSPORT-WHEELCHAIR@@:<td><input name="transport" type="radio" value="wheelchair" onchange="formSetTransport('wheelchair');">
+            <tr><td>@@TRANSPORT-BICYCLE@@:   <td><input name="transport" type="radio" value="bicycle"    onchange="formSetTransport('bicycle'   );">
+            <tr><td>@@TRANSPORT-MOPED@@:     <td><input name="transport" type="radio" value="moped"      onchange="formSetTransport('moped'     );">
+            <tr><td>@@TRANSPORT-MOTORCYCLE@@:<td><input name="transport" type="radio" value="motorcycle" onchange="formSetTransport('motorcycle');">
+            <tr><td>@@TRANSPORT-MOTORCAR@@:  <td><input name="transport" type="radio" value="motorcar"   onchange="formSetTransport('motorcar'  );">
+            <tr><td>@@TRANSPORT-GOODS@@:     <td><input name="transport" type="radio" value="goods"      onchange="formSetTransport('goods'     );">
+            <tr><td>@@TRANSPORT-HGV@@:       <td><input name="transport" type="radio" value="hgv"        onchange="formSetTransport('hgv'       );">
+            <tr><td>@@TRANSPORT-PSV@@:       <td><input name="transport" type="radio" value="psv"        onchange="formSetTransport('psv'       );">
+          </table>
+        </div>
+      </div>
+
+      <div class="hideshow_box">
+        <span id="hideshow_highway_show" onclick="hideshow_show('highway');" class="hideshow_show">+</span>
+        <span id="hideshow_highway_hide" onclick="hideshow_hide('highway');" class="hideshow_hide">-</span>
+        <span class="hideshow_title">@@HIGHWAY-PREFERENCES-BOX@@</span>
+        <div id="hideshow_highway_div" style="display: none;">
+          <table>
+            <tr><td>@@HIGHWAY-MOTORWAY@@:    <td><input name="highway-motorway"     type="text" size="3" onchange="formSetHighway('motorway'    ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('motorway'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('motorway'    ,'+');">
+            <tr><td>@@HIGHWAY-TRUNK@@:       <td><input name="highway-trunk"        type="text" size="3" onchange="formSetHighway('trunk'       ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('trunk'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('trunk'       ,'+');">
+            <tr><td>@@HIGHWAY-PRIMARY@@:     <td><input name="highway-primary"      type="text" size="3" onchange="formSetHighway('primary'     ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('primary'     ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('primary'     ,'+');">
+            <tr><td>@@HIGHWAY-SECONDARY@@:   <td><input name="highway-secondary"    type="text" size="3" onchange="formSetHighway('secondary'   ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('secondary'   ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('secondary'   ,'+');">
+            <tr><td>@@HIGHWAY-TERTIARY@@:    <td><input name="highway-tertiary"     type="text" size="3" onchange="formSetHighway('tertiary'    ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('tertiary'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('tertiary'    ,'+');">
+            <tr><td>@@HIGHWAY-UNCLASSIFIED@@:<td><input name="highway-unclassified" type="text" size="3" onchange="formSetHighway('unclassified','=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('unclassified','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('unclassified','+');">
+            <tr><td>@@HIGHWAY-RESIDENTIAL@@: <td><input name="highway-residential"  type="text" size="3" onchange="formSetHighway('residential' ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('residential' ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('residential' ,'+');">
+            <tr><td>@@HIGHWAY-SERVICE@@:     <td><input name="highway-service"      type="text" size="3" onchange="formSetHighway('service'     ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('service'     ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('service'     ,'+');">
+            <tr><td>@@HIGHWAY-TRACK@@:       <td><input name="highway-track"        type="text" size="3" onchange="formSetHighway('track'       ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('track'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('track'       ,'+');">
+            <tr><td>@@HIGHWAY-CYCLEWAY@@:    <td><input name="highway-cycleway"     type="text" size="3" onchange="formSetHighway('cycleway'    ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('cycleway'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('cycleway'    ,'+');">
+            <tr><td>@@HIGHWAY-PATH@@:        <td><input name="highway-path"         type="text" size="3" onchange="formSetHighway('path'        ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('path'        ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('path'        ,'+');">
+            <tr><td>@@HIGHWAY-STEPS@@:       <td><input name="highway-steps"        type="text" size="3" onchange="formSetHighway('steps'       ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('steps'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('steps'       ,'+');">
+            <tr><td>@@HIGHWAY-FERRY@@:       <td><input name="highway-ferry"        type="text" size="3" onchange="formSetHighway('ferry'       ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetHighway('ferry'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetHighway('ferry'       ,'+');">
+          </table>
+        </div>
+      </div>
+
+      <div class="hideshow_box">
+        <span id="hideshow_speed_show" onclick="hideshow_show('speed');" class="hideshow_show">+</span>
+        <span id="hideshow_speed_hide" onclick="hideshow_hide('speed');" class="hideshow_hide">-</span>
+        <span class="hideshow_title">@@SPEED-LIMITS-BOX@@</span>
+        <div id="hideshow_speed_div" style="display: none;">
+          <table>
+            <tr><td>@@HIGHWAY-MOTORWAY@@:    <td><input name="speed-motorway"     type="text" size="3" onchange="formSetSpeed('motorway'    ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('motorway'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('motorway'    ,'+');">
+            <tr><td>@@HIGHWAY-TRUNK@@:       <td><input name="speed-trunk"        type="text" size="3" onchange="formSetSpeed('trunk'       ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('trunk'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('trunk'       ,'+');">
+            <tr><td>@@HIGHWAY-PRIMARY@@:     <td><input name="speed-primary"      type="text" size="3" onchange="formSetSpeed('primary'     ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('primary'     ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('primary'     ,'+');">
+            <tr><td>@@HIGHWAY-SECONDARY@@:   <td><input name="speed-secondary"    type="text" size="3" onchange="formSetSpeed('secondary'   ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('secondary'   ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('secondary'   ,'+');">
+            <tr><td>@@HIGHWAY-TERTIARY@@:    <td><input name="speed-tertiary"     type="text" size="3" onchange="formSetSpeed('tertiary'    ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('tertiary'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('tertiary'    ,'+');">
+            <tr><td>@@HIGHWAY-UNCLASSIFIED@@:<td><input name="speed-unclassified" type="text" size="3" onchange="formSetSpeed('unclassified','=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('unclassified','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('unclassified','+');">
+            <tr><td>@@HIGHWAY-RESIDENTIAL@@: <td><input name="speed-residential"  type="text" size="3" onchange="formSetSpeed('residential' ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('residential' ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('residential' ,'+');">
+            <tr><td>@@HIGHWAY-SERVICE@@:     <td><input name="speed-service"      type="text" size="3" onchange="formSetSpeed('service'     ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('service'     ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('service'     ,'+');">
+            <tr><td>@@HIGHWAY-TRACK@@:       <td><input name="speed-track"        type="text" size="3" onchange="formSetSpeed('track'       ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('track'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('track'       ,'+');">
+            <tr><td>@@HIGHWAY-CYCLEWAY@@:    <td><input name="speed-cycleway"     type="text" size="3" onchange="formSetSpeed('cycleway'    ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('cycleway'    ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('cycleway'    ,'+');">
+            <tr><td>@@HIGHWAY-PATH@@:        <td><input name="speed-path"         type="text" size="3" onchange="formSetSpeed('path'        ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('path'        ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('path'        ,'+');">
+            <tr><td>@@HIGHWAY-STEPS@@:       <td><input name="speed-steps"        type="text" size="3" onchange="formSetSpeed('steps'       ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('steps'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('steps'       ,'+');">
+            <tr><td>@@HIGHWAY-FERRY@@:       <td><input name="speed-ferry"        type="text" size="3" onchange="formSetSpeed('ferry'       ,'=');"><td>km/hr<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetSpeed('ferry'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetSpeed('ferry'       ,'+');">
+          </table>
+        </div>
+      </div>
+
+      <div class="hideshow_box">
+        <span id="hideshow_property_show" onclick="hideshow_show('property');" class="hideshow_show">+</span>
+        <span id="hideshow_property_hide" onclick="hideshow_hide('property');" class="hideshow_hide">-</span>
+        <span class="hideshow_title">@@PROPERTY-PREFERENCES-BOX@@</span>
+        <div id="hideshow_property_div" style="display: none;">
+          <table>
+            <tr><td>@@PROPERTY-PAVED@@:       <td><input name="property-paved"        type="text" size="3" onchange="formSetProperty('paved'       ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('paved'       ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('paved'       ,'+');">
+            <tr><td>@@PROPERTY-MULTILANE@@:   <td><input name="property-multilane"    type="text" size="3" onchange="formSetProperty('multilane'   ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('multilane'   ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('multilane'   ,'+');">
+            <tr><td>@@PROPERTY-BRIDGE@@:      <td><input name="property-bridge"       type="text" size="3" onchange="formSetProperty('bridge'      ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('bridge'      ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('bridge'      ,'+');">
+            <tr><td>@@PROPERTY-TUNNEL@@:      <td><input name="property-tunnel"       type="text" size="3" onchange="formSetProperty('tunnel'      ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('tunnel'      ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('tunnel'      ,'+');">
+            <tr><td>@@PROPERTY-WALKINGROUTE@@:<td><input name="property-footroute"    type="text" size="3" onchange="formSetProperty('footroute'   ,'=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('footroute'   ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('footroute'   ,'+');">
+            <tr><td>@@PROPERTY-BICYCLEROUTE@@:<td><input name="property-bicycleroute" type="text" size="3" onchange="formSetProperty('bicycleroute','=');"><td>%<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetProperty('bicycleroute','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetProperty('bicycleroute','+');">
+          </table>
+        </div>
+      </div>
+
+      <div class="hideshow_box">
+        <span id="hideshow_restriction_show" onclick="hideshow_show('restriction');" class="hideshow_show">+</span>
+        <span id="hideshow_restriction_hide" onclick="hideshow_hide('restriction');" class="hideshow_hide">-</span>
+        <span class="hideshow_title">@@OTHER-RESTRICTIONS-BOX@@</span>
+        <div id="hideshow_restriction_div" style="display: none;">
+          <table>
+            <tr><td>@@RESTRICT-ONEWAY@@:   <td><input name="restrict-oneway" type="checkbox" onchange="formSetRestriction('oneway');">
+            <tr><td>@@RESTRICT-TURNS@@:<td><input name="restrict-turns"  type="checkbox" onchange="formSetRestriction('turns' );">
+          </table>
+          <table>
+            <tr><td>@@RESTRICT-WEIGHT@@:<td><input name="restrict-weight" type="text" size="3" onchange="formSetRestriction('weight','=');"><td>tonnes<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetRestriction('weight','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetRestriction('weight','+');">
+            <tr><td>@@RESTRICT-HEIGHT@@:<td><input name="restrict-height" type="text" size="3" onchange="formSetRestriction('height','=');"><td>metres<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetRestriction('height','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetRestriction('height','+');">
+            <tr><td>@@RESTRICT-WIDTH@@: <td><input name="restrict-width"  type="text" size="3" onchange="formSetRestriction('width' ,'=');"><td>metres<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetRestriction('width' ,'-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetRestriction('width' ,'+');">
+            <tr><td>@@RESTRICT-LENGTH@@:<td><input name="restrict-length" type="text" size="3" onchange="formSetRestriction('length','=');"><td>metres<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetRestriction('length','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetRestriction('length','+');">
+          </table>
+        </div>
+      </div>
+
+      <div class="hideshow_box">
+        <span class="hideshow_title">@@FIND-BOX@@</span>
+        <input type="button" title="@@FIND-SHORTEST-ROUTE@@" id="shortest" value="@@SHORTEST-ROUTE@@" onclick="findRoute('shortest');">
+        <input type="button" title="@@FIND-QUICKEST-ROUTE@@" id="quickest" value="@@QUICKEST-ROUTE@@" onclick="findRoute('quickest');">
+      </div>
+
+      <div class="hideshow_box">
+        <span class="hideshow_title">@@LINKS-BOX@@</span>
+        <a id="permalink_url" href="router.html">@@MAP-VIEW-LINK@@</a>
+        <br>
+        <a id="edit_url" target="edit" style="display: none;">@@EDIT-OSM-DATA@@</a>
+      </div>
+
+      <div class="hideshow_box">
+        <span id="hideshow_help_options_show" onclick="hideshow_show('help_options');" class="hideshow_hide">+</span>
+        <span id="hideshow_help_options_hide" onclick="hideshow_hide('help_options');" class="hideshow_show">-</span>
+        <span class="hideshow_title">@@HELP-BOX@@</span>
+        <div id="hideshow_help_options_div">
+          <div class="scrollable">
+            @@ROUTER-OPTIONS-HELP@@
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+
+  <div class="tab_content" id="tab_results_div" style="display: none;">
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">@@STATUS-BOX@@</span>
+      <div id="result_status">
+        <div id="result_status_not_run">
+          <b><i>@@ROUTER-NOT-RUN@@</i></b>
+        </div>
+        <div id="result_status_running"  style="display: none;">
+          <b>@@ROUTER-RUNNING@@</b>
+        </div>
+        <div id="result_status_complete" style="display: none;">
+          <b>@@ROUTER-COMPLETED@@</b>
+          <br>
+          <a id="router_log_complete" target="router_log" href="#">@@VIEW-DETAILS@@</a>
+        </div>
+        <div id="result_status_error"    style="display: none;">
+          <b>@@ROUTER-ERROR@@</b>
+          <br>
+          <a id="router_log_error" target="router_log" href="#">@@VIEW-DETAILS@@</a>
+        </div>
+        <div id="result_status_failed"   style="display: none;">
+          <b>@@ROUTER-FAILED@@</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_shortest_show" onclick="hideshow_show('shortest');" class="hideshow_show">+</span>
+      <span id="hideshow_shortest_hide" onclick="hideshow_hide('shortest');" class="hideshow_hide">-</span>
+      <span class="hideshow_title">@@SHORTEST-ROUTE@@</span>
+      <div id="shortest_status">
+        <div id="shortest_status_no_info">
+          <b><i>@@NO-INFORMATION@@</i></b>
+        </div>
+        <div id="shortest_status_info" style="display: none;">
+        </div>
+      </div>
+      <div id="hideshow_shortest_div" style="display: none;">
+        <div id="shortest_links" style="display: none;">
+          <table>
+            <tr><td>@@HTML-ROUTE@@:      <td><a id="shortest_html"      target="shortest_html"      href="#">@@OPEN-POPUP@@</a>
+            <tr><td>@@GPX-TRACK-ROUTE@@: <td><a id="shortest_gpx_track" target="shortest_gpx_track" href="#">@@OPEN-POPUP@@</a>
+            <tr><td>@@GPX-ROUTE@@:       <td><a id="shortest_gpx_route" target="shortest_gpx_route" href="#">@@OPEN-POPUP@@</a>
+            <tr><td>@@FULL-TEXT-ROUTE@@: <td><a id="shortest_text_all"  target="shortest_text_all"  href="#">@@OPEN-POPUP@@</a>
+            <tr><td>@@TEXT-ROUTE@@:      <td><a id="shortest_text"      target="shortest_text"      href="#">@@OPEN-POPUP@@</a>
+          </table>
+          <hr>
+        </div>
+        <div id="shortest_route">
+        </div>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_quickest_show" onclick="hideshow_show('quickest');" class="hideshow_show">+</span>
+      <span id="hideshow_quickest_hide" onclick="hideshow_hide('quickest');" class="hideshow_hide">-</span>
+      <span class="hideshow_title">@@QUICKEST-ROUTE@@</span>
+      <div id="quickest_status">
+        <div id="quickest_status_no_info">
+          <b><i>@@NO-INFORMATION@@</i></b>
+        </div>
+        <div id="quickest_status_info" style="display: none;">
+        </div>
+      </div>
+      <div id="hideshow_quickest_div" style="display: none;">
+        <div id="quickest_links" style="display: none;">
+          <table>
+            <tr><td>@@HTML-ROUTE@@:      <td><a id="quickest_html"      target="quickest_html"      href="#">@@OPEN-POPUP@@</a>
+            <tr><td>@@GPX-TRACK-ROUTE@@: <td><a id="quickest_gpx_track" target="quickest_gpx_track" href="#">@@OPEN-POPUP@@</a>
+            <tr><td>@@GPX-ROUTE@@:       <td><a id="quickest_gpx_route" target="quickest_gpx_route" href="#">@@OPEN-POPUP@@</a>
+            <tr><td>@@FULL-TEXT-ROUTE@@: <td><a id="quickest_text_all"  target="quickest_text_all"  href="#">@@OPEN-POPUP@@</a>
+            <tr><td>@@TEXT-ROUTE@@:      <td><a id="quickest_text"      target="quickest_text"      href="#">@@OPEN-POPUP@@</a>
+          </table>
+          <hr>
+        </div>
+        <div id="quickest_route">
+        </div>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_help_route_show" onclick="hideshow_show('help_route');" class="hideshow_hide">+</span>
+      <span id="hideshow_help_route_hide" onclick="hideshow_hide('help_route');" class="hideshow_show">-</span>
+      <span class="hideshow_title">@@HELP-BOX@@</span>
+      <div id="hideshow_help_route_div">
+        <div class="scrollable">
+          @@ROUTER-RESULTS-HELP@@
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="tab_content" id="tab_data_div" style="display: none;">
+    <div class="hideshow_box">
+      <span class="hideshow_title">@@STATISTICS-BOX@@</span>
+      <div id="statistics_data"></div>
+      <a id="statistics_link" href="statistics.cgi" onclick="displayStatistics();return(false);">@@DISPLAY-STATISTICS@@</a>
+    </div>
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">@@VISUALISER-BOX@@</span>
+      @@ROUTER-VISUALISER-INFO@@
+      <br>
+      <a id="visualiser_url" href="visualiser.html" target="visualiser">@@MAP-VIEW-LINK@@</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Right hand side of window - map -->
+
+<div class="right_panel">
+  <div class="map" id="map">
+    <noscript>
+      <p>
+        @@JAVASCRIPT-REQUIRED@@
+    </noscript>
+  </div>
+  <div class="attribution">
+    @@ROUTER@@: <a href="http://www.routino.org/" target="routino">Routino</a>
+    |
+    @@GEO-DATA@@: <span id="attribution_data"></span>
+    |
+    @@TILES@@: <span id="attribution_tile"></span>
+  </div>
+</div>
+
+</body>
+
+</html>
