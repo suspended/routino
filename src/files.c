@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -650,7 +650,8 @@ int CloseFileBuffered(int fd)
  logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
 
  if(!filebuffers[fd]->reading)
-    write(fd,filebuffers[fd]->buffer,filebuffers[fd]->pointer);
+    if(write(fd,filebuffers[fd]->buffer,filebuffers[fd]->pointer)!=(ssize_t)filebuffers[fd]->pointer)
+       return(-1);
 
  close(fd);
 
