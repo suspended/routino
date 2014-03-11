@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2013 Andrew M. Bishop
+# This file Copyright 2008-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -21,10 +21,6 @@
 # All configuration is in the top-level Makefile.conf
 
 include ../Makefile.conf
-
-# Web file paths
-
-WEBBINDIR=../$(webbindir)
 
 # Debugging options
 
@@ -55,13 +51,6 @@ all: all-local
 	done
 
 all-local: $(EXE)
-	-@[ -d $(WEBBINDIR) ] && \
-	  for file in $(EXE); do \
-	     if [ ! -f $(WEBBINDIR)/$$file ] || [ $$file -nt $(WEBBINDIR)/$$file ]; then \
-	        echo cp $$file $(WEBBINDIR) ;\
-	        cp -f $$file $(WEBBINDIR) ;\
-	     fi ;\
-	  done
 
 ########
 
@@ -164,12 +153,11 @@ install: install-local
 	done
 
 install-local: all-local
-	-[ -d $(DESTDIR)$(bindir) ] || mkdir -p $(DESTDIR)$(bindir)
-	@[ -d $(DESTDIR)$(bindir) ] && \
-	  for file in $(EXE); do \
-	     echo cp $$file $(DESTDIR)$(bindir) ;\
-	     cp -f $$file $(DESTDIR)$(bindir) ;\
-	  done
+	@[ -d $(DESTDIR)$(bindir) ] || mkdir -p $(DESTDIR)$(bindir)
+	@for file in $(EXE); do \
+	    echo cp $$file $(DESTDIR)$(bindir) ;\
+	    cp -f $$file $(DESTDIR)$(bindir) ;\
+	 done
 
 ########
 
@@ -192,7 +180,6 @@ distclean: distclean-local clean-local
 	done
 
 distclean-local:
-	-cd $(WEBBINDIR) && rm -f $(EXE)
 	-rm -f $(EXE)
 	-rm -f $(D)
 	-rm -fr .deps
