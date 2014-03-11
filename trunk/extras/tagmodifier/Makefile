@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2013 Andrew M. Bishop
+# This file Copyright 2013-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ include ../../Makefile.conf
 C=$(wildcard *.c)
 D=$(wildcard .deps/*.d)
 
-ROUTINO=../../src
+ROUTINO_SRC=../../src
 
 EXE=tagmodifier
 
@@ -37,25 +37,25 @@ all: all-routino $(EXE)
 	@true
 
 all-routino:
-	cd $(ROUTINO) && $(MAKE) all
+	cd $(ROUTINO_SRC) && $(MAKE) all
 
 ########
 
 TAGMODIFIER_OBJ=tagmodifier.o \
-	        $(ROUTINO)/files.o $(ROUTINO)/logging.o $(ROUTINO)/logerror.o \
-	        $(ROUTINO)/uncompress.o $(ROUTINO)/xmlparse.o $(ROUTINO)/tagging.o
+	        $(ROUTINO_SRC)/files.o $(ROUTINO_SRC)/logging.o $(ROUTINO_SRC)/logerror.o \
+	        $(ROUTINO_SRC)/uncompress.o $(ROUTINO_SRC)/xmlparse.o $(ROUTINO_SRC)/tagging.o
 
 tagmodifier : $(TAGMODIFIER_OBJ)
 	$(LD) $(TAGMODIFIER_OBJ) -o $@ $(LDFLAGS)
 
 ########
 
-$(ROUTINO)/%.o :
-	cd $(ROUTINO) && $(MAKE) $(notdir $@)
+$(ROUTINO_SRC)/%.o :
+	cd $(ROUTINO_SRC) && $(MAKE) $(notdir $@)
 
 %.o : %.c
 	@[ -d .deps ] || mkdir .deps
-	$(CC) -c $(CFLAGS) -DSLIM=0 -I$(ROUTINO) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+	$(CC) -c $(CFLAGS) -DSLIM=0 -I$(ROUTINO_SRC) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
 
@@ -87,4 +87,6 @@ include $(D)
 
 ########
 
-.PHONY:: all all-routino test install clean distclean
+.PHONY:: all test install clean distclean
+
+.PHONY:: all-routino

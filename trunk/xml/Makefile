@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2010-2013 Andrew M. Bishop
+# This file Copyright 2010-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -22,11 +22,6 @@
 
 include ../Makefile.conf
 
-# Web file paths
-
-WEBDATADIR=../$(webdatadir)
-WEBWWWDIR=../$(webwwwdir)
-
 # Files to install
 
 STANDARD_FILES=profiles.xml \
@@ -37,30 +32,9 @@ SPECIAL_FILES=tagging-drive.xml \
 	      tagging-ride.xml \
               tagging-walk.xml
 
-PROFILE_FILES=$(WEBWWWDIR)/profiles.pl \
-	      $(WEBWWWDIR)/profiles.js
-
 ########
 
 all: $(SPECIAL_FILES)
-	-@for file in $(STANDARD_FILES); do \
-	     if [ ! -f $(WEBDATADIR)/$$file ] || [ routino-$$file -nt $(WEBDATADIR)/$$file ]; then \
-	        echo cp routino-$$file $(WEBDATADIR)/$$file ;\
-	        cp -f routino-$$file $(WEBDATADIR)/$$file ;\
-	     fi ;\
-	  done
-	-@for file in $(SPECIAL_FILES); do \
-	     if [ ! -f $(WEBDATADIR)/$$file ] || [ $$file -nt $(WEBDATADIR)/$$file ]; then \
-	        echo cp $$file $(WEBDATADIR)/$$file ;\
-	        cp -f $$file $(WEBDATADIR)/$$file ;\
-	     fi ;\
-	  done
-	-@if [ ! -f $(WEBWWWDIR)/profiles.js ] || [ ! -f $(WEBWWWDIR)/profiles.pl ] || \
-	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.pl ] || \
-	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.js ]; then \
-	     echo perl update-profiles.pl ;\
-	     ( cd $(WEBWWWDIR) ; perl update-profiles.pl ) ;\
-	  fi
 
 ####
 
@@ -80,15 +54,15 @@ test: all
 ########
 
 install: all
-	-[ -d $(DESTDIR)$(datadir) ] || mkdir -p $(DESTDIR)$(datadir)
-	-@for file in $(STANDARD_FILES) ; do \
-	     echo cp routino-$$file $(DESTDIR)$(datadir)/$$file ;\
-	     cp -f routino-$$file $(DESTDIR)$(datadir)/$$file ;\
-	  done
-	-@for file in $(SPECIAL_FILES); do \
-	     echo cp $$file $(DESTDIR)$(datadir)/$$file ;\
-	     cp -f $$file $(DESTDIR)$(datadir)/$$file ;\
-	  done
+	@[ -d $(DESTDIR)$(datadir) ] || mkdir -p $(DESTDIR)$(datadir)
+	@for file in $(STANDARD_FILES) ; do \
+	    echo cp routino-$$file $(DESTDIR)$(datadir)/$$file ;\
+	    cp -f routino-$$file $(DESTDIR)$(datadir)/$$file ;\
+	 done
+	@for file in $(SPECIAL_FILES); do \
+	    echo cp $$file $(DESTDIR)$(datadir)/$$file ;\
+	    cp -f $$file $(DESTDIR)$(datadir)/$$file ;\
+	 done
 
 ########
 
@@ -98,9 +72,7 @@ clean:
 ########
 
 distclean: clean
-	rm -f $(WEBDATADIR)/*.xml
 	rm -f $(SPECIAL_FILES)
-	rm -f $(PROFILE_FILES)
 
 ########
 

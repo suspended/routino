@@ -33,7 +33,9 @@ WEBWWWDIR=web/www
 C=$(wildcard *.c)
 D=$(wildcard .deps/*.d)
 
-ROUTINO=../../src
+ROUTINO_SRC=../../src
+ROUTINO_WEBWWWDIR=../../web/www/routino
+ROUTINO_DOCDIR=../../doc/html
 
 EXE=fixme-finder fixme-finder-slim fixme-dumper fixme-dumper-slim
 DATA=fixme.xml
@@ -42,48 +44,52 @@ DOC_COPY=style.css
 
 ########
 
-all: all-routino $(EXE)
-	-@[ -d $(WEBBINDIR) ] && \
-	  for file in $(EXE); do \
-	     if [ ! -f $(WEBBINDIR)/$$file ] || [ $$file -nt $(WEBBINDIR)/$$file ]; then \
-	        echo cp $$file $(WEBBINDIR) ;\
-	        cp -f $$file $(WEBBINDIR) ;\
-	     fi ;\
-	  done
-	-@[ -d $(WEBDATADIR) ] && \
-	  for file in $(DATA); do \
-	     if [ ! -f $(WEBDATADIR)/$$file ] || [ $$file -nt $(WEBDATADIR)/$$file ]; then \
-	        echo cp $$file $(WEBDATADIR) ;\
-	        cp -f $$file $(WEBDATADIR) ;\
-	     fi ;\
-	  done
-	-@[ -d $(WEBWWWDIR) ] && \
-	  for file in $(WWW_COPY); do \
-	     if [ ! -f $(WEBWWWDIR)/$$file ] || [ ../../$(webwwwdir)/$$file -nt $(WEBWWWDIR)/$$file ]; then \
-	        echo cp ../../$(webwwwdir)/$$file $(WEBWWWDIR) ;\
-	        cp -f ../../$(webwwwdir)/$$file $(WEBWWWDIR) ;\
-	     fi ;\
-	  done
-	-@[ -d $(WEBWWWDIR) ] && \
-	  for file in $(DOC_COPY); do \
-	     if [ ! -f $(WEBWWWDIR)/$$file ] || [ ../../doc/html/$$file -nt $(WEBWWWDIR)/$$file ]; then \
-	        echo cp ../../doc/html/$$file $(WEBWWWDIR) ;\
-	        cp -f ../../doc/html/$$file $(WEBWWWDIR) ;\
-	     fi ;\
-	  done
+all: all-bin all-data all-www
 
-all-routino:
-	cd $(ROUTINO) && $(MAKE) all
+all-bin: all-routino-src $(EXE)
+	@[ -d $(WEBBINDIR) ] || mkdir -p $(WEBBINDIR)
+	@for file in $(EXE); do \
+	    if [ ! -f $(WEBBINDIR)/$$file ] || [ $$file -nt $(WEBBINDIR)/$$file ]; then \
+	       echo cp $$file $(WEBBINDIR) ;\
+	       cp -f $$file $(WEBBINDIR) ;\
+	    fi ;\
+	 done
+
+all-data:
+	@[ -d $(WEBDATADIR) ] || mkdir -p $(WEBDATADIR)
+	@for file in $(DATA); do \
+	    if [ ! -f $(WEBDATADIR)/$$file ] || [ $$file -nt $(WEBDATADIR)/$$file ]; then \
+	       echo cp $$file $(WEBDATADIR) ;\
+	       cp -f $$file $(WEBDATADIR) ;\
+	    fi ;\
+	 done
+
+all-www:
+	@for file in $(WWW_COPY); do \
+	    if [ ! -f $(WEBWWWDIR)/$$file ] || [ $(ROUTINO_WEBWWWDIR)/$$file -nt $(WEBWWWDIR)/$$file ]; then \
+	       echo cp $(ROUTINO_WEBWWWDIR)/$$file $(WEBWWWDIR) ;\
+	       cp -f $(ROUTINO_WEBWWWDIR)/$$file $(WEBWWWDIR) ;\
+	    fi ;\
+	 done
+	@for file in $(DOC_COPY); do \
+	    if [ ! -f $(WEBWWWDIR)/$$file ] || [ $(ROUTINO_DOCDIR)/$$file -nt $(WEBWWWDIR)/$$file ]; then \
+	       echo cp $(ROUTINO_DOCDIR)/$$file $(WEBWWWDIR) ;\
+	       cp -f $(ROUTINO_DOCDIR)/$$file $(WEBWWWDIR) ;\
+	    fi ;\
+	 done
+
+all-routino-src:
+	cd $(ROUTINO_SRC) && $(MAKE) all
 
 ########
 
 FIXME_FINDER_OBJ=fixme-finder.o osmparser.o \
-	       	 $(ROUTINO)/nodesx.o $(ROUTINO)/segmentsx.o $(ROUTINO)/waysx.o $(ROUTINO)/relationsx.o \
-	       	 $(ROUTINO)/ways.o $(ROUTINO)/types.o \
-	       	 $(ROUTINO)/files.o $(ROUTINO)/logging.o $(ROUTINO)/logerror.o $(ROUTINO)/errorlogx.o \
-	       	 $(ROUTINO)/sorting.o \
-	       	 $(ROUTINO)/xmlparse.o $(ROUTINO)/tagging.o \
-	       	 $(ROUTINO)/uncompress.o $(ROUTINO)/osmxmlparse.o $(ROUTINO)/osmpbfparse.o $(ROUTINO)/osmo5mparse.o
+	       	 $(ROUTINO_SRC)/nodesx.o $(ROUTINO_SRC)/segmentsx.o $(ROUTINO_SRC)/waysx.o $(ROUTINO_SRC)/relationsx.o \
+	       	 $(ROUTINO_SRC)/ways.o $(ROUTINO_SRC)/types.o \
+	       	 $(ROUTINO_SRC)/files.o $(ROUTINO_SRC)/logging.o $(ROUTINO_SRC)/logerror.o $(ROUTINO_SRC)/errorlogx.o \
+	       	 $(ROUTINO_SRC)/sorting.o \
+	       	 $(ROUTINO_SRC)/xmlparse.o $(ROUTINO_SRC)/tagging.o \
+	       	 $(ROUTINO_SRC)/uncompress.o $(ROUTINO_SRC)/osmxmlparse.o $(ROUTINO_SRC)/osmpbfparse.o $(ROUTINO_SRC)/osmo5mparse.o
 
 fixme-finder : $(FIXME_FINDER_OBJ)
 	$(LD) $(FIXME_FINDER_OBJ) -o $@ $(LDFLAGS)
@@ -91,12 +97,12 @@ fixme-finder : $(FIXME_FINDER_OBJ)
 ########
 
 FIXME_FINDER_SLIM_OBJ=fixme-finder-slim.o osmparser.o \
-	       	      $(ROUTINO)/nodesx-slim.o $(ROUTINO)/segmentsx-slim.o $(ROUTINO)/waysx-slim.o $(ROUTINO)/relationsx-slim.o \
-	              $(ROUTINO)/ways.o $(ROUTINO)/types.o \
-	       	      $(ROUTINO)/files.o $(ROUTINO)/logging.o $(ROUTINO)/logerror-slim.o $(ROUTINO)/errorlogx-slim.o \
-	              $(ROUTINO)/sorting.o \
-	       	      $(ROUTINO)/xmlparse.o $(ROUTINO)/tagging.o \
-	       	      $(ROUTINO)/uncompress.o $(ROUTINO)/osmxmlparse.o $(ROUTINO)/osmpbfparse.o $(ROUTINO)/osmo5mparse.o
+	       	      $(ROUTINO_SRC)/nodesx-slim.o $(ROUTINO_SRC)/segmentsx-slim.o $(ROUTINO_SRC)/waysx-slim.o $(ROUTINO_SRC)/relationsx-slim.o \
+	              $(ROUTINO_SRC)/ways.o $(ROUTINO_SRC)/types.o \
+	       	      $(ROUTINO_SRC)/files.o $(ROUTINO_SRC)/logging.o $(ROUTINO_SRC)/logerror-slim.o $(ROUTINO_SRC)/errorlogx-slim.o \
+	              $(ROUTINO_SRC)/sorting.o \
+	       	      $(ROUTINO_SRC)/xmlparse.o $(ROUTINO_SRC)/tagging.o \
+	       	      $(ROUTINO_SRC)/uncompress.o $(ROUTINO_SRC)/osmxmlparse.o $(ROUTINO_SRC)/osmpbfparse.o $(ROUTINO_SRC)/osmo5mparse.o
 
 fixme-finder-slim : $(FIXME_FINDER_SLIM_OBJ)
 	$(LD) $(FIXME_FINDER_SLIM_OBJ) -o $@ $(LDFLAGS)
@@ -104,8 +110,8 @@ fixme-finder-slim : $(FIXME_FINDER_SLIM_OBJ)
 ########
 
 FIXME_DUMPER_OBJ=fixme-dumper.o \
-	         $(ROUTINO)/errorlog.o \
-	         $(ROUTINO)/files.o $(ROUTINO)/logging.o $(ROUTINO)/xmlparse.o
+	         $(ROUTINO_SRC)/errorlog.o \
+	         $(ROUTINO_SRC)/files.o $(ROUTINO_SRC)/logging.o $(ROUTINO_SRC)/xmlparse.o
 
 fixme-dumper : $(FIXME_DUMPER_OBJ)
 	$(LD) $(FIXME_DUMPER_OBJ) -o $@ $(LDFLAGS)
@@ -113,27 +119,27 @@ fixme-dumper : $(FIXME_DUMPER_OBJ)
 ########
 
 FIXME_DUMPER_SLIM_OBJ=fixme-dumper-slim.o \
-	              $(ROUTINO)/errorlog-slim.o \
-	              $(ROUTINO)/files.o $(ROUTINO)/logging.o $(ROUTINO)/xmlparse.o
+	              $(ROUTINO_SRC)/errorlog-slim.o \
+	              $(ROUTINO_SRC)/files.o $(ROUTINO_SRC)/logging.o $(ROUTINO_SRC)/xmlparse.o
 
 fixme-dumper-slim : $(FIXME_DUMPER_SLIM_OBJ)
 	$(LD) $(FIXME_DUMPER_SLIM_OBJ) -o $@ $(LDFLAGS)
 
 ########
 
-$(ROUTINO)/%.o :
-	cd $(ROUTINO) && $(MAKE) $(notdir $@)
+$(ROUTINO_SRC)/%.o :
+	cd $(ROUTINO_SRC) && $(MAKE) $(notdir $@)
 
-$(ROUTINO)/%-slim.o :
-	cd $(ROUTINO) && $(MAKE) $(notdir $@)
+$(ROUTINO_SRC)/%-slim.o :
+	cd $(ROUTINO_SRC) && $(MAKE) $(notdir $@)
 
 %.o : %.c
 	@[ -d .deps ] || mkdir .deps
-	$(CC) -c $(CFLAGS) -DSLIM=0 -I$(ROUTINO) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+	$(CC) -c $(CFLAGS) -DSLIM=0 -I$(ROUTINO_SRC) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 %-slim.o : %.c
 	@[ -d .deps ] || mkdir .deps
-	$(CC) -c $(CFLAGS) -DSLIM=1 -I$(ROUTINO) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+	$(CC) -c $(CFLAGS) -DSLIM=1 -I$(ROUTINO_SRC) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
 
@@ -169,4 +175,6 @@ include $(D)
 
 ########
 
-.PHONY:: all all-routino test install clean distclean
+.PHONY:: all test install clean distclean
+
+.PHONY:: all-bin all-data all-www all-routino-src

@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2010-2013 Andrew M. Bishop
+# This file Copyright 2010-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -22,10 +22,6 @@
 
 include ../Makefile.conf
 
-# Web file paths
-
-WEBDOCDIR=../$(webdocdir)
-
 # Files to install
 
 HTML_FILES=$(notdir $(wildcard html/*.html)) $(notdir $(wildcard html/*.css))
@@ -35,13 +31,6 @@ TOP_FILES=../agpl-3.0.txt
 ########
 
 all:
-	-@[ -d $(WEBDOCDIR) ] && \
-	  for file in $(HTML_FILES); do \
-	     if [ ! -f $(WEBDOCDIR)/$$file ] || [ html/$$file -nt $(WEBDOCDIR)/$$file ]; then \
-	        echo cp html/$$file $(WEBDOCDIR) ;\
-	        cp -f html/$$file $(WEBDOCDIR) ;\
-	     fi ;\
-	  done
 
 ########
 
@@ -49,24 +38,25 @@ test: all
 
 ########
 
-install: all
-	-[ -d $(DESTDIR)$(docdir) ] || mkdir -p $(DESTDIR)$(docdir)
-	@[ -d $(DESTDIR)$(docdir) ] && \
-	  for file in $(TOP_FILES); do \
-	     echo cp $$file $(DESTDIR)$(docdir) ;\
-	     cp -f $$file $(DESTDIR)$(docdir) ;\
-	  done
-	@[ -d $(DESTDIR)$(docdir) ] && \
-	  for file in $(TXT_FILES); do \
-	     echo cp $$file $(DESTDIR)$(docdir) ;\
-	     cp -f $$file $(DESTDIR)$(docdir) ;\
-	  done
-	-[ -d $(DESTDIR)$(docdir)/html ] || mkdir -p $(DESTDIR)$(docdir)/html
-	@[ -d $(DESTDIR)$(docdir)/html ] && \
-	  for file in $(HTML_FILES); do \
-	     echo cp $$file $(DESTDIR)$(docdir)/html ;\
-	     cp -f $$file $(DESTDIR)$(docdir)/html ;\
-	  done
+install: all install-txt install-html
+
+install-txt:
+	@[ -d $(DESTDIR)$(docdir) ] || mkdir -p $(DESTDIR)$(docdir)
+	@for file in $(TOP_FILES); do \
+	    echo cp $$file $(DESTDIR)$(docdir) ;\
+	    cp -f $$file $(DESTDIR)$(docdir) ;\
+	 done
+	@for file in $(TXT_FILES); do \
+	    echo cp $$file $(DESTDIR)$(docdir) ;\
+	    cp -f $$file $(DESTDIR)$(docdir) ;\
+	 done
+
+install-html:
+	@[ -d $(DESTDIR)$(docdir)/html ] || mkdir -p $(DESTDIR)$(docdir)/html
+	@for file in $(HTML_FILES); do \
+	    echo cp html/$$file $(DESTDIR)$(docdir)/html ;\
+	    cp -f html/$$file $(DESTDIR)$(docdir)/html ;\
+	 done
 
 ########
 
@@ -77,8 +67,9 @@ clean:
 ########
 
 distclean: clean
-	-cd $(WEBDOCDIR) && rm -f $(HTML_FILES)
 
 ########
 
 .PHONY:: all test install clean distclean
+
+.PHONY:: install-txt install-html
