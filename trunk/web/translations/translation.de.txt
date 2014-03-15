@@ -9,7 +9,7 @@
 # Router (and some shared) translations
 #
 
-@@ROUTER-TITLE@@	Routen Planer f&uuml;r OpenStreetMap Daten
+@@ROUTER-TITLE@@	Routen Planer für OpenStreetMap Daten
 
 @@OPTION-TAB@@	Optionen
 @@OPTION-TAB-HELP@@	Setze Routing-Optionen
@@ -36,15 +36,15 @@
 @@HELP-BOX@@	Hilfe
 
 @@STATUS-BOX@@	Status
-@@SHORTEST-ROUTE@@	k&uuml;rzester Weg
+@@SHORTEST-ROUTE@@	kürzester Weg
 @@QUICKEST-ROUTE@@	schnellste Route
 @@STATISTICS-BOX@@	Routino Statistik
 @@VISUALISER-BOX@@	Routino Ansichten
 
-@@WAYPOINT-REVERSE@@	R&uuml;ckw&auml;rts
-@@WAYPOINT-REVERSE-BUTTON@@	R&uuml;ckw&auml;rts
+@@WAYPOINT-REVERSE@@	Rückwärts
+@@WAYPOINT-REVERSE-BUTTON@@	Rückwärts
 
-@@TRANSPORT-FOOT@@	Fu&szlig;g&auml;nger
+@@TRANSPORT-FOOT@@	Fußgänger
 @@TRANSPORT-HORSE@@	Reiter
 @@TRANSPORT-WHEELCHAIR@@	Rollstuhl
 @@TRANSPORT-BICYCLE@@	Fahrrad
@@ -56,38 +56,38 @@
 @@TRANSPORT-PSV@@	Personenverkehr
 
 @@HIGHWAY-MOTORWAY@@	Autobahn
-@@HIGHWAY-TRUNK@@	Schnellstra&szlig;e
-@@HIGHWAY-PRIMARY@@	Bundesstra&szlig;e
-@@HIGHWAY-SECONDARY@@	Landesstra&szlig;e
-@@HIGHWAY-TERTIARY@@	Hauptstra&szlig;e
-@@HIGHWAY-UNCLASSIFIED@@	Stra&szlig;e
-@@HIGHWAY-RESIDENTIAL@@	Wohnstra&szlig;e
+@@HIGHWAY-TRUNK@@	Schnellstraße
+@@HIGHWAY-PRIMARY@@	Bundesstraße
+@@HIGHWAY-SECONDARY@@	Landesstraße
+@@HIGHWAY-TERTIARY@@	Hauptstraße
+@@HIGHWAY-UNCLASSIFIED@@	Straße
+@@HIGHWAY-RESIDENTIAL@@	Wohnstraße
 @@HIGHWAY-SERVICE@@	Zufahrtsweg
 @@HIGHWAY-TRACK@@	Feld-(Wald-)weg
 @@HIGHWAY-CYCLEWAY@@	Fahrradweg
 @@HIGHWAY-PATH@@	Weg
-@@HIGHWAY-STEPS@@	Fu&szlig;weg
-@@HIGHWAY-FERRY@@	F&auml;hre
+@@HIGHWAY-STEPS@@	Fußweg
+@@HIGHWAY-FERRY@@	Fähre
 
 @@PROPERTY-PAVED@@	befestigt
 @@PROPERTY-MULTILANE@@	mehrspurig
-@@PROPERTY-BRIDGE@@	Br&uuml;cken
+@@PROPERTY-BRIDGE@@	Brücken
 @@PROPERTY-TUNNEL@@	Tunnel
 @@PROPERTY-WALKINGROUTE@@	Wanderweg
 @@PROPERTY-BICYCLEROUTE@@	Radweg
 
-@@RESTRICT-ONEWAY@@	beachte Einbahnstra&szlig;en
+@@RESTRICT-ONEWAY@@	beachte Einbahnstraßen
 @@RESTRICT-TURNS@@	beachte Abbiegeverbot
 @@RESTRICT-WEIGHT@@	Gewicht
-@@RESTRICT-HEIGHT@@	H&ouml;he
+@@RESTRICT-HEIGHT@@	Höhe
 @@RESTRICT-WIDTH@@	Breite
-@@RESTRICT-LENGTH@@	L&auml;nge
+@@RESTRICT-LENGTH@@	Länge
 
 @@MAP-VIEW-LINK@@	anpassen dieser Kartenansicht
 @@EDIT-OSM-DATA@@	Bearbeitet die OSM-Daten
 
-@@ROUTER-NOT-RUN@@	Router l&auml;uft nicht
-@@ROUTER-RUNNING@@	Router l&auml;uft...
+@@ROUTER-NOT-RUN@@	Router läuft nicht
+@@ROUTER-RUNNING@@	Router läuft...
 @@ROUTER-COMPLETED@@	Routing fertig
 @@ROUTER-ERROR@@	Router Fehler
 @@ROUTER-FAILED@@	Router funktioniert nicht
@@ -99,7 +99,7 @@
 @@GPX-ROUTE@@	GPX Routen-Datei
 @@FULL-TEXT-ROUTE@@	Volltext-Datei
 @@TEXT-ROUTE@@	Text-Datei
-@@OPEN-POPUP@@	&ouml;ffne Popup
+@@OPEN-POPUP@@	öffne Popup
 
 @@DISPLAY-STATISTICS@@	zeige die Statistik
 
@@ -113,7 +113,7 @@
 
 $$ROUTER-INFO$$
 Diese Website erlaubt Routing mit den Daten, die OpenStreetMap gesammelt hat.
-W&auml;hle Start- und Endpunkt (klicke auf die Marker-Symbole unten), w&auml;hle die Routing-Vorgaben und dann finde den Weg.
+Wähle Start- und Endpunkt (klicke auf die Marker-Symbole unten), wähle die Routing-Vorgaben und dann finde den Weg.
 $$ROUTER-INFO$$
 
 $$ROUTER-OPTIONS-HELP$$
@@ -121,17 +121,17 @@ $$ROUTER-OPTIONS-HELP$$
 <br>
 Klicke auf die Marker-Bildchen (oben), um sie in der Mitte der Karte (rechts) zu positionieren. Dann 
 ziehe das Bildchen auf die genaue Position. Das Zoomen der Karte vor der Patzierung ist vermutlich am einfachsten.
-Alternativ kann man die geografische Breite und L&auml;nge in den K&auml;stchen eintragen.
+Alternativ kann man die geografische Breite und Länge in den Kästchen eintragen.
 <p>
-W&auml;hle die Fortbewegungsart, die Vorgaben zur Wegnutzung, die Geschwindigkeitsvorgaben, 
+Wähle die Fortbewegungsart, die Vorgaben zur Wegnutzung, die Geschwindigkeitsvorgaben, 
 die Vorgaben zur Wegbeschaffenheit und die anderen Vorgaben von den obigen Auswahlfeldern.
-Ein Klick auf "k&uuml;rzeste" oder "schnellste" ermittelt die entsprechende Verbindung und zeigt sie in der Karte an.
+Ein Klick auf "kürzeste" oder "schnellste" ermittelt die entsprechende Verbindung und zeigt sie in der Karte an.
 <p>
 <b>Wegpunkte</b>
 <br>
 Ein Klick auf das Marker-Bildchen (oben) schaltet die Sichbarkeit in der Karte ein bzw. aus.
-Die Berechnung Route erfolgt in der Reihenfolge der Wegpunkte (so gut, wie es f&uuml;r die 
-gew&auml;hlte Fortbewegungsart m&ouml;glich ist).
+Die Berechnung Route erfolgt in der Reihenfolge der Wegpunkte (so gut, wie es für die 
+gewählte Fortbewegungsart möglich ist).
 <p>
 <b>Fortbewegungsart</b>
 <br>
@@ -141,54 +141,54 @@ Vorgabeeinstellungen aller anderen Parameter.
 <b>Vorgaben zur Wegnutzung</b>
 <br>
 Die Vorgaben zur Wegnutzung bestimmen die Priorisierung von Wegarten.
-Wenn z. B. Schnellstra&szlig;en mit 110% und Bundesstra&szlig;en mit 100% angegeben werden, wird 
-bei zwei m&ouml;glichen Wegwahlen die Schnellstra&szlig;e solange bevorzugt wird, wie der 
-L&auml;ngen(oder Zeit-)unterschied 10% nicht &uuml;berschreitet.
+Wenn z. B. Schnellstraßen mit 110% und Bundesstraßen mit 100% angegeben werden, wird 
+bei zwei möglichen Wegwahlen die Schnellstraße solange bevorzugt wird, wie der 
+Längen(oder Zeit-)unterschied 10% nicht überschreitet.
 <p>
 <b>Geschwindigkeitsvorgaben</b>
 <br>
-Die hier geannten Geschwindigkeiten werden f&uuml;r den jeweiligen Wegtyp finden Anwendung wenn keine
+Die hier geannten Geschwindigkeiten werden für den jeweiligen Wegtyp finden Anwendung wenn keine
 andere Geschwindkeitsbegrenzung mit geringerem Wert bekannt ist.
 <p>
 <b>Vorgaben zur Wegbeschaffenheit</b>
 <br>
-Die Vorgaben zur Wegbeschaffenheit werden als Prozentangaben verwendet, um die Verh&auml;ltnisse 
+Die Vorgaben zur Wegbeschaffenheit werden als Prozentangaben verwendet, um die Verhältnisse 
 der Wegbenutzung zu steuern.
 Wenn z. B. befestigte Wege mit 75% angegeben sind, werden unbefestigte automatisch mit 25% angenommen, so
-werden Wege ausgew&auml;hlt, die mindestens drei mal l&auml;nger auf befestigten Wegen verlaufen.
+werden Wege ausgewählt, die mindestens drei mal länger auf befestigten Wegen verlaufen.
 <p>
 <b>andere Vorgaben</b>
 <br>
-Die Ber&uuml;cksichtigung von Benutzungs-Begrenzungen durch Gewicht, H&ouml;he, L&auml;nge und 
-Breite ist m&ouml;glich. Genauso k&ouml;nnen Einbahnstra&szlig;enbeschr&auml;kungen ignoriert werden 
-(z. B. als Fu&szlig;g&auml;nger). 
+Die Berücksichtigung von Benutzungs-Begrenzungen durch Gewicht, Höhe, Länge und 
+Breite ist möglich. Genauso können Einbahnstraßenbeschräkungen ignoriert werden 
+(z. B. als Fußgänger). 
 $$ROUTER-OPTIONS-HELP$$
 
 $$ROUTER-RESULTS-HELP$$
 <b>Schnellanleitung</b>
 <br>
 Nach der Routenberechnung kann man eine GPX oder eine einfache Textdatei (Kurz- oder Langfassung)
-herunterladen. Ebenso kann man die Routenbeschreibung ansehen und in ausgew&auml;lte Bereiche zoomen.
+herunterladen. Ebenso kann man die Routenbeschreibung ansehen und in ausgewälte Bereiche zoomen.
 <p>
-<b>Probleml&ouml;sung</b>
+<b>Problemlösung</b>
 <br>
-Wenn der Router einen Fehler meldet liegt es meistens daran, dass kein Weg zwischen den gew&auml;lten Punkten unter
-Beachtung der Vorgaben gefunden werden kann. Das Bewegen eines oder mehrere Punkte oder das ver&auml;ndern von
+Wenn der Router einen Fehler meldet liegt es meistens daran, dass kein Weg zwischen den gewälten Punkten unter
+Beachtung der Vorgaben gefunden werden kann. Das Bewegen eines oder mehrere Punkte oder das verändern von
 Vorgaben sollte es erlauben eine Route zu finden.
 <p>
 <b>Ausgabe-Formate</b>
 <br>
 <dl>
   <dt>HTMLs
-  <dd>Eine Beschreibung der Route mit Anweisungen f&uuml;r jede wichtige Abzweigung.
+  <dd>Eine Beschreibung der Route mit Anweisungen für jede wichtige Abzweigung.
   <dt>GPX Track-Datei
-  <dd>Die gleichen Informationen, die in der Karte angezeigt werden mit Punkten f&uuml;r jeden Abzweig 
-  und Linien f&uuml;r jedes Teilst&uuml;ck.
+  <dd>Die gleichen Informationen, die in der Karte angezeigt werden mit Punkten für jeden Abzweig 
+  und Linien für jedes Teilstück.
   <dt>GPX Routen-Datei
-  <dd>Die gleichen Informationen, die im Text angezeigt werden mit einem Wegpunkt f&uuml;r 
-  jede wichtige Richtungs&auml;nderung.
+  <dd>Die gleichen Informationen, die im Text angezeigt werden mit einem Wegpunkt für 
+  jede wichtige Richtungsänderung.
   <dt>Volltext-Datei
-  <dd>Eine aller Knoten und die Abst&auml;nde zwischen ihnen, sowie die Gesamtentfernung vom i
+  <dd>Eine aller Knoten und die Abstände zwischen ihnen, sowie die Gesamtentfernung vom i
       Startpunkt zum jeweiligen Konten.
   <dt>Text-Datei
   <dd>Die gleiche Information, die als Text angezeigt wird.
