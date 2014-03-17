@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2012, 2013 Andrew M. Bishop
+ This file Copyright 2012-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -356,7 +356,7 @@ static inline void pbf_skip(unsigned char **ptr,int type)
   int fd The file descriptor of the file to parse.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParsePBF(int fd)
+static int ParsePBF(int fd)
 {
  int state;
  unsigned char *error=NULL;
