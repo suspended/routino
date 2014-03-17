@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2013 Andrew M. Bishop
+ This file Copyright 2010-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -763,7 +763,7 @@ char *StringifyTag(TagList *tags)
 /*++++++++++++++++++++++++++++++++++++++
   Apply a set of tagging rules to a set of node tags.
 
-  TagList *ApplyTaggingRules Returns the list of output tags after modification.
+  TagList *ApplyNodeTaggingRules Returns the list of output tags after modification.
 
   TagList *tags The tags to be modified.
 
@@ -786,7 +786,7 @@ TagList *ApplyNodeTaggingRules(TagList *tags,int64_t id)
 /*++++++++++++++++++++++++++++++++++++++
   Apply a set of tagging rules to a set of way tags.
 
-  TagList *ApplyTaggingRules Returns the list of output tags after modification.
+  TagList *ApplyWayTaggingRules Returns the list of output tags after modification.
 
   TagList *tags The tags to be modified.
 
@@ -809,7 +809,7 @@ TagList *ApplyWayTaggingRules(TagList *tags,int64_t id)
 /*++++++++++++++++++++++++++++++++++++++
   Apply a set of tagging rules to a set of relation tags.
 
-  TagList *ApplyTaggingRules Returns the list of output tags after modification.
+  TagList *ApplyRelationTaggingRules Returns the list of output tags after modification.
 
   TagList *tags The tags to be modified.
 
