@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -47,14 +47,10 @@ int ParseOSCFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations
 
 /* Functions in osmpbfparse.c */
 
-int ParsePBF(int fd);
-
 int ParsePBFFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
 
 
 /* Functions in osmo5mparse.c */
-
-int ParseO5M(int fd,int changes);
 
 int ParseO5MFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations);
 

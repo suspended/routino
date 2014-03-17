@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2012-2013 Andrew M. Bishop
+ This file Copyright 2012-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -266,7 +266,7 @@ static inline int64_t o5m_sint64(unsigned char **ptr)
   int changes Set to 1 if this is expected to be a changes file, otherwise zero.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseO5M(int fd,int changes)
+static int ParseO5M(int fd,int changes)
 {
  int i;
  int state;
