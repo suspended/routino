@@ -364,17 +364,17 @@ function formSetTransport(value) // called from router.html
 
 function formSetHighway(type,value) // called from router.html (with one argument)
 {
- if(value == '+')
+ if(value == "+")
    {
     value=routino.profile_highway[type][routino.transport];
     value=10*Math.floor(value/10)+10;
    }
- else if(value == '-')
+ else if(value == "-")
    {
     value=routino.profile_highway[type][routino.transport]-10;
     value=10*Math.ceil(value/10)-10;
    }
- else if(value == '=')
+ else if(value == "=")
     value=document.forms["form"].elements["highway-" + type].value;
 
  value=Number(value);
@@ -397,21 +397,21 @@ function formSetHighway(type,value) // called from router.html (with one argumen
 
 function formSetSpeed(type,value) // called from router.html (with one argument)
 {
- if(value == '+')
+ if(value == "+")
    {
     value=routino.profile_speed[type][routino.transport];
     if(value<10) value=2*Math.floor(value/2)+2;
     else if(value<30) value=5*Math.floor(value/5)+5;
     else value=10*Math.floor(value/10)+10;
    }
- else if(value == '-')
+ else if(value == "-")
    {
     value=routino.profile_speed[type][routino.transport];
     if(value<=10) value=2*Math.ceil(value/2)-2;
     else if(value<=30) value=5*Math.ceil(value/5)-5;
     else value=10*Math.ceil(value/10)-10;
    }
- else if(value == '=')
+ else if(value == "=")
     value=document.forms["form"].elements["speed-" + type].value;
 
  value=Number(value);
@@ -434,19 +434,19 @@ function formSetSpeed(type,value) // called from router.html (with one argument)
 
 function formSetProperty(type,value) // called from router.html (with one argument)
 {
- if(value == '+')
+ if(value == "+")
    {
     value=routino.profile_property[type][routino.transport];
     if(value>=40 && value<60) value=2*Math.floor(value/2)+2;
     else value=5*Math.floor(value/5)+5;
    }
- else if(value == '-')
+ else if(value == "-")
    {
     value=routino.profile_property[type][routino.transport];
     if(value>40 && value<=60) value=2*Math.ceil(value/2)-2;
     else value=5*Math.ceil(value/5)-5;
    }
- else if(value == '=')
+ else if(value == "=")
     value=document.forms["form"].elements["property-" + type].value;
 
  value=Number(value);
@@ -480,11 +480,11 @@ function formSetRestriction(type,value) // called from router.html (with one arg
    }
  else if(type=="weight")
    {
-    if(value == '+')
+    if(value == "+")
        value=routino.profile_restrictions[type][routino.transport]+5;
-    else if(value == '-')
+    else if(value == "-")
        value=routino.profile_restrictions[type][routino.transport]-5;
-    else if(value == '=')
+    else if(value == "=")
        value=document.forms["form"].elements["restrict-" + type].value;
 
     value=Number(value);
@@ -497,11 +497,11 @@ function formSetRestriction(type,value) // called from router.html (with one arg
    }
  else /* if(type=="height" || type=="width" || type=="length") */
    {
-    if(value == '+')
+    if(value == "+")
        value=routino.profile_restrictions[type][routino.transport]+1;
-    else if(value == '-')
+    else if(value == "-")
        value=routino.profile_restrictions[type][routino.transport]-1;
-    else if(value == '=')
+    else if(value == "=")
        value=document.forms["form"].elements["restrict-" + type].value;
 
     value=Number(value);
@@ -1884,7 +1884,7 @@ function getRouteSuccess(response)
                     "<td class='highway'>" + points[p].highway;
    }
 
- result=result + "<tr onmouseover='highlight(\"" + routing_type + "\"," + p + ",\"show\")'>" + 
+ result=result + "<tr onmouseover='highlight(\"" + routing_type + "\"," + p + ",\"show\")'>" +
                  "<td onclick='highlight(\"" + routing_type + "\"," + p + ",\"zoom\")'" +
                  " class='distance'>#" + (p+1) +
                  "<td class='highway'>" + total_word + " " + points[p].total;

@@ -891,7 +891,7 @@ void PrintProfilesJSON(void)
  printf("\n");
 
  printf("  // Default transport type\n");
- printf("  transport: 'motorcar',\n");
+ printf("  transport: \"motorcar\",\n");
  printf("\n");
 
  printf("  // Transport types\n");
