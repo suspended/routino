@@ -140,10 +140,12 @@ filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
 
 ########
 
-test: all-local
+test: test-local
 	for dir in $(SUBDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
+
+test-local:
 
 ########
 
@@ -174,12 +176,12 @@ clean-local:
 
 ########
 
-distclean: distclean-local clean-local
+distclean: distclean-local
 	for dir in $(SUBDIRS); do \
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
-distclean-local:
+distclean-local: clean-local
 	-rm -f $(EXE)
 	-rm -f $(D)
 	-rm -fr .deps
@@ -192,4 +194,4 @@ include $(D)
 
 .PHONY:: all test install clean distclean
 
-.PHONY:: all-local install-local clean-local distclean-local
+.PHONY:: all-local test-local install-local clean-local distclean-local

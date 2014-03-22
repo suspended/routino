@@ -34,11 +34,11 @@ all:
 
 ########
 
-test: all
+test:
 
 ########
 
-install: all install-txt install-html
+install: install-txt install-html
 
 install-txt:
 	@[ -d $(DESTDIR)$(docdir) ] || mkdir -p $(DESTDIR)$(docdir)

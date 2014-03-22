@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2011-2013 Andrew M. Bishop
+# This file Copyright 2011-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -22,11 +22,13 @@
 
 include ../../Makefile.conf
 
-# Routino executables
+# executables
 
-EXE=planetsplitter planetsplitter-slim \
-    router router-slim \
-    filedumper filedumper-slim
+ROUTINO_EXE=../planetsplitter ../planetsplitter-slim \
+            ../router ../router-slim \
+            ../filedumper ../filedumper-slim
+
+EXE=is-fast-math
 
 # Compilation targets
 
@@ -36,16 +38,10 @@ S=$(foreach f,$(O),$(addsuffix .sh,$(basename $f)))
 ########
 
 all :
-	@true
 
 ########
 
-exe :
-	cd .. && $(MAKE) $(EXE)
-
-########
-
-test : exe is-fast-math
+test : $(ROUTINO_EXE) $(EXE)
 	@status=true ;\
 	echo ""; \
 	./is-fast-math message; \
@@ -89,11 +85,18 @@ test : exe is-fast-math
 
 ########
 
+$(ROUTINO_EXE) :
+	cd .. && $(MAKE) $(notdir $@)
+
 is-fast-math : is-fast-math.o
 	$(LD) $< -o $@ $(LDFLAGS)
 
 is-fast-math.o : is-fast-math.c
 	$(CC) -c $(CFLAGS) $< -o $@
+
+########
+
+install:
 
 ########
 
@@ -115,4 +118,4 @@ distclean: clean
 
 ########
 
-.PHONY:: all exe test install clean distclean
+.PHONY:: all test install clean distclean
