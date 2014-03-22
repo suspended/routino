@@ -1,3 +1,51 @@
+Version 2.7 of Routino released : Sat Mar 22 2014
+-------------------------------------------------
+
+Bug fixes:
+  Fix web-page CGI bug that did not allow more than 9 waypoints to be routed.
+  Fix typo in documentation strings in filedumper program.
+  Fix error in function prototype that stopped 64-bit node type being used.
+  Don't lose super-segments when merging them with normal segments.
+  Don't exceed the database lat/long limits when searching for visualiser data.
+
+planetsplitter:
+  Don't overflow (and wrap-around) conversions of lengths, weights etc.
+  Add some new formats of length, weight and speed parsing.
+  Add .xz uncompression as a compile-time option (default is disabled).
+
+router:
+  Remove ancient undocumented option to specify lat/lon without --lat/--lon.
+  Add a '--output-stdout' option to output the route in a selected format.
+  Add a '--reverse' option to calculate a route in the reverse order.
+  Add a '--loop' option to calculate a route that returns to the first waypoint.
+  Output valid HTML4 (use strict DTD and use numeric entity for apostrophe).
+
+OSM tagging:
+  Allow bicycles both ways on certain oneway roads if tagging allows.
+  Handle "access=bus" like "access=psv".
+
+Configuration Files:
+  Updated Dutch translations.
+  Updates to the XML parser tagging rules.
+  Added French translations for the routing output.
+
+Documentation:
+  Update the algorithm documentation for finding the shortest path.
+  Update documentation HTML to strict 4.01 DTD.
+
+Web pages:
+  Some changes to HTML, CSS formatting and Javascript to improve usability.
+  Added a French translation of the router web page.
+  Add the option to choose between OpenLayers and Leaflet for map rendering.
+  Check compatible with OpenLayers v2.13.1 and make this the default.
+  Create the router and visualiser pages from templates and translated phrases.
+
+
+Note: This version has removed specific support for IE6 and IE7 browsers.
+
+Note: This version is compatible with databases from version 2.6.
+
+
 Version 2.6 of Routino released : Sat Jul 6 2013
 ------------------------------------------------
 
@@ -58,7 +106,7 @@ Configuration Files:
   Handle alternate forms of mini roundabouts (junction=roundabout).
 
 
-Note: This version is compatible with databases from version 2.4 / 2.4.1 / 2.5
+Note: This version is compatible with databases from version 2.4 / 2.4.1 / 2.5.
 
 
 Version 2.5 of Routino released : Sun Feb 9 2013

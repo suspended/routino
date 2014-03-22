@@ -122,9 +122,12 @@ that is calculated by it.
 
 <h2 id="H_1_3">Demonstration</h2>
 
-A live demonstration of the router for the UK is available on the internet:
+A live demonstration of the router for the UK is available on the internet in
+both OpenLayers and Leaflet versions:
 <br>
-<a title="Routino demo" href="http://www.routino.org/uk/">http://www.routino.org/uk/</a>
+<a href="http://www.routino.org/uk-leaflet/" title="Leaflet Router">http://www.routino.org/uk-leaflet/</a>
+<br>
+<a href="http://www.routino.org/uk-openlayers/" title="OpenLayers Router">http://www.routino.org/uk-openlayers/</a>
 
 <p>
 
@@ -197,53 +200,63 @@ Version 2.5 of Routino was released on 9th February 2013.
 Version 2.5.1 of Routino was released on 20th April 2013.
 <br>
 Version 2.6 of Routino was released on 6th July 2013.
+<br>
+Version 2.7 of Routino was released on 22nd March 2014.
 
 <p>
 
 The full version history is available in the NEWS.txt file.
 
 
-<h3 id="H_1_5_1" title="Changes">Changes in Versions 2.6</h3>
+<h3 id="H_1_5_1" title="Changes">Changes in Versions 2.7</h3>
 
-Version 2.6 - mostly faster operation.
+Version 2.7 - mostly web page usability improvements.
 
 <dl>
-  <dt>General:
-  <dd>Force '&lt;if&gt;...&lt;/if&gt;' in tagging rules to match even with no input tags.
-  <br>Built-in translations for GPX-route file gave nonsense durations.
-  <br>Handle some cases that potentially caused divide by zero (not crashes).
-
-  <dt>Compilation:
-  <dd>All configuration is now contained in the top level file Makefile.conf.
-  <br>Default to using -ffast-math option for faster maths and glibc workaround.
-
-  <dt>Code improvements:
-  <dd>Improve router internal data structures to increase performance.
-  <br>Add another layer of caching to significantly speed up slim mode operation.
-  <br>Add a layer of file buffering to significantly speed up reading/writing.
-  <br>Enable more compile-time warnings and fix them.
+  <dt>Bug fixes:
+    <dd>Fix web-page CGI bug that did not allow more than 9 waypoints to be routed.
+    <br>Fix typo in documentation strings in filedumper program.
+    <br>Fix error in function prototype that stopped 64-bit node type being used.
+    <br>Don't lose super-segments when merging them with normal segments.
+    <br>Don't exceed the database lat/long limits when searching for visualiser data.
 
   <dt>planetsplitter:
-  <dd>Create a binary log file to allow searching for errors geographically.
-  <br>Simplify processing for changes (segment files not kept).
-  <br>Don't prune isolated regions for transport types we don't have.
+    <dd>Don't overflow (and wrap-around) conversions of lengths, weights etc.
+    <br>Add some new formats of length, weight and speed parsing.
+    <br>Add .xz uncompression as a compile-time option (default is disabled).
 
-  <dt>Web pages (visualiser):
-  <dd>Allow displaying the error logs on the map.
-  <br>Allow selecting any item displayed and showing more information about it.
+  <dt>router:
+    <dd>Remove ancient undocumented option to specify lat/lon without --lat/--lon.
+    <br>Add a '--output-stdout' option to output the route in a selected format.
+    <br>Add a '--reverse' option to calculate a route in the reverse order.
+    <br>Add a '--loop' option to calculate a route that returns to the first waypoint.
+    <br>Output valid HTML4 (use strict DTD and use numeric entity for apostrophe).
 
-  <dt>Extras:
-  <dd>Create a separate directory to put extra (non-essential) programs and scripts.
-    <ul>
-      <li>tagmodifier - a tagging rule testing program.
-      <li>errorlog - a script to summarise the planetsplitter error log.
-      <li>plot-time - a script to plot a graph of the planetsplitter execution time.
-      <li>find-fixme - search an OSM file for "fixme" tags and display them on a map.
-    </ul>
+  <dt>OSM tagging:
+    <dd>Allow bicycles both ways on certain oneway roads if tagging allows.
+    <br>Handle "access=bus" like "access=psv".
+
+  <dt>Configuration Files:
+    <dd>Updated Dutch translations.
+    <br>Updates to the XML parser tagging rules.
+    <br>Added French translations for the routing output.
+
+  <dt>Documentation:
+    <dd>Update the algorithm documentation for finding the shortest path.
+    <br>Update documentation HTML to strict 4.01 DTD.
+
+  <dt>Web pages:
+    <dd>Some changes to HTML, CSS formatting and Javascript to improve usability.
+    <br>Added a French translation of the router web page.
+    <br>Add the option to choose between OpenLayers and Leaflet for map rendering.
+    <br>Check compatible with OpenLayers v2.13.1 and make this the default.
+    <br>Create the router and visualiser pages from templates and translated phrases.
 </dl>
 
 <p>
-<b>Note:</b> This version is not compatible with databases from previous versions.
+<b>Note:</b> This version has removed specific support for IE6 and IE7 browsers.
+<p>
+<b>Note:</b> Note: This version is compatible with databases from version 2.6.
 
 
 <h3 id="H_1_5_2">License</h3>
@@ -264,7 +277,7 @@ software.
 
 <h3 id="H_1_5_3">Copyright</h3>
 
-Routino is copyright Andrew M. Bishop 2008-2013.
+Routino is copyright Andrew M. Bishop 2008-2014.
 
 
 <h2 id="H_1_6">Homepage</h2>
@@ -277,6 +290,22 @@ has the latest news about the program.
 
 The <a title="Download directory" href="http://www.routino.org/download/">download directory</a>
 contains the latest version of the source code.
+
+<h3 id="H_1_7_2">Subversion</h3>
+
+The source code can also be downloaded from the
+<a title="SVN Repository" href="http://routino.org/svn/trunk/">Subversion repository</a>
+with a command like the following:
+
+<pre class="boxed">
+svn co http://gedanken.org.uk/svn/cxref/trunk cxref
+</pre>
+
+<p>
+The source code can also be browsed in the
+<a title="SVN Viewer" href="http://www.routino.org/viewvc/trunk/">Subversion viewer</a>
+which also has a list of the
+<a title="SVN Changes" href="http://www.routino.org/viewvc/trunk/?view=log">latest changes</a>.
 
 
 </div>

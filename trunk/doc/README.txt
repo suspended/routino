@@ -70,12 +70,14 @@ Demonstration
 -------------
 
    A live demonstration of the router for the UK is available on the
-   internet:
+   internet in both OpenLayers and Leaflet versions:
+   http://www.routino.org/uk-leaflet/
+   http://www.routino.org/uk-openlayers/
 
    http://www.routino.org/uk/
 
-   The source code download available also includes a set of files that can
-   be used to create your own interactive map.
+   The source code download available below also includes a set of files
+   that can be used to create your own interactive map.
 
    The interactive map is made possible by use of the OpenLayers or
    Leaflet Javascript library from http://www.openlayers.org/ or
@@ -124,6 +126,7 @@ Status
    Version 2.5 of Routino was released on 9th February 2013.
    Version 2.5.1 of Routino was released on 20th April 2013.
    Version 2.6 of Routino was released on 6th July 2013.
+   Version 2.7 of Routino was released on 22nd March 2014.
 
    The full version history is available in the NEWS.txt file.
 
@@ -145,7 +148,7 @@ License
 Copyright
 ---------
 
-   Routino is copyright Andrew M. Bishop 2008-2013.
+   Routino is copyright Andrew M. Bishop 2008-2014.
 
 
 Homepage
@@ -163,7 +166,21 @@ Download
 
    http://www.routino.org/download/
 
+Subversion
+- - - - -
+
+   The source code can also be downloaded from the Subversion repository
+   with a command like the following:
+
+   svn co http://gedanken.org.uk/svn/cxref/trunk cxref
+
+   The source code can also be browsed in the Subversion viewer which also
+   has a list of the latest changes:
+
+   http://www.routino.org/viewvc/trunk/
+   http://www.routino.org/viewvc/trunk/?view=log
+
 
 --------
 
-Copyright 2008-2013 Andrew M. Bishop.
+Copyright 2008-2014 Andrew M. Bishop.
