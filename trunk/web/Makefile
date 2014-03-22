@@ -59,7 +59,7 @@ EXE_FILES=planetsplitter planetsplitter-slim \
 
 all: all-bin all-data all-doc all-profiles all-icons all-translations
 
-all-bin: all-src
+all-bin: all-exe
 	@[ -d $(WEBBINDIR) ] || mkdir -p $(WEBBINDIR)
 	@for file in $(EXE_FILES); do \
 	    if [ ! -f $(WEBBINDIR)/$$file ] || [ $(SRCDIR)/$$file -nt $(WEBBINDIR)/$$file ]; then \
@@ -92,7 +92,7 @@ all-doc:
 	    fi ;\
 	 done
 
-all-profiles: all-data
+all-profiles: all-exe all-data
 	@if [ ! -f $(WEBWWWDIR)/profiles.js ] || [ ! -f $(WEBWWWDIR)/profiles.pl ] || \
 	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.pl ] || \
 	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.js ]; then \
@@ -112,15 +112,15 @@ $(WEBWWWDIR)/router.html.en:
 	echo translate.pl
 	@cd $(WEBTRANSDIR) && perl translate.pl
 
-all-src:
-	cd $(SRCDIR) && $(MAKE) all
+all-exe:
+	cd $(SRCDIR) && $(MAKE) $(EXE_FILES)
 
 all-xml:
 	cd $(XMLDIR) && $(MAKE) all
 
 ########
 
-test: all
+test:
 
 ########
 
@@ -146,4 +146,4 @@ distclean: clean
 
 .PHONY:: all test install clean distclean
 
-.PHONY:: all-bin all-data all-doc all-profiles all-icons all-translations all-src all-xml
+.PHONY:: all-bin all-data all-doc all-profiles all-icons all-translations all-exe all-xml

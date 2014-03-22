@@ -46,7 +46,7 @@ DOC_COPY=style.css
 
 all: all-bin all-data all-www
 
-all-bin: all-routino-src $(EXE)
+all-bin: $(EXE)
 	@[ -d $(WEBBINDIR) ] || mkdir -p $(WEBBINDIR)
 	@for file in $(EXE); do \
 	    if [ ! -f $(WEBBINDIR)/$$file ] || [ $$file -nt $(WEBBINDIR)/$$file ]; then \
@@ -77,9 +77,6 @@ all-www:
 	       cp -f $(ROUTINO_DOCDIR)/$$file $(WEBWWWDIR) ;\
 	    fi ;\
 	 done
-
-all-routino-src:
-	cd $(ROUTINO_SRC) && $(MAKE) all
 
 ########
 
@@ -143,13 +140,11 @@ $(ROUTINO_SRC)/%-slim.o :
 
 ########
 
-test: all
-	@true
+test:
 
 ########
 
-install: all
-	@true
+install:
 
 ########
 
@@ -177,4 +172,4 @@ include $(D)
 
 .PHONY:: all test install clean distclean
 
-.PHONY:: all-bin all-data all-www all-routino-src
+.PHONY:: all-bin all-data all-www

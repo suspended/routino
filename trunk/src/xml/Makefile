@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2010-2013 Andrew M. Bishop
+# This file Copyright 2010-2014 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,6 @@ EXE=xsd-to-xmlparser
 ########
 
 all: $(EXE) $(C) $(E)
-	@true
 
 ########
 
@@ -68,7 +67,7 @@ xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
 
 ########
 
-test : all test-skeleton
+test: test-skeleton
 	@status=true ;\
 	echo "" ;\
 	for good in test/good*.xml; do \
