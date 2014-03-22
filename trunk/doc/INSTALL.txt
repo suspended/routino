@@ -39,6 +39,9 @@ Quick Start Guide
    script is provided for this. This will download the data for the UK
    which may take a while and then process it.
 
+        cd /var/www/routino/data
+        sh -x create.sh
+
    The routino web pages also requires either the OpenLayers or Leaflet
    Javascript library to be downloaded and installed and scripts are
    provided for this.
@@ -272,6 +275,7 @@ Configuration of web files
 
 
 Configuration of web server
+---------------------------
 
    The file 'www/routino/.htaccess' contains all of the Apache
    configuration options that are required to get the example web pages
@@ -295,4 +299,4 @@ Configuration of web server
 
 --------
 
-Copyright 2008-2013 Andrew M. Bishop.
+Copyright 2008-2014 Andrew M. Bishop.
