@@ -172,7 +172,7 @@ Subversion
    The source code can also be downloaded from the Subversion repository
    with a command like the following:
 
-   svn co http://gedanken.org.uk/svn/cxref/trunk cxref
+   svn co http://routino.org/svn/trunk routino
 
    The source code can also be browsed in the Subversion viewer which also
    has a list of the latest changes:
