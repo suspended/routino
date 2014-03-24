@@ -1,0 +1,93 @@
+  <language lang="xx">
+
+    <!-- Copyright of the data being routed, not of this file  -->
+    <copyright>
+      <creator string="%%copyright_creator_string%%" text="Routino - http://www.routino.org/" />
+      <source  string="%%copyright_source_string%%" text="%%copyright_source_text%%" />
+      <license string="%%copyright_license_string%%" text="http://www.openstreetmap.org/copyright" />
+    </copyright>
+
+    <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
+    <turn direction="-4" string="%%turn_-4%%" />
+    <turn direction="-3" string="%%turn_-3%%" />
+    <turn direction="-2" string="%%turn_-2%%" />
+    <turn direction="-1" string="%%turn_-1%%" />
+    <turn direction="0"  string="%%turn_0%%" />
+    <turn direction="1"  string="%%turn_1%%" />
+    <turn direction="2"  string="%%turn_2%%" />
+    <turn direction="3"  string="%%turn_3%%" />
+    <turn direction="4"  string="%%turn_4%%" />
+
+    <!-- Heading directions, 0 = North, -2 = West, +/-4 = South, +2 = East -->
+    <heading direction="-4" string="%%heading_-4%%" />
+    <heading direction="-3" string="%%heading_-3%%" />
+    <heading direction="-2" string="%%heading_-2%%" />
+    <heading direction="-1" string="%%heading_-1%%" />
+    <heading direction="0"  string="%%heading_0%%" />
+    <heading direction="1"  string="%%heading_1%%" />
+    <heading direction="2"  string="%%heading_2%%" />
+    <heading direction="3"  string="%%heading_3%%" />
+    <heading direction="4"  string="%%heading_4%%" />
+
+    <!-- Ordinals, 1 = first, 2 = second ... -->
+    <ordinal number="1"  string="%%ordinal_1%%" />
+    <ordinal number="2"  string="%%ordinal_2%%" />
+    <ordinal number="3"  string="%%ordinal_3%%" />
+    <ordinal number="4"  string="%%ordinal_4%%" />
+    <ordinal number="5"  string="%%ordinal_5%%" />
+    <ordinal number="6"  string="%%ordinal_6%%" />
+    <ordinal number="7"  string="%%ordinal_7%%" />
+    <ordinal number="8"  string="%%ordinal_8%%" />
+    <ordinal number="9"  string="%%ordinal_9%%" />
+    <ordinal number="10" string="%%ordinal_10%%" />
+
+    <!-- Highway names -->
+    <highway type="motorway"     string="%%highway_motorway%%" />
+    <highway type="trunk"        string="%%highway_trunk%%" />
+    <highway type="primary"      string="%%highway_primary%%" />
+    <highway type="secondary"    string="%%highway_secondary%%" />
+    <highway type="tertiary"     string="%%highway_tertiary%%" />
+    <highway type="unclassified" string="%%highway_unclassified%%" />
+    <highway type="residential"  string="%%highway_residential%%" />
+    <highway type="service"      string="%%highway_service%%" />
+    <highway type="track"        string="%%highway_track%%" />
+    <highway type="cycleway"     string="%%highway_cycleway%%" />
+    <highway type="path"         string="%%highway_path%%" />
+    <highway type="steps"        string="%%highway_steps%%" />
+    <highway type="ferry"        string="%%highway_ferry%%" />
+
+    <!-- The type of route -->
+    <route type="shortest" string="%%route_shortest%%" /> <!-- For the description and route name -->
+    <route type="quickest" string="%%route_quickest%%" /> <!-- For the description and route name -->
+
+    <!-- HTML output -->
+    <output-html>
+      <waypoint type="waypoint"   string="%%output-html_waypoint_waypoint%%" /> <!-- For the chosen waypoints -->
+      <waypoint type="junction"   string="%%output-html_waypoint_junction%%" /> <!-- For the interesting junctions -->
+      <waypoint type="roundabout" string="%%output-html_waypoint_roundabout%%" /> <!-- For roundabouts -->
+
+      <title text="%%output-html_title%%" /> <!-- %s = [shortest|quickest] -->
+
+      <start   string="%%output-html_start_string%%" text="%%output-html_start_text%%" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
+      <node    string="%%output-html_node_string%%" text="%%output-html_node_text%%" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <rbnode  string="%%output-html_rbnode_string%%" text="%%output-html_rbnode_text%%" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
+      <segment string="%%output-html_segment_string%%" text="%%output-html_segment_text%%" /> <!-- 1st %s = street name -->
+      <stop    string="%%output-html_stop_string%%" text="%%output-html_stop_text%%" /> <!-- 1st %s = [waypoint|junction] -->
+      <total   string="%%output-html_total_string%%" text="%%output-html_total_text%%" />
+    </output-html>
+
+    <!-- GPX output -->
+    <output-gpx>
+      <waypoint type="start" string="%%output-gpx_waypoint_start%%" /> <!-- For the first route waypoint -->
+      <waypoint type="inter" string="%%output-gpx_waypoint_inter%%" /> <!-- For the intermediate route waypoints -->
+      <waypoint type="trip" string="%%output-gpx_waypoint_trip%%"  /> <!-- For the other route points -->
+      <waypoint type="finish" string="%%output-gpx_waypoint_finish%%"/> <!-- For the last route waypoint -->
+
+      <desc  text="%%output-gpx_desc%%" /> <!-- %s = [shortest|quickest] -->
+      <name  text="%%output-gpx_name%%" /> <!-- %s = [shortest|quickest] -->
+      <step  text="%%output-gpx_step%%" /> <!-- 1st %s = [turn], 2nd %s = street name -->
+      <final text="%%output-gpx_final%%" />
+    </output-gpx>
+
+  </language>
+
