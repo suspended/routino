@@ -1,13 +1,97 @@
 #
-# German language web-page translation phrases
+# German language translation phrases
 #
 
-@@LANGUAGE@@	Deutsche
-@@LANGUAGE-WEBPAGE@@	Deutsche Webseite
+#
+# Router output XML definition
+#
+
+%%copyright_creator_string%%	Creator
+%%copyright_source_string%%	Source
+%%copyright_source_text%%	Basierend auf OpenStreetMap-Daten, erhältlich via http://www.openstreetmap.org/
+%%copyright_license_string%%	License
+
+%%turn_-4%%	Spitzkehre nach links
+%%turn_-3%%	Scharf links
+%%turn_-2%%	Links
+%%turn_-1%%	Halb links
+%%turn_0%%	Geradeaus
+%%turn_1%%	Halb rechts
+%%turn_2%%	Rechts
+%%turn_3%%	Scharf rechts
+%%turn_4%%	Spitzkehre nach rechts
+
+%%heading_-4%%	Süd
+%%heading_-3%%	Süd-West
+%%heading_-2%%	West
+%%heading_-1%%	Nord-West
+%%heading_0%%	Nord
+%%heading_1%%	Nord-Ost
+%%heading_2%%	Ost
+%%heading_3%%	Süd-Ost
+%%heading_4%%	Süd
+
+%%ordinal_1%%	Erste
+%%ordinal_2%%	Zweite
+%%ordinal_3%%	Dritte
+%%ordinal_4%%	Vierte
+%%ordinal_5%%	Fünfte
+%%ordinal_6%%	Sechste
+%%ordinal_7%%	Siebte
+%%ordinal_8%%	Achte
+%%ordinal_9%%	Neunte
+%%ordinal_10%%	Zehnte
+
+%%highway_motorway%%	Autobahn
+%%highway_trunk%%	Schnellstraße
+%%highway_primary%%	Bundesstraße
+%%highway_secondary%%	Landstraße
+%%highway_tertiary%%	Kreisstraße
+%%highway_unclassified%%	Nebenstraße
+%%highway_residential%%	Wohngebietsstraße
+%%highway_service%%	Erschließungsweg
+%%highway_track%%	Wirtschaftsweg
+%%highway_cycleway%%	Radweg
+%%highway_path%%	Weg
+%%highway_steps%%	Treppe
+%%highway_ferry%%	Fähre
+
+%%route_shortest%%	Kürzeste
+%%route_quickest%%	Schnellste
+
+%%output-html_waypoint_waypoint%%	Wegpunkt
+%%output-html_waypoint_junction%%	Anschlussstelle
+%%output-html_waypoint_roundabout%%	Kreisverkehr
+%%output-html_title%%	%s Route
+%%output-html_start_string%%	Start
+%%output-html_start_text%%	Bei %s halten Sie sich Richtung %s
+%%output-html_node_string%%	Bei
+%%output-html_node_text%%	Bei %s wenden Sie sich nach %s Richtung %s
+%%output-html_rbnode_string%%	Verlassen Sie
+%%output-html_rbnode_text%%	%s, nehmen Sie die %s Ausfahrt Richtung %s
+%%output-html_segment_string%%	Folgen
+%%output-html_segment_text%%	Folgen Sie der %s für %.3f km bzw. %.1f min
+%%output-html_stop_string%%	Stop
+%%output-html_stop_text%%	Sie sind bei %s angekommen
+%%output-html_total_string%%	Gesamt
+%%output-html_total_text%%	%.1f km, %.0f minuten
+
+%%output-gpx_waypoint_start%%	START
+%%output-gpx_waypoint_inter%%	INTER
+%%output-gpx_waypoint_trip%%	TRIP
+%%output-gpx_waypoint_finish%%	FINISH
+
+%%output-gpx_desc%%	%s Strecke zwischen 'Start' und 'Ziel'
+%%output-gpx_name%%	%s Strecke
+%%output-gpx_step%%	%s auf '%s' für %.3f km, %.1f min
+%%output-gpx_final%%	Gesamtstrecke %.1f km, %.0f minuten
 
 #
 # Router (and some shared) translations
 #
+
+@@LANGUAGE@@	Deutsche
+@@LANGUAGE-WEBPAGE@@	Deutsche Webseite
 
 @@ROUTER-TITLE@@	Routen Planer für OpenStreetMap Daten
 

@@ -1,0 +1,89 @@
+#
+# Russian language translation phrases
+#
+
+#
+# Router output XML definition
+#
+
+%%copyright_creator_string%%	Автор
+%%copyright_source_string%%	Источник
+%%copyright_source_text%%	Использованы данные OpenStreetMap http://www.openstreetmap.org/
+%%copyright_license_string%%	Лицензия
+
+%%turn_-4%%	очень крутой поворот налево
+%%turn_-3%%	крутой поворот налево
+%%turn_-2%%	налево
+%%turn_-1%%	плавно налево
+%%turn_0%%	прямо
+%%turn_1%%	плавно направо
+%%turn_2%%	направо
+%%turn_3%%	крутой поворот направо
+%%turn_4%%	очень крутой поворот направо
+
+%%heading_-4%%	юг
+%%heading_-3%%	юго-запад
+%%heading_-2%%	запад
+%%heading_-1%%	северо-запад
+%%heading_0%%	север
+%%heading_1%%	северо-восток
+%%heading_2%%	восток
+%%heading_3%%	юго-восток
+%%heading_4%%	юг
+
+%%highway_motorway%%	автомагистраль
+%%highway_trunk%%	международная трасса
+%%highway_primary%%	дорога регионального значения
+%%highway_secondary%%	дорога областного значения
+%%highway_tertiary%%	дорога районного значения
+%%highway_unclassified%%	дорога местного значения
+%%highway_residential%%	улица
+%%highway_service%%	проезд
+%%highway_track%%	дорога с/х назначения
+%%highway_cycleway%%	велодорожка
+%%highway_path%%	тропинка
+%%highway_steps%%	лестница
+%%highway_ferry%%	паром
+
+%%route_shortest%%	Короткий
+%%route_quickest%%	Быстрый
+
+%%output-html_waypoint_waypoint%%	путевая точка
+%%output-html_waypoint_junction%%	перекрестке
+%%output-html_title%%	%s маршрут
+%%output-html_start_string%%	Старт
+%%output-html_start_text%%	 %s, на %s
+%%output-html_node_string%%	на
+%%output-html_node_text%%	%s, %s,  на %s
+%%output-html_segment_string%%	Следуйте
+%%output-html_segment_text%%	по %s %.3f км, %.1f мин
+%%output-html_stop_string%%	Стоп
+%%output-html_stop_text%%	 %s
+%%output-html_total_string%%	Всего
+%%output-html_total_text%%	%.1f км, %.0f минут
+
+%%output-gpx_waypoint_start%%	Старт
+%%output-gpx_waypoint_inter%%	INTER
+%%output-gpx_waypoint_trip%%	TRIP
+%%output-gpx_waypoint_finish%%	Финиш
+
+%%output-gpx_desc%%	%s маршрут от 'Старта' до 'Финиша' 
+%%output-gpx_name%%	%s маршрут
+%%output-gpx_step%%	на %s по '%s' %.3f км, %.1f мин
+%%output-gpx_final%%	Всего - %.1f км, продолжительность - %.0f минут
+
+#
+# Router (and some shared) translations
+#
+
+#
+# Visualiser specific translations
+#
+
+#
+# Multi-line descriptive translations (router)
+#
+
+#
+# Multi-line descriptive translations (visualiser)
+#

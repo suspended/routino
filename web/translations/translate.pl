@@ -28,8 +28,8 @@ use strict;
 # Constants
 
 my @translation_files=(<translation.*.txt>);
-my $xml_file="../data/translations.xml";
-my $output_dir="../www/routino";
+my $xml_output_file="../../xml/routino-translations.xml";
+my $html_output_dir="../www/routino";
 
 my @html_template_files=(<*.html>);
 
@@ -37,7 +37,7 @@ my %languages=();
 my %translations=();
 
 
-# Read in the translations (HTML)
+# Read in the translations
 
 foreach my $translation_file (@translation_files)
   {
@@ -68,7 +68,7 @@ foreach my $translation_file (@translation_files)
       next if(m%^#%);
       next if(m%^$%);
 
-      # Single line entries
+      # Single line HTML entries
 
       if(m%\@\@%)
         {
@@ -87,7 +87,7 @@ foreach my $translation_file (@translation_files)
            }
         }
 
-      # Multi-line entries
+      # Multi-line HTML entries
 
       if(m%\$\$([^\$]+)\$\$%)
         {
@@ -114,52 +114,29 @@ foreach my $translation_file (@translation_files)
             $translations{$language}->{codes}->{$code}->{used}=0;
            }
         }
+
+      # Single line XML entries
+
+      if(m%\%\%%)
+        {
+         my($code,$text)=split("\t");
+
+         if(defined $translations{$language}->{codes}->{$code})
+           {
+            print STDERR "Language: $language DUPLICATED codeword '$code'\n";
+           }
+         else
+           {
+            $translations{$language}->{xml}++;
+            $translations{$language}->{codes}->{$code}={};
+            $translations{$language}->{codes}->{$code}->{text}=$text;
+            $translations{$language}->{codes}->{$code}->{used}=0;
+           }
+        }
      }
 
    close(FILE);
   }
-
-
-# Read in the translations (XML)
-
-open(XML,"<$xml_file");
-
-my $language="";
-
-while(<XML>)
-  {
-   if(m%<language +lang=["']([^"']+)["'] *>%)
-     {
-      # Add to list of languages
-
-      $language=$1;
-
-      if(! defined $languages{$language})
-        {
-         $languages{$language}=1;
-
-         $translations{$language}={};
-         $translations{$language}->{codes}={};
-         $translations{$language}->{html}=0;
-         $translations{$language}->{xml}=0;
-        }
-
-      next;
-     }
-
-   $language="" if(m%</language *>%);
-
-   next if(!$language);
-
-   # Count the phrases
-
-   if(m%<[a-z]+% && m% +(text|string)=["']([^"']+)["']%)
-     {
-      $translations{$language}->{xml}++;
-     }
-  }
-
-close(XML);
 
 
 # Sort out the languages
@@ -174,7 +151,7 @@ foreach my $language (sort (keys %languages))
   }
 
 
-# Create the files
+# Create the HTML files
 
 foreach my $html_template_file (@html_template_files)
   {
@@ -188,7 +165,7 @@ foreach my $html_template_file (@html_template_files)
       my $language_meta_string="";
 
       open(HTML_IN ,"<$html_template_file");
-      open(HTML_OUT,">$output_dir/$html_template_file.$language");
+      open(HTML_OUT,">$html_output_dir/$html_template_file.$language");
 
       while(<HTML_IN>)
         {
@@ -289,6 +266,77 @@ foreach my $html_template_file (@html_template_files)
       close(HTML_OUT);
      }
   }
+
+
+# Create the XML file
+
+open(XML_OUT,">$xml_output_file");
+
+open(XML_IN ,"<translations-head.xml");
+
+while(<XML_IN>)
+  {
+   print XML_OUT;
+  }
+
+close(XML_IN);
+
+foreach my $language (@languages)
+  {
+   next if(!$translations{$language}->{xml});
+
+   print "Language: $language File: translations.xml\n";
+
+   open(XML_IN ,"<translations-body.xml");
+
+   while(<XML_IN>)
+     {
+      my $line=$_;
+
+      $line =~ s%xx%$language%g;
+
+      # Replace with translated phrases
+
+      foreach my $code (keys $translations{$language}->{codes})
+        {
+         if($line =~ s%$code%$translations{$language}->{codes}->{$code}->{text}%g)
+           {$translations{$language}->{codes}->{$code}->{used} = 1;}
+        }
+
+      # Replace what is left with a note about missing translations
+
+      if($line =~ m%\%\%%)
+        {
+         foreach my $code (keys $translations{$languages[0]}->{codes})
+           {
+            $line =~ s%$code%$translations{$languages[0]}->{codes}->{$code}->{text}%g;
+           }
+
+         $line =~ s%<%<!-- TRANSLATION REQUIRED: %;
+         $line =~ s%>% -->%;
+
+         if($line =~ m%\%\%%)
+           {
+            print STDERR "   Unmatched codeword in line: $line";
+           }
+        }
+
+      print XML_OUT $line;
+     }
+
+   close(XML_IN);
+  }
+
+open(XML_IN ,"<translations-tail.xml");
+
+while(<XML_IN>)
+  {
+   print XML_OUT;
+  }
+
+close(XML_IN);
+
+close(XML_OUT);
 
 
 # Check the languages

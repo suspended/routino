@@ -1,13 +1,97 @@
 #
-# English language web-page translation phrases
+# English language translation phrases
 #
 
-@@LANGUAGE@@	English
-@@LANGUAGE-WEBPAGE@@	English language webpage
+#
+# Router output XML definition
+#
+
+%%copyright_creator_string%%	Creator
+%%copyright_source_string%%	Source
+%%copyright_source_text%%	Based on OpenStreetMap data from http://www.openstreetmap.org/
+%%copyright_license_string%%	License
+
+%%turn_-4%%	Very sharp left
+%%turn_-3%%	Sharp left
+%%turn_-2%%	Left
+%%turn_-1%%	Slight left
+%%turn_0%%	Straight on
+%%turn_1%%	Slight right
+%%turn_2%%	Right
+%%turn_3%%	Sharp right
+%%turn_4%%	Very sharp right
+
+%%heading_-4%%	South
+%%heading_-3%%	South-West
+%%heading_-2%%	West
+%%heading_-1%%	North-West
+%%heading_0%%	North
+%%heading_1%%	North-East
+%%heading_2%%	East
+%%heading_3%%	South-East
+%%heading_4%%	South
+
+%%ordinal_1%%	First
+%%ordinal_2%%	Second
+%%ordinal_3%%	Third
+%%ordinal_4%%	Fourth
+%%ordinal_5%%	Fifth
+%%ordinal_6%%	Sixth
+%%ordinal_7%%	Seventh
+%%ordinal_8%%	Eighth
+%%ordinal_9%%	Ninth
+%%ordinal_10%%	Tenth
+
+%%highway_motorway%%	motorway
+%%highway_trunk%%	trunk road
+%%highway_primary%%	primary road
+%%highway_secondary%%	secondary road
+%%highway_tertiary%%	tertiary road
+%%highway_unclassified%%	unclassified road
+%%highway_residential%%	residential road
+%%highway_service%%	service road
+%%highway_track%%	track
+%%highway_cycleway%%	cycleway
+%%highway_path%%	path
+%%highway_steps%%	steps
+%%highway_ferry%%	ferry
+
+%%route_shortest%%	Shortest
+%%route_quickest%%	Quickest
+
+%%output-html_waypoint_waypoint%%	Waypoint
+%%output-html_waypoint_junction%%	Junction
+%%output-html_waypoint_roundabout%%	Roundabout
+%%output-html_title%%	%s Route
+%%output-html_start_string%%	Start
+%%output-html_start_text%%	At %s, head %s
+%%output-html_node_string%%	At
+%%output-html_node_text%%	%s, go %s heading %s
+%%output-html_rbnode_string%%	Leave
+%%output-html_rbnode_text%%	%s, take the %s exit heading %s
+%%output-html_segment_string%%	Follow
+%%output-html_segment_text%%	%s for %.3f km, %.1f min
+%%output-html_stop_string%%	Stop
+%%output-html_stop_text%%	At %s
+%%output-html_total_string%%	Total
+%%output-html_total_text%%	%.1f km, %.0f minutes
+
+%%output-gpx_waypoint_start%%	START
+%%output-gpx_waypoint_inter%%	INTER
+%%output-gpx_waypoint_trip%%	TRIP
+%%output-gpx_waypoint_finish%%	FINISH
+
+%%output-gpx_desc%%	%s route between 'start' and 'finish' waypoints
+%%output-gpx_name%%	%s route
+%%output-gpx_step%%	%s on '%s' for %.3f km, %.1f min
+%%output-gpx_final%%	Total Journey %.1f km, %.0f minutes
 
 #
 # Router (and some shared) translations
 #
+
+@@LANGUAGE@@	English
+@@LANGUAGE-WEBPAGE@@	English language webpage
 
 @@ROUTER-TITLE@@	Route Planner for OpenStreetMap Data
 

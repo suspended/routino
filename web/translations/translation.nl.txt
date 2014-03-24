@@ -1,13 +1,97 @@
 #
-# Dutch language web-page translation phrases
+# Dutch language translation phrases
 #
 
-@@LANGUAGE@@	Nederlands
-@@LANGUAGE-WEBPAGE@@	Nederlandse web pagina
+#
+# Router output XML definition
+#
+
+%%copyright_creator_string%%	Creator
+%%copyright_source_string%%	Source
+%%copyright_source_text%%	Gebouwd op OpenStreetMap data van http://www.openstreetmap.org/
+%%copyright_license_string%%	License
+
+%%turn_-4%%	Haarspeld naar links
+%%turn_-3%%	Scherp links
+%%turn_-2%%	Links
+%%turn_-1%%	Half links
+%%turn_0%%	Rechtdoor
+%%turn_1%%	Half rechts
+%%turn_2%%	Rechts
+%%turn_3%%	Scherp rechts
+%%turn_4%%	Haarspeld naar rechts
+
+%%heading_-4%%	Zuid
+%%heading_-3%%	Zuid-West
+%%heading_-2%%	West
+%%heading_-1%%	Noord-West
+%%heading_0%%	Noord
+%%heading_1%%	Noord-Oost
+%%heading_2%%	Oost
+%%heading_3%%	Zuid-Oost
+%%heading_4%%	Zuid
+
+%%ordinal_1%%	Eerste
+%%ordinal_2%%	Tweede
+%%ordinal_3%%	Derde
+%%ordinal_4%%	Vierde
+%%ordinal_5%%	Vijfde
+%%ordinal_6%%	Zesde
+%%ordinal_7%%	Zevende
+%%ordinal_8%%	Achtste
+%%ordinal_9%%	Negende
+%%ordinal_10%%	Tiende
+
+%%highway_motorway%%	Autostrade
+%%highway_trunk%%	Autoweg
+%%highway_primary%%	Provinciale weg
+%%highway_secondary%%	Nationale weg
+%%highway_tertiary%%	Doorgangsweg
+%%highway_unclassified%%	Niet geclassificeerd
+%%highway_residential%%	Woongebied
+%%highway_service%%	Toegangsweg
+%%highway_track%%	Veldweg
+%%highway_cycleway%%	Fietspad
+%%highway_path%%	Pad
+%%highway_steps%%	Trap
+%%highway_ferry%%	Veerboot
+
+%%route_shortest%%	Kortste
+%%route_quickest%%	Snelste
+
+%%output-html_waypoint_waypoint%%	Punt
+%%output-html_waypoint_junction%%	de splitsing
+%%output-html_waypoint_roundabout%%	rotonde
+%%output-html_title%%	%s Route
+%%output-html_start_string%%	Start
+%%output-html_start_text%%	Bij %s neemt u de richting %s
+%%output-html_node_string%%	Bij
+%%output-html_node_text%%	Bij %s gaat u %s richting %s
+%%output-html_rbnode_string%%	Leave
+%%output-html_rbnode_text%%	Aan de %s, neem de %s afslag richting %s
+%%output-html_segment_string%%	Volg
+%%output-html_segment_text%%	Volgt u de %s voor %.3f km %.1f min
+%%output-html_stop_string%%	Stop
+%%output-html_stop_text%%	U bent bij  %s aangekomen
+%%output-html_total_string%%	Totaal
+%%output-html_total_text%%	%.1f km, %.0f minuten
+
+%%output-gpx_waypoint_start%%	START
+%%output-gpx_waypoint_inter%%	INTER
+%%output-gpx_waypoint_trip%%	TRIP
+%%output-gpx_waypoint_finish%%	FINISH
+
+%%output-gpx_desc%%	%s Route tussen 'Start' und 'Finish'
+%%output-gpx_name%%	%s Route  
+%%output-gpx_step%%	%s op '%s' voor %.3f km, %.1f min
+%%output-gpx_final%%	Totaal trip  %.1f km, %.0f minuten
 
 #
 # Router (and some shared) translations
 #
+
+@@LANGUAGE@@	Nederlands
+@@LANGUAGE-WEBPAGE@@	Nederlandse web pagina
 
 @@OPTION-TAB@@	Opties
 

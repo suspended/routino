@@ -1,13 +1,97 @@
 #
-# French language web-page translation phrases
+# French language translation phrases
 #
 
-@@LANGUAGE@@	Francais
-@@LANGUAGE-WEBPAGE@@	Francais
+#
+# Router output XML definition
+#
+
+%%copyright_creator_string%%	Créateur
+%%copyright_source_string%%	Source
+%%copyright_source_text%%	Basé sur les données OpenStreetMap de http://www.openstreetmap.org/
+%%copyright_license_string%%	License
+
+%%turn_-4%%	demi-tour à gauche
+%%turn_-3%%	Très à gauche
+%%turn_-2%%	à gauche
+%%turn_-1%%	Légèrement à gauche
+%%turn_0%%	Tout droit
+%%turn_1%%	légèrement à droite
+%%turn_2%%	à droite
+%%turn_3%%	très à droite
+%%turn_4%%	demi-tour à droite
+
+%%heading_-4%%	Sud
+%%heading_-3%%	Dud-Ouest
+%%heading_-2%%	Ouest
+%%heading_-1%%	Nord-Ouest
+%%heading_0%%	Nord
+%%heading_1%%	Nord-Est
+%%heading_2%%	Est
+%%heading_3%%	Sud-Est
+%%heading_4%%	Sud
+
+%%ordinal_1%%	Premier
+%%ordinal_2%%	Second
+%%ordinal_3%%	Troisième
+%%ordinal_4%%	Quatrième
+%%ordinal_5%%	Cinquième
+%%ordinal_6%%	Sixième
+%%ordinal_7%%	Septième
+%%ordinal_8%%	huitième
+%%ordinal_9%%	Neuvième
+%%ordinal_10%%	Dixième
+
+%%highway_motorway%%	autoroute
+%%highway_trunk%%	route de jonction
+%%highway_primary%%	route nationale
+%%highway_secondary%%	route départementale
+%%highway_tertiary%%	route locale
+%%highway_unclassified%%	route non classifiée
+%%highway_residential%%	rue résidentielle
+%%highway_service%%	rue de service
+%%highway_track%%	chemin
+%%highway_cycleway%%	voie cyclable
+%%highway_path%%	sentier
+%%highway_steps%%	escalier
+%%highway_ferry%%	ferry
+
+%%route_shortest%%	le plus court
+%%route_quickest%%	le plus rapide
+
+%%output-html_waypoint_waypoint%%	Etape
+%%output-html_waypoint_junction%%	Croisement
+%%output-html_waypoint_roundabout%%	rond-point
+%%output-html_title%%	Itinéraire %s
+%%output-html_start_string%%	Débute
+%%output-html_start_text%%	à %s, direction %s
+%%output-html_node_string%%	à
+%%output-html_node_text%%	%s, aller %s direction %s
+%%output-html_rbnode_string%%	Quitter
+%%output-html_rbnode_text%%	%s, prendre le %s sortir direction %s
+%%output-html_segment_string%%	Suivre
+%%output-html_segment_text%%	%s pendant %.3f km, %.1f min
+%%output-html_stop_string%%	S'arrêter
+%%output-html_stop_text%%	à %s
+%%output-html_total_string%%	Total
+%%output-html_total_text%%	%.1f km, %.0f minutes
+
+%%output-gpx_waypoint_start%%	DEBUT
+%%output-gpx_waypoint_inter%%	INTER
+%%output-gpx_waypoint_trip%%	POINT
+%%output-gpx_waypoint_finish%%	FINAL
+
+%%output-gpx_desc%%	Itinéraire %s entre les étapes 'début' et 'fin' 
+%%output-gpx_name%%	Itinéraire %s
+%%output-gpx_step%%	%s sur '%s' pendant %.3f km, %.1f min
+%%output-gpx_final%%	Trajet total %.1f km, %.0f minutes
 
 #
 # Router (and some shared) translations
 #
+
+@@LANGUAGE@@	Francais
+@@LANGUAGE-WEBPAGE@@	Francais
 
 @@ROUTER-TITLE@@	Calculateur d'itinéraire pour OpenStreetMap
 
