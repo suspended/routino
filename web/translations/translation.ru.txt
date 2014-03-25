@@ -31,6 +31,17 @@
 %%heading_3%%	юго-восток
 %%heading_4%%	юг
 
+%%ordinal_1%%	Первый
+%%ordinal_2%%	Второй
+%%ordinal_3%%	Третий
+%%ordinal_4%%	Четвертый
+%%ordinal_5%%	Пятый
+%%ordinal_6%%	Шестой
+%%ordinal_7%%	Седьмой
+%%ordinal_8%%	Восьмой
+%%ordinal_9%%	Девятый
+%%ordinal_10%%	Десятый
+
 %%highway_motorway%%	автомагистраль
 %%highway_trunk%%	международная трасса
 %%highway_primary%%	дорога регионального значения
@@ -55,6 +66,7 @@
 %%output-html_start_text%%	 %s, на %s
 %%output-html_node_string%%	на
 %%output-html_node_text%%	%s, %s,  на %s
+%%output-html_rbnode_string%%	Покинуть
 %%output-html_segment_string%%	Следуйте
 %%output-html_segment_text%%	по %s %.3f км, %.1f мин
 %%output-html_stop_string%%	Стоп
@@ -76,9 +88,67 @@
 # Router (and some shared) translations
 #
 
+@@LANGUAGE@@	Русский
+
+@@OPTION-TAB-HELP@@	Задать настройки маршрутизации
+
+@@DOCUMENTATION@@	Документация
+
+@@LANGUAGE-BOX@@	Язык
+@@TRANSPORT-TYPE-BOX@@	Тип транспорта
+@@SPEED-LIMITS-BOX@@	Ограничения скорости
+@@OTHER-RESTRICTIONS-BOX@@	Другие ограничения
+@@HELP-BOX@@	Помощь
+
+@@STATUS-BOX@@	Статус
+@@QUICKEST-ROUTE@@	Быстрейший маршрут
+@@SHORTEST-ROUTE@@	Кратчайший маршрут
+
+@@TRANSPORT-HORSE@@	Лошадь
+@@TRANSPORT-WHEELCHAIR@@	Инвалидное кресло
+@@TRANSPORT-BICYCLE@@	Велосипед
+@@TRANSPORT-MOPED@@	Мопед
+@@TRANSPORT-MOTORCYCLE@@	Мотоцикл
+
+@@PROPERTY-BRIDGE@@	Мост
+@@PROPERTY-TUNNEL@@	Туннель
+@@PROPERTY-WALKINGROUTE@@	Пеший маршрут
+@@PROPERTY-BICYCLEROUTE@@	Велодорожка
+
+@@RESTRICT-ONEWAY@@	Односторонняя улица
+@@RESTRICT-WEIGHT@@	Вес
+@@RESTRICT-HEIGHT@@	Высота
+@@RESTRICT-WIDTH@@	Ширина
+@@RESTRICT-LENGTH@@	Длина
+
+@@FIND-SHORTEST-ROUTE@@	Найти кратчайший маршрут
+@@FIND-QUICKEST-ROUTE@@	Найти быстрейший маршут
+
+@@TILES@@	Тайлы
+
 #
 # Visualiser specific translations
 #
+
+@@VISUALISER-NUM-NODES@@	Обработано # нод
+@@VISUALISER-NUM-TURNS@@	Обработано # ограничений поворотов
+
+@@SPEED-BUTTON@@	Показывать ограничения скорости
+
+@@TURNS-BUTTON@@	Показывать ограничения поворотов
+
+@@LIMIT-CHANGE@@	Изменить ограничения
+@@SPEED-LIMIT-80@@	Ограничение скорости 80 км/ч
+
+@@WEIGHT-BUTTON@@	Показывать ограничения по весу
+
+@@WEIGHT-LIMIT-8@@	Ограничение веса 8 тонн
+
+@@HEIGHT-BUTTON@@	Показывать ограничение по высоте
+
+@@HEIGHT-LIMIT-4@@	Ограничение высоты 4.0 метра
+
+@@WIDTH-BUTTON@@	Показывать ограничение ширины
 
 #
 # Multi-line descriptive translations (router)
