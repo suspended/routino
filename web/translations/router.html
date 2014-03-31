@@ -64,7 +64,7 @@
     <form name="form" id="form" action="#" method="get" onsubmit="return false;">
       <div class="hideshow_box">
         <span class="hideshow_title">@@ROUTINO-ROUTER@@</span>
-        @@ROUTER-INFO@@
+        $$ROUTER-INFO$$
         <div class="center">
           <a target="other" href="http://www.routino.org/">@@ROUTINO-WEBSITE@@</a>
           |
@@ -79,12 +79,12 @@
 
         <div id="hideshow_language_div" style="display: none;">
           <table>
-           $$LANGUAGES-META$$
+           **LANGUAGES-META**
             <tr>
               <td><a id="lang_xx_url" href="router.html.xx" title="@@LANGUAGE-WEBPAGE@@">@@LANGUAGE@@</a>
               <td>(XX)
               <td><input name="language" type="radio" value="xx" onchange="formSetLanguage();" CHECKED-XX>
-           $$LANGUAGES-META$$
+           **LANGUAGES-META**
           </table>
           <a target="translation" href="http://www.routino.org/translations/">Routino Translations</a>
         </div>
@@ -254,7 +254,7 @@
         <span class="hideshow_title">@@HELP-BOX@@</span>
         <div id="hideshow_help_options_div">
           <div class="scrollable">
-            @@ROUTER-OPTIONS-HELP@@
+            $$ROUTER-OPTIONS-HELP$$
           </div>
         </div>
       </div>
@@ -349,7 +349,7 @@
       <span class="hideshow_title">@@HELP-BOX@@</span>
       <div id="hideshow_help_route_div">
         <div class="scrollable">
-          @@ROUTER-RESULTS-HELP@@
+          $$ROUTER-RESULTS-HELP$$
         </div>
       </div>
     </div>
@@ -365,7 +365,7 @@
 
     <div class="hideshow_box">
       <span class="hideshow_title">@@VISUALISER-BOX@@</span>
-      @@ROUTER-VISUALISER-INFO@@
+      $$ROUTER-VISUALISER-INFO$$
       <br>
       <a id="visualiser_url" href="visualiser.html" target="visualiser">@@MAP-VIEW-LINK@@</a>
     </div>
