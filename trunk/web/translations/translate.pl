@@ -89,9 +89,9 @@ foreach my $translation_file (@translation_files)
 
       # Multi-line HTML entries
 
-      if(m%\$\$([^\$]+)\$\$%)
+      if(m%(\$\$[^\$]+\$\$)%)
         {
-         my($code,$text)=("@@".$1."@@","");
+         my($code,$text)=($1,"");
 
          while(<FILE>)
            {
@@ -173,7 +173,7 @@ foreach my $html_template_file (@html_template_files)
 
          # Language selection - special handling
 
-         if($line =~ m%\$\$LANGUAGES-META\$\$%)
+         if($line =~ m%\*\*LANGUAGES-META\*\*%)
            {
             $language_meta=1-$language_meta;
 
@@ -237,7 +237,7 @@ foreach my $html_template_file (@html_template_files)
 
          foreach my $code (keys $translations{$language}->{codes})
            {
-            if($line =~ s%$code%$translations{$language}->{codes}->{$code}->{text}%g)
+            if($line =~ s%\Q$code\E%$translations{$language}->{codes}->{$code}->{text}%g)
               {$translations{$language}->{codes}->{$code}->{used} = 1;}
            }
 
@@ -245,12 +245,12 @@ foreach my $html_template_file (@html_template_files)
 
          foreach my $code (keys $translations{$languages[0]}->{codes})
            {
-            $line =~ s%$code%$translations{$languages[0]}->{codes}->{$code}->{text}%g;
+            $line =~ s%\Q$code\E%$translations{$languages[0]}->{codes}->{$code}->{text}%g;
            }
 
-         if($line =~ m%\@\@%)
+         if($line =~ m%((\@\@|\$\$|\*\*)[^\@\$*]+(\@\@|\$\$|\*\*))%)
            {
-            print STDERR "   Unmatched codeword in line: $line";
+            print STDERR "   Unmatched codeword '$1' in line: $line";
            }
 
          # Remove un-needed spaces
@@ -315,9 +315,9 @@ foreach my $language (@languages)
          $line =~ s%<%<!-- TRANSLATION REQUIRED: %;
          $line =~ s%>% -->%;
 
-         if($line =~ m%\%\%%)
+         if($line =~ m%(\%\%[^\%]\%\%)%)
            {
-            print STDERR "   Unmatched codeword in line: $line";
+            print STDERR "   Unmatched codeword '$1' in line: $line";
            }
         }
 

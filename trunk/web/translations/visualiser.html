@@ -63,7 +63,7 @@
 
     <div class="hideshow_box">
       <span class="hideshow_title">@@VISUALISER-BOX@@</span>
-      @@VISUALISER-INFO@@
+      $$VISUALISER-INFO$$
       <div class="center">
         <a target="other" href="http://www.routino.org/">@@ROUTINO-WEBSITE@@</a>
         |
@@ -78,11 +78,11 @@
 
       <div id="hideshow_language_div" style="display: none;">
         <table>
-          $$LANGUAGES-META$$
+          **LANGUAGES-META**
           <tr>
             <td><a id="lang_xx_url" href="visualiser.html.xx" title="@@LANGUAGE-WEBPAGE@@">@@LANGUAGE@@</a>
             <td>(XX)
-          $$LANGUAGES-META$$
+          **LANGUAGES-META**
         </table>
         <a target="translation" href="http://www.routino.org/translations/">Routino Translations</a>
       </div>
@@ -90,7 +90,7 @@
 
     <div class="hideshow_box">
       <span class="hideshow_title">@@INSTRUCTIONS-BOX@@</span>
-      @@VISUALISER-INSTRUCTIONS@@
+      $$VISUALISER-INSTRUCTIONS$$
     </div>
 
     <div class="hideshow_box">
@@ -142,7 +142,7 @@
       <span id="hideshow_junctions_hide" onclick="hideshow_hide('junctions');" class="hideshow_hide">-</span>
       <input type="button" id="junctions" onclick="displayData('junctions');" value="@@JUNCTIONS-BUTTON@@">
       <div id="hideshow_junctions_div" style="display: none;">
-        @@JUNCTIONS-INFO@@
+        $$JUNCTIONS-INFO$$
         <br>
         <table>
           <tr><td><img src="icons/ball-1.png" alt="1" ><td>@@JUNCTIONS-1@@
@@ -161,7 +161,7 @@
       <span id="hideshow_super_hide" onclick="hideshow_hide('super');" class="hideshow_hide">-</span>
       <input type="button" id="super" onclick="displayData('super');" value="@@SUPER-BUTTON@@">
       <div id="hideshow_super_div" style="display: none;">
-        @@SUPER-INFO@@
+        $$SUPER-INFO$$
       </div>
     </div>
 
@@ -170,7 +170,7 @@
       <span id="hideshow_oneway_hide" onclick="hideshow_hide('oneway');" class="hideshow_hide">-</span>
       <input type="button" id="oneway" onclick="displayData('oneway');" value="@@ONEWAY-BUTTON@@">
       <div id="hideshow_oneway_div" style="display: none;">
-        @@ONEWAY-INFO@@
+        $$ONEWAY-INFO$$
       </div>
     </div>
 
@@ -179,7 +179,7 @@
       <span id="hideshow_highway_hide" onclick="hideshow_hide('highway');" class="hideshow_hide">-</span>
       <input type="button" id="highway" onclick="displayData('highway');" value="@@HIGHWAY-BUTTON@@">
       <div id="hideshow_highway_div" style="display: none;">
-        @@HIGHWAY-INFO@@
+        $$HIGHWAY-INFO$$
         <form name="highways" id="highways" action="#" method="get" onsubmit="return false;">
           <table>
             <tr><td>@@HIGHWAY-MOTORWAY@@:    <td><input name="highway" type="radio" value="motorway"     onchange="displayData('highway');">
@@ -205,7 +205,7 @@
       <span id="hideshow_transport_hide" onclick="hideshow_hide('transport');" class="hideshow_hide">-</span>
       <input type="button" id="transport" onclick="displayData('transport');" value="@@TRANSPORT-BUTTON@@">
       <div id="hideshow_transport_div" style="display: none;">
-        @@TRANSPORT-INFO@@
+        $$TRANSPORT-INFO$$
         <form name="transports" id="transports" action="#" method="get" onsubmit="return false;">
           <table>
             <tr><td>@@TRANSPORT-FOOT@@:      <td><input name="transport" type="radio" value="foot"       onchange="displayData('transport');">
@@ -228,7 +228,7 @@
       <span id="hideshow_barrier_hide" onclick="hideshow_hide('barrier');" class="hideshow_hide">-</span>
       <input type="button" id="barrier" onclick="displayData('barrier');" value="@@BARRIER-BUTTON@@">
       <div id="hideshow_barrier_div" style="display: none;">
-        @@BARRIER-INFO@@
+        $$BARRIER-INFO$$
         <form name="barriers" id="barriers" action="#" method="get" onsubmit="return false;">
           <table>
             <tr><td>@@TRANSPORT-FOOT@@:      <td><input name="barrier" type="radio" value="foot"       onchange="displayData('barrier');">
@@ -251,7 +251,7 @@
       <span id="hideshow_turns_hide" onclick="hideshow_hide('turns');" class="hideshow_hide">-</span>
       <input type="button" id="turns" onclick="displayData('turns');" value="@@TURNS-BUTTON@@">
       <div id="hideshow_turns_div" style="display: none;">
-        @@TURNS-INFO@@
+        $$TURNS-INFO$$
       </div>
     </div>
 
@@ -260,7 +260,7 @@
       <span id="hideshow_speed_hide" onclick="hideshow_hide('speed');" class="hideshow_hide">-</span>
       <input type="button" id="speed" onclick="displayData('speed');" value="@@SPEED-BUTTON@@">
       <div id="hideshow_speed_div" style="display: none;">
-        @@SPEED-INFO@@
+        $$SPEED-INFO$$
         <br>
         <table>
           <tr><td><img src="icons/ball-1.png"   alt="."   ><td>@@LIMIT-CHANGE@@
@@ -275,7 +275,7 @@
       <span id="hideshow_weight_hide" onclick="hideshow_hide('weight');" class="hideshow_hide">-</span>
       <input type="button" id="weight" onclick="displayData('weight');" value="@@WEIGHT-BUTTON@@">
       <div id="hideshow_weight_div" style="display: none;">
-        @@WEIGHT-INFO@@
+        $$WEIGHT-INFO$$
         <br>
         <table>
           <tr><td><img src="icons/ball-1.png"    alt="."    ><td>@@LIMIT-CHANGE@@
@@ -290,7 +290,7 @@
       <span id="hideshow_height_hide" onclick="hideshow_hide('height');" class="hideshow_hide">-</span>
       <input type="button" id="height" onclick="displayData('height');" value="@@HEIGHT-BUTTON@@">
       <div id="hideshow_height_div" style="display: none;">
-        @@HEIGHT-INFO@@
+        $$HEIGHT-INFO$$
         <br>
         <table>
           <tr><td><img src="icons/ball-1.png"    alt="."    ><td>@@LIMIT-CHANGE@@
@@ -305,7 +305,7 @@
       <span id="hideshow_width_hide" onclick="hideshow_hide('width');" class="hideshow_hide">-</span>
       <input type="button" id="width" onclick="displayData('width');" value="@@WIDTH-BUTTON@@">
       <div id="hideshow_width_div" style="display: none;">
-        @@WIDTH-INFO@@
+        $$WIDTH-INFO$$
         <br>
         <table>
           <tr><td><img src="icons/ball-1.png"    alt="."    ><td>@@LIMIT-CHANGE@@
@@ -320,7 +320,7 @@
       <span id="hideshow_length_hide" onclick="hideshow_hide('length');" class="hideshow_hide">-</span>
       <input type="button" id="length" onclick="displayData('length');" value="@@LENGTH-BUTTON@@">
       <div id="hideshow_length_div" style="display: none;">
-        @@LENGTH-INFO@@
+        $$LENGTH-INFO$$
         <br>
         <table>
           <tr><td><img src="icons/ball-1.png"    alt="."    ><td>@@LIMIT-CHANGE@@
@@ -335,7 +335,7 @@
       <span id="hideshow_property_hide" onclick="hideshow_hide('property');" class="hideshow_hide">-</span>
       <input type="button" id="property" onclick="displayData('property');" value="@@PROPERTY-BUTTON@@">
       <div id="hideshow_property_div" style="display: none;">
-        @@PROPERTY-INFO@@
+        $$PROPERTY-INFO$$
         <form name="properties" id="properties" action="#" method="get" onsubmit="return false;">
           <table>
             <tr><td>@@PROPERTY-PAVED@@:         <td><input name="property" type="radio" value="paved"         onchange="displayData('property');" checked>
@@ -355,7 +355,7 @@
       <span id="hideshow_errorlogs_hide" onclick="hideshow_hide('errorlogs');" class="hideshow_hide">-</span>
       <input type="button" id="errorlogs" onclick="displayData('errorlogs');" value="@@ERROR-LOG-BUTTON@@">
       <div id="hideshow_errorlogs_div" style="display: none;">
-        @@ERROR-LOG-INFO@@
+        $$ERROR-LOG-INFO$$
       </div>
     </div>
 
@@ -376,7 +376,7 @@
       <span class="hideshow_title">@@HELP-BOX@@</span>
       <div id="hideshow_help_options_div">
         <div class="scrollable">
-          @@VISUALISER-HELP@@
+          $$VISUALISER-HELP$$
         </div>
       </div>
     </div>
@@ -385,7 +385,7 @@
   <div class="tab_content" id="tab_router_div" style="display: none;">
     <div class="hideshow_box">
       <span class="hideshow_title">@@ROUTER-BOX@@</span>
-      @@VISUALISER-ROUTER-INFO@@
+      $$VISUALISER-ROUTER-INFO$$
       <br>
       <a id="router_url" href="router.html" target="router">@@MAP-VIEW-LINK@@</a>
     </div>
