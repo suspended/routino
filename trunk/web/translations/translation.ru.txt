@@ -89,6 +89,7 @@
 #
 
 @@LANGUAGE@@	Русский
+@@LANGUAGE-WEBPAGE@@	Русский
 
 @@OPTION-TAB-HELP@@	Задать настройки маршрутизации
 

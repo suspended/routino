@@ -188,15 +188,15 @@ foreach my $html_template_file (@html_template_files)
 
                   if($language eq $language2)
                     {
-                     $line =~ s%CHECKED-XX%checked%g;
+                     $line =~ s%~~CHECKED~~%checked%g;
                     }
                   else
                     {
-                     $line =~ s%CHECKED-XX%%g;
+                     $line =~ s%~~CHECKED~~%%g;
                     }
 
-                  $line =~ s%xx%$language2%g;
-                  $line =~ s%XX%$LANGUAGE2%g;
+                  $line =~ s%~~lang~~%$language2%g;
+                  $line =~ s%~~LANG~~%$LANGUAGE2%g;
 
                   if(!$translations{$language2}->{html})
                     {
@@ -208,10 +208,15 @@ foreach my $html_template_file (@html_template_files)
                      $line =~ s%<input .+>%%;
                     }
 
-                  foreach my $code (keys $translations{$language}->{codes})
+                  foreach my $code (keys $translations{$language2}->{codes})
                     {
                      if($line =~ s%$code%$translations{$language2}->{codes}->{$code}->{text}%g)
                        {$translations{$language2}->{codes}->{$code}->{used} = 1;}
+                    }
+
+                  if($line =~ m%((\@\@|\$\$|\*\*|\~\~)[^\@\$*~]+(\@\@|\$\$|\*\*|\~\~))%)
+                    {
+                     print STDERR "   Unmatched codeword '$1' in line: $line";
                     }
 
                   # Remove un-needed spaces
@@ -248,7 +253,7 @@ foreach my $html_template_file (@html_template_files)
             $line =~ s%\Q$code\E%$translations{$languages[0]}->{codes}->{$code}->{text}%g;
            }
 
-         if($line =~ m%((\@\@|\$\$|\*\*)[^\@\$*]+(\@\@|\$\$|\*\*))%)
+         if($line =~ m%((\@\@|\$\$|\*\*|\~\~)[^\@\$*~]+(\@\@|\$\$|\*\*|\~\~))%)
            {
             print STDERR "   Unmatched codeword '$1' in line: $line";
            }
@@ -293,7 +298,7 @@ foreach my $language (@languages)
      {
       my $line=$_;
 
-      $line =~ s%xx%$language%g;
+      $line =~ s%~~lang~~%$language%g;
 
       # Replace with translated phrases
 
@@ -315,7 +320,7 @@ foreach my $language (@languages)
          $line =~ s%<%<!-- TRANSLATION REQUIRED: %;
          $line =~ s%>% -->%;
 
-         if($line =~ m%(\%\%[^\%]\%\%)%)
+         if($line =~ m%((\%\%|\~\~)[^\%~]+(\%\%|\~\~))%)
            {
             print STDERR "   Unmatched codeword '$1' in line: $line";
            }
