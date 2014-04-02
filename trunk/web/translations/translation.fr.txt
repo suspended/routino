@@ -106,7 +106,6 @@
 
 @@ROUTINO-ROUTER@@	Itinéraires pour Openstreetmap Routino
 @@ROUTINO-WEBSITE@@	site web Routino
-
 @@DOCUMENTATION@@	Documentation
 
 @@LANGUAGE-BOX@@	Langue
@@ -140,10 +139,10 @@
 @@WAYPOINT-CENTRE2@@	Centrer cette étape sur la carte
 @@WAYPOINT-DOWN@@	Placer cette étape après
 @@WAYPOINT-REMOVE@@	supprimer cette étape
-@@WAYPOINT-REVERSE-BUTTON@@	Inverser l'ordre
 @@WAYPOINT-REVERSE@@	Inverser l'ordre des étapes
-@@WAYPOINT-LOOP-BUTTON@@	Faire une boucle
+@@WAYPOINT-REVERSE-BUTTON@@	Inverser l'ordre
 @@WAYPOINT-LOOP@@	Ajouter une nouvelle étape pour faire une boucle
+@@WAYPOINT-LOOP-BUTTON@@	Faire une boucle
 
 @@TRANSPORT-FOOT@@	À pied
 @@TRANSPORT-HORSE@@	À cheval
@@ -322,3 +321,4 @@ $$ROUTER-VISUALISER-INFO$$
 #
 # Multi-line descriptive translations (visualiser)
 #
+
