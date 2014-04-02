@@ -20,9 +20,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Use the perl encoding/decoding functions
-use Encode qw(decode encode);
-
 use strict;
 
 # Constants
@@ -82,7 +79,7 @@ foreach my $translation_file (@translation_files)
            {
             $translations{$language}->{html}++;
             $translations{$language}->{codes}->{$code}={};
-            $translations{$language}->{codes}->{$code}->{text}=encode('ascii',decode('UTF-8',$text),Encode::FB_HTMLCREF);
+            $translations{$language}->{codes}->{$code}->{text}=$text;
             $translations{$language}->{codes}->{$code}->{used}=0;
            }
         }
@@ -110,7 +107,7 @@ foreach my $translation_file (@translation_files)
            {
             $translations{$language}->{html}++;
             $translations{$language}->{codes}->{$code}={};
-            $translations{$language}->{codes}->{$code}->{text}=encode('ascii',decode('UTF-8',$text),Encode::FB_HTMLCREF);
+            $translations{$language}->{codes}->{$code}->{text}=$text;
             $translations{$language}->{codes}->{$code}->{used}=0;
            }
         }
