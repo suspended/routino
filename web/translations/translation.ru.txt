@@ -102,8 +102,8 @@
 @@HELP-BOX@@	Помощь
 
 @@STATUS-BOX@@	Статус
-@@QUICKEST-ROUTE@@	Быстрейший маршрут
 @@SHORTEST-ROUTE@@	Кратчайший маршрут
+@@QUICKEST-ROUTE@@	Быстрейший маршрут
 
 @@TRANSPORT-HORSE@@	Лошадь
 @@TRANSPORT-WHEELCHAIR@@	Инвалидное кресло
@@ -134,9 +134,9 @@
 @@VISUALISER-NUM-NODES@@	Обработано # нод
 @@VISUALISER-NUM-TURNS@@	Обработано # ограничений поворотов
 
-@@SPEED-BUTTON@@	Показывать ограничения скорости
-
 @@TURNS-BUTTON@@	Показывать ограничения поворотов
+
+@@SPEED-BUTTON@@	Показывать ограничения скорости
 
 @@LIMIT-CHANGE@@	Изменить ограничения
 @@SPEED-LIMIT-80@@	Ограничение скорости 80 км/ч
@@ -158,3 +158,4 @@
 #
 # Multi-line descriptive translations (visualiser)
 #
+

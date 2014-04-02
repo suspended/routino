@@ -122,6 +122,7 @@
 @@STATUS-BOX@@	Status
 @@SHORTEST-ROUTE@@	kürzester Weg
 @@QUICKEST-ROUTE@@	schnellste Route
+
 @@STATISTICS-BOX@@	Routino Statistik
 @@VISUALISER-BOX@@	Routino Ansichten
 
@@ -286,3 +287,4 @@ $$ROUTER-VISUALISER-INFO$$
 #
 # Multi-line descriptive translations (visualiser)
 #
+
