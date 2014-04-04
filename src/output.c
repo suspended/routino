@@ -106,6 +106,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
  FILE *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
 
  char *prev_bearing=NULL,*prev_wayname=NULL;
+ index_t prev_node=NO_NODE;
  distance_t cum_distance=0;
  duration_t cum_duration=0;
 
@@ -439,13 +440,24 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                }
              else
                {
-                Segment *segmentp=FirstSegment(segments,resultnodep,3);
+                Segment *segmentp;
+
+                if(resultnodep)
+                   segmentp=FirstSegment(segments,resultnodep,3);
+                else
+                   segmentp=FirstFakeSegment(result->node);
 
                 do
                   {
                    index_t othernode=OtherNode(segmentp,result->node);
+                   index_t thissegment;
 
-                   if(othernode!=result->prev->node && IndexSegment(segments,segmentp)!=realsegment)
+                   if(IsFakeNode(result->node))
+                      thissegment=IndexFakeSegment(segmentp);
+                   else
+                      thissegment=IndexSegment(segments,segmentp);
+
+                   if(othernode!=prev_node && thissegment!=realsegment)
                       if(IsNormalSegment(segmentp) && (!profile->oneway || !IsOnewayTo(segmentp,result->node)))
                         {
                          Way *wayp=LookupWay(ways,segmentp->way,3);
@@ -458,7 +470,10 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                               }
                         }
 
-                   segmentp=NextSegment(segments,segmentp,result->node);
+                   if(resultnodep)
+                      segmentp=NextSegment(segments,segmentp,result->node);
+                   else
+                      segmentp=NextFakeSegment(segmentp,result->node);
                   }
                 while(segmentp);
                }
@@ -473,14 +488,14 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        /* Decide if this is an important junction */
 
-       if(roundabout)           /* roundabout */
-          ;
-       else if(point_count==0)  /* first point overall = Waypoint */
+       if(point_count==0)  /* first point overall = Waypoint */
           important=IMP_WAYPOINT;
        else if(result->node==results[point]->finish_node) /* Waypoint */
           important=IMP_WAYPOINT;
        else if(result->node==results[point]->start_node) /* first point of a section of the route */
           important=IMP_IGNORE;
+       else if(roundabout)      /* roundabout */
+          ;
        else if(realsegment==next_realsegment) /* U-turn */
           important=IMP_UTURN;
        else if(resultnodep && (resultnodep->flags&NODE_MINIRNDBT))
@@ -601,7 +616,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                }
              else if(next_result) /* middle point */
                {
-                if(roundabout>1)
+                if(roundabout>1 && important!=IMP_WAYPOINT)
                   {
                    /* <tr class='n'><td class='l'>At:<td class='r'>Roundabout, take <span class='t'>the *Nth* exit</span> heading <span class='b'>*heading*</span> */
                    fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_rbnode[0]);
@@ -808,6 +823,11 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        fprintf(gpxtrackfile,"</trkseg>\n");
 
     point=next_point;
+
+    if(result)
+       prev_node=result->node;
+    else
+       prev_node=NO_NODE;
    }
  while(point<nresults);
 
