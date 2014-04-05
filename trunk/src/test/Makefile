@@ -85,7 +85,7 @@ test : $(ROUTINO_EXE) $(EXE)
 
 ########
 
-$(ROUTINO_EXE) :
+$(ROUTINO_EXE) ::
 	cd .. && $(MAKE) $(notdir $@)
 
 is-fast-math : is-fast-math.o
