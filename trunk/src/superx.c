@@ -350,6 +350,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
  index_t i,j,lastj;
  index_t merged=0,added=0;
  SegmentsX *mergedsegmentsx;
+ SegmentX supersegmentx;
 
  mergedsegmentsx=NewSegmentList();
 
@@ -384,8 +385,6 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
 
     while(j<supersegmentsx->number)
       {
-       SegmentX supersegmentx;
-
        if(j!=lastj)
          {
           ReadFileBuffered(supersegmentsx->fd,&supersegmentx,sizeof(SegmentX));
@@ -429,15 +428,24 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
        printf_middle("Merging Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,i+1,j,merged,added);
    }
 
- while(j<supersegmentsx->number)
+ if(j<supersegmentsx->number)
    {
-    SegmentX supersegmentx;
+    if(j==lastj)
+      {
+       AppendSegmentList(mergedsegmentsx,supersegmentx.way,supersegmentx.node1,supersegmentx.node2,supersegmentx.distance|SEGMENT_SUPER);
 
-    ReadFileBuffered(supersegmentsx->fd,&supersegmentx,sizeof(SegmentX));
+       j++;
+      }
 
-    AppendSegmentList(mergedsegmentsx,supersegmentx.way,supersegmentx.node1,supersegmentx.node2,supersegmentx.distance|SEGMENT_SUPER);
-    added++;
-    j++;
+    while(j<supersegmentsx->number)
+      {
+       ReadFileBuffered(supersegmentsx->fd,&supersegmentx,sizeof(SegmentX));
+
+       AppendSegmentList(mergedsegmentsx,supersegmentx.way,supersegmentx.node1,supersegmentx.node2,supersegmentx.distance|SEGMENT_SUPER);
+
+       added++;
+       j++;
+      }
    }
 
  FinishSegmentList(mergedsegmentsx);
