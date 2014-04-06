@@ -457,18 +457,35 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                    else
                       thissegment=IndexSegment(segments,segmentp);
 
-                   if(othernode!=prev_node && thissegment!=realsegment)
-                      if(IsNormalSegment(segmentp) && (!profile->oneway || !IsOnewayTo(segmentp,result->node)))
+                   if(othernode!=prev_node && othernode!=next_result->node &&
+                      thissegment!=realsegment && IsNormalSegment(segmentp))
+                     {
+                      int canexit=1;
+
+                      if(profile->oneway && IsOnewayTo(segmentp,result->node))
+                        {
+                         if(profile->allow!=Transports_Bicycle)
+                            canexit=0;
+                         else
+                           {
+                            Way *wayp=LookupWay(ways,segmentp->way,3);
+
+                            if(!(wayp->props&Properties_CycleBothWays))
+                               canexit=0;
+                           }
+                        }
+
+                      if(canexit)
                         {
                          Way *wayp=LookupWay(ways,segmentp->way,3);
 
                          if(!(wayp->type&Highway_Roundabout))
-                            if(othernode!=next_result->node)
-                              {
-                               roundabout++;
-                               important=IMP_RB_NOT_EXIT;
-                              }
+                           {
+                            roundabout++;
+                            important=IMP_RB_NOT_EXIT;
+                           }
                         }
+                     }
 
                    if(resultnodep)
                       segmentp=NextSegment(segments,segmentp,result->node);
@@ -508,8 +525,24 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
             {
              index_t seg=IndexSegment(segments,segmentp);
 
-             if(seg!=realsegment)
-                if(IsNormalSegment(segmentp) && (!profile->oneway || !IsOnewayTo(segmentp,result->node)))
+             if(seg!=realsegment && IsNormalSegment(segmentp))
+               {
+                int cango=1;
+
+                if(profile->oneway && IsOnewayTo(segmentp,result->node))
+                  {
+                   if(profile->allow!=Transports_Bicycle)
+                      cango=0;
+                   else
+                     {
+                      Way *wayp=LookupWay(ways,segmentp->way,3);
+
+                      if(!(wayp->props&Properties_CycleBothWays))
+                         cango=0;
+                     }
+                  }
+
+                if(cango)
                   {
                    Way *wayp=LookupWay(ways,segmentp->way,3);
 
@@ -529,6 +562,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                          important=IMP_JUNCT_CONT;
                      }
                   }
+               }
 
              segmentp=NextSegment(segments,segmentp,result->node);
             }
