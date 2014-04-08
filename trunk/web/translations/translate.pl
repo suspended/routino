@@ -205,7 +205,7 @@ foreach my $html_template_file (@html_template_files)
                      $line =~ s%<input .+>%%;
                     }
 
-                  foreach my $code (keys $translations{$language2}->{codes})
+                  foreach my $code (keys %{$translations{$language2}->{codes}})
                     {
                      if($line =~ s%$code%$translations{$language2}->{codes}->{$code}->{text}%g)
                        {$translations{$language2}->{codes}->{$code}->{used} = 1;}
@@ -237,7 +237,7 @@ foreach my $html_template_file (@html_template_files)
 
          # Replace with translated phrases
 
-         foreach my $code (keys $translations{$language}->{codes})
+         foreach my $code (keys %{$translations{$language}->{codes}})
            {
             if($line =~ s%\Q$code\E%$translations{$language}->{codes}->{$code}->{text}%g)
               {$translations{$language}->{codes}->{$code}->{used} = 1;}
@@ -245,7 +245,7 @@ foreach my $html_template_file (@html_template_files)
 
          # Replace what is left with English phrases
 
-         foreach my $code (keys $translations{$languages[0]}->{codes})
+         foreach my $code (keys %{$translations{$languages[0]}->{codes}})
            {
             $line =~ s%\Q$code\E%$translations{$languages[0]}->{codes}->{$code}->{text}%g;
            }
@@ -299,7 +299,7 @@ foreach my $language (@languages)
 
       # Replace with translated phrases
 
-      foreach my $code (keys $translations{$language}->{codes})
+      foreach my $code (keys %{$translations{$language}->{codes}})
         {
          if($line =~ s%$code%$translations{$language}->{codes}->{$code}->{text}%g)
            {$translations{$language}->{codes}->{$code}->{used} = 1;}
@@ -309,7 +309,7 @@ foreach my $language (@languages)
 
       if($line =~ m%\%\%%)
         {
-         foreach my $code (keys $translations{$languages[0]}->{codes})
+         foreach my $code (keys %{$translations{$languages[0]}->{codes}})
            {
             $line =~ s%$code%$translations{$languages[0]}->{codes}->{$code}->{text}%g;
            }
@@ -345,7 +345,7 @@ close(XML_OUT);
 
 foreach my $language (@languages)
   {
-   foreach my $code (keys $translations{$language}->{codes})
+   foreach my $code (keys %{$translations{$language}->{codes}})
      {
       if(! $translations{$language}->{codes}->{$code}->{used})
         {
