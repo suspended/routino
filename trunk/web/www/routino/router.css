@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2013 Andrew M. Bishop
+// This file Copyright 2008-2014 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -125,6 +125,18 @@ DIV#tab_options_div INPUT#shortest
  text-align: center;
 }
 
+DIV#tab_options_div INPUT#shortest:hover
+{
+ background: #F0F000;
+}
+
+DIV#tab_options_div INPUT[disabled]#shortest
+{
+ border-color: #004000;
+
+ background: #E0F0E0;
+}
+
 DIV#tab_options_div INPUT#quickest
 {
  margin: 3px;
@@ -135,6 +147,18 @@ DIV#tab_options_div INPUT#quickest
  background: #C0C0F0;
 
  text-align: center;
+}
+
+DIV#tab_options_div INPUT#quickest:hover
+{
+ background: #F0F000;
+}
+
+DIV#tab_options_div INPUT[disabled]#quickest
+{
+ border-color: #000040;
+
+ background: #E0E0F0;
 }
 
 DIV#tab_results_div TABLE
