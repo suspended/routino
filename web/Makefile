@@ -48,6 +48,8 @@ SPECIAL_XML_FILES=tagging-drive.xml \
 PROFILE_FILES=profiles.pl \
 	      profiles.js
 
+TRANS_FILES=$(wildcard $(WEBTRANSDIR)/translation.*.txt)
+
 DOC_FILES=$(notdir $(wildcard $(DOCDIR)/html/*.html)) $(notdir $(wildcard $(DOCDIR)/html/*.css))
 
 EXE_FILES=planetsplitter planetsplitter-slim \
@@ -102,13 +104,17 @@ all-profiles: all-exe all-data
 
 all-icons: $(WEBICONDIR)/ball-0.png
 
-$(WEBICONDIR)/ball-0.png:
+$(WEBICONDIR)/ball-0.png: $(WEBICONDIR)/create-icons.pl
 	echo create-icons.pl
 	@cd $(WEBICONDIR) && perl create-icons.pl
 
-all-translations: $(WEBWWWDIR)/router.html.en
+all-translations: $(WEBWWWDIR)/router.html.en $(WEBWWWDIR)/visualiser.html.en
 
-$(WEBWWWDIR)/router.html.en:
+$(WEBWWWDIR)/router.html.en: $(WEBTRANSDIR)/router.html $(TRANS_FILES) $(WEBTRANSDIR)/translate.pl
+	echo translate.pl
+	@cd $(WEBTRANSDIR) && perl translate.pl
+
+$(WEBWWWDIR)/visualiser.html.en: $(WEBTRANSDIR)/visualiser.html $(TRANS_FILES) $(WEBTRANSDIR)/translate.pl
 	echo translate.pl
 	@cd $(WEBTRANSDIR) && perl translate.pl
 
