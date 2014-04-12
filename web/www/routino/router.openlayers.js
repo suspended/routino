@@ -999,6 +999,8 @@ function markerToggleMap(marker) // called from router.html
    }
 
  markerAddRemoveMap(marker,!routino.point[marker].active);
+
+ updateSearchButtons();
 }
 
 
@@ -1134,6 +1136,8 @@ function markerRemove(marker)   // called from router.html
 
  if(vismarkers==1)
     markerAddAfter(1);
+
+ updateSearchButtons();
 }
 
 
@@ -1143,10 +1147,10 @@ function markerRemove(marker)   // called from router.html
 
 function markerAddBefore(marker)
 {
- clearSearchResult(marker);
-
  if(vismarkers==mapprops.maxmarkers || marker==1)
     return false;
+
+ clearSearchResult(marker);
 
  markerAddForm(++vismarkers);
 
@@ -1163,10 +1167,10 @@ function markerAddBefore(marker)
 
 function markerAddAfter(marker) // called from router.html
 {
- clearSearchResult(marker);
-
  if(vismarkers==mapprops.maxmarkers)
     return false;
+
+ clearSearchResult(marker);
 
  markerAddForm(++vismarkers);
 
@@ -1210,6 +1214,31 @@ function markerLocate(marker)   // called from router.html
                                               formSetCoords(marker,position.coords.longitude,position.coords.latitude);
                                               markerAddMap(marker);
                                              });
+}
+
+
+//
+// Update the search buttons enable/disable.
+//
+
+function updateSearchButtons()
+{
+ var markersactive=0;
+
+ for(var m=1;m<=vismarkers;m++)
+    if(routino.point[m].active)
+       markersactive++;
+
+ if(markersactive<2)
+   {
+    document.getElementById("shortest").disabled="disabled";
+    document.getElementById("quickest").disabled="disabled";
+   }
+ else
+   {
+    document.getElementById("shortest").disabled="";
+    document.getElementById("quickest").disabled="";
+   }
 }
 
 
@@ -1480,6 +1509,7 @@ function markerClearForm(marker)
 
  routino.point[marker].used=false;
  routino.point[marker].home=false;
+ routino.point[marker].active=false;
 }
 
 
