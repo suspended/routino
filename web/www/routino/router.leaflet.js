@@ -279,6 +279,8 @@ function form_init()            // called from router.html
    }
 
  updateURLs();
+
+ updateSearchButtons();
 }
 
 
@@ -1389,7 +1391,15 @@ function markersLoop()          // called from router.html
     return false;
 
  if(routino.point[vismarkers].lon==routino.point[1].lon && routino.point[vismarkers].lat==routino.point[1].lat)
-    return false;
+   {
+    if(routino.point[vismarkers].active)
+       return false;
+    else
+      {
+       markerToggleMap(vismarkers);
+       return true;
+      }
+   }
 
  if(routino.point[vismarkers].used)
     markerAddForm(++vismarkers);
@@ -1399,6 +1409,8 @@ function markersLoop()          // called from router.html
  markersmoved=true;
 
  updateURLs();
+
+ updateSearchButtons();
 }
 
 
