@@ -366,6 +366,9 @@ int main(int argc,char** argv)
     if(point_used[waypoint]==1 || point_used[waypoint]==2)
        print_usage(0,NULL,"All waypoints must have latitude and longitude.");
 
+ if(first_waypoint>=last_waypoint)
+    print_usage(0,NULL,"At least two waypoints must be specified.");
+
  /* Print one of the profiles if requested */
 
  if(help_profile)
