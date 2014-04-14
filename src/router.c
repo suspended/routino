@@ -362,13 +362,6 @@ int main(int argc,char** argv)
        print_usage(0,argv[arg],NULL);
    }
 
- for(waypoint=1;waypoint<=NWAYPOINTS;waypoint++)
-    if(point_used[waypoint]==1 || point_used[waypoint]==2)
-       print_usage(0,NULL,"All waypoints must have latitude and longitude.");
-
- if(first_waypoint>=last_waypoint)
-    print_usage(0,NULL,"At least two waypoints must be specified.");
-
  /* Print one of the profiles if requested */
 
  if(help_profile)
@@ -395,6 +388,15 @@ int main(int argc,char** argv)
 
     return(0);
    }
+
+ /* Check the waypoints are valid */
+
+ for(waypoint=1;waypoint<=NWAYPOINTS;waypoint++)
+    if(point_used[waypoint]==1 || point_used[waypoint]==2)
+       print_usage(0,NULL,"All waypoints must have latitude and longitude.");
+
+ if(first_waypoint>=last_waypoint)
+    print_usage(0,NULL,"At least two waypoints must be specified.");
 
  /* Load in the translations */
 
