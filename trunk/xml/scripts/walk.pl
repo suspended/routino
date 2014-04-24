@@ -45,7 +45,8 @@ while(<STDIN>)
       print "      <output k=\"bridge\" v=\"no\"/>\n";
       print "      <output k=\"tunnel\" v=\"no\"/>\n";
       print "\n";
-      print "      <output k=\"bicycleroute\" v=\"no\"/>\n";
+      print "      <output k=\"bicycleroute\"  v=\"no\"/>\n";
+      print "      <output k=\"cyclebothways\" v=\"no\"/>\n";
       print "    </if>\n";
       print "\n";
      }
