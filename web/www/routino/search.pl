@@ -24,6 +24,9 @@ use strict;
 # Use the directory paths script
 require "paths.pl";
 
+# Use the perl encoding/decoding functions
+use Encode qw(decode encode);
+
 # Use the perl URI module
 use URI::Escape;
 
@@ -108,7 +111,7 @@ sub DoNominatimSearch
      {
       my $lat=$place->{"lat"};
       my $lon=$place->{"lon"};
-      my $name=$place->{"display_name"};
+      my $name=encode('utf8',$place->{"display_name"});
 
       push(@places,"$lat $lon $name");
      }

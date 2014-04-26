@@ -53,9 +53,9 @@ Quick Start Guide
         sh -x install.sh
 
    To make full use of the location search feature on the Routino web page
-   you will need to install one extra perl package.
+   you will need to install some extra perl packages.
 
-        apt-get install libjson-pp-perl
+       apt-get install libwww-perl liburi-perl libjson-pp-perl
 
    Finally to make the web pages work you will need to add the extra lines
    to the Apache configuration file as described in the Configuration of

@@ -85,7 +85,7 @@ my($search_time,$search_message,@places)=RunSearch($search,$lonmin,$lonmax,$latm
 
 # Return the output
 
-print header('text/plain');
+print header(-type=>'text/plain',-charset=>'utf-8');
 
 print "$marker\n";
 print "$search_time\n";
