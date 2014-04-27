@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -76,8 +76,8 @@ struct _Segments
 
  int          fd;               /*+ The file descriptor for the file. +*/
 
- Segment      cached[3];        /*+ Three cached segments read from the file in slim mode. +*/
- index_t      incache[3];       /*+ The indexes of the cached segments. +*/
+ Segment      cached[4];        /*+ Three cached segments read from the file in slim mode. +*/
+ index_t      incache[4];       /*+ The indexes of the cached segments. +*/
 
  SegmentCache *cache;           /*+ A RAM cache of segments read from the file. +*/
 
