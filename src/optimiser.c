@@ -414,7 +414,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  while(result3)
    {
     if((results->start_node!=result3->node || results->prev_segment!=result3->segment) &&
-       !IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,5)))
+       !IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,3)))
       {
        Result *result5=result1;
        index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,result3->node,result3->segment);
@@ -422,6 +422,8 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(superseg!=result3->segment)
          {
           result5=InsertResult(results,result3->node,result3->segment);
+
+          result5->score=result3->score;
 
           result5->prev=result1;
          }
@@ -713,15 +715,15 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
  if(IsFakeSegment(finish_segment))
     finish_segment=IndexRealSegment(finish_segment);
 
- supernodep=LookupNode(nodes,finish_node,5); /* finish_node cannot be a fake node (must be a super-node) */
- supersegmentp=LookupSegment(segments,finish_segment,2); /* finish_segment cannot be a fake segment. */
+ supernodep=LookupNode(nodes,finish_node,3); /* finish_node cannot be a fake node (must be a super-node) */
+ supersegmentp=LookupSegment(segments,finish_segment,4); /* finish_segment cannot be a fake segment. */
 
  if(IsSuperSegment(supersegmentp))
     return(finish_segment);
 
  /* Loop across all segments */
 
- supersegmentp=FirstSegment(segments,supernodep,3); /* supernode cannot be a fake node (must be a super-node) */
+ supersegmentp=FirstSegment(segments,supernodep,4); /* supernode cannot be a fake node (must be a super-node) */
 
  while(supersegmentp)
    {
@@ -811,11 +813,11 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
     node1=result1->node;
     seg1=result1->segment;
 
-    node1p=LookupNode(nodes,node1,1); /* node1 cannot be a fake node */
+    node1p=LookupNode(nodes,node1,3); /* node1 cannot be a fake node */
 
     /* Loop across all segments */
 
-    segmentp=FirstSegment(segments,node1p,1); /* node1 cannot be a fake node */
+    segmentp=FirstSegment(segments,node1p,3); /* node1 cannot be a fake node */
 
     while(segmentp)
       {
@@ -835,7 +837,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
           if(profile->allow!=Transports_Bicycle)
              goto endloop;
 
-          wayp=LookupWay(ways,segmentp->way,1);
+          wayp=LookupWay(ways,segmentp->way,2);
 
           if(!(wayp->props&Properties_CycleBothWays))
              goto endloop;
@@ -849,7 +851,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
 
        node2=OtherNode(segmentp,node1);
 
-       node2p=LookupNode(nodes,node2,2); /* node2 cannot be a fake node */
+       node2p=LookupNode(nodes,node2,4); /* node2 cannot be a fake node */
 
        /* must not pass over super-node */
        if(node2!=finish_node && IsSuperNode(node2p))
@@ -1249,7 +1251,7 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
          }
 
     if(!IsFakeNode(result3->node))
-       if(IsSuperNode(LookupNode(nodes,result3->node,5)))
+       if(IsSuperNode(LookupNode(nodes,result3->node,3)))
           InsertInQueue(queue,result3,result3->score);
 
     result3=NextResult(results,result3);
@@ -1562,8 +1564,23 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
          }
 
        /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
-          goto endloop;
+       if(profile->turns)
+         {
+          printf("  trying node2=%"Pindex_t" seg2=%"Pindex_t" seg2r=%"Pindex_t"\n",node2,seg2,seg2r);
+
+          if(IsFakeNode(node1) || !IsSuperNode(node1p))
+            {
+             if(seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2)))
+                goto endloop;
+            }
+          else
+            {
+             index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,node1,seg1);
+
+             if(seg2==superseg)
+                goto endloop;
+            }
+         }
 
        /* must obey turn relations */
        if(turnrelation!=NO_RELATION)
