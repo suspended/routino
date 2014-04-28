@@ -462,8 +462,12 @@ Other Access Permissions
    type would not normally do so.
 
    A highway that is tagged as cycleway with one of several values will
-   allow bicycle access. If the value of the cycleway tag is opposite_lane
-   then the cyclebothways tag is set.
+   allow bicycle access. If the value of the cycleway tag is
+   opposite_lane, opposite_track or opposite then the cyclebothways tag is
+   set.
+
+   A highway that is tagged as oneway:bicycle with the value no will also
+   cause the cyclebothways tag to be set.
 
 Specific Access Permissions
 - - - - - - - - - - - - - -
@@ -545,4 +549,4 @@ Turn Restrictions
 
 --------
 
-Copyright 2008-2013 Andrew M. Bishop.
+Copyright 2008-2014 Andrew M. Bishop.
