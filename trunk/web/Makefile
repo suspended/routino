@@ -73,13 +73,13 @@ all-bin: all-exe
 all-data: all-xml
 	@[ -d $(WEBDATADIR) ] || mkdir -p $(WEBDATADIR)
 	@for file in $(STANDARD_XML_FILES); do \
-	    if [ ! -f $(WEBDATADIR)/$$file ] || [ routino-$$file -nt $(WEBDATADIR)/$$file ]; then \
+	    if [ ! -f $(WEBDATADIR)/$$file ] || [ $(XMLDIR)/routino-$$file -nt $(WEBDATADIR)/$$file ]; then \
 	       echo cp $(XMLDIR)/routino-$$file $(WEBDATADIR)/$$file ;\
 	       cp -f $(XMLDIR)/routino-$$file $(WEBDATADIR)/$$file ;\
 	    fi ;\
 	 done
 	@for file in $(SPECIAL_XML_FILES); do \
-	    if [ ! -f $(WEBDATADIR)/$$file ] || [ $$file -nt $(WEBDATADIR)/$$file ]; then \
+	    if [ ! -f $(WEBDATADIR)/$$file ] || [ $(XMLDIR)/$$file -nt $(WEBDATADIR)/$$file ]; then \
 	       echo cp $(XMLDIR)/$$file $(WEBDATADIR)/$$file ;\
 	       cp -f $(XMLDIR)/$$file $(WEBDATADIR)/$$file ;\
 	    fi ;\
