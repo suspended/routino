@@ -1,0 +1,16 @@
+# Creator : Routino - http://www.routino.org/
+# Source : Routino test cases - (c) Andrew M. Bishop
+# License : GNU Affero General Public License v3 or later
+#
+#Latitude	Longitude	    Node	Type	Segment	Segment	Total	Total  	Speed	Bearing	Highway
+#        	         	        	    	Dist   	Durat'n	Dist 	Durat'n	     	       	       
+ -0.221402	  -0.520913	      -1 	Waypt	0.000	 0.00	 0.00	  0.0			
+ -0.220268	  -0.520863	       8*	Junct	0.125	 0.38	 0.12	  0.4	 20	   2	main 2
+ -0.220062	  -0.521204	       2 	Inter	0.044	 0.13	 0.17	  0.5	 20	 301	roundabout
+ -0.219665	  -0.521190	       3 	Junct-	0.044	 0.13	 0.21	  0.6	 20	   1	roundabout
+ -0.219482	  -0.520837	       9*	Junct-	0.044	 0.13	 0.26	  0.8	 20	  62	roundabout
+ -0.219692	  -0.520509	      15*	Junct-	0.043	 0.13	 0.30	  0.9	 20	 122	roundabout
+ -0.220082	  -0.520522	      14*	Junct	0.043	 0.13	 0.34	  1.0	 20	 181	roundabout
+ -0.220768	  -0.519742	      16 	Inter	0.115	 0.34	 0.46	  1.4	 20	 131	residential road
+ -0.220811	  -0.518939	      19*	Junct	0.089	 0.27	 0.55	  1.6	 20	  93	residential road
+ -0.221319	  -0.518949	      -2 	Waypt	0.056	 0.17	 0.60	  1.8	 20	 181	main 3
