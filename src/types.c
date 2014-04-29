@@ -163,11 +163,6 @@ Property PropertyType(const char *property)
        return(Property_Bridge);
     break;
 
-   case 'c':
-    if(!strcmp(property,"cyclebothways"))
-       return(Property_CycleBothWays);
-    break;
-
    case 'f':
     if(!strcmp(property,"footroute"))
        return(Property_FootRoute);
@@ -241,6 +236,8 @@ const char *HighwayName(Highway highway)
    case Highway_Count:
     ;
 
+   case Highway_CycleBothWays:
+    ;
    case Highway_OneWay:
     ;
    case Highway_Roundabout:
@@ -329,9 +326,6 @@ const char *PropertyName(Property property)
 
    case Property_BicycleRoute:
     return("bicycleroute");
-
-   case Property_CycleBothWays:
-    return("cyclebothways");
 
    case Property_Count:
     ;

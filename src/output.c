@@ -470,7 +470,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                            {
                             Way *wayp=LookupWay(ways,segmentp->way,3);
 
-                            if(!(wayp->props&Properties_CycleBothWays))
+                            if(!(wayp->type&Highway_CycleBothWays))
                                canexit=0;
                            }
                         }
@@ -537,7 +537,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                      {
                       Way *wayp=LookupWay(ways,segmentp->way,3);
 
-                      if(!(wayp->props&Properties_CycleBothWays))
+                      if(!(wayp->type&Highway_CycleBothWays))
                          cango=0;
                      }
                   }

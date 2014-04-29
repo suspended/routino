@@ -176,7 +176,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
           wayp=LookupWay(ways,segmentp->way,1);
 
-          if(!(wayp->props&Properties_CycleBothWays))
+          if(!(wayp->type&Highway_CycleBothWays))
              goto endloop;
          }
 
@@ -510,7 +510,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
           wayp=LookupWay(ways,segmentp->way,1);
 
-          if(!(wayp->props&Properties_CycleBothWays))
+          if(!(wayp->type&Highway_CycleBothWays))
              goto endloop;
          }
 
@@ -839,7 +839,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
 
           wayp=LookupWay(ways,segmentp->way,2);
 
-          if(!(wayp->props&Properties_CycleBothWays))
+          if(!(wayp->type&Highway_CycleBothWays))
              goto endloop;
          }
 
@@ -1011,7 +1011,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
           wayp=LookupWay(ways,segmentp->way,1);
 
-          if(!(wayp->props&Properties_CycleBothWays))
+          if(!(wayp->type&Highway_CycleBothWays))
              goto endloop;
          }
 
@@ -1314,7 +1314,7 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
 
           wayp=LookupWay(ways,segmentp->way,1);
 
-          if(!(wayp->props&Properties_CycleBothWays))
+          if(!(wayp->type&Highway_CycleBothWays))
              goto endloop;
          }
 
@@ -1546,7 +1546,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
           wayp=LookupWay(ways,segmentp->way,1);
 
-          if(!(wayp->props&Properties_CycleBothWays))
+          if(!(wayp->type&Highway_CycleBothWays))
              goto endloop;
          }
 

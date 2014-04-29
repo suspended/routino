@@ -413,7 +413,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 {
  Way way={0};
  int oneway=0,area=0;
- int roundabout=0,lanes=0;
+ int roundabout=0,lanes=0,cyclebothways=0;
  char *name=NULL,*ref=NULL,*refname=NULL;
  way_t id;
  int i;
@@ -529,7 +529,7 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
        if(!strcmp(k,"cyclebothways"))
          {
           if(ISTRUE(v))
-             way.props|=Properties_CycleBothWays;
+             cyclebothways=1;
           else if(!ISFALSE(v))
              logerror("Way %"Pway_t" has an unrecognised tag 'cyclebothways' = '%s' (after tagging rules); using 'no'.\n",logerror_way(id),v);
           recognised=1; break;
@@ -781,14 +781,17 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
     area=0;
    }
 
- if(!oneway && way.props&Properties_CycleBothWays)
+ if(cyclebothways && !oneway)
    {
-    logerror("Way %"Pway_t" is not oneway and cyclebothways; ignoring cyclebothways tagging.\n",logerror_way(id));
-    way.props&=~Properties_CycleBothWays;
+    logerror("Way %"Pway_t" is cyclebothways but not oneway; ignoring cyclebothways tagging.\n",logerror_way(id));
+    cyclebothways=0;
    }
 
  if(!way.allow)
     return;
+
+ if(cyclebothways)
+    way.type|=Highway_CycleBothWays;
 
  if(oneway)
    {

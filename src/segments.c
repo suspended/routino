@@ -159,7 +159,7 @@ index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,ind
        if(profile->allow!=Transports_Bicycle)
           goto endloop;
 
-       if(!(wayp->props&Properties_CycleBothWays))
+       if(!(wayp->type&Highway_CycleBothWays))
           goto endloop;
       }
 

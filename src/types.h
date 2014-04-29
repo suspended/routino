@@ -239,13 +239,14 @@ typedef enum _Highway
 
   Highway_Count        = 14,       /* One more than the number of highway types. */
 
-  Highway_OneWay       =  32,
-  Highway_Roundabout   =  64,
-  Highway_Area         = 128
+  Highway_CycleBothWays =  16,
+  Highway_OneWay        =  32,
+  Highway_Roundabout    =  64,
+  Highway_Area          = 128
  }
  Highway;
 
-#define HIGHWAY(xx) ((xx)&0x1f)
+#define HIGHWAY(xx) ((xx)&0x0f)
 
 /*+ A bitmask of multiple highway types. +*/
 typedef uint16_t highways_t;
@@ -338,9 +339,8 @@ typedef enum _Property
   Property_Tunnel       = 4,
   Property_FootRoute    = 5,
   Property_BicycleRoute = 6,
-  Property_CycleBothWays= 7,
 
-  Property_Count        = 8       /* One more than the number of property types. */
+  Property_Count        = 7       /* One more than the number of property types. */
  }
  Property;
 
@@ -361,7 +361,6 @@ typedef enum _Properties
   Properties_Tunnel       = PROPERTIES(Property_Tunnel       ),
   Properties_FootRoute    = PROPERTIES(Property_FootRoute    ),
   Properties_BicycleRoute = PROPERTIES(Property_BicycleRoute ),
-  Properties_CycleBothWays= PROPERTIES(Property_CycleBothWays),
 
   Properties_ALL          = PROPERTIES(Property_Count        )-1
  }
