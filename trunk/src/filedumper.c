@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -553,7 +553,11 @@ static void print_way(Ways *ways,index_t item)
  printf("Way %"Pindex_t"\n",item);
  if(*name)
     printf("  name=%s\n",name);
- printf("  type=%02x (%s%s%s)\n",wayp->type,HighwayName(HIGHWAY(wayp->type)),wayp->type&Highway_OneWay?",One-Way":"",wayp->type&Highway_Roundabout?",Roundabout":"");
+ printf("  type=%02x (%s%s%s%s)\n",wayp->type,
+                                   HighwayName(HIGHWAY(wayp->type)),
+                                   wayp->type&Highway_OneWay?",One-Way":"",
+                                   wayp->type&Highway_CycleBothWays?",Cycle-Both-Ways":"",
+                                   wayp->type&Highway_Roundabout?",Roundabout":"");
  printf("  allow=%02x (%s)\n",wayp->allow,AllowedNameList(wayp->allow));
  if(wayp->props)
     printf("  props=%02x (%s)\n",wayp->props,PropertiesNameList(wayp->props));
@@ -854,6 +858,9 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
  if(wayp->type & Highway_OneWay)
     printf("    <tag k='oneway' v='yes' />\n");
 
+ if(wayp->type & Highway_CycleBothWays)
+    printf("    <tag k='cyclebothways' v='yes' />\n");
+
  if(wayp->type & Highway_Roundabout)
     printf("    <tag k='roundabout' v='yes' />\n");
 
@@ -1025,6 +1032,9 @@ static void print_segment_visualiser(Segments *segments,index_t item,Ways *ways)
 
  if(wayp->type & Highway_OneWay)
     printf("&nbsp;&nbsp;&nbsp;&lt;tag k='oneway' v='yes' /&gt;\n");
+
+ if(wayp->type & Highway_OneWay)
+    printf("&nbsp;&nbsp;&nbsp;&lt;tag k='cyclebothways' v='yes' /&gt;\n");
 
  if(wayp->type & Highway_Roundabout)
     printf("&nbsp;&nbsp;&nbsp;&lt;tag k='roundabout' v='yes' /&gt;\n");
