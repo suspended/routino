@@ -170,8 +170,12 @@ int main(int argc,char** argv)
        OutputJunctions(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
     else if(!strcmp(option_data,"super"))
        OutputSuper(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
-    else if(!strcmp(option_data,"oneway"))
-       OutputOneway(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax);
+    else if(!strcmp(option_data,"waytype-oneway"))
+       OutputWaytype(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,Highway_OneWay);
+    else if(!strcmp(option_data,"waytype-cyclebothways"))
+       OutputWaytype(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,Highway_CycleBothWays);
+    else if(!strcmp(option_data,"waytype-roundabout"))
+       OutputWaytype(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,Highway_Roundabout);
     else if(!strncmp(option_data,"highway",7) && option_data[7]=='-' && (highway=HighwayType(option_data+8))!=Highway_None)
        OutputHighway(OSMNodes,OSMSegments,OSMWays,OSMRelations,latmin,latmax,lonmin,lonmax,highway);
     else if(!strncmp(option_data,"transport",9) && option_data[9]=='-' && (transport=TransportType(option_data+10))!=Transport_None)
@@ -1033,7 +1037,7 @@ static void print_segment_visualiser(Segments *segments,index_t item,Ways *ways)
  if(wayp->type & Highway_OneWay)
     printf("&nbsp;&nbsp;&nbsp;&lt;tag k='oneway' v='yes' /&gt;\n");
 
- if(wayp->type & Highway_OneWay)
+ if(wayp->type & Highway_CycleBothWays)
     printf("&nbsp;&nbsp;&nbsp;&lt;tag k='cyclebothways' v='yes' /&gt;\n");
 
  if(wayp->type & Highway_Roundabout)
@@ -1237,7 +1241,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "  <data-type> can be selected from:\n"
             "      junctions   = segment count at each junction.\n"
             "      super       = super-node and super-segments.\n"
-            "      oneway      = oneway segments.\n"
+            "      waytype-*   = segments of oneway, cyclebothways or roundabout type.\n"
             "      highway-*   = segments of the specified highway type.\n"
             "      transport-* = segments allowing the specified transport type.\n"
             "      barrier-*   = nodes disallowing the specified transport type.\n"

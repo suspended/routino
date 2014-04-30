@@ -176,7 +176,6 @@
 @@PROPERTY-TUNNEL@@	Tunnel
 @@PROPERTY-WALKINGROUTE@@	Walking Route
 @@PROPERTY-BICYCLEROUTE@@	Bicycle Route
-@@PROPERTY-CYCLE-BOTHWAYS@@	Cycle Both Ways
 
 @@RESTRICT-ONEWAY@@	Obey oneway streets
 @@RESTRICT-TURNS@@	Obey turn restrictions
@@ -227,7 +226,7 @@
 @@VISUALISER-FAILED@@	Failed to get visualiser data!
 @@VISUALISER-NUM-JUNCTIONS@@	Processed # junctions
 @@VISUALISER-NUM-SUPER@@	Processed # super-nodes/segments
-@@VISUALISER-NUM-ONEWAY@@	Processed # oneway segments
+@@VISUALISER-NUM-WAYTYPE@@	Processed # way type segments
 @@VISUALISER-NUM-SEGMENTS@@	Processed # segments
 @@VISUALISER-NUM-NODES@@	Processed # nodes
 @@VISUALISER-NUM-TURNS@@	Processed # turn restrictions
@@ -238,7 +237,7 @@
 $$JUNCTIONS-INFO$$
 Each node that is a dead-end, a junction of two highways of different
 types (or different properties) or a junction where more than two segments
-join are shown colour-coded:
+join are shown colour-coded.
 $$JUNCTIONS-INFO$$
 @@JUNCTIONS-1@@	only one highway - a dead-end.
 @@JUNCTIONS-2@@	two highways of different types meet.
@@ -254,12 +253,16 @@ Each super-node and the associated super-segments are shown (see
 algorithm page for description).
 $$SUPER-INFO$$
 
-@@ONEWAY-BUTTON@@	Display One-way Segments
-$$ONEWAY-INFO$$
-Each one-way segment is shown with a coloured triangle indicating the
-allowed direction.  The colours of the triangles depend on the bearing
-of the highway segment.
-$$ONEWAY-INFO$$
+@@WAYTYPE-BUTTON@@	Display Way Type Segments
+$$WAYTYPE-INFO$$
+Each highway segment of special types (one-way, cycle-both-ways and roundabout) are
+shown.  For one-way segments a coloured triangle indicates the allowed direction.
+The colours of the triangles depend on the bearing of the highway segment.
+$$WAYTYPE-INFO$$
+
+@@WAYTYPE-ONEWAY@@	One-way segments
+@@WAYTYPE-CYCLE-BOTH-WAYS@@	Cycle-both-way segments
+@@WAYTYPE-ROUNDABOUT@@	Roundabout segments
 
 @@HIGHWAY-BUTTON@@	Display Highway Segments
 $$HIGHWAY-INFO$$

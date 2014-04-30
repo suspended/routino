@@ -42,7 +42,7 @@ my %legalparams=(
                  "latmax" => "[-0-9.]+",
                  "lonmin" => "[-0-9.]+",
                  "lonmax" => "[-0-9.]+",
-                 "data"   => "(junctions|super|oneway|highway-.*|transport-.*|barrier-.*|turns|speed|weight|height|width|length|property-.*|errorlogs)",
+                 "data"   => "(junctions|super|waytype-.*|highway-.*|transport-.*|barrier-.*|turns|speed|weight|height|width|length|property-.*|errorlogs)",
                  "dump"   => "(node|segment|turn-relation|errorlog)[0-9]+"
                 );
 
@@ -87,7 +87,7 @@ if(defined $data)
    my %limits=(
                "junctions" => 0.2,
                "super"     => 0.2,
-               "oneway"    => 0.2,
+               "waytype"   => 0.2,
                "highway"   => 0.2,
                "transport" => 0.2,
                "barrier"   => 0.3,
@@ -115,6 +115,7 @@ if(defined $data)
      }
 
    my $subdata=$data;
+   $subdata="waytype"   if($data =~ m%waytype-%);
    $subdata="highway"   if($data =~ m%highway-%);
    $subdata="transport" if($data =~ m%transport-%);
    $subdata="barrier"   if($data =~ m%barrier-%);

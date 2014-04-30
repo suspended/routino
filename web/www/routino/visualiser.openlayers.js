@@ -27,7 +27,7 @@
 var data_types=[
                 "junctions",
                 "super",
-                "oneway",
+                "waytype",
                 "highway",
                 "transport",
                 "barrier",
@@ -599,8 +599,14 @@ function displayData(datatype)  // called from visualiser.html
    case "super":
     ajaxGET(url, runSuperSuccess, runFailure);
     break;
-   case "oneway":
-    ajaxGET(url, runOnewaySuccess, runFailure);
+   case "waytype":
+    var waytype;
+    var waytypes=document.forms["waytypes"].elements["waytype"];
+    for(var h in waytypes)
+       if(waytypes[h].checked)
+          waytype=waytypes[h].value;
+    url+="-" + waytype;
+    ajaxGET(url, runWaytypeSuccess, runFailure);
     break;
    case "highway":
     var highway;
@@ -796,10 +802,10 @@ function runSuperSuccess(response)
 
 
 //
-// Success in getting the oneway data
+// Success in getting the waytype data
 //
 
-function runOnewaySuccess(response)
+function runWaytypeSuccess(response)
 {
  var hex={0: "00", 1: "11",  2: "22",  3: "33",  4: "44",  5: "55",  6: "66",  7: "77",
           8: "88", 9: "99", 10: "AA", 11: "BB", 12: "CC", 13: "DD", 14: "EE", 15: "FF"};
@@ -864,7 +870,7 @@ function runOnewaySuccess(response)
 
  layerVectors.addFeatures(features);
 
- displayStatus("data","oneway",lines.length-2);
+ displayStatus("data","waytype",lines.length-2);
 }
 
 

@@ -110,8 +110,8 @@
         <div id="result_status_super"     style="display: none;">
           <b>@@VISUALISER-NUM-SUPER@@</b>
         </div>
-        <div id="result_status_oneway"    style="display: none;">
-          <b>@@VISUALISER-NUM-ONEWAY@@</b>
+        <div id="result_status_waytype"   style="display: none;">
+          <b>@@VISUALISER-NUM-WAYTYPE@@</b>
         </div>
         <div id="result_status_highway"   style="display: none;">
           <b>@@VISUALISER-NUM-SEGMENTS@@</b>
@@ -166,11 +166,18 @@
     </div>
 
     <div class="hideshow_box">
-      <span id="hideshow_oneway_show" onclick="hideshow_show('oneway');" class="hideshow_show">+</span>
-      <span id="hideshow_oneway_hide" onclick="hideshow_hide('oneway');" class="hideshow_hide">-</span>
-      <input type="button" id="oneway" onclick="displayData('oneway');" value="@@ONEWAY-BUTTON@@">
-      <div id="hideshow_oneway_div" style="display: none;">
-        $$ONEWAY-INFO$$
+      <span id="hideshow_waytype_show" onclick="hideshow_show('waytype');" class="hideshow_show">+</span>
+      <span id="hideshow_waytype_hide" onclick="hideshow_hide('waytype');" class="hideshow_hide">-</span>
+      <input type="button" id="waytype" onclick="displayData('waytype');" value="@@WAYTYPE-BUTTON@@">
+      <div id="hideshow_waytype_div" style="display: none;">
+        $$WAYTYPE-INFO$$
+        <form name="waytypes" id="waytypes" action="#" method="get" onsubmit="return false;">
+          <table>
+            <tr><td>@@WAYTYPE-ONEWAY@@:         <td><input name="waytype" type="radio" value="oneway"        onchange="displayData('waytype');" checked>
+            <tr><td>@@WAYTYPE-CYCLE-BOTH-WAYS@@:<td><input name="waytype" type="radio" value="cyclebothways" onchange="displayData('waytype');">
+            <tr><td>@@WAYTYPE-ROUNDABOUT@@:     <td><input name="waytype" type="radio" value="roundabout"    onchange="displayData('waytype');">
+          </table>
+        </form>
       </div>
     </div>
 
@@ -344,7 +351,6 @@
             <tr><td>@@PROPERTY-TUNNEL@@:        <td><input name="property" type="radio" value="tunnel"        onchange="displayData('property');">
             <tr><td>@@PROPERTY-WALKINGROUTE@@:  <td><input name="property" type="radio" value="footroute"     onchange="displayData('property');">
             <tr><td>@@PROPERTY-BICYCLEROUTE@@:  <td><input name="property" type="radio" value="bicycleroute"  onchange="displayData('property');">
-            <tr><td>@@PROPERTY-CYCLE-BOTHWAYS@@:<td><input name="property" type="radio" value="cyclebothways" onchange="displayData('property');">
           </table>
         </form>
       </div>
