@@ -65,6 +65,7 @@ static int limit_type=0;
 static Highway highways=Highway_None;
 static Transports transports=Transports_None;
 static Properties properties=Properties_None;
+static highway_t waytype=0;
 
 /* Local functions */
 
@@ -72,7 +73,7 @@ static void find_all_nodes(Nodes *nodes,callback_t callback);
 
 static void output_junctions(index_t node,double latitude,double longitude);
 static void output_super(index_t node,double latitude,double longitude);
-static void output_oneway(index_t node,double latitude,double longitude);
+static void output_waytype(index_t node,double latitude,double longitude);
 static void output_highway(index_t node,double latitude,double longitude);
 static void output_transport(index_t node,double latitude,double longitude);
 static void output_barrier(index_t node,double latitude,double longitude);
@@ -259,9 +260,11 @@ static void output_super(index_t node,double latitude,double longitude)
   double lonmin The minimum longitude.
 
   double lonmax The maximum longitude.
+
+  highway_t mask A bit mask that must match the highway type.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void OutputOneway(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,double latmin,double latmax,double lonmin,double lonmax)
+void OutputWaytype(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,double latmin,double latmax,double lonmin,double lonmax,highway_t mask)
 {
  /* Use local variables so that the callback doesn't need to pass them backwards and forwards */
 
@@ -277,12 +280,14 @@ void OutputOneway(Nodes *nodes,Segments *segments,Ways *ways,Relations *relation
 
  /* Iterate through the nodes and process them */
 
- find_all_nodes(nodes,(callback_t)output_oneway);
+ waytype=mask;
+
+ find_all_nodes(nodes,(callback_t)output_waytype);
 }
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node and all connected one-way segments (called as a callback).
+  Process a single node and all connected way-type segments (called as a callback).
 
   index_t node The node to output.
 
@@ -291,7 +296,7 @@ void OutputOneway(Nodes *nodes,Segments *segments,Ways *ways,Relations *relation
   double longitude The longitude of the node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static void output_oneway(index_t node,double latitude,double longitude)
+static void output_waytype(index_t node,double latitude,double longitude)
 {
  Node *nodep=LookupNode(OSMNodes,node,1);
  Segment *segmentp;
@@ -306,14 +311,19 @@ static void output_oneway(index_t node,double latitude,double longitude)
 
        if(node>othernode)
          {
-          double lat,lon;
+          Way *wayp=LookupWay(OSMWays,segmentp->way,1);
 
-          GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
+          if(wayp->type&waytype)
+            {
+             double lat,lon;
 
-          if(IsOnewayFrom(segmentp,node))
-             printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
-          else if(IsOnewayFrom(segmentp,othernode))
-             printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(lat),radians_to_degrees(lon),radians_to_degrees(latitude),radians_to_degrees(longitude));
+             GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
+
+             if(IsOnewayFrom(segmentp,node))
+                printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
+             else if(IsOnewayFrom(segmentp,othernode))
+                printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(lat),radians_to_degrees(lon),radians_to_degrees(latitude),radians_to_degrees(longitude));
+            }
          }
       }
 

@@ -777,14 +777,20 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 
  if(area && oneway)
    {
-    logerror("Way %"Pway_t" is an area and oneway; ignoring area tagging.\n",logerror_way(id));
+    logerror("Way %"Pway_t" is an area and oneway; ignoring area tag.\n",logerror_way(id));
     area=0;
    }
 
  if(cyclebothways && !oneway)
    {
-    logerror("Way %"Pway_t" is cyclebothways but not oneway; ignoring cyclebothways tagging.\n",logerror_way(id));
+    logerror("Way %"Pway_t" is cyclebothways but not oneway; ignoring cyclebothways tag.\n",logerror_way(id));
     cyclebothways=0;
+   }
+
+ if(roundabout && !oneway)
+   {
+    logerror("Way %"Pway_t" is roundabout but not oneway; adding oneway tag.\n",logerror_way(id));
+    oneway=1;
    }
 
  if(!way.allow)
