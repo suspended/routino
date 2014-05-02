@@ -126,6 +126,13 @@
 @@STATISTICS-BOX@@	Routino Statistik
 @@VISUALISER-BOX@@	Routino Ansichten
 
+@@WAYPOINT-SEARCH@@	Nach Ort suchen
+@@WAYPOINT-CENTRE1@@	Zentriere Karte auf diesen Wegpunkt
+@@WAYPOINT-UP@@	Schiebe Wegpunkt nach oben
+@@WAYPOINT-ADD@@	Neuer Wegpunkt nach diesem
+@@WAYPOINT-COORDS@@	Koordinaten des Orts
+@@WAYPOINT-CENTRE2@@	Zentriere Wegpunkt auf der Karte
+@@WAYPOINT-DOWN@@	Schiebe Wegpunkt nach unten
 @@WAYPOINT-REVERSE@@	Rückwärts
 @@WAYPOINT-REVERSE-BUTTON@@	Rückwärts
 
@@ -168,6 +175,9 @@
 @@RESTRICT-WIDTH@@	Breite
 @@RESTRICT-LENGTH@@	Länge
 
+@@FIND-SHORTEST-ROUTE@@	Finde kürzesten Weg
+@@FIND-QUICKEST-ROUTE@@	Finde schnellste Route
+
 @@MAP-VIEW-LINK@@	anpassen dieser Kartenansicht
 @@EDIT-OSM-DATA@@	Bearbeitet die OSM-Daten
 
@@ -188,9 +198,34 @@
 
 @@DISPLAY-STATISTICS@@	zeige die Statistik
 
+@@TILES@@	Kacheln
+
 #
 # Visualiser specific translations
 #
+
+@@VISUALISER-TITLE@@	Visualisierung der Routing-Daten
+
+@@INSTRUCTIONS-BOX@@	Anweisungen
+@@ROUTER-BOX@@	Routino Router
+
+@@NO-DATA-DISPLAYED@@	Keine Daten angezeigt
+
+@@VISUALISER-NUM-JUNCTIONS@@	# Kreuzungen verarbeitet
+@@VISUALISER-NUM-SUPER@@	# Super-Knoten/Segmente verarbeitet
+@@VISUALISER-NUM-SEGMENTS@@	# Segmente verarbeitet
+@@VISUALISER-NUM-NODES@@	# Knoten verarbeitet
+@@VISUALISER-NUM-TURNS@@	# Abbiegebeschrängkungen verarbeitet
+
+@@JUNCTIONS-BUTTON@@	Kreuzungen anzeigen
+@@JUNCTIONS-2@@	Aufeinandertreffen zweier Wege unterschiedlichen Typs.
+@@JUNCTIONS-3@@	Aufeinandertreffen von drei Wegen.
+@@JUNCTIONS-4@@	Aufeinandertreffen von vier Wegen.
+@@JUNCTIONS-5@@	Aufeinandertreffen von fünf Wegen.
+@@JUNCTIONS-6@@	Aufeinandertreffen von sechs Wegen.
+@@JUNCTIONS-MORE@@	Aufeinandertreffen von sieben oder mehr Wegen.
+
+@@SUPER-BUTTON@@	Super-Segments anzeigen
 
 #
 # Multi-line descriptive translations (router)
