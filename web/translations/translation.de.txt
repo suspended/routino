@@ -6,10 +6,10 @@
 # Router output XML definition
 #
 
-%%copyright_creator_string%%	Creator
+%%copyright_creator_string%%	Urheber
 %%copyright_source_string%%	Source
 %%copyright_source_text%%	Basierend auf OpenStreetMap-Daten, erhältlich via http://www.openstreetmap.org/
-%%copyright_license_string%%	License
+%%copyright_license_string%%	Lizenz
 
 %%turn_-4%%	Spitzkehre nach links
 %%turn_-3%%	Scharf links
@@ -90,7 +90,7 @@
 # Router (and some shared) translations
 #
 
-@@LANGUAGE@@	Deutsche
+@@LANGUAGE@@	Deutsch
 @@LANGUAGE-WEBPAGE@@	Deutsche Webseite
 
 @@ROUTER-TITLE@@	Routen Planer für OpenStreetMap Daten
@@ -127,12 +127,13 @@
 @@VISUALISER-BOX@@	Routino Ansichten
 
 @@WAYPOINT-SEARCH@@	Nach Ort suchen
-@@WAYPOINT-CENTRE1@@	Zentriere Karte auf diesen Wegpunkt
-@@WAYPOINT-UP@@	Schiebe Wegpunkt nach oben
+@@WAYPOINT-CENTRE1@@	Karte auf Wegpunkt zentrieren
+@@WAYPOINT-UP@@	wegpunkt nach oben verschieben
 @@WAYPOINT-ADD@@	Neuer Wegpunkt nach diesem
 @@WAYPOINT-COORDS@@	Koordinaten des Orts
-@@WAYPOINT-CENTRE2@@	Zentriere Wegpunkt auf der Karte
-@@WAYPOINT-DOWN@@	Schiebe Wegpunkt nach unten
+@@WAYPOINT-CENTRE2@@	Wegpunkt auf Karte zentrieren
+@@WAYPOINT-DOWN@@	Wegpunkt nach unten verschieben
+@@WAYPOINT-REMOVE@@	Wegpunkt entfernen
 @@WAYPOINT-REVERSE@@	Rückwärts
 @@WAYPOINT-REVERSE-BUTTON@@	Rückwärts
 
@@ -175,8 +176,8 @@
 @@RESTRICT-WIDTH@@	Breite
 @@RESTRICT-LENGTH@@	Länge
 
-@@FIND-SHORTEST-ROUTE@@	Finde kürzesten Weg
-@@FIND-QUICKEST-ROUTE@@	Finde schnellste Route
+@@FIND-SHORTEST-ROUTE@@	Kürzeste Route finden
+@@FIND-QUICKEST-ROUTE@@	Schnellste Route finden
 
 @@MAP-VIEW-LINK@@	anpassen dieser Kartenansicht
 @@EDIT-OSM-DATA@@	Bearbeitet die OSM-Daten
