@@ -1566,8 +1566,6 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        /* must not perform U-turn (unless profile allows) */
        if(profile->turns)
          {
-          printf("  trying node2=%"Pindex_t" seg2=%"Pindex_t" seg2r=%"Pindex_t"\n",node2,seg2,seg2r);
-
           if(IsFakeNode(node1) || !IsSuperNode(node1p))
             {
              if(seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2)))
