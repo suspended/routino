@@ -40,6 +40,8 @@
 #include "xmlparse.h"
 
 
+#define DEBUG 0
+
 /* Constants */
 
 #define IMP_IGNORE      -1      /*+ Ignore this point. +*/
@@ -324,10 +326,26 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
  do
    {
+    int first=1;
     int next_point=point;
     distance_t junc_distance=0;
     duration_t junc_duration=0;
     Result *result;
+
+#if DEBUG
+    printf("Route section %d - waypoint %d to waypoint %d\n",point,results[point]->start_waypoint,results[point]->finish_waypoint);
+    printf("  start_node=%"Pindex_t" prev_segment=%"Pindex_t"\n",results[point]->start_node,results[point]->prev_segment);
+    printf("  finish_node=%"Pindex_t" last_segment=%"Pindex_t"\n",results[point]->finish_node,results[point]->last_segment);
+
+    Result *r=FindResult(results[point],results[point]->start_node,results[point]->prev_segment);
+
+    while(r)
+      {
+       printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
+
+       r=r->next;
+      }
+#endif
 
     result=FindResult(results[point],results[point]->start_node,results[point]->prev_segment);
 
@@ -383,7 +401,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        /* Calculate the information about this segment */
 
-       if(result->node!=results[point]->start_node) /* not first point of a section of the route */
+       if(!first)               /* not first point of a section of the route */
          {
           if(IsFakeSegment(result->segment))
             {
@@ -507,9 +525,9 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        if(point_count==0)  /* first point overall = Waypoint */
           important=IMP_WAYPOINT;
-       else if(result->node==results[point]->finish_node) /* Waypoint */
+       else if(result->next==NULL) /* Waypoint */
           important=IMP_WAYPOINT;
-       else if(result->node==results[point]->start_node) /* first point of a section of the route */
+       else if(first)           /* first point of a section of the route */
           important=IMP_IGNORE;
        else if(roundabout)      /* roundabout */
           ;
@@ -848,6 +866,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        if(important>IMP_JUNCT_CONT)
           point_count++;
+
+       first=0;
       }
     while(point==next_point);
 
