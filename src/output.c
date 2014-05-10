@@ -401,21 +401,21 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        /* Calculate the information about this segment */
 
+       if(IsFakeSegment(result->segment))
+         {
+          resultsegmentp=LookupFakeSegment(result->segment);
+          realsegment=IndexRealSegment(result->segment);
+         }
+       else
+         {
+          resultsegmentp=LookupSegment(segments,result->segment,2);
+          realsegment=result->segment;
+         }
+
+       resultwayp=LookupWay(ways,resultsegmentp->way,1);
+
        if(!first)               /* not first point of a section of the route */
          {
-          if(IsFakeSegment(result->segment))
-            {
-             resultsegmentp=LookupFakeSegment(result->segment);
-             realsegment=IndexRealSegment(result->segment);
-            }
-          else
-            {
-             resultsegmentp=LookupSegment(segments,result->segment,2);
-             realsegment=result->segment;
-            }
-
-          resultwayp=LookupWay(ways,resultsegmentp->way,1);
-
           seg_distance+=DISTANCE(resultsegmentp->distance);
           seg_duration+=Duration(resultsegmentp,resultwayp,profile);
 
@@ -589,7 +589,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        /* Calculate the strings to be used */
 
-       if(resultwayp && textallfile)
+       if(!first && textallfile)
          {
           waynameraw=WayName(ways,resultwayp);
           if(!*waynameraw)
@@ -602,9 +602,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        if(next_result && important>IMP_JUNCT_CONT)
          {
-          if(resultsegmentp && (htmlfile || textfile))
+          if(!first && (htmlfile || textfile))
             {
-             turn_int=(int)TurnAngle(nodes,resultsegmentp,next_resultsegmentp,result->node);
+             if(DISTANCE(resultsegmentp->distance)==0 || DISTANCE(next_resultsegmentp->distance)==0)
+                turn_int=0;
+             else
+                turn_int=(int)TurnAngle(nodes,resultsegmentp,next_resultsegmentp,result->node);
+
              turn=translate_xml_turn[((202+turn_int)/45)%8];
             }
 
@@ -619,7 +623,11 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           if(htmlfile || gpxroutefile || textfile)
             {
-             next_bearing_int=(int)BearingAngle(nodes,next_resultsegmentp,next_result->node);
+             if(DISTANCE(next_resultsegmentp->distance)==0)
+                next_bearing_int=(int)BearingAngle(nodes,resultsegmentp,result->node);
+             else
+                next_bearing_int=(int)BearingAngle(nodes,next_resultsegmentp,next_result->node);
+
              next_bearing=translate_xml_heading[(4+(22+next_bearing_int)/45)%8];
             }
          }

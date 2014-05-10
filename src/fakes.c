@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -200,6 +200,33 @@ index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segmentp,
  prevpoint=point;
 
  return(fakenode);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Create a fake segment connecting a node to itself.
+
+  index_t CreateFakeNullSegment Returns the index of a fake segment.
+
+  Segments *segments The list of segments to use.
+
+  index_t node The node that is to be linked.
+
+  index_t segment The segment that is to be emulated.
+
+  int point The waypoint number.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+index_t CreateFakeNullSegment(Segments *segments,index_t node,index_t segment,int point)
+{
+ Segment *segmentp=LookupSegment(segments,segment,1);
+
+ fake_segments[4*point-2].node1=node;
+ fake_segments[4*point-2].node2=node;
+ fake_segments[4*point-2].way=segmentp->way;
+ fake_segments[4*point-2].distance=0;
+
+ return(4*point-2+SEGMENT_FAKE);
 }
 
 
