@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2011-2013 Andrew M. Bishop
+ This file Copyright 2011-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -593,7 +593,7 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
           WayX *wayx1,*wayx2,*wayx3;
           NodeX *nodex2,*nodex3,*newnodex;
           index_t newnode;
-          int join12=1,join23=1;
+          int join12=1,join23=1,same13=1;
 
           /* Check if pruning would collapse a loop */
 
@@ -694,10 +694,35 @@ void PruneShortSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,distanc
 
           PutBackNodeX(nodesx,newnodex);
 
-          /* Modify segments */
+          /* Modify segments - update the distances */
 
-          segmentx1->distance+=DISTANCE(segmentx2->distance)/2;
-          segmentx3->distance+=DISTANCE(segmentx2->distance)-DISTANCE(segmentx2->distance)/2;
+          if(!IsOneway(segmentx1) && !IsOneway(segmentx3))
+             ;
+          else if(IsOneway(segmentx1) && IsOneway(segmentx3))
+            {
+             if(IsOnewayTo(segmentx1,node3) && !IsOnewayFrom(segmentx3,node3)) /* S1 is one-way but S3 doesn't continue */
+                same13=0;
+
+             if(IsOnewayFrom(segmentx1,node3) && !IsOnewayTo(segmentx3,node3)) /* S1 is one-way but S3 doesn't continue */
+                same13=0;
+            }
+          else
+             same13=0;
+
+          if(WaysCompare(&wayx1->way,&wayx3->way))
+             same13=0;
+
+          if(same13)
+            {
+             segmentx1->distance+=DISTANCE(segmentx2->distance)/2;
+             segmentx3->distance+=DISTANCE(segmentx2->distance)-DISTANCE(segmentx2->distance)/2;
+            }
+          else if(join12)
+             segmentx1->distance+=DISTANCE(segmentx2->distance);
+          else /* if(join23) */
+             segmentx3->distance+=DISTANCE(segmentx2->distance);
+
+          /* Modify segments - update the segments */
 
           if(segmentx1->node1==node1)
             {
