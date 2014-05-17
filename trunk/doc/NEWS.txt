@@ -1,3 +1,43 @@
+Version 2.7.1 of Routino released : Sat May 17 2014
+---------------------------------------------------
+
+Bug fixes:
+  Fix typo in documentation for command to get SVN version.
+  Fix router crash when waypoint is on roundabout.
+  Don't duplicate super-segments when merging them with normal segments.
+  Change routing instructions for bicycle if highways allow cycling both ways.
+  Make translation script work with older versions of Perl.
+  Fix router crash if fewer than two waypoints are specified.
+  Revert router speed decrease with special-case tagging rules.
+  Fix web page search function when it returns non-ASCII text.
+  Fix router failure due to invalid assumption about allowed U-turn.
+  Fix bug with updating XML files in web/data directory (Makefile error).
+  Fix router web page error due to absence of cyclebothways property entry.
+  Fix results error if a waypoint node was passed again on way to next waypoint.
+  Fix router crash when route contains consecutive coincident waypoints.
+  Fix bug with slightly incorrect distances when pruning short segments.
+
+Test cases:
+  Create new test case for roundabout waypoint bug fixed in this version.
+  Create new test case for invalid U-turn assumption bug fixed in this version.
+  Create new test case for cycling both ways.
+  Create new test case for consecutive coincident waypoints.
+
+router:
+  Remove cyclebothways as a property that can be used as a routing preference.
+
+Web pages:
+  Disallow route calculation if fewer than two waypoints are selected.
+  Update visualiser for change of cyclebothways handling.
+
+Translations:
+  Updated Russian translations.
+  Updated German translations.
+
+
+Note: This version is not compatible with databases from previous versions.
+
+
 Version 2.7 of Routino released : Sat Mar 22 2014
 -------------------------------------------------
 
@@ -43,7 +83,8 @@ Web pages:
 
 Note: This version has removed specific support for IE6 and IE7 browsers.
 
-Note: This version is compatible with databases from version 2.6.
+Note: This version is compatible with databases from version 2.6 (although
+      cycling both ways on one-way highways requires a database update).
 
 
 Version 2.6 of Routino released : Sat Jul 6 2013
