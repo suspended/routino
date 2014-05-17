@@ -113,9 +113,9 @@
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>
-      <creator string="Creator" text="Routino - http://www.routino.org/" />
+      <creator string="Urheber" text="Routino - http://www.routino.org/" />
       <source  string="Source" text="Basierend auf OpenStreetMap-Daten, erhältlich via http://www.openstreetmap.org/" />
-      <license string="License" text="http://www.openstreetmap.org/copyright" />
+      <license string="Lizenz" text="http://www.openstreetmap.org/copyright" />
     </copyright>
 
     <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
