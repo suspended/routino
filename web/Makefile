@@ -105,17 +105,21 @@ all-profiles: all-exe all-data
 all-icons: $(WEBICONDIR)/ball-0.png
 
 $(WEBICONDIR)/ball-0.png: $(WEBICONDIR)/create-icons.pl
-	echo create-icons.pl
+	@echo create-icons.pl
 	@cd $(WEBICONDIR) && perl create-icons.pl
 
-all-translations: $(WEBWWWDIR)/router.html.en $(WEBWWWDIR)/visualiser.html.en
+all-translations: $(WEBWWWDIR)/router.html.en $(WEBWWWDIR)/visualiser.html.en $(XMLDIR)/routino-translations.xml
 
 $(WEBWWWDIR)/router.html.en: $(WEBTRANSDIR)/router.html $(TRANS_FILES) $(WEBTRANSDIR)/translate.pl
-	echo translate.pl
+	@echo translate.pl
 	@cd $(WEBTRANSDIR) && perl translate.pl
 
 $(WEBWWWDIR)/visualiser.html.en: $(WEBTRANSDIR)/visualiser.html $(TRANS_FILES) $(WEBTRANSDIR)/translate.pl
-	echo translate.pl
+	@echo translate.pl
+	@cd $(WEBTRANSDIR) && perl translate.pl
+
+$(XMLDIR)/routino-translations.xml: $(WEBTRANSDIR)/translations-head.xml $(WEBTRANSDIR)/translations-body.xml $(WEBTRANSDIR)/translations-tail.xml $(TRANS_FILES) $(WEBTRANSDIR)/translate.pl
+	@echo translate.pl
 	@cd $(WEBTRANSDIR) && perl translate.pl
 
 all-exe:
