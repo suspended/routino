@@ -202,6 +202,8 @@ Version 2.5.1 of Routino was released on 20th April 2013.
 Version 2.6 of Routino was released on 6th July 2013.
 <br>
 Version 2.7 of Routino was released on 22nd March 2014.
+<br>
+Version 2.7.1 of Routino was released on 17th May 2014.
 
 <p>
 
@@ -258,8 +260,50 @@ Version 2.7 - mostly web page usability improvements.
 <p>
 <b>Note:</b> Note: This version is compatible with databases from version 2.6.
 
+<h3 id="H_1_5_2" title="Changes">Changes in Versions 2.7.1</h3>
 
-<h3 id="H_1_5_2">License</h3>
+Version 2.7.1 - mostly bug fixes (some from version 2.7, but mostly older ones).
+
+<dl>
+  <dt>Bug fixes:
+    <dd>Fix typo in documentation for command to get SVN version.
+    <br>Fix router crash when waypoint is on roundabout.
+    <br>Don't duplicate super-segments when merging them with normal segments.
+    <br>Change routing instructions for bicycle if highways allow cycling both ways.
+    <br>Make translation script work with older versions of Perl.
+    <br>Fix router crash if fewer than two waypoints are specified.
+    <br>Revert router speed decrease with special-case tagging rules.
+    <br>Fix web page search function when it returns non-ASCII text.
+    <br>Fix router failure due to invalid assumption about allowed U-turn.
+    <br>Fix bug with updating XML files in web/data directory (Makefile error).
+    <br>Fix router web page error due to absence of cyclebothways property entry.
+    <br>Fix results error if a waypoint node was passed again on way to next waypoint.
+    <br>Fix router crash when route contains consecutive coincident waypoints.
+    <br>Fix bug with slightly incorrect distances when pruning short segments.
+
+  <dt>Test cases:
+    <dd>Create new test case for roundabout waypoint bug fixed in this version.
+    <br>Create new test case for invalid U-turn assumption bug fixed in this version.
+    <br>Create new test case for cycling both ways.
+    <br>Create new test case for consecutive coincident waypoints.
+
+  <dt>router:
+    <dd>Remove cyclebothways as a property that can be used as a routing preference.
+
+  <dt>Web pages:
+    <dd>Disallow route calculation if fewer than two waypoints are selected.
+    <br>Update visualiser for change of cyclebothways handling.
+
+  <dt>Translations:
+    <dd>Updated Russian translations.
+    <br>Updated German translations.
+</dl>
+
+<p>
+<b>Note:</b> This version is not compatible with databases from previous versions.
+
+
+<h3 id="H_1_5_3">License</h3>
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the
@@ -275,7 +319,7 @@ additional requirements to anybody who provides a networked service using this
 software.
 
 
-<h3 id="H_1_5_3">Copyright</h3>
+<h3 id="H_1_5_4">Copyright</h3>
 
 Routino is copyright Andrew M. Bishop 2008-2014.
 
