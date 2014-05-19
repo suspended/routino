@@ -82,7 +82,7 @@
 %%output-gpx_waypoint_finish%%	FINISH
 
 %%output-gpx_desc%%	%s Route tussen 'Start' und 'Finish'
-%%output-gpx_name%%	%s Route  
+%%output-gpx_name%%	%s Route
 %%output-gpx_step%%	%s op '%s' voor %.3f km, %.1f min
 %%output-gpx_final%%	Totaal trip  %.1f km, %.0f minuten
 
@@ -195,12 +195,12 @@ $$ROUTER-OPTIONS-HELP$$
 <b>Quick Start</b>
 <br>
 Click op marker-icoontje (Waypoints) om ze op de map te plaatsen (rechts).
-Sleep ze vervolgens naar de gewenste positie. 
-Het is best om eerst naar straat niveau te zoomen op de kaart. 
+Sleep ze vervolgens naar de gewenste positie.
+Het is best om eerst naar straat niveau te zoomen op de kaart.
 Selecteer het transport type, toegestane weg-types,
 snelheidslimieten, wegeigenschappen en andere restricties uit de
 opties.
-Selecteer  "Kortste" of "Snelste" om de route te berekenen en te tekenen op de map. 
+Selecteer  "Kortste" of "Snelste" om de route te berekenen en te tekenen op de map.
 <p>
 <b>Coordinaten (Waypoints)</b>
 <br>
@@ -217,7 +217,7 @@ Deze percentages kunnen ook nog eens manueel aangepast worden.
 <p>
 <b>Voorkeur Wegtype</b>
 <br>
-De voorkeur voor een bepaald type weg wordt uitgedrukt in een percentage.  
+De voorkeur voor een bepaald type weg wordt uitgedrukt in een percentage.
 Bijvoorbeeld wanneer u het Transport Type "Fiets" kiest, dan zal er
 voor Autostrade 0% staan, en voor Fietspad 100%.
 Wanneer u Autowegen, Nationale wegen wil vermijden of beperken bij

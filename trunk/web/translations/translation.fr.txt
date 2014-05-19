@@ -81,7 +81,7 @@
 %%output-gpx_waypoint_trip%%	POINT
 %%output-gpx_waypoint_finish%%	FINAL
 
-%%output-gpx_desc%%	Itinéraire %s entre les étapes 'début' et 'fin' 
+%%output-gpx_desc%%	Itinéraire %s entre les étapes 'début' et 'fin'
 %%output-gpx_name%%	Itinéraire %s
 %%output-gpx_step%%	%s sur '%s' pendant %.3f km, %.1f min
 %%output-gpx_final%%	Trajet total %.1f km, %.0f minutes
@@ -228,11 +228,11 @@ $$ROUTER-OPTIONS-HELP$$
 <b>Aide simplifiée</b>
 <br>
 Cliquer sur les icones de balises (ci-dessus) pour les placer sur la carte (droite).  Puis
-les déplacer à la position choisie. Il sera sûrement plus facile de zoomer sur la carte 
+les déplacer à la position choisie. Il sera sûrement plus facile de zoomer sur la carte
 avant de placer les balises.  Autre solution, taper la latitude et
 la longitude dans les cases ci-dessus.
 <p>
-Selectionner le mode de déplacement, les types de voies autorisées, les limitations de vitesse, 
+Selectionner le mode de déplacement, les types de voies autorisées, les limitations de vitesse,
 les propriétés des voies et les autres restrictions dans les options ci-dessus.
 Selectionner "Le plus court" ou "Le plus rapide" pour calculer l'itinéraire et le visualiser
 sur la carte.
@@ -252,7 +252,7 @@ les autres paramètres.
 <p>
 <b>Préferences des voies</b>
 <br>
-La préférence de voies est définie par un pourcentage et des itinéraires sont choisis 
+La préférence de voies est définie par un pourcentage et des itinéraires sont choisis
 qui essaient de suivre les voies préferrées.
 Par exemple, si une voie "Primaire" a une préférence de "110%" et une voie "Secondaire"
 une préférence de "100%", alors cela signifie qu'un itinéraire sur une voie primaire
@@ -268,8 +268,8 @@ voie n'a pas d'autre limite de vitesse définie ou si celle-ci est supérieure �
 La préférence de propriété est définie par un pourcentage et des itinéraires sont choisis
 qui essaient de suivre les voies ayant cette propriété préférée.
 Par exemple, si une voie goudronnée a une préférence de "75%", alors cela signifie que
-une voie non goudronnée obtient automatiquement une préférence de "25%" ce qui fait que 
-un itinéraire sur une voie goudronnée peut avoir 3 fois la longueur d'une non goudronnée 
+une voie non goudronnée obtient automatiquement une préférence de "25%" ce qui fait que
+un itinéraire sur une voie goudronnée peut avoir 3 fois la longueur d'une non goudronnée
 et être sélectionnée.
 <p>
 <b>Autres restrictions</b>
@@ -290,14 +290,14 @@ visualiser la description de l'itinéraire et zoomer sur des tronçons sélectio
 <br>
 Si le calculateur aboutie à une erreur, la cause la plus probable est que
 il n'est pas possible de trouver un itinéraire entre les points sélectionnés.
-Por permettre de trouver un itinéraire, déplacer une ou des balises 
+Por permettre de trouver un itinéraire, déplacer une ou des balises
 ou changer les options de recherche.
 <p>
 <b>Formats d'affichage</b>
 <br>
 <dl>
   <dt>Instructions HTML
-  <dd>une description de l'itinéraire à prendre 
+  <dd>une description de l'itinéraire à prendre
     à chaque intersection importante.
   <dt>Fichier chemin GPX
   <dd>La même information qui est affichée sur la carte avec des points
@@ -306,7 +306,7 @@ ou changer les options de recherche.
   <dd>La même information qui est affichée en texte pour l'itinéraire
     avec une étape pour chaque intersection importante.
   <dt>Fichier texte complet
-  <dd>Une liste de tous les noeuds traversés ainsi que la distance 
+  <dd>Une liste de tous les noeuds traversés ainsi que la distance
     entre eux et la distance cumulée pour chaque étape de l'itinéraire.
   <dt>Fichier texte
   <dd>La même information qui est affichée en texte pour l'itinéraire.

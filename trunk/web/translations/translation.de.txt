@@ -240,30 +240,30 @@ $$ROUTER-INFO$$
 $$ROUTER-OPTIONS-HELP$$
 <b>Schnellanleitung</b>
 <br>
-Klicke auf die Marker-Bildchen (oben), um sie in der Mitte der Karte (rechts) zu positionieren. Dann 
+Klicke auf die Marker-Bildchen (oben), um sie in der Mitte der Karte (rechts) zu positionieren. Dann
 ziehe das Bildchen auf die genaue Position. Das Zoomen der Karte vor der Patzierung ist vermutlich am einfachsten.
 Alternativ kann man die geografische Breite und Länge in den Kästchen eintragen.
 <p>
-Wähle die Fortbewegungsart, die Vorgaben zur Wegnutzung, die Geschwindigkeitsvorgaben, 
+Wähle die Fortbewegungsart, die Vorgaben zur Wegnutzung, die Geschwindigkeitsvorgaben,
 die Vorgaben zur Wegbeschaffenheit und die anderen Vorgaben von den obigen Auswahlfeldern.
 Ein Klick auf "kürzeste" oder "schnellste" ermittelt die entsprechende Verbindung und zeigt sie in der Karte an.
 <p>
 <b>Wegpunkte</b>
 <br>
 Ein Klick auf das Marker-Bildchen (oben) schaltet die Sichbarkeit in der Karte ein bzw. aus.
-Die Berechnung Route erfolgt in der Reihenfolge der Wegpunkte (so gut, wie es für die 
+Die Berechnung Route erfolgt in der Reihenfolge der Wegpunkte (so gut, wie es für die
 gewählte Fortbewegungsart möglich ist).
 <p>
 <b>Fortbewegungsart</b>
 <br>
-Die Auswahl der Fortbewegungsart bestimmt die bei der Routenberechnung erlaubten Wegtypen und die 
+Die Auswahl der Fortbewegungsart bestimmt die bei der Routenberechnung erlaubten Wegtypen und die
 Vorgabeeinstellungen aller anderen Parameter.
 <p>
 <b>Vorgaben zur Wegnutzung</b>
 <br>
 Die Vorgaben zur Wegnutzung bestimmen die Priorisierung von Wegarten.
-Wenn z. B. Schnellstraßen mit 110% und Bundesstraßen mit 100% angegeben werden, wird 
-bei zwei möglichen Wegwahlen die Schnellstraße solange bevorzugt wird, wie der 
+Wenn z. B. Schnellstraßen mit 110% und Bundesstraßen mit 100% angegeben werden, wird
+bei zwei möglichen Wegwahlen die Schnellstraße solange bevorzugt wird, wie der
 Längen(oder Zeit-)unterschied 10% nicht überschreitet.
 <p>
 <b>Geschwindigkeitsvorgaben</b>
@@ -273,16 +273,16 @@ andere Geschwindkeitsbegrenzung mit geringerem Wert bekannt ist.
 <p>
 <b>Vorgaben zur Wegbeschaffenheit</b>
 <br>
-Die Vorgaben zur Wegbeschaffenheit werden als Prozentangaben verwendet, um die Verhältnisse 
+Die Vorgaben zur Wegbeschaffenheit werden als Prozentangaben verwendet, um die Verhältnisse
 der Wegbenutzung zu steuern.
 Wenn z. B. befestigte Wege mit 75% angegeben sind, werden unbefestigte automatisch mit 25% angenommen, so
 werden Wege ausgewählt, die mindestens drei mal länger auf befestigten Wegen verlaufen.
 <p>
 <b>andere Vorgaben</b>
 <br>
-Die Berücksichtigung von Benutzungs-Begrenzungen durch Gewicht, Höhe, Länge und 
-Breite ist möglich. Genauso können Einbahnstraßenbeschräkungen ignoriert werden 
-(z. B. als Fußgänger). 
+Die Berücksichtigung von Benutzungs-Begrenzungen durch Gewicht, Höhe, Länge und
+Breite ist möglich. Genauso können Einbahnstraßenbeschräkungen ignoriert werden
+(z. B. als Fußgänger).
 $$ROUTER-OPTIONS-HELP$$
 
 $$ROUTER-RESULTS-HELP$$
@@ -303,10 +303,10 @@ Vorgaben sollte es erlauben eine Route zu finden.
   <dt>HTMLs
   <dd>Eine Beschreibung der Route mit Anweisungen für jede wichtige Abzweigung.
   <dt>GPX Track-Datei
-  <dd>Die gleichen Informationen, die in der Karte angezeigt werden mit Punkten für jeden Abzweig 
+  <dd>Die gleichen Informationen, die in der Karte angezeigt werden mit Punkten für jeden Abzweig
   und Linien für jedes Teilstück.
   <dt>GPX Routen-Datei
-  <dd>Die gleichen Informationen, die im Text angezeigt werden mit einem Wegpunkt für 
+  <dd>Die gleichen Informationen, die im Text angezeigt werden mit einem Wegpunkt für
   jede wichtige Richtungsänderung.
   <dt>Volltext-Datei
   <dd>Eine aller Knoten und die Abstände zwischen ihnen, sowie die Gesamtentfernung vom i
@@ -317,7 +317,7 @@ Vorgaben sollte es erlauben eine Route zu finden.
 $$ROUTER-RESULTS-HELP$$
 
 $$ROUTER-VISUALISER-INFO$$
-Die Anzeige der Daten kann auf verschiedene Weise angepasst werden.	
+Die Anzeige der Daten kann auf verschiedene Weise angepasst werden.
 $$ROUTER-VISUALISER-INFO$$
 
 #
