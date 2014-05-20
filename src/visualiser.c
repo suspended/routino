@@ -307,18 +307,17 @@ static void output_waytype(index_t node,double latitude,double longitude)
    {
     if(IsNormalSegment(segmentp))
       {
-       index_t othernode=OtherNode(segmentp,node);
+       Way *wayp=LookupWay(OSMWays,segmentp->way,1);
 
-       if(node>othernode)
+       if(wayp->type&waytype)
          {
-          Way *wayp=LookupWay(OSMWays,segmentp->way,1);
+          index_t othernode=OtherNode(segmentp,node);
+          double lat,lon;
 
-          if(wayp->type&waytype)
+          GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
+
+          if(node>othernode || (lat<LatMin || lat>LatMax || lon<LonMin || lon>LonMax))
             {
-             double lat,lon;
-
-             GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
-
              if(IsOnewayFrom(segmentp,node))
                 printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
              else if(IsOnewayFrom(segmentp,othernode))
@@ -398,20 +397,17 @@ static void output_highway(index_t node,double latitude,double longitude)
    {
     if(IsNormalSegment(segmentp))
       {
-       index_t othernode=OtherNode(segmentp,node);
+       Way *wayp=LookupWay(OSMWays,segmentp->way,1);
 
-       if(node>othernode)
+       if(HIGHWAY(wayp->type)==highways)
          {
-          Way *wayp=LookupWay(OSMWays,segmentp->way,1);
+          index_t othernode=OtherNode(segmentp,node);
+          double lat,lon;
 
-          if(HIGHWAY(wayp->type)==highways)
-            {
-             double lat,lon;
+          GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
-             GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
-
+          if(node>othernode || (lat<LatMin || lat>LatMax || lon<LonMin || lon>LonMax))
              printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
-            }
          }
       }
 
@@ -486,20 +482,17 @@ static void output_transport(index_t node,double latitude,double longitude)
    {
     if(IsNormalSegment(segmentp))
       {
-       index_t othernode=OtherNode(segmentp,node);
+       Way *wayp=LookupWay(OSMWays,segmentp->way,1);
 
-       if(node>othernode)
+       if(wayp->allow&transports)
          {
-          Way *wayp=LookupWay(OSMWays,segmentp->way,1);
+          index_t othernode=OtherNode(segmentp,node);
+          double lat,lon;
 
-          if(wayp->allow&transports)
-            {
-             double lat,lon;
+          GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
-             GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
-
+          if(node>othernode || (lat<LatMin || lat>LatMax || lon<LonMin || lon>LonMax))
              printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
-            }
          }
       }
 
@@ -1039,20 +1032,17 @@ static void output_property(index_t node,double latitude,double longitude)
    {
     if(IsNormalSegment(segmentp))
       {
-       index_t othernode=OtherNode(segmentp,node);
+       Way *wayp=LookupWay(OSMWays,segmentp->way,1);
 
-       if(node>othernode)
+       if(wayp->props&properties)
          {
-          Way *wayp=LookupWay(OSMWays,segmentp->way,1);
+          index_t othernode=OtherNode(segmentp,node);
+          double lat,lon;
 
-          if(wayp->props&properties)
-            {
-             double lat,lon;
+          GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
 
-             GetLatLong(OSMNodes,othernode,NULL,&lat,&lon);
-
+          if(node>othernode || (lat<LatMin || lat>LatMax || lon<LonMin || lon>LonMax))
              printf("segment%"Pindex_t" %.6f %.6f %.6f %.6f\n",IndexSegment(OSMSegments,segmentp),radians_to_degrees(latitude),radians_to_degrees(longitude),radians_to_degrees(lat),radians_to_degrees(lon));
-            }
          }
       }
 
