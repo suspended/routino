@@ -110,6 +110,9 @@
 @@TRANSPORT-BICYCLE@@	Велосипед
 @@TRANSPORT-MOPED@@	Мопед
 @@TRANSPORT-MOTORCYCLE@@	Мотоцикл
+@@TRANSPORT-GOODS@@	Товары
+
+@@HIGHWAY-MOTORWAY@@	Автомагистраль
 
 @@PROPERTY-BRIDGE@@	Мост
 @@PROPERTY-TUNNEL@@	Туннель
@@ -130,6 +133,10 @@
 #
 # Visualiser specific translations
 #
+
+@@INSTRUCTIONS-BOX@@	Инструкции
+
+@@NO-DATA-DISPLAYED@@	Нет данных для отображения
 
 @@VISUALISER-NUM-NODES@@	Обработано # нод
 @@VISUALISER-NUM-TURNS@@	Обработано # ограничений поворотов
