@@ -199,6 +199,9 @@
 
 @@DISPLAY-STATISTICS@@	zeige die Statistik
 
+@@JAVASCRIPT-REQUIRED@@	Um die interaktive Karte zu nutzen iWork Javascript benötigt. 
+@@ROUTER@@	Router
+@@GEO-DATA@@	Geodaten
 @@TILES@@	Kacheln
 
 #
@@ -212,11 +215,14 @@
 
 @@NO-DATA-DISPLAYED@@	Keine Daten angezeigt
 
+@@VISUALISER-FAILED@@	Fehler bei der Erstellung der visuellen Daten!
 @@VISUALISER-NUM-JUNCTIONS@@	# Kreuzungen verarbeitet
 @@VISUALISER-NUM-SUPER@@	# Super-Knoten/Segmente verarbeitet
+@@VISUALISER-NUM-WAYTYPE@@	# Wegtypen Segmente verarbeitet
 @@VISUALISER-NUM-SEGMENTS@@	# Segmente verarbeitet
 @@VISUALISER-NUM-NODES@@	# Knoten verarbeitet
 @@VISUALISER-NUM-TURNS@@	# Abbiegebeschrängkungen verarbeitet
+@@VISUALISER-NUM-ERRORS@@	# Error Logs erstellt
 
 @@JUNCTIONS-BUTTON@@	Kreuzungen anzeigen
 @@JUNCTIONS-2@@	Aufeinandertreffen zweier Wege unterschiedlichen Typs.
@@ -227,6 +233,14 @@
 @@JUNCTIONS-MORE@@	Aufeinandertreffen von sieben oder mehr Wegen.
 
 @@SUPER-BUTTON@@	Super-Segments anzeigen
+
+@@WEIGHT-LIMIT-8@@	8 Tonnen Wegbeschränkung
+
+@@HEIGHT-BUTTON@@	Maximale Höhe anzeigen 
+
+@@WIDTH-BUTTON@@	Maximale Breite anzeigen
+
+@@CLEAR-DATA-BUTTON@@	Daten zurücksetzen
 
 #
 # Multi-line descriptive translations (router)
