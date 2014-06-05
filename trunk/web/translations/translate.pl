@@ -80,7 +80,9 @@ foreach my $translation_file (@translation_files)
             $translations{$language}->{html}++;
             $translations{$language}->{codes}->{$code}={};
             $translations{$language}->{codes}->{$code}->{text}=$text;
-            $translations{$language}->{codes}->{$code}->{used}=0;
+            $translations{$language}->{codes}->{$code}->{usedX}=0;
+            $translations{$language}->{codes}->{$code}->{usedR}=0;
+            $translations{$language}->{codes}->{$code}->{usedV}=0;
            }
         }
 
@@ -108,7 +110,9 @@ foreach my $translation_file (@translation_files)
             $translations{$language}->{html}++;
             $translations{$language}->{codes}->{$code}={};
             $translations{$language}->{codes}->{$code}->{text}=$text;
-            $translations{$language}->{codes}->{$code}->{used}=0;
+            $translations{$language}->{codes}->{$code}->{usedX}=0;
+            $translations{$language}->{codes}->{$code}->{usedR}=0;
+            $translations{$language}->{codes}->{$code}->{usedV}=0;
            }
         }
 
@@ -127,7 +131,9 @@ foreach my $translation_file (@translation_files)
             $translations{$language}->{xml}++;
             $translations{$language}->{codes}->{$code}={};
             $translations{$language}->{codes}->{$code}->{text}=$text;
-            $translations{$language}->{codes}->{$code}->{used}=0;
+            $translations{$language}->{codes}->{$code}->{usedX}=0;
+            $translations{$language}->{codes}->{$code}->{usedR}=0;
+            $translations{$language}->{codes}->{$code}->{usedV}=0;
            }
         }
      }
@@ -152,6 +158,11 @@ foreach my $language (sort (keys %languages))
 
 foreach my $html_template_file (@html_template_files)
   {
+   my $usedtype="";
+
+   $usedtype="R" if($html_template_file =~ m%router%);
+   $usedtype="V" if($html_template_file =~ m%visualiser%);
+
    foreach my $language (@languages)
      {
       next if(!$translations{$language}->{html});
@@ -208,7 +219,7 @@ foreach my $html_template_file (@html_template_files)
                   foreach my $code (keys %{$translations{$language2}->{codes}})
                     {
                      if($line =~ s%$code%$translations{$language2}->{codes}->{$code}->{text}%g)
-                       {$translations{$language2}->{codes}->{$code}->{used} = 1;}
+                       {$translations{$language2}->{codes}->{$code}->{"used$usedtype"} = 1;}
                     }
 
                   if($line =~ m%((\@\@|\$\$|\*\*|\~\~)[^\@\$*~]+(\@\@|\$\$|\*\*|\~\~))%)
@@ -240,7 +251,7 @@ foreach my $html_template_file (@html_template_files)
          foreach my $code (keys %{$translations{$language}->{codes}})
            {
             if($line =~ s%\Q$code\E%$translations{$language}->{codes}->{$code}->{text}%g)
-              {$translations{$language}->{codes}->{$code}->{used} = 1;}
+              {$translations{$language}->{codes}->{$code}->{"used$usedtype"} = 1;}
            }
 
          # Replace what is left with English phrases
@@ -302,7 +313,7 @@ foreach my $language (@languages)
       foreach my $code (keys %{$translations{$language}->{codes}})
         {
          if($line =~ s%$code%$translations{$language}->{codes}->{$code}->{text}%g)
-           {$translations{$language}->{codes}->{$code}->{used} = 1;}
+           {$translations{$language}->{codes}->{$code}->{usedX} = 1;}
         }
 
       # Replace what is left with a note about missing translations
@@ -341,13 +352,27 @@ close(XML_IN);
 close(XML_OUT);
 
 
-# Check the languages
+# Check the languages and usage
+
+my %usedX=();
+my %usedR=();
+my %usedV=();
 
 foreach my $language (@languages)
   {
+   $usedX{$language}=0;
+   $usedR{$language}=0;
+   $usedV{$language}=0;
+
    foreach my $code (keys %{$translations{$language}->{codes}})
      {
-      if(! $translations{$language}->{codes}->{$code}->{used})
+      $usedX{$language}+=$translations{$language}->{codes}->{$code}->{usedX};
+      $usedR{$language}+=$translations{$language}->{codes}->{$code}->{usedR};
+      $usedV{$language}+=$translations{$language}->{codes}->{$code}->{usedV};
+
+      if(! $translations{$language}->{codes}->{$code}->{usedX} &&
+         ! $translations{$language}->{codes}->{$code}->{usedR} &&
+         ! $translations{$language}->{codes}->{$code}->{usedV})
         {
          print STDERR "Language: $language UNUSED codeword: $code\n";
         }
@@ -363,15 +388,17 @@ print "Translation Coverage\n";
 print "====================\n";
 
 print "\n";
-print "            Number      Fraction\n";
-print "Language  HTML   XML   HTML   XML\n";
-print "--------  ----   ---   ----   ---\n";
+print "           Number      Percentage Complete\n";
+print "Language  XML HTML    XML router visualiser\n";
+print "--------  --- ----    --- ------ ----------\n";
 
 foreach my $language (@languages)
   {
-   printf("%-6s     %3d   %3d  %4.0f%% %4.0f%%\n",$language,
-                                                  $translations{$language}->{html},
-                                                  $translations{$language}->{xml},
-                                                  100.0*$translations{$language}->{html}/$translations{$languages[0]}->{html},
-                                                  100.0*$translations{$language}->{xml} /$translations{$languages[0]}->{xml});
+   printf("%-6s    %3d  %3d  %4.0f%%  %4.0f%%  %4.0f%%\n",
+          $language,
+          $translations{$language}->{xml},
+          $translations{$language}->{html},
+          100.0*$usedX{$language}/$usedX{$languages[0]},
+          100.0*$usedR{$language}/$usedR{$languages[0]},
+          100.0*$usedV{$language}/$usedV{$languages[0]})
   }
