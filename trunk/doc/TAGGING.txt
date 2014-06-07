@@ -387,11 +387,14 @@ Highway Defaults
    cycleway     yes   no     yes        yes     no    no         no       no    no  no
    path         yes   yes(2) yes        yes(2)  no    no         no       no    no  no
    steps        yes   no     no         no      no    no         no       no    no  no
+   ferry (3)    no    no     no         no      no    no         no       no    no  no
 
    Note 1: A trunk road may legally allow foot, horse or wheelchair access
    but in the absence of other tags is considered to be too dangerous.
    Note 2: A path allows bicycle or horse access by default only if
    actually labelled as a highway of type "bridleway".
+   Note 3: Ferry routes must be explicitly tagged with the allowed
+   transport types, it is not sensible to try to guess.
 
    Finally for the highway tag a number of default properties are added
    depending on the highway type.
@@ -410,6 +413,7 @@ Highway Defaults
    cycleway     paved
    path         paved (3)
    steps
+   ferry
 
    Note 1: A highway of this type has the multilane property by default if
    it is oneway.
