@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2013 Andrew M. Bishop
+ This file Copyright 2013-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@
 
 /* Macros for constants */
 
-#define CACHEWIDTH 2048         /*+ The width of the cache. +*/
+#define CACHEWIDTH 8192         /*+ The width of the cache. +*/
 #define CACHEDEPTH   16         /*+ The depth of the cache. +*/
 
 
