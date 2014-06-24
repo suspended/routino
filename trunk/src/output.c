@@ -401,21 +401,21 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        /* Calculate the information about this segment */
 
-       if(IsFakeSegment(result->segment))
-         {
-          resultsegmentp=LookupFakeSegment(result->segment);
-          realsegment=IndexRealSegment(result->segment);
-         }
-       else
-         {
-          resultsegmentp=LookupSegment(segments,result->segment,2);
-          realsegment=result->segment;
-         }
-
-       resultwayp=LookupWay(ways,resultsegmentp->way,1);
-
        if(!first)               /* not first point of a section of the route */
          {
+          if(IsFakeSegment(result->segment))
+            {
+             resultsegmentp=LookupFakeSegment(result->segment);
+             realsegment=IndexRealSegment(result->segment);
+            }
+          else
+            {
+             resultsegmentp=LookupSegment(segments,result->segment,2);
+             realsegment=result->segment;
+            }
+
+          resultwayp=LookupWay(ways,resultsegmentp->way,1);
+
           seg_distance+=DISTANCE(resultsegmentp->distance);
           seg_duration+=Duration(resultsegmentp,resultwayp,profile);
 
@@ -623,7 +623,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           if(htmlfile || gpxroutefile || textfile)
             {
-             if(DISTANCE(next_resultsegmentp->distance)==0)
+             if(!first && DISTANCE(next_resultsegmentp->distance)==0)
                 next_bearing_int=(int)BearingAngle(nodes,resultsegmentp,result->node);
              else
                 next_bearing_int=(int)BearingAngle(nodes,next_resultsegmentp,next_result->node);
