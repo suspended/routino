@@ -1503,7 +1503,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
     node1=result1->node;
     seg1=result1->segment;
 
-    if(IsFakeSegment(seg1))
+    if(seg1!=NO_SEGMENT && IsFakeSegment(seg1))
        seg1r=IndexRealSegment(seg1);
     else
        seg1r=seg1;
@@ -1564,7 +1564,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
          }
 
        /* must not perform U-turn (unless profile allows) */
-       if(profile->turns)
+       if(profile->turns && seg1!=NO_SEGMENT)
          {
           if(IsFakeNode(node1) || !IsSuperNode(node1p))
             {
@@ -1581,7 +1581,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
          }
 
        /* must obey turn relations */
-       if(turnrelation!=NO_RELATION)
+       if(turnrelation!=NO_RELATION && seg1!=NO_SEGMENT)
          {
           index_t turnrelation2=FindFirstTurnRelation2(relations,node1,seg2r); /* node2 -> node1 -> result1->next->node */
 
