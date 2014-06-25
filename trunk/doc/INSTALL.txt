@@ -111,13 +111,20 @@ Pre-Requisites
    called liblzma-dev). The xz function is not enabled by default but can
    be enabled by uncommenting two lines in the file 'Makefile.conf'.
 
+   To compile the source code from subversion requires the Perl
+   Graphics::Magick module to generate the web page icons (on Linux this
+   might be in a package called libgraphics-magick-perl). The released
+   source code packages contains the icons so this package is not required
+   for compilation.
+
    To use the web page interface an http server is required. Instructions
    below are for Apache but any server that supports CGIs should work.
 
    The web pages use the Perl scripting language and a number of the
    default Perl modules. To use the search function on the router web page
-   the additional Perl module "JSON::PP" must be installed.
-
+   the Perl module JSON::PP must be installed (on Linux this might be in a
+   package called libjson-pp-perl if not part of the standard Perl
+   installation).
 
 Compilation
 -----------
@@ -274,7 +281,7 @@ Configuration of web files
    the Routino documentation.
 
 
-Configuration of web server
+Configuration of Web Server
 ---------------------------
 
    The file 'www/routino/.htaccess' contains all of the Apache
