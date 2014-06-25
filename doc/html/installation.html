@@ -188,14 +188,22 @@ two lines in the file <tt>Makefile.conf</tt>.
 
 <p>
 
+To compile the source code from subversion requires the Perl Graphics::Magick
+module to generate the web page icons (on Linux this might be in a package
+called libgraphics-magick-perl).  The released source code packages contains the
+icons so this package is not required for compilation.
+
+<p>
+
 To use the web page interface an http server is required.  Instructions below
 are for Apache but any server that supports CGIs should work.
 
 <p>
 
 The web pages use the Perl scripting language and a number of the default Perl
-modules.  To use the search function on the router web page the additional Perl
-module "JSON::PP" must be installed.
+modules.  To use the search function on the router web page the Perl module
+JSON::PP must be installed (on Linux this might be in a package called
+libjson-pp-perl if not part of the standard Perl installation).
 
 
 <h2 id="H_1_3">Compilation</h2>
