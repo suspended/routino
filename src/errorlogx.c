@@ -930,7 +930,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
    {
     int i;
     char buffer[4096];
-    off_t chunksize=(size>sizeof(buffer)?sizeof(buffer):size);
+    off_t chunksize=(size>(off_t)sizeof(buffer)?(off_t)sizeof(buffer):size);
 
     ReadFileBuffered(oldfd,buffer,chunksize);
 
