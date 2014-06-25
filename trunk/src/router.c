@@ -573,9 +573,9 @@ int main(int argc,char** argv)
 
  /* Destroy the remaining results lists and data structures */
 
-#if 0
+#ifdef DEBUG_MEMORY_LEAK
 
- for(waypoint=0;waypoint<=nresults;waypoint++)
+ for(waypoint=0;waypoint<nresults;waypoint++)
     FreeResultsList(results[waypoint]);
 
  DestroyNodeList(OSMNodes);
