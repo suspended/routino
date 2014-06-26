@@ -71,10 +71,9 @@ Demonstration
 
    A live demonstration of the router for the UK is available on the
    internet in both OpenLayers and Leaflet versions:
+
    http://www.routino.org/uk-leaflet/
    http://www.routino.org/uk-openlayers/
-
-   http://www.routino.org/uk/
 
    The source code download available below also includes a set of files
    that can be used to create your own interactive map.
@@ -128,6 +127,7 @@ Status
    Version 2.6 of Routino was released on 6th July 2013.
    Version 2.7 of Routino was released on 22nd March 2014.
    Version 2.7.1 of Routino was released on 17th May 2014.
+   Version 2.7.2 of Routino was released on 26th June 2014.
 
    The full version history is available in the NEWS.txt file.
 
@@ -155,7 +155,7 @@ Copyright
 Homepage
 --------
 
-   The latest information about the program can be found on the homepage:
+   The Routino homepage has the latest news about the program:
 
    http://www.routino.org/
 
