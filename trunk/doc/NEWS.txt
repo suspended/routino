@@ -1,3 +1,21 @@
+Version 2.7.2 of Routino released : Thu May 26 2014
+---------------------------------------------------
+
+Bug fixes:
+  Make the visualiser display all segments including those crossing the border.
+  Fix two errors that cause crashes only on 64-bit systems.
+
+planetsplitter / router:
+  Increase the size of the caches for the slim programs by a factor of four.
+
+Translations:
+  Updated Russian translations.
+  Updated German translations.
+
+
+Note: This version is compatible with databases from version 2.7.1.
+
+
 Version 2.7.1 of Routino released : Sat May 17 2014
 ---------------------------------------------------
 
