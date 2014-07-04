@@ -1,5 +1,5 @@
-Version 2.7.2 of Routino released : Thu May 26 2014
----------------------------------------------------
+Version 2.7.2 of Routino released : Thu June 26 2014
+----------------------------------------------------
 
 Bug fixes:
   Make the visualiser display all segments including those crossing the border.
