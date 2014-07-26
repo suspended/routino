@@ -750,11 +750,11 @@ int UpdateProfile(Profile *profile,Ways *ways)
     profile->props_yes[i] =sqrt(profile->props_yes[i]);
     profile->props_no [i] =sqrt(profile->props_no[i] );
 
-    if(profile->props_yes[i]<0.0001)
-       profile->props_yes[i]=0.0001;
+    if(profile->props_yes[i]<0.01)
+       profile->props_yes[i]=0.01;
 
-    if(profile->props_no[i]<0.0001)
-       profile->props_no[i]=0.0001;
+    if(profile->props_no[i]<0.01)
+       profile->props_no[i]=0.01;
    }
 
  /* Find the fastest preferred speed */
