@@ -127,6 +127,7 @@
 @@VISUALISER-BOX@@	Routino Ansichten
 
 @@WAYPOINT-SEARCH@@	Nach Ort suchen
+@@WAYPOINT-GET@@	Aktuellen Ort bestimmen
 @@WAYPOINT-CENTRE1@@	Karte auf Wegpunkt zentrieren
 @@WAYPOINT-UP@@	wegpunkt nach oben verschieben
 @@WAYPOINT-ADD@@	Neuer Wegpunkt nach diesem
