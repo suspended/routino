@@ -83,7 +83,7 @@ static void output_property(index_t node,double latitude,double longitude);
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for junctions.
+  Output the data for junctions (--data=junctions).
 
   Nodes *nodes The set of nodes to use.
 
@@ -123,7 +123,7 @@ void OutputJunctions(Nodes *nodes,Segments *segments,Ways *ways,Relations *relat
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node as a junction (called as a callback).
+  Process a single node and output all those that are junctions (called as a callback).
 
   index_t node The node to output.
 
@@ -162,7 +162,7 @@ static void output_junctions(index_t node,double latitude,double longitude)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for super-nodes and super-segments.
+  Output the data for super-nodes and super-segments (--data=super).
 
   Nodes *nodes The set of nodes to use.
 
@@ -202,7 +202,7 @@ void OutputSuper(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node as a super-node (called as a callback).
+  Process a single node and output all that are super-nodes and all connected super-segments (called as a callback).
 
   index_t node The node to output.
 
@@ -243,7 +243,7 @@ static void output_super(index_t node,double latitude,double longitude)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for one-way segments.
+  Output the data for segments of special highway types (--data=waytype-oneway etc).
 
   Nodes *nodes The set of nodes to use.
 
@@ -287,7 +287,7 @@ void OutputWaytype(Nodes *nodes,Segments *segments,Ways *ways,Relations *relatio
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node and all connected way-type segments (called as a callback).
+  Process a single node and output all connected segments of a particular special highway type (called as a callback).
 
   index_t node The node to output.
 
@@ -333,7 +333,7 @@ static void output_waytype(index_t node,double latitude,double longitude)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for segments of a particular highway type.
+  Output the data for segments of a particular highway type (--data=highway-primary etc).
 
   Nodes *nodes The set of nodes to use.
 
@@ -377,7 +377,7 @@ void OutputHighway(Nodes *nodes,Segments *segments,Ways *ways,Relations *relatio
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node and all connected one-way segments (called as a callback).
+  Process a single node and output all connected segments that are of a particular highway type (called as a callback).
 
   index_t node The node to output.
 
@@ -418,7 +418,7 @@ static void output_highway(index_t node,double latitude,double longitude)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for segments allowed for a particular type of traffic.
+  Output the data for segments allowed for a particular type of traffic (--data=transport-motorcar etc).
 
   Nodes *nodes The set of nodes to use.
 
@@ -462,7 +462,7 @@ void OutputTransport(Nodes *nodes,Segments *segments,Ways *ways,Relations *relat
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node and all connected one-way segments (called as a callback).
+  Process a single node and output all connected segments for a particular traffic type (called as a callback).
 
   index_t node The node to output.
 
@@ -503,7 +503,7 @@ static void output_transport(index_t node,double latitude,double longitude)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for nodes disallowed for a particular type of traffic.
+  Output the data for nodes disallowed for a particular type of traffic (--data=barrier).
 
   Nodes *nodes The set of nodes to use.
 
@@ -547,7 +547,7 @@ void OutputBarrier(Nodes *nodes,Segments *segments,Ways *ways,Relations *relatio
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node (called as a callback).
+  Process a single node and output those that are barriers (called as a callback).
 
   index_t node The node to output.
 
@@ -566,7 +566,7 @@ static void output_barrier(index_t node,double latitude,double longitude)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for turn restrictions.
+  Output the data for turn restrictions (--data=turns).
 
   Nodes *nodes The set of nodes to use.
 
@@ -606,7 +606,7 @@ void OutputTurnRestrictions(Nodes *nodes,Segments *segments,Ways *ways,Relations
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node as the 'via' node for a turn restriction (called as a callback).
+  Process a single node and output those that are 'via' nodes for a turn restriction and the associated segments (called as a callback).
 
   index_t node The node to output.
 
@@ -656,7 +656,7 @@ static void output_turnrestriction(index_t node,double latitude,double longitude
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for speed limits.
+  Output the data for speed limits (--data=speed).
 
   Nodes *nodes The set of nodes to use.
 
@@ -698,7 +698,7 @@ void OutputSpeedLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for weight limits.
+  Output the data for weight limits (--data=weight).
 
   Nodes *nodes The set of nodes to use.
 
@@ -740,7 +740,7 @@ void OutputWeightLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *re
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for height limits.
+  Output the data for height limits (--data=height).
 
   Nodes *nodes The set of nodes to use.
 
@@ -782,7 +782,7 @@ void OutputHeightLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *re
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for width limits.
+  Output the data for width limits (--data=width).
 
   Nodes *nodes The set of nodes to use.
 
@@ -824,7 +824,7 @@ void OutputWidthLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for length limits.
+  Output the data for length limits (--data=length).
 
   Nodes *nodes The set of nodes to use.
 
@@ -866,7 +866,7 @@ void OutputLengthLimits(Nodes *nodes,Segments *segments,Ways *ways,Relations *re
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node as a speed, weight, height, length, width limit (called as a callback).
+  Process a single node and output those and connected segments that have a speed, weight, height, width or length limit change (called as a callback).
 
   index_t node The node to output.
 
@@ -968,7 +968,7 @@ static void output_limits(index_t node,double latitude,double longitude)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for segments that have a particular property.
+  Output the data for segments that have a particular property (--data=property-paved etc).
 
   Nodes *nodes The set of nodes to use.
 
@@ -1012,7 +1012,7 @@ void OutputProperty(Nodes *nodes,Segments *segments,Ways *ways,Relations *relati
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Process a single node and all connected one-way segments (called as a callback).
+  Process a single node and output all connected segments with a particular property (called as a callback).
 
   index_t node The node to output.
 
@@ -1103,7 +1103,7 @@ static void find_all_nodes(Nodes *nodes,callback_t callback)
 
 
 /*++++++++++++++++++++++++++++++++++++++
-  Output the data for error logs within the region.
+  Output the data for error logs within the region (--data=errorlogs).
 
   ErrorLogs *errorlogs The set of error logs to use.
 
