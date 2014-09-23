@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -67,6 +67,7 @@ int OpenFile(const char *filename);
 void CloseFile(int fd);
 
 off_t SizeFile(const char *filename);
+off_t SizeFileFD(int fd);
 int ExistsFile(const char *filename);
 
 int DeleteFile(const char *filename);

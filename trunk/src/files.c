@@ -619,6 +619,28 @@ off_t SizeFile(const char *filename)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Get the size of a file from a file descriptor.
+
+  off_t SizeFileFD Returns the file size if OK or exits in case of an error.
+
+  int fd The file descriptor to check.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+off_t SizeFileFD(int fd)
+{
+ struct stat buf;
+
+ if(fstat(fd,&buf))
+   {
+    fprintf(stderr,"Cannot stat file descriptor '%d' [%s].\n",fd,strerror(errno));
+    exit(EXIT_FAILURE);
+   }
+
+ return(buf.st_size);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Check if a file exists.
 
   int ExistsFile Returns 1 if the file exists and 0 if not.

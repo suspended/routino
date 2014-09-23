@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2009-2013 Andrew M. Bishop
+ This file Copyright 2009-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -121,7 +121,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
  index_t count_out=0,count_in=0,total=0;
- size_t nitems=option_filesort_ramsize/(option_filesort_threads*(itemsize+sizeof(void*)));
+ size_t nitems;
  void *data,**datap;
  thread_data *threads;
  size_t item;
@@ -131,6 +131,16 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
 #endif
 
  /* Allocate the RAM buffer and other bits */
+
+ nitems=SizeFileFD(fd_in)/itemsize;
+
+ if(nitems==0)
+    return(0);
+
+ if((nitems*(itemsize+sizeof(void*)))<option_filesort_ramsize)
+    nitems=1+nitems/option_filesort_threads;
+ else
+    nitems=option_filesort_ramsize/(option_filesort_threads*(itemsize+sizeof(void*)));
 
  threads=(thread_data*)malloc(option_filesort_threads*sizeof(thread_data));
 
@@ -484,7 +494,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
  int *fds=NULL,*heap=NULL;
  int nfiles=0,ndata=0;
  index_t count_out=0,count_in=0,total=0;
- size_t datasize=option_filesort_ramsize/option_filesort_threads;
+ size_t datasize;
  FILESORT_VARINT nextitemsize,largestitemsize=0;
  void *data,**datap;
  thread_data *threads;
@@ -495,6 +505,16 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 #endif
 
  /* Allocate the RAM buffer and other bits */
+
+ datasize=SizeFileFD(fd_in);
+
+ if(datasize==0)
+    return(0);
+
+ if((datasize*2)<option_filesort_ramsize) /* estimate that data and pointer are same size */
+    datasize=(datasize*2)/option_filesort_threads;
+ else
+    datasize=option_filesort_ramsize/option_filesort_threads;
 
  threads=(thread_data*)malloc(option_filesort_threads*sizeof(thread_data));
 
