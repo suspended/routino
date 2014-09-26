@@ -512,6 +512,10 @@ if(!option_process_only)
 
  SaveRelationList(OSMRelations,FileName(dirname,prefix,"relations.mem"));
 
+ /* Free the memory (delete the temporary files) */
+
+ FreeSegmentList(OSMSegments);
+
  /* Close the error log file and process the data */
 
  if(errorlog)
@@ -542,8 +546,6 @@ if(!option_process_only)
  FreeNodeList(OSMNodes,0);
  FreeWayList(OSMWays,0);
  FreeRelationList(OSMRelations,0);
-
- FreeSegmentList(OSMSegments);
 
  printf_program_end();
 
