@@ -78,7 +78,7 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 
  segmentsx->next1=(index_t*)calloc(segmentsx->number,sizeof(index_t));
 
- logassert(segmentsx->next1,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
+ logassert(segmentsx->next1,"Failed to allocate memory (try using slim mode?)"); /* Check calloc() worked */
 
  /* Open the file read-only */
 
@@ -129,9 +129,10 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
  if(segmentsx->next1)
+   {
     free(segmentsx->next1);
-
- segmentsx->next1=NULL;
+    segmentsx->next1=NULL;
+   }
 }
 
 
