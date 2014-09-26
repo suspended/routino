@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -44,6 +44,8 @@ int option_logtime=0;
 static void vfprintf_first(FILE *file,const char *format,va_list ap);
 static void vfprintf_middle(FILE *file,const char *format,va_list ap);
 static void vfprintf_last(FILE *file,const char *format,va_list ap);
+
+static void fprintf_elapsed_time(FILE *file,struct timeval *start);
 
 
 /* Local variables */
@@ -326,7 +328,7 @@ static void vfprintf_last(FILE *file,const char *format,va_list ap)
   struct timeval *start The start time from which the elapsed time is to be printed.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void fprintf_elapsed_time(FILE *file,struct timeval *start)
+static void fprintf_elapsed_time(FILE *file,struct timeval *start)
 {
  struct timeval finish,elapsed;
 
