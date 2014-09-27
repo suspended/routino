@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -112,6 +112,7 @@ WaysX *NewWayList(int append,int readonly)
 
 #if SLIM
  waysx->cache=NewWayXCache();
+ log_malloc(waysx->cache,sizeof(*waysx->cache));
 #endif
 
 
@@ -142,19 +143,29 @@ void FreeWayList(WaysX *waysx,int keep)
  free(waysx->filename_tmp);
 
  if(waysx->idata)
+   {
+    log_free(waysx->idata);
     free(waysx->idata);
+   }
 
  if(waysx->odata)
+   {
+    log_free(waysx->odata);
     free(waysx->odata);
+   }
 
  if(waysx->cdata)
+   {
+    log_free(waysx->cdata);
     free(waysx->cdata);
+   }
 
  DeleteFile(waysx->nfilename_tmp);
 
  free(waysx->nfilename_tmp);
 
 #if SLIM
+ log_free(waysx->cache);
  DeleteWayXCache(waysx->cache);
 #endif
 
@@ -301,6 +312,7 @@ void SortWayList(WaysX *waysx)
  /* Allocate the array of indexes */
 
  waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
+ log_malloc(waysx->idata,waysx->number*sizeof(way_t));
 
  logassert(waysx->idata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
@@ -680,6 +692,7 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
  /* Allocate the array of indexes */
 
  waysx->cdata=(index_t*)malloc(waysx->number*sizeof(index_t));
+ log_malloc(waysx->cdata,waysx->number*sizeof(index_t));
 
  logassert(waysx->cdata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
@@ -707,6 +720,7 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
 
  /* Free the data */
 
+ log_free(segmentsx->usedway);
  free(segmentsx->usedway);
  segmentsx->usedway=NULL;
 

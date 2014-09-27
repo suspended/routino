@@ -99,6 +99,8 @@ int main(int argc,char** argv)
        option_loggable=1;
     else if(!strcmp(argv[arg],"--logtime"))
        option_logtime=1;
+    else if(!strcmp(argv[arg],"--logmemory"))
+       option_logmemory=1;
     else if(argv[arg][0]=='-' && argv[arg][1]=='-')
        print_usage(0,argv[arg],NULL);
     else
@@ -295,7 +297,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
 #endif
          "                    [--tmpdir=<dirname>]\n"
          "                    [--tagging=<filename>]\n"
-         "                    [--loggable] [--logtime]\n"
+         "                    [--loggable] [--logtime] [--logmemory]\n"
          "                    [<filename.osm> ...\n"
          "                     | <filename.pbf> ...\n"
          "                     | <filename.o5m> ..."
@@ -345,6 +347,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "--loggable                Print progress messages suitable for logging to file.\n"
             "--logtime                 Print the elapsed time for each processing step.\n"
+            "--logmemory               Print the max allocated/mapped memory for each step.\n"
             "\n"
             "<filename.osm>, <filename.pbf>, <filename.o5m>\n"
             "                          The name(s) of the file(s) to read and parse.\n"

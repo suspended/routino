@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -69,6 +69,7 @@ void ChooseSuperNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  if(!nodesx->super)
    {
     nodesx->super=AllocBitMask(nodesx->number);
+    log_malloc(nodesx->super,LengthBitMask(nodesx->number)*sizeof(BitMask));
 
     logassert(nodesx->super,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 

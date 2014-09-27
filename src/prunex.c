@@ -77,6 +77,7 @@ void StartPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  /* Allocate the array of next segment */
 
  segmentsx->next1=(index_t*)calloc(segmentsx->number,sizeof(index_t));
+ log_malloc(segmentsx->next1,segmentsx->number*sizeof(index_t));
 
  logassert(segmentsx->next1,"Failed to allocate memory (try using slim mode?)"); /* Check calloc() worked */
 
@@ -130,6 +131,7 @@ void FinishPruning(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 {
  if(segmentsx->next1)
    {
+    log_free(segmentsx->next1);
     free(segmentsx->next1);
     segmentsx->next1=NULL;
    }
@@ -185,14 +187,17 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
  connected=AllocBitMask(segmentsx->number);
  region   =AllocBitMask(segmentsx->number);
 
+ log_malloc(connected,LengthBitMask(segmentsx->number)*sizeof(BitMask));
+ log_malloc(region   ,LengthBitMask(segmentsx->number)*sizeof(BitMask));
+
  logassert(connected,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
- logassert(region,"Failed to allocate memory (try using slim mode?)");    /* Check AllocBitMask() worked */
+ logassert(region   ,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 
  regionsegments=(index_t*)malloc((nallocregionsegments=1024)*sizeof(index_t));
  othersegments =(index_t*)malloc((nallocothersegments =1024)*sizeof(index_t));
 
  logassert(regionsegments,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
- logassert(othersegments,"Failed to allocate memory (try using slim mode?)");  /* Check malloc() worked */
+ logassert(othersegments ,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  /* Loop through the transport types */
 
@@ -390,6 +395,9 @@ void PruneIsolatedRegions(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,dista
    }
 
  /* Unmap from memory / close the files */
+
+ log_free(region);
+ log_free(connected);
 
  free(region);
  free(connected);
@@ -910,12 +918,14 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  checked=AllocBitMask(nodesx->number);
 
+ log_malloc(checked,LengthBitMask(nodesx->number)*sizeof(BitMask));
+
  logassert(checked,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 
  nodes   =(index_t*)malloc((nalloc=1024)*sizeof(index_t));
  segments=(index_t*)malloc( nalloc      *sizeof(index_t));
 
- logassert(nodes,"Failed to allocate memory (try using slim mode?)");    /* Check malloc() worked */
+ logassert(nodes   ,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
  logassert(segments,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
  lats=(double*)malloc(nalloc*sizeof(double));
@@ -1246,6 +1256,7 @@ void PruneStraightHighwayNodes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx,
 
  /* Unmap from memory / close the files */
 
+ log_free(checked);
  free(checked);
 
  free(nodes);

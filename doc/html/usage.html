@@ -68,7 +68,7 @@ Usage: planetsplitter [--help]
                       [--sort-ram-size=&lt;size&gt;] [--sort-threads=&lt;number&gt;]
                       [--tmpdir=&lt;dirname&gt;]
                       [--tagging=&lt;filename&gt;]
-                      [--loggable] [--logtime]
+                      [--loggable] [--logtime] [--logmemory]
                       [--errorlog[=&lt;name&gt;]]
                       [--parse-only | --process-only]
                       [--append] [--keep] [--changes]
@@ -116,7 +116,9 @@ Usage: planetsplitter [--help]
     an incrementing counter is printed which is more suitable for real-time
     display than logging.
   <dt>--logtime
-  <dd>Print the elapsed time for each processing step.
+  <dd>Print the elapsed time for each processing step (minutes, seconds and milliseconds).
+  <dt>--logmemory
+  <dd>Print the maximum allocated and mapped memory for each processing step (MBytes).
   <dt>--errorlog[=&lt;name&gt;]
   <dd>Log OSM parsing and processing errors to 'error.log' or the specified file
     name (the '--dir' and '--prefix' options are applied).  If the --append

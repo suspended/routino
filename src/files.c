@@ -142,6 +142,8 @@ void *MapFile(const char *filename)
     exit(EXIT_FAILURE);
    }
 
+ log_mmap(size);
+
  /* Store the information about the mapped file */
 
  mappedfiles=(struct mmapinfo*)realloc((void*)mappedfiles,(nmappedfiles+1)*sizeof(struct mmapinfo));
@@ -204,6 +206,8 @@ void *MapFileWriteable(const char *filename)
     exit(EXIT_FAILURE);
    }
 
+ log_mmap(size);
+
  /* Store the information about the mapped file */
 
  mappedfiles=(struct mmapinfo*)realloc((void*)mappedfiles,(nmappedfiles+1)*sizeof(struct mmapinfo));
@@ -248,6 +252,8 @@ void *UnmapFile(const void *address)
  /* Unmap the file */
 
  munmap(mappedfiles[i].address,mappedfiles[i].length);
+
+ log_munmap(mappedfiles[i].length);
 
  /* Shuffle the list of files */
 

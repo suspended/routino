@@ -23,7 +23,7 @@ planetsplitter
                          [--sort-ram-size=<size>] [--sort-threads=<number>]
                          [--tmpdir=<dirname>]
                          [--tagging=<filename>]
-                         [--loggable] [--logtime]
+                         [--loggable] [--logtime] [--logmemory]
                          [--errorlog[=<name>]]
                          [--parse-only | --process-only]
                          [--append] [--keep] [--changes]
@@ -79,7 +79,12 @@ planetsplitter
           suitable for real-time display than logging.
 
    --logtime
-          Print the elapsed time for each processing step.
+          Print the elapsed time for each processing step (minutes,
+          seconds and milliseconds).
+
+   --logmemory
+          Print the maximum allocated and mapped memory for each
+          processing step (MBytes).
 
    --errorlog[=<name>]
           Log OSM parsing and processing errors to 'error.log' or the
