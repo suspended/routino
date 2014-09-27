@@ -151,6 +151,9 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
     threads[i].data=malloc(nitems*itemsize);
     threads[i].datap=malloc(nitems*sizeof(void*));
 
+    log_malloc(threads[i].data,nitems*itemsize);
+    log_malloc(threads[i].datap,nitems*sizeof(void*));
+
     threads[i].filename=(char*)malloc(strlen(option_tmpdirname)+24);
 
     threads[i].itemsize=itemsize;
@@ -445,6 +448,9 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
 
  for(i=0;i<option_filesort_threads;i++)
    {
+    log_free(threads[i].data);
+    log_free(threads[i].datap);
+
     free(threads[i].data);
     free(threads[i].datap);
 
@@ -524,6 +530,8 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
     threads[i].data=malloc(datasize);
     threads[i].datap=NULL;
+
+    log_malloc(threads[i].data,datasize);
 
     threads[i].filename=(char*)malloc(strlen(option_tmpdirname)+24);
 
@@ -858,6 +866,8 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
  for(i=0;i<option_filesort_threads;i++)
    {
+    log_free(threads[i].data);
+
     free(threads[i].data);
 
     free(threads[i].filename);

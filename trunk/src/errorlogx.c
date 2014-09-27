@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2013 Andrew M. Bishop
+ This file Copyright 2013-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -334,6 +334,7 @@ static void reindex_nodes(NodesX *nodesx)
  nodesx->number=nodesx->knumber;
 
  nodesx->idata=(node_t*)malloc(nodesx->number*sizeof(node_t));
+ log_malloc(nodesx->idata,nodesx->number*sizeof(node_t));
 
  /* Get the node id for each node in the file. */
 
@@ -367,6 +368,9 @@ static void reindex_ways(WaysX *waysx)
 
  waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
  waysx->odata=(off_t*)malloc(waysx->number*sizeof(off_t));
+
+ log_malloc(waysx->idata,waysx->number*sizeof(way_t));
+ log_malloc(waysx->odata,waysx->number*sizeof(off_t));
 
  /* Get the way id and the offset for each way in the file */
 
@@ -413,6 +417,9 @@ static void reindex_relations(RelationsX *relationsx)
  relationsx->rridata=(relation_t*)malloc(relationsx->rrnumber*sizeof(relation_t));
  relationsx->rrodata=(off_t*)malloc(relationsx->rrnumber*sizeof(off_t));
 
+ log_malloc(relationsx->rridata,relationsx->rrnumber*sizeof(relation_t));
+ log_malloc(relationsx->rrodata,relationsx->rrnumber*sizeof(off_t));
+
  /* Get the relation id and the offset for each relation in the file */
 
  fd=ReOpenFileBuffered(relationsx->rrfilename);
@@ -443,6 +450,8 @@ static void reindex_relations(RelationsX *relationsx)
  relationsx->trnumber=relationsx->trknumber;
 
  relationsx->tridata=(relation_t*)malloc(relationsx->trnumber*sizeof(relation_t));
+
+ log_malloc(relationsx->tridata,relationsx->trnumber*sizeof(relation_t));
 
  /* Get the relation id and the offset for each relation in the file */
 

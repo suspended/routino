@@ -25,7 +25,7 @@ Usage: fixme-finder [--help]
                     [--sort-ram-size=<size>] [--sort-threads=<number>]
                     [--tmpdir=<dirname>]
                     [--tagging=<filename>]
-                    [--loggable] [--logtime]
+                    [--loggable] [--logtime] [--logmemory]
                     [<filename.osm> ...
                      | <filename.pbf> ...
                      | <filename.o5m> ...
@@ -49,6 +49,7 @@ Usage: fixme-finder [--help]
 
 --loggable                Print progress messages suitable for logging to file.
 --logtime                 Print the elapsed time for each processing step.
+--logmemory               Print the max allocated/mapped memory for each step.
 
 <filename.osm>, <filename.pbf>, <filename.o5m>
                           The name(s) of the file(s) to read and parse.

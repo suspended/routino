@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2012 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -49,7 +49,9 @@
 
 #define BitMask uint32_t
 
-#define AllocBitMask(xx)    (BitMask*)calloc((1+(xx)/32),sizeof(BitMask))
+#define LengthBitMask(xx)   (1+(xx)/32)
+
+#define AllocBitMask(xx)    (BitMask*)calloc(LengthBitMask(xx),sizeof(BitMask))
 
 #define ClearAllBits(xx,yy) memset((xx), 0,(1+(yy)/32)*sizeof(BitMask))
 #define SetAllBits(xx,yy)   memset((xx),~0,(1+(yy)/32)*sizeof(BitMask))

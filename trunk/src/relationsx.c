@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2013 Andrew M. Bishop
+ This file Copyright 2010-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -167,10 +167,16 @@ void FreeRelationList(RelationsX *relationsx,int keep)
  free(relationsx->rrfilename_tmp);
 
  if(relationsx->rridata)
+   {
+    log_free(relationsx->rridata);
     free(relationsx->rridata);
+   }
 
  if(relationsx->rrodata)
+   {
+    log_free(relationsx->rrodata);
     free(relationsx->rrodata);
+   }
 
 
  /* Turn Restriction relations */
@@ -184,7 +190,10 @@ void FreeRelationList(RelationsX *relationsx,int keep)
  free(relationsx->trfilename_tmp);
 
  if(relationsx->tridata)
+   {
+    log_free(relationsx->tridata);
     free(relationsx->tridata);
+   }
 
 
  free(relationsx);
@@ -1116,9 +1125,11 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
 
  /* Free the now-unneeded indexes */
 
+ log_free(nodesx->idata);
  free(nodesx->idata);
  nodesx->idata=NULL;
 
+ log_free(waysx->idata);
  free(waysx->idata);
  waysx->idata=NULL;
 
@@ -1272,6 +1283,7 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 
  if(nodesx->gdata)
    {
+    log_free(nodesx->gdata);
     free(nodesx->gdata);
     nodesx->gdata=NULL;
    }

@@ -83,3 +83,13 @@ SaveSegmentList               :      :   .   .   .   .   :   .   .   . U . U . U
 SaveWayList                   :      :   .   .   .   .   :   .   .   .   .   .   :   .   .   :   :
 SaveRelationList              :      :   .   .   .   .   :   .   .   .   .   .   :   .   .   :   :
                               :......:...................:.......................:...........:...:
+                                     : m . m . m . m . m : m . m . m . m . m . m : m . m . m : m :
+                                     : a . a . a . a . m : a . a . a . m . m . m : a . a . a : m :
+                                     : l . l . l . l . a : l . l . l . a . a . a : l . l . l : a :
+                                     : l . l . l . l . p : l . l . l . p . p . p : l . l . l : p :
+                                     : o . o . o . o .   : o . o . o .   .   .   : o . o . o :   :
+                                     : c . c . c . c .   : c . c . c .   .   .   : c . c . c :   :
+
+
+Note: waysx->odata, relationsx->rridata, relationsx->rrodata and relationsx->tridata are only used
+by the error log creation functions which are optional (all use malloc and not mmap).

@@ -47,6 +47,7 @@ typedef struct _ErrorLogObject
 
 extern int option_loggable;
 extern int option_logtime;
+extern int option_logmemory;
 
 
 /* Runtime progress logging functions in logging.c */
@@ -76,6 +77,12 @@ void fprintf_middle(FILE *file,const char *format, ...);
 void fprintf_last(FILE *file,const char *format, ...);
 
 #endif
+
+void log_malloc(void *address,size_t size);
+void log_free(void *address);
+
+void log_mmap(size_t size);
+void log_munmap(size_t size);
 
 
 /* Error logging functions in logerror.c */

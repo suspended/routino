@@ -102,6 +102,7 @@ NodesX *NewNodeList(int append,int readonly)
 
 #if SLIM
  nodesx->cache=NewNodeXCache();
+ log_malloc(nodesx->cache,sizeof(*nodesx->cache));
 #endif
 
  return(nodesx);
@@ -127,18 +128,31 @@ void FreeNodeList(NodesX *nodesx,int keep)
  free(nodesx->filename_tmp);
 
  if(nodesx->idata)
+   {
+    log_free(nodesx->idata);
     free(nodesx->idata);
+   }
 
  if(nodesx->gdata)
+   {
+    log_free(nodesx->gdata);
     free(nodesx->gdata);
+   }
 
  if(nodesx->pdata)
+   {
+    log_free(nodesx->pdata);
     free(nodesx->pdata);
+   }
 
  if(nodesx->super)
+   {
+    log_free(nodesx->super);
     free(nodesx->super);
+   }
 
 #if SLIM
+ log_free(nodesx->cache);
  DeleteNodeXCache(nodesx->cache);
 #endif
 
@@ -278,6 +292,7 @@ void SortNodeList(NodesX *nodesx)
  /* Allocate the array of indexes */
 
  nodesx->idata=(node_t*)malloc(nodesx->number*sizeof(node_t));
+ log_malloc(nodesx->idata,nodesx->number*sizeof(node_t));
 
  logassert(nodesx->idata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
@@ -384,6 +399,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
  /* Allocate the node usage bitmask */
 
  usednode=AllocBitMask(nodesx->number);
+ log_malloc(usednode,LengthBitMask(nodesx->number)*sizeof(BitMask));
 
  logassert(usednode,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 
@@ -475,6 +491,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
 
  /* Free the now-unneeded index */
 
+ log_free(usednode);
  free(usednode);
 
  /* Print the final message */
@@ -507,6 +524,7 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
  /* Allocate the array of indexes */
 
  nodesx->pdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
+ log_malloc(nodesx->pdata,nodesx->number*sizeof(index_t));
 
  logassert(nodesx->pdata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
@@ -584,6 +602,7 @@ void SortNodeListGeographically(NodesX *nodesx)
  /* Allocate the memory for the geographical index array */
 
  nodesx->gdata=(index_t*)malloc(nodesx->number*sizeof(index_t));
+ log_malloc(nodesx->gdata,nodesx->number*sizeof(index_t));
 
  logassert(nodesx->gdata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
@@ -610,6 +629,7 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  /* Free the memory */
 
+ log_free(nodesx->super);
  free(nodesx->super);
  nodesx->super=NULL;
 
@@ -842,6 +862,7 @@ void SaveNodeList(NodesX *nodesx,const char *filename,SegmentsX *segmentsx)
 
  /* Free the memory in the segments */
 
+ log_free(segmentsx->firstnode);
  free(segmentsx->firstnode);
  segmentsx->firstnode=NULL;
 

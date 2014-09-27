@@ -85,6 +85,7 @@ SegmentsX *NewSegmentList(void)
 
 #if SLIM
  segmentsx->cache=NewSegmentXCache();
+ log_malloc(segmentsx->cache,sizeof(*segmentsx->cache));
 #endif
 
  return(segmentsx);
@@ -104,15 +105,25 @@ void FreeSegmentList(SegmentsX *segmentsx)
  free(segmentsx->filename_tmp);
 
  if(segmentsx->usedway)
+   {
+    log_free(segmentsx->usedway);
     free(segmentsx->usedway);
+   }
 
  if(segmentsx->firstnode)
+   {
+    log_free(segmentsx->firstnode);
     free(segmentsx->firstnode);
+   }
 
  if(segmentsx->next1)
+   {
+    log_free(segmentsx->next1);
     free(segmentsx->next1);
+   }
 
 #if SLIM
+ log_free(segmentsx->cache);
  DeleteSegmentXCache(segmentsx->cache);
 #endif
 
@@ -399,6 +410,7 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Allocate the way usage bitmask */
 
  segmentsx->usedway=AllocBitMask(waysx->number);
+ log_malloc(segmentsx->usedway,LengthBitMask(waysx->number)*sizeof(BitMask));
 
  logassert(segmentsx->usedway,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 
@@ -522,9 +534,13 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
  /* Allocate the array of indexes */
 
  if(segmentsx->firstnode)
+   {
+    log_free(segmentsx->firstnode);
     free(segmentsx->firstnode);
+   }
 
  segmentsx->firstnode=(index_t*)malloc(nodesx->number*sizeof(index_t));
+ log_malloc(segmentsx->firstnode,nodesx->number*sizeof(index_t));
 
  logassert(segmentsx->firstnode,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
 
@@ -599,12 +615,14 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  if(nodesx->pdata)
    {
+    log_free(nodesx->pdata);
     free(nodesx->pdata);
     nodesx->pdata=NULL;
    }
 
  if(waysx->cdata)
    {
+    log_free(waysx->cdata);
     free(waysx->cdata);
     waysx->cdata=NULL;
    }
@@ -638,6 +656,7 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
  /* Allocate the way usage bitmask */
 
  segmentsx->usedway=AllocBitMask(waysx->number);
+ log_malloc(segmentsx->usedway,LengthBitMask(waysx->number)*sizeof(BitMask));
 
  logassert(segmentsx->usedway,"Failed to allocate memory (try using slim mode?)"); /* Check AllocBitMask() worked */
 
