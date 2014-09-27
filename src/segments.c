@@ -28,7 +28,6 @@
 #include "segments.h"
 #include "ways.h"
 
-#include "cache.h"
 #include "fakes.h"
 #include "files.h"
 #include "profiles.h"
