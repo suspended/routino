@@ -271,7 +271,7 @@ int main(int argc,char** argv)
 
  printf_program_end();
 
- return(0);
+ exit(EXIT_SUCCESS);
 }
 
 

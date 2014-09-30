@@ -371,25 +371,25 @@ int main(int argc,char** argv)
    {
     PrintProfile(profile);
 
-    return(0);
+    exit(EXIT_SUCCESS);
    }
  else if(help_profile_xml)
    {
     PrintProfilesXML();
 
-    return(0);
+    exit(EXIT_SUCCESS);
    }
  else if(help_profile_json)
    {
     PrintProfilesJSON();
 
-    return(0);
+    exit(EXIT_SUCCESS);
    }
  else if(help_profile_pl)
    {
     PrintProfilesPerl();
 
-    return(0);
+    exit(EXIT_SUCCESS);
    }
 
  /* Check the waypoints are valid */
@@ -445,6 +445,8 @@ int main(int argc,char** argv)
  OSMWays=LoadWayList(FileName(dirname,prefix,"ways.mem"));
 
  OSMRelations=LoadRelationList(FileName(dirname,prefix,"relations.mem"));
+
+ /* Check the profile compared to the types of ways available */
 
  if(UpdateProfile(profile,OSMWays))
    {
@@ -585,7 +587,7 @@ int main(int argc,char** argv)
 
 #endif
 
- return(0);
+ exit(EXIT_SUCCESS);
 }
 
 
