@@ -315,7 +315,7 @@ if(!option_process_only)
     FreeWayList(OSMWays,1);
     FreeRelationList(OSMRelations,1);
 
-    return(0);
+    exit(EXIT_SUCCESS);
    }
 
 
@@ -551,7 +551,7 @@ if(!option_process_only)
 
  printf_program_end();
 
- return(0);
+ exit(EXIT_SUCCESS);
 }
 
 
