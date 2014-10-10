@@ -269,6 +269,9 @@ int main(int argc,char** argv)
  FreeWayList(OSMWays,0);
  FreeRelationList(OSMRelations,0);
 
+ printf("\n");
+ fflush(stdout);
+
  printf_program_end();
 
  exit(EXIT_SUCCESS);

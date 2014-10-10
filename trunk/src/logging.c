@@ -107,15 +107,32 @@ void printf_program_end(void)
 {
  if(option_logtime || option_logmemory)
    {
-    printf("\n");
-
     if(option_logtime)
        fprintf_elapsed_time(stdout,&program_start_time);
 
     if(option_logmemory)
        fprintf_max_memory(stdout,program_max_alloc,program_max_mmap);
 
-    printf("Complete\n");
+    printf("Finish Program");
+
+    if(option_logtime)
+       printf(" - total time");
+
+    if(option_logmemory)
+       printf(" - maximum memory");
+
+    printf("\n");
+
+    if(option_logtime==2)
+       printf("[ m:ss.micros] ");
+    else if(option_logtime==1)
+       printf("[ m:ss.mil] ");
+
+    if(option_logmemory)
+       printf("[RAM,FILE MB] ");
+
+    printf("\n");
+
     fflush(stdout);
    }
 }
@@ -514,7 +531,10 @@ static void fprintf_elapsed_time(FILE *file,struct timeval *start)
     elapsed.tv_usec+=1000000;
    }
 
- fprintf(file,"[%2ld:%02ld.%03ld] ",elapsed.tv_sec/60,elapsed.tv_sec%60,elapsed.tv_usec/1000);
+ if(option_logtime==2)
+    fprintf(file,"[%2ld:%02ld.%06ld] ",elapsed.tv_sec/60,elapsed.tv_sec%60,elapsed.tv_usec);
+ else
+    fprintf(file,"[%2ld:%02ld.%03ld] ",elapsed.tv_sec/60,elapsed.tv_sec%60,elapsed.tv_usec/1000);
 }
 
 
