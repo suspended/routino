@@ -54,6 +54,9 @@ Results *NewResultsList(uint8_t log2bins)
  results->count=(uint8_t*)calloc(results->nbins,sizeof(uint8_t));
  results->point=(Result**)calloc(results->nbins,sizeof(Result*));
 
+ log_malloc(results->count,results->nbins*sizeof(uint8_t));
+ log_malloc(results->point,results->nbins*sizeof(Result*));
+
  results->ndata1=0;
  results->nallocdata1=0;
  results->ndata2=results->nbins>>2;
@@ -111,12 +114,17 @@ void FreeResultsList(Results *results)
  uint32_t i;
 
  for(i=0;i<results->nallocdata1;i++)
+   {
+    log_free(results->data[i]);
     free(results->data[i]);
+   }
 
  free(results->data);
 
+ log_free(results->point);
  free(results->point);
 
+ log_free(results->count);
  free(results->count);
 
  free(results);
@@ -152,6 +160,9 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
     results->count=(uint8_t*)realloc((void*)results->count,results->nbins*sizeof(uint8_t));
     results->point=(Result**)realloc((void*)results->point,results->nbins*sizeof(Result*));
+
+    log_malloc(results->count,results->nbins*sizeof(uint8_t));
+    log_malloc(results->point,results->nbins*sizeof(Result*));
 
     for(i=0;i<results->nbins/2;i++)
       {
@@ -199,6 +210,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
        results->nallocdata1++;
        results->data=(Result**)realloc((void*)results->data,results->nallocdata1*sizeof(Result*));
        results->data[results->nallocdata1-1]=(Result*)malloc(results->ndata2*sizeof(Result));
+       log_malloc(results->data[results->nallocdata1-1],results->ndata2*sizeof(Result));
       }
    }
 

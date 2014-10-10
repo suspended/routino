@@ -371,7 +371,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
 #if !DEBUG
  if(!option_quiet)
-    printf_first("Routing: Super-Nodes checked = 0");
+    printf_first("Finding Middle Route: Super-Nodes checked = 0");
 #endif
 
  /* Set up the finish conditions */
@@ -628,21 +628,11 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
              InsertInQueue(queue,result2,potential_score);
          }
 
-#if !DEBUG
-       if(!option_quiet && !(results->number%1000))
-          printf_middle("Routing: Super-Nodes checked = %d",results->number);
-#endif
-
       endloop:
 
        segmentp=NextSegment(segments,segmentp,node1); /* node1 cannot be a fake node (must be a super-node) */
       }
    }
-
-#if !DEBUG
- if(!option_quiet)
-    printf_last("Routing: Super-Nodes checked = %d",results->number);
-#endif
 
  FreeQueueList(queue);
 
@@ -652,6 +642,11 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    {
 #if DEBUG
     printf("    Failed\n");
+#endif
+
+#if !DEBUG
+    if(!option_quiet)
+       printf_last("Found Middle Route: Super-Nodes checked = %d - Fail",results->number);
 #endif
 
     FreeResultsList(results);
@@ -681,6 +676,11 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
     r=r->next;
    }
+#endif
+
+#if !DEBUG
+ if(!option_quiet)
+    printf_last("Found Middle Route: Super-Nodes checked = %d",results->number);
 #endif
 
  return(results);
@@ -936,6 +936,11 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  printf("  FindStartRoutes(...,start_node=%"Pindex_t" prev_segment=%"Pindex_t" finish_node=%"Pindex_t")\n",start_node,prev_segment,finish_node);
 #endif
 
+#if !DEBUG
+ if(!option_quiet)
+    printf_first("Finding Start Route: Nodes checked = 0");
+#endif
+
  /* Create the list of results and insert the first node into the queue */
 
  results=NewResultsList(8);
@@ -1153,6 +1158,11 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     printf("    Failed (%d results, %d super)\n",results->number,nsuper);
 #endif
 
+#if !DEBUG
+    if(!option_quiet)
+       printf_last("Found Start Route: Nodes checked = %d - Fail",results->number);
+#endif
+
     FreeResultsList(results);
     return(NULL);
    }
@@ -1199,6 +1209,11 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    }
 #endif
 
+#if !DEBUG
+ if(!option_quiet)
+    printf_last("Found Start Route: Nodes checked = %d",results->number);
+#endif
+
  return(results);
 }
 
@@ -1233,6 +1248,11 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
 
 #if DEBUG
  printf("  ExtendStartRoutes(...,[begin has %d nodes],finish_node=%"Pindex_t")\n",begin->number,finish_node);
+#endif
+
+#if !DEBUG
+ if(!option_quiet)
+    printf_first("Extending Start Route: Nodes checked = 0");
 #endif
 
  /* Check the list of results and insert the super nodes into the queue */
@@ -1448,6 +1468,11 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
    }
 #endif
 
+#if !DEBUG
+ if(!option_quiet)
+    printf_last("Extended Start Route: Nodes checked = %d",results->number);
+#endif
+
  return(results);
 }
 
@@ -1478,6 +1503,11 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
 #if DEBUG
  printf("  FindFinishRoutes(...,finish_node=%"Pindex_t")\n",finish_node);
+#endif
+
+#if !DEBUG
+ if(!option_quiet)
+    printf_first("Finding Finish Route: Nodes checked = 0");
 #endif
 
  /* Create the results and insert the finish node into the queue */
@@ -1676,6 +1706,11 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
     printf("    Failed\n");
 #endif
 
+#if !DEBUG
+ if(!option_quiet)
+    printf_last("Found Finish Route: Nodes checked = %d - Fail",results->number);
+#endif
+
     FreeResultsList(results);
     return(NULL);
    }
@@ -1747,6 +1782,11 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
    }
 #endif
 
+#if !DEBUG
+ if(!option_quiet)
+    printf_last("Found Finish Route: Nodes checked = %d",results->number);
+#endif
+
  return(results2);
 }
 
@@ -1778,6 +1818,11 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
 #if DEBUG
  printf("  CombineRoutes(...,[begin has %d nodes],[middle has %d nodes])\n",begin->number,middle->number);
+#endif
+
+#if !DEBUG
+ if(!option_quiet)
+    printf_first("Finding Combined Route: Nodes = 0");
 #endif
 
  combined=NewResultsList(10);
@@ -1837,7 +1882,15 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
        Results *results=FindNormalRoute(nodes,segments,ways,relations,profile,comres1->node,comres1->segment,midres->next->node);
 
        if(!results)
+         {
+#if !DEBUG
+          if(!option_quiet)
+             printf_last("Found Combined Route: Nodes = %d - Fail",combined->number);
+#endif
+
+          FreeResultsList(combined);
           return(NULL);
+         }
 
        result=FindResult(results,midres->node,comres1->segment);
 
@@ -1890,6 +1943,11 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
     r=r->next;
    }
+#endif
+
+#if !DEBUG
+ if(!option_quiet)
+    printf_last("Found Combined Route: Nodes = %d",combined->number);
 #endif
 
  return(combined);

@@ -94,6 +94,11 @@ int main(int argc,char** argv)
  waypoint_t start_waypoint,finish_waypoint=NO_WAYPOINT;
  waypoint_t first_waypoint=NWAYPOINTS,last_waypoint=1,inc_dec_waypoint,waypoint;
 
+#if !DEBUG
+ if(!option_quiet)
+    printf_program_start();
+#endif
+
  /* Parse the command line arguments */
 
  if(argc<2)
@@ -131,6 +136,10 @@ int main(int argc,char** argv)
        option_quiet=1;
     else if(!strcmp(argv[arg],"--loggable"))
        option_loggable=1;
+    else if(!strcmp(argv[arg],"--logtime"))
+       option_logtime=1;
+    else if(!strcmp(argv[arg],"--logmemory"))
+       option_logmemory=1;
     else if(!strcmp(argv[arg],"--output-html"))
        option_html=1;
     else if(!strcmp(argv[arg],"--output-gpx-track"))
@@ -161,6 +170,8 @@ int main(int argc,char** argv)
 
     argv[arg]=NULL;
    }
+
+ /* Check the specified command line options */
 
  if(option_stdout && (option_html+option_gpx_track+option_gpx_route+option_text+option_text_all)!=1)
    {
@@ -438,6 +449,11 @@ int main(int argc,char** argv)
 
  /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
 
+#if !DEBUG
+ if(!option_quiet)
+    printf_first("Loading Files:");
+#endif
+
  OSMNodes=LoadNodeList(FileName(dirname,prefix,"nodes.mem"));
 
  OSMSegments=LoadSegmentList(FileName(dirname,prefix,"segments.mem"));
@@ -445,6 +461,11 @@ int main(int argc,char** argv)
  OSMWays=LoadWayList(FileName(dirname,prefix,"ways.mem"));
 
  OSMRelations=LoadRelationList(FileName(dirname,prefix,"relations.mem"));
+
+#if !DEBUG
+ if(!option_quiet)
+    printf_last("Loaded Files: nodes, segments, ways & relations");
+#endif
 
  /* Check the profile compared to the types of ways available */
 
@@ -487,6 +508,11 @@ int main(int argc,char** argv)
     if(point_used[waypoint]!=3)
        continue;
 
+#if !DEBUG
+    if(!option_quiet)
+       printf_first("Finding Closest Point: Waypoint %d",waypoint);
+#endif
+
     /* Find the closest point */
 
     start_node=finish_node;
@@ -507,6 +533,11 @@ int main(int argc,char** argv)
        else
           finish_node=NO_NODE;
       }
+
+#if !DEBUG
+    if(!option_quiet)
+       printf_last("Found Closest Point: Waypoint %d",waypoint);
+#endif
 
     if(finish_node==NO_NODE)
       {
@@ -570,8 +601,18 @@ int main(int argc,char** argv)
 
  /* Print out the combined route */
 
+#if !DEBUG
+ if(!option_quiet)
+    printf_first("Generating Result Outputs");
+#endif
+
  if(!option_none)
     PrintRoute(results,nresults,OSMNodes,OSMSegments,OSMWays,profile);
+
+#if !DEBUG
+ if(!option_quiet)
+    printf_last("Generated Result Outputs");
+#endif
 
  /* Destroy the remaining results lists and data structures */
 
@@ -585,6 +626,11 @@ int main(int argc,char** argv)
  DestroyWayList(OSMWays);
  DestroyRelationList(OSMRelations);
 
+#endif
+
+#if !DEBUG
+ if(!option_quiet)
+    printf_program_end();
 #endif
 
  exit(EXIT_SUCCESS);
@@ -792,7 +838,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "              [--dir=<dirname>] [--prefix=<name>]\n"
          "              [--profiles=<filename>] [--translations=<filename>]\n"
          "              [--exact-nodes-only]\n"
-         "              [--loggable | --quiet]\n"
+         "              [--quiet | [--loggable] [--logtime] [--logmemory]]\n"
          "              [--language=<lang>]\n"
          "              [--output-html]\n"
          "              [--output-gpx-track] [--output-gpx-route]\n"
@@ -844,8 +890,10 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "\n"
             "--exact-nodes-only      Only route between nodes (don't find closest segment).\n"
             "\n"
-            "--loggable              Print progress messages suitable for logging to file.\n"
             "--quiet                 Don't print any screen output when running.\n"
+            "--loggable              Print progress messages suitable for logging to file.\n"
+            "--logtime               Print the elapsed time for each processing step.\n"
+            "--logmemory             Print the max allocated/mapped memory for each step.\n"
             "\n"
             "--language=<lang>       Use the translations for specified language.\n"
             "--output-html           Write an HTML description of the route.\n"

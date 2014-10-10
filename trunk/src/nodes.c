@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2014 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -78,6 +78,7 @@ Nodes *LoadNodeList(const char *filename)
  sizeoffsets=(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t);
 
  nodes->offsets=(index_t*)malloc(sizeoffsets);
+ log_malloc(nodes->offsets,sizeoffsets);
 
  SlimFetch(nodes->fd,nodes->offsets,sizeoffsets,sizeof(NodesFile));
 
@@ -107,6 +108,7 @@ void DestroyNodeList(Nodes *nodes)
 
  nodes->fd=SlimUnmapFile(nodes->fd);
 
+ log_free(nodes->offsets);
  free(nodes->offsets);
 
  DeleteNodeCache(nodes->cache);
