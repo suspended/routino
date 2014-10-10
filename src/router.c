@@ -95,8 +95,7 @@ int main(int argc,char** argv)
  waypoint_t first_waypoint=NWAYPOINTS,last_waypoint=1,inc_dec_waypoint,waypoint;
 
 #if !DEBUG
- if(!option_quiet)
-    printf_program_start();
+ printf_program_start();
 #endif
 
  /* Parse the command line arguments */
@@ -137,7 +136,7 @@ int main(int argc,char** argv)
     else if(!strcmp(argv[arg],"--loggable"))
        option_loggable=1;
     else if(!strcmp(argv[arg],"--logtime"))
-       option_logtime=1;
+       option_logtime=2;
     else if(!strcmp(argv[arg],"--logmemory"))
        option_logmemory=1;
     else if(!strcmp(argv[arg],"--output-html"))
