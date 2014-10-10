@@ -232,7 +232,7 @@ Usage: router [--help | --help-profile | --help-profile-xml |
               [--dir=&lt;dirname&gt;] [--prefix=&lt;name&gt;]
               [--profiles=&lt;filename&gt;] [--translations=&lt;filename&gt;]
               [--exact-nodes-only]
-              [--loggable | --quiet]
+              [--quiet | [--loggable] [--logtime] [--logmemory]]
               [--output-html]
               [--output-gpx-track] [--output-gpx-route]
               [--output-text] [--output-text-all]
@@ -290,12 +290,16 @@ Usage: router [--help | --help-profile | --help-profile-xml |
   <dd>When processing the specified latitude and longitude points only select
     the nearest node instead of finding the nearest point within a segment
     (quicker but less accurate unless the points are already near nodes).
+  <dt>--quiet
+  <dd>Don't generate any screen output while running (useful for running in a script).
   <dt>--loggable
   <dd>Print progress messages that are suitable for logging to a file; normally
     an incrementing counter is printed which is more suitable for real-time
     display than logging.
-  <dt>--quiet
-  <dd>Don't generate any screen output while running (useful for running in a script).
+  <dt>--logtime
+  <dd>Print the elapsed time for each processing step (minutes, seconds and milliseconds).
+  <dt>--logmemory
+  <dd>Print the maximum allocated and mapped memory for each processing step (MBytes).
   <dt>--language=&lt;lang&gt;
   <dd>Select the language specified from the file of translations.  If this
     option is not given and the file exists then the first language in the file

@@ -284,14 +284,30 @@ void fprintf_last(FILE *file,const char *format, ...)
 
 void log_malloc(void *address,size_t size)
 {
+ int i;
+
+ if(!option_logmemory)
+    return;
+
  /* Store the information about the allocated memory */
 
- mallocedmem=(struct mallocinfo*)realloc((void*)mallocedmem,(nmallocedmem+1)*sizeof(struct mallocinfo));
+ for(i=0;i<nmallocedmem;i++)
+    if(mallocedmem[i].address==address)
+      {
+       size=size-mallocedmem[i].size;
+       mallocedmem[i].size+=size;
+       break;
+      }
 
- mallocedmem[nmallocedmem].address=address;
- mallocedmem[nmallocedmem].size=size;
+ if(i==nmallocedmem)
+   {
+    mallocedmem=(struct mallocinfo*)realloc((void*)mallocedmem,(nmallocedmem+1)*sizeof(struct mallocinfo));
 
- nmallocedmem++;
+    mallocedmem[nmallocedmem].address=address;
+    mallocedmem[nmallocedmem].size=size;
+
+    nmallocedmem++;
+   }
 
  /* Increase the sum of allocated memory */
 
@@ -315,6 +331,9 @@ void log_free(void *address)
 {
  size_t size=0;
  int i;
+
+ if(!option_logmemory)
+    return;
 
  /* Remove the information about the allocated memory */
 
@@ -346,6 +365,9 @@ void log_free(void *address)
 
 void log_mmap(size_t size)
 {
+ if(!option_logmemory)
+    return;
+
  current_mmap+=size;
 
  if(current_mmap>function_max_mmap)
@@ -364,6 +386,9 @@ void log_mmap(size_t size)
 
 void log_munmap(size_t size)
 {
+ if(!option_logmemory)
+    return;
+
  current_mmap-=size;
 }
 
