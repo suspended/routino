@@ -65,6 +65,7 @@ Ways *LoadWayList(const char *filename)
  ways->namesoffset=sizeof(WaysFile)+ways->file.number*sizeof(Way);
 
  ways->cache=NewWayCache();
+ log_malloc(ways->cache,sizeof(*ways->cache));
 
 #endif
 
@@ -88,6 +89,7 @@ void DestroyWayList(Ways *ways)
 
  ways->fd=SlimUnmapFile(ways->fd);
 
+ log_free(ways->cache);
  DeleteWayCache(ways->cache);
 
 #endif
