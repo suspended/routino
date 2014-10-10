@@ -85,6 +85,7 @@ Nodes *LoadNodeList(const char *filename)
  nodes->nodesoffset=sizeof(NodesFile)+sizeoffsets;
 
  nodes->cache=NewNodeCache();
+ log_malloc(nodes->cache,sizeof(*nodes->cache));
 
 #endif
 
@@ -111,6 +112,7 @@ void DestroyNodeList(Nodes *nodes)
  log_free(nodes->offsets);
  free(nodes->offsets);
 
+ log_free(nodes->cache);
  DeleteNodeCache(nodes->cache);
 
 #endif

@@ -66,6 +66,7 @@ Relations *LoadRelationList(const char *filename)
  relations->troffset=sizeof(RelationsFile);
 
  relations->cache=NewTurnRelationCache();
+ log_malloc(relations->cache,sizeof(*relations->cache));
 
 #endif
 
@@ -102,6 +103,7 @@ void DestroyRelationList(Relations *relations)
 
  relations->fd=SlimUnmapFile(relations->fd);
 
+ log_free(relations->cache);
  DeleteTurnRelationCache(relations->cache);
 
 #endif

@@ -68,6 +68,7 @@ Segments *LoadSegmentList(const char *filename)
  SlimFetch(segments->fd,&segments->file,sizeof(SegmentsFile),0);
 
  segments->cache=NewSegmentCache();
+ log_malloc(segments->cache,sizeof(*segments->cache));
 
 #endif
 
@@ -91,6 +92,7 @@ void DestroySegmentList(Segments *segments)
 
  segments->fd=SlimUnmapFile(segments->fd);
 
+ log_free(segments->cache);
  DeleteSegmentCache(segments->cache);
 
 #endif
