@@ -219,7 +219,7 @@ distance_t Distance(double lat1,double lon1,double lat2,double lon2)
 
  a1 = sin (dlat / 2);
  a2 = sin (dlon / 2);
- a = (a1 * a1) + cos (lat1) * cos (lat2) * a2 * a2;
+ a = a1 * a1 + cos (lat1) * cos (lat2) * a2 * a2;
  sa = sqrt (a);
  if (sa <= 1.0)
    {c = 2 * asin (sa);}
@@ -228,6 +228,68 @@ distance_t Distance(double lat1,double lon1,double lat2,double lon2)
  d = 6378.137 * c;
 
  return km_to_distance(d);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Calculate the change in latitude (same longitude) between two locations a known distance apart.
+
+  double DeltaLat Returns the difference in latitude between the locations.
+
+  double lon The longitude of the locations.
+
+  distance_t distance The distance between the locations.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+double DeltaLat(double lon,distance_t distance)
+{
+ double dlat;
+
+ double c,d;
+
+ if(distance==0)
+   return 0;
+
+ d = distance_to_km(distance);
+
+ c = d / 6378.137;
+
+ dlat = c;
+
+ return dlat;
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Calculate the change in longitude (same latitude) between two locations a known distance apart.
+
+  double DeltaLon Returns the difference in longitude between the locations.
+
+  double lat The latitude of the locations.
+
+  distance_t distance The distance between the locations.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+double DeltaLon(double lat,distance_t distance)
+{
+ double dlon;
+
+ double a2,sa,c,d;
+
+ if(distance==0)
+   return 0;
+
+ d = distance_to_km(distance);
+
+ c = d / 6378.137;
+
+ sa = sin(c/2);
+
+ a2 = sa / cos(lat);
+
+ dlon = 2*asin(a2);
+
+ return dlon;
 }
 
 

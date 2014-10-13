@@ -95,6 +95,9 @@ index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,ind
 
 distance_t Distance(double lat1,double lon1,double lat2,double lon2);
 
+double DeltaLat(double lon,distance_t distance);
+double DeltaLon(double lat,distance_t distance);
+
 duration_t Duration(Segment *segmentp,Way *wayp,Profile *profile);
 
 double TurnAngle(Nodes *nodes,Segment *segment1p,Segment *segment2p,index_t node);
