@@ -1019,7 +1019,7 @@ static distance_t DistanceX(NodeX *nodex1,NodeX *nodex2)
 
  a1 = sin (dlat / 2);
  a2 = sin (dlon / 2);
- a = (a1 * a1) + cos (lat1) * cos (lat2) * a2 * a2;
+ a = a1 * a1 + cos (lat1) * cos (lat2) * a2 * a2;
  sa = sqrt (a);
  if (sa <= 1.0)
    {c = 2 * asin (sa);}
