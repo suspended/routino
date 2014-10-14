@@ -55,22 +55,22 @@ ProcessTurnRelations          : Nsw  : D .   .   .   .   : U .   . | . U . U . |
 CompactWayList                :      :   .   .   .   .   :   .   . D . | .   . | :   . C . M :   :
 IndexSegments                 :  S   :   .   .   .   .   : R .   .   . U . R . M :   . D . | :   :
                               :......:...................:.......................:...........:...:
-StartPruning                  :      :   .   .   .   .   : | . C .   . U . U . | :   .   . | :   : \
-PruneStraightHighwayNodes     : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   :  | O
-PruneIsolatedRegions          : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   :  | p
-PruneShortSegments            : NSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   :  | t
-FinishPruning                 :      :   .   .   .   .   : | . D .   . | .   . | :   .   . | :   :  | i
-RemovePrunedNodes             :      :   .   . C .   .   : U .   .   . | .   . | :   .   . | :   :  | o
-RemovePrunedSegments          :      :   .   . | .   .   :   .   . C . U .   . | :   .   . | :   :  | n
-CompactWayList                :      :   .   . | .   .   :   .   . D . | .   . | :   . C . M :   :  | a
-RemovePrunedTurnRelations     :      :   .   . U .   .   :   .   .   . | .   . | :   . | .   :   :  | l
-IndexSegments                 :  S   :   .   . D .   .   : R .   .   . M . R . | :   . D .   :   : /
-                              :......:...................:.......................:...........:...:
-ChooseSuperNodes              :  sw  :   .   .   . M .   : U .   .   . | . U*. | :   .   .   :   : <-+ L
-CreateSuperSegments           : nsw  :   .   .   . U .   : U .   .   . R*. U*. | :   .   .   :   :   | o
+StartPruning                  :      :   .   .   .   .   : | . C .   . U . U . | :   .   . | :   : <---+
+PruneStraightHighwayNodes     : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   : \ o |
+PruneIsolatedRegions          : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   : | n |
+PruneShortSegments            : NSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   : / e | L
+FinishPruning                 :      :   .   .   .   .   : | . D .   . | .   . | :   .   . | :   :     | o
+RemovePrunedNodes             :      :   .   . C .   .   : U .   .   . | .   . | :   .   . | :   :     | o
+RemovePrunedSegments          :      :   .   . | .   .   :   .   . C . U .   . | :   .   . | :   :     | p
+CompactWayList                :      :   .   . | .   .   :   .   . D . | .   . | :   . C . M :   :     |
+RemovePrunedTurnRelations     :      :   .   . U .   .   :   .   .   . | .   . | :   . | .   :   :     |
+IndexSegments                 :  S   :   .   . D .   .   : R .   .   . M . R . | :   . D .   :   :     |
+                              :......:...................:.......................:...........:...: ----+
+ChooseSuperNodes              :  sw  :   .   .   . M .   : U .   .   . | . U*. | :   .   .   :   : <-+  
+CreateSuperSegments           : nsw  :   .   .   . U .   : U .   .   . R*. U*. | :   .   .   :   :   | L
 DeduplicateSuperSegments      :   w  :   .   .   . | .   :   .   .   . U*.   . | :   .   .   :   :   | o
-IndexSegments                 :  S   :   .   .   . | .   : C*.   .   . U*. C*. | :   .   .   :   :   | p
-                              :......:...................:.......................:...........:...: --+
+IndexSegments                 :  S   :   .   .   . | .   : C*.   .   . U*. C*. | :   .   .   :   :   | o
+                              :......:...................:.......................:...........:...: --+ p
 MergeSuperSegments            :      :   .   .   . | .   :   .   .   . U .   . | :   .   .   :   :
                               :......:...................:.......................:...........:...:
 SortNodeListGeographically    :      :   . C .   . D . R :   .   .   . | .   . | :   .   .   :   :
@@ -84,11 +84,11 @@ SaveWayList                   :      :   .   .   .   .   :   .   .   .   .   .  
 SaveRelationList              :      :   .   .   .   .   :   .   .   .   .   .   :   .   .   :   :
                               :......:...................:.......................:...........:...:
                                      : m . m . m . m . m : m . m . m . m . m . m : m . m . m : m :
-                                     : a . a . a . a . m : a . a . a . m . m . m : a . a . a : m :
-                                     : l . l . l . l . a : l . l . l . a . a . a : l . l . l : a :
-                                     : l . l . l . l . p : l . l . l . p . p . p : l . l . l : p :
-                                     : o . o . o . o .   : o . o . o .   .   .   : o . o . o :   :
-                                     : c . c . c . c .   : c . c . c .   .   .   : c . c . c :   :
+                                     : a . a . a . a . m : a . a . a . m . m . m : a . a . m : m :
+                                     : l . l . l . l . a : l . l . l . a . a . a : l . l . a : a :
+                                     : l . l . l . l . p : l . l . l . p . p . p : l . l . p : p :
+                                     : o . o . o . o .   : o . o . o .   .   .   : o . o .   :   :
+                                     : c . c . c . c .   : c . c . c .   .   .   : c . c .   :   :
 
 
 Note: waysx->odata, relationsx->rridata, relationsx->rrodata and relationsx->tridata are only used
