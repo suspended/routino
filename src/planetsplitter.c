@@ -376,27 +376,53 @@ if(!option_process_only)
     printf("\nPrune Unneeded Data\n===================\n\n");
     fflush(stdout);
 
-    StartPruning(OSMNodes,OSMSegments,OSMWays);
-
     if(option_prune_straight)
+      {
+       StartPruning(OSMNodes,OSMSegments,OSMWays);
+
        PruneStraightHighwayNodes(OSMNodes,OSMSegments,OSMWays,option_prune_straight);
 
+       FinishPruning(OSMNodes,OSMSegments,OSMWays);
+
+       RemovePrunedNodes(OSMNodes,OSMSegments);
+       RemovePrunedSegments(OSMSegments,OSMWays);
+       CompactWayList(OSMWays,OSMSegments);
+       RemovePrunedTurnRelations(OSMRelations,OSMNodes);
+
+       IndexSegments(OSMSegments,OSMNodes,OSMWays);
+      }
+
     if(option_prune_isolated)
+      {
+       StartPruning(OSMNodes,OSMSegments,OSMWays);
+
        PruneIsolatedRegions(OSMNodes,OSMSegments,OSMWays,option_prune_isolated);
 
+       FinishPruning(OSMNodes,OSMSegments,OSMWays);
+
+       RemovePrunedNodes(OSMNodes,OSMSegments);
+       RemovePrunedSegments(OSMSegments,OSMWays);
+       CompactWayList(OSMWays,OSMSegments);
+       RemovePrunedTurnRelations(OSMRelations,OSMNodes);
+
+       IndexSegments(OSMSegments,OSMNodes,OSMWays);
+      }
+
     if(option_prune_short)
+      {
+       StartPruning(OSMNodes,OSMSegments,OSMWays);
+
        PruneShortSegments(OSMNodes,OSMSegments,OSMWays,option_prune_short);
 
-    FinishPruning(OSMNodes,OSMSegments,OSMWays);
+       FinishPruning(OSMNodes,OSMSegments,OSMWays);
 
-    /* Remove the pruned nodes, segments, ways and relations and update the indexes */
+       RemovePrunedNodes(OSMNodes,OSMSegments);
+       RemovePrunedSegments(OSMSegments,OSMWays);
+       CompactWayList(OSMWays,OSMSegments);
+       RemovePrunedTurnRelations(OSMRelations,OSMNodes);
 
-    RemovePrunedNodes(OSMNodes,OSMSegments);
-    RemovePrunedSegments(OSMSegments,OSMWays);
-    CompactWayList(OSMWays,OSMSegments);
-    RemovePrunedTurnRelations(OSMRelations,OSMNodes);
-
-    IndexSegments(OSMSegments,OSMNodes,OSMWays);
+       IndexSegments(OSMSegments,OSMNodes,OSMWays);
+      }
    }
 
  /* Repeated iteration on Super-Nodes and Super-Segments */
