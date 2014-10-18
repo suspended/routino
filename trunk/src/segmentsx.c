@@ -533,12 +533,6 @@ void IndexSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Allocate the array of indexes */
 
- if(segmentsx->firstnode)
-   {
-    log_free(segmentsx->firstnode);
-    free(segmentsx->firstnode);
-   }
-
  segmentsx->firstnode=(index_t*)malloc(nodesx->number*sizeof(index_t));
  log_malloc(segmentsx->firstnode,nodesx->number*sizeof(index_t));
 

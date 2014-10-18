@@ -568,6 +568,15 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
  nodesx->fd=CloseFileBuffered(nodesx->fd);
  CloseFileBuffered(fd);
 
+ /* Free the no-longer required memory */
+
+ if(segmentsx->firstnode)
+   {
+    log_free(segmentsx->firstnode);
+    free(segmentsx->firstnode);
+    segmentsx->firstnode=NULL;
+   }
+
  /* Print the final message */
 
  printf_last("Deleted Pruned Nodes: Nodes=%"Pindex_t" Pruned=%"Pindex_t,total,pruned);

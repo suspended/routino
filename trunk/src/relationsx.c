@@ -1133,6 +1133,10 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
  free(waysx->idata);
  waysx->idata=NULL;
 
+ log_free(segmentsx->firstnode);
+ free(segmentsx->firstnode);
+ segmentsx->firstnode=NULL;
+
  /* Unmap from memory / close the files */
 
 #if !SLIM
