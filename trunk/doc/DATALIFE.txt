@@ -51,7 +51,7 @@ RemoveNonHighwayNodes         :      : M .   .   .   . U :   .   .   .   .   .  
 SplitWays                     :      : U .   .   .   .   :   .   .   . W .   . W : | .   . U : | :
 SortWayNames                  :   W  : | .   .   .   .   :   .   .   . | .   . | : | .   . | : | :
 SortSegmentList               :      : | .   .   .   .   :   .   .   . U .   . | : | .   . | : | :
-ProcessSegments               : n w  : U .   .   .   .   :   .   . C . U .   . U : | .   . U : | :
+ProcessSegments               : n    : U .   .   .   .   :   .   . C . U .   . U : U .   . | : | :
 IndexSegments                 :  S   : | .   .   .   .   : C .   . | . U . W . | : | .   . | : | :
 ProcessRouteRelations         :   W  : | .   .   .   .   : | .   . | . | . | . | : U .   . | : U :
 ProcessTurnRelations          : Nsw  : D .   .   .   .   : D .   . | . U . U . | : D .   . | : U :
