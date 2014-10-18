@@ -398,13 +398,10 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
 #if !SLIM
  nodesx->data=MapFile(nodesx->filename_tmp);
- waysx->data=MapFile(waysx->filename_tmp);
 #else
  nodesx->fd=SlimMapFile(nodesx->filename_tmp);
- waysx->fd=SlimMapFile(waysx->filename_tmp);
 
  InvalidateNodeXCache(nodesx->cache);
- InvalidateWayXCache(waysx->cache);
 #endif
 
  /* Allocate the way usage bitmask */
@@ -433,9 +430,9 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
        if(prevway==segmentx.way)
          {
-          WayX *wayx=LookupWayX(waysx,segmentx.way,1);
+          way_t id=waysx->idata[segmentx.way];
 
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",logerror_node(id1),logerror_node(id2),logerror_way(wayx->id));
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",logerror_node(id1),logerror_node(id2),logerror_way(id));
          }
        else
          {
@@ -497,10 +494,8 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
 #if !SLIM
  nodesx->data=UnmapFile(nodesx->data);
- waysx->data=UnmapFile(waysx->data);
 #else
  nodesx->fd=SlimUnmapFile(nodesx->fd);
- waysx->fd=SlimUnmapFile(waysx->fd);
 #endif
 
  /* Print the final message */
