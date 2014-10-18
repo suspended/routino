@@ -426,36 +426,39 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  while(!ReadFileBuffered(segmentsx->fd,&segmentx,sizeof(SegmentX)))
    {
-    NodeX *nodex1=LookupNodeX(nodesx,segmentx.node1,1);
-    NodeX *nodex2=LookupNodeX(nodesx,segmentx.node2,2);
-
     if(prevnode1==segmentx.node1 && prevnode2==segmentx.node2)
       {
+       node_t id1=nodesx->idata[segmentx.node1];
+       node_t id2=nodesx->idata[segmentx.node2];
+
        if(prevway==segmentx.way)
          {
           WayX *wayx=LookupWayX(waysx,segmentx.way,1);
 
-          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",logerror_node(nodex1->id),logerror_node(nodex2->id),logerror_way(wayx->id));
+          logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" in way %"Pway_t" is duplicated.\n",logerror_node(id1),logerror_node(id2),logerror_way(wayx->id));
          }
        else
          {
           if(!(prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",logerror_node(nodex1->id),logerror_node(nodex2->id));
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated.\n",logerror_node(id1),logerror_node(id2));
 
           if(!(prevdist&SEGMENT_AREA) && (segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",logerror_node(nodex1->id),logerror_node(nodex2->id));
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the area).\n",logerror_node(id1),logerror_node(id2));
 
           if((prevdist&SEGMENT_AREA) && !(segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",logerror_node(nodex1->id),logerror_node(nodex2->id));
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (discarded the non-area).\n",logerror_node(id1),logerror_node(id2));
 
           if((prevdist&SEGMENT_AREA) && (segmentx.distance&SEGMENT_AREA))
-             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",logerror_node(nodex1->id),logerror_node(nodex2->id));
+             logerror("Segment connecting nodes %"Pnode_t" and %"Pnode_t" is duplicated (both are areas).\n",logerror_node(id1),logerror_node(id2));
          }
 
        duplicate++;
       }
     else
       {
+       NodeX *nodex1=LookupNodeX(nodesx,segmentx.node1,1);
+       NodeX *nodex2=LookupNodeX(nodesx,segmentx.node2,2);
+
        prevnode1=segmentx.node1;
        prevnode2=segmentx.node2;
        prevway=segmentx.way;
