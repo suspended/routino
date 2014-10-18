@@ -328,6 +328,15 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
  waysx->fd=SlimUnmapFile(waysx->fd);
 #endif
 
+ /* Free the no-longer required memory */
+
+ if(segmentsx->firstnode)
+   {
+    log_free(segmentsx->firstnode);
+    free(segmentsx->firstnode);
+    segmentsx->firstnode=NULL;
+   }
+
  /* Print the final message */
 
  printf_last("Created Super-Segments: Super-Nodes=%"Pindex_t" Super-Segments=%"Pindex_t,sn,ss);

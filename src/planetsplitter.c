@@ -450,6 +450,10 @@ if(!option_process_only)
       {
        SegmentsX *SuperSegments2;
 
+       /* Index the super-segments */
+
+       IndexSegments(SuperSegments,OSMNodes,OSMWays);
+
        /* Select the super-nodes */
 
        ChooseSuperNodes(OSMNodes,SuperSegments,OSMWays);
@@ -468,10 +472,6 @@ if(!option_process_only)
     /* Sort the super-segments and remove duplicates */
 
     DeduplicateSuperSegments(SuperSegments,OSMWays);
-
-    /* Index the segments */
-
-    IndexSegments(SuperSegments,OSMNodes,OSMWays);
 
     /* Check for end condition */
 
