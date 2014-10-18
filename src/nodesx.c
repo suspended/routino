@@ -394,7 +394,7 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
 
  /* Print the start message */
 
- printf_first("Checking Ways for unused Nodes: Ways=0");
+ printf_first("Checking Ways for unused Nodes: Ways=0 Highway Nodes=0");
 
  /* Allocate the node usage bitmask */
 
@@ -426,7 +426,12 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
        waysize-=sizeof(node_t);
 
        if(index!=NO_NODE)
+         {
+          if(!IsBitSet(usednode,index))
+             highway++;
+
           SetBit(usednode,index);
+         }
       }
 
     waysize-=sizeof(node_t)+sizeof(WayX);
@@ -434,8 +439,14 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
     SkipFileBuffered(waysx->fd,waysize);
 
     if(!((i+1)%1000))
-       printf_middle("Checking Ways for unused Nodes: Ways=%"Pindex_t,i+1);
+       printf_middle("Checking Ways for unused Nodes: Ways=%"Pindex_t" Highway Nodes=%"Pindex_t,i+1,highway);
    }
+
+ /* Free the now-unneeded index */
+
+ log_free(nodesx->idata);
+ free(nodesx->idata);
+ nodesx->idata=NULL;
 
  /* Close the file */
 
@@ -443,12 +454,21 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
 
  /* Print the final message */
 
- printf_last("Checked Ways for unused Nodes: Ways=%"Pindex_t,waysx->number);
+ printf_last("Checked Ways for unused Nodes: Ways=%"Pindex_t" Highway Nodes=%"Pindex_t,waysx->number,highway);
 
 
  /* Print the start message */
 
  printf_first("Removing unused Nodes: Nodes=0");
+
+ /* Allocate the array of indexes */
+
+ nodesx->idata=(node_t*)malloc(highway*sizeof(node_t));
+ log_malloc(nodesx->idata,highway*sizeof(node_t));
+
+ logassert(nodesx->idata,"Failed to allocate memory (try using slim mode?)"); /* Check malloc() worked */
+
+ highway=0;
 
  /* Re-open the file read-only and a new file writeable */
 
