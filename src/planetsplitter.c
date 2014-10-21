@@ -337,11 +337,11 @@ if(!option_process_only)
  printf("\nProcess OSM Data\n================\n\n");
  fflush(stdout);
 
- /* Remove non-highway nodes by looking through the ways */
+ /* Remove non-highway nodes by looking through the ways (must be before splitting the ways) */
 
  RemoveNonHighwayNodes(OSMNodes,OSMWays,option_keep||option_changes);
 
- /* Separate the segments and way names and sort them. */
+ /* Separate the segments and way names and sort them (must be before processing the segments) */
 
  OSMSegments=SplitWays(OSMWays,OSMNodes,option_keep||option_changes);
 
@@ -349,7 +349,7 @@ if(!option_process_only)
 
  SortSegmentList(OSMSegments);
 
- /* Process the segments and index them */
+ /* Process the segments and index them (must be before processing relations) */
 
  ProcessSegments(OSMSegments,OSMNodes,OSMWays);
 
@@ -361,7 +361,7 @@ if(!option_process_only)
 
  ProcessTurnRelations(OSMRelations,OSMNodes,OSMSegments,OSMWays,option_keep||option_changes);
 
- /* Compact the ways (must be after processing turn relations) */
+ /* Compact the ways */
 
  CompactWayList(OSMWays,OSMSegments);
 
@@ -369,7 +369,7 @@ if(!option_process_only)
 
  IndexSegments(OSMSegments,OSMNodes,OSMWays);
 
- /* Prune unwanted nodes/segments. */
+ /* Prune unwanted nodes/segments */
 
  if(option_prune_straight || option_prune_isolated || option_prune_short)
    {
