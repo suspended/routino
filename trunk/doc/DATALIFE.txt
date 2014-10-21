@@ -13,7 +13,7 @@ Key (structure parameter usage):
   M = Modified  (read then written; read/write)
   T = Temporary (written then read; read/write)
   | = Preserved unmodified for later
-  * = Current set of segments are in uppercase, the next set are in lowercase
+  * = In this loop the current iteration of (super-)segments are in uppercase, the next iteration are in lowercase.
 
                               .............................
                               : Nodes        \
@@ -49,23 +49,23 @@ SortWayList                   :      : | .   .   .   . | :   .   .   .   .   .  
 SortRelationList              :      : | .   .   .   . | :   .   .   .   .   .   : | .   . | : U :
 RemoveNonHighwayNodes         :      : M .   .   .   . U :   .   .   .   .   .   : | .   . | : | :
 SplitWays                     :      : U .   .   .   .   :   .   .   . W .   . W : | .   . U : | :
-SortWayNames                  :   W  : | .   .   .   .   :   .   .   . | .   . | : | .   . | : | :
-SortSegmentList               :      : | .   .   .   .   :   .   .   . U .   . | : | .   . | : | :
-ProcessSegments               : n    : U .   .   .   .   :   .   . C . U .   . U : U .   . | : | :
-IndexSegments                 :  S   : | .   .   .   .   : C .   . | . U . W . | : | .   . | : | :
-ProcessRouteRelations         :   W  : | .   .   .   .   : | .   . | . | . | . | : U .   . | : U :
-ProcessTurnRelations          : Nsw  : D .   .   .   .   : D .   . | . U . U . | : D .   . | : U :
-CompactWayList                :      :   .   .   .   .   :   .   . D . | .   . | :   . C . M :   :
-IndexSegments                 :  S   :   .   .   .   .   : C .   .   . U . W . M :   . D . | :   :
+SortWayNames                  :   W  : | .   .   .   .   :   .   .   . | .   . | : | .   .   : | :
+SortSegmentList               :      : | .   .   .   .   :   .   .   . U .   . | : | .   .   : | :
+ProcessSegments               : n    : U .   .   .   .   :   .   . C . U .   . U : U .   .   : | :
+IndexSegments                 :  S   : | .   .   .   .   : C .   . | . U . W . | : | .   .   : | :
+ProcessRouteRelations         :   W  : | .   .   .   .   : | .   . | . | . | . | : U .   .   : U :
+ProcessTurnRelations          : Nsw  : D .   .   .   .   : D .   . | . U . U . | : D .   .   : U :
+CompactWayList                :      :   .   .   .   .   :   .   . D . | .   . | :   . C . T :   :
+IndexSegments                 :  S   :   .   .   .   .   : C .   .   . U . W . M :   . D .   :   :
                               :......:...................:.......................:...........:...:
-StartPruning                  :      :   .   .   .   .   : | . C .   . U . U . | :   .   . | :   : <---+
-PruneStraightHighwayNodes     : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   : \ o |
-PruneIsolatedRegions          : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   : | n |
-PruneShortSegments            : NSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   : / e | L
-FinishPruning                 :      :   .   .   .   .   : | . D .   . | .   . | :   .   . | :   :     | o
-RemovePrunedNodes             :      :   .   . C .   .   : D .   .   . | .   . | :   .   . | :   :     | o
-RemovePrunedSegments          :      :   .   . | .   .   :   .   . C . U .   . | :   .   . | :   :     | p
-CompactWayList                :      :   .   . | .   .   :   .   . D . | .   . | :   . C . M :   :     |
+StartPruning                  :      :   .   .   .   .   : | . C .   . U . U . | :   .   .   :   : <---+
+PruneStraightHighwayNodes     : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   .   :   : \ o |
+PruneIsolatedRegions          : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   .   :   : | n |
+PruneShortSegments            : NSw  :   .   .   .   .   : U . U .   . U . U . | :   .   .   :   : / e | L
+FinishPruning                 :      :   .   .   .   .   : | . D .   . | .   . | :   .   .   :   :     | o
+RemovePrunedNodes             :      :   .   . C .   .   : D .   .   . | .   . | :   .   .   :   :     | o
+RemovePrunedSegments          :      :   .   . | .   .   :   .   . C . U .   . | :   .   .   :   :     | p
+CompactWayList                :      :   .   . | .   .   :   .   . D . | .   . | :   . C . T :   :     |
 RemovePrunedTurnRelations     :      :   .   . U .   .   :   .   .   . | .   . | :   . | .   :   :     |
 IndexSegments                 :  S   :   .   . D .   .   : C .   .   . M . W . | :   . D .   :   :     |
                               :......:...................:.......................:...........:...: ----+
