@@ -113,15 +113,7 @@ void printf_program_end(void)
     if(option_logmemory)
        fprintf_max_memory(stdout,program_max_alloc,program_max_mmap);
 
-    printf("Finish Program");
-
-    if(option_logtime)
-       printf(" - total time");
-
-    if(option_logmemory)
-       printf(" - maximum memory");
-
-    printf("\n");
+    printf("Finish Program\n");
 
     if(option_logtime==2)
        printf("[ m:ss.micros] ");
@@ -130,6 +122,16 @@ void printf_program_end(void)
 
     if(option_logmemory)
        printf("[RAM,FILE MB] ");
+
+    if(option_logtime)
+       printf("elapsed time");
+
+    if(option_logmemory)
+      {
+       if(option_logtime)
+          printf(", ");
+       printf("maximum memory");
+      }
 
     printf("\n");
 
