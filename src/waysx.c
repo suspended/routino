@@ -455,11 +455,11 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
 
        if(prevnode==node)
          {
-          logerror("Way %"Pway_t" contains node %"Pnode_t" that is connected to itself.\n",logerror_way(wayx.id),logerror_node(node));
+          logerror("Way %"Pway_t" contains node %"Pnode_t" that is connected to itself.\n",logerror_way(waysx->idata[i]),logerror_node(node));
          }
        else if(index==NO_NODE)
          {
-          logerror("Way %"Pway_t" contains node %"Pnode_t" that does not exist in the Routino database.\n",logerror_way(wayx.id),logerror_node(node));
+          logerror("Way %"Pway_t" contains node %"Pnode_t" that does not exist in the Routino database.\n",logerror_way(waysx->idata[i]),logerror_node(node));
          }
        else if(previndex==NO_NODE)
           ;
