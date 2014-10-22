@@ -45,10 +45,10 @@ v                             :      :   .   .   .   .   :   .   .   .   .   .  
 (Parse XML etc)               :      :   .   .   .   . W :   .   .   .   .   .   :   .   . W : W :
                               :......:...................:.......................:...........:...:
 SortNodeList                  :      : C .   .   .   . U :   .   .   .   .   .   :   .   . | : | :
-SortWayList                   :      : | .   .   .   . | :   .   .   .   .   .   : C .   . | : | :
-SortRelationList              :      : | .   .   .   . | :   .   .   .   .   .   : | .   . | : U :
-RemoveNonHighwayNodes         :      : M .   .   .   . U :   .   .   .   .   .   : | .   . | : | :
-SplitWays                     :      : U .   .   .   .   :   .   .   . W .   . W : | .   . U : | :
+SortWayList                   :      : | .   .   .   . | :   .   .   .   .   .   : C .   . U : | :
+SortRelationList              :      : | .   .   .   . | :   .   .   .   .   .   : | .   .   : U :
+RemoveNonHighwayNodes         :      : M .   .   .   . U :   .   .   .   .   .   : | .   .   : | :
+SplitWays                     :      : U .   .   .   .   :   .   .   . W .   . W : U .   .   : | :
 SortWayNames                  :   W  : | .   .   .   .   :   .   .   . | .   . | : | .   .   : | :
 SortSegmentList               :      : | .   .   .   .   :   .   .   . U .   . | : | .   .   : | :
 ProcessSegments               : n    : U .   .   .   .   :   .   . C . U .   . U : U .   .   : | :
