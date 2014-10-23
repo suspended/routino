@@ -35,12 +35,14 @@
 /*+ The option to print the output in a way that allows logging to a file. +*/
 int option_loggable=0;
 
-/*+ The option to print timestamps with the output. +*/
+/*+ The option to print elapsed time with the output. +*/
 int option_logtime=0;
 
-/*+ The option to print timestamps with the output. +*/
+/*+ The option to print memory usage with the output. +*/
 int option_logmemory=0;
 
+
+/* Local data types */
 
 /*+ A structure to contain the list of allocated memory. +*/
 struct mallocinfo
@@ -48,12 +50,6 @@ struct mallocinfo
  void  *address;            /*+ The address of the allocated memory. +*/
  size_t size;               /*+ The size of the allocated memory. +*/
 };
-
-/*+ The list of allocated memory. +*/
-static struct mallocinfo *mallocedmem;
-
-/*+ The number of allocated memory blocks. +*/
-static int nmallocedmem=0;
 
 
 /* Local functions */
@@ -73,6 +69,12 @@ static struct timeval program_start_time;
 
 /*+ The time that printf_first() was called. +*/
 static struct timeval function_start_time;
+
+/*+ The list of allocated memory. +*/
+static struct mallocinfo *mallocedmem;
+
+/*+ The number of allocated memory blocks. +*/
+static int nmallocedmem=0;
 
 /*+ The length of the string printed out last time. +*/
 static int printed_length=0;
@@ -233,7 +235,10 @@ void fprintf_first(FILE *file,const char *format, ...)
     gettimeofday(&function_start_time,NULL);
 
  if(option_logmemory)
-    function_max_alloc=function_max_mmap=0;
+   {
+    function_max_alloc=current_alloc;
+    function_max_mmap=current_mmap;
+   }
 
  if(option_loggable)
     return;
