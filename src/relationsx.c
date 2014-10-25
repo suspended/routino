@@ -57,6 +57,7 @@ static int sort_turn_by_id(TurnRelX *a,TurnRelX *b);
 static int deduplicate_turn_by_id(TurnRelX *relationx,index_t index);
 
 static int geographically_index(TurnRelX *relationx,index_t index);
+static int geographically_index_convert_segments(TurnRelX *relationx,index_t index);
 static int sort_by_via(TurnRelX *a,TurnRelX *b);
 
 
@@ -1234,6 +1235,7 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 
 void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
 {
+ static int which=1;
  int trfd;
 
  if(segmentsx->number==0)
@@ -1266,9 +1268,16 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
  sortnodesx=nodesx;
  sortsegmentsx=segmentsx;
 
- filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRelX),(int (*)(void*,index_t))geographically_index,
-                                                       (int (*)(const void*,const void*))sort_by_via,
-                                                       NULL);
+ if(which==1)
+    filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRelX),(int (*)(void*,index_t))geographically_index,
+                                                          (int (*)(const void*,const void*))sort_by_via,
+                                                          NULL);
+ else
+    filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRelX),(int (*)(void*,index_t))geographically_index_convert_segments,
+                                                          (int (*)(const void*,const void*))sort_by_via,
+                                                          NULL);
+
+ which++;
 
  /* Close the files */
 
@@ -1309,6 +1318,26 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
   ++++++++++++++++++++++++++++++++++++++*/
 
 static int geographically_index(TurnRelX *relationx,index_t index)
+{
+ relationx->from=sortnodesx->gdata[relationx->from];
+ relationx->via =sortnodesx->gdata[relationx->via];
+ relationx->to  =sortnodesx->gdata[relationx->to];
+
+ return(1);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Update the turn relation indexes and replace them with segments.
+
+  int geographically_index_convert_segments Return 1 if the value is to be kept, otherwise 0.
+
+  TurnRelX *relationx The extended turn relation.
+
+  index_t index The number of unsorted turn relations that have been read from the input file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int geographically_index_convert_segments(TurnRelX *relationx,index_t index)
 {
  SegmentX *segmentx;
  index_t from_node,via_node,to_node;

@@ -56,7 +56,11 @@ IndexSegments                 :  S   : | .   .   .   .   : C .   . | . U . W . |
 ProcessRouteRelations         :   W  : | .   .   .   .   : | .   . | . | . | . | : U .   .   : U :
 ProcessTurnRelations          : Nsw  : D .   .   .   .   : D .   . | . U . U . | : D .   .   : U :
 CompactWayList                :      :   .   .   .   .   :   .   . D . | .   . | :   . C . T :   :
-IndexSegments                 :  S   :   .   .   .   .   : C .   .   . U . W . M :   . D .   :   :
+                              :......:...................:.......................:...........:...:
+SortNodeListGeographically    :      :   . C .   .   . T :   .   .   . | .   . | :   . | .   :   :
+SortSegmentListGeographically :      :   . U .   .   .   :   .   .   . M .   . | :   . | .   :   :
+IndexSegments                 :  S   :   . | .   .   .   : C .   .   . U . W . | :   . D .   :   :
+SortTurnRelationListGeogra... :  s   :   . D .   .   .   : U .   .   . U . U . | :   .   .   :   :
                               :......:...................:.......................:...........:...:
 StartPruning                  :      :   .   .   .   .   : | . C .   . U . U . | :   .   .   :   : <---+
 PruneStraightHighwayNodes     : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   .   :   : \ o |

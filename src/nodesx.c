@@ -656,24 +656,30 @@ void SortNodeListGeographically(NodesX *nodesx)
  nodesx->fd=CloseFileBuffered(nodesx->fd);
  CloseFileBuffered(fd);
 
- /* Free the memory */
-
- log_free(nodesx->super);
- free(nodesx->super);
- nodesx->super=NULL;
-
  /* Work out the number of bins */
 
- lat_min_bin=latlong_to_bin(lat_min);
- lon_min_bin=latlong_to_bin(lon_min);
- lat_max_bin=latlong_to_bin(lat_max);
- lon_max_bin=latlong_to_bin(lon_max);
+ if(nodesx->super)
+   {
+    lat_min_bin=latlong_to_bin(lat_min);
+    lon_min_bin=latlong_to_bin(lon_min);
+    lat_max_bin=latlong_to_bin(lat_max);
+    lon_max_bin=latlong_to_bin(lon_max);
 
- nodesx->latzero=lat_min_bin;
- nodesx->lonzero=lon_min_bin;
+    nodesx->latzero=lat_min_bin;
+    nodesx->lonzero=lon_min_bin;
 
- nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
- nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
+    nodesx->latbins=(lat_max_bin-lat_min_bin)+1;
+    nodesx->lonbins=(lon_max_bin-lon_min_bin)+1;
+   }
+
+ /* Free the memory */
+
+ if(nodesx->super)
+   {
+    log_free(nodesx->super);
+    free(nodesx->super);
+    nodesx->super=NULL;
+   }
 
  /* Print the final message */
 
@@ -695,7 +701,7 @@ static int update_id(NodeX *nodex,index_t index)
 {
  nodex->id=index;
 
- if(IsBitSet(sortnodesx->super,index))
+ if(sortnodesx->super && IsBitSet(sortnodesx->super,index))
     nodex->flags|=NODE_SUPER;
 
  return(1);
@@ -766,14 +772,17 @@ static int index_by_lat_long(NodeX *nodex,index_t index)
 {
  sortnodesx->gdata[nodex->id]=index;
 
- if(nodex->latitude<lat_min)
-    lat_min=nodex->latitude;
- if(nodex->latitude>lat_max)
-    lat_max=nodex->latitude;
- if(nodex->longitude<lon_min)
-    lon_min=nodex->longitude;
- if(nodex->longitude>lon_max)
-    lon_max=nodex->longitude;
+ if(sortnodesx->super)
+   {
+    if(nodex->latitude<lat_min)
+       lat_min=nodex->latitude;
+    if(nodex->latitude>lat_max)
+       lat_max=nodex->latitude;
+    if(nodex->longitude<lon_min)
+       lon_min=nodex->longitude;
+    if(nodex->longitude>lon_max)
+       lon_max=nodex->longitude;
+   }
 
  return(1);
 }
