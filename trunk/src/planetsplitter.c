@@ -365,9 +365,19 @@ if(!option_process_only)
 
  CompactWayList(OSMWays,OSMSegments);
 
- /* Index the segments */
+ /* Sort the nodes and segments geographically */
+
+ SortNodeListGeographically(OSMNodes);
+
+ SortSegmentListGeographically(OSMSegments,OSMNodes);
+
+ /* Re-index the segments */
 
  IndexSegments(OSMSegments,OSMNodes,OSMWays);
+
+ /* Sort the turn relations geographically */
+
+ SortTurnRelationListGeographically(OSMRelations,OSMNodes,OSMSegments);
 
  /* Prune unwanted nodes/segments */
 
