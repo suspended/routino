@@ -128,6 +128,7 @@ Status
    Version 2.7 of Routino was released on 22nd March 2014.
    Version 2.7.1 of Routino was released on 17th May 2014.
    Version 2.7.2 of Routino was released on 26th June 2014.
+   Version 2.7.3 of Routino was released on 8th November 2014.
 
    The full version history is available in the NEWS.txt file.
 
