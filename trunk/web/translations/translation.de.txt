@@ -7,7 +7,7 @@
 #
 
 %%copyright_creator_string%%	Urheber
-%%copyright_source_string%%	Source
+%%copyright_source_string%%	Quelle
 %%copyright_source_text%%	Basierend auf OpenStreetMap-Daten, erhältlich via http://www.openstreetmap.org/
 %%copyright_license_string%%	Lizenz
 
