@@ -206,13 +206,15 @@ Version 2.7 of Routino was released on 22nd March 2014.
 Version 2.7.1 of Routino was released on 17th May 2014.
 <br>
 Version 2.7.2 of Routino was released on 26th June 2014.
+<br>
+Version 2.7.3 of Routino was released on 8th November 2014.
 
 <p>
 
 The full version history is available in the NEWS.txt file.
 
 
-<h3 id="H_1_5_1" title="Changes_2.7">Changes in Versions 2.7</h3>
+<h3 id="H_1_5_1" title="Changes 2.7">Changes in Versions 2.7</h3>
 
 Version 2.7 - mostly web page usability improvements.
 
@@ -262,7 +264,7 @@ Version 2.7 - mostly web page usability improvements.
 <p>
 <b>Note:</b> Note: This version is compatible with databases from version 2.6.
 
-<h3 id="H_1_5_2" title="Changes_2.7.1">Changes in Versions 2.7.1</h3>
+<h3 id="H_1_5_2" title="Changes 2.7.1">Changes in Versions 2.7.1</h3>
 
 Version 2.7.1 - mostly bug fixes (some from version 2.7, but mostly older ones).
 
@@ -305,7 +307,7 @@ Version 2.7.1 - mostly bug fixes (some from version 2.7, but mostly older ones).
 <b>Note:</b> This version is not compatible with databases from previous versions.
 
 
-<h3 id="H_1_5_3" title="Changes_2.7.2">Changes in Versions 2.7.2</h3>
+<h3 id="H_1_5_3" title="Changes 2.7.2">Changes in Versions 2.7.2</h3>
 
 Version 2.7.2 - mostly bug fixes introduced in version 2.7.1 on 64-bit systems.
 
@@ -324,6 +326,32 @@ Version 2.7.2 - mostly bug fixes introduced in version 2.7.1 on 64-bit systems.
 
 <p>
 <b>Note:</b> This version is compatible with databases from version 2.7.1.
+
+
+<h3 id="H_1_5_4" title="Changes 2.7.3">Changes in Versions 2.7.3</h3>
+
+Version 2.7.3 - Slightly reduced memory usage and large reduction in time to generate routing database on low memory systems.
+
+<dl>
+  <dt>Bug fixes:
+    <dd>Limit the property preference ratio to 100 instead of 10000.
+    <br>Don't allocate memory for sorting that won't be used.
+
+  <dt>planetsplitter:
+    <dd>Added an option to print out the allocated/mapped memory at each step.
+    <br>Speed up database generation by compacting results after each pruning step.
+    <br>Speed up database generation by sorting nodes geographically before pruning.
+    <br>Reduce memory use while generating the database.  
+
+  <dt>router:
+    <dd>Added the options to print out time and allocated/mapped memory at each step.
+
+  <dt>Translations:
+    <dd>Updated German translations.
+</dl>
+
+<p>
+<b>Note:</b> This version is compatible with databases from version 2.7.1 &amp; 2.7.2.
 
 
 

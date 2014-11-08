@@ -1,3 +1,26 @@
+Version 2.7.3 of Routino released : Sat Nov 8 2014
+--------------------------------------------------
+
+Bug fixes:
+  Limit the property preference ratio to 100 instead of 10000.
+  Don't allocate memory for sorting that won't be used.
+
+planetsplitter:
+  Added an option to print out the allocated/mapped memory at each step.
+  Speed up database generation by compacting results after each pruning step.
+  Speed up database generation by sorting nodes geographically before pruning.
+  Reduce memory use while generating the database.  
+
+router:
+  Added the options to print out time and allocated/mapped memory at each step.
+
+Translations:
+  Updated German translations.
+
+
+Note: This version is compatible with databases from version 2.7.1 & 2.7.2.
+
+
 Version 2.7.2 of Routino released : Thu June 26 2014
 ----------------------------------------------------
 
