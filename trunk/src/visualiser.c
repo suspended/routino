@@ -31,11 +31,10 @@
 #include "relations.h"
 #include "errorlog.h"
 
+#include "typesx.h"
+
 #include "visualiser.h"
 
-
-/*+ The maximum number of segments per node (used to size temporary storage). +*/
-#define MAX_SEG_PER_NODE 32
 
 /* Limit types */
 
