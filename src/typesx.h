@@ -42,7 +42,7 @@
 #define NO_RELATION_ID ((relation_t)~0)
 
 /*+ The maximum number of segments per node (used to size temporary storage). +*/
-#define MAX_SEG_PER_NODE 32
+#define MAX_SEG_PER_NODE 64
 
 
 /* Bit mask macro types and functions */
