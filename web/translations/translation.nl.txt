@@ -174,12 +174,30 @@
 @@HTML-ROUTE@@	HTML directions
 @@GPX-TRACK-ROUTE@@	GPX track bestand
 @@GPX-ROUTE@@	GPX route bestand
-@@FULL-TEXT-ROUTE@@	Full text bestand
-@@TEXT-ROUTE@@	Text bestand
+@@FULL-TEXT-ROUTE@@	Volledig tekst bestand
+@@TEXT-ROUTE@@	Tekst bestand
 
 #
 # Visualiser specific translations
 #
+
+@@INSTRUCTIONS-BOX@@	Instructies
+
+@@NO-DATA-DISPLAYED@@	Geen data getoond
+
+@@SPEED-BUTTON@@	Toon snelheidslimieten
+
+@@WEIGHT-BUTTON@@	Toon massa limieten
+
+@@WEIGHT-LIMIT-8@@	8.0 ton massa limiet
+
+@@HEIGHT-BUTTON@@	Toon hoogte limieten
+
+@@HEIGHT-LIMIT-4@@	4.0 m hoogte limiet
+
+@@WIDTH-BUTTON@@	Toon breedte limieten
+
+@@WIDTH-LIMIT-3@@	3.0 m breedte limiet
 
 #
 # Multi-line descriptive translations (router)
