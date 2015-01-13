@@ -126,6 +126,10 @@
 @@STATISTICS-BOX@@	Routino Statistik
 @@VISUALISER-BOX@@	Routino Ansichten
 
+@@WAYPOINT-POSITION@@	Wegpunkt XXX Position - (klicke zum hinzufügen/entfernen auf der Karte)
+@@WAYPOINT-LONGITUDE@@	Wegpunkt XXX geografische Länge
+@@WAYPOINT-LATITUDE@@	Wegpunkt XXX geografische Breite
+@@WAYPOINT-LOCATION@@	Wegpunkt XXX Ort
 @@WAYPOINT-SEARCH@@	Nach Ort suchen
 @@WAYPOINT-GET@@	Aktuellen Ort bestimmen
 @@WAYPOINT-CENTRE1@@	Karte auf Wegpunkt zentrieren
@@ -137,6 +141,7 @@
 @@WAYPOINT-REMOVE@@	Wegpunkt entfernen
 @@WAYPOINT-REVERSE@@	Rückwärts
 @@WAYPOINT-REVERSE-BUTTON@@	Rückwärts
+@@WAYPOINT-LOOP@@	Einen Wegpunkt hinzufügen um eine Schlaufe zu machen
 
 @@TRANSPORT-FOOT@@	Fußgänger
 @@TRANSPORT-HORSE@@	Reiter
@@ -235,9 +240,15 @@
 
 @@SUPER-BUTTON@@	Super-Segments anzeigen
 
+@@SPEED-LIMIT-80@@	80 km/Stunde Geschwindigkeitsbegrenzung
+
+@@WEIGHT-BUTTON@@	Gewichtswegbeschränkungen anzeigen
+
 @@WEIGHT-LIMIT-8@@	8 Tonnen Wegbeschränkung
 
 @@HEIGHT-BUTTON@@	Maximale Höhe anzeigen 
+
+@@HEIGHT-LIMIT-4@@	4.0 m Höhenbeschränkung
 
 @@WIDTH-BUTTON@@	Maximale Breite anzeigen
 
