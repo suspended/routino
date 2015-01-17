@@ -156,14 +156,14 @@
     <highway type="motorway"     string="Autobahn" />
     <highway type="trunk"        string="Schnellstraße" />
     <highway type="primary"      string="Bundesstraße" />
-    <highway type="secondary"    string="Landstraße" />
+    <highway type="secondary"    string="Landesstraße" />
     <highway type="tertiary"     string="Kreisstraße" />
     <highway type="unclassified" string="Nebenstraße" />
     <highway type="residential"  string="Wohngebietsstraße" />
     <highway type="service"      string="Erschließungsweg" />
-    <highway type="track"        string="Wirtschaftsweg" />
+    <highway type="track"        string="Feld-/Waldweg" />
     <highway type="cycleway"     string="Radweg" />
-    <highway type="path"         string="Weg" />
+    <highway type="path"         string="Weg/Pfad" />
     <highway type="steps"        string="Treppe" />
     <highway type="ferry"        string="Fähre" />
 
