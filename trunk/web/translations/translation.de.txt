@@ -45,14 +45,14 @@
 %%highway_motorway%%	Autobahn
 %%highway_trunk%%	Schnellstraße
 %%highway_primary%%	Bundesstraße
-%%highway_secondary%%	Landstraße
+%%highway_secondary%%	Landesstraße
 %%highway_tertiary%%	Kreisstraße
 %%highway_unclassified%%	Nebenstraße
 %%highway_residential%%	Wohngebietsstraße
 %%highway_service%%	Erschließungsweg
-%%highway_track%%	Wirtschaftsweg
+%%highway_track%%	Feld-/Waldweg
 %%highway_cycleway%%	Radweg
-%%highway_path%%	Weg
+%%highway_path%%	Weg/Pfad
 %%highway_steps%%	Treppe
 %%highway_ferry%%	Fähre
 
@@ -136,12 +136,14 @@
 @@WAYPOINT-UP@@	wegpunkt nach oben verschieben
 @@WAYPOINT-ADD@@	Neuer Wegpunkt nach diesem
 @@WAYPOINT-COORDS@@	Koordinaten des Orts
+@@WAYPOINT-HOME@@	Umschalten auf den Standort des Zuhauses
 @@WAYPOINT-CENTRE2@@	Wegpunkt auf Karte zentrieren
 @@WAYPOINT-DOWN@@	Wegpunkt nach unten verschieben
 @@WAYPOINT-REMOVE@@	Wegpunkt entfernen
 @@WAYPOINT-REVERSE@@	Rückwärts
 @@WAYPOINT-REVERSE-BUTTON@@	Rückwärts
 @@WAYPOINT-LOOP@@	Einen Wegpunkt hinzufügen um eine Schlaufe zu machen
+@@WAYPOINT-LOOP-BUTTON@@	Schleife schließen
 
 @@TRANSPORT-FOOT@@	Fußgänger
 @@TRANSPORT-HORSE@@	Reiter
@@ -151,8 +153,8 @@
 @@TRANSPORT-MOTORCYCLE@@	Motorrad
 @@TRANSPORT-MOTORCAR@@	Auto
 @@TRANSPORT-GOODS@@	LKW
-@@TRANSPORT-HGV@@	Schwertransport
-@@TRANSPORT-PSV@@	Personenverkehr
+@@TRANSPORT-HGV@@	Schwertransport/LKW
+@@TRANSPORT-PSV@@	Öffentlicher Personenverkehr
 
 @@HIGHWAY-MOTORWAY@@	Autobahn
 @@HIGHWAY-TRUNK@@	Schnellstraße
@@ -228,6 +230,7 @@
 @@VISUALISER-NUM-SEGMENTS@@	# Segmente verarbeitet
 @@VISUALISER-NUM-NODES@@	# Knoten verarbeitet
 @@VISUALISER-NUM-TURNS@@	# Abbiegebeschrängkungen verarbeitet
+@@VISUALISER-NUM-LIMITS@@	# Limit-Änderungen verarbeitet
 @@VISUALISER-NUM-ERRORS@@	# Error Logs erstellt
 
 @@JUNCTIONS-BUTTON@@	Kreuzungen anzeigen
