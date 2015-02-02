@@ -11,7 +11,7 @@
 %%copyright_source_text%%	Basierend auf OpenStreetMap-Daten, erhältlich via http://www.openstreetmap.org/
 %%copyright_license_string%%	Lizenz
 
-%%turn_-4%%	Spitzkehre nach links
+%%turn_-4%%	Sehr scharf links
 %%turn_-3%%	Scharf links
 %%turn_-2%%	Links
 %%turn_-1%%	Halb links
@@ -19,7 +19,7 @@
 %%turn_1%%	Halb rechts
 %%turn_2%%	Rechts
 %%turn_3%%	Scharf rechts
-%%turn_4%%	Spitzkehre nach rechts
+%%turn_4%%	Sehr scharf rechts
 
 %%heading_-4%%	Süd
 %%heading_-3%%	Süd-West
@@ -242,6 +242,8 @@
 @@JUNCTIONS-MORE@@	Aufeinandertreffen von sieben oder mehr Wegen.
 
 @@SUPER-BUTTON@@	Super-Segments anzeigen
+
+@@TURNS-BUTTON@@	Zeige Abbiegebeschränkungen
 
 @@SPEED-LIMIT-80@@	80 km/Stunde Geschwindigkeitsbegrenzung
 

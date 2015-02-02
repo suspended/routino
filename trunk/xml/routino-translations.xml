@@ -119,7 +119,7 @@
     </copyright>
 
     <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
-    <turn direction="-4" string="Spitzkehre nach links" />
+    <turn direction="-4" string="Sehr scharf links" />
     <turn direction="-3" string="Scharf links" />
     <turn direction="-2" string="Links" />
     <turn direction="-1" string="Halb links" />
@@ -127,7 +127,7 @@
     <turn direction="1"  string="Halb rechts" />
     <turn direction="2"  string="Rechts" />
     <turn direction="3"  string="Scharf rechts" />
-    <turn direction="4"  string="Spitzkehre nach rechts" />
+    <turn direction="4"  string="Sehr scharf rechts" />
 
     <!-- Heading directions, 0 = North, -2 = West, +/-4 = South, +2 = East -->
     <heading direction="-4" string="Süd" />
