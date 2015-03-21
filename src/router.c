@@ -699,9 +699,7 @@ static Results *CalculateRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
     complete->prev_segment=prev_segment;
 
     complete->finish_node=finish_node;
-    complete->last_segment=prev_segment;
-
-    complete->last_segment=result2->segment;
+    complete->last_segment=fake_segment;
    }
  else
    {
