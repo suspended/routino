@@ -1086,6 +1086,10 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        else
           segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
+       /* prefer not to follow two fake segments when one would do (special case) */
+       if(IsFakeSegment(seg2))
+          segment_score*=1.01;
+
        cumulative_score=result1->score+segment_score;
 
        /* find whether the node/segment combination already exists */
@@ -1399,7 +1403,8 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
        else
           segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
-       if(IsFakeSegment(seg1))
+       /* prefer not to follow two fake segments when one would do (special case) */
+       if(IsFakeSegment(seg2))
           segment_score*=1.01;
 
        cumulative_score=result1->score+segment_score;
@@ -1666,6 +1671,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        else
           segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
+       /* prefer not to follow two fake segments when one would do (special case) */
        if(IsFakeSegment(seg1))
           segment_score*=1.01;
 
