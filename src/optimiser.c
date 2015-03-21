@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -252,6 +252,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(node2p && node2!=finish_node && !(node2p->allow&profile->allow))
           goto endloop;
 
+       /* calculate the score for the segment and cumulative */
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
@@ -263,6 +264,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(cumulative_score>=finish_score)
           goto endloop;
 
+       /* find whether the node/segment combination already exists */
        result2=FindResult(results,node2,seg2);
 
        if(!result2) /* New end node/segment combination */
@@ -574,6 +576,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(node2!=end->finish_node && !(node2p->allow&profile->allow))
           goto endloop;
 
+       /* calculate the score for the segment and cumulative */
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
@@ -585,6 +588,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(cumulative_score>=finish_score)
           goto endloop;
 
+       /* find whether the node/segment combination already exists */
        result2=FindResult(results,node2,seg2);
 
        if(!result2) /* New end node/segment pair */
@@ -651,18 +655,6 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
     FreeResultsList(results);
     return(NULL);
-   }
-
- /* Finish off the end part of the route */
-
- if(finish_result->node!=end->finish_node)
-   {
-    result3=InsertResult(results,end->finish_node,NO_SEGMENT);
-
-    result3->prev=finish_result;
-    result3->score=finish_score;
-
-    finish_result=result3;
    }
 
  FixForwardRoute(results,finish_result);
@@ -1088,6 +1080,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(node2p && node2!=finish_node && !(node2p->allow&profile->allow))
           goto endloop;
 
+       /* calculate the score for the segment and cumulative */
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
@@ -1095,6 +1088,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        cumulative_score=result1->score+segment_score;
 
+       /* find whether the node/segment combination already exists */
        result2=FindResult(results,node2,seg2);
 
        if(!result2) /* New end node/segment combination */
@@ -1399,10 +1393,14 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
        if(node2p && node2!=finish_node && !(node2p->allow&profile->allow))
           goto endloop;
 
+       /* calculate the score for the segment and cumulative */
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
           segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
+
+       if(IsFakeSegment(seg1))
+          segment_score*=1.01;
 
        cumulative_score=result1->score+segment_score;
 
@@ -1410,6 +1408,7 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
        if(cumulative_score>=finish_score)
           goto endloop;
 
+       /* find whether the node/segment combination already exists */
        result2=FindResult(results,node2,seg2);
 
        if(!result2) /* New end node/segment combination */
@@ -1661,13 +1660,18 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        if(node2p && !(node2p->allow&profile->allow))
           goto endloop;
 
+       /* calculate the score for the segment and cumulative */
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
           segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
 
+       if(IsFakeSegment(seg1))
+          segment_score*=1.01;
+
        cumulative_score=result1->score+segment_score;
 
+       /* find whether the node/segment combination already exists */
        result2=FindResult(results,node2,seg2);
 
        if(!result2) /* New end node */
@@ -1809,15 +1813,17 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
   Results *begin The set of results for the start of the route.
 
   Results *middle The set of results from the super-node route.
+
+  Results *end The set of results for the end of the route.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *middle)
+Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *middle,Results *end)
 {
  Result *midres,*comres1;
  Results *combined;
 
 #if DEBUG
- printf("  CombineRoutes(...,[begin has %d nodes],[middle has %d nodes])\n",begin->number,middle->number);
+ printf("  CombineRoutes(...,[begin has %d nodes],[middle has %d nodes],[end has %d nodes])\n",begin->number,middle->number,end->number);
 #endif
 
 #if !DEBUG
@@ -1873,69 +1879,89 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
  /* Sort out the combined route */
 
- do
+ while(midres->next)
    {
+    Results *results=FindNormalRoute(nodes,segments,ways,relations,profile,comres1->node,comres1->segment,midres->next->node);
     Result *result;
 
-    if(midres->next)
+    if(!results)
       {
-       Results *results=FindNormalRoute(nodes,segments,ways,relations,profile,comres1->node,comres1->segment,midres->next->node);
-
-       if(!results)
-         {
 #if !DEBUG
-          if(!option_quiet)
-             printf_last("Found Combined Route: Nodes = %d - Fail",combined->number);
+       if(!option_quiet)
+          printf_last("Found Combined Route: Nodes = %d - Fail",combined->number);
 #endif
 
-          FreeResultsList(combined);
-          return(NULL);
-         }
+       FreeResultsList(combined);
+       return(NULL);
+      }
 
-       result=FindResult(results,midres->node,comres1->segment);
+    result=FindResult(results,midres->node,comres1->segment);
+
+    result=result->next;
+
+    /*
+     *      midres                          midres->next
+     *         =                                  =
+     *      ---*----------------------------------*  = middle
+     *
+     *      ---*----.----.----.----.----.----.----*  = results
+     *              =
+     *             result
+     *
+     *      ---*----.----.----.----.----.----.----*  = combined
+     *         =    =
+     *   comres1  comres2
+     */
+
+    do
+      {
+       Result *comres2;
+
+       comres2=InsertResult(combined,result->node,result->segment);
+
+       comres2->score=midres->score+result->score;
+       comres2->prev=comres1;
 
        result=result->next;
 
-       /*
-        *      midres                          midres->next
-        *         =                                  =
-        *      ---*----------------------------------*  = middle
-        *
-        *      ---*----.----.----.----.----.----.----*  = results
-        *              =
-        *             result
-        *
-        *      ---*----.----.----.----.----.----.----*  = combined
-        *         =    =
-        *   comres1  comres2
-        */
-
-       do
-         {
-          Result *comres2;
-
-          comres2=InsertResult(combined,result->node,result->segment);
-
-          comres2->score=midres->score+result->score;
-          comres2->prev=comres1;
-
-          result=result->next;
-
-          comres1=comres2;
-         }
-       while(result);
-
-       FreeResultsList(results);
+       comres1=comres2;
       }
+    while(result);
+
+    FreeResultsList(results);
 
     midres=midres->next;
    }
- while(midres);
+
+ /* Insert the end of the route */
+
+ if(end->number>1)
+   {
+    Result *endres=FindResult(end,midres->node,midres->segment);
+
+    while(endres->next)
+      {
+       Result *comres2;
+
+       comres2=InsertResult(combined,endres->next->node,endres->next->segment);
+
+       comres2->score=comres1->score+(endres->score-endres->next->score);
+       comres2->prev=comres1;
+
+       endres=endres->next;
+
+       comres1=comres2;
+      }
+   }
+
+ /* Turn the route round */
 
  FixForwardRoute(combined,comres1);
 
 #if DEBUG
  Result *r=FindResult(combined,combined->start_node,combined->prev_segment);
+
+ printf("  CombinedRoute(...)\n");
 
  while(r)
    {

@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -777,15 +777,13 @@ static Results *CalculateRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
              middle=FindMiddleRoute(nodes,segments,ways,relations,profile,begin,end);
          }
 
-       FreeResultsList(end);
-
        if(!middle)
          {
           fprintf(stderr,"Error: Cannot find super-route compatible with profile.\n");
           exit(EXIT_FAILURE);
          }
 
-       complete=CombineRoutes(nodes,segments,ways,relations,profile,begin,middle);
+       complete=CombineRoutes(nodes,segments,ways,relations,profile,begin,middle,end);
 
        if(!complete)
          {
@@ -794,8 +792,8 @@ static Results *CalculateRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
          }
 
        FreeResultsList(begin);
-
        FreeResultsList(middle);
+       FreeResultsList(end);
       }
    }
 
