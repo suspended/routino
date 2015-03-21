@@ -286,6 +286,9 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
          {
           finish_score=cumulative_score;
           finish_result=result2;
+
+          results->finish_node=node2;
+          results->last_segment=seg2;
          }
        else
           InsertInQueue(queue,result2,result2->score);
@@ -394,16 +397,11 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  results->start_node=begin->start_node;
  results->prev_segment=begin->prev_segment;
 
- if(begin->number==1)
+ if(begin->number==1 && begin->prev_segment!=NO_SEGMENT)
    {
-    if(begin->prev_segment==NO_SEGMENT)
-       results->prev_segment=NO_SEGMENT;
-    else
-      {
-       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
+    index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
 
-       results->prev_segment=superseg;
-      }
+    results->prev_segment=superseg;
    }
 
  result1=InsertResult(results,results->start_node,results->prev_segment);
@@ -611,6 +609,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
             {
              finish_score=result2->score+result3->score;
              finish_result=result2;
+
+             results->finish_node=node2;
+             results->last_segment=seg2;
             }
          }
        else
@@ -1109,7 +1110,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
           if(node2==finish_node)
             {
-             results->finish_node=finish_node;
+             results->finish_node=node2;
              results->last_segment=seg2;
             }
          }
@@ -1120,7 +1121,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
           if(node2==finish_node)
             {
-             results->finish_node=finish_node;
+             results->finish_node=node2;
              results->last_segment=seg2;
             }
          }
@@ -1436,6 +1437,9 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
             {
              finish_score=cumulative_score;
              finish_result=result2;
+
+             results->finish_node=node2;
+             results->last_segment=seg2;
             }
          }
        else
@@ -1825,7 +1829,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
 Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *middle,Results *end)
 {
- Result *midres,*comres1;
+ Result *midres,*comres;
  Results *combined;
 
 #if DEBUG
@@ -1846,7 +1850,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
  midres=FindResult(middle,middle->start_node,middle->prev_segment);
 
- comres1=InsertResult(combined,combined->start_node,combined->prev_segment);
+ comres=InsertResult(combined,combined->start_node,combined->prev_segment);
 
  /* Insert the start of the route */
 
@@ -1874,11 +1878,11 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
        comres2=InsertResult(combined,begres->node,begres->segment);
 
        comres2->score=begres->score;
-       comres2->prev=comres1;
+       comres2->prev=comres;
 
        begres=begres->next;
 
-       comres1=comres2;
+       comres=comres2;
       }
     while(begres);
    }
@@ -1887,7 +1891,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
  while(midres->next)
    {
-    Results *results=FindNormalRoute(nodes,segments,ways,relations,profile,comres1->node,comres1->segment,midres->next->node);
+    Results *results=FindNormalRoute(nodes,segments,ways,relations,profile,comres->node,comres->segment,midres->next->node);
     Result *result;
 
     if(!results)
@@ -1901,7 +1905,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
        return(NULL);
       }
 
-    result=FindResult(results,midres->node,comres1->segment);
+    result=FindResult(results,midres->node,comres->segment);
 
     result=result->next;
 
@@ -1916,7 +1920,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
      *
      *      ---*----.----.----.----.----.----.----*  = combined
      *         =    =
-     *   comres1  comres2
+     *     comres  comres2
      */
 
     do
@@ -1926,11 +1930,11 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
        comres2=InsertResult(combined,result->node,result->segment);
 
        comres2->score=midres->score+result->score;
-       comres2->prev=comres1;
+       comres2->prev=comres;
 
        result=result->next;
 
-       comres1=comres2;
+       comres=comres2;
       }
     while(result);
 
@@ -1951,18 +1955,21 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
        comres2=InsertResult(combined,endres->next->node,endres->next->segment);
 
-       comres2->score=comres1->score+(endres->score-endres->next->score);
-       comres2->prev=comres1;
+       comres2->score=comres->score+(endres->score-endres->next->score);
+       comres2->prev=comres;
 
        endres=endres->next;
 
-       comres1=comres2;
+       comres=comres2;
       }
    }
 
  /* Turn the route round */
 
- FixForwardRoute(combined,comres1);
+ combined->finish_node=comres->node;
+ combined->last_segment=comres->segment;
+
+ FixForwardRoute(combined,comres);
 
 #if DEBUG
  Result *r=FindResult(combined,combined->start_node,combined->prev_segment);
