@@ -1185,6 +1185,11 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     return(NULL);
    }
 
+ /* If we found the finish node then make a proper route */
+
+ if(finish_result)
+    FixForwardRoute(results,finish_result);
+
 #if DEBUG
  Result *s=FirstResult(results);
 
@@ -1231,45 +1236,6 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  if(!option_quiet)
     printf_last("Found Start Route: Nodes checked = %d",results->number);
 #endif
-
- /* If we found the finish node then make a proper route */
-
- if(finish_result)
-   {
-    Results *results2;
-    Result  *result,*result2=NULL,*finish_result2=NULL;
-
-    results2=NewResultsList(8);
-
-    results2->start_node=start_node;
-    results2->prev_segment=prev_segment;
-    results2->finish_node=results->finish_node;
-    results2->last_segment=results->last_segment;
-
-    result=finish_result;
-
-    while(result)
-      {
-       Result *temp;
-
-       temp=InsertResult(results2,result->node,result->segment);
-       temp->score=result->score;
-
-       if(!result2)
-          finish_result2=temp;
-       else
-          result2->prev=temp;
-
-       result2=temp;
-       result=result->prev;
-      }
-
-    FixForwardRoute(results2,finish_result2);
-
-    FreeResultsList(results);
-
-    results=results2;
-   }
 
  return(results);
 }
