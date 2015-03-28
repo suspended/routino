@@ -84,7 +84,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  int     force_uturn=0;
 
 #if DEBUG
- printf("  FindNormalRoute(...,start_node=%"Pindex_t" prev_segment=%"Pindex_t" finish_node=%"Pindex_t")\n",start_node,prev_segment,finish_node);
+ printf("    FindNormalRoute(...,start_node=%"Pindex_t" prev_segment=%"Pindex_t" finish_node=%"Pindex_t")\n",start_node,prev_segment,finish_node);
 #endif
 
  /* Set up the finish conditions */
@@ -316,7 +316,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  if(!finish_result)
    {
 #if DEBUG
-    printf("    Failed\n");
+    printf("      Failed\n");
 #endif
 
     FreeResultsList(results);
@@ -328,9 +328,14 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 #if DEBUG
  Result *r=FindResult(results,results->start_node,results->prev_segment);
 
+ printf("      -------- normal route (between super-nodes)\n");
+
  while(r)
    {
-    printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
+    printf("      node=%"Pindex_t" segment=%"Pindex_t" score=%f%s%s%s\n",r->node,r->segment,r->score,
+                                                                         (IsSuperNode(LookupNode(nodes,r->node,1))?" (super)":""),
+                                                                         (r->node==results->start_node&&r->segment==results->prev_segment?" (start)":""),
+                                                                         (r->node==results->finish_node?" (finish)":""));
 
     r=r->next;
    }
@@ -371,7 +376,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  int     force_uturn=0;
 
 #if DEBUG
- printf("  FindMiddleRoute(...,[begin has %d nodes],[end has %d nodes])\n",begin->number,end->number);
+ printf("    FindMiddleRoute(...,[begin has %d nodes],[end has %d nodes])\n",begin->number,end->number);
 #endif
 
 #if !DEBUG
@@ -646,7 +651,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  if(!finish_result)
    {
 #if DEBUG
-    printf("    Failed\n");
+    printf("      Failed\n");
 #endif
 
 #if !DEBUG
@@ -663,9 +668,14 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 #if DEBUG
  Result *r=FindResult(results,results->start_node,results->prev_segment);
 
+ printf("      -------- middle route (start route then via super-nodes/segments)\n");
+
  while(r)
    {
-    printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
+    printf("      node=%"Pindex_t" segment=%"Pindex_t" score=%f%s%s%s\n",r->node,r->segment,r->score,
+                                                                         (IsSuperNode(LookupNode(nodes,r->node,1))?" (super)":""),
+                                                                         (r->node==results->start_node&&r->segment==results->prev_segment?" (start)":""),
+                                                                         (r->node==results->finish_node?" (finish)":""));
 
     r=r->next;
    }
@@ -780,7 +790,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
  Result  *result1,*result2;
 
 #if DEBUG
- printf("    FindSuperRoute(...,start_node=%"Pindex_t" finish_node=%"Pindex_t")\n",start_node,finish_node);
+ printf("      FindSuperRoute(...,start_node=%"Pindex_t" finish_node=%"Pindex_t")\n",start_node,finish_node);
 #endif
 
  /* Create the list of results and insert the first node into the queue */
@@ -882,13 +892,28 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
  FreeQueueList(queue);
 
 #if DEBUG
- Result *r=FindResult(results,results->start_node,results->prev_segment);
+ Result *s=FirstResult(results);
 
- while(r)
+ while(s)
    {
-    printf("      node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
+    if(s->node==finish_node)
+      {
+       Result *r=FindResult(results,s->node,s->segment);
 
-    r=r->next;
+       printf("        -------- super-route\n");
+
+       while(r)
+         {
+          printf("        node=%"Pindex_t" segment=%"Pindex_t" score=%f%s%s%s\n",r->node,r->segment,r->score,
+                                                                                (IsSuperNode(LookupNode(nodes,r->node,1))?" (super)":""),
+                                                                                (r->node==start_node?" (start)":""),
+                                                                                (r->node==finish_node?" (finish)":""));
+
+          r=r->prev;
+         }
+      }
+
+    s=NextResult(results,s);
    }
 #endif
 
@@ -1195,36 +1220,20 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  while(s)
    {
-    if(s->node==finish_node)
+    if(s->node==finish_node || (!IsFakeNode(s->node) && IsSuperNode(LookupNode(nodes,s->node,1))))
       {
        Result *r=FindResult(results,s->node,s->segment);
 
-       printf("    -------- route to finish node\n");
+       printf("    -------- possible start route\n");
 
        while(r)
          {
-          printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
+          printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f%s%s%s\n",r->node,r->segment,r->score,
+                                                                            (IsSuperNode(LookupNode(nodes,r->node,1))?" (super)":""),
+                                                                            (r->node==start_node&&r->segment==prev_segment?" (start)":""),
+                                                                            (r->node==finish_node?" (finish)":""));
 
           r=r->prev;
-         }
-      }
-
-    if(!IsFakeNode(s->node))
-      {
-       Node *n=LookupNode(nodes,s->node,1);
-
-       if(IsSuperNode(n))
-         {
-          Result *r=FindResult(results,s->node,s->segment);
-
-          printf("    -------- route to super node\n");
-
-          while(r)
-            {
-             printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
-
-             r=r->prev;
-            }
          }
       }
 
@@ -1529,22 +1538,19 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
  while(s)
    {
-    if(!IsFakeNode(s->node))
+    if(!IsFakeNode(s->node) && IsSuperNode(LookupNode(nodes,s->node,1)))
       {
-       Node *n=LookupNode(nodes,s->node,1);
+       Result *r=FindResult(results2,s->node,s->segment);
 
-       if(IsSuperNode(n))
+       printf("    -------- possible finish route\n");
+
+       while(r)
          {
-          Result *r=FindResult(results2,s->node,s->segment);
+          printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f%s%s\n",r->node,r->segment,r->score,
+                                                                           (IsSuperNode(LookupNode(nodes,r->node,1))?" (super)":""),
+                                                                           (r->node==finish_node?" (finish)":""));
 
-          printf("    --------\n");
-
-          while(r)
-            {
-             printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
-
-             r=r->next;
-            }
+          r=r->next;
          }
       }
 
@@ -1730,11 +1736,14 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 #if DEBUG
  Result *r=FindResult(combined,combined->start_node,combined->prev_segment);
 
- printf("  CombinedRoute(...)\n");
+ printf("      -------- combined route (end-to-end)\n");
 
  while(r)
    {
-    printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
+    printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f%s%s%s\n",r->node,r->segment,r->score,
+                                                                       (IsSuperNode(LookupNode(nodes,r->node,1))?" (super)":""),
+                                                                       (r->node==combined->start_node&&r->segment==combined->prev_segment?" (start)":""),
+                                                                       (r->node==combined->finish_node?" (finish)":""));
 
     r=r->next;
    }
