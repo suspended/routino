@@ -921,8 +921,10 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
 Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node)
 {
  Results *results;
- Queue   *queue;
+ Queue   *queue,*superqueue;
  Result  *result1,*result2;
+ Result  *finish_result=NULL;
+ score_t finish_score=INF_SCORE;
  int     nsuper=0,force_uturn=0;
 
 #if DEBUG
@@ -938,6 +940,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
  results=NewResultsList(8);
  queue=NewQueueList(8);
+ superqueue=NewQueueList(8);
 
  results->start_node=start_node;
  results->prev_segment=prev_segment;
@@ -964,6 +967,10 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     Segment *segmentp;
     index_t node1,seg1,seg1r;
     index_t turnrelation=NO_RELATION;
+
+    /* score must be better than current best score */
+    if(result1->score>=finish_score)
+       continue;
 
     node1=result1->node;
     seg1=result1->segment;
@@ -1093,6 +1100,10 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        cumulative_score=result1->score+segment_score;
 
+       /* score must be better than current best score */
+       if(cumulative_score>=finish_score)
+          goto endloop;
+
        /* find whether the node/segment combination already exists */
        result2=FindResult(results,node2,seg2);
 
@@ -1104,32 +1115,39 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
           if(node2p && IsSuperNode(node2p))
              nsuper++;
-
-          if(node2==finish_node)
-             nsuper++;
-
-          if(node2==finish_node)
-            {
-             results->finish_node=node2;
-             results->last_segment=seg2;
-            }
          }
        else if(cumulative_score<result2->score) /* New score for end node/segment combination is better */
          {
           result2->prev=result1;
           result2->score=cumulative_score;
-
-          if(node2==finish_node)
-            {
-             results->finish_node=node2;
-             results->last_segment=seg2;
-            }
          }
        else
           goto endloop;
 
-       if(node2p && !IsSuperNode(node2p))
+       if(node2==finish_node)
+         {
+          if(!finish_result)
+            {
+             Result *result3;
+
+             while((result3=PopFromQueue(superqueue)))
+                InsertInQueue(queue,result3,result3->score);
+            }
+
+          if(cumulative_score<finish_score)
+            {
+             finish_score=cumulative_score;
+             finish_result=result2;
+
+             results->finish_node=node2;
+             results->last_segment=seg2;
+            }
+         }
+
+       if(finish_result || (node2p && !IsSuperNode(node2p)))
           InsertInQueue(queue,result2,result2->score);
+       else if(node2p && IsSuperNode(node2p))
+          InsertInQueue(superqueue,result2,result2->score);
 
       endloop:
 
@@ -1148,10 +1166,11 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    }
 
  FreeQueueList(queue);
+ FreeQueueList(superqueue);
 
  /* Check it worked */
 
- if(results->number==1 || nsuper==0)
+ if(results->number==1 || (nsuper==0 && !finish_result))
    {
 #if DEBUG
     printf("    Failed (%d results, %d super)\n",results->number,nsuper);
@@ -1213,273 +1232,44 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     printf_last("Found Start Route: Nodes checked = %d",results->number);
 #endif
 
- return(results);
-}
+ /* If we found the finish node then make a proper route */
 
-
-/*++++++++++++++++++++++++++++++++++++++
-  Continue finding routes from a set of super-nodes to a finish point.
-
-  Results *ExtendStartRoutes Returns the set of results that were passed in.
-
-  Nodes *nodes The set of nodes to use.
-
-  Segments *segments The set of segments to use.
-
-  Ways *ways The set of ways to use.
-
-  Relations *relations The set of relations to use.
-
-  Profile *profile The profile containing the transport type, speeds and allowed highways.
-
-  Results *begin The partial set of routes already computed.
-
-  index_t finish_node The finish node.
-  ++++++++++++++++++++++++++++++++++++++*/
-
-Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,index_t finish_node)
-{
- Results *results=begin;
- Queue   *queue;
- Result  *result1,*result2,*result3;
- Result  *finish_result=NULL;
- score_t finish_score=INF_SCORE;
-
-#if DEBUG
- printf("  ExtendStartRoutes(...,[begin has %d nodes],finish_node=%"Pindex_t")\n",begin->number,finish_node);
-#endif
-
-#if !DEBUG
- if(!option_quiet)
-    printf_first("Extending Start Route: Nodes checked = 0");
-#endif
-
- /* Check the list of results and insert the super nodes into the queue */
-
- queue=NewQueueList(8);
-
- result3=FirstResult(begin);
-
- while(result3)
+ if(finish_result)
    {
-    if(result3->node==finish_node)
-       if(result3->score<finish_score)
-         {
-          finish_score=result3->score;
-          finish_result=result3;
-         }
+    Results *results2;
+    Result  *result,*result2=NULL,*finish_result2=NULL;
 
-    if(!IsFakeNode(result3->node))
-       if(IsSuperNode(LookupNode(nodes,result3->node,3)))
-          InsertInQueue(queue,result3,result3->score);
+    results2=NewResultsList(8);
 
-    result3=NextResult(results,result3);
-   }
+    results2->start_node=start_node;
+    results2->prev_segment=prev_segment;
+    results2->finish_node=results->finish_node;
+    results2->last_segment=results->last_segment;
 
- /* Loop across all nodes in the queue */
+    result=finish_result;
 
- while((result1=PopFromQueue(queue)))
-   {
-    Node *node1p=NULL;
-    Segment *segmentp;
-    index_t node1,seg1,seg1r;
-    index_t turnrelation=NO_RELATION;
-
-    /* score must be better than current best score */
-    if(result1->score>=finish_score)
-       continue;
-
-    node1=result1->node;
-    seg1=result1->segment;
-
-    if(IsFakeSegment(seg1))
-       seg1r=IndexRealSegment(seg1);
-    else
-       seg1r=seg1;
-
-    if(!IsFakeNode(node1))
-       node1p=LookupNode(nodes,node1,1);
-
-    /* lookup if a turn restriction applies */
-    if(profile->turns && node1p && IsTurnRestrictedNode(node1p))
-       turnrelation=FindFirstTurnRelation2(relations,node1,seg1r);
-
-    /* Loop across all segments */
-
-    if(IsFakeNode(node1))
-       segmentp=FirstFakeSegment(node1);
-    else
-       segmentp=FirstSegment(segments,node1p,1);
-
-    while(segmentp)
+    while(result)
       {
-       Node *node2p=NULL;
-       Way *wayp;
-       index_t node2,seg2,seg2r;
-       score_t segment_pref,segment_score,cumulative_score;
-       int i;
+       Result *temp;
 
-       node2=OtherNode(segmentp,node1); /* need this here because we use node2 at the end of the loop */
+       temp=InsertResult(results2,result->node,result->segment);
+       temp->score=result->score;
 
-       /* must be a normal segment */
-       if(!IsNormalSegment(segmentp))
-          goto endloop;
-
-       /* must obey one-way restrictions (unless profile allows) */
-       if(profile->oneway && IsOnewayTo(segmentp,node1))
-         {
-          if(profile->allow!=Transports_Bicycle)
-             goto endloop;
-
-          wayp=LookupWay(ways,segmentp->way,1);
-
-          if(!(wayp->type&Highway_CycleBothWays))
-             goto endloop;
-         }
-
-       if(IsFakeNode(node1) || IsFakeNode(node2))
-         {
-          seg2 =IndexFakeSegment(segmentp);
-          seg2r=IndexRealSegment(seg2);
-         }
+       if(!result2)
+          finish_result2=temp;
        else
-         {
-          seg2 =IndexSegment(segments,segmentp);
-          seg2r=seg2;
-         }
+          result2->prev=temp;
 
-       /* must not perform U-turn (unless profile allows) */
-       if(profile->turns && (seg1==seg2 || seg1==seg2r || seg1r==seg2 || (seg1r==seg2r && IsFakeUTurn(seg1,seg2))))
-          goto endloop;
-
-       /* must obey turn relations */
-       if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,node1,seg1r,seg2r,profile->allow))
-          goto endloop;
-
-       wayp=LookupWay(ways,segmentp->way,1);
-
-       /* mode of transport must be allowed on the highway */
-       if(!(wayp->allow&profile->allow))
-          goto endloop;
-
-       /* must obey weight restriction (if exists) */
-       if(wayp->weight && wayp->weight<profile->weight)
-          goto endloop;
-
-       /* must obey height/width/length restriction (if exists) */
-       if((wayp->height && wayp->height<profile->height) ||
-          (wayp->width  && wayp->width <profile->width ) ||
-          (wayp->length && wayp->length<profile->length))
-          goto endloop;
-
-       segment_pref=profile->highway[HIGHWAY(wayp->type)];
-
-       /* highway preferences must allow this highway */
-       if(segment_pref==0)
-          goto endloop;
-
-       for(i=1;i<Property_Count;i++)
-          if(ways->file.props & PROPERTIES(i))
-            {
-             if(wayp->props & PROPERTIES(i))
-                segment_pref*=profile->props_yes[i];
-             else
-                segment_pref*=profile->props_no[i];
-            }
-
-       /* profile preferences must allow this highway */
-       if(segment_pref==0)
-          goto endloop;
-
-       if(!IsFakeNode(node2))
-          node2p=LookupNode(nodes,node2,2);
-
-       /* mode of transport must be allowed through node2 unless it is the final node */
-       if(node2p && node2!=finish_node && !(node2p->allow&profile->allow))
-          goto endloop;
-
-       /* calculate the score for the segment and cumulative */
-       if(option_quickest==0)
-          segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
-       else
-          segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
-
-       /* prefer not to follow two fake segments when one would do (special case) */
-       if(IsFakeSegment(seg2))
-          segment_score*=1.01;
-
-       cumulative_score=result1->score+segment_score;
-
-       /* score must be better than current best score */
-       if(cumulative_score>=finish_score)
-          goto endloop;
-
-       /* find whether the node/segment combination already exists */
-       result2=FindResult(results,node2,seg2);
-
-       if(!result2) /* New end node/segment combination */
-         {
-          result2=InsertResult(results,node2,seg2);
-          result2->prev=result1;
-          result2->score=cumulative_score;
-         }
-       else if(cumulative_score<result2->score) /* New score for end node/segment combination is better */
-         {
-          result2->prev=result1;
-          result2->score=cumulative_score;
-         }
-       else
-          goto endloop;
-
-       if(node2==finish_node)
-         {
-          if(cumulative_score<finish_score)
-            {
-             finish_score=cumulative_score;
-             finish_result=result2;
-
-             results->finish_node=node2;
-             results->last_segment=seg2;
-            }
-         }
-       else
-          InsertInQueue(queue,result2,result2->score);
-
-      endloop:
-
-       if(IsFakeNode(node1))
-          segmentp=NextFakeSegment(segmentp,node1);
-       else if(IsFakeNode(node2))
-          segmentp=NULL; /* cannot call NextSegment() with a fake segment */
-       else
-         {
-          segmentp=NextSegment(segments,segmentp,node1);
-
-          if(!segmentp && IsFakeNode(finish_node))
-             segmentp=ExtraFakeSegment(node1,finish_node);
-         }
+       result2=temp;
+       result=result->prev;
       }
+
+    FixForwardRoute(results2,finish_result2);
+
+    FreeResultsList(results);
+
+    results=results2;
    }
-
- FreeQueueList(queue);
-
- FixForwardRoute(results,finish_result);
-
-#if DEBUG
- Result *r=FindResult(results,results->start_node,results->prev_segment);
-
- while(r)
-   {
-    printf("    node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
-
-    r=r->next;
-   }
-#endif
-
-#if !DEBUG
- if(!option_quiet)
-    printf_last("Extended Start Route: Nodes checked = %d",results->number);
-#endif
 
  return(results);
 }
