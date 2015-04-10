@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2013 Andrew M. Bishop
+ This file Copyright 2010-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -48,15 +48,15 @@ char *translate_raw_highway[Highway_Count]={"","motorway","trunk road","primary 
 char *translate_xml_route_shortest="Shortest";
 char *translate_xml_route_quickest="Quickest";
 
-char *translate_html_waypoint  ="<span class='w'>Waypoint</span>"; /* when reading XML translations file span is added */
+char *translate_html_waypoint  ="<span class='w'>Waypoint</span>"; /* span tag added when reading XML translations file */
 char *translate_html_junction  ="Junction";
 char *translate_html_roundabout="Roundabout";
 
 char *translate_html_title     ="%s Route";
-char *translate_html_start[2]  ={"Start" ,"At %s, head %s"};
-char *translate_html_node[2]   ={"At"    ,"%s, go %s heading %s"};
-char *translate_html_rbnode[2] ={"Leave" ,"%s, take the %s exit heading %s"};
-char *translate_html_segment[2]={"Follow","%s for %.3f km, %.1f min"};
+char *translate_html_start[2]  ={"Start" ,"At %s, head <span class='b'>%s</span>"}; /* span tag added when reading XML translations file */
+char *translate_html_node[2]   ={"At"    ,"%s, go <span class='t'>%s</span> heading <span class='b'>%s</span>"}; /* span tag added when reading XML translations file */
+char *translate_html_rbnode[2] ={"Leave" ,"%s, take the <span class='b'>%s</span> exit heading <span class='b'>%s</span>"}; /* span tag added when reading XML translations file */
+char *translate_html_segment[2]={"Follow","<span class='h'>%s</span> for <span class='d'>%.3f km, %.1f min</span>"}; /* span tag added when reading XML translations file */
 char *translate_html_stop[2]   ={"Stop"  ,"At %s"};
 char *translate_html_total[2]  ={"Total" ,"%.1f km, %.0f minutes"};
 
