@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2010-2014 Andrew M. Bishop
+# This file Copyright 2010-2015 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -125,7 +125,7 @@ $(XMLDIR)/routino-translations.xml: $(WEBTRANSDIR)/translations-head.xml $(WEBTR
 all-exe:
 	cd $(SRCDIR) && $(MAKE) $(EXE_FILES)
 
-all-xml:
+all-xml: $(XMLDIR)/routino-translations.xml
 	cd $(XMLDIR) && $(MAKE) all
 
 ########
