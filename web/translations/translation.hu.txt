@@ -1,0 +1,276 @@
+#
+# Hungarian language translation phrases
+#
+
+#
+# Router output XML definition
+#
+
+%%copyright_creator_string%%	Készítő
+%%copyright_source_string%%	Forrás
+%%copyright_source_text%%	Openstreetmap adatok alapján http://www.openstreetmap.org/
+%%copyright_license_string%%	Liszenc
+
+%%turn_-4%%	Nagyon élesen balra
+%%turn_-3%%	Élesen balra
+%%turn_-2%%	Balra
+%%turn_-1%%	Balra tarts
+%%turn_0%%	Egyenesen
+%%turn_1%%	Jobbra tarts
+%%turn_2%%	Jobbra
+%%turn_3%%	Élesen jobbra
+%%turn_4%%	Nagyon élesen jobbra
+
+%%heading_-4%%	dél
+%%heading_-3%%	délnyugat
+%%heading_-2%%	nyugat
+%%heading_-1%%	északnyugat
+%%heading_0%%	észak
+%%heading_1%%	északkelet
+%%heading_2%%	kelet
+%%heading_3%%	délkelet
+%%heading_4%%	dél
+
+%%ordinal_1%%	első
+%%ordinal_2%%	második
+%%ordinal_3%%	harmadik
+%%ordinal_4%%	negyedik
+%%ordinal_5%%	ötödik
+%%ordinal_6%%	hatodik
+%%ordinal_7%%	hetedik
+%%ordinal_8%%	nyolcadik
+%%ordinal_9%%	kilencedik
+%%ordinal_10%%	tizedik
+
+%%highway_motorway%%	autópálya
+%%highway_trunk%%	autóút
+%%highway_primary%%	főút
+%%highway_secondary%%	összekötőút
+%%highway_tertiary%%	bekötőút
+%%highway_unclassified%%	egyéb közút
+%%highway_residential%%	lakóút
+%%highway_service%%	szervízút
+%%highway_track%%	földút
+%%highway_cycleway%%	kerékpárút
+%%highway_path%%	ösvény
+%%highway_steps%%	lépcső
+%%highway_ferry%%	komp
+
+%%route_shortest%%	Legrövidebb
+%%route_quickest%%	Leggyorsabb
+
+%%output-html_waypoint_waypoint%%	Útpont
+%%output-html_waypoint_junction%%	Kereszteződés
+%%output-html_waypoint_roundabout%%	Körforgalom
+%%output-html_title%%	%s útvonal
+%%output-html_start_string%%	Indulás
+%%output-html_start_text%%	%s, %s felé
+%%output-html_node_string%%	Itt
+%%output-html_node_text%%	%s, menj %s %s felé
+%%output-html_rbnode_string%%	Kijárat
+%%output-html_rbnode_text%%	%s, %s kijárat %s felé
+%%output-html_segment_string%%	Erre
+%%output-html_segment_text%%	%s, %.3f km, %.1f perc
+%%output-html_stop_string%%	Cél
+%%output-html_total_string%%	Összesen
+%%output-html_total_text%%	%.1f km, %.0f perc
+
+%%output-gpx_waypoint_start%%	Indulás
+%%output-gpx_waypoint_trip%%	Utazás
+
+%%output-gpx_desc%%	%s útvonal a kezdő és utolsó pont között
+%%output-gpx_final%%	Az egész út %.1f km, %.0f perc
+
+#
+# Router (and some shared) translations
+#
+
+@@LANGUAGE@@	Magyar
+@@LANGUAGE-WEBPAGE@@	Magyar webpage
+
+@@ROUTER-TITLE@@	Openstreetmap alapú útvonaltervező
+
+@@OPTION-TAB@@	Beállítások
+@@OPTION-TAB-HELP@@	Útvonaltervező beállítások
+
+@@RESULTS-TAB@@	Eredmény
+@@RESULTS-TAB-HELP@@	Útvonaltervező eredmények
+
+@@DATA-TAB@@	Adatok
+@@DATA-TAB-HELP@@	Adatbázis információk
+
+@@ROUTINO-ROUTER@@	Routino openstreetmap útvonaltervező
+@@ROUTINO-WEBSITE@@	Routino weboldal
+@@DOCUMENTATION@@	Dokumentáció
+
+@@LANGUAGE-BOX@@	Nyelv
+@@WAYPOINTS-BOX@@	Útpontok
+@@TRANSPORT-TYPE-BOX@@	Közlekedési mód
+@@HIGHWAY-PREFERENCES-BOX@@	Út preferencia
+@@SPEED-LIMITS-BOX@@	Sebességkorlát
+@@PROPERTY-PREFERENCES-BOX@@	Út tulajdonságok
+@@OTHER-RESTRICTIONS-BOX@@	Kizáró tényezők
+@@LINKS-BOX@@	Linkek
+@@HELP-BOX@@	Súgó
+
+@@STATUS-BOX@@	Állapot
+@@SHORTEST-ROUTE@@	Legrövidebb út
+@@QUICKEST-ROUTE@@	Leggyorsabb út
+
+@@STATISTICS-BOX@@	Routino statisztika
+@@VISUALISER-BOX@@	Routino vizualizáció
+
+@@WAYPOINT-SEARCH@@	Hely keresése
+@@WAYPOINT-GET@@	Aktuális helyzet
+@@WAYPOINT-CENTRE1@@	Legyen ez a pont a térkép közepe
+@@WAYPOINT-UP@@	Mozgasd feljebb ezt a pontot
+@@WAYPOINT-ADD@@	Új pont ezután a pont után
+@@WAYPOINT-COORDS@@	Hely koordinátája
+@@WAYPOINT-CENTRE2@@	Ez legyen a térkép középpontja
+@@WAYPOINT-DOWN@@	Mozgasd ezt a pontot lejjebb
+@@WAYPOINT-REMOVE@@	Pont törlése
+@@WAYPOINT-REVERSE@@	Útirány megfordítása
+@@WAYPOINT-REVERSE-BUTTON@@	Ellenkező irány
+@@WAYPOINT-LOOP@@	Új pont létrehozása a kezdőpontban
+@@WAYPOINT-LOOP-BUTTON@@	Kör bezárása
+
+@@TRANSPORT-FOOT@@	Gyalog
+@@TRANSPORT-HORSE@@	Lovas
+@@TRANSPORT-WHEELCHAIR@@	Kerekesszékes
+@@TRANSPORT-BICYCLE@@	Kerékpáros
+@@TRANSPORT-MOPED@@	Robogós
+@@TRANSPORT-MOTORCYCLE@@	Motoros
+@@TRANSPORT-MOTORCAR@@	Autós
+@@TRANSPORT-GOODS@@	Kisteherautós
+@@TRANSPORT-HGV@@	Kamionos
+@@TRANSPORT-PSV@@	Buszos
+
+@@HIGHWAY-MOTORWAY@@	Autópálya
+@@HIGHWAY-TRUNK@@	Autóút
+@@HIGHWAY-PRIMARY@@	Főút
+@@HIGHWAY-SECONDARY@@	Összekötőút
+@@HIGHWAY-TERTIARY@@	Bekötőút
+@@HIGHWAY-UNCLASSIFIED@@	Egyéb közút
+@@HIGHWAY-RESIDENTIAL@@	Lakóövezeti út
+@@HIGHWAY-SERVICE@@	Szervízút
+@@HIGHWAY-TRACK@@	Földút
+@@HIGHWAY-CYCLEWAY@@	Kerékpárút
+@@HIGHWAY-PATH@@	Ösvény
+@@HIGHWAY-STEPS@@	Lépcső
+@@HIGHWAY-FERRY@@	Komp
+
+@@PROPERTY-PAVED@@	Burkolt
+@@PROPERTY-MULTILANE@@	Többsávos
+@@PROPERTY-BRIDGE@@	Híd
+@@PROPERTY-TUNNEL@@	Alagút
+@@PROPERTY-WALKINGROUTE@@	Gyalogút
+@@PROPERTY-BICYCLEROUTE@@	Kijelölt kerékpárút
+
+@@RESTRICT-ONEWAY@@	Egyirányúsítás mellőzése
+@@RESTRICT-TURNS@@	Kanyarodási tilalmak mellőzése
+@@RESTRICT-WEIGHT@@	Súly
+@@RESTRICT-HEIGHT@@	Magasság
+@@RESTRICT-WIDTH@@	Szélesség
+@@RESTRICT-LENGTH@@	Hosszúság
+
+@@FIND-SHORTEST-ROUTE@@	A legrövidebb út keresése
+@@FIND-QUICKEST-ROUTE@@	A leggyorsabb út keresése
+
+@@MAP-VIEW-LINK@@	Link erre a nézetre
+@@EDIT-OSM-DATA@@	OSM adatok szerkesztése
+
+@@ROUTER-NOT-RUN@@	Az útvonaltervező nem fut
+@@ROUTER-RUNNING@@	Az útvonaltervező számol ...
+@@ROUTER-COMPLETED@@	Az útvonaltervezés kész
+@@ROUTER-ERROR@@	Útvonaltervezési hiba
+@@ROUTER-FAILED@@	Az útvonaltervezőt nem sikerült futtatni
+@@VIEW-DETAILS@@	Részletek
+
+@@NO-INFORMATION@@	Nincs információ
+@@HTML-ROUTE@@	HTML irányok
+@@GPX-TRACK-ROUTE@@	GPX file
+@@FULL-TEXT-ROUTE@@	Teljes szöveges file
+@@TEXT-ROUTE@@	Szöveges file
+@@OPEN-POPUP@@	Új ablak
+
+@@DISPLAY-STATISTICS@@	Statisztika mutatása
+
+@@ROUTER@@	Útvonaltervező
+@@TILES@@	Térképszeletek
+
+#
+# Visualiser specific translations
+#
+
+@@VISUALISER-TITLE@@	Útvonaltervező adatok vizuálisan
+
+@@INSTRUCTIONS-BOX@@	Útmutatók
+@@ROUTER-BOX@@	Routino Útvonaltervező
+
+@@NO-DATA-DISPLAYED@@	Nincs megjelenítendő adat
+
+@@VISUALISER-FAILED@@	Sikertelen az adatok betöltése
+@@VISUALISER-NUM-JUNCTIONS@@	Feldolgozva # kereszteződés
+@@VISUALISER-NUM-SUPER@@	Feldolgozva # szuper-pont/szegmens
+@@VISUALISER-NUM-WAYTYPE@@	Feldolgozva # út típus szegmens
+@@VISUALISER-NUM-SEGMENTS@@	Feldolgozva # szegmens
+@@VISUALISER-NUM-NODES@@	Feldolgozva # pont
+@@VISUALISER-NUM-TURNS@@	Feldolgozva # kanyarodási korlátozás
+
+@@JUNCTIONS-BUTTON@@	Kereszteződések mutatása
+@@JUNCTIONS-3@@	három út talákozása
+@@JUNCTIONS-4@@	négy út találkozása
+@@JUNCTIONS-5@@	öt út találkozása
+@@JUNCTIONS-6@@	hat út találkozása
+@@JUNCTIONS-MORE@@	hét, vagy több út találkozása
+
+@@SUPER-BUTTON@@	Szuper szegmens mutatása
+
+@@WAYTYPE-BUTTON@@	Út típus szakaszok megjelenítese
+
+@@WAYTYPE-ONEWAY@@	Egyirányú szakaszok
+@@WAYTYPE-ROUNDABOUT@@	Körforgalmi szakaszok
+
+@@HIGHWAY-BUTTON@@	Út szakaszok megjelenítése
+
+@@TURNS-BUTTON@@	Kanyarodási korlátozások
+
+@@SPEED-BUTTON@@	Sebességhatárok
+
+@@LIMIT-CHANGE@@	Korlátozás változása
+@@LIMIT-NONE@@	Nincs korlátozás
+@@SPEED-LIMIT-80@@	80 km/óra sebességkorlátozás
+
+@@WEIGHT-BUTTON@@	Súlykorlátozások
+
+@@WEIGHT-LIMIT-8@@	8 tonnás súlykorlátozás
+
+@@HEIGHT-BUTTON@@	Magasságkorlátozások
+
+@@HEIGHT-LIMIT-4@@	4 méter magasságkorlátozás
+
+@@WIDTH-BUTTON@@	Szélességkorlátozások
+
+@@WIDTH-LIMIT-3@@	3 méter szélességkorlátozás
+
+@@LENGTH-BUTTON@@	Hosszúságkorlátozások
+
+@@LENGTH-LIMIT-9@@	9 méter hosszúságkorlátozás
+
+@@PROPERTY-BUTTON@@	Út tulajdonságok megjelenítése
+
+@@ERROR-LOG-BUTTON@@	Hiba logok megmutatása
+$$ERROR-LOG-INFO$$
+Lehetséges hibák fordultak elő az adatok feldolgozása során
+$$ERROR-LOG-INFO$$
+
+@@CLEAR-DATA-BUTTON@@	Adatok törlése
+
+#
+# Multi-line descriptive translations (router)
+#
+
+#
+# Multi-line descriptive translations (visualiser)
+#
+
