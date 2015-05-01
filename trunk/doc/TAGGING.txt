@@ -532,7 +532,7 @@ Routes
 - - -
 
    The route tag can be used to determine whether a relation is part of a
-   walking of bicycle route so that the footroute and bicycleroute
+   walking or bicycle route so that the footroute or bicycleroute
    properties can be applied to the highways that make up that relation.
 
    The tag transformations that are applied for route relations are
@@ -553,4 +553,4 @@ Turn Restrictions
 
 --------
 
-Copyright 2008-2014 Andrew M. Bishop.
+Copyright 2008-2015 Andrew M. Bishop.
