@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2013 Andrew M. Bishop
+// This file Copyright 2008-2015 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -90,16 +90,11 @@ DIV.header
  clear: left;
 }
 
-DIV.header HR  /* Horizontal rule, only visible without CSS */
-{
- display: none;
-}
-
 DIV.header H1
 {
  /* fonts and text styles */
 
- font-size:   xx-large;
+ font-size: 150%;
 
  font-weight: bold;
 
@@ -123,7 +118,7 @@ DIV.footer
 {
  /* fonts and text styles */
 
- font-size: small;
+ font-size: 80%;
 
  /* margins, borders, padding and sizes */
 
@@ -146,11 +141,6 @@ DIV.footer
  clear: left;
 }
 
-DIV.footer HR  /* Horizontal rule, only visible without CSS */
-{
- display: none;
-}
-
 
 /*-----------------------------------*/
 /* Content HTML formatting           */
@@ -169,7 +159,7 @@ DIV.content H1
 {
  /* fonts and text styles */
 
- font-size:   xx-large;
+ font-size:   150%;
  font-weight: bold;
 
  /* margins, borders, padding and sizes */
@@ -184,7 +174,7 @@ DIV.content H2
 {
  /* fonts and text styles */
 
- font-size:   x-large;
+ font-size:   140%;
  font-weight: bold;
 
  /* margins, borders, padding and sizes */
@@ -199,7 +189,7 @@ DIV.content H3
 {
  /* fonts and text styles */
 
- font-size:   large;
+ font-size:   120%;
  font-weight: bold;
 
  /* margins, borders, padding and sizes */
@@ -214,7 +204,7 @@ DIV.content H4
 {
  /* fonts and text styles */
 
- font-size:   medium;
+ font-size:   110%;
  font-weight: bold;
 
  /* margins, borders, padding and sizes */
@@ -420,4 +410,26 @@ DIV.content IMG
  /* margins, borders, padding and sizes */
 
  border: 0px;
+}
+
+
+/*------------------------------------------------*/
+/*                                                */
+/* Special case layout for narrow screens         */
+/*                                                */
+/*------------------------------------------------*/
+
+@media screen and (max-width:640px) {
+
+  /*----------------------------------*/
+  /* Body HTML formatting             */
+  /*----------------------------------*/
+
+  BODY
+  {
+   /* fonts and text styles */
+
+   font-size: small;
+  }
+
 }
