@@ -11,7 +11,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -840,12 +840,13 @@ transport permissions on the highway.
 
 <p>
 A highway that is tagged as <em>motorroad</em> with a value of <em>yes</em> will
-deny access to foot, horse, wheelchair, bicycle and moped transport.
+deny access to <em>foot</em>, <em>horse</em>, <em>wheelchair</em>,
+<em>bicycle</em> and <em>moped</em> transport.
 
 <p>
 A highway that is tagged with <em>footway</em> or <em>sidewalk</em> and one of a
-set of popular values will allow foot and wheelchair access even if the road
-type would not normally do so.
+set of popular values will allow <em>foot</em> and <em>wheelchair</em> access
+even if the road type would not normally do so.
 
 <p>
 A highway that is tagged as <em>cycleway</em> with one of several values will
@@ -885,8 +886,8 @@ paved if this is set to a true value.
 
 <p>
 
-The <em>lanes</em> tag is passed through to be used to set
-the <em>multilane</em> highway property.
+The <em>lanes</em> tag is passed through to be used to set the
+<em>multilane</em> highway property.
 
 <p>
 
@@ -903,8 +904,8 @@ the output without modification.
 
 <h4 id="H_1_3_2_7">Roundabouts</h4>
 
-If a highway is tagged as <em>junction=roundabout</em> then
-a <em>roundabout=yes</em> tag created on the output.
+If a highway is tagged as <em>junction=roundabout</em> then a
+<em>roundabout=yes</em> tag created on the output.
 
 
 <h4 id="H_1_3_2_8" title="Names and Refs">Highway Names and References</h4>
@@ -928,8 +929,8 @@ The <em>type</em> tag is passed through without change.
 <h4 id="H_1_3_3_1">Routes</h4>
 
 The <em>route</em> tag can be used to determine whether a relation is part of a
-walking of bicycle route so that the footroute and bicycleroute properties can
-be applied to the highways that make up that relation.
+walking or bicycle route so that the <em>footroute</em> or <em>bicycleroute</em>
+properties can be applied to the highways that make up that relation.
 
 <p>
 
