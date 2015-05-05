@@ -245,6 +245,8 @@
 
 @@TURNS-BUTTON@@	Zeige Abbiegebeschränkungen
 
+@@SPEED-BUTTON@@	Zeige Geschwindigkeitsbeschränkungen
+
 @@SPEED-LIMIT-80@@	80 km/Stunde Geschwindigkeitsbegrenzung
 
 @@WEIGHT-BUTTON@@	Gewichtswegbeschränkungen anzeigen
