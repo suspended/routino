@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2009-2014 Andrew M. Bishop
+ This file Copyright 2009-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -52,9 +52,13 @@ extern int option_filesort_threads;
 /*+ A data type for holding data for a thread. +*/
 typedef struct _thread_data
  {
+#if defined(USE_PTHREADS) && USE_PTHREADS
+
   pthread_t thread;             /*+ The thread identifier. +*/
 
   int       running;            /*+ A flag indicating the current state of the thread. +*/
+
+#endif
 
   void     *data;               /*+ The main data array. +*/
   void    **datap;              /*+ An array of pointers to the data objects. +*/
@@ -142,12 +146,10 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
  else
     nitems=option_filesort_ramsize/(option_filesort_threads*(itemsize+sizeof(void*)));
 
- threads=(thread_data*)malloc(option_filesort_threads*sizeof(thread_data));
+ threads=(thread_data*)calloc(option_filesort_threads,sizeof(thread_data));
 
  for(i=0;i<option_filesort_threads;i++)
    {
-    threads[i].running=0;
-
     threads[i].data=malloc(nitems*itemsize);
     threads[i].datap=malloc(nitems*sizeof(void*));
 
@@ -522,12 +524,10 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
  else
     datasize=option_filesort_ramsize/option_filesort_threads;
 
- threads=(thread_data*)malloc(option_filesort_threads*sizeof(thread_data));
+ threads=(thread_data*)calloc(option_filesort_threads,sizeof(thread_data));
 
  for(i=0;i<option_filesort_threads;i++)
    {
-    threads[i].running=0;
-
     threads[i].data=malloc(datasize);
     threads[i].datap=NULL;
 
