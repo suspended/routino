@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -557,7 +557,7 @@ static void fprintf_elapsed_time(FILE *file,struct timeval *start)
 
 static void fprintf_max_memory(FILE *file,size_t max_alloc,size_t max_mmap)
 {
- fprintf(file,"[%3d, %3d MB] ",max_alloc/(1024*1024),max_mmap/(1024*1024));
+ fprintf(file,"[%3zu, %3zu MB] ",max_alloc/(1024*1024),max_mmap/(1024*1024));
 }
 
 

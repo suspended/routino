@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2013-2014 Andrew M. Bishop
+ This file Copyright 2013-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -145,9 +145,9 @@ int main(int argc,char** argv)
     printf("\n");
     stat(errorlogs_filename,&buf);
 #if !SLIM
-    printf("Total strings=%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)(OSMErrorLogs->strings-(char*)OSMErrorLogs->data));
+    printf("Total strings=%9zu Bytes\n",(size_t)buf.st_size-(OSMErrorLogs->strings-(char*)OSMErrorLogs->data));
 #else
-    printf("Total strings=%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)OSMErrorLogs->stringsoffset);
+    printf("Total strings=%9zu Bytes\n",(size_t)buf.st_size-(size_t)OSMErrorLogs->stringsoffset);
 #endif
    }
 

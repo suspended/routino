@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -253,7 +253,7 @@ int main(int argc,char** argv)
     printf("-----\n");
     printf("\n");
 
-    printf("sizeof(Node) =%9lu Bytes\n",(unsigned long)sizeof(Node));
+    printf("sizeof(Node) =%9zu Bytes\n",sizeof(Node));
     printf("Number       =%9"Pindex_t"\n",OSMNodes->file.number);
     printf("Number(super)=%9"Pindex_t"\n",OSMNodes->file.snumber);
     printf("\n");
@@ -272,7 +272,7 @@ int main(int argc,char** argv)
     printf("--------\n");
     printf("\n");
 
-    printf("sizeof(Segment)=%9lu Bytes\n",(unsigned long)sizeof(Segment));
+    printf("sizeof(Segment)=%9zu Bytes\n",sizeof(Segment));
     printf("Number(total)  =%9"Pindex_t"\n",OSMSegments->file.number);
     printf("Number(super)  =%9"Pindex_t"\n",OSMSegments->file.snumber);
     printf("Number(normal) =%9"Pindex_t"\n",OSMSegments->file.nnumber);
@@ -284,12 +284,12 @@ int main(int argc,char** argv)
     printf("----\n");
     printf("\n");
 
-    printf("sizeof(Way)=%9lu Bytes\n",(unsigned long)sizeof(Way));
+    printf("sizeof(Way)=%9zu Bytes\n",sizeof(Way));
     printf("Number     =%9"Pindex_t"\n",OSMWays->file.number);
     printf("\n");
 
     stat(ways_filename,&buf);
-    printf("Total names=%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)sizeof(Ways)-(unsigned long)OSMWays->file.number*(unsigned long)sizeof(Way));
+    printf("Total names=%9zu Bytes\n",(size_t)buf.st_size-sizeof(Ways)-OSMWays->file.number*sizeof(Way));
     printf("\n");
 
     printf("Included highways  : %s\n",HighwaysNameList(OSMWays->file.highways));
@@ -303,7 +303,7 @@ int main(int argc,char** argv)
     printf("---------\n");
     printf("\n");
 
-    printf("sizeof(TurnRelation)=%9lu Bytes\n",(unsigned long)sizeof(TurnRelation));
+    printf("sizeof(TurnRelation)=%9zu Bytes\n",sizeof(TurnRelation));
     printf("Number              =%9"Pindex_t"\n",OSMRelations->file.trnumber);
 
     if(errorlogs_filename)
@@ -320,9 +320,9 @@ int main(int argc,char** argv)
        printf("\n");
        stat(errorlogs_filename,&buf);
 #if !SLIM
-       printf("Total strings=%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)(OSMErrorLogs->strings-(char*)OSMErrorLogs->data));
+       printf("Total strings=%9zu Bytes\n",(size_t)buf.st_size-(OSMErrorLogs->strings-(char*)OSMErrorLogs->data));
 #else
-       printf("Total strings=%9lu Bytes\n",(unsigned long)buf.st_size-(unsigned long)OSMErrorLogs->stringsoffset);
+       printf("Total strings=%9zu Bytes\n",(size_t)buf.st_size-(size_t)OSMErrorLogs->stringsoffset);
 #endif
       }
    }
@@ -796,10 +796,10 @@ static void print_node_osm(Nodes *nodes,index_t item)
  GetLatLong(nodes,item,nodep,&latitude,&longitude);
 
  if(nodep->allow==Transports_ALL && nodep->flags==0)
-    printf("  <node id='%lu' lat='%.7f' lon='%.7f' version='1' />\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+    printf("  <node id='%"Pindex_t"' lat='%.7f' lon='%.7f' version='1' />\n",item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
  else
    {
-    printf("  <node id='%lu' lat='%.7f' lon='%.7f' version='1'>\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+    printf("  <node id='%"Pindex_t"' lat='%.7f' lon='%.7f' version='1'>\n",item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
 
     if(nodep->flags & NODE_SUPER)
        printf("    <tag k='routino:super' v='yes' />\n");
@@ -839,17 +839,17 @@ static void print_segment_osm(Segments *segments,index_t item,Ways *ways)
  char *name=WayName(ways,wayp);
  int i;
 
- printf("  <way id='%lu' version='1'>\n",(unsigned long)item+1);
+ printf("  <way id='%"Pindex_t"' version='1'>\n",item+1);
 
  if(IsOnewayTo(segmentp,segmentp->node1))
    {
-    printf("    <nd ref='%lu' />\n",(unsigned long)segmentp->node2+1);
-    printf("    <nd ref='%lu' />\n",(unsigned long)segmentp->node1+1);
+    printf("    <nd ref='%"Pindex_t"' />\n",segmentp->node2+1);
+    printf("    <nd ref='%"Pindex_t"' />\n",segmentp->node1+1);
    }
  else
    {
-    printf("    <nd ref='%lu' />\n",(unsigned long)segmentp->node1+1);
-    printf("    <nd ref='%lu' />\n",(unsigned long)segmentp->node2+1);
+    printf("    <nd ref='%"Pindex_t"' />\n",segmentp->node1+1);
+    printf("    <nd ref='%"Pindex_t"' />\n",segmentp->node2+1);
    }
 
  if(IsSuperSegment(segmentp))
@@ -929,16 +929,16 @@ static void print_turn_relation_osm(Relations *relations,index_t item,Segments *
  else
     restriction="no_straight_on";
 
- printf("  <relation id='%lu' version='1'>\n",(unsigned long)item+1);
+ printf("  <relation id='%"Pindex_t"' version='1'>\n",item+1);
  printf("    <tag k='type' v='restriction' />\n");
  printf("    <tag k='restriction' v='%s'/>\n",restriction);
 
  if(relationp->except)
     printf("    <tag k='except' v='%s' />\n",AllowedNameList(relationp->except));
 
- printf("    <member type='way' ref='%lu' role='from' />\n",(unsigned long)relationp->from+1);
- printf("    <member type='node' ref='%lu' role='via' />\n",(unsigned long)relationp->via+1);
- printf("    <member type='way' ref='%lu' role='to' />\n",(unsigned long)relationp->to+1);
+ printf("    <member type='way' ref='%"Pindex_t"' role='from' />\n",relationp->from+1);
+ printf("    <member type='node' ref='%"Pindex_t"' role='via' />\n",relationp->via+1);
+ printf("    <member type='way' ref='%"Pindex_t"' role='to' />\n",relationp->to+1);
 
  printf("  </relation>\n");
 }
@@ -971,10 +971,10 @@ static void print_node_visualiser(Nodes *nodes,index_t item)
  GetLatLong(nodes,item,nodep,&latitude,&longitude);
 
  if(nodep->allow==Transports_ALL && nodep->flags==0)
-    printf("&lt;routino:node id='%lu' lat='%.7f' lon='%.7f' /&gt;\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+    printf("&lt;routino:node id='%"Pindex_t"' lat='%.7f' lon='%.7f' /&gt;\n",item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
  else
    {
-    printf("&lt;routino:node id='%lu' lat='%.7f' lon='%.7f'&gt;\n",(unsigned long)item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
+    printf("&lt;routino:node id='%"Pindex_t"' lat='%.7f' lon='%.7f'&gt;\n",item+1,radians_to_degrees(latitude),radians_to_degrees(longitude));
 
     if(nodep->flags & NODE_SUPER)
        printf("&nbsp;&nbsp;&nbsp;&lt;tag k='routino:super' v='yes' /&gt;\n");
@@ -1014,17 +1014,17 @@ static void print_segment_visualiser(Segments *segments,index_t item,Ways *ways)
  char *name=WayName(ways,wayp);
  int i;
 
- printf("&lt;routino:way id='%lu'&gt;\n",(unsigned long)item+1);
+ printf("&lt;routino:way id='%"Pindex_t"'&gt;\n",item+1);
 
  if(IsOnewayTo(segmentp,segmentp->node1))
    {
-    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%lu' /&gt;\n",(unsigned long)segmentp->node2+1);
-    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%lu' /&gt;\n",(unsigned long)segmentp->node1+1);
+    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%"Pindex_t"' /&gt;\n",segmentp->node2+1);
+    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%"Pindex_t"' /&gt;\n",segmentp->node1+1);
    }
  else
    {
-    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%lu' /&gt;\n",(unsigned long)segmentp->node1+1);
-    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%lu' /&gt;\n",(unsigned long)segmentp->node2+1);
+    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%"Pindex_t"' /&gt;\n",segmentp->node1+1);
+    printf("&nbsp;&nbsp;&nbsp;&lt;nd ref='%"Pindex_t"' /&gt;\n",segmentp->node2+1);
    }
 
  if(IsSuperSegment(segmentp))
@@ -1104,16 +1104,16 @@ static void print_turn_relation_visualiser(Relations *relations,index_t item,Seg
  else
     restriction="no_straight_on";
 
- printf("&lt;routino:relation id='%lu'&gt;\n",(unsigned long)item+1);
+ printf("&lt;routino:relation id='%"Pindex_t"'&gt;\n",item+1);
  printf("&nbsp;&nbsp;&nbsp;&lt;tag k='type' v='restriction' /&gt;\n");
  printf("&nbsp;&nbsp;&nbsp;&lt;tag k='restriction' v='%s'/&gt;\n",restriction);
 
  if(relationp->except)
     printf("&nbsp;&nbsp;&nbsp;&lt;tag k='except' v='%s' /&gt;\n",AllowedNameList(relationp->except));
 
- printf("&nbsp;&nbsp;&nbsp;&lt;member type='way' ref='%lu' role='from' /&gt;\n",(unsigned long)relationp->from+1);
- printf("&nbsp;&nbsp;&nbsp;&lt;member type='node' ref='%lu' role='via' /&gt;\n",(unsigned long)relationp->via+1);
- printf("&nbsp;&nbsp;&nbsp;&lt;member type='way' ref='%lu' role='to' /&gt;\n",(unsigned long)relationp->to+1);
+ printf("&nbsp;&nbsp;&nbsp;&lt;member type='way' ref='%"Pindex_t"' role='from' /&gt;\n",relationp->from+1);
+ printf("&nbsp;&nbsp;&nbsp;&lt;member type='node' ref='%"Pindex_t"' role='via' /&gt;\n",relationp->via+1);
+ printf("&nbsp;&nbsp;&nbsp;&lt;member type='way' ref='%"Pindex_t"' role='to' /&gt;\n",relationp->to+1);
 
  printf("&lt;/routino:relation&gt;\n");
 }
