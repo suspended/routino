@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ struct mmapinfo
 {
  const char  *filename;         /*+ The name of the file (the index of the list). +*/
        int    fd;               /*+ The file descriptor used when it was opened. +*/
-       void  *address;          /*+ The address the file was mapped to. +*/
+       char  *address;          /*+ The address the file was mapped to. +*/
        size_t length;           /*+ The length of the file. +*/
 };
 
@@ -495,7 +495,7 @@ int ReadFileBuffered(int fd,void *address,size_t length)
       {
        memcpy(address,filebuffers[fd]->buffer+filebuffers[fd]->pointer,filebuffers[fd]->length-filebuffers[fd]->pointer);
 
-       address+=filebuffers[fd]->length-filebuffers[fd]->pointer;
+       address=(char*)address+filebuffers[fd]->length-filebuffers[fd]->pointer;
        length-=filebuffers[fd]->length-filebuffers[fd]->pointer;
 
        filebuffers[fd]->pointer=0;
