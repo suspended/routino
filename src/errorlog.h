@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2013-2014 Andrew M. Bishop
+ This file Copyright 2013-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -67,7 +67,7 @@ typedef struct _ErrorLogs
 
 #if !SLIM
 
- void     *data;                /*+ The memory mapped data in the file. +*/
+ char     *data;                /*+ The memory mapped data in the file. +*/
 
  index_t  *offsets;             /*+ A pointer to the array of offsets in the file. +*/
 

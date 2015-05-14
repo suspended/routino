@@ -60,7 +60,7 @@ typedef struct _thread_data
 
 #endif
 
-  void     *data;               /*+ The main data array. +*/
+  char     *data;               /*+ The main data array. +*/
   void    **datap;              /*+ An array of pointers to the data objects. +*/
   size_t    n;                  /*+ The number of pointers. +*/
 
@@ -126,7 +126,8 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
  int nfiles=0,ndata=0;
  index_t count_out=0,count_in=0,total=0;
  size_t nitems;
- void *data,**datap;
+ char *data;
+ void **datap;
  thread_data *threads;
  size_t item;
  int i,more=1;
@@ -504,7 +505,8 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
  index_t count_out=0,count_in=0,total=0;
  size_t datasize;
  FILESORT_VARINT nextitemsize,largestitemsize=0;
- void *data,**datap;
+ char *data;
+ void **datap;
  thread_data *threads;
  size_t item;
  int i,more=1;
@@ -565,13 +567,13 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
 #endif
 
-    threads[thread].datap=threads[thread].data+datasize;
+    threads[thread].datap=(void**)(threads[thread].data+datasize);
 
     threads[thread].n=0;
 
     /* Read in the data and create pointers */
 
-    while((ramused+FILESORT_VARSIZE+nextitemsize)<=(unsigned)((void*)threads[thread].datap-sizeof(void*)-threads[thread].data))
+    while((ramused+FILESORT_VARSIZE+nextitemsize)<=(size_t)((char*)threads[thread].datap-sizeof(void*)-threads[thread].data))
       {
        FILESORT_VARINT itemsize=nextitemsize;
 
@@ -701,9 +703,9 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
       {
        if(!post_sort_function || post_sort_function(threads[0].datap[item],count_out))
          {
-          FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(threads[0].datap[item]-FILESORT_VARSIZE);
+          FILESORT_VARINT itemsize=*(FILESORT_VARINT*)((char*)threads[0].datap[item]-FILESORT_VARSIZE);
 
-          WriteFileBuffered(fd_out,threads[0].datap[item]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
+          WriteFileBuffered(fd_out,(char*)threads[0].datap[item]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
           count_out++;
          }
       }
@@ -739,7 +741,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
  heap=(int*)malloc((1+nfiles)*sizeof(int));
 
  data=threads[0].data;
- datap=data+datasize-nfiles*sizeof(void*);
+ datap=(void**)(data+datasize-nfiles*sizeof(void*));
 
  /* Fill the heap to start with */
 
@@ -752,7 +754,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
     ReadFileBuffered(fds[i],&itemsize,FILESORT_VARSIZE);
 
-    *(FILESORT_VARINT*)(datap[i]-FILESORT_VARSIZE)=itemsize;
+    *(FILESORT_VARINT*)((char*)datap[i]-FILESORT_VARSIZE)=itemsize;
 
     ReadFileBuffered(fds[i],datap[i],itemsize);
 
@@ -791,9 +793,9 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
 
     if(!post_sort_function || post_sort_function(datap[heap[index]],count_out))
       {
-       itemsize=*(FILESORT_VARINT*)(datap[heap[index]]-FILESORT_VARSIZE);
+       itemsize=*(FILESORT_VARINT*)((char*)datap[heap[index]]-FILESORT_VARSIZE);
 
-       WriteFileBuffered(fd_out,datap[heap[index]]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
+       WriteFileBuffered(fd_out,(char*)datap[heap[index]]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
        count_out++;
       }
 
@@ -804,7 +806,7 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
       }
     else
       {
-       *(FILESORT_VARINT*)(datap[heap[index]]-FILESORT_VARSIZE)=itemsize;
+       *(FILESORT_VARINT*)((char*)datap[heap[index]]-FILESORT_VARSIZE)=itemsize;
 
        ReadFileBuffered(fds[heap[index]],datap[heap[index]],itemsize);
       }
@@ -947,9 +949,9 @@ static void *filesort_vary_heapsort_thread(thread_data *thread)
 
  for(item=0;item<thread->n;item++)
    {
-    FILESORT_VARINT itemsize=*(FILESORT_VARINT*)(thread->datap[item]-FILESORT_VARSIZE);
+    FILESORT_VARINT itemsize=*(FILESORT_VARINT*)((char*)thread->datap[item]-FILESORT_VARSIZE);
 
-    WriteFileBuffered(fd,thread->datap[item]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
+    WriteFileBuffered(fd,(char*)thread->datap[item]-FILESORT_VARSIZE,itemsize+FILESORT_VARSIZE);
    }
 
  CloseFileBuffered(fd);
