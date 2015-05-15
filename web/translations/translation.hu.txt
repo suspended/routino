@@ -86,7 +86,7 @@
 #
 
 @@LANGUAGE@@	Magyar
-@@LANGUAGE-WEBPAGE@@	Magyar webpage
+@@LANGUAGE-WEBPAGE@@	Magyar weblap
 
 @@ROUTER-TITLE@@	Openstreetmap alapú útvonaltervező
 
