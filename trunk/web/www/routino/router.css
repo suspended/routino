@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2014 Andrew M. Bishop
+// This file Copyright 2008-2015 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -46,15 +46,39 @@ DIV.scrollable
 /* Left panel - specific tab options */
 /*-----------------------------------*/
 
-DIV#tab_options_div IMG
+DIV#tab_options_div DIV.waypoint
 {
- cursor: pointer;
- vertical-align: bottom;
+ clear: both;
 }
 
-DIV#tab_options_div IMG:hover
+DIV#tab_options_div DIV.waypoint SPAN
+{
+ vertical-align: 50%;
+}
+
+DIV#tab_options_div DIV.waypoint DIV.waypoint-buttons
+{
+ float: right;
+}
+
+DIV#tab_options_div DIV.waypoint IMG
+{
+ cursor: pointer;
+}
+
+DIV#tab_options_div DIV.waypoint IMG.waypoint-icon
+{
+ cursor: move;
+}
+
+DIV#tab_options_div DIV.waypoint IMG:hover
 {
  background: #F0F000;
+}
+
+DIV#tab_options_div DIV#waypoints-buttons
+{
+ clear: both;
 }
 
 DIV#tab_options_div TABLE
@@ -64,11 +88,6 @@ DIV#tab_options_div TABLE
  margin:  0;
 }
 
-DIV#tab_options_div DIV.center
-{
- text-align: center;
-}
-
 DIV#tab_options_div TABLE TD
 {
  padding: 0;
@@ -76,14 +95,9 @@ DIV#tab_options_div TABLE TD
  margin:  0;
 }
 
-DIV#tab_options_div TABLE TD.center
+DIV#tab_options_div DIV.center
 {
  text-align: center;
-}
-
-DIV#tab_options_div TABLE#waypoints
-{
- width: 100%;
 }
 
 DIV#tab_options_div A:hover

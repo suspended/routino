@@ -13,7 +13,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -95,24 +95,17 @@
         <span id="hideshow_waypoint_hide" onclick="hideshow_hide('waypoint');" class="hideshow_show">-</span>
         <span class="hideshow_title">@@WAYPOINTS-BOX@@</span>
         <div id="hideshow_waypoint_div">
-          <table id="waypoints">
-            <colgroup>
-              <col style="width: 22px;">
-              <col>
-              <col style="width: 76px;">
-            </colgroup>
-            <tr id="waypointXXX" style="display: none;">
-              <td>
-                <img id="iconXXX" src="icons/marker-XXX-grey.png" title="@@WAYPOINT-POSITION@@" alt="Waypoint XXX" onmousedown="markerToggleMap(XXX);">
-              <td>
-                <span id="coordsXXX">
-                  <input name="lonXXX" type="text" size="7" title="@@WAYPOINT-LONGITUDE@@" onchange="formSetCoords(XXX);">E
-                  <input name="latXXX" type="text" size="7" title="@@WAYPOINT-LATITUDE@@"  onchange="formSetCoords(XXX);">N
-                </span>
-                <span id="searchXXX" style="display: none;">
-                  <input name="searchXXX" type="text" size="18" title="@@WAYPOINT-LOCATION@@"> <!-- uses Javascript event for triggering -->
-                </span>
-              <td>
+          <div id="waypoints">
+            <div id="waypointXXX" class="waypoint" style="display: none;">
+              <img id="iconXXX" class="waypoint-icon" src="icons/marker-XXX-grey.png" title="@@WAYPOINT-POSITION@@" alt="Waypoint XXX" onmouseup="markerToggleMap(XXX);" draggable="true">
+              <span id="coordsXXX">
+                <input name="lonXXX" type="text" size="7" title="@@WAYPOINT-LONGITUDE@@" onchange="formSetCoords(XXX);">E
+                <input name="latXXX" type="text" size="7" title="@@WAYPOINT-LATITUDE@@"  onchange="formSetCoords(XXX);">N
+              </span>
+              <span id="searchXXX" style="display: none;">
+                <input name="searchXXX" type="text" size="18" title="@@WAYPOINT-LOCATION@@"> <!-- uses Javascript event for triggering -->
+              </span>
+              <div class="waypoint-buttons" style="display: inline-block;">
                 <img alt="?" src="icons/waypoint-search.png"   title="@@WAYPOINT-SEARCH@@"  onmousedown="markerSearch(XXX);"  >
                 <img alt="G" src="icons/waypoint-locate.png"   title="@@WAYPOINT-GET@@"     onmousedown="markerLocate(XXX);"  >
                 <img alt="O" src="icons/waypoint-recentre.png" title="@@WAYPOINT-CENTRE1@@" onmousedown="markerRecentre(XXX);">
@@ -124,14 +117,15 @@
                 <img alt="o" src="icons/waypoint-centre.png"   title="@@WAYPOINT-CENTRE2@@" onmousedown="markerCentre(XXX);"  >
                 <img alt="v" src="icons/waypoint-down.png"     title="@@WAYPOINT-DOWN@@"    onmousedown="markerMoveDown(XXX);">
                 <img alt="-" src="icons/waypoint-remove.png"   title="@@WAYPOINT-REMOVE@@"  onmousedown="markerRemove(XXX);"  >
-            <tr id="searchresultsXXX" style="display: none;">
-              <td colspan="3">
-            <!-- The waypoints are inserted by the JavaScript, see the "maxmarkers" variable in router.js.  -->
-            <tr>
-              <td colspan="3" class="center">
-                <input type="button" title="@@WAYPOINT-REVERSE@@" value="@@WAYPOINT-REVERSE-BUTTON@@" onmousedown="markersReverse();">
-                <input type="button" title="@@WAYPOINT-LOOP@@"    value="@@WAYPOINT-LOOP-BUTTON@@"    onmousedown="markersLoop();">
-          </table>
+              </div>
+              <div id="searchresultsXXX" style="display: none;">
+              </div>
+            </div>
+          </div>
+          <div id="waypoints-buttons" class="center">
+            <input type="button" title="@@WAYPOINT-REVERSE@@" value="@@WAYPOINT-REVERSE-BUTTON@@" onmousedown="markersReverse();">
+            <input type="button" title="@@WAYPOINT-LOOP@@"    value="@@WAYPOINT-LOOP-BUTTON@@"    onmousedown="markersLoop();">
+          </div>
         </div>
       </div>
 
@@ -223,8 +217,8 @@
         <span class="hideshow_title">@@OTHER-RESTRICTIONS-BOX@@</span>
         <div id="hideshow_restriction_div" style="display: none;">
           <table>
-            <tr><td>@@RESTRICT-ONEWAY@@:   <td><input name="restrict-oneway" type="checkbox" onchange="formSetRestriction('oneway');">
-            <tr><td>@@RESTRICT-TURNS@@:<td><input name="restrict-turns"  type="checkbox" onchange="formSetRestriction('turns' );">
+            <tr><td>@@RESTRICT-ONEWAY@@:<td><input name="restrict-oneway" type="checkbox" onchange="formSetRestriction('oneway');">
+            <tr><td>@@RESTRICT-TURNS@@: <td><input name="restrict-turns"  type="checkbox" onchange="formSetRestriction('turns' );">
           </table>
           <table>
             <tr><td>@@RESTRICT-WEIGHT@@:<td><input name="restrict-weight" type="text" size="3" onchange="formSetRestriction('weight','=');"><td>tonnes<td><img alt="<" src="icons/waypoint-left.png" title="-" onmousedown="formSetRestriction('weight','-');">&ndash;/+<img alt=">" src="icons/waypoint-right.png" title="+" onmousedown="formSetRestriction('weight','+');">

@@ -114,7 +114,7 @@
 @@SHORTEST-ROUTE@@	Kortste Route
 @@QUICKEST-ROUTE@@	Snelste Route
 
-@@WAYPOINT-POSITION@@	Waypoint XXX Position - (click voor plaatsen/verwijderen op map)
+@@WAYPOINT-POSITION@@	Waypoint XXX Position
 @@WAYPOINT-UP@@	Beweeg dit punt naar boven
 @@WAYPOINT-ADD@@	Voeg hierna punt toe
 @@WAYPOINT-HOME@@	Toggle als thuis locatie

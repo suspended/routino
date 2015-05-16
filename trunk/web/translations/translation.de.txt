@@ -126,7 +126,7 @@
 @@STATISTICS-BOX@@	Routino Statistik
 @@VISUALISER-BOX@@	Routino Ansichten
 
-@@WAYPOINT-POSITION@@	Wegpunkt XXX Position - (klicke zum hinzufügen/entfernen auf der Karte)
+@@WAYPOINT-POSITION@@	Wegpunkt XXX Position
 @@WAYPOINT-LONGITUDE@@	Wegpunkt XXX geografische Länge
 @@WAYPOINT-LATITUDE@@	Wegpunkt XXX geografische Breite
 @@WAYPOINT-LOCATION@@	Wegpunkt XXX Ort

@@ -126,7 +126,7 @@
 @@STATISTICS-BOX@@	Routino Statistics
 @@VISUALISER-BOX@@	Routino Visualiser
 
-@@WAYPOINT-POSITION@@	Waypoint XXX Position - (click to add/remove on map)
+@@WAYPOINT-POSITION@@	Waypoint XXX Position
 @@WAYPOINT-LONGITUDE@@	Waypoint XXX Longitude
 @@WAYPOINT-LATITUDE@@	Waypoint XXX Latitude
 @@WAYPOINT-LOCATION@@	Waypoint XXX Location
