@@ -1080,6 +1080,9 @@ function dragWaypointMapDrop(e)
  var lonlat=map.containerPointToLatLng(L.point(e.clientX-rect.left-dragged_icon_x+8,e.clientY-rect.top-dragged_icon_y+21));
 
  formSetCoords(dragged_marker,lonlat.lng,lonlat.lat);
+
+ if(!routino.point[dragged_marker].active)
+    markerToggleMap(dragged_marker);
 }
 
 

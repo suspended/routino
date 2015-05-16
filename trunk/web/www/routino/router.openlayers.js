@@ -955,7 +955,7 @@ function dragMarkerMove(feature,pixel)
 {
  for(var marker in markers)
     if(feature==markers[marker])
-       dragSetForm(marker);
+       dragMarkerSetForm(marker);
 }
 
 
@@ -967,7 +967,7 @@ function dragMarkerComplete(feature,pixel)
 {
  for(var marker in markers)
     if(feature==markers[marker])
-       dragSetForm(marker);
+       dragMarkerSetForm(marker);
 
  updateURLs();
 }
@@ -1148,6 +1148,9 @@ function dragWaypointMapDrop(e)
  lonlat.transform(epsg900913,epsg4326);
 
  formSetCoords(dragged_marker,lonlat.lon,lonlat.lat);
+
+ if(!routino.point[dragged_marker].active)
+    markerToggleMap(dragged_marker);
 }
 
 
