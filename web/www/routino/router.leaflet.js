@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2014 Andrew M. Bishop
+// This file Copyright 2008-2015 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -119,26 +119,33 @@ function html_init()            // called from router.html
 {
  var waypoints=document.getElementById("waypoints");
 
- var waypoint_html=waypoints.rows[0].innerHTML;
- waypoints.deleteRow(0);
+ var waypoint_html=waypoints.firstElementChild.outerHTML.split("XXX");
 
- var searchresults_html=waypoints.rows[0].innerHTML;
- waypoints.deleteRow(0);
+ waypoints.removeChild(waypoints.firstElementChild);
 
- for(var marker=mapprops.maxmarkers;marker>=1;marker--)
+ for(var marker=1;marker<=mapprops.maxmarkers;marker++)
    {
-    var searchresults=waypoints.insertRow(0);
+    var waypoint=document.createElement('div');
 
-    searchresults.style.display="none";
-    searchresults.id="searchresults" + marker;
-    searchresults.innerHTML=searchresults_html.split("XXX").join(marker);
+    waypoints.appendChild(waypoint);
 
-    var waypoint=waypoints.insertRow(0);
-
-    waypoint.style.display="none";
-    waypoint.id="waypoint" + marker;
-    waypoint.innerHTML=waypoint_html.split("XXX").join(marker);
+    waypoint.outerHTML=waypoint_html.join(marker);
    }
+
+ waypoints.addEventListener('dragstart',dragWaypointStart,false);
+ waypoints.addEventListener('dragend'  ,dragWaypointEnd  ,false);
+ waypoints.addEventListener('dragenter',dragWaypointEnter,false);
+ waypoints.addEventListener('dragover' ,dragWaypointOver ,false);
+ waypoints.addEventListener('dragleave',dragWaypointLeave,false);
+ waypoints.addEventListener('drop'     ,dragWaypointDrop ,false);
+
+
+ var map=document.getElementById("map");
+
+ map.addEventListener('dragenter',dragWaypointMapEnter,false);
+ map.addEventListener('dragover' ,dragWaypointMapOver ,false);
+ map.addEventListener('dragleave',dragWaypointMapLeave,false);
+ map.addEventListener('drop'     ,dragWaypointMapDrop ,false);
 }
 
 
@@ -819,8 +826,8 @@ function map_init()             // called from router.html
 
     markers[marker]=L.marker(L.point(0,0), {clickable: true, draggable: true, icon: icons[marker]});
 
-    markers[marker].on("drag"   , (function(m) { return function(evt) { dragMove    (m,evt); }; }(marker)));
-    markers[marker].on("dragend", (function(m) { return function(evt) { dragComplete(m,evt); }; }(marker)));
+    markers[marker].on("drag"   , (function(m) { return function(evt) { dragMarkerMove    (m,evt); }; }(marker)));
+    markers[marker].on("dragend", (function(m) { return function(evt) { dragMarkerComplete(m,evt); }; }(marker)));
    }
 
  icons.home=L.icon({iconUrl: "icons/marker-home-red.png",
@@ -879,46 +886,206 @@ function map_init()             // called from router.html
 
 
 //
-// Callback for a drag occuring.
+// Callback for a marker drag occuring on the map.
 //
 
-function dragMove(marker,event)
+function dragMarkerMove(marker,event)
 {
- dragSetForm(marker);
+ dragMarkerSetForm(marker);
 }
 
 
 //
-// Callback for completing a drag.
+// Callback for completing a drag occuring on the map.
 //
 
-function dragComplete(marker,event)
+function dragMarkerComplete(marker,event)
 {
- dragSetForm(marker);
+ dragMarkerSetForm(marker);
 
  updateURLs();
 }
 
 
 //
-// Set the feature coordinates in the form after dragging.
+// Set the feature coordinates in the form after dragging it on the map.
 //
 
-function dragSetForm(marker)
+function dragMarkerSetForm(marker)
 {
  var lonlat = markers[marker].getLatLng();
 
- var lon=format5f(lonlat.lng);
- var lat=format5f(lonlat.lat);
+ formSetCoords(marker,lonlat.lng,lonlat.lat);
+}
 
- formSetCoords(marker,lon,lat);
+
+////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////// Marker dragging ////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+var dragged_waypoint=null,dragged_marker=null;
+var dragged_waypoint_over=null,dragged_marker_over=null;
+ var dragged_icon_x,dragged_icon_y;
+
+//
+// Drag a waypoint up or down the list.
+//
+
+function dragWaypointStart(e)
+{
+ var w=e.target;
+
+ while(w!=null && w.className != "waypoint")
+    w=w.parentElement;
+
+ if(w===null)
+    return;
+
+ w.style.opacity = "0.5";
+
+ dragged_waypoint=w;
+ dragged_marker=Number.parseInt(dragged_waypoint.id.substring(8));
+
+ dragged_icon_x=e.clientX-e.target.offsetLeft;
+ dragged_icon_y=e.clientY-e.target.offsetTop;
+}
+
+function dragWaypointEnd(e)
+{
+ e.preventDefault();
+
+ if(dragged_waypoint===null)
+    return;
+
+ dragged_waypoint.style.opacity = "";
+
+ dragged_waypoint=null;
+ dragged_marker=null;
+
+ if(dragged_waypoint_over===null)
+    return;
+
+ dragged_waypoint_over.style.border = "";
+
+ dragged_waypoint_over=null;
+ dragged_marker_over=null;
+}
+
+
+//
+// Drag a waypoint over another one up or down the list.
+//
+
+function dragWaypointEnter(e)
+{
+ var w=e.target;
+
+ while(w!=null && w.className != "waypoint")
+    w=w.parentElement;
+
+ if(w===null)
+    return;
+
+ if(dragged_waypoint_over!==null)
+    dragged_waypoint_over.style.border = "";
+
+ if(w==dragged_waypoint)
+    return;
+
+ dragged_waypoint_over=w;
+ dragged_marker_over=Number.parseInt(dragged_waypoint_over.id.substring(8));
+
+ if(dragged_marker>dragged_marker_over)
+    w.style.borderTop = "3px solid black";
+ else
+    w.style.borderBottom = "3px solid black";
+}
+
+function dragWaypointOver(e)
+{
+ e.preventDefault();
+}
+
+function dragWaypointLeave(e)
+{
+ var w=e.target;
+
+ while(w!=null && w.className != "waypoint")
+    w=w.parentElement;
+
+ if(w===null)
+    return;
+
+ if(w==dragged_waypoint_over)
+    return;
+
+ w.style.border = "";
+}
+
+
+//
+// Drop the waypoint after dragging up or down the list.
+//
+
+function dragWaypointDrop(e)
+{
+ e.preventDefault();
+
+ if(dragged_marker_over===null)
+    return;
+
+ if(dragged_marker_over>dragged_marker)
+    for(var m=dragged_marker;m<dragged_marker_over;m++)
+       markerSwap(m,m+1);
+
+ if(dragged_marker_over<dragged_marker)
+    for(var m=dragged_marker;m>dragged_marker_over;m--)
+       markerSwap(m,m-1);
+}
+
+
+//
+// Drag a waypoint over the map.
+//
+
+function dragWaypointMapEnter(e)
+{
+ e.preventDefault();
+
+ if(dragged_waypoint_over!==null)
+    dragged_waypoint_over.style.border = "";
+}
+
+function dragWaypointMapOver(e)
+{
+ e.preventDefault();
+}
+
+function dragWaypointMapLeave(e)
+{
+ e.preventDefault();
+}
+
+
+//
+// Drop the waypoint after dragging it over the map.
+//
+
+function dragWaypointMapDrop(e)
+{
+ e.preventDefault();
+
+ var rect = document.getElementById("map").getBoundingClientRect();
+
+ var lonlat=map.containerPointToLatLng(L.point(e.clientX-rect.left-dragged_icon_x+8,e.clientY-rect.top-dragged_icon_y+21));
+
+ formSetCoords(dragged_marker,lonlat.lng,lonlat.lat);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// Marker handling ////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
 
 //
 // Toggle a marker on the map.
@@ -1030,7 +1197,7 @@ function markerCentre(marker)   // called from router.html
 
  var lonlat=map.getCenter();
 
- formSetCoords(marker,format5f(lonlat.lng),format5f(lonlat.lat));
+ formSetCoords(marker,lonlat.lng,lonlat.lat);
 }
 
 

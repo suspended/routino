@@ -125,7 +125,7 @@
 @@STATISTICS-BOX@@	Routino Statistiques
 @@VISUALISER-BOX@@	Routino Visualiser
 
-@@WAYPOINT-POSITION@@	Etape XXX de l'itinéraire - (cliquer pour ajouter/enlever de la carte)
+@@WAYPOINT-POSITION@@	Etape XXX de l'itinéraire
 @@WAYPOINT-LONGITUDE@@	Etape XXX Longitude
 @@WAYPOINT-LATITUDE@@	Etape XXX Latitude
 @@WAYPOINT-LOCATION@@	position de l'étape XXX
