@@ -1531,8 +1531,6 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
     result3=NextResult(results,result3);
    }
 
- FreeResultsList(results);
-
 #if DEBUG
  Result *s=FirstResult(results2);
 
@@ -1562,6 +1560,8 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
  if(!option_quiet)
     printf_last("Found Finish Route: Nodes checked = %d",results->number);
 #endif
+
+ FreeResultsList(results);
 
  return(results2);
 }
