@@ -69,7 +69,7 @@ extern int option_html,option_gpx_track,option_gpx_route,option_text,option_text
 /* Local variables */
 
 /*+ Heuristics for determining if a junction is important. +*/
-static char junction_other_way[Highway_Count][Highway_Count]=
+static const char junction_other_way[Highway_Count][Highway_Count]=
  { /* M, T, P, S, T, U, R, S, T, C, P, S, F = Way type of route not taken */
   {   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, /* Motorway     */
   {   1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, /* Trunk        */
