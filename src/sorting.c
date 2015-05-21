@@ -521,8 +521,12 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
  if(datasize==0)
     return(0);
 
- if((datasize*2)<option_filesort_ramsize) /* estimate that data and pointer are same size */
-    datasize=(datasize*2)/option_filesort_threads;
+ /* We can not know in advance how many data items there are.  Each
+    one will require RAM for data, FILESORT_VARALIGN and sizeof(void*)
+    Assume that data+FILESORT_VARALIGN+sizeof(void*) is 4*data. */
+
+ if((datasize*4)<option_filesort_ramsize)
+    datasize=(datasize*4)/option_filesort_threads;
  else
     datasize=option_filesort_ramsize/option_filesort_threads;
 
