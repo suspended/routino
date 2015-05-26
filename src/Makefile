@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2014 Andrew M. Bishop
+# This file Copyright 2008-2015 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -132,11 +132,11 @@ filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
 
 %.o : %.c
 	@[ -d .deps ] || mkdir .deps
-	$(CC) -c $(CFLAGS) -DSLIM=0 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+	$(CC) -c $(CFLAGS) -DSLIM=0 -DROUTINO_DATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 %-slim.o : %.c
 	@[ -d .deps ] || mkdir .deps
-	$(CC) -c $(CFLAGS) -DSLIM=1 -DDATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+	$(CC) -c $(CFLAGS) -DSLIM=1 -DROUTINO_DATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
 

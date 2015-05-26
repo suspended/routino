@@ -195,8 +195,8 @@ int main(int argc,char** argv)
    {
     if(ExistsFile(FileName(dirname,prefix,"profiles.xml")))
        profiles=FileName(dirname,prefix,"profiles.xml");
-    else if(ExistsFile(FileName(DATADIR,NULL,"profiles.xml")))
-       profiles=FileName(DATADIR,NULL,"profiles.xml");
+    else if(ExistsFile(FileName(ROUTINO_DATADIR,NULL,"profiles.xml")))
+       profiles=FileName(ROUTINO_DATADIR,NULL,"profiles.xml");
     else
       {
        fprintf(stderr,"Error: The '--profiles' option was not used and the default 'profiles.xml' does not exist.\n");
@@ -313,7 +313,7 @@ int main(int argc,char** argv)
        if(highway==Highway_None)
           print_usage(0,argv[arg],NULL);
 
-       profile->highway[highway]=atof(equal+1);
+       profile->highway[highway]=(score_t)atof(equal+1);
 
        free(string);
       }
@@ -355,7 +355,7 @@ int main(int argc,char** argv)
        if(property==Property_None)
           print_usage(0,argv[arg],NULL);
 
-       profile->props_yes[property]=atof(equal+1);
+       profile->props_yes[property]=(score_t)atof(equal+1);
 
        free(string);
       }
@@ -430,8 +430,8 @@ int main(int argc,char** argv)
       {
        if(ExistsFile(FileName(dirname,prefix,"translations.xml")))
           translations=FileName(dirname,prefix,"translations.xml");
-       else if(ExistsFile(FileName(DATADIR,NULL,"translations.xml")))
-          translations=FileName(DATADIR,NULL,"translations.xml");
+       else if(ExistsFile(FileName(ROUTINO_DATADIR,NULL,"translations.xml")))
+          translations=FileName(ROUTINO_DATADIR,NULL,"translations.xml");
        else
          {
           fprintf(stderr,"Error: The '--translations' option was not used and the default 'translations.xml' does not exist.\n");
@@ -877,11 +877,11 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--profiles=<filename>   The name of the XML file containing the profiles\n"
             "                        (defaults to 'profiles.xml' with '--dir' and\n"
             "                         '--prefix' options or the file installed in\n"
-            "                         '" DATADIR "').\n"
+            "                         '" ROUTINO_DATADIR "').\n"
             "--translations=<fname>  The name of the XML file containing the translations\n"
             "                        (defaults to 'translations.xml' with '--dir' and\n"
             "                         '--prefix' options or the file installed in\n"
-            "                         '" DATADIR "').\n"
+            "                         '" ROUTINO_DATADIR "').\n"
             "\n"
             "--exact-nodes-only      Only route between nodes (don't find closest segment).\n"
             "\n"

@@ -166,7 +166,7 @@ static inline Way *LookupWay(Ways *ways,index_t index,int position)
 
 static inline char *WayName(Ways *ways,Way *wayp)
 {
- int position=wayp-&ways->cached[-1];
+ int position=(int)(wayp-&ways->cached[-1]);
  int n=0;
 
  if(!ways->ncached[position-1])

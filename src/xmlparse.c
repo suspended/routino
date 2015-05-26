@@ -23,12 +23,25 @@
 
 
 #include <stdio.h>
+
+#if defined(_MSC_VER)
+#include <io.h>
+#include <stdint.h>
+#define read(fd,address,length)  _read(fd,address,(unsigned int)(length))
+typedef uint64_t ssize_t;
+#else
 #include <unistd.h>
+#endif
+
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
+#if !defined(_MSC_VER)
 #include <strings.h>
+#else
+#define strcasecmp _stricmp
+#endif
 #include <ctype.h>
 
 #include "xmlparse.h"
@@ -1224,31 +1237,31 @@ char *ParseXML_Decode_Char_Ref(const char *string)
  if(unicode<0x80)
    {
     /* 0000 0000-0000 007F  =>  0xxxxxxx */
-    result[0]=unicode;
+    result[0]=(char)unicode;
     result[1]=0;
    }
  else if(unicode<0x07FF)
    {
     /* 0000 0080-0000 07FF  =>  110xxxxx 10xxxxxx */
-    result[0]=0xC0+((unicode&0x07C0)>>6);
-    result[1]=0x80+ (unicode&0x003F);
+    result[0]=(char)(0xC0+((unicode&0x07C0)>>6));
+    result[1]=(char)(0x80+ (unicode&0x003F));
     result[2]=0;
    }
  else if(unicode<0xFFFF)
    {
     /* 0000 0800-0000 FFFF  =>  1110xxxx 10xxxxxx 10xxxxxx */
-    result[0]=0xE0+((unicode&0xF000)>>12);
-    result[1]=0x80+((unicode&0x0FC0)>>6);
-    result[2]=0x80+ (unicode&0x003F);
+    result[0]=(char)(0xE0+((unicode&0xF000)>>12));
+    result[1]=(char)(0x80+((unicode&0x0FC0)>>6));
+    result[2]=(char)(0x80+ (unicode&0x003F));
     result[3]=0;
    }
  else if(unicode<0x1FFFFF)
    {
     /* 0001 0000-001F FFFF  =>  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
-    result[0]=0xF0+((unicode&0x1C0000)>>18);
-    result[1]=0x80+((unicode&0x03F000)>>12);
-    result[2]=0x80+((unicode&0x000FC0)>>6);
-    result[3]=0x80+ (unicode&0x00003F);
+    result[0]=(char)(0xF0+((unicode&0x1C0000)>>18));
+    result[1]=(char)(0x80+((unicode&0x03F000)>>12));
+    result[2]=(char)(0x80+((unicode&0x000FC0)>>6));
+    result[3]=(char)(0x80+ (unicode&0x00003F));
     result[4]=0;
    }
  else

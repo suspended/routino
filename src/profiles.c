@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -418,7 +418,7 @@ static int preferenceType_function(const char *_tag_,int _type_,const char *high
 
     XMLPARSE_ASSERT_FLOATING(_tag_,percent); p=atof(percent);
 
-    loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=p;
+    loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=(score_t)p;
    }
 
  return(0);
@@ -455,7 +455,7 @@ static int propertyType_function(const char *_tag_,int _type_,const char *type,c
 
     XMLPARSE_ASSERT_FLOATING(_tag_,percent); p=atof(percent);
 
-    loaded_profiles[nloaded_profiles-1]->props_yes[property]=p;
+    loaded_profiles[nloaded_profiles-1]->props_yes[property]=(score_t)p;
    }
 
  return(0);
@@ -726,8 +726,8 @@ int UpdateProfile(Profile *profile,Ways *ways)
    {
     profile->highway[i]/=hmax;
 
-    if(profile->highway[i]<0.0001)
-       profile->highway[i]=0.0001;
+    if(profile->highway[i]<0.0001f)
+       profile->highway[i]=0.0001f;
    }
 
  /* Normalise the property preferences into the range ~0 -> 1 */
@@ -747,14 +747,14 @@ int UpdateProfile(Profile *profile,Ways *ways)
        routes 50% longer on highways with the property compared to ones without.
        With the sqrt() function the ratio is only 22% allowing finer control. */
 
-    profile->props_yes[i] =sqrt(profile->props_yes[i]);
-    profile->props_no [i] =sqrt(profile->props_no[i] );
+    profile->props_yes[i]=(score_t)sqrt(profile->props_yes[i]);
+    profile->props_no [i]=(score_t)sqrt(profile->props_no[i] );
 
-    if(profile->props_yes[i]<0.01)
-       profile->props_yes[i]=0.01;
+    if(profile->props_yes[i]<0.01f)
+       profile->props_yes[i]=0.01f;
 
-    if(profile->props_no[i]<0.01)
-       profile->props_no[i]=0.01;
+    if(profile->props_no[i]<0.01f)
+       profile->props_no[i]=0.01f;
    }
 
  /* Find the fastest preferred speed */

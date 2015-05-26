@@ -226,7 +226,7 @@ static inline Segment *LookupSegment(Segments *segments,index_t index,int positi
 
 static inline index_t IndexSegment(Segments *segments,Segment *segmentp)
 {
- int position1=segmentp-&segments->cached[0];
+ int position1=(int)(segmentp-&segments->cached[0]);
 
  return(segments->incache[position1]);
 }
@@ -246,7 +246,7 @@ static inline index_t IndexSegment(Segments *segments,Segment *segmentp)
 
 static inline Segment *NextSegment(Segments *segments,Segment *segmentp,index_t node)
 {
- int position=segmentp-&segments->cached[-1];
+ int position=(int)(segmentp-&segments->cached[-1]);
 
  if(segmentp->node1==node)
    {

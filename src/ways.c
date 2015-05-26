@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -63,6 +63,8 @@ Ways *LoadWayList(const char *filename)
  SlimFetch(ways->fd,&ways->file,sizeof(WaysFile),0);
 
  ways->namesoffset=sizeof(WaysFile)+ways->file.number*sizeof(Way);
+
+ memset(ways->ncached,0,sizeof(ways->ncached));
 
  ways->cache=NewWayCache();
  log_malloc(ways->cache,sizeof(*ways->cache));

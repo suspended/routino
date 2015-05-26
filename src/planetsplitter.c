@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <errno.h>
 
@@ -192,8 +191,8 @@ int main(int argc,char** argv)
       {
        if(ExistsFile(FileName(dirname,prefix,"tagging.xml")))
           tagging=FileName(dirname,prefix,"tagging.xml");
-       else if(ExistsFile(FileName(DATADIR,NULL,"tagging.xml")))
-          tagging=FileName(DATADIR,NULL,"tagging.xml");
+       else if(ExistsFile(FileName(ROUTINO_DATADIR,NULL,"tagging.xml")))
+          tagging=FileName(ROUTINO_DATADIR,NULL,"tagging.xml");
        else
          {
           fprintf(stderr,"Error: The '--tagging' option was not used and the default 'tagging.xml' does not exist.\n");
@@ -673,7 +672,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--tagging=<filename>      The name of the XML file containing the tagging rules\n"
             "                          (defaults to 'tagging.xml' with '--dir' and\n"
             "                           '--prefix' options or the file installed in\n"
-            "                           '" DATADIR "').\n"
+            "                           '" ROUTINO_DATADIR "').\n"
             "\n"
             "--loggable                Print progress messages suitable for logging to file.\n"
             "--logtime                 Print the elapsed time for each processing step.\n"

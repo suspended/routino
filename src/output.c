@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <errno.h>
-#include <unistd.h>
 
 #include "types.h"
 #include "nodes.h"
