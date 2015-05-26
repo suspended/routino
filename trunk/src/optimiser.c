@@ -1121,7 +1121,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        /* prefer not to follow two fake segments when one would do (special case) */
        if(IsFakeSegment(seg2))
-          segment_score*=1.01;
+          segment_score*=1.01f;
 
        cumulative_score=result1->score+segment_score;
 
@@ -1442,7 +1442,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
        /* prefer not to follow two fake segments when one would do (special case) */
        if(IsFakeSegment(seg1))
-          segment_score*=1.01;
+          segment_score*=1.01f;
 
        cumulative_score=result1->score+segment_score;
 

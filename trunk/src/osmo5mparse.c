@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2012-2014 Andrew M. Bishop
+ This file Copyright 2012-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,14 @@
 
 
 #include <stdio.h>
+
+#if defined(_MSC_VER)
+#include <io.h>
+#define read(fd,address,length) _read(fd,address,(unsigned int)(length))
+#else
 #include <unistd.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>

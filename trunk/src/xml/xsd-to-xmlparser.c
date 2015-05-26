@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2012 Andrew M. Bishop
+ This file Copyright 2010-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,9 @@
 
 
 #include <stdio.h>
+#if !defined(_MSC_VER)
 #include <unistd.h>
+#endif
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -338,7 +340,9 @@ int main(int argc,char **argv)
  printf("\n");
  printf("\n");
  printf("#include <stdio.h>\n");
+ printf("#if !defined(_MSC_VER)\n");
  printf("#include <unistd.h>\n");
+ printf("#endif\n");
  printf("\n");
  printf("#include \"xmlparse.h\"\n");
 

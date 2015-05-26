@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -26,10 +26,22 @@
 /* If your system does not have the pread() and pwrite() system calls then you
  * will need to change this line to the value 0 so that seek() and
  * read()/write() are used instead of pread()/pwrite(). */
+
+#if defined(_MSC_VER)
+#define HAVE_PREAD_PWRITE 0
+#else
 #define HAVE_PREAD_PWRITE 1
+#endif
 
-
+#if defined(_MSC_VER)
+#include <io.h>
+#define read(fd,address,length)  _read(fd,address,(unsigned int)(length))
+#define write(fd,address,length) _write(fd,address,(unsigned int)(length))
+#define lseek       _lseeki64
+#else
 #include <unistd.h>
+#endif
+
 #include <sys/types.h>
 
 #include "logging.h"
