@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2013-2014 Andrew M. Bishop
+# This file Copyright 2013-2015 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -66,14 +66,14 @@ install:
 clean:
 	rm -f *~
 	rm -f *.o
+	rm -f $(EXE)
+	rm -f $(D)
+	rm -fr .deps
 	rm -f core
 
 ########
 
 distclean: clean
-	-rm -f $(EXE)
-	-rm -f $(D)
-	-rm -fr .deps
 
 ########
 
