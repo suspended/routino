@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -76,7 +76,7 @@ NodesX *NewNodeList(int append,int readonly)
  logassert(nodesx,"Failed to allocate memory (try using slim mode?)"); /* Check calloc() worked */
 
  nodesx->filename    =(char*)malloc(strlen(option_tmpdirname)+32);
- nodesx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
+ nodesx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+40); /* allow %p to be up to 20 bytes */
 
  sprintf(nodesx->filename    ,"%s/nodesx.parsed.mem",option_tmpdirname);
  sprintf(nodesx->filename_tmp,"%s/nodesx.%p.tmp"    ,option_tmpdirname,(void*)nodesx);

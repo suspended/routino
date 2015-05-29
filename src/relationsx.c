@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2014 Andrew M. Bishop
+ This file Copyright 2010-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -83,7 +83,7 @@ RelationsX *NewRelationList(int append,int readonly)
  /* Route Relations */
 
  relationsx->rrfilename    =(char*)malloc(strlen(option_tmpdirname)+32);
- relationsx->rrfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
+ relationsx->rrfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+48); /* allow %p to be up to 20 bytes */
 
  sprintf(relationsx->rrfilename    ,"%s/relationsx.route.parsed.mem",option_tmpdirname);
  sprintf(relationsx->rrfilename_tmp,"%s/relationsx.route.%p.tmp"    ,option_tmpdirname,(void*)relationsx);
@@ -119,7 +119,7 @@ RelationsX *NewRelationList(int append,int readonly)
  /* Turn Restriction Relations */
 
  relationsx->trfilename    =(char*)malloc(strlen(option_tmpdirname)+32);
- relationsx->trfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
+ relationsx->trfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+48); /* allow %p to be up to 20 bytes */
 
  sprintf(relationsx->trfilename    ,"%s/relationsx.turn.parsed.mem",option_tmpdirname);
  sprintf(relationsx->trfilename_tmp,"%s/relationsx.turn.%p.tmp"    ,option_tmpdirname,(void*)relationsx);
