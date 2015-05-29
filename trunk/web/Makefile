@@ -59,7 +59,7 @@ EXE_FILES=planetsplitter planetsplitter-slim \
 
 ########
 
-all: all-bin all-data all-doc all-profiles all-icons all-translations
+all: all-bin all-data all-doc all-profiles all-translations all-icons
 
 all-bin: all-exe
 	@[ -d $(WEBBINDIR) ] || mkdir -p $(WEBBINDIR)
@@ -102,12 +102,6 @@ all-profiles: all-exe all-data
 	    ( cd $(WEBWWWDIR) ; perl update-profiles.pl ) ;\
 	 fi
 
-all-icons: $(WEBICONDIR)/ball-0.png
-
-$(WEBICONDIR)/ball-0.png: $(WEBICONDIR)/create-icons.pl
-	@echo create-icons.pl
-	@cd $(WEBICONDIR) && perl create-icons.pl
-
 all-translations: $(WEBWWWDIR)/router.html    $(WEBWWWDIR)/visualiser.html \
 	          $(WEBWWWDIR)/router.html.en $(WEBWWWDIR)/visualiser.html.en \
 	          $(XMLDIR)/routino-translations.xml
@@ -132,6 +126,12 @@ $(XMLDIR)/routino-translations.xml: $(WEBTRANSDIR)/translations-head.xml $(WEBTR
 	@echo translate.pl
 	@cd $(WEBTRANSDIR) && perl translate.pl
 
+all-icons: $(WEBICONDIR)/ball-0.png
+
+$(WEBICONDIR)/ball-0.png: $(WEBICONDIR)/create-icons.pl
+	@echo create-icons.pl
+	@cd $(WEBICONDIR) && perl create-icons.pl
+
 all-exe:
 	cd $(SRCDIR) && $(MAKE) $(EXE_FILES)
 
@@ -151,7 +151,7 @@ install: all
 
 ########
 
-clean: clean clean-all-bin clean-all-data clean-all-doc clean-all-profiles clean-all-icons clean-all-translations
+clean: clean clean-all-bin clean-all-data clean-all-doc clean-all-profiles clean-all-translations clean-all-icons
 	rm -f *~
 
 clean-all-bin:
@@ -166,13 +166,13 @@ clean-all-doc:
 
 clean-all-profiles:
 
-clean-all-icons:
-
 clean-all-translations:
+
+clean-all-icons:
 
 ########
 
-distclean: distclean-all-bin distclean-all-data distclean-all-doc distclean-all-profiles distclean-all-icons distclean-all-translations
+distclean: distclean-all-bin distclean-all-data distclean-all-doc distclean-all-profiles distclean-all-translations distclean-all-icons
 
 distclean-all-bin: clean-all-bin
 
@@ -183,12 +183,12 @@ distclean-all-doc: clean-all-doc
 distclean-all-profiles: clean-all-profiles
 	-cd $(WEBWWWDIR)  && rm -f $(PROFILE_FILES)
 
-distclean-all-icons: clean-all-icons
-	-cd $(WEBICONDIR) && rm -f ball-*.png limit-*.png marker-*.png
-
 distclean-all-translations: clean-all-translations
 	-cd $(WEBWWWDIR)  && rm -f router.html*
 	-cd $(WEBWWWDIR)  && rm -f visualiser.html*
+
+distclean-all-icons: clean-all-icons
+	-cd $(WEBICONDIR) && rm -f ball-*.png limit-*.png marker-*.png
 
 ########
 
@@ -196,6 +196,6 @@ distclean-all-translations: clean-all-translations
 
 .PHONY:: all-bin all-data all-doc all-profiles all-icons all-translations all-exe all-xml
 
-.PHONY:: clean-all-bin clean-all-data clean-all-doc clean-all-profiles clean-all-icons clean-all-translations
+.PHONY:: clean-all-bin clean-all-data clean-all-doc clean-all-profiles clean-all-translations clean-all-icons
 
-.PHONY:: distclean-all-bin distclean-all-data distclean-all-doc distclean-all-profiles distclean-all-icons distclean-all-translations
+.PHONY:: distclean-all-bin distclean-all-data distclean-all-doc distclean-all-profiles distclean-all-translations distclean-all-icons
