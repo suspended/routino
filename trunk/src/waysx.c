@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -78,7 +78,7 @@ WaysX *NewWayList(int append,int readonly)
  logassert(waysx,"Failed to allocate memory (try using slim mode?)"); /* Check calloc() worked */
 
  waysx->filename    =(char*)malloc(strlen(option_tmpdirname)+32);
- waysx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
+ waysx->filename_tmp=(char*)malloc(strlen(option_tmpdirname)+32); /* allow %p to be up to 20 bytes */
 
  sprintf(waysx->filename    ,"%s/waysx.parsed.mem",option_tmpdirname);
  sprintf(waysx->filename_tmp,"%s/waysx.%p.tmp"    ,option_tmpdirname,(void*)waysx);
@@ -116,7 +116,7 @@ WaysX *NewWayList(int append,int readonly)
 #endif
 
 
- waysx->nfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+32);
+ waysx->nfilename_tmp=(char*)malloc(strlen(option_tmpdirname)+40); /* allow %p to be up to 20 bytes */
 
  sprintf(waysx->nfilename_tmp,"%s/waynames.%p.tmp",option_tmpdirname,(void*)waysx);
 
