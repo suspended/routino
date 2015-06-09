@@ -98,7 +98,7 @@ install:
 clean:
 	rm -f *~
 	rm -f *.o
-	rm -f $(EXE)
+	rm -f $(EXE) *.exe
 	rm -f $(E) test-skeleton
 	rm -f $(D) .deps/test-skeleton.d
 	rm -f $(C) test-skeleton.c

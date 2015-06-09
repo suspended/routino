@@ -40,7 +40,7 @@ typedef unsigned __int64  ssize_t;
 #include <errno.h>
 #include <sys/stat.h>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include "mman-win32.h"
 #else
 #include <sys/mman.h>
@@ -72,7 +72,6 @@ static int nmappedfiles=0;
 /*+ A structure to contain the list of file buffers. +*/
 struct filebuffer
 {
- int    fd;                     /*+ The file descriptor used when it was opened. +*/
  char   buffer[BUFFLEN];        /*+ The data buffer. +*/
  size_t pointer;                /*+ The read/write pointer for the file buffer. +*/
  size_t length;                 /*+ The read pointer for the file buffer. +*/
@@ -86,9 +85,33 @@ static struct filebuffer **filebuffers=NULL;
 static int nfilebuffers=0;
 
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+
+/*+ A structure to contain the list of opened files to record which are to be deleted when closed. +*/
+struct openedfile
+{
+ const char *filename;          /*+ The name of the file. +*/
+       int   delete;            /*+ Set to non-zero value if the file is to be deleted when closed. +*/
+};
+
+/*+ The list of opened files. +*/
+static struct openedfile **openedfiles=NULL;
+
+/*+ The number of allocated opened file buffer pointers. +*/
+static int nopenedfiles=0;
+
+#endif
+
+
 /* Local functions */
 
 static void CreateFileBuffer(int fd,int read_write);
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+
+static void CreateOpenedFile(int fd,const char *filename);
+
+#endif
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -130,7 +153,11 @@ void *MapFile(const char *filename)
 
  /* Open the file */
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ fd=open(filename,O_RDONLY|O_BINARY);
+#else
  fd=open(filename,O_RDONLY);
+#endif
 
  if(fd<0)
    {
@@ -194,7 +221,11 @@ void *MapFileWriteable(const char *filename)
 
  /* Open the file */
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ fd=open(filename,O_RDWR|O_BINARY);
+#else
  fd=open(filename,O_RDWR);
+#endif
 
  if(fd<0)
    {
@@ -298,7 +329,11 @@ int SlimMapFile(const char *filename)
 
  /* Open the file */
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ fd=open(filename,O_RDONLY|O_BINARY);
+#else
  fd=open(filename,O_RDONLY);
+#endif
 
  if(fd<0)
    {
@@ -326,7 +361,11 @@ int SlimMapFileWriteable(const char *filename)
 
  /* Open the file */
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ fd=open(filename,O_RDWR|O_BINARY);
+#else
  fd=open(filename,O_RDWR);
+#endif
 
  if(fd<0)
    {
@@ -371,9 +410,13 @@ int OpenFileBufferedNew(const char *filename)
  /* Open the file */
 
 #if defined(_MSC_VER)
- fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC);
+ fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC|O_BINARY);
 #else
- fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+#if defined(__MINGW32__)
+ fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC|O_BINARY,S_IRUSR|S_IWUSR);
+#else
+ fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC         ,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+#endif
 #endif
 
  if(fd<0)
@@ -383,6 +426,10 @@ int OpenFileBufferedNew(const char *filename)
    }
 
  CreateFileBuffer(fd,-1);
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ CreateOpenedFile(fd,filename);
+#endif
 
  return(fd);
 }
@@ -403,9 +450,13 @@ int OpenFileBufferedAppend(const char *filename)
  /* Open the file */
 
 #if defined(_MSC_VER)
- fd=open(filename,O_WRONLY|O_CREAT|O_APPEND);
+ fd=open(filename,O_WRONLY|O_CREAT|O_APPEND|O_BINARY);
 #else
- fd=open(filename,O_WRONLY|O_CREAT|O_APPEND,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+#if defined(__MINGW32__)
+ fd=open(filename,O_WRONLY|O_CREAT|O_APPEND|O_BINARY,S_IRUSR|S_IWUSR);
+#else
+ fd=open(filename,O_WRONLY|O_CREAT|O_APPEND         ,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+#endif
 #endif
 
  if(fd<0)
@@ -415,6 +466,10 @@ int OpenFileBufferedAppend(const char *filename)
    }
 
  CreateFileBuffer(fd,-1);
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ CreateOpenedFile(fd,filename);
+#endif
 
  return(fd);
 }
@@ -434,7 +489,11 @@ int ReOpenFileBuffered(const char *filename)
 
  /* Open the file */
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ fd=open(filename,O_RDONLY|O_BINARY);
+#else
  fd=open(filename,O_RDONLY);
+#endif
 
  if(fd<0)
    {
@@ -444,7 +503,53 @@ int ReOpenFileBuffered(const char *filename)
 
  CreateFileBuffer(fd,1);
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ CreateOpenedFile(fd,filename);
+#endif
+
  return(fd);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Open an existing file on disk for reading (with buffering), delete
+  it and open a new file on disk for writing (with buffering).
+
+  int ReplaceFileBuffered Returns the file descriptor of the new writable file.
+
+  const char *filename The name of the file to open, delete and replace.
+
+  int *oldfd Returns the file descriptor of the old, readable file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+int ReplaceFileBuffered(const char *filename,int *oldfd)
+{
+ int newfd;
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+
+ char *filename2;
+
+ filename2=strcpy(malloc(strlen(filename)+2),filename);
+ strcat(filename2,"2");
+
+ RenameFile(filename,filename2);
+
+ *oldfd=ReOpenFileBuffered(filename2);
+ 
+ DeleteFile(filename2);
+
+#else
+
+ *oldfd=ReOpenFileBuffered(filename);
+ 
+ DeleteFile(filename);
+
+#endif
+
+ newfd=OpenFileBufferedNew(filename);
+
+ return(newfd);
 }
 
 
@@ -542,7 +647,6 @@ int ReadFileBuffered(int fd,void *address,size_t length)
 
     if(len<=0)
        return(-1);
-
 
     filebuffers[fd]->length=len;
     filebuffers[fd]->pointer=0;
@@ -710,8 +814,19 @@ int CloseFileBuffered(int fd)
  close(fd);
 
  free(filebuffers[fd]);
-
  filebuffers[fd]=NULL;
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+
+ logassert(fd<nopenedfiles && openedfiles[fd],"File descriptor has no record of opening - report a bug");
+
+ if(openedfiles[fd]->delete)
+    unlink(openedfiles[fd]->filename);
+
+ free(openedfiles[fd]);
+ openedfiles[fd]=NULL;
+
+#endif
 
  return(-1);
 }
@@ -731,13 +846,21 @@ int OpenFile(const char *filename)
 
  /* Open the file */
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ fd=open(filename,O_RDONLY|O_BINARY);
+#else
  fd=open(filename,O_RDONLY);
+#endif
 
  if(fd<0)
    {
     fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
    }
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ CreateOpenedFile(fd,filename);
+#endif
 
  return(fd);
 }
@@ -752,6 +875,18 @@ int OpenFile(const char *filename)
 void CloseFile(int fd)
 {
  close(fd);
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+
+ logassert(fd<nopenedfiles && openedfiles[fd],"File descriptor has no record of opening - report a bug");
+
+ if(openedfiles[fd]->delete)
+    unlink(openedfiles[fd]->filename);
+
+ free(openedfiles[fd]);
+ openedfiles[fd]=NULL;
+
+#endif
 }
 
 
@@ -765,6 +900,19 @@ void CloseFile(int fd)
 
 int DeleteFile(const char *filename)
 {
+#if defined(_MSC_VER) || defined(__MINGW32__)
+
+ int fd;
+
+ for(fd=0;fd<nopenedfiles;fd++)
+    if(openedfiles[fd] && !strcmp(openedfiles[fd]->filename,filename))
+      {
+       openedfiles[fd]->delete=1;
+       return(0);
+      }
+
+#endif
+
  unlink(filename);
 
  return(0);
@@ -818,3 +966,36 @@ static void CreateFileBuffer(int fd,int read_write)
     filebuffers[fd]->reading=(read_write==1);
    }
 }
+
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+
+/*++++++++++++++++++++++++++++++++++++++
+  Create an opened file record.
+
+  int fd The file descriptor.
+
+  const char *filename The name of the file.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static void CreateOpenedFile(int fd,const char *filename)
+{
+ if(nopenedfiles<=fd)
+   {
+    int i;
+
+    openedfiles=(struct openedfile**)realloc((void*)openedfiles,(fd+1)*sizeof(struct openedfile*));
+
+    for(i=nopenedfiles;i<=fd;i++)
+       openedfiles[i]=NULL;
+
+    nopenedfiles=fd+1;
+   }
+
+ openedfiles[fd]=(struct openedfile*)calloc(sizeof(struct openedfile),1);
+
+ openedfiles[fd]->filename=strcpy(malloc(strlen(filename)+1),filename);
+ openedfiles[fd]->delete=0;
+}
+
+#endif

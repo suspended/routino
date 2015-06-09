@@ -133,20 +133,26 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
    }
  else
    {
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    const char *open_mode="wb";
+#else
+    const char *open_mode="w";
+#endif
+
     if(option_quickest==0)
       {
        /* Print the result for the shortest route */
 
        if(option_html)
-          htmlfile    =fopen("shortest.html","w");
+          htmlfile    =fopen("shortest.html",open_mode);
        if(option_gpx_track)
-          gpxtrackfile=fopen("shortest-track.gpx","w");
+          gpxtrackfile=fopen("shortest-track.gpx",open_mode);
        if(option_gpx_route)
-          gpxroutefile=fopen("shortest-route.gpx","w");
+          gpxroutefile=fopen("shortest-route.gpx",open_mode);
        if(option_text)
-          textfile    =fopen("shortest.txt","w");
+          textfile    =fopen("shortest.txt",open_mode);
        if(option_text_all)
-          textallfile =fopen("shortest-all.txt","w");
+          textallfile =fopen("shortest-all.txt",open_mode);
 
        if(option_html && !htmlfile)
           fprintf(stderr,"Warning: Cannot open file 'shortest.html' for writing [%s].\n",strerror(errno));
@@ -164,15 +170,15 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        /* Print the result for the quickest route */
 
        if(option_html)
-          htmlfile    =fopen("quickest.html","w");
+          htmlfile    =fopen("quickest.html",open_mode);
        if(option_gpx_track)
-          gpxtrackfile=fopen("quickest-track.gpx","w");
+          gpxtrackfile=fopen("quickest-track.gpx",open_mode);
        if(option_gpx_route)
-          gpxroutefile=fopen("quickest-route.gpx","w");
+          gpxroutefile=fopen("quickest-route.gpx",open_mode);
        if(option_text)
-          textfile    =fopen("quickest.txt","w");
+          textfile    =fopen("quickest.txt",open_mode);
        if(option_text_all)
-          textallfile =fopen("quickest-all.txt","w");
+          textallfile =fopen("quickest-all.txt",open_mode);
 
        if(option_html && !htmlfile)
           fprintf(stderr,"Warning: Cannot open file 'quickest.html' for writing [%s].\n",strerror(errno));

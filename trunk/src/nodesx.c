@@ -283,11 +283,7 @@ void SortNodeList(NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFileBuffered(nodesx->filename_tmp);
-
- DeleteFile(nodesx->filename_tmp);
-
- fd=OpenFileBufferedNew(nodesx->filename_tmp);
+ fd=ReplaceFileBuffered(nodesx->filename_tmp,&nodesx->fd);
 
  /* Allocate the array of indexes */
 
@@ -472,14 +468,16 @@ void RemoveNonHighwayNodes(NodesX *nodesx,WaysX *waysx,int keep)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFileBuffered(nodesx->filename_tmp);
-
  if(keep)
+   {
     RenameFile(nodesx->filename_tmp,nodesx->filename);
- else
-    DeleteFile(nodesx->filename_tmp);
 
- fd=OpenFileBufferedNew(nodesx->filename_tmp);
+    nodesx->fd=ReOpenFileBuffered(nodesx->filename);
+
+    fd=OpenFileBufferedNew(nodesx->filename_tmp);
+   }
+ else
+    fd=ReplaceFileBuffered(nodesx->filename_tmp,&nodesx->fd);
 
  /* Modify the on-disk image */
 
@@ -550,11 +548,7 @@ void RemovePrunedNodes(NodesX *nodesx,SegmentsX *segmentsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFileBuffered(nodesx->filename_tmp);
-
- DeleteFile(nodesx->filename_tmp);
-
- fd=OpenFileBufferedNew(nodesx->filename_tmp);
+ fd=ReplaceFileBuffered(nodesx->filename_tmp,&nodesx->fd);
 
  /* Modify the on-disk image */
 
@@ -637,11 +631,7 @@ void SortNodeListGeographically(NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- nodesx->fd=ReOpenFileBuffered(nodesx->filename_tmp);
-
- DeleteFile(nodesx->filename_tmp);
-
- fd=OpenFileBufferedNew(nodesx->filename_tmp);
+ fd=ReplaceFileBuffered(nodesx->filename_tmp,&nodesx->fd);
 
  /* Sort nodes geographically and index them */
 

@@ -37,11 +37,13 @@ typedef uint64_t ssize_t;
 #include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
-#if !defined(_MSC_VER)
-#include <strings.h>
-#else
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #define strcasecmp _stricmp
+#else
+#include <strings.h>
 #endif
+
 #include <ctype.h>
 
 #include "xmlparse.h"

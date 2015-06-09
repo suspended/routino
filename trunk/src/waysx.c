@@ -303,11 +303,7 @@ void SortWayList(WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- waysx->fd=ReOpenFileBuffered(waysx->filename_tmp);
-
- DeleteFile(waysx->filename_tmp);
-
- fd=OpenFileBufferedNew(waysx->filename_tmp);
+ fd=ReplaceFileBuffered(waysx->filename_tmp,&waysx->fd);
 
  /* Allocate the array of indexes */
 
@@ -423,14 +419,16 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
 
  /* Re-open the file read-only and a new file writeable */
 
- waysx->fd=ReOpenFileBuffered(waysx->filename_tmp);
-
  if(keep)
+   {
     RenameFile(waysx->filename_tmp,waysx->filename);
- else
-    DeleteFile(waysx->filename_tmp);
 
- fd=OpenFileBufferedNew(waysx->filename_tmp);
+    waysx->fd=ReOpenFileBuffered(waysx->filename);
+
+    fd=OpenFileBufferedNew(waysx->filename_tmp);
+   }
+ else
+    fd=ReplaceFileBuffered(waysx->filename_tmp,&waysx->fd);
 
  nfd=OpenFileBufferedNew(waysx->nfilename_tmp);
 
@@ -542,11 +540,7 @@ void SortWayNames(WaysX *waysx)
 
  /* Re-open the file read-only and new file writeable */
 
- waysx->nfd=ReOpenFileBuffered(waysx->nfilename_tmp);
-
- DeleteFile(waysx->nfilename_tmp);
-
- nfd=OpenFileBufferedNew(waysx->nfilename_tmp);
+ nfd=ReplaceFileBuffered(waysx->nfilename_tmp,&waysx->nfd);
 
  /* Sort the way names */
 
@@ -580,11 +574,7 @@ void SortWayNames(WaysX *waysx)
 
  /* Re-open the file read-only and new file writeable */
 
- waysx->nfd=ReOpenFileBuffered(waysx->nfilename_tmp);
-
- DeleteFile(waysx->nfilename_tmp);
-
- nfd=OpenFileBufferedNew(waysx->nfilename_tmp);
+ nfd=ReplaceFileBuffered(waysx->nfilename_tmp,&waysx->nfd);
 
  /* Update the ways and de-duplicate the names */
 
@@ -698,11 +688,7 @@ void CompactWayList(WaysX *waysx,SegmentsX *segmentsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- waysx->fd=ReOpenFileBuffered(waysx->filename_tmp);
-
- DeleteFile(waysx->filename_tmp);
-
- fd=OpenFileBufferedNew(waysx->filename_tmp);
+ fd=ReplaceFileBuffered(waysx->filename_tmp,&waysx->fd);
 
  /* Sort the ways to allow compacting according to the properties */
 
