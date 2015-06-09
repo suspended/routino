@@ -52,23 +52,28 @@ TRANS_FILES=$(wildcard $(WEBTRANSDIR)/translation.*.txt)
 
 DOC_FILES=$(notdir $(wildcard $(DOCDIR)/html/*.html)) $(notdir $(wildcard $(DOCDIR)/html/*.css))
 
-EXE_FILES=planetsplitter planetsplitter-slim \
-	  router         router-slim \
-	  filedumper     filedumper-slim \
-	  filedumperx
+EXE_FILES=planetsplitter planetsplitter-slim router router-slim filedumperx filedumper filedumper-slim
 
 ########
 
 all: all-bin all-data all-doc all-profiles all-translations all-icons
 
+####
+
 all-bin: all-exe
 	@[ -d $(WEBBINDIR) ] || mkdir -p $(WEBBINDIR)
 	@for file in $(EXE_FILES); do \
-	    if [ ! -f $(WEBBINDIR)/$$file ] || [ $(SRCDIR)/$$file -nt $(WEBBINDIR)/$$file ]; then \
+	    if [ -f $(SRCDIR)/$$file -a ! -f $(WEBBINDIR)/$$file ] || [ $(SRCDIR)/$$file -nt $(WEBBINDIR)/$$file ]; then \
 	       echo cp $(SRCDIR)/$$file $(WEBBINDIR) ;\
 	       cp -f $(SRCDIR)/$$file $(WEBBINDIR) ;\
 	    fi ;\
+	    if [ -f $(SRCDIR)/$$file.exe -a ! -f $(WEBBINDIR)/$$file.exe ] || [ $(SRCDIR)/$$file.exe -nt $(WEBBINDIR)/$$file.exe ]; then \
+	       echo cp $(SRCDIR)/$$file.exe $(WEBBINDIR) ;\
+	       cp -f $(SRCDIR)/$$file.exe $(WEBBINDIR) ;\
+	    fi ;\
 	 done
+
+####
 
 all-data: all-xml
 	@[ -d $(WEBDATADIR) ] || mkdir -p $(WEBDATADIR)
@@ -85,6 +90,8 @@ all-data: all-xml
 	    fi ;\
 	 done
 
+####
+
 all-doc:
 	@[ -d $(WEBDOCDIR) ] || mkdir -p $(WEBDOCDIR)
 	@for file in $(DOC_FILES); do \
@@ -94,6 +101,8 @@ all-doc:
 	    fi ;\
 	 done
 
+####
+
 all-profiles: all-exe all-data
 	@if [ ! -f $(WEBWWWDIR)/profiles.js ] || [ ! -f $(WEBWWWDIR)/profiles.pl ] || \
 	     [ $(WEBDATADIR)/profiles.xml -nt $(WEBWWWDIR)/profiles.pl ] || \
@@ -102,9 +111,23 @@ all-profiles: all-exe all-data
 	    ( cd $(WEBWWWDIR) ; perl update-profiles.pl ) ;\
 	 fi
 
+####
+
 all-translations: $(WEBWWWDIR)/router.html    $(WEBWWWDIR)/visualiser.html \
 	          $(WEBWWWDIR)/router.html.en $(WEBWWWDIR)/visualiser.html.en \
 	          $(XMLDIR)/routino-translations.xml
+
+ifdef MINGW
+
+$(WEBWWWDIR)/router.html: $(WEBWWWDIR)/router.html.en
+	@echo cp $< $@
+	@cp -f $< $@
+
+$(WEBWWWDIR)/visualiser.html: $(WEBWWWDIR)/visualiser.html.en
+	@echo cp $< $@
+	@cp -f $< $@
+
+else
 
 $(WEBWWWDIR)/router.html: $(WEBWWWDIR)/router.html.en
 	@echo ln -s `basename $<` $@
@@ -113,6 +136,8 @@ $(WEBWWWDIR)/router.html: $(WEBWWWDIR)/router.html.en
 $(WEBWWWDIR)/visualiser.html: $(WEBWWWDIR)/visualiser.html.en
 	@echo ln -s `basename $<` $@
 	@ln -s -f `basename $<` $@
+
+endif
 
 $(WEBWWWDIR)/router.html.en: $(WEBTRANSDIR)/router.html $(TRANS_FILES) $(WEBTRANSDIR)/translate.pl
 	@echo translate.pl
@@ -126,14 +151,20 @@ $(XMLDIR)/routino-translations.xml: $(WEBTRANSDIR)/translations-head.xml $(WEBTR
 	@echo translate.pl
 	@cd $(WEBTRANSDIR) && perl translate.pl
 
+####
+
 all-icons: $(WEBICONDIR)/ball-0.png
 
 $(WEBICONDIR)/ball-0.png: $(WEBICONDIR)/create-icons.pl
 	@echo create-icons.pl
 	@cd $(WEBICONDIR) && perl create-icons.pl
 
+####
+
 all-exe:
 	cd $(SRCDIR) && $(MAKE) $(EXE_FILES)
+
+####
 
 all-xml: $(XMLDIR)/routino-translations.xml
 	cd $(XMLDIR) && $(MAKE) all
@@ -155,7 +186,7 @@ clean: clean clean-all-bin clean-all-data clean-all-doc clean-all-profiles clean
 	rm -f *~
 
 clean-all-bin:
-	-cd $(WEBBINDIR)  && rm -f $(EXE_FILES)
+	-cd $(WEBBINDIR)  && rm -f $(EXE_FILES) *.exe
 
 clean-all-data:
 	-cd $(WEBDATADIR) && rm -f $(STANDARD_XML_FILES)

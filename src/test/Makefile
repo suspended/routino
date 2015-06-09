@@ -108,7 +108,7 @@ clean:
 	rm -f *.log
 	rm -f *~
 	rm -f *.o
-	rm -f $(EXE)
+	rm -f $(EXE) *.exe
 	rm -f core
 	rm -f *.gcda *.gcno *.gcov gmon.out
 

@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2013-2014 Andrew M. Bishop
+ This file Copyright 2013-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -146,11 +146,7 @@ void ProcessErrorLogs(ErrorLogsX *errorlogsx,NodesX *nodesx,WaysX *waysx,Relatio
 
  /* Open the binary log file read-only and a new file writeable */
 
- oldfd=ReOpenFileBuffered(errorbinfilename);
-
- DeleteFile(errorbinfilename);
-
- newfd=OpenFileBufferedNew(errorbinfilename);
+ newfd=ReplaceFileBuffered(errorbinfilename,&oldfd);
 
  /* Loop through the file and merge the raw data into coordinates */
 
@@ -702,11 +698,7 @@ void SortErrorLogsGeographically(ErrorLogsX *errorlogsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- oldfd=ReOpenFileBuffered(errorbinfilename);
-
- DeleteFile(errorbinfilename);
-
- newfd=OpenFileBufferedNew(errorbinfilename);
+ newfd=ReplaceFileBuffered(errorbinfilename,&oldfd);
 
  /* Sort errors geographically */
 

@@ -62,6 +62,10 @@ PLANETSPLITTER_OBJ=planetsplitter.o \
 	           xmlparse.o tagging.o \
 	           uncompress.o osmxmlparse.o osmpbfparse.o osmo5mparse.o osmparser.o
 
+ifdef MINGW
+PLANETSPLITTER_OBJ+=mman-win32.o
+endif
+
 planetsplitter : $(PLANETSPLITTER_OBJ)
 	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
 
@@ -75,6 +79,10 @@ PLANETSPLITTER_SLIM_OBJ=planetsplitter-slim.o \
 	                xmlparse.o tagging.o \
 	                uncompress.o osmxmlparse.o osmpbfparse.o osmo5mparse.o osmparser.o
 
+ifdef MINGW
+PLANETSPLITTER_SLIM_OBJ+=mman-win32.o
+endif
+
 planetsplitter-slim : $(PLANETSPLITTER_SLIM_OBJ)
 	$(LD) $(PLANETSPLITTER_SLIM_OBJ) -o $@ $(LDFLAGS)
 
@@ -85,6 +93,10 @@ ROUTER_OBJ=router.o \
 	   optimiser.o output.o \
 	   files.o logging.o profiles.o xmlparse.o \
 	   results.o queue.o translations.o
+
+ifdef MINGW
+ROUTER_OBJ+=mman-win32.o
+endif
 
 router : $(ROUTER_OBJ)
 	$(LD) $(ROUTER_OBJ) -o $@ $(LDFLAGS)
@@ -97,6 +109,10 @@ ROUTER_SLIM_OBJ=router-slim.o \
 	        files.o logging.o profiles.o xmlparse.o \
 	        results.o queue.o translations.o
 
+ifdef MINGW
+ROUTER_SLIM_OBJ+=mman-win32.o
+endif
+
 router-slim : $(ROUTER_SLIM_OBJ)
 	$(LD) $(ROUTER_SLIM_OBJ) -o $@ $(LDFLAGS)
 
@@ -104,6 +120,10 @@ router-slim : $(ROUTER_SLIM_OBJ)
 
 FILEDUMPERX_OBJ=filedumperx.o \
 	        files.o logging.o
+
+ifdef MINGW
+FILEDUMPERX_OBJ+=mman-win32.o
+endif
 
 filedumperx : $(FILEDUMPERX_OBJ)
 	$(LD) $(FILEDUMPERX_OBJ) -o $@ $(LDFLAGS)
@@ -115,6 +135,10 @@ FILEDUMPER_OBJ=filedumper.o \
                visualiser.o \
 	       files.o logging.o xmlparse.o
 
+ifdef MINGW
+FILEDUMPER_OBJ+=mman-win32.o
+endif
+
 filedumper : $(FILEDUMPER_OBJ)
 	$(LD) $(FILEDUMPER_OBJ) -o $@ $(LDFLAGS)
 
@@ -122,8 +146,12 @@ filedumper : $(FILEDUMPER_OBJ)
 
 FILEDUMPER_SLIM_OBJ=filedumper-slim.o \
 	       nodes-slim.o segments-slim.o ways-slim.o relations-slim.o types.o fakes-slim.o errorlog-slim.o \
-               visualiser-slim.o \
+	       visualiser-slim.o \
 	       files.o logging.o xmlparse.o
+
+ifdef MINGW
+FILEDUMPER_SLIM_OBJ+=mman-win32.o
+endif
 
 filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
 	$(LD) $(FILEDUMPER_SLIM_OBJ) -o $@ $(LDFLAGS)
@@ -157,8 +185,14 @@ install: install-local
 install-local: all-local
 	@[ -d $(DESTDIR)$(bindir) ] || mkdir -p $(DESTDIR)$(bindir)
 	@for file in $(EXE); do \
-	    echo cp $$file $(DESTDIR)$(bindir) ;\
-	    cp -f $$file $(DESTDIR)$(bindir) ;\
+	    if [ -f $$file ]; then \
+	       echo cp $$file $(DESTDIR)$(bindir) ;\
+	       cp -f $$file $(DESTDIR)$(bindir) ;\
+	    fi ;\
+	    if [ -f $$file.exe ]; then \
+	       echo cp $$file.exe $(DESTDIR)$(bindir) ;\
+	       cp -f $$file.exe $(DESTDIR)$(bindir) ;\
+	    fi ;\
 	 done
 
 ########
@@ -171,7 +205,7 @@ clean: clean-local
 clean-local:
 	rm -f *~
 	rm -f *.o
-	rm -f $(EXE)
+	rm -f $(EXE) *.exe
 	rm -f $(D)
 	rm -fr .deps
 	rm -f core

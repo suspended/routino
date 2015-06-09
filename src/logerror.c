@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2013 Andrew M. Bishop
+ This file Copyright 2013, 2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -69,7 +69,11 @@ void open_errorlog(const char *filename,int append,int bin)
 
  strcpy(errorlogfilename,filename);
 
- errorlogfile=fopen(errorlogfilename,append?"a":"w");
+#if defined(_MSC_VER) || defined(__MINGW32__)
+ errorlogfile=fopen(errorlogfilename,append?"ab":"wb");
+#else
+ errorlogfile=fopen(errorlogfilename,append?"a" :"w" );
+#endif
 
  if(!errorlogfile)
    {

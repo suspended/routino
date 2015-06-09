@@ -452,11 +452,7 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Re-open the file read-only and a new file writeable */
 
-    relationsx->rrfd=ReOpenFileBuffered(relationsx->rrfilename_tmp);
-
-    DeleteFile(relationsx->rrfilename_tmp);
-
-    rrfd=OpenFileBufferedNew(relationsx->rrfilename_tmp);
+    rrfd=ReplaceFileBuffered(relationsx->rrfilename_tmp,&relationsx->rrfd);
 
     /* Sort the relations */
 
@@ -491,11 +487,7 @@ void SortRelationList(RelationsX* relationsx)
 
     /* Re-open the file read-only and a new file writeable */
 
-    relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename_tmp);
-
-    DeleteFile(relationsx->trfilename_tmp);
-
-    trfd=OpenFileBufferedNew(relationsx->trfilename_tmp);
+    trfd=ReplaceFileBuffered(relationsx->trfilename_tmp,&relationsx->trfd);
 
     /* Sort the relations */
 
@@ -858,14 +850,16 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
 
  /* Re-open the file read-only and a new file writeable */
 
- relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename_tmp);
-
  if(keep)
+   {
     RenameFile(relationsx->trfilename_tmp,relationsx->trfilename);
- else
-    DeleteFile(relationsx->trfilename_tmp);
 
- trfd=OpenFileBufferedNew(relationsx->trfilename_tmp);
+    relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename);
+
+    trfd=OpenFileBufferedNew(relationsx->trfilename_tmp);
+   }
+ else
+    trfd=ReplaceFileBuffered(relationsx->trfilename_tmp,&relationsx->trfd);
 
  /* Process all of the relations */
 
@@ -1181,11 +1175,7 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename_tmp);
-
- DeleteFile(relationsx->trfilename_tmp);
-
- trfd=OpenFileBufferedNew(relationsx->trfilename_tmp);
+ trfd=ReplaceFileBuffered(relationsx->trfilename_tmp,&relationsx->trfd);
 
  /* Process all of the relations */
 
@@ -1257,11 +1247,7 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
 
  /* Re-open the file read-only and a new file writeable */
 
- relationsx->trfd=ReOpenFileBuffered(relationsx->trfilename_tmp);
-
- DeleteFile(relationsx->trfilename_tmp);
-
- trfd=OpenFileBufferedNew(relationsx->trfilename_tmp);
+ trfd=ReplaceFileBuffered(relationsx->trfilename_tmp,&relationsx->trfd);
 
  /* Update the segments with geographically sorted node indexes and sort them */
 

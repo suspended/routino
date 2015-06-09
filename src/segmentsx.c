@@ -294,11 +294,7 @@ void SortSegmentList(SegmentsX *segmentsx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileBufferedNew(segmentsx->filename_tmp);
+ fd=ReplaceFileBuffered(segmentsx->filename_tmp,&segmentsx->fd);
 
  /* Sort by node indexes */
 
@@ -413,11 +409,7 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileBufferedNew(segmentsx->filename_tmp);
+ fd=ReplaceFileBuffered(segmentsx->filename_tmp,&segmentsx->fd);
 
  /* Modify the on-disk image */
 
@@ -654,11 +646,7 @@ void RemovePrunedSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileBufferedNew(segmentsx->filename_tmp);
+ fd=ReplaceFileBuffered(segmentsx->filename_tmp,&segmentsx->fd);
 
  /* Sort by node indexes */
 
@@ -734,11 +722,7 @@ void DeduplicateSuperSegments(SegmentsX *segmentsx,WaysX *waysx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileBufferedNew(segmentsx->filename_tmp);
+ fd=ReplaceFileBuffered(segmentsx->filename_tmp,&segmentsx->fd);
 
  /* Sort by node indexes */
 
@@ -858,11 +842,7 @@ void SortSegmentListGeographically(SegmentsX *segmentsx,NodesX *nodesx)
 
  /* Re-open the file read-only and a new file writeable */
 
- segmentsx->fd=ReOpenFileBuffered(segmentsx->filename_tmp);
-
- DeleteFile(segmentsx->filename_tmp);
-
- fd=OpenFileBufferedNew(segmentsx->filename_tmp);
+ fd=ReplaceFileBuffered(segmentsx->filename_tmp,&segmentsx->fd);
 
  /* Update the segments with geographically sorted node indexes and sort them */
 
