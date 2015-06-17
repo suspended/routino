@@ -11,7 +11,7 @@ tagmodifier
 
 Usage: tagmodifier [--help]
                    [--tagging=<filename>]
-                   [--loggable] [--logtime]
+                   [--loggable] [--logtime] [--logmemory]
                    [--errorlog[<name>]]
                    [<filename.osm> | <filename.osm.bz2> |
                     <filename.osm.gz> | <filename.osm.xz>]
@@ -30,6 +30,9 @@ Usage: tagmodifier [--help]
 
 --logtime
        Print the elapsed time for the processing.
+
+--logmemory
+       Print the used memory for the processing.
 
 --errorlog[=<name>]
        Log parsing errors to 'error.log' or the specified file name.
