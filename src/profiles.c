@@ -64,136 +64,136 @@ static int lengthType_function(const char *_tag_,int _type_,const char *limit);
 
 /* The XML tag definitions (forward declarations) */
 
-static xmltag xmlDeclaration_tag;
-static xmltag RoutinoProfilesType_tag;
-static xmltag profileType_tag;
-static xmltag speedsType_tag;
-static xmltag preferencesType_tag;
-static xmltag propertiesType_tag;
-static xmltag restrictionsType_tag;
-static xmltag speedType_tag;
-static xmltag preferenceType_tag;
-static xmltag propertyType_tag;
-static xmltag onewayType_tag;
-static xmltag turnsType_tag;
-static xmltag weightType_tag;
-static xmltag heightType_tag;
-static xmltag widthType_tag;
-static xmltag lengthType_tag;
+static const xmltag xmlDeclaration_tag;
+static const xmltag RoutinoProfilesType_tag;
+static const xmltag profileType_tag;
+static const xmltag speedsType_tag;
+static const xmltag preferencesType_tag;
+static const xmltag propertiesType_tag;
+static const xmltag restrictionsType_tag;
+static const xmltag speedType_tag;
+static const xmltag preferenceType_tag;
+static const xmltag propertyType_tag;
+static const xmltag onewayType_tag;
+static const xmltag turnsType_tag;
+static const xmltag weightType_tag;
+static const xmltag heightType_tag;
+static const xmltag widthType_tag;
+static const xmltag lengthType_tag;
 
 
 /* The XML tag definition values */
 
 /*+ The complete set of tags at the top level. +*/
-static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoProfilesType_tag,NULL};
+static const xmltag * const xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoProfilesType_tag,NULL};
 
 /*+ The xmlDeclaration type tag. +*/
-static xmltag xmlDeclaration_tag=
+static const xmltag xmlDeclaration_tag=
               {"xml",
                2, {"version","encoding"},
                NULL,
                {NULL}};
 
 /*+ The RoutinoProfilesType type tag. +*/
-static xmltag RoutinoProfilesType_tag=
+static const xmltag RoutinoProfilesType_tag=
               {"routino-profiles",
                0, {NULL},
                NULL,
                {&profileType_tag,NULL}};
 
 /*+ The profileType type tag. +*/
-static xmltag profileType_tag=
+static const xmltag profileType_tag=
               {"profile",
                2, {"name","transport"},
                profileType_function,
                {&speedsType_tag,&preferencesType_tag,&propertiesType_tag,&restrictionsType_tag,NULL}};
 
 /*+ The speedsType type tag. +*/
-static xmltag speedsType_tag=
+static const xmltag speedsType_tag=
               {"speeds",
                0, {NULL},
                NULL,
                {&speedType_tag,NULL}};
 
 /*+ The preferencesType type tag. +*/
-static xmltag preferencesType_tag=
+static const xmltag preferencesType_tag=
               {"preferences",
                0, {NULL},
                NULL,
                {&preferenceType_tag,NULL}};
 
 /*+ The propertiesType type tag. +*/
-static xmltag propertiesType_tag=
+static const xmltag propertiesType_tag=
               {"properties",
                0, {NULL},
                NULL,
                {&propertyType_tag,NULL}};
 
 /*+ The restrictionsType type tag. +*/
-static xmltag restrictionsType_tag=
+static const xmltag restrictionsType_tag=
               {"restrictions",
                0, {NULL},
                NULL,
                {&onewayType_tag,&turnsType_tag,&weightType_tag,&heightType_tag,&widthType_tag,&lengthType_tag,NULL}};
 
 /*+ The speedType type tag. +*/
-static xmltag speedType_tag=
+static const xmltag speedType_tag=
               {"speed",
                2, {"highway","kph"},
                speedType_function,
                {NULL}};
 
 /*+ The preferenceType type tag. +*/
-static xmltag preferenceType_tag=
+static const xmltag preferenceType_tag=
               {"preference",
                2, {"highway","percent"},
                preferenceType_function,
                {NULL}};
 
 /*+ The propertyType type tag. +*/
-static xmltag propertyType_tag=
+static const xmltag propertyType_tag=
               {"property",
                2, {"type","percent"},
                propertyType_function,
                {NULL}};
 
 /*+ The onewayType type tag. +*/
-static xmltag onewayType_tag=
+static const xmltag onewayType_tag=
               {"oneway",
                1, {"obey"},
                onewayType_function,
                {NULL}};
 
 /*+ The turnsType type tag. +*/
-static xmltag turnsType_tag=
+static const xmltag turnsType_tag=
               {"turns",
                1, {"obey"},
                turnsType_function,
                {NULL}};
 
 /*+ The weightType type tag. +*/
-static xmltag weightType_tag=
+static const xmltag weightType_tag=
               {"weight",
                1, {"limit"},
                weightType_function,
                {NULL}};
 
 /*+ The heightType type tag. +*/
-static xmltag heightType_tag=
+static const xmltag heightType_tag=
               {"height",
                1, {"limit"},
                heightType_function,
                {NULL}};
 
 /*+ The widthType type tag. +*/
-static xmltag widthType_tag=
+static const xmltag widthType_tag=
               {"width",
                1, {"limit"},
                widthType_function,
                {NULL}};
 
 /*+ The lengthType type tag. +*/
-static xmltag lengthType_tag=
+static const xmltag lengthType_tag=
               {"length",
                1, {"limit"},
                lengthType_function,

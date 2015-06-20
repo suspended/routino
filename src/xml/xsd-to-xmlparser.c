@@ -72,56 +72,56 @@ static int attributeType_function(const char *_tag_,int _type_,const char *name,
 
 /* The XML tag definitions (forward declarations) */
 
-static xmltag xmlDeclaration_tag;
-static xmltag schemaType_tag;
-static xmltag elementType_tag;
-static xmltag complexType_tag;
-static xmltag sequenceType_tag;
-static xmltag attributeType_tag;
+static const xmltag xmlDeclaration_tag;
+static const xmltag schemaType_tag;
+static const xmltag elementType_tag;
+static const xmltag complexType_tag;
+static const xmltag sequenceType_tag;
+static const xmltag attributeType_tag;
 
 
 /* The XML tag definition values */
 
 /*+ The complete set of tags at the top level. +*/
-static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&schemaType_tag,NULL};
+static const xmltag * const xml_toplevel_tags[]={&xmlDeclaration_tag,&schemaType_tag,NULL};
 
 /*+ The xmlDeclaration type tag. +*/
-static xmltag xmlDeclaration_tag=
+static const xmltag xmlDeclaration_tag=
               {"xml",
                2, {"version","encoding"},
                xmlDeclaration_function,
                {NULL}};
 
 /*+ The schemaType type tag. +*/
-static xmltag schemaType_tag=
+static const xmltag schemaType_tag=
               {"xsd:schema",
                2, {"elementFormDefault","xmlns:xsd"},
                schemaType_function,
                {&elementType_tag,&complexType_tag,NULL}};
 
 /*+ The elementType type tag. +*/
-static xmltag elementType_tag=
+static const xmltag elementType_tag=
               {"xsd:element",
                4, {"name","type","minOccurs","maxOccurs"},
                elementType_function,
                {NULL}};
 
 /*+ The complexType type tag. +*/
-static xmltag complexType_tag=
+static const xmltag complexType_tag=
               {"xsd:complexType",
                1, {"name"},
                complexType_function,
                {&sequenceType_tag,&attributeType_tag,NULL}};
 
 /*+ The sequenceType type tag. +*/
-static xmltag sequenceType_tag=
+static const xmltag sequenceType_tag=
               {"xsd:sequence",
                0, {NULL},
                sequenceType_function,
                {&elementType_tag,NULL}};
 
 /*+ The attributeType type tag. +*/
-static xmltag attributeType_tag=
+static const xmltag attributeType_tag=
               {"xsd:attribute",
                2, {"name","type"},
                attributeType_function,
@@ -372,7 +372,7 @@ int main(int argc,char **argv)
  printf("\n");
 
  for(i=0;i<ntagsx;i++)
-    printf("static xmltag %s_tag;\n",safe(tagsx[i]->type));
+    printf("static const xmltag %s_tag;\n",safe(tagsx[i]->type));
 
  printf("\n");
  printf("\n");
@@ -380,7 +380,7 @@ int main(int argc,char **argv)
 
  printf("\n");
  printf("/*+ The complete set of tags at the top level. +*/\n");
- printf("static xmltag *xml_toplevel_tags[]={");
+ printf("static const xmltag * const xml_toplevel_tags[]={");
  printf("&%s_tag,",safe(tagsx[0]->type));
  printf("&%s_tag,",safe(tagsx[1]->type));
  printf("NULL};\n");
@@ -389,7 +389,7 @@ int main(int argc,char **argv)
    {
     printf("\n");
     printf("/*+ The %s type tag. +*/\n",tagsx[i]->type);
-    printf("static xmltag %s_tag=\n",safe(tagsx[i]->type));
+    printf("static const xmltag %s_tag=\n",safe(tagsx[i]->type));
     printf("              {\"%s\",\n",tagsx[i]->name);
 
     printf("               %d, {",tagsx[i]->nattributes);

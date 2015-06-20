@@ -267,12 +267,12 @@ static inline int call_callback(const char *name,int (*callback)(),int type,int 
 
   int fd The file descriptor of the file to parse.
 
-  xmltag **tags The array of pointers to tags for the top level.
+  const xmltag *const *tags The array of pointers to tags for the top level.
 
   int options A list of XML Parser options OR-ed together.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXML(int fd,xmltag **tags,int options)
+int ParseXML(int fd,const xmltag *const *tags,int options)
 {
  int i;
  int state,next_state,after_attr;
@@ -283,9 +283,10 @@ int ParseXML(int fd,xmltag **tags,int options)
  int attribute=0;
 
  int stackdepth=0,stackused=0;
- xmltag ***tags_stack=NULL;
- xmltag **tag_stack=NULL;
- xmltag *tag=NULL;
+ const xmltag * const **tags_stack=NULL;
+ const xmltag **tag_stack=NULL;
+ const xmltag *tag=NULL;
+// const xmltag * const *tags=alltags;
 
  /* The actual parser. */
 
@@ -985,8 +986,8 @@ int ParseXML(int fd,xmltag **tags,int options)
 
     if(stackused==stackdepth)
       {
-       tag_stack =(xmltag**) realloc((void*)tag_stack ,(stackdepth+=8)*sizeof(xmltag*));
-       tags_stack=(xmltag***)realloc((void*)tags_stack,(stackdepth+=8)*sizeof(xmltag**));
+       tag_stack =realloc(tag_stack ,(stackdepth+=8)*sizeof(xmltag*));
+       tags_stack=realloc(tags_stack,(stackdepth+=8)*sizeof(xmltag**));
       }
 
     tag_stack [stackused]=tag;

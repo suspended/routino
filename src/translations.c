@@ -116,224 +116,224 @@ static int GPXFinalType_function(const char *_tag_,int _type_,const char *text);
 
 /* The XML tag definitions (forward declarations) */
 
-static xmltag xmlDeclaration_tag;
-static xmltag RoutinoTranslationsType_tag;
-static xmltag LanguageType_tag;
-static xmltag CopyrightType_tag;
-static xmltag TurnType_tag;
-static xmltag HeadingType_tag;
-static xmltag OrdinalType_tag;
-static xmltag HighwayType_tag;
-static xmltag RouteType_tag;
-static xmltag HTMLType_tag;
-static xmltag GPXType_tag;
-static xmltag CopyrightCreatorType_tag;
-static xmltag CopyrightSourceType_tag;
-static xmltag CopyrightLicenseType_tag;
-static xmltag HTMLWaypointType_tag;
-static xmltag HTMLTitleType_tag;
-static xmltag HTMLStartType_tag;
-static xmltag HTMLNodeType_tag;
-static xmltag HTMLRBNodeType_tag;
-static xmltag HTMLSegmentType_tag;
-static xmltag HTMLStopType_tag;
-static xmltag HTMLTotalType_tag;
-static xmltag GPXWaypointType_tag;
-static xmltag GPXDescType_tag;
-static xmltag GPXNameType_tag;
-static xmltag GPXStepType_tag;
-static xmltag GPXFinalType_tag;
+static const xmltag xmlDeclaration_tag;
+static const xmltag RoutinoTranslationsType_tag;
+static const xmltag LanguageType_tag;
+static const xmltag CopyrightType_tag;
+static const xmltag TurnType_tag;
+static const xmltag HeadingType_tag;
+static const xmltag OrdinalType_tag;
+static const xmltag HighwayType_tag;
+static const xmltag RouteType_tag;
+static const xmltag HTMLType_tag;
+static const xmltag GPXType_tag;
+static const xmltag CopyrightCreatorType_tag;
+static const xmltag CopyrightSourceType_tag;
+static const xmltag CopyrightLicenseType_tag;
+static const xmltag HTMLWaypointType_tag;
+static const xmltag HTMLTitleType_tag;
+static const xmltag HTMLStartType_tag;
+static const xmltag HTMLNodeType_tag;
+static const xmltag HTMLRBNodeType_tag;
+static const xmltag HTMLSegmentType_tag;
+static const xmltag HTMLStopType_tag;
+static const xmltag HTMLTotalType_tag;
+static const xmltag GPXWaypointType_tag;
+static const xmltag GPXDescType_tag;
+static const xmltag GPXNameType_tag;
+static const xmltag GPXStepType_tag;
+static const xmltag GPXFinalType_tag;
 
 
 /* The XML tag definition values */
 
 /*+ The complete set of tags at the top level. +*/
-static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoTranslationsType_tag,NULL};
+static const xmltag * const xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoTranslationsType_tag,NULL};
 
 /*+ The xmlDeclaration type tag. +*/
-static xmltag xmlDeclaration_tag=
+static const xmltag xmlDeclaration_tag=
               {"xml",
                2, {"version","encoding"},
                NULL,
                {NULL}};
 
 /*+ The RoutinoTranslationsType type tag. +*/
-static xmltag RoutinoTranslationsType_tag=
+static const xmltag RoutinoTranslationsType_tag=
               {"routino-translations",
                0, {NULL},
                NULL,
                {&LanguageType_tag,NULL}};
 
 /*+ The LanguageType type tag. +*/
-static xmltag LanguageType_tag=
+static const xmltag LanguageType_tag=
               {"language",
                1, {"lang"},
                LanguageType_function,
                {&CopyrightType_tag,&TurnType_tag,&HeadingType_tag,&OrdinalType_tag,&HighwayType_tag,&RouteType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
 
 /*+ The CopyrightType type tag. +*/
-static xmltag CopyrightType_tag=
+static const xmltag CopyrightType_tag=
               {"copyright",
                0, {NULL},
                NULL,
                {&CopyrightCreatorType_tag,&CopyrightSourceType_tag,&CopyrightLicenseType_tag,NULL}};
 
 /*+ The TurnType type tag. +*/
-static xmltag TurnType_tag=
+static const xmltag TurnType_tag=
               {"turn",
                2, {"direction","string"},
                TurnType_function,
                {NULL}};
 
 /*+ The HeadingType type tag. +*/
-static xmltag HeadingType_tag=
+static const xmltag HeadingType_tag=
               {"heading",
                2, {"direction","string"},
                HeadingType_function,
                {NULL}};
 
 /*+ The OrdinalType type tag. +*/
-static xmltag OrdinalType_tag=
+static const xmltag OrdinalType_tag=
               {"ordinal",
                2, {"number","string"},
                OrdinalType_function,
                {NULL}};
 
 /*+ The HighwayType type tag. +*/
-static xmltag HighwayType_tag=
+static const xmltag HighwayType_tag=
               {"highway",
                2, {"type","string"},
                HighwayType_function,
                {NULL}};
 
 /*+ The RouteType type tag. +*/
-static xmltag RouteType_tag=
+static const xmltag RouteType_tag=
               {"route",
                2, {"type","string"},
                RouteType_function,
                {NULL}};
 
 /*+ The HTMLType type tag. +*/
-static xmltag HTMLType_tag=
+static const xmltag HTMLType_tag=
               {"output-html",
                0, {NULL},
                NULL,
                {&HTMLWaypointType_tag,&HTMLTitleType_tag,&HTMLStartType_tag,&HTMLNodeType_tag,&HTMLRBNodeType_tag,&HTMLSegmentType_tag,&HTMLStopType_tag,&HTMLTotalType_tag,NULL}};
 
 /*+ The GPXType type tag. +*/
-static xmltag GPXType_tag=
+static const xmltag GPXType_tag=
               {"output-gpx",
                0, {NULL},
                NULL,
                {&GPXWaypointType_tag,&GPXDescType_tag,&GPXNameType_tag,&GPXStepType_tag,&GPXFinalType_tag,NULL}};
 
 /*+ The CopyrightCreatorType type tag. +*/
-static xmltag CopyrightCreatorType_tag=
+static const xmltag CopyrightCreatorType_tag=
               {"creator",
                2, {"string","text"},
                CopyrightCreatorType_function,
                {NULL}};
 
 /*+ The CopyrightSourceType type tag. +*/
-static xmltag CopyrightSourceType_tag=
+static const xmltag CopyrightSourceType_tag=
               {"source",
                2, {"string","text"},
                CopyrightSourceType_function,
                {NULL}};
 
 /*+ The CopyrightLicenseType type tag. +*/
-static xmltag CopyrightLicenseType_tag=
+static const xmltag CopyrightLicenseType_tag=
               {"license",
                2, {"string","text"},
                CopyrightLicenseType_function,
                {NULL}};
 
 /*+ The HTMLWaypointType type tag. +*/
-static xmltag HTMLWaypointType_tag=
+static const xmltag HTMLWaypointType_tag=
               {"waypoint",
                2, {"type","string"},
                HTMLWaypointType_function,
                {NULL}};
 
 /*+ The HTMLTitleType type tag. +*/
-static xmltag HTMLTitleType_tag=
+static const xmltag HTMLTitleType_tag=
               {"title",
                1, {"text"},
                HTMLTitleType_function,
                {NULL}};
 
 /*+ The HTMLStartType type tag. +*/
-static xmltag HTMLStartType_tag=
+static const xmltag HTMLStartType_tag=
               {"start",
                2, {"string","text"},
                HTMLStartType_function,
                {NULL}};
 
 /*+ The HTMLNodeType type tag. +*/
-static xmltag HTMLNodeType_tag=
+static const xmltag HTMLNodeType_tag=
               {"node",
                2, {"string","text"},
                HTMLNodeType_function,
                {NULL}};
 
 /*+ The HTMLRBNodeType type tag. +*/
-static xmltag HTMLRBNodeType_tag=
+static const xmltag HTMLRBNodeType_tag=
               {"rbnode",
                2, {"string","text"},
                HTMLRBNodeType_function,
                {NULL}};
 
 /*+ The HTMLSegmentType type tag. +*/
-static xmltag HTMLSegmentType_tag=
+static const xmltag HTMLSegmentType_tag=
               {"segment",
                2, {"string","text"},
                HTMLSegmentType_function,
                {NULL}};
 
 /*+ The HTMLStopType type tag. +*/
-static xmltag HTMLStopType_tag=
+static const xmltag HTMLStopType_tag=
               {"stop",
                2, {"string","text"},
                HTMLStopType_function,
                {NULL}};
 
 /*+ The HTMLTotalType type tag. +*/
-static xmltag HTMLTotalType_tag=
+static const xmltag HTMLTotalType_tag=
               {"total",
                2, {"string","text"},
                HTMLTotalType_function,
                {NULL}};
 
 /*+ The GPXWaypointType type tag. +*/
-static xmltag GPXWaypointType_tag=
+static const xmltag GPXWaypointType_tag=
               {"waypoint",
                2, {"type","string"},
                GPXWaypointType_function,
                {NULL}};
 
 /*+ The GPXDescType type tag. +*/
-static xmltag GPXDescType_tag=
+static const xmltag GPXDescType_tag=
               {"desc",
                1, {"text"},
                GPXDescType_function,
                {NULL}};
 
 /*+ The GPXNameType type tag. +*/
-static xmltag GPXNameType_tag=
+static const xmltag GPXNameType_tag=
               {"name",
                1, {"text"},
                GPXNameType_function,
                {NULL}};
 
 /*+ The GPXStepType type tag. +*/
-static xmltag GPXStepType_tag=
+static const xmltag GPXStepType_tag=
               {"step",
                1, {"text"},
                GPXStepType_function,
                {NULL}};
 
 /*+ The GPXFinalType type tag. +*/
-static xmltag GPXFinalType_tag=
+static const xmltag GPXFinalType_tag=
               {"final",
                1, {"text"},
                GPXFinalType_function,

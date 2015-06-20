@@ -63,70 +63,70 @@ static int boundsType_function(const char *_tag_,int _type_,const char *minlat,c
 /* The XML tag definitions */
 
 /*+ The boundsType type tag. +*/
-static xmltag boundsType_tag=
+static const xmltag boundsType_tag=
               {"bounds",
                5, {"minlat","minlon","maxlat","maxlon","origin"},
                boundsType_function,
                {NULL}};
 
 /*+ The boundType type tag. +*/
-static xmltag boundType_tag=
+static const xmltag boundType_tag=
               {"bound",
                2, {"box","origin"},
                boundType_function,
                {NULL}};
 
 /*+ The tagType type tag. +*/
-static xmltag tagType_tag=
+static const xmltag tagType_tag=
               {"tag",
                2, {"k","v"},
                tagType_function,
                {NULL}};
 
 /*+ The nodeType type tag. +*/
-static xmltag nodeType_tag=
+static const xmltag nodeType_tag=
               {"node",
                9, {"id","lat","lon","timestamp","uid","user","visible","version","action"},
                nodeType_function,
                {&tagType_tag,NULL}};
 
 /*+ The ndType type tag. +*/
-static xmltag ndType_tag=
+static const xmltag ndType_tag=
               {"nd",
                1, {"ref"},
                ndType_function,
                {NULL}};
 
 /*+ The memberType type tag. +*/
-static xmltag memberType_tag=
+static const xmltag memberType_tag=
               {"member",
                3, {"type","ref","role"},
                memberType_function,
                {NULL}};
 
 /*+ The wayType type tag. +*/
-static xmltag wayType_tag=
+static const xmltag wayType_tag=
               {"way",
                7, {"id","timestamp","uid","user","visible","version","action"},
                wayType_function,
                {&ndType_tag,&tagType_tag,NULL}};
 
 /*+ The relationType type tag. +*/
-static xmltag relationType_tag=
+static const xmltag relationType_tag=
               {"relation",
                7, {"id","timestamp","uid","user","visible","version","action"},
                relationType_function,
                {&memberType_tag,&tagType_tag,NULL}};
 
 /*+ The osmType type tag. +*/
-static xmltag osmType_tag=
+static const xmltag osmType_tag=
               {"osm",
                2, {"version","generator"},
                osmType_function,
                {&boundsType_tag,&boundType_tag,&nodeType_tag,&wayType_tag,&relationType_tag,NULL}};
 
 /*+ The xmlDeclaration type tag. +*/
-static xmltag xmlDeclaration_tag=
+static const xmltag xmlDeclaration_tag=
               {"xml",
                2, {"version","encoding"},
                xmlDeclaration_function,
@@ -134,7 +134,7 @@ static xmltag xmlDeclaration_tag=
 
 
 /*+ The complete set of tags at the top level. +*/
-static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
+static const xmltag *const xml_toplevel_tags[]={&xmlDeclaration_tag,&osmType_tag,NULL};
 
 
 /* The XML tag processing functions */

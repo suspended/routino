@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2014 Andrew M. Bishop
+ This file Copyright 2010-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -86,96 +86,96 @@ static int LogErrorType_function(const char *_tag_,int _type_,const char *k,cons
 
 /* The XML tag definitions (forward declarations) */
 
-static xmltag xmlDeclaration_tag;
-static xmltag RoutinoTaggingType_tag;
-static xmltag NodeType_tag;
-static xmltag WayType_tag;
-static xmltag RelationType_tag;
-static xmltag IfType_tag;
-static xmltag IfNotType_tag;
-static xmltag SetType_tag;
-static xmltag UnsetType_tag;
-static xmltag OutputType_tag;
-static xmltag LogErrorType_tag;
+static const xmltag xmlDeclaration_tag;
+static const xmltag RoutinoTaggingType_tag;
+static const xmltag NodeType_tag;
+static const xmltag WayType_tag;
+static const xmltag RelationType_tag;
+static const xmltag IfType_tag;
+static const xmltag IfNotType_tag;
+static const xmltag SetType_tag;
+static const xmltag UnsetType_tag;
+static const xmltag OutputType_tag;
+static const xmltag LogErrorType_tag;
 
 
 /* The XML tag definition values */
 
 /*+ The complete set of tags at the top level. +*/
-static xmltag *xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoTaggingType_tag,NULL};
+static const xmltag * const xml_toplevel_tags[]={&xmlDeclaration_tag,&RoutinoTaggingType_tag,NULL};
 
 /*+ The xmlDeclaration type tag. +*/
-static xmltag xmlDeclaration_tag=
+static const xmltag xmlDeclaration_tag=
               {"xml",
                2, {"version","encoding"},
                NULL,
                {NULL}};
 
 /*+ The RoutinoTaggingType type tag. +*/
-static xmltag RoutinoTaggingType_tag=
+static const xmltag RoutinoTaggingType_tag=
               {"routino-tagging",
                0, {NULL},
                NULL,
                {&NodeType_tag,&WayType_tag,&RelationType_tag,NULL}};
 
 /*+ The NodeType type tag. +*/
-static xmltag NodeType_tag=
+static const xmltag NodeType_tag=
               {"node",
                0, {NULL},
                NodeType_function,
                {&IfType_tag,&IfNotType_tag,NULL}};
 
 /*+ The WayType type tag. +*/
-static xmltag WayType_tag=
+static const xmltag WayType_tag=
               {"way",
                0, {NULL},
                WayType_function,
                {&IfType_tag,&IfNotType_tag,NULL}};
 
 /*+ The RelationType type tag. +*/
-static xmltag RelationType_tag=
+static const xmltag RelationType_tag=
               {"relation",
                0, {NULL},
                RelationType_function,
                {&IfType_tag,&IfNotType_tag,NULL}};
 
 /*+ The IfType type tag. +*/
-static xmltag IfType_tag=
+static const xmltag IfType_tag=
               {"if",
                2, {"k","v"},
                IfType_function,
                {&IfType_tag,&IfNotType_tag,&SetType_tag,&UnsetType_tag,&OutputType_tag,&LogErrorType_tag,NULL}};
 
 /*+ The IfNotType type tag. +*/
-static xmltag IfNotType_tag=
+static const xmltag IfNotType_tag=
               {"ifnot",
                2, {"k","v"},
                IfNotType_function,
                {&IfType_tag,&IfNotType_tag,&SetType_tag,&UnsetType_tag,&OutputType_tag,&LogErrorType_tag,NULL}};
 
 /*+ The SetType type tag. +*/
-static xmltag SetType_tag=
+static const xmltag SetType_tag=
               {"set",
                2, {"k","v"},
                SetType_function,
                {NULL}};
 
 /*+ The UnsetType type tag. +*/
-static xmltag UnsetType_tag=
+static const xmltag UnsetType_tag=
               {"unset",
                1, {"k"},
                UnsetType_function,
                {NULL}};
 
 /*+ The OutputType type tag. +*/
-static xmltag OutputType_tag=
+static const xmltag OutputType_tag=
               {"output",
                2, {"k","v"},
                OutputType_function,
                {NULL}};
 
 /*+ The LogErrorType type tag. +*/
-static xmltag LogErrorType_tag=
+static const xmltag LogErrorType_tag=
               {"logerror",
                3, {"k","v","message"},
                LogErrorType_function,
