@@ -24,7 +24,9 @@
 
 #if defined(_MSC_VER)
 #include <io.h>
+#include <basetsd.h>
 #define read(fd,address,length) _read(fd,address,(unsigned int)(length))
+#define ssize_t SSIZE_T
 #else
 #include <unistd.h>
 #endif

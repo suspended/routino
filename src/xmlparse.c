@@ -26,9 +26,10 @@
 
 #if defined(_MSC_VER)
 #include <io.h>
-#include <stdint.h>
+#include <basetsd.h>
 #define read(fd,address,length)  _read(fd,address,(unsigned int)(length))
-typedef uint64_t ssize_t;
+#define snprintf _snprintf
+#define ssize_t SSIZE_T
 #else
 #include <unistd.h>
 #endif
