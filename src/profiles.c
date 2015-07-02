@@ -835,7 +835,7 @@ void PrintProfile(const Profile *profile)
 void PrintProfilesXML(void)
 {
  int i,j;
- char *padding="                ";
+ char *padding="                    ";
 
  printf("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
  printf("\n");
@@ -849,17 +849,17 @@ void PrintProfilesXML(void)
 
     printf("    <speeds>\n");
     for(i=1;i<Highway_Count;i++)
-       printf("      <speed highway=\"%s\"%s kph=\"%d\" />\n",HighwayName(i),padding+3+strlen(HighwayName(i)),loaded_profiles[j]->speed[i]);
+       printf("      <speed highway=\"%s\"%s kph=\"%d\" />\n",HighwayName(i),padding+8+strlen(HighwayName(i)),loaded_profiles[j]->speed[i]);
     printf("    </speeds>\n");
 
     printf("    <preferences>\n");
     for(i=1;i<Highway_Count;i++)
-       printf("      <preference highway=\"%s\"%s percent=\"%.0f\" />\n",HighwayName(i),padding+3+strlen(HighwayName(i)),loaded_profiles[j]->highway[i]);
+       printf("      <preference highway=\"%s\"%s percent=\"%.0f\" />\n",HighwayName(i),padding+8+strlen(HighwayName(i)),loaded_profiles[j]->highway[i]);
     printf("    </preferences>\n");
 
     printf("    <properties>\n");
     for(i=1;i<Property_Count;i++)
-       printf("      <property type=\"%s\"%s percent=\"%.0f\" />\n",PropertyName(i),padding+6+strlen(PropertyName(i)),loaded_profiles[j]->props_yes[i]);
+       printf("      <property type=\"%s\"%s percent=\"%.0f\" />\n",PropertyName(i),padding+8+strlen(PropertyName(i)),loaded_profiles[j]->props_yes[i]);
     printf("    </properties>\n");
 
     printf("    <restrictions>\n");
