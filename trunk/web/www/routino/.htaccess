@@ -38,3 +38,13 @@ AddHandler cgi-script .cgi
    Order deny,allow
    Deny from all
 </FilesMatch>
+
+# The Polish language web page translations will have a '.html.pl' extension for
+# the MultiViews option so they must be allowed specifically and not blocked by
+# the above prohibition on serving Perl scripts.  They must also be served with
+# the HTML mime type.
+
+<FilesMatch .*\.html\.pl$>
+   AddType text/html .pl
+   Allow from all
+</FilesMatch>

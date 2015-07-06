@@ -1,0 +1,134 @@
+#
+# Polish language translation phrases
+#
+
+#
+# Router output XML definition
+#
+
+%%copyright_creator_string%%	Twórca
+%%copyright_source_string%%	Źródło
+%%copyright_source_text%%	Oparte na danych OpenStreetMap ze strony http://www.openstreetmap.org/
+%%copyright_license_string%%	Licencja
+
+%%turn_-4%%	Bardzo ostro w lewo
+%%turn_-3%%	Ostro w lewo
+%%turn_-2%%	W lewo
+%%turn_-1%%	Lekko w lewo
+%%turn_0%%	Prosto
+%%turn_1%%	Lekko w prawo
+%%turn_2%%	W prawo
+%%turn_3%%	Ostro w prawo
+%%turn_4%%	Bardzo ostro w prawo
+
+%%heading_-4%%	Na południe
+%%heading_-3%%	Na południowy zachód
+%%heading_-2%%	Na zachód
+%%heading_-1%%	Na północny zachód
+%%heading_0%%	Na północ
+%%heading_1%%	Na północny wschód
+%%heading_2%%	Na wschód
+%%heading_3%%	Na południowy wschód
+%%heading_4%%	Na południe
+
+%%ordinal_1%%	Pierwszy
+%%ordinal_2%%	Drugi
+%%ordinal_3%%	Trzeci
+%%ordinal_4%%	Czwarty
+%%ordinal_5%%	Piąty
+%%ordinal_6%%	Szósty
+%%ordinal_7%%	Siódmy
+%%ordinal_8%%	Ósmy
+%%ordinal_9%%	Dziewiąty
+%%ordinal_10%%	Dziesiąty
+
+%%highway_motorway%%	Autostrada
+%%highway_trunk%%	Droga ekspresowa
+%%highway_primary%%	Droga krajowa
+%%highway_secondary%%	Droga powiatowa
+%%highway_tertiary%%	Droga lokalna
+%%highway_unclassified%%	Droga nieznanego typu
+%%highway_residential%%	Droga osiedlowa
+%%highway_service%%	Droga dojazdowa
+%%highway_track%%	Droga polna
+%%highway_cycleway%%	Droga rowerowa
+%%highway_path%%	Ścieżka
+%%highway_steps%%	Pieszo
+%%highway_ferry%%	Prom
+
+%%route_shortest%%	Najkrótsza
+%%route_quickest%%	Najszybsza
+
+%%output-html_waypoint_waypoint%%	Punkt
+%%output-html_waypoint_roundabout%%	Rondo
+%%output-html_title%%	%s Trasa
+%%output-html_start_string%%	Start
+%%output-html_start_text%%	%s kieruj się na %s
+%%output-html_node_string%%	Na
+%%output-html_node_text%%	%s poruszaj się %s na
+%%output-html_rbnode_string%%	Opóść
+%%output-html_rbnode_text%%	Na rondzie %s, %s zjazd kierując się na
+%%output-html_segment_string%%	Podążaj
+%%output-html_segment_text%%	%s przez %.3f km, %.1f min.
+%%output-html_stop_string%%	Stop
+%%output-html_stop_text%%	Na %s
+%%output-html_total_string%%	Całkowity
+%%output-html_total_text%%	%.1f km, %.0f min.
+
+%%output-gpx_waypoint_start%%	START
+%%output-gpx_waypoint_inter%%	INTER
+%%output-gpx_waypoint_trip%%	TRIP
+%%output-gpx_waypoint_finish%%	KONIEC
+
+%%output-gpx_desc%%	%s trasa pomiędzy 'start' a 'koniec'
+%%output-gpx_name%%	%s trasa
+%%output-gpx_step%%	%s na %s przez %.3f km, %.1f min.
+%%output-gpx_final%%	Całkowita podróż %.1f km, %.0f min.
+
+#
+# Router (and some shared) translations
+#
+
+@@LANGUAGE@@	Polski
+@@LANGUAGE-WEBPAGE@@	Polski webpage
+
+@@ROUTER-TITLE@@	Planowanie trasy dla Danych OpenStreetMap
+
+@@OPTION-TAB@@	Opcje
+@@OPTION-TAB-HELP@@	Ustaw punkty trasy
+
+@@RESULTS-TAB@@	Wyniki
+@@RESULTS-TAB-HELP@@	Zobacz wyniki
+
+@@DATA-TAB@@	Dane
+@@DATA-TAB-HELP@@	Zobacz informacje bazy danych
+
+@@ROUTINO-ROUTER@@	Routino OpenStreetMap Planowanie Trasy
+@@ROUTINO-WEBSITE@@	Strona Routino
+@@DOCUMENTATION@@	Dokumentacja
+
+@@LANGUAGE-BOX@@	Język
+@@WAYPOINTS-BOX@@	Punkty
+@@TRANSPORT-TYPE-BOX@@	Typ transportu
+@@HIGHWAY-PREFERENCES-BOX@@	Preferowanie autostrad
+@@SPEED-LIMITS-BOX@@	Ograniczenia prędkości
+@@OTHER-RESTRICTIONS-BOX@@	Inne ograniczenia
+@@FIND-BOX@@	Znajdź
+@@LINKS-BOX@@	Połączenia
+@@HELP-BOX@@	Pomoc
+
+@@STATUS-BOX@@	Status
+@@SHORTEST-ROUTE@@	Najkrótsza trasa
+
+#
+# Visualiser specific translations
+#
+
+#
+# Multi-line descriptive translations (router)
+#
+
+#
+# Multi-line descriptive translations (visualiser)
+#
+
