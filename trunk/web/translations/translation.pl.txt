@@ -119,10 +119,70 @@
 
 @@STATUS-BOX@@	Status
 @@SHORTEST-ROUTE@@	Najkrótsza trasa
+@@QUICKEST-ROUTE@@	Najszybsza trasa
+
+@@STATISTICS-BOX@@	Statystyki Routino
+@@VISUALISER-BOX@@	Wizualizer Routino
+
+@@WAYPOINT-SEARCH@@	Znajdź miejsce
+@@WAYPOINT-GET@@	Pobierz aktualna lokalizację
+@@WAYPOINT-CENTRE1@@	Wycentruj mapę na tym punkcie
+@@WAYPOINT-HOME@@	Współrzędne lokalizacji
+
+@@TRANSPORT-FOOT@@	Pieszo
+@@TRANSPORT-HORSE@@	Konno
+@@TRANSPORT-WHEELCHAIR@@	Wózek inwalidzki
+@@TRANSPORT-BICYCLE@@	Rower
+@@TRANSPORT-MOPED@@	Moped
+@@TRANSPORT-MOTORCYCLE@@	Motocykl
+@@TRANSPORT-MOTORCAR@@	Samochód
+@@TRANSPORT-PSV@@	Pojazd użyteczności publicznej
+
+@@HIGHWAY-MOTORWAY@@	Autostrada
+@@HIGHWAY-PRIMARY@@	Droga krajowa
+@@HIGHWAY-SECONDARY@@	Droga wojewódzka
+@@HIGHWAY-TERTIARY@@	Droga powiatowa
+@@HIGHWAY-UNCLASSIFIED@@	Niesklasyfikowana
+@@HIGHWAY-RESIDENTIAL@@	W obszarze zamieszkania
+@@HIGHWAY-SERVICE@@	Dojazdowa
+@@HIGHWAY-CYCLEWAY@@	Rowerowa
+@@HIGHWAY-PATH@@	Ścieżka
+@@HIGHWAY-FERRY@@	Przeprawa
+
+@@PROPERTY-MULTILANE@@	Wiele pasów
+@@PROPERTY-BRIDGE@@	Most
+@@PROPERTY-TUNNEL@@	Tunel
+@@PROPERTY-WALKINGROUTE@@	Trasa piesza
+@@PROPERTY-BICYCLEROUTE@@	Trasa rowerowa
+
+@@RESTRICT-ONEWAY@@	Respektuj ulice jednokierunkowe
+@@RESTRICT-TURNS@@	Respektuj ograniczenia skrętu
+@@RESTRICT-WEIGHT@@	Waga
+@@RESTRICT-HEIGHT@@	Wysokość
+@@RESTRICT-WIDTH@@	Szerokość
+@@RESTRICT-LENGTH@@	Długość
+
+@@FIND-SHORTEST-ROUTE@@	Znajdź najkrótsza trasę
+@@FIND-QUICKEST-ROUTE@@	Znajdź najdłuższą trasę
+
+@@ROUTER-NOT-RUN@@	Nie uruchomiono wyznaczania trasy
+@@ROUTER-RUNNING@@	Wyznaczanie trasy w trakcie...
+@@ROUTER-COMPLETED@@	Trasa wyznaczona
+@@ROUTER-ERROR@@	Błąd wyznaczania trasy
+@@ROUTER-FAILED@@	Błąd uruchomienia wyznaczania trasy
+@@VIEW-DETAILS@@	Zobacz szczegóły
+
+@@NO-INFORMATION@@	Brak informacji
+
+@@TILES@@	Kafelki
 
 #
 # Visualiser specific translations
 #
+
+@@INSTRUCTIONS-BOX@@	Instrukcje
+
+@@CLEAR-DATA-BUTTON@@	Wyczyść
 
 #
 # Multi-line descriptive translations (router)
@@ -132,3 +192,6 @@
 # Multi-line descriptive translations (visualiser)
 #
 
+$$VISUALISER-ROUTER-INFO$$
+Aby wyznaczyć trasę na mapie użyj linku poniżej
+$$VISUALISER-ROUTER-INFO$$
