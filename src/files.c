@@ -22,13 +22,14 @@
 
 #if defined(_MSC_VER)
 #include <io.h>
-typedef unsigned __int64  ssize_t;
+#include <basetsd.h>
 #define read(fd,address,length)  _read(fd,address,(unsigned int)(length))
 #define write(fd,address,length) _write(fd,address,(unsigned int)(length))
-#define lseek       _lseeki64
-#define open        _open
-#define close       _close
-#define unlink      _unlink
+#define lseek   _lseeki64
+#define open    _open
+#define close   _close
+#define unlink  _unlink
+#define ssize_t SSIZE_T
 #else
 #include <unistd.h>
 #endif
