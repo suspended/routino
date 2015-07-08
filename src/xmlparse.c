@@ -287,7 +287,6 @@ int ParseXML(int fd,const xmltag *const *tags,int options)
  const xmltag * const **tags_stack=NULL;
  const xmltag **tag_stack=NULL;
  const xmltag *tag=NULL;
-// const xmltag * const *tags=alltags;
 
  /* The actual parser. */
 
