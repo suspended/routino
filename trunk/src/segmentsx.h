@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -140,10 +140,12 @@ CACHE_FETCHCACHE_PROTO(SegmentX)
 CACHE_REPLACECACHE_PROTO(SegmentX)
 CACHE_INVALIDATECACHE_PROTO(SegmentX)
 
+/* Data type */
+
+CACHE_STRUCTURE(SegmentX)
 
 /* Inline functions */
 
-CACHE_STRUCTURE(SegmentX)
 CACHE_NEWCACHE(SegmentX)
 CACHE_DELETECACHE(SegmentX)
 CACHE_FETCHCACHE(SegmentX)
