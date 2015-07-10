@@ -116,10 +116,12 @@ CACHE_DELETECACHE_PROTO(TurnRelation)
 CACHE_FETCHCACHE_PROTO(TurnRelation)
 CACHE_INVALIDATECACHE_PROTO(TurnRelation)
 
+/* Data type */
+
+CACHE_STRUCTURE(TurnRelation)
 
 /* Inline functions */
 
-CACHE_STRUCTURE(TurnRelation)
 CACHE_NEWCACHE(TurnRelation)
 CACHE_DELETECACHE(TurnRelation)
 CACHE_FETCHCACHE(TurnRelation)
