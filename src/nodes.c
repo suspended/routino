@@ -82,7 +82,7 @@ Nodes *LoadNodeList(const char *filename)
 
  SlimFetch(nodes->fd,nodes->offsets,sizeoffsets,sizeof(NodesFile));
 
- nodes->nodesoffset=(off_t)(sizeof(NodesFile)+sizeoffsets);
+ nodes->nodesoffset=(offset_t)(sizeof(NodesFile)+sizeoffsets);
 
  nodes->cache=NewNodeCache();
  log_malloc(nodes->cache,sizeof(*nodes->cache));

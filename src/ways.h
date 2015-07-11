@@ -82,7 +82,7 @@ struct _Ways
 #else
 
  int        fd;                 /*+ The file descriptor for the file. +*/
- off_t      namesoffset;        /*+ The offset of the names within the file. +*/
+ offset_t   namesoffset;        /*+ The offset of the names within the file. +*/
 
  Way        cached[3];          /*+ Two cached nodes read from the file in slim mode. +*/
 

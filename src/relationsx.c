@@ -127,7 +127,7 @@ RelationsX *NewRelationList(int append,int readonly)
  if(append || readonly)
     if(ExistsFile(relationsx->trfilename))
       {
-       off_t size;
+       offset_t size;
 
        size=SizeFile(relationsx->trfilename);
 
