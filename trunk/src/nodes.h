@@ -83,7 +83,7 @@ struct _Nodes
 
  index_t  *offsets;             /*+ An allocated array with a copy of the file offsets. +*/
 
- off_t     nodesoffset;         /*+ The offset of the nodes within the file. +*/
+ offset_t  nodesoffset;         /*+ The offset of the nodes within the file. +*/
 
  Node      cached[6];           /*+ Some cached nodes read from the file in slim mode. +*/
 

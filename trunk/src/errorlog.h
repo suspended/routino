@@ -80,12 +80,12 @@ typedef struct _ErrorLogs
 
  int       fd;                  /*+ The file descriptor for the file. +*/
 
- off_t     offsetsoffset;       /*+ An allocated array with a copy of the file offsets. +*/
+ offset_t  offsetsoffset;       /*+ An allocated array with a copy of the file offsets. +*/
 
- off_t     errorlogsoffset_geo;    /*+ The offset of the geographical error logs within the file. +*/
- off_t     errorlogsoffset_nongeo; /*+ The offset of the non-geographical error logs within the file. +*/
+ offset_t  errorlogsoffset_geo;    /*+ The offset of the geographical error logs within the file. +*/
+ offset_t  errorlogsoffset_nongeo; /*+ The offset of the non-geographical error logs within the file. +*/
 
- off_t     stringsoffset;       /*+ The offset of the error strings within the file. +*/
+ offset_t  stringsoffset;       /*+ The offset of the error strings within the file. +*/
 
  ErrorLog  cached[2];           /*+ Some cached error logs read from the file in slim mode. +*/
 
@@ -144,7 +144,7 @@ static inline char *LookupErrorLogString(ErrorLogs *errorlogs,index_t index);
 
 static inline ErrorLog *LookupErrorLog(ErrorLogs *errorlogs,index_t index,int position)
 {
- SlimFetch(errorlogs->fd,&errorlogs->cached[position-1],sizeof(ErrorLog),errorlogs->errorlogsoffset_geo+(off_t)index*sizeof(ErrorLog));
+ SlimFetch(errorlogs->fd,&errorlogs->cached[position-1],sizeof(ErrorLog),errorlogs->errorlogsoffset_geo+(offset_t)index*sizeof(ErrorLog));
 
  return(&errorlogs->cached[position-1]);
 }
@@ -164,7 +164,7 @@ static inline index_t LookupErrorLogOffset(ErrorLogs *errorlogs,index_t index)
 {
  index_t offset;
 
- SlimFetch(errorlogs->fd,&offset,sizeof(index_t),errorlogs->offsetsoffset+(off_t)index*sizeof(index_t));
+ SlimFetch(errorlogs->fd,&offset,sizeof(index_t),errorlogs->offsetsoffset+(offset_t)index*sizeof(index_t));
 
  return(offset);
 }

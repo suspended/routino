@@ -857,7 +857,7 @@ void SaveWayList(WaysX *waysx,const char *filename)
 
  /* Write out the ways names */
 
- SeekFileBuffered(fd,sizeof(WaysFile)+(off_t)waysx->number*sizeof(Way));
+ SeekFileBuffered(fd,sizeof(WaysFile)+(offset_t)waysx->number*sizeof(Way));
 
  while(position<waysx->nlength)
    {

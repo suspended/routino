@@ -84,7 +84,7 @@ NodesX *NewNodeList(int append,int readonly)
  if(append || readonly)
     if(ExistsFile(nodesx->filename))
       {
-       off_t size;
+       offset_t size;
 
        size=SizeFile(nodesx->filename);
 

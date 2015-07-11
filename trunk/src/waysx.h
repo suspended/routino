@@ -72,16 +72,16 @@ struct _WaysX
 
 #endif
 
- way_t   *idata;                /*+ The extended way IDs (sorted by ID). +*/
- off_t   *odata;                /*+ The offset of the way in the file (used for error log). +*/
+ way_t    *idata;               /*+ The extended way IDs (sorted by ID). +*/
+ offset_t *odata;               /*+ The offset of the way in the file (used for error log). +*/
 
- index_t *cdata;                /*+ The compacted way IDs (same order as sorted ways). +*/
+ index_t  *cdata;               /*+ The compacted way IDs (same order as sorted ways). +*/
 
- char    *nfilename_tmp;        /*+ The name of the temporary file (for the WaysX names). +*/
+ char     *nfilename_tmp;       /*+ The name of the temporary file (for the WaysX names). +*/
 
- int      nfd;                  /*+ The file descriptor of the temporary file (for the WaysX names). +*/
+ int       nfd;                 /*+ The file descriptor of the temporary file (for the WaysX names). +*/
 
- uint32_t nlength;              /*+ The length of the string of name entries. +*/
+ uint32_t  nlength;             /*+ The length of the string of name entries. +*/
 };
 
 

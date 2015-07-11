@@ -48,7 +48,7 @@ static FILE *errorlogfile=NULL;
 static int errorbinfile=-1;
 
 /*+ The offset of the error message in the error log file. +*/
-static off_t errorfileoffset=0;
+static offset_t errorfileoffset=0;
 
 
 /*++++++++++++++++++++++++++++++++++++++

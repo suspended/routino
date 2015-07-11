@@ -357,16 +357,16 @@ static void reindex_ways(WaysX *waysx)
 {
  FILESORT_VARINT waysize;
  int fd;
- off_t position=0;
- index_t index=0;
+ offset_t position=0;
+ index_t  index=0;
 
  waysx->number=waysx->knumber;
 
  waysx->idata=(way_t*)malloc(waysx->number*sizeof(way_t));
- waysx->odata=(off_t*)malloc(waysx->number*sizeof(off_t));
+ waysx->odata=(offset_t*)malloc(waysx->number*sizeof(offset_t));
 
  log_malloc(waysx->idata,waysx->number*sizeof(way_t));
- log_malloc(waysx->odata,waysx->number*sizeof(off_t));
+ log_malloc(waysx->odata,waysx->number*sizeof(offset_t));
 
  /* Get the way id and the offset for each way in the file */
 
@@ -402,7 +402,7 @@ static void reindex_relations(RelationsX *relationsx)
 {
  FILESORT_VARINT relationsize;
  int fd;
- off_t position=0;
+ offset_t position=0;
  index_t index;
  TurnRelX turnrelx;
 
@@ -411,10 +411,10 @@ static void reindex_relations(RelationsX *relationsx)
  relationsx->rrnumber=relationsx->rrknumber;
 
  relationsx->rridata=(relation_t*)malloc(relationsx->rrnumber*sizeof(relation_t));
- relationsx->rrodata=(off_t*)malloc(relationsx->rrnumber*sizeof(off_t));
+ relationsx->rrodata=(offset_t*)malloc(relationsx->rrnumber*sizeof(offset_t));
 
  log_malloc(relationsx->rridata,relationsx->rrnumber*sizeof(relation_t));
- log_malloc(relationsx->rrodata,relationsx->rrnumber*sizeof(off_t));
+ log_malloc(relationsx->rrodata,relationsx->rrnumber*sizeof(offset_t));
 
  /* Get the relation id and the offset for each relation in the file */
 
@@ -525,7 +525,7 @@ static int lookup_lat_long_way(WaysX *waysx,NodesX *nodesx,way_t way,latlong_t *
  else
    {
     int count=1;
-    off_t offset=waysx->odata[index];
+    offset_t offset=waysx->odata[index];
     node_t node1,node2,prevnode,node;
     latlong_t latitude1,longitude1,latitude2,longitude2;
 
@@ -620,7 +620,7 @@ static int lookup_lat_long_relation(RelationsX *relationsx,WaysX *waysx,NodesX *
  else
    {
     int count;
-    off_t offset=relationsx->rrodata[index];
+    offset_t offset=relationsx->rrodata[index];
     node_t node=NO_NODE_ID,tempnode;
     way_t way=NO_WAY_ID,tempway;
     relation_t relation=NO_RELATION_ID,temprelation;
@@ -824,7 +824,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
  ll_bin2_t latlonbin=0,maxlatlonbins;
  index_t *offsets;
  index_t number=0,number_geo=0,number_nongeo=0;
- off_t size;
+ offset_t size;
 
  /* Print the start message */
 
@@ -931,7 +931,7 @@ void SaveErrorLogs(ErrorLogsX *errorlogsx,char *filename)
    {
     int i;
     char buffer[4096];
-    off_t chunksize=(size>(off_t)sizeof(buffer)?(off_t)sizeof(buffer):size);
+    offset_t chunksize=(size>(offset_t)sizeof(buffer)?(offset_t)sizeof(buffer):size);
 
     ReadFileBuffered(oldfd,buffer,chunksize);
 

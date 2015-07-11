@@ -45,8 +45,16 @@
 #endif
 
 #include <sys/types.h>
+#include <inttypes.h>
 
 #include "logging.h"
+
+
+/* Types */
+
+/*+ A 64-bit file offset since a 32-bit off_t (which is signed) is smaller than a
+    32-bit size_t (which is unsigned) that can be writtento or read from a file. +*/
+typedef int64_t offset_t;
 
 
 /* Functions in files.c */
@@ -73,8 +81,8 @@ int ReplaceFileBuffered(const char *filename,int *oldfd);
 int WriteFileBuffered(int fd,const void *address,size_t length);
 int ReadFileBuffered(int fd,void *address,size_t length);
 
-int SeekFileBuffered(int fd,off_t position);
-int SkipFileBuffered(int fd,off_t skip);
+int SeekFileBuffered(int fd,offset_t position);
+int SkipFileBuffered(int fd,offset_t skip);
 
 int CloseFileBuffered(int fd);
 
@@ -82,8 +90,8 @@ int OpenFile(const char *filename);
 
 void CloseFile(int fd);
 
-off_t SizeFile(const char *filename);
-off_t SizeFileFD(int fd);
+offset_t SizeFile(const char *filename);
+offset_t SizeFileFD(int fd);
 int ExistsFile(const char *filename);
 
 int DeleteFile(const char *filename);
@@ -92,8 +100,8 @@ int RenameFile(const char *oldfilename,const char *newfilename);
 
 /* Functions in files.h */
 
-static inline int SlimReplace(int fd,const void *address,size_t length,off_t position);
-static inline int SlimFetch(int fd,void *address,size_t length,off_t position);
+static inline int SlimReplace(int fd,const void *address,size_t length,offset_t position);
+static inline int SlimFetch(int fd,void *address,size_t length,offset_t position);
 
 
 /* Inline the frequently called functions */
@@ -109,10 +117,10 @@ static inline int SlimFetch(int fd,void *address,size_t length,off_t position);
 
   size_t length The length of data to write.
 
-  off_t position The position in the file to seek to.
+  offset_t position The position in the file to seek to.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int SlimReplace(int fd,const void *address,size_t length,off_t position)
+static inline int SlimReplace(int fd,const void *address,size_t length,offset_t position)
 {
  /* Seek and write the data */
 
@@ -146,10 +154,10 @@ static inline int SlimReplace(int fd,const void *address,size_t length,off_t pos
 
   size_t length The length of data to read.
 
-  off_t position The position in the file to seek to.
+  offset_t position The position in the file to seek to.
   ++++++++++++++++++++++++++++++++++++++*/
 
-static inline int SlimFetch(int fd,void *address,size_t length,off_t position)
+static inline int SlimFetch(int fd,void *address,size_t length,offset_t position)
 {
  /* Seek and read the data */
 
