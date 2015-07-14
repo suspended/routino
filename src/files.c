@@ -25,8 +25,6 @@
 #include <basetsd.h>
 #define read(fd,address,length)  _read(fd,address,(unsigned int)(length))
 #define write(fd,address,length) _write(fd,address,(unsigned int)(length))
-#define lseek   _lseeki64
-#define stat    _stati64
 #define open    _open
 #define close   _close
 #define unlink  _unlink
@@ -41,6 +39,12 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/stat.h>
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define lseek _lseeki64
+#define stat  _stati64
+#define fstat _fstati64
+#endif
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include "mman-win32.h"
