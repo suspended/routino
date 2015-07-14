@@ -38,10 +38,13 @@
 #include <basetsd.h>
 #define read(fd,address,length)  _read(fd,address,(unsigned int)(length))
 #define write(fd,address,length) _write(fd,address,(unsigned int)(length))
-#define lseek   _lseeki64
 #define ssize_t SSIZE_T
 #else
 #include <unistd.h>
+#endif
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define lseek _lseeki64
 #endif
 
 #include <sys/types.h>
