@@ -173,6 +173,9 @@
 @@VIEW-DETAILS@@	Zobacz szczegóły
 
 @@NO-INFORMATION@@	Brak informacji
+@@GPX-TRACK-ROUTE@@	Plik trasy w formacie GPX
+@@GPX-ROUTE@@	Plik nawigacji w formacie GPX
+@@TEXT-ROUTE@@	Plik tekstowy
 
 @@TILES@@	Kafelki
 
@@ -181,6 +184,30 @@
 #
 
 @@INSTRUCTIONS-BOX@@	Instrukcje
+
+@@NO-DATA-DISPLAYED@@	Brak danych do wyświetlenia
+
+@@TURNS-BUTTON@@	Wyświetlaj zakazy skrętu
+
+@@SPEED-BUTTON@@	Wyświetlaj ograniczenia prędkości
+
+@@SPEED-LIMIT-80@@	Ograniczenie prędkości do 80 km/h
+
+@@WEIGHT-BUTTON@@	Wyświetlaj ograniczenia ciężaru
+
+@@WEIGHT-LIMIT-8@@	Ograniczenie ciężaru do 8.0 ton
+
+@@HEIGHT-BUTTON@@	Wyświetlaj ograniczenia wysokości
+
+@@HEIGHT-LIMIT-4@@	Ograniczenie wysokości do 4.0 m
+
+@@WIDTH-BUTTON@@	Wyświetlaj ograniczenia szerokości
+
+@@WIDTH-LIMIT-3@@	Ograniczenie szerokości do 3.0 m
+
+@@LENGTH-BUTTON@@	Wyświetlaj ograniczenia długości
+
+@@LENGTH-LIMIT-9@@	Ograniczenie długości do 9.0 m
 
 @@CLEAR-DATA-BUTTON@@	Wyczyść
 
