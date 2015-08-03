@@ -655,8 +655,8 @@ function buildURLArguments(lang)
  for(var marker=1;marker<=vismarkers;marker++)
     if(routino.point[marker].active)
       {
-       url=url + ";lon" + marker + "=" + routino.point[marker].lon;
-       url=url + ";lat" + marker + "=" + routino.point[marker].lat;
+       url=url + ";lon" + marker + "=" + format5f(routino.point[marker].lon);
+       url=url + ";lat" + marker + "=" + format5f(routino.point[marker].lat);
        if(routino.point[marker].search !== "")
           url=url + ";search" + marker + "=" + encodeURIComponent(routino.point[marker].search);
       }
