@@ -61,11 +61,8 @@ HTML Route Instructions
 <tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Straight on</span> heading <span class='b'>South-East</span>
 <tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Russell Square (A4200)</span> for <span class='d'>0.186 km, 0.2 min</span> [<span class='j'>0.4 km, 1 minutes</span>]
 <tr class='c'><td class='l'>3:<td class='r'>51.521482 -0.124123
-<tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Straig
-ht on</span> heading <span class='b'>South-East</span>
-<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Southampton Row
- (A4200)</span> for <span class='d'>0.351 km, 0.4 min</span> [<span class='j'>0.
-8 km, 1 minutes</span>]
+<tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Straight on</span> heading <span class='b'>South-East</span>
+<tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>Southampton Row (A4200)</span> for <span class='d'>0.351 km, 0.4 min</span> [<span class='j'>0.8 km, 1 minutes</span>]
 ...
 <tr class='c'><td class='l'>21:<td class='r'>51.477678 -0.106792
 <tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>Slight left</span> heading <span class='b'>South-East</span>
