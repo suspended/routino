@@ -65,7 +65,7 @@
 %%output-html_start_string%%	Старт
 %%output-html_start_text%%	 %s, на %s
 %%output-html_node_string%%	на
-%%output-html_node_text%%	%s, %s,  на %s
+%%output-html_node_text%%	%s, %s, на %s
 %%output-html_rbnode_string%%	Покинуть
 %%output-html_segment_string%%	Следуйте
 %%output-html_segment_text%%	по %s %.3f км, %.1f мин
