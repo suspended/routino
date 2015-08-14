@@ -66,13 +66,13 @@
 %%output-html_start_string%%	Start
 %%output-html_start_text%%	Bij %s neemt u de richting %s
 %%output-html_node_string%%	Bij
-%%output-html_node_text%%	Bij %s gaat u %s richting %s
+%%output-html_node_text%%	%s gaat u %s richting %s
 %%output-html_rbnode_string%%	Leave
 %%output-html_rbnode_text%%	Aan de %s, neem de %s afslag richting %s
 %%output-html_segment_string%%	Volg
-%%output-html_segment_text%%	Volgt u de %s voor %.3f km %.1f min
+%%output-html_segment_text%%	u de %s voor %.3f km %.1f min
 %%output-html_stop_string%%	Stop
-%%output-html_stop_text%%	U bent bij  %s aangekomen
+%%output-html_stop_text%%	U bent bij %s aangekomen
 %%output-html_total_string%%	Totaal
 %%output-html_total_text%%	%.1f km, %.0f minuten
 
@@ -84,7 +84,7 @@
 %%output-gpx_desc%%	%s Route tussen 'Start' und 'Finish'
 %%output-gpx_name%%	%s Route
 %%output-gpx_step%%	%s op '%s' voor %.3f km, %.1f min
-%%output-gpx_final%%	Totaal trip  %.1f km, %.0f minuten
+%%output-gpx_final%%	Totaal trip %.1f km, %.0f minuten
 
 #
 # Router (and some shared) translations
@@ -218,7 +218,7 @@ Het is best om eerst naar straat niveau te zoomen op de kaart.
 Selecteer het transport type, toegestane weg-types,
 snelheidslimieten, wegeigenschappen en andere restricties uit de
 opties.
-Selecteer  "Kortste" of "Snelste" om de route te berekenen en te tekenen op de map.
+Selecteer "Kortste" of "Snelste" om de route te berekenen en te tekenen op de map.
 <p>
 <b>Coordinaten (Waypoints)</b>
 <br>

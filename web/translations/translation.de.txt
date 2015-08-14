@@ -66,11 +66,11 @@
 %%output-html_start_string%%	Start
 %%output-html_start_text%%	Bei %s halten Sie sich Richtung %s
 %%output-html_node_string%%	Bei
-%%output-html_node_text%%	Bei %s wenden Sie sich nach %s Richtung %s
+%%output-html_node_text%%	%s wenden Sie sich nach %s Richtung %s
 %%output-html_rbnode_string%%	Verlassen Sie
 %%output-html_rbnode_text%%	%s, nehmen Sie die %s Ausfahrt Richtung %s
 %%output-html_segment_string%%	Folgen
-%%output-html_segment_text%%	Folgen Sie der %s für %.3f km bzw. %.1f min
+%%output-html_segment_text%%	Sie der %s für %.3f km bzw. %.1f min
 %%output-html_stop_string%%	Stop
 %%output-html_stop_text%%	Sie sind bei %s angekommen
 %%output-html_total_string%%	Gesamt
@@ -337,10 +337,10 @@ Vorgaben sollte es erlauben eine Route zu finden.
   <dd>Eine Beschreibung der Route mit Anweisungen für jede wichtige Abzweigung.
   <dt>GPX Track-Datei
   <dd>Die gleichen Informationen, die in der Karte angezeigt werden mit Punkten für jeden Abzweig
-  und Linien für jedes Teilstück.
+      und Linien für jedes Teilstück.
   <dt>GPX Routen-Datei
   <dd>Die gleichen Informationen, die im Text angezeigt werden mit einem Wegpunkt für
-  jede wichtige Richtungsänderung.
+      jede wichtige Richtungsänderung.
   <dt>Volltext-Datei
   <dd>Eine aller Knoten und die Abstände zwischen ihnen, sowie die Gesamtentfernung vom i
       Startpunkt zum jeweiligen Konten.

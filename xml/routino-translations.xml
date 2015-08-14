@@ -180,9 +180,9 @@
       <title text="%s Route" /> <!-- %s = [shortest|quickest] -->
 
       <start   string="Start" text="Bei %s halten Sie sich Richtung %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
-      <node    string="Bei" text="Bei %s wenden Sie sich nach %s Richtung %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <node    string="Bei" text="%s wenden Sie sich nach %s Richtung %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
       <rbnode  string="Verlassen Sie" text="%s, nehmen Sie die %s Ausfahrt Richtung %s" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
-      <segment string="Folgen" text="Folgen Sie der %s für %.3f km bzw. %.1f min" /> <!-- 1st %s = street name -->
+      <segment string="Folgen" text="Sie der %s für %.3f km bzw. %.1f min" /> <!-- 1st %s = street name -->
       <stop    string="Stop" text="Sie sind bei %s angekommen" /> <!-- 1st %s = [waypoint|junction] -->
       <total   string="Gesamt" text="%.1f km, %.0f minuten" />
     </output-html>
@@ -459,10 +459,10 @@
       <title text="%s Route" /> <!-- %s = [shortest|quickest] -->
 
       <start   string="Start" text="Bij %s neemt u de richting %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
-      <node    string="Bij" text="Bij %s gaat u %s richting %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <node    string="Bij" text="%s gaat u %s richting %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
       <rbnode  string="Leave" text="Aan de %s, neem de %s afslag richting %s" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
-      <segment string="Volg" text="Volgt u de %s voor %.3f km %.1f min" /> <!-- 1st %s = street name -->
-      <stop    string="Stop" text="U bent bij  %s aangekomen" /> <!-- 1st %s = [waypoint|junction] -->
+      <segment string="Volg" text="u de %s voor %.3f km %.1f min" /> <!-- 1st %s = street name -->
+      <stop    string="Stop" text="U bent bij %s aangekomen" /> <!-- 1st %s = [waypoint|junction] -->
       <total   string="Totaal" text="%.1f km, %.0f minuten" />
     </output-html>
 
@@ -476,7 +476,7 @@
       <desc  text="%s Route tussen 'Start' und 'Finish'" /> <!-- %s = [shortest|quickest] -->
       <name  text="%s Route" /> <!-- %s = [shortest|quickest] -->
       <step  text="%s op '%s' voor %.3f km, %.1f min" /> <!-- 1st %s = [turn], 2nd %s = street name -->
-      <final text="Totaal trip  %.1f km, %.0f minuten" />
+      <final text="Totaal trip %.1f km, %.0f minuten" />
     </output-gpx>
 
   </language>
@@ -645,7 +645,7 @@
       <title text="%s маршрут" /> <!-- %s = [shortest|quickest] -->
 
       <start   string="Старт" text=" %s, на %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
-      <node    string="на" text="%s, %s,  на %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <node    string="на" text="%s, %s, на %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
       <!-- TRANSLATION REQUIRED: rbnode  string="Покинуть" text="%s, take the %s exit heading %s" / --> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
       <segment string="Следуйте" text="по %s %.3f км, %.1f мин" /> <!-- 1st %s = street name -->
       <stop    string="Стоп" text=" %s" /> <!-- 1st %s = [waypoint|junction] -->
