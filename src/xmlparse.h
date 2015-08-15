@@ -73,6 +73,9 @@ int ParseXML(int fd,const xmltag * const *tags,int options);
 
 uint64_t ParseXML_LineNumber(void);
 
+void ParseXML_SetError(const char *format, ...);
+char *ParseXML_GetError(void);
+
 char *ParseXML_Decode_Entity_Ref(const char *string);
 char *ParseXML_Decode_Char_Ref(const char *string);
 char *ParseXML_Encode_Safe_XML(const char *string);
@@ -85,7 +88,7 @@ int ParseXML_IsFloating(const char *string);
 #define XMLPARSE_MESSAGE(tag,message) \
  do \
    { \
-    fprintf(stderr,"XML Parser: Error on line %" PRIu64 ": " message " in <%s> tag.\n",ParseXML_LineNumber(),tag); \
+    ParseXML_SetError(message " in <%s> tag.",tag); \
     return(1); \
    } \
     while(0)
@@ -93,7 +96,7 @@ int ParseXML_IsFloating(const char *string);
 #define XMLPARSE_INVALID(tag,attribute) \
  do \
    { \
-    fprintf(stderr,"XML Parser: Error on line %" PRIu64 ": Invalid value for '" #attribute "' attribute in <%s> tag.\n",ParseXML_LineNumber(),tag); \
+    ParseXML_SetError("Invalid value for '" #attribute "' attribute in <%s> tag.",tag); \
     return(1); \
    } \
     while(0)
@@ -103,7 +106,7 @@ int ParseXML_IsFloating(const char *string);
    { \
     if(!attribute) \
       { \
-       fprintf(stderr,"XML Parser: Error on line %" PRIu64 ": '" #attribute "' attribute must be specified in <%s> tag.\n",ParseXML_LineNumber(),tag); \
+       ParseXML_SetError("'" #attribute "' attribute must be specified in <%s> tag.",tag); \
        return(1); \
       } \
    } \
@@ -114,7 +117,7 @@ int ParseXML_IsFloating(const char *string);
    { \
     if(!attribute || !*attribute || !ParseXML_IsInteger(attribute)) \
       { \
-       fprintf(stderr,"XML Parser: Error on line %" PRIu64 ": '" #attribute "' attribute must be a integer in <%s> tag.\n",ParseXML_LineNumber(),tag); \
+       ParseXML_SetError("'" #attribute "' attribute must be a integer in <%s> tag.",tag); \
        return(1); \
       } \
    } \
@@ -125,7 +128,7 @@ int ParseXML_IsFloating(const char *string);
    { \
     if(!attribute || !*attribute || !ParseXML_IsFloating(attribute)) \
       { \
-       fprintf(stderr,"XML Parser: Error on line %" PRIu64 ": '" #attribute "' attribute must be a number in <%s> tag.\n",ParseXML_LineNumber(),tag); \
+       ParseXML_SetError("'" #attribute "' attribute must be a number in <%s> tag.",tag); \
        return(1); \
       } \
    } \

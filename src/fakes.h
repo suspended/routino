@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -40,6 +40,8 @@
 index_t CreateFakes(Nodes *nodes,Segments *segments,int point,Segment *segmentp,index_t node1,index_t node2,distance_t dist1,distance_t dist2);
 
 index_t CreateFakeNullSegment(Segments *segments,index_t node,index_t segment,int point);
+
+void DeleteFakeNodes(void);
 
 void GetFakeLatLong(index_t fakenode, double *latitude,double *longitude);
 

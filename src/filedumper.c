@@ -1151,7 +1151,7 @@ static const char* const months[12]={"Jan","Feb","Mar","Apr","May","Jun","Jul","
 
 static char *RFC822Date(time_t t)
 {
- static char value[32];
+ static char value[32]; /* static allocation of return value */
  char weekday[4];
  char month[4];
  struct tm *tim;

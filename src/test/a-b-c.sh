@@ -18,6 +18,17 @@ else
     dir="fat"
 fi
 
+# Libroutino or not libroutino
+
+LD_LIBRARY_PATH=$PWD/..:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH
+
+if [ "$2" = "lib" ]; then
+    lib="+lib"
+else
+    lib=""
+fi
+
 # Pruned or non-pruned
 
 if [ "$2" = "prune" ]; then
@@ -30,7 +41,7 @@ fi
 
 # Create the output directory
 
-dir="$dir$pruned"
+dir="$dir$lib$pruned"
 
 [ -d $dir ] || mkdir $dir
 
@@ -42,7 +53,7 @@ debugger=
 # Name related options
 
 osm=$name.osm
-log=$name$slim$pruned.log
+log=$name$lib$slim$pruned.log
 
 option_prefix="--prefix=$name"
 option_dir="--dir=$dir"
@@ -50,8 +61,14 @@ option_dir="--dir=$dir"
 # Generic program options
 
 option_planetsplitter="--loggable --tagging=../../xml/routino-tagging.xml --errorlog $prune"
+
 option_filedumper="--dump-osm"
-option_router="--loggable --transport=motorcar --profiles=../../xml/routino-profiles.xml --translations=copyright.xml"
+
+option_router="--profile=motorcar --profiles=../../xml/routino-profiles.xml --translations=copyright.xml"
+
+if [ ! "$2" = "lib" ]; then
+    option_router="$option_router --loggable"
+fi
 
 # Run planetsplitter
 
@@ -88,8 +105,8 @@ for waypoint in $waypoints; do
 
     [ -d $dir/$name-$waypoint ] || mkdir $dir/$name-$waypoint
 
-    echo ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_a $waypoint_b $waypoint_c >> $log
-    $debugger ../router$slim $option_dir $option_prefix $option_osm $option_router $waypoint_a $waypoint_b $waypoint_c >> $log
+    echo ../router$lib$slim $option_dir $option_prefix $option_osm $option_router $waypoint_a $waypoint_b $waypoint_c >> $log
+    $debugger ../router$lib$slim $option_dir $option_prefix $option_osm $option_router $waypoint_a $waypoint_b $waypoint_c >> $log
 
     mv shortest* $dir/$name-$waypoint
 

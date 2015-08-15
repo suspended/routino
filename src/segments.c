@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -68,7 +68,9 @@ Segments *LoadSegmentList(const char *filename)
  SlimFetch(segments->fd,&segments->file,sizeof(SegmentsFile),0);
 
  segments->cache=NewSegmentCache();
+#ifndef LIBROUTINO
  log_malloc(segments->cache,sizeof(*segments->cache));
+#endif
 
 #endif
 
@@ -92,7 +94,9 @@ void DestroySegmentList(Segments *segments)
 
  segments->fd=SlimUnmapFile(segments->fd);
 
+#ifndef LIBROUTINO
  log_free(segments->cache);
+#endif
  DeleteSegmentCache(segments->cache);
 
 #endif

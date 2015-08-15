@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -82,7 +82,7 @@ int main(int argc,char** argv)
  if((option_dump)!=1)
     print_usage(0,NULL,"Must choose --dump.");
 
- /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
+ /* Get the filenames. */
 
  nodes_filename=FileName(dirname,prefix,"nodesx.parsed.mem");
 

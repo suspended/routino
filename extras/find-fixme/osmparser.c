@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -36,21 +36,21 @@
 #include "logging.h"
 
 
-/* Local variables */
+/* Local parsing variables (re-initialised for each file) */
 
 static NodesX     *nodes;
 static WaysX      *ways;
 static RelationsX *relations;
 
-static node_t *way_nodes=NULL;
-static int     way_nnodes=0;
+static node_t     *way_nodes;
+static int         way_nnodes;
 
-static node_t     *relation_nodes=NULL;
-static int         relation_nnodes=0;
-static way_t      *relation_ways=NULL;
-static int         relation_nways=0;
-static relation_t *relation_relations=NULL;
-static int         relation_nrelations=0;
+static node_t     *relation_nodes;
+static int         relation_nnodes;
+static way_t      *relation_ways;
+static int         relation_nways;
+static relation_t *relation_relations;
+static int         relation_nrelations;
 
 
 /*++++++++++++++++++++++++++++++++++++++

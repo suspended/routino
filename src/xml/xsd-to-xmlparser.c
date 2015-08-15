@@ -498,7 +498,7 @@ int main(int argc,char **argv)
 
 static char *safe(const char *name)
 {
- static char *safe=NULL;
+ static char *safe=NULL; /* static allocation of return value */
  int i;
 
  safe=realloc(safe,strlen(name)+1);

@@ -189,14 +189,19 @@ int main(int argc,char** argv)
       }
     else
       {
-       if(ExistsFile(FileName(dirname,prefix,"tagging.xml")))
-          tagging=FileName(dirname,prefix,"tagging.xml");
-       else if(ExistsFile(FileName(ROUTINO_DATADIR,NULL,"tagging.xml")))
-          tagging=FileName(ROUTINO_DATADIR,NULL,"tagging.xml");
-       else
+       tagging=FileName(dirname,prefix,"tagging.xml");
+
+       if(!ExistsFile(tagging))
          {
-          fprintf(stderr,"Error: The '--tagging' option was not used and the default 'tagging.xml' does not exist.\n");
-          exit(EXIT_FAILURE);
+          free(tagging);
+
+          tagging=FileName(ROUTINO_DATADIR,NULL,"tagging.xml");
+
+          if(!ExistsFile(tagging))
+            {
+             fprintf(stderr,"Error: The '--tagging' option was not used and the default 'tagging.xml' does not exist.\n");
+             exit(EXIT_FAILURE);
+            }
          }
       }
 
@@ -376,7 +381,7 @@ if(!option_process_only)
 
  /* Sort the turn relations geographically */
 
- SortTurnRelationListGeographically(OSMRelations,OSMNodes,OSMSegments);
+ SortTurnRelationListGeographically(OSMRelations,OSMNodes,OSMSegments,0);
 
  /* Prune unwanted nodes/segments */
 
@@ -526,7 +531,7 @@ if(!option_process_only)
 
  /* Sort the turn relations geographically */
 
- SortTurnRelationListGeographically(OSMRelations,OSMNodes,OSMSegments);
+ SortTurnRelationListGeographically(OSMRelations,OSMNodes,OSMSegments,1);
 
  /* Output the results */
 

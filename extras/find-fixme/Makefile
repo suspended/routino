@@ -37,7 +37,7 @@ ROUTINO_SRC=../../src
 ROUTINO_WEBWWWDIR=../../web/www/routino
 ROUTINO_DOCDIR=../../doc/html
 
-EXE=fixme-finder fixme-finder-slim fixme-dumper fixme-dumper-slim
+EXE=fixme-finder$(.EXE) fixme-finder-slim$(.EXE) fixme-dumper$(.EXE) fixme-dumper-slim$(.EXE)
 DATA=fixme.xml
 WWW_COPY=page-elements.css page-elements.js maplayout.css mapprops.js maploader.js
 DOC_COPY=style.css
@@ -88,11 +88,11 @@ FIXME_FINDER_OBJ=fixme-finder.o osmparser.o \
 	       	 $(ROUTINO_SRC)/xmlparse.o $(ROUTINO_SRC)/tagging.o \
 	       	 $(ROUTINO_SRC)/uncompress.o $(ROUTINO_SRC)/osmxmlparse.o $(ROUTINO_SRC)/osmpbfparse.o $(ROUTINO_SRC)/osmo5mparse.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 FIXME_FINDER_OBJ+=$(ROUTINO_SRC)/mman-win32.o
 endif
 
-fixme-finder : $(FIXME_FINDER_OBJ)
+fixme-finder$(.EXE) : $(FIXME_FINDER_OBJ)
 	$(LD) $(FIXME_FINDER_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -105,11 +105,11 @@ FIXME_FINDER_SLIM_OBJ=fixme-finder-slim.o osmparser.o \
 	       	      $(ROUTINO_SRC)/xmlparse.o $(ROUTINO_SRC)/tagging.o \
 	       	      $(ROUTINO_SRC)/uncompress.o $(ROUTINO_SRC)/osmxmlparse.o $(ROUTINO_SRC)/osmpbfparse.o $(ROUTINO_SRC)/osmo5mparse.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 FIXME_FINDER_SLIM_OBJ+=$(ROUTINO_SRC)/mman-win32.o
 endif
 
-fixme-finder-slim : $(FIXME_FINDER_SLIM_OBJ)
+fixme-finder-slim$(.EXE) : $(FIXME_FINDER_SLIM_OBJ)
 	$(LD) $(FIXME_FINDER_SLIM_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -118,11 +118,11 @@ FIXME_DUMPER_OBJ=fixme-dumper.o \
 	         $(ROUTINO_SRC)/errorlog.o \
 	         $(ROUTINO_SRC)/files.o $(ROUTINO_SRC)/logging.o $(ROUTINO_SRC)/xmlparse.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 FIXME_DUMPER_OBJ+=$(ROUTINO_SRC)/mman-win32.o
 endif
 
-fixme-dumper : $(FIXME_DUMPER_OBJ)
+fixme-dumper$(.EXE) : $(FIXME_DUMPER_OBJ)
 	$(LD) $(FIXME_DUMPER_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -131,11 +131,11 @@ FIXME_DUMPER_SLIM_OBJ=fixme-dumper-slim.o \
 	              $(ROUTINO_SRC)/errorlog-slim.o \
 	              $(ROUTINO_SRC)/files.o $(ROUTINO_SRC)/logging.o $(ROUTINO_SRC)/xmlparse.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 FIXME_DUMPER_SLIM_OBJ+=$(ROUTINO_SRC)/mman-win32.o
 endif
 
-fixme-dumper-slim : $(FIXME_DUMPER_SLIM_OBJ)
+fixme-dumper-slim$(.EXE) : $(FIXME_DUMPER_SLIM_OBJ)
 	$(LD) $(FIXME_DUMPER_SLIM_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -167,11 +167,11 @@ install:
 clean:
 	rm -f *~
 	rm -f *.o
-	cd $(WEBBINDIR) && rm -f $(EXE) *.exe
+	cd $(WEBBINDIR) && rm -f $(EXE)
 	cd $(WEBDATADIR) && rm -f $(DATA)
 	cd $(WEBWWWDIR) && rm -f $(WWW_COPY)
 	cd $(WEBWWWDIR) && rm -f $(DOC_COPY)
-	rm -f $(EXE) *.exe
+	rm -f $(EXE)
 	rm -f $(D)
 	rm -fr .deps
 	rm -f core

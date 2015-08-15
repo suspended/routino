@@ -44,7 +44,7 @@ extern char *option_tmpdirname;
 
 /* Local variables */
 
-/*+ Temporary file-local variables for use by the sort functions. +*/
+/*+ Temporary file-local variables for use by the sort functions (re-initialised for each sort). +*/
 static SegmentsX *sortsegmentsx;
 static NodesX *sortnodesx;
 
@@ -547,9 +547,9 @@ static int sort_route_by_id(RouteRelX *a,RouteRelX *b)
 
 static int deduplicate_route_by_id(RouteRelX *relationx,index_t index)
 {
- static relation_t previd=NO_RELATION_ID;
+ static relation_t previd; /* internal variable (reset by first call in each sort; index==0) */
 
- if(relationx->id!=previd)
+ if(index==0 || relationx->id!=previd)
    {
     previd=relationx->id;
 
@@ -599,9 +599,9 @@ static int sort_turn_by_id(TurnRelX *a,TurnRelX *b)
 
 static int deduplicate_turn_by_id(TurnRelX *relationx,index_t index)
 {
- static relation_t previd=NO_RELATION_ID;
+ static relation_t previd; /* internal variable (reset by first call in each sort; index==0) */
 
- if(relationx->id!=previd)
+ if(index==0 || relationx->id!=previd)
    {
     previd=relationx->id;
 
@@ -1221,11 +1221,12 @@ void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx)
   NodesX *nodesx The set of nodes to use.
 
   SegmentsX *segmentsx The set of segments to use.
+
+  int convert Set to 1 to convert the segments as well as sorting them (the second time it is called).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx)
+void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,int convert)
 {
- static int which=1;
  int trfd;
 
  if(segmentsx->number==0)
@@ -1254,7 +1255,7 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
  sortnodesx=nodesx;
  sortsegmentsx=segmentsx;
 
- if(which==1)
+ if(!convert)
     filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRelX),(int (*)(void*,index_t))geographically_index,
                                                           (int (*)(const void*,const void*))sort_by_via,
                                                           NULL);
@@ -1262,8 +1263,6 @@ void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,Se
     filesort_fixed(relationsx->trfd,trfd,sizeof(TurnRelX),(int (*)(void*,index_t))geographically_index_convert_segments,
                                                           (int (*)(const void*,const void*))sort_by_via,
                                                           NULL);
-
- which++;
 
  /* Close the files */
 

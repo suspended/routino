@@ -52,7 +52,7 @@ TRANS_FILES=$(wildcard $(WEBTRANSDIR)/translation.*.txt)
 
 DOC_FILES=$(notdir $(wildcard $(DOCDIR)/html/*.html)) $(notdir $(wildcard $(DOCDIR)/html/*.css))
 
-EXE_FILES=planetsplitter planetsplitter-slim router router-slim filedumperx filedumper filedumper-slim
+EXE_FILES=planetsplitter$(.EXE) planetsplitter-slim$(.EXE) router$(.EXE) router-slim$(.EXE) filedumperx$(.EXE) filedumper$(.EXE) filedumper-slim$(.EXE)
 
 ########
 
@@ -66,10 +66,6 @@ all-bin: all-exe
 	    if [ -f $(SRCDIR)/$$file -a ! -f $(WEBBINDIR)/$$file ] || [ $(SRCDIR)/$$file -nt $(WEBBINDIR)/$$file ]; then \
 	       echo cp $(SRCDIR)/$$file $(WEBBINDIR) ;\
 	       cp -f $(SRCDIR)/$$file $(WEBBINDIR) ;\
-	    fi ;\
-	    if [ -f $(SRCDIR)/$$file.exe -a ! -f $(WEBBINDIR)/$$file.exe ] || [ $(SRCDIR)/$$file.exe -nt $(WEBBINDIR)/$$file.exe ]; then \
-	       echo cp $(SRCDIR)/$$file.exe $(WEBBINDIR) ;\
-	       cp -f $(SRCDIR)/$$file.exe $(WEBBINDIR) ;\
 	    fi ;\
 	 done
 
@@ -117,7 +113,7 @@ all-translations: $(WEBWWWDIR)/router.html    $(WEBWWWDIR)/visualiser.html \
 	          $(WEBWWWDIR)/router.html.en $(WEBWWWDIR)/visualiser.html.en \
 	          $(XMLDIR)/routino-translations.xml
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 
 $(WEBWWWDIR)/router.html: $(WEBWWWDIR)/router.html.en
 	@echo cp $< $@
@@ -186,7 +182,7 @@ clean: clean clean-all-bin clean-all-data clean-all-doc clean-all-profiles clean
 	rm -f *~
 
 clean-all-bin:
-	-cd $(WEBBINDIR)  && rm -f $(EXE_FILES) *.exe
+	-cd $(WEBBINDIR)  && rm -f $(EXE_FILES)
 
 clean-all-data:
 	-cd $(WEBDATADIR) && rm -f $(STANDARD_XML_FILES)

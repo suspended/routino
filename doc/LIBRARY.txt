@@ -1,0 +1,663 @@
+                           Routino : Library
+                           =================
+
+
+Library Usage
+-------------
+
+   This page describes the libroutino shared library that can be compiled
+   from the Routino source code and used in other programs.
+
+Compilation
+- - - - - -
+
+   The libroutino shared library is compiled by default when the Routino
+   source code is compiled. There are two versions; a normal version and a
+   'slim' version that uses less memory but is slower. The names of the
+   libraries are libroutino.so and libroutino-slim.so
+
+Including
+- - - - -
+
+   To use the Routino library in another program the source code for that
+   program should include the routino.h file. The functions that are
+   available in the library (both versions) are listed in this file along
+   with all of the constants and data types that are required.
+
+Linking
+- - - -
+
+   After compiling the program that uses the library it needs to be linked
+   to the library. For gcc this requires adding -lroutino or
+   -lroutino-slim to the linker command line, possibly with a -L...
+   parameter to specify the location of the library.
+
+Example Library Interface Code
+- - - - - - - - - - - - - - -
+
+   An example of a program that can link to the libroutino library is
+   provided in the Routino source code called router+lib.c. This is an
+   almost exact re-implementation of the standard Routino router program
+   using the libroutino library.
+
+
+Library License
+---------------
+
+   The source code for the libroutino and libroutino-slim libraries is the
+   GNU Affero General Public License v3 the same as for the rest of the
+   Routino software.
+
+Linking with AGPLv3 Source Code
+- - - - - - - - - - - - - - - -
+
+   If libroutino is linked with other APGLv3 code then the same license
+   applies to the combination as to the two parts.
+
+Linking with GPLv3 Source Code
+- - - - - - - - - - - - - - -
+
+   The AGPLv3 license is almost identical to the GNU General Public
+   License v3 except that network interaction with an AGPLv3 program
+   requires the same source code access as distributing compiled GPLv3
+   programs. This means that libroutino can be linked or combined with
+   code that is released under the GPLv3 without changing the license of
+   that code.
+
+   If there is no network interaction with the resulting program then the
+   Routino source code can be treated as if it was GPLv3 code for the
+   purposes of distribution and use.
+
+   If there is network interaction with the resulting program then the
+   AGPLv3 license will apply since this is required by section 13 of the
+   GPLv3.
+   The Software Freedom Law Center description of the GPLv3 and AGPLv3
+   licenses describes combining GPLv3 and APGLv3.
+   My understanding is that only when modified Routino code is linked with
+   GPLv3 code does network interaction require the modified Routino code
+   to be released.
+
+Linking with Other Source Code
+- - - - - - - - - - - - - - -
+
+   Linking libroutino with code released under any other license must
+   preserve the terms of the Routino license on the combination if the
+   software is distributed or interacted with over a network.
+
+
+Routino Library API
+-------------------
+
+Preprocessor Definitions
+- - - - - - - - - - - -
+
+   A version number for the Routino API.
+   #define ROUTINO_API_VERSION 5
+
+Error Definitions
+
+   No error.
+   #define ROUTINO_ERROR_NONE 0
+
+   A function was called without the database variable set.
+   #define ROUTINO_ERROR_NO_DATABASE 1
+
+   A function was called without the profile variable set.
+   #define ROUTINO_ERROR_NO_PROFILE 2
+
+   A function was called without the translation variable set.
+   #define ROUTINO_ERROR_NO_TRANSLATION 3
+
+   The specified database to load did not exist.
+   #define ROUTINO_ERROR_NO_DATABASE_FILES 11
+
+   The specified database could not be loaded.
+   #define ROUTINO_ERROR_BAD_DATABASE_FILES 12
+
+   The specified profiles XML file did not exist.
+   #define ROUTINO_ERROR_NO_PROFILES_XML 13
+
+   The specified profiles XML file could not be loaded.
+   #define ROUTINO_ERROR_BAD_PROFILES_XML 14
+
+   The specified translations XML file did not exist.
+   #define ROUTINO_ERROR_NO_TRANSLATIONS_XML 15
+
+   The specified translations XML file could not be loaded.
+   #define ROUTINO_ERROR_BAD_TRANSLATIONS_XML 16
+
+   The requested profile name does not exist in the loaded XML file.
+   #define ROUTINO_ERROR_NO_SUCH_PROFILE 21
+
+   The requested translation language does not exist in the loaded XML
+   file.
+   #define ROUTINO_ERROR_NO_SUCH_TRANSLATION 22
+
+   There is no highway near the coordinates to place a waypoint.
+   #define ROUTINO_ERROR_NO_NEARBY_HIGHWAY 31
+
+   The profile and database do not work together.
+   #define ROUTINO_ERROR_PROFILE_DATABASE_ERR 41
+
+   The profile being used has not been validated.
+   #define ROUTINO_ERROR_NOTVALID_PROFILE 42
+
+   The user specified profile contained invalid data.
+   #define ROUTINO_ERROR_BAD_USER_PROFILE 43
+
+   The routing options specified are not consistent with each other.
+   #define ROUTINO_ERROR_BAD_OPTIONS 51
+
+   There is a mismatch between the library and caller API version.
+   #define ROUTINO_ERROR_WRONG_API_VERSION 61
+
+   The progress function returned false.
+   #define ROUTINO_ERROR_PROGRESS_ABORTED 71
+
+   A route could not be found to waypoint 1.
+   #define ROUTINO_ERROR_NO_ROUTE_1 1001
+
+   A route could not be found to waypoint 2.
+   #define ROUTINO_ERROR_NO_ROUTE_2 1002
+
+   A route could not be found to waypoint 3.
+   #define ROUTINO_ERROR_NO_ROUTE_3 1003
+
+Routino Option Definitions
+
+   Calculate the shortest route.
+   #define ROUTINO_ROUTE_SHORTEST 0
+
+   Calculate the quickest route.
+   #define ROUTINO_ROUTE_QUICKEST 1
+
+   Output an HTML route file.
+   #define ROUTINO_ROUTE_FILE_HTML 2
+
+   Output a GPX track file.
+   #define ROUTINO_ROUTE_FILE_GPX_TRACK 4
+
+   Output a GPX route file.
+   #define ROUTINO_ROUTE_FILE_GPX_ROUTE 8
+
+   Output a text file with important junctions.
+   #define ROUTINO_ROUTE_FILE_TEXT 16
+
+   Output a text file with all nodes and segments.
+   #define ROUTINO_ROUTE_FILE_TEXT_ALL 32
+
+   Output a single file type to stdout.
+   #define ROUTINO_ROUTE_FILE_STDOUT 64
+
+   Output a linked list of of waypoints containing the HTML file
+   information but as plain text.
+   #define ROUTINO_ROUTE_LIST_HTML 128
+
+   Output a linked list of of waypoints containing the text file
+   information.
+   #define ROUTINO_ROUTE_LIST_TEXT 256
+
+   Output a linked list of of waypoints containing the text all file
+   information.
+   #define ROUTINO_ROUTE_LIST_TEXT_ALL 512
+
+Linked List Output Point Definitions
+
+   An unimportant, intermediate, node.
+   #define ROUTINO_POINT_UNIMPORTANT 0
+
+   A roundabout exit that is not taken.
+   #define ROUTINO_POINT_RB_NOT_EXIT 1
+
+   An un-interesting junction where the route continues without comment.
+   #define ROUTINO_POINT_JUNCT_CONT 2
+
+   The highway changes type but nothing else happens.
+   #define ROUTINO_POINT_CHANGE 3
+
+   An interesting junction to be described.
+   #define ROUTINO_POINT_JUNCT_IMPORT 4
+
+   The entrance to a roundabout.
+   #define ROUTINO_POINT_RB_ENTRY 5
+
+   The exit from a roundabout.
+   #define ROUTINO_POINT_RB_EXIT 6
+
+   The location of a mini-roundabout.
+   #define ROUTINO_POINT_MINI_RB 7
+
+   The location of a U-turn.
+   #define ROUTINO_POINT_UTURN 8
+
+   A waypoint.
+   #define ROUTINO_POINT_WAYPOINT 9
+
+Profile Definitions
+
+   A Motorway highway.
+   #define ROUTINO_HIGHWAY_MOTORWAY 1
+
+   A Trunk highway.
+   #define ROUTINO_HIGHWAY_TRUNK 2
+
+   A Primary highway.
+   #define ROUTINO_HIGHWAY_PRIMARY 3
+
+   A Secondary highway.
+   #define ROUTINO_HIGHWAY_SECONDARY 4
+
+   A Tertiary highway.
+   #define ROUTINO_HIGHWAY_TERTIARY 5
+
+   A Unclassified highway.
+   #define ROUTINO_HIGHWAY_UNCLASSIFIED 6
+
+   A Residential highway.
+   #define ROUTINO_HIGHWAY_RESIDENTIAL 7
+
+   A Service highway.
+   #define ROUTINO_HIGHWAY_SERVICE 8
+
+   A Track highway.
+   #define ROUTINO_HIGHWAY_TRACK 9
+
+   A Cycleway highway.
+   #define ROUTINO_HIGHWAY_CYCLEWAY 10
+
+   A Path highway.
+   #define ROUTINO_HIGHWAY_PATH 11
+
+   A Steps highway.
+   #define ROUTINO_HIGHWAY_STEPS 12
+
+   A Ferry highway.
+   #define ROUTINO_HIGHWAY_FERRY 13
+
+   A Paved highway.
+   #define ROUTINO_PROPERTY_PAVED 1
+
+   A Multilane highway.
+   #define ROUTINO_PROPERTY_MULTILANE 2
+
+   A Bridge highway.
+   #define ROUTINO_PROPERTY_BRIDGE 3
+
+   A Tunnel highway.
+   #define ROUTINO_PROPERTY_TUNNEL 4
+
+   A Footroute highway.
+   #define ROUTINO_PROPERTY_FOOTROUTE 5
+
+   A Bicycleroute highway.
+   #define ROUTINO_PROPERTY_BICYCLEROUTE 6
+
+Type Definitions
+- - - - - - - -
+
+Typedef Routino_Database
+
+   A data structure to hold a Routino database loaded from a file (the
+   contents are private).
+
+   typedef struct _Routino_Database Routino_Database
+
+Typedef Routino_Waypoint
+
+   A data structure to hold a Routino waypoint found within the database
+   (the contents are private).
+
+   typedef struct _Routino_Waypoint Routino_Waypoint
+
+Typedef Routino_Profile
+
+   A data structure to hold a Routino routing profile (the contents are
+   private).
+
+   typedef struct _Routino_Profile Routino_Profile
+
+Typedef Routino_Translation
+
+   A data structure to hold a Routino translation (the contents are
+   private).
+
+   typedef struct _Routino_Translation Routino_Translation
+
+Typedef Routino_UserProfile
+
+   A data structure to hold a routing profile that can be defined by the
+   user.
+
+   typedef struct _Routino_UserProfile Routino_UserProfile
+   struct _Routino_UserProfile
+      {
+         int transport; The type of transport.
+         float highway[14]; A floating point preference for travel on the
+                            highway (range 0 to 1).
+         float speed[14]; The maximum speed on each type of highway
+                          (km/hour).
+         float props[7]; A floating point preference for ways with this
+                         attribute (range 0 to 1).
+         int oneway; A flag to indicate if one-way restrictions apply.
+         int turns; A flag to indicate if turn restrictions apply.
+         float weight; The weight of the vehicle (in tonnes).
+         float height; The height of the vehicle (in metres).
+         float width; The width of vehicle (in metres).
+         float length; The length of vehicle (in metres).
+      }
+
+Typedef Routino_Output
+
+   Forward declaration of the Routino_Output data type.
+
+   typedef struct _Routino_Output Routino_Output
+
+Type struct _Routino_Output
+
+   A linked list output of the calculated route whose contents depend on
+   the ROUTINO_ROUTE_LIST_* options selected.
+
+   struct _Routino_Output
+      {
+         Routino_Output* next; A pointer to the next route section.
+         float lon; The longitude of the point (radians).
+         float lat; The latitude of the point (radians).
+         float dist; The total distance travelled (metres).
+         float time; The total journey time (seconds).
+         float speed; The speed (km/hr) for this section of the route
+                      (ROUTINO_ROUTE_LIST_TEXT_ALL format only).
+         int type; The type of point (one of the ROUTINO_POINT_* values).
+         int turn; The amount to turn (degrees) for the next section of
+                   the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML
+                   format).
+         int bearing; The compass direction (degrees) for the next section
+                      of the route.
+         char* name; The name of the next section of the route
+                     (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML
+                     format) or previous section of the route
+                     (ROUTINO_ROUTE_LIST_TEXT_ALL format).
+         char* desc1; The first part of the description of the next
+                      section of route (ROUTINO_ROUTE_LIST_HTML format only).
+         char* desc2; The second part of the description of the next
+                      section of route (ROUTINO_ROUTE_LIST_HTML format only).
+         char* desc3; The third part of the description, the total
+                      distance and time (ROUTINO_ROUTE_LIST_HTML format only).
+      }
+
+Typedef Routino_ProgressFunc
+
+   A type of function that can be used as a callback to indicate routing
+   progress, if it returns false the router stops.
+
+   typedef int (*Routino_ProgressFunc)(double complete)
+
+Variable Definitions
+- - - - - - - - - -
+
+Global Variable Routino_APIVersion
+
+   Contains the libroutino API version number.
+
+   int Routino_APIVersion
+
+Global Variable Routino_errno
+
+   Contains the error number of the most recent Routino function (one of
+   the ROUTINO_ERROR_* values).
+
+   int Routino_errno
+
+Function Definitions
+- - - - - - - - - -
+
+Global Function Routino_CalculateRoute()
+
+   Calculate a route using a loaded database, chosen profile, chosen
+   translation and set of waypoints.
+
+   Routino_Output* Routino_CalculateRoute ( Routino_Database* database,
+   Routino_Profile* profile, Routino_Translation* translation,
+   Routino_Waypoint** waypoints, int nwaypoints, int options,
+   Routino_ProgressFunc progress )
+
+   Routino_Output* Routino_CalculateRoute
+          Returns the head of a linked list of route data (if requested)
+          or NULL.
+
+   Routino_Database* database
+          The loaded database to use.
+
+   Routino_Profile* profile
+          The chosen routing profile to use.
+
+   Routino_Translation* translation
+          The chosen translation information to use.
+
+   Routino_Waypoint** waypoints
+          The set of waypoints.
+
+   int nwaypoints
+          The number of waypoints.
+
+   int options
+          The set of routing options (ROUTINO_ROUTE_*) ORed together.
+
+   Routino_ProgressFunc progress
+          A function to be called occasionally to report progress or NULL.
+
+Global Function Routino_Check_API_Version()
+
+   Check the version of the library used by the caller against the library
+   version
+
+   int Routino_Check_API_Version ( int caller_version )
+
+   int Routino_Check_API_Version
+          Returns ROUTINO_ERROR_NONE if OK or ROUTINO_ERROR_WRONG_VERSION
+          if there is an error.
+
+   int caller_version
+          The version of the API used in the caller.
+
+   This function should not be called directly, use the macro
+   Routino_CheckAPIVersion() which takes no arguments.
+
+   A wrapper function to simplify the API version check.
+   #define Routino_CheckAPIVersion()
+
+Global Function Routino_CreateProfileFromUserProfile()
+
+   Create a fully formed Routino Profile from a Routino User Profile.
+
+   Routino_Profile* Routino_CreateProfileFromUserProfile (
+   Routino_UserProfile* profile )
+
+   Routino_Profile* Routino_CreateProfileFromUserProfile
+          Returns an allocated Routino Profile.
+
+   Routino_UserProfile* profile
+          The user specified profile to convert (not modified by this).
+
+Global Function Routino_CreateUserProfileFromProfile()
+
+   Create a Routino User Profile from a Routino Profile loaded from an XML
+   file.
+
+   Routino_UserProfile* Routino_CreateUserProfileFromProfile (
+   Routino_Profile* profile )
+
+   Routino_UserProfile* Routino_CreateUserProfileFromProfile
+          Returns an allocated Routino User Profile.
+
+   Routino_Profile* profile
+          The Routino Profile to convert (not modified by this).
+
+Global Function Routino_DeleteRoute()
+
+   Delete the linked list created by Routino_CalculateRoute.
+
+   void Routino_DeleteRoute ( Routino_Output* output )
+
+   Routino_Output* output
+          The output to be deleted.
+
+Global Function Routino_FindWaypoint()
+
+   Finds the nearest point in the database to the specified latitude and
+   longitude.
+
+   Routino_Waypoint* Routino_FindWaypoint ( Routino_Database* database,
+   Routino_Profile* profile, double latitude, double longitude )
+
+   Routino_Waypoint* Routino_FindWaypoint
+          Returns a pointer to a newly allocated Routino waypoint or NULL
+          if none could be found.
+
+   Routino_Database* database
+          The Routino database to use.
+
+   Routino_Profile* profile
+          The Routino profile to use.
+
+   double latitude
+          The latitude in degrees of the point.
+
+   double longitude
+          The longitude in degrees of the point.
+
+Global Function Routino_FreeXMLProfiles()
+
+   Free the internal memory that was allocated for the Routino profiles
+   loaded from the XML file.
+
+   void Routino_FreeXMLProfiles ( void )
+
+Global Function Routino_FreeXMLTranslations()
+
+   Free the internal memory that was allocated for the Routino
+   translations loaded from the XML file.
+
+   void Routino_FreeXMLTranslations ( void )
+
+Global Function Routino_GetProfile()
+
+   Select a specific routing profile from the set of Routino profiles that
+   have been loaded from the XML file or NULL in case of an error.
+
+   Routino_Profile* Routino_GetProfile ( const char* name )
+
+   Routino_Profile* Routino_GetProfile
+          Returns a pointer to an internal data structure - do not free.
+
+   const char* name
+          The name of the profile to select.
+
+Global Function Routino_GetProfileNames()
+
+   Return a list of the profile names that have been loaded from the XML
+   file.
+
+   char** Routino_GetProfileNames ( void )
+
+   char** Routino_GetProfileNames
+          Returns a NULL terminated list of strings - all allocated.
+
+Global Function Routino_GetTranslation()
+
+   Select a specific translation from the set of Routino translations that
+   have been loaded from the XML file or NULL in case of an error.
+
+   Routino_Translation* Routino_GetTranslation ( const char* language )
+
+   Routino_Translation* Routino_GetTranslation
+          Returns a pointer to an internal data structure - do not free.
+
+   const char* language
+          The language to select (as a country code, e.g. 'en', 'de') or
+          an empty string for the first in the file or NULL for the
+          built-in English version.
+
+Global Function Routino_GetTranslationLanguages()
+
+   Return a list of the translation languages that have been loaded from
+   the XML file.
+
+   char** Routino_GetTranslationLanguages ( void )
+
+   char** Routino_GetTranslationLanguages
+          Returns a NULL terminated list of strings - all allocated.
+
+Global Function Routino_LoadDatabase()
+
+   Load a database of files for Routino to use for routing.
+
+   Routino_Database* Routino_LoadDatabase ( const char* dirname, const
+   char* prefix )
+
+   Routino_Database* Routino_LoadDatabase
+          Returns a pointer to the database.
+
+   const char* dirname
+          The pathname of the directory containing the database files.
+
+   const char* prefix
+          The prefix of the database files.
+
+Global Function Routino_ParseXMLProfiles()
+
+   Parse a Routino XML file containing profiles, must be called before
+   selecting a profile.
+
+   int Routino_ParseXMLProfiles ( const char* filename )
+
+   int Routino_ParseXMLProfiles
+          Returns non-zero in case of an error or zero if there was no
+          error.
+
+   const char* filename
+          The full pathname of the file to read.
+
+Global Function Routino_ParseXMLTranslations()
+
+   Parse a Routino XML file containing translations, must be called before
+   selecting a translation.
+
+   int Routino_ParseXMLTranslations ( const char* filename )
+
+   int Routino_ParseXMLTranslations
+          Returns non-zero in case of an error or zero if there was no
+          error.
+
+   const char* filename
+          The full pathname of the file to read.
+
+Global Function Routino_UnloadDatabase()
+
+   Close the database files that were opened by a call to
+   Routino_LoadDatabase().
+
+   void Routino_UnloadDatabase ( Routino_Database* database )
+
+   Routino_Database* database
+          The database to close.
+
+Global Function Routino_ValidateProfile()
+
+   Validates that a selected routing profile is valid for use with the
+   selected routing database.
+
+   int Routino_ValidateProfile ( Routino_Database* database,
+   Routino_Profile* profile )
+
+   int Routino_ValidateProfile
+          Returns zero if OK or something else in case of an error.
+
+   Routino_Database* database
+          The Routino database to use.
+
+   Routino_Profile* profile
+          The Routino profile to validate.
+
+--------
+
+Copyright 2015 Andrew M. Bishop.

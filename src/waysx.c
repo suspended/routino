@@ -43,7 +43,7 @@ extern char *option_tmpdirname;
 
 /* Local variables */
 
-/*+ Temporary file-local variables for use by the sort functions. +*/
+/*+ Temporary file-local variables for use by the sort functions (re-initialised for each sort). +*/
 static WaysX *sortwaysx;
 static SegmentsX *sortsegmentsx;
 
@@ -371,9 +371,9 @@ static int sort_by_id(WayX *a,WayX *b)
 
 static int deduplicate_and_index_by_id(WayX *wayx,index_t index)
 {
- static way_t previd=NO_WAY_ID;
+ static way_t previd; /* internal variable (reset by first call in each sort; index==0) */
 
- if(wayx->id!=previd)
+ if(index==0 || wayx->id!=previd)
    {
     previd=wayx->id;
 
@@ -786,7 +786,7 @@ static int sort_by_name_and_prop_and_id(WayX *a,WayX *b)
 
 static int deduplicate_and_index_by_compact_id(WayX *wayx,index_t index)
 {
- static Way lastway;
+ static Way lastway; /* internal variable (reset by first call in each sort; index==0) */
 
  if(index==0 || wayx->way.name!=lastway.name || WaysCompare(&lastway,&wayx->way))
    {

@@ -129,10 +129,10 @@
 #define PBF_ERROR_TOO_MANY_GROUPS 112
 
 
-/* Parsing variables and functions */
+/* Local parsing variables (re-initialised for each file) */
 
-static uint64_t byteno=0;
-static uint64_t nnodes=0,nways=0,nrelations=0;
+static uint64_t byteno;
+static uint64_t nnodes,nways,nrelations;
 
 static uint32_t buffer_allocated,zbuffer_allocated;
 static unsigned char *buffer=NULL,*zbuffer=NULL;
@@ -375,6 +375,8 @@ static int ParsePBF(int fd)
  printf_first("Reading: Bytes=0 Nodes=0 Ways=0 Relations=0");
 
  /* The actual parser. */
+
+ byteno=0;
 
  nnodes=0,nways=0,nrelations=0;
 

@@ -44,8 +44,14 @@
 #define TAGACTION_OUTPUT   6
 #define TAGACTION_LOGERROR 7
 
+static const char* const default_logerror_message="ignoring it";
 
-/* Local variables */
+
+/* Local variable (intialised before each use) */
+
+static int64_t current_id;
+
+/* Local parsing variables (re-initialised by DeleteXMLTaggingRules() function) */
 
 static TaggingRuleList NodeRules={NULL,0};
 static TaggingRuleList WayRules={NULL,0};
@@ -55,12 +61,7 @@ static int current_list_stack_depth=0;
 static TaggingRuleList **current_list_stack=NULL;
 static TaggingRuleList *current_list=NULL;
 
-static int64_t current_id;
-
-static char *default_logerror_message="ignoring it";
-
-
-/* Local functions */
+/* Local parsing functions */
 
 static TaggingRuleList *AppendTaggingRule(TaggingRuleList *rules,const char *k,const char *v,int action);
 static void AppendTaggingAction(TaggingRuleList *rules,const char *k,const char *v,int action,const char *message);
@@ -466,6 +467,8 @@ int ParseXMLTaggingRules(const char *filename)
 
  fd=OpenFile(filename);
 
+ /* Initialise variables used for parsing */
+
  retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
 
  CloseFile(fd);
@@ -486,6 +489,10 @@ int ParseXMLTaggingRules(const char *filename)
 
 void DeleteXMLTaggingRules(void)
 {
+ current_list_stack_depth=0;
+ current_list_stack=NULL;
+ current_list=NULL;
+
  DeleteTaggingRuleList(&NodeRules);
  DeleteTaggingRuleList(&WayRules);
  DeleteTaggingRuleList(&RelationRules);
@@ -569,7 +576,7 @@ static void AppendTaggingAction(TaggingRuleList *rules,const char *k,const char 
  if(message)
     rules->rules[rules->nrules-1].message=strcpy(malloc(strlen(message)+1),message);
  else
-    rules->rules[rules->nrules-1].message=default_logerror_message;
+    rules->rules[rules->nrules-1].message=(char*)default_logerror_message;
 
  rules->rules[rules->nrules-1].rulelist=NULL;
 }
@@ -603,6 +610,9 @@ void DeleteTaggingRuleList(TaggingRuleList *rules)
 
  if(rules->rules)
     free(rules->rules);
+
+ rules->rules=NULL;
+ rules->nrules=0;
 }
 
 
@@ -740,7 +750,7 @@ void DeleteTag(TagList *tags,const char *k)
 
 char *StringifyTag(TagList *tags)
 {
- static char *string=NULL;
+ static char *string=NULL; /* static allocation of return value */
  int i,length=0,used=0;
 
  for(i=0;i<tags->ntags;i++)

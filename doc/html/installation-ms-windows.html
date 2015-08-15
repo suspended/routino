@@ -83,6 +83,13 @@ dependencies will be automatically be selected at the next step):
 To compile Routino open the "Cygwin Terminal" change to the Routino source
 directory and compile using the <tt>make</tt> command.
 
+<p>
+
+The programs that are compiled <tt>planetsplitter</tt>, <tt>router</tt> will
+require the Cygwin runtime to be able to run them.  The
+library <tt>libroutino.so</tt> should be usable with other Cygwin compiled
+programs.
+
 
 <h2 id="H_1_2">Native Compilation</h2>
 
@@ -106,9 +113,10 @@ will compile with the Microsoft Visual C compiler.
 
 <p>
 
-The files that need to be compiled for the Routino router can be found from the
-Makefile in the <tt>src</tt> directory listed in the <tt>ROUTER_OBJ</tt>
-variable.
+Compiling Routino with MSVC is not supported directly since there is only
+support for using <tt>Makefile</tt>s in Routino.  The files that need to be
+compiled for the Routino router can be found from the Makefile in
+the <tt>src</tt> directory listed in the <tt>ROUTER_OBJ</tt> variable.
 
 <p>
 
@@ -160,7 +168,13 @@ MinGW and MSYS software.  For example if MinGW was installed in the
 
 From within this DOS command window change to the Routino source directory and
 compile using the MinGW version of <tt>make</tt> with this command
-<tt>mingw32-make MINGW=1</tt>.
+<tt>mingw32-make</tt>.
+
+<p>
+
+After compiling Routino a set of library files are created (<tt>routino.dll</tt>,
+<tt>routino.def</tt> and <tt>routino.lib</tt>).  These should be usable for
+linking with programs compiled with MSVC.
 
 
 <h3 id="H_1_2_3">Using MinGW-W64</h3>
@@ -171,11 +185,15 @@ allows for compilation to 32-bit or 64-bit executables.
 <p>
 
 The website for MinGW-w64 is <tt>http://mingw-w64.org/</tt> but the downloads
-are available from <tt>http://win-builds.org/</tt>.
+are available from <tt>http://win-builds.org/</tt>.  Installation of MinGW-w64
+is slightly different from that for MinGW but a similar set of packages will be
+required.
 
 <p>
 
-The compilation method for MinGW-w64 should be the same as for MinGW.
+The compilation method for MinGW-w64 is the same as for MinGW and the same files
+will be compiled, the only difference is that by default a 64-bit version will
+be created.
 
 
 <h3 id="H_1_2_4">Limitations</h3>
@@ -186,9 +204,9 @@ if you are unfamiliar with software development on Microsoft Windows.
 
 <p>
 
-The size of files that can be accessed with an MSVC or MinGW compiled version of
-Routino is limited to 32-bits (about 2 GB).  The MinGW-w64 compiler on 64-bit
-windows might be able to handle larger files but has not been tested.
+The size of files that can be accessed with an MSVC or MinGW (32-bit) compiled
+version of Routino is limited to 32-bits (less than 4 GB).  The MinGW-w64
+compiler on 64-bit is able to handle larger files (bigger than 4 GB).
 
 <p>
 

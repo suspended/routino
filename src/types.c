@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -345,7 +345,7 @@ const char *PropertyName(Property property)
 
 const char *HighwaysNameList(highways_t highways)
 {
- static char string[256];
+ static char string[256]; /* static allocation of return value (set each call) */
 
  string[0]=0;
 
@@ -432,7 +432,7 @@ const char *HighwaysNameList(highways_t highways)
 
 const char *AllowedNameList(transports_t allowed)
 {
- static char string[256];
+ static char string[256]; /* static allocation of return value (set each call) */
 
  string[0]=0;
 
@@ -507,7 +507,7 @@ const char *AllowedNameList(transports_t allowed)
 
 const char *PropertiesNameList(properties_t properties)
 {
- static char string[256];
+ static char string[256]; /* static allocation of return value (set each call) */
 
  string[0]=0;
 

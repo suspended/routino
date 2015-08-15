@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -54,8 +54,10 @@ Results *NewResultsList(uint8_t log2bins)
  results->count=(uint8_t*)calloc(results->nbins,sizeof(uint8_t));
  results->point=(Result**)calloc(results->nbins,sizeof(Result*));
 
+#ifndef LIBROUTINO
  log_malloc(results->count,results->nbins*sizeof(uint8_t));
  log_malloc(results->point,results->nbins*sizeof(Result*));
+#endif
 
  results->ndata1=0;
  results->nallocdata1=0;
@@ -115,16 +117,22 @@ void FreeResultsList(Results *results)
 
  for(i=0;i<results->nallocdata1;i++)
    {
+#ifndef LIBROUTINO
     log_free(results->data[i]);
+#endif
     free(results->data[i]);
    }
 
  free(results->data);
 
+#ifndef LIBROUTINO
  log_free(results->point);
+#endif
  free(results->point);
 
+#ifndef LIBROUTINO
  log_free(results->count);
+#endif
  free(results->count);
 
  free(results);
@@ -161,8 +169,10 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
     results->count=(uint8_t*)realloc((void*)results->count,results->nbins*sizeof(uint8_t));
     results->point=(Result**)realloc((void*)results->point,results->nbins*sizeof(Result*));
 
+#ifndef LIBROUTINO
     log_malloc(results->count,results->nbins*sizeof(uint8_t));
     log_malloc(results->point,results->nbins*sizeof(Result*));
+#endif
 
     for(i=0;i<results->nbins/2;i++)
       {
@@ -210,7 +220,9 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
        results->nallocdata1++;
        results->data=(Result**)realloc((void*)results->data,results->nallocdata1*sizeof(Result*));
        results->data[results->nallocdata1-1]=(Result*)malloc(results->ndata2*sizeof(Result));
+#ifndef LIBROUTINO
        log_malloc(results->data[results->nallocdata1-1],results->ndata2*sizeof(Result));
+#endif
       }
    }
 

@@ -36,6 +36,7 @@
 
 #include <stdlib.h>
 #include <inttypes.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -97,17 +98,18 @@
 #define LEX_ERROR_UNEXP_EOF      205
 #define LEX_ERROR_XML_NOT_FIRST  206
 
-#define LEX_ERROR_OUT_OF_MEMORY  254
 #define LEX_ERROR_CALLBACK       255
 
 
-/* Parsing variables and functions */
+/* Parsing variables and functions (re-initialised for each file) */
 
 static uint64_t lineno;
 
 static unsigned char buffer[2][16384];
 static unsigned char *buffer_token,*buffer_end,*buffer_ptr;
 static int buffer_active=0;
+
+static char *stored_message=NULL;
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -255,8 +257,8 @@ static inline int call_callback(const char *name,int (*callback)(),int type,int 
    case 16: return (*callback)(name,type,attributes[0],attributes[1],attributes[2],attributes[3],attributes[4],attributes[5],attributes[6],attributes[7],attributes[8],attributes[9],attributes[10],attributes[11],attributes[12],attributes[13],attributes[14],attributes[15]);
 
    default:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": too many attributes for tag '%s' source code needs changing.\n",lineno,name);
-    exit(1);
+    ParseXML_SetError("Too many attributes for tag '%s' source code needs changing.",name);
+    return(1);
    }
 }
 
@@ -291,6 +293,10 @@ int ParseXML(int fd,const xmltag *const *tags,int options)
  /* The actual parser. */
 
  lineno=1;
+
+ if(stored_message)
+    free(stored_message);
+ stored_message=NULL;
 
  buffer_end=buffer[buffer_active]+sizeof(buffer[0])-1;
  buffer_token=NULL;
@@ -1072,8 +1078,10 @@ int ParseXML(int fd,const xmltag *const *tags,int options)
        if((options&XMLPARSE_UNKNOWN_ATTRIBUTES)==XMLPARSE_UNKNOWN_ATTR_ERROR ||
           ((options&XMLPARSE_UNKNOWN_ATTRIBUTES)==XMLPARSE_UNKNOWN_ATTR_ERRNONAME && !strchr((char*)buffer_token,':')))
           BEGIN(LEX_ERROR_UNEXP_ATT);
+#ifndef LIBROUTINO
        else if((options&XMLPARSE_UNKNOWN_ATTRIBUTES)==XMLPARSE_UNKNOWN_ATTR_WARN)
-          fprintf(stderr,"XML Parser: Warning on line %"PRIu64": unexpected attribute '%s' for tag '%s'.\n",lineno,buffer_token,tag->name);
+          ParseXML_SetError("Warning on line %"PRIu64": unexpected attribute '%s' for tag '%s'.",lineno,buffer_token,tag->name);
+#endif
       }
 
     END_TOKEN;
@@ -1106,77 +1114,90 @@ int ParseXML(int fd,const xmltag *const *tags,int options)
 
 
    case LEX_ERROR_TAG_START:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": character '<' seen not at start of tag.\n",lineno);
+    ParseXML_SetError("Character '<' seen not at start of tag.");
     break;
 
    case LEX_ERROR_XML_DECL_START:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": characters '<?' seen not at start of XML declaration.\n",lineno);
+    ParseXML_SetError("Characters '<?' seen not at start of XML declaration.");
     break;
 
    case LEX_ERROR_TAG:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": invalid character seen inside tag '<%s...>'.\n",lineno,tag->name);
+    ParseXML_SetError("Invalid character seen inside tag '<%s...>'.",tag->name);
     break;
 
    case LEX_ERROR_XML_DECL:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": invalid character seen inside XML declaration '<?xml...>'.\n",lineno);
+    ParseXML_SetError("Invalid character seen inside XML declaration '<?xml...>'.");
     break;
 
    case LEX_ERROR_ATTR:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": invalid attribute definition seen in tag.\n",lineno);
+    ParseXML_SetError("Invalid attribute definition seen in tag.");
     break;
     
    case LEX_ERROR_END_TAG:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": invalid character seen in end-tag.\n",lineno);
+    ParseXML_SetError("Invalid character seen in end-tag.");
     break;
 
    case LEX_ERROR_COMMENT:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": invalid comment seen.\n",lineno);
+    ParseXML_SetError("Invalid comment seen.");
     break;
 
    case LEX_ERROR_CLOSE:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": character '>' seen not at end of tag.\n",lineno);
+    ParseXML_SetError("Character '>' seen not at end of tag.");
     break;
 
    case LEX_ERROR_ATTR_VAL:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": invalid character '%c' seen in attribute value.\n",lineno,*buffer_ptr);
+    ParseXML_SetError("Invalid character '%c' seen in attribute value.",*buffer_ptr);
     break;
 
    case LEX_ERROR_ENTITY_REF:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": invalid entity reference '%s' seen in attribute value.\n",lineno,buffer_ptr);
+    ParseXML_SetError("Invalid entity reference '%s' seen in attribute value.",buffer_ptr);
     break;
 
    case LEX_ERROR_CHAR_REF:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": invalid character reference '%s' seen in attribute value.\n",lineno,buffer_ptr);
+    ParseXML_SetError("Invalid character reference '%s' seen in attribute value.",buffer_ptr);
     break;
 
    case LEX_ERROR_TEXT_OUTSIDE:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": non-whitespace '%c' seen outside tag.\n",lineno,*buffer_ptr);
+    ParseXML_SetError("Non-whitespace '%c' seen outside tag.",*buffer_ptr);
     break;
 
    case LEX_ERROR_UNEXP_TAG:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": unexpected tag '%s'.\n",lineno,buffer_token);
+    ParseXML_SetError("Unexpected tag '%s'.",buffer_token);
     break;
 
    case LEX_ERROR_UNBALANCED:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": end tag '</%s>' doesn't match start tag '<%s ...>'.\n",lineno,buffer_token,tag->name);
+    ParseXML_SetError("End tag '</%s>' doesn't match start tag '<%s ...>'.",buffer_token,tag->name);
     break;
 
    case LEX_ERROR_NO_START:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": end tag '</%s>' seen but there was no start tag '<%s ...>'.\n",lineno,buffer_token,buffer_token);
+    ParseXML_SetError("End tag '</%s>' seen but there was no start tag '<%s ...>'.",buffer_token,buffer_token);
     break;
 
    case LEX_ERROR_UNEXP_ATT:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": unexpected attribute '%s' for tag '%s'.\n",lineno,buffer_token,tag->name);
+    ParseXML_SetError("Unexpected attribute '%s' for tag '%s'.",buffer_token,tag->name);
     break;
 
    case LEX_ERROR_UNEXP_EOF:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": end of file seen without end tag '</%s>'.\n",lineno,tag->name);
+    ParseXML_SetError("End of file seen without end tag '</%s>'.",tag->name);
     break;
 
    case LEX_ERROR_XML_NOT_FIRST:
-    fprintf(stderr,"XML Parser: Error on line %"PRIu64": XML declaration '<?xml...>' not before all other tags.\n",lineno);
+    ParseXML_SetError("XML declaration '<?xml...>' not before all other tags.");
+    break;
+
+   case LEX_ERROR_CALLBACK:
+    /* The error message should have been set by the callback function, have a fallback just in case */
+    if(!stored_message)
+       ParseXML_SetError("Unknown error from tag callback function.");
     break;
    }
+
+ /* Print the error message */
+
+#ifndef LIBROUTINO
+ if(state)
+    fprintf(stderr,"XML Parser: %s\n",stored_message);
+#endif
 
  /* Delete the tagdata */
 
@@ -1199,6 +1220,51 @@ int ParseXML(int fd,const xmltag *const *tags,int options)
 uint64_t ParseXML_LineNumber(void)
 {
  return(lineno);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Store an error message for later.
+
+  const char *format The format string.
+
+  ... The other arguments.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void ParseXML_SetError(const char *format, ...)
+{
+ va_list ap;
+ char temp[2];
+ int line_length,error_length;
+
+ line_length=snprintf(temp,1,"Error on line %" PRIu64 ": ",lineno);
+
+ va_start(ap,format);
+ error_length=vsnprintf(temp,1,format,ap);
+ va_end(ap);
+
+ if(stored_message)
+    free(stored_message);
+
+ stored_message=malloc(error_length+line_length+1);
+
+ line_length=sprintf(stored_message,"Error on line %" PRIu64 ": ",lineno);
+
+ va_start(ap,format);
+ vsprintf(stored_message+line_length,format,ap);
+ va_end(ap);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Return a stored error message.
+
+  char *ParseXML_GetError Returns the most recent stored error.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+char *ParseXML_GetError(void)
+{
+ return(stored_message);
 }
 
 
@@ -1231,7 +1297,7 @@ char *ParseXML_Decode_Entity_Ref(const char *string)
 
 char *ParseXML_Decode_Char_Ref(const char *string)
 {
- static char result[5]="";
+ static char result[5]=""; /* static allocation of return value (set each call) */
  long int unicode;
 
  if(string[2]=='x') unicode=strtol(string+3,NULL,16);
@@ -1281,16 +1347,16 @@ char *ParseXML_Decode_Char_Ref(const char *string)
 /*++++++++++++++++++++++++++++++++++++++
   Convert a string into something that is safe to output in an XML file.
 
-  char *ParseXML_Encode_Safe_XML Returns a pointer to the replacement encoded string (or the original if no change needed).
+  char *ParseXML_Encode_Safe_XML Returns a pointer to a static replacement encoded string (or the original if no change needed).
 
   const char *string The string to convert.
   ++++++++++++++++++++++++++++++++++++++*/
 
 char *ParseXML_Encode_Safe_XML(const char *string)
 {
- static const char hexstring[17]="0123456789ABCDEF";
+ static const char hexstring[17]="0123456789ABCDEF"; /* local lookup table */
+ static char *result=NULL;                           /* static allocation of return value */
  int i=0,j=0,len;
- char *result;
 
  for(i=0;string[i];i++)
     if(string[i]=='<' || string[i]=='>' || string[i]=='&' || string[i]=='\'' || string[i]=='"' || string[i]<32 || (unsigned char)string[i]>127)
@@ -1301,7 +1367,7 @@ char *ParseXML_Encode_Safe_XML(const char *string)
 
  len=i+256-6;
 
- result=(char*)malloc(len+7);
+ result=(char*)realloc((void*)result,len+7);
  strncpy(result,string,j=i);
 
  do

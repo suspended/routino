@@ -38,31 +38,27 @@
 #include "results.h"
 #include "xmlparse.h"
 
+#include "routino.h"
 
+
+/*+ To help when debugging +*/
 #define DEBUG 0
 
 /* Constants */
 
-#define IMP_IGNORE      -1      /*+ Ignore this point. +*/
-#define IMP_UNIMPORTANT  0      /*+ An unimportant, intermediate, node. +*/
-#define IMP_RB_NOT_EXIT  1      /*+ A roundabout exit that is not taken. +*/
-#define IMP_JUNCT_CONT   2      /*+ An un-interesting junction where the route continues without comment. +*/
-#define IMP_CHANGE       3      /*+ The highway changes type but nothing else happens. +*/
-#define IMP_JUNCT_IMPORT 4      /*+ An interesting junction to be described. +*/
-#define IMP_RB_ENTRY     5      /*+ The entrance to a roundabout. +*/
-#define IMP_RB_EXIT      6      /*+ The exit from a roundabout. +*/
-#define IMP_MINI_RB      7      /*+ The location of a mini-roundabout. +*/
-#define IMP_UTURN        8      /*+ The location of a U-turn. +*/
-#define IMP_WAYPOINT     9      /*+ A waypoint. +*/
+#define ROUTINO_POINT_IGNORE      -1      /*+ Ignore this point. +*/
 
 
 /* Global variables */
 
 /*+ The option to calculate the quickest route insted of the shortest. +*/
-extern int option_quickest;
+int option_quickest=0;
 
-/*+ The options to select the format of the output. +*/
-extern int option_html,option_gpx_track,option_gpx_route,option_text,option_text_all,option_stdout;
+/*+ The options to select the format of the file output. +*/
+int option_file_html=0,option_file_gpx_track=0,option_file_gpx_route=0,option_file_text=0,option_file_text_all=0,option_file_stdout=0;
+
+/*+ The options to select the format of the linked list output. +*/
+int option_list_html=0,option_list_text=0,option_list_text_all=0;
 
 
 /* Local variables */
@@ -89,6 +85,8 @@ static const char junction_other_way[Highway_Count][Highway_Count]=
 /*++++++++++++++++++++++++++++++++++++++
   Print the optimum route between two nodes.
 
+  Routino_Output *PrintRoute Returns a linked list of data structures representing the route if required.
+
   Results **results The set of results to print (consecutive in array even if not consecutive waypoints).
 
   int nresults The number of results in the list.
@@ -100,13 +98,16 @@ static const char junction_other_way[Highway_Count][Highway_Count]=
   Ways *ways The set of ways to use.
 
   Profile *profile The profile containing the transport type, speeds and allowed highways.
+
+  Translation *translation The set of translated strings.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile)
+Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile,Translation *translation)
 {
- FILE *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
+ FILE                          *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
+ Routino_Output *listhead=NULL,*htmllist=NULL,                                      *textlist=NULL,*textalllist=NULL;
 
- char *prev_bearing=NULL,*prev_wayname=NULL;
+ char *prev_bearing=NULL,*prev_wayname=NULL,*prev_waynameraw=NULL;
  index_t prev_node=NO_NODE;
  distance_t cum_distance=0;
  duration_t cum_duration=0;
@@ -118,17 +119,17 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
  /* Open the files */
 
- if(option_stdout)
+ if(option_file_stdout)
    {
-    if(option_html)
+    if(option_file_html)
        htmlfile    =stdout;
-    if(option_gpx_track)
+    if(option_file_gpx_track)
        gpxtrackfile=stdout;
-    if(option_gpx_route)
+    if(option_file_gpx_route)
        gpxroutefile=stdout;
-    if(option_text)
+    if(option_file_text)
        textfile    =stdout;
-    if(option_text_all)
+    if(option_file_text_all)
        textallfile =stdout;
    }
  else
@@ -143,53 +144,57 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
       {
        /* Print the result for the shortest route */
 
-       if(option_html)
+       if(option_file_html)
           htmlfile    =fopen("shortest.html",open_mode);
-       if(option_gpx_track)
+       if(option_file_gpx_track)
           gpxtrackfile=fopen("shortest-track.gpx",open_mode);
-       if(option_gpx_route)
+       if(option_file_gpx_route)
           gpxroutefile=fopen("shortest-route.gpx",open_mode);
-       if(option_text)
+       if(option_file_text)
           textfile    =fopen("shortest.txt",open_mode);
-       if(option_text_all)
+       if(option_file_text_all)
           textallfile =fopen("shortest-all.txt",open_mode);
 
-       if(option_html && !htmlfile)
+#ifndef LIBROUTINO
+       if(option_file_html && !htmlfile)
           fprintf(stderr,"Warning: Cannot open file 'shortest.html' for writing [%s].\n",strerror(errno));
-       if(option_gpx_track && !gpxtrackfile)
+       if(option_file_gpx_track && !gpxtrackfile)
           fprintf(stderr,"Warning: Cannot open file 'shortest-track.gpx' for writing [%s].\n",strerror(errno));
-       if(option_gpx_route && !gpxroutefile)
+       if(option_file_gpx_route && !gpxroutefile)
           fprintf(stderr,"Warning: Cannot open file 'shortest-route.gpx' for writing [%s].\n",strerror(errno));
-       if(option_text && !textfile)
+       if(option_file_text && !textfile)
           fprintf(stderr,"Warning: Cannot open file 'shortest.txt' for writing [%s].\n",strerror(errno));
-       if(option_text_all && !textallfile)
+       if(option_file_text_all && !textallfile)
           fprintf(stderr,"Warning: Cannot open file 'shortest-all.txt' for writing [%s].\n",strerror(errno));
+#endif
       }
     else
       {
        /* Print the result for the quickest route */
 
-       if(option_html)
+       if(option_file_html)
           htmlfile    =fopen("quickest.html",open_mode);
-       if(option_gpx_track)
+       if(option_file_gpx_track)
           gpxtrackfile=fopen("quickest-track.gpx",open_mode);
-       if(option_gpx_route)
+       if(option_file_gpx_route)
           gpxroutefile=fopen("quickest-route.gpx",open_mode);
-       if(option_text)
+       if(option_file_text)
           textfile    =fopen("quickest.txt",open_mode);
-       if(option_text_all)
+       if(option_file_text_all)
           textallfile =fopen("quickest-all.txt",open_mode);
 
-       if(option_html && !htmlfile)
+#ifndef LIBROUTINO
+       if(option_file_html && !htmlfile)
           fprintf(stderr,"Warning: Cannot open file 'quickest.html' for writing [%s].\n",strerror(errno));
-       if(option_gpx_track && !gpxtrackfile)
+       if(option_file_gpx_track && !gpxtrackfile)
           fprintf(stderr,"Warning: Cannot open file 'quickest-track.gpx' for writing [%s].\n",strerror(errno));
-       if(option_gpx_route && !gpxroutefile)
+       if(option_file_gpx_route && !gpxroutefile)
           fprintf(stderr,"Warning: Cannot open file 'quickest-route.gpx' for writing [%s].\n",strerror(errno));
-       if(option_text && !textfile)
+       if(option_file_text && !textfile)
           fprintf(stderr,"Warning: Cannot open file 'quickest.txt' for writing [%s].\n",strerror(errno));
-       if(option_text_all && !textallfile)
+       if(option_file_text_all && !textallfile)
           fprintf(stderr,"Warning: Cannot open file 'quickest-all.txt' for writing [%s].\n",strerror(errno));
+#endif
       }
    }
 
@@ -199,15 +204,15 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
    {
     fprintf(htmlfile,"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n");
     fprintf(htmlfile,"<html>\n");
-    if(translate_xml_copyright_creator[0] && translate_xml_copyright_creator[1])
-       fprintf(htmlfile,"<!-- %s : %s -->\n",translate_xml_copyright_creator[0],translate_xml_copyright_creator[1]);
-    if(translate_xml_copyright_source[0] && translate_xml_copyright_source[1])
-       fprintf(htmlfile,"<!-- %s : %s -->\n",translate_xml_copyright_source[0],translate_xml_copyright_source[1]);
-    if(translate_xml_copyright_license[0] && translate_xml_copyright_license[1])
-       fprintf(htmlfile,"<!-- %s : %s -->\n",translate_xml_copyright_license[0],translate_xml_copyright_license[1]);
+    if(translation->xml_copyright_creator[0] && translation->xml_copyright_creator[1])
+       fprintf(htmlfile,"<!-- %s : %s -->\n",translation->xml_copyright_creator[0],translation->xml_copyright_creator[1]);
+    if(translation->xml_copyright_source[0] && translation->xml_copyright_source[1])
+       fprintf(htmlfile,"<!-- %s : %s -->\n",translation->xml_copyright_source[0],translation->xml_copyright_source[1]);
+    if(translation->xml_copyright_license[0] && translation->xml_copyright_license[1])
+       fprintf(htmlfile,"<!-- %s : %s -->\n",translation->xml_copyright_license[0],translation->xml_copyright_license[1]);
     fprintf(htmlfile,"<head>\n");
     fprintf(htmlfile,"<title>");
-    fprintf(htmlfile,translate_html_title,option_quickest?translate_xml_route_quickest:translate_xml_route_shortest);
+    fprintf(htmlfile,translation->html_title,option_quickest?translation->xml_route_quickest:translation->xml_route_shortest);
     fprintf(htmlfile,"</title>\n");
     fprintf(htmlfile,"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
     fprintf(htmlfile,"<style type=\"text/css\">\n");
@@ -232,7 +237,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     fprintf(htmlfile,"</head>\n");
     fprintf(htmlfile,"<body>\n");
     fprintf(htmlfile,"<h1>");
-    fprintf(htmlfile,translate_html_title,option_quickest?translate_xml_route_quickest:translate_xml_route_shortest);
+    fprintf(htmlfile,translation->html_title,option_quickest?translation->xml_route_quickest:translation->xml_route_shortest);
     fprintf(htmlfile,"</h1>\n");
     fprintf(htmlfile,"<table>\n");
    }
@@ -243,13 +248,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     fprintf(gpxtrackfile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
     fprintf(gpxtrackfile,"<metadata>\n");
-    fprintf(gpxtrackfile,"<desc>%s : %s</desc>\n",translate_xml_copyright_creator[0],translate_xml_copyright_creator[1]);
-    if(translate_xml_copyright_source[1])
+    fprintf(gpxtrackfile,"<desc>%s : %s</desc>\n",translation->xml_copyright_creator[0],translation->xml_copyright_creator[1]);
+    if(translation->xml_copyright_source[1])
       {
-       fprintf(gpxtrackfile,"<copyright author=\"%s\">\n",translate_xml_copyright_source[1]);
+       fprintf(gpxtrackfile,"<copyright author=\"%s\">\n",translation->xml_copyright_source[1]);
 
-       if(translate_xml_copyright_license[1])
-          fprintf(gpxtrackfile,"<license>%s</license>\n",translate_xml_copyright_license[1]);
+       if(translation->xml_copyright_license[1])
+          fprintf(gpxtrackfile,"<license>%s</license>\n",translation->xml_copyright_license[1]);
 
        fprintf(gpxtrackfile,"</copyright>\n");
       }
@@ -257,10 +262,10 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
     fprintf(gpxtrackfile,"<trk>\n");
     fprintf(gpxtrackfile,"<name>");
-    fprintf(gpxtrackfile,translate_gpx_name,option_quickest?translate_xml_route_quickest:translate_xml_route_shortest);
+    fprintf(gpxtrackfile,translation->gpx_name,option_quickest?translation->xml_route_quickest:translation->xml_route_shortest);
     fprintf(gpxtrackfile,"</name>\n");
     fprintf(gpxtrackfile,"<desc>");
-    fprintf(gpxtrackfile,translate_gpx_desc,option_quickest?translate_xml_route_quickest:translate_xml_route_shortest);
+    fprintf(gpxtrackfile,translation->gpx_desc,option_quickest?translation->xml_route_quickest:translation->xml_route_shortest);
     fprintf(gpxtrackfile,"</desc>\n");
    }
 
@@ -270,13 +275,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     fprintf(gpxroutefile,"<gpx version=\"1.1\" creator=\"Routino\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
     fprintf(gpxroutefile,"<metadata>\n");
-    fprintf(gpxroutefile,"<desc>%s : %s</desc>\n",translate_xml_copyright_creator[0],translate_xml_copyright_creator[1]);
-    if(translate_xml_copyright_source[1])
+    fprintf(gpxroutefile,"<desc>%s : %s</desc>\n",translation->xml_copyright_creator[0],translation->xml_copyright_creator[1]);
+    if(translation->xml_copyright_source[1])
       {
-       fprintf(gpxroutefile,"<copyright author=\"%s\">\n",translate_xml_copyright_source[1]);
+       fprintf(gpxroutefile,"<copyright author=\"%s\">\n",translation->xml_copyright_source[1]);
 
-       if(translate_xml_copyright_license[1])
-          fprintf(gpxroutefile,"<license>%s</license>\n",translate_xml_copyright_license[1]);
+       if(translation->xml_copyright_license[1])
+          fprintf(gpxroutefile,"<license>%s</license>\n",translation->xml_copyright_license[1]);
 
        fprintf(gpxroutefile,"</copyright>\n");
       }
@@ -284,24 +289,24 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
     fprintf(gpxroutefile,"<rte>\n");
     fprintf(gpxroutefile,"<name>");
-    fprintf(gpxroutefile,translate_gpx_name,option_quickest?translate_xml_route_quickest:translate_xml_route_shortest);
+    fprintf(gpxroutefile,translation->gpx_name,option_quickest?translation->xml_route_quickest:translation->xml_route_shortest);
     fprintf(gpxroutefile,"</name>\n");
     fprintf(gpxroutefile,"<desc>");
-    fprintf(gpxroutefile,translate_gpx_desc,option_quickest?translate_xml_route_quickest:translate_xml_route_shortest);
+    fprintf(gpxroutefile,translation->gpx_desc,option_quickest?translation->xml_route_quickest:translation->xml_route_shortest);
     fprintf(gpxroutefile,"</desc>\n");
    }
 
  if(textfile)
    {
-    if(translate_raw_copyright_creator[0] && translate_raw_copyright_creator[1])
-       fprintf(textfile,"# %s : %s\n",translate_raw_copyright_creator[0],translate_raw_copyright_creator[1]);
-    if(translate_raw_copyright_source[0] && translate_raw_copyright_source[1])
-       fprintf(textfile,"# %s : %s\n",translate_raw_copyright_source[0],translate_raw_copyright_source[1]);
-    if(translate_raw_copyright_license[0] && translate_raw_copyright_license[1])
-       fprintf(textfile,"# %s : %s\n",translate_raw_copyright_license[0],translate_raw_copyright_license[1]);
-    if((translate_raw_copyright_creator[0] && translate_raw_copyright_creator[1]) ||
-       (translate_raw_copyright_source[0]  && translate_raw_copyright_source[1]) ||
-       (translate_raw_copyright_license[0] && translate_raw_copyright_license[1]))
+    if(translation->raw_copyright_creator[0] && translation->raw_copyright_creator[1])
+       fprintf(textfile,"# %s : %s\n",translation->raw_copyright_creator[0],translation->raw_copyright_creator[1]);
+    if(translation->raw_copyright_source[0] && translation->raw_copyright_source[1])
+       fprintf(textfile,"# %s : %s\n",translation->raw_copyright_source[0],translation->raw_copyright_source[1]);
+    if(translation->raw_copyright_license[0] && translation->raw_copyright_license[1])
+       fprintf(textfile,"# %s : %s\n",translation->raw_copyright_license[0],translation->raw_copyright_license[1]);
+    if((translation->raw_copyright_creator[0] && translation->raw_copyright_creator[1]) ||
+       (translation->raw_copyright_source[0]  && translation->raw_copyright_source[1]) ||
+       (translation->raw_copyright_license[0] && translation->raw_copyright_license[1]))
        fprintf(textfile,"#\n");
 
     fprintf(textfile,"#Latitude\tLongitude\tSection \tSection \tTotal   \tTotal   \tPoint\tTurn\tBearing\tHighway\n");
@@ -311,21 +316,30 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
  if(textallfile)
    {
-    if(translate_raw_copyright_creator[0] && translate_raw_copyright_creator[1])
-       fprintf(textallfile,"# %s : %s\n",translate_raw_copyright_creator[0],translate_raw_copyright_creator[1]);
-    if(translate_raw_copyright_source[0] && translate_raw_copyright_source[1])
-       fprintf(textallfile,"# %s : %s\n",translate_raw_copyright_source[0],translate_raw_copyright_source[1]);
-    if(translate_raw_copyright_license[0] && translate_raw_copyright_license[1])
-       fprintf(textallfile,"# %s : %s\n",translate_raw_copyright_license[0],translate_raw_copyright_license[1]);
-    if((translate_raw_copyright_creator[0] && translate_raw_copyright_creator[1]) ||
-       (translate_raw_copyright_source[0]  && translate_raw_copyright_source[1]) ||
-       (translate_raw_copyright_license[0] && translate_raw_copyright_license[1]))
+    if(translation->raw_copyright_creator[0] && translation->raw_copyright_creator[1])
+       fprintf(textallfile,"# %s : %s\n",translation->raw_copyright_creator[0],translation->raw_copyright_creator[1]);
+    if(translation->raw_copyright_source[0] && translation->raw_copyright_source[1])
+       fprintf(textallfile,"# %s : %s\n",translation->raw_copyright_source[0],translation->raw_copyright_source[1]);
+    if(translation->raw_copyright_license[0] && translation->raw_copyright_license[1])
+       fprintf(textallfile,"# %s : %s\n",translation->raw_copyright_license[0],translation->raw_copyright_license[1]);
+    if((translation->raw_copyright_creator[0] && translation->raw_copyright_creator[1]) ||
+       (translation->raw_copyright_source[0]  && translation->raw_copyright_source[1]) ||
+       (translation->raw_copyright_license[0] && translation->raw_copyright_license[1]))
        fprintf(textallfile,"#\n");
 
     fprintf(textallfile,"#Latitude\tLongitude\t    Node\tType\tSegment\tSegment\tTotal\tTotal  \tSpeed\tBearing\tHighway\n");
     fprintf(textallfile,"#        \t         \t        \t    \tDist   \tDurat'n\tDist \tDurat'n\t     \t       \t       \n");
                         /* "%10.6f\t%11.6f\t%8d%c\t%s\t%5.3f\t%5.2f\t%5.2f\t%5.1f\t%3d\t%4d\t%s\n" */
    }
+
+ /* Create the head of the linked list */
+
+ if(option_list_html)
+    listhead=htmllist=calloc(sizeof(Routino_Output),1);
+ if(option_list_text)
+    listhead=textlist=calloc(sizeof(Routino_Output),1);
+ if(option_list_text_all)
+    listhead=textalllist=calloc(sizeof(Routino_Output),1);
 
  /* Loop through all the sections of the route and print them */
 
@@ -369,14 +383,14 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
        Segment *resultsegmentp=NULL,*next_resultsegmentp=NULL;
        Way *resultwayp=NULL,*next_resultwayp=NULL;
        Result *next_result;
-       int important=IMP_UNIMPORTANT;
+       int important=ROUTINO_POINT_UNIMPORTANT;
 
        distance_t seg_distance=0;
        duration_t seg_duration=0;
        speed_t seg_speed=0;
        char *waynameraw=NULL,*wayname=NULL,*next_waynameraw=NULL,*next_wayname=NULL;
        int bearing_int=0,turn_int=0,next_bearing_int=0;
-       char *turn=NULL,*next_bearing=NULL;
+       char *turn=NULL,*turnraw=NULL,*next_bearing=NULL,*next_bearingraw=NULL;
 
        /* Calculate the information about this point */
 
@@ -459,7 +473,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              if(roundabout==0)
                {
                 roundabout++;
-                important=IMP_RB_ENTRY;
+                important=ROUTINO_POINT_RB_ENTRY;
                }
              else
                {
@@ -505,7 +519,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                          if(!(wayp->type&Highway_Roundabout))
                            {
                             roundabout++;
-                            important=IMP_RB_NOT_EXIT;
+                            important=ROUTINO_POINT_RB_NOT_EXIT;
                            }
                         }
                      }
@@ -522,24 +536,24 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              if(roundabout)
                {
                 roundabout++;
-                important=IMP_RB_EXIT;
+                important=ROUTINO_POINT_RB_EXIT;
                }
          }
 
        /* Decide if this is an important junction */
 
        if(point_count==0)  /* first point overall = Waypoint */
-          important=IMP_WAYPOINT;
+          important=ROUTINO_POINT_WAYPOINT;
        else if(result->next==NULL) /* Waypoint */
-          important=IMP_WAYPOINT;
+          important=ROUTINO_POINT_WAYPOINT;
        else if(first)           /* first point of a section of the route */
-          important=IMP_IGNORE;
+          important=ROUTINO_POINT_IGNORE;
        else if(roundabout)      /* roundabout */
           ;
        else if(realsegment==next_realsegment) /* U-turn */
-          important=IMP_UTURN;
+          important=ROUTINO_POINT_UTURN;
        else if(resultnodep && (resultnodep->flags&NODE_MINIRNDBT))
-          important=IMP_MINI_RB; /* mini-roundabout */
+          important=ROUTINO_POINT_MINI_RB; /* mini-roundabout */
        else
          {
           Segment *segmentp=FirstSegment(segments,resultnodep,3);
@@ -572,17 +586,17 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                    if(seg==next_realsegment) /* the next segment that we follow */
                      {
                       if(HIGHWAY(wayp->type)!=HIGHWAY(resultwayp->type))
-                         if(important<IMP_CHANGE)
-                            important=IMP_CHANGE;
+                         if(important<ROUTINO_POINT_CHANGE)
+                            important=ROUTINO_POINT_CHANGE;
                      }
                    else /* a segment that we don't follow */
                      {
                       if(junction_other_way[HIGHWAY(resultwayp->type)-1][HIGHWAY(wayp->type)-1])
-                         if(important<IMP_JUNCT_IMPORT)
-                            important=IMP_JUNCT_IMPORT;
+                         if(important<ROUTINO_POINT_JUNCT_IMPORT)
+                            important=ROUTINO_POINT_JUNCT_IMPORT;
 
-                      if(important<IMP_JUNCT_CONT)
-                         important=IMP_JUNCT_CONT;
+                      if(important<ROUTINO_POINT_JUNCT_CONT)
+                         important=ROUTINO_POINT_JUNCT_CONT;
                      }
                   }
                }
@@ -594,75 +608,74 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        /* Calculate the strings to be used */
 
-       if(!first && textallfile)
+       if(!first && (textallfile || textalllist))
          {
           waynameraw=WayName(ways,resultwayp);
           if(!*waynameraw)
-             waynameraw=translate_raw_highway[HIGHWAY(resultwayp->type)];
+             waynameraw=translation->raw_highway[HIGHWAY(resultwayp->type)];
 
           bearing_int=(int)BearingAngle(nodes,resultsegmentp,result->node);
 
           seg_speed=profile->speed[HIGHWAY(resultwayp->type)];
          }
 
-       if(next_result && important>IMP_JUNCT_CONT)
+       if(next_result && important>ROUTINO_POINT_JUNCT_CONT)
          {
-          if(!first && (htmlfile || textfile))
+          if(!first && (htmlfile || htmllist || textfile || textlist))
             {
              if(DISTANCE(resultsegmentp->distance)==0 || DISTANCE(next_resultsegmentp->distance)==0)
                 turn_int=0;
              else
                 turn_int=(int)TurnAngle(nodes,resultsegmentp,next_resultsegmentp,result->node);
 
-             turn=translate_xml_turn[((202+turn_int)/45)%8];
+             turn   =translation->xml_turn[((202+turn_int)/45)%8];
+             turnraw=translation->notxml_turn[((202+turn_int)/45)%8];
             }
 
-          if(gpxroutefile || htmlfile)
+          if(gpxroutefile || htmlfile || htmllist)
             {
              next_waynameraw=WayName(ways,next_resultwayp);
              if(!*next_waynameraw)
-                next_waynameraw=translate_raw_highway[HIGHWAY(next_resultwayp->type)];
+                next_waynameraw=translation->raw_highway[HIGHWAY(next_resultwayp->type)];
 
              next_wayname=ParseXML_Encode_Safe_XML(next_waynameraw);
             }
 
-          if(htmlfile || gpxroutefile || textfile)
+          if(htmlfile || htmllist || gpxroutefile || textfile || textlist)
             {
              if(!first && DISTANCE(next_resultsegmentp->distance)==0)
                 next_bearing_int=(int)BearingAngle(nodes,resultsegmentp,result->node);
              else
                 next_bearing_int=(int)BearingAngle(nodes,next_resultsegmentp,next_result->node);
 
-             next_bearing=translate_xml_heading[(4+(22+next_bearing_int)/45)%8];
+             next_bearing   =translation->xml_heading[(4+(22+next_bearing_int)/45)%8];
+             next_bearingraw=translation->notxml_heading[(4+(22+next_bearing_int)/45)%8];
             }
          }
 
        /* Print out the important points (junctions / waypoints) */
 
-       if(important>IMP_JUNCT_CONT)
+       if(important>ROUTINO_POINT_JUNCT_CONT)
          {
           if(htmlfile)
             {
              char *type;
 
-             if(important==IMP_WAYPOINT)
-                type=translate_html_waypoint;
-             else if(important==IMP_MINI_RB)
-                type=translate_html_roundabout;
+             if(important==ROUTINO_POINT_WAYPOINT)
+                type=translation->html_waypoint;
+             else if(important==ROUTINO_POINT_MINI_RB)
+                type=translation->html_roundabout;
              else
-                type=translate_html_junction;
+                type=translation->html_junction;
 
              if(point_count>0)  /* not the first point */
                {
                 /* <tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>*highway name*</span> for <span class='d'>*distance* km, *time* min</span> [<span class='j'>*distance* km, *time* minutes</span>] */
-                fprintf(htmlfile,"<tr class='s'><td class='l'>%s:<td class='r'>",translate_html_segment[0]);
-                fprintf(htmlfile,translate_html_segment[1],
-                                 (roundabout>1?translate_html_roundabout:prev_wayname),
+                fprintf(htmlfile,translation->html_segment,
+                                 (roundabout>1?translation->html_roundabout:prev_wayname),
                                  distance_to_km(junc_distance),duration_to_minutes(junc_duration));
-                fprintf(htmlfile," [<span class='j'>");
-                fprintf(htmlfile,translate_html_total[1],
+                fprintf(htmlfile,translation->html_subtotal,
                                  distance_to_km(cum_distance),duration_to_minutes(cum_duration));
-                fprintf(htmlfile,"</span>]\n");
                }
 
              /* <tr class='c'><td class='l'>*N*:<td class='r'>*latitude* *longitude* */
@@ -673,49 +686,153 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              if(point_count==0) /* first point */
                {
                 /* <tr class='n'><td class='l'>Start:<td class='r'>At <span class='w'>Waypoint</span>, head <span class='b'>*heading*</span> */
-                fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_start[0]);
-                fprintf(htmlfile,translate_html_start[1],
-                                 translate_html_waypoint,
+                fprintf(htmlfile,translation->html_start,
+                                 translation->html_waypoint,
                                  next_bearing);
-                fprintf(htmlfile,"\n");
                }
              else if(next_result) /* middle point */
                {
-                if(roundabout>1 && important!=IMP_WAYPOINT)
+                if(roundabout>1 && important!=ROUTINO_POINT_WAYPOINT)
                   {
-                   /* <tr class='n'><td class='l'>At:<td class='r'>Roundabout, take <span class='t'>the *Nth* exit</span> heading <span class='b'>*heading*</span> */
-                   fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_rbnode[0]);
-                   fprintf(htmlfile,translate_html_rbnode[1],
-                                    translate_html_roundabout,
-                                    translate_xml_ordinal[roundabout-2],
+                   /* <tr class='n'><td class='l'>Leave:<td class='r'>Roundabout, take <span class='t'>the *Nth* exit</span> heading <span class='b'>*heading*</span> */
+                   fprintf(htmlfile,translation->html_rbnode,
+                                    translation->html_roundabout,
+                                    translation->xml_ordinal[roundabout-2],
                                     next_bearing);
-                   fprintf(htmlfile,"\n");
                   }
                 else
                   {
                    /* <tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>*direction*</span> heading <span class='b'>*heading*</span> */
-                   fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_node[0]);
-                   fprintf(htmlfile,translate_html_node[1],
+                   fprintf(htmlfile,translation->html_node,
                                     type,
                                     turn,
                                     next_bearing);
-                   fprintf(htmlfile,"\n");
                   }
                }
              else            /* end point */
                {
                 /* <tr class='n'><td class='l'>Stop:<td class='r'>At <span class='w'>Waypoint</span> */
-                fprintf(htmlfile,"<tr class='n'><td class='l'>%s:<td class='r'>",translate_html_stop[0]);
-                fprintf(htmlfile,translate_html_stop[1],
-                                 translate_html_waypoint);
-                fprintf(htmlfile,"\n");
+                fprintf(htmlfile,translation->html_stop,
+                                 translation->html_waypoint);
 
                 /* <tr class='t'><td class='l'>Total:<td class='r'><span class='j'>*distance* km, *time* minutes</span> */
-                fprintf(htmlfile,"<tr class='t'><td class='l'>%s:<td class='r'><span class='j'>",translate_html_total[0]);
-                fprintf(htmlfile,translate_html_total[1],
+                fprintf(htmlfile,translation->html_total,
                                  distance_to_km(cum_distance),duration_to_minutes(cum_duration));
-                fprintf(htmlfile,"</span>\n");
                }
+            }
+
+          if(htmllist)
+            {
+             int strl;
+             char *type;
+
+             if(important==ROUTINO_POINT_WAYPOINT)
+                type=translation->nothtml_waypoint;
+             else if(important==ROUTINO_POINT_MINI_RB)
+                type=translation->nothtml_roundabout;
+             else
+                type=translation->nothtml_junction;
+
+             if(point_count>0)  /* not the first point */
+               {
+                /* Follow: *highway name* for *distance* km, *time* min */
+                strl=strlen(translation->nothtml_segment)+
+                     strlen(roundabout>1?translation->nothtml_roundabout:prev_waynameraw)+8+8+1;
+
+                htmllist->desc2=malloc(strl);
+
+                sprintf(htmllist->desc2,translation->nothtml_segment,
+                                        (roundabout>1?translation->nothtml_roundabout:prev_waynameraw),
+                                        distance_to_km(junc_distance),duration_to_minutes(junc_duration));
+
+                /* *distance* km, *time* minutes */
+                strl=strlen(translation->nothtml_subtotal)+8+8+1;
+
+                htmllist->desc3=malloc(strl);
+
+                sprintf(htmllist->desc3,translation->nothtml_subtotal,
+                                        distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+
+                htmllist->dist=distance_to_km(cum_distance);
+                htmllist->time=duration_to_minutes(cum_duration);
+
+                htmllist->next=calloc(sizeof(Routino_Output),1);
+                htmllist=htmllist->next;
+               }
+
+             htmllist->lon=longitude;
+             htmllist->lat=latitude;
+             htmllist->type=important;
+
+             if(point_count==0) /* first point */
+               {
+                /* Start: At Waypoint, head *heading* */
+                strl=strlen(translation->nothtml_start)+
+                     strlen(translation->nothtml_waypoint)+strlen(next_bearingraw)+1;
+
+                htmllist->desc1=malloc(strl);
+
+                sprintf(htmllist->desc1,translation->nothtml_start,
+                                        translation->nothtml_waypoint,
+                                        next_bearingraw);
+
+                htmllist->name=strcpy(malloc(strlen(next_waynameraw)+1),next_waynameraw);
+               }
+             else if(next_result) /* middle point */
+               {
+                if(roundabout>1 && important!=ROUTINO_POINT_WAYPOINT)
+                  {
+                   /* At: Roundabout, take the *Nth* exit heading *heading* */
+                   strl=strlen(translation->nothtml_rbnode)+
+                        strlen(translation->nothtml_roundabout)+strlen(translation->notxml_ordinal[roundabout-2])+strlen(next_bearingraw)+1;
+
+                   htmllist->desc1=malloc(strl);
+
+                   sprintf(htmllist->desc1,translation->nothtml_rbnode,
+                                           translation->nothtml_roundabout,
+                                           translation->notxml_ordinal[roundabout-2],
+                                           next_bearingraw);
+                  }
+                else
+                  {
+                   /* At: Junction, go *direction* heading *heading* */
+                   strl=strlen(translation->nothtml_node)+
+                        strlen(type)+strlen(turnraw)+strlen(next_bearingraw)+1;
+
+                   htmllist->desc1=malloc(strl);
+
+                   sprintf(htmllist->desc1,translation->nothtml_node,
+                                           type,
+                                           turnraw,
+                                           next_bearingraw);
+                  }
+
+                htmllist->turn=turn_int;
+                htmllist->name=strcpy(malloc(strlen(next_waynameraw)+1),next_waynameraw);
+               }
+             else            /* end point */
+               {
+                /* Stop: At Waypoint */
+                strl=strlen(translation->nothtml_stop)+
+                     strlen(translation->nothtml_waypoint)+1;
+
+                htmllist->desc1=malloc(strl);
+
+                sprintf(htmllist->desc1,translation->nothtml_stop,
+                                        translation->nothtml_waypoint);
+
+                /* Total: *distance* km, *time* minutes */
+                strl=strlen(translation->nothtml_total)+8+8+1;
+
+                htmllist->desc2=malloc(strl);
+
+                sprintf(htmllist->desc2,translation->nothtml_total,
+                                        distance_to_km(cum_distance),duration_to_minutes(cum_duration));
+
+                htmllist->turn=turn_int;
+               }
+
+             htmllist->bearing=next_bearing_int;
             }
 
           if(gpxroutefile)
@@ -723,7 +840,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              if(point_count>0) /* not first point */
                {
                 fprintf(gpxroutefile,"<desc>");
-                fprintf(gpxroutefile,translate_gpx_step,
+                fprintf(gpxroutefile,translation->gpx_step,
                                      prev_bearing,
                                      prev_wayname,
                                      distance_to_km(junc_distance),duration_to_minutes(junc_duration));
@@ -734,28 +851,28 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                {
                 fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
                                      radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                     translate_gpx_start);
+                                     translation->gpx_start);
                }
              else if(!next_result) /* end point */
                {
                 fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s</name>\n",
                                      radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                     translate_gpx_finish);
+                                     translation->gpx_finish);
                 fprintf(gpxroutefile,"<desc>");
-                fprintf(gpxroutefile,translate_gpx_final,
+                fprintf(gpxroutefile,translation->gpx_final,
                                      distance_to_km(cum_distance),duration_to_minutes(cum_duration));
                 fprintf(gpxroutefile,"</desc></rtept>\n");
                }
              else            /* middle point */
                {
-                if(important==IMP_WAYPOINT)
+                if(important==ROUTINO_POINT_WAYPOINT)
                    fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s%d</name>\n",
                                         radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                        translate_gpx_inter,++segment_count);
+                                        translation->gpx_inter,++segment_count);
                 else
                    fprintf(gpxroutefile,"<rtept lat=\"%.6f\" lon=\"%.6f\"><name>%s%03d</name>\n",
                                         radians_to_degrees(latitude),radians_to_degrees(longitude),
-                                        translate_gpx_trip,++route_count);
+                                        translation->gpx_trip,++route_count);
                }
             }
 
@@ -763,7 +880,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
             {
              char *type;
 
-             if(important==IMP_WAYPOINT)
+             if(important==ROUTINO_POINT_WAYPOINT)
                 type="Waypt";
              else
                 type="Junct";
@@ -798,10 +915,44 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                }
             }
 
+          if(textlist)
+            {
+             textlist->lon=longitude;
+             textlist->lat=latitude;
+             textlist->type=important;
+
+             if(point_count==0) /* first point */
+               {
+                textlist->next=calloc(sizeof(Routino_Output),1);
+
+                textlist->bearing=next_bearing_int;
+                textlist->name=strcpy(malloc(strlen(next_waynameraw)+1),next_waynameraw);
+               }
+             else if(!next_result) /* end point */
+               {
+                textlist->next=NULL;
+
+                textlist->dist=distance_to_km(cum_distance);
+                textlist->time=duration_to_minutes(cum_duration);
+               }
+             else               /* middle point */
+               {
+                textlist->next=calloc(sizeof(Routino_Output),1);
+
+                textlist->dist=distance_to_km(cum_distance);
+                textlist->time=duration_to_minutes(cum_duration);
+                textlist->turn=turn_int;
+                textlist->bearing=next_bearing_int;
+                textlist->name=strcpy(malloc(strlen(next_waynameraw)+1),next_waynameraw);
+               }
+
+             textlist=textlist->next;
+            }
+
           junc_distance=0;
           junc_duration=0;
 
-          if(htmlfile || gpxroutefile)
+          if(htmlfile || htmllist || gpxroutefile)
             {
              if(prev_wayname)
                 free(prev_wayname);
@@ -811,8 +962,13 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
              else
                 prev_wayname=NULL;
 
-             if(next_wayname && next_wayname!=next_waynameraw)
-                free(next_wayname);
+             if(prev_waynameraw)
+                free(prev_waynameraw);
+
+             if(next_waynameraw)
+                prev_waynameraw=strcpy((char*)malloc(strlen(next_waynameraw)+1),next_waynameraw);
+             else
+                prev_waynameraw=NULL;
             }
 
           if(gpxroutefile)
@@ -828,23 +984,23 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           fprintf(gpxtrackfile,"<trkpt lat=\"%.6f\" lon=\"%.6f\"/>\n",
                                radians_to_degrees(latitude),radians_to_degrees(longitude));
 
-       if(important>IMP_IGNORE)
+       if(important>ROUTINO_POINT_IGNORE)
          {
           if(textallfile)
             {
              char *type;
 
-             if(important==IMP_WAYPOINT)
+             if(important==ROUTINO_POINT_WAYPOINT)
                 type="Waypt";
-             else if(important==IMP_UTURN)
+             else if(important==ROUTINO_POINT_UTURN)
                 type="U-turn";
-             else if(important==IMP_MINI_RB)
+             else if(important==ROUTINO_POINT_MINI_RB)
                 type="Mini-RB";
-             else if(important==IMP_CHANGE)
+             else if(important==ROUTINO_POINT_CHANGE)
                 type="Change";
-             else if(important==IMP_JUNCT_CONT || important==IMP_RB_NOT_EXIT)
+             else if(important==ROUTINO_POINT_JUNCT_CONT || important==ROUTINO_POINT_RB_NOT_EXIT)
                 type="Junct-";
-             else if(important==IMP_UNIMPORTANT)
+             else if(important==ROUTINO_POINT_UNIMPORTANT)
                 type="Inter";
              else
                 type="Junct";
@@ -870,6 +1026,27 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
                                     waynameraw);
                }
             }
+
+          if(textalllist)
+            {
+             if(point_count==0) /* first point */
+                ;
+             else               /* not the first point */
+               {
+                textalllist->next=calloc(sizeof(Routino_Output),1);
+                textalllist=textalllist->next;
+
+                textalllist->dist=distance_to_km(cum_distance);
+                textalllist->time=duration_to_minutes(cum_duration);
+                textalllist->speed=speed_to_kph(seg_speed);
+                textalllist->bearing=next_bearing_int;
+                textalllist->name=strcpy(malloc(strlen(waynameraw)+1),waynameraw);
+               }
+
+             textalllist->lon=longitude;
+             textalllist->lat=latitude;
+             textalllist->type=important;
+            }
          }
 
        if(wayname && wayname!=waynameraw)
@@ -877,7 +1054,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
        result=next_result;
 
-       if(important>IMP_JUNCT_CONT)
+       if(important>ROUTINO_POINT_JUNCT_CONT)
           point_count++;
 
        first=0;
@@ -904,18 +1081,18 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
    {
     fprintf(htmlfile,"</table>\n");
 
-    if((translate_xml_copyright_creator[0] && translate_xml_copyright_creator[1]) ||
-       (translate_xml_copyright_source[0]  && translate_xml_copyright_source[1]) ||
-       (translate_xml_copyright_license[0] && translate_xml_copyright_license[1]))
+    if((translation->xml_copyright_creator[0] && translation->xml_copyright_creator[1]) ||
+       (translation->xml_copyright_source[0]  && translation->xml_copyright_source[1]) ||
+       (translation->xml_copyright_license[0] && translation->xml_copyright_license[1]))
       {
        fprintf(htmlfile,"<p>\n");
        fprintf(htmlfile,"<table class='c'>\n");
-       if(translate_xml_copyright_creator[0] && translate_xml_copyright_creator[1])
-          fprintf(htmlfile,"<tr><td class='l'>%s:<td class='r'>%s\n",translate_xml_copyright_creator[0],translate_xml_copyright_creator[1]);
-       if(translate_xml_copyright_source[0] && translate_xml_copyright_source[1])
-          fprintf(htmlfile,"<tr><td class='l'>%s:<td class='r'>%s\n",translate_xml_copyright_source[0],translate_xml_copyright_source[1]);
-       if(translate_xml_copyright_license[0] && translate_xml_copyright_license[1])
-          fprintf(htmlfile,"<tr><td class='l'>%s:<td class='r'>%s\n",translate_xml_copyright_license[0],translate_xml_copyright_license[1]);
+       if(translation->xml_copyright_creator[0] && translation->xml_copyright_creator[1])
+          fprintf(htmlfile,"<tr><td class='l'>%s:<td class='r'>%s\n",translation->xml_copyright_creator[0],translation->xml_copyright_creator[1]);
+       if(translation->xml_copyright_source[0] && translation->xml_copyright_source[1])
+          fprintf(htmlfile,"<tr><td class='l'>%s:<td class='r'>%s\n",translation->xml_copyright_source[0],translation->xml_copyright_source[1]);
+       if(translation->xml_copyright_license[0] && translation->xml_copyright_license[1])
+          fprintf(htmlfile,"<tr><td class='l'>%s:<td class='r'>%s\n",translation->xml_copyright_license[0],translation->xml_copyright_license[1]);
        fprintf(htmlfile,"</table>\n");
       }
 
@@ -937,7 +1114,7 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
  /* Close the files */
 
- if(!option_stdout)
+ if(!option_file_stdout)
    {
     if(htmlfile)
        fclose(htmlfile);
@@ -950,4 +1127,6 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
     if(textallfile)
        fclose(textallfile);
    }
+
+ return(listhead);
 }

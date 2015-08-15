@@ -44,6 +44,7 @@
 #endif
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+#undef lseek
 #define lseek _lseeki64
 #endif
 
