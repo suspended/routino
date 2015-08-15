@@ -39,7 +39,7 @@ char *errorlogfilename=NULL;
 char *errorbinfilename=NULL;
 
 
-/* Local variables */
+/* Local variables (re-initialised by open_errorlog() function) */
 
 /*+ The file handle for the error log file. +*/
 static FILE *errorlogfile=NULL;

@@ -1,0 +1,951 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Routino : Library</title>
+
+<!--
+ Routino documentation - library
+
+ Part of the Routino routing software.
+
+ This file Copyright 2015 Andrew M. Bishop
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see http://www.gnu.org/licenses/.
+-->
+
+<link href="style.css" type="text/css" rel="stylesheet">
+
+<style type="text/css">
+
+/* Pre-processor definitions */
+
+SPAN.cxref-define-comment
+{
+ font-style:  normal;
+}
+
+SPAN.cxref-define
+{
+ font-family: monospace;
+ font-weight: bold;
+ font-style:  normal;
+
+ padding-top: 5px;
+}
+
+/* Type definitions */
+
+SPAN.cxref-type-comment
+{
+ font-style:  normal;
+}
+
+SPAN.cxref-type
+{
+ font-family: monospace;
+ font-weight: bold;
+ font-style:  normal;
+}
+
+/* Variable definitions */
+
+SPAN.cxref-variable-comment
+{
+ font-style:  normal;
+}
+
+SPAN.cxref-variable
+{
+ font-family: monospace;
+ font-weight: bold;
+ font-style:  normal;
+}
+
+/* Function definitions */
+
+SPAN.cxref-function-comment
+{
+ font-style:  normal;
+}
+
+SPAN.cxref-function
+{
+ font-family: monospace;
+ font-weight: bold;
+ font-style:  normal;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- Header Start -->
+
+<div class="header">
+
+<h1>Routino : Library</h1>
+
+</div>
+
+<!-- Header End -->
+
+<!-- Content Start -->
+
+<div class="content">
+
+<h2 id="H_1_1">Library Usage</h2>
+
+This page describes the <tt>libroutino</tt> shared library that can be
+compiled from the Routino source code and used in other programs.
+
+<h3 id="H_1_1_1">Compilation</h3>
+
+The <tt>libroutino</tt> shared library is compiled by default when the
+Routino source code is compiled.  There are two versions; a normal
+version and a 'slim' version that uses less memory but is slower.  The
+names of the libraries are <tt>libroutino.so</tt>
+and <tt>libroutino-slim.so</tt>
+
+<h3 id="H_1_1_2">Including</h3>
+
+To use the Routino library in another program the source code for that
+program should include the <tt>routino.h</tt> file.  The functions
+that are available in the library (both versions) are listed in this
+file along with all of the constants and data types that are required.
+
+<h3 id="H_1_1_3">Linking</h3>
+
+After compiling the program that uses the library it needs to be
+linked to the library.  For gcc this requires adding
+<tt>-lroutino</tt> or <tt>-lroutino-slim</tt> to the linker command
+line, possibly with a <tt>-L...</tt> parameter to specify the location
+of the library.
+
+<h3 id="H_1_1_4">Example Library Interface Code</h3>
+
+An example of a program that can link to the <tt>libroutino</tt>
+library is provided in the Routino source code called
+<tt>router+lib.c</tt>.  This is an almost exact re-implementation of
+the standard Routino <tt>router</tt> program using the
+<tt>libroutino</tt> library.
+
+
+<h2 id="H_1_2">Library License</h2>
+
+The source code for the <tt>libroutino</tt> and <tt>libroutino-slim</tt>
+libraries is the
+<a class="ext" title="Affero GPLv3" href="http://www.gnu.org/licenses/agpl-3.0.html">GNU Affero General Public License v3</a>
+the same as for the rest of the Routino software.
+
+<h3 id="H_1_2_1">Linking with AGPLv3 Source Code</h3>
+
+If <tt>libroutino</tt> is linked with other APGLv3 code then the same
+license applies to the combination as to the two parts.
+
+<h3 id="H_1_2_2">Linking with GPLv3 Source Code</h3>
+
+The AGPLv3 license is almost identical to the 
+<a class="ext" title="GPLv3" href="http://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License v3</a>
+except that network interaction with an AGPLv3 program requires the
+same source code access as distributing compiled GPLv3 programs.
+This means that <tt>libroutino</tt> can be linked or combined with
+code that is released under the GPLv3 without changing the license of
+that code.
+<p>
+If there is no network interaction with the resulting program then the
+Routino source code can be treated as if it was GPLv3 code for the
+purposes of distribution and use.
+<p>
+If there is network interaction with the resulting program then the
+AGPLv3 license will apply since this is required by section 13 of the
+GPLv3.
+<br>
+The Software Freedom Law Center description of the GPLv3 and AGPLv3
+licenses describes
+<a class="ext" title="SFLC" href="http://www.softwarefreedom.org/resources/2014/SFLC-Guide_to_GPL_Compliance_2d_ed.html#section-13-use-with-the-gnu-affero-general-public-license">combining GPLv3 and APGLv3</a>.
+<br>
+My understanding is that only when modified Routino code is linked
+with GPLv3 code does network interaction require the modified Routino
+code to be released.
+
+<h3 id="H_1_2_3">Linking with Other Source Code</h3>
+
+Linking <tt>libroutino</tt> with code released under any other license
+must preserve the terms of the Routino license on the combination if
+the software is distributed or interacted with over a network.
+
+
+<h2 id="H_1_3">Routino Library API</h2>
+
+<h3>Preprocessor Definitions</h3>
+
+<p>
+<span class="cxref-define-comment"> A version number for the Routino API. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_API_VERSION 5</span>
+
+<h4>Error Definitions</h4>
+
+<p>
+<span class="cxref-define-comment"> No error. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NONE 0</span>
+<p>
+<span class="cxref-define-comment"> A function was called without the database variable set. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_DATABASE 1</span>
+<p>
+<span class="cxref-define-comment"> A function was called without the profile variable set. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_PROFILE 2</span>
+<p>
+<span class="cxref-define-comment"> A function was called without the translation variable set. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_TRANSLATION 3</span>
+<p>
+<span class="cxref-define-comment"> The specified database to load did not exist. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_DATABASE_FILES 11</span>
+<p>
+<span class="cxref-define-comment"> The specified database could not be loaded. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_BAD_DATABASE_FILES 12</span>
+<p>
+<span class="cxref-define-comment"> The specified profiles XML file did not exist. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_PROFILES_XML 13</span>
+<p>
+<span class="cxref-define-comment"> The specified profiles XML file could not be loaded. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_BAD_PROFILES_XML 14</span>
+<p>
+<span class="cxref-define-comment"> The specified translations XML file did not exist. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_TRANSLATIONS_XML 15</span>
+<p>
+<span class="cxref-define-comment"> The specified translations XML file could not be loaded. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_BAD_TRANSLATIONS_XML 16</span>
+<p>
+<span class="cxref-define-comment"> The requested profile name does not exist in the loaded XML file. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_SUCH_PROFILE 21</span>
+<p>
+<span class="cxref-define-comment"> The requested translation language does not exist in the loaded XML file. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_SUCH_TRANSLATION 22</span>
+<p>
+<span class="cxref-define-comment"> There is no highway near the coordinates to place a waypoint. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_NEARBY_HIGHWAY 31</span>
+<p>
+<span class="cxref-define-comment"> The profile and database do not work together. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_PROFILE_DATABASE_ERR 41</span>
+<p>
+<span class="cxref-define-comment"> The profile being used has not been validated. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NOTVALID_PROFILE 42</span>
+<p>
+<span class="cxref-define-comment"> The user specified profile contained invalid data. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_BAD_USER_PROFILE 43</span>
+<p>
+<span class="cxref-define-comment"> The routing options specified are not consistent with each other. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_BAD_OPTIONS 51</span>
+<p>
+<span class="cxref-define-comment"> There is a mismatch between the library and caller API version. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_WRONG_API_VERSION 61</span>
+<p>
+<span class="cxref-define-comment"> The progress function returned false. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_PROGRESS_ABORTED 71</span>
+<p>
+<span class="cxref-define-comment"> A route could not be found to waypoint 1. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_ROUTE_1 1001</span>
+<p>
+<span class="cxref-define-comment"> A route could not be found to waypoint 2. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_ROUTE_2 1002</span>
+<p>
+<span class="cxref-define-comment"> A route could not be found to waypoint 3. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ERROR_NO_ROUTE_3 1003</span>
+
+<h4>Routino Option Definitions</h4>
+
+<p>
+<span class="cxref-define-comment"> Calculate the shortest route. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_SHORTEST 0</span>
+<p>
+<span class="cxref-define-comment"> Calculate the quickest route. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_QUICKEST 1</span>
+<p>
+<span class="cxref-define-comment"> Output an HTML route file. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_FILE_HTML 2</span>
+<p>
+<span class="cxref-define-comment"> Output a GPX track file. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_FILE_GPX_TRACK 4</span>
+<p>
+<span class="cxref-define-comment"> Output a GPX route file. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_FILE_GPX_ROUTE 8</span>
+<p>
+<span class="cxref-define-comment"> Output a text file with important junctions. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_FILE_TEXT 16</span>
+<p>
+<span class="cxref-define-comment"> Output a text file with all nodes and segments. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_FILE_TEXT_ALL 32</span>
+<p>
+<span class="cxref-define-comment"> Output a single file type to stdout. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_FILE_STDOUT 64</span>
+<p>
+<span class="cxref-define-comment"> Output a linked list of of waypoints containing the HTML file information but as plain text. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_LIST_HTML 128</span>
+<p>
+<span class="cxref-define-comment"> Output a linked list of of waypoints containing the text file information. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_LIST_TEXT 256</span>
+<p>
+<span class="cxref-define-comment"> Output a linked list of of waypoints containing the text all file information. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_LIST_TEXT_ALL 512</span>
+
+<h4>Linked List Output Point Definitions</h4>
+
+<p>
+<span class="cxref-define-comment"> An unimportant, intermediate, node. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_POINT_UNIMPORTANT 0</span>
+<p>
+<span class="cxref-define-comment"> A roundabout exit that is not taken. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_POINT_RB_NOT_EXIT 1</span>
+<p>
+<span class="cxref-define-comment"> An un-interesting junction where the route continues without comment. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_POINT_JUNCT_CONT 2</span>
+<p>
+<span class="cxref-define-comment"> The highway changes type but nothing else happens. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_POINT_CHANGE 3</span>
+<p>
+<span class="cxref-define-comment"> An interesting junction to be described. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_POINT_JUNCT_IMPORT 4</span>
+<p>
+<span class="cxref-define-comment"> The entrance to a roundabout. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_POINT_RB_ENTRY 5</span>
+<p>
+<span class="cxref-define-comment"> The exit from a roundabout. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_POINT_RB_EXIT 6</span>
+<p>
+<span class="cxref-define-comment"> The location of a mini-roundabout. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_POINT_MINI_RB 7</span>
+<p>
+<span class="cxref-define-comment"> The location of a U-turn. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_POINT_UTURN 8</span>
+<p>
+<span class="cxref-define-comment"> A waypoint. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_POINT_WAYPOINT 9</span>
+
+<h4>Profile Definitions</h4>
+
+<p>
+<span class="cxref-define-comment"> A Motorway highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_MOTORWAY 1</span>
+<p>
+<span class="cxref-define-comment"> A Trunk highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_TRUNK 2</span>
+<p>
+<span class="cxref-define-comment"> A Primary highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_PRIMARY 3</span>
+<p>
+<span class="cxref-define-comment"> A Secondary highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_SECONDARY 4</span>
+<p>
+<span class="cxref-define-comment"> A Tertiary highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_TERTIARY 5</span>
+<p>
+<span class="cxref-define-comment"> A Unclassified highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_UNCLASSIFIED 6</span>
+<p>
+<span class="cxref-define-comment"> A Residential highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_RESIDENTIAL 7</span>
+<p>
+<span class="cxref-define-comment"> A Service highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_SERVICE 8</span>
+<p>
+<span class="cxref-define-comment"> A Track highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_TRACK 9</span>
+<p>
+<span class="cxref-define-comment"> A Cycleway highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_CYCLEWAY 10</span>
+<p>
+<span class="cxref-define-comment"> A Path highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_PATH 11</span>
+<p>
+<span class="cxref-define-comment"> A Steps highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_STEPS 12</span>
+<p>
+<span class="cxref-define-comment"> A Ferry highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_HIGHWAY_FERRY 13</span>
+<p>
+<span class="cxref-define-comment"> A Paved highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_PROPERTY_PAVED 1</span>
+<p>
+<span class="cxref-define-comment"> A Multilane highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_PROPERTY_MULTILANE 2</span>
+<p>
+<span class="cxref-define-comment"> A Bridge highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_PROPERTY_BRIDGE 3</span>
+<p>
+<span class="cxref-define-comment"> A Tunnel highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_PROPERTY_TUNNEL 4</span>
+<p>
+<span class="cxref-define-comment"> A Footroute highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_PROPERTY_FOOTROUTE 5</span>
+<p>
+<span class="cxref-define-comment"> A Bicycleroute highway. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_PROPERTY_BICYCLEROUTE 6</span>
+
+
+<h3>Type Definitions</h3>
+
+<h4><a name="type-Routino_Database">Typedef Routino_Database</a></h4>
+
+<p>
+<span class="cxref-type-comment"> A data structure to hold a Routino database loaded from a file (the contents are private). </span>
+<br>
+<span class="cxref-type">typedef struct _Routino_Database Routino_Database</span>
+
+<h4><a name="type-Routino_Waypoint">Typedef Routino_Waypoint</a></h4>
+
+<p>
+<span class="cxref-type-comment"> A data structure to hold a Routino waypoint found within the database (the contents are private). </span>
+<br>
+<span class="cxref-type">typedef struct _Routino_Waypoint Routino_Waypoint</span>
+
+<h4><a name="type-Routino_Profile">Typedef Routino_Profile</a></h4>
+
+<p>
+<span class="cxref-type-comment"> A data structure to hold a Routino routing profile (the contents are private). </span>
+<br>
+<span class="cxref-type">typedef struct _Routino_Profile Routino_Profile</span>
+
+<h4><a name="type-Routino_Translation">Typedef Routino_Translation</a></h4>
+
+<p>
+<span class="cxref-type-comment"> A data structure to hold a Routino translation (the contents are private). </span>
+<br>
+<span class="cxref-type">typedef struct _Routino_Translation Routino_Translation</span>
+
+<h4><a name="type-Routino_UserProfile">Typedef Routino_UserProfile</a></h4>
+
+<p>
+<span class="cxref-type-comment"> A data structure to hold a routing profile that can be defined by the user. </span>
+<br>
+<span class="cxref-type">typedef struct _Routino_UserProfile Routino_UserProfile</span>
+<br>
+<table class="noborder-left">
+  <tr>
+    <td><span class="cxref-type">struct _Routino_UserProfile</span>
+    <td>&nbsp;
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;<span class="cxref-type">{</span>
+    <td>&nbsp;
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">int transport;</span>
+    <td><span class="cxref-type-comment"> The type of transport. </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float highway[14];</span>
+    <td><span class="cxref-type-comment"> A floating point preference for travel on the highway (range 0 to 1). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float speed[14];</span>
+    <td><span class="cxref-type-comment"> The maximum speed on each type of highway (km/hour). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float props[7];</span>
+    <td><span class="cxref-type-comment"> A floating point preference for ways with this attribute (range 0 to 1). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">int oneway;</span>
+    <td><span class="cxref-type-comment"> A flag to indicate if one-way restrictions apply. </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">int turns;</span>
+    <td><span class="cxref-type-comment"> A flag to indicate if turn restrictions apply. </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float weight;</span>
+    <td><span class="cxref-type-comment"> The weight of the vehicle (in tonnes). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float height;</span>
+    <td><span class="cxref-type-comment"> The height of the vehicle (in metres). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float width;</span>
+    <td><span class="cxref-type-comment"> The width of vehicle (in metres). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float length;</span>
+    <td><span class="cxref-type-comment"> The length of vehicle (in metres). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;<span class="cxref-type">}</span>
+    <td>&nbsp;
+  </tr>
+</table>
+
+<h4><a name="type-Routino_Output">Typedef Routino_Output</a></h4>
+
+<p>
+<span class="cxref-type-comment"> Forward declaration of the Routino_Output data type. </span>
+<br>
+<span class="cxref-type">typedef struct _Routino_Output Routino_Output</span>
+
+<h4><a name="type-struct-_Routino_Output">Type struct _Routino_Output</a></h4>
+
+<p>
+<span class="cxref-type-comment"> A linked list output of the calculated route whose contents depend on the ROUTINO_ROUTE_LIST_* options selected. </span>
+<br>
+<span class="cxref-type">struct _Routino_Output</span>
+<br>
+<table class="noborder-left">
+  <tr>
+    <td><span class="cxref-type">struct _Routino_Output</span>
+    <td>&nbsp;
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;<span class="cxref-type">{</span>
+    <td>&nbsp;
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">Routino_Output* next;</span>
+    <td><span class="cxref-type-comment"> A pointer to the next route section. </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float lon;</span>
+    <td><span class="cxref-type-comment"> The longitude of the point (radians). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float lat;</span>
+    <td><span class="cxref-type-comment"> The latitude of the point (radians). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float dist;</span>
+    <td><span class="cxref-type-comment"> The total distance travelled (metres). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float time;</span>
+    <td><span class="cxref-type-comment"> The total journey time (seconds). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">float speed;</span>
+    <td><span class="cxref-type-comment"> The speed (km/hr) for this section of the route (ROUTINO_ROUTE_LIST_TEXT_ALL format only). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">int type;</span>
+    <td><span class="cxref-type-comment"> The type of point (one of the ROUTINO_POINT_* values). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">int turn;</span>
+    <td><span class="cxref-type-comment"> The amount to turn (degrees) for the next section of the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML format). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">int bearing;</span>
+    <td><span class="cxref-type-comment"> The compass direction (degrees) for the next section of the route. </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">char* name;</span>
+    <td><span class="cxref-type-comment"> The name of the next section of the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML format) or previous section of the route (ROUTINO_ROUTE_LIST_TEXT_ALL format). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">char* desc1;</span>
+    <td><span class="cxref-type-comment"> The first part of the description of the next section of route (ROUTINO_ROUTE_LIST_HTML format only). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">char* desc2;</span>
+    <td><span class="cxref-type-comment"> The second part of the description of the next section of route (ROUTINO_ROUTE_LIST_HTML format only). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="cxref-type">char* desc3;</span>
+    <td><span class="cxref-type-comment"> The third part of the description, the total distance and time (ROUTINO_ROUTE_LIST_HTML format only). </span>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;<span class="cxref-type">}</span>
+    <td>&nbsp;
+  </tr>
+</table>
+
+<h4><a name="type-Routino_ProgressFunc">Typedef Routino_ProgressFunc</a></h4>
+
+<p>
+<span class="cxref-type-comment"> A type of function that can be used as a callback to indicate routing progress, if it returns false the router stops. </span>
+<br>
+<span class="cxref-type">typedef int (*Routino_ProgressFunc)(double complete)</span>
+
+<h3>Variable Definitions</h3>
+
+<h4><a name="var-Routino_APIVersion">Global Variable Routino_APIVersion</a></h4>
+
+<p>
+<span class="cxref-variable-comment"> Contains the libroutino API version number. </span>
+<br>
+<span class="cxref-variable">int Routino_APIVersion</span>
+
+<h4><a name="var-Routino_errno">Global Variable Routino_errno</a></h4>
+
+<p>
+<span class="cxref-variable-comment"> Contains the error number of the most recent Routino function (one of the ROUTINO_ERROR_* values). </span>
+<br>
+<span class="cxref-variable">int Routino_errno</span>
+
+
+<h3>Function Definitions</h3>
+
+<h4><a name="func-Routino_CalculateRoute">Global Function Routino_CalculateRoute()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Calculate a route using a loaded database, chosen profile, chosen translation and set of waypoints.</span>
+<br>
+<span class="cxref-function">Routino_Output* Routino_CalculateRoute ( Routino_Database* database, Routino_Profile* profile, Routino_Translation* translation, Routino_Waypoint** waypoints, int nwaypoints, int options, Routino_ProgressFunc progress )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">Routino_Output* Routino_CalculateRoute</span>
+  <dd><span class="cxref-function-comment">Returns the head of a linked list of route data (if requested) or NULL.</span>
+  <dt><span class="cxref-function">Routino_Database* database</span>
+  <dd><span class="cxref-function-comment">The loaded database to use.</span>
+  <dt><span class="cxref-function">Routino_Profile* profile</span>
+  <dd><span class="cxref-function-comment">The chosen routing profile to use.</span>
+  <dt><span class="cxref-function">Routino_Translation* translation</span>
+  <dd><span class="cxref-function-comment">The chosen translation information to use.</span>
+  <dt><span class="cxref-function">Routino_Waypoint** waypoints</span>
+  <dd><span class="cxref-function-comment">The set of waypoints.</span>
+  <dt><span class="cxref-function">int nwaypoints</span>
+  <dd><span class="cxref-function-comment">The number of waypoints.</span>
+  <dt><span class="cxref-function">int options</span>
+  <dd><span class="cxref-function-comment">The set of routing options (ROUTINO_ROUTE_*) ORed together.</span>
+  <dt><span class="cxref-function">Routino_ProgressFunc progress</span>
+  <dd><span class="cxref-function-comment">A function to be called occasionally to report progress or NULL.</span>
+</dl>
+
+<h4><a name="func-Routino_Check_API_Version">Global Function Routino_Check_API_Version()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Check the version of the library used by the caller against the library version</span>
+<br>
+<span class="cxref-function">int Routino_Check_API_Version ( int caller_version )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">int Routino_Check_API_Version</span>
+  <dd><span class="cxref-function-comment">Returns ROUTINO_ERROR_NONE if OK or ROUTINO_ERROR_WRONG_VERSION if there is an error.</span>
+  <dt><span class="cxref-function">int caller_version</span>
+  <dd><span class="cxref-function-comment">The version of the API used in the caller.</span>
+</dl>
+<br>
+<span class="cxref-function-comment">  This function should not be called directly, use the macro Routino_CheckAPIVersion() which takes no arguments.</span>
+
+<p>
+<span class="cxref-define-comment"> A wrapper function to simplify the API version check. </span>
+<br>
+<span class="cxref-define">#define Routino_CheckAPIVersion()</span>
+
+<h4><a name="func-Routino_CreateProfileFromUserProfile">Global Function Routino_CreateProfileFromUserProfile()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Create a fully formed Routino Profile from a Routino User Profile.</span>
+<br>
+<span class="cxref-function">Routino_Profile* Routino_CreateProfileFromUserProfile ( Routino_UserProfile* profile )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">Routino_Profile* Routino_CreateProfileFromUserProfile</span>
+  <dd><span class="cxref-function-comment">Returns an allocated Routino Profile.</span>
+  <dt><span class="cxref-function">Routino_UserProfile* profile</span>
+  <dd><span class="cxref-function-comment">The user specified profile to convert (not modified by this).</span>
+</dl>
+
+<h4><a name="func-Routino_CreateUserProfileFromProfile">Global Function Routino_CreateUserProfileFromProfile()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Create a Routino User Profile from a Routino Profile loaded from an XML file.</span>
+<br>
+<span class="cxref-function">Routino_UserProfile* Routino_CreateUserProfileFromProfile ( Routino_Profile* profile )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">Routino_UserProfile* Routino_CreateUserProfileFromProfile</span>
+  <dd><span class="cxref-function-comment">Returns an allocated Routino User Profile.</span>
+  <dt><span class="cxref-function">Routino_Profile* profile</span>
+  <dd><span class="cxref-function-comment">The Routino Profile to convert (not modified by this).</span>
+</dl>
+
+<h4><a name="func-Routino_DeleteRoute">Global Function Routino_DeleteRoute()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Delete the linked list created by Routino_CalculateRoute.</span>
+<br>
+<span class="cxref-function">void Routino_DeleteRoute ( Routino_Output* output )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">Routino_Output* output</span>
+  <dd><span class="cxref-function-comment">The output to be deleted.</span>
+</dl>
+
+<h4><a name="func-Routino_FindWaypoint">Global Function Routino_FindWaypoint()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Finds the nearest point in the database to the specified latitude and longitude.</span>
+<br>
+<span class="cxref-function">Routino_Waypoint* Routino_FindWaypoint ( Routino_Database* database, Routino_Profile* profile, double latitude, double longitude )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">Routino_Waypoint* Routino_FindWaypoint</span>
+  <dd><span class="cxref-function-comment">Returns a pointer to a newly allocated Routino waypoint or NULL if none could be found.</span>
+  <dt><span class="cxref-function">Routino_Database* database</span>
+  <dd><span class="cxref-function-comment">The Routino database to use.</span>
+  <dt><span class="cxref-function">Routino_Profile* profile</span>
+  <dd><span class="cxref-function-comment">The Routino profile to use.</span>
+  <dt><span class="cxref-function">double latitude</span>
+  <dd><span class="cxref-function-comment">The latitude in degrees of the point.</span>
+  <dt><span class="cxref-function">double longitude</span>
+  <dd><span class="cxref-function-comment">The longitude in degrees of the point.</span>
+</dl>
+
+<h4><a name="func-Routino_FreeXMLProfiles">Global Function Routino_FreeXMLProfiles()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Free the internal memory that was allocated for the Routino profiles loaded from the XML file.</span>
+<br>
+<span class="cxref-function">void Routino_FreeXMLProfiles ( void )</span>
+
+<h4><a name="func-Routino_FreeXMLTranslations">Global Function Routino_FreeXMLTranslations()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Free the internal memory that was allocated for the Routino translations loaded from the XML file.</span>
+<br>
+<span class="cxref-function">void Routino_FreeXMLTranslations ( void )</span>
+
+<h4><a name="func-Routino_GetProfile">Global Function Routino_GetProfile()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Select a specific routing profile from the set of Routino profiles that have been loaded from the XML file or NULL in case of an error.</span>
+<br>
+<span class="cxref-function">Routino_Profile* Routino_GetProfile ( const char* name )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">Routino_Profile* Routino_GetProfile</span>
+  <dd><span class="cxref-function-comment">Returns a pointer to an internal data structure - do not free.</span>
+  <dt><span class="cxref-function">const char* name</span>
+  <dd><span class="cxref-function-comment">The name of the profile to select.</span>
+</dl>
+
+<h4><a name="func-Routino_GetProfileNames">Global Function Routino_GetProfileNames()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Return a list of the profile names that have been loaded from the XML file.</span>
+<br>
+<span class="cxref-function">char** Routino_GetProfileNames ( void )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">char** Routino_GetProfileNames</span>
+  <dd><span class="cxref-function-comment">Returns a NULL terminated list of strings - all allocated.</span>
+</dl>
+
+<h4><a name="func-Routino_GetTranslation">Global Function Routino_GetTranslation()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Select a specific translation from the set of Routino translations that have been loaded from the XML file or NULL in case of an error.</span>
+<br>
+<span class="cxref-function">Routino_Translation* Routino_GetTranslation ( const char* language )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">Routino_Translation* Routino_GetTranslation</span>
+  <dd><span class="cxref-function-comment">Returns a pointer to an internal data structure - do not free.</span>
+  <dt><span class="cxref-function">const char* language</span>
+  <dd><span class="cxref-function-comment">The language to select (as a country code, e.g. 'en', 'de') or an empty string for the first in the file or NULL for the built-in English version.</span>
+</dl>
+
+<h4><a name="func-Routino_GetTranslationLanguages">Global Function Routino_GetTranslationLanguages()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Return a list of the translation languages that have been loaded from the XML file.</span>
+<br>
+<span class="cxref-function">char** Routino_GetTranslationLanguages ( void )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">char** Routino_GetTranslationLanguages</span>
+  <dd><span class="cxref-function-comment">Returns a NULL terminated list of strings - all allocated.</span>
+</dl>
+
+<h4><a name="func-Routino_LoadDatabase">Global Function Routino_LoadDatabase()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Load a database of files for Routino to use for routing.</span>
+<br>
+<span class="cxref-function">Routino_Database* Routino_LoadDatabase ( const char* dirname, const char* prefix )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">Routino_Database* Routino_LoadDatabase</span>
+  <dd><span class="cxref-function-comment">Returns a pointer to the database.</span>
+  <dt><span class="cxref-function">const char* dirname</span>
+  <dd><span class="cxref-function-comment">The pathname of the directory containing the database files.</span>
+  <dt><span class="cxref-function">const char* prefix</span>
+  <dd><span class="cxref-function-comment">The prefix of the database files.</span>
+</dl>
+
+<h4><a name="func-Routino_ParseXMLProfiles">Global Function Routino_ParseXMLProfiles()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Parse a Routino XML file containing profiles, must be called before selecting a profile.</span>
+<br>
+<span class="cxref-function">int Routino_ParseXMLProfiles ( const char* filename )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">int Routino_ParseXMLProfiles</span>
+  <dd><span class="cxref-function-comment">Returns non-zero in case of an error or zero if there was no error.</span>
+  <dt><span class="cxref-function">const char* filename</span>
+  <dd><span class="cxref-function-comment">The full pathname of the file to read.</span>
+</dl>
+
+<h4><a name="func-Routino_ParseXMLTranslations">Global Function Routino_ParseXMLTranslations()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Parse a Routino XML file containing translations, must be called before selecting a translation.</span>
+<br>
+<span class="cxref-function">int Routino_ParseXMLTranslations ( const char* filename )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">int Routino_ParseXMLTranslations</span>
+  <dd><span class="cxref-function-comment">Returns non-zero in case of an error or zero if there was no error.</span>
+  <dt><span class="cxref-function">const char* filename</span>
+  <dd><span class="cxref-function-comment">The full pathname of the file to read.</span>
+</dl>
+
+<h4><a name="func-Routino_UnloadDatabase">Global Function Routino_UnloadDatabase()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Close the database files that were opened by a call to Routino_LoadDatabase().</span>
+<br>
+<span class="cxref-function">void Routino_UnloadDatabase ( Routino_Database* database )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">Routino_Database* database</span>
+  <dd><span class="cxref-function-comment">The database to close.</span>
+</dl>
+
+<h4><a name="func-Routino_ValidateProfile">Global Function Routino_ValidateProfile()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Validates that a selected routing profile is valid for use with the selected routing database.</span>
+<br>
+<span class="cxref-function">int Routino_ValidateProfile ( Routino_Database* database, Routino_Profile* profile )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">int Routino_ValidateProfile</span>
+  <dd><span class="cxref-function-comment">Returns zero if OK or something else in case of an error.</span>
+  <dt><span class="cxref-function">Routino_Database* database</span>
+  <dd><span class="cxref-function-comment">The Routino database to use.</span>
+  <dt><span class="cxref-function">Routino_Profile* profile</span>
+  <dd><span class="cxref-function-comment">The Routino profile to validate.</span>
+</dl>
+
+
+</div>
+
+<!-- Content End -->
+
+<!-- Footer Start -->
+
+<div class="footer">
+
+<address>
+&copy; Andrew M. Bishop - <a href="http://www.routino.org/">http://www.routino.org/</a>
+</address>
+
+</div>
+
+<!-- Footer End -->
+
+</body>
+
+</html>

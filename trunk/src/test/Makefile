@@ -24,11 +24,12 @@ include ../../Makefile.conf
 
 # executables
 
-ROUTINO_EXE=../planetsplitter ../planetsplitter-slim \
-            ../router ../router-slim \
-            ../filedumper ../filedumper-slim
+ROUTINO_EXE=../planetsplitter$(.EXE) ../planetsplitter-slim$(.EXE) \
+            ../router$(.EXE)         ../router-slim$(.EXE) \
+            ../router+lib$(.EXE)     ../router+lib-slim$(.EXE) \
+            ../filedumper$(.EXE)     ../filedumper-slim$(.EXE)
 
-EXE=is-fast-math
+EXE=is-fast-math$(.EXE)
 
 # Compilation targets
 
@@ -42,53 +43,14 @@ all :
 ########
 
 test : $(ROUTINO_EXE) $(EXE)
-	@status=true ;\
-	echo ""; \
-	./is-fast-math message; \
-	for script in $(S); do \
-	   echo "" ;\
-	   echo "Testing: $$script (non-slim, no pruning) ... " ;\
-	   if ./$$script fat; then echo "... passed"; else echo "... FAILED"; status=false; fi ;\
-	done ;\
-	for script in $(S); do \
-	   echo "" ;\
-	   echo "Testing: $$script (slim, no pruning) ... " ;\
-	   if ./$$script slim; then echo "... passed"; else echo "... FAILED"; status=false; fi ;\
-	done ;\
-	echo "" ;\
-	if $$status; then echo "Success: all tests passed"; else echo "Warning: Some tests FAILED"; fi ;\
-	$$status || exit 1 ;\
-	echo "" ;\
-	echo "Comparing: slim and non-slim results ... " ;\
-	if diff -q -r slim fat; then echo "... matched"; else echo "... match FAILED"; status=false; fi ;\
-	echo "" ;\
-	if $$status; then echo "Success: slim and non-slim results match"; else echo "Warning: slim and non-slim results are different - FAILED"; fi ;\
-	for script in $(S); do \
-	   echo "" ;\
-	   echo "Testing: $$script (non-slim, pruning) ... " ;\
-	   if ./$$script fat prune; then echo "... passed"; else echo "... FAILED"; status=false; fi ;\
-	done ;\
-	for script in $(S); do \
-	   echo "" ;\
-	   echo "Testing: $$script (slim, pruning) ... " ;\
-	   if ./$$script slim prune; then echo "... passed"; else echo "... FAILED"; status=false; fi ;\
-	done ;\
-	echo "" ;\
-	if $$status; then echo "Success: all tests passed"; else echo "Warning: Some tests FAILED"; fi ;\
-	$$status || exit 1 ;\
-	echo "" ;\
-	echo "Comparing: slim and non-slim results ... " ;\
-	if diff -q -r slim-pruned fat-pruned; then echo "... matched"; else echo "... match FAILED"; status=false; fi ;\
-	echo "" ;\
-	if $$status; then echo "Success: slim and non-slim results match"; else echo "Warning: slim and non-slim results are different - FAILED"; fi ;\
-	$$status
+	@./run-tests.sh $(S)
 
 ########
 
 $(ROUTINO_EXE) ::
 	cd .. && $(MAKE) $(notdir $@)
 
-is-fast-math : is-fast-math.o
+is-fast-math$(.EXE) : is-fast-math.o
 	$(LD) $< -o $@ $(LDFLAGS)
 
 is-fast-math.o : is-fast-math.c
@@ -103,12 +65,14 @@ install:
 clean:
 	rm -rf fat
 	rm -rf slim
+	rm -rf fat+lib
+	rm -rf slim+lib
 	rm -rf fat-pruned
 	rm -rf slim-pruned
 	rm -f *.log
 	rm -f *~
 	rm -f *.o
-	rm -f $(EXE) *.exe
+	rm -f $(EXE)
 	rm -f core
 	rm -f *.gcda *.gcno *.gcov gmon.out
 

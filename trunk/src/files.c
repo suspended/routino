@@ -41,6 +41,9 @@
 #include <sys/stat.h>
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+#undef lseek
+#undef stat
+#undef fstat
 #define lseek _lseeki64
 #define stat  _stati64
 #define fstat _fstati64
@@ -167,16 +170,24 @@ void *MapFile(const char *filename)
 
  if(fd<0)
    {
+#ifdef LIBROUTINO
+    return(NULL);
+#else
     fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  /* Get its size */
 
  if(stat(filename,&buf))
    {
+#ifdef LIBROUTINO
+    return(NULL);
+#else
     fprintf(stderr,"Cannot stat file '%s' [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  size=buf.st_size;
@@ -189,11 +200,17 @@ void *MapFile(const char *filename)
    {
     close(fd);
 
+#ifdef LIBROUTINO
+    return(NULL);
+#else
     fprintf(stderr,"Cannot mmap file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
+#ifndef LIBROUTINO
  log_mmap(size);
+#endif
 
  /* Store the information about the mapped file */
 
@@ -235,16 +252,24 @@ void *MapFileWriteable(const char *filename)
 
  if(fd<0)
    {
+#ifdef LIBROUTINO
+    return(NULL);
+#else
     fprintf(stderr,"Cannot open file '%s' for reading and writing [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  /* Get its size */
 
  if(stat(filename,&buf))
    {
+#ifdef LIBROUTINO
+    return(NULL);
+#else
     fprintf(stderr,"Cannot stat file '%s' [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  size=buf.st_size;
@@ -257,11 +282,17 @@ void *MapFileWriteable(const char *filename)
    {
     close(fd);
 
+#ifdef LIBROUTINO
+    return(NULL);
+#else
     fprintf(stderr,"Cannot mmap file '%s' for reading and writing [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
+#ifndef LIBROUTINO
  log_mmap(size);
+#endif
 
  /* Store the information about the mapped file */
 
@@ -296,8 +327,12 @@ void *UnmapFile(const void *address)
 
  if(i==nmappedfiles)
    {
+#ifdef LIBROUTINO
+    return(NULL);
+#else
     fprintf(stderr,"The data at address %p was not mapped using MapFile().\n",address);
     exit(EXIT_FAILURE);
+#endif
    }
 
  /* Close the file */
@@ -308,7 +343,9 @@ void *UnmapFile(const void *address)
 
  munmap(mappedfiles[i].address,mappedfiles[i].length);
 
+#ifndef LIBROUTINO
  log_munmap(mappedfiles[i].length);
+#endif
 
  /* Shuffle the list of files */
 
@@ -343,8 +380,12 @@ int SlimMapFile(const char *filename)
 
  if(fd<0)
    {
+#ifdef LIBROUTINO
+    return(-1);
+#else
     fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  CreateFileBuffer(fd,0);
@@ -375,8 +416,12 @@ int SlimMapFileWriteable(const char *filename)
 
  if(fd<0)
    {
+#ifdef LIBROUTINO
+    return(-1);
+#else
     fprintf(stderr,"Cannot open file '%s' for reading and writing [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  CreateFileBuffer(fd,0);
@@ -423,8 +468,12 @@ int OpenFileBufferedNew(const char *filename)
 
  if(fd<0)
    {
+#ifdef LIBROUTINO
+    return(-1);
+#else
     fprintf(stderr,"Cannot open file '%s' for writing [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  CreateFileBuffer(fd,-1);
@@ -459,8 +508,12 @@ int OpenFileBufferedAppend(const char *filename)
 
  if(fd<0)
    {
+#ifdef LIBROUTINO
+    return(-1);
+#else
     fprintf(stderr,"Cannot open file '%s' for appending [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  CreateFileBuffer(fd,-1);
@@ -495,8 +548,12 @@ int ReOpenFileBuffered(const char *filename)
 
  if(fd<0)
    {
+#ifdef LIBROUTINO
+    return(-1);
+#else
     fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  CreateFileBuffer(fd,1);
@@ -565,11 +622,13 @@ int ReplaceFileBuffered(const char *filename,int *oldfd)
 
 int WriteFileBuffered(int fd,const void *address,size_t length)
 {
+#ifndef LIBROUTINO
  logassert(fd!=-1,"File descriptor is in error - report a bug");
 
  logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
 
  logassert(!filebuffers[fd]->reading,"File descriptor was not opened for writing - report a bug");
+#endif
 
  /* Write the data */
 
@@ -611,11 +670,13 @@ int WriteFileBuffered(int fd,const void *address,size_t length)
 
 int ReadFileBuffered(int fd,void *address,size_t length)
 {
+#ifndef LIBROUTINO
  logassert(fd!=-1,"File descriptor is in error - report a bug");
 
  logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
 
  logassert(filebuffers[fd]->reading,"File descriptor was not opened for reading - report a bug");
+#endif
 
  /* Read the data */
 
@@ -673,9 +734,11 @@ int ReadFileBuffered(int fd,void *address,size_t length)
 
 int SeekFileBuffered(int fd,offset_t position)
 {
+#ifndef LIBROUTINO
  logassert(fd!=-1,"File descriptor is in error - report a bug");
 
  logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
+#endif
 
  /* Seek the data - doesn't need to be highly optimised */
 
@@ -705,11 +768,13 @@ int SeekFileBuffered(int fd,offset_t position)
 
 int SkipFileBuffered(int fd,offset_t skip)
 {
+#ifndef LIBROUTINO
  logassert(fd!=-1,"File descriptor is in error - report a bug");
 
  logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
 
  logassert(filebuffers[fd]->reading,"File descriptor was not opened for reading - report a bug");
+#endif
 
  /* Skip the data - needs to be optimised */
 
@@ -744,8 +809,12 @@ offset_t SizeFile(const char *filename)
 
  if(stat(filename,&buf))
    {
+#ifdef LIBROUTINO
+    return(-1);
+#else
     fprintf(stderr,"Cannot stat file '%s' [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  return(buf.st_size);
@@ -766,8 +835,12 @@ offset_t SizeFileFD(int fd)
 
  if(fstat(fd,&buf))
    {
+#ifdef LIBROUTINO
+    return(-1);
+#else
     fprintf(stderr,"Cannot stat file descriptor '%d' [%s].\n",fd,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
  return(buf.st_size);
@@ -803,7 +876,9 @@ int ExistsFile(const char *filename)
 
 int CloseFileBuffered(int fd)
 {
+#ifndef LIBROUTINO
  logassert(fd<nfilebuffers && filebuffers[fd],"File descriptor has no buffer - report a bug");
+#endif
 
  if(!filebuffers[fd]->reading)
     if(write(fd,filebuffers[fd]->buffer,filebuffers[fd]->pointer)!=(ssize_t)filebuffers[fd]->pointer)
@@ -816,7 +891,9 @@ int CloseFileBuffered(int fd)
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 
+#ifndef LIBROUTINO
  logassert(fd<nopenedfiles && openedfiles[fd],"File descriptor has no record of opening - report a bug");
+#endif
 
  if(openedfiles[fd]->delete)
     unlink(openedfiles[fd]->filename);
@@ -852,8 +929,12 @@ int OpenFile(const char *filename)
 
  if(fd<0)
    {
+#ifdef LIBROUTINO
+    return(-1);
+#else
     fprintf(stderr,"Cannot open file '%s' for reading [%s].\n",filename,strerror(errno));
     exit(EXIT_FAILURE);
+#endif
    }
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -876,7 +957,9 @@ void CloseFile(int fd)
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 
+#ifndef LIBROUTINO
  logassert(fd<nopenedfiles && openedfiles[fd],"File descriptor has no record of opening - report a bug");
+#endif
 
  if(openedfiles[fd]->delete)
     unlink(openedfiles[fd]->filename);

@@ -31,13 +31,13 @@
 #include "logging.h"
 
 
-/* Local variables */
+/* Local parsing variables (re-initialised for each file) */
 
 static int current_mode=MODE_NORMAL;
 
-static uint64_t nnodes=0,nways=0,nrelations=0;
+static uint64_t nnodes,nways,nrelations;
 
-static TagList *current_tags=NULL;
+static TagList *current_tags;
 
 
 /* The XML tag processing function prototypes */
@@ -414,8 +414,8 @@ static int deleteType_function(const char *_tag_,int _type_)
 
 static int nodeType_function(const char *_tag_,int _type_,const char *id,const char *lat,const char *lon)
 {
- static int64_t llid;
- static double latitude,longitude;
+ static int64_t llid;              /* static variable to store attributes from <node> tag until </node> tag */
+ static double latitude,longitude; /* static variable to store attributes from <node> tag until </node> tag */
 
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -465,7 +465,7 @@ static int nodeType_function(const char *_tag_,int _type_,const char *id,const c
 
 static int wayType_function(const char *_tag_,int _type_,const char *id)
 {
- static int64_t llid;
+ static int64_t llid; /* static variable to store attributes from <way> tag until </way> tag */
 
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -511,7 +511,7 @@ static int wayType_function(const char *_tag_,int _type_,const char *id)
 
 static int relationType_function(const char *_tag_,int _type_,const char *id)
 {
- static int64_t llid;
+ static int64_t llid; /* static variable to store attributes from <relation> tag until </relation> tag */
 
  if(_type_&XMLPARSE_TAG_START)
    {
@@ -659,6 +659,10 @@ int ParseOSMFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations
 
  /* Parse the file */
 
+ nnodes=0,nways=0,nrelations=0;
+
+ current_tags=NULL;
+
  retval=ParseXML(fd,xml_osm_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 
  /* Cleanup the parser */
@@ -692,6 +696,10 @@ int ParseOSCFile(int fd,NodesX *OSMNodes,WaysX *OSMWays,RelationsX *OSMRelations
  InitialiseParser(OSMNodes,OSMWays,OSMRelations);
 
  /* Parse the file */
+
+ nnodes=0,nways=0,nrelations=0;
+
+ current_tags=NULL;
 
  retval=ParseXML(fd,xml_osc_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_IGNORE);
 

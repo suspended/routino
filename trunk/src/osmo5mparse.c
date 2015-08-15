@@ -65,9 +65,7 @@
 #define O5M_ERROR_EXPECTED_O5C     104
 #define O5M_ERROR_FILE_LEVEL       105
 
-
-
-/* Parsing variables and functions */
+/* Local parsing variables (re-initialised for each file) */
 
 static uint64_t byteno=0;
 static uint64_t nnodes=0,nways=0,nrelations=0;

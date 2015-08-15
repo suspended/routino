@@ -33,13 +33,25 @@
 #include "xmlparse.h"
 
 
-/* Local variables */
+/* Local variables (re-intialised by FreeXMLProfiles() function) */
 
 /*+ The profiles that have been loaded from file. +*/
 static Profile **loaded_profiles=NULL;
 
 /*+ The number of profiles that have been loaded from file. +*/
 static int nloaded_profiles=0;
+
+
+/* Local variables (re-initialised for each file) */
+
+/*+ Store all of the profiles. +*/
+static int store_all;
+
+/*+ The profile name that is to be stored. +*/
+static const char *store_name;
+
+/*+ This current profile is to be stored. +*/
+static int store;
 
 
 /* The XML tag processing function prototypes */
@@ -261,27 +273,41 @@ static int profileType_function(const char *_tag_,int _type_,const char *name,co
     int i;
 
     XMLPARSE_ASSERT_STRING(_tag_,name);
-    XMLPARSE_ASSERT_STRING(_tag_,transport);
 
-    for(i=0;i<nloaded_profiles;i++)
-       if(!strcmp(name,loaded_profiles[i]->name))
-          XMLPARSE_MESSAGE(_tag_,"profile name must be unique");
+    if(store_all)
+       store=1;
+    else if(store_name && !strcmp(store_name,name))
+       store=1;
+    else
+       store=0;
 
-    transporttype=TransportType(transport);
+    if(store)
+      {
+       for(i=0;i<nloaded_profiles;i++)
+          if(!strcmp(name,loaded_profiles[i]->name))
+             XMLPARSE_MESSAGE(_tag_,"profile name must be unique");
 
-    if(transporttype==Transport_None)
-       XMLPARSE_INVALID(_tag_,transport);
+       XMLPARSE_ASSERT_STRING(_tag_,transport);
 
-    if((nloaded_profiles%16)==0)
-       loaded_profiles=(Profile**)realloc((void*)loaded_profiles,(nloaded_profiles+16)*sizeof(Profile*));
+       transporttype=TransportType(transport);
 
-    nloaded_profiles++;
+       if(transporttype==Transport_None)
+          XMLPARSE_INVALID(_tag_,transport);
 
-    loaded_profiles[nloaded_profiles-1]=(Profile*)calloc(1,sizeof(Profile));
+       if((nloaded_profiles%16)==0)
+          loaded_profiles=(Profile**)realloc((void*)loaded_profiles,(nloaded_profiles+16)*sizeof(Profile*));
 
-    loaded_profiles[nloaded_profiles-1]->name=strcpy(malloc(strlen(name)+1),name);
-    loaded_profiles[nloaded_profiles-1]->transport=transporttype;
+       nloaded_profiles++;
+
+       loaded_profiles[nloaded_profiles-1]=(Profile*)calloc(1,sizeof(Profile));
+
+       loaded_profiles[nloaded_profiles-1]->name=strcpy(malloc(strlen(name)+1),name);
+       loaded_profiles[nloaded_profiles-1]->transport=transporttype;
+      }
    }
+
+ if(_type_&XMLPARSE_TAG_END && store)
+    store=0;
 
  return(0);
 }
@@ -367,7 +393,7 @@ static int profileType_function(const char *_tag_,int _type_,const char *name,co
 
 static int speedType_function(const char *_tag_,int _type_,const char *highway,const char *kph)
 {
- if(_type_&XMLPARSE_TAG_START)
+ if(_type_&XMLPARSE_TAG_START && store)
    {
     double speed;
     Highway highwaytype;
@@ -380,6 +406,9 @@ static int speedType_function(const char *_tag_,int _type_,const char *highway,c
        XMLPARSE_INVALID(_tag_,highway);
 
     XMLPARSE_ASSERT_FLOATING(_tag_,kph); speed=atof(kph);
+
+    if(speed<0)
+       XMLPARSE_INVALID(_tag_,kph);
 
     loaded_profiles[nloaded_profiles-1]->speed[highwaytype]=kph_to_speed(speed);
    }
@@ -404,7 +433,7 @@ static int speedType_function(const char *_tag_,int _type_,const char *highway,c
 
 static int preferenceType_function(const char *_tag_,int _type_,const char *highway,const char *percent)
 {
- if(_type_&XMLPARSE_TAG_START)
+ if(_type_&XMLPARSE_TAG_START && store)
    {
     Highway highwaytype;
     double p;
@@ -418,7 +447,10 @@ static int preferenceType_function(const char *_tag_,int _type_,const char *high
 
     XMLPARSE_ASSERT_FLOATING(_tag_,percent); p=atof(percent);
 
-    loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=(score_t)p;
+    if(p<0 || p>100)
+       XMLPARSE_INVALID(_tag_,percent);
+
+    loaded_profiles[nloaded_profiles-1]->highway[highwaytype]=(score_t)(p/100);
    }
 
  return(0);
@@ -441,7 +473,7 @@ static int preferenceType_function(const char *_tag_,int _type_,const char *high
 
 static int propertyType_function(const char *_tag_,int _type_,const char *type,const char *percent)
 {
- if(_type_&XMLPARSE_TAG_START)
+ if(_type_&XMLPARSE_TAG_START && store)
    {
     Property property;
     double p;
@@ -455,7 +487,10 @@ static int propertyType_function(const char *_tag_,int _type_,const char *type,c
 
     XMLPARSE_ASSERT_FLOATING(_tag_,percent); p=atof(percent);
 
-    loaded_profiles[nloaded_profiles-1]->props_yes[property]=(score_t)p;
+    if(p<0 || p>100)
+       XMLPARSE_INVALID(_tag_,percent);
+
+    loaded_profiles[nloaded_profiles-1]->props[property]=(score_t)(p/100);
    }
 
  return(0);
@@ -476,7 +511,7 @@ static int propertyType_function(const char *_tag_,int _type_,const char *type,c
 
 static int onewayType_function(const char *_tag_,int _type_,const char *obey)
 {
- if(_type_&XMLPARSE_TAG_START)
+ if(_type_&XMLPARSE_TAG_START && store)
    {
     int o;
 
@@ -503,7 +538,7 @@ static int onewayType_function(const char *_tag_,int _type_,const char *obey)
 
 static int turnsType_function(const char *_tag_,int _type_,const char *obey)
 {
- if(_type_&XMLPARSE_TAG_START)
+ if(_type_&XMLPARSE_TAG_START && store)
    {
     int o;
 
@@ -530,11 +565,14 @@ static int turnsType_function(const char *_tag_,int _type_,const char *obey)
 
 static int weightType_function(const char *_tag_,int _type_,const char *limit)
 {
- if(_type_&XMLPARSE_TAG_START)
+ if(_type_&XMLPARSE_TAG_START && store)
    {
     double l;
 
     XMLPARSE_ASSERT_FLOATING(_tag_,limit); l=atof(limit);
+
+    if(l<0)
+       XMLPARSE_INVALID(_tag_,limit);
 
     loaded_profiles[nloaded_profiles-1]->weight=tonnes_to_weight(l);
    }
@@ -557,11 +595,14 @@ static int weightType_function(const char *_tag_,int _type_,const char *limit)
 
 static int heightType_function(const char *_tag_,int _type_,const char *limit)
 {
- if(_type_&XMLPARSE_TAG_START)
+ if(_type_&XMLPARSE_TAG_START && store)
    {
     double l;
 
     XMLPARSE_ASSERT_FLOATING(_tag_,limit); l=atof(limit);
+
+    if(l<0)
+       XMLPARSE_INVALID(_tag_,limit);
 
     loaded_profiles[nloaded_profiles-1]->height=metres_to_height(l);
    }
@@ -584,11 +625,14 @@ static int heightType_function(const char *_tag_,int _type_,const char *limit)
 
 static int widthType_function(const char *_tag_,int _type_,const char *limit)
 {
- if(_type_&XMLPARSE_TAG_START)
+ if(_type_&XMLPARSE_TAG_START && store)
    {
     double l;
 
     XMLPARSE_ASSERT_FLOATING(_tag_,limit); l=atof(limit);
+
+    if(l<0)
+       XMLPARSE_INVALID(_tag_,limit);
 
     loaded_profiles[nloaded_profiles-1]->width=metres_to_width(l);
    }
@@ -611,11 +655,14 @@ static int widthType_function(const char *_tag_,int _type_,const char *limit)
 
 static int lengthType_function(const char *_tag_,int _type_,const char *limit)
 {
- if(_type_&XMLPARSE_TAG_START)
+ if(_type_&XMLPARSE_TAG_START && store)
    {
     double l;
 
     XMLPARSE_ASSERT_FLOATING(_tag_,limit); l=atof(limit);
+
+    if(l<0)
+       XMLPARSE_INVALID(_tag_,limit);
 
     loaded_profiles[nloaded_profiles-1]->length=metres_to_length(l);
    }
@@ -630,20 +677,36 @@ static int lengthType_function(const char *_tag_,int _type_,const char *limit)
   int ParseXMLProfiles Returns 0 if OK or something else in case of an error.
 
   const char *filename The name of the file to read.
+
+  const char *name The name of the profile to read.
+
+  int all Set to true to load all the profiles.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXMLProfiles(const char *filename)
+int ParseXMLProfiles(const char *filename,const char *name,int all)
 {
  int fd;
  int retval;
 
  if(!ExistsFile(filename))
-   {
-    fprintf(stderr,"Error: Specified profiles file '%s' does not exist.\n",filename);
     return(1);
-   }
 
  fd=OpenFile(filename);
+
+ /* Delete the existing profiles */
+
+ if(nloaded_profiles)
+    FreeXMLProfiles();
+
+ /* Initialise variables used for parsing */
+
+ store_all=all;
+
+ store_name=name;
+
+ store=0;
+
+ /* Parse the file */
 
  retval=ParseXML(fd,xml_toplevel_tags,XMLPARSE_UNKNOWN_ATTR_ERRNONAME);
 
@@ -651,18 +714,30 @@ int ParseXMLProfiles(const char *filename)
 
  if(retval)
    {
-    int i;
+    FreeXMLProfiles();
 
-    for(i=0;i<nloaded_profiles;i++)
-       free(loaded_profiles[i]);
-    free(loaded_profiles);
-
-    nloaded_profiles=0;
-
-    return(1);
+    return(2);
    }
 
  return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Return a list of the profile names that have been loaded from the XML file.
+
+  char **GetProfileNames Returns a NULL terminated list of strings - all allocated.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+char **GetProfileNames(void)
+{
+ char **list=calloc(1+nloaded_profiles,sizeof(char*));
+ int i;
+
+ for(i=0;i<nloaded_profiles;i++)
+    list[i]=strcpy(malloc(strlen(loaded_profiles[i]->name)+1),loaded_profiles[i]->name);
+
+ return(list);
 }
 
 
@@ -687,6 +762,32 @@ Profile *GetProfile(const char *name)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Free the memory allocated when reading the profiles.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+void FreeXMLProfiles(void)
+{
+ int i;
+
+ if(!loaded_profiles)
+    return;
+
+ for(i=0;i<nloaded_profiles;i++)
+   {
+    if(loaded_profiles[i]->name)
+       free(loaded_profiles[i]->name);
+
+    free(loaded_profiles[i]);
+   }
+
+ free(loaded_profiles);
+
+ loaded_profiles=NULL;
+ nloaded_profiles=0;
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Update a profile with the highway preference scaling factors.
 
   int UpdateProfile Returns 1 in case of a problem.
@@ -698,10 +799,9 @@ Profile *GetProfile(const char *name)
 
 int UpdateProfile(Profile *profile,Ways *ways)
 {
- score_t hmax=0;
  int i;
 
- /* Fix up the allowed transport types. */
+ /* Check the allowed transport type */
 
  profile->allow=TRANSPORTS(profile->transport);
 
@@ -710,38 +810,32 @@ int UpdateProfile(Profile *profile,Ways *ways)
 
  /* Normalise the highway preferences into the range ~0 -> 1 */
 
+ profile->max_pref=0;
+
  for(i=1;i<Highway_Count;i++)
    {
     if(profile->highway[i]<0)
        profile->highway[i]=0;
 
-    if(profile->highway[i]>hmax)
-       hmax=profile->highway[i];
-   }
+    if(profile->highway[i]>1)
+       profile->highway[i]=1;
 
- if(hmax==0)
-    return(1);
-
- for(i=1;i<Highway_Count;i++)
-   {
-    profile->highway[i]/=hmax;
-
-    if(profile->highway[i]<0.0001f)
-       profile->highway[i]=0.0001f;
+    if(profile->highway[i]>profile->max_pref)
+       profile->max_pref=profile->highway[i];
    }
 
  /* Normalise the property preferences into the range ~0 -> 1 */
 
  for(i=1;i<Property_Count;i++)
    {
-    if(profile->props_yes[i]<0)
-       profile->props_yes[i]=0;
+    if(profile->props[i]<0)
+       profile->props[i]=0;
 
-    if(profile->props_yes[i]>100)
-       profile->props_yes[i]=100;
+    if(profile->props[i]>1)
+       profile->props[i]=1;
 
-    profile->props_yes[i]/=100;
-    profile->props_no [i] =1-profile->props_yes[i];
+    profile->props_yes[i]=profile->props[i];
+    profile->props_no [i]=1-profile->props_yes[i];
 
     /* Squash the properties; selecting 60% preference without the sqrt() allows
        routes 50% longer on highways with the property compared to ones without.
@@ -762,15 +856,15 @@ int UpdateProfile(Profile *profile,Ways *ways)
  profile->max_speed=0;
 
  for(i=1;i<Highway_Count;i++)
+   {
+    if(profile->speed[i]<0.01f)
+       profile->speed[i]=0.01f;
+
     if(profile->speed[i]>profile->max_speed)
        profile->max_speed=profile->speed[i];
-
- if(profile->max_speed==0)
-    return(1);
+   }
 
  /* Find the most preferred property combination */
-
- profile->max_pref=1; /* since highway prefs were normalised to 1 */
 
  for(i=1;i<Property_Count;i++)
     if(ways->file.props & PROPERTIES(i))
@@ -804,7 +898,7 @@ void PrintProfile(const Profile *profile)
  printf("\n");
 
  for(i=1;i<Highway_Count;i++)
-    printf("Highway %-12s: %3d%%\n",HighwayName(i),(int)profile->highway[i]);
+    printf("Highway %-12s: %3d%%\n",HighwayName(i),(int)(0.5+profile->highway[i]*100));
 
  printf("\n");
 
@@ -815,7 +909,7 @@ void PrintProfile(const Profile *profile)
  printf("\n");
 
  for(i=1;i<Property_Count;i++)
-    printf("Highway property %-12s: %3d%%\n",PropertyName(i),(int)profile->props_yes[i]);
+    printf("Highway property %-12s: %3d%%\n",PropertyName(i),(int)(0.5+profile->props[i]*100));
 
  printf("\n");
 
@@ -854,12 +948,12 @@ void PrintProfilesXML(void)
 
     printf("    <preferences>\n");
     for(i=1;i<Highway_Count;i++)
-       printf("      <preference highway=\"%s\"%s percent=\"%.0f\" />\n",HighwayName(i),padding+8+strlen(HighwayName(i)),loaded_profiles[j]->highway[i]);
+       printf("      <preference highway=\"%s\"%s percent=\"%.0f\" />\n",HighwayName(i),padding+8+strlen(HighwayName(i)),loaded_profiles[j]->highway[i]*100);
     printf("    </preferences>\n");
 
     printf("    <properties>\n");
     for(i=1;i<Property_Count;i++)
-       printf("      <property type=\"%s\"%s percent=\"%.0f\" />\n",PropertyName(i),padding+8+strlen(PropertyName(i)),loaded_profiles[j]->props_yes[i]);
+       printf("      <property type=\"%s\"%s percent=\"%.0f\" />\n",PropertyName(i),padding+8+strlen(PropertyName(i)),loaded_profiles[j]->props[i]*100);
     printf("    </properties>\n");
 
     printf("    <restrictions>\n");
@@ -925,7 +1019,7 @@ void PrintProfilesJSON(void)
    {
     printf("    %12s: { ",HighwayName(i));
     for(j=0;j<nloaded_profiles;j++)
-       printf("%s%s: %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->highway[i]);
+       printf("%s%s: %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)(0.5+loaded_profiles[j]->highway[i]*100));
     printf(" }%s\n",i==(Highway_Count-1)?"":",");
    }
  printf("     },\n");
@@ -949,7 +1043,7 @@ void PrintProfilesJSON(void)
    {
     printf("    %13s: { ",PropertyName(i));
     for(j=0;j<nloaded_profiles;j++)
-       printf("%s%s: %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->props_yes[i]);
+       printf("%s%s: %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)(0.5+loaded_profiles[j]->props[i]*100));
     printf(" }%s\n",i==(Property_Count-1)?"":",");
    }
  printf("     },\n");
@@ -1034,7 +1128,7 @@ void PrintProfilesPerl(void)
    {
     printf("  %12s => {",HighwayName(i));
     for(j=0;j<nloaded_profiles;j++)
-       printf("%s %s => %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->highway[i]);
+       printf("%s %s => %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)(0.5+loaded_profiles[j]->highway[i]*100));
     printf(" }%s\n",i==(Highway_Count-1)?"":",");
    }
  printf("     },\n");
@@ -1058,7 +1152,7 @@ void PrintProfilesPerl(void)
    {
     printf("  %13s => {",PropertyName(i));
     for(j=0;j<nloaded_profiles;j++)
-       printf("%s %s => %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)loaded_profiles[j]->props_yes[i]);
+       printf("%s %s => %3d",j==0?"":", ",TransportName(loaded_profiles[j]->transport),(int)(0.5+loaded_profiles[j]->props[i]*100));
     printf(" }%s\n",i==(Property_Count-1)?"":",");
    }
  printf("     },\n");

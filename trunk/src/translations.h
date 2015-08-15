@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2012 Andrew M. Bishop
+ This file Copyright 2010-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -26,51 +26,81 @@
 #include "types.h"
 
 
-/* Global variable declarations */
+/* Type declarations */
 
-extern char *translate_raw_copyright_creator[2];
-extern char *translate_raw_copyright_source[2];
-extern char *translate_raw_copyright_license[2];
+typedef struct _Translation
+{
+ char *language;
 
-extern char *translate_xml_copyright_creator[2];
-extern char *translate_xml_copyright_source[2];
-extern char *translate_xml_copyright_license[2];
+ char *raw_copyright_creator[2];
+ char *raw_copyright_source[2];
+ char *raw_copyright_license[2];
 
-extern char *translate_xml_heading[9];
-extern char *translate_xml_turn[9];
-extern char *translate_xml_ordinal[10];
+ char *xml_copyright_creator[2];
+ char *xml_copyright_source[2];
+ char *xml_copyright_license[2];
 
-extern char *translate_raw_highway[Highway_Count];
+ char *xml_heading[9];
+ char *xml_turn[9];
+ char *xml_ordinal[10];
 
-extern char *translate_xml_route_shortest;
-extern char *translate_xml_route_quickest;
+ char *notxml_heading[9];
+ char *notxml_turn[9];
+ char *notxml_ordinal[10];
 
-extern char *translate_html_waypoint;
-extern char *translate_html_junction;
-extern char *translate_html_roundabout;
+ char *raw_highway[Highway_Count];
 
-extern char *translate_html_title;
-extern char *translate_html_start[2];
-extern char *translate_html_segment[2];
-extern char *translate_html_node[2];
-extern char *translate_html_rbnode[2];
-extern char *translate_html_stop[2];
-extern char *translate_html_total[2];
+ char *xml_route_shortest;
+ char *xml_route_quickest;
 
-extern char *translate_gpx_desc;
-extern char *translate_gpx_name;
-extern char *translate_gpx_step;
-extern char *translate_gpx_final;
+ char *html_waypoint;
+ char *html_junction;
+ char *html_roundabout;
 
-extern char *translate_gpx_start;
-extern char *translate_gpx_inter;
-extern char *translate_gpx_trip;
-extern char *translate_gpx_finish;
+ char *html_title;
+ char *html_start;
+ char *html_segment;
+ char *html_node;
+ char *html_rbnode;
+ char *html_stop;
+ char *html_total;
+ char *html_subtotal;
+
+ char *nothtml_waypoint;
+ char *nothtml_junction;
+ char *nothtml_roundabout;
+
+ char *nothtml_title;
+ char *nothtml_start;
+ char *nothtml_segment;
+ char *nothtml_node;
+ char *nothtml_rbnode;
+ char *nothtml_stop;
+ char *nothtml_total;
+ char *nothtml_subtotal;
+
+ char *gpx_desc;
+ char *gpx_name;
+ char *gpx_step;
+ char *gpx_final;
+
+ char *gpx_start;
+ char *gpx_inter;
+ char *gpx_trip;
+ char *gpx_finish;
+}
+ Translation;
 
 
 /* Functions in translations.c */
 
-int ParseXMLTranslations(const char *filename,const char *language);
+int ParseXMLTranslations(const char *filename,const char *language,int all);
+
+char **GetTranslationLanguages(void);
+
+Translation *GetTranslation(const char *language);
+
+void FreeXMLTranslations(void);
 
 
 #endif /* TRANSLATIONS_H */

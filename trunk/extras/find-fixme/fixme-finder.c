@@ -69,7 +69,7 @@ int main(int argc,char** argv)
  WaysX      *OSMWays;
  RelationsX *OSMRelations;
  ErrorLogsX *OSMErrorLogs;
- char       *dirname=NULL,*prefix=NULL,*tagging="fixme.xml",*errorlog="fixme.log";
+ char       *dirname=NULL,*prefix=NULL,*tagging=NULL;
  int         option_keep=1;
  int         option_filenames=0;
  int         arg;
@@ -137,11 +137,11 @@ int main(int argc,char** argv)
    }
  else
    {
-    if(ExistsFile(FileName(dirname,prefix,"tagging.xml")))
-       tagging=FileName(dirname,prefix,"tagging.xml");
-    else
+    tagging=FileName(dirname,prefix,"fixme.xml");
+
+    if(!ExistsFile(tagging))
       {
-       fprintf(stderr,"Error: The '--tagging' option was not used and the default 'tagging.xml' does not exist.\n");
+       fprintf(stderr,"Error: The '--tagging' option was not used and the default 'fixme.xml' does not exist.\n");
        exit(EXIT_FAILURE);
       }
    }
@@ -162,8 +162,7 @@ int main(int argc,char** argv)
 
  /* Create the error log file */
 
- if(errorlog)
-    open_errorlog(FileName(dirname,prefix,errorlog),0,option_keep);
+ open_errorlog(FileName(dirname,prefix,"fixme.log"),0,option_keep);
 
  /* Parse the file */
 

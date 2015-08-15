@@ -78,14 +78,18 @@ Nodes *LoadNodeList(const char *filename)
  sizeoffsets=(nodes->file.latbins*nodes->file.lonbins+1)*sizeof(index_t);
 
  nodes->offsets=(index_t*)malloc(sizeoffsets);
+#ifndef LIBROUTINO
  log_malloc(nodes->offsets,sizeoffsets);
+#endif
 
  SlimFetch(nodes->fd,nodes->offsets,sizeoffsets,sizeof(NodesFile));
 
  nodes->nodesoffset=(offset_t)(sizeof(NodesFile)+sizeoffsets);
 
  nodes->cache=NewNodeCache();
+#ifndef LIBROUTINO
  log_malloc(nodes->cache,sizeof(*nodes->cache));
+#endif
 
 #endif
 
@@ -109,10 +113,14 @@ void DestroyNodeList(Nodes *nodes)
 
  nodes->fd=SlimUnmapFile(nodes->fd);
 
+#ifndef LIBROUTINO
  log_free(nodes->offsets);
+#endif
  free(nodes->offsets);
 
+#ifndef LIBROUTINO
  log_free(nodes->cache);
+#endif
  DeleteNodeCache(nodes->cache);
 
 #endif

@@ -31,6 +31,21 @@
 #include "fakes.h"
 #include "results.h"
 
+#ifdef LIBROUTINO
+
+#include "routino.h"
+
+/*+ The function to be called to report on the routing progress. +*/
+extern Routino_ProgressFunc progress_func;
+
+/*+ The current state of the routing progress. +*/
+extern double progress_value;
+
+/*+ Set when the progress callback returns false in the routing function. +*/
+extern int progress_abort;
+
+#endif
+
 
 /*+ To help when debugging +*/
 #define DEBUG 0
@@ -47,8 +62,201 @@ extern int option_quickest;
 
 /* Local functions */
 
+static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node);
+static Results *FindMiddleRoute(Nodes *supernodes,Segments *supersegments,Ways *superways,Relations *relations,Profile *profile,Results *begin,Results *end);
 static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node,index_t finish_segment);
 static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t finish_node);
+static Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node);
+static Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node);
+static Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *middle,Results *end);
+static void FixForwardRoute(Results *results,Result *finish_result);
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find a complete route from a specified node to another node.
+
+  Results *CalculateRoute Returns a set of results.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  Relations *relations The set of relations to use.
+
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
+
+  index_t start_node The start node.
+
+  index_t prev_segment The previous segment before the start node.
+
+  index_t finish_node The finish node.
+
+  int start_waypoint The starting waypoint.
+
+  int finish_waypoint The finish waypoint.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+Results *CalculateRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,
+                        index_t start_node,index_t prev_segment,index_t finish_node,
+                        int start_waypoint,int finish_waypoint)
+{
+ Results *complete=NULL;
+
+ /* A special case if the first and last nodes are the same */
+
+ if(start_node==finish_node)
+   {
+    index_t fake_segment;
+    Result *result1,*result2;
+
+    complete=NewResultsList(8);
+
+    if(prev_segment==NO_SEGMENT)
+      {
+       double lat,lon;
+       distance_t distmin,dist1,dist2;
+       index_t node1,node2;
+
+       GetLatLong(nodes,start_node,NULL,&lat,&lon);
+
+       prev_segment=FindClosestSegment(nodes,segments,ways,lat,lon,1,profile,&distmin,&node1,&node2,&dist1,&dist2);
+      }
+
+    fake_segment=CreateFakeNullSegment(segments,start_node,prev_segment,finish_waypoint);
+
+    result1=InsertResult(complete,start_node,prev_segment);
+    result2=InsertResult(complete,finish_node,fake_segment);
+
+    result1->next=result2;
+
+    complete->start_node=start_node;
+    complete->prev_segment=prev_segment;
+
+    complete->finish_node=finish_node;
+    complete->last_segment=fake_segment;
+   }
+ else
+   {
+    Results *begin;
+
+    /* Calculate the beginning of the route */
+
+    begin=FindStartRoutes(nodes,segments,ways,relations,profile,start_node,prev_segment,finish_node);
+
+    if(begin)
+      {
+       /* Check if the end of the route was reached */
+
+       if(begin->finish_node!=NO_NODE)
+          complete=begin;
+      }
+    else
+      {
+       if(prev_segment!=NO_SEGMENT)
+         {
+          /* Try again but allow a U-turn at the start waypoint -
+             this solves the problem of facing a dead-end that contains no super-nodes. */
+
+          prev_segment=NO_SEGMENT;
+
+          begin=FindStartRoutes(nodes,segments,ways,relations,profile,start_node,prev_segment,finish_node);
+         }
+
+       if(begin)
+         {
+          /* Check if the end of the route was reached */
+
+          if(begin->finish_node!=NO_NODE)
+             complete=begin;
+         }
+       else
+         {
+#ifndef LIBROUTINO
+          fprintf(stderr,"Error: Cannot find initial section of route compatible with profile.\n");
+#endif
+          return(NULL);
+         }
+      }
+
+    /* Calculate the rest of the route */
+
+    if(!complete)
+      {
+       Results *middle,*end;
+
+       /* Calculate the end of the route */
+
+       end=FindFinishRoutes(nodes,segments,ways,relations,profile,finish_node);
+
+       if(!end)
+         {
+#ifndef LIBROUTINO
+          fprintf(stderr,"Error: Cannot find final section of route compatible with profile.\n");
+#endif
+          return(NULL);
+         }
+
+       /* Calculate the middle of the route */
+
+       middle=FindMiddleRoute(nodes,segments,ways,relations,profile,begin,end);
+
+       if(!middle && prev_segment!=NO_SEGMENT)
+         {
+          /* Try again but allow a U-turn at the start waypoint -
+             this solves the problem of facing a dead-end that contains some super-nodes. */
+
+          FreeResultsList(begin);
+
+          begin=FindStartRoutes(nodes,segments,ways,relations,profile,start_node,NO_SEGMENT,finish_node);
+
+          if(begin)
+             middle=FindMiddleRoute(nodes,segments,ways,relations,profile,begin,end);
+         }
+
+       if(!middle)
+         {
+#ifndef LIBROUTINO
+          fprintf(stderr,"Error: Cannot find super-route compatible with profile.\n");
+#endif
+          return(NULL);
+         }
+
+       complete=CombineRoutes(nodes,segments,ways,relations,profile,begin,middle,end);
+
+       if(!complete)
+         {
+#ifndef LIBROUTINO
+          fprintf(stderr,"Error: Cannot create combined route following super-route.\n");
+#endif
+          return(NULL);
+         }
+
+       FreeResultsList(begin);
+       FreeResultsList(middle);
+       FreeResultsList(end);
+      }
+   }
+
+ complete->start_waypoint=start_waypoint;
+ complete->finish_waypoint=finish_waypoint;
+
+#if DEBUG
+ Result *r=FindResult(complete,complete->start_node,complete->prev_segment);
+
+ printf("The final route is:\n");
+
+ while(r)
+   {
+    printf("  node=%"Pindex_t" segment=%"Pindex_t" score=%f\n",r->node,r->segment,r->score);
+
+    r=r->next;
+   }
+#endif
+
+ return(complete);
+}
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -73,7 +281,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
   index_t finish_node The finish node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node)
+static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node)
 {
  Results *results;
  Queue   *queue;
@@ -365,7 +573,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
   Results *end The final portion of the route.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *end)
+static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *end)
 {
  Results *results;
  Queue   *queue;
@@ -374,12 +582,15 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  double  finish_lat,finish_lon;
  Result  *result1,*result2,*result3,*result4;
  int     force_uturn=0;
+#ifdef LIBROUTINO
+ int     loopcount=0;
+#endif
 
 #if DEBUG
  printf("  FindMiddleRoute(...,[begin has %d nodes],[end has %d nodes])\n",begin->number,end->number);
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
  if(!option_quiet)
     printf_first("Finding Middle Route: Super-Nodes checked = 0");
 #endif
@@ -642,6 +853,15 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        segmentp=NextSegment(segments,segmentp,node1); /* node1 cannot be a fake node (must be a super-node) */
       }
+
+#ifdef LIBROUTINO
+    if(!(++loopcount%100000))
+       if(progress_func && !progress_func(progress_value))
+         {
+          progress_abort=1;
+          break;
+         }
+#endif
    }
 
  FreeQueueList(queue);
@@ -654,7 +874,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     printf("    Failed\n");
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
     if(!option_quiet)
        printf_last("Found Middle Route: Super-Nodes checked = %d - Fail",results->number);
 #endif
@@ -681,7 +901,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    }
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
  if(!option_quiet)
     printf_last("Found Middle Route: Super-Nodes checked = %d",results->number);
 #endif
@@ -943,7 +1163,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
   index_t finish_node The finish node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node)
+static Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node)
 {
  Results *results;
  Queue   *queue,*superqueue;
@@ -956,7 +1176,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  printf("  FindStartRoutes(...,start_node=%"Pindex_t" prev_segment=%"Pindex_t" finish_node=%"Pindex_t")\n",start_node,prev_segment,finish_node);
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
  if(!option_quiet)
     printf_first("Finding Start Route: Nodes checked = 0");
 #endif
@@ -1201,7 +1421,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     printf("    Failed (%d results, %d super)\n",results->number,nsuper);
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
     if(!option_quiet)
        printf_last("Found Start Route: Nodes checked = %d - Fail",results->number);
 #endif
@@ -1241,7 +1461,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
    }
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
  if(!option_quiet)
     printf_last("Found Start Route: Nodes checked = %d",results->number);
 #endif
@@ -1268,7 +1488,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
   index_t finish_node The finishing node.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node)
+static Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node)
 {
  Results *results,*results2;
  Queue   *queue;
@@ -1278,7 +1498,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
  printf("  FindFinishRoutes(...,finish_node=%"Pindex_t")\n",finish_node);
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
  if(!option_quiet)
     printf_first("Finding Finish Route: Nodes checked = 0");
 #endif
@@ -1485,7 +1705,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
     printf("    Failed\n");
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
  if(!option_quiet)
     printf_last("Found Finish Route: Nodes checked = %d - Fail",results->number);
 #endif
@@ -1556,7 +1776,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
    }
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
  if(!option_quiet)
     printf_last("Found Finish Route: Nodes checked = %d",results->number);
 #endif
@@ -1589,7 +1809,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
   Results *end The set of results for the end of the route.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *middle,Results *end)
+static Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *middle,Results *end)
 {
  Result *midres,*comres;
  Results *combined;
@@ -1598,7 +1818,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
  printf("  CombineRoutes(...,[begin has %d nodes],[middle has %d nodes],[end has %d nodes])\n",begin->number,middle->number,end->number);
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
  if(!option_quiet)
     printf_first("Finding Combined Route: Nodes = 0");
 #endif
@@ -1658,7 +1878,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
 
     if(!results)
       {
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
        if(!option_quiet)
           printf_last("Found Combined Route: Nodes = %d - Fail",combined->number);
 #endif
@@ -1749,7 +1969,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
    }
 #endif
 
-#if !DEBUG
+#if !DEBUG && !defined(LIBROUTINO)
  if(!option_quiet)
     printf_last("Found Combined Route: Nodes = %d",combined->number);
 #endif
@@ -1766,7 +1986,7 @@ Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *rel
   Result *finish_result The result for the finish point.
   ++++++++++++++++++++++++++++++++++++++*/
 
-void FixForwardRoute(Results *results,Result *finish_result)
+static void FixForwardRoute(Results *results,Result *finish_result)
 {
  Result *result2=finish_result;
 
@@ -1797,7 +2017,9 @@ void FixForwardRoute(Results *results,Result *finish_result)
 
        result1=FindResult(results,node1,seg1);
 
+#ifndef LIBROUTINO
        logassert(!result1->next,"Unable to reverse route through results (report a bug)"); /* Bugs elsewhere can lead to infinite loop here. */
+#endif
 
        result1->next=result2;
 

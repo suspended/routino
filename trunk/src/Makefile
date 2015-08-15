@@ -22,15 +22,6 @@
 
 include ../Makefile.conf
 
-# Debugging options
-
-#CFLAGS+=-O0 -g
-#CFLAGS+=-pg
-#CFLAGS+=-fprofile-arcs -ftest-coverage
-
-#LDFLAGS+=-pg -static
-#LDFLAGS+=-fprofile-arcs -ftest-coverage
-
 # Sub-directories and sub-makefiles
 
 SUBFILES=$(wildcard */Makefile)
@@ -41,7 +32,19 @@ SUBDIRS=$(foreach f,$(SUBFILES),$(dir $f))
 C=$(wildcard *.c)
 D=$(wildcard .deps/*.d)
 
-EXE=planetsplitter planetsplitter-slim router router-slim filedumperx filedumper filedumper-slim
+EXE=planetsplitter$(.EXE) planetsplitter-slim$(.EXE) router$(.EXE) router-slim$(.EXE) \
+    filedumperx$(.EXE) filedumper$(.EXE) filedumper-slim$(.EXE) \
+    router+lib$(.EXE) router+lib-slim$(.EXE)
+
+LIB=libroutino.so libroutino-slim.so
+
+ifeq ($(HOST),MINGW)
+LIB+=routino.dll routino-slim.dll
+LIB+=routino.def routino-slim.def
+LIB+=routino.lib routino-slim.lib
+endif
+
+INC=routino.h
 
 ########
 
@@ -50,7 +53,7 @@ all: all-local
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
-all-local: $(EXE)
+all-local: $(EXE) $(LIB)
 
 ########
 
@@ -62,11 +65,11 @@ PLANETSPLITTER_OBJ=planetsplitter.o \
 	           xmlparse.o tagging.o \
 	           uncompress.o osmxmlparse.o osmpbfparse.o osmo5mparse.o osmparser.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 PLANETSPLITTER_OBJ+=mman-win32.o
 endif
 
-planetsplitter : $(PLANETSPLITTER_OBJ)
+planetsplitter$(.EXE) : $(PLANETSPLITTER_OBJ)
 	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -79,11 +82,11 @@ PLANETSPLITTER_SLIM_OBJ=planetsplitter-slim.o \
 	                xmlparse.o tagging.o \
 	                uncompress.o osmxmlparse.o osmpbfparse.o osmo5mparse.o osmparser.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 PLANETSPLITTER_SLIM_OBJ+=mman-win32.o
 endif
 
-planetsplitter-slim : $(PLANETSPLITTER_SLIM_OBJ)
+planetsplitter-slim$(.EXE) : $(PLANETSPLITTER_SLIM_OBJ)
 	$(LD) $(PLANETSPLITTER_SLIM_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -94,11 +97,11 @@ ROUTER_OBJ=router.o \
 	   files.o logging.o profiles.o xmlparse.o \
 	   results.o queue.o translations.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 ROUTER_OBJ+=mman-win32.o
 endif
 
-router : $(ROUTER_OBJ)
+router$(.EXE) : $(ROUTER_OBJ)
 	$(LD) $(ROUTER_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -109,11 +112,11 @@ ROUTER_SLIM_OBJ=router-slim.o \
 	        files.o logging.o profiles.o xmlparse.o \
 	        results.o queue.o translations.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 ROUTER_SLIM_OBJ+=mman-win32.o
 endif
 
-router-slim : $(ROUTER_SLIM_OBJ)
+router-slim$(.EXE) : $(ROUTER_SLIM_OBJ)
 	$(LD) $(ROUTER_SLIM_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -121,11 +124,11 @@ router-slim : $(ROUTER_SLIM_OBJ)
 FILEDUMPERX_OBJ=filedumperx.o \
 	        files.o logging.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 FILEDUMPERX_OBJ+=mman-win32.o
 endif
 
-filedumperx : $(FILEDUMPERX_OBJ)
+filedumperx$(.EXE) : $(FILEDUMPERX_OBJ)
 	$(LD) $(FILEDUMPERX_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -135,11 +138,11 @@ FILEDUMPER_OBJ=filedumper.o \
                visualiser.o \
 	       files.o logging.o xmlparse.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 FILEDUMPER_OBJ+=mman-win32.o
 endif
 
-filedumper : $(FILEDUMPER_OBJ)
+filedumper$(.EXE) : $(FILEDUMPER_OBJ)
 	$(LD) $(FILEDUMPER_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -149,11 +152,11 @@ FILEDUMPER_SLIM_OBJ=filedumper-slim.o \
 	       visualiser-slim.o \
 	       files.o logging.o xmlparse.o
 
-ifdef MINGW
+ifeq ($(HOST),MINGW)
 FILEDUMPER_SLIM_OBJ+=mman-win32.o
 endif
 
-filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
+filedumper-slim$(.EXE) : $(FILEDUMPER_SLIM_OBJ)
 	$(LD) $(FILEDUMPER_SLIM_OBJ) -o $@ $(LDFLAGS)
 
 ########
@@ -165,6 +168,74 @@ filedumper-slim : $(FILEDUMPER_SLIM_OBJ)
 %-slim.o : %.c
 	@[ -d .deps ] || mkdir .deps
 	$(CC) -c $(CFLAGS) -DSLIM=1 -DROUTINO_DATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+
+########
+
+ROUTER_LIB_OBJ=router+lib.o
+
+router+lib$(.EXE) : $(ROUTER_LIB_OBJ) libroutino.so
+	$(LD) $(ROUTER_LIB_OBJ) -o $@ $(LDFLAGS) libroutino.so $(LDFLAGS_LDSO)
+
+router+lib-slim$(.EXE) : $(ROUTER_LIB_OBJ) libroutino-slim.so
+	$(LD) $(ROUTER_LIB_OBJ) -o $@ $(LDFLAGS) libroutino-slim.so $(LDFLAGS_LDSO)
+
+########
+
+LIBROUTINO_OBJ=routino-lib.o \
+	        nodes-lib.o segments-lib.o ways-lib.o relations-lib.o types-lib.o fakes-lib.o \
+	        optimiser-lib.o output-lib.o \
+	        files-lib.o profiles-lib.o xmlparse-lib.o \
+	        results-lib.o queue-lib.o translations-lib.o
+
+ifeq ($(HOST),MINGW)
+LIBROUTINO_OBJ+=mman-win32.o
+endif
+
+libroutino.so : $(LIBROUTINO_OBJ)
+	$(LD) $(LIBROUTINO_OBJ) -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
+
+routino.dll : libroutino.so
+	cp $< $@
+
+routino.def : routino-lib.o
+	dlltool -v --output-def $@ $<
+
+routino.lib : routino.dll routino.def
+	dlltool -v --dllname routino.dll --def routino.def --output-lib $@
+
+########
+
+LIBROUTINO_SLIM_OBJ=routino-slim-lib.o \
+	        nodes-slim-lib.o segments-slim-lib.o ways-slim-lib.o relations-slim-lib.o types-lib.o fakes-slim-lib.o \
+	        optimiser-slim-lib.o output-slim-lib.o \
+	        files-lib.o profiles-lib.o xmlparse-lib.o \
+	        results-lib.o queue-lib.o translations-lib.o
+
+ifeq ($(HOST),MINGW)
+LIBROUTINO_SLIM_OBJ+=mman-win32.o
+endif
+
+libroutino-slim.so : $(LIBROUTINO_SLIM_OBJ)
+	$(LD) $(LIBROUTINO_SLIM_OBJ) -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
+
+routino-slim.dll : libroutino-slim.so
+	cp $< $@
+
+routino-slim.def : routino-slim-lib.o
+	dlltool -v --output-def $@ $<
+
+routino-slim.lib : routino-slim.dll routino-slim.def
+	dlltool -v --dllname routino-slim.dll --def routino-slim.def --output-lib $@
+
+########
+
+%-lib.o : %.c
+	@[ -d .deps ] || mkdir .deps
+	$(CC) -c $(CFLAGS) $(CFLAGS_LIB) -DSLIM=0 -DLIBROUTINO $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+
+%-slim-lib.o : %.c
+	@[ -d .deps ] || mkdir .deps
+	$(CC) -c $(CFLAGS) $(CFLAGS_LIB) -DSLIM=1 -DLIBROUTINO $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
 
 ########
 
@@ -189,9 +260,19 @@ install-local: all-local
 	       echo cp $$file $(DESTDIR)$(bindir) ;\
 	       cp -f $$file $(DESTDIR)$(bindir) ;\
 	    fi ;\
-	    if [ -f $$file.exe ]; then \
-	       echo cp $$file.exe $(DESTDIR)$(bindir) ;\
-	       cp -f $$file.exe $(DESTDIR)$(bindir) ;\
+	 done
+	@[ -d $(DESTDIR)$(incdir) ] || mkdir -p $(DESTDIR)$(incdir)
+	@for file in $(INC); do \
+	    if [ -f $$file ]; then \
+	       echo cp $$file $(DESTDIR)$(incdir) ;\
+	       cp -f $$file $(DESTDIR)$(incdir) ;\
+	    fi ;\
+	 done
+	@[ -d $(DESTDIR)$(libdir) ] || mkdir -p $(DESTDIR)$(libdir)
+	@for file in $(LIB); do \
+	    if [ -f $$file ]; then \
+	       echo cp $$file $(DESTDIR)$(libdir) ;\
+	       cp -f $$file $(DESTDIR)$(libdir) ;\
 	    fi ;\
 	 done
 
@@ -205,7 +286,8 @@ clean: clean-local
 clean-local:
 	rm -f *~
 	rm -f *.o
-	rm -f $(EXE) *.exe
+	rm -f $(EXE)
+	rm -f $(LIB)
 	rm -f $(D)
 	rm -fr .deps
 	rm -f core

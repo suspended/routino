@@ -30,9 +30,9 @@ X=$(notdir $(wildcard $(XMLDIR)/*.xsd))
 C=$(foreach f,$(X),$(addsuffix -skeleton.c,$(basename $f)))
 D=$(wildcard .deps/*.d)
 O=$(foreach f,$(C),$(addsuffix .o,$(basename $f)))
-E=$(foreach f,$(C),$(basename $f))
+E=$(foreach f,$(C),$(addsuffix $(.EXE),$(basename $f)))
 
-EXE=xsd-to-xmlparser
+EXE=xsd-to-xmlparser$(.EXE)
 
 ########
 
@@ -40,16 +40,16 @@ all: $(EXE) $(C) $(E)
 
 ########
 
-xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
+xsd-to-xmlparser$(.EXE) : xsd-to-xmlparser.o ../xmlparse.o
 	$(LD) xsd-to-xmlparser.o ../xmlparse.o -o $@ $(LDFLAGS)
 
 ########
 
-%-skeleton.c : $(XMLDIR)/%.xsd xsd-to-xmlparser
+%-skeleton.c : $(XMLDIR)/%.xsd xsd-to-xmlparser$(.EXE)
 	-./xsd-to-xmlparser < $< > $@
 	@test -s $@ || rm $@
 
-%-skeleton : %-skeleton.o ../xmlparse.o
+%-skeleton$(.EXE) : %-skeleton.o ../xmlparse.o
 	$(LD) $< ../xmlparse.o -o $@ $(LDFLAGS)
 
 .SECONDARY : $(O)
@@ -67,7 +67,7 @@ xsd-to-xmlparser : xsd-to-xmlparser.o ../xmlparse.o
 
 ########
 
-test: test-skeleton
+test: test-skeleton$(.EXE)
 	@status=true ;\
 	echo "" ;\
 	for good in test/good*.xml; do \
@@ -83,10 +83,10 @@ test: test-skeleton
 	if $$status; then echo "Success: all tests passed"; else echo "Warning: Some tests FAILED"; fi ;\
 	$$status
 
-test-skeleton : test-skeleton.o
+test-skeleton$(.EXE) : test-skeleton.o
 	$(LD) $< ../xmlparse.o -o $@ $(LDFLAGS)
 
-test-skeleton.c : test/test.xsd xsd-to-xmlparser
+test-skeleton.c : test/test.xsd xsd-to-xmlparser$(.EXE)
 	./xsd-to-xmlparser < $< | sed -e 's/XMLPARSE_UNKNOWN_ATTR_WARN/XMLPARSE_UNKNOWN_ATTR_ERROR/' > $@
 
 ########
@@ -98,8 +98,8 @@ install:
 clean:
 	rm -f *~
 	rm -f *.o
-	rm -f $(EXE) *.exe
-	rm -f $(E) test-skeleton
+	rm -f $(EXE)
+	rm -f $(E) test-skeleton$(.EXE)
 	rm -f $(D) .deps/test-skeleton.d
 	rm -f $(C) test-skeleton.c
 	rm -fr .deps

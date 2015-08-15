@@ -112,7 +112,7 @@ void ProcessTurnRelations(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segme
 
 void RemovePrunedTurnRelations(RelationsX *relationsx,NodesX *nodesx);
 
-void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx);
+void SortTurnRelationListGeographically(RelationsX *relationsx,NodesX *nodesx,SegmentsX *segmentsx,int convert);
 
 void SaveRelationList(RelationsX* relationsx,const char *filename);
 

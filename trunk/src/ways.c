@@ -67,7 +67,9 @@ Ways *LoadWayList(const char *filename)
  memset(ways->ncached,0,sizeof(ways->ncached));
 
  ways->cache=NewWayCache();
+#ifndef LIBROUTINO
  log_malloc(ways->cache,sizeof(*ways->cache));
+#endif
 
 #endif
 
@@ -91,7 +93,9 @@ void DestroyWayList(Ways *ways)
 
  ways->fd=SlimUnmapFile(ways->fd);
 
+#ifndef LIBROUTINO
  log_free(ways->cache);
+#endif
  DeleteWayCache(ways->cache);
 
 #endif

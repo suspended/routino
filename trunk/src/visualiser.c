@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,7 @@
 
 typedef void (*callback_t)(index_t node,double latitude,double longitude);
 
-/* Local variables */
+/* Local variables (intialised by entry-point function before later use) */
 
 static Nodes     *OSMNodes;
 static Segments  *OSMSegments;
