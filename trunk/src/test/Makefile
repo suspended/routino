@@ -24,10 +24,10 @@ include ../../Makefile.conf
 
 # executables
 
-ROUTINO_EXE=../planetsplitter$(.EXE) ../planetsplitter-slim$(.EXE) \
-            ../router$(.EXE)         ../router-slim$(.EXE) \
-            ../router+lib$(.EXE)     ../router+lib-slim$(.EXE) \
-            ../filedumper$(.EXE)     ../filedumper-slim$(.EXE)
+ROUTINO_EXE=planetsplitter$(.EXE) planetsplitter-slim$(.EXE) \
+            router$(.EXE)         router-slim$(.EXE) \
+            router+lib$(.EXE)     router+lib-slim$(.EXE) \
+            filedumper$(.EXE)     filedumper-slim$(.EXE)
 
 EXE=is-fast-math$(.EXE)
 
@@ -42,13 +42,13 @@ all :
 
 ########
 
-test : $(ROUTINO_EXE) $(EXE)
+test : test-exe $(EXE)
 	@./run-tests.sh $(S)
 
 ########
 
-$(ROUTINO_EXE) ::
-	cd .. && $(MAKE) $(notdir $@)
+test-exe :
+	cd .. && $(MAKE) $(ROUTINO_EXE)
 
 is-fast-math$(.EXE) : is-fast-math.o
 	$(LD) $< -o $@ $(LDFLAGS)
@@ -83,3 +83,5 @@ distclean: clean
 ########
 
 .PHONY:: all test install clean distclean
+
+.PHONY:: test-exe
