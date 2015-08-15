@@ -93,7 +93,7 @@ FIXME_FINDER_OBJ+=$(ROUTINO_SRC)/mman-win32.o
 endif
 
 fixme-finder$(.EXE) : $(FIXME_FINDER_OBJ)
-	$(LD) $(FIXME_FINDER_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -110,7 +110,7 @@ FIXME_FINDER_SLIM_OBJ+=$(ROUTINO_SRC)/mman-win32.o
 endif
 
 fixme-finder-slim$(.EXE) : $(FIXME_FINDER_SLIM_OBJ)
-	$(LD) $(FIXME_FINDER_SLIM_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -123,7 +123,7 @@ FIXME_DUMPER_OBJ+=$(ROUTINO_SRC)/mman-win32.o
 endif
 
 fixme-dumper$(.EXE) : $(FIXME_DUMPER_OBJ)
-	$(LD) $(FIXME_DUMPER_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -136,7 +136,7 @@ FIXME_DUMPER_SLIM_OBJ+=$(ROUTINO_SRC)/mman-win32.o
 endif
 
 fixme-dumper-slim$(.EXE) : $(FIXME_DUMPER_SLIM_OBJ)
-	$(LD) $(FIXME_DUMPER_SLIM_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 

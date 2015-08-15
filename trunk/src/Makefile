@@ -69,7 +69,7 @@ PLANETSPLITTER_OBJ+=mman-win32.o
 endif
 
 planetsplitter$(.EXE) : $(PLANETSPLITTER_OBJ)
-	$(LD) $(PLANETSPLITTER_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -86,7 +86,7 @@ PLANETSPLITTER_SLIM_OBJ+=mman-win32.o
 endif
 
 planetsplitter-slim$(.EXE) : $(PLANETSPLITTER_SLIM_OBJ)
-	$(LD) $(PLANETSPLITTER_SLIM_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -101,7 +101,7 @@ ROUTER_OBJ+=mman-win32.o
 endif
 
 router$(.EXE) : $(ROUTER_OBJ)
-	$(LD) $(ROUTER_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -116,7 +116,7 @@ ROUTER_SLIM_OBJ+=mman-win32.o
 endif
 
 router-slim$(.EXE) : $(ROUTER_SLIM_OBJ)
-	$(LD) $(ROUTER_SLIM_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -128,7 +128,7 @@ FILEDUMPERX_OBJ+=mman-win32.o
 endif
 
 filedumperx$(.EXE) : $(FILEDUMPERX_OBJ)
-	$(LD) $(FILEDUMPERX_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -142,7 +142,7 @@ FILEDUMPER_OBJ+=mman-win32.o
 endif
 
 filedumper$(.EXE) : $(FILEDUMPER_OBJ)
-	$(LD) $(FILEDUMPER_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -156,7 +156,7 @@ FILEDUMPER_SLIM_OBJ+=mman-win32.o
 endif
 
 filedumper-slim$(.EXE) : $(FILEDUMPER_SLIM_OBJ)
-	$(LD) $(FILEDUMPER_SLIM_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -173,10 +173,10 @@ filedumper-slim$(.EXE) : $(FILEDUMPER_SLIM_OBJ)
 ROUTER_LIB_OBJ=router+lib.o
 
 router+lib$(.EXE) : $(ROUTER_LIB_OBJ) libroutino.so
-	$(LD) $(ROUTER_LIB_OBJ) -o $@ $(LDFLAGS) libroutino.so $(LDFLAGS_LDSO)
+	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LDSO)
 
 router+lib-slim$(.EXE) : $(ROUTER_LIB_OBJ) libroutino-slim.so
-	$(LD) $(ROUTER_LIB_OBJ) -o $@ $(LDFLAGS) libroutino-slim.so $(LDFLAGS_LDSO)
+	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LDSO)
 
 ########
 
@@ -191,7 +191,7 @@ LIBROUTINO_OBJ+=mman-win32.o
 endif
 
 libroutino.so : $(LIBROUTINO_OBJ)
-	$(LD) $(LIBROUTINO_OBJ) -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
+	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
 
 routino.dll : libroutino.so
 	cp $< $@
@@ -215,7 +215,7 @@ LIBROUTINO_SLIM_OBJ+=mman-win32.o
 endif
 
 libroutino-slim.so : $(LIBROUTINO_SLIM_OBJ)
-	$(LD) $(LIBROUTINO_SLIM_OBJ) -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
+	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
 
 routino-slim.dll : libroutino-slim.so
 	cp $< $@

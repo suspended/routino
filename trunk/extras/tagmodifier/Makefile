@@ -46,7 +46,7 @@ TAGMODIFIER_OBJ+=$(ROUTINO_SRC)/mman-win32.o
 endif
 
 tagmodifier$(.EXE) : $(TAGMODIFIER_OBJ)
-	$(LD) $(TAGMODIFIER_OBJ) -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
