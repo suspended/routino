@@ -41,7 +41,7 @@ all: $(EXE) $(C) $(E)
 ########
 
 xsd-to-xmlparser$(.EXE) : xsd-to-xmlparser.o ../xmlparse.o
-	$(LD) xsd-to-xmlparser.o ../xmlparse.o -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 ########
 
@@ -50,7 +50,7 @@ xsd-to-xmlparser$(.EXE) : xsd-to-xmlparser.o ../xmlparse.o
 	@test -s $@ || rm $@
 
 %-skeleton$(.EXE) : %-skeleton.o ../xmlparse.o
-	$(LD) $< ../xmlparse.o -o $@ $(LDFLAGS)
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 .SECONDARY : $(O)
 
@@ -83,8 +83,8 @@ test: test-skeleton$(.EXE)
 	if $$status; then echo "Success: all tests passed"; else echo "Warning: Some tests FAILED"; fi ;\
 	$$status
 
-test-skeleton$(.EXE) : test-skeleton.o
-	$(LD) $< ../xmlparse.o -o $@ $(LDFLAGS)
+test-skeleton$(.EXE) : test-skeleton.o ../xmlparse.o
+	$(LD) $^ -o $@ $(LDFLAGS)
 
 test-skeleton.c : test/test.xsd xsd-to-xmlparser$(.EXE)
 	./xsd-to-xmlparser < $< | sed -e 's/XMLPARSE_UNKNOWN_ATTR_WARN/XMLPARSE_UNKNOWN_ATTR_ERROR/' > $@
