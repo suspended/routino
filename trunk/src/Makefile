@@ -24,8 +24,7 @@ include ../Makefile.conf
 
 # Sub-directories and sub-makefiles
 
-SUBFILES=$(wildcard */Makefile)
-SUBDIRS=$(foreach f,$(SUBFILES),$(dir $f))
+SUBDIRS=xml test
 
 # Compilation targets
 
