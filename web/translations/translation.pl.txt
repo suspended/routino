@@ -65,9 +65,7 @@
 %%output-html_start_string%%	Start
 %%output-html_start_text%%	%s kieruj się na %s
 %%output-html_node_string%%	Na
-%%output-html_node_text%%	%s poruszaj się %s na
 %%output-html_rbnode_string%%	Opóść
-%%output-html_rbnode_text%%	Na rondzie %s, %s zjazd kierując się na
 %%output-html_segment_string%%	Podążaj
 %%output-html_segment_text%%	%s przez %.3f km, %.1f min.
 %%output-html_stop_string%%	Stop
