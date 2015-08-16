@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2014 Andrew M. Bishop
+# This file Copyright 2014-2015 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,10 @@ my @html_template_files=(<*.html>);
 my %languages=();
 my %translations=();
 
+
+# Sort so that English is first
+
+@translation_files=sort {if($a eq "translation.en.txt"){return -1;} if($b eq "translation.en.txt"){return 1;} return $a <=> $b;} @translation_files;
 
 # Read in the translations
 
@@ -134,6 +138,14 @@ foreach my $translation_file (@translation_files)
             $translations{$language}->{codes}->{$code}->{usedX}=0;
             $translations{$language}->{codes}->{$code}->{usedR}=0;
             $translations{$language}->{codes}->{$code}->{usedV}=0;
+           }
+
+         my($n_strings_en)=$translations{en}->{codes}->{$code}->{text} =~ s/%s/%s/g;
+         my($n_strings)   =$text =~ s/%s/%s/g;
+
+         if($n_strings != $n_strings_en)
+           {
+            print STDERR "Language: $language WRONG number of '%s' in text '$text' ($translations{en}->{codes}->{$code}->{text})\n";
            }
         }
      }
