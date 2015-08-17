@@ -33,7 +33,8 @@
 
 static Translation default_translation=
 {
- .language = "--",
+ .lang = "--",
+ .language = "English (built-in)",
 
  .raw_copyright_creator = {"Creator","Routino - http://www.routino.org/"},
  .raw_copyright_source  = {NULL,NULL},
@@ -122,7 +123,7 @@ static int stored;
 
 //static int xmlDeclaration_function(const char *_tag_,int _type_,const char *version,const char *encoding);
 //static int RoutinoTranslationsType_function(const char *_tag_,int _type_);
-static int LanguageType_function(const char *_tag_,int _type_,const char *lang);
+static int LanguageType_function(const char *_tag_,int _type_,const char *lang,const char *language);
 //static int CopyrightType_function(const char *_tag_,int _type_);
 static int TurnType_function(const char *_tag_,int _type_,const char *direction,const char *string);
 static int HeadingType_function(const char *_tag_,int _type_,const char *direction,const char *string);
@@ -202,7 +203,7 @@ static const xmltag RoutinoTranslationsType_tag=
 /*+ The LanguageType type tag. +*/
 static const xmltag LanguageType_tag=
               {"language",
-               1, {"lang"},
+               2, {"lang","language"},
                LanguageType_function,
                {&CopyrightType_tag,&TurnType_tag,&HeadingType_tag,&OrdinalType_tag,&HighwayType_tag,&RouteType_tag,&HTMLType_tag,&GPXType_tag,NULL}};
 
@@ -424,13 +425,16 @@ static const xmltag GPXFinalType_tag=
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
   const char *lang The contents of the 'lang' attribute (or NULL if not defined).
+
+  const char *language The contents of the 'language' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int LanguageType_function(const char *_tag_,int _type_,const char *lang)
+static int LanguageType_function(const char *_tag_,int _type_,const char *lang,const char *language)
 {
  if(_type_&XMLPARSE_TAG_START)
    {
     XMLPARSE_ASSERT_STRING(_tag_,lang);
+    XMLPARSE_ASSERT_STRING(_tag_,language);
 
     if(store_all)
        store=1;
@@ -446,7 +450,7 @@ static int LanguageType_function(const char *_tag_,int _type_,const char *lang)
        int i;
 
        for(i=0;i<nloaded_translations;i++)
-          if(!strcmp(lang,loaded_translations[i]->language))
+          if(!strcmp(lang,loaded_translations[i]->lang))
              XMLPARSE_MESSAGE(_tag_,"translation name must be unique");
 
        if((nloaded_translations%16)==0)
@@ -458,7 +462,8 @@ static int LanguageType_function(const char *_tag_,int _type_,const char *lang)
 
        *loaded_translations[nloaded_translations-1]=default_translation;
 
-       loaded_translations[nloaded_translations-1]->language=strcpy(malloc(strlen(lang)+1),lang);
+       loaded_translations[nloaded_translations-1]->lang    =strcpy(malloc(strlen(lang    )+1),lang    );
+       loaded_translations[nloaded_translations-1]->language=strcpy(malloc(strlen(language)+1),language);
       }
    }
 
@@ -1430,12 +1435,12 @@ static int GPXFinalType_function(const char *_tag_,int _type_,const char *text)
 
   const char *filename The name of the file to read.
 
-  const char *language The language to search for (NULL means first in file).
+  const char *lang The abbreviated language name to search for (NULL means first in file).
 
   int all Set to true to load all the translations.
   ++++++++++++++++++++++++++++++++++++++*/
 
-int ParseXMLTranslations(const char *filename,const char *language,int all)
+int ParseXMLTranslations(const char *filename,const char *lang,int all)
 {
  int fd;
  int retval;
@@ -1454,7 +1459,7 @@ int ParseXMLTranslations(const char *filename,const char *language,int all)
 
  store_all=all;
 
- store_lang=language;
+ store_lang=lang;
 
  store=0;
  stored=0;
@@ -1488,7 +1493,7 @@ char **GetTranslationLanguages(void)
  int i;
 
  for(i=0;i<nloaded_translations;i++)
-    list[i]=strcpy(malloc(strlen(loaded_translations[i]->language)+1),loaded_translations[i]->language);
+    list[i]=strcpy(malloc(strlen(loaded_translations[i]->lang)+1),loaded_translations[i]->lang);
 
  return(list);
 }
@@ -1499,21 +1504,21 @@ char **GetTranslationLanguages(void)
 
   Translation *GetTranslation Returns a pointer to the translation.
 
-  const char *language The language of the translation or NULL to get the default or an empty string to get the first one.
+  const char *lang The abbreviated name of the language of the translation or NULL to get the default or an empty string to get the first one.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Translation *GetTranslation(const char *language)
+Translation *GetTranslation(const char *lang)
 {
  int i;
 
- if(!language)
+ if(!lang)
     return(&default_translation);
 
- if(!*language && nloaded_translations>0)
+ if(!*lang && nloaded_translations>0)
     return(loaded_translations[0]);
 
  for(i=0;i<nloaded_translations;i++)
-    if(!strcmp(loaded_translations[i]->language,language))
+    if(!strcmp(loaded_translations[i]->lang,lang))
        return(loaded_translations[i]);
 
  return(NULL);
@@ -1533,7 +1538,7 @@ void FreeXMLTranslations()
 
  for(i=0;i<nloaded_translations;i++)
    {
-    free(loaded_translations[i]->language);
+    free(loaded_translations[i]->lang);
 
     for(j=0;j<2;j++)
       {
