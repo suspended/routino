@@ -1144,7 +1144,8 @@ function dragWaypointMapDrop(e)
 
  var rect = document.getElementById("map").getBoundingClientRect();
 
- var lonlat = map.getLonLatFromViewPortPx(new OpenLayers.Pixel(e.clientX-rect.left-dragged_icon_x+8,e.clientY-rect.top-dragged_icon_y+21));
+ var lonlat = map.getLonLatFromViewPortPx(new OpenLayers.Pixel(e.clientX-rect.left-window.scrollX-dragged_icon_x+8,
+                                                               e.clientY-rect.top -window.scrollY-dragged_icon_y+21));
  lonlat.transform(epsg900913,epsg4326);
 
  formSetCoords(dragged_marker,lonlat.lon,lonlat.lat);

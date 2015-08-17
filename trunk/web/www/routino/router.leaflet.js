@@ -1077,7 +1077,8 @@ function dragWaypointMapDrop(e)
 
  var rect = document.getElementById("map").getBoundingClientRect();
 
- var lonlat=map.containerPointToLatLng(L.point(e.clientX-rect.left-dragged_icon_x+8,e.clientY-rect.top-dragged_icon_y+21));
+ var lonlat=map.containerPointToLatLng(L.point(e.clientX-rect.left-window.scrollX-dragged_icon_x+8,
+                                               e.clientY-rect.top -window.scrollY-dragged_icon_y+21));
 
  formSetCoords(dragged_marker,lonlat.lng,lonlat.lat);
 
