@@ -16,7 +16,7 @@
 <routino-translations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                       xsi:noNamespaceSchemaLocation="http://www.routino.org/xml/routino-translations.xsd">
 
-  <language lang="en">
+  <language lang="en" language="English">
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>
@@ -109,7 +109,7 @@
 
   </language>
 
-  <language lang="de">
+  <language lang="de" language="Deutsch">
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>
@@ -202,7 +202,7 @@
 
   </language>
 
-  <language lang="fr">
+  <language lang="fr" language="Francais">
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>
@@ -295,7 +295,7 @@
 
   </language>
 
-  <language lang="hu">
+  <language lang="hu" language="Magyar">
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>
@@ -388,7 +388,7 @@
 
   </language>
 
-  <language lang="nl">
+  <language lang="nl" language="Nederlands">
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>
@@ -481,7 +481,7 @@
 
   </language>
 
-  <language lang="pl">
+  <language lang="pl" language="Polski">
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>
@@ -574,7 +574,7 @@
 
   </language>
 
-  <language lang="ru">
+  <language lang="ru" language="Русский">
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>

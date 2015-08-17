@@ -319,6 +319,7 @@ foreach my $language (@languages)
       my $line=$_;
 
       $line =~ s%~~lang~~%$language%g;
+      $line =~ s%~~language~~%$translations{$language}->{codes}->{'@@LANGUAGE@@'}->{text}%g;
 
       # Replace with translated phrases
 
