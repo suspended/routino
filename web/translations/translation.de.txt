@@ -167,7 +167,7 @@
 @@HIGHWAY-TRACK@@	Feld-(Wald-)weg
 @@HIGHWAY-CYCLEWAY@@	Fahrradweg
 @@HIGHWAY-PATH@@	Weg
-@@HIGHWAY-STEPS@@	Fußweg
+@@HIGHWAY-STEPS@@	Treppe
 @@HIGHWAY-FERRY@@	Fähre
 
 @@PROPERTY-PAVED@@	befestigt
