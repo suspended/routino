@@ -92,7 +92,7 @@ Preprocessor Definitions
 - - - - - - - - - - - -
 
    A version number for the Routino API.
-   #define ROUTINO_API_VERSION 5
+   #define ROUTINO_API_VERSION 6
 
 Error Definitions
 
@@ -576,6 +576,16 @@ Global Function Routino_GetTranslation()
           The language to select (as a country code, e.g. 'en', 'de') or
           an empty string for the first in the file or NULL for the
           built-in English version.
+
+Global Function Routino_GetTranslationLanguageFullNames()
+
+   Return a list of the full names of the translation languages that have
+   been loaded from the XML file.
+
+   char** Routino_GetTranslationLanguageFullNames ( void )
+
+   char** Routino_GetTranslationLanguageFullNames
+          Returns a NULL terminated list of strings - all allocated.
 
 Global Function Routino_GetTranslationLanguages()
 

@@ -199,7 +199,7 @@ the software is distributed or interacted with over a network.
 <p>
 <span class="cxref-define-comment"> A version number for the Routino API. </span>
 <br>
-<span class="cxref-define">#define ROUTINO_API_VERSION 5</span>
+<span class="cxref-define">#define ROUTINO_API_VERSION 6</span>
 
 <h4>Error Definitions</h4>
 
@@ -843,6 +843,18 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">Returns a pointer to an internal data structure - do not free.</span>
   <dt><span class="cxref-function">const char* language</span>
   <dd><span class="cxref-function-comment">The language to select (as a country code, e.g. 'en', 'de') or an empty string for the first in the file or NULL for the built-in English version.</span>
+</dl>
+
+<h4><a name="func-Routino_GetTranslationLanguageFullNames">Global Function Routino_GetTranslationLanguageFullNames()</a></h4>
+
+<p>
+<span class="cxref-function-comment">  Return a list of the full names of the translation languages that have been loaded from the XML file.</span>
+<br>
+<span class="cxref-function">char** Routino_GetTranslationLanguageFullNames ( void )</span>
+<br>
+<dl>
+  <dt><span class="cxref-function">char** Routino_GetTranslationLanguageFullNames</span>
+  <dd><span class="cxref-function-comment">Returns a NULL terminated list of strings - all allocated.</span>
 </dl>
 
 <h4><a name="func-Routino_GetTranslationLanguages">Global Function Routino_GetTranslationLanguages()</a></h4>

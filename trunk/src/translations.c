@@ -1500,6 +1500,24 @@ char **GetTranslationLanguages(void)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Return a list of the full names of the languages that have been loaded from the XML file.
+
+  char **GetTranslationLanguageFullNames Returns a NULL terminated list of strings - all allocated.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+char **GetTranslationLanguageFullNames(void)
+{
+ char **list=calloc(1+nloaded_translations,sizeof(char*));
+ int i;
+
+ for(i=0;i<nloaded_translations;i++)
+    list[i]=strcpy(malloc(strlen(loaded_translations[i]->language)+1),loaded_translations[i]->language);
+
+ return(list);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Get a named translation.
 
   Translation *GetTranslation Returns a pointer to the translation.

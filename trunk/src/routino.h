@@ -61,7 +61,7 @@ extern "C"
 
  /* Routino library API version */
 
-#define ROUTINO_API_VERSION                 5 /*+ A version number for the Routino API. +*/
+#define ROUTINO_API_VERSION                 6 /*+ A version number for the Routino API. +*/
 
 
  /* Routino error constants */
@@ -259,6 +259,7 @@ extern "C"
 
  DLL_PUBLIC int Routino_ParseXMLTranslations(const char *filename);
  DLL_PUBLIC char **Routino_GetTranslationLanguages(void);
+ DLL_PUBLIC char **Routino_GetTranslationLanguageFullNames(void);
  DLL_PUBLIC Routino_Translation *Routino_GetTranslation(const char *language);
  DLL_PUBLIC void Routino_FreeXMLTranslations(void);
 
