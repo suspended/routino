@@ -297,6 +297,20 @@ DLL_PUBLIC char **Routino_GetTranslationLanguages(void)
 
 
 /*++++++++++++++++++++++++++++++++++++++
+  Return a list of the full names of the translation languages that have been loaded from the XML file.
+
+  char **Routino_GetTranslationLanguageFullNames Returns a NULL terminated list of strings - all allocated.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+DLL_PUBLIC char **Routino_GetTranslationLanguageFullNames(void)
+{
+ Routino_errno=ROUTINO_ERROR_NONE;
+
+ return(GetTranslationLanguageFullNames());
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
   Select a specific translation from the set of Routino translations that have been loaded from the XML file or NULL in case of an error.
 
   Routino_Translation *Routino_GetTranslation Returns a pointer to an internal data structure - do not free.

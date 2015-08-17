@@ -277,13 +277,14 @@ int main(int argc,char** argv)
 
      if(!translation)
        {
-        char **list=Routino_GetTranslationLanguages();
+        char **list1=Routino_GetTranslationLanguages();
+        char **list2=Routino_GetTranslationLanguageFullNames();
 
         fprintf(stderr,"Warning: Cannot find a translation called '%s' in '%s'.\n",language,translations);
 
-        fprintf(stderr,"Languages available are: %s",*list++);
-        while(*list)
-           fprintf(stderr,", %s",*list++);
+        fprintf(stderr,"Languages available are: %s (%s)",*list1++,*list2++);
+        while(*list1)
+           fprintf(stderr,", %s (%s)",*list1++,*list2++);
         fprintf(stderr,"\n");
 
         exit(EXIT_FAILURE);
