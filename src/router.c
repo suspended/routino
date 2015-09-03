@@ -743,7 +743,7 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--output-gpx-track      Write a GPX track file with all route points.\n"
             "--output-gpx-route      Write a GPX route file with interesting junctions.\n"
             "--output-text           Write a plain text file with interesting junctions.\n"
-            "--output-text-all       Write a plain test file with all route points.\n"
+            "--output-text-all       Write a plain text file with all route points.\n"
             "--output-none           Don't write any output files or read any translations.\n"
             "                        (If no output option is given then all are written.)\n"
             "--output-stdout         Write to stdout instead of a file (requires exactly\n"
