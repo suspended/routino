@@ -60,7 +60,7 @@ extern int option_quickest;
 extern int option_file_html,option_file_gpx_track,option_file_gpx_route,option_file_text,option_file_text_all,option_file_stdout;
 
 /*+ The options to select the format of the linked list output. +*/
-extern int option_list_html,option_list_text,option_list_text_all;
+extern int option_list_html,option_list_html_all,option_list_text,option_list_text_all;
 
 
 /* Static variables */
@@ -602,10 +602,11 @@ DLL_PUBLIC Routino_Output *Routino_CalculateRoute(Routino_Database *database,Rou
    }
 
  if(options&ROUTINO_ROUTE_LIST_HTML)     option_list_html=1;      else option_list_html=0;
+ if(options&ROUTINO_ROUTE_LIST_HTML_ALL) option_list_html_all=1;  else option_list_html_all=0;
  if(options&ROUTINO_ROUTE_LIST_TEXT)     option_list_text=1;      else option_list_text=0;
  if(options&ROUTINO_ROUTE_LIST_TEXT_ALL) option_list_text_all=1;  else option_list_text_all=0;
 
- if((option_list_html+option_list_text+option_list_text_all)>1)
+ if((option_list_html+option_list_html_all+option_list_text+option_list_text_all)>1)
    {
     Routino_errno=ROUTINO_ERROR_BAD_OPTIONS;
     return(NULL);
