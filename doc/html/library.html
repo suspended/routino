@@ -199,7 +199,7 @@ the software is distributed or interacted with over a network.
 <p>
 <span class="cxref-define-comment"> A version number for the Routino API. </span>
 <br>
-<span class="cxref-define">#define ROUTINO_API_VERSION 6</span>
+<span class="cxref-define">#define ROUTINO_API_VERSION 7</span>
 
 <h4>Error Definitions</h4>
 
@@ -327,17 +327,21 @@ the software is distributed or interacted with over a network.
 <br>
 <span class="cxref-define">#define ROUTINO_ROUTE_FILE_STDOUT 64</span>
 <p>
-<span class="cxref-define-comment"> Output a linked list of of waypoints containing the HTML file information but as plain text. </span>
+<span class="cxref-define-comment"> Output a linked list of points containing the HTML file information but as plain text. </span>
 <br>
 <span class="cxref-define">#define ROUTINO_ROUTE_LIST_HTML 128</span>
 <p>
-<span class="cxref-define-comment"> Output a linked list of of waypoints containing the text file information. </span>
+<span class="cxref-define-comment"> Output a linked list of points containing the HTML file information as plain text and with all points. </span>
 <br>
-<span class="cxref-define">#define ROUTINO_ROUTE_LIST_TEXT 256</span>
+<span class="cxref-define">#define ROUTINO_ROUTE_LIST_HTML_ALL 256</span>
 <p>
-<span class="cxref-define-comment"> Output a linked list of of waypoints containing the text all file information. </span>
+<span class="cxref-define-comment"> Output a linked list of points containing the text file information. </span>
 <br>
-<span class="cxref-define">#define ROUTINO_ROUTE_LIST_TEXT_ALL 512</span>
+<span class="cxref-define">#define ROUTINO_ROUTE_LIST_TEXT 512</span>
+<p>
+<span class="cxref-define-comment"> Output a linked list of points containing the text all file information. </span>
+<br>
+<span class="cxref-define">#define ROUTINO_ROUTE_LIST_TEXT_ALL 1024</span>
 
 <h4>Linked List Output Point Definitions</h4>
 
@@ -605,12 +609,12 @@ the software is distributed or interacted with over a network.
   <tr>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span class="cxref-type">float dist;</span>
-    <td><span class="cxref-type-comment"> The total distance travelled (metres). </span>
+    <td><span class="cxref-type-comment"> The total distance travelled (kilometres) up to the point. </span>
   </tr>
   <tr>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span class="cxref-type">float time;</span>
-    <td><span class="cxref-type-comment"> The total journey time (seconds). </span>
+    <td><span class="cxref-type-comment"> The total journey time (seconds) up to the point. </span>
   </tr>
   <tr>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -625,7 +629,7 @@ the software is distributed or interacted with over a network.
   <tr>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span class="cxref-type">int turn;</span>
-    <td><span class="cxref-type-comment"> The amount to turn (degrees) for the next section of the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML format). </span>
+    <td><span class="cxref-type-comment"> The amount to turn (degrees) for the next section of the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML or ROUTINO_ROUTE_LIST_HTML_ALL format). </span>
   </tr>
   <tr>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -635,22 +639,22 @@ the software is distributed or interacted with over a network.
   <tr>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span class="cxref-type">char* name;</span>
-    <td><span class="cxref-type-comment"> The name of the next section of the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML format) or previous section of the route (ROUTINO_ROUTE_LIST_TEXT_ALL format). </span>
+    <td><span class="cxref-type-comment"> The name of the next section of the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML or ROUTINO_ROUTE_LIST_HTML_ALL format) or previous section of the route (ROUTINO_ROUTE_LIST_TEXT_ALL format). </span>
   </tr>
   <tr>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span class="cxref-type">char* desc1;</span>
-    <td><span class="cxref-type-comment"> The first part of the description of the next section of route (ROUTINO_ROUTE_LIST_HTML format only). </span>
+    <td><span class="cxref-type-comment"> The first part of the description of the next section of route (ROUTINO_ROUTE_LIST_HTML or ROUTINO_ROUTE_LIST_HTML format). </span>
   </tr>
   <tr>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span class="cxref-type">char* desc2;</span>
-    <td><span class="cxref-type-comment"> The second part of the description of the next section of route (ROUTINO_ROUTE_LIST_HTML format only). </span>
+    <td><span class="cxref-type-comment"> The second part of the description of the next section of route (ROUTINO_ROUTE_LIST_HTML or ROUTINO_ROUTE_LIST_HTML format). </span>
   </tr>
   <tr>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span class="cxref-type">char* desc3;</span>
-    <td><span class="cxref-type-comment"> The third part of the description, the total distance and time (ROUTINO_ROUTE_LIST_HTML format only). </span>
+    <td><span class="cxref-type-comment"> The third part of the description, the total distance and time at the end of the next section of route (ROUTINO_ROUTE_LIST_HTML or ROUTINO_ROUTE_LIST_HTML format). </span>
   </tr>
   <tr>
     <td>&nbsp;&nbsp;&nbsp;<span class="cxref-type">}</span>

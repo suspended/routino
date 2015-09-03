@@ -25,8 +25,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "routino.h"
+
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 
 /*+ The maximum number of waypoints +*/
@@ -58,7 +64,7 @@ int main(int argc,char** argv)
  int                  reverse=0,loop=0;
  int                  quickest=0;
  int                  html=0,gpx_track=0,gpx_route=0,text=0,text_all=0,none=0,use_stdout=0;
- int                  list_html=0,list_text=0,list_text_all=0;
+ int                  list_html=0,list_html_all=0,list_text=0,list_text_all=0;
  int                  arg;
  int                  first_waypoint=NWAYPOINTS,last_waypoint=1,inc_dec_waypoint,waypoint,nwaypoints=0;
  int                  routing_options;
@@ -110,6 +116,8 @@ int main(int argc,char** argv)
        use_stdout=1;
     else if(!strcmp(argv[arg],"--list-html"))
        list_html=1;
+    else if(!strcmp(argv[arg],"--list-html-all"))
+       list_html_all=1;
     else if(!strcmp(argv[arg],"--list-text"))
        list_text=1;
     else if(!strcmp(argv[arg],"--list-text-all"))
@@ -383,6 +391,7 @@ int main(int argc,char** argv)
  if(text_all ) routing_options|=ROUTINO_ROUTE_FILE_TEXT_ALL;
 
  if(list_html)     routing_options|=ROUTINO_ROUTE_LIST_HTML;
+ if(list_html_all) routing_options|=ROUTINO_ROUTE_LIST_HTML_ALL;
  if(list_text)     routing_options|=ROUTINO_ROUTE_LIST_TEXT;
  if(list_text_all) routing_options|=ROUTINO_ROUTE_LIST_TEXT_ALL;
 
@@ -401,7 +410,7 @@ int main(int argc,char** argv)
 
  /* Print the list output */
 
- if(list_html || list_text || list_text_all)
+ if(list_html || list_html_all || list_text || list_text_all)
    {
     Routino_Output *list=route;
     int first=1,last;
@@ -411,9 +420,9 @@ int main(int argc,char** argv)
        last=list->next?0:1;
 
        printf("----------------\n");
-       printf("Lon,Lat: %.5f, %.5f\n",list->lon,list->lat);
+       printf("Lon,Lat: %.5f, %.5f\n",(180.0/M_PI)*list->lon,(180.0/M_PI)*list->lat);
 
-       if((list_html && !last) || list_text || list_text_all)
+       if(list_html || list_html_all || list_text || list_text_all)
           printf("Dist,Time: %.3f km, %.1f minutes\n",list->dist,list->time);
 
        if(list_text_all && !first)
@@ -421,16 +430,16 @@ int main(int argc,char** argv)
 
        printf("Point type: %d\n",list->type);
 
-       if((list_text || list_html) && !first && !last)
+       if((list_html || list_html_all || list_text) && !first && !last)
           printf("Turn: %d degrees\n",list->turn);
 
-       if(((list_text || list_html) && !last) || (list_text_all && !first))
+       if(((list_html || list_html_all || list_text) && !last) || (list_text_all && !first))
           printf("Bearing: %d degrees\n",list->bearing);
 
-       if(((list_text || list_html) && !last) || (list_text_all && !first))
+       if(((list_html || list_text) && !last) || (list_html_all && list->name) || (list_text_all && !first))
           printf("Name: %s\n",list->name);
 
-       if(list_html)
+       if(list_html || (list_html_all && list->name))
          {
           printf("Desc1: %s\n",list->desc1);
           printf("Desc2: %s\n",list->desc2);
@@ -506,6 +515,8 @@ static void print_usage(int detail,const char *argerr,const char *err)
          "              [--output-gpx-track] [--output-gpx-route]\n"
          "              [--output-text] [--output-text-all]\n"
          "              [--output-none] [--output-stdout]\n"
+         "              [--list-html | --list-html-all |\n"
+         "               --list-text | --list-text-all]\n"
          "              [--profile=<name>]\n"
          "              [--shortest | --quickest]\n"
          "              --lon1=<longitude> --lat1=<latitude>\n"
@@ -544,11 +555,16 @@ static void print_usage(int detail,const char *argerr,const char *err)
             "--output-gpx-track      Write a GPX track file with all route points.\n"
             "--output-gpx-route      Write a GPX route file with interesting junctions.\n"
             "--output-text           Write a plain text file with interesting junctions.\n"
-            "--output-text-all       Write a plain test file with all route points.\n"
+            "--output-text-all       Write a plain text file with all route points.\n"
             "--output-none           Don't write any output files or read any translations.\n"
             "                        (If no output option is given then all are written.)\n"
             "--output-stdout         Write to stdout instead of a file (requires exactly\n"
             "                        one output format option, implies '--quiet').\n"
+            "\n"
+            "--list-html             Create an HTML list of the route.\n"
+            "--list-html-all         Create an HTML list of the route with all points.\n"
+            "--list-text             Create a plain text list with interesting junctions.\n"
+            "--list-text-all         Create a plain text list with all route points.\n"
             "\n"
             "--profile=<name>        Select the loaded profile with this name.\n"
             "\n"

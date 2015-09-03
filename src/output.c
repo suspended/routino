@@ -58,7 +58,7 @@ int option_quickest=0;
 int option_file_html=0,option_file_gpx_track=0,option_file_gpx_route=0,option_file_text=0,option_file_text_all=0,option_file_stdout=0;
 
 /*+ The options to select the format of the linked list output. +*/
-int option_list_html=0,option_list_text=0,option_list_text_all=0;
+int option_list_html=0,option_list_html_all=0,option_list_text=0,option_list_text_all=0;
 
 
 /* Local variables */
@@ -105,7 +105,7 @@ static const char junction_other_way[Highway_Count][Highway_Count]=
 Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile,Translation *translation)
 {
  FILE                          *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
- Routino_Output *listhead=NULL,*htmllist=NULL,                                      *textlist=NULL,*textalllist=NULL;
+ Routino_Output *listhead=NULL,*htmllist=NULL,                                      *textlist=NULL,*textalllist=NULL,*htmlalllist=NULL;
 
  char *prev_bearing=NULL,*prev_wayname=NULL,*prev_waynameraw=NULL;
  index_t prev_node=NO_NODE;
@@ -336,6 +336,8 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
 
  if(option_list_html)
     listhead=htmllist=calloc(sizeof(Routino_Output),1);
+ if(option_list_html_all)
+    listhead=htmlalllist=htmllist=calloc(sizeof(Routino_Output),1);
  if(option_list_text)
     listhead=textlist=calloc(sizeof(Routino_Output),1);
  if(option_list_text_all)
@@ -619,7 +621,7 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
           seg_speed=profile->speed[HIGHWAY(resultwayp->type)];
          }
 
-       if(next_result && important>ROUTINO_POINT_JUNCT_CONT)
+       if(next_result && (important>ROUTINO_POINT_JUNCT_CONT || htmlalllist))
          {
           if(!first && (htmlfile || htmllist || textfile || textlist))
             {
@@ -753,16 +755,21 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
                 sprintf(htmllist->desc3,translation->nothtml_subtotal,
                                         distance_to_km(cum_distance),duration_to_minutes(cum_duration));
 
-                htmllist->dist=distance_to_km(cum_distance);
-                htmllist->time=duration_to_minutes(cum_duration);
+                if(htmlalllist)
+                   htmllist=htmlalllist;
 
                 htmllist->next=calloc(sizeof(Routino_Output),1);
                 htmllist=htmllist->next;
+
+                if(htmlalllist)
+                   htmlalllist=htmllist;
                }
 
              htmllist->lon=longitude;
              htmllist->lat=latitude;
              htmllist->type=important;
+             htmllist->dist=distance_to_km(cum_distance);
+             htmllist->time=duration_to_minutes(cum_duration);
 
              if(point_count==0) /* first point */
                {
@@ -976,6 +983,22 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
 
           if(roundabout>1)
              roundabout=0;
+         }
+       else
+         {
+          if(htmlalllist)
+            {
+             htmlalllist->next=calloc(sizeof(Routino_Output),1);
+             htmlalllist=htmlalllist->next;
+
+             htmlalllist->lon=longitude;
+             htmlalllist->lat=latitude;
+             htmlalllist->type=important;
+             htmlalllist->dist=distance_to_km(cum_distance);
+             htmlalllist->time=duration_to_minutes(cum_duration);
+             htmlalllist->turn=turn_int;
+             htmlalllist->bearing=next_bearing_int;
+            }
          }
 
        /* Print out all of the results */

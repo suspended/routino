@@ -61,7 +61,7 @@ extern "C"
 
  /* Routino library API version */
 
-#define ROUTINO_API_VERSION                 6 /*+ A version number for the Routino API. +*/
+#define ROUTINO_API_VERSION                 7 /*+ A version number for the Routino API. +*/
 
 
  /* Routino error constants */
@@ -113,9 +113,10 @@ extern "C"
 
 #define ROUTINO_ROUTE_FILE_STDOUT          64 /*+ Output a single file type to stdout. +*/
 
-#define ROUTINO_ROUTE_LIST_HTML           128 /*+ Output a linked list of of waypoints containing the HTML file information but as plain text. +*/
-#define ROUTINO_ROUTE_LIST_TEXT           256 /*+ Output a linked list of of waypoints containing the text file information. +*/
-#define ROUTINO_ROUTE_LIST_TEXT_ALL       512 /*+ Output a linked list of of waypoints containing the text all file information. +*/
+#define ROUTINO_ROUTE_LIST_HTML           128 /*+ Output a linked list of points containing the HTML file information but as plain text. +*/
+#define ROUTINO_ROUTE_LIST_HTML_ALL       256 /*+ Output a linked list of points containing the HTML file information as plain text and with all points. +*/
+#define ROUTINO_ROUTE_LIST_TEXT           512 /*+ Output a linked list of points containing the text file information. +*/
+#define ROUTINO_ROUTE_LIST_TEXT_ALL      1024 /*+ Output a linked list of points containing the text all file information. +*/
 
 
  /* Routino output point types */
@@ -212,21 +213,21 @@ extern "C"
   float           lon;          /*+ The longitude of the point (radians). +*/
   float           lat;          /*+ The latitude of the point (radians). +*/
 
-  float           dist;         /*+ The total distance travelled (metres). +*/
-  float           time;         /*+ The total journey time (seconds). +*/
+  float           dist;         /*+ The total distance travelled (kilometres) up to the point. +*/
+  float           time;         /*+ The total journey time (seconds) up to the point. +*/
 
   float           speed;        /*+ The speed (km/hr) for this section of the route (ROUTINO_ROUTE_LIST_TEXT_ALL format only). +*/
 
   int             type;         /*+ The type of point (one of the ROUTINO_POINT_* values). +*/
 
-  int             turn;         /*+ The amount to turn (degrees) for the next section of the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML format). +*/
+  int             turn;         /*+ The amount to turn (degrees) for the next section of the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML or ROUTINO_ROUTE_LIST_HTML_ALL format). +*/
   int             bearing;      /*+ The compass direction (degrees) for the next section of the route. +*/
 
-  char           *name;         /*+ The name of the next section of the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML format) or previous section of the route (ROUTINO_ROUTE_LIST_TEXT_ALL format). +*/
+  char           *name;         /*+ The name of the next section of the route (ROUTINO_ROUTE_LIST_TEXT or ROUTINO_ROUTE_LIST_HTML or ROUTINO_ROUTE_LIST_HTML_ALL format) or previous section of the route (ROUTINO_ROUTE_LIST_TEXT_ALL format). +*/
 
-  char           *desc1;        /*+ The first part of the description of the next section of route (ROUTINO_ROUTE_LIST_HTML format only). +*/
-  char           *desc2;        /*+ The second part of the description of the next section of route (ROUTINO_ROUTE_LIST_HTML format only). +*/
-  char           *desc3;        /*+ The third part of the description, the total distance and time (ROUTINO_ROUTE_LIST_HTML format only). +*/
+  char           *desc1;        /*+ The first part of the description of the next section of route (ROUTINO_ROUTE_LIST_HTML or ROUTINO_ROUTE_LIST_HTML format). +*/
+  char           *desc2;        /*+ The second part of the description of the next section of route (ROUTINO_ROUTE_LIST_HTML or ROUTINO_ROUTE_LIST_HTML format). +*/
+  char           *desc3;        /*+ The third part of the description, the total distance and time at the end of the next section of route (ROUTINO_ROUTE_LIST_HTML or ROUTINO_ROUTE_LIST_HTML format). +*/
  };
 
 
