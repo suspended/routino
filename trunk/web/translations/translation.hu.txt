@@ -63,17 +63,12 @@
 %%output-html_waypoint_junction%%	Kereszteződés
 %%output-html_waypoint_roundabout%%	Körforgalom
 %%output-html_title%%	%s útvonal
-%%output-html_start_string%%	Indulás
-%%output-html_start_text%%	%s, %s felé
-%%output-html_node_string%%	Itt
-%%output-html_node_text%%	%s, menj %s %s felé
-%%output-html_rbnode_string%%	Kijárat
-%%output-html_rbnode_text%%	%s, %s kijárat %s felé
-%%output-html_segment_string%%	Erre
-%%output-html_segment_text%%	%s, %.3f km, %.1f perc
-%%output-html_stop_string%%	Cél
-%%output-html_total_string%%	Összesen
-%%output-html_total_text%%	%.1f km, %.0f perc
+%%output-html_start%%	Indulás %s, %s felé
+%%output-html_node%%	Itt %s, menj %s %s felé
+%%output-html_rbnode%%	Kijárat %s, %s kijárat %s felé
+%%output-html_segment%%	Erre %s, %.3f km, %.1f perc
+%%output-html_total%%	Összesen %.1f km, %.0f perc
+%%output-html_subtotal%%	%.1f km, %.0f perc
 
 %%output-gpx_waypoint_start%%	Indulás
 %%output-gpx_waypoint_trip%%	Utazás

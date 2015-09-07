@@ -62,12 +62,12 @@ static Translation default_translation=
  .html_roundabout = "Roundabout",
 
  .html_title   = "%s Route",
- .html_start   = "<tr class='n'><td class='l'>Start<td class='r'>at %s, head <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
- .html_node    = "<tr class='n'><td class='l'>At<td class='r'>%s, go <span class='t'>%s</span> heading <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
- .html_rbnode  = "<tr class='n'><td class='l'>Leave<td class='r'>%s, take the <span class='b'>%s</span> exit heading <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
- .html_segment = "<tr class='s'><td class='l'>Follow<td class='r'><span class='h'>%s</span> for <span class='d'>%.3f km, %.1f min</span>", /* span tags added when reading XML translations file */
- .html_stop    = "<tr class='n'><td class='l'>Stop<td class='r'>at %s\n",
- .html_total   = "<tr class='t'><td class='l'>Total<td class='r'><span class='j'>%.1f km, %.0f minutes</span>\n",/* span tags added when reading XML translations file */
+ .html_start   = "<tr class='n'>Start at %s, head <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
+ .html_node    = "<tr class='n'>At %s, go <span class='t'>%s</span> heading <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
+ .html_rbnode  = "<tr class='n'>Leave %s, take the <span class='b'>%s</span> exit heading <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
+ .html_segment = "<tr class='s'>Follow <span class='h'>%s</span> for <span class='d'>%.3f km, %.1f min</span>", /* span tags added when reading XML translations file */
+ .html_stop    = "<tr class='n'>Stop at %s\n",
+ .html_total   = "<tr class='t'><span class='j'>Total %.1f km, %.0f minutes</span>\n",/* span tags added when reading XML translations file */
  .html_subtotal= "<span class='j'>%.1f km, %.0f minutes</span>\n",/* span tag added when reading XML translations file */
 
  .nothtml_waypoint   = "Waypoint",
@@ -137,12 +137,13 @@ static int CopyrightSourceType_function(const char *_tag_,int _type_,const char 
 static int CopyrightLicenseType_function(const char *_tag_,int _type_,const char *string,const char *text);
 static int HTMLWaypointType_function(const char *_tag_,int _type_,const char *type,const char *string);
 static int HTMLTitleType_function(const char *_tag_,int _type_,const char *text);
-static int HTMLStartType_function(const char *_tag_,int _type_,const char *string,const char *text);
-static int HTMLNodeType_function(const char *_tag_,int _type_,const char *string,const char *text);
-static int HTMLRBNodeType_function(const char *_tag_,int _type_,const char *string,const char *text);
-static int HTMLSegmentType_function(const char *_tag_,int _type_,const char *string,const char *text);
-static int HTMLStopType_function(const char *_tag_,int _type_,const char *string,const char *text);
-static int HTMLTotalType_function(const char *_tag_,int _type_,const char *string,const char *text);
+static int HTMLStartType_function(const char *_tag_,int _type_,const char *text);
+static int HTMLNodeType_function(const char *_tag_,int _type_,const char *text);
+static int HTMLRBNodeType_function(const char *_tag_,int _type_,const char *text);
+static int HTMLSegmentType_function(const char *_tag_,int _type_,const char *text);
+static int HTMLStopType_function(const char *_tag_,int _type_,const char *text);
+static int HTMLTotalType_function(const char *_tag_,int _type_,const char *text);
+static int HTMLSubtotalType_function(const char *_tag_,int _type_,const char *text);
 static int GPXWaypointType_function(const char *_tag_,int _type_,const char *type,const char *string);
 static int GPXDescType_function(const char *_tag_,int _type_,const char *text);
 static int GPXNameType_function(const char *_tag_,int _type_,const char *text);
@@ -174,6 +175,7 @@ static const xmltag HTMLRBNodeType_tag;
 static const xmltag HTMLSegmentType_tag;
 static const xmltag HTMLStopType_tag;
 static const xmltag HTMLTotalType_tag;
+static const xmltag HTMLSubtotalType_tag;
 static const xmltag GPXWaypointType_tag;
 static const xmltag GPXDescType_tag;
 static const xmltag GPXNameType_tag;
@@ -254,7 +256,7 @@ static const xmltag HTMLType_tag=
               {"output-html",
                0, {NULL},
                NULL,
-               {&HTMLWaypointType_tag,&HTMLTitleType_tag,&HTMLStartType_tag,&HTMLNodeType_tag,&HTMLRBNodeType_tag,&HTMLSegmentType_tag,&HTMLStopType_tag,&HTMLTotalType_tag,NULL}};
+               {&HTMLWaypointType_tag,&HTMLTitleType_tag,&HTMLStartType_tag,&HTMLNodeType_tag,&HTMLRBNodeType_tag,&HTMLSegmentType_tag,&HTMLStopType_tag,&HTMLTotalType_tag,&HTMLSubtotalType_tag,NULL}};
 
 /*+ The GPXType type tag. +*/
 static const xmltag GPXType_tag=
@@ -301,43 +303,50 @@ static const xmltag HTMLTitleType_tag=
 /*+ The HTMLStartType type tag. +*/
 static const xmltag HTMLStartType_tag=
               {"start",
-               2, {"string","text"},
+               1, {"text"},
                HTMLStartType_function,
                {NULL}};
 
 /*+ The HTMLNodeType type tag. +*/
 static const xmltag HTMLNodeType_tag=
               {"node",
-               2, {"string","text"},
+               1, {"text"},
                HTMLNodeType_function,
                {NULL}};
 
 /*+ The HTMLRBNodeType type tag. +*/
 static const xmltag HTMLRBNodeType_tag=
               {"rbnode",
-               2, {"string","text"},
+               1, {"text"},
                HTMLRBNodeType_function,
                {NULL}};
 
 /*+ The HTMLSegmentType type tag. +*/
 static const xmltag HTMLSegmentType_tag=
               {"segment",
-               2, {"string","text"},
+               1, {"text"},
                HTMLSegmentType_function,
                {NULL}};
 
 /*+ The HTMLStopType type tag. +*/
 static const xmltag HTMLStopType_tag=
               {"stop",
-               2, {"string","text"},
+               1, {"text"},
                HTMLStopType_function,
                {NULL}};
 
 /*+ The HTMLTotalType type tag. +*/
 static const xmltag HTMLTotalType_tag=
               {"total",
-               2, {"string","text"},
+               1, {"text"},
                HTMLTotalType_function,
+               {NULL}};
+
+/*+ The HTMLSubtotalType type tag. +*/
+static const xmltag HTMLSubtotalType_tag=
+              {"subtotal",
+               1, {"text"},
+               HTMLSubtotalType_function,
                {NULL}};
 
 /*+ The GPXWaypointType type tag. +*/
@@ -895,9 +904,10 @@ static int HTMLTitleType_function(const char *_tag_,int _type_,const char *text)
 
     XMLPARSE_ASSERT_STRING(_tag_,text);
 
+    xmltext=ParseXML_Encode_Safe_XML(text);
+
     loaded_translations[nloaded_translations-1]->nothtml_title=strcpy(malloc(strlen(text)+1),text);
 
-    xmltext=ParseXML_Encode_Safe_XML(text);
     loaded_translations[nloaded_translations-1]->html_title=strcpy(malloc(strlen(xmltext)+1),xmltext);
    }
 
@@ -914,40 +924,29 @@ static int HTMLTitleType_function(const char *_tag_,int _type_,const char *text)
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  const char *string The contents of the 'string' attribute (or NULL if not defined).
-
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int HTMLStartType_function(const char *_tag_,int _type_,const char *string,const char *text)
+static int HTMLStartType_function(const char *_tag_,int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    char *xmlstring,*xmltext;
+    char *xmltext;
     const char *p;
     char *q;
 
-    XMLPARSE_ASSERT_STRING(_tag_,string);
     XMLPARSE_ASSERT_STRING(_tag_,text);
 
-    loaded_translations[nloaded_translations-1]->nothtml_start=malloc(strlen(string)+1+strlen(text)+1);
-    strcpy(loaded_translations[nloaded_translations-1]->nothtml_start,string);
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_start," ");
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_start,text);
-
-    xmlstring=ParseXML_Encode_Safe_XML(string);
-    loaded_translations[nloaded_translations-1]->html_start=malloc(sizeof("<tr class='n'><td class='l'>")+strlen(xmlstring)+sizeof(":<td class='r'>")+1);
-    strcpy(loaded_translations[nloaded_translations-1]->html_start,"<tr class='n'><td class='l'>");
-    strcat(loaded_translations[nloaded_translations-1]->html_start,xmlstring);
-    strcat(loaded_translations[nloaded_translations-1]->html_start,":<td class='r'>");
-
     xmltext=ParseXML_Encode_Safe_XML(text);
-    loaded_translations[nloaded_translations-1]->html_start=realloc(loaded_translations[nloaded_translations-1]->html_start,
-                                                                    strlen(loaded_translations[nloaded_translations-1]->html_start)+
-                                                                    strlen(xmltext)+sizeof("<span class='b'>")+sizeof("</span>")+1+1);
+
+    loaded_translations[nloaded_translations-1]->nothtml_start=strcpy(malloc(strlen(text)+1),text);
+
+    loaded_translations[nloaded_translations-1]->html_start=malloc(sizeof("<tr class='n'><td>")+strlen(xmltext)+sizeof("<span class='b'>")+sizeof("</span>")+1+1);
 
     p=xmltext;
-    q=loaded_translations[nloaded_translations-1]->html_start+strlen(loaded_translations[nloaded_translations-1]->html_start);
+    q=loaded_translations[nloaded_translations-1]->html_start;
+
+    strcpy(q,"<tr class='n'><td>"); q+=sizeof("<tr class='n'><td>")-1;
 
     while(*p!='%')
        *q++=*p++;
@@ -977,40 +976,29 @@ static int HTMLStartType_function(const char *_tag_,int _type_,const char *strin
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  const char *string The contents of the 'string' attribute (or NULL if not defined).
-
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int HTMLNodeType_function(const char *_tag_,int _type_,const char *string,const char *text)
+static int HTMLNodeType_function(const char *_tag_,int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    char *xmlstring,*xmltext;
+    char *xmltext;
     const char *p;
     char *q;
 
-    XMLPARSE_ASSERT_STRING(_tag_,string);
     XMLPARSE_ASSERT_STRING(_tag_,text);
 
-    loaded_translations[nloaded_translations-1]->nothtml_node=malloc(strlen(string)+1+strlen(text)+1);
-    strcpy(loaded_translations[nloaded_translations-1]->nothtml_node,string);
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_node," ");
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_node,text);
-
-    xmlstring=ParseXML_Encode_Safe_XML(string);
-    loaded_translations[nloaded_translations-1]->html_node=malloc(sizeof("<tr class='n'><td class='l'>")+strlen(xmlstring)+sizeof(":<td class='r'>")+1);
-    strcpy(loaded_translations[nloaded_translations-1]->html_node,"<tr class='n'><td class='l'>");
-    strcat(loaded_translations[nloaded_translations-1]->html_node,xmlstring);
-    strcat(loaded_translations[nloaded_translations-1]->html_node,":<td class='r'>");
-
     xmltext=ParseXML_Encode_Safe_XML(text);
-    loaded_translations[nloaded_translations-1]->html_node=realloc(loaded_translations[nloaded_translations-1]->html_node,
-                                                                   strlen(loaded_translations[nloaded_translations-1]->html_node)+
-                                                                   strlen(xmltext)+2*sizeof("<span class='b'>")+2*sizeof("</span>")+1+1);
+
+    loaded_translations[nloaded_translations-1]->nothtml_node=strcpy(malloc(strlen(text)+1),text);
+
+    loaded_translations[nloaded_translations-1]->html_node=malloc(sizeof("<tr class='n'><td>")+strlen(xmltext)+2*sizeof("<span class='b'>")+2*sizeof("</span>")+1+1);
 
     p=xmltext;
-    q=loaded_translations[nloaded_translations-1]->html_node+strlen(loaded_translations[nloaded_translations-1]->html_node);
+    q=loaded_translations[nloaded_translations-1]->html_node;
+
+    strcpy(q,"<tr class='n'><td>"); q+=sizeof("<tr class='n'><td>")-1;
 
     while(*p!='%')
        *q++=*p++;
@@ -1046,40 +1034,29 @@ static int HTMLNodeType_function(const char *_tag_,int _type_,const char *string
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  const char *string The contents of the 'string' attribute (or NULL if not defined).
-
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int HTMLRBNodeType_function(const char *_tag_,int _type_,const char *string,const char *text)
+static int HTMLRBNodeType_function(const char *_tag_,int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    char *xmlstring,*xmltext;
+    char *xmltext;
     const char *p;
     char *q;
 
-    XMLPARSE_ASSERT_STRING(_tag_,string);
     XMLPARSE_ASSERT_STRING(_tag_,text);
 
-    loaded_translations[nloaded_translations-1]->nothtml_rbnode=malloc(strlen(string)+1+strlen(text)+1);
-    strcpy(loaded_translations[nloaded_translations-1]->nothtml_rbnode,string);
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_rbnode," ");
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_rbnode,text);
-
-    xmlstring=ParseXML_Encode_Safe_XML(string);
-    loaded_translations[nloaded_translations-1]->html_rbnode=malloc(sizeof("<tr class='n'><td class='l'>")+strlen(xmlstring)+sizeof(":<td class='r'>")+1);
-    strcpy(loaded_translations[nloaded_translations-1]->html_rbnode,"<tr class='n'><td class='l'>");
-    strcat(loaded_translations[nloaded_translations-1]->html_rbnode,xmlstring);
-    strcat(loaded_translations[nloaded_translations-1]->html_rbnode,":<td class='r'>");
-
     xmltext=ParseXML_Encode_Safe_XML(text);
-    loaded_translations[nloaded_translations-1]->html_rbnode=realloc(loaded_translations[nloaded_translations-1]->html_rbnode,
-                                                                     strlen(loaded_translations[nloaded_translations-1]->html_rbnode)+
-                                                                     strlen(xmltext)+2*sizeof("<span class='b'>")+2*sizeof("</span>")+1+1);
+
+    loaded_translations[nloaded_translations-1]->nothtml_rbnode=strcpy(malloc(strlen(text)+1),text);
+
+    loaded_translations[nloaded_translations-1]->html_rbnode=malloc(sizeof("<tr class='n'><td>")+strlen(xmltext)+2*sizeof("<span class='b'>")+2*sizeof("</span>")+1+1);
 
     p=xmltext;
-    q=loaded_translations[nloaded_translations-1]->html_rbnode+strlen(loaded_translations[nloaded_translations-1]->html_rbnode);
+    q=loaded_translations[nloaded_translations-1]->html_rbnode;
+
+    strcpy(q,"<tr class='n'><td>"); q+=sizeof("<tr class='n'><td>")-1;
 
     while(*p!='%')
        *q++=*p++;
@@ -1115,40 +1092,29 @@ static int HTMLRBNodeType_function(const char *_tag_,int _type_,const char *stri
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  const char *string The contents of the 'string' attribute (or NULL if not defined).
-
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int HTMLSegmentType_function(const char *_tag_,int _type_,const char *string,const char *text)
+static int HTMLSegmentType_function(const char *_tag_,int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    char *xmlstring,*xmltext;
+    char *xmltext;
     const char *p;
     char *q;
 
-    XMLPARSE_ASSERT_STRING(_tag_,string);
     XMLPARSE_ASSERT_STRING(_tag_,text);
 
-    loaded_translations[nloaded_translations-1]->nothtml_segment=malloc(strlen(string)+1+strlen(text)+1);
-    strcpy(loaded_translations[nloaded_translations-1]->nothtml_segment,string);
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_segment," ");
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_segment,text);
-
-    xmlstring=ParseXML_Encode_Safe_XML(string);
-    loaded_translations[nloaded_translations-1]->html_segment=malloc(sizeof("<tr class='s'><td class='l'>")+strlen(xmlstring)+sizeof(":<td class='r'>")+1);
-    strcpy(loaded_translations[nloaded_translations-1]->html_segment,"<tr class='s'><td class='l'>");
-    strcat(loaded_translations[nloaded_translations-1]->html_segment,xmlstring);
-    strcat(loaded_translations[nloaded_translations-1]->html_segment,":<td class='r'>");
-
     xmltext=ParseXML_Encode_Safe_XML(text);
-    loaded_translations[nloaded_translations-1]->html_segment=realloc(loaded_translations[nloaded_translations-1]->html_segment,
-                                                                      strlen(loaded_translations[nloaded_translations-1]->html_segment)+
-                                                                      strlen(xmltext)+2*sizeof("<span class='b'>")+2*sizeof("</span>")+1);
+
+    loaded_translations[nloaded_translations-1]->nothtml_segment=strcpy(malloc(strlen(text)+1),text);
+
+    loaded_translations[nloaded_translations-1]->html_segment=malloc(sizeof("<tr class='s'><td>")+strlen(xmltext)+2*sizeof("<span class='b'>")+2*sizeof("</span>")+1);
 
     p=xmltext;
-    q=loaded_translations[nloaded_translations-1]->html_segment+strlen(loaded_translations[nloaded_translations-1]->html_segment);
+    q=loaded_translations[nloaded_translations-1]->html_segment;
+
+    strcpy(q,"<tr class='s'><td>"); q+=sizeof("<tr class='s'><td>")-1;
 
     while(*p!='%')
        *q++=*p++;
@@ -1178,36 +1144,24 @@ static int HTMLSegmentType_function(const char *_tag_,int _type_,const char *str
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  const char *string The contents of the 'string' attribute (or NULL if not defined).
-
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int HTMLStopType_function(const char *_tag_,int _type_,const char *string,const char *text)
+static int HTMLStopType_function(const char *_tag_,int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    char *xmlstring,*xmltext;
+    char *xmltext;
 
-    XMLPARSE_ASSERT_STRING(_tag_,string);
     XMLPARSE_ASSERT_STRING(_tag_,text);
 
-    loaded_translations[nloaded_translations-1]->nothtml_stop=malloc(strlen(string)+1+strlen(text)+1);
-    strcpy(loaded_translations[nloaded_translations-1]->nothtml_stop,string);
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_stop," ");
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_stop,text);
-
-    xmlstring=ParseXML_Encode_Safe_XML(string);
-    loaded_translations[nloaded_translations-1]->html_stop=malloc(sizeof("<tr class='n'><td class='l'>")+strlen(xmlstring)+sizeof(":<td class='r'>")+1);
-    strcpy(loaded_translations[nloaded_translations-1]->html_stop,"<tr class='n'><td class='l'>");
-    strcat(loaded_translations[nloaded_translations-1]->html_stop,xmlstring);
-    strcat(loaded_translations[nloaded_translations-1]->html_stop,":<td class='r'>");
-
     xmltext=ParseXML_Encode_Safe_XML(text);
-    loaded_translations[nloaded_translations-1]->html_stop=realloc(loaded_translations[nloaded_translations-1]->html_stop,
-                                                                   strlen(loaded_translations[nloaded_translations-1]->html_stop)+
-                                                                   strlen(xmltext)+1+1);
 
+    loaded_translations[nloaded_translations-1]->nothtml_stop=strcpy(malloc(strlen(text)+1),text);
+
+    loaded_translations[nloaded_translations-1]->html_stop=malloc(sizeof("<tr class='n'><td>")+strlen(xmltext)+1+1);
+
+    strcpy(loaded_translations[nloaded_translations-1]->html_stop,"<tr class='n'><td>");
     strcat(loaded_translations[nloaded_translations-1]->html_stop,xmltext);
     strcat(loaded_translations[nloaded_translations-1]->html_stop,"\n");
    }
@@ -1225,41 +1179,55 @@ static int HTMLStopType_function(const char *_tag_,int _type_,const char *string
 
   int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
 
-  const char *string The contents of the 'string' attribute (or NULL if not defined).
-
   const char *text The contents of the 'text' attribute (or NULL if not defined).
   ++++++++++++++++++++++++++++++++++++++*/
 
-static int HTMLTotalType_function(const char *_tag_,int _type_,const char *string,const char *text)
+static int HTMLTotalType_function(const char *_tag_,int _type_,const char *text)
 {
  if(_type_&XMLPARSE_TAG_START && store)
    {
-    char *xmlstring,*xmltext;
+    char *xmltext;
 
-    XMLPARSE_ASSERT_STRING(_tag_,string);
     XMLPARSE_ASSERT_STRING(_tag_,text);
 
-    loaded_translations[nloaded_translations-1]->nothtml_total=malloc(strlen(string)+1+strlen(text)+1);
-    strcpy(loaded_translations[nloaded_translations-1]->nothtml_total,string);
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_total," ");
-    strcat(loaded_translations[nloaded_translations-1]->nothtml_total,text);
-
-    xmlstring=ParseXML_Encode_Safe_XML(string);
-    loaded_translations[nloaded_translations-1]->html_total=malloc(sizeof("<tr class='t'><td class='l'>")+strlen(xmlstring)+sizeof(":<td class='r'>")+1);
-    strcpy(loaded_translations[nloaded_translations-1]->html_total,"<tr class='t'><td class='l'>");
-    strcat(loaded_translations[nloaded_translations-1]->html_total,xmlstring);
-    strcat(loaded_translations[nloaded_translations-1]->html_total,":<td class='r'>");
-
     xmltext=ParseXML_Encode_Safe_XML(text);
-    loaded_translations[nloaded_translations-1]->html_total=realloc(loaded_translations[nloaded_translations-1]->html_total,
-                                                                   strlen(loaded_translations[nloaded_translations-1]->html_total)+
-                                                                   sizeof("<span class='j'>")+strlen(xmltext)+sizeof("</span>")+1+1);
 
+    loaded_translations[nloaded_translations-1]->nothtml_total=strcpy(malloc(strlen(text)+1),text);
+
+    loaded_translations[nloaded_translations-1]->html_total=malloc(sizeof("<tr class='t'><td>")+strlen(xmltext)+sizeof("<span class='j'>")+sizeof("</span>")+1+1);
+
+    strcpy(loaded_translations[nloaded_translations-1]->html_total,"<tr class='t'><td>");
     strcat(loaded_translations[nloaded_translations-1]->html_total,"<span class='j'>");
     strcat(loaded_translations[nloaded_translations-1]->html_total,xmltext);
     strcat(loaded_translations[nloaded_translations-1]->html_total,"</span>");
     strcat(loaded_translations[nloaded_translations-1]->html_total,"\n");
+   }
 
+ return(0);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  The function that is called when the HTMLSubtotalType XSD type is seen
+
+  int HTMLSubtotalType_function Returns 0 if no error occured or something else otherwise.
+
+  const char *_tag_ Set to the name of the element tag that triggered this function call.
+
+  int _type_ Set to XMLPARSE_TAG_START at the start of a tag and/or XMLPARSE_TAG_END at the end of a tag.
+
+  const char *text The contents of the 'text' attribute (or NULL if not defined).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static int HTMLSubtotalType_function(const char *_tag_,int _type_,const char *text)
+{
+ if(_type_&XMLPARSE_TAG_START && store)
+   {
+    char *xmltext;
+
+    XMLPARSE_ASSERT_STRING(_tag_,text);
+
+    xmltext=ParseXML_Encode_Safe_XML(text);
 
     loaded_translations[nloaded_translations-1]->nothtml_subtotal=strcpy(malloc(strlen(text)+1),text);
 

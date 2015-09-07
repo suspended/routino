@@ -63,18 +63,13 @@
 %%output-html_waypoint_junction%%	de splitsing
 %%output-html_waypoint_roundabout%%	rotonde
 %%output-html_title%%	%s Route
-%%output-html_start_string%%	Start
-%%output-html_start_text%%	Bij %s neemt u de richting %s
-%%output-html_node_string%%	Bij
-%%output-html_node_text%%	%s gaat u %s richting %s
-%%output-html_rbnode_string%%	Leave
-%%output-html_rbnode_text%%	Aan de %s, neem de %s afslag richting %s
-%%output-html_segment_string%%	Volg
-%%output-html_segment_text%%	u de %s voor %.3f km %.1f min
-%%output-html_stop_string%%	Stop
-%%output-html_stop_text%%	U bent bij %s aangekomen
-%%output-html_total_string%%	Totaal
-%%output-html_total_text%%	%.1f km, %.0f minuten
+%%output-html_start%%	Start bij %s neemt u de richting %s
+%%output-html_node%%	Bij %s gaat u %s richting %s
+%%output-html_rbnode%%	Leave aan de %s, neem de %s afslag richting %s
+%%output-html_segment%%	Volg u de %s voor %.3f km %.1f min
+%%output-html_stop%%	Stop U bent bij %s aangekomen
+%%output-html_total%%	Totaal %.1f km, %.0f minuten
+%%output-html_subtotal%%	%.1f km, %.0f minuten
 
 %%output-gpx_waypoint_start%%	START
 %%output-gpx_waypoint_inter%%	INTER

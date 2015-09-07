@@ -62,17 +62,12 @@
 %%output-html_waypoint_waypoint%%	путевая точка
 %%output-html_waypoint_junction%%	перекрестке
 %%output-html_title%%	%s маршрут
-%%output-html_start_string%%	Старт
-%%output-html_start_text%%	 %s, на %s
-%%output-html_node_string%%	на
-%%output-html_node_text%%	%s, %s, на %s
-%%output-html_rbnode_string%%	Покинуть
-%%output-html_segment_string%%	Следуйте
-%%output-html_segment_text%%	по %s %.3f км, %.1f мин
-%%output-html_stop_string%%	Стоп
-%%output-html_stop_text%%	 %s
-%%output-html_total_string%%	Всего
-%%output-html_total_text%%	%.1f км, %.0f минут
+%%output-html_start%%	Старт  %s, на %s
+%%output-html_node%%	на %s, %s, на %s
+%%output-html_segment%%	Следуйте по %s %.3f км, %.1f мин
+%%output-html_stop%%	Стоп  %s
+%%output-html_total%%	Всего %.1f км, %.0f минут
+%%output-html_subtotal%%	%.1f км, %.0f минут
 
 %%output-gpx_waypoint_start%%	Старт
 %%output-gpx_waypoint_inter%%	INTER

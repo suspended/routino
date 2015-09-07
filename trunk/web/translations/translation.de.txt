@@ -63,18 +63,13 @@
 %%output-html_waypoint_junction%%	Anschlussstelle
 %%output-html_waypoint_roundabout%%	Kreisverkehr
 %%output-html_title%%	%s Route
-%%output-html_start_string%%	Start
-%%output-html_start_text%%	Bei %s halten Sie sich Richtung %s
-%%output-html_node_string%%	Bei
-%%output-html_node_text%%	%s wenden Sie sich nach %s Richtung %s
-%%output-html_rbnode_string%%	Verlassen Sie
-%%output-html_rbnode_text%%	%s, nehmen Sie die %s Ausfahrt Richtung %s
-%%output-html_segment_string%%	Folgen
-%%output-html_segment_text%%	Sie der %s für %.3f km bzw. %.1f min
-%%output-html_stop_string%%	Stop
-%%output-html_stop_text%%	Sie sind bei %s angekommen
-%%output-html_total_string%%	Gesamt
-%%output-html_total_text%%	%.1f km, %.0f minuten
+%%output-html_start%%	Start bei %s halten Sie sich Richtung %s
+%%output-html_node%%	Bei %s wenden Sie sich nach %s Richtung %s
+%%output-html_rbnode%%	Verlassen Sie %s, nehmen Sie die %s Ausfahrt Richtung %s
+%%output-html_segment%%	Folgen Sie der %s für %.3f km bzw. %.1f min
+%%output-html_stop%%	Stop Sie sind bei %s angekommen
+%%output-html_total%%	Gesamt %.1f km, %.0f minuten
+%%output-html_subtotal%%	%.1f km, %.0f minuten
 
 %%output-gpx_waypoint_start%%	START
 %%output-gpx_waypoint_inter%%	INTER

@@ -672,7 +672,7 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
 
              if(point_count>0)  /* not the first point */
                {
-                /* <tr class='s'><td class='l'>Follow:<td class='r'><span class='h'>*highway name*</span> for <span class='d'>*distance* km, *time* min</span> [<span class='j'>*distance* km, *time* minutes</span>] */
+                /* <tr class='s'><td>Follow <span class='h'>*highway name*</span> for <span class='d'>*distance* km, *time* min</span> [<span class='j'>*distance* km, *time* minutes</span>] */
                 fprintf(htmlfile,translation->html_segment,
                                  (roundabout>1?translation->html_roundabout:prev_wayname),
                                  distance_to_km(junc_distance),duration_to_minutes(junc_duration));
@@ -680,14 +680,14 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
                                  distance_to_km(cum_distance),duration_to_minutes(cum_duration));
                }
 
-             /* <tr class='c'><td class='l'>*N*:<td class='r'>*latitude* *longitude* */
-             fprintf(htmlfile,"<tr class='c'><td class='l'>%d:<td class='r'>%.6f %.6f\n",
+             /* <tr class='c'>*N*: *latitude* *longitude* */
+             fprintf(htmlfile,"<tr class='c'><td>%d: %.6f %.6f\n",
                               point_count+1,
                               radians_to_degrees(latitude),radians_to_degrees(longitude));
 
              if(point_count==0) /* first point */
                {
-                /* <tr class='n'><td class='l'>Start:<td class='r'>At <span class='w'>Waypoint</span>, head <span class='b'>*heading*</span> */
+                /* <tr class='n'><td>Start at <span class='w'>Waypoint</span>, head <span class='b'>*heading*</span> */
                 fprintf(htmlfile,translation->html_start,
                                  translation->html_waypoint,
                                  next_bearing);
@@ -696,7 +696,7 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
                {
                 if(roundabout>1 && important!=ROUTINO_POINT_WAYPOINT)
                   {
-                   /* <tr class='n'><td class='l'>Leave:<td class='r'>Roundabout, take <span class='t'>the *Nth* exit</span> heading <span class='b'>*heading*</span> */
+                   /* <tr class='n'><td>leave roundabout, take <span class='t'>the *Nth* exit</span> heading <span class='b'>*heading*</span> */
                    fprintf(htmlfile,translation->html_rbnode,
                                     translation->html_roundabout,
                                     translation->xml_ordinal[roundabout-2],
@@ -704,7 +704,7 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
                   }
                 else
                   {
-                   /* <tr class='n'><td class='l'>At:<td class='r'>Junction, go <span class='t'>*direction*</span> heading <span class='b'>*heading*</span> */
+                   /* <tr class='n'><td>At junction, go <span class='t'>*direction*</span> heading <span class='b'>*heading*</span> */
                    fprintf(htmlfile,translation->html_node,
                                     type,
                                     turn,
@@ -713,11 +713,11 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
                }
              else            /* end point */
                {
-                /* <tr class='n'><td class='l'>Stop:<td class='r'>At <span class='w'>Waypoint</span> */
+                /* <tr class='n'><td>Stop at <span class='w'>Waypoint</span> */
                 fprintf(htmlfile,translation->html_stop,
                                  translation->html_waypoint);
 
-                /* <tr class='t'><td class='l'>Total:<td class='r'><span class='j'>*distance* km, *time* minutes</span> */
+                /* <tr class='t'><td><span class='j'>Total *distance* km, *time* minutes</span> */
                 fprintf(htmlfile,translation->html_total,
                                  distance_to_km(cum_distance),duration_to_minutes(cum_duration));
                }

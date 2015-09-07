@@ -68,12 +68,13 @@
 
       <title text="%%output-html_title%%" /> <!-- %s = [shortest|quickest] -->
 
-      <start   string="%%output-html_start_string%%" text="%%output-html_start_text%%" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
-      <node    string="%%output-html_node_string%%" text="%%output-html_node_text%%" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
-      <rbnode  string="%%output-html_rbnode_string%%" text="%%output-html_rbnode_text%%" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
-      <segment string="%%output-html_segment_string%%" text="%%output-html_segment_text%%" /> <!-- 1st %s = street name -->
-      <stop    string="%%output-html_stop_string%%" text="%%output-html_stop_text%%" /> <!-- 1st %s = [waypoint|junction] -->
-      <total   string="%%output-html_total_string%%" text="%%output-html_total_text%%" />
+      <start    text="%%output-html_start%%" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
+      <node     text="%%output-html_node%%" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <rbnode   text="%%output-html_rbnode%%" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
+      <segment  text="%%output-html_segment%%" /> <!-- 1st %s = street name -->
+      <stop     text="%%output-html_stop%%" /> <!-- 1st %s = [waypoint|junction] -->
+      <total    text="%%output-html_total%%" />
+      <subtotal text="%%output-html_subtotal%%" />
     </output-html>
 
     <!-- GPX output -->
