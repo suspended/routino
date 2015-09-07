@@ -63,18 +63,13 @@
 %%output-html_waypoint_junction%%	Croisement
 %%output-html_waypoint_roundabout%%	rond-point
 %%output-html_title%%	Itinéraire %s
-%%output-html_start_string%%	Débute
-%%output-html_start_text%%	à %s, direction %s
-%%output-html_node_string%%	à
-%%output-html_node_text%%	%s, aller %s direction %s
-%%output-html_rbnode_string%%	Quitter
-%%output-html_rbnode_text%%	%s, prendre le %s sortir direction %s
-%%output-html_segment_string%%	Suivre
-%%output-html_segment_text%%	%s pendant %.3f km, %.1f min
-%%output-html_stop_string%%	S'arrêter
-%%output-html_stop_text%%	à %s
-%%output-html_total_string%%	Total
-%%output-html_total_text%%	%.1f km, %.0f minutes
+%%output-html_start%%	Débute à %s, direction %s
+%%output-html_node%%	à %s, aller %s direction %s
+%%output-html_rbnode%%	Quitter %s, prendre le %s sortir direction %s
+%%output-html_segment%%	Suivre %s pendant %.3f km, %.1f min
+%%output-html_stop%%	S'arrêter à %s
+%%output-html_total%%	Total %.1f km, %.0f minutes
+%%output-html_subtotal%%	%.1f km, %.0f minutes
 
 %%output-gpx_waypoint_start%%	DEBUT
 %%output-gpx_waypoint_inter%%	INTER

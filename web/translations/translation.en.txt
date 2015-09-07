@@ -63,18 +63,13 @@
 %%output-html_waypoint_junction%%	Junction
 %%output-html_waypoint_roundabout%%	Roundabout
 %%output-html_title%%	%s Route
-%%output-html_start_string%%	Start
-%%output-html_start_text%%	At %s, head %s
-%%output-html_node_string%%	At
-%%output-html_node_text%%	%s, go %s heading %s
-%%output-html_rbnode_string%%	Leave
-%%output-html_rbnode_text%%	%s, take the %s exit heading %s
-%%output-html_segment_string%%	Follow
-%%output-html_segment_text%%	%s for %.3f km, %.1f min
-%%output-html_stop_string%%	Stop
-%%output-html_stop_text%%	At %s
-%%output-html_total_string%%	Total
-%%output-html_total_text%%	%.1f km, %.0f minutes
+%%output-html_start%%	Start at %s, head %s
+%%output-html_node%%	At %s, go %s heading %s
+%%output-html_rbnode%%	Leave %s, take the %s exit heading %s
+%%output-html_segment%%	Follow %s for %.3f km, %.1f min
+%%output-html_stop%%	Stop at %s
+%%output-html_total%%	Total %.1f km, %.0f minutes
+%%output-html_subtotal%%	%.1f km, %.0f minutes
 
 %%output-gpx_waypoint_start%%	START
 %%output-gpx_waypoint_inter%%	INTER

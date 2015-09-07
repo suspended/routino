@@ -104,6 +104,7 @@
       <xsd:element name="segment"  type="HTMLSegmentType"/>
       <xsd:element name="stop"     type="HTMLStopType"/>
       <xsd:element name="total"    type="HTMLTotalType"/>
+      <xsd:element name="subtotal" type="HTMLSubtotalType"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -117,32 +118,30 @@
   </xsd:complexType>
 
   <xsd:complexType name="HTMLStartType">
-    <xsd:attribute name="string" type="xsd:string"/>
     <xsd:attribute name="text"   type="xsd:string"/>
   </xsd:complexType>
 
   <xsd:complexType name="HTMLNodeType">
-    <xsd:attribute name="string" type="xsd:string"/>
     <xsd:attribute name="text"   type="xsd:string"/>
   </xsd:complexType>
 
   <xsd:complexType name="HTMLRBNodeType">
-    <xsd:attribute name="string" type="xsd:string"/>
     <xsd:attribute name="text"   type="xsd:string"/>
   </xsd:complexType>
 
   <xsd:complexType name="HTMLSegmentType">
-    <xsd:attribute name="string" type="xsd:string"/>
     <xsd:attribute name="text"   type="xsd:string"/>
   </xsd:complexType>
 
   <xsd:complexType name="HTMLStopType">
-    <xsd:attribute name="string" type="xsd:string"/>
     <xsd:attribute name="text"   type="xsd:string"/>
   </xsd:complexType>
 
   <xsd:complexType name="HTMLTotalType">
-    <xsd:attribute name="string" type="xsd:string"/>
+    <xsd:attribute name="text"   type="xsd:string"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="HTMLSubtotalType">
     <xsd:attribute name="text"   type="xsd:string"/>
   </xsd:complexType>
 

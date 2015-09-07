@@ -62,16 +62,11 @@
 %%output-html_waypoint_waypoint%%	Punkt
 %%output-html_waypoint_roundabout%%	Rondo
 %%output-html_title%%	%s Trasa
-%%output-html_start_string%%	Start
-%%output-html_start_text%%	%s kieruj się na %s
-%%output-html_node_string%%	Na
-%%output-html_rbnode_string%%	Opóść
-%%output-html_segment_string%%	Podążaj
-%%output-html_segment_text%%	%s przez %.3f km, %.1f min.
-%%output-html_stop_string%%	Stop
-%%output-html_stop_text%%	Na %s
-%%output-html_total_string%%	Całkowity
-%%output-html_total_text%%	%.1f km, %.0f min.
+%%output-html_start%%	Start %s kieruj się na %s
+%%output-html_segment%%	Podążaj %s przez %.3f km, %.1f min.
+%%output-html_stop%%	Stop Na %s
+%%output-html_total%%	Całkowity %.1f km, %.0f min.
+%%output-html_subtotal%%	%.1f km, %.0f min.
 
 %%output-gpx_waypoint_start%%	START
 %%output-gpx_waypoint_inter%%	INTER
