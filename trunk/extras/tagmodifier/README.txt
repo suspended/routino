@@ -9,12 +9,16 @@ make automatic rule-based modifications to tags within an XML file.
 tagmodifier
 -----------
 
-Usage: tagmodifier [--help]
+Usage: tagmodifier [--version]
+                   [--help]
                    [--tagging=<filename>]
                    [--loggable] [--logtime] [--logmemory]
                    [--errorlog[<name>]]
                    [<filename.osm> | <filename.osm.bz2> |
                     <filename.osm.gz> | <filename.osm.xz>]
+
+--version
+       Print the version of Routino.
 
 --help
        Prints out the help information.

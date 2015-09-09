@@ -20,7 +20,8 @@ be used on an OSM file to extract the fixme tags and generate a database of
 them.
 
 
-Usage: fixme-finder [--help]
+Usage: fixme-finder [--version]
+                    [--help]
                     [--dir=<dirname>]
                     [--sort-ram-size=<size>] [--sort-threads=<number>]
                     [--tmpdir=<dirname>]
@@ -32,6 +33,8 @@ Usage: fixme-finder [--help]
                      | <filename.(osm|o5m).bz2> ...
                      | <filename.(osm|o5m).gz> ...
                      | <filename.(osm|o5m).xz> ...]
+
+--version                 Print the version of Routino.
 
 --help                    Prints this information.
 
@@ -69,13 +72,16 @@ This program is a modified version of the Routino filedumper program and is used
 by the web page CGI to display the information on a map.
 
 
-Usage: fixme-dumper [--help]
+Usage: fixme-dumper [--version]
+                    [--help]
                     [--dir=<dirname>]
                     [--statistics]
                     [--visualiser --latmin=<latmin> --latmax=<latmax>
                                   --lonmin=<lonmin> --lonmax=<lonmax>
                                   --data=<data-type>]
                     [--dump--visualiser [--data=fixme<number>]]
+
+--version                 Print the version of Routino.
 
 --help                    Prints this information.
 

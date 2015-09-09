@@ -27,6 +27,8 @@
 #include <time.h>
 #include <math.h>
 
+#include "version.h"
+
 #include "types.h"
 #include "errorlog.h"
 
@@ -65,7 +67,9 @@ int main(int argc,char** argv)
 
  for(arg=1;arg<argc;arg++)
    {
-    if(!strcmp(argv[arg],"--help"))
+    if(!strcmp(argv[arg],"--version"))
+       print_usage(-1,NULL,NULL);
+    else if(!strcmp(argv[arg],"--help"))
        print_usage(1,NULL,NULL);
     else if(!strncmp(argv[arg],"--dir=",6))
        dirname=&argv[arg][6];
@@ -291,7 +295,7 @@ static char *RFC822Date(time_t t)
 /*++++++++++++++++++++++++++++++++++++++
   Print out the usage information.
 
-  int detail The level of detail to use - 0 = low, 1 = high.
+  int detail The level of detail to use: -1 = just version number, 0 = low detail, 1 = full details.
 
   const char *argerr The argument that gave the error (if there is one).
 
@@ -300,27 +304,40 @@ static char *RFC822Date(time_t t)
 
 static void print_usage(int detail,const char *argerr,const char *err)
 {
- fprintf(stderr,
-         "Usage: fixme-dumper [--help]\n"
-         "                    [--dir=<dirname>]\n"
-         "                    [--statistics]\n"
-         "                    [--visualiser --latmin=<latmin> --latmax=<latmax>\n"
-         "                                  --lonmin=<lonmin> --lonmax=<lonmax>\n"
-         "                                  --data=<data-type>]\n"
-         "                    [--dump--visualiser [--data=fixme<number>]]\n");
+ if(detail<0)
+   {
+    fprintf(stderr,
+            "Routino version " ROUTINO_VERSION " " ROUTINO_URL ".\n"
+            );
+   }
 
- if(argerr)
+ if(detail>=0)
+   {
+    fprintf(stderr,
+            "Usage: fixme-dumper [--version]\n"
+            "                    [--help]\n"
+            "                    [--dir=<dirname>]\n"
+            "                    [--statistics]\n"
+            "                    [--visualiser --latmin=<latmin> --latmax=<latmax>\n"
+            "                                  --lonmin=<lonmin> --lonmax=<lonmax>\n"
+            "                                  --data=<data-type>]\n"
+            "                    [--dump--visualiser [--data=fixme<number>]]\n");
+
+    if(argerr)
+       fprintf(stderr,
+               "\n"
+               "Error with command line parameter: %s\n",argerr);
+
+    if(err)
+       fprintf(stderr,
+               "\n"
+               "Error: %s\n",err);
+   }
+
+ if(detail==1)
     fprintf(stderr,
             "\n"
-            "Error with command line parameter: %s\n",argerr);
-
- if(err)
-    fprintf(stderr,
-            "\n"
-            "Error: %s\n",err);
-
- if(detail)
-    fprintf(stderr,
+            "--version                 Print the version of Routino.\n"
             "\n"
             "--help                    Prints this information.\n"
             "\n"

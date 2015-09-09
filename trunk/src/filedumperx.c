@@ -25,6 +25,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "version.h"
+
 #include "typesx.h"
 #include "nodesx.h"
 #include "waysx.h"
@@ -59,7 +61,9 @@ int main(int argc,char** argv)
 
  for(arg=1;arg<argc;arg++)
    {
-    if(!strcmp(argv[arg],"--help"))
+    if(!strcmp(argv[arg],"--version"))
+       print_usage(-1,NULL,NULL);
+    else if(!strcmp(argv[arg],"--help"))
        print_usage(1,NULL,NULL);
     else if(!strncmp(argv[arg],"--dir=",6))
        dirname=&argv[arg][6];
@@ -285,7 +289,7 @@ static void print_turn_relations(const char *filename)
 /*++++++++++++++++++++++++++++++++++++++
   Print out the usage information.
 
-  int detail The level of detail to use - 0 = low, 1 = high.
+  int detail The level of detail to use: -1 = just version number, 0 = low detail, 1 = full details.
 
   const char *argerr The argument that gave the error (if there is one).
 
@@ -294,26 +298,39 @@ static void print_turn_relations(const char *filename)
 
 static void print_usage(int detail,const char *argerr,const char *err)
 {
- fprintf(stderr,
-         "Usage: filedumperx [--help]\n"
-         "                   [--dir=<dirname>] [--prefix=<name>]\n"
-         "                   [--dump [--nodes]\n"
-         "                           [--ways]\n"
-         "                           [--route-relations]\n"
-         "                           [--turn-relations]]\n");
+ if(detail<0)
+   {
+    fprintf(stderr,
+            "Routino version " ROUTINO_VERSION " " ROUTINO_URL ".\n"
+            );
+   }
 
- if(argerr)
+ if(detail>=0)
+   {
+    fprintf(stderr,
+            "Usage: filedumperx [--version]\n"
+            "                   [--help]\n"
+            "                   [--dir=<dirname>] [--prefix=<name>]\n"
+            "                   [--dump [--nodes]\n"
+            "                           [--ways]\n"
+            "                           [--route-relations]\n"
+            "                           [--turn-relations]]\n");
+
+    if(argerr)
+       fprintf(stderr,
+               "\n"
+               "Error with command line parameter: %s\n",argerr);
+
+    if(err)
+       fprintf(stderr,
+               "\n"
+               "Error: %s\n",err);
+   }
+
+ if(detail==1)
     fprintf(stderr,
             "\n"
-            "Error with command line parameter: %s\n",argerr);
-
- if(err)
-    fprintf(stderr,
-            "\n"
-            "Error: %s\n",err);
-
- if(detail)
-    fprintf(stderr,
+            "--version                 Print the version of Routino.\n"
             "\n"
             "--help                    Prints this information.\n"
             "\n"

@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "version.h"
+
 #include "types.h"
 #include "nodes.h"
 #include "segments.h"
@@ -100,7 +102,9 @@ int main(int argc,char** argv)
 
  for(arg=1;arg<argc;arg++)
    {
-    if(!strcmp(argv[arg],"--help"))
+    if(!strcmp(argv[arg],"--version"))
+       print_usage(-1,NULL,NULL);
+    else if(!strcmp(argv[arg],"--help"))
        print_usage(1,NULL,NULL);
     else if(!strcmp(argv[arg],"--help-profile"))
        help_profile=1;
@@ -242,11 +246,11 @@ int main(int argc,char** argv)
        while(isdigit(*p)) p++;
        if(*p++!='=')
           print_usage(0,argv[arg],NULL);
- 
+
        point=atoi(&argv[arg][5]);
        if(point>NWAYPOINTS || point_used[point]&1)
           print_usage(0,argv[arg],NULL);
- 
+
        point_lon[point]=degrees_to_radians(atof(p));
        point_used[point]+=1;
 
@@ -263,11 +267,11 @@ int main(int argc,char** argv)
        while(isdigit(*p)) p++;
        if(*p++!='=')
           print_usage(0,argv[arg],NULL);
- 
+
        point=atoi(&argv[arg][5]);
        if(point>NWAYPOINTS || point_used[point]&2)
           print_usage(0,argv[arg],NULL);
- 
+
        point_lat[point]=degrees_to_radians(atof(p));
        point_used[point]+=2;
 
@@ -666,7 +670,7 @@ int main(int argc,char** argv)
 /*++++++++++++++++++++++++++++++++++++++
   Print out the usage information.
 
-  int detail The level of detail to use - 0 = low, 1 = high.
+  int detail The level of detail to use: -1 = just version number, 0 = low detail, 1 = full details.
 
   const char *argerr The argument that gave the error (if there is one).
 
@@ -675,44 +679,57 @@ int main(int argc,char** argv)
 
 static void print_usage(int detail,const char *argerr,const char *err)
 {
- fprintf(stderr,
-         "Usage: router [--help | --help-profile | --help-profile-xml |\n"
-         "                        --help-profile-json | --help-profile-perl ]\n"
-         "              [--dir=<dirname>] [--prefix=<name>]\n"
-         "              [--profiles=<filename>] [--translations=<filename>]\n"
-         "              [--exact-nodes-only]\n"
-         "              [--quiet | [--loggable] [--logtime] [--logmemory]]\n"
-         "              [--language=<lang>]\n"
-         "              [--output-html]\n"
-         "              [--output-gpx-track] [--output-gpx-route]\n"
-         "              [--output-text] [--output-text-all]\n"
-         "              [--output-none] [--output-stdout]\n"
-         "              [--profile=<name>]\n"
-         "              [--transport=<transport>]\n"
-         "              [--shortest | --quickest]\n"
-         "              --lon1=<longitude> --lat1=<latitude>\n"
-         "              --lon2=<longitude> --lon2=<latitude>\n"
-         "              [ ... --lon99=<longitude> --lon99=<latitude>]\n"
-         "              [--reverse] [--loop]\n"
-         "              [--highway-<highway>=<preference> ...]\n"
-         "              [--speed-<highway>=<speed> ...]\n"
-         "              [--property-<property>=<preference> ...]\n"
-         "              [--oneway=(0|1)] [--turns=(0|1)]\n"
-         "              [--weight=<weight>]\n"
-         "              [--height=<height>] [--width=<width>] [--length=<length>]\n");
+ if(detail<0)
+   {
+    fprintf(stderr,
+            "Routino version " ROUTINO_VERSION " " ROUTINO_URL ".\n"
+            );
+   }
 
- if(argerr)
+ if(detail>=0)
+   {
+    fprintf(stderr,
+            "Usage: router [--version]\n"
+            "              [--help | --help-profile | --help-profile-xml |\n"
+            "                        --help-profile-json | --help-profile-perl ]\n"
+            "              [--dir=<dirname>] [--prefix=<name>]\n"
+            "              [--profiles=<filename>] [--translations=<filename>]\n"
+            "              [--exact-nodes-only]\n"
+            "              [--quiet | [--loggable] [--logtime] [--logmemory]]\n"
+            "              [--language=<lang>]\n"
+            "              [--output-html]\n"
+            "              [--output-gpx-track] [--output-gpx-route]\n"
+            "              [--output-text] [--output-text-all]\n"
+            "              [--output-none] [--output-stdout]\n"
+            "              [--profile=<name>]\n"
+            "              [--transport=<transport>]\n"
+            "              [--shortest | --quickest]\n"
+            "              --lon1=<longitude> --lat1=<latitude>\n"
+            "              --lon2=<longitude> --lon2=<latitude>\n"
+            "              [ ... --lon99=<longitude> --lon99=<latitude>]\n"
+            "              [--reverse] [--loop]\n"
+            "              [--highway-<highway>=<preference> ...]\n"
+            "              [--speed-<highway>=<speed> ...]\n"
+            "              [--property-<property>=<preference> ...]\n"
+            "              [--oneway=(0|1)] [--turns=(0|1)]\n"
+            "              [--weight=<weight>]\n"
+            "              [--height=<height>] [--width=<width>] [--length=<length>]\n");
+
+    if(argerr)
+       fprintf(stderr,
+               "\n"
+               "Error with command line parameter: %s\n",argerr);
+
+    if(err)
+       fprintf(stderr,
+               "\n"
+               "Error: %s\n",err);
+   }
+
+ if(detail==1)
     fprintf(stderr,
             "\n"
-            "Error with command line parameter: %s\n",argerr);
-
- if(err)
-    fprintf(stderr,
-            "\n"
-            "Error: %s\n",err);
-
- if(detail)
-    fprintf(stderr,
+            "--version               Print the version of Routino.\n"
             "\n"
             "--help                  Prints this information.\n"
             "--help-profile          Prints the information about the selected profile.\n"
