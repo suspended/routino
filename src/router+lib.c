@@ -27,6 +27,8 @@
 #include <ctype.h>
 #include <math.h>
 
+#include "version.h"
+
 #include "routino.h"
 
 
@@ -86,7 +88,9 @@ int main(int argc,char** argv)
 
  for(arg=1;arg<argc;arg++)
    {
-    if(!strcmp(argv[arg],"--help"))
+    if(!strcmp(argv[arg],"--version"))
+       print_usage(-1,NULL,NULL);
+    else if(!strcmp(argv[arg],"--help"))
        print_usage(1,NULL,NULL);
     else if(!strncmp(argv[arg],"--dir=",6))
        dirname=&argv[arg][6];
@@ -138,11 +142,11 @@ int main(int argc,char** argv)
        while(isdigit(*p)) p++;
        if(*p++!='=')
           print_usage(0,argv[arg],NULL);
- 
+
        point=atoi(&argv[arg][5]);
        if(point>NWAYPOINTS || point_used[point]&1)
           print_usage(0,argv[arg],NULL);
- 
+
        point_lon[point]=atof(p);
        point_used[point]+=1;
 
@@ -159,11 +163,11 @@ int main(int argc,char** argv)
        while(isdigit(*p)) p++;
        if(*p++!='=')
           print_usage(0,argv[arg],NULL);
- 
+
        point=atoi(&argv[arg][5]);
        if(point>NWAYPOINTS || point_used[point]&2)
           print_usage(0,argv[arg],NULL);
- 
+
        point_lat[point]=atof(p);
        point_used[point]+=2;
 
@@ -497,7 +501,7 @@ static char *FileName(const char *dirname,const char *prefix, const char *name)
 /*++++++++++++++++++++++++++++++++++++++
   Print out the usage information.
 
-  int detail The level of detail to use - 0 = low, 1 = high.
+  int detail The level of detail to use: -1 = just version number, 0 = low detail, 1 = full details.
 
   const char *argerr The argument that gave the error (if there is one).
 
@@ -506,36 +510,49 @@ static char *FileName(const char *dirname,const char *prefix, const char *name)
 
 static void print_usage(int detail,const char *argerr,const char *err)
 {
- fprintf(stderr,
-         "Usage: router [--help ]\n"
-         "              [--dir=<dirname>] [--prefix=<name>]\n"
-         "              [--profiles=<filename>] [--translations=<filename>]\n"
-         "              [--language=<lang>]\n"
-         "              [--output-html]\n"
-         "              [--output-gpx-track] [--output-gpx-route]\n"
-         "              [--output-text] [--output-text-all]\n"
-         "              [--output-none] [--output-stdout]\n"
-         "              [--list-html | --list-html-all |\n"
-         "               --list-text | --list-text-all]\n"
-         "              [--profile=<name>]\n"
-         "              [--shortest | --quickest]\n"
-         "              --lon1=<longitude> --lat1=<latitude>\n"
-         "              --lon2=<longitude> --lon2=<latitude>\n"
-         "              [ ... --lon99=<longitude> --lon99=<latitude>]\n"
-         "              [--reverse] [--loop]\n");
+ if(detail<0)
+   {
+    fprintf(stderr,
+            "Routino version " ROUTINO_VERSION " " ROUTINO_URL ".\n"
+            );
+   }
 
- if(argerr)
+ if(detail>=0)
+   {
+    fprintf(stderr,
+            "Usage: router [--version]\n"
+            "              [--help ]\n"
+            "              [--dir=<dirname>] [--prefix=<name>]\n"
+            "              [--profiles=<filename>] [--translations=<filename>]\n"
+            "              [--language=<lang>]\n"
+            "              [--output-html]\n"
+            "              [--output-gpx-track] [--output-gpx-route]\n"
+            "              [--output-text] [--output-text-all]\n"
+            "              [--output-none] [--output-stdout]\n"
+            "              [--list-html | --list-html-all |\n"
+            "               --list-text | --list-text-all]\n"
+            "              [--profile=<name>]\n"
+            "              [--shortest | --quickest]\n"
+            "              --lon1=<longitude> --lat1=<latitude>\n"
+            "              --lon2=<longitude> --lon2=<latitude>\n"
+            "              [ ... --lon99=<longitude> --lon99=<latitude>]\n"
+            "              [--reverse] [--loop]\n");
+
+    if(argerr)
+       fprintf(stderr,
+               "\n"
+               "Error with command line parameter: %s\n",argerr);
+
+    if(err)
+       fprintf(stderr,
+               "\n"
+               "Error: %s\n",err);
+   }
+
+ if(detail==1)
     fprintf(stderr,
             "\n"
-            "Error with command line parameter: %s\n",argerr);
-
- if(err)
-    fprintf(stderr,
-            "\n"
-            "Error: %s\n",err);
-
- if(detail)
-    fprintf(stderr,
+            "--version               Print the version of Routino.\n"
             "\n"
             "--help                  Prints this information.\n"
             "\n"

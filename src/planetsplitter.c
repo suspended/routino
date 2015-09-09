@@ -25,6 +25,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include "version.h"
+
 #include "types.h"
 #include "ways.h"
 
@@ -87,7 +89,9 @@ int main(int argc,char** argv)
 
  for(arg=1;arg<argc;arg++)
    {
-    if(!strcmp(argv[arg],"--help"))
+    if(!strcmp(argv[arg],"--version"))
+       print_usage(-1,NULL,NULL);
+    else if(!strcmp(argv[arg],"--help"))
        print_usage(1,NULL,NULL);
     else if(!strncmp(argv[arg],"--dir=",6))
        dirname=&argv[arg][6];
@@ -601,7 +605,7 @@ if(!option_process_only)
 /*++++++++++++++++++++++++++++++++++++++
   Print out the usage information.
 
-  int detail The level of detail to use - 0 = low, 1 = high.
+  int detail The level of detail to use: -1 = just version number, 0 = low detail, 1 = full details.
 
   const char *argerr The argument that gave the error (if there is one).
 
@@ -610,51 +614,64 @@ if(!option_process_only)
 
 static void print_usage(int detail,const char *argerr,const char *err)
 {
- fprintf(stderr,
-         "Usage: planetsplitter [--help]\n"
-         "                      [--dir=<dirname>] [--prefix=<name>]\n"
+ if(detail<0)
+   {
+    fprintf(stderr,
+            "Routino version " ROUTINO_VERSION " " ROUTINO_URL ".\n"
+            );
+   }
+
+ if(detail>=0)
+   {
+    fprintf(stderr,
+            "Usage: planetsplitter [--version]\n"
+            "                      [--help]\n"
+            "                      [--dir=<dirname>] [--prefix=<name>]\n"
 #if defined(USE_PTHREADS) && USE_PTHREADS
-         "                      [--sort-ram-size=<size>] [--sort-threads=<number>]\n"
+            "                      [--sort-ram-size=<size>] [--sort-threads=<number>]\n"
 #else
-         "                      [--sort-ram-size=<size>]\n"
+            "                      [--sort-ram-size=<size>]\n"
 #endif
-         "                      [--tmpdir=<dirname>]\n"
-         "                      [--tagging=<filename>]\n"
-         "                      [--loggable] [--logtime] [--logmemory]\n"
-         "                      [--errorlog[=<name>]]\n"
-         "                      [--parse-only | --process-only]\n"
-         "                      [--append] [--keep] [--changes]\n"
-         "                      [--max-iterations=<number>]\n"
-         "                      [--prune-none]\n"
-         "                      [--prune-isolated=<len>]\n"
-         "                      [--prune-short=<len>]\n"
-         "                      [--prune-straight=<len>]\n"
-         "                      [<filename.osm> ... | <filename.osc> ...\n"
-         "                       | <filename.pbf> ...\n"
-         "                       | <filename.o5m> ... | <filename.o5c> ..."
+            "                      [--tmpdir=<dirname>]\n"
+            "                      [--tagging=<filename>]\n"
+            "                      [--loggable] [--logtime] [--logmemory]\n"
+            "                      [--errorlog[=<name>]]\n"
+            "                      [--parse-only | --process-only]\n"
+            "                      [--append] [--keep] [--changes]\n"
+            "                      [--max-iterations=<number>]\n"
+            "                      [--prune-none]\n"
+            "                      [--prune-isolated=<len>]\n"
+            "                      [--prune-short=<len>]\n"
+            "                      [--prune-straight=<len>]\n"
+            "                      [<filename.osm> ... | <filename.osc> ...\n"
+            "                       | <filename.pbf> ...\n"
+            "                       | <filename.o5m> ... | <filename.o5c> ..."
 #if defined(USE_BZIP2) && USE_BZIP2
-         "\n                       | <filename.(osm|osc|o5m|o5c).bz2> ..."
+            "\n                       | <filename.(osm|osc|o5m|o5c).bz2> ..."
 #endif
 #if defined(USE_GZIP) && USE_GZIP
-         "\n                       | <filename.(osm|osc|o5m|o5c).gz> ..."
+            "\n                       | <filename.(osm|osc|o5m|o5c).gz> ..."
 #endif
 #if defined(USE_XZ) && USE_XZ
-         "\n                       | <filename.(osm|osc|o5m|o5c).xz> ..."
+            "\n                       | <filename.(osm|osc|o5m|o5c).xz> ..."
 #endif
-         "]\n");
+            "]\n");
 
- if(argerr)
+    if(argerr)
+       fprintf(stderr,
+               "\n"
+               "Error with command line parameter: %s\n",argerr);
+
+    if(err)
+       fprintf(stderr,
+               "\n"
+               "Error: %s\n",err);
+   }
+
+ if(detail==1)
     fprintf(stderr,
             "\n"
-            "Error with command line parameter: %s\n",argerr);
-
- if(err)
-    fprintf(stderr,
-            "\n"
-            "Error: %s\n",err);
-
- if(detail)
-    fprintf(stderr,
+            "--version                 Print the version of Routino.\n"
             "\n"
             "--help                    Prints this information.\n"
             "\n"
