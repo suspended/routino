@@ -208,151 +208,57 @@ Version 2.7.1 of Routino was released on 17th May 2014.
 Version 2.7.2 of Routino was released on 26th June 2014.
 <br>
 Version 2.7.3 of Routino was released on 8th November 2014.
+<br>
+Version 3.0 of Routino was released on 12th September 2015.
 
 <p>
 
 The full version history is available in the NEWS.txt file.
 
 
-<h3 id="H_1_5_1" title="Changes 2.7">Changes in Versions 2.7</h3>
+<h3 id="H_1_5_1" title="Changes 3.0">Changes in Versions 3.0</h3>
 
-Version 2.7 - mostly web page usability improvements.
+Version 3.0 - Windows compilation and library providing routing API.
 
 <dl>
   <dt>Bug fixes:
-    <dd>Fix web-page CGI bug that did not allow more than 9 waypoints to be routed.
-    <br>Fix typo in documentation strings in filedumper program.
-    <br>Fix error in function prototype that stopped 64-bit node type being used.
-    <br>Don't lose super-segments when merging them with normal segments.
-    <br>Don't exceed the database lat/long limits when searching for visualiser data.
+    <dd>Use a single definition of MAX_SEG_PER_NODE to avoid confusion.
+    <br>Fix bug with built-in translation strings if no XML translations available.
+    <br>Fix bug with makefiles related to creating new translations.
+    <br>Remove some pthread code that was still there when compiling without pthreads.
+    <br>Fix a use-after-free memory error and use of uninitialised allocated memory.
+    <br>Ensure that allocated strings are long enough for temporary filenames.
 
-  <dt>planetsplitter:
-    <dd>Don't overflow (and wrap-around) conversions of lengths, weights etc.
-    <br>Add some new formats of length, weight and speed parsing.
-    <br>Add .xz uncompression as a compile-time option (default is disabled).
+  <dt>Programs:
+    <dd>Add a '--version' option to all of the programs.
 
-  <dt>router:
-    <dd>Remove ancient undocumented option to specify lat/lon without --lat/--lon.
-    <br>Add a '--output-stdout' option to output the route in a selected format.
-    <br>Add a '--reverse' option to calculate a route in the reverse order.
-    <br>Add a '--loop' option to calculate a route that returns to the first waypoint.
-    <br>Output valid HTML4 (use strict DTD and use numeric entity for apostrophe).
+  <dt>Source Code:
+    <dd>Various C language cleanups including using '-pedantic' compiler option.
+    <br>Various changes to allow compiling with Microsoft Visual Studio C compiler.
+    <br>Various changes to allow compiling with MinGW or Cygwin on Microsoft Windows.
+    <br>Makefile updates: 'make clean' = release, 'make distclean' = SVN repository.
+
+  <dt>API:
+    <dd>Create a library API that can perform routing functions.
 
   <dt>OSM tagging:
-    <dd>Allow bicycles both ways on certain oneway roads if tagging allows.
-    <br>Handle "access=bus" like "access=psv".
+    <dd>Remove cycle_barrier and bicycle_barrier since they do not block bicycles.
 
-  <dt>Configuration Files:
-    <dd>Updated Dutch translations.
-    <br>Updates to the XML parser tagging rules.
-    <br>Added French translations for the routing output.
+  <dt>Translations:
+    <dd>Updated Dutch and German translations.
+    <br>Added Hungarian and Polish translations provided through translation web page.
 
   <dt>Documentation:
-    <dd>Update the algorithm documentation for finding the shortest path.
-    <br>Update documentation HTML to strict 4.01 DTD.
+    <dd>Add meta tags to HTML to help mobile devices, tidy up the CSS.
+    <br>Create instructions for compiling on Microsoft Windows.
+    <br>Create API description for Routino library usage.
 
   <dt>Web pages:
-    <dd>Some changes to HTML, CSS formatting and Javascript to improve usability.
-    <br>Added a French translation of the router web page.
-    <br>Add the option to choose between OpenLayers and Leaflet for map rendering.
-    <br>Check compatible with OpenLayers v2.13.1 and make this the default.
-    <br>Create the router and visualiser pages from templates and translated phrases.
+    <dd>Allow drag-and-drop of waypoints within the list and onto the map.
 </dl>
 
 <p>
-<b>Note:</b> This version has removed specific support for IE6 and IE7 browsers.
-<p>
-<b>Note:</b> Note: This version is compatible with databases from version 2.6.
-
-<h3 id="H_1_5_2" title="Changes 2.7.1">Changes in Versions 2.7.1</h3>
-
-Version 2.7.1 - mostly bug fixes (some from version 2.7, but mostly older ones).
-
-<dl>
-  <dt>Bug fixes:
-    <dd>Fix typo in documentation for command to get SVN version.
-    <br>Fix router crash when waypoint is on roundabout.
-    <br>Don't duplicate super-segments when merging them with normal segments.
-    <br>Change routing instructions for bicycle if highways allow cycling both ways.
-    <br>Make translation script work with older versions of Perl.
-    <br>Fix router crash if fewer than two waypoints are specified.
-    <br>Revert router speed decrease with special-case tagging rules.
-    <br>Fix web page search function when it returns non-ASCII text.
-    <br>Fix router failure due to invalid assumption about allowed U-turn.
-    <br>Fix bug with updating XML files in web/data directory (Makefile error).
-    <br>Fix router web page error due to absence of cyclebothways property entry.
-    <br>Fix results error if a waypoint node was passed again on way to next waypoint.
-    <br>Fix router crash when route contains consecutive coincident waypoints.
-    <br>Fix bug with slightly incorrect distances when pruning short segments.
-
-  <dt>Test cases:
-    <dd>Create new test case for roundabout waypoint bug fixed in this version.
-    <br>Create new test case for invalid U-turn assumption bug fixed in this version.
-    <br>Create new test case for cycling both ways.
-    <br>Create new test case for consecutive coincident waypoints.
-
-  <dt>router:
-    <dd>Remove cyclebothways as a property that can be used as a routing preference.
-
-  <dt>Web pages:
-    <dd>Disallow route calculation if fewer than two waypoints are selected.
-    <br>Update visualiser for change of cyclebothways handling.
-
-  <dt>Translations:
-    <dd>Updated Russian translations.
-    <br>Updated German translations.
-</dl>
-
-<p>
-<b>Note:</b> This version is not compatible with databases from previous versions.
-
-
-<h3 id="H_1_5_3" title="Changes 2.7.2">Changes in Versions 2.7.2</h3>
-
-Version 2.7.2 - mostly bug fixes introduced in version 2.7.1 on 64-bit systems.
-
-<dl>
-  <dt>Bug fixes:
-    <dd>Make the visualiser display all segments including those crossing the border.
-    <br>Fix two errors that cause crashes only on 64-bit systems.
-
-  <dt>planetsplitter / router:
-    <dd>Increase the size of the caches for the slim programs by a factor of four.
-
-  <dt>Translations:
-    <dd>Updated Russian translations.
-    <br>Updated German translations.
-</dl>
-
-<p>
-<b>Note:</b> This version is compatible with databases from version 2.7.1.
-
-
-<h3 id="H_1_5_4" title="Changes 2.7.3">Changes in Versions 2.7.3</h3>
-
-Version 2.7.3 - Slightly reduced memory usage and large reduction in time to generate routing database on low memory systems.
-
-<dl>
-  <dt>Bug fixes:
-    <dd>Limit the property preference ratio to 100 instead of 10000.
-    <br>Don't allocate memory for sorting that won't be used.
-
-  <dt>planetsplitter:
-    <dd>Added an option to print out the allocated/mapped memory at each step.
-    <br>Speed up database generation by compacting results after each pruning step.
-    <br>Speed up database generation by sorting nodes geographically before pruning.
-    <br>Reduce memory use while generating the database.  
-
-  <dt>router:
-    <dd>Added the options to print out time and allocated/mapped memory at each step.
-
-  <dt>Translations:
-    <dd>Updated German translations.
-</dl>
-
-<p>
-<b>Note:</b> This version is compatible with databases from version 2.7.1 &amp; 2.7.2.
-
+<b>Note:</b> This version is compatible with databases from version 2.7.1 - 2.7.3.
 
 
 <h2 id="H_1_6">License</h2>
@@ -373,7 +279,7 @@ software.
 
 <h3 id="H_1_6_1">Copyright</h3>
 
-Routino is copyright Andrew M. Bishop 2008-2014.
+Routino is copyright Andrew M. Bishop 2008-2015.
 
 
 <h2 id="H_1_7">Homepage</h2>
