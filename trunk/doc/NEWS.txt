@@ -1,3 +1,45 @@
+Version 3.0 of Routino released : Sat Sep 12 2015
+-------------------------------------------------
+
+Bug fixes:
+  Use a single definition of MAX_SEG_PER_NODE to avoid confusion.
+  Fix bug with built-in translation strings if no XML translations available.
+  Fix bug with makefiles related to creating new translations.
+  Remove some pthread code that was still there when compiling without pthreads.
+  Fix a use-after-free memory error and use of uninitialised allocated memory.
+  Ensure that allocated strings are long enough for temporary filenames.
+
+Programs:
+  Add a '--version' option to all of the programs.
+
+Source Code:
+  Various C language cleanups including using '-pedantic' compiler option.
+  Various changes to allow compiling with Microsoft Visual Studio C compiler.
+  Various changes to allow compiling with MinGW or Cygwin on Microsoft Windows.
+  Makefile updates: 'make clean' = release, 'make distclean' = SVN repository.
+
+API:
+  Create a library API that can perform routing functions.
+
+OSM tagging:
+  Remove cycle_barrier and bicycle_barrier since they do not block bicycles.
+
+Translations:
+  Updated Dutch and German translations.
+  Added Hungarian and Polish translations provided through translation web page.
+
+Documentation:
+  Add meta tags to HTML to help mobile devices, tidy up the CSS.
+  Create instructions for compiling on Microsoft Windows.
+  Create API description for Routino library usage.
+
+Web pages:
+  Allow drag-and-drop of waypoints within the list and onto the map.
+
+
+Note: This version is compatible with databases from versions 2.7.1 - 2.7.3.
+
+
 Version 2.7.3 of Routino released : Sat Nov 8 2014
 --------------------------------------------------
 
@@ -18,7 +60,7 @@ Translations:
   Updated German translations.
 
 
-Note: This version is compatible with databases from version 2.7.1 & 2.7.2.
+Note: This version is compatible with databases from versions 2.7.1 & 2.7.2.
 
 
 Version 2.7.2 of Routino released : Thu June 26 2014
