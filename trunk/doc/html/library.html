@@ -194,14 +194,14 @@ the software is distributed or interacted with over a network.
 
 <h2 id="H_1_3">Routino Library API</h2>
 
-<h3>Preprocessor Definitions</h3>
+<h3 id="H_1_3_1">Preprocessor Definitions</h3>
 
 <p>
 <span class="cxref-define-comment"> A version number for the Routino API. </span>
 <br>
 <span class="cxref-define">#define ROUTINO_API_VERSION 7</span>
 
-<h4>Error Definitions</h4>
+<h4 id="H_1_3_1_1">Error Definitions</h4>
 
 <p>
 <span class="cxref-define-comment"> No error. </span>
@@ -292,7 +292,7 @@ the software is distributed or interacted with over a network.
 <br>
 <span class="cxref-define">#define ROUTINO_ERROR_NO_ROUTE_3 1003</span>
 
-<h4>Routino Option Definitions</h4>
+<h4 id="H_1_3_1_2">Routino Option Definitions</h4>
 
 <p>
 <span class="cxref-define-comment"> Calculate the shortest route. </span>
@@ -343,7 +343,7 @@ the software is distributed or interacted with over a network.
 <br>
 <span class="cxref-define">#define ROUTINO_ROUTE_LIST_TEXT_ALL 1024</span>
 
-<h4>Linked List Output Point Definitions</h4>
+<h4 id="H_1_3_1_3">Linked List Output Point Definitions</h4>
 
 <p>
 <span class="cxref-define-comment"> An unimportant, intermediate, node. </span>
@@ -386,7 +386,7 @@ the software is distributed or interacted with over a network.
 <br>
 <span class="cxref-define">#define ROUTINO_POINT_WAYPOINT 9</span>
 
-<h4>Profile Definitions</h4>
+<h4 id="H_1_3_1_4">Profile Definitions</h4>
 
 <p>
 <span class="cxref-define-comment"> A Motorway highway. </span>
@@ -466,37 +466,37 @@ the software is distributed or interacted with over a network.
 <span class="cxref-define">#define ROUTINO_PROPERTY_BICYCLEROUTE 6</span>
 
 
-<h3>Type Definitions</h3>
+<h3 id="H_1_3_2">Type Definitions</h3>
 
-<h4><a name="type-Routino_Database">Typedef Routino_Database</a></h4>
+<h4 id="H_1_3_2_1"><a name="type-Routino_Database">Typedef Routino_Database</a></h4>
 
 <p>
 <span class="cxref-type-comment"> A data structure to hold a Routino database loaded from a file (the contents are private). </span>
 <br>
 <span class="cxref-type">typedef struct _Routino_Database Routino_Database</span>
 
-<h4><a name="type-Routino_Waypoint">Typedef Routino_Waypoint</a></h4>
+<h4 id="H_1_3_2_2"><a name="type-Routino_Waypoint">Typedef Routino_Waypoint</a></h4>
 
 <p>
 <span class="cxref-type-comment"> A data structure to hold a Routino waypoint found within the database (the contents are private). </span>
 <br>
 <span class="cxref-type">typedef struct _Routino_Waypoint Routino_Waypoint</span>
 
-<h4><a name="type-Routino_Profile">Typedef Routino_Profile</a></h4>
+<h4 id="H_1_3_2_3"><a name="type-Routino_Profile">Typedef Routino_Profile</a></h4>
 
 <p>
 <span class="cxref-type-comment"> A data structure to hold a Routino routing profile (the contents are private). </span>
 <br>
 <span class="cxref-type">typedef struct _Routino_Profile Routino_Profile</span>
 
-<h4><a name="type-Routino_Translation">Typedef Routino_Translation</a></h4>
+<h4 id="H_1_3_2_4"><a name="type-Routino_Translation">Typedef Routino_Translation</a></h4>
 
 <p>
 <span class="cxref-type-comment"> A data structure to hold a Routino translation (the contents are private). </span>
 <br>
 <span class="cxref-type">typedef struct _Routino_Translation Routino_Translation</span>
 
-<h4><a name="type-Routino_UserProfile">Typedef Routino_UserProfile</a></h4>
+<h4 id="H_1_3_2_5"><a name="type-Routino_UserProfile">Typedef Routino_UserProfile</a></h4>
 
 <p>
 <span class="cxref-type-comment"> A data structure to hold a routing profile that can be defined by the user. </span>
@@ -568,14 +568,14 @@ the software is distributed or interacted with over a network.
   </tr>
 </table>
 
-<h4><a name="type-Routino_Output">Typedef Routino_Output</a></h4>
+<h4 id="H_1_3_2_6"><a name="type-Routino_Output">Typedef Routino_Output</a></h4>
 
 <p>
 <span class="cxref-type-comment"> Forward declaration of the Routino_Output data type. </span>
 <br>
 <span class="cxref-type">typedef struct _Routino_Output Routino_Output</span>
 
-<h4><a name="type-struct-_Routino_Output">Type struct _Routino_Output</a></h4>
+<h4 id="H_1_3_2_7"><a name="type-struct-_Routino_Output">Type struct _Routino_Output</a></h4>
 
 <p>
 <span class="cxref-type-comment"> A linked list output of the calculated route whose contents depend on the ROUTINO_ROUTE_LIST_* options selected. </span>
@@ -662,23 +662,23 @@ the software is distributed or interacted with over a network.
   </tr>
 </table>
 
-<h4><a name="type-Routino_ProgressFunc">Typedef Routino_ProgressFunc</a></h4>
+<h4 id="H_1_3_2_8"><a name="type-Routino_ProgressFunc">Typedef Routino_ProgressFunc</a></h4>
 
 <p>
 <span class="cxref-type-comment"> A type of function that can be used as a callback to indicate routing progress, if it returns false the router stops. </span>
 <br>
 <span class="cxref-type">typedef int (*Routino_ProgressFunc)(double complete)</span>
 
-<h3>Variable Definitions</h3>
+<h3 id="H_1_3_3">Variable Definitions</h3>
 
-<h4><a name="var-Routino_APIVersion">Global Variable Routino_APIVersion</a></h4>
+<h4 id="H_1_3_3_1"><a name="var-Routino_APIVersion">Global Variable Routino_APIVersion</a></h4>
 
 <p>
 <span class="cxref-variable-comment"> Contains the libroutino API version number. </span>
 <br>
 <span class="cxref-variable">int Routino_APIVersion</span>
 
-<h4><a name="var-Routino_errno">Global Variable Routino_errno</a></h4>
+<h4 id="H_1_3_3_2"><a name="var-Routino_errno">Global Variable Routino_errno</a></h4>
 
 <p>
 <span class="cxref-variable-comment"> Contains the error number of the most recent Routino function (one of the ROUTINO_ERROR_* values). </span>
@@ -686,9 +686,9 @@ the software is distributed or interacted with over a network.
 <span class="cxref-variable">int Routino_errno</span>
 
 
-<h3>Function Definitions</h3>
+<h3 id="H_1_3_4">Function Definitions</h3>
 
-<h4><a name="func-Routino_CalculateRoute">Global Function Routino_CalculateRoute()</a></h4>
+<h4 id="H_1_3_4_1"><a name="func-Routino_CalculateRoute">Global Function Routino_CalculateRoute()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Calculate a route using a loaded database, chosen profile, chosen translation and set of waypoints.</span>
@@ -714,7 +714,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">A function to be called occasionally to report progress or NULL.</span>
 </dl>
 
-<h4><a name="func-Routino_Check_API_Version">Global Function Routino_Check_API_Version()</a></h4>
+<h4 id="H_1_3_4_2"><a name="func-Routino_Check_API_Version">Global Function Routino_Check_API_Version()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Check the version of the library used by the caller against the library version</span>
@@ -735,7 +735,7 @@ the software is distributed or interacted with over a network.
 <br>
 <span class="cxref-define">#define Routino_CheckAPIVersion()</span>
 
-<h4><a name="func-Routino_CreateProfileFromUserProfile">Global Function Routino_CreateProfileFromUserProfile()</a></h4>
+<h4 id="H_1_3_4_3"><a name="func-Routino_CreateProfileFromUserProfile">Global Function Routino_CreateProfileFromUserProfile()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Create a fully formed Routino Profile from a Routino User Profile.</span>
@@ -749,7 +749,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">The user specified profile to convert (not modified by this).</span>
 </dl>
 
-<h4><a name="func-Routino_CreateUserProfileFromProfile">Global Function Routino_CreateUserProfileFromProfile()</a></h4>
+<h4 id="H_1_3_4_4"><a name="func-Routino_CreateUserProfileFromProfile">Global Function Routino_CreateUserProfileFromProfile()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Create a Routino User Profile from a Routino Profile loaded from an XML file.</span>
@@ -763,7 +763,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">The Routino Profile to convert (not modified by this).</span>
 </dl>
 
-<h4><a name="func-Routino_DeleteRoute">Global Function Routino_DeleteRoute()</a></h4>
+<h4 id="H_1_3_4_5"><a name="func-Routino_DeleteRoute">Global Function Routino_DeleteRoute()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Delete the linked list created by Routino_CalculateRoute.</span>
@@ -775,7 +775,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">The output to be deleted.</span>
 </dl>
 
-<h4><a name="func-Routino_FindWaypoint">Global Function Routino_FindWaypoint()</a></h4>
+<h4 id="H_1_3_4_6"><a name="func-Routino_FindWaypoint">Global Function Routino_FindWaypoint()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Finds the nearest point in the database to the specified latitude and longitude.</span>
@@ -795,21 +795,21 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">The longitude in degrees of the point.</span>
 </dl>
 
-<h4><a name="func-Routino_FreeXMLProfiles">Global Function Routino_FreeXMLProfiles()</a></h4>
+<h4 id="H_1_3_4_7"><a name="func-Routino_FreeXMLProfiles">Global Function Routino_FreeXMLProfiles()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Free the internal memory that was allocated for the Routino profiles loaded from the XML file.</span>
 <br>
 <span class="cxref-function">void Routino_FreeXMLProfiles ( void )</span>
 
-<h4><a name="func-Routino_FreeXMLTranslations">Global Function Routino_FreeXMLTranslations()</a></h4>
+<h4 id="H_1_3_4_8"><a name="func-Routino_FreeXMLTranslations">Global Function Routino_FreeXMLTranslations()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Free the internal memory that was allocated for the Routino translations loaded from the XML file.</span>
 <br>
 <span class="cxref-function">void Routino_FreeXMLTranslations ( void )</span>
 
-<h4><a name="func-Routino_GetProfile">Global Function Routino_GetProfile()</a></h4>
+<h4 id="H_1_3_4_9"><a name="func-Routino_GetProfile">Global Function Routino_GetProfile()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Select a specific routing profile from the set of Routino profiles that have been loaded from the XML file or NULL in case of an error.</span>
@@ -823,7 +823,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">The name of the profile to select.</span>
 </dl>
 
-<h4><a name="func-Routino_GetProfileNames">Global Function Routino_GetProfileNames()</a></h4>
+<h4 id="H_1_3_4_10"><a name="func-Routino_GetProfileNames">Global Function Routino_GetProfileNames()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Return a list of the profile names that have been loaded from the XML file.</span>
@@ -835,7 +835,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">Returns a NULL terminated list of strings - all allocated.</span>
 </dl>
 
-<h4><a name="func-Routino_GetTranslation">Global Function Routino_GetTranslation()</a></h4>
+<h4 id="H_1_3_4_11"><a name="func-Routino_GetTranslation">Global Function Routino_GetTranslation()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Select a specific translation from the set of Routino translations that have been loaded from the XML file or NULL in case of an error.</span>
@@ -849,7 +849,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">The language to select (as a country code, e.g. 'en', 'de') or an empty string for the first in the file or NULL for the built-in English version.</span>
 </dl>
 
-<h4><a name="func-Routino_GetTranslationLanguageFullNames">Global Function Routino_GetTranslationLanguageFullNames()</a></h4>
+<h4 id="H_1_3_4_12"><a name="func-Routino_GetTranslationLanguageFullNames">Global Function Routino_GetTranslationLanguageFullNames()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Return a list of the full names of the translation languages that have been loaded from the XML file.</span>
@@ -861,7 +861,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">Returns a NULL terminated list of strings - all allocated.</span>
 </dl>
 
-<h4><a name="func-Routino_GetTranslationLanguages">Global Function Routino_GetTranslationLanguages()</a></h4>
+<h4 id="H_1_3_4_13"><a name="func-Routino_GetTranslationLanguages">Global Function Routino_GetTranslationLanguages()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Return a list of the translation languages that have been loaded from the XML file.</span>
@@ -873,7 +873,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">Returns a NULL terminated list of strings - all allocated.</span>
 </dl>
 
-<h4><a name="func-Routino_LoadDatabase">Global Function Routino_LoadDatabase()</a></h4>
+<h4 id="H_1_3_4_14"><a name="func-Routino_LoadDatabase">Global Function Routino_LoadDatabase()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Load a database of files for Routino to use for routing.</span>
@@ -889,7 +889,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">The prefix of the database files.</span>
 </dl>
 
-<h4><a name="func-Routino_ParseXMLProfiles">Global Function Routino_ParseXMLProfiles()</a></h4>
+<h4 id="H_1_3_4_15"><a name="func-Routino_ParseXMLProfiles">Global Function Routino_ParseXMLProfiles()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Parse a Routino XML file containing profiles, must be called before selecting a profile.</span>
@@ -903,7 +903,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">The full pathname of the file to read.</span>
 </dl>
 
-<h4><a name="func-Routino_ParseXMLTranslations">Global Function Routino_ParseXMLTranslations()</a></h4>
+<h4 id="H_1_3_4_16"><a name="func-Routino_ParseXMLTranslations">Global Function Routino_ParseXMLTranslations()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Parse a Routino XML file containing translations, must be called before selecting a translation.</span>
@@ -917,7 +917,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">The full pathname of the file to read.</span>
 </dl>
 
-<h4><a name="func-Routino_UnloadDatabase">Global Function Routino_UnloadDatabase()</a></h4>
+<h4 id="H_1_3_4_17"><a name="func-Routino_UnloadDatabase">Global Function Routino_UnloadDatabase()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Close the database files that were opened by a call to Routino_LoadDatabase().</span>
@@ -929,7 +929,7 @@ the software is distributed or interacted with over a network.
   <dd><span class="cxref-function-comment">The database to close.</span>
 </dl>
 
-<h4><a name="func-Routino_ValidateProfile">Global Function Routino_ValidateProfile()</a></h4>
+<h4 id="H_1_3_4_18"><a name="func-Routino_ValidateProfile">Global Function Routino_ValidateProfile()</a></h4>
 
 <p>
 <span class="cxref-function-comment">  Validates that a selected routing profile is valid for use with the selected routing database.</span>
