@@ -2133,9 +2133,9 @@ function getRouteSuccess(response)
     if(p!=point-1)
        points[p].html += "<tr><td>" + points[p].total;
 
-    result=result + "<tr onmouseover='highlight(\"" + routing_type + "\"," + p + ",\"show\")'>" +
-                    "<td onclick='highlight(\"" + routing_type + "\"," + p + ",\"zoom\")'" +
-                    " class='distance' title='" + points[p].distance + "'>#" + (p+1) +
+    result=result + "<tr onmouseover='highlight(\"" + routing_type + "\"," + p + ",\"show\")' " +
+                    "onclick='highlight(\"" + routing_type + "\"," + p + ",\"zoom\")'>" +
+                    "<td class='distance' title='" + points[p].distance + "'>#" + (p+1) +
                     "<td class='highway'>" + points[p].highway;
    }
 
