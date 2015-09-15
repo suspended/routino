@@ -35,10 +35,10 @@ EXE=planetsplitter$(.EXE) planetsplitter-slim$(.EXE) router$(.EXE) router-slim$(
     filedumperx$(.EXE) filedumper$(.EXE) filedumper-slim$(.EXE) \
     router+lib$(.EXE) router+lib-slim$(.EXE)
 
+ifneq ($(HOST),MINGW)
 LIB=libroutino.so libroutino-slim.so
-
-ifeq ($(HOST),MINGW)
-LIB+=routino.dll routino-slim.dll
+else
+LIB =routino.dll routino-slim.dll
 LIB+=routino.def routino-slim.def
 LIB+=routino.lib routino-slim.lib
 endif
@@ -193,8 +193,8 @@ endif
 libroutino.so : $(LIBROUTINO_OBJ)
 	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
 
-routino.dll : libroutino.so
-	cp $< $@
+libroutino.dll : $(LIBROUTINO_OBJ)
+	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
 
 routino.def : routino-lib.o
 	dlltool -v --output-def $@ $<
@@ -217,8 +217,8 @@ endif
 libroutino-slim.so : $(LIBROUTINO_SLIM_OBJ)
 	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
 
-routino-slim.dll : libroutino-slim.so
-	cp $< $@
+libroutino-slim.dll : $(LIBROUTINO_SLIM_OBJ)
+	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
 
 routino-slim.def : routino-slim-lib.o
 	dlltool -v --output-def $@ $<
