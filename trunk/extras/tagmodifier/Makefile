@@ -24,8 +24,10 @@ include ../../Makefile.conf
 
 # Compilation targets
 
+DEPDIR=.deps
+
 C=$(wildcard *.c)
-D=$(wildcard .deps/*.d)
+D=$(wildcard $(DEPDIR)/*.d)
 
 ROUTINO_SRC=../../src
 
@@ -53,9 +55,11 @@ tagmodifier$(.EXE) : $(TAGMODIFIER_OBJ)
 $(ROUTINO_SRC)/%.o :
 	cd $(ROUTINO_SRC) && $(MAKE) $(notdir $@)
 
-%.o : %.c
-	@[ -d .deps ] || mkdir .deps
-	$(CC) -c $(CFLAGS) -DSLIM=0 -I$(ROUTINO_SRC) $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+$(DEPDIR) :
+	@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
+
+%.o : %.c $(DEPDIR)
+	$(CC) -c $(CFLAGS) -DSLIM=0 -I$(ROUTINO_SRC) $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 ########
 
@@ -72,7 +76,7 @@ clean:
 	rm -f *.o
 	rm -f $(EXE)
 	rm -f $(D)
-	rm -fr .deps
+	rm -fr $(DEPDIR)
 	rm -f core
 
 ########
