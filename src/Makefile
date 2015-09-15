@@ -36,7 +36,9 @@ EXE=planetsplitter$(.EXE) planetsplitter-slim$(.EXE) router$(.EXE) router-slim$(
     router+lib$(.EXE) router+lib-slim$(.EXE)
 
 ifneq ($(HOST),MINGW)
-LIB=libroutino.so libroutino-slim.so
+LIB =libroutino.so               libroutino-slim.so
+LIB+=libroutino.so.$(SOVERSION)  libroutino-slim.so.$(SOVERSION)
+LIB+=libroutino.so.$(LIBVERSION) libroutino-slim.so.$(LIBVERSION)
 else
 LIB =routino.dll routino-slim.dll
 LIB+=routino.def routino-slim.def
@@ -44,6 +46,14 @@ LIB+=routino.lib routino-slim.lib
 endif
 
 INC=routino.h
+
+ifneq ($(HOST),MINGW)
+LINK_LIB=libroutino.so
+LINK_SLIM_LIB=libroutino-slim.so
+else
+LINK_LIB=routino.dll
+LINK_SLIM_LIB=routino-slim.dll
+endif
 
 ########
 
@@ -172,10 +182,10 @@ filedumper-slim$(.EXE) : $(FILEDUMPER_SLIM_OBJ)
 
 ROUTER_LIB_OBJ=router+lib.o
 
-router+lib$(.EXE) : $(ROUTER_LIB_OBJ) libroutino.so
+router+lib$(.EXE) : $(ROUTER_LIB_OBJ) $(LINK_LIB)
 	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LDSO)
 
-router+lib-slim$(.EXE) : $(ROUTER_LIB_OBJ) libroutino-slim.so
+router+lib-slim$(.EXE) : $(ROUTER_LIB_OBJ) $(LINK_SLIM_LIB)
 	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LDSO)
 
 ########
@@ -190,10 +200,16 @@ ifeq ($(HOST),MINGW)
 LIBROUTINO_OBJ+=mman-win32.o
 endif
 
-libroutino.so : $(LIBROUTINO_OBJ)
-	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
+libroutino.so.$(LIBVERSION) : $(LIBROUTINO_OBJ)
+	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB) $(LDFLAGS_SONAME)
 
-libroutino.dll : $(LIBROUTINO_OBJ)
+libroutino.so.$(SOVERSION) : libroutino.so.$(LIBVERSION)
+	ln -sf $< $@
+
+libroutino.so : libroutino.so.$(LIBVERSION)
+	ln -sf $< $@
+
+routino.dll : $(LIBROUTINO_OBJ)
 	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
 
 routino.def : routino-lib.o
@@ -214,10 +230,16 @@ ifeq ($(HOST),MINGW)
 LIBROUTINO_SLIM_OBJ+=mman-win32.o
 endif
 
-libroutino-slim.so : $(LIBROUTINO_SLIM_OBJ)
-	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
+libroutino-slim.so.$(LIBVERSION) : $(LIBROUTINO_SLIM_OBJ)
+	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB) $(LDFLAGS_SLIM_SONAME)
 
-libroutino-slim.dll : $(LIBROUTINO_SLIM_OBJ)
+libroutino-slim.so.$(SOVERSION) : libroutino-slim.so.$(LIBVERSION)
+	ln -sf $< $@
+
+libroutino-slim.so : libroutino-slim.so.$(LIBVERSION)
+	ln -sf $< $@
+
+routino-slim.dll : $(LIBROUTINO_SLIM_OBJ)
 	$(LD) $^ -o $@ $(LDFLAGS) $(LDFLAGS_LIB)
 
 routino-slim.def : routino-slim-lib.o
@@ -271,7 +293,7 @@ install-local: all-local
 	@for file in $(LIB); do \
 	    if [ -f $$file ]; then \
 	       echo cp $$file $(DESTDIR)$(libdir) ;\
-	       cp -f $$file $(DESTDIR)$(libdir) ;\
+	       cp -df $$file $(DESTDIR)$(libdir) ;\
 	    fi ;\
 	 done
 
