@@ -28,8 +28,10 @@ SUBDIRS=xml test
 
 # Compilation targets
 
+DEPDIR=.deps
+
 C=$(wildcard *.c)
-D=$(wildcard .deps/*.d)
+D=$(wildcard $(DEPDIR)/*.d)
 
 EXE=planetsplitter$(.EXE) planetsplitter-slim$(.EXE) router$(.EXE) router-slim$(.EXE) \
     filedumperx$(.EXE) filedumper$(.EXE) filedumper-slim$(.EXE) \
@@ -170,13 +172,14 @@ filedumper-slim$(.EXE) : $(FILEDUMPER_SLIM_OBJ)
 
 ########
 
-%.o : %.c
-	@[ -d .deps ] || mkdir .deps
-	$(CC) -c $(CFLAGS) -DSLIM=0 -DROUTINO_DATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+$(DEPDIR) :
+	@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
 
-%-slim.o : %.c
-	@[ -d .deps ] || mkdir .deps
-	$(CC) -c $(CFLAGS) -DSLIM=1 -DROUTINO_DATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+%.o : %.c $(DEPDIR)
+	$(CC) -c $(CFLAGS) -DSLIM=0 -DROUTINO_DATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
+
+%-slim.o : %.c $(DEPDIR)
+	$(CC) -c $(CFLAGS) -DSLIM=1 -DROUTINO_DATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 ########
 
@@ -250,13 +253,11 @@ routino-slim.lib : routino-slim.dll routino-slim.def
 
 ########
 
-%-lib.o : %.c
-	@[ -d .deps ] || mkdir .deps
-	$(CC) -c $(CFLAGS) $(CFLAGS_LIB) -DSLIM=0 -DLIBROUTINO $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+%-lib.o : %.c $(DEPDIR)
+	$(CC) -c $(CFLAGS) $(CFLAGS_LIB) -DSLIM=0 -DLIBROUTINO $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
-%-slim-lib.o : %.c
-	@[ -d .deps ] || mkdir .deps
-	$(CC) -c $(CFLAGS) $(CFLAGS_LIB) -DSLIM=1 -DLIBROUTINO $< -o $@ -MMD -MP -MF $(addprefix .deps/,$(addsuffix .d,$(basename $@)))
+%-slim-lib.o : %.c $(DEPDIR)
+	$(CC) -c $(CFLAGS) $(CFLAGS_LIB) -DSLIM=1 -DLIBROUTINO $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 ########
 
@@ -310,7 +311,7 @@ clean-local:
 	rm -f $(EXE)
 	rm -f $(LIB)
 	rm -f $(D)
-	rm -fr .deps
+	rm -fr $(DEPDIR)
 	rm -f core
 	rm -f *.gcda *.gcno *.gcov gmon.out
 
