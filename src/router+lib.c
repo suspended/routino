@@ -467,6 +467,9 @@ int main(int argc,char** argv)
 
  Routino_FreeXMLTranslations();
 
+ if(loop)
+    nwaypoints--;
+
  for(waypoint=0;waypoint<nwaypoints;waypoint++)
     free(waypoints[waypoint]);
 
