@@ -64,7 +64,11 @@ all: all-local
 	   ( cd $$dir && $(MAKE) $@ ); \
 	done
 
-all-local: $(EXE) $(LIB)
+all-local: all-exe all-lib
+
+all-exe : $(EXE)
+
+all-lib : $(LIB)
 
 ########
 
