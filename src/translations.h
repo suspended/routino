@@ -85,10 +85,8 @@ typedef struct _Translation
  char *gpx_step;
  char *gpx_final;
 
- char *gpx_start;
- char *gpx_inter;
+ char *gpx_waypt;
  char *gpx_trip;
- char *gpx_finish;
 }
  Translation;
 

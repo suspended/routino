@@ -71,11 +71,6 @@
 %%output-html_total%%	Totaal %.1f km, %.0f minuten
 %%output-html_subtotal%%	%.1f km, %.0f minuten
 
-%%output-gpx_waypoint_start%%	START
-%%output-gpx_waypoint_inter%%	INTER
-%%output-gpx_waypoint_trip%%	TRIP
-%%output-gpx_waypoint_finish%%	FINISH
-
 %%output-gpx_desc%%	%s Route tussen 'Start' und 'Finish'
 %%output-gpx_name%%	%s Route
 %%output-gpx_step%%	%s op '%s' voor %.3f km, %.1f min

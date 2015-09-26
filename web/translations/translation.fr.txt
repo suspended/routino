@@ -71,10 +71,7 @@
 %%output-html_total%%	Total %.1f km, %.0f minutes
 %%output-html_subtotal%%	%.1f km, %.0f minutes
 
-%%output-gpx_waypoint_start%%	DEBUT
-%%output-gpx_waypoint_inter%%	INTER
 %%output-gpx_waypoint_trip%%	POINT
-%%output-gpx_waypoint_finish%%	FINAL
 
 %%output-gpx_desc%%	Itinéraire %s entre les étapes 'début' et 'fin'
 %%output-gpx_name%%	Itinéraire %s

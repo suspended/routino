@@ -57,7 +57,7 @@ static Translation default_translation=
  .xml_route_shortest = "Shortest",
  .xml_route_quickest = "Quickest",
 
- .html_waypoint   = "<span class='w'>Waypoint</span>", /* span tag added when reading XML translations file */
+ .html_waypoint   = "Waypoint",
  .html_junction   = "Junction",
  .html_roundabout = "Roundabout",
 
@@ -88,10 +88,8 @@ static Translation default_translation=
  .gpx_step  = "%s on '%s' for %.3f km, %.1f min",
  .gpx_final = "Total Journey %.1f km, %.0f minutes",
 
- .gpx_start  = "START",
- .gpx_inter  = "INTER",
+ .gpx_waypt  = "WAYPT",
  .gpx_trip   = "TRIP",
- .gpx_finish = "FINISH"
 };
 
 
@@ -861,8 +859,7 @@ static int HTMLWaypointType_function(const char *_tag_,int _type_,const char *ty
       {
        loaded_translations[nloaded_translations-1]->nothtml_waypoint=strcpy(malloc(strlen(string)+1),string);
 
-       loaded_translations[nloaded_translations-1]->html_waypoint=malloc(strlen(xmlstring)+1+sizeof("<span class='w'>")+sizeof("</span>"));
-       sprintf(loaded_translations[nloaded_translations-1]->html_waypoint,"<span class='w'>%s</span>",xmlstring);
+       loaded_translations[nloaded_translations-1]->html_waypoint=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
       }
     else if(!strcmp(type,"junction"))
       {
@@ -1268,14 +1265,10 @@ static int GPXWaypointType_function(const char *_tag_,int _type_,const char *typ
 
     xmlstring=ParseXML_Encode_Safe_XML(string);
 
-    if(!strcmp(type,"start"))
-       loaded_translations[nloaded_translations-1]->gpx_start=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
-    else if(!strcmp(type,"inter"))
-       loaded_translations[nloaded_translations-1]->gpx_inter=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
+    if(!strcmp(type,"waypt"))
+       loaded_translations[nloaded_translations-1]->gpx_waypt=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
     else if(!strcmp(type,"trip"))
        loaded_translations[nloaded_translations-1]->gpx_trip=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
-    else if(!strcmp(type,"finish"))
-       loaded_translations[nloaded_translations-1]->gpx_finish=strcpy(malloc(strlen(xmlstring)+1),xmlstring);
     else
        XMLPARSE_INVALID(_tag_,type);
    }
@@ -1594,10 +1587,8 @@ void FreeXMLTranslations()
     if(loaded_translations[i]->gpx_step  != default_translation.gpx_step)  free(loaded_translations[i]->gpx_step);
     if(loaded_translations[i]->gpx_final != default_translation.gpx_final) free(loaded_translations[i]->gpx_final);
 
-    if(loaded_translations[i]->gpx_start  != default_translation.gpx_start)  free(loaded_translations[i]->gpx_start);
-    if(loaded_translations[i]->gpx_inter  != default_translation.gpx_inter)  free(loaded_translations[i]->gpx_inter);
+    if(loaded_translations[i]->gpx_waypt  != default_translation.gpx_waypt)  free(loaded_translations[i]->gpx_waypt);
     if(loaded_translations[i]->gpx_trip   != default_translation.gpx_trip)   free(loaded_translations[i]->gpx_trip);
-    if(loaded_translations[i]->gpx_finish != default_translation.gpx_finish) free(loaded_translations[i]->gpx_finish);
 
     free(loaded_translations[i]);
    }

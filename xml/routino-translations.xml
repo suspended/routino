@@ -97,10 +97,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <waypoint type="start" string="START" /> <!-- For the first route waypoint -->
-      <waypoint type="inter" string="INTER" /> <!-- For the intermediate route waypoints -->
+      <waypoint type="waypt" string="WAYPT" /> <!-- For the route waypoints -->
       <waypoint type="trip" string="TRIP" /> <!-- For the other route points -->
-      <waypoint type="finish" string="FINISH"/> <!-- For the last route waypoint -->
 
       <desc  text="%s route between 'start' and 'finish' waypoints" /> <!-- %s = [shortest|quickest] -->
       <name  text="%s route" /> <!-- %s = [shortest|quickest] -->
@@ -191,10 +189,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <waypoint type="start" string="START" /> <!-- For the first route waypoint -->
-      <waypoint type="inter" string="INTER" /> <!-- For the intermediate route waypoints -->
-      <waypoint type="trip" string="TRIP" /> <!-- For the other route points -->
-      <waypoint type="finish" string="FINISH"/> <!-- For the last route waypoint -->
+      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
+      <!-- TRANSLATION REQUIRED: waypoint type="trip" string="TRIP" / --> <!-- For the other route points -->
 
       <desc  text="%s Strecke zwischen 'Start' und 'Ziel'" /> <!-- %s = [shortest|quickest] -->
       <name  text="%s Strecke" /> <!-- %s = [shortest|quickest] -->
@@ -285,10 +281,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <waypoint type="start" string="DEBUT" /> <!-- For the first route waypoint -->
-      <waypoint type="inter" string="INTER" /> <!-- For the intermediate route waypoints -->
+      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
       <waypoint type="trip" string="POINT" /> <!-- For the other route points -->
-      <waypoint type="finish" string="FINAL"/> <!-- For the last route waypoint -->
 
       <desc  text="Itinéraire %s entre les étapes 'début' et 'fin'" /> <!-- %s = [shortest|quickest] -->
       <name  text="Itinéraire %s" /> <!-- %s = [shortest|quickest] -->
@@ -379,10 +373,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <waypoint type="start" string="Indulás" /> <!-- For the first route waypoint -->
-      <!-- TRANSLATION REQUIRED: waypoint type="inter" string="INTER" / --> <!-- For the intermediate route waypoints -->
+      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
       <waypoint type="trip" string="Utazás" /> <!-- For the other route points -->
-      <!-- TRANSLATION REQUIRED: waypoint type="finish" string="FINISH"/ --> <!-- For the last route waypoint -->
 
       <desc  text="%s útvonal a kezdő és utolsó pont között" /> <!-- %s = [shortest|quickest] -->
       <!-- TRANSLATION REQUIRED: name  text="%s route" / --> <!-- %s = [shortest|quickest] -->
@@ -473,10 +465,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <waypoint type="start" string="START" /> <!-- For the first route waypoint -->
-      <waypoint type="inter" string="INTER" /> <!-- For the intermediate route waypoints -->
-      <waypoint type="trip" string="TRIP" /> <!-- For the other route points -->
-      <waypoint type="finish" string="FINISH"/> <!-- For the last route waypoint -->
+      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
+      <!-- TRANSLATION REQUIRED: waypoint type="trip" string="TRIP" / --> <!-- For the other route points -->
 
       <desc  text="%s Route tussen 'Start' und 'Finish'" /> <!-- %s = [shortest|quickest] -->
       <name  text="%s Route" /> <!-- %s = [shortest|quickest] -->
@@ -567,10 +557,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <waypoint type="start" string="START" /> <!-- For the first route waypoint -->
-      <waypoint type="inter" string="INTER" /> <!-- For the intermediate route waypoints -->
-      <waypoint type="trip" string="TRIP" /> <!-- For the other route points -->
-      <waypoint type="finish" string="KONIEC"/> <!-- For the last route waypoint -->
+      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
+      <!-- TRANSLATION REQUIRED: waypoint type="trip" string="TRIP" / --> <!-- For the other route points -->
 
       <desc  text="%s trasa pomiędzy 'start' a 'koniec'" /> <!-- %s = [shortest|quickest] -->
       <name  text="%s trasa" /> <!-- %s = [shortest|quickest] -->
@@ -661,10 +649,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <waypoint type="start" string="Старт" /> <!-- For the first route waypoint -->
-      <waypoint type="inter" string="INTER" /> <!-- For the intermediate route waypoints -->
-      <waypoint type="trip" string="TRIP" /> <!-- For the other route points -->
-      <waypoint type="finish" string="Финиш"/> <!-- For the last route waypoint -->
+      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
+      <!-- TRANSLATION REQUIRED: waypoint type="trip" string="TRIP" / --> <!-- For the other route points -->
 
       <desc  text="%s маршрут от 'Старта' до 'Финиша'" /> <!-- %s = [shortest|quickest] -->
       <name  text="%s маршрут" /> <!-- %s = [shortest|quickest] -->

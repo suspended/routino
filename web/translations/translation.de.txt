@@ -71,11 +71,6 @@
 %%output-html_total%%	Gesamt %.1f km, %.0f minuten
 %%output-html_subtotal%%	%.1f km, %.0f minuten
 
-%%output-gpx_waypoint_start%%	START
-%%output-gpx_waypoint_inter%%	INTER
-%%output-gpx_waypoint_trip%%	TRIP
-%%output-gpx_waypoint_finish%%	FINISH
-
 %%output-gpx_desc%%	%s Strecke zwischen 'Start' und 'Ziel'
 %%output-gpx_name%%	%s Strecke
 %%output-gpx_step%%	%s auf '%s' für %.3f km, %.1f min
