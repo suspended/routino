@@ -24,11 +24,6 @@ include ../../Makefile.conf
 
 # executables
 
-ROUTINO_EXE=planetsplitter$(.EXE) planetsplitter-slim$(.EXE) \
-            router$(.EXE)         router-slim$(.EXE) \
-            router+lib$(.EXE)     router+lib-slim$(.EXE) \
-            filedumper$(.EXE)     filedumper-slim$(.EXE)
-
 EXE=is-fast-math$(.EXE)
 
 # Compilation targets
@@ -48,7 +43,7 @@ test : test-exe $(EXE)
 ########
 
 test-exe :
-	cd .. && $(MAKE) $(ROUTINO_EXE)
+	cd .. && $(MAKE) all-exe all-lib
 
 is-fast-math$(.EXE) : is-fast-math.o
 	$(LD) $< -o $@ $(LDFLAGS)
