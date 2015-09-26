@@ -4,7 +4,7 @@
 #
 #Latitude	Longitude	    Node	Type	Segment	Segment	Total	Total  	Speed	Bearing	Highway
 #        	         	        	    	Dist   	Durat'n	Dist 	Durat'n	     	       	       
- -0.217286	  -0.520780	       7 	Waypt	0.000	 0.00	 0.00	  0.0			
- -0.217286	  -0.520780	       7 	Waypt	0.000	 0.00	 0.00	  0.0	 96	 270	main 1
- -0.218523	  -0.520806	       6 	Waypt	0.137	 0.09	 0.14	  0.1	 96	 181	main 1
- -0.218523	  -0.520806	       6 	Waypt	0.000	 0.00	 0.14	  0.1	 96	 270	main 1
+ -0.217286	  -0.520780	       7 	Waypt#1	0.000	 0.00	 0.00	  0.0			
+ -0.217286	  -0.520780	       7 	Waypt#2	0.000	 0.00	 0.00	  0.0	 96	 270	main 1
+ -0.218523	  -0.520806	       6 	Waypt#3	0.137	 0.09	 0.14	  0.1	 96	 181	main 1
+ -0.218523	  -0.520806	       6 	Waypt#4	0.000	 0.00	 0.14	  0.1	 96	 270	main 1
