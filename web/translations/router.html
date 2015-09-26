@@ -122,9 +122,15 @@
               </div>
             </div>
           </div>
-          <div id="waypoints-buttons" class="center">
-            <input type="button" title="@@WAYPOINT-REVERSE@@" value="@@WAYPOINT-REVERSE-BUTTON@@" onmousedown="markersReverse();">
-            <input type="button" title="@@WAYPOINT-LOOP@@"    value="@@WAYPOINT-LOOP-BUTTON@@"    onmousedown="markersLoop();">
+          <div id="waypoints-buttons">
+            <table>
+              <tr><td>@@WAYPOINT-LOOP-BUTTON@@:   <td><input type="checkbox" name="loop"    onchange="formSetLoopReverse('loop'   );">
+              <tr><td>@@WAYPOINT-REVERSE-BUTTON@@:<td><input type="checkbox" name="reverse" onchange="formSetLoopReverse('reverse');">
+            </table>
+            <div class="waypoint-buttons" style="display: inline-block;">
+              <img src="icons/waypoint-loop.png"    title="@@WAYPOINT-LOOP@@"    onmousedown="markersLoop();">
+              <img src="icons/waypoint-reverse.png" title="@@WAYPOINT-REVERSE@@" onmousedown="markersReverse();">
+            </div>
           </div>
         </div>
       </div>

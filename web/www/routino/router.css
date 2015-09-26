@@ -58,6 +58,7 @@ DIV#tab_options_div DIV.waypoint SPAN
 
 DIV#tab_options_div DIV.waypoint DIV.waypoint-buttons
 {
+ width: 76px;
  float: right;
 }
 
@@ -79,6 +80,29 @@ DIV#tab_options_div DIV.waypoint IMG:hover
 DIV#tab_options_div DIV#waypoints-buttons
 {
  clear: both;
+}
+
+DIV#tab_options_div DIV#waypoints-buttons TABLE
+{
+ float: left;
+}
+
+DIV#tab_options_div DIV#waypoints-buttons DIV.waypoint-buttons
+{
+ width: 76px;
+ float: right;
+ text-align: center;
+ vertical-align: 50%;
+}
+
+DIV#tab_options_div DIV#waypoints-buttons IMG
+{
+ cursor: pointer;
+}
+
+DIV#tab_options_div DIV#waypoints-buttons IMG:hover
+{
+ background: #F0F000;
 }
 
 DIV#tab_options_div TABLE
