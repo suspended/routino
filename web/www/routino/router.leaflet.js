@@ -481,10 +481,9 @@ function formSetRestriction(type,value) // called from router.html (with one arg
  if(type=="oneway" || type=="turns")
    {
     if(value === undefined)
-       routino.profile_restrictions[type][routino.transport]=document.forms["form"].elements["restrict-" + type].checked;
-    else
-       document.forms["form"].elements["restrict-" + type].checked=value;
+       value=document.forms["form"].elements["restrict-" + type].checked;
 
+    document.forms["form"].elements["restrict-" + type].checked=value;
     routino.profile_restrictions[type][routino.transport]=value;
    }
  else if(type=="weight")
