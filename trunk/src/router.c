@@ -124,10 +124,20 @@ int main(int argc,char** argv)
        translations=&argv[arg][15];
     else if(!strcmp(argv[arg],"--exact-nodes-only"))
        exactnodes=1;
-    else if(!strcmp(argv[arg],"--reverse"))
-       reverse=1;
-    else if(!strcmp(argv[arg],"--loop"))
-       loop=1;
+    else if(!strncmp(argv[arg],"--reverse",9))
+      {
+       if(argv[arg][9]=='=')
+          reverse=atoi(&argv[arg][10]);
+       else
+          reverse=1;
+      }
+    else if(!strncmp(argv[arg],"--loop",6))
+      {
+       if(argv[arg][6]=='=')
+          loop=atoi(&argv[arg][7]);
+       else
+          loop=1;
+      }
     else if(!strcmp(argv[arg],"--quiet"))
        option_quiet=1;
     else if(!strcmp(argv[arg],"--loggable"))

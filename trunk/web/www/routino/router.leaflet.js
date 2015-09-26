@@ -83,7 +83,10 @@ var legal={"^lon"             : "^[-0-9.]+$",
            "^width"           : "^[0-9.]+$",
            "^length"          : "^[0-9.]+$",
 
-           "^language"        : "^[-a-zA-Z]+$"};
+           "^language"        : "^[-a-zA-Z]+$",
+
+           "^reverse"         : "(1|0|true|false|on|off)",
+           "^loop"            : "(1|0|true|false|on|off)"};
 
 var args={};
 
@@ -220,6 +223,16 @@ function form_init()            // called from router.html
     else if(searchfield.attachEvent)
        searchfield.attachEvent("keyup", searchOnReturnKey); // Internet Explorer
    }
+
+ if(args["loop"] !== undefined)
+    formSetLoopReverse("loop",args["loop"]);
+ else
+    formSetLoopReverse("loop",false);
+
+ if(args["reverse"] !== undefined)
+    formSetLoopReverse("reverse",args["reverse"]);
+ else
+    formSetLoopReverse("reverse",false);
 
  // Update the transport type with the URL settings which updates all HTML forms to defaults.
 
@@ -617,6 +630,26 @@ function formSetSearch(marker,search) // called from event handler linked to rou
 
 
 //
+// Change of loop or reverse option in the form
+//
+
+function formSetLoopReverse(type,value) // called from router.html (with one argument)
+{
+ if(value === undefined)
+    value=document.forms["form"].elements[type].checked;
+
+ document.forms["form"].elements[type].checked=value;
+
+ if(type == "loop")
+    routino.loop=value;
+ else
+    routino.reverse=value;
+
+ updateURLs();
+}
+
+
+//
 // Format a number in printf("%.5f") format.
 //
 
@@ -672,6 +705,12 @@ function buildURLArguments(lang)
  for(var key in routino.restrictions)
     if(routino.profile_restrictions[key][routino.transport]!=routino_default.profile_restrictions[key][routino.transport])
        url=url + ";" + key + "=" + routino.profile_restrictions[key][routino.transport];
+
+ if(routino.loop)
+    url=url + ";loop=true";
+
+ if(routino.reverse)
+    url=url + ";reverse=true";
 
  if(lang && routino.language)
     url=url + ";language=" + routino.language;
