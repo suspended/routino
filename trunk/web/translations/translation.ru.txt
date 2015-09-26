@@ -69,11 +69,6 @@
 %%output-html_total%%	Всего %.1f км, %.0f минут
 %%output-html_subtotal%%	%.1f км, %.0f минут
 
-%%output-gpx_waypoint_start%%	Старт
-%%output-gpx_waypoint_inter%%	INTER
-%%output-gpx_waypoint_trip%%	TRIP
-%%output-gpx_waypoint_finish%%	Финиш
-
 %%output-gpx_desc%%	%s маршрут от 'Старта' до 'Финиша'
 %%output-gpx_name%%	%s маршрут
 %%output-gpx_step%%	на %s по '%s' %.3f км, %.1f мин

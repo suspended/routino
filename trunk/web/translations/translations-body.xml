@@ -79,10 +79,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <waypoint type="start" string="%%output-gpx_waypoint_start%%" /> <!-- For the first route waypoint -->
-      <waypoint type="inter" string="%%output-gpx_waypoint_inter%%" /> <!-- For the intermediate route waypoints -->
+      <waypoint type="waypt" string="%%output-gpx_waypoint_waypt%%" /> <!-- For the route waypoints -->
       <waypoint type="trip" string="%%output-gpx_waypoint_trip%%" /> <!-- For the other route points -->
-      <waypoint type="finish" string="%%output-gpx_waypoint_finish%%"/> <!-- For the last route waypoint -->
 
       <desc  text="%%output-gpx_desc%%" /> <!-- %s = [shortest|quickest] -->
       <name  text="%%output-gpx_name%%" /> <!-- %s = [shortest|quickest] -->
