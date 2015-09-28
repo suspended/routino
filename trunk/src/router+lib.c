@@ -345,7 +345,11 @@ int main(int argc,char** argv)
 
  /* Check the profile is valid for use with this database */
 
- Routino_ValidateProfile(database,profile);
+ if(Routino_ValidateProfile(database,profile)!=ROUTINO_ERROR_NONE)
+   {
+    fprintf(stderr,"Error: Profile is invalid or not compatible with database.\n");
+    exit(EXIT_FAILURE);
+   }
 
  /* Check for reverse direction */
 
@@ -373,18 +377,20 @@ int main(int argc,char** argv)
  nwaypoints=0;
 
  for(waypoint=first_waypoint;waypoint!=last_waypoint;waypoint+=inc_dec_waypoint)
-    if(point_used[waypoint]==3)
+   {
+    if(point_used[waypoint]!=3)
+       continue;
+
+    waypoints[nwaypoints]=Routino_FindWaypoint(database,profile,point_lat[waypoint],point_lon[waypoint]);
+
+    if(!waypoints[nwaypoints])
       {
-       waypoints[nwaypoints]=Routino_FindWaypoint(database,profile,point_lat[waypoint],point_lon[waypoint]);
-
-       if(!waypoints[nwaypoints])
-         {
-          fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",waypoint);
-          exit(EXIT_FAILURE);
-         }
-
-       nwaypoints++;
+       fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",waypoint);
+       exit(EXIT_FAILURE);
       }
+
+    nwaypoints++;
+   }
 
  if(loop)
     waypoints[nwaypoints++]=waypoints[0];
