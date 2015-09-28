@@ -35,11 +35,16 @@
 #include "profiles.h"
 #include "translations.h"
 
+#include "version.h"
+
 
 /* Global variables */
 
 /*+ Contains the libroutino API version number. +*/
-DLL_PUBLIC int Routino_APIVersion=ROUTINO_API_VERSION;
+DLL_PUBLIC const int Routino_APIVersion=ROUTINO_API_VERSION;
+
+/*+ Contains the Routino version number. +*/
+DLL_PUBLIC const char *Routino_Version=ROUTINO_VERSION;
 
 /*+ Contains the error number of the most recent Routino function (one of the ROUTINO_ERROR_* values). +*/
 DLL_PUBLIC int Routino_errno=ROUTINO_ERROR_NONE;

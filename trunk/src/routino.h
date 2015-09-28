@@ -238,7 +238,10 @@ extern "C"
  /* Routino error number variable */
 
  /*+ Contains the libroutino API version number. +*/
- DLL_PUBLIC extern int Routino_APIVersion;
+ DLL_PUBLIC extern const int Routino_APIVersion;
+
+ /*+ Contains the Routino version number. +*/
+ DLL_PUBLIC extern const char *Routino_Version;
 
  /*+ Contains the error number of the most recent Routino function (one of the ROUTINO_ERROR_* values). +*/
  DLL_PUBLIC extern int Routino_errno;

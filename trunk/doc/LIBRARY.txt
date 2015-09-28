@@ -408,7 +408,13 @@ Global Variable Routino_APIVersion
 
    Contains the libroutino API version number.
 
-   int Routino_APIVersion
+   const int Routino_APIVersion
+
+Global Variable Routino_Version
+
+   Contains the Routino version number.
+
+   const char* Routino_Version
 
 Global Variable Routino_errno
 
