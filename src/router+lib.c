@@ -532,7 +532,9 @@ static void print_usage(int detail,const char *argerr,const char *err)
  if(detail<0)
    {
     fprintf(stderr,
-            "Routino version " ROUTINO_VERSION " " ROUTINO_URL ".\n"
+            "Routino version " ROUTINO_VERSION " " ROUTINO_URL " "
+            "[Library version: %s, API version: %d]\n",
+            Routino_Version,Routino_APIVersion
             );
    }
 
