@@ -164,6 +164,63 @@ int main(int argc,char** argv)
        profilename=&argv[arg][10];
     else if(!strncmp(argv[arg],"--language=",11))
        language=&argv[arg][11];
+    else if(!strcmp(argv[arg],"--shortest"))
+       option_quickest=0;
+    else if(!strcmp(argv[arg],"--quickest"))
+       option_quickest=1;
+    else if(!strncmp(argv[arg],"--lon",5) && isdigit(argv[arg][5]))
+      {
+       int point;
+       char *p=&argv[arg][6];
+
+       while(isdigit(*p)) p++;
+       if(*p++!='=')
+          print_usage(0,argv[arg],NULL);
+
+       point=atoi(&argv[arg][5]);
+       if(point>NWAYPOINTS || point_used[point]&1)
+          print_usage(0,argv[arg],NULL);
+
+       point_lon[point]=degrees_to_radians(atof(p));
+       point_used[point]+=1;
+
+       if(point<first_waypoint)
+          first_waypoint=point;
+       if(point>last_waypoint)
+          last_waypoint=point;
+      }
+    else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]))
+      {
+       int point;
+       char *p=&argv[arg][6];
+
+       while(isdigit(*p)) p++;
+       if(*p++!='=')
+          print_usage(0,argv[arg],NULL);
+
+       point=atoi(&argv[arg][5]);
+       if(point>NWAYPOINTS || point_used[point]&2)
+          print_usage(0,argv[arg],NULL);
+
+       point_lat[point]=degrees_to_radians(atof(p));
+       point_used[point]+=2;
+
+       if(point<first_waypoint)
+          first_waypoint=point;
+       if(point>last_waypoint)
+          last_waypoint=point;
+      }
+    else if(!strncmp(argv[arg],"--heading=",10))
+      {
+       double h=atof(&argv[arg][10]);
+
+       if(h>=-360 && h<=360)
+         {
+          heading=h;
+
+          if(heading<0) heading+=360;
+         }
+      }
     else if(!strncmp(argv[arg],"--transport=",12))
       {
        transport=TransportType(&argv[arg][12]);
@@ -238,71 +295,12 @@ int main(int argc,char** argv)
     profile->transport=transport;
    }
 
- /* Parse the other command line arguments */
+ /* Parse the other command line arguments that modify the profile */
 
  for(arg=1;arg<argc;arg++)
    {
     if(!argv[arg])
        continue;
-    else if(!strcmp(argv[arg],"--shortest"))
-       option_quickest=0;
-    else if(!strcmp(argv[arg],"--quickest"))
-       option_quickest=1;
-    else if(!strncmp(argv[arg],"--lon",5) && isdigit(argv[arg][5]))
-      {
-       int point;
-       char *p=&argv[arg][6];
-
-       while(isdigit(*p)) p++;
-       if(*p++!='=')
-          print_usage(0,argv[arg],NULL);
-
-       point=atoi(&argv[arg][5]);
-       if(point>NWAYPOINTS || point_used[point]&1)
-          print_usage(0,argv[arg],NULL);
-
-       point_lon[point]=degrees_to_radians(atof(p));
-       point_used[point]+=1;
-
-       if(point<first_waypoint)
-          first_waypoint=point;
-       if(point>last_waypoint)
-          last_waypoint=point;
-      }
-    else if(!strncmp(argv[arg],"--lat",5) && isdigit(argv[arg][5]))
-      {
-       int point;
-       char *p=&argv[arg][6];
-
-       while(isdigit(*p)) p++;
-       if(*p++!='=')
-          print_usage(0,argv[arg],NULL);
-
-       point=atoi(&argv[arg][5]);
-       if(point>NWAYPOINTS || point_used[point]&2)
-          print_usage(0,argv[arg],NULL);
-
-       point_lat[point]=degrees_to_radians(atof(p));
-       point_used[point]+=2;
-
-       if(point<first_waypoint)
-          first_waypoint=point;
-       if(point>last_waypoint)
-          last_waypoint=point;
-      }
-    else if(!strncmp(argv[arg],"--heading=",10))
-      {
-       double h=atof(&argv[arg][10]);
-
-       if(h>=-360 && h<=360)
-         {
-          heading=h;
-
-          if(heading<0) heading+=360;
-         }
-      }
-    else if(!strncmp(argv[arg],"--transport=",12))
-       ; /* Done this already */
     else if(!strncmp(argv[arg],"--highway-",10))
       {
        Highway highway;
@@ -427,15 +425,6 @@ int main(int argc,char** argv)
     exit(EXIT_SUCCESS);
    }
 
- /* Check the waypoints are valid */
-
- for(waypoint=1;waypoint<=NWAYPOINTS;waypoint++)
-    if(point_used[waypoint]==1 || point_used[waypoint]==2)
-       print_usage(0,NULL,"All waypoints must have latitude and longitude.");
-
- if(first_waypoint>=last_waypoint)
-    print_usage(0,NULL,"At least two waypoints must be specified.");
-
  /* Load in the selected translation */
 
  if(option_file_html || option_file_gpx_route || option_file_gpx_track || option_file_text || option_file_text_all)
@@ -494,6 +483,15 @@ int main(int argc,char** argv)
       }
    }
 
+ /* Check the waypoints are valid */
+
+ for(waypoint=1;waypoint<=NWAYPOINTS;waypoint++)
+    if(point_used[waypoint]==1 || point_used[waypoint]==2)
+       print_usage(0,NULL,"All waypoints must have latitude and longitude.");
+
+ if(first_waypoint>=last_waypoint)
+    print_usage(0,NULL,"At least two waypoints must be specified.");
+
  /* Load in the data - Note: No error checking because Load*List() will call exit() in case of an error. */
 
  if(!option_quiet)
@@ -510,7 +508,7 @@ int main(int argc,char** argv)
  if(!option_quiet)
     printf_last("Loaded Files: nodes, segments, ways & relations");
 
- /* Check the profile compared to the types of ways available */
+ /* Check the profile is valid for use with this database */
 
  if(UpdateProfile(profile,OSMWays))
    {
@@ -560,9 +558,7 @@ int main(int argc,char** argv)
     start_waypoint=finish_waypoint;
 
     if(exactnodes)
-      {
        finish_node=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[waypoint],point_lon[waypoint],distmax,profile,&distmin);
-      }
     else
       {
        distance_t dist1,dist2;
