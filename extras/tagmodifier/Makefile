@@ -55,10 +55,8 @@ tagmodifier$(.EXE) : $(TAGMODIFIER_OBJ)
 $(ROUTINO_SRC)/%.o :
 	cd $(ROUTINO_SRC) && $(MAKE) $(notdir $@)
 
-$(DEPDIR) :
-	@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
-
-%.o : %.c $(DEPDIR)
+%.o : %.c
+	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
 	$(CC) -c $(CFLAGS) -DSLIM=0 -I$(ROUTINO_SRC) $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 ########

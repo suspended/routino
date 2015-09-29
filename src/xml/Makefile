@@ -63,10 +63,8 @@ xsd-to-xmlparser$(.EXE) : xsd-to-xmlparser.o ../xmlparse.o
 
 ########
 
-$(DEPDIR) :
-	@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
-
-%.o : %.c $(DEPDIR)
+%.o : %.c
+	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
 	$(CC) -c $(CFLAGS) -I.. $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 ########

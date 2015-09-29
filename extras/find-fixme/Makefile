@@ -148,13 +148,12 @@ $(ROUTINO_SRC)/%.o :
 $(ROUTINO_SRC)/%-slim.o :
 	cd $(ROUTINO_SRC) && $(MAKE) $(notdir $@)
 
-$(DEPDIR) :
-	@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
-
-%.o : %.c $(DEPDIR)
+%.o : %.c
+	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
 	$(CC) -c $(CFLAGS) -DSLIM=0 -I$(ROUTINO_SRC) $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
-%-slim.o : %.c $(DEPDIR)
+%-slim.o : %.c
+	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
 	$(CC) -c $(CFLAGS) -DSLIM=1 -I$(ROUTINO_SRC) $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 ########
