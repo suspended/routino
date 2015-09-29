@@ -158,7 +158,7 @@ $(WEBICONDIR)/ball-0.png: $(WEBICONDIR)/create-icons.pl
 ####
 
 all-exe:
-	cd $(SRCDIR) && $(MAKE) $(EXE_FILES)
+	cd $(SRCDIR) && $(MAKE) all-exe
 
 ####
 
