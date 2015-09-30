@@ -68,7 +68,7 @@ int main(int argc,char** argv)
  int                  html=0,gpx_track=0,gpx_route=0,text=0,text_all=0,none=0,use_stdout=0;
  int                  list_html=0,list_html_all=0,list_text=0,list_text_all=0;
  int                  arg;
- int                  first_waypoint=NWAYPOINTS,last_waypoint=1,inc_dec_waypoint,waypoint,nwaypoints=0;
+ int                  first_waypoint=NWAYPOINTS,last_waypoint=1,waypoint,nwaypoints=0;
  int                  routing_options;
 
  /* Check the libroutino API version */
@@ -351,32 +351,11 @@ int main(int argc,char** argv)
     exit(EXIT_FAILURE);
    }
 
- /* Check for reverse direction */
-
- if(reverse)
-   {
-    int temp;
-
-    temp=first_waypoint;
-    first_waypoint=last_waypoint;
-    last_waypoint=temp;
-
-    last_waypoint--;
-
-    inc_dec_waypoint=-1;
-   }
- else
-   {
-    last_waypoint++;
-
-    inc_dec_waypoint=1;
-   }
-
  /* Loop through all waypoints */
 
  nwaypoints=0;
 
- for(waypoint=first_waypoint;waypoint!=last_waypoint;waypoint+=inc_dec_waypoint)
+ for(waypoint=first_waypoint;waypoint!=last_waypoint;waypoint+=1)
    {
     if(point_used[waypoint]!=3)
        continue;
@@ -392,8 +371,26 @@ int main(int argc,char** argv)
     nwaypoints++;
    }
 
+ /* Check for loop */
+
  if(loop)
     waypoints[nwaypoints++]=waypoints[0];
+
+ /* Check for reverse direction */
+
+ if(reverse)
+   {
+    int f,b;
+
+    for(f=0,b=nwaypoints-1;f<b;f++,b--)
+      {
+       Routino_Waypoint *temp;
+
+       temp=waypoints[f];
+       waypoints[f]=waypoints[b];
+       waypoints[b]=temp;
+      }
+   }
 
  /* Create the route */
 
