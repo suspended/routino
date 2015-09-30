@@ -200,13 +200,13 @@
 
   </language>
 
-  <language lang="fr" language="Francais">
+  <language lang="fr" language="Français">
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>
       <creator string="Créateur" text="Routino - http://www.routino.org/" />
       <source  string="Source" text="Basé sur les données OpenStreetMap de http://www.openstreetmap.org/" />
-      <license string="License" text="http://www.openstreetmap.org/copyright" />
+      <license string="Licence" text="http://www.openstreetmap.org/copyright" />
     </copyright>
 
     <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
@@ -222,7 +222,7 @@
 
     <!-- Heading directions, 0 = North, -2 = West, +/-4 = South, +2 = East -->
     <heading direction="-4" string="Sud" />
-    <heading direction="-3" string="Dud-Ouest" />
+    <heading direction="-3" string="Sud-Ouest" />
     <heading direction="-2" string="Ouest" />
     <heading direction="-1" string="Nord-Ouest" />
     <heading direction="0"  string="Nord" />
@@ -239,7 +239,7 @@
     <ordinal number="5"  string="Cinquième" />
     <ordinal number="6"  string="Sixième" />
     <ordinal number="7"  string="Septième" />
-    <ordinal number="8"  string="huitième" />
+    <ordinal number="8"  string="Huitième" />
     <ordinal number="9"  string="Neuvième" />
     <ordinal number="10" string="Dixième" />
 
@@ -252,8 +252,8 @@
     <highway type="unclassified" string="route non classifiée" />
     <highway type="residential"  string="rue résidentielle" />
     <highway type="service"      string="rue de service" />
-    <highway type="track"        string="chemin" />
-    <highway type="cycleway"     string="voie cyclable" />
+    <highway type="track"        string="piste" />
+    <highway type="cycleway"     string="piste cyclable" />
     <highway type="path"         string="sentier" />
     <highway type="steps"        string="escalier" />
     <highway type="ferry"        string="ferry" />
@@ -264,8 +264,8 @@
 
     <!-- HTML output -->
     <output-html>
-      <waypoint type="waypoint"   string="Etape" /> <!-- For the chosen waypoints -->
-      <waypoint type="junction"   string="Croisement" /> <!-- For the interesting junctions -->
+      <waypoint type="waypoint"   string="Étape" /> <!-- For the chosen waypoints -->
+      <waypoint type="junction"   string="Intersection" /> <!-- For the interesting junctions -->
       <waypoint type="roundabout" string="rond-point" /> <!-- For roundabouts -->
 
       <title text="Itinéraire %s" /> <!-- %s = [shortest|quickest] -->

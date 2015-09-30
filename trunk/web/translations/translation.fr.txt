@@ -9,7 +9,7 @@
 %%copyright_creator_string%%	Créateur
 %%copyright_source_string%%	Source
 %%copyright_source_text%%	Basé sur les données OpenStreetMap de http://www.openstreetmap.org/
-%%copyright_license_string%%	License
+%%copyright_license_string%%	Licence
 
 %%turn_-4%%	demi-tour à gauche
 %%turn_-3%%	Très à gauche
@@ -22,7 +22,7 @@
 %%turn_4%%	demi-tour à droite
 
 %%heading_-4%%	Sud
-%%heading_-3%%	Dud-Ouest
+%%heading_-3%%	Sud-Ouest
 %%heading_-2%%	Ouest
 %%heading_-1%%	Nord-Ouest
 %%heading_0%%	Nord
@@ -38,7 +38,7 @@
 %%ordinal_5%%	Cinquième
 %%ordinal_6%%	Sixième
 %%ordinal_7%%	Septième
-%%ordinal_8%%	huitième
+%%ordinal_8%%	Huitième
 %%ordinal_9%%	Neuvième
 %%ordinal_10%%	Dixième
 
@@ -50,8 +50,8 @@
 %%highway_unclassified%%	route non classifiée
 %%highway_residential%%	rue résidentielle
 %%highway_service%%	rue de service
-%%highway_track%%	chemin
-%%highway_cycleway%%	voie cyclable
+%%highway_track%%	piste
+%%highway_cycleway%%	piste cyclable
 %%highway_path%%	sentier
 %%highway_steps%%	escalier
 %%highway_ferry%%	ferry
@@ -59,8 +59,8 @@
 %%route_shortest%%	le plus court
 %%route_quickest%%	le plus rapide
 
-%%output-html_waypoint_waypoint%%	Etape
-%%output-html_waypoint_junction%%	Croisement
+%%output-html_waypoint_waypoint%%	Étape
+%%output-html_waypoint_junction%%	Intersection
 %%output-html_waypoint_roundabout%%	rond-point
 %%output-html_title%%	Itinéraire %s
 %%output-html_start%%	Débute à %s, direction %s
@@ -82,8 +82,8 @@
 # Router (and some shared) translations
 #
 
-@@LANGUAGE@@	Francais
-@@LANGUAGE-WEBPAGE@@	Francais
+@@LANGUAGE@@	Français
+@@LANGUAGE-WEBPAGE@@	Page web en français
 
 @@ROUTER-TITLE@@	Calculateur d'itinéraire pour OpenStreetMap
 
@@ -91,17 +91,17 @@
 @@OPTION-TAB-HELP@@	définir les options
 
 @@RESULTS-TAB@@	Résultats
-@@RESULTS-TAB-HELP@@	Voir les resultats
+@@RESULTS-TAB-HELP@@	Voir les résultats
 
 @@DATA-TAB@@	Données
-@@DATA-TAB-HELP@@	Voir les informations de la base de donnée
+@@DATA-TAB-HELP@@	Voir les informations de la base de données
 
-@@ROUTINO-ROUTER@@	Itinéraires pour Openstreetmap Routino
+@@ROUTINO-ROUTER@@	Calculateur d'itinéraires Routino pour Openstreetmap
 @@ROUTINO-WEBSITE@@	site web Routino
 @@DOCUMENTATION@@	Documentation
 
 @@LANGUAGE-BOX@@	Langue
-@@WAYPOINTS-BOX@@	Etapes de l'itinéraire
+@@WAYPOINTS-BOX@@	Étapes de l'itinéraire
 @@TRANSPORT-TYPE-BOX@@	Mode de déplacement
 @@HIGHWAY-PREFERENCES-BOX@@	Préférences routières
 @@SPEED-LIMITS-BOX@@	Limitations de vitesse
@@ -111,15 +111,16 @@
 @@LINKS-BOX@@	Liens
 @@HELP-BOX@@	Aide
 
-@@SHORTEST-ROUTE@@	Le plus court
-@@QUICKEST-ROUTE@@	Le plus rapide
+@@STATUS-BOX@@	État
+@@SHORTEST-ROUTE@@	Itinéraire le plus court
+@@QUICKEST-ROUTE@@	Itinéraire le plus rapide
 
-@@STATISTICS-BOX@@	Routino Statistiques
-@@VISUALISER-BOX@@	Routino Visualiser
+@@STATISTICS-BOX@@	Statistiques de Routino
+@@VISUALISER-BOX@@	Afficheur de Routino
 
-@@WAYPOINT-POSITION@@	Etape XXX de l'itinéraire
-@@WAYPOINT-LONGITUDE@@	Etape XXX Longitude
-@@WAYPOINT-LATITUDE@@	Etape XXX Latitude
+@@WAYPOINT-POSITION@@	Étape XXX de l'itinéraire
+@@WAYPOINT-LONGITUDE@@	Étape XXX Longitude
+@@WAYPOINT-LATITUDE@@	Étape XXX Latitude
 @@WAYPOINT-LOCATION@@	position de l'étape XXX
 @@WAYPOINT-SEARCH@@	Rechercher la position
 @@WAYPOINT-GET@@	obtenir la position actuelle
@@ -140,7 +141,7 @@
 @@TRANSPORT-HORSE@@	À cheval
 @@TRANSPORT-WHEELCHAIR@@	Fauteuil roulant
 @@TRANSPORT-BICYCLE@@	Bicyclette
-@@TRANSPORT-MOPED@@	Mobilette
+@@TRANSPORT-MOPED@@	Cyclomoteur
 @@TRANSPORT-MOTORCYCLE@@	Moto
 @@TRANSPORT-MOTORCAR@@	Voiture
 @@TRANSPORT-GOODS@@	Camionette
@@ -148,15 +149,15 @@
 @@TRANSPORT-PSV@@	Camion(10t)
 
 @@HIGHWAY-MOTORWAY@@	Autoroute
-@@HIGHWAY-TRUNK@@	Trunk
+@@HIGHWAY-TRUNK@@	Voie rapide
 @@HIGHWAY-PRIMARY@@	Primaire
 @@HIGHWAY-SECONDARY@@	Secondaire
 @@HIGHWAY-TERTIARY@@	Tertiaire
 @@HIGHWAY-UNCLASSIFIED@@	Non classée
 @@HIGHWAY-RESIDENTIAL@@	Résidentiel
 @@HIGHWAY-SERVICE@@	Service
-@@HIGHWAY-TRACK@@	Chemin
-@@HIGHWAY-CYCLEWAY@@	Voie cyclable
+@@HIGHWAY-TRACK@@	Piste
+@@HIGHWAY-CYCLEWAY@@	Piste cyclable
 @@HIGHWAY-PATH@@	Sentier
 @@HIGHWAY-STEPS@@	Escaliers
 @@HIGHWAY-FERRY@@	Ferry
@@ -169,7 +170,7 @@
 @@PROPERTY-BICYCLEROUTE@@	Itinér. cycle
 
 @@RESTRICT-ONEWAY@@	Respecter les sens uniques
-@@RESTRICT-TURNS@@	Respecter les obligations de tourner
+@@RESTRICT-TURNS@@	Respecter les interdictions de tourner
 @@RESTRICT-WEIGHT@@	Poids
 @@RESTRICT-HEIGHT@@	Hauteur
 @@RESTRICT-WIDTH@@	Largeur
@@ -185,27 +186,39 @@
 @@ROUTER-RUNNING@@	Routage en cours...
 @@ROUTER-COMPLETED@@	Routage terminé
 @@ROUTER-ERROR@@	Erreur de Routage
-@@ROUTER-FAILED@@	Le Routage n'a pas été lancé correctement
-@@VIEW-DETAILS@@	Voir les Détails
+@@ROUTER-FAILED@@	Le routage n'a pas été lancé correctement
+@@VIEW-DETAILS@@	Voir les détails
 
 @@NO-INFORMATION@@	Pas d'information
 @@HTML-ROUTE@@	Itinéraire HTML
-@@GPX-TRACK-ROUTE@@	Fichier chemin GPX
-@@GPX-ROUTE@@	Fichier route GPX
+@@GPX-TRACK-ROUTE@@	Fichier trace GPX
+@@GPX-ROUTE@@	Fichier itinéraire GPX
 @@FULL-TEXT-ROUTE@@	Fichier texte complet
 @@TEXT-ROUTE@@	Fichier texte
 @@OPEN-POPUP@@	Ouvrir Popup
 
 @@DISPLAY-STATISTICS@@	Afficher les données statistiques
 
-@@JAVASCRIPT-REQUIRED@@	Javascript est <em>nécessaire</em> pour cette page web à cause de la carte intéractive.
+@@JAVASCRIPT-REQUIRED@@	Javascript est <em>nécessaire</em> pour afficher la carte interactive.
 @@ROUTER@@	Routeur
 @@GEO-DATA@@	Geo Data
-@@TILES@@	Tuiles
+@@TILES@@	Dalles
 
 #
 # Visualiser specific translations
 #
+
+@@HEIGHT-LIMIT-4@@	Hauteur limitée à 4,0 m
+
+@@WIDTH-BUTTON@@	Afficher les limites de largeur
+
+@@WIDTH-LIMIT-3@@	Largeur limitée à 3,0 m
+
+@@LENGTH-BUTTON@@	Afficher les limites de longueur
+
+@@LENGTH-LIMIT-9@@	Longueur limitée à 9,0 m
+
+@@ERROR-LOG-BUTTON@@	Afficher le journal des erreurs
 
 #
 # Multi-line descriptive translations (router)
