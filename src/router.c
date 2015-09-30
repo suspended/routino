@@ -526,20 +526,19 @@ int main(int argc,char** argv)
     first_waypoint=last_waypoint;
     last_waypoint=temp;
 
-    last_waypoint--;
-
     inc_dec_waypoint=-1;
    }
  else
-   {
-    last_waypoint++;
-
     inc_dec_waypoint=1;
-   }
+
+ if(loop && reverse)
+    waypoint=last_waypoint;
+ else
+    waypoint=first_waypoint;
 
  /* Loop through all pairs of waypoints */
 
- for(waypoint=first_waypoint;waypoint!=last_waypoint;waypoint+=inc_dec_waypoint)
+ do
    {
     distance_t distmax=km_to_distance(MAXSEARCH);
     distance_t distmin;
@@ -549,60 +548,70 @@ int main(int argc,char** argv)
     if(point_used[waypoint]!=3)
        continue;
 
-    if(!option_quiet)
-       printf_first("Finding Closest Point: Waypoint %d",waypoint);
-
-    /* Find the closest point */
-
     start_node=finish_node;
     start_waypoint=finish_waypoint;
 
-    if(exactnodes)
-       finish_node=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[waypoint],point_lon[waypoint],distmax,profile,&distmin);
+    if(loop && first_node!=NO_NODE && ((!reverse && waypoint==first_waypoint) || (reverse && waypoint==last_waypoint)))
+       finish_node=first_node;
     else
       {
-       distance_t dist1,dist2;
+       /* Find the closest point */
 
-       segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[waypoint],point_lon[waypoint],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2);
+       if(!option_quiet)
+          printf_first("Finding Closest Point: Waypoint %d",waypoint);
 
-       if(segment!=NO_SEGMENT)
-          finish_node=CreateFakes(OSMNodes,OSMSegments,waypoint,LookupSegment(OSMSegments,segment,1),node1,node2,dist1,dist2);
+       if(exactnodes)
+          finish_node=FindClosestNode(OSMNodes,OSMSegments,OSMWays,point_lat[waypoint],point_lon[waypoint],distmax,profile,&distmin);
        else
-          finish_node=NO_NODE;
-      }
+         {
+          distance_t dist1,dist2;
 
-    if(!option_quiet)
-       printf_last("Found Closest Point: Waypoint %d",waypoint);
+          segment=FindClosestSegment(OSMNodes,OSMSegments,OSMWays,point_lat[waypoint],point_lon[waypoint],distmax,profile,&distmin,&node1,&node2,&dist1,&dist2);
 
-    if(finish_node==NO_NODE)
-      {
-       fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",waypoint);
-       exit(EXIT_FAILURE);
+          if(segment!=NO_SEGMENT)
+             finish_node=CreateFakes(OSMNodes,OSMSegments,waypoint,LookupSegment(OSMSegments,segment,1),node1,node2,dist1,dist2);
+          else
+             finish_node=NO_NODE;
+         }
+
+       if(!option_quiet)
+          printf_last("Found Closest Point: Waypoint %d",waypoint);
+
+       if(finish_node==NO_NODE)
+         {
+          fprintf(stderr,"Error: Cannot find node close to specified point %d.\n",waypoint);
+          exit(EXIT_FAILURE);
+         }
+
+       if(!option_quiet)
+         {
+          double lat,lon;
+
+          if(IsFakeNode(finish_node))
+             GetFakeLatLong(finish_node,&lat,&lon);
+          else
+             GetLatLong(OSMNodes,finish_node,NULL,&lat,&lon);
+
+          if(IsFakeNode(finish_node))
+             printf("Waypoint %d is segment %"Pindex_t" (node %"Pindex_t" -> %"Pindex_t"): %3.6f %4.6f = %2.3f km\n",waypoint,segment,node1,node2,
+                    radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
+          else
+             printf("Waypoint %d is node %"Pindex_t": %3.6f %4.6f = %2.3f km\n",waypoint,finish_node,
+                    radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
+         }
       }
 
     finish_waypoint=waypoint;
 
-    if(!option_quiet)
-      {
-       double lat,lon;
-
-       if(IsFakeNode(finish_node))
-          GetFakeLatLong(finish_node,&lat,&lon);
-       else
-          GetLatLong(OSMNodes,finish_node,NULL,&lat,&lon);
-
-       if(IsFakeNode(finish_node))
-          printf("Waypoint %d is segment %"Pindex_t" (node %"Pindex_t" -> %"Pindex_t"): %3.6f %4.6f = %2.3f km\n",waypoint,segment,node1,node2,
-                 radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
-       else
-          printf("Waypoint %d is node %"Pindex_t": %3.6f %4.6f = %2.3f km\n",waypoint,finish_node,
-                 radians_to_degrees(lon),radians_to_degrees(lat),distance_to_km(distmin));
-      }
-
     /* Check the nodes */
 
     if(start_node==NO_NODE)
+      {
+       if(loop && reverse)
+          waypoint=first_waypoint-inc_dec_waypoint;
+
        continue;
+      }
 
     if(first_node==NO_NODE)
        first_node=start_node;
@@ -620,16 +629,14 @@ int main(int argc,char** argv)
     join_segment=results[nresults]->last_segment;
 
     nresults++;
+
+    if(loop && !reverse && waypoint==first_waypoint)
+       break;
+
+    if(loop && !reverse && waypoint==last_waypoint)
+       waypoint=first_waypoint-inc_dec_waypoint;
    }
-
- /* Finish the loop */
-
- if(loop && finish_node!=NO_NODE)
-   {
-    results[nresults]=CalculateRoute(OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,finish_node,join_segment,first_node,last_waypoint,first_waypoint);
-
-    nresults++;
-   }
+ while((waypoint!=last_waypoint) && (waypoint+=inc_dec_waypoint));
 
  if(!option_quiet)
    {
