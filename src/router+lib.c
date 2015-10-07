@@ -355,7 +355,7 @@ int main(int argc,char** argv)
 
  nwaypoints=0;
 
- for(waypoint=first_waypoint;waypoint!=last_waypoint;waypoint+=1)
+ for(waypoint=first_waypoint;waypoint<=last_waypoint;waypoint++)
    {
     if(point_used[waypoint]!=3)
        continue;
