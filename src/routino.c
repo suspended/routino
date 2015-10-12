@@ -556,7 +556,7 @@ DLL_PUBLIC Routino_Waypoint *Routino_FindWaypoint(Routino_Database *database,Rou
 DLL_PUBLIC Routino_Output *Routino_CalculateRoute(Routino_Database *database,Routino_Profile *profile,Routino_Translation *translation,
                                                   Routino_Waypoint **waypoints,int nwaypoints,int options,Routino_ProgressFunc progress)
 {
- int waypoint;
+ int first_waypoint,last_waypoint,this_waypoint,nwaypoints_routed,inc_dec_waypoint;
  index_t start_node,finish_node=NO_NODE;
  index_t join_segment=NO_SEGMENT;
  Results **results;
@@ -623,15 +623,40 @@ DLL_PUBLIC Routino_Output *Routino_CalculateRoute(Routino_Database *database,Rou
  progress_value=0.0;
  progress_abort=0;
 
+ /* Check for loop and reverse options */
+
+ if(options&ROUTINO_ROUTE_LOOP)
+    nwaypoints_routed=nwaypoints+1;
+ else
+    nwaypoints_routed=nwaypoints;
+
+ if(options&ROUTINO_ROUTE_REVERSE)
+   {
+    first_waypoint=nwaypoints_routed-1;
+    last_waypoint=0;
+
+    inc_dec_waypoint=-1;
+   }
+ else
+   {
+    first_waypoint=0;
+    last_waypoint=nwaypoints_routed-1;
+
+    inc_dec_waypoint=1;
+   }
+
  /* Loop through all pairs of waypoints */
 
  results=calloc(sizeof(Results*),nwaypoints);
 
- for(waypoint=0;waypoint<nwaypoints;waypoint++)
+ for(this_waypoint=first_waypoint;this_waypoint!=(last_waypoint+inc_dec_waypoint);this_waypoint+=inc_dec_waypoint)
    {
+    int waypoint=this_waypoint%nwaypoints;
+    int waypoint_count=(this_waypoint-first_waypoint)*inc_dec_waypoint;
+
     if(progress_func)
       {
-       progress_value=(double)waypoint/(double)(nwaypoints+1);
+       progress_value=(double)waypoint_count/(double)(nwaypoints_routed+1);
 
        if(!progress_func(progress_value))
          {
@@ -646,28 +671,28 @@ DLL_PUBLIC Routino_Output *Routino_CalculateRoute(Routino_Database *database,Rou
                             LookupSegment(database->segments,waypoints[waypoint]->segment,1),
                             waypoints[waypoint]->node1,waypoints[waypoint]->node2,waypoints[waypoint]->dist1,waypoints[waypoint]->dist2);
 
-    if(waypoint==0)
+    if(waypoint_count==0)
        continue;
 
-    results[waypoint-1]=CalculateRoute(database->nodes,database->segments,database->ways,database->relations,
-                                       profile,start_node,join_segment,finish_node,waypoint,waypoint+1);
+    results[waypoint_count-1]=CalculateRoute(database->nodes,database->segments,database->ways,database->relations,
+                                             profile,start_node,join_segment,finish_node,waypoint,waypoint+inc_dec_waypoint);
 
-    if(!results[waypoint-1])
+    if(!results[waypoint_count-1])
       {
        if(progress_func && progress_abort)
           Routino_errno=ROUTINO_ERROR_PROGRESS_ABORTED;
        else
-          Routino_errno=ROUTINO_ERROR_NO_ROUTE_1+waypoint-1;
+          Routino_errno=ROUTINO_ERROR_NO_ROUTE_1+waypoint-inc_dec_waypoint;
 
        goto tidy_and_exit;
       }
 
-    join_segment=results[waypoint-1]->last_segment;
+    join_segment=results[waypoint_count-1]->last_segment;
    }
 
  if(progress_func)
    {
-    progress_value=(double)waypoint/(double)(nwaypoints+1);
+    progress_value=(double)this_waypoint/(double)(nwaypoints_routed+1);
 
     if(!progress_func(progress_value))
       {
@@ -678,7 +703,7 @@ DLL_PUBLIC Routino_Output *Routino_CalculateRoute(Routino_Database *database,Rou
 
  /* Print the route */
 
- output=PrintRoute(results,nwaypoints-1,database->nodes,database->segments,database->ways,profile,translation);
+ output=PrintRoute(results,nwaypoints_routed-1,database->nodes,database->segments,database->ways,profile,translation);
 
  if(progress_func && !progress_func(1.0))
    {
@@ -692,9 +717,9 @@ DLL_PUBLIC Routino_Output *Routino_CalculateRoute(Routino_Database *database,Rou
 
  DeleteFakeNodes();
 
- for(waypoint=0;waypoint<nwaypoints;waypoint++)
-    if(results[waypoint])
-       FreeResultsList(results[waypoint]);
+ for(this_waypoint=0;this_waypoint<nwaypoints;this_waypoint++)
+    if(results[this_waypoint])
+       FreeResultsList(results[this_waypoint]);
 
  free(results);
 

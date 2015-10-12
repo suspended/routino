@@ -371,27 +371,6 @@ int main(int argc,char** argv)
     nwaypoints++;
    }
 
- /* Check for loop */
-
- if(loop)
-    waypoints[nwaypoints++]=waypoints[0];
-
- /* Check for reverse direction */
-
- if(reverse)
-   {
-    int f,b;
-
-    for(f=0,b=nwaypoints-1;f<b;f++,b--)
-      {
-       Routino_Waypoint *temp;
-
-       temp=waypoints[f];
-       waypoints[f]=waypoints[b];
-       waypoints[b]=temp;
-      }
-   }
-
  /* Create the route */
 
  routing_options=0;
@@ -411,6 +390,9 @@ int main(int argc,char** argv)
  if(list_html_all) routing_options|=ROUTINO_ROUTE_LIST_HTML_ALL;
  if(list_text)     routing_options|=ROUTINO_ROUTE_LIST_TEXT;
  if(list_text_all) routing_options|=ROUTINO_ROUTE_LIST_TEXT_ALL;
+
+ if(reverse) routing_options|=ROUTINO_ROUTE_REVERSE;
+ if(loop)    routing_options|=ROUTINO_ROUTE_LOOP;
 
  route=Routino_CalculateRoute(database,profile,translation,waypoints,nwaypoints,routing_options,NULL);
 
@@ -479,9 +461,6 @@ int main(int argc,char** argv)
  Routino_FreeXMLProfiles();
 
  Routino_FreeXMLTranslations();
-
- if(loop)
-    nwaypoints--;
 
  for(waypoint=0;waypoint<nwaypoints;waypoint++)
     free(waypoints[waypoint]);
