@@ -92,7 +92,7 @@ Preprocessor Definitions
 - - - - - - - - - - - -
 
    A version number for the Routino API.
-   #define ROUTINO_API_VERSION 7
+   #define ROUTINO_API_VERSION 8
 
 Error Definitions
 
@@ -203,6 +203,12 @@ Routino Option Definitions
    Output a linked list of points containing the text all file
    information.
    #define ROUTINO_ROUTE_LIST_TEXT_ALL 1024
+
+   Route between the points in a loop returning to the first point.
+   #define ROUTINO_ROUTE_LOOP 2048
+
+   Route between the points in reverse order.
+   #define ROUTINO_ROUTE_REVERSE 4096
 
 Linked List Output Point Definitions
 
