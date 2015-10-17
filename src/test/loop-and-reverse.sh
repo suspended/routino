@@ -116,12 +116,12 @@ for waypoint in WP WP-L WP-R WP-LR; do
 
     mv shortest* $dir/$name-$waypoint
 
-#    echo diff -u expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt >> $log
-#
-#    if ./is-fast-math; then
-#        diff -U 0 expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt | 2>&1 egrep '^[-+] ' || true
-#    else
-#        diff -u expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt >> $log
-#    fi
+    echo diff -u expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt >> $log
+
+    if ./is-fast-math; then
+        diff -U 0 expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt | 2>&1 egrep '^[-+] ' || true
+    else
+        diff -u expected/$name-$waypoint.txt $dir/$name-$waypoint/shortest-all.txt >> $log
+    fi
 
 done
