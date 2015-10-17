@@ -556,7 +556,7 @@ DLL_PUBLIC Routino_Waypoint *Routino_FindWaypoint(Routino_Database *database,Rou
 DLL_PUBLIC Routino_Output *Routino_CalculateRoute(Routino_Database *database,Routino_Profile *profile,Routino_Translation *translation,
                                                   Routino_Waypoint **waypoints,int nwaypoints,int options,Routino_ProgressFunc progress)
 {
- int first_waypoint,last_waypoint,this_waypoint,nwaypoints_routed,inc_dec_waypoint;
+ int first_waypoint,last_waypoint,this_waypoint,nwaypoints_routed,inc_dec_waypoint,start_waypoint,finish_waypoint=-1;
  index_t start_node,finish_node=NO_NODE;
  index_t join_segment=NO_SEGMENT;
  Results **results;
@@ -665,9 +665,11 @@ DLL_PUBLIC Routino_Output *Routino_CalculateRoute(Routino_Database *database,Rou
          }
       }
 
+    start_waypoint=finish_waypoint;
     start_node=finish_node;
 
-    finish_node=CreateFakes(database->nodes,database->segments,waypoint+1,
+    finish_waypoint=waypoint+1;
+    finish_node=CreateFakes(database->nodes,database->segments,finish_waypoint,
                             LookupSegment(database->segments,waypoints[waypoint]->segment,1),
                             waypoints[waypoint]->node1,waypoints[waypoint]->node2,waypoints[waypoint]->dist1,waypoints[waypoint]->dist2);
 
@@ -675,14 +677,14 @@ DLL_PUBLIC Routino_Output *Routino_CalculateRoute(Routino_Database *database,Rou
        continue;
 
     results[waypoint_count-1]=CalculateRoute(database->nodes,database->segments,database->ways,database->relations,
-                                             profile,start_node,join_segment,finish_node,waypoint,waypoint+inc_dec_waypoint);
+                                             profile,start_node,join_segment,finish_node,start_waypoint,finish_waypoint);
 
     if(!results[waypoint_count-1])
       {
        if(progress_func && progress_abort)
           Routino_errno=ROUTINO_ERROR_PROGRESS_ABORTED;
        else
-          Routino_errno=ROUTINO_ERROR_NO_ROUTE_1+waypoint-inc_dec_waypoint;
+          Routino_errno=ROUTINO_ERROR_NO_ROUTE_1-1+start_waypoint;
 
        goto tidy_and_exit;
       }
