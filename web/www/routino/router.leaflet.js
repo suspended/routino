@@ -1350,12 +1350,21 @@ function markerLocate(marker)   // called from router.html
 {
  clearSearchResult(marker);
 
+ function success(position)
+ {
+  formSetCoords(marker,position.coords.longitude,position.coords.latitude);
+  markerAddMap(marker);
+ }
+
+ function failure(error)
+ {
+  alert("Error: " + error.message);
+ }
+
  if(navigator.geolocation)
-    navigator.geolocation.getCurrentPosition(
-                                             function(position) {
-                                              formSetCoords(marker,position.coords.longitude,position.coords.latitude);
-                                              markerAddMap(marker);
-                                             });
+    navigator.geolocation.getCurrentPosition(success,failure);
+ else
+    alert("Error: Geolocation unavailable");
 }
 
 
