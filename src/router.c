@@ -600,6 +600,9 @@ int main(int argc,char** argv)
 
  for(waypoint=first_waypoint;waypoint!=(last_waypoint+inc_dec_waypoint);waypoint+=inc_dec_waypoint)
    {
+    if(point_used[waypoint]!=3)
+       continue;
+
     start_node=finish_node;
     finish_node=point_node[waypoint];
 
