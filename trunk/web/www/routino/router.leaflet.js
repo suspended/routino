@@ -870,7 +870,7 @@ function map_init()             // called from router.html
 
  icons.home=L.icon({iconUrl: "icons/marker-home-red.png",
                     iconSize: L.point(21,25),
-                    iconAnchor: L.point(11,-25)});
+                    iconAnchor: L.point(10,25)});
 
  // Markers to highlight a selected point
 
@@ -1450,8 +1450,8 @@ function markerSetClearHome(marker,home)
 
  if(home)
    {
-    homelat=routino.point[marker].lat;
-    homelon=routino.point[marker].lon;
+    homelat=format5f(routino.point[marker].lat);
+    homelon=format5f(routino.point[marker].lon);
 
     cookie="Routino-home=lon:" + homelon + ":lat:" + homelat;
 
