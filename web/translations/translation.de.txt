@@ -224,6 +224,7 @@
 @@VISUALISER-NUM-ERRORS@@	# Error Logs erstellt
 
 @@JUNCTIONS-BUTTON@@	Kreuzungen anzeigen
+@@JUNCTIONS-1@@	ein Weg - Sackgasse
 @@JUNCTIONS-2@@	Aufeinandertreffen zweier Wege unterschiedlichen Typs.
 @@JUNCTIONS-3@@	Aufeinandertreffen von drei Wegen.
 @@JUNCTIONS-4@@	Aufeinandertreffen von vier Wegen.
@@ -233,10 +234,18 @@
 
 @@SUPER-BUTTON@@	Super-Segments anzeigen
 
+@@WAYTYPE-ONEWAY@@	Einbahnstraßen Segmente
+@@WAYTYPE-ROUNDABOUT@@	Kreisverkehr Segmente
+
 @@TURNS-BUTTON@@	Zeige Abbiegebeschränkungen
+$$TURNS-INFO$$
+Jede Abbiegebeschränkung wird mit einer Linie angezeigt
+$$TURNS-INFO$$
 
 @@SPEED-BUTTON@@	Zeige Geschwindigkeitsbeschränkungen
 
+@@LIMIT-CHANGE@@	Änderung der Beschränkung
+@@LIMIT-NONE@@	Keine Beschränkung
 @@SPEED-LIMIT-80@@	80 km/Stunde Geschwindigkeitsbegrenzung
 
 @@WEIGHT-BUTTON@@	Gewichtswegbeschränkungen anzeigen
@@ -248,6 +257,10 @@
 @@HEIGHT-LIMIT-4@@	4.0 m Höhenbeschränkung
 
 @@WIDTH-BUTTON@@	Maximale Breite anzeigen
+
+@@LENGTH-BUTTON@@	Längenbeschränkung anzeigen
+
+@@LENGTH-LIMIT-9@@	9.0 m Längenbeschränkung
 
 @@CLEAR-DATA-BUTTON@@	Daten zurücksetzen
 
