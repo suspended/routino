@@ -64,12 +64,14 @@ extern int option_quickest;
 
 static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node);
 static Results *FindMiddleRoute(Nodes *supernodes,Segments *supersegments,Ways *superways,Relations *relations,Profile *profile,Results *begin,Results *end);
-static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node,index_t finish_segment);
+static index_t  FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node,index_t finish_segment);
 static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t finish_node);
 static Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t start_node,index_t prev_segment,index_t finish_node);
 static Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node);
 static Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *middle,Results *end);
-static void FixForwardRoute(Results *results,Result *finish_result);
+
+static void     FixForwardRoute(Results *results,Result *finish_result);
+static Results *FixReverseRoute(Results *results);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -285,9 +287,9 @@ static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 {
  Results *results;
  Queue   *queue;
- score_t finish_score;
+ score_t total_score;
  double  finish_lat,finish_lon;
- Result  *finish_result;
+ Result  *start_result,*finish_result;
  Result  *result1,*result2;
  int     force_uturn=0;
 
@@ -297,7 +299,7 @@ static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
  /* Set up the finish conditions */
 
- finish_score=INF_SCORE;
+ total_score=INF_SCORE;
  finish_result=NULL;
 
  if(IsFakeNode(finish_node))
@@ -310,12 +312,9 @@ static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
  results=NewResultsList(8);
  queue=NewQueueList(8);
 
- results->start_node=start_node;
- results->prev_segment=prev_segment;
+ start_result=InsertResult(results,start_node,prev_segment);
 
- result1=InsertResult(results,results->start_node,results->prev_segment);
-
- InsertInQueue(queue,result1,0);
+ InsertInQueue(queue,start_result,0);
 
  /* Check for barrier at start waypoint - must perform U-turn */
 
@@ -337,7 +336,7 @@ static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
     index_t turnrelation=NO_RELATION;
 
     /* score must be better than current best score */
-    if(result1->score>=finish_score)
+    if(result1->score>=total_score)
        continue;
 
     node1=result1->node;
@@ -400,7 +399,7 @@ static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
          }
 
        /* must perform U-turn in special cases */
-       if(force_uturn && node1==results->start_node)
+       if(force_uturn && node1==start_node)
          {
           if(seg2r!=result1->segment)
              goto endloop;
@@ -469,7 +468,7 @@ static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
        cumulative_score=result1->score+segment_score;
 
        /* score must be better than current best score */
-       if(cumulative_score>=finish_score)
+       if(cumulative_score>=total_score)
           goto endloop;
 
        /* find whether the node/segment combination already exists */
@@ -492,11 +491,8 @@ static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
        if(node2==finish_node)
          {
-          finish_score=cumulative_score;
+          total_score=cumulative_score;
           finish_result=result2;
-
-          results->finish_node=node2;
-          results->last_segment=seg2;
          }
        else
           InsertInQueue(queue,result2,result2->score);
@@ -531,7 +527,15 @@ static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
     return(NULL);
    }
 
+ /* Turn the route round and fill in the start and finish information */
+
  FixForwardRoute(results,finish_result);
+
+ results->start_node  =start_result->node;
+ results->prev_segment=start_result->segment;
+
+ results->finish_node =finish_result->node;
+ results->last_segment=finish_result->segment;
 
 #if DEBUG
  Result *r=FindResult(results,results->start_node,results->prev_segment);
@@ -577,10 +581,11 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 {
  Results *results;
  Queue   *queue;
- Result  *finish_result;
- score_t finish_score;
+ Result  *begin_result,*end_result;
+ Result  *start_result,*finish_result;
+ score_t total_score;
  double  finish_lat,finish_lon;
- Result  *result1,*result2,*result3,*result4;
+ Result  *result1,*result2,*result3;
  int     force_uturn=0;
 #ifdef LIBROUTINO
  int     loopcount=0;
@@ -597,7 +602,7 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
  /* Set up the finish conditions */
 
- finish_score=INF_SCORE;
+ total_score=INF_SCORE;
  finish_result=NULL;
 
  if(IsFakeNode(end->finish_node))
@@ -610,71 +615,70 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
  results=NewResultsList(20);
  queue=NewQueueList(12);
 
- results->start_node=begin->start_node;
- results->prev_segment=begin->prev_segment;
-
  if(begin->number==1 && begin->prev_segment!=NO_SEGMENT)
    {
     index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
 
-    results->prev_segment=superseg;
+    start_result=InsertResult(results,begin->start_node,superseg);
    }
-
- result1=InsertResult(results,results->start_node,results->prev_segment);
+ else
+    start_result=InsertResult(results,begin->start_node,begin->prev_segment);
 
  /* Insert the finish points of the beginning part of the path into the queue,
     translating the segments into super-segments. */
 
- result3=FirstResult(begin);
+ begin_result=FirstResult(begin);
 
- while(result3)
+ while(begin_result)
    {
-    if((results->start_node!=result3->node || results->prev_segment!=result3->segment) &&
-       !IsFakeNode(result3->node) && IsSuperNode(LookupNode(nodes,result3->node,3)))
+    if((start_result->node!=begin_result->node || start_result->segment!=begin_result->segment) &&
+       !IsFakeNode(begin_result->node) && IsSuperNode(LookupNode(nodes,begin_result->node,3)))
       {
-       Result *result5=result1;
-       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,result3->node,result3->segment);
+       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin_result->node,begin_result->segment);
 
-       if(superseg!=result3->segment)
+       result1=start_result;
+
+       if(superseg!=begin_result->segment)
          {
-          result5=InsertResult(results,result3->node,result3->segment);
+          result1=InsertResult(results,begin_result->node,begin_result->segment);
 
-          result5->score=result3->score;
+          result1->score=begin_result->score;
 
-          result5->prev=result1;
+          result1->prev=start_result;
          }
 
-       if(!FindResult(results,result3->node,superseg))
+       if(!FindResult(results,begin_result->node,superseg))
          {
-          result2=InsertResult(results,result3->node,superseg);
-          result2->prev=result5;
+          result2=InsertResult(results,begin_result->node,superseg);
 
-          result2->score=result3->score;
+          result2->prev=result1;
 
-          InsertInQueue(queue,result2,result3->score);
+          result2->score=begin_result->score;
 
-          if((result4=FindResult(end,result2->node,result2->segment)))
+          InsertInQueue(queue,result2,begin_result->score);
+
+          if((end_result=FindResult(end,result2->node,result2->segment)))
             {
-             if((result2->score+result4->score)<finish_score)
+             if((result2->score+end_result->score)<total_score)
                {
-                finish_score=result2->score+result4->score;
+                total_score=result2->score+end_result->score;
                 finish_result=result2;
                }
             }
          }
       }
 
-    result3=NextResult(begin,result3);
+    begin_result=NextResult(begin,begin_result);
    }
 
  if(begin->number==1)
-    InsertInQueue(queue,result1,0);
+    InsertInQueue(queue,start_result,0);
 
  /* Check for barrier at start waypoint - must perform U-turn */
 
- if(begin->number==1 && results->prev_segment!=NO_SEGMENT)
+ if(begin->number==1 && start_result->segment!=NO_SEGMENT)
    {
-    Node *startp=LookupNode(nodes,result1->node,1);
+    Node *startp=LookupNode(nodes,start_result->node,1);
 
     if(!(startp->allow&profile->allow))
        force_uturn=1;
@@ -690,7 +694,7 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
     index_t turnrelation=NO_RELATION;
 
     /* score must be better than current best score */
-    if(result1->score>=finish_score)
+    if(result1->score>=total_score)
        continue;
 
     node1=result1->node;
@@ -733,7 +737,7 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
        seg2=IndexSegment(segments,segmentp); /* segment cannot be a fake segment (must be a super-segment) */
 
        /* must perform U-turn in special cases */
-       if(force_uturn && node1==results->start_node)
+       if(force_uturn && node1==begin->start_node)
          {
           if(seg2!=result1->segment)
              goto endloop;
@@ -799,7 +803,7 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
        cumulative_score=result1->score+segment_score;
 
        /* score must be better than current best score */
-       if(cumulative_score>=finish_score)
+       if(cumulative_score>=total_score)
           goto endloop;
 
        /* find whether the node/segment combination already exists */
@@ -821,13 +825,10 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
        if((result3=FindResult(end,node2,seg2)))
          {
-          if((result2->score+result3->score)<finish_score)
+          if((result2->score+result3->score)<total_score)
             {
-             finish_score=result2->score+result3->score;
+             total_score=result2->score+result3->score;
              finish_result=result2;
-
-             results->finish_node=node2;
-             results->last_segment=seg2;
             }
          }
        else
@@ -845,7 +846,7 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
           else
              potential_score=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-          if(potential_score<finish_score)
+          if(potential_score<total_score)
              InsertInQueue(queue,result2,potential_score);
          }
 
@@ -883,7 +884,15 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
     return(NULL);
    }
 
+ /* Turn the route round and fill in the start and finish information */
+
  FixForwardRoute(results,finish_result);
+
+ results->start_node=start_result->node;
+ results->prev_segment=start_result->segment;
+
+ results->finish_node=finish_result->node;
+ results->last_segment=finish_result->segment;
 
 #if DEBUG
  Result *r=FindResult(results,results->start_node,results->prev_segment);
@@ -1018,10 +1027,7 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
  results=NewResultsList(8);
  queue=NewQueueList(8);
 
- results->start_node=start_node;
- results->prev_segment=NO_SEGMENT;
-
- result1=InsertResult(results,results->start_node,results->prev_segment);
+ result1=InsertResult(results,start_node,NO_SEGMENT);
 
  InsertInQueue(queue,result1,0);
 
@@ -1168,8 +1174,8 @@ static Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relat
  Results *results;
  Queue   *queue,*superqueue;
  Result  *result1,*result2;
- Result  *finish_result=NULL;
- score_t finish_score=INF_SCORE;
+ Result  *start_result,*finish_result=NULL;
+ score_t total_score=INF_SCORE;
  int     nsuper=0,force_uturn=0;
 
 #if DEBUG
@@ -1187,12 +1193,9 @@ static Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relat
  queue=NewQueueList(8);
  superqueue=NewQueueList(8);
 
- results->start_node=start_node;
- results->prev_segment=prev_segment;
+ start_result=InsertResult(results,start_node,prev_segment);
 
- result1=InsertResult(results,results->start_node,results->prev_segment);
-
- InsertInQueue(queue,result1,0);
+ InsertInQueue(queue,start_result,0);
 
  /* Check for barrier at start waypoint - must perform U-turn */
 
@@ -1214,7 +1217,7 @@ static Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relat
     index_t turnrelation=NO_RELATION;
 
     /* score must be better than current best score */
-    if(result1->score>=finish_score)
+    if(result1->score>=total_score)
        continue;
 
     node1=result1->node;
@@ -1346,7 +1349,7 @@ static Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relat
        cumulative_score=result1->score+segment_score;
 
        /* score must be better than current best score */
-       if(cumulative_score>=finish_score)
+       if(cumulative_score>=total_score)
           goto endloop;
 
        /* find whether the node/segment combination already exists */
@@ -1379,13 +1382,10 @@ static Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relat
                 InsertInQueue(queue,result3,result3->score);
             }
 
-          if(cumulative_score<finish_score)
+          if(cumulative_score<total_score)
             {
-             finish_score=cumulative_score;
+             total_score=cumulative_score;
              finish_result=result2;
-
-             results->finish_node=node2;
-             results->last_segment=seg2;
             }
          }
 
@@ -1430,10 +1430,18 @@ static Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relat
     return(NULL);
    }
 
- /* If we found the finish node then make a proper route */
+ /* Turn the route round and fill in the start and finish information */
+
+ results->start_node  =start_result->node;
+ results->prev_segment=start_result->segment;
 
  if(finish_result)
+   {
     FixForwardRoute(results,finish_result);
+
+    results->finish_node =finish_result->node;
+    results->last_segment=finish_result->segment;
+   }
 
 #if DEBUG
  Result *s=FirstResult(results);
@@ -1490,9 +1498,10 @@ static Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
 static Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,index_t finish_node)
 {
- Results *results,*results2;
+ Results *results;
  Queue   *queue;
- Result  *result1,*result2,*result3;
+ Result  *result1,*result2;
+ Result  *finish_result;
 
 #if DEBUG
  printf("  FindFinishRoutes(...,finish_node=%"Pindex_t")\n",finish_node);
@@ -1508,11 +1517,9 @@ static Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Rela
  results=NewResultsList(8);
  queue=NewQueueList(8);
 
- results->finish_node=finish_node;
+ finish_result=InsertResult(results,finish_node,NO_SEGMENT);
 
- result1=InsertResult(results,finish_node,NO_SEGMENT);
-
- InsertInQueue(queue,result1,0);
+ InsertInQueue(queue,finish_result,0);
 
  /* Loop across all nodes in the queue */
 
@@ -1714,51 +1721,21 @@ static Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Rela
     return(NULL);
    }
 
- /* Create a results structure with the node at the end of the segment opposite the start */
+ /* Sort out the reversed direction segments created by finding the reverse route */
 
- results2=NewResultsList(8);
+ results=FixReverseRoute(results);
 
- results2->finish_node=results->finish_node;
-
- result3=FirstResult(results);
-
- while(result3)
-   {
-    if(result3->next)
-      {
-       result2=InsertResult(results2,result3->next->node,result3->segment);
-
-       result2->score=result3->next->score;
-      }
-
-    result3=NextResult(results,result3);
-   }
-
- /* Fix up the result->next pointers */
-
- result3=FirstResult(results);
-
- while(result3)
-   {
-    if(result3->next && result3->next->next)
-      {
-       result1=FindResult(results2,result3->next->node,result3->segment);
-       result2=FindResult(results2,result3->next->next->node,result3->next->segment);
-
-       result1->next=result2;
-      }
-
-    result3=NextResult(results,result3);
-   }
+ results->finish_node =finish_result->node;
+ results->last_segment=finish_result->segment;
 
 #if DEBUG
- Result *s=FirstResult(results2);
+ Result *s=FirstResult(results);
 
  while(s)
    {
     if(!IsFakeNode(s->node) && IsSuperNode(LookupNode(nodes,s->node,1)))
       {
-       Result *r=FindResult(results2,s->node,s->segment);
+       Result *r=FindResult(results,s->node,s->segment);
 
        printf("    -------- possible finish route\n");
 
@@ -1772,7 +1749,7 @@ static Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Rela
          }
       }
 
-    s=NextResult(results2,s);
+    s=NextResult(results,s);
    }
 #endif
 
@@ -1781,9 +1758,7 @@ static Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Rela
     printf_last("Found Finish Route: Nodes checked = %d",results->number);
 #endif
 
- FreeResultsList(results);
-
- return(results2);
+ return(results);
 }
 
 
@@ -1825,14 +1800,11 @@ static Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relatio
 
  combined=NewResultsList(10);
 
- combined->start_node=begin->start_node;
- combined->prev_segment=begin->prev_segment;
-
  /* Insert the start point */
 
  midres=FindResult(middle,middle->start_node,middle->prev_segment);
 
- comres=InsertResult(combined,combined->start_node,combined->prev_segment);
+ comres=InsertResult(combined,begin->start_node,begin->prev_segment);
 
  /* Insert the start of the route */
 
@@ -1946,12 +1918,15 @@ static Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relatio
       }
    }
 
- /* Turn the route round */
+ /* Turn the route round and fill in the start and finish information */
+
+ FixForwardRoute(combined,comres);
+
+ combined->start_node=begin->start_node;
+ combined->prev_segment=begin->prev_segment;
 
  combined->finish_node=comres->node;
  combined->last_segment=comres->segment;
-
- FixForwardRoute(combined,comres);
 
 #if DEBUG
  Result *r=FindResult(combined,combined->start_node,combined->prev_segment);
@@ -1988,48 +1963,85 @@ static Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relatio
 
 static void FixForwardRoute(Results *results,Result *finish_result)
 {
- Result *result2=finish_result;
-
- /* Erase the old route if there is one */
-
- if(results->finish_node!=NO_NODE)
-   {
-    Result *result1=FirstResult(results);
-
-    while(result1)
-      {
-       result1->next=NULL;
-
-       result1=NextResult(results,result1);
-      }
-   }
-
- /* Create the forward links for the optimum path */
+ Result *current_result=finish_result;
 
  do
    {
-    Result *result1;
+    Result *result;
 
-    if(result2->prev)
+    if(current_result->prev)
       {
-       index_t node1=result2->prev->node;
-       index_t seg1=result2->prev->segment;
+       index_t node1=current_result->prev->node;
+       index_t seg1=current_result->prev->segment;
 
-       result1=FindResult(results,node1,seg1);
+       result=FindResult(results,node1,seg1);
 
 #ifndef LIBROUTINO
-       logassert(!result1->next,"Unable to reverse route through results (report a bug)"); /* Bugs elsewhere can lead to infinite loop here. */
+       logassert(!result->next,"Unable to reverse route through results (report a bug)"); /* Bugs elsewhere can lead to infinite loop here. */
 #endif
 
-       result1->next=result2;
+       result->next=current_result;
 
-       result2=result1;
+       current_result=result;
       }
     else
-       result2=NULL;
+       current_result=NULL;
    }
- while(result2);
+ while(current_result);
+}
 
- results->finish_node=finish_result->node;
- results->last_segment=finish_result->segment;
+
+/*++++++++++++++++++++++++++++++++++++++
+  Fix the reverse route (i.e. create a new data structure with the node at the other end of the segment).
+
+  Results *FixReverseRoute Returns a new set of results.
+
+  Results *results The set of results to update (freed by this operation).
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static Results *FixReverseRoute(Results *results)
+{
+ Results *new_results;
+ Result *rev_result,*fwd_result;
+
+ /* Create a results structure with the node at the end of the segment opposite the start */
+
+ new_results=NewResultsList(8);
+
+ rev_result=FirstResult(results);
+
+ while(rev_result)
+   {
+    if(rev_result->next)
+      {
+       fwd_result=InsertResult(new_results,rev_result->next->node,rev_result->segment);
+
+       fwd_result->score=rev_result->next->score;
+      }
+
+    rev_result=NextResult(results,rev_result);
+   }
+
+ /* Fix up the result->next pointers */
+
+ rev_result=FirstResult(results);
+
+ while(rev_result)
+   {
+    if(rev_result->next && rev_result->next->next)
+      {
+       Result *fwd_result1=FindResult(new_results,rev_result->next->node,rev_result->segment);
+       Result *fwd_result2=FindResult(new_results,rev_result->next->next->node,rev_result->next->segment);
+
+       fwd_result1->next=fwd_result2;
+      }
+
+    rev_result=NextResult(results,rev_result);
+   }
+
+ /* Free the original results and return the new set */
+
+ FreeResultsList(results);
+
+ return(new_results);
 }
