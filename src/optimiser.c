@@ -1725,8 +1725,7 @@ static Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Rela
 
  results=FixReverseRoute(results);
 
- results->finish_node =finish_result->node;
- results->last_segment=finish_result->segment;
+ results->finish_node =finish_node;
 
 #if DEBUG
  Result *s=FirstResult(results);
