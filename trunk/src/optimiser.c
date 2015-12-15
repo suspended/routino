@@ -920,6 +920,10 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
  Node *supernodep;
  Segment *supersegmentp;
 
+#if DEBUG
+ printf("    FindSuperSegment(...,finish_node=%"Pindex_t",finish_segment=%"Pindex_t")\n",finish_node,finish_segment);
+#endif
+
  if(IsFakeSegment(finish_segment))
     finish_segment=IndexRealSegment(finish_segment);
 
@@ -927,7 +931,13 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
  supersegmentp=LookupSegment(segments,finish_segment,3); /* finish_segment cannot be a fake segment. */
 
  if(IsSuperSegment(supersegmentp))
+   {
+#if DEBUG
+    printf("      -- already super-segment = %"Pindex_t"\n",finish_segment);
+#endif
+
     return(finish_segment);
+   }
 
  /* Loop across all segments */
 
@@ -953,6 +963,11 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
        if(result && (distance_t)result->score==DISTANCE(supersegmentp->distance))
          {
           FreeResultsList(results);
+
+#if DEBUG
+          printf("      -- found super-segment = %"Pindex_t"\n",IndexSegment(segments,supersegmentp));
+#endif
+
           return(IndexSegment(segments,supersegmentp));
          }
 
@@ -962,6 +977,10 @@ static index_t FindSuperSegment(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
     supersegmentp=NextSegment(segments,supersegmentp,finish_node); /* finish_node cannot be a fake node (must be a super-node) */
    }
+
+#if DEBUG
+    printf("      -- no super-segment = %"Pindex_t"\n",finish_segment);
+#endif
 
  return(finish_segment);
 }
