@@ -701,7 +701,9 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
        Node *node2p;
        Way *way2p;
        index_t node2,seg2;
-       score_t segment_pref,segment_score,cumulative_score;
+       score_t segment_pref,segment_score,cumulative_score,potential_score;
+       double lat,lon;
+       distance_t direct;
        int i;
 
        /* must be a super segment */
@@ -817,24 +819,20 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
              finish_result=result2;
             }
          }
+
+       /* Insert a new node into the queue */
+
+       GetLatLong(nodes,node2,node2p,&lat,&lon); /* node2 cannot be a fake node (must be a super-node) */
+
+       direct=Distance(lat,lon,finish_lat,finish_lon);
+
+       if(option_quickest==0)
+          potential_score=result2->score+(score_t)direct/profile->max_pref;
        else
-         {
-          double lat,lon;
-          distance_t direct;
-          score_t potential_score;
+          potential_score=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
 
-          GetLatLong(nodes,node2,node2p,&lat,&lon); /* node2 cannot be a fake node (must be a super-node) */
-
-          direct=Distance(lat,lon,finish_lat,finish_lon);
-
-          if(option_quickest==0)
-             potential_score=result2->score+(score_t)direct/profile->max_pref;
-          else
-             potential_score=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
-
-          if(potential_score<total_score)
-             InsertInQueue(queue,result2,potential_score);
-         }
+       if(potential_score<total_score)
+          InsertInQueue(queue,result2,potential_score);
 
       endloop:
 
