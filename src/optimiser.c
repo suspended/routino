@@ -567,7 +567,6 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 {
  Results *results;
  Queue   *queue;
- Result  *begin_result,*end_result;
  Result  *start_result,*finish_result;
  score_t total_score;
  double  finish_lat,finish_lon;
@@ -596,79 +595,102 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
  else
     GetLatLong(nodes,end->finish_node,NULL,&finish_lat,&finish_lon);
 
- /* Create the list of results and insert the first node into the queue */
+ /* Create the list of results and queue */
 
  results=NewResultsList(20);
  queue=NewQueueList(12);
 
- if(begin->number==1 && begin->prev_segment!=NO_SEGMENT)
-   {
-    index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
-
-    start_result=InsertResult(results,begin->start_node,superseg);
-   }
- else
-    start_result=InsertResult(results,begin->start_node,begin->prev_segment);
-
  /* Insert the finish points of the beginning part of the path into the queue,
     translating the segments into super-segments. */
 
- begin_result=FirstResult(begin);
-
- while(begin_result)
+ if(begin->number==1)
    {
-    if((start_result->node!=begin_result->node || start_result->segment!=begin_result->segment) &&
-       !IsFakeNode(begin_result->node) && IsSuperNode(LookupNode(nodes,begin_result->node,3)))
+    index_t superseg=NO_SEGMENT;
+
+    if(begin->prev_segment!=NO_SEGMENT)
+       superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
+
+    start_result=InsertResult(results,begin->start_node,superseg);
+
+    InsertInQueue(queue,start_result,0);
+
+    /* Check for barrier at start waypoint - must perform U-turn */
+
+    if(superseg!=NO_SEGMENT)
       {
-       index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin_result->node,begin_result->segment);
+       Node *startp=LookupNode(nodes,begin->start_node,1);
 
-       result1=start_result;
+       if(!(startp->allow&profile->allow))
+          force_uturn=1;
+      }
+   }
+ else
+   {
+    Result *begin_result=NextResult(begin,FirstResult(begin));
+    Result *end_result;
 
-       if(superseg!=begin_result->segment)
+    while(begin_result)
+      {
+       if(!IsFakeNode(begin_result->node) && IsSuperNode(LookupNode(nodes,begin_result->node,3)))
          {
-          result1=InsertResult(results,begin_result->node,begin_result->segment);
+          index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin_result->node,begin_result->segment);
 
-          result1->score=begin_result->score;
+          if(superseg!=begin_result->segment)
+            {
+             result1=InsertResult(results,begin_result->node,begin_result->segment);
 
-          result1->prev=start_result;
-         }
+             result1->score=begin_result->score;
+            }
+          else
+             result1=NO_RESULT;
 
-       if(!FindResult(results,begin_result->node,superseg))
-         {
-          result2=InsertResult(results,begin_result->node,superseg);
+          result2=FindResult(results,begin_result->node,superseg);
 
-          result2->prev=result1;
-
-          result2->score=begin_result->score;
-
-          InsertInQueue(queue,result2,begin_result->score);
+          if(!result2) /* New end node/super-segment pair */
+            {
+             result2=InsertResult(results,begin_result->node,superseg);
+             result2->prev=result1;
+             result2->score=begin_result->score;
+            }
+          else if(begin_result->score<result2->score) /* New end node/super-segment pair is better */
+            {
+             result2->prev=result1;
+             result2->score=begin_result->score;
+            }
+          else
+             goto endbeginloop;
 
           if((end_result=FindResult(end,result2->node,result2->segment)))
             {
              if((result2->score+end_result->score)<total_score)
                {
                 total_score=result2->score+end_result->score;
-                finish_result=result2;
+                start_result=finish_result=result2;
                }
             }
          }
+
+      endbeginloop:
+
+       begin_result=NextResult(begin,begin_result);
       }
 
-    begin_result=NextResult(begin,begin_result);
+    /* Insert the start points of the beginning part of the path into the queue */
+
+    if(!finish_result)
+      {
+       Result *result=FirstResult(results);
+
+       while(result)
+         {
+          if(result->prev)
+             InsertInQueue(queue,result,result->score);
+
+          result=NextResult(results,result);
+         }
+      }
    }
 
- if(begin->number==1)
-    InsertInQueue(queue,start_result,0);
-
- /* Check for barrier at start waypoint - must perform U-turn */
-
- if(begin->number==1 && start_result->segment!=NO_SEGMENT)
-   {
-    Node *startp=LookupNode(nodes,start_result->node,1);
-
-    if(!(startp->allow&profile->allow))
-       force_uturn=1;
-   }
 
  /* Loop across all nodes in the queue */
 
@@ -816,7 +838,7 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
           if((result2->score+result3->score)<total_score)
             {
              total_score=result2->score+result3->score;
-             finish_result=result2;
+             start_result=finish_result=result2;
             }
          }
 
@@ -870,7 +892,13 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
  /* Turn the route round and fill in the start and finish information */
 
+ while(start_result->prev && start_result->prev!=NO_RESULT)
+    start_result=start_result->prev;
+
  FixForwardRoute(results,finish_result);
+
+ if(!start_result->prev && start_result->next)
+    start_result=start_result->next;
 
  results->start_node=start_result->node;
  results->prev_segment=start_result->segment;
@@ -879,7 +907,7 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
  results->last_segment=finish_result->segment;
 
 #if DEBUG
- printf("    -------- middle route (start route then via super-nodes/segments)\n");
+ printf("    -------- middle route (via super-nodes/segments)\n");
 
  print_debug_route(nodes,segments,results,NULL,4,+1);
 #endif
@@ -1809,18 +1837,16 @@ static Results *CombineRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relatio
 
  /* Insert the start of the route */
 
- if(begin->number>1 && midres->next)
+ if(begin->number>1)
    {
     Result *begres;
 
-    midres=FindResult(middle,midres->next->node,midres->next->segment);
-
-    begres=FindResult(begin,midres->node,midres->segment);
+    if(midres->prev==NO_RESULT)
+       begres=FindResult(begin,midres->node,midres->segment);
+    else
+       begres=FindResult(begin,midres->prev->node,midres->prev->segment);
 
     FixForwardRoute(begin,begres);
-
-    if(midres->next && midres->next->node==midres->node)
-       midres=midres->next;
 
     begres=FindResult(begin,begin->start_node,begin->prev_segment);
 
@@ -1960,7 +1986,7 @@ static void FixForwardRoute(Results *results,Result *finish_result)
    {
     Result *result;
 
-    if(current_result->prev)
+    if(current_result->prev && current_result->prev!=NO_RESULT)
       {
        index_t node1=current_result->prev->node;
        index_t seg1=current_result->prev->segment;
