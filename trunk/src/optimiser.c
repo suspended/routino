@@ -543,6 +543,8 @@ static Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 }
 
 
+#if 1
+
 /*++++++++++++++++++++++++++++++++++++++
   Find the optimum route between two nodes where the start and end are a set of pre/post-routed super-nodes.
 
@@ -915,6 +917,389 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
  return(results);
 }
+
+#else
+
+/*++++++++++++++++++++++++++++++++++++++
+  Find the optimum route in reverse between two nodes where the start and end are a set of pre/post-routed super-nodes.
+
+  Results *FindMiddleRoute Returns a set of results.
+
+  Nodes *nodes The set of nodes to use.
+
+  Segments *segments The set of segments to use.
+
+  Ways *ways The set of ways to use.
+
+  Relations *relations The set of relations to use.
+
+  Profile *profile The profile containing the transport type, speeds and allowed highways.
+
+  Results *begin The initial portion of the route.
+
+  Results *end The final portion of the route.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Results *begin,Results *end)
+{
+ Results *results;
+ Queue   *queue;
+ Result  *start_result,*finish_result=NULL;
+ score_t total_score;
+ double  start_lat,start_lon;
+ Result  *result1,*result2;
+#ifdef LIBROUTINO
+ int     loopcount=0;
+#endif
+
+#if DEBUG
+ printf("  FindMiddleRoute(...,[begin has %d nodes],[end has %d nodes])\n",begin->number,end->number);
+#endif
+
+#if !DEBUG && !defined(LIBROUTINO)
+ if(!option_quiet)
+    printf_first("Finding Reverse Middle Route: Super-Nodes checked = 0");
+#endif
+
+ /* Set up the finish conditions */
+
+ total_score=INF_SCORE;
+
+ if(IsFakeNode(begin->start_node))
+    GetFakeLatLong(begin->start_node,&start_lat,&start_lon);
+ else
+    GetLatLong(nodes,begin->start_node,NULL,&start_lat,&start_lon);
+
+ /* Create the list of results and queue */
+
+ results=NewResultsList(20);
+ queue=NewQueueList(12);
+
+ /* Insert the finish points of the beginning part of the path into the results,
+    translating the segments into super-segments. */
+
+ if(begin->number==1)
+   {
+    index_t superseg=NO_SEGMENT;
+
+    if(begin->prev_segment!=NO_SEGMENT)
+       superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin->start_node,begin->prev_segment);
+
+    start_result=InsertResult(results,begin->start_node,superseg);
+
+    InsertInQueue(queue,start_result,0);
+   }
+ else
+   {
+    Result *begin_result=FirstResult(begin);
+    Result *end_result;
+
+    while((begin_result=NextResult(begin,begin_result)))
+      {
+       if(!IsFakeNode(begin_result->node) && IsSuperNode(LookupNode(nodes,begin_result->node,3)))
+         {
+          index_t superseg=FindSuperSegment(nodes,segments,ways,relations,profile,begin_result->node,begin_result->segment);
+
+          if(superseg!=begin_result->segment)
+            {
+             result1=InsertResult(results,begin_result->node,begin_result->segment);
+
+             result1->score=begin_result->score;
+            }
+          else
+             result1=NO_RESULT;
+
+          result2=FindResult(results,begin_result->node,superseg);
+
+          if(!result2) /* New end node/super-segment pair */
+            {
+             result2=InsertResult(results,begin_result->node,superseg);
+             result2->prev=result1;
+             result2->score=begin_result->score;
+            }
+          else if(begin_result->score<result2->score) /* New end node/super-segment pair is better */
+            {
+             result2->prev=result1;
+             result2->score=begin_result->score;
+            }
+          else
+             continue;
+
+          if((end_result=FindResult(end,result2->node,result2->segment)))
+            {
+             if((result2->score+end_result->score)<total_score)
+               {
+                total_score=result2->score+end_result->score;
+                start_result=finish_result=result2;
+               }
+            }
+         }
+      }
+
+    /* Insert the start points of the end part of the path into the queue */
+
+    if(!finish_result)
+      {
+       end_result=FirstResult(end);
+
+       while(end_result)
+         {
+          if(!IsFakeNode(end_result->node) && IsSuperNode(LookupNode(nodes,end_result->node,3)))
+            {
+             result1=InsertResult(results,end_result->node,end_result->segment);
+
+             result1->score=end_result->score;
+
+             InsertInQueue(queue,result1,0);
+            }
+
+          end_result=NextResult(end,end_result);
+         }
+      }
+   }
+
+
+ /* Loop across all nodes in the queue */
+
+ while((result1=PopFromQueue(queue)))
+   {
+    Node *node1p;
+    Segment *segment1p,*segment2p;
+    Way *way1p;
+    index_t real_node1,node1,seg1;
+    score_t segment1_pref,segment1_score=0;
+    int i;
+
+    /* score must be better than current best score */
+    if(result1->score>=total_score)
+       continue;
+
+    real_node1=result1->node;
+    seg1=result1->segment;
+
+    segment1p=LookupSegment(segments,seg1,1);
+
+    node1=OtherNode(segment1p,real_node1);
+
+    node1p=LookupNode(nodes,node1,1);
+
+    /* mode of transport must be allowed through node1 */
+    if(!(node1p->allow&profile->allow))
+       continue;
+
+    way1p=LookupWay(ways,segment1p->way,1);
+
+    segment1_pref=profile->highway[HIGHWAY(way1p->type)];
+
+    for(i=1;i<Property_Count;i++)
+       if(ways->file.props & PROPERTIES(i))
+         {
+          if(way1p->props & PROPERTIES(i))
+             segment1_pref*=profile->props_yes[i];
+          else
+             segment1_pref*=profile->props_no[i];
+         }
+
+    /* calculate the score for the segment */
+    if(option_quickest==0)
+       segment1_score=(score_t)DISTANCE(segment1p->distance)/segment1_pref;
+    else
+       segment1_score=(score_t)Duration(segment1p,way1p,profile)/segment1_pref;
+
+    /* Loop across all segments */
+
+    segment2p=FirstSegment(segments,node1p,1); /* node1 cannot be a fake node (must be a super-node) */
+
+    while(segment2p)
+      {
+       Node *node2p;
+       Way *way2p;
+       index_t node2,seg2;
+       score_t segment_pref,cumulative_score,potential_score;
+       double lat,lon;
+       distance_t direct;
+
+       seg2=IndexSegment(segments,segment2p); /* segment cannot be a fake segment (must be a super-segment) */
+
+       /* must not perform U-turn */
+       if(seg1==seg2) /* No fake segments, applies to all profiles */
+          goto endloop;
+
+       /* find whether the node/segment combination already exists */
+       result2=FindResult(results,node1,seg2);
+
+       /* must be a super segment */
+       if(!IsSuperSegment(segment2p) && !(result2 && result2->prev))
+          goto endloop;
+
+       /* must obey turn relations */
+       if(profile->turns && IsTurnRestrictedNode(node1p)) /* node1 cannot be a fake node (must be a super-node) */
+         {
+          index_t turnrelation2=FindFirstTurnRelation2(relations,node1,seg2);
+
+          if(turnrelation2!=NO_RELATION && !IsTurnAllowed(relations,turnrelation2,node1,seg2,seg1,profile->allow))
+             goto endloop;
+         }
+
+       if(result2 && result2->prev)
+         {
+          if((result1->score+result2->score+segment1_score)<total_score)
+            {
+             result2->next=result1; /* working backwards */
+             total_score=result1->score+result2->score+segment1_score;
+             finish_result=start_result=result2;
+            }
+
+          goto endloop;
+         }
+
+       /* must obey one-way restrictions (unless profile allows) */
+       if(profile->oneway && IsOnewayFrom(segment2p,node1)) /* working backwards => disallow oneway *from* node1 */
+         {
+          if(profile->allow!=Transports_Bicycle)
+             goto endloop;
+
+          way2p=LookupWay(ways,segment2p->way,1);
+
+          if(!(way2p->type&Highway_CycleBothWays))
+             goto endloop;
+         }
+
+       way2p=LookupWay(ways,segment2p->way,1);
+
+       /* mode of transport must be allowed on the highway */
+       if(!(way2p->allow&profile->allow))
+          goto endloop;
+
+       /* must obey weight restriction (if exists) */
+       if(way2p->weight && way2p->weight<profile->weight)
+          goto endloop;
+
+       /* must obey height/width/length restriction (if exist) */
+       if((way2p->height && way2p->height<profile->height) ||
+          (way2p->width  && way2p->width <profile->width ) ||
+          (way2p->length && way2p->length<profile->length))
+          goto endloop;
+
+       segment_pref=profile->highway[HIGHWAY(way2p->type)];
+
+       /* highway preferences must allow this highway */
+       if(segment_pref==0)
+          goto endloop;
+
+       for(i=1;i<Property_Count;i++)
+          if(ways->file.props & PROPERTIES(i))
+            {
+             if(way2p->props & PROPERTIES(i))
+                segment_pref*=profile->props_yes[i];
+             else
+                segment_pref*=profile->props_no[i];
+            }
+
+       /* profile preferences must allow this highway */
+       if(segment_pref==0)
+          goto endloop;
+
+       node2=OtherNode(segment2p,node1);
+
+       node2p=LookupNode(nodes,node2,2); /* node2 cannot be a fake node (must be a super-node) */
+
+       cumulative_score=result1->score+segment1_score;
+
+       /* score must be better than current best score */
+       if(cumulative_score>=total_score)
+          goto endloop;
+
+       if(!result2) /* New end node/segment pair */
+         {
+          result2=InsertResult(results,node1,seg2); /* adding in reverse => node1,seg2 */
+          result2->next=result1;   /* working backwards */
+          result2->score=cumulative_score;
+         }
+       else if(cumulative_score<result2->score) /* New end node/segment pair is better */
+         {
+          result2->next=result1; /* working backwards */
+          result2->score=cumulative_score;
+         }
+       else
+          goto endloop;
+
+       /* Insert a new node into the queue */
+
+       GetLatLong(nodes,node2,node2p,&lat,&lon); /* node2 cannot be a fake node (must be a super-node) */
+
+       direct=Distance(lat,lon,start_lat,start_lon);
+
+       if(option_quickest==0)
+          potential_score=result2->score+(score_t)direct/profile->max_pref;
+       else
+          potential_score=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
+
+       if(potential_score<total_score)
+          InsertInQueue(queue,result2,potential_score);
+
+      endloop:
+
+       segment2p=NextSegment(segments,segment2p,node1); /* node1 cannot be a fake node (must be a super-node) */
+      }
+
+#ifdef LIBROUTINO
+    if(!(++loopcount%100000))
+       if(progress_func && !progress_func(progress_value))
+         {
+          progress_abort=1;
+          break;
+         }
+#endif
+   }
+
+ FreeQueueList(queue);
+
+ /* Check it worked */
+
+ if(!finish_result)
+   {
+#if DEBUG
+    printf("    Failed\n");
+#endif
+
+#if !DEBUG && !defined(LIBROUTINO)
+    if(!option_quiet)
+       printf_last("Found Middle Route: Super-Nodes checked = %d - Fail",results->number);
+#endif
+
+    FreeResultsList(results);
+    return(NULL);
+   }
+
+ /* Update the results */
+
+ while(finish_result->next)
+    finish_result=finish_result->next;
+
+ start_result->score=total_score;
+
+ results->start_node  =start_result->node;
+ results->prev_segment=start_result->segment;
+
+ results->finish_node =finish_result->node;
+ results->last_segment=finish_result->segment;
+
+#if DEBUG
+ printf("    -------- reverse middle route (via super-nodes/segments)\n");
+
+ print_debug_route(nodes,segments,results,NULL,4,+1);
+#endif
+
+#if !DEBUG && !defined(LIBROUTINO)
+ if(!option_quiet)
+    printf_last("Found Middle Route: Super-Nodes checked = %d",results->number);
+#endif
+
+ return(results);
+}
+
+#endif
 
 
 /*++++++++++++++++++++++++++++++++++++++
