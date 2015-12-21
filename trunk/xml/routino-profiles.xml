@@ -5,7 +5,7 @@
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010-2014 Andrew M. Bishop
+     This file Copyright 2010-2015 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -236,7 +236,7 @@
       <preference highway="tertiary"      percent="80" />
       <preference highway="unclassified"  percent="70" />
       <preference highway="residential"   percent="60" />
-      <preference highway="service"       percent="80" />
+      <preference highway="service"       percent="50" />
       <preference highway="track"         percent="0" />
       <preference highway="cycleway"      percent="0" />
       <preference highway="path"          percent="0" />
@@ -285,7 +285,7 @@
       <preference highway="tertiary"      percent="70" />
       <preference highway="unclassified"  percent="60" />
       <preference highway="residential"   percent="50" />
-      <preference highway="service"       percent="80" />
+      <preference highway="service"       percent="40" />
       <preference highway="track"         percent="0" />
       <preference highway="cycleway"      percent="0" />
       <preference highway="path"          percent="0" />
@@ -334,7 +334,7 @@
       <preference highway="tertiary"      percent="70" />
       <preference highway="unclassified"  percent="60" />
       <preference highway="residential"   percent="50" />
-      <preference highway="service"       percent="80" />
+      <preference highway="service"       percent="40" />
       <preference highway="track"         percent="0" />
       <preference highway="cycleway"      percent="0" />
       <preference highway="path"          percent="0" />
@@ -383,7 +383,7 @@
       <preference highway="tertiary"      percent="70" />
       <preference highway="unclassified"  percent="60" />
       <preference highway="residential"   percent="50" />
-      <preference highway="service"       percent="80" />
+      <preference highway="service"       percent="40" />
       <preference highway="track"         percent="0" />
       <preference highway="cycleway"      percent="0" />
       <preference highway="path"          percent="0" />
@@ -432,7 +432,7 @@
       <preference highway="tertiary"      percent="70" />
       <preference highway="unclassified"  percent="60" />
       <preference highway="residential"   percent="50" />
-      <preference highway="service"       percent="80" />
+      <preference highway="service"       percent="40" />
       <preference highway="track"         percent="0" />
       <preference highway="cycleway"      percent="0" />
       <preference highway="path"          percent="0" />
@@ -481,7 +481,7 @@
       <preference highway="tertiary"      percent="70" />
       <preference highway="unclassified"  percent="60" />
       <preference highway="residential"   percent="50" />
-      <preference highway="service"       percent="80" />
+      <preference highway="service"       percent="40" />
       <preference highway="track"         percent="0" />
       <preference highway="cycleway"      percent="0" />
       <preference highway="path"          percent="0" />
