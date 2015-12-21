@@ -600,7 +600,7 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
  results=NewResultsList(20);
  queue=NewQueueList(12);
 
- /* Insert the finish points of the beginning part of the path into the queue,
+ /* Insert the finish points of the beginning part of the path into the results,
     translating the segments into super-segments. */
 
  if(begin->number==1)
@@ -626,10 +626,10 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
    }
  else
    {
-    Result *begin_result=NextResult(begin,FirstResult(begin));
+    Result *begin_result=FirstResult(begin);
     Result *end_result;
 
-    while(begin_result)
+    while((begin_result=NextResult(begin,begin_result)))
       {
        if(!IsFakeNode(begin_result->node) && IsSuperNode(LookupNode(nodes,begin_result->node,3)))
          {
@@ -658,7 +658,7 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
              result2->score=begin_result->score;
             }
           else
-             goto endbeginloop;
+             continue;
 
           if((end_result=FindResult(end,result2->node,result2->segment)))
             {
@@ -669,10 +669,6 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
                }
             }
          }
-
-      endbeginloop:
-
-       begin_result=NextResult(begin,begin_result);
       }
 
     /* Insert the start points of the beginning part of the path into the queue */
