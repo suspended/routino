@@ -2369,10 +2369,7 @@ static void FixForwardRoute(Results *results,Result *finish_result)
 
     if(current_result->prev && current_result->prev!=NO_RESULT)
       {
-       index_t node1=current_result->prev->node;
-       index_t seg1=current_result->prev->segment;
-
-       result=FindResult(results,node1,seg1);
+       result=current_result->prev;
 
 #ifndef LIBROUTINO
        logassert(!result->next,"Unable to reverse route through results (report a bug)"); /* Bugs elsewhere can lead to infinite loop here. */
