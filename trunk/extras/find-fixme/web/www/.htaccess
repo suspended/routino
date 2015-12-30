@@ -1,6 +1,6 @@
 ##
 ## Options for Apache web server for language specific web pages and to run
-## Routino CGI scripts.
+## Routino Fixme-finder CGI script.
 ##
 
 # For some of the configuration options in this file to be accepted the
@@ -10,17 +10,6 @@
 # used unmodified.  Alternatively the specific option can be commented out from
 # this file and set in the main Apache configuration file.
 
-
-# The translated router pages use the MultiViews option to serve up a version of
-# the web page depending on the client language preference.
-
-Options +MultiViews
-
-# The English language option will be served if there is no other version
-# present and no errors will be returned to the user in case of problems.
-
-LanguagePriority en
-ForceLanguagePriority Prefer Fallback
 
 # The Routino CGI scripts are stored in this directory and use the filename
 # extension ".cgi".  This filename extension needs to be registered with Apache
@@ -40,14 +29,4 @@ Options +ExecCGI
 <FilesMatch .*\.pl$>
    Order Deny,Allow
    Deny from all
-</FilesMatch>
-
-# The Polish language web page translations will have a '.html.pl' extension for
-# the MultiViews option so they must be allowed specifically and not blocked by
-# the above prohibition on serving Perl scripts.  They must also be served with
-# the HTML mime type.
-
-<FilesMatch .*\.html\.pl$>
-   AddType text/html .pl
-   Allow from all
 </FilesMatch>

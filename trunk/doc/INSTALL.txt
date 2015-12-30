@@ -287,20 +287,18 @@ Configuration of web files
 Configuration of Web Server
 ---------------------------
 
-   The file 'www/routino/.htaccess' contains all of the Apache
-   configuration options that are required to get the example web pages
-   running. The only problem is that because of the way that the
-   "AllowOverride" option works one of the configuration options has been
-   commented out. This must be enabled in the main Apache server
-   configuration file.
+   The file 'www/routino/.htaccess' contains all of the Apache configuration
+   options that are required to get the example web pages running. The
+   only problem is that some of the configuration options in that file
+   will not work unless they are allowed by the 'AllowOverride' option in
+   the main Apache server configuration file.
 
    If you have copied the routino 'web' directory into '/var/www' and named
    it 'routino' then the entry that you need in your Apache configuration
    file is this one:
   
      <Directory /var/www/routino>
-         AllowOverride All
-         Options +ExecCGI
+         AllowOverride Options=MultiViews,ExecCGI FileInfo Limit
      </Directory>
 
    This can be placed anywhere between the <VirtualHost *:80> and

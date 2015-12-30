@@ -391,9 +391,9 @@ the Routino documentation.
 
 The file <tt>www/routino/.htaccess</tt> contains all of the Apache configuration
 options that are required to get the example web pages running.  The only
-problem is that because of the way that the <tt>AllowOverride</tt> option works
-one of the configuration options has been commented out.  This must be enabled
-in the main Apache server configuration file.
+problem is that some of the configuration options in that file will not work
+unless they are allowed by the <tt>AllowOverride</tt> option in the main Apache
+server configuration file.
 
 <p>
 
@@ -403,8 +403,7 @@ configuration file is this one:
 
 <pre>
      &lt;Directory /var/www/routino&gt;
-         AllowOverride All
-         Options +ExecCGI
+         AllowOverride Options=MultiViews,ExecCGI FileInfo Limit
      &lt;/Directory&gt;
 </pre>
 
