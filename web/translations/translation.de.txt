@@ -71,6 +71,9 @@
 %%output-html_total%%	Gesamt %.1f km, %.0f minuten
 %%output-html_subtotal%%	%.1f km, %.0f minuten
 
+%%output-gpx_waypoint_waypt%%	Wegpunkt
+%%output-gpx_waypoint_trip%%	Reiseroute
+
 %%output-gpx_desc%%	%s Strecke zwischen 'Start' und 'Ziel'
 %%output-gpx_name%%	%s Strecke
 %%output-gpx_step%%	%s auf '%s' für %.3f km, %.1f min
@@ -123,7 +126,7 @@
 @@WAYPOINT-SEARCH@@	Nach Ort suchen
 @@WAYPOINT-GET@@	Aktuellen Ort bestimmen
 @@WAYPOINT-CENTRE1@@	Karte auf Wegpunkt zentrieren
-@@WAYPOINT-UP@@	wegpunkt nach oben verschieben
+@@WAYPOINT-UP@@	Wegpunkt nach oben verschieben
 @@WAYPOINT-ADD@@	Neuer Wegpunkt nach diesem
 @@WAYPOINT-COORDS@@	Koordinaten des Orts
 @@WAYPOINT-HOME@@	Umschalten auf den Standort des Zuhauses
@@ -136,7 +139,7 @@
 @@WAYPOINT-LOOP-BUTTON@@	Schleife schließen
 
 @@TRANSPORT-FOOT@@	Fußgänger
-@@TRANSPORT-HORSE@@	Reiter
+@@TRANSPORT-HORSE@@	Pferd
 @@TRANSPORT-WHEELCHAIR@@	Rollstuhl
 @@TRANSPORT-BICYCLE@@	Fahrrad
 @@TRANSPORT-MOPED@@	Moped
@@ -258,9 +261,13 @@ $$TURNS-INFO$$
 
 @@WIDTH-BUTTON@@	Maximale Breite anzeigen
 
+@@WIDTH-LIMIT-3@@	max. 3,0 m Breite
+
 @@LENGTH-BUTTON@@	Längenbeschränkung anzeigen
 
 @@LENGTH-LIMIT-9@@	9.0 m Längenbeschränkung
+
+@@ERROR-LOG-BUTTON@@	Anzeige Fehlerprotokoll
 
 @@CLEAR-DATA-BUTTON@@	Daten zurücksetzen
 
@@ -360,3 +367,6 @@ $$ROUTER-VISUALISER-INFO$$
 # Multi-line descriptive translations (visualiser)
 #
 
+$$VISUALISER-ROUTER-INFO$$
+Um die Routenplanung auf der Karte durchzuführen, verwenden sie den untenstehenden Link.
+$$VISUALISER-ROUTER-INFO$$

@@ -189,8 +189,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
-      <!-- TRANSLATION REQUIRED: waypoint type="trip" string="TRIP" / --> <!-- For the other route points -->
+      <waypoint type="waypt" string="Wegpunkt" /> <!-- For the route waypoints -->
+      <waypoint type="trip" string="Reiseroute" /> <!-- For the other route points -->
 
       <desc  text="%s Strecke zwischen 'Start' und 'Ziel'" /> <!-- %s = [shortest|quickest] -->
       <name  text="%s Strecke" /> <!-- %s = [shortest|quickest] -->
