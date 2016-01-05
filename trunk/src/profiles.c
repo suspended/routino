@@ -824,6 +824,9 @@ int UpdateProfile(Profile *profile,Ways *ways)
        profile->max_pref=profile->highway[i];
    }
 
+ if(profile->max_pref==0)
+    return(1);
+
  /* Normalise the property preferences into the range ~0 -> 1 */
 
  for(i=1;i<Property_Count;i++)
@@ -856,13 +859,11 @@ int UpdateProfile(Profile *profile,Ways *ways)
  profile->max_speed=0;
 
  for(i=1;i<Highway_Count;i++)
-   {
-    if(profile->speed[i]<0.01f)
-       profile->speed[i]=0.01f;
-
     if(profile->speed[i]>profile->max_speed)
        profile->max_speed=profile->speed[i];
-   }
+
+ if(profile->max_speed==0)
+    return(1);
 
  /* Find the most preferred property combination */
 
