@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -168,28 +168,28 @@ static inline Way *LookupWay(Ways *ways,index_t index,int position)
 
 static inline char *WayName(Ways *ways,Way *wayp)
 {
- int position=(int)(wayp-&ways->cached[-1]);
+ int position=(int)(wayp-ways->cached);
  int n=0;
 
- if(!ways->ncached[position-1])
-    ways->ncached[position-1]=(char*)malloc(64);
+ if(!ways->ncached[position])
+    ways->ncached[position]=(char*)malloc(64);
 
- while(!SlimFetch(ways->fd,ways->ncached[position-1]+n,64,ways->namesoffset+wayp->name+n))
+ while(!SlimFetch(ways->fd,ways->ncached[position]+n,64,ways->namesoffset+wayp->name+n))
    {
     int i;
 
     for(i=n;i<n+64;i++)
-       if(ways->ncached[position-1][i]==0)
+       if(ways->ncached[position][i]==0)
           goto exitloop;
 
     n+=64;
 
-    ways->ncached[position-1]=(char*)realloc((void*)ways->ncached[position-1],n+64);
+    ways->ncached[position]=(char*)realloc((void*)ways->ncached[position],n+64);
    }
 
  exitloop:
 
- return(ways->ncached[position-1]);
+ return(ways->ncached[position]);
 }
 
 #endif
