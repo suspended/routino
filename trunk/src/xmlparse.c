@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2015 Andrew M. Bishop
+ This file Copyright 2010-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -1032,14 +1032,15 @@ int ParseXML(int fd,const xmltag *const *tags,int options)
    case LEX_FUNC_TAG_POP:
 
     stackused--;
+
+    if(stackused<0)
+       BEGIN(LEX_ERROR_NO_START);
+
     tags=tags_stack[stackused];
     tag =tag_stack [stackused];
 
     if(strcmp((char*)buffer_token,tag->name))
        BEGIN(LEX_ERROR_UNBALANCED);
-
-    if(stackused<0)
-       BEGIN(LEX_ERROR_NO_START);
 
     for(i=0;i<tag->nattributes;i++)
        attributes[i]=NULL;
