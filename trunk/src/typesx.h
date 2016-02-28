@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2014 Andrew M. Bishop
+ This file Copyright 2008-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -65,7 +65,7 @@
 /* Simple Types */
 
 /*+ A node identifier - must be at least as large as index_t. +*/
-typedef uint32_t node_t;
+typedef uint64_t node_t;
 
 /*+ A way identifier - must be at least as large as index_t. +*/
 typedef uint32_t way_t;
@@ -75,7 +75,7 @@ typedef uint32_t relation_t;
 
 
 /*+ A printf formatting string for a node_t type (this should match the node_t definition above). +*/
-#define Pnode_t PRIu32          /* PRIu32 and PRIu64 are defined in intypes.h */
+#define Pnode_t PRIu64          /* PRIu32 and PRIu64 are defined in intypes.h */
 
 /*+ A printf formatting string for a way_t type (this should match the way_t definition above). +*/
 #define Pway_t PRIu32           /* PRIu32 and PRIu64 are defined in intypes.h */
