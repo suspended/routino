@@ -12,7 +12,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -210,55 +210,56 @@ Version 2.7.2 of Routino was released on 26th June 2014.
 Version 2.7.3 of Routino was released on 8th November 2014.
 <br>
 Version 3.0 of Routino was released on 12th September 2015.
+<br>
+Version 3.1 of Routino was released on 5th March 2016.
 
 <p>
 
 The full version history is available in the NEWS.txt file.
 
 
-<h3 id="H_1_5_1" title="Changes 3.0">Changes in Versions 3.0</h3>
-
-Version 3.0 - Windows compilation and library providing routing API.
+<h3 id="H_1_5_1" title="Changes 3.1">Changes in Versions 3.1</h3>
 
 <dl>
   <dt>Bug fixes:
-    <dd>Use a single definition of MAX_SEG_PER_NODE to avoid confusion.
-    <br>Fix bug with built-in translation strings if no XML translations available.
-    <br>Fix bug with makefiles related to creating new translations.
-    <br>Remove some pthread code that was still there when compiling without pthreads.
-    <br>Fix a use-after-free memory error and use of uninitialised allocated memory.
-    <br>Ensure that allocated strings are long enough for temporary filenames.
+    <dd>Make the whole of the highlighted entry on the webpage clickable.
+    <br>Fix Makefiles so that 'make -j 4' works.
+    <br>Fix Makefiles so that 'make test' works from a clean directory.
+    <br>Fix bug on webpage with 'oneway' or 'turns' in the URL arguments.
+    <br>Print error message on webpage if geolocation function unavailable.
+    <br>Fix bug where the optimum end of the route was not being found.
+    <br>Reduce the preference for service roads in the default routing profile.
+    <br>Remove literal type conversion error when validating profile values.
 
-  <dt>Programs:
-    <dd>Add a '--version' option to all of the programs.
+  <dt>Library:
+    <dd>Add a version number to the shared library (SONAME).
+    <br>Include the version number of Routino into the library as a string variable.
+    <br>Add loop and reverse route as options to the library.
 
-  <dt>Source Code:
-    <dd>Various C language cleanups including using '-pedantic' compiler option.
-    <br>Various changes to allow compiling with Microsoft Visual Studio C compiler.
-    <br>Various changes to allow compiling with MinGW or Cygwin on Microsoft Windows.
-    <br>Makefile updates: 'make clean' = release, 'make distclean' = SVN repository.
+  <dt>planetsplitter:
+    <dd>Use 64-bit numbers for the node ID when processing an OSM file.
 
-  <dt>API:
-    <dd>Create a library API that can perform routing functions.
-
-  <dt>OSM tagging:
-    <dd>Remove cycle_barrier and bicycle_barrier since they do not block bicycles.
+  <dt>router:
+    <dd>Change file output formats so that waypoint numbers are included.
+    <br>When calculating a route with loop and reverse start route from waypoint 1.
+    <br>Calculate the route from both ends towards the middle.
 
   <dt>Translations:
-    <dd>Updated Dutch and German translations.
-    <br>Added Hungarian and Polish translations provided through translation web page.
+    <dd>Change the names of the GPX route waypoints in translations.xml.
+    <br>Updated French and German translations.
 
-  <dt>Documentation:
-    <dd>Add meta tags to HTML to help mobile devices, tidy up the CSS.
-    <br>Create instructions for compiling on Microsoft Windows.
-    <br>Create API description for Routino library usage.
+  <dt>Documentation
+    <dd>Updated the instructions for setting up on Apache (version 2.4.x).
 
   <dt>Web pages:
-    <dd>Allow drag-and-drop of waypoints within the list and onto the map.
+    <dd>Add a loop &amp; reverse checkbox, replace loop &amp; reverse buttons with icons.
+
+  <dt>Extras:
+    <dd>Add scripts to process the database and create maps of highway statistics.
 </dl>
 
 <p>
-<b>Note:</b> This version is compatible with databases from version 2.7.1 - 2.7.3.
+<b>Note:</b> This version is compatible with databases from version 2.7.1 - 3.0.
 
 
 <h2 id="H_1_6">License</h2>
@@ -279,7 +280,7 @@ software.
 
 <h3 id="H_1_6_1">Copyright</h3>
 
-Routino is copyright Andrew M. Bishop 2008-2015.
+Routino is copyright Andrew M. Bishop 2008-2016.
 
 
 <h2 id="H_1_7">Homepage</h2>

@@ -130,6 +130,7 @@ Status
    Version 2.7.2 of Routino was released on 26th June 2014.
    Version 2.7.3 of Routino was released on 8th November 2014.
    Version 3.0 of Routino was released on 12th September 2015.
+   Version 3.1 of Routino was released on 5th March 2016.
 
    The full version history is available in the NEWS.txt file.
 
@@ -151,7 +152,7 @@ License
 Copyright
 ---------
 
-   Routino is copyright Andrew M. Bishop 2008-2015.
+   Routino is copyright Andrew M. Bishop 2008-2016.
 
 
 Homepage
@@ -186,4 +187,4 @@ Subversion
 
 --------
 
-Copyright 2008-2015 Andrew M. Bishop.
+Copyright 2008-2016 Andrew M. Bishop.

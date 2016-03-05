@@ -1,3 +1,46 @@
+Version 3.1 of Routino released : Sat Mar 5 2016
+------------------------------------------------
+
+Bug fixes:
+  Make the whole of the highlighted entry on the webpage clickable.
+  Fix Makefiles so that 'make -j 4' works.
+  Fix Makefiles so that 'make test' works from a clean directory.
+  Fix bug on webpage with 'oneway' or 'turns' in the URL arguments.
+  Print error message on webpage if geolocation function unavailable.
+  Fix bug where the optimum end of the route was not being found.
+  Reduce the preference for service roads in the default routing profile.
+  Remove literal type conversion error when validating profile values.
+
+Library:
+  Add a version number to the shared library (SONAME).
+  Include the version number of Routino into the library as a string variable.
+  Add loop and reverse route as options to the library.
+
+planetsplitter:
+  Use 64-bit numbers for the node ID when processing an OSM file.
+
+router:
+  Change file output formats so that waypoint numbers are included.
+  When calculating a route with loop and reverse start route from waypoint 1.
+  Calculate the route from both ends towards the middle.
+
+Translations:
+  Change the names of the GPX route waypoints in translations.xml.
+  Updated French and German translations.
+
+Documentation
+  Updated the instructions for setting up on Apache (version 2.4.x).
+
+Web pages:
+  Add a loop & reverse checkbox, replace loop & reverse buttons with icons.
+
+Extras:
+  Add scripts to process the database and create maps of highway statistics.
+
+
+Note: This version is compatible with databases from versions 2.7.1 - 3.0.
+
+
 Version 3.0 of Routino released : Sat Sep 12 2015
 -------------------------------------------------
 
