@@ -1,3 +1,12 @@
+Version 3.1.1 of Routino released : Sun Mar 6 2016
+--------------------------------------------------
+
+Bug fixes:
+  Updated the version number in the executables to "3.1.1".
+
+There are no other changes compared to version 3.1.
+
+
 Version 3.1 of Routino released : Sat Mar 5 2016
 ------------------------------------------------
 
