@@ -1,11 +1,11 @@
 #!/bin/sh -x
 
-version=0.7.3
+version=0.7.7
 
 # Download the file.
 
-wget http://leaflet-cdn.s3.amazonaws.com/build/leaflet-$version.zip
+wget http://cdn.leafletjs.com/leaflet/v$version/leaflet.zip
 
 # Uncompress it.
 
-unzip leaflet-$version.zip
+unzip leaflet.zip
