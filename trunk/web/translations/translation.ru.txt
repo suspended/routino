@@ -56,11 +56,12 @@
 %%highway_steps%%	лестница
 %%highway_ferry%%	паром
 
-%%route_shortest%%	Короткий
+%%route_shortest%%	Кратчайший
 %%route_quickest%%	Быстрый
 
-%%output-html_waypoint_waypoint%%	путевая точка
+%%output-html_waypoint_waypoint%%	Точка
 %%output-html_waypoint_junction%%	перекрестке
+%%output-html_waypoint_roundabout%%	круговое движение
 %%output-html_title%%	%s маршрут
 %%output-html_start%%	Старт  %s, на %s
 %%output-html_node%%	на %s, %s, на %s
@@ -68,6 +69,8 @@
 %%output-html_stop%%	Стоп  %s
 %%output-html_total%%	Всего %.1f км, %.0f минут
 %%output-html_subtotal%%	%.1f км, %.0f минут
+
+%%output-gpx_waypoint_waypt%%	ТОЧКА
 
 %%output-gpx_desc%%	%s маршрут от 'Старта' до 'Финиша'
 %%output-gpx_name%%	%s маршрут
@@ -79,37 +82,68 @@
 #
 
 @@LANGUAGE@@	Русский
-@@LANGUAGE-WEBPAGE@@	Русский
+@@LANGUAGE-WEBPAGE@@	Страница на Русском языке
 
+@@OPTION-TAB@@	Настройки
 @@OPTION-TAB-HELP@@	Задать настройки маршрутизации
+
+@@DATA-TAB@@	Данные
 
 @@DOCUMENTATION@@	Документация
 
 @@LANGUAGE-BOX@@	Язык
+@@WAYPOINTS-BOX@@	Точки
 @@TRANSPORT-TYPE-BOX@@	Тип транспорта
 @@SPEED-LIMITS-BOX@@	Ограничения скорости
 @@OTHER-RESTRICTIONS-BOX@@	Другие ограничения
+@@FIND-BOX@@	Найти
+@@LINKS-BOX@@	Ссылки
 @@HELP-BOX@@	Помощь
 
 @@STATUS-BOX@@	Статус
 @@SHORTEST-ROUTE@@	Кратчайший маршрут
 @@QUICKEST-ROUTE@@	Быстрейший маршрут
 
+@@STATISTICS-BOX@@	Routino Статистика
+
+@@WAYPOINT-CENTRE1@@	Центрировать карту на этой точке
+@@WAYPOINT-DOWN@@	Поместить точку ниже
+@@WAYPOINT-REMOVE@@	Удалить эту путевую точку
+
+@@TRANSPORT-FOOT@@	Пешком
 @@TRANSPORT-HORSE@@	Лошадь
 @@TRANSPORT-WHEELCHAIR@@	Инвалидное кресло
 @@TRANSPORT-BICYCLE@@	Велосипед
 @@TRANSPORT-MOPED@@	Мопед
 @@TRANSPORT-MOTORCYCLE@@	Мотоцикл
-@@TRANSPORT-GOODS@@	Товары
+@@TRANSPORT-MOTORCAR@@	Машина
+@@TRANSPORT-GOODS@@	Фургон
+@@TRANSPORT-HGV@@	Грузовой автомобиль
+@@TRANSPORT-PSV@@	Автобус
 
 @@HIGHWAY-MOTORWAY@@	Автомагистраль
+@@HIGHWAY-TRUNK@@	Международная трасса
+@@HIGHWAY-PRIMARY@@	Дорога регионального значения
+@@HIGHWAY-SECONDARY@@	Дорога областного значения
+@@HIGHWAY-TERTIARY@@	Дорога районного значения
+@@HIGHWAY-UNCLASSIFIED@@	Дорога местного значения
+@@HIGHWAY-RESIDENTIAL@@	Улица
+@@HIGHWAY-SERVICE@@	Проезд
+@@HIGHWAY-TRACK@@	Дорога с/х назначения
+@@HIGHWAY-CYCLEWAY@@	Велодорожка
+@@HIGHWAY-PATH@@	Тропинка
+@@HIGHWAY-STEPS@@	Лестница
+@@HIGHWAY-FERRY@@	Паром
 
+@@PROPERTY-PAVED@@	Мощеная
+@@PROPERTY-MULTILANE@@	Многополосная
 @@PROPERTY-BRIDGE@@	Мост
 @@PROPERTY-TUNNEL@@	Туннель
 @@PROPERTY-WALKINGROUTE@@	Пеший маршрут
 @@PROPERTY-BICYCLEROUTE@@	Велодорожка
 
 @@RESTRICT-ONEWAY@@	Односторонняя улица
+@@RESTRICT-TURNS@@	Ограничения поворота
 @@RESTRICT-WEIGHT@@	Вес
 @@RESTRICT-HEIGHT@@	Высота
 @@RESTRICT-WIDTH@@	Ширина
@@ -118,6 +152,24 @@
 @@FIND-SHORTEST-ROUTE@@	Найти кратчайший маршрут
 @@FIND-QUICKEST-ROUTE@@	Найти быстрейший маршут
 
+@@EDIT-OSM-DATA@@	Редактировать данные OSM
+
+@@ROUTER-NOT-RUN@@	Роутер не запущен
+@@ROUTER-RUNNING@@	Прокладка маршрута...
+@@ROUTER-COMPLETED@@	Прокладка маршрута завершена
+@@ROUTER-ERROR@@	Ошибка прокладки маршрута
+@@ROUTER-FAILED@@	Ошибка при запуске
+@@VIEW-DETAILS@@	Подробнее
+
+@@NO-INFORMATION@@	Пусто
+@@HTML-ROUTE@@	HTML навигатор
+@@GPX-TRACK-ROUTE@@	Трек в формате GPX
+@@GPX-ROUTE@@	Маршрут в формате GPX
+@@FULL-TEXT-ROUTE@@	Подробный текстовый файл
+@@TEXT-ROUTE@@	Текстовый файл
+@@OPEN-POPUP@@	Открыть
+
+@@GEO-DATA@@	Гео данные
 @@TILES@@	Тайлы
 
 #
@@ -136,6 +188,7 @@
 @@SPEED-BUTTON@@	Показывать ограничения скорости
 
 @@LIMIT-CHANGE@@	Изменить ограничения
+@@LIMIT-NONE@@	Нет отграничений
 @@SPEED-LIMIT-80@@	Ограничение скорости 80 км/ч
 
 @@WEIGHT-BUTTON@@	Показывать ограничения по весу
@@ -148,6 +201,16 @@
 
 @@WIDTH-BUTTON@@	Показывать ограничение ширины
 
+@@WIDTH-LIMIT-3@@	Ограничение ширины 3.0 метра
+
+@@LENGTH-BUTTON@@	Показать ограничения длинны
+
+@@LENGTH-LIMIT-9@@	Ограничение длинны 9.0 метров
+
+@@ERROR-LOG-BUTTON@@	Показать лог ошибок
+
+@@CLEAR-DATA-BUTTON@@	Очистить данные
+
 #
 # Multi-line descriptive translations (router)
 #
@@ -156,3 +219,6 @@
 # Multi-line descriptive translations (visualiser)
 #
 
+$$VISUALISER-ROUTER-INFO$$
+Для прокладки маршрута на карте используйте ссылку ниже.
+$$VISUALISER-ROUTER-INFO$$
