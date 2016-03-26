@@ -627,14 +627,14 @@
     <highway type="ferry"        string="паром" />
 
     <!-- The type of route -->
-    <route type="shortest" string="Короткий" /> <!-- For the description and route name -->
+    <route type="shortest" string="Кратчайший" /> <!-- For the description and route name -->
     <route type="quickest" string="Быстрый" /> <!-- For the description and route name -->
 
     <!-- HTML output -->
     <output-html>
-      <waypoint type="waypoint"   string="путевая точка" /> <!-- For the chosen waypoints -->
+      <waypoint type="waypoint"   string="Точка" /> <!-- For the chosen waypoints -->
       <waypoint type="junction"   string="перекрестке" /> <!-- For the interesting junctions -->
-      <!-- TRANSLATION REQUIRED: waypoint type="roundabout" string="Roundabout" / --> <!-- For roundabouts -->
+      <waypoint type="roundabout" string="круговое движение" /> <!-- For roundabouts -->
 
       <title text="%s маршрут" /> <!-- %s = [shortest|quickest] -->
 
@@ -649,7 +649,7 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
+      <waypoint type="waypt" string="ТОЧКА" /> <!-- For the route waypoints -->
       <!-- TRANSLATION REQUIRED: waypoint type="trip" string="TRIP" / --> <!-- For the other route points -->
 
       <desc  text="%s маршрут от 'Старта' до 'Финиша'" /> <!-- %s = [shortest|quickest] -->
