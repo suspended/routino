@@ -87,14 +87,20 @@
 @@OPTION-TAB@@	Настройки
 @@OPTION-TAB-HELP@@	Задать настройки маршрутизации
 
+@@RESULTS-TAB@@	Результаты
+@@RESULTS-TAB-HELP@@	Смотрите результат прокладки маршрута
+
 @@DATA-TAB@@	Данные
 
+@@ROUTINO-WEBSITE@@	Сайт Routino
 @@DOCUMENTATION@@	Документация
 
 @@LANGUAGE-BOX@@	Язык
 @@WAYPOINTS-BOX@@	Точки
 @@TRANSPORT-TYPE-BOX@@	Тип транспорта
+@@HIGHWAY-PREFERENCES-BOX@@	Настройки типа дорог
 @@SPEED-LIMITS-BOX@@	Ограничения скорости
+@@PROPERTY-PREFERENCES-BOX@@	Настройки качества дорог
 @@OTHER-RESTRICTIONS-BOX@@	Другие ограничения
 @@FIND-BOX@@	Найти
 @@LINKS-BOX@@	Ссылки
@@ -106,9 +112,19 @@
 
 @@STATISTICS-BOX@@	Routino Статистика
 
+@@WAYPOINT-SEARCH@@	Поиск по адресу
+@@WAYPOINT-GET@@	Текущее местоположение
 @@WAYPOINT-CENTRE1@@	Центрировать карту на этой точке
+@@WAYPOINT-UP@@	Поместить точку выше
+@@WAYPOINT-ADD@@	Добавить следующую точку 
+@@WAYPOINT-COORDS@@	По координатам
+@@WAYPOINT-CENTRE2@@	Переместить точку в центр карты
 @@WAYPOINT-DOWN@@	Поместить точку ниже
 @@WAYPOINT-REMOVE@@	Удалить эту путевую точку
+@@WAYPOINT-REVERSE@@	Перестроить в обратном порядке
+@@WAYPOINT-REVERSE-BUTTON@@	Обратный порядок
+@@WAYPOINT-LOOP@@	Добавить точку для зацикливания
+@@WAYPOINT-LOOP-BUTTON@@	Зациклить
 
 @@TRANSPORT-FOOT@@	Пешком
 @@TRANSPORT-HORSE@@	Лошадь
@@ -169,6 +185,9 @@
 @@TEXT-ROUTE@@	Текстовый файл
 @@OPEN-POPUP@@	Открыть
 
+@@DISPLAY-STATISTICS@@	Показать статистику данных
+
+@@JAVASCRIPT-REQUIRED@@	Javascript <em>обязателен</em> для просмотра данной страницы, так как на ней используется интерактивная карта.
 @@GEO-DATA@@	Гео данные
 @@TILES@@	Тайлы
 
@@ -182,6 +201,8 @@
 
 @@VISUALISER-NUM-NODES@@	Обработано # нод
 @@VISUALISER-NUM-TURNS@@	Обработано # ограничений поворотов
+
+@@WAYTYPE-ONEWAY@@	сегмент односторонней дороги
 
 @@TURNS-BUTTON@@	Показывать ограничения поворотов
 
