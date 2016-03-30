@@ -118,6 +118,7 @@
 @@WAYPOINT-UP@@	Поместить точку выше
 @@WAYPOINT-ADD@@	Добавить следующую точку 
 @@WAYPOINT-COORDS@@	По координатам
+@@WAYPOINT-HOME@@	Переключение домашней локации
 @@WAYPOINT-CENTRE2@@	Переместить точку в центр карты
 @@WAYPOINT-DOWN@@	Поместить точку ниже
 @@WAYPOINT-REMOVE@@	Удалить эту путевую точку
