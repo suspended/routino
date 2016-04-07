@@ -13,7 +13,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -136,6 +136,12 @@
       </div>
 
       <div class="hideshow_box">
+        <span class="hideshow_title">@@FIND-BOX@@</span>
+        <input type="button" title="@@FIND-SHORTEST-ROUTE@@" id="shortest1" value="@@SHORTEST-ROUTE@@" onclick="findRoute('shortest');" disabled="disabled">
+        <input type="button" title="@@FIND-QUICKEST-ROUTE@@" id="quickest1" value="@@QUICKEST-ROUTE@@" onclick="findRoute('quickest');" disabled="disabled">
+      </div>
+
+      <div class="hideshow_box">
         <span id="hideshow_transport_show" onclick="hideshow_show('transport');" class="hideshow_hide">+</span>
         <span id="hideshow_transport_hide" onclick="hideshow_hide('transport');" class="hideshow_show">-</span>
         <span class="hideshow_title">@@TRANSPORT-TYPE-BOX@@</span>
@@ -236,12 +242,6 @@
       </div>
 
       <div class="hideshow_box">
-        <span class="hideshow_title">@@FIND-BOX@@</span>
-        <input type="button" title="@@FIND-SHORTEST-ROUTE@@" id="shortest" value="@@SHORTEST-ROUTE@@" onclick="findRoute('shortest');" disabled="disabled">
-        <input type="button" title="@@FIND-QUICKEST-ROUTE@@" id="quickest" value="@@QUICKEST-ROUTE@@" onclick="findRoute('quickest');" disabled="disabled">
-      </div>
-
-      <div class="hideshow_box">
         <span class="hideshow_title">@@LINKS-BOX@@</span>
         <a id="permalink_url" href="router.html">@@MAP-VIEW-LINK@@</a>
         <br>
@@ -287,6 +287,12 @@
           <b>@@ROUTER-FAILED@@</b>
         </div>
       </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">@@FIND-BOX@@</span>
+      <input type="button" title="@@FIND-SHORTEST-ROUTE@@" id="shortest2" value="@@SHORTEST-ROUTE@@" onclick="findRoute('shortest');" disabled="disabled">
+      <input type="button" title="@@FIND-QUICKEST-ROUTE@@" id="quickest2" value="@@QUICKEST-ROUTE@@" onclick="findRoute('quickest');" disabled="disabled">
     </div>
 
     <div class="hideshow_box">
