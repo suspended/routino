@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2015 Andrew M. Bishop
+// This file Copyright 2008-2016 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -1382,13 +1382,17 @@ function updateSearchButtons()
 
  if(markersactive<2)
    {
-    document.getElementById("shortest").disabled="disabled";
-    document.getElementById("quickest").disabled="disabled";
+    document.getElementById("shortest1").disabled="disabled";
+    document.getElementById("quickest1").disabled="disabled";
+    document.getElementById("shortest2").disabled="disabled";
+    document.getElementById("quickest2").disabled="disabled";
    }
  else
    {
-    document.getElementById("shortest").disabled="";
-    document.getElementById("quickest").disabled="";
+    document.getElementById("shortest1").disabled="";
+    document.getElementById("quickest1").disabled="";
+    document.getElementById("shortest2").disabled="";
+    document.getElementById("quickest2").disabled="";
    }
 }
 
