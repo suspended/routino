@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -663,7 +663,7 @@ int main(int argc,char** argv)
     printf_first("Generating Result Outputs");
 
  if(!option_file_none)
-    PrintRoute(results,nresults,OSMNodes,OSMSegments,OSMWays,profile,translation);
+    PrintRoute(results,nresults,OSMNodes,OSMSegments,OSMWays,OSMRelations,profile,translation);
 
  if(!option_quiet)
     printf_last("Generated Result Outputs");

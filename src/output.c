@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,7 @@
 #include "nodes.h"
 #include "segments.h"
 #include "ways.h"
+#include "relations.h"
 
 #include "functions.h"
 #include "fakes.h"
@@ -97,12 +98,14 @@ static const char junction_other_way[Highway_Count][Highway_Count]=
 
   Ways *ways The set of ways to use.
 
+  Relations *relations The set of relations to use.
+
   Profile *profile The profile containing the transport type, speeds and allowed highways.
 
   Translation *translation The set of translated strings.
   ++++++++++++++++++++++++++++++++++++++*/
 
-Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile,Translation *translation)
+Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Translation *translation)
 {
  FILE                          *htmlfile=NULL,*gpxtrackfile=NULL,*gpxroutefile=NULL,*textfile=NULL,*textallfile=NULL;
  Routino_Output *listhead=NULL,*htmllist=NULL,                                      *textlist=NULL,*textalllist=NULL,*htmlalllist=NULL;
@@ -578,6 +581,14 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
                       if(!(wayp->type&Highway_CycleBothWays))
                          cango=0;
                      }
+                  }
+
+                if(profile->turns && IsSuperNode(resultnodep) && IsTurnRestrictedNode(resultnodep))
+                  {
+                   index_t turnrelation=FindFirstTurnRelation2(relations,result->node,realsegment);
+
+                   if(turnrelation!=NO_RELATION && !IsTurnAllowed(relations,turnrelation,result->node,realsegment,seg,profile->allow))
+                      cango=0;
                   }
 
                 if(cango)

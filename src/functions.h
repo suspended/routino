@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ Results *CalculateRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *re
 
 /* Functions in output.c */
 
-Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Profile *profile,Translation *translation);
+Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,Ways *ways,Relations *relations,Profile *profile,Translation *translation);
 
 
 #endif /* FUNCTIONS_H */
