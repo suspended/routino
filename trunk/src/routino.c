@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2015 Andrew M. Bishop
+ This file Copyright 2015-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -705,7 +705,7 @@ DLL_PUBLIC Routino_Output *Routino_CalculateRoute(Routino_Database *database,Rou
 
  /* Print the route */
 
- output=PrintRoute(results,nwaypoints_routed-1,database->nodes,database->segments,database->ways,profile,translation);
+ output=PrintRoute(results,nwaypoints_routed-1,database->nodes,database->segments,database->ways,database->relations,profile,translation);
 
  if(progress_func && !progress_func(1.0))
    {
