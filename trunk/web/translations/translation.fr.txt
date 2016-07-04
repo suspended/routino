@@ -65,12 +65,13 @@
 %%output-html_title%%	Itinéraire %s
 %%output-html_start%%	Débute à %s, direction %s
 %%output-html_node%%	à %s, aller %s direction %s
-%%output-html_rbnode%%	Quitter %s, prendre le %s sortir direction %s
+%%output-html_rbnode%%	Quitter %s, prendre la sortie %s direction %s
 %%output-html_segment%%	Suivre %s pendant %.3f km, %.1f min
 %%output-html_stop%%	S'arrêter à %s
 %%output-html_total%%	Total %.1f km, %.0f minutes
 %%output-html_subtotal%%	%.1f km, %.0f minutes
 
+%%output-gpx_waypoint_waypt%%	ETAPE
 %%output-gpx_waypoint_trip%%	POINT
 
 %%output-gpx_desc%%	Itinéraire %s entre les étapes 'début' et 'fin'
@@ -207,6 +208,23 @@
 #
 # Visualiser specific translations
 #
+
+@@VISUALISER-TITLE@@	Afficheur d'itinéraire
+
+@@INSTRUCTIONS-BOX@@	Instructions
+@@ROUTER-BOX@@	Planificateur de Routino
+
+@@NO-DATA-DISPLAYED@@	Aucune donnée affichée
+
+@@VISUALISER-FAILED@@	Échec de récupération des données d'affichage!
+@@VISUALISER-NUM-JUNCTIONS@@	# intersections traitées
+@@VISUALISER-NUM-SUPER@@	# segments/super-nœuds traités
+@@VISUALISER-NUM-WAYTYPE@@	# segments de type "way" traités
+@@VISUALISER-NUM-SEGMENTS@@	# segments traités
+@@VISUALISER-NUM-NODES@@	# nœuds traités
+@@VISUALISER-NUM-ERRORS@@	# erreurs de log traitées
+
+@@JUNCTIONS-BUTTON@@	Afficher les intersections
 
 @@HEIGHT-LIMIT-4@@	Hauteur limitée à 4,0 m
 
