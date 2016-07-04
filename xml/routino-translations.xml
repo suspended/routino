@@ -272,7 +272,7 @@
 
       <start    text="Débute à %s, direction %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
       <node     text="à %s, aller %s direction %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
-      <rbnode   text="Quitter %s, prendre le %s sortir direction %s" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
+      <rbnode   text="Quitter %s, prendre la sortie %s direction %s" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
       <segment  text="Suivre %s pendant %.3f km, %.1f min" /> <!-- 1st %s = street name -->
       <stop     text="S'arrêter à %s" /> <!-- 1st %s = [waypoint|junction] -->
       <total    text="Total %.1f km, %.0f minutes" />
@@ -281,7 +281,7 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
+      <waypoint type="waypt" string="ETAPE" /> <!-- For the route waypoints -->
       <waypoint type="trip" string="POINT" /> <!-- For the other route points -->
 
       <desc  text="Itinéraire %s entre les étapes 'début' et 'fin'" /> <!-- %s = [shortest|quickest] -->
