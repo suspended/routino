@@ -237,8 +237,20 @@
 
 @@SUPER-BUTTON@@	Super-Segments anzeigen
 
+@@WAYTYPE-BUTTON@@	Wegart des Abschnittes anzeigen
+$$WAYTYPE-INFO$$
+Spezial-Arten der Abschnitte (Einbahnstraße, beidseitige Fahrradwege und Kreisverkehre) werden angezeigt.
+Ein koloriertes Dreieck zeigt die erlaubte Fahrtrichtung an. Die Farben der Dreiecke hängen von der jeweiligen Art des Abschnittes ab. 
+$$WAYTYPE-INFO$$
+
 @@WAYTYPE-ONEWAY@@	Einbahnstraßen Segmente
+@@WAYTYPE-CYCLE-BOTH-WAYS@@	Fahrradweg auf beiden Seiten des Abschnittes
 @@WAYTYPE-ROUNDABOUT@@	Kreisverkehr Segmente
+
+@@HIGHWAY-BUTTON@@	Wegabschnitte anzeigen
+$$HIGHWAY-INFO$$
+Jeder Abschnitt der ausgewählten Wegart ist gezeichnet.
+$$HIGHWAY-INFO$$
 
 @@TURNS-BUTTON@@	Zeige Abbiegebeschränkungen
 $$TURNS-INFO$$
@@ -266,6 +278,8 @@ $$TURNS-INFO$$
 @@LENGTH-BUTTON@@	Längenbeschränkung anzeigen
 
 @@LENGTH-LIMIT-9@@	9.0 m Längenbeschränkung
+
+@@PROPERTY-BUTTON@@	Anzeigen der Wegeigenschaften
 
 @@ERROR-LOG-BUTTON@@	Anzeige Fehlerprotokoll
 
