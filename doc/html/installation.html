@@ -12,7 +12,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -86,8 +86,10 @@ make
 </pre>
 
 The files for the web interface can now be copied to the web server directory.
-On Debian this is <tt>/var/www</tt> and the files changed to be owned by the
-user Apache runs as.
+On Debian this is <tt>/var/www</tt> (or more recently <tt>/var/www/html</tt>)
+and the files changed to be owned by the user Apache runs as.  The instructions
+below are based on the assumption that the files are placed in <tt>/var/www</tt>,
+replace this with the chosen installation location if different.
 
 <pre class="boxed">
 cp -a web /var/www/routino
