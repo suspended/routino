@@ -32,8 +32,10 @@ Quick Start Guide
         make
 
    The files for the web interface can now be copied to the web server
-   directory. On Debian this is '/var/www' and the files changed to be
-   owned by the user Apache runs as.
+   directory. On Debian this is '/var/www' (or more recently '/var/www/html')
+   and the files changed to be owned by the user Apache runs as.  The
+   instructions below are based on the assumption that the files are placed in
+   '/var/www', replace this with the chosen installation location if different.
 
         cp -a web /var/www/routino
         chown -R www-data:www-data /var/www/routino
@@ -307,4 +309,4 @@ Configuration of Web Server
 
 --------
 
-Copyright 2008-2015 Andrew M. Bishop.
+Copyright 2008-2016 Andrew M. Bishop.
