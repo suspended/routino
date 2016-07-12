@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -209,7 +209,7 @@ int main(int argc,char** argv)
    {
     if(access(profiles,F_OK))
       {
-       fprintf(stderr,"Error: The '--profiles' option specifies a file that does not exist.\n");
+       fprintf(stderr,"Error: The '--profiles' option specifies a file '%s' that does not exist.\n",profiles);
        exit(EXIT_FAILURE);
       }
    }
@@ -219,15 +219,16 @@ int main(int argc,char** argv)
 
     if(access(profiles,F_OK))
       {
-       free(profiles);
+       char *defaultprofiles=FileName(ROUTINO_DATADIR,NULL,"profiles.xml");
 
-       profiles=FileName(ROUTINO_DATADIR,NULL,"profiles.xml");
-
-       if(access(profiles,F_OK))
+       if(access(defaultprofiles,F_OK))
          {
-          fprintf(stderr,"Error: The '--profiles' option was not used and the default 'profiles.xml' does not exist.\n");
+          fprintf(stderr,"Error: The '--profiles' option was not used and the files '%s' and '%s' do not exist.\n",profiles,defaultprofiles);
           exit(EXIT_FAILURE);
          }
+
+       free(profiles);
+       profiles=defaultprofiles;
       }
    }
 
@@ -249,7 +250,7 @@ int main(int argc,char** argv)
    {
     char **list=Routino_GetProfileNames();
 
-    fprintf(stderr,"Error: Cannot find a profile called '%s' in '%s'.\n",profilename,profiles);
+    fprintf(stderr,"Error: Cannot find a profile called '%s' in the file '%s'.\n",profilename,profiles);
 
     fprintf(stderr,"Profiles available are: %s",*list++);
     while(*list)
@@ -275,15 +276,16 @@ int main(int argc,char** argv)
 
      if(access(translations,F_OK))
        {
-        free(translations);
+        char *defaulttranslations=FileName(ROUTINO_DATADIR,NULL,"translations.xml");
 
-        translations=FileName(ROUTINO_DATADIR,NULL,"translations.xml");
-
-        if(access(translations,F_OK))
+        if(access(defaulttranslations,F_OK))
           {
-           fprintf(stderr,"Error: The '--translations' option was not used and the default 'translations.xml' does not exist.\n");
+           fprintf(stderr,"Error: The '--translations' option was not used and the files '%s' and '%s' do not exist.\n",translations,defaulttranslations);
            exit(EXIT_FAILURE);
           }
+
+          free(translations);
+          translations=defaulttranslations;
        }
     }
 
@@ -302,7 +304,7 @@ int main(int argc,char** argv)
         char **list1=Routino_GetTranslationLanguages();
         char **list2=Routino_GetTranslationLanguageFullNames();
 
-        fprintf(stderr,"Warning: Cannot find a translation called '%s' in '%s'.\n",language,translations);
+        fprintf(stderr,"Warning: Cannot find a translation called '%s' in the file '%s'.\n",language,translations);
 
         fprintf(stderr,"Languages available are: %s (%s)",*list1++,*list2++);
         while(*list1)
