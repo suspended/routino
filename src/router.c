@@ -256,7 +256,7 @@ int main(int argc,char** argv)
    {
     if(!ExistsFile(profiles))
       {
-       fprintf(stderr,"Error: The '--profiles' option specifies a file that does not exist.\n");
+       fprintf(stderr,"Error: The '--profiles' option specifies a file '%s' that does not exist.\n",profiles);
        exit(EXIT_FAILURE);
       }
    }
@@ -266,15 +266,16 @@ int main(int argc,char** argv)
 
     if(!ExistsFile(profiles))
       {
-       free(profiles);
+       char *defaultprofiles=FileName(ROUTINO_DATADIR,NULL,"profiles.xml");
 
-       profiles=FileName(ROUTINO_DATADIR,NULL,"profiles.xml");
-
-       if(!ExistsFile(profiles))
+       if(!ExistsFile(defaultprofiles))
          {
-          fprintf(stderr,"Error: The '--profiles' option was not used and the default 'profiles.xml' does not exist.\n");
+          fprintf(stderr,"Error: The '--profiles' option was not used and the files '%s' and '%s' do not exist.\n",profiles,defaultprofiles);
           exit(EXIT_FAILURE);
          }
+
+       free(profiles);
+       profiles=defaultprofiles;
       }
    }
 
@@ -291,7 +292,7 @@ int main(int argc,char** argv)
 
  if(!profile)
    {
-    fprintf(stderr,"Error: Cannot find a profile called '%s' in '%s'.\n",profilename,profiles);
+    fprintf(stderr,"Error: Cannot find a profile called '%s' in the file '%s'.\n",profilename,profiles);
 
     profile=(Profile*)calloc(1,sizeof(Profile));
     profile->transport=transport;
@@ -435,7 +436,7 @@ int main(int argc,char** argv)
       {
        if(!ExistsFile(translations))
          {
-          fprintf(stderr,"Error: The '--translations' option specifies a file that does not exist.\n");
+          fprintf(stderr,"Error: The '--translations' option specifies a file '%s' that does not exist.\n",translations);
           exit(EXIT_FAILURE);
          }
       }
@@ -445,15 +446,16 @@ int main(int argc,char** argv)
 
        if(!ExistsFile(translations))
          {
-          free(translations);
+          char *defaulttranslations=FileName(ROUTINO_DATADIR,NULL,"translations.xml");
 
-          translations=FileName(ROUTINO_DATADIR,NULL,"translations.xml");
-
-          if(!ExistsFile(translations))
+          if(!ExistsFile(defaulttranslations))
             {
-             fprintf(stderr,"Error: The '--translations' option was not used and the default 'translations.xml' does not exist.\n");
+             fprintf(stderr,"Error: The '--translations' option was not used and the files '%s' and '%s' do not exist.\n",translations,defaulttranslations);
              exit(EXIT_FAILURE);
             }
+
+          free(translations);
+          translations=defaulttranslations;
          }
       }
 
@@ -469,7 +471,7 @@ int main(int argc,char** argv)
 
        if(!translation)
          {
-          fprintf(stderr,"Warning: Cannot find a translation called '%s' in '%s'.\n",language,translations);
+          fprintf(stderr,"Warning: Cannot find a translation called '%s' in the file '%s'.\n",language,translations);
           exit(EXIT_FAILURE);
          }
       }

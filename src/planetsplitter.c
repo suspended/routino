@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -187,7 +187,7 @@ int main(int argc,char** argv)
       {
        if(!ExistsFile(tagging))
          {
-          fprintf(stderr,"Error: The '--tagging' option specifies a file that does not exist.\n");
+          fprintf(stderr,"Error: The '--tagging' option specifies a file '%s' that does not exist.\n",tagging);
           exit(EXIT_FAILURE);
          }
       }
@@ -197,15 +197,16 @@ int main(int argc,char** argv)
 
        if(!ExistsFile(tagging))
          {
-          free(tagging);
+          char *defaulttagging=FileName(ROUTINO_DATADIR,NULL,"tagging.xml");
 
-          tagging=FileName(ROUTINO_DATADIR,NULL,"tagging.xml");
-
-          if(!ExistsFile(tagging))
+          if(!ExistsFile(defaulttagging))
             {
-             fprintf(stderr,"Error: The '--tagging' option was not used and the default 'tagging.xml' does not exist.\n");
+             fprintf(stderr,"Error: The '--tagging' option was not used and the files '%s' and '%s' do not exist.\n",tagging,defaulttagging);
              exit(EXIT_FAILURE);
             }
+
+          free(tagging);
+          tagging=defaulttagging;
          }
       }
 
