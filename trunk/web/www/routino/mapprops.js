@@ -41,19 +41,6 @@ var mapprops={ // contains all properties for the map to be displayed.
                           tile_url:  "http://www.openstreetmap.org/copyright",
                           tile_text: "© OpenStreetMap"
                          }
-           },
-           {
-            label: "MapQuest",
-            tiles: {
-                    url: "http://otile${s}.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
-                    subdomains: ["1","2","3","4"]
-                   },
-            attribution: {
-                          data_url:  "http://www.openstreetmap.org/copyright",
-                          data_text: "© OpenStreetMap contributors",
-                          tile_url:  "http://www.mapquest.com/",
-                          tile_text: "© MapQuest <img src=\"http://developer.mapquest.com/content/osm/mq_logo.png\">"
-                         }
            }
            ],
 
