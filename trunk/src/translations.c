@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2015 Andrew M. Bishop
+ This file Copyright 2010-2016 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -62,12 +62,12 @@ static Translation default_translation=
  .html_roundabout = "Roundabout",
 
  .html_title   = "%s Route",
- .html_start   = "<tr class='n'>Start at %s, head <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
- .html_node    = "<tr class='n'>At %s, go <span class='t'>%s</span> heading <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
- .html_rbnode  = "<tr class='n'>Leave %s, take the <span class='b'>%s</span> exit heading <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
- .html_segment = "<tr class='s'>Follow <span class='h'>%s</span> for <span class='d'>%.3f km, %.1f min</span>", /* span tags added when reading XML translations file */
- .html_stop    = "<tr class='n'>Stop at %s\n",
- .html_total   = "<tr class='t'><span class='j'>Total %.1f km, %.0f minutes</span>\n",/* span tags added when reading XML translations file */
+ .html_start   = "<tr class='n'><td>Start at %s, head <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
+ .html_node    = "<tr class='n'><td>At %s, go <span class='t'>%s</span> heading <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
+ .html_rbnode  = "<tr class='n'><td>Leave %s, take the <span class='b'>%s</span> exit heading <span class='b'>%s</span>\n", /* span tags added when reading XML translations file */
+ .html_segment = "<tr class='s'><td>Follow <span class='h'>%s</span> for <span class='d'>%.3f km, %.1f min</span>", /* span tags added when reading XML translations file */
+ .html_stop    = "<tr class='n'><td>Stop at %s\n",
+ .html_total   = "<tr class='t'><td><span class='j'>Total %.1f km, %.0f minutes</span>\n",/* span tags added when reading XML translations file */
  .html_subtotal= "<span class='j'>%.1f km, %.0f minutes</span>\n",/* span tag added when reading XML translations file */
 
  .nothtml_waypoint   = "Waypoint",
