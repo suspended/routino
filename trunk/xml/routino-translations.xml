@@ -557,8 +557,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
-      <!-- TRANSLATION REQUIRED: waypoint type="trip" string="TRIP" / --> <!-- For the other route points -->
+      <waypoint type="waypt" string="Punkt" /> <!-- For the route waypoints -->
+      <waypoint type="trip" string="Podróż" /> <!-- For the other route points -->
 
       <desc  text="%s trasa pomiędzy 'start' a 'koniec'" /> <!-- %s = [shortest|quickest] -->
       <name  text="%s trasa" /> <!-- %s = [shortest|quickest] -->

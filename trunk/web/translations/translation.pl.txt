@@ -68,6 +68,9 @@
 %%output-html_total%%	Całkowity %.1f km, %.0f min.
 %%output-html_subtotal%%	%.1f km, %.0f min.
 
+%%output-gpx_waypoint_waypt%%	Punkt
+%%output-gpx_waypoint_trip%%	Podróż
+
 %%output-gpx_desc%%	%s trasa pomiędzy 'start' a 'koniec'
 %%output-gpx_name%%	%s trasa
 %%output-gpx_step%%	%s na %s przez %.3f km, %.1f min.
@@ -100,6 +103,7 @@
 @@TRANSPORT-TYPE-BOX@@	Typ transportu
 @@HIGHWAY-PREFERENCES-BOX@@	Preferowanie autostrad
 @@SPEED-LIMITS-BOX@@	Ograniczenia prędkości
+@@PROPERTY-PREFERENCES-BOX@@	Ustawienia zmiennych
 @@OTHER-RESTRICTIONS-BOX@@	Inne ograniczenia
 @@FIND-BOX@@	Znajdź
 @@LINKS-BOX@@	Połączenia
@@ -115,7 +119,11 @@
 @@WAYPOINT-SEARCH@@	Znajdź miejsce
 @@WAYPOINT-GET@@	Pobierz aktualna lokalizację
 @@WAYPOINT-CENTRE1@@	Wycentruj mapę na tym punkcie
+@@WAYPOINT-UP@@	Przenieś ten punkt wyżej
+@@WAYPOINT-ADD@@	Dodaj punkt po tym
+@@WAYPOINT-COORDS@@	Współrzędne dla lokalizacji
 @@WAYPOINT-HOME@@	Współrzędne lokalizacji
+@@WAYPOINT-CENTRE2@@	Wyśrodkuj ten punkt na mapie
 
 @@TRANSPORT-FOOT@@	Pieszo
 @@TRANSPORT-HORSE@@	Konno
