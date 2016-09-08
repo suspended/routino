@@ -247,6 +247,8 @@ function form_init()            // called from router.html
 
  if(args["language"] !== undefined)
     formSetLanguage(args["language"]);
+ else
+    formSetLanguage();
 
  for(var key in routino.profile_highway)
     if(args["highway-" + key] !== undefined)
