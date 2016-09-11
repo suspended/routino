@@ -60,6 +60,7 @@
 %%route_quickest%%	Najszybsza
 
 %%output-html_waypoint_waypoint%%	Punkt
+%%output-html_waypoint_junction%%	Połączenie
 %%output-html_waypoint_roundabout%%	Rondo
 %%output-html_title%%	%s Trasa
 %%output-html_start%%	Start %s kieruj się na %s

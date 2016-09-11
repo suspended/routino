@@ -541,7 +541,7 @@
     <!-- HTML output -->
     <output-html>
       <waypoint type="waypoint"   string="Punkt" /> <!-- For the chosen waypoints -->
-      <!-- TRANSLATION REQUIRED: waypoint type="junction"   string="Junction" / --> <!-- For the interesting junctions -->
+      <waypoint type="junction"   string="Połączenie" /> <!-- For the interesting junctions -->
       <waypoint type="roundabout" string="Rondo" /> <!-- For roundabouts -->
 
       <title text="%s Trasa" /> <!-- %s = [shortest|quickest] -->
