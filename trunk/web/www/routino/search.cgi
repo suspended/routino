@@ -4,7 +4,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2012-2014 Andrew M. Bishop
+# This file Copyright 2012-2014, 2016 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@
 use strict;
 
 # Use the generic search script
-require "search.pl";
+require "./search.pl";
 
 # Use the perl CGI module
 use CGI ':cgi';

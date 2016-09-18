@@ -3,7 +3,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2015 Andrew M. Bishop
+# This file Copyright 2008-2016 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -22,10 +22,10 @@
 use strict;
 
 # Use the directory paths script
-require "paths.pl";
+require "./paths.pl";
 
 # Load the profiles variables
-require "profiles.pl";
+require "./profiles.pl";
 
 # Use the perl Time::HiRes module
 use Time::HiRes qw(gettimeofday tv_interval);
