@@ -133,6 +133,7 @@
 @@TRANSPORT-MOPED@@	Moped
 @@TRANSPORT-MOTORCYCLE@@	Motocykl
 @@TRANSPORT-MOTORCAR@@	Samochód
+@@TRANSPORT-HGV@@	Pojazd ciężarowy
 @@TRANSPORT-PSV@@	Pojazd użyteczności publicznej
 
 @@HIGHWAY-MOTORWAY@@	Autostrada
