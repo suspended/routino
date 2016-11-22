@@ -162,7 +162,20 @@
 
     </if> <!-- k="barrier" -->
 
-    <!-- Normalisation of access tags -->
+    <!-- Normalisation of access tag keys -->
+
+    <ifnot k="foot"      > <if k="access:foot"      > <set k="foot"      /> </if> </ifnot>
+    <ifnot k="horse"     > <if k="access:horse"     > <set k="horse"     /> </if> </ifnot>
+    <ifnot k="wheelchair"> <if k="access:wheelchair"> <set k="wheelchair"/> </if> </ifnot>
+    <ifnot k="bicycle"   > <if k="access:bicycle"   > <set k="bicycle"   /> </if> </ifnot>
+    <ifnot k="moped"     > <if k="access:moped"     > <set k="moped"     /> </if> </ifnot>
+    <ifnot k="motorcycle"> <if k="access:motorcycle"> <set k="motorcycle"/> </if> </ifnot>
+    <ifnot k="motorcar"  > <if k="access:motorcar"  > <set k="motorcar"  /> </if> </ifnot>
+    <ifnot k="goods"     > <if k="access:goods"     > <set k="goods"     /> </if> </ifnot>
+    <ifnot k="hgv"       > <if k="access:hgv"       > <set k="hgv"       /> </if> </ifnot>
+    <ifnot k="psv"       > <if k="access:psv"       > <set k="psv"       /> </if> </ifnot>
+
+    <!-- Normalisation of access tag values -->
 
     <if v="designated"  > <set v="yes"/> </if>
     <if v="permissive"  > <set v="yes"/> </if>
@@ -170,7 +183,7 @@
     <if v="true"        > <set v="yes"/> </if>
     <if v="public"      > <set v="yes"/> </if>
     <if v="official"    > <set v="yes"/> </if>
-                           
+
     <if v="unsuitable"  > <set v="no"/> </if>
     <if v="private"     > <set v="no"/> </if>
     <if v="limited"     > <set v="no"/> </if>
@@ -590,7 +603,20 @@
         <logerror message="ignoring it"/>
       </if>
 
-      <!-- Normalisation of access tags -->
+      <!-- Normalisation of access tag keys -->
+
+      <ifnot k="foot"      > <if k="access:foot"      > <set k="foot"      /> </if> </ifnot>
+      <ifnot k="horse"     > <if k="access:horse"     > <set k="horse"     /> </if> </ifnot>
+      <ifnot k="wheelchair"> <if k="access:wheelchair"> <set k="wheelchair"/> </if> </ifnot>
+      <ifnot k="bicycle"   > <if k="access:bicycle"   > <set k="bicycle"   /> </if> </ifnot>
+      <ifnot k="moped"     > <if k="access:moped"     > <set k="moped"     /> </if> </ifnot>
+      <ifnot k="motorcycle"> <if k="access:motorcycle"> <set k="motorcycle"/> </if> </ifnot>
+      <ifnot k="motorcar"  > <if k="access:motorcar"  > <set k="motorcar"  /> </if> </ifnot>
+      <ifnot k="goods"     > <if k="access:goods"     > <set k="goods"     /> </if> </ifnot>
+      <ifnot k="hgv"       > <if k="access:hgv"       > <set k="hgv"       /> </if> </ifnot>
+      <ifnot k="psv"       > <if k="access:psv"       > <set k="psv"       /> </if> </ifnot>
+
+      <!-- Normalisation of access tag values -->
 
       <if v="designated"  > <set v="yes"/> </if>
       <if v="permissive"  > <set v="yes"/> </if>
@@ -600,7 +626,7 @@
       <if v="customers"   > <set v="yes"/> </if>
       <if v="customer"    > <set v="yes"/> </if>
       <if v="official"    > <set v="yes"/> </if>
-                           
+
       <if v="unsuitable"  > <set v="no"/> </if>
       <if v="private"     > <set v="no"/> </if>
       <if v="limited"     > <set v="no"/> </if>
