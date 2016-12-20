@@ -79,6 +79,7 @@ int main(int argc,char** argv)
  index_t    item;
  crossing  *crossings=(crossing*)malloc(128*sizeof(crossing));
  crossing **crossingsp=(crossing**)malloc(128*sizeof(crossing*));
+ int        crossing_alloc=128;
  float   ***highways,***transports,***properties,***speeds;
  double     lat,lon,x,y;
  uint32_t   xmin,ymin,xmax,ymax,xt,yt;
@@ -301,6 +302,13 @@ int main(int argc,char** argv)
                 crossings[crossing_count].x=x;
                 crossings[crossing_count].y=y;
                 crossing_count++;
+
+                if(crossing_count==crossing_alloc)
+                  {
+                   crossing_alloc+=128;
+                   crossings =(crossing *)realloc(crossings ,crossing_alloc*sizeof(crossing));
+                   crossingsp=(crossing**)realloc(crossingsp,crossing_alloc*sizeof(crossing*));
+                  }
                }
             }
 
@@ -330,6 +338,13 @@ int main(int argc,char** argv)
                 crossings[crossing_count].x=x;
                 crossings[crossing_count].y=y;
                 crossing_count++;
+
+                if(crossing_count==crossing_alloc)
+                  {
+                   crossing_alloc+=128;
+                   crossings =(crossing *)realloc(crossings ,crossing_alloc*sizeof(crossing));
+                   crossingsp=(crossing**)realloc(crossingsp,crossing_alloc*sizeof(crossing*));
+                  }
                }
             }
 
