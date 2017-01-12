@@ -381,6 +381,10 @@ $$ROUTER-VISUALISER-INFO$$
 # Multi-line descriptive translations (visualiser)
 #
 
+$$VISUALISER-INSTRUCTIONS$$
+Zoomen Sie in die Karte und nutzen Sie den Knöpfe unten um die Daten herunter zu laden. Der Server liefert nur ein Ergebnis, wenn das ausgewählte Feld klein genug ist.
+$$VISUALISER-INSTRUCTIONS$$
+
 $$VISUALISER-ROUTER-INFO$$
 Um die Routenplanung auf der Karte durchzuführen, verwenden sie den untenstehenden Link.
 $$VISUALISER-ROUTER-INFO$$
