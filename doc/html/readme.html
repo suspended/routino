@@ -12,7 +12,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2016 Andrew M. Bishop
+ This file Copyright 2008-2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -214,64 +214,42 @@ Version 3.0 of Routino was released on 12th September 2015.
 Version 3.1 of Routino was released on 5th March 2016.
 <br>
 Version 3.1.1 of Routino was released on 6th March 2016.
+<br>
+Version 3.2 of Routino was released on 12th March 2017.
 
 <p>
 
 The full version history is available in the NEWS.txt file.
 
 
-<h3 id="H_1_5_1" title="Changes 3.1.1">Changes in Version 3.1.1</h3>
+<h3 id="H_1_5_1" title="Changes 3.2">Changes in Version 3.2</h3>
 
 <dl>
   <dt>Bug fixes:
-    <dd>Updated the version number in the executables to "3.1.1".
-</dl>
-
-<p>
-<b>There are no other changes compared to version 3.1.</b>
-
-<h3 id="H_1_5_2" title="Changes 3.1">Changes in Version 3.1</h3>
-
-<dl>
-  <dt>Bug fixes:
-    <dd>Make the whole of the highlighted entry on the webpage clickable.
-    <br>Fix Makefiles so that 'make -j 4' works.
-    <br>Fix Makefiles so that 'make test' works from a clean directory.
-    <br>Fix bug on webpage with 'oneway' or 'turns' in the URL arguments.
-    <br>Print error message on webpage if geolocation function unavailable.
-    <br>Fix bug where the optimum end of the route was not being found.
-    <br>Reduce the preference for service roads in the default routing profile.
-    <br>Remove literal type conversion error when validating profile values.
-
-  <dt>Library:
-    <dd>Add a version number to the shared library (SONAME).
-    <br>Include the version number of Routino into the library as a string variable.
-    <br>Add loop and reverse route as options to the library.
-
-  <dt>planetsplitter:
-    <dd>Use 64-bit numbers for the node ID when processing an OSM file.
-
-  <dt>router:
-    <dd>Change file output formats so that waypoint numbers are included.
-    <br>When calculating a route with loop and reverse start route from waypoint 1.
-    <br>Calculate the route from both ends towards the middle.
-
-  <dt>Translations:
-    <dd>Change the names of the GPX route waypoints in translations.xml.
-    <br>Updated French and German translations.
-
-  <dt>Documentation
-    <dd>Updated the instructions for setting up on Apache (version 2.4.x).
-
+    <dd>Don't crash if the start &amp; finish of a route are the same point (some cases).
+    <br>Update installation instructions in case Apache root is not '/var/www'.
+    <br>Improve messages if default profiles, translations or tagging files not found.
+    <br>Fix an error in filedumperx detected by gcc-6 indentation checker.
+    <br>Ensure that selecting a language web-page defaults to that language output.
+    <br>Ensure that a language that is missing some translations still get valid HTML.
+    <br>Fix Perl scripts that include others (current directory not on include path).
   <dt>Web pages:
-    <dd>Add a loop &amp; reverse checkbox, replace loop &amp; reverse buttons with icons.
-
+    <dd>Update to use the latest version of Leaflet (0.7.7).
+    <br>Move the route buttons to be above the waypoints so they stay on screen.
+    <br>Remove MapQuest as an optional tile source (no longer available).
+    <br>Adjust some CSS and HTML so that the layout is preserved when zooming.
+  <dt>Translations:
+    <dd>Updated French, German, Polish &amp; Russian translations.
+  <dt>OSM tagging:
+    <dd>Handle more tags like access:foot=* by translating them to foot=*.
+  <dt>router:
+    <dd>Ignore junctions forbidden by turn restrictions when describing route.
   <dt>Extras:
-    <dd>Add scripts to process the database and create maps of highway statistics.
+    <dd>Don't crash in the statistics dumper if some ways are *very* long.
 </dl>
 
 <p>
-<b>Note:</b> This version is compatible with databases from version 2.7.1 - 3.0.
+<b>Note:</b> This version is compatible with databases from versions 2.7.1 - 3.1.1.
 
 
 <h2 id="H_1_6">License</h2>
@@ -292,7 +270,7 @@ software.
 
 <h3 id="H_1_6_1">Copyright</h3>
 
-Routino is copyright Andrew M. Bishop 2008-2016.
+Routino is copyright Andrew M. Bishop 2008-2017.
 
 
 <h2 id="H_1_7">Homepage</h2>
