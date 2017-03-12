@@ -1,3 +1,37 @@
+Version 3.2 of Routino released : Sun Mar 12 2017
+-------------------------------------------------
+
+Bug fixes:
+  Don't crash if the start & finish of a route are the same point (some cases).
+  Update installation instructions in case Apache root is not '/var/www'.
+  Improve messages if default profiles, translations or tagging files not found.
+  Fix an error in filedumperx detected by gcc-6 indentation checker.
+  Ensure that selecting a language web-page defaults to that language output.
+  Ensure that a language that is missing some translations still get valid HTML.
+  Fix Perl scripts that include others (current directory not on include path).
+
+Web pages:
+  Update to use the latest version of Leaflet (0.7.7).
+  Move the route buttons to be above the waypoints so they stay on screen.
+  Remove MapQuest as an optional tile source (no longer available).
+  Adjust some CSS and HTML so that the layout is preserved when zooming.
+
+Translations:
+  Updated French, German, Polish & Russian translations.
+
+OSM tagging:
+  Handle more tags like access:foot=* by translating them to foot=*.
+
+router:
+  Ignore junctions forbidden by turn restrictions when describing route.
+
+Extras:
+  Don't crash in the statistics dumper if some ways are *very* long.
+
+
+Note: This version is compatible with databases from versions 2.7.1 - 3.1.1.
+
+
 Version 3.1.1 of Routino released : Sun Mar 6 2016
 --------------------------------------------------
 
