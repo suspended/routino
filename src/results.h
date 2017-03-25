@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2015, 2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -54,8 +54,6 @@ struct _Result
  score_t   sortby;              /*+ The best possible weighted distance or duration score from the start to the finish. +*/
 
  uint32_t  queued;              /*+ The position of this result in the queue. +*/
-
- Result   *hashnext;            /*+ The next result in the linked list for this hash bin. +*/
 };
 
 /*+ A list of results. +*/
@@ -66,10 +64,7 @@ typedef struct _Results
 
  uint32_t  number;              /*+ The total number of occupied results. +*/
 
- uint8_t   ncollisions;         /*+ The number of results allowed in each hash bin. +*/
- uint8_t  *count;               /*+ An array of nbins counters of results in each hash bin. +*/
-
- Result  **point;               /*+ An array of nbins linked lists of results for one hash bin. +*/
+ Result  **point;               /*+ An array of nbins pointers to results in the data array. +*/
 
  uint32_t  ndata1;              /*+ The size of the first dimension of the 'data' array. +*/
  uint32_t  ndata2;              /*+ The size of the second dimension of the 'data' array. +*/
