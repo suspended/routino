@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015, 2017 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -73,6 +73,8 @@ typedef struct _Results
 
  uint32_t  ndata1;              /*+ The size of the first dimension of the 'data' array. +*/
  uint32_t  ndata2;              /*+ The size of the second dimension of the 'data' array. +*/
+
+ uint32_t  nallocdata1;         /*+ The amount of allocated space in the first dimension of the 'data' array. +*/
 
  Result  **data;                /*+ An array of arrays containing the actual results, the first
                                     dimension is reallocated but the second dimension is not.

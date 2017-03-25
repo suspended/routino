@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015, 2017 Andrew M. Bishop
+ This file Copyright 2008-2015 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -60,6 +60,7 @@ Results *NewResultsList(uint8_t log2bins)
 #endif
 
  results->ndata1=0;
+ results->nallocdata1=0;
  results->ndata2=results->nbins>>2;
 
  results->data=NULL;
@@ -114,7 +115,7 @@ void FreeResultsList(Results *results)
 {
  uint32_t i;
 
- for(i=0;i<results->ndata1;i++)
+ for(i=0;i<results->nallocdata1;i++)
    {
 #ifndef LIBROUTINO
     log_free(results->data[i]);
@@ -214,11 +215,15 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
    {
     results->ndata1++;
 
-    results->data=(Result**)realloc((void*)results->data,results->ndata1*sizeof(Result*));
-    results->data[results->ndata1-1]=(Result*)malloc(results->ndata2*sizeof(Result));
+    if(results->ndata1>=results->nallocdata1)
+      {
+       results->nallocdata1++;
+       results->data=(Result**)realloc((void*)results->data,results->nallocdata1*sizeof(Result*));
+       results->data[results->nallocdata1-1]=(Result*)malloc(results->ndata2*sizeof(Result));
 #ifndef LIBROUTINO
-    log_malloc(results->data[results->ndata1-1],results->ndata2*sizeof(Result));
+       log_malloc(results->data[results->nallocdata1-1],results->ndata2*sizeof(Result));
 #endif
+      }
    }
 
  /* Insert the new entry */
