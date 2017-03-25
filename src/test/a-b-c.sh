@@ -47,8 +47,7 @@ dir="$dir$lib$pruned"
 
 # Run the programs under a run-time debugger
 
-debugger=valgrind
-debugger=
+debugger=${TEST_DEBUGGER:-}
 
 # Name related options
 
