@@ -178,7 +178,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
  if(results->number==(results->nbins/2))
    {
-    uint32_t i,j;
+    uint32_t n;
 
 #ifndef LIBROUTINO
     log_free(results->point);
@@ -195,16 +195,15 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
     log_malloc(results->point,results->nbins*sizeof(Result*));
 #endif
 
-    for(i=0;i<results->ndata1;i++)
-       for(j=0;j<results->ndata2;j++)
-         {
-          if(i==(results->ndata1-1) && j==(results->number%results->ndata2))
-             break;
+    for(n=0;n<results->number;n++)
+      {
+       uint32_t i=n/results->ndata2;
+       uint32_t j=n%results->ndata2;
 
-          result=&results->data[i][j];
+       result=&results->data[i][j];
 
-          insert_result(results,result,result->node,result->segment);
-         }
+       insert_result(results,result,result->node,result->segment);
+      }
    }
 
  /* Check if we need more data space allocated */
