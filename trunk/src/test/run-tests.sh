@@ -1,6 +1,15 @@
 #!/bin/sh
 
+# Run with a debugger or not?
+
+debugger=valgrind
+debugger=
+
+# Overall status
+
 status=true
+
+# Functions for running tests
 
 run_a_test ()
 {
@@ -33,6 +42,9 @@ echo ""
 
 
 # Loop round the different test types
+
+TEST_DEBUGGER=$debugger
+export TEST_DEBUGGER
 
 for type in 1 2 3; do
 
