@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2015, 2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -47,15 +47,12 @@ Results *NewResultsList(uint8_t log2bins)
 
  results->nbins=1<<log2bins;
  results->mask=results->nbins-1;
- results->ncollisions=log2bins-4;
 
  results->number=0;
 
- results->count=(uint8_t*)calloc(results->nbins,sizeof(uint8_t));
  results->point=(Result**)calloc(results->nbins,sizeof(Result*));
 
 #ifndef LIBROUTINO
- log_malloc(results->count,results->nbins*sizeof(uint8_t));
  log_malloc(results->point,results->nbins*sizeof(Result*));
 #endif
 
@@ -92,10 +89,7 @@ void ResetResultsList(Results *results)
  results->ndata1=0;
 
  for(i=0;i<results->nbins;i++)
-   {
     results->point[i]=NULL;
-    results->count[i]=0;
-   }
 
  results->start_node=NO_NODE;
  results->prev_segment=NO_SEGMENT;
@@ -130,12 +124,37 @@ void FreeResultsList(Results *results)
 #endif
  free(results->point);
 
-#ifndef LIBROUTINO
- log_free(results->count);
-#endif
- free(results->count);
-
  free(results);
+}
+
+
+/*++++++++++++++++++++++++++++++++++++++
+  Insert a single entry into the hashed list.
+
+  Results *results The results structure to insert into.
+
+  Result *result The result to insert.
+
+  index_t node The node that is to be inserted into the results.
+
+  index_t segment The segment that is to be inserted into the results.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static inline void insert_result(Results *results,Result *result,index_t node,index_t segment)
+{
+ uint32_t bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
+
+ while(1)
+   {
+    Result *r=results->point[bin];
+
+    if(!r)
+       break;
+
+    bin=(bin+1)%results->nbins;
+   }
+
+ results->point[bin]=result;
 }
 
 
@@ -154,59 +173,38 @@ void FreeResultsList(Results *results)
 Result *InsertResult(Results *results,index_t node,index_t segment)
 {
  Result *result;
- uint32_t bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
 
- /* Check if we have hit the limit on the number of collisions per bin */
+ /* Check if we have hit the limit on the number of entries */
 
- if(results->count[bin]==results->ncollisions)
+ if(results->number==(results->nbins/2))
    {
-    uint32_t i;
+    uint32_t i,j;
+
+#ifndef LIBROUTINO
+    log_free(results->point);
+#endif
+
+    free(results->point);
 
     results->nbins<<=1;
     results->mask=results->nbins-1;
-    results->ncollisions++;
 
-    results->count=(uint8_t*)realloc((void*)results->count,results->nbins*sizeof(uint8_t));
-    results->point=(Result**)realloc((void*)results->point,results->nbins*sizeof(Result*));
+    results->point=(Result**)calloc(results->nbins,sizeof(Result*));
 
 #ifndef LIBROUTINO
-    log_malloc(results->count,results->nbins*sizeof(uint8_t));
     log_malloc(results->point,results->nbins*sizeof(Result*));
 #endif
 
-    for(i=0;i<results->nbins/2;i++)
-      {
-       Result *r=results->point[i];
-       Result **bin1,**bin2;
-
-       results->count[i]                 =0;
-       results->count[i+results->nbins/2]=0;
-
-       bin1=&results->point[i];
-       bin2=&results->point[i+results->nbins/2];
-
-       *bin1=NULL;
-       *bin2=NULL;
-
-       while(r)
+    for(i=0;i<results->ndata1;i++)
+       for(j=0;j<results->ndata2;j++)
          {
-          Result *rh=r->hashnext;
-          uint32_t newbin=HASH_NODE_SEGMENT(r->node,r->segment)&results->mask;
+          if(i==(results->ndata1-1) && j==(results->number%results->ndata2))
+             break;
 
-          r->hashnext=NULL;
+          result=&results->data[i][j];
 
-          if(newbin==i)
-            { *bin1=r; bin1=&r->hashnext; }
-          else
-            { *bin2=r; bin2=&r->hashnext; }
-
-          results->count[newbin]++;
-
-          r=rh;
+          insert_result(results,result,result->node,result->segment);
          }
-      }
-
-    bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
    }
 
  /* Check if we need more data space allocated */
@@ -230,11 +228,7 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
  result=&results->data[results->ndata1-1][results->number%results->ndata2];
 
- result->hashnext=results->point[bin];
-
- results->point[bin]=result;
-
- results->count[bin]++;
+ insert_result(results,result,node,segment);
 
  results->number++;
 
@@ -269,20 +263,22 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
 Result *FindResult(Results *results,index_t node,index_t segment)
 {
- Result *r;
  uint32_t bin=HASH_NODE_SEGMENT(node,segment)&results->mask;
 
- r=results->point[bin];
-
- while(r)
+ while(1)
    {
-    if(r->segment==segment && r->node==node)
+    Result *r=results->point[bin];
+
+    if(!r)
        break;
 
-    r=r->hashnext;
+    if(r->segment==segment && r->node==node)
+       return(r);
+
+    bin=(bin+1)%results->nbins;
    }
 
- return(r);
+ return(NULL);
 }
 
 
