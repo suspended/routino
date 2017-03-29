@@ -131,6 +131,9 @@ void FreeResultsList(Results *results)
 /*++++++++++++++++++++++++++++++++++++++
   Insert a single entry into the hashed list.
 
+  The data is stored in a hash table with "Linear Probing" https://en.wikipedia.org/wiki/Linear_probing
+  for handling collisions and this operation is adding an item to the hash table.
+
   Results *results The results structure to insert into.
 
   Result *result The result to insert.
@@ -250,6 +253,9 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
 /*++++++++++++++++++++++++++++++++++++++
   Find a result; search by node and segment.
+
+  The data is stored in a hash table with "Linear Probing" https://en.wikipedia.org/wiki/Linear_probing
+  for handling collisions and this operation is finding an item in the hash table.
 
   Result *FindResult Returns the result that has been found.
 
