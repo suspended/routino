@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include "results.h"
+#include "logging.h"
 
 
 /*+ A queue of results. +*/
@@ -58,6 +59,10 @@ Queue *NewQueueList(uint8_t log2bins)
 
  queue->results=(Result**)malloc(queue->nallocated*sizeof(Result*));
 
+#ifndef LIBROUTINO
+ log_malloc(queue->results,queue->nallocated*sizeof(Result*));
+#endif
+
  return(queue);
 }
 
@@ -83,6 +88,10 @@ void ResetQueueList(Queue *queue)
 void FreeQueueList(Queue *queue)
 {
  free(queue->results);
+
+#ifndef LIBROUTINO
+ log_free(queue->results);
+#endif
 
  free(queue);
 }
@@ -114,6 +123,10 @@ void InsertInQueue(Queue *queue,Result *result,score_t score)
       {
        queue->nallocated=queue->nallocated+queue->nincrement;
        queue->results=(Result**)realloc((void*)queue->results,queue->nallocated*sizeof(Result*));
+
+#ifndef LIBROUTINO
+       log_malloc(queue->results,queue->nallocated*sizeof(Result*));
+#endif
       }
 
     queue->results[index]=result;
