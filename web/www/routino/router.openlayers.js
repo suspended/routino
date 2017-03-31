@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2016 Andrew M. Bishop
+// This file Copyright 2008-2017 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -1780,7 +1780,7 @@ function highlight(type,line,action)
     var lonlat = new OpenLayers.LonLat(routepoints[type][line].lon,routepoints[type][line].lat);
     lonlat.transform(epsg4326,epsg900913);
 
-    map.moveTo(lonlat,map.numZoomLevels-2);
+    map.moveTo(lonlat,map.numZoomLevels-3);
    }
  else
    {
