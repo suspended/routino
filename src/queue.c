@@ -30,9 +30,9 @@
 /*+ A queue of results. +*/
 struct _Queue
 {
- int      nincrement;           /*+ The amount to increment the queue when full. +*/
- int      nallocated;           /*+ The number of entries allocated. +*/
- int      noccupied;            /*+ The number of entries occupied. +*/
+ uint32_t nincrement;           /*+ The amount to increment the queue when full. +*/
+ uint32_t nallocated;           /*+ The number of entries allocated. +*/
+ uint32_t noccupied;            /*+ The number of entries occupied. +*/
 
  Result **results;              /*+ The queue of pointers to results. +*/
 };
@@ -112,7 +112,7 @@ void FreeQueueList(Queue *queue)
 
 void InsertInQueue(Queue *queue,Result *result,score_t score)
 {
- int index;
+ uint32_t index;
 
  if(result->queued==NOT_QUEUED)
    {
@@ -141,7 +141,7 @@ void InsertInQueue(Queue *queue,Result *result,score_t score)
 
  while(index>1)
    {
-    int newindex;
+    uint32_t newindex;
     Result *temp;
 
     newindex=index/2;
@@ -174,7 +174,7 @@ void InsertInQueue(Queue *queue,Result *result,score_t score)
 
 Result *PopFromQueue(Queue *queue)
 {
- int index;
+ uint32_t index;
  Result *retval;
 
  if(queue->noccupied==0)
@@ -193,7 +193,7 @@ Result *PopFromQueue(Queue *queue)
 
  while((2*index)<queue->noccupied)
    {
-    int newindex;
+    uint32_t newindex;
     Result *temp;
 
     newindex=2*index;
@@ -216,7 +216,7 @@ Result *PopFromQueue(Queue *queue)
 
  if((2*index)==queue->noccupied)
    {
-    int newindex;
+    uint32_t newindex;
     Result *temp;
 
     newindex=2*index;
