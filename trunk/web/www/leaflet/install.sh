@@ -1,6 +1,6 @@
 #!/bin/sh -x
 
-version=0.7.7
+version=1.0.3
 
 # Download the file.
 
