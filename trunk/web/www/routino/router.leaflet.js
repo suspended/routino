@@ -3,7 +3,7 @@
 //
 // Part of the Routino routing software.
 //
-// This file Copyright 2008-2016 Andrew M. Bishop
+// This file Copyright 2008-2017 Andrew M. Bishop
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -1998,8 +1998,12 @@ function runGPXSuccess(response)
  else
     colour="#0000FF";
 
- layerGPX[routing_type] = L.multiPolyline(coords,{weight: 3, stroke: true, color: colour, opacity: 1.0,
-                                                  fill: false});
+ if(typeof(L.multiPolyline)=="function")
+    layerGPX[routing_type] = L.multiPolyline(coords,{weight: 3, stroke: true, color: colour, opacity: 1.0,
+                                                     fill: false});
+ else
+    layerGPX[routing_type] = L.polyline(coords,{weight: 3, stroke: true, color: colour, opacity: 1.0,
+                                                fill: false});
 
  map.addLayer(layerGPX[routing_type]);
 }
