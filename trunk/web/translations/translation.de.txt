@@ -252,6 +252,10 @@ $$HIGHWAY-INFO$$
 Jeder Abschnitt der ausgewählten Wegart ist gezeichnet.
 $$HIGHWAY-INFO$$
 
+$$BARRIER-INFO$$
+Jedes blockierendes Hindernis die den gewählten Transporttyp ist dargestellt.
+$$BARRIER-INFO$$
+
 @@TURNS-BUTTON@@	Zeige Abbiegebeschränkungen
 $$TURNS-INFO$$
 Jede Abbiegebeschränkung wird mit einer Linie angezeigt
@@ -280,8 +284,14 @@ $$TURNS-INFO$$
 @@LENGTH-LIMIT-9@@	9.0 m Längenbeschränkung
 
 @@PROPERTY-BUTTON@@	Anzeigen der Wegeigenschaften
+$$PROPERTY-INFO$$
+Jedes Segment der Autobahn / Schnellstraße mit speziellen Eigenschaften wurden dargestellt.
+$$PROPERTY-INFO$$
 
 @@ERROR-LOG-BUTTON@@	Anzeige Fehlerprotokoll
+$$ERROR-LOG-INFO$$
+Routino hat potentielle Problem beim verarbeiten der Eingabedaten gefunden.
+$$ERROR-LOG-INFO$$
 
 @@CLEAR-DATA-BUTTON@@	Daten zurücksetzen
 
@@ -381,9 +391,25 @@ $$ROUTER-VISUALISER-INFO$$
 # Multi-line descriptive translations (visualiser)
 #
 
+$$VISUALISER-INFO$$
+Diese Webseite erlaubt die Visualisierung der Daten, die Routine für das Berechnen der Route nutzt. Nur die relevanten Daten für die Berechnung der Routen werden dargestellt, daher werden einige ausgeschlossen.
+$$VISUALISER-INFO$$
+
 $$VISUALISER-INSTRUCTIONS$$
 Zoomen Sie in die Karte und nutzen Sie den Knöpfe unten um die Daten herunter zu laden. Der Server liefert nur ein Ergebnis, wenn das ausgewählte Feld klein genug ist.
 $$VISUALISER-INSTRUCTIONS$$
+
+$$VISUALISER-HELP$$
+<b>Schnellstart</b>
+<br>
+Vergrößer ein Gebiet und nutze einen der Schaltknöpfe, um die entsprechenden Daten anzuzeigen.
+<br>
+Durch aufklappen der Details unter jedem Schaltknopf können mehr Datenoptionen angezeigt werden.
+<p>
+<b>Data Failure</b>
+<br>
+Wenn das ausgewählte Gebiet zu groß ist (hängt vom Datentyp ab), dann zeigt der Status "Failed to get visualiser data" (Visualiserungsdaten unmöglich zu bekommen) - vergrößer und versuch es noch einmal.
+$$VISUALISER-HELP$$
 
 $$VISUALISER-ROUTER-INFO$$
 Um die Routenplanung auf der Karte durchzuführen, verwenden sie den untenstehenden Link.
