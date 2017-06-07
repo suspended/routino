@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2016 Andrew M. Bishop
+ This file Copyright 2008-2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -725,6 +725,8 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
  while(1)
    {
+    int queue1_empty=0,queue2_empty=0;
+
     /* Forward queue */
 
     if((result1=PopFromQueue(fwd_queue)))
@@ -854,11 +856,11 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
           if(result2 && result2->next)
             {
-             if((cumulative_score+result2->score)<total_score && !result2->prev)
+             if((result2->score+cumulative_score)<total_score)
                {
-                result2->prev=result1;
-                total_score=cumulative_score+result2->score;
-                finish_result=start_result=result2;
+                total_score=result2->score+cumulative_score;
+                finish_result=result2;
+                start_result =result1;
                }
 
              goto endloop_fwd;
@@ -907,11 +909,11 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 #endif
       }
     else
-       break;
+       queue1_empty=1;
 
     /* Reverse queue */
 
-    if(!finish_result && (result1=PopFromQueue(rev_queue)))
+    if((result1=PopFromQueue(rev_queue)))
       {
        Node *node1p;
        Segment *segment1p,*segment2p;
@@ -991,9 +993,6 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
                 goto endloop_rev;
             }
 
-          if(result2 && result2->prev)
-             goto endloop_rev;
-
           /* must obey one-way restrictions (unless profile allows) */
           if(profile->oneway && IsOnewayFrom(segment2p,node1)) /* working backwards => disallow oneway *from* node1 */
             {
@@ -1043,13 +1042,23 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
           node2=OtherNode(segment2p,node1);
 
-          node2p=LookupNode(nodes,node2,2); /* node2 cannot be a fake node (must be a super-node) */
-
           cumulative_score=result1->score+segment1_score;
 
           /* score must be better than current best score */
           if(cumulative_score>=total_score)
              goto endloop_rev;
+
+          if(result2 && result2->prev)
+            {
+             if((result2->score+cumulative_score)<total_score)
+               {
+                total_score=result2->score+cumulative_score;
+                finish_result=result1;
+                start_result =result2;
+               }
+
+             goto endloop_rev;
+            }
 
           if(!result2) /* New end node/segment pair */
             {
@@ -1067,7 +1076,9 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
           /* Insert a new node into the queue */
 
-          GetLatLong(nodes,node2,node2p,&lat,&lon); /* node2 cannot be a fake node (must be a super-node) */
+          node2p=LookupNode(nodes,node2,2); /* node2 cannot be a fake node (must be a super-node) */
+
+          GetLatLong(nodes,node2,node2p,&lat,&lon);
 
           direct=Distance(lat,lon,start_lat,start_lon);
 
@@ -1093,7 +1104,10 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
             }
 #endif
       }
-    else if(!finish_result)
+    else
+       queue2_empty=1;
+
+    if(queue1_empty && queue2_empty)
        break;
    }
 
@@ -1119,21 +1133,22 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
 
  /* Turn the route round and fill in the start and finish information */
 
- result1=FirstResult(results);
+ if(start_result!=finish_result)
+   {
+    start_result->next=finish_result;
+    finish_result->prev=start_result;
 
- while(result1)
-    result1=NextResult(results,result1);
+    while(start_result->prev && start_result->prev!=NO_RESULT)
+       start_result=start_result->prev;
 
- while(start_result->prev && start_result->prev!=NO_RESULT)
-    start_result=start_result->prev;
+    FixForwardRoute(results,finish_result);
 
- FixForwardRoute(results,finish_result);
+    if(!start_result->prev && start_result->next)
+       start_result=start_result->next;
 
- if(!start_result->prev && start_result->next)
-    start_result=start_result->next;
-
- while(finish_result->next && finish_result->next!=NO_RESULT)
-    finish_result=finish_result->next;
+    while(finish_result->next && finish_result->next!=NO_RESULT)
+       finish_result=finish_result->next;
+   }
 
  results->start_node=start_result->node;
  results->prev_segment=start_result->segment;
@@ -1142,7 +1157,7 @@ static Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relat
  results->last_segment=finish_result->segment;
 
 #if DEBUG
- printf("    -------- middle route (via super-nodes/segments)\n");
+ printf("    -------- middle route (via super-nodes/segments) score=%.3f\n",total_score);
 
  print_debug_route(nodes,segments,results,NULL,4,+1);
 #endif
