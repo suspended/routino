@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2008-2015 Andrew M. Bishop
+# This file Copyright 2008-2015, 2017 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -177,11 +177,11 @@ filedumper-slim$(.EXE) : $(FILEDUMPER_SLIM_OBJ)
 ########
 
 %.o : %.c
-	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
+	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR) || true
 	$(CC) -c $(CFLAGS) -DSLIM=0 -DROUTINO_DATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 %-slim.o : %.c
-	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
+	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR) || true
 	$(CC) -c $(CFLAGS) -DSLIM=1 -DROUTINO_DATADIR=\"$(datadir)\" $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 ########
@@ -257,11 +257,11 @@ routino-slim.lib : routino-slim.dll routino-slim.def
 ########
 
 %-lib.o : %.c
-	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
+	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR) || true
 	$(CC) -c $(CFLAGS) $(CFLAGS_LIB) -DSLIM=0 -DLIBROUTINO $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 %-slim-lib.o : %.c
-	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
+	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR) || true
 	$(CC) -c $(CFLAGS) $(CFLAGS_LIB) -DSLIM=1 -DLIBROUTINO $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 ########

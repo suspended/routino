@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2013-2015 Andrew M. Bishop
+# This file Copyright 2013-2015, 2017 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -56,7 +56,7 @@ $(ROUTINO_SRC)/%.o :
 	cd $(ROUTINO_SRC) && $(MAKE) $(notdir $@)
 
 %.o : %.c
-	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
+	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR) || true
 	$(CC) -c $(CFLAGS) -DSLIM=0 -I$(ROUTINO_SRC) $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 ########

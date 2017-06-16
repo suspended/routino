@@ -2,7 +2,7 @@
 #
 # Part of the Routino routing software.
 #
-# This file Copyright 2010-2015 Andrew M. Bishop
+# This file Copyright 2010-2015, 2017 Andrew M. Bishop
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -64,7 +64,7 @@ xsd-to-xmlparser$(.EXE) : xsd-to-xmlparser.o ../xmlparse.o
 ########
 
 %.o : %.c
-	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR)
+	-@[ -d $(DEPDIR) ] || mkdir $(DEPDIR) || true
 	$(CC) -c $(CFLAGS) -I.. $< -o $@ -MMD -MP -MF $(addprefix $(DEPDIR)/,$(addsuffix .d,$(basename $@)))
 
 ########
