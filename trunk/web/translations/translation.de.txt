@@ -109,7 +109,7 @@
 @@PROPERTY-PREFERENCES-BOX@@	Vorgaben zur Wegbeschaffenheit
 @@OTHER-RESTRICTIONS-BOX@@	andere Vorgaben
 @@FIND-BOX@@	Suche
-@@LINKS-BOX@@	Links
+@@LINKS-BOX@@	Verbindungen
 @@HELP-BOX@@	Hilfe
 
 @@STATUS-BOX@@	Status
