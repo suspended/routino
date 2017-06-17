@@ -1,0 +1,293 @@
+#
+# Italian language translation phrases
+#
+
+#
+# Router output XML definition
+#
+
+%%copyright_creator_string%%	Autore
+%%copyright_source_string%%	Sorgente
+%%copyright_source_text%%	Basato sui dati di OpenStreetMap (http://www.openstreetmap.org/)
+%%copyright_license_string%%	Licenza
+
+%%turn_-4%%	Immediatamente a sinistra
+%%turn_-3%%	Subito a sinistra
+%%turn_-2%%	Sinistra
+
+%%heading_-4%%	Sud
+%%heading_-3%%	Sud-Ovest
+%%heading_-2%%	Ovest
+%%heading_-1%%	Nord-Ovest
+%%heading_0%%	Nord
+%%heading_1%%	Nord-Est
+%%heading_2%%	Est
+%%heading_3%%	Sud-Est
+%%heading_4%%	Sud
+
+%%ordinal_1%%	Primo
+%%ordinal_2%%	Secondo
+%%ordinal_3%%	Terzo
+%%ordinal_4%%	Quarto
+%%ordinal_5%%	Quinto
+%%ordinal_6%%	Sesto
+%%ordinal_7%%	Settimo
+%%ordinal_8%%	Ottavo
+%%ordinal_9%%	Nono
+%%ordinal_10%%	Decimo
+
+%%highway_motorway%%	autostrada
+%%highway_trunk%%	strada principale
+%%highway_primary%%	strada principale
+%%highway_secondary%%	strada secondaria
+%%highway_tertiary%%	strada terziaria
+%%highway_unclassified%%	strada non classificata
+%%highway_residential%%	strada residenziale
+%%highway_service%%	strada di servizio
+%%highway_track%%	traccia
+%%highway_cycleway%%	pista ciclabile
+%%highway_path%%	sentiero
+%%highway_steps%%	passi
+%%highway_ferry%%	traghetto
+
+%%route_shortest%%	Il piu' corto
+%%route_quickest%%	Il piu' veloce
+
+%%output-html_waypoint_waypoint%%	Punto sul tragitto
+%%output-html_waypoint_junction%%	Raccordo
+%%output-html_waypoint_roundabout%%	Rotatoria
+%%output-html_start%%	Inizia a %s, su %s
+%%output-html_node%%	A %s, vai a %s su %s
+%%output-html_rbnode%%	Lascia %s, prendi la %s uscita su %s
+%%output-html_segment%%	Segui %s per %.3f km, %.1f min
+%%output-html_stop%%	Stop fra %s
+%%output-html_total%%	Totale %.1f km, %.0f minuti
+%%output-html_subtotal%%	%.1f km, %.0f minuti
+
+%%output-gpx_desc%%	%s punti sul percorso fra 'start' e 'finish'
+%%output-gpx_name%%	%s percorso
+%%output-gpx_step%%	%s su '%s' per %.3f km, %.1f min
+%%output-gpx_final%%	Viaggio completo %.1f km, %.0f minuti
+
+#
+# Router (and some shared) translations
+#
+
+@@LANGUAGE@@	Italiano
+@@LANGUAGE-WEBPAGE@@	Italiano webpage
+
+@@ROUTER-TITLE@@	Pianificazione percorso per i dati di OpenStreetMap
+
+@@OPTION-TAB@@	Opzioni
+@@OPTION-TAB-HELP@@	Imposta le opzioni del percorso
+
+@@RESULTS-TAB@@	Risultati
+@@RESULTS-TAB-HELP@@	Vedi i risultati del percorso
+
+@@DATA-TAB@@	Dati
+@@DATA-TAB-HELP@@	Informazioni sulla base dati
+
+@@ROUTINO-WEBSITE@@	Pagina web di Routino
+@@DOCUMENTATION@@	Documentazione
+
+@@LANGUAGE-BOX@@	Lingua
+@@WAYPOINTS-BOX@@	Punti sul percorso
+@@TRANSPORT-TYPE-BOX@@	Tipo di trasporto
+@@HIGHWAY-PREFERENCES-BOX@@	Preferenze per autostrada
+@@SPEED-LIMITS-BOX@@	Limiti di velocita'
+@@PROPERTY-PREFERENCES-BOX@@	Impostazione proprieta'
+@@OTHER-RESTRICTIONS-BOX@@	Altri limitazioni
+@@FIND-BOX@@	Trova
+@@LINKS-BOX@@	Collegamenti
+@@HELP-BOX@@	Aiuto
+
+@@STATUS-BOX@@	Stato
+@@SHORTEST-ROUTE@@	Percorso piu' breve
+@@QUICKEST-ROUTE@@	Percorso piu' veloce
+
+@@STATISTICS-BOX@@	Statistiche Routio
+
+@@WAYPOINT-POSITION@@	Posizione del punto XXX
+@@WAYPOINT-LONGITUDE@@	Longitudine del punto XXX
+@@WAYPOINT-LATITUDE@@	Latitudine del punto XXX
+@@WAYPOINT-LOCATION@@	Luogo del punto XXX
+@@WAYPOINT-SEARCH@@	Ricerca del luogo
+@@WAYPOINT-GET@@	Ottieni luogo attuale
+@@WAYPOINT-CENTRE1@@	Centra la mappa su questo punto
+@@WAYPOINT-UP@@	Muovi in alto questo punto
+@@WAYPOINT-ADD@@	Aggiungi un punto dopo questo
+@@WAYPOINT-COORDS@@	Coordinate per la posizione
+@@WAYPOINT-HOME@@	Imposta come casa
+@@WAYPOINT-CENTRE2@@	Centra questo punto sulla mappa
+@@WAYPOINT-DOWN@@	Muovi in basso questo punto
+@@WAYPOINT-REMOVE@@	Rimuovi questo punto dal percorso
+@@WAYPOINT-REVERSE@@	Ordine inverso dei punti sul percorso
+@@WAYPOINT-REVERSE-BUTTON@@	Ordine inverso
+@@WAYPOINT-LOOP@@	Aggiungi un nuovo punto per chiudere il ciclo
+@@WAYPOINT-LOOP-BUTTON@@	Chiudi il ciclo
+
+@@TRANSPORT-FOOT@@	A piedi
+@@TRANSPORT-HORSE@@	Cavallo
+@@TRANSPORT-WHEELCHAIR@@	Carrozzella
+@@TRANSPORT-BICYCLE@@	Bicicletta
+@@TRANSPORT-MOPED@@	Ciclomotore
+@@TRANSPORT-MOTORCYCLE@@	Motociclo
+@@TRANSPORT-MOTORCAR@@	Autovettura
+@@TRANSPORT-GOODS@@	Merce
+
+@@HIGHWAY-MOTORWAY@@	Autostrada
+@@HIGHWAY-TRUNK@@	Tronco
+@@HIGHWAY-PRIMARY@@	Primario
+@@HIGHWAY-SECONDARY@@	Secondario
+@@HIGHWAY-TERTIARY@@	Terziario
+@@HIGHWAY-UNCLASSIFIED@@	Non classificato
+@@HIGHWAY-RESIDENTIAL@@	Residenziale
+@@HIGHWAY-SERVICE@@	Servizio
+@@HIGHWAY-TRACK@@	Traccia
+@@HIGHWAY-CYCLEWAY@@	Pista ciclabile
+@@HIGHWAY-PATH@@	Sentiero
+@@HIGHWAY-STEPS@@	Passaggi
+@@HIGHWAY-FERRY@@	Traghetto
+
+@@PROPERTY-PAVED@@	Asfaltata
+@@PROPERTY-MULTILANE@@	Corsie multiple
+@@PROPERTY-BRIDGE@@	Ponte
+@@PROPERTY-TUNNEL@@	Tunnel
+@@PROPERTY-WALKINGROUTE@@	Percorso pedonale
+@@PROPERTY-BICYCLEROUTE@@	Percorso ciclabile
+
+@@RESTRICT-ONEWAY@@	Strade a senso unico
+@@RESTRICT-TURNS@@	Divieto di svolta
+@@RESTRICT-WEIGHT@@	Peso
+@@RESTRICT-HEIGHT@@	Altezza
+@@RESTRICT-WIDTH@@	Larghezza
+@@RESTRICT-LENGTH@@	Lunghezza
+
+@@FIND-SHORTEST-ROUTE@@	Trova il percorso po' breve
+@@FIND-QUICKEST-ROUTE@@	Trova il percorso po' veloce
+
+@@MAP-VIEW-LINK@@	Collegamento a questa vista della mappa
+@@EDIT-OSM-DATA@@	Modifica questi dati OSM
+
+@@ROUTER-NOT-RUN@@	Percorso bloccato
+@@ROUTER-RUNNING@@	Percorso in esecuzione
+@@ROUTER-COMPLETED@@	Percorso completo
+@@ROUTER-ERROR@@	Errore di percorso
+@@ROUTER-FAILED@@	Errore di esecuzione del percorso
+@@VIEW-DETAILS@@	Vedi dettagli
+
+@@NO-INFORMATION@@	Nessuna informazione
+@@GPX-TRACK-ROUTE@@	File di traccia GPX
+@@GPX-ROUTE@@	File di percorso GPX
+@@FULL-TEXT-ROUTE@@	File di testo
+@@TEXT-ROUTE@@	File di testo
+
+@@DISPLAY-STATISTICS@@	Mostra statistiche dei dati
+
+@@JAVASCRIPT-REQUIRED@@	E' <em>necessario</em> Javascript per questa pagina web in quanto la mappa e' interattiva.
+@@ROUTER@@	Percorso
+@@GEO-DATA@@	Dati Geografici
+@@TILES@@	Tiles
+
+#
+# Visualiser specific translations
+#
+
+@@VISUALISER-TITLE@@	Visualizzatore dati percorso
+
+@@INSTRUCTIONS-BOX@@	Istruzioni
+@@ROUTER-BOX@@	Percorso Routino
+
+@@NO-DATA-DISPLAYED@@	Nessun dato mostrato
+
+@@VISUALISER-FAILED@@	Errore nella visualizzazione dei dati!
+@@VISUALISER-NUM-JUNCTIONS@@	Elaborati # raccordi
+@@VISUALISER-NUM-SUPER@@	Elaborati # super-nodi/segmanti
+@@VISUALISER-NUM-SEGMENTS@@	Elaborati # segmanti
+@@VISUALISER-NUM-NODES@@	Elaborati # nodi
+@@VISUALISER-NUM-TURNS@@	Elaborati # vincoli di svolta
+@@VISUALISER-NUM-LIMITS@@	Elaborati # cambio di limiti
+@@VISUALISER-NUM-ERRORS@@	Elaborati # raccolta degli errori
+
+@@JUNCTIONS-BUTTON@@	Mostra Raccordi
+
+@@TURNS-BUTTON@@	Mostra i limiti sulle svolte
+$$TURNS-INFO$$
+Le svolte non consentite vengono indicate da una linea.
+$$TURNS-INFO$$
+
+@@SPEED-BUTTON@@	Mostra i limiti di velocita'
+$$SPEED-INFO$$
+Ogni nodo che unisce segmenti con limiti di velocita' diversi viene mostrato con tale limite sui relativi segmenti.
+$$SPEED-INFO$$
+
+@@LIMIT-CHANGE@@	Cambio di limite
+@@LIMIT-NONE@@	Nessun limite specificato
+@@SPEED-LIMIT-80@@	velocita' limite di 80 km/ora
+
+@@WEIGHT-BUTTON@@	Mostra i limiti di peso
+
+@@WEIGHT-LIMIT-8@@	peso limite di 8 tonnellate
+
+@@HEIGHT-BUTTON@@	Mostra i limiti di altezza
+
+@@HEIGHT-LIMIT-4@@	altezza limite di 4 metri
+
+@@WIDTH-BUTTON@@	Mostra i limiti di larghezza
+
+@@WIDTH-LIMIT-3@@	larghezza limite di 3 metri
+
+@@LENGTH-BUTTON@@	Mostra i limiti di lunghezza
+
+@@LENGTH-LIMIT-9@@	lunghezza limite di 9 metri
+
+@@PROPERTY-BUTTON@@	Mostra le proprieta' delle autostrade.
+$$PROPERTY-INFO$$
+Viene disegnato ogni segmento delle autostrade con una specifica proprieta'.
+$$PROPERTY-INFO$$
+
+@@ERROR-LOG-BUTTON@@	Mostra gli errori registrati.
+$$ERROR-LOG-INFO$$
+Potenziali problemi riscontrati da Routino durante l'elaborazione dei dati in ingresso.
+$$ERROR-LOG-INFO$$
+
+@@CLEAR-DATA-BUTTON@@	Cancella i dati
+
+#
+# Multi-line descriptive translations (router)
+#
+
+$$ROUTER-VISUALISER-INFO$$
+Per visualizzare i dati di Routino esiste un visualizzatore che consente di mostrarli in vari modi.
+$$ROUTER-VISUALISER-INFO$$
+
+#
+# Multi-line descriptive translations (visualiser)
+#
+
+$$VISUALISER-INFO$$
+Questa pagina web consente la visualizzazione dei dati utilizzati da Routino per il calcolo del percorso.
+Vengono visualizzati solo i dati relativi al percorso e pertanto alcuni potranno essere esclusi.
+$$VISUALISER-INFO$$
+
+$$VISUALISER-INSTRUCTIONS$$
+Ingrandisci e usa il pulsante sotto per scaricare i dati. Il server fornira' i dati se l'area selezionata non e' troppo grande.
+$$VISUALISER-INSTRUCTIONS$$
+
+$$VISUALISER-HELP$$
+<b>Quick Start</b>
+<br>
+Ingrandisci un'area e seleziona uno dei
+pulsanti per mostrare il tipo di dati.
+<br>
+Piu' opzioni per i dati si possono ottenere espandendo i dettagli sotto ogni pulsante.
+<p>
+<b>Dati non validi</b>
+<br>
+Se l'area selezionata e' troppo grande (dipende dal tipo dei dati) l'indicazione dello stato sara': "Impossibile visualizzare i dati." - ingrandisci e riprova.
+
+$$VISUALISER-HELP$$
+
+$$VISUALISER-ROUTER-INFO$$
+Per eseguire il percorso sulla mappa usa il collegamento sottostante.
+$$VISUALISER-ROUTER-INFO$$
