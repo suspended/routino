@@ -14,6 +14,12 @@
 %%turn_-4%%	Immediatamente a sinistra
 %%turn_-3%%	Subito a sinistra
 %%turn_-2%%	Sinistra
+%%turn_-1%%	Leggermente a sinistra
+%%turn_0%%	Prosegui su
+%%turn_1%%	Leggermente a destra
+%%turn_2%%	Destra
+%%turn_3%%	Subito a destra
+%%turn_4%%	Immediatamente a destra
 
 %%heading_-4%%	Sud
 %%heading_-3%%	Sud-Ovest
@@ -56,6 +62,7 @@
 %%output-html_waypoint_waypoint%%	Punto sul tragitto
 %%output-html_waypoint_junction%%	Raccordo
 %%output-html_waypoint_roundabout%%	Rotatoria
+%%output-html_title%%	%s Itinerario
 %%output-html_start%%	Inizia a %s, su %s
 %%output-html_node%%	A %s, vai a %s su %s
 %%output-html_rbnode%%	Lascia %s, prendi la %s uscita su %s
@@ -163,8 +170,8 @@
 @@RESTRICT-WIDTH@@	Larghezza
 @@RESTRICT-LENGTH@@	Lunghezza
 
-@@FIND-SHORTEST-ROUTE@@	Trova il percorso po' breve
-@@FIND-QUICKEST-ROUTE@@	Trova il percorso po' veloce
+@@FIND-SHORTEST-ROUTE@@	Trova il percorso più breve
+@@FIND-QUICKEST-ROUTE@@	Trova il percorso più veloce
 
 @@MAP-VIEW-LINK@@	Collegamento a questa vista della mappa
 @@EDIT-OSM-DATA@@	Modifica questi dati OSM
@@ -184,7 +191,7 @@
 
 @@DISPLAY-STATISTICS@@	Mostra statistiche dei dati
 
-@@JAVASCRIPT-REQUIRED@@	E' <em>necessario</em> Javascript per questa pagina web in quanto la mappa e' interattiva.
+@@JAVASCRIPT-REQUIRED@@	E' <em>necessario</em> Javascript per questa pagina web in quanto la mappa è interattiva.
 @@ROUTER@@	Percorso
 @@GEO-DATA@@	Dati Geografici
 @@TILES@@	Tiles
@@ -216,14 +223,14 @@ $$TURNS-INFO$$
 Le svolte non consentite vengono indicate da una linea.
 $$TURNS-INFO$$
 
-@@SPEED-BUTTON@@	Mostra i limiti di velocita'
+@@SPEED-BUTTON@@	Mostra i limiti di velocità
 $$SPEED-INFO$$
-Ogni nodo che unisce segmenti con limiti di velocita' diversi viene mostrato con tale limite sui relativi segmenti.
+Ogni nodo che unisce segmenti con limiti di velocità diversi viene mostrato con tale limite sui relativi segmenti.
 $$SPEED-INFO$$
 
 @@LIMIT-CHANGE@@	Cambio di limite
 @@LIMIT-NONE@@	Nessun limite specificato
-@@SPEED-LIMIT-80@@	velocita' limite di 80 km/ora
+@@SPEED-LIMIT-80@@	velocità limite di 80 km/ora
 
 @@WEIGHT-BUTTON@@	Mostra i limiti di peso
 
@@ -241,9 +248,9 @@ $$SPEED-INFO$$
 
 @@LENGTH-LIMIT-9@@	lunghezza limite di 9 metri
 
-@@PROPERTY-BUTTON@@	Mostra le proprieta' delle autostrade.
+@@PROPERTY-BUTTON@@	Mostra le proprietà delle autostrade.
 $$PROPERTY-INFO$$
-Viene disegnato ogni segmento delle autostrade con una specifica proprieta'.
+Viene disegnato ogni segmento delle autostrade con una specifica proprietà.
 $$PROPERTY-INFO$$
 
 @@ERROR-LOG-BUTTON@@	Mostra gli errori registrati.
@@ -271,7 +278,7 @@ Vengono visualizzati solo i dati relativi al percorso e pertanto alcuni potranno
 $$VISUALISER-INFO$$
 
 $$VISUALISER-INSTRUCTIONS$$
-Ingrandisci e usa il pulsante sotto per scaricare i dati. Il server fornira' i dati se l'area selezionata non e' troppo grande.
+Ingrandisci e usa il pulsante sotto per scaricare i dati. Il server fornirà i dati se l'area selezionata non è troppo grande.
 $$VISUALISER-INSTRUCTIONS$$
 
 $$VISUALISER-HELP$$
@@ -280,11 +287,11 @@ $$VISUALISER-HELP$$
 Ingrandisci un'area e seleziona uno dei
 pulsanti per mostrare il tipo di dati.
 <br>
-Piu' opzioni per i dati si possono ottenere espandendo i dettagli sotto ogni pulsante.
+Più opzioni per i dati si possono ottenere espandendo i dettagli sotto ogni pulsante.
 <p>
 <b>Dati non validi</b>
 <br>
-Se l'area selezionata e' troppo grande (dipende dal tipo dei dati) l'indicazione dello stato sara': "Impossibile visualizzare i dati." - ingrandisci e riprova.
+Se l'area selezionata è troppo grande (dipende dal tipo dei dati) l'indicazione dello stato sarà: "Impossibile visualizzare i dati." - ingrandisci e riprova.
 
 $$VISUALISER-HELP$$
 
