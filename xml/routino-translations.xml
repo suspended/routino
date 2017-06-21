@@ -397,12 +397,12 @@
     <turn direction="-4" string="Immediatamente a sinistra" />
     <turn direction="-3" string="Subito a sinistra" />
     <turn direction="-2" string="Sinistra" />
-    <!-- TRANSLATION REQUIRED: turn direction="-1" string="Slight left" / -->
-    <!-- TRANSLATION REQUIRED: turn direction="0"  string="Straight on" / -->
-    <!-- TRANSLATION REQUIRED: turn direction="1"  string="Slight right" / -->
-    <!-- TRANSLATION REQUIRED: turn direction="2"  string="Right" / -->
-    <!-- TRANSLATION REQUIRED: turn direction="3"  string="Sharp right" / -->
-    <!-- TRANSLATION REQUIRED: turn direction="4"  string="Very sharp right" / -->
+    <turn direction="-1" string="Leggermente a sinistra" />
+    <turn direction="0"  string="Prosegui su" />
+    <turn direction="1"  string="Leggermente a destra" />
+    <turn direction="2"  string="Destra" />
+    <turn direction="3"  string="Subito a destra" />
+    <turn direction="4"  string="Immediatamente a destra" />
 
     <!-- Heading directions, 0 = North, -2 = West, +/-4 = South, +2 = East -->
     <heading direction="-4" string="Sud" />
@@ -452,7 +452,7 @@
       <waypoint type="junction"   string="Raccordo" /> <!-- For the interesting junctions -->
       <waypoint type="roundabout" string="Rotatoria" /> <!-- For roundabouts -->
 
-      <!-- TRANSLATION REQUIRED: title text="%s Route" / --> <!-- %s = [shortest|quickest] -->
+      <title text="%s Itinerario" /> <!-- %s = [shortest|quickest] -->
 
       <start    text="Inizia a %s, su %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
       <node     text="A %s, vai a %s su %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
