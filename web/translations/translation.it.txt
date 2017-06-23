@@ -113,6 +113,7 @@
 @@QUICKEST-ROUTE@@	Percorso piu' veloce
 
 @@STATISTICS-BOX@@	Statistiche Routio
+@@VISUALISER-BOX@@	Visualizzatore Routino
 
 @@WAYPOINT-POSITION@@	Posizione del punto XXX
 @@WAYPOINT-LONGITUDE@@	Longitudine del punto XXX
@@ -141,6 +142,8 @@
 @@TRANSPORT-MOTORCYCLE@@	Motociclo
 @@TRANSPORT-MOTORCAR@@	Autovettura
 @@TRANSPORT-GOODS@@	Merce
+@@TRANSPORT-HGV@@	Trasporto Merci Pesante
+@@TRANSPORT-PSV@@	Servizio Pubblico
 
 @@HIGHWAY-MOTORWAY@@	Autostrada
 @@HIGHWAY-TRUNK@@	Tronco
@@ -184,10 +187,12 @@
 @@VIEW-DETAILS@@	Vedi dettagli
 
 @@NO-INFORMATION@@	Nessuna informazione
+@@HTML-ROUTE@@	Direzioni formato HTML
 @@GPX-TRACK-ROUTE@@	File di traccia GPX
 @@GPX-ROUTE@@	File di percorso GPX
 @@FULL-TEXT-ROUTE@@	File di testo
 @@TEXT-ROUTE@@	File di testo
+@@OPEN-POPUP@@	Nuova pagine
 
 @@DISPLAY-STATISTICS@@	Mostra statistiche dei dati
 
@@ -210,6 +215,7 @@
 @@VISUALISER-FAILED@@	Errore nella visualizzazione dei dati!
 @@VISUALISER-NUM-JUNCTIONS@@	Elaborati # raccordi
 @@VISUALISER-NUM-SUPER@@	Elaborati # super-nodi/segmanti
+@@VISUALISER-NUM-WAYTYPE@@	Elaborati # segmenti di tipo via
 @@VISUALISER-NUM-SEGMENTS@@	Elaborati # segmanti
 @@VISUALISER-NUM-NODES@@	Elaborati # nodi
 @@VISUALISER-NUM-TURNS@@	Elaborati # vincoli di svolta
@@ -217,6 +223,38 @@
 @@VISUALISER-NUM-ERRORS@@	Elaborati # raccolta degli errori
 
 @@JUNCTIONS-BUTTON@@	Mostra Raccordi
+@@JUNCTIONS-2@@	Trovate due superstrade di tipo diverso.
+@@JUNCTIONS-3@@	Trovate tre superstrade.
+@@JUNCTIONS-4@@	Trovate quattro superstrade.
+@@JUNCTIONS-5@@	Trovate cinque superstrade.
+@@JUNCTIONS-6@@	Trovate sei superstrade.
+@@JUNCTIONS-MORE@@	Trovate sette (o più) superstrade.
+
+@@SUPER-BUTTON@@	Mostra Super Segmenti
+$$SUPER-INFO$$
+Sono mostrati ogni super-nodo con i super-segmenti associati (per dettagli vedi la pagina dell'algoritmo).
+$$SUPER-INFO$$
+
+@@WAYTYPE-BUTTON@@	Mostra Segmenti Di Tipo Via
+
+@@WAYTYPE-ONEWAY@@	Segmenti senso unico
+@@WAYTYPE-CYCLE-BOTH-WAYS@@	Segmenti doppio senso
+@@WAYTYPE-ROUNDABOUT@@	Segmenti rotatoria
+
+@@HIGHWAY-BUTTON@@	Mostra Segmenti Autostrada
+$$HIGHWAY-INFO$$
+Viene mostrato ogni segmento delle superstrade selezionate.
+$$HIGHWAY-INFO$$
+
+@@TRANSPORT-BUTTON@@	Mostra Segmenti Trasporto.
+$$TRANSPORT-INFO$$
+Viene mostrato ogni segmento consentito per il trasporto selezionato.
+$$TRANSPORT-INFO$$
+
+@@BARRIER-BUTTON@@	Mostra Nodi Barriera
+$$BARRIER-INFO$$
+Viene mostrata ogni barriera che blocca il tipo di trasporto selezionato.
+$$BARRIER-INFO$$
 
 @@TURNS-BUTTON@@	Mostra i limiti sulle svolte
 $$TURNS-INFO$$
@@ -230,23 +268,39 @@ $$SPEED-INFO$$
 
 @@LIMIT-CHANGE@@	Cambio di limite
 @@LIMIT-NONE@@	Nessun limite specificato
-@@SPEED-LIMIT-80@@	velocità limite di 80 km/ora
+@@SPEED-LIMIT-80@@	velocità massima 80 km/ora
 
 @@WEIGHT-BUTTON@@	Mostra i limiti di peso
+$$WEIGHT-INFO$$
+Viene visualizzato ogni nodo che unisce segmenti con diversi limiti di peso
+insieme al limite di peso per i relativi segmenti.
+$$WEIGHT-INFO$$
 
-@@WEIGHT-LIMIT-8@@	peso limite di 8 tonnellate
+@@WEIGHT-LIMIT-8@@	peso massimo 8 tonnellate
 
 @@HEIGHT-BUTTON@@	Mostra i limiti di altezza
+$$HEIGHT-INFO$$
+Viene visualizzato ogni nodo che unisce segmenti con diversi limiti di altezza
+insieme al limite di altezza per i relativi segmenti.
+$$HEIGHT-INFO$$
 
-@@HEIGHT-LIMIT-4@@	altezza limite di 4 metri
+@@HEIGHT-LIMIT-4@@	altezza massima 4 metri
 
 @@WIDTH-BUTTON@@	Mostra i limiti di larghezza
+$$WIDTH-INFO$$
+Viene visualizzato ogni nodo che unisce segmenti con diversi limiti di larghezza
+insieme al limite di larghezza per i relativi segmenti.
+$$WIDTH-INFO$$
 
-@@WIDTH-LIMIT-3@@	larghezza limite di 3 metri
+@@WIDTH-LIMIT-3@@	larghezza massima 3 metri
 
 @@LENGTH-BUTTON@@	Mostra i limiti di lunghezza
+$$LENGTH-INFO$$
+Viene visualizzato ogni nodo che unisce segmenti con diversi limiti di lunghezza
+insieme al limite di lunghezza per i relativi segmenti.
+$$LENGTH-INFO$$
 
-@@LENGTH-LIMIT-9@@	lunghezza limite di 9 metri
+@@LENGTH-LIMIT-9@@	lunghezza massima 9 metri
 
 @@PROPERTY-BUTTON@@	Mostra le proprietà delle autostrade.
 $$PROPERTY-INFO$$
@@ -263,6 +317,11 @@ $$ERROR-LOG-INFO$$
 #
 # Multi-line descriptive translations (router)
 #
+
+$$ROUTER-INFO$$
+Questa pagina consente il calcolo del percorso con i dati raccolti da OpenStreetMap.
+Seleziona i punti di partenza e di arrivo (clicca sulle icone dei marcatori qui sotto), seleziona le preferenze e trova un percorso.
+$$ROUTER-INFO$$
 
 $$ROUTER-VISUALISER-INFO$$
 Per visualizzare i dati di Routino esiste un visualizzatore che consente di mostrarli in vari modi.
