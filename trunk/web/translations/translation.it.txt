@@ -31,16 +31,16 @@
 %%heading_3%%	Sud-Est
 %%heading_4%%	Sud
 
-%%ordinal_1%%	Primo
-%%ordinal_2%%	Secondo
-%%ordinal_3%%	Terzo
-%%ordinal_4%%	Quarto
-%%ordinal_5%%	Quinto
-%%ordinal_6%%	Sesto
-%%ordinal_7%%	Settimo
-%%ordinal_8%%	Ottavo
-%%ordinal_9%%	Nono
-%%ordinal_10%%	Decimo
+%%ordinal_1%%	Prima
+%%ordinal_2%%	Seconda
+%%ordinal_3%%	Terza
+%%ordinal_4%%	Quarta
+%%ordinal_5%%	Quinta
+%%ordinal_6%%	Sesta
+%%ordinal_7%%	Settima
+%%ordinal_8%%	Ottava
+%%ordinal_9%%	Nona
+%%ordinal_10%%	Decima
 
 %%highway_motorway%%	autostrada
 %%highway_trunk%%	strada principale
@@ -71,6 +71,9 @@
 %%output-html_total%%	Totale %.1f km, %.0f minuti
 %%output-html_subtotal%%	%.1f km, %.0f minuti
 
+%%output-gpx_waypoint_waypt%%	WAYPT
+%%output-gpx_waypoint_trip%%	TRIP
+
 %%output-gpx_desc%%	%s punti sul percorso fra 'start' e 'finish'
 %%output-gpx_name%%	%s percorso
 %%output-gpx_step%%	%s su '%s' per %.3f km, %.1f min
@@ -94,6 +97,7 @@
 @@DATA-TAB@@	Dati
 @@DATA-TAB-HELP@@	Informazioni sulla base dati
 
+@@ROUTINO-ROUTER@@	Routino OpenStreetMap Router
 @@ROUTINO-WEBSITE@@	Pagina web di Routino
 @@DOCUMENTATION@@	Documentazione
 
@@ -223,6 +227,12 @@
 @@VISUALISER-NUM-ERRORS@@	Elaborati # raccolta degli errori
 
 @@JUNCTIONS-BUTTON@@	Mostra Raccordi
+$$JUNCTIONS-INFO$$
+Ogni nodo che sia finale, oppure un raccordo fra due strade di diverso tipo o con
+diverse proprietà, o un raccordo dove confluiscono due o più segmenti, viene
+mostrato con un colore codificato.
+$$JUNCTIONS-INFO$$
+@@JUNCTIONS-1@@	strada chiusa a senso unico.
 @@JUNCTIONS-2@@	Trovate due superstrade di tipo diverso.
 @@JUNCTIONS-3@@	Trovate tre superstrade.
 @@JUNCTIONS-4@@	Trovate quattro superstrade.
@@ -236,6 +246,11 @@ Sono mostrati ogni super-nodo con i super-segmenti associati (per dettagli vedi 
 $$SUPER-INFO$$
 
 @@WAYTYPE-BUTTON@@	Mostra Segmenti Di Tipo Via
+$$WAYTYPE-INFO$$
+Viene mostrato ogni tratto speciali (a senso unico, ciclabile in entrambi i sensi e rotatoria).
+Per segmenti a senso unico un triangolo colorato indica la direzione consentita.
+I colori dei triangoli dipendono dall'orientamento del segmento stesso.
+$$WAYTYPE-INFO$$
 
 @@WAYTYPE-ONEWAY@@	Segmenti senso unico
 @@WAYTYPE-CYCLE-BOTH-WAYS@@	Segmenti doppio senso
@@ -322,6 +337,88 @@ $$ROUTER-INFO$$
 Questa pagina consente il calcolo del percorso con i dati raccolti da OpenStreetMap.
 Seleziona i punti di partenza e di arrivo (clicca sulle icone dei marcatori qui sotto), seleziona le preferenze e trova un percorso.
 $$ROUTER-INFO$$
+
+$$ROUTER-OPTIONS-HELP$$
+<B> Avvio rapido </ b>
+<br>
+Seleziona le icone dei marcatori (sopra) per posizionarli sulla mappa (a destra). Poi
+Trascinarli nella posizione desiderata. Eventualmente ingrandire la mappa per
+posizionarli con maggiore precisione. In alternativa digitare la latitudine e
+longitudine nelle apposite caselle.
+<P>
+Selezionare il tipo di trasporto, i tipi di strade e le loro proprietà, i limiti di velocità
+e altre impstazioni dalle opzioni sopra riportate.
+Selezionare il tipo di percorso "più breve" o "più veloce" per calcolarlo e visualizzarlo sulla mappa.
+<P>
+<B> Punti sul percorso </ b>
+<br>
+Selezionando le icone dei marcatori, questi saranno visualizzati sulla mappa.
+Quando viene calcolato un percorso, ogni punto viene visualizzato nel modo più
+coerente possibile al tipo di trasporto selezionato, ciascuno nell'ordine indicato.
+<P>
+<B> Tipo di trasporto </ b>
+<br>
+La selezione di un tipo di trasporto vincola il tipo di tragitto ed imposta i
+valori predefiniti per gli altri parametri relativi.
+<P>
+<B> Preferenze per tipi di strade </ b>
+<br>
+La percorrenza sulle strade principali sono impostate come percentuale di preferenza.
+Ad esempio, se ad una strada primaria viene data una preferenza del 100%,
+mentre ad una secondaria una preferenza del 90%, significa che il percorso sulla strada primaria
+può essere fino al 10% più lungo di quello sulla strada secondaria.
+<P>
+<B> Limiti di velocità </ b>
+<br>
+I limiti di velocità per i vari tipi di strade si applicano se la strada stessa
+non ha altri limiti di velocità contrassegnati o è superiore a quello scelto.
+<P>
+<B> Preferenze sulla proprietà </ b>
+<br>
+La preferenza sulla proprietà viene impostata come percentuale e vengono scelti
+i tragitti cercando di rispettare tali preferenze.
+Ad esempio, se ad una strada asfaltata viene data una preferenza del 75% allora automaticamente
+ad una non asfaltata viene data una preferenza del 25%. In questo modo un percorso su una
+strada asfaltata può risultare filo a 3 volte più lungo rispetto a quella non asfaltata.
+<P>
+<B> Altre restrizioni </ b>
+<br>
+Si può decidere di ignorare i limiti imposti come peso, altezza, larghezza o lunghezza.
+È anche possibile ignorare restrizioni di senso unico se per esempio si desidera
+un percorso da fare a piedi.
+$$ROUTER-OPTIONS-HELP$$
+
+$$ROUTER-RESULTS-HELP$$
+<B> Avvio rapido </ b>
+<br>
+Dopo aver calcolato un percorso è possibile scaricare il file GPX o la descrizione
+del percorso in formato testo (riassuntivo o versione dettagliata).
+Inoltre si può visualizzare la descrizione del percorso e ingrandire le parti selezionate.
+<P>
+<B> Risoluzione dei problemi </ b>
+<br>
+Se il calcolo termina con un errore, la causa più probabile è
+che non sia possibile trovare un percorso tra i punti selezionati.
+Spostare uno o più marcatori o cambiare le opzioni di routing dovrebbe
+consente di risolvere il problema.
+<P>
+<B> Formati generati </ b>
+<br>
+<Dl>
+<Dt> istruzioni HTML
+<Dd> Una descrizione del percorso con indicazioni per ciascun punto importante.
+<Dt> file di traccia GPX
+<Dd> Le stesse informazioni visualizzate sulla mappa con i punti
+per ogni nodo e linee per ogni segmento.
+<Dt> file di percorso GPX
+<Dd> Le stesse informazioni visualizzate nel testo per ogni punto importante sul percorso.
+<Dt> File di testo completo
+<Dd> Un elenco di tutti i nodi visitati con la distanza
+tra loro e la distanza cumulativa per ogni passo del percorso.
+<Dt> File di testo
+<Dd> Le stesse informazioni sul percorso visualizzate nel testo.
+</ Dl>
+$$ROUTER-RESULTS-HELP$$
 
 $$ROUTER-VISUALISER-INFO$$
 Per visualizzare i dati di Routino esiste un visualizzatore che consente di mostrarli in vari modi.

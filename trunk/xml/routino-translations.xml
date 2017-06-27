@@ -416,16 +416,16 @@
     <heading direction="4"  string="Sud" />
 
     <!-- Ordinals, 1 = first, 2 = second ... -->
-    <ordinal number="1"  string="Primo" />
-    <ordinal number="2"  string="Secondo" />
-    <ordinal number="3"  string="Terzo" />
-    <ordinal number="4"  string="Quarto" />
-    <ordinal number="5"  string="Quinto" />
-    <ordinal number="6"  string="Sesto" />
-    <ordinal number="7"  string="Settimo" />
-    <ordinal number="8"  string="Ottavo" />
-    <ordinal number="9"  string="Nono" />
-    <ordinal number="10" string="Decimo" />
+    <ordinal number="1"  string="Prima" />
+    <ordinal number="2"  string="Seconda" />
+    <ordinal number="3"  string="Terza" />
+    <ordinal number="4"  string="Quarta" />
+    <ordinal number="5"  string="Quinta" />
+    <ordinal number="6"  string="Sesta" />
+    <ordinal number="7"  string="Settima" />
+    <ordinal number="8"  string="Ottava" />
+    <ordinal number="9"  string="Nona" />
+    <ordinal number="10" string="Decima" />
 
     <!-- Highway names -->
     <highway type="motorway"     string="autostrada" />
@@ -465,8 +465,8 @@
 
     <!-- GPX output -->
     <output-gpx>
-      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
-      <!-- TRANSLATION REQUIRED: waypoint type="trip" string="TRIP" / --> <!-- For the other route points -->
+      <waypoint type="waypt" string="WAYPT" /> <!-- For the route waypoints -->
+      <waypoint type="trip" string="TRIP" /> <!-- For the other route points -->
 
       <desc  text="%s punti sul percorso fra 'start' e 'finish'" /> <!-- %s = [shortest|quickest] -->
       <name  text="%s percorso" /> <!-- %s = [shortest|quickest] -->
