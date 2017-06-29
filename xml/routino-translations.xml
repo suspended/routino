@@ -429,17 +429,17 @@
 
     <!-- Highway names -->
     <highway type="motorway"     string="autostrada" />
-    <highway type="trunk"        string="strada principale" />
-    <highway type="primary"      string="strada principale" />
-    <highway type="secondary"    string="strada secondaria" />
-    <highway type="tertiary"     string="strada terziaria" />
+    <highway type="trunk"        string="superstrada" />
+    <highway type="primary"      string="strada statale" />
+    <highway type="secondary"    string="strada regionale" />
+    <highway type="tertiary"     string="strada provinciale" />
     <highway type="unclassified" string="strada non classificata" />
     <highway type="residential"  string="strada residenziale" />
     <highway type="service"      string="strada di servizio" />
     <highway type="track"        string="traccia" />
     <highway type="cycleway"     string="pista ciclabile" />
     <highway type="path"         string="sentiero" />
-    <highway type="steps"        string="passi" />
+    <highway type="steps"        string="scalinata" />
     <highway type="ferry"        string="traghetto" />
 
     <!-- The type of route -->
