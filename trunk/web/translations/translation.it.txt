@@ -150,11 +150,11 @@
 @@TRANSPORT-PSV@@	Mezzi Pubblici
 
 @@HIGHWAY-MOTORWAY@@	Autostrada
-@@HIGHWAY-TRUNK@@	Tronco
-@@HIGHWAY-PRIMARY@@	Primario
-@@HIGHWAY-SECONDARY@@	Secondario
-@@HIGHWAY-TERTIARY@@	Terziario
-@@HIGHWAY-UNCLASSIFIED@@	Non classificato
+@@HIGHWAY-TRUNK@@	Superstrada
+@@HIGHWAY-PRIMARY@@	Statale
+@@HIGHWAY-SECONDARY@@	Regionale
+@@HIGHWAY-TERTIARY@@	Provinciale
+@@HIGHWAY-UNCLASSIFIED@@	Non classificata
 @@HIGHWAY-RESIDENTIAL@@	Residenziale
 @@HIGHWAY-SERVICE@@	Servizio
 @@HIGHWAY-TRACK@@	Traccia
@@ -191,10 +191,10 @@
 @@VIEW-DETAILS@@	Vedi dettagli
 
 @@NO-INFORMATION@@	Nessuna informazione
-@@HTML-ROUTE@@	Direzioni formato HTML
-@@GPX-TRACK-ROUTE@@	File di traccia GPX
-@@GPX-ROUTE@@	File di percorso GPX
-@@FULL-TEXT-ROUTE@@	File di testo
+@@HTML-ROUTE@@	Direzioni in formato HTML
+@@GPX-TRACK-ROUTE@@	File con tracciato GPX
+@@GPX-ROUTE@@	File con percorso GPX
+@@FULL-TEXT-ROUTE@@	File di testo con piu' informazioni
 @@TEXT-ROUTE@@	File di testo
 @@OPEN-POPUP@@	Nuova pagine
 
