@@ -15,7 +15,7 @@
 %%turn_-3%%	Subito a sinistra
 %%turn_-2%%	Sinistra
 %%turn_-1%%	Leggermente a sinistra
-%%turn_0%%	Prosegui su
+%%turn_0%%	Dritto
 %%turn_1%%	Leggermente a destra
 %%turn_2%%	Destra
 %%turn_3%%	Subito a destra

@@ -398,7 +398,7 @@
     <turn direction="-3" string="Subito a sinistra" />
     <turn direction="-2" string="Sinistra" />
     <turn direction="-1" string="Leggermente a sinistra" />
-    <turn direction="0"  string="Prosegui su" />
+    <turn direction="0"  string="Dritto" />
     <turn direction="1"  string="Leggermente a destra" />
     <turn direction="2"  string="Destra" />
     <turn direction="3"  string="Subito a destra" />
