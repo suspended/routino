@@ -222,9 +222,22 @@
 @@VISUALISER-NUM-WAYTYPE@@	# segments de type "way" traités
 @@VISUALISER-NUM-SEGMENTS@@	# segments traités
 @@VISUALISER-NUM-NODES@@	# nœuds traités
+@@VISUALISER-NUM-LIMITS@@	# changements de limites traités
 @@VISUALISER-NUM-ERRORS@@	# erreurs de log traitées
 
 @@JUNCTIONS-BUTTON@@	Afficher les intersections
+
+@@WAYTYPE-ONEWAY@@	Segments à sens unique
+
+@@SPEED-BUTTON@@	Afficher les limites de vitesse
+
+@@LIMIT-CHANGE@@	Changement de limite
+@@LIMIT-NONE@@	Pas de limite spécifiée
+@@SPEED-LIMIT-80@@	Vitesse limitée à 80 km/h
+
+@@WEIGHT-BUTTON@@	Afficher les limites de poids
+
+@@HEIGHT-BUTTON@@	Afficher les limites de hauteur
 
 @@HEIGHT-LIMIT-4@@	Hauteur limitée à 4,0 m
 
