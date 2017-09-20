@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2012-2015 Andrew M. Bishop
+ This file Copyright 2012-2015, 2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -203,6 +203,11 @@ static inline int32_t o5m_sint32(unsigned char **ptr)
 }
 
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
 /*++++++++++++++++++++++++++++++++++++++
   Parse an O5M int64 data value.
 
@@ -229,6 +234,10 @@ static inline int64_t o5m_int64(unsigned char **ptr)
 
  return(result);
 }
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 
 /*++++++++++++++++++++++++++++++++++++++
