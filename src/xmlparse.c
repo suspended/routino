@@ -1240,7 +1240,7 @@ void ParseXML_SetError(const char *format, ...)
  char temp[2];
  int line_length,error_length;
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-overflow"
 #pragma GCC diagnostic ignored "-Wformat-truncation"
@@ -1248,7 +1248,7 @@ void ParseXML_SetError(const char *format, ...)
 
  line_length=snprintf(temp,1,"Error on line %" PRIu64 ": ",lineno);
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
