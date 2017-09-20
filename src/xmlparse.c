@@ -5,7 +5,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2010-2016 Andrew M. Bishop
+ This file Copyright 2010-2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -960,6 +960,8 @@ int ParseXML(int fd,const xmltag *const *tags,int options)
     if(tag_stack)
        BEGIN(LEX_ERROR_XML_NOT_FIRST);
 
+    /* fall through */
+
     /* The start of a tag for an element */
 
    case LEX_FUNC_TAG_BEGIN:
@@ -1238,7 +1240,17 @@ void ParseXML_SetError(const char *format, ...)
  char temp[2];
  int line_length,error_length;
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-overflow"
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+
  line_length=snprintf(temp,1,"Error on line %" PRIu64 ": ",lineno);
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
  va_start(ap,format);
  error_length=vsnprintf(temp,1,format,ap);
