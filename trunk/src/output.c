@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2016 Andrew M. Bishop
+ This file Copyright 2008-2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -558,7 +558,7 @@ Routino_Output *PrintRoute(Results **results,int nresults,Nodes *nodes,Segments 
           important=ROUTINO_POINT_UTURN;
        else if(resultnodep && (resultnodep->flags&NODE_MINIRNDBT))
           important=ROUTINO_POINT_MINI_RB; /* mini-roundabout */
-       else
+       else if(resultnodep)
          {
           Segment *segmentp=FirstSegment(segments,resultnodep,3);
 

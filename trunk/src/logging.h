@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2015, 2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -108,7 +108,15 @@ relation_t logerror_relation(relation_t id);
 
 #define logassert(xx,yy) do { if(!(xx)) _logassert(yy,__FILE__,__LINE__); } while(0)
 
+#ifdef __GNUC__
+
+void _logassert(const char *message,const char *file,int line) __attribute__ ((noreturn));
+
+#else
+
 void _logassert(const char *message,const char *file,int line);
+
+#endif
 
 
 #endif /* LOGGING_H */

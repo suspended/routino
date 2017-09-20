@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2016 Andrew M. Bishop
+ This file Copyright 2008-2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -53,7 +53,7 @@
 char *option_tmpdirname=NULL;
 
 /*+ The amount of RAM to use for filesorting. +*/
-size_t option_filesort_ramsize=0;
+ssize_t option_filesort_ramsize=0;
 
 /*+ The number of threads to use for filesorting. +*/
 int option_filesort_threads=1;
@@ -160,9 +160,11 @@ int main(int argc,char** argv)
     print_usage(0,NULL,"Cannot use '--process-only' and filenames at the same time.");
 
  if(!option_filenames && !option_process_only)
-    print_usage(0,NULL,"File names must be specified unless using '--process-only'");
+    print_usage(0,NULL,"File names must be specified unless using '--process-only'.");
 
- if(!option_filesort_ramsize)
+ if(option_filesort_ramsize<0 || option_filesort_ramsize>1024*1024)
+    print_usage(0,NULL,"Sorting RAM size '--sort-ram-size=...' must be positive and in MB.");
+ else if(option_filesort_ramsize==0)
    {
 #if SLIM
     option_filesort_ramsize=64*1024*1024;
@@ -172,6 +174,11 @@ int main(int argc,char** argv)
    }
  else
     option_filesort_ramsize*=1024*1024;
+
+#if defined(USE_PTHREADS) && USE_PTHREADS
+ if(option_filesort_threads<1 || option_filesort_threads>32)
+    print_usage(0,NULL,"Sorting threads '--sort-threads=...' must be small positive integer.");
+#endif
 
  if(!option_tmpdirname)
    {

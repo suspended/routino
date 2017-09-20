@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2015-2016 Andrew M. Bishop
+ This file Copyright 2015-2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -134,7 +134,10 @@ DLL_PUBLIC Routino_Database *Routino_LoadDatabase(const char *dirname,const char
  relations_filename=FileName(dirname,prefix,"relations.mem");
 
  if(!ExistsFile(nodes_filename) || !ExistsFile(nodes_filename) || !ExistsFile(nodes_filename) || !ExistsFile(nodes_filename))
+   {
     Routino_errno=ROUTINO_ERROR_NO_DATABASE_FILES;
+    return(NULL);
+   }
  else
    {
     database=calloc(sizeof(Routino_Database),1);

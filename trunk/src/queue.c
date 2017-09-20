@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2013 Andrew M. Bishop
+ This file Copyright 2008-2013, 2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -87,11 +87,11 @@ void ResetQueueList(Queue *queue)
 
 void FreeQueueList(Queue *queue)
 {
- free(queue->results);
-
 #ifndef LIBROUTINO
  log_free(queue->results);
 #endif
+
+ free(queue->results);
 
  free(queue);
 }
