@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2016 Andrew M. Bishop
+ This file Copyright 2008-2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -465,6 +465,9 @@ int main(int argc,char** argv)
  free(speeds);
 
  free(speed_selection);
+
+ free(crossings);
+ free(crossingsp);
 
  return(0);
 }

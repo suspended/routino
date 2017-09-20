@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2016 Andrew M. Bishop
+ This file Copyright 2008-2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -55,7 +55,7 @@ int main(int argc,char** argv)
  int   arg;
  char *dirname=NULL,*prefix=NULL;
  char *nodes_filename,*ways_filename,*route_relations_filename,*turn_relations_filename;
- int   option_dump;
+ int   option_dump=0;
 
  /* Parse the command line arguments */
 

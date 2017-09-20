@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2009-2015 Andrew M. Bishop
+ This file Copyright 2009-2015, 2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -154,7 +154,7 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
     threads[i].data=malloc(nitems*itemsize);
     threads[i].datap=malloc(nitems*sizeof(void*));
 
-    log_malloc(threads[i].data,nitems*itemsize);
+    log_malloc(threads[i].data ,nitems*itemsize);
     log_malloc(threads[i].datap,nitems*sizeof(void*));
 
     threads[i].filename=(char*)malloc(strlen(option_tmpdirname)+24);
@@ -295,6 +295,11 @@ index_t filesort_fixed(int fd_in,int fd_out,size_t itemsize,int (*pre_sort_funct
    }
 
 #endif
+
+ /* Shortcut if there are no files */
+
+ if(nfiles==0)
+    goto tidy_and_exit;
 
  /* Shortcut if only one file, lucky for us we still have the data in RAM) */
 
@@ -698,6 +703,11 @@ index_t filesort_vary(int fd_in,int fd_out,int (*pre_sort_function)(void*,index_
    }
 
 #endif
+
+ /* Shortcut if there are no files */
+
+ if(nfiles==0)
+    goto tidy_and_exit;
 
  /* Shortcut if only one file, lucky for us we still have the data in RAM) */
 

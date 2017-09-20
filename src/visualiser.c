@@ -3,7 +3,7 @@
 
  Part of the Routino routing software.
  ******************/ /******************
- This file Copyright 2008-2015 Andrew M. Bishop
+ This file Copyright 2008-2015, 2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -901,6 +901,7 @@ static void output_limits(index_t node,double latitude,double longitude)
          case HEIGHT_LIMIT: limits[count]=wayp->height; break;
          case WIDTH_LIMIT:  limits[count]=wayp->width;  break;
          case LENGTH_LIMIT: limits[count]=wayp->length; break;
+         default:           limits[count]=0;            break;
          }
 
        if(limits[count] || HIGHWAY(wayp->type)<Highway_Track)
@@ -911,9 +912,9 @@ static void output_limits(index_t node,double latitude,double longitude)
    }
  while(segmentp);
 
- /* Nodes with only one limit are not interesting */
+ /* Nodes with one or fewer limits are not interesting */
 
- if(count==1)
+ if(count<=1)
     return;
 
  /* Nodes with all segments the same limit are not interesting */
