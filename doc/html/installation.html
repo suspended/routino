@@ -12,7 +12,7 @@
 
  Part of the Routino routing software.
 
- This file Copyright 2008-2016 Andrew M. Bishop
+ This file Copyright 2008-2017 Andrew M. Bishop
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -215,7 +215,17 @@ libjson-pp-perl if not part of the standard Perl installation).
 <h2 id="H_1_3">Compilation</h2>
 
 To compile the programs just type <tt>make</tt> at the top level of the source
-tree.
+tree.  There are a number of options that can be given when compiling to
+change the compilation options:
+
+<dl>
+  <dt><tt>make CLANG=1</tt>
+  <dd>Compile with clang instead of gcc (default is <tt>CLANG=0</tt>).
+  <dt><tt>make FASTMATHS=0</tt>
+  <dd>Compile without fast maths option (default is <tt>FASTMATHS=1</tt>).
+  <dt><tt>make SANITIZE=1</tt>
+  <dd>Compile with gcc (or clang) sanitizer (default is <tt>SANITIZER=0</tt>).
+</dl>
 
 <p>
 
