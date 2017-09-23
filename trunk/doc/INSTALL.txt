@@ -134,8 +134,18 @@ Pre-Requisites
 Compilation
 -----------
 
-   To compile the programs just type 'make' at the top level of the source
-   tree.
+   To compile the programs just type make at the top level of the source
+   tree. There are a number of options that can be given when compiling to
+   change the compilation options:
+
+   make CLANG=1
+          Compile with clang instead of gcc (default is CLANG=0).
+
+   make FASTMATHS=0
+          Compile without fast maths option (default is FASTMATHS=1).
+
+   make SANITIZE=1
+          Compile with gcc (or clang) sanitizer (default is SANITIZER=0).
 
    This program has been written to run on Linux, no cross-platform
    compatibility has been specifically included but on the other hand
@@ -309,4 +319,4 @@ Configuration of Web Server
 
 --------
 
-Copyright 2008-2016 Andrew M. Bishop.
+Copyright 2008-2017 Andrew M. Bishop.
