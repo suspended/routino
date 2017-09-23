@@ -1,0 +1,100 @@
+#
+# Spanish language translation phrases
+#
+
+#
+# Router output XML definition
+#
+
+%%copyright_creator_string%%	Autor
+%%copyright_source_string%%	Fuente
+%%copyright_source_text%%	Basado en datos OpenStreetMap de http://www.openstreetmap.org/
+%%copyright_license_string%%	Licencia
+
+%%turn_-4%%	Media vuelta hacia la izquierda
+%%turn_-3%%	Muy a la izquierda
+%%turn_-2%%	A la izaquierda
+%%turn_-1%%	Ligeramente a la izquierda
+%%turn_0%%	Todo recto
+%%turn_1%%	Ligeramente a la derecha
+%%turn_2%%	A la derecha
+%%turn_3%%	Muy a la derecha
+%%turn_4%%	Media vuelta hacia la derecha
+
+%%heading_-4%%	Sur
+%%heading_-3%%	Sur-Oeste
+%%heading_-2%%	Oeste
+%%heading_-1%%	Nor-Oeste
+%%heading_0%%	Norte
+%%heading_1%%	Nor-Este
+%%heading_2%%	Este
+%%heading_3%%	Sur-Este
+%%heading_4%%	Sur
+
+%%ordinal_1%%	Primera
+%%ordinal_2%%	Segunda
+%%ordinal_3%%	Tercera
+%%ordinal_4%%	Cuarta
+%%ordinal_5%%	Quinta
+%%ordinal_6%%	Sexta
+%%ordinal_7%%	Septima
+%%ordinal_8%%	Octava
+%%ordinal_9%%	Novena
+%%ordinal_10%%	Décima
+
+%%highway_motorway%%	autopista
+%%highway_trunk%%	enlace
+%%highway_primary%%	carretera nacional
+%%highway_secondary%%	carretera regional
+%%highway_tertiary%%	carretera local
+%%highway_unclassified%%	carretera sin clasificar
+%%highway_residential%%	calle
+%%highway_service%%	vía de servicio
+%%highway_track%%	pista
+%%highway_cycleway%%	via ciclable
+%%highway_path%%	sendero
+%%highway_steps%%	escaleras
+%%highway_ferry%%	ferry
+
+%%route_shortest%%	Más corto
+%%route_quickest%%	Más rápido
+
+%%output-html_waypoint_waypoint%%	Punto
+%%output-html_waypoint_junction%%	Cruce
+%%output-html_waypoint_roundabout%%	Rotonda
+%%output-html_title%%	Itinéraire %s
+%%output-html_start%%	Inicio en el %s, dirección %s
+%%output-html_node%%	En el %s, ir %s dirección %s
+%%output-html_rbnode%%	Dejar la %s por la %s salida, dirección %s
+%%output-html_segment%%	Seguir %s durante %.3f km, %.1f min
+%%output-html_stop%%	Parar en %s
+%%output-html_total%%	Total %.1f km, %.0f minutos
+%%output-html_subtotal%%	%.1f km, %.0f minutos
+
+%%output-gpx_waypoint_waypt%%	WayPoint
+%%output-gpx_waypoint_trip%%	Punto
+
+%%output-gpx_desc%%	Itinerario %s entre los puntos 'inicio' y 'final'
+%%output-gpx_name%%	Itinerario %s
+%%output-gpx_step%%	%s en '%s' durante %.3f km, %.1f min
+%%output-gpx_final%%	Trayecto total %.1f km, %.0f minutes
+
+#
+# Router (and some shared) translations
+#
+
+@@LANGUAGE@@	Español
+@@LANGUAGE-WEBPAGE@@	Español webpage
+
+#
+# Visualiser specific translations
+#
+
+#
+# Multi-line descriptive translations (router)
+#
+
+#
+# Multi-line descriptive translations (visualiser)
+#
+

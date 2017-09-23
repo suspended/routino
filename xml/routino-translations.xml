@@ -5,7 +5,7 @@
 
      Part of the Routino routing software.
      ============================================================
-     This file Copyright 2010-2015 Andrew M. Bishop
+     This file Copyright 2010-2017 Andrew M. Bishop
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
@@ -196,6 +196,98 @@
       <name  text="%s Strecke" /> <!-- %s = [shortest|quickest] -->
       <step  text="%s auf '%s' für %.3f km, %.1f min" /> <!-- 1st %s = [turn], 2nd %s = street name -->
       <final text="Gesamtstrecke %.1f km, %.0f minuten" />
+    </output-gpx>
+
+  </language>
+
+  <language lang="es" language="Español">
+
+    <!-- Copyright of the data being routed, not of this file  -->
+    <copyright>
+      <creator string="Autor" text="Routino - http://www.routino.org/" />
+      <source  string="Fuente" text="Basado en datos OpenStreetMap de http://www.openstreetmap.org/" />
+      <license string="Licencia" text="http://www.openstreetmap.org/copyright" />
+    </copyright>
+
+    <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
+    <turn direction="-4" string="Media vuelta hacia la izquierda" />
+    <turn direction="-3" string="Muy a la izquierda" />
+    <turn direction="-2" string="A la izaquierda" />
+    <turn direction="-1" string="Ligeramente a la izquierda" />
+    <turn direction="0"  string="Todo recto" />
+    <turn direction="1"  string="Ligeramente a la derecha" />
+    <turn direction="2"  string="A la derecha" />
+    <turn direction="3"  string="Muy a la derecha" />
+    <turn direction="4"  string="Media vuelta hacia la derecha" />
+
+    <!-- Heading directions, 0 = North, -2 = West, +/-4 = South, +2 = East -->
+    <heading direction="-4" string="Sur" />
+    <heading direction="-3" string="Sur-Oeste" />
+    <heading direction="-2" string="Oeste" />
+    <heading direction="-1" string="Nor-Oeste" />
+    <heading direction="0"  string="Norte" />
+    <heading direction="1"  string="Nor-Este" />
+    <heading direction="2"  string="Este" />
+    <heading direction="3"  string="Sur-Este" />
+    <heading direction="4"  string="Sur" />
+
+    <!-- Ordinals, 1 = first, 2 = second ... -->
+    <ordinal number="1"  string="Primera" />
+    <ordinal number="2"  string="Segunda" />
+    <ordinal number="3"  string="Tercera" />
+    <ordinal number="4"  string="Cuarta" />
+    <ordinal number="5"  string="Quinta" />
+    <ordinal number="6"  string="Sexta" />
+    <ordinal number="7"  string="Septima" />
+    <ordinal number="8"  string="Octava" />
+    <ordinal number="9"  string="Novena" />
+    <ordinal number="10" string="Décima" />
+
+    <!-- Highway names -->
+    <highway type="motorway"     string="autopista" />
+    <highway type="trunk"        string="enlace" />
+    <highway type="primary"      string="carretera nacional" />
+    <highway type="secondary"    string="carretera regional" />
+    <highway type="tertiary"     string="carretera local" />
+    <highway type="unclassified" string="carretera sin clasificar" />
+    <highway type="residential"  string="calle" />
+    <highway type="service"      string="vía de servicio" />
+    <highway type="track"        string="pista" />
+    <highway type="cycleway"     string="via ciclable" />
+    <highway type="path"         string="sendero" />
+    <highway type="steps"        string="escaleras" />
+    <highway type="ferry"        string="ferry" />
+
+    <!-- The type of route -->
+    <route type="shortest" string="Más corto" /> <!-- For the description and route name -->
+    <route type="quickest" string="Más rápido" /> <!-- For the description and route name -->
+
+    <!-- HTML output -->
+    <output-html>
+      <waypoint type="waypoint"   string="Punto" /> <!-- For the chosen waypoints -->
+      <waypoint type="junction"   string="Cruce" /> <!-- For the interesting junctions -->
+      <waypoint type="roundabout" string="Rotonda" /> <!-- For roundabouts -->
+
+      <title text="Itinéraire %s" /> <!-- %s = [shortest|quickest] -->
+
+      <start    text="Inicio en el %s, dirección %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
+      <node     text="En el %s, ir %s dirección %s" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <rbnode   text="Dejar la %s por la %s salida, dirección %s" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
+      <segment  text="Seguir %s durante %.3f km, %.1f min" /> <!-- 1st %s = street name -->
+      <stop     text="Parar en %s" /> <!-- 1st %s = [waypoint|junction] -->
+      <total    text="Total %.1f km, %.0f minutos" />
+      <subtotal text="%.1f km, %.0f minutos" />
+    </output-html>
+
+    <!-- GPX output -->
+    <output-gpx>
+      <waypoint type="waypt" string="WayPoint" /> <!-- For the route waypoints -->
+      <waypoint type="trip" string="Punto" /> <!-- For the other route points -->
+
+      <desc  text="Itinerario %s entre los puntos 'inicio' y 'final'" /> <!-- %s = [shortest|quickest] -->
+      <name  text="Itinerario %s" /> <!-- %s = [shortest|quickest] -->
+      <step  text="%s en '%s' durante %.3f km, %.1f min" /> <!-- 1st %s = [turn], 2nd %s = street name -->
+      <final text="Trayecto total %.1f km, %.0f minutes" />
     </output-gpx>
 
   </language>
