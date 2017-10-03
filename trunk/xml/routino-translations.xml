@@ -390,30 +390,30 @@
     <copyright>
       <creator string="Készítő" text="Routino - http://www.routino.org/" />
       <source  string="Forrás" text="Openstreetmap adatok alapján http://www.openstreetmap.org/" />
-      <license string="Liszenc" text="http://www.openstreetmap.org/copyright" />
+      <license string="Licenc" text="http://www.openstreetmap.org/copyright" />
     </copyright>
 
     <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
     <turn direction="-4" string="Nagyon élesen balra" />
     <turn direction="-3" string="Élesen balra" />
     <turn direction="-2" string="Balra" />
-    <turn direction="-1" string="Balra tarts" />
+    <turn direction="-1" string="Enyhén balra" />
     <turn direction="0"  string="Egyenesen" />
-    <turn direction="1"  string="Jobbra tarts" />
+    <turn direction="1"  string="Enyhén jobbra" />
     <turn direction="2"  string="Jobbra" />
     <turn direction="3"  string="Élesen jobbra" />
     <turn direction="4"  string="Nagyon élesen jobbra" />
 
     <!-- Heading directions, 0 = North, -2 = West, +/-4 = South, +2 = East -->
-    <heading direction="-4" string="dél" />
-    <heading direction="-3" string="délnyugat" />
-    <heading direction="-2" string="nyugat" />
-    <heading direction="-1" string="északnyugat" />
-    <heading direction="0"  string="észak" />
-    <heading direction="1"  string="északkelet" />
-    <heading direction="2"  string="kelet" />
-    <heading direction="3"  string="délkelet" />
-    <heading direction="4"  string="dél" />
+    <heading direction="-4" string="Dél" />
+    <heading direction="-3" string="Délnyugat" />
+    <heading direction="-2" string="Nyugat" />
+    <heading direction="-1" string="Északnyugat" />
+    <heading direction="0"  string="Észak" />
+    <heading direction="1"  string="Északkelet" />
+    <heading direction="2"  string="Kelet" />
+    <heading direction="3"  string="Délkelet" />
+    <heading direction="4"  string="Dél" />
 
     <!-- Ordinals, 1 = first, 2 = second ... -->
     <ordinal number="1"  string="első" />
@@ -435,7 +435,7 @@
     <highway type="tertiary"     string="bekötőút" />
     <highway type="unclassified" string="egyéb közút" />
     <highway type="residential"  string="lakóút" />
-    <highway type="service"      string="szervízút" />
+    <highway type="service"      string="szervizút" />
     <highway type="track"        string="földút" />
     <highway type="cycleway"     string="kerékpárút" />
     <highway type="path"         string="ösvény" />
@@ -454,23 +454,23 @@
 
       <title text="%s útvonal" /> <!-- %s = [shortest|quickest] -->
 
-      <start    text="Indulás %s, %s felé" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
-      <node     text="Itt %s, menj %s %s felé" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
-      <rbnode   text="Kijárat %s, %s kijárat %s felé" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
-      <segment  text="Erre %s, %.3f km, %.1f perc" /> <!-- 1st %s = street name -->
-      <!-- TRANSLATION REQUIRED: stop     text="Stop at %s" / --> <!-- 1st %s = [waypoint|junction] -->
+      <start    text="%s, indulás %s felé" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
+      <node     text="%s, menj %s, %s felé" /> <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <rbnode   text="%s, hagyd el %s kijáraton %s felé" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
+      <segment  text="Haladj ezen: %s, %.3f km-t, %.1f percig" /> <!-- 1st %s = street name -->
+      <stop     text="Állj meg itt: %s" /> <!-- 1st %s = [waypoint|junction] -->
       <total    text="Összesen %.1f km, %.0f perc" />
       <subtotal text="%.1f km, %.0f perc" />
     </output-html>
 
     <!-- GPX output -->
     <output-gpx>
-      <!-- TRANSLATION REQUIRED: waypoint type="waypt" string="WAYPT" / --> <!-- For the route waypoints -->
-      <waypoint type="trip" string="Utazás" /> <!-- For the other route points -->
+      <waypoint type="waypt" string="ÚTPONT" /> <!-- For the route waypoints -->
+      <waypoint type="trip" string="ÚT" /> <!-- For the other route points -->
 
-      <desc  text="%s útvonal a kezdő és utolsó pont között" /> <!-- %s = [shortest|quickest] -->
-      <!-- TRANSLATION REQUIRED: name  text="%s route" / --> <!-- %s = [shortest|quickest] -->
-      <!-- TRANSLATION REQUIRED: step  text="%s on '%s' for %.3f km, %.1f min" / --> <!-- 1st %s = [turn], 2nd %s = street name -->
+      <desc  text="A kiindulási és a célpont közötti %s útvonal" /> <!-- %s = [shortest|quickest] -->
+      <name  text="%s útvonal" /> <!-- %s = [shortest|quickest] -->
+      <step  text="%s felé itt: %s, %.3f km, %.1f min" /> <!-- 1st %s = [turn], 2nd %s = street name -->
       <final text="Az egész út %.1f km, %.0f perc" />
     </output-gpx>
 
