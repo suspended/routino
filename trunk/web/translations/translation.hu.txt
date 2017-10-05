@@ -124,7 +124,7 @@
 @@WAYPOINT-LATITUDE@@	XXX útpont: hosszúság
 @@WAYPOINT-LOCATION@@	XXX útpont helye
 @@WAYPOINT-SEARCH@@	Hely keresése
-@@WAYPOINT-GET@@	Jelenlegi helyzet
+@@WAYPOINT-GET@@	Jelenlegi helyzet megjelenítése
 @@WAYPOINT-CENTRE1@@	Legyen ez az útpont a térkép közepe
 @@WAYPOINT-UP@@	Útpont feljebb mozgatása
 @@WAYPOINT-ADD@@	Útpont hozzáadása ezen útpont után
@@ -138,16 +138,16 @@
 @@WAYPOINT-LOOP@@	Új utolsó útpont hozzáadása a kezdőpontban (körútvonal)
 @@WAYPOINT-LOOP-BUTTON@@	Kör bezárása
 
-@@TRANSPORT-FOOT@@	Gyalog
-@@TRANSPORT-HORSE@@	Lovon
-@@TRANSPORT-WHEELCHAIR@@	Kerekesszékkel
-@@TRANSPORT-BICYCLE@@	Kerékpárral
-@@TRANSPORT-MOPED@@	Robogóval
-@@TRANSPORT-MOTORCYCLE@@	Motorral
-@@TRANSPORT-MOTORCAR@@	Autóval
-@@TRANSPORT-GOODS@@	Kisteherautóval
-@@TRANSPORT-HGV@@	Nehéz tehergépkocsival
-@@TRANSPORT-PSV@@	Busszal
+@@TRANSPORT-FOOT@@	Gyalogos
+@@TRANSPORT-HORSE@@	Ló
+@@TRANSPORT-WHEELCHAIR@@	Kerekesszék
+@@TRANSPORT-BICYCLE@@	Kerékpár
+@@TRANSPORT-MOPED@@	Robogó
+@@TRANSPORT-MOTORCYCLE@@	Motor
+@@TRANSPORT-MOTORCAR@@	Autó
+@@TRANSPORT-GOODS@@	Kisteherautó
+@@TRANSPORT-HGV@@	Nehéz tehergépkocsi
+@@TRANSPORT-PSV@@	Busz
 
 @@HIGHWAY-MOTORWAY@@	Autópálya
 @@HIGHWAY-TRUNK@@	Autóút
@@ -198,7 +198,7 @@
 @@TEXT-ROUTE@@	Szöveges fájl
 @@OPEN-POPUP@@	Megnyitás új ablakban
 
-@@DISPLAY-STATISTICS@@	Adatstatisztika megmutatása
+@@DISPLAY-STATISTICS@@	Adatstatisztika megjelenítése
 
 @@JAVASCRIPT-REQUIRED@@	Az interaktív térkép miatt Javascript <em>szükséges</em> a weboldal használatához
 @@ROUTER@@	Útvonaltervező
@@ -218,15 +218,15 @@
 
 @@VISUALISER-FAILED@@	A megjelenítő adatait nem sikerült betölteni
 @@VISUALISER-NUM-JUNCTIONS@@	# kereszteződés feldolgozva
-@@VISUALISER-NUM-SUPER@@	# szuperpont/-szegmens feldolgozva
-@@VISUALISER-NUM-WAYTYPE@@	# úttípus-szegmens feldolgozva
-@@VISUALISER-NUM-SEGMENTS@@	# szegmens feldolgozva
+@@VISUALISER-NUM-SUPER@@	# főpont/főszakasz feldolgozva
+@@VISUALISER-NUM-WAYTYPE@@	# úttípusszakasz feldolgozva
+@@VISUALISER-NUM-SEGMENTS@@	# szakasz feldolgozva
 @@VISUALISER-NUM-NODES@@	# pont feldolgozva
 @@VISUALISER-NUM-TURNS@@	# bekanyarodási korlátozás feldolgozva
 @@VISUALISER-NUM-LIMITS@@	# sebességkorlátozás-változás feldolgozva
 @@VISUALISER-NUM-ERRORS@@	# hibanapló feldolgozva
 
-@@JUNCTIONS-BUTTON@@	Kereszteződések megmutatása
+@@JUNCTIONS-BUTTON@@	Kereszteződések megjelenítése
 $$JUNCTIONS-INFO$$
 Színkóddal jelenik meg minden zsákutca végét jelentő pont, a két különböző típusú (vagy különböző tulajdonságú) utat összekapcsoló kereszteződés, valamint az a kereszteződés, amelyben legalább három szakasz kapcsolódik össze.
 $$JUNCTIONS-INFO$$
@@ -238,42 +238,70 @@ $$JUNCTIONS-INFO$$
 @@JUNCTIONS-6@@	hat út találkozása.
 @@JUNCTIONS-MORE@@	legalább hét út találkozása.
 
-@@SUPER-BUTTON@@	Szuperszegmensek megmutatása
+@@SUPER-BUTTON@@	Főszakaszok megjelenítése
+$$SUPER-INFO$$
+Minden főpont és hozzá kapcsolódó főszakasz látható (a leírást lásd az algoritmust bemutató oldalon).
+$$SUPER-INFO$$
 
-@@WAYTYPE-BUTTON@@	Út típus szakaszok megjelenítese
+@@WAYTYPE-BUTTON@@	Úttípusszakaszok megjelenítése
+$$WAYTYPE-INFO$$
+Minden különleges (egyirányú, kerékpárral mindkét irányba járható és körforgalmi) útszakasz látható.
+
+Az egyirányú szakaszoknál színes háromszög mutatja a megengedett irányt. A háromszögek színe az útszakasz irányától függ.
+$$WAYTYPE-INFO$$
 
 @@WAYTYPE-ONEWAY@@	Egyirányú szakaszok
+@@WAYTYPE-CYCLE-BOTH-WAYS@@	Kerékpárral mindkét irányba járható szakaszok
 @@WAYTYPE-ROUNDABOUT@@	Körforgalmi szakaszok
 
-@@HIGHWAY-BUTTON@@	Út szakaszok megjelenítése
+@@HIGHWAY-BUTTON@@	Útszakaszok megjelenítése
+$$HIGHWAY-INFO$$
+A kiválasztott úttípushoz tartozó összes szakasz látható.
+$$HIGHWAY-INFO$$
 
-@@TURNS-BUTTON@@	Kanyarodási korlátozások
+@@TRANSPORT-BUTTON@@	Közlekedésimód-szakaszok megjelenítése
+$$TRANSPORT-INFO$$
+A kiválasztott közlekedési móddal járható összes szakasz látható.
+$$TRANSPORT-INFO$$
 
-@@SPEED-BUTTON@@	Sebességhatárok
+@@BARRIER-BUTTON@@	Akadálypontok megjelenítése
+$$BARRIER-INFO$$
+A kiválasztott közlekedési módot elzáró összes akadály látható.
+$$BARRIER-INFO$$
+
+@@TURNS-BUTTON@@	Bekanyarodási korlátozások megjelenítése
+$$TURNS-INFO$$
+Minden bekanyarodási korlátozás megjelenik egy vonallal, amely a tiltott bekanyarodást jelzi.
+$$TURNS-INFO$$
+
+@@SPEED-BUTTON@@	Sebességkorlátozások megjelenítése
+$$SPEED-INFO$$
+Megjelenik a különböző sebességkorlátozásokat összekapcsoló összes pont az adott szakaszra vonatkozó sebességkorlátozással.
+$$SPEED-INFO$$
 
 @@LIMIT-CHANGE@@	Korlátozás változása
 @@LIMIT-NONE@@	Nincs korlátozás
 @@SPEED-LIMIT-80@@	80 km/óra sebességkorlátozás
 
-@@WEIGHT-BUTTON@@	Súlykorlátozások
+@@WEIGHT-BUTTON@@	Súlykorlátozások megjelenítése
 
 @@WEIGHT-LIMIT-8@@	8 tonnás súlykorlátozás
 
-@@HEIGHT-BUTTON@@	Magasságkorlátozások
+@@HEIGHT-BUTTON@@	Magasságkorlátozások megjelenítése
 
 @@HEIGHT-LIMIT-4@@	4 méter magasságkorlátozás
 
-@@WIDTH-BUTTON@@	Szélességkorlátozások
+@@WIDTH-BUTTON@@	Szélességkorlátozások megjelenítése
 
 @@WIDTH-LIMIT-3@@	3 méter szélességkorlátozás
 
-@@LENGTH-BUTTON@@	Hosszúságkorlátozások
+@@LENGTH-BUTTON@@	Hosszúságkorlátozások megjelenítése
 
 @@LENGTH-LIMIT-9@@	9 méter hosszúságkorlátozás
 
-@@PROPERTY-BUTTON@@	Út tulajdonságok megjelenítése
+@@PROPERTY-BUTTON@@	Úttulajdonságok megjelenítése
 
-@@ERROR-LOG-BUTTON@@	Hiba logok megmutatása
+@@ERROR-LOG-BUTTON@@	Hibanaplók megjelenítése
 $$ERROR-LOG-INFO$$
 Lehetséges hibák fordultak elő az adatok feldolgozása során
 $$ERROR-LOG-INFO$$
