@@ -271,35 +271,50 @@ $$BARRIER-INFO$$
 
 @@TURNS-BUTTON@@	Bekanyarodási korlátozások megjelenítése
 $$TURNS-INFO$$
-Minden bekanyarodási korlátozás megjelenik egy vonallal, amely a tiltott bekanyarodást jelzi.
+Minden bekanyarodási korlátozás megjelenik egy vonal formájában, amely a tiltott bekanyarodást jelzi.
 $$TURNS-INFO$$
 
 @@SPEED-BUTTON@@	Sebességkorlátozások megjelenítése
 $$SPEED-INFO$$
-Megjelenik a különböző sebességkorlátozásokat összekapcsoló összes pont az adott szakaszra vonatkozó sebességkorlátozással.
+Megjelennek a különböző sebességkorlátozásokat összekapcsoló pontok és az adott szakaszokra vonatkozó sebességkorlátozás.
 $$SPEED-INFO$$
 
 @@LIMIT-CHANGE@@	Korlátozás változása
-@@LIMIT-NONE@@	Nincs korlátozás
-@@SPEED-LIMIT-80@@	80 km/óra sebességkorlátozás
+@@LIMIT-NONE@@	Nincs meghatározott korlátozás
+@@SPEED-LIMIT-80@@	80 km/h sebességkorlátozás
 
 @@WEIGHT-BUTTON@@	Súlykorlátozások megjelenítése
+$$WEIGHT-INFO$$
+Megjelennek a különböző súlykorlátozásokat összekapcsoló pontok és az adott szakaszokra vonatkozó súlykorlátozás.
+$$WEIGHT-INFO$$
 
-@@WEIGHT-LIMIT-8@@	8 tonnás súlykorlátozás
+@@WEIGHT-LIMIT-8@@	8 t súlykorlátozás
 
 @@HEIGHT-BUTTON@@	Magasságkorlátozások megjelenítése
+$$HEIGHT-INFO$$
+Megjelennek a különböző magasságkorlátozásokat összekapcsoló pontok és az adott szakaszokra vonatkozó magasságkorlátozás.
+$$HEIGHT-INFO$$
 
-@@HEIGHT-LIMIT-4@@	4 méter magasságkorlátozás
+@@HEIGHT-LIMIT-4@@	4 m magasságkorlátozás
 
 @@WIDTH-BUTTON@@	Szélességkorlátozások megjelenítése
+$$WIDTH-INFO$$
+Megjelennek a különböző szélességkorlátozásokat összekapcsoló pontok és az adott szakaszokra vonatkozó szélességkorlátozás.
+$$WIDTH-INFO$$
 
-@@WIDTH-LIMIT-3@@	3 méter szélességkorlátozás
+@@WIDTH-LIMIT-3@@	3 m szélességkorlátozás
 
 @@LENGTH-BUTTON@@	Hosszúságkorlátozások megjelenítése
+$$LENGTH-INFO$$
+Megjelennek a különböző hosszúságkorlátozásokat összekapcsoló pontok és az adott szakaszokra vonatkozó hosszúság korlátozás.
+$$LENGTH-INFO$$
 
-@@LENGTH-LIMIT-9@@	9 méter hosszúságkorlátozás
+@@LENGTH-LIMIT-9@@	9 m hosszúságkorlátozás
 
 @@PROPERTY-BUTTON@@	Úttulajdonságok megjelenítése
+$$PROPERTY-INFO$$
+Megjelennek az utak különleges tulajdonságú szakaszai.
+$$PROPERTY-INFO$$
 
 @@ERROR-LOG-BUTTON@@	Hibanaplók megjelenítése
 $$ERROR-LOG-INFO$$
@@ -311,6 +326,44 @@ $$ERROR-LOG-INFO$$
 #
 # Multi-line descriptive translations (router)
 #
+
+$$ROUTER-INFO$$
+Ezzel a honlappal útvonalakat lehet tervezni az OpenStreetMapről gyűjtott adatok segítségével.
+Válaszd ki a kiindulási és a célpontot (kattints az alábbi jelzőkre), jelöld ki az útvonaltervezési beállításokat, és találd meg az utat.
+$$ROUTER-INFO$$
+
+$$ROUTER-OPTIONS-HELP$$
+<b>Rövid útmutató</b>
+<br>
+Kattintsunk a jelzőikonokra (fent) és helyezzük el őket a térképen (jobbra), majd húzzuk őket a megfelelő helyre. Valószínűleg az a legegyszerűbb, ha először ránagyítunk a térkép megfelelő részére, és ez után helyezzük el a jelzőket. Másik lehetőségként beírhatjuk a fenti mezőkbe a megfelelő szélességi és hosszúsági adatokat.
+<p>
+A fenti beállításoknál jelöljük ki a közlekedés módját, a megengedett úttípusokat, sebességkorlátozásokat, úttulajdonságokat és más korlátozásokat. Az út kiszámításához és térképen való megjelenítéséhez jelöljük ki a „Legrövidebb” vagy a „Leggyorsabb” lehetőséget.
+<p>
+<b>Útpontok</b>
+<br>
+A jelzőikonra történő kattintás elrejti/megjeleníti az ikont a térképen. Az út úgy számíttatik ki, hogy (a kijelölt közlekedési mód szerint a lehető legközelebb) érintse a megadott sorrendben az összes útpontot, amelyek jelzőikonja látható a térképen.
+<p>
+<b>Közlekedési mód</b>
+<br>
+A közlekedési mód kijelölése a kiválasztott útvonalat azokra korlátozza, amelyek így lehetséges közlekedni, a többi paraméter értékét pedig az alapértelmezettre állítja.
+<p>
+<b>Úttulajdonságok</b>
+<br>
+Az úttulajdonságokat százalékként lehet kijelölni, a kiválasztott útvonalak pedig igyekeznek az előnyben részesített úttípusokat követni. Ha például a „Főút” 110%-os értéket kap, az „Összekötő út” pedig 100%-ot, az azt jelenti, hogy még akkor is főúton vezető útvonal fog megjelenni, ha az akár 10%-kal is hosszabb, mint az összekötő utakon vezető.
+<p>
+<b>Sebességkorlátozások</b>
+<br>
+A különböző úttípusokhoz itt kiválasztott sebességkorlátozások akkor érvényesek, ha az úton nincs más sebességkorlátozás-jelzés vagy az magasabb, mint a kiválasztott.
+<p>
+<b>Útjelleg-beállítások</b>
+<br>
+Az útjelleg-beállítást százalékként lehet kijelölni, és az útvonal oly módon terveztetik meg, hogy lehetőleg a kívánt tulajdonságú utakon vezessen.
+Ha például a „burkolt” út 75%-ot kap, akkor a „burkolatlan” automatikusan 25%-ot. Ez azt jelenti, hogy még akkor is a burkolt úton vezető útvonal fog megjelenni, ha az akár 3× hosszabb, mint a burkolatlan úton vezető.
+<p>
+<b>Más korlátozások</b>
+<br>
+Ezekkel olyan utak is megtalálhatók, amelyek elkerülik a jelzett súly-, magasság-, szélesség- és hosszúságkorlátozásokat. Az egyirányú utcák is figyelmen kívül hagyhatók (pl. gyaloglásnál).
+$$ROUTER-OPTIONS-HELP$$
 
 #
 # Multi-line descriptive translations (visualiser)
