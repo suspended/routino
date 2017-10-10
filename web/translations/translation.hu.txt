@@ -365,7 +365,61 @@ Ha például a „burkolt” út 75%-ot kap, akkor a „burkolatlan” automatik
 Ezekkel olyan utak is megtalálhatók, amelyek elkerülik a jelzett súly-, magasság-, szélesség- és hosszúságkorlátozásokat. Az egyirányú utcák is figyelmen kívül hagyhatók (pl. gyaloglásnál).
 $$ROUTER-OPTIONS-HELP$$
 
+$$ROUTER-RESULTS-HELP$$
+<b>Rövid útmutató</b>
+<br>
+Az útvonal kiszámítását követően letölthetjük a GPX-fájlt vagy az út (összefoglaló vagy részletes) leírását egyszerű szöveges (txt) fájlban. Az út leírását meg is nézhetjük, és ránagyíthatunk a kijelölt részekre.
+<p>
+<b>Problémamegoldás</b>
+<br>
+Ha az útvonaltervező hibajelzéssel fejezi be a számítást, annak legvalószínűbb oka az, hogy a kijelölt pontok között lehetetlen utat találni. Valamelyik (vagy mindkét) jelző elmozdításával vagy az útvonal-tervezési beállítások módosításával minden bizonnyal sikerül utat találni.
+<p>
+<b>Kimeneti formátumok</b>
+<br>
+<dl>
+  <dt>HTML utasítások
+  <dd>Az út leírása a megfelelő irányokkal minden fontosabb csomópontban.
+  <dt>GPX-nyomvonalfájl
+  <dd>A térképen láthatóval megegyező információ; minden pont és szakasz.
+  <dt>GPX-útvonalfájl
+  <dd>Az út szöveges leírásában szereplő információ egy útponttal az útvonal minden fontos csomópontjánál.
+  <dt>Teljes szöveges fájl
+  <dd>Minden érintett pont felsorolása a köztük lévő távolsággal, és az út össze fontos lépésének halmozott távolsága.
+  <dt>Szövegfájl
+  <dd>Az útvonal esetében megjelentő szövegben megtalálható információ.
+</dl>
+
+$$ROUTER-RESULTS-HELP$$
+
+$$ROUTER-VISUALISER-INFO$$
+Hogy megnézhessük, a Routino hogyan látja az adatokat, létezik egy adatmegjelenítő, amellyel különféle módokon jeleníthetők meg a számítás alapját jelentő adatok.
+$$ROUTER-VISUALISER-INFO$$
+
 #
 # Multi-line descriptive translations (visualiser)
 #
 
+$$VISUALISER-INFO$$
+Ezen a weboldalon vizuálisan is megjeleníthetők azok az adatok, amelyeket a Routino használ az útvonaltervezéshez.
+Csak az út szempontjából fontos adatok jelennek meg, így az adatok egy része ki van zárva.
+$$VISUALISER-INFO$$
+
+$$VISUALISER-INSTRUCTIONS$$
+Nagyíts, majd használd az alábbi gombokat az adatok letöltéséhez. A kiszolgáló csak akkor küld adatokat, ha a kijelölt terület elég kicsi.
+$$VISUALISER-INSTRUCTIONS$$
+
+$$VISUALISER-HELP$$
+<b>Rövid útmutató</b>
+<br>
+Az adatok típusának megjelenítéséhez nagyíts egy területre, és jelöld ki az egyik gombot.
+<br>
+További adatbeállításokat találhatunk, ha kinyitjuk az egyes gombok alatti részleteket.
+<p>
+<b>Adatkudarc</b>
+<br>
+Ha a kijelölt terület túl nagy (adattípusfüggő), akkor a státusz azt fogja kiírni, hogy „Nem sikerült letölteni a megjelenítendő adatokat”. Ilyenkor nagyítsunk rá jobban a területre, és próbáljuk meg újra.
+$$VISUALISER-HELP$$
+
+$$VISUALISER-ROUTER-INFO$$
+A térképen való útvonaltervezés végrehajtásáoz használd az alábbi linket.
+$$VISUALISER-ROUTER-INFO$$
