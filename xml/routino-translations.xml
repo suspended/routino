@@ -388,7 +388,7 @@
 
     <!-- Copyright of the data being routed, not of this file  -->
     <copyright>
-      <creator string="Készítő" text="Routino - http://www.routino.org/" />
+      <creator string="Alkotó" text="Routino - http://www.routino.org/" />
       <source  string="Forrás" text="Openstreetmap adatok alapján http://www.openstreetmap.org/" />
       <license string="Licenc" text="http://www.openstreetmap.org/copyright" />
     </copyright>

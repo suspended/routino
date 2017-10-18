@@ -6,7 +6,7 @@
 # Router output XML definition
 #
 
-%%copyright_creator_string%%	Készítő
+%%copyright_creator_string%%	Alkotó
 %%copyright_source_string%%	Forrás
 %%copyright_source_text%%	Openstreetmap adatok alapján http://www.openstreetmap.org/
 %%copyright_license_string%%	Licenc
@@ -417,9 +417,9 @@ További adatbeállításokat találhatunk, ha kinyitjuk az egyes gombok alatti 
 <p>
 <b>Adatkudarc</b>
 <br>
-Ha a kijelölt terület túl nagy (adattípusfüggő), akkor a státusz azt fogja kiírni, hogy „Nem sikerült letölteni a megjelenítendő adatokat”. Ilyenkor nagyítsunk rá jobban a területre, és próbáljuk meg újra.
+Ha a kijelölt terület túl nagy (adattípusfüggő), akkor a státusz azt fogja kiírni, hogy „A megjelenítő adatait nem sikerült betölteni”. Ilyenkor nagyítsunk rá jobban a területre, és próbáljuk meg újra.
 $$VISUALISER-HELP$$
 
 $$VISUALISER-ROUTER-INFO$$
-A térképen való útvonaltervezés végrehajtásáoz használd az alábbi linket.
+A térképen való útvonaltervezés végrehajtásához használd az alábbi linket.
 $$VISUALISER-ROUTER-INFO$$
