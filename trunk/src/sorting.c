@@ -76,7 +76,8 @@ typedef struct _thread_data
 #if defined(USE_PTHREADS) && USE_PTHREADS
 
 static pthread_mutex_t running_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t running_cond = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t files_mutex   = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t  running_cond  = PTHREAD_COND_INITIALIZER;
 
 #endif
 
@@ -914,6 +915,13 @@ static void *filesort_fixed_heapsort_thread(thread_data *thread)
 
  /* Create a temporary file and write the result */
 
+#if defined(USE_PTHREADS) && USE_PTHREADS
+
+ if(option_filesort_threads>1)
+    pthread_mutex_lock(&files_mutex);
+
+#endif
+
  fd=OpenFileBufferedNew(thread->filename);
 
  for(item=0;item<thread->n;item++)
@@ -925,6 +933,8 @@ static void *filesort_fixed_heapsort_thread(thread_data *thread)
 
  if(option_filesort_threads>1)
    {
+    pthread_mutex_unlock(&files_mutex);
+
     pthread_mutex_lock(&running_mutex);
 
     thread->running=2;
@@ -959,6 +969,13 @@ static void *filesort_vary_heapsort_thread(thread_data *thread)
 
  /* Create a temporary file and write the result */
 
+#if defined(USE_PTHREADS) && USE_PTHREADS
+
+ if(option_filesort_threads>1)
+    pthread_mutex_lock(&files_mutex);
+
+#endif
+
  fd=OpenFileBufferedNew(thread->filename);
 
  for(item=0;item<thread->n;item++)
@@ -974,6 +991,8 @@ static void *filesort_vary_heapsort_thread(thread_data *thread)
 
  if(option_filesort_threads>1)
    {
+    pthread_mutex_unlock(&files_mutex);
+
     pthread_mutex_lock(&running_mutex);
 
     thread->running=2;
