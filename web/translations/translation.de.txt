@@ -227,6 +227,9 @@
 @@VISUALISER-NUM-ERRORS@@	# Error Logs erstellt
 
 @@JUNCTIONS-BUTTON@@	Kreuzungen anzeigen
+$$JUNCTIONS-INFO$$
+Jeder Knoten der eine Sackgasse, eine Kreuzung zwischen zwei Autobahnen mit unterschiedlichen Typ (oder unterschiedlichen Eigenschaften), oder eine Kreuzung zwischen mehr als zwei Segmenten ist, wird rot dargestellt. 
+$$JUNCTIONS-INFO$$
 @@JUNCTIONS-1@@	ein Weg - Sackgasse
 @@JUNCTIONS-2@@	Aufeinandertreffen zweier Wege unterschiedlichen Typs.
 @@JUNCTIONS-3@@	Aufeinandertreffen von drei Wegen.
@@ -253,7 +256,7 @@ Jeder Abschnitt der ausgewählten Wegart ist gezeichnet.
 $$HIGHWAY-INFO$$
 
 $$BARRIER-INFO$$
-Jedes blockierendes Hindernis die den gewählten Transporttyp ist dargestellt.
+Jedes Hindernis welches den gewählten Transporttyp blockiert ist dargestellt.
 $$BARRIER-INFO$$
 
 @@TURNS-BUTTON@@	Zeige Abbiegebeschränkungen
