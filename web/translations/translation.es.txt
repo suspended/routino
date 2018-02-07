@@ -86,6 +86,32 @@
 @@LANGUAGE@@	Español
 @@LANGUAGE-WEBPAGE@@	Español webpage
 
+@@OPTION-TAB@@	Opciones
+@@OPTION-TAB-HELP@@	Configurar opciones de enrutado
+
+@@RESULTS-TAB@@	Resultados
+
+@@DATA-TAB-HELP@@	Ver información de la base de datos
+
+@@ROUTINO-ROUTER@@	Enrutador de OpenStreetMap Routino
+@@ROUTINO-WEBSITE@@	Sitio Web de Routino
+@@DOCUMENTATION@@	Documentación
+
+@@LANGUAGE-BOX@@	Idioma
+@@WAYPOINTS-BOX@@	Waypoints
+@@TRANSPORT-TYPE-BOX@@	Medio de locomoción
+@@SPEED-LIMITS-BOX@@	Limites de Velocidad
+@@OTHER-RESTRICTIONS-BOX@@	Otras restricciones
+@@FIND-BOX@@	Buscar
+@@LINKS-BOX@@	Enlaces
+@@HELP-BOX@@	Ayuda
+
+@@STATUS-BOX@@	Estado
+@@SHORTEST-ROUTE@@	Ruta más corta
+@@QUICKEST-ROUTE@@	Ruta mas rápida 
+
+@@WAYPOINT-CENTRE1@@	Centrar mapa en este Waypoint
+
 #
 # Visualiser specific translations
 #
