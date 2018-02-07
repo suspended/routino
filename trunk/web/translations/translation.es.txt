@@ -108,7 +108,7 @@
 
 @@STATUS-BOX@@	Estado
 @@SHORTEST-ROUTE@@	Ruta más corta
-@@QUICKEST-ROUTE@@	Ruta mas rápida 
+@@QUICKEST-ROUTE@@	Ruta mas rápida
 
 @@WAYPOINT-CENTRE1@@	Centrar mapa en este Waypoint
 
